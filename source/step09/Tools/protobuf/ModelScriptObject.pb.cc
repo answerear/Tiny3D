@@ -14,8 +14,6 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ColorList_CommonScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_FloatList_CommonScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Matrix4_CommonScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Aabb_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_ModelScriptObject_2eproto;
@@ -26,14 +24,10 @@ extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_I
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Obb_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Sphere_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_Vertex_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_VertexAttribute_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_VertexBuffer_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_VertexBuffer_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Quaternion_CommonScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_UintList_CommonScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Vector2List_CommonScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector3_CommonScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Vector3List_CommonScriptObject_2eproto;
 namespace Tiny3D {
 namespace Script {
 namespace ModelSystem {
@@ -44,14 +38,6 @@ class VertexAttributeDefaultTypeInternal {
 class VertexDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vertex> _instance;
-  const ::Tiny3D::Script::Vector2List* texcoord_;
-  const ::Tiny3D::Script::Vector3List* normal_;
-  const ::Tiny3D::Script::Vector3List* tangent_;
-  const ::Tiny3D::Script::Vector3List* binormal_;
-  const ::Tiny3D::Script::ColorList* diffuse_;
-  const ::Tiny3D::Script::ColorList* specular_;
-  const ::Tiny3D::Script::UintList* blend_indices_;
-  const ::Tiny3D::Script::FloatList* blend_weights_;
 } _Vertex_default_instance_;
 class VertexBufferDefaultTypeInternal {
  public:
@@ -271,14 +257,8 @@ static void InitDefaultsscc_info_Vertex_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::Vertex::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_Vertex_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 6, 0, InitDefaultsscc_info_Vertex_ModelScriptObject_2eproto}, {
-      &scc_info_Vector3_CommonScriptObject_2eproto.base,
-      &scc_info_Vector2List_CommonScriptObject_2eproto.base,
-      &scc_info_Vector3List_CommonScriptObject_2eproto.base,
-      &scc_info_ColorList_CommonScriptObject_2eproto.base,
-      &scc_info_UintList_CommonScriptObject_2eproto.base,
-      &scc_info_FloatList_CommonScriptObject_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vertex_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Vertex_ModelScriptObject_2eproto}, {}};
 
 static void InitDefaultsscc_info_VertexAttribute_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -305,10 +285,9 @@ static void InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::VertexBuffer::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_VertexBuffer_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto}, {
-      &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,
-      &scc_info_Vertex_ModelScriptObject_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_VertexBuffer_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto}, {
+      &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[13];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_ModelScriptObject_2eproto[5];
@@ -326,18 +305,9 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, _internal_metadata_),
   ~0u,  // no _extensions_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, _oneof_case_[0]),
+  ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, pos_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, texcoord_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, normal_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, tangent_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, binormal_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, diffuse_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, specular_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, blend_indices_),
-  offsetof(::Tiny3D::Script::ModelSystem::VertexDefaultTypeInternal, blend_weights_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, Extension_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, values_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexBuffer, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -441,17 +411,17 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexAttribute)},
   { 8, -1, sizeof(::Tiny3D::Script::ModelSystem::Vertex)},
-  { 23, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexBuffer)},
-  { 30, -1, sizeof(::Tiny3D::Script::ModelSystem::Sphere)},
-  { 37, -1, sizeof(::Tiny3D::Script::ModelSystem::Aabb)},
-  { 48, -1, sizeof(::Tiny3D::Script::ModelSystem::Obb)},
-  { 56, -1, sizeof(::Tiny3D::Script::ModelSystem::Bound)},
-  { 66, -1, sizeof(::Tiny3D::Script::ModelSystem::IndexBuffer)},
-  { 77, -1, sizeof(::Tiny3D::Script::ModelSystem::KeyframeData)},
-  { 87, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
-  { 95, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
-  { 103, 110, sizeof(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse)},
-  { 112, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
+  { 14, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexBuffer)},
+  { 21, -1, sizeof(::Tiny3D::Script::ModelSystem::Sphere)},
+  { 28, -1, sizeof(::Tiny3D::Script::ModelSystem::Aabb)},
+  { 39, -1, sizeof(::Tiny3D::Script::ModelSystem::Obb)},
+  { 47, -1, sizeof(::Tiny3D::Script::ModelSystem::Bound)},
+  { 57, -1, sizeof(::Tiny3D::Script::ModelSystem::IndexBuffer)},
+  { 68, -1, sizeof(::Tiny3D::Script::ModelSystem::KeyframeData)},
+  { 78, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
+  { 86, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
+  { 94, 101, sizeof(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse)},
+  { 103, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -484,64 +454,53 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "\007\022\023\n\017VAS_BLENDWEIGHT\020\010\"`\n\004Type\022\r\n\tVAT_FL"
   "OAT\020\000\022\016\n\nVAT_DOUBLE\020\001\022\014\n\010VAT_INT8\020\002\022\r\n\tV"
   "AT_INT16\020\003\022\r\n\tVAT_INT32\020\004\022\r\n\tVAT_INT64\020\005"
-  "\"\267\003\n\006Vertex\022#\n\003pos\030\001 \001(\0132\026.Tiny3D.Script"
-  ".Vector3\022.\n\010texcoord\030\002 \001(\0132\032.Tiny3D.Scri"
-  "pt.Vector2ListH\000\022,\n\006normal\030\003 \001(\0132\032.Tiny3"
-  "D.Script.Vector3ListH\000\022-\n\007tangent\030\004 \001(\0132"
-  "\032.Tiny3D.Script.Vector3ListH\000\022.\n\010binorma"
-  "l\030\005 \001(\0132\032.Tiny3D.Script.Vector3ListH\000\022+\n"
-  "\007diffuse\030\006 \001(\0132\030.Tiny3D.Script.ColorList"
-  "H\000\022,\n\010specular\030\007 \001(\0132\030.Tiny3D.Script.Col"
-  "orListH\000\0220\n\rblend_indices\030\010 \001(\0132\027.Tiny3D"
-  ".Script.UintListH\000\0221\n\rblend_weights\030\t \001("
-  "\0132\030.Tiny3D.Script.FloatListH\000B\013\n\tExtensi"
-  "on\"\203\001\n\014VertexBuffer\022>\n\nattributes\030\001 \003(\0132"
-  "*.Tiny3D.Script.ModelSystem.VertexAttrib"
-  "ute\0223\n\010vertices\030\002 \003(\0132!.Tiny3D.Script.Mo"
-  "delSystem.Vertex\"@\n\006Sphere\022&\n\006center\030\001 \001"
-  "(\0132\026.Tiny3D.Script.Vector3\022\016\n\006radius\030\002 \001"
-  "(\002\"`\n\004Aabb\022\r\n\005min_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002"
-  "\022\r\n\005min_y\030\003 \001(\002\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030"
-  "\005 \001(\002\022\r\n\005max_z\030\006 \001(\002\"c\n\003Obb\022&\n\006center\030\001 "
-  "\001(\0132\026.Tiny3D.Script.Vector3\022$\n\004axis\030\002 \003("
-  "\0132\026.Tiny3D.Script.Vector3\022\016\n\006extent\030\003 \003("
-  "\002\"\214\002\n\005Bound\0223\n\004type\030\001 \001(\0162%.Tiny3D.Scrip"
-  "t.ModelSystem.Bound.Type\0223\n\006sphere\030\002 \001(\013"
-  "2!.Tiny3D.Script.ModelSystem.SphereH\000\022/\n"
-  "\004aabb\030\003 \001(\0132\037.Tiny3D.Script.ModelSystem."
-  "AabbH\000\022-\n\003obb\030\004 \001(\0132\036.Tiny3D.Script.Mode"
-  "lSystem.ObbH\000\".\n\004Type\022\r\n\tBT_SPHERE\020\000\022\013\n\007"
-  "BT_AABB\020\001\022\n\n\006BT_OBB\020\002B\t\n\007ValueOf\"\316\001\n\013Ind"
-  "exBuffer\022\020\n\010is_16bit\030\001 \001(\010\022@\n\016primitive_"
-  "type\030\002 \001(\0162(.Tiny3D.Script.ModelSystem.P"
-  "rimitiveType\022\027\n\017primitive_count\030\003 \001(\r\022\020\n"
-  "\010material\030\004 \001(\t\022/\n\005bound\030\005 \001(\0132 .Tiny3D."
-  "Script.ModelSystem.Bound\022\017\n\007indices\030\006 \003("
-  "\005\"\266\001\n\014KeyframeData\022\014\n\004time\030\001 \001(\002\022-\n\013tran"
-  "slation\030\002 \001(\0132\026.Tiny3D.Script.Vector3H\000\022"
-  "-\n\010rotation\030\003 \001(\0132\031.Tiny3D.Script.Quater"
-  "nionH\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Script."
-  "Vector3H\000B\017\n\rKeyframeOneOf\"\306\001\n\010Keyframe\022"
-  "6\n\004type\030\001 \001(\0162(.Tiny3D.Script.ModelSyste"
-  "m.Keyframe.Type\022\014\n\004bone\030\002 \001(\t\0227\n\006frames\030"
-  "\003 \003(\0132\'.Tiny3D.Script.ModelSystem.Keyfra"
-  "meData\";\n\004Type\022\022\n\016KT_TRANSLATION\020\000\022\017\n\013KT"
-  "_ROTATION\020\001\022\016\n\nKT_SCALING\020\002\"g\n\rAnimation"
-  "Clip\022\014\n\004name\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002\0226\n\t"
-  "keyframes\030\003 \003(\0132#.Tiny3D.Script.ModelSys"
-  "tem.Keyframe\"\331\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022"
-  "\?\n\016vertex_buffers\030\002 \003(\0132\'.Tiny3D.Script."
-  "ModelSystem.VertexBuffer\022=\n\rindex_buffer"
-  "s\030\003 \003(\0132&.Tiny3D.Script.ModelSystem.Inde"
-  "xBuffer\022\?\n\006offset\030\004 \003(\0132/.Tiny3D.Script."
-  "ModelSystem.MeshData.OffsetEntry\0227\n\005clip"
-  "s\030\005 \003(\0132(.Tiny3D.Script.ModelSystem.Anim"
-  "ationClip\032E\n\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n"
-  "\005value\030\002 \001(\0132\026.Tiny3D.Script.Matrix4:\0028\001"
-  "*\211\001\n\rPrimitiveType\022\021\n\rPT_POINT_LIST\020\000\022\020\n"
-  "\014PT_LINE_LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT"
-  "_TRIANGLE_LIST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022"
-  "\023\n\017PT_TRIANGLE_FAN\020\005b\006proto3"
+  "\"\030\n\006Vertex\022\016\n\006values\030\001 \003(\002\"`\n\014VertexBuff"
+  "er\022>\n\nattributes\030\001 \003(\0132*.Tiny3D.Script.M"
+  "odelSystem.VertexAttribute\022\020\n\010vertices\030\002"
+  " \003(\002\"@\n\006Sphere\022&\n\006center\030\001 \001(\0132\026.Tiny3D."
+  "Script.Vector3\022\016\n\006radius\030\002 \001(\002\"`\n\004Aabb\022\r"
+  "\n\005min_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002\022\r\n\005min_y\030\003 "
+  "\001(\002\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030\005 \001(\002\022\r\n\005max"
+  "_z\030\006 \001(\002\"c\n\003Obb\022&\n\006center\030\001 \001(\0132\026.Tiny3D"
+  ".Script.Vector3\022$\n\004axis\030\002 \003(\0132\026.Tiny3D.S"
+  "cript.Vector3\022\016\n\006extent\030\003 \003(\002\"\214\002\n\005Bound\022"
+  "3\n\004type\030\001 \001(\0162%.Tiny3D.Script.ModelSyste"
+  "m.Bound.Type\0223\n\006sphere\030\002 \001(\0132!.Tiny3D.Sc"
+  "ript.ModelSystem.SphereH\000\022/\n\004aabb\030\003 \001(\0132"
+  "\037.Tiny3D.Script.ModelSystem.AabbH\000\022-\n\003ob"
+  "b\030\004 \001(\0132\036.Tiny3D.Script.ModelSystem.ObbH"
+  "\000\".\n\004Type\022\r\n\tBT_SPHERE\020\000\022\013\n\007BT_AABB\020\001\022\n\n"
+  "\006BT_OBB\020\002B\t\n\007ValueOf\"\316\001\n\013IndexBuffer\022\020\n\010"
+  "is_16bit\030\001 \001(\010\022@\n\016primitive_type\030\002 \001(\0162("
+  ".Tiny3D.Script.ModelSystem.PrimitiveType"
+  "\022\027\n\017primitive_count\030\003 \001(\r\022\020\n\010material\030\004 "
+  "\001(\t\022/\n\005bound\030\005 \001(\0132 .Tiny3D.Script.Model"
+  "System.Bound\022\017\n\007indices\030\006 \003(\005\"\266\001\n\014Keyfra"
+  "meData\022\014\n\004time\030\001 \001(\002\022-\n\013translation\030\002 \001("
+  "\0132\026.Tiny3D.Script.Vector3H\000\022-\n\010rotation\030"
+  "\003 \001(\0132\031.Tiny3D.Script.QuaternionH\000\022)\n\007sc"
+  "aling\030\004 \001(\0132\026.Tiny3D.Script.Vector3H\000B\017\n"
+  "\rKeyframeOneOf\"\306\001\n\010Keyframe\0226\n\004type\030\001 \001("
+  "\0162(.Tiny3D.Script.ModelSystem.Keyframe.T"
+  "ype\022\014\n\004bone\030\002 \001(\t\0227\n\006frames\030\003 \003(\0132\'.Tiny"
+  "3D.Script.ModelSystem.KeyframeData\";\n\004Ty"
+  "pe\022\022\n\016KT_TRANSLATION\020\000\022\017\n\013KT_ROTATION\020\001\022"
+  "\016\n\nKT_SCALING\020\002\"g\n\rAnimationClip\022\014\n\004name"
+  "\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002\0226\n\tkeyframes\030\003 "
+  "\003(\0132#.Tiny3D.Script.ModelSystem.Keyframe"
+  "\"\331\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022\?\n\016vertex_bu"
+  "ffers\030\002 \003(\0132\'.Tiny3D.Script.ModelSystem."
+  "VertexBuffer\022=\n\rindex_buffers\030\003 \003(\0132&.Ti"
+  "ny3D.Script.ModelSystem.IndexBuffer\022\?\n\006o"
+  "ffset\030\004 \003(\0132/.Tiny3D.Script.ModelSystem."
+  "MeshData.OffsetEntry\0227\n\005clips\030\005 \003(\0132(.Ti"
+  "ny3D.Script.ModelSystem.AnimationClip\032E\n"
+  "\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n\005value\030\002 \001(\013"
+  "2\026.Tiny3D.Script.Matrix4:\0028\001*\211\001\n\rPrimiti"
+  "veType\022\021\n\rPT_POINT_LIST\020\000\022\020\n\014PT_LINE_LIS"
+  "T\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT_TRIANGLE_LI"
+  "ST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022\023\n\017PT_TRIANG"
+  "LE_FAN\020\005b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_ModelScriptObject_2eproto_deps[1] = {
   &::descriptor_table_CommonScriptObject_2eproto,
@@ -564,7 +523,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Mod
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_ModelScriptObject_2eproto_once;
 static bool descriptor_table_ModelScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_ModelScriptObject_2eproto = {
-  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2828,
+  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2376,
   &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 13, 1,
   schemas, file_default_instances, TableStruct_ModelScriptObject_2eproto::offsets,
   file_level_metadata_ModelScriptObject_2eproto, 13, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
@@ -949,240 +908,11 @@ void VertexAttribute::InternalSwap(VertexAttribute* other) {
 // ===================================================================
 
 void Vertex::InitAsDefaultInstance() {
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_._instance.get_mutable()->pos_ = const_cast< ::Tiny3D::Script::Vector3*>(
-      ::Tiny3D::Script::Vector3::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.texcoord_ = const_cast< ::Tiny3D::Script::Vector2List*>(
-      ::Tiny3D::Script::Vector2List::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.normal_ = const_cast< ::Tiny3D::Script::Vector3List*>(
-      ::Tiny3D::Script::Vector3List::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.tangent_ = const_cast< ::Tiny3D::Script::Vector3List*>(
-      ::Tiny3D::Script::Vector3List::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.binormal_ = const_cast< ::Tiny3D::Script::Vector3List*>(
-      ::Tiny3D::Script::Vector3List::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.diffuse_ = const_cast< ::Tiny3D::Script::ColorList*>(
-      ::Tiny3D::Script::ColorList::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.specular_ = const_cast< ::Tiny3D::Script::ColorList*>(
-      ::Tiny3D::Script::ColorList::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.blend_indices_ = const_cast< ::Tiny3D::Script::UintList*>(
-      ::Tiny3D::Script::UintList::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_Vertex_default_instance_.blend_weights_ = const_cast< ::Tiny3D::Script::FloatList*>(
-      ::Tiny3D::Script::FloatList::internal_default_instance());
 }
 class Vertex::_Internal {
  public:
-  static const ::Tiny3D::Script::Vector3& pos(const Vertex* msg);
-  static const ::Tiny3D::Script::Vector2List& texcoord(const Vertex* msg);
-  static const ::Tiny3D::Script::Vector3List& normal(const Vertex* msg);
-  static const ::Tiny3D::Script::Vector3List& tangent(const Vertex* msg);
-  static const ::Tiny3D::Script::Vector3List& binormal(const Vertex* msg);
-  static const ::Tiny3D::Script::ColorList& diffuse(const Vertex* msg);
-  static const ::Tiny3D::Script::ColorList& specular(const Vertex* msg);
-  static const ::Tiny3D::Script::UintList& blend_indices(const Vertex* msg);
-  static const ::Tiny3D::Script::FloatList& blend_weights(const Vertex* msg);
 };
 
-const ::Tiny3D::Script::Vector3&
-Vertex::_Internal::pos(const Vertex* msg) {
-  return *msg->pos_;
-}
-const ::Tiny3D::Script::Vector2List&
-Vertex::_Internal::texcoord(const Vertex* msg) {
-  return *msg->Extension_.texcoord_;
-}
-const ::Tiny3D::Script::Vector3List&
-Vertex::_Internal::normal(const Vertex* msg) {
-  return *msg->Extension_.normal_;
-}
-const ::Tiny3D::Script::Vector3List&
-Vertex::_Internal::tangent(const Vertex* msg) {
-  return *msg->Extension_.tangent_;
-}
-const ::Tiny3D::Script::Vector3List&
-Vertex::_Internal::binormal(const Vertex* msg) {
-  return *msg->Extension_.binormal_;
-}
-const ::Tiny3D::Script::ColorList&
-Vertex::_Internal::diffuse(const Vertex* msg) {
-  return *msg->Extension_.diffuse_;
-}
-const ::Tiny3D::Script::ColorList&
-Vertex::_Internal::specular(const Vertex* msg) {
-  return *msg->Extension_.specular_;
-}
-const ::Tiny3D::Script::UintList&
-Vertex::_Internal::blend_indices(const Vertex* msg) {
-  return *msg->Extension_.blend_indices_;
-}
-const ::Tiny3D::Script::FloatList&
-Vertex::_Internal::blend_weights(const Vertex* msg) {
-  return *msg->Extension_.blend_weights_;
-}
-void Vertex::clear_pos() {
-  if (GetArenaNoVirtual() == nullptr && pos_ != nullptr) {
-    delete pos_;
-  }
-  pos_ = nullptr;
-}
-void Vertex::set_allocated_texcoord(::Tiny3D::Script::Vector2List* texcoord) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (texcoord) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      texcoord = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, texcoord, submessage_arena);
-    }
-    set_has_texcoord();
-    Extension_.texcoord_ = texcoord;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.texcoord)
-}
-void Vertex::clear_texcoord() {
-  if (_internal_has_texcoord()) {
-    delete Extension_.texcoord_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_normal(::Tiny3D::Script::Vector3List* normal) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (normal) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      normal = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, normal, submessage_arena);
-    }
-    set_has_normal();
-    Extension_.normal_ = normal;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.normal)
-}
-void Vertex::clear_normal() {
-  if (_internal_has_normal()) {
-    delete Extension_.normal_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_tangent(::Tiny3D::Script::Vector3List* tangent) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (tangent) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      tangent = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, tangent, submessage_arena);
-    }
-    set_has_tangent();
-    Extension_.tangent_ = tangent;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.tangent)
-}
-void Vertex::clear_tangent() {
-  if (_internal_has_tangent()) {
-    delete Extension_.tangent_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_binormal(::Tiny3D::Script::Vector3List* binormal) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (binormal) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      binormal = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, binormal, submessage_arena);
-    }
-    set_has_binormal();
-    Extension_.binormal_ = binormal;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.binormal)
-}
-void Vertex::clear_binormal() {
-  if (_internal_has_binormal()) {
-    delete Extension_.binormal_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_diffuse(::Tiny3D::Script::ColorList* diffuse) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (diffuse) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      diffuse = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, diffuse, submessage_arena);
-    }
-    set_has_diffuse();
-    Extension_.diffuse_ = diffuse;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.diffuse)
-}
-void Vertex::clear_diffuse() {
-  if (_internal_has_diffuse()) {
-    delete Extension_.diffuse_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_specular(::Tiny3D::Script::ColorList* specular) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (specular) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      specular = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, specular, submessage_arena);
-    }
-    set_has_specular();
-    Extension_.specular_ = specular;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.specular)
-}
-void Vertex::clear_specular() {
-  if (_internal_has_specular()) {
-    delete Extension_.specular_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_blend_indices(::Tiny3D::Script::UintList* blend_indices) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (blend_indices) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      blend_indices = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, blend_indices, submessage_arena);
-    }
-    set_has_blend_indices();
-    Extension_.blend_indices_ = blend_indices;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.blend_indices)
-}
-void Vertex::clear_blend_indices() {
-  if (_internal_has_blend_indices()) {
-    delete Extension_.blend_indices_;
-    clear_has_Extension();
-  }
-}
-void Vertex::set_allocated_blend_weights(::Tiny3D::Script::FloatList* blend_weights) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  clear_Extension();
-  if (blend_weights) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      blend_weights = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, blend_weights, submessage_arena);
-    }
-    set_has_blend_weights();
-    Extension_.blend_weights_ = blend_weights;
-  }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.blend_weights)
-}
-void Vertex::clear_blend_weights() {
-  if (_internal_has_blend_weights()) {
-    delete Extension_.blend_weights_;
-    clear_has_Extension();
-  }
-}
 Vertex::Vertex()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -1190,58 +920,13 @@ Vertex::Vertex()
 }
 Vertex::Vertex(const Vertex& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_pos()) {
-    pos_ = new ::Tiny3D::Script::Vector3(*from.pos_);
-  } else {
-    pos_ = nullptr;
-  }
-  clear_has_Extension();
-  switch (from.Extension_case()) {
-    case kTexcoord: {
-      _internal_mutable_texcoord()->::Tiny3D::Script::Vector2List::MergeFrom(from._internal_texcoord());
-      break;
-    }
-    case kNormal: {
-      _internal_mutable_normal()->::Tiny3D::Script::Vector3List::MergeFrom(from._internal_normal());
-      break;
-    }
-    case kTangent: {
-      _internal_mutable_tangent()->::Tiny3D::Script::Vector3List::MergeFrom(from._internal_tangent());
-      break;
-    }
-    case kBinormal: {
-      _internal_mutable_binormal()->::Tiny3D::Script::Vector3List::MergeFrom(from._internal_binormal());
-      break;
-    }
-    case kDiffuse: {
-      _internal_mutable_diffuse()->::Tiny3D::Script::ColorList::MergeFrom(from._internal_diffuse());
-      break;
-    }
-    case kSpecular: {
-      _internal_mutable_specular()->::Tiny3D::Script::ColorList::MergeFrom(from._internal_specular());
-      break;
-    }
-    case kBlendIndices: {
-      _internal_mutable_blend_indices()->::Tiny3D::Script::UintList::MergeFrom(from._internal_blend_indices());
-      break;
-    }
-    case kBlendWeights: {
-      _internal_mutable_blend_weights()->::Tiny3D::Script::FloatList::MergeFrom(from._internal_blend_weights());
-      break;
-    }
-    case EXTENSION_NOT_SET: {
-      break;
-    }
-  }
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Vertex)
 }
 
 void Vertex::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Vertex_ModelScriptObject_2eproto.base);
-  pos_ = nullptr;
-  clear_has_Extension();
 }
 
 Vertex::~Vertex() {
@@ -1250,10 +935,6 @@ Vertex::~Vertex() {
 }
 
 void Vertex::SharedDtor() {
-  if (this != internal_default_instance()) delete pos_;
-  if (has_Extension()) {
-    clear_Extension();
-  }
 }
 
 void Vertex::SetCachedSize(int size) const {
@@ -1265,60 +946,13 @@ const Vertex& Vertex::default_instance() {
 }
 
 
-void Vertex::clear_Extension() {
-// @@protoc_insertion_point(one_of_clear_start:Tiny3D.Script.ModelSystem.Vertex)
-  switch (Extension_case()) {
-    case kTexcoord: {
-      delete Extension_.texcoord_;
-      break;
-    }
-    case kNormal: {
-      delete Extension_.normal_;
-      break;
-    }
-    case kTangent: {
-      delete Extension_.tangent_;
-      break;
-    }
-    case kBinormal: {
-      delete Extension_.binormal_;
-      break;
-    }
-    case kDiffuse: {
-      delete Extension_.diffuse_;
-      break;
-    }
-    case kSpecular: {
-      delete Extension_.specular_;
-      break;
-    }
-    case kBlendIndices: {
-      delete Extension_.blend_indices_;
-      break;
-    }
-    case kBlendWeights: {
-      delete Extension_.blend_weights_;
-      break;
-    }
-    case EXTENSION_NOT_SET: {
-      break;
-    }
-  }
-  _oneof_case_[0] = EXTENSION_NOT_SET;
-}
-
-
 void Vertex::Clear() {
 // @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Vertex)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaNoVirtual() == nullptr && pos_ != nullptr) {
-    delete pos_;
-  }
-  pos_ = nullptr;
-  clear_Extension();
+  values_.Clear();
   _internal_metadata_.Clear();
 }
 
@@ -1329,67 +963,14 @@ const char* Vertex::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // .Tiny3D.Script.Vector3 pos = 1;
+      // repeated float values = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_pos(), ptr);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_values(), ptr, ctx);
           CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.Vector2List texcoord = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ctx->ParseMessage(_internal_mutable_texcoord(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.Vector3List normal = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_normal(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.Vector3List tangent = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(_internal_mutable_tangent(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.Vector3List binormal = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ctx->ParseMessage(_internal_mutable_binormal(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.ColorList diffuse = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ctx->ParseMessage(_internal_mutable_diffuse(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.ColorList specular = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
-          ptr = ctx->ParseMessage(_internal_mutable_specular(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.UintList blend_indices = 8;
-      case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
-          ptr = ctx->ParseMessage(_internal_mutable_blend_indices(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.FloatList blend_weights = 9;
-      case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 74)) {
-          ptr = ctx->ParseMessage(_internal_mutable_blend_weights(), ptr);
-          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13) {
+          _internal_add_values(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
       default: {
@@ -1418,76 +999,9 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .Tiny3D.Script.Vector3 pos = 1;
-  if (this->has_pos()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::pos(this), target, stream);
-  }
-
-  // .Tiny3D.Script.Vector2List texcoord = 2;
-  if (_internal_has_texcoord()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::texcoord(this), target, stream);
-  }
-
-  // .Tiny3D.Script.Vector3List normal = 3;
-  if (_internal_has_normal()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::normal(this), target, stream);
-  }
-
-  // .Tiny3D.Script.Vector3List tangent = 4;
-  if (_internal_has_tangent()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::tangent(this), target, stream);
-  }
-
-  // .Tiny3D.Script.Vector3List binormal = 5;
-  if (_internal_has_binormal()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::binormal(this), target, stream);
-  }
-
-  // .Tiny3D.Script.ColorList diffuse = 6;
-  if (_internal_has_diffuse()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::diffuse(this), target, stream);
-  }
-
-  // .Tiny3D.Script.ColorList specular = 7;
-  if (_internal_has_specular()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        7, _Internal::specular(this), target, stream);
-  }
-
-  // .Tiny3D.Script.UintList blend_indices = 8;
-  if (_internal_has_blend_indices()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        8, _Internal::blend_indices(this), target, stream);
-  }
-
-  // .Tiny3D.Script.FloatList blend_weights = 9;
-  if (_internal_has_blend_weights()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        9, _Internal::blend_weights(this), target, stream);
+  // repeated float values = 1;
+  if (this->_internal_values_size() > 0) {
+    target = stream->WriteFixedPacked(1, _internal_values(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1506,74 +1020,21 @@ size_t Vertex::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // .Tiny3D.Script.Vector3 pos = 1;
-  if (this->has_pos()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *pos_);
+  // repeated float values = 1;
+  {
+    unsigned int count = static_cast<unsigned int>(this->_internal_values_size());
+    size_t data_size = 4UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _values_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
   }
 
-  switch (Extension_case()) {
-    // .Tiny3D.Script.Vector2List texcoord = 2;
-    case kTexcoord: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.texcoord_);
-      break;
-    }
-    // .Tiny3D.Script.Vector3List normal = 3;
-    case kNormal: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.normal_);
-      break;
-    }
-    // .Tiny3D.Script.Vector3List tangent = 4;
-    case kTangent: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.tangent_);
-      break;
-    }
-    // .Tiny3D.Script.Vector3List binormal = 5;
-    case kBinormal: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.binormal_);
-      break;
-    }
-    // .Tiny3D.Script.ColorList diffuse = 6;
-    case kDiffuse: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.diffuse_);
-      break;
-    }
-    // .Tiny3D.Script.ColorList specular = 7;
-    case kSpecular: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.specular_);
-      break;
-    }
-    // .Tiny3D.Script.UintList blend_indices = 8;
-    case kBlendIndices: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.blend_indices_);
-      break;
-    }
-    // .Tiny3D.Script.FloatList blend_weights = 9;
-    case kBlendWeights: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *Extension_.blend_weights_);
-      break;
-    }
-    case EXTENSION_NOT_SET: {
-      break;
-    }
-  }
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -1605,46 +1066,7 @@ void Vertex::MergeFrom(const Vertex& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.has_pos()) {
-    _internal_mutable_pos()->::Tiny3D::Script::Vector3::MergeFrom(from._internal_pos());
-  }
-  switch (from.Extension_case()) {
-    case kTexcoord: {
-      _internal_mutable_texcoord()->::Tiny3D::Script::Vector2List::MergeFrom(from._internal_texcoord());
-      break;
-    }
-    case kNormal: {
-      _internal_mutable_normal()->::Tiny3D::Script::Vector3List::MergeFrom(from._internal_normal());
-      break;
-    }
-    case kTangent: {
-      _internal_mutable_tangent()->::Tiny3D::Script::Vector3List::MergeFrom(from._internal_tangent());
-      break;
-    }
-    case kBinormal: {
-      _internal_mutable_binormal()->::Tiny3D::Script::Vector3List::MergeFrom(from._internal_binormal());
-      break;
-    }
-    case kDiffuse: {
-      _internal_mutable_diffuse()->::Tiny3D::Script::ColorList::MergeFrom(from._internal_diffuse());
-      break;
-    }
-    case kSpecular: {
-      _internal_mutable_specular()->::Tiny3D::Script::ColorList::MergeFrom(from._internal_specular());
-      break;
-    }
-    case kBlendIndices: {
-      _internal_mutable_blend_indices()->::Tiny3D::Script::UintList::MergeFrom(from._internal_blend_indices());
-      break;
-    }
-    case kBlendWeights: {
-      _internal_mutable_blend_weights()->::Tiny3D::Script::FloatList::MergeFrom(from._internal_blend_weights());
-      break;
-    }
-    case EXTENSION_NOT_SET: {
-      break;
-    }
-  }
+  values_.MergeFrom(from.values_);
 }
 
 void Vertex::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1668,9 +1090,7 @@ bool Vertex::IsInitialized() const {
 void Vertex::InternalSwap(Vertex* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(pos_, other->pos_);
-  swap(Extension_, other->Extension_);
-  swap(_oneof_case_[0], other->_oneof_case_[0]);
+  values_.InternalSwap(&other->values_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Vertex::GetMetadata() const {
@@ -1751,16 +1171,14 @@ const char* VertexBuffer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.ModelSystem.Vertex vertices = 2;
+      // repeated float vertices = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_vertices(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_vertices(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21) {
+          _internal_add_vertices(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
       default: {
@@ -1797,12 +1215,9 @@ failure:
       InternalWriteMessage(1, this->_internal_attributes(i), target, stream);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.Vertex vertices = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_vertices_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, this->_internal_vertices(i), target, stream);
+  // repeated float vertices = 2;
+  if (this->_internal_vertices_size() > 0) {
+    target = stream->WriteFixedPacked(2, _internal_vertices(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1828,11 +1243,19 @@ size_t VertexBuffer::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.Vertex vertices = 2;
-  total_size += 1UL * this->_internal_vertices_size();
-  for (const auto& msg : this->vertices_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  // repeated float vertices = 2;
+  {
+    unsigned int count = static_cast<unsigned int>(this->_internal_vertices_size());
+    size_t data_size = 4UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _vertices_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {

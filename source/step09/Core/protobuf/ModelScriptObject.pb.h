@@ -535,18 +535,6 @@ class Vertex :
   }
   static const Vertex& default_instance();
 
-  enum ExtensionCase {
-    kTexcoord = 2,
-    kNormal = 3,
-    kTangent = 4,
-    kBinormal = 5,
-    kDiffuse = 6,
-    kSpecular = 7,
-    kBlendIndices = 8,
-    kBlendWeights = 9,
-    EXTENSION_NOT_SET = 0,
-  };
-
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
   static inline const Vertex* internal_default_instance() {
     return reinterpret_cast<const Vertex*>(
@@ -617,184 +605,38 @@ class Vertex :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPosFieldNumber = 1,
-    kTexcoordFieldNumber = 2,
-    kNormalFieldNumber = 3,
-    kTangentFieldNumber = 4,
-    kBinormalFieldNumber = 5,
-    kDiffuseFieldNumber = 6,
-    kSpecularFieldNumber = 7,
-    kBlendIndicesFieldNumber = 8,
-    kBlendWeightsFieldNumber = 9,
+    kValuesFieldNumber = 1,
   };
-  // .Tiny3D.Script.Vector3 pos = 1;
-  bool has_pos() const;
+  // repeated float values = 1;
+  int values_size() const;
   private:
-  bool _internal_has_pos() const;
+  int _internal_values_size() const;
   public:
-  void clear_pos();
-  const ::Tiny3D::Script::Vector3& pos() const;
-  ::Tiny3D::Script::Vector3* release_pos();
-  ::Tiny3D::Script::Vector3* mutable_pos();
-  void set_allocated_pos(::Tiny3D::Script::Vector3* pos);
+  void clear_values();
   private:
-  const ::Tiny3D::Script::Vector3& _internal_pos() const;
-  ::Tiny3D::Script::Vector3* _internal_mutable_pos();
+  float _internal_values(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      _internal_values() const;
+  void _internal_add_values(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      _internal_mutable_values();
   public:
+  float values(int index) const;
+  void set_values(int index, float value);
+  void add_values(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      values() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      mutable_values();
 
-  // .Tiny3D.Script.Vector2List texcoord = 2;
-  bool has_texcoord() const;
-  private:
-  bool _internal_has_texcoord() const;
-  public:
-  void clear_texcoord();
-  const ::Tiny3D::Script::Vector2List& texcoord() const;
-  ::Tiny3D::Script::Vector2List* release_texcoord();
-  ::Tiny3D::Script::Vector2List* mutable_texcoord();
-  void set_allocated_texcoord(::Tiny3D::Script::Vector2List* texcoord);
-  private:
-  const ::Tiny3D::Script::Vector2List& _internal_texcoord() const;
-  ::Tiny3D::Script::Vector2List* _internal_mutable_texcoord();
-  public:
-
-  // .Tiny3D.Script.Vector3List normal = 3;
-  bool has_normal() const;
-  private:
-  bool _internal_has_normal() const;
-  public:
-  void clear_normal();
-  const ::Tiny3D::Script::Vector3List& normal() const;
-  ::Tiny3D::Script::Vector3List* release_normal();
-  ::Tiny3D::Script::Vector3List* mutable_normal();
-  void set_allocated_normal(::Tiny3D::Script::Vector3List* normal);
-  private:
-  const ::Tiny3D::Script::Vector3List& _internal_normal() const;
-  ::Tiny3D::Script::Vector3List* _internal_mutable_normal();
-  public:
-
-  // .Tiny3D.Script.Vector3List tangent = 4;
-  bool has_tangent() const;
-  private:
-  bool _internal_has_tangent() const;
-  public:
-  void clear_tangent();
-  const ::Tiny3D::Script::Vector3List& tangent() const;
-  ::Tiny3D::Script::Vector3List* release_tangent();
-  ::Tiny3D::Script::Vector3List* mutable_tangent();
-  void set_allocated_tangent(::Tiny3D::Script::Vector3List* tangent);
-  private:
-  const ::Tiny3D::Script::Vector3List& _internal_tangent() const;
-  ::Tiny3D::Script::Vector3List* _internal_mutable_tangent();
-  public:
-
-  // .Tiny3D.Script.Vector3List binormal = 5;
-  bool has_binormal() const;
-  private:
-  bool _internal_has_binormal() const;
-  public:
-  void clear_binormal();
-  const ::Tiny3D::Script::Vector3List& binormal() const;
-  ::Tiny3D::Script::Vector3List* release_binormal();
-  ::Tiny3D::Script::Vector3List* mutable_binormal();
-  void set_allocated_binormal(::Tiny3D::Script::Vector3List* binormal);
-  private:
-  const ::Tiny3D::Script::Vector3List& _internal_binormal() const;
-  ::Tiny3D::Script::Vector3List* _internal_mutable_binormal();
-  public:
-
-  // .Tiny3D.Script.ColorList diffuse = 6;
-  bool has_diffuse() const;
-  private:
-  bool _internal_has_diffuse() const;
-  public:
-  void clear_diffuse();
-  const ::Tiny3D::Script::ColorList& diffuse() const;
-  ::Tiny3D::Script::ColorList* release_diffuse();
-  ::Tiny3D::Script::ColorList* mutable_diffuse();
-  void set_allocated_diffuse(::Tiny3D::Script::ColorList* diffuse);
-  private:
-  const ::Tiny3D::Script::ColorList& _internal_diffuse() const;
-  ::Tiny3D::Script::ColorList* _internal_mutable_diffuse();
-  public:
-
-  // .Tiny3D.Script.ColorList specular = 7;
-  bool has_specular() const;
-  private:
-  bool _internal_has_specular() const;
-  public:
-  void clear_specular();
-  const ::Tiny3D::Script::ColorList& specular() const;
-  ::Tiny3D::Script::ColorList* release_specular();
-  ::Tiny3D::Script::ColorList* mutable_specular();
-  void set_allocated_specular(::Tiny3D::Script::ColorList* specular);
-  private:
-  const ::Tiny3D::Script::ColorList& _internal_specular() const;
-  ::Tiny3D::Script::ColorList* _internal_mutable_specular();
-  public:
-
-  // .Tiny3D.Script.UintList blend_indices = 8;
-  bool has_blend_indices() const;
-  private:
-  bool _internal_has_blend_indices() const;
-  public:
-  void clear_blend_indices();
-  const ::Tiny3D::Script::UintList& blend_indices() const;
-  ::Tiny3D::Script::UintList* release_blend_indices();
-  ::Tiny3D::Script::UintList* mutable_blend_indices();
-  void set_allocated_blend_indices(::Tiny3D::Script::UintList* blend_indices);
-  private:
-  const ::Tiny3D::Script::UintList& _internal_blend_indices() const;
-  ::Tiny3D::Script::UintList* _internal_mutable_blend_indices();
-  public:
-
-  // .Tiny3D.Script.FloatList blend_weights = 9;
-  bool has_blend_weights() const;
-  private:
-  bool _internal_has_blend_weights() const;
-  public:
-  void clear_blend_weights();
-  const ::Tiny3D::Script::FloatList& blend_weights() const;
-  ::Tiny3D::Script::FloatList* release_blend_weights();
-  ::Tiny3D::Script::FloatList* mutable_blend_weights();
-  void set_allocated_blend_weights(::Tiny3D::Script::FloatList* blend_weights);
-  private:
-  const ::Tiny3D::Script::FloatList& _internal_blend_weights() const;
-  ::Tiny3D::Script::FloatList* _internal_mutable_blend_weights();
-  public:
-
-  void clear_Extension();
-  ExtensionCase Extension_case() const;
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.Vertex)
  private:
   class _Internal;
-  void set_has_texcoord();
-  void set_has_normal();
-  void set_has_tangent();
-  void set_has_binormal();
-  void set_has_diffuse();
-  void set_has_specular();
-  void set_has_blend_indices();
-  void set_has_blend_weights();
-
-  inline bool has_Extension() const;
-  inline void clear_has_Extension();
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::Tiny3D::Script::Vector3* pos_;
-  union ExtensionUnion {
-    ExtensionUnion() {}
-    ::Tiny3D::Script::Vector2List* texcoord_;
-    ::Tiny3D::Script::Vector3List* normal_;
-    ::Tiny3D::Script::Vector3List* tangent_;
-    ::Tiny3D::Script::Vector3List* binormal_;
-    ::Tiny3D::Script::ColorList* diffuse_;
-    ::Tiny3D::Script::ColorList* specular_;
-    ::Tiny3D::Script::UintList* blend_indices_;
-    ::Tiny3D::Script::FloatList* blend_weights_;
-  } Extension_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > values_;
+  mutable std::atomic<int> _values_cached_byte_size_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
-
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
 // -------------------------------------------------------------------
@@ -926,23 +768,27 @@ class VertexBuffer :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexAttribute >&
       attributes() const;
 
-  // repeated .Tiny3D.Script.ModelSystem.Vertex vertices = 2;
+  // repeated float vertices = 2;
   int vertices_size() const;
   private:
   int _internal_vertices_size() const;
   public:
   void clear_vertices();
-  ::Tiny3D::Script::ModelSystem::Vertex* mutable_vertices(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Vertex >*
-      mutable_vertices();
   private:
-  const ::Tiny3D::Script::ModelSystem::Vertex& _internal_vertices(int index) const;
-  ::Tiny3D::Script::ModelSystem::Vertex* _internal_add_vertices();
+  float _internal_vertices(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      _internal_vertices() const;
+  void _internal_add_vertices(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      _internal_mutable_vertices();
   public:
-  const ::Tiny3D::Script::ModelSystem::Vertex& vertices(int index) const;
-  ::Tiny3D::Script::ModelSystem::Vertex* add_vertices();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Vertex >&
+  float vertices(int index) const;
+  void set_vertices(int index, float value);
+  void add_vertices(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       vertices() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      mutable_vertices();
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.VertexBuffer)
  private:
@@ -950,7 +796,8 @@ class VertexBuffer :
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexAttribute > attributes_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Vertex > vertices_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > vertices_;
+  mutable std::atomic<int> _vertices_cached_byte_size_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
@@ -2792,421 +2639,53 @@ inline void VertexAttribute::set_size(::PROTOBUF_NAMESPACE_ID::uint32 value) {
 
 // Vertex
 
-// .Tiny3D.Script.Vector3 pos = 1;
-inline bool Vertex::_internal_has_pos() const {
-  return this != internal_default_instance() && pos_ != nullptr;
+// repeated float values = 1;
+inline int Vertex::_internal_values_size() const {
+  return values_.size();
 }
-inline bool Vertex::has_pos() const {
-  return _internal_has_pos();
+inline int Vertex::values_size() const {
+  return _internal_values_size();
 }
-inline const ::Tiny3D::Script::Vector3& Vertex::_internal_pos() const {
-  const ::Tiny3D::Script::Vector3* p = pos_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::Vector3*>(
-      &::Tiny3D::Script::_Vector3_default_instance_);
+inline void Vertex::clear_values() {
+  values_.Clear();
 }
-inline const ::Tiny3D::Script::Vector3& Vertex::pos() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.pos)
-  return _internal_pos();
+inline float Vertex::_internal_values(int index) const {
+  return values_.Get(index);
 }
-inline ::Tiny3D::Script::Vector3* Vertex::release_pos() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.pos)
-  
-  ::Tiny3D::Script::Vector3* temp = pos_;
-  pos_ = nullptr;
-  return temp;
+inline float Vertex::values(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.values)
+  return _internal_values(index);
 }
-inline ::Tiny3D::Script::Vector3* Vertex::_internal_mutable_pos() {
-  
-  if (pos_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Tiny3D::Script::Vector3>(GetArenaNoVirtual());
-    pos_ = p;
-  }
-  return pos_;
+inline void Vertex::set_values(int index, float value) {
+  values_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.Vertex.values)
 }
-inline ::Tiny3D::Script::Vector3* Vertex::mutable_pos() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.pos)
-  return _internal_mutable_pos();
+inline void Vertex::_internal_add_values(float value) {
+  values_.Add(value);
 }
-inline void Vertex::set_allocated_pos(::Tiny3D::Script::Vector3* pos) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(pos_);
-  }
-  if (pos) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
-    if (message_arena != submessage_arena) {
-      pos = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, pos, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  pos_ = pos;
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Vertex.pos)
+inline void Vertex::add_values(float value) {
+  _internal_add_values(value);
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.Vertex.values)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+Vertex::_internal_values() const {
+  return values_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+Vertex::values() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.Vertex.values)
+  return _internal_values();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+Vertex::_internal_mutable_values() {
+  return &values_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+Vertex::mutable_values() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.Vertex.values)
+  return _internal_mutable_values();
 }
 
-// .Tiny3D.Script.Vector2List texcoord = 2;
-inline bool Vertex::_internal_has_texcoord() const {
-  return Extension_case() == kTexcoord;
-}
-inline bool Vertex::has_texcoord() const {
-  return _internal_has_texcoord();
-}
-inline void Vertex::set_has_texcoord() {
-  _oneof_case_[0] = kTexcoord;
-}
-inline ::Tiny3D::Script::Vector2List* Vertex::release_texcoord() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.texcoord)
-  if (_internal_has_texcoord()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::Vector2List* temp = Extension_.texcoord_;
-    Extension_.texcoord_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::Vector2List& Vertex::_internal_texcoord() const {
-  return _internal_has_texcoord()
-      ? *Extension_.texcoord_
-      : *reinterpret_cast< ::Tiny3D::Script::Vector2List*>(&::Tiny3D::Script::_Vector2List_default_instance_);
-}
-inline const ::Tiny3D::Script::Vector2List& Vertex::texcoord() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.texcoord)
-  return _internal_texcoord();
-}
-inline ::Tiny3D::Script::Vector2List* Vertex::_internal_mutable_texcoord() {
-  if (!_internal_has_texcoord()) {
-    clear_Extension();
-    set_has_texcoord();
-    Extension_.texcoord_ = CreateMaybeMessage< ::Tiny3D::Script::Vector2List >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.texcoord_;
-}
-inline ::Tiny3D::Script::Vector2List* Vertex::mutable_texcoord() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.texcoord)
-  return _internal_mutable_texcoord();
-}
-
-// .Tiny3D.Script.Vector3List normal = 3;
-inline bool Vertex::_internal_has_normal() const {
-  return Extension_case() == kNormal;
-}
-inline bool Vertex::has_normal() const {
-  return _internal_has_normal();
-}
-inline void Vertex::set_has_normal() {
-  _oneof_case_[0] = kNormal;
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::release_normal() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.normal)
-  if (_internal_has_normal()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::Vector3List* temp = Extension_.normal_;
-    Extension_.normal_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::Vector3List& Vertex::_internal_normal() const {
-  return _internal_has_normal()
-      ? *Extension_.normal_
-      : *reinterpret_cast< ::Tiny3D::Script::Vector3List*>(&::Tiny3D::Script::_Vector3List_default_instance_);
-}
-inline const ::Tiny3D::Script::Vector3List& Vertex::normal() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.normal)
-  return _internal_normal();
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::_internal_mutable_normal() {
-  if (!_internal_has_normal()) {
-    clear_Extension();
-    set_has_normal();
-    Extension_.normal_ = CreateMaybeMessage< ::Tiny3D::Script::Vector3List >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.normal_;
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::mutable_normal() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.normal)
-  return _internal_mutable_normal();
-}
-
-// .Tiny3D.Script.Vector3List tangent = 4;
-inline bool Vertex::_internal_has_tangent() const {
-  return Extension_case() == kTangent;
-}
-inline bool Vertex::has_tangent() const {
-  return _internal_has_tangent();
-}
-inline void Vertex::set_has_tangent() {
-  _oneof_case_[0] = kTangent;
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::release_tangent() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.tangent)
-  if (_internal_has_tangent()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::Vector3List* temp = Extension_.tangent_;
-    Extension_.tangent_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::Vector3List& Vertex::_internal_tangent() const {
-  return _internal_has_tangent()
-      ? *Extension_.tangent_
-      : *reinterpret_cast< ::Tiny3D::Script::Vector3List*>(&::Tiny3D::Script::_Vector3List_default_instance_);
-}
-inline const ::Tiny3D::Script::Vector3List& Vertex::tangent() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.tangent)
-  return _internal_tangent();
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::_internal_mutable_tangent() {
-  if (!_internal_has_tangent()) {
-    clear_Extension();
-    set_has_tangent();
-    Extension_.tangent_ = CreateMaybeMessage< ::Tiny3D::Script::Vector3List >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.tangent_;
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::mutable_tangent() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.tangent)
-  return _internal_mutable_tangent();
-}
-
-// .Tiny3D.Script.Vector3List binormal = 5;
-inline bool Vertex::_internal_has_binormal() const {
-  return Extension_case() == kBinormal;
-}
-inline bool Vertex::has_binormal() const {
-  return _internal_has_binormal();
-}
-inline void Vertex::set_has_binormal() {
-  _oneof_case_[0] = kBinormal;
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::release_binormal() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.binormal)
-  if (_internal_has_binormal()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::Vector3List* temp = Extension_.binormal_;
-    Extension_.binormal_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::Vector3List& Vertex::_internal_binormal() const {
-  return _internal_has_binormal()
-      ? *Extension_.binormal_
-      : *reinterpret_cast< ::Tiny3D::Script::Vector3List*>(&::Tiny3D::Script::_Vector3List_default_instance_);
-}
-inline const ::Tiny3D::Script::Vector3List& Vertex::binormal() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.binormal)
-  return _internal_binormal();
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::_internal_mutable_binormal() {
-  if (!_internal_has_binormal()) {
-    clear_Extension();
-    set_has_binormal();
-    Extension_.binormal_ = CreateMaybeMessage< ::Tiny3D::Script::Vector3List >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.binormal_;
-}
-inline ::Tiny3D::Script::Vector3List* Vertex::mutable_binormal() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.binormal)
-  return _internal_mutable_binormal();
-}
-
-// .Tiny3D.Script.ColorList diffuse = 6;
-inline bool Vertex::_internal_has_diffuse() const {
-  return Extension_case() == kDiffuse;
-}
-inline bool Vertex::has_diffuse() const {
-  return _internal_has_diffuse();
-}
-inline void Vertex::set_has_diffuse() {
-  _oneof_case_[0] = kDiffuse;
-}
-inline ::Tiny3D::Script::ColorList* Vertex::release_diffuse() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.diffuse)
-  if (_internal_has_diffuse()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::ColorList* temp = Extension_.diffuse_;
-    Extension_.diffuse_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::ColorList& Vertex::_internal_diffuse() const {
-  return _internal_has_diffuse()
-      ? *Extension_.diffuse_
-      : *reinterpret_cast< ::Tiny3D::Script::ColorList*>(&::Tiny3D::Script::_ColorList_default_instance_);
-}
-inline const ::Tiny3D::Script::ColorList& Vertex::diffuse() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.diffuse)
-  return _internal_diffuse();
-}
-inline ::Tiny3D::Script::ColorList* Vertex::_internal_mutable_diffuse() {
-  if (!_internal_has_diffuse()) {
-    clear_Extension();
-    set_has_diffuse();
-    Extension_.diffuse_ = CreateMaybeMessage< ::Tiny3D::Script::ColorList >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.diffuse_;
-}
-inline ::Tiny3D::Script::ColorList* Vertex::mutable_diffuse() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.diffuse)
-  return _internal_mutable_diffuse();
-}
-
-// .Tiny3D.Script.ColorList specular = 7;
-inline bool Vertex::_internal_has_specular() const {
-  return Extension_case() == kSpecular;
-}
-inline bool Vertex::has_specular() const {
-  return _internal_has_specular();
-}
-inline void Vertex::set_has_specular() {
-  _oneof_case_[0] = kSpecular;
-}
-inline ::Tiny3D::Script::ColorList* Vertex::release_specular() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.specular)
-  if (_internal_has_specular()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::ColorList* temp = Extension_.specular_;
-    Extension_.specular_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::ColorList& Vertex::_internal_specular() const {
-  return _internal_has_specular()
-      ? *Extension_.specular_
-      : *reinterpret_cast< ::Tiny3D::Script::ColorList*>(&::Tiny3D::Script::_ColorList_default_instance_);
-}
-inline const ::Tiny3D::Script::ColorList& Vertex::specular() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.specular)
-  return _internal_specular();
-}
-inline ::Tiny3D::Script::ColorList* Vertex::_internal_mutable_specular() {
-  if (!_internal_has_specular()) {
-    clear_Extension();
-    set_has_specular();
-    Extension_.specular_ = CreateMaybeMessage< ::Tiny3D::Script::ColorList >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.specular_;
-}
-inline ::Tiny3D::Script::ColorList* Vertex::mutable_specular() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.specular)
-  return _internal_mutable_specular();
-}
-
-// .Tiny3D.Script.UintList blend_indices = 8;
-inline bool Vertex::_internal_has_blend_indices() const {
-  return Extension_case() == kBlendIndices;
-}
-inline bool Vertex::has_blend_indices() const {
-  return _internal_has_blend_indices();
-}
-inline void Vertex::set_has_blend_indices() {
-  _oneof_case_[0] = kBlendIndices;
-}
-inline ::Tiny3D::Script::UintList* Vertex::release_blend_indices() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.blend_indices)
-  if (_internal_has_blend_indices()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::UintList* temp = Extension_.blend_indices_;
-    Extension_.blend_indices_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::UintList& Vertex::_internal_blend_indices() const {
-  return _internal_has_blend_indices()
-      ? *Extension_.blend_indices_
-      : *reinterpret_cast< ::Tiny3D::Script::UintList*>(&::Tiny3D::Script::_UintList_default_instance_);
-}
-inline const ::Tiny3D::Script::UintList& Vertex::blend_indices() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.blend_indices)
-  return _internal_blend_indices();
-}
-inline ::Tiny3D::Script::UintList* Vertex::_internal_mutable_blend_indices() {
-  if (!_internal_has_blend_indices()) {
-    clear_Extension();
-    set_has_blend_indices();
-    Extension_.blend_indices_ = CreateMaybeMessage< ::Tiny3D::Script::UintList >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.blend_indices_;
-}
-inline ::Tiny3D::Script::UintList* Vertex::mutable_blend_indices() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.blend_indices)
-  return _internal_mutable_blend_indices();
-}
-
-// .Tiny3D.Script.FloatList blend_weights = 9;
-inline bool Vertex::_internal_has_blend_weights() const {
-  return Extension_case() == kBlendWeights;
-}
-inline bool Vertex::has_blend_weights() const {
-  return _internal_has_blend_weights();
-}
-inline void Vertex::set_has_blend_weights() {
-  _oneof_case_[0] = kBlendWeights;
-}
-inline ::Tiny3D::Script::FloatList* Vertex::release_blend_weights() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Vertex.blend_weights)
-  if (_internal_has_blend_weights()) {
-    clear_has_Extension();
-      ::Tiny3D::Script::FloatList* temp = Extension_.blend_weights_;
-    Extension_.blend_weights_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Tiny3D::Script::FloatList& Vertex::_internal_blend_weights() const {
-  return _internal_has_blend_weights()
-      ? *Extension_.blend_weights_
-      : *reinterpret_cast< ::Tiny3D::Script::FloatList*>(&::Tiny3D::Script::_FloatList_default_instance_);
-}
-inline const ::Tiny3D::Script::FloatList& Vertex::blend_weights() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Vertex.blend_weights)
-  return _internal_blend_weights();
-}
-inline ::Tiny3D::Script::FloatList* Vertex::_internal_mutable_blend_weights() {
-  if (!_internal_has_blend_weights()) {
-    clear_Extension();
-    set_has_blend_weights();
-    Extension_.blend_weights_ = CreateMaybeMessage< ::Tiny3D::Script::FloatList >(
-        GetArenaNoVirtual());
-  }
-  return Extension_.blend_weights_;
-}
-inline ::Tiny3D::Script::FloatList* Vertex::mutable_blend_weights() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Vertex.blend_weights)
-  return _internal_mutable_blend_weights();
-}
-
-inline bool Vertex::has_Extension() const {
-  return Extension_case() != EXTENSION_NOT_SET;
-}
-inline void Vertex::clear_has_Extension() {
-  _oneof_case_[0] = EXTENSION_NOT_SET;
-}
-inline Vertex::ExtensionCase Vertex::Extension_case() const {
-  return Vertex::ExtensionCase(_oneof_case_[0]);
-}
 // -------------------------------------------------------------------
 
 // VertexBuffer
@@ -3250,7 +2729,7 @@ VertexBuffer::attributes() const {
   return attributes_;
 }
 
-// repeated .Tiny3D.Script.ModelSystem.Vertex vertices = 2;
+// repeated float vertices = 2;
 inline int VertexBuffer::_internal_vertices_size() const {
   return vertices_.size();
 }
@@ -3260,33 +2739,41 @@ inline int VertexBuffer::vertices_size() const {
 inline void VertexBuffer::clear_vertices() {
   vertices_.Clear();
 }
-inline ::Tiny3D::Script::ModelSystem::Vertex* VertexBuffer::mutable_vertices(int index) {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-  return vertices_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Vertex >*
-VertexBuffer::mutable_vertices() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-  return &vertices_;
-}
-inline const ::Tiny3D::Script::ModelSystem::Vertex& VertexBuffer::_internal_vertices(int index) const {
+inline float VertexBuffer::_internal_vertices(int index) const {
   return vertices_.Get(index);
 }
-inline const ::Tiny3D::Script::ModelSystem::Vertex& VertexBuffer::vertices(int index) const {
+inline float VertexBuffer::vertices(int index) const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
   return _internal_vertices(index);
 }
-inline ::Tiny3D::Script::ModelSystem::Vertex* VertexBuffer::_internal_add_vertices() {
-  return vertices_.Add();
+inline void VertexBuffer::set_vertices(int index, float value) {
+  vertices_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
 }
-inline ::Tiny3D::Script::ModelSystem::Vertex* VertexBuffer::add_vertices() {
+inline void VertexBuffer::_internal_add_vertices(float value) {
+  vertices_.Add(value);
+}
+inline void VertexBuffer::add_vertices(float value) {
+  _internal_add_vertices(value);
   // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-  return _internal_add_vertices();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Vertex >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+VertexBuffer::_internal_vertices() const {
+  return vertices_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 VertexBuffer::vertices() const {
   // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-  return vertices_;
+  return _internal_vertices();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+VertexBuffer::_internal_mutable_vertices() {
+  return &vertices_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+VertexBuffer::mutable_vertices() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+  return _internal_mutable_vertices();
 }
 
 // -------------------------------------------------------------------

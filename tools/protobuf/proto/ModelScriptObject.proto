@@ -49,24 +49,9 @@ message VertexAttribute
 }
 
 
-/**
- * @brief A structure to store a vertex data
- */
 message Vertex
 {
-    Vector3 pos = 1;                            // Position of vertex [Required]
-    
-    oneof Extension
-    {
-        Vector2List         texcoord = 2;       // UV of vertex [Optional]
-        Vector3List         normal = 3;         // Normal of vertex [Optional]
-        Vector3List         tangent = 4;        // Tangent of vertex [Optional]
-        Vector3List         binormal = 5;       // Binormal of vertex [Optional]
-        ColorList           diffuse = 6;        // Diffuse of vertex [Optional]
-        ColorList           specular = 7;       // Specular of vertex [Optional] 
-        UintList            blend_indices = 8;  // blend indices of vertex [Optional]
-        FloatList           blend_weights = 9;  // blend weights of vertex [Optional]
-    }
+    repeated float  values = 1;
 }
 
 /**
@@ -75,7 +60,7 @@ message Vertex
 message VertexBuffer
 {
     repeated VertexAttribute    attributes = 1;
-    repeated Vertex             vertices = 2;
+    repeated float             vertices = 2;
 }
 
 

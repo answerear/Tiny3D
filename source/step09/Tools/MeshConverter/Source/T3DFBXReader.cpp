@@ -631,13 +631,28 @@ namespace Tiny3D
             for (int32_t i = 0; i < nPointsCount; ++i)
             {
                 FbxVector4 pos = pPoints[i];
-                auto v = vbo->add_vertices();
-                auto pos3 = v->mutable_pos();
-                pos3->set_x(pos[0]);
-                pos3->set_y(pos[1]);
-                pos3->set_z(pos[2]);
+                vbo->add_vertices(float(pos[0]));
+                vbo->add_vertices(float(pos[1]));
+                vbo->add_vertices(float(pos[2]));
+                //auto v = vbo->add_vertices();
+                
+                //auto v = vbo->add_vertices();
+                //v->add_values(pos[0]);
+                //v->add_values(pos[1]);
+                //v->add_values(pos[2]);
             }
 
+            FbxGeometryElementUV* pVertexUV = pFbxMesh->GetElementUV(0);
+            int rt = pVertexUV->RemapIndexTo(FbxLayerElement::eByControlPoint);
+
+            auto pUV = pFbxMesh->GetElementUV();
+            auto mappingMode = pUV->GetMappingMode();
+            auto refMode = pUV->GetReferenceMode();
+            int32_t cnt = pFbxMesh->GetTextureUVCount();
+
+            FbxLayerElementArrayTemplate<FbxVector2>* pUVArray = nullptr;
+            pFbxMesh->GetTextureUV(&pUVArray);
+            cnt = pUVArray->GetCount();
             int32_t triangleCount = pFbxMesh->GetPolygonCount();
 
             int32_t vertexCount = 0;
