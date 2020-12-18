@@ -24,6 +24,7 @@
 
 #include "T3DConverterPrerequisites.h"
 #include "FileScriptObject.pb.h"
+#include "T3DVertexData.h"
 
 
 namespace Tiny3D
@@ -92,9 +93,23 @@ namespace Tiny3D
         TResult readTangent(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
             int32_t vertexIdx, int32_t layer, Vector3 &tangent);
 
+        void updateBlendInfo(int index, int boneIdx, float weight);
+
+        TResult optimizeMesh();
+
     protected:
         FbxManager  *mFbxManager;
         size_t      mTabCount;
+
+        struct MeshData
+        {
+            Script::ModelSystem::MeshData *pTarget;
+
+            Vertices    vertices;
+            Indices     indices;
+        };
+
+        MeshData    mMeshData;
     };
 }
 

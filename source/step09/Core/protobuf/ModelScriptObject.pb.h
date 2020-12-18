@@ -768,27 +768,21 @@ class VertexBuffer :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexAttribute >&
       attributes() const;
 
-  // repeated float vertices = 2;
-  int vertices_size() const;
-  private:
-  int _internal_vertices_size() const;
-  public:
+  // bytes vertices = 2;
   void clear_vertices();
+  const std::string& vertices() const;
+  void set_vertices(const std::string& value);
+  void set_vertices(std::string&& value);
+  void set_vertices(const char* value);
+  void set_vertices(const void* value, size_t size);
+  std::string* mutable_vertices();
+  std::string* release_vertices();
+  void set_allocated_vertices(std::string* vertices);
   private:
-  float _internal_vertices(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      _internal_vertices() const;
-  void _internal_add_vertices(float value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_vertices();
+  const std::string& _internal_vertices() const;
+  void _internal_set_vertices(const std::string& value);
+  std::string* _internal_mutable_vertices();
   public:
-  float vertices(int index) const;
-  void set_vertices(int index, float value);
-  void add_vertices(float value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      vertices() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_vertices();
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.VertexBuffer)
  private:
@@ -796,8 +790,7 @@ class VertexBuffer :
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexAttribute > attributes_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > vertices_;
-  mutable std::atomic<int> _vertices_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr vertices_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
@@ -1647,35 +1640,13 @@ class IndexBuffer :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIndicesFieldNumber = 6,
     kMaterialFieldNumber = 4,
+    kIndicesFieldNumber = 6,
     kBoundFieldNumber = 5,
     kIs16BitFieldNumber = 1,
     kPrimitiveTypeFieldNumber = 2,
     kPrimitiveCountFieldNumber = 3,
   };
-  // repeated int32 indices = 6;
-  int indices_size() const;
-  private:
-  int _internal_indices_size() const;
-  public:
-  void clear_indices();
-  private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_indices(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
-      _internal_indices() const;
-  void _internal_add_indices(::PROTOBUF_NAMESPACE_ID::int32 value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
-      _internal_mutable_indices();
-  public:
-  ::PROTOBUF_NAMESPACE_ID::int32 indices(int index) const;
-  void set_indices(int index, ::PROTOBUF_NAMESPACE_ID::int32 value);
-  void add_indices(::PROTOBUF_NAMESPACE_ID::int32 value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
-      indices() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
-      mutable_indices();
-
   // string material = 4;
   void clear_material();
   const std::string& material() const;
@@ -1690,6 +1661,22 @@ class IndexBuffer :
   const std::string& _internal_material() const;
   void _internal_set_material(const std::string& value);
   std::string* _internal_mutable_material();
+  public:
+
+  // bytes indices = 6;
+  void clear_indices();
+  const std::string& indices() const;
+  void set_indices(const std::string& value);
+  void set_indices(std::string&& value);
+  void set_indices(const char* value);
+  void set_indices(const void* value, size_t size);
+  std::string* mutable_indices();
+  std::string* release_indices();
+  void set_allocated_indices(std::string* indices);
+  private:
+  const std::string& _internal_indices() const;
+  void _internal_set_indices(const std::string& value);
+  std::string* _internal_mutable_indices();
   public:
 
   // .Tiny3D.Script.ModelSystem.Bound bound = 5;
@@ -1739,9 +1726,8 @@ class IndexBuffer :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > indices_;
-  mutable std::atomic<int> _indices_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr material_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr indices_;
   ::Tiny3D::Script::ModelSystem::Bound* bound_;
   bool is_16bit_;
   int primitive_type_;
@@ -2729,51 +2715,64 @@ VertexBuffer::attributes() const {
   return attributes_;
 }
 
-// repeated float vertices = 2;
-inline int VertexBuffer::_internal_vertices_size() const {
-  return vertices_.size();
-}
-inline int VertexBuffer::vertices_size() const {
-  return _internal_vertices_size();
-}
+// bytes vertices = 2;
 inline void VertexBuffer::clear_vertices() {
-  vertices_.Clear();
+  vertices_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline float VertexBuffer::_internal_vertices(int index) const {
-  return vertices_.Get(index);
-}
-inline float VertexBuffer::vertices(int index) const {
+inline const std::string& VertexBuffer::vertices() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-  return _internal_vertices(index);
-}
-inline void VertexBuffer::set_vertices(int index, float value) {
-  vertices_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-}
-inline void VertexBuffer::_internal_add_vertices(float value) {
-  vertices_.Add(value);
-}
-inline void VertexBuffer::add_vertices(float value) {
-  _internal_add_vertices(value);
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-VertexBuffer::_internal_vertices() const {
-  return vertices_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-VertexBuffer::vertices() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
   return _internal_vertices();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-VertexBuffer::_internal_mutable_vertices() {
-  return &vertices_;
+inline void VertexBuffer::set_vertices(const std::string& value) {
+  _internal_set_vertices(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-VertexBuffer::mutable_vertices() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+inline std::string* VertexBuffer::mutable_vertices() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
   return _internal_mutable_vertices();
+}
+inline const std::string& VertexBuffer::_internal_vertices() const {
+  return vertices_.GetNoArena();
+}
+inline void VertexBuffer::_internal_set_vertices(const std::string& value) {
+  
+  vertices_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void VertexBuffer::set_vertices(std::string&& value) {
+  
+  vertices_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+}
+inline void VertexBuffer::set_vertices(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  vertices_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+}
+inline void VertexBuffer::set_vertices(const void* value, size_t size) {
+  
+  vertices_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+}
+inline std::string* VertexBuffer::_internal_mutable_vertices() {
+  
+  return vertices_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* VertexBuffer::release_vertices() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+  
+  return vertices_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void VertexBuffer::set_allocated_vertices(std::string* vertices) {
+  if (vertices != nullptr) {
+    
+  } else {
+    
+  }
+  vertices_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), vertices);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
 }
 
 // -------------------------------------------------------------------
@@ -3486,51 +3485,64 @@ inline void IndexBuffer::set_allocated_bound(::Tiny3D::Script::ModelSystem::Boun
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.IndexBuffer.bound)
 }
 
-// repeated int32 indices = 6;
-inline int IndexBuffer::_internal_indices_size() const {
-  return indices_.size();
-}
-inline int IndexBuffer::indices_size() const {
-  return _internal_indices_size();
-}
+// bytes indices = 6;
 inline void IndexBuffer::clear_indices() {
-  indices_.Clear();
+  indices_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 IndexBuffer::_internal_indices(int index) const {
-  return indices_.Get(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 IndexBuffer::indices(int index) const {
+inline const std::string& IndexBuffer::indices() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
-  return _internal_indices(index);
-}
-inline void IndexBuffer::set_indices(int index, ::PROTOBUF_NAMESPACE_ID::int32 value) {
-  indices_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
-}
-inline void IndexBuffer::_internal_add_indices(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  indices_.Add(value);
-}
-inline void IndexBuffer::add_indices(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_add_indices(value);
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
-IndexBuffer::_internal_indices() const {
-  return indices_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
-IndexBuffer::indices() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
   return _internal_indices();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
-IndexBuffer::_internal_mutable_indices() {
-  return &indices_;
+inline void IndexBuffer::set_indices(const std::string& value) {
+  _internal_set_indices(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
-IndexBuffer::mutable_indices() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
+inline std::string* IndexBuffer::mutable_indices() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
   return _internal_mutable_indices();
+}
+inline const std::string& IndexBuffer::_internal_indices() const {
+  return indices_.GetNoArena();
+}
+inline void IndexBuffer::_internal_set_indices(const std::string& value) {
+  
+  indices_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void IndexBuffer::set_indices(std::string&& value) {
+  
+  indices_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
+}
+inline void IndexBuffer::set_indices(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  indices_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
+}
+inline void IndexBuffer::set_indices(const void* value, size_t size) {
+  
+  indices_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
+}
+inline std::string* IndexBuffer::_internal_mutable_indices() {
+  
+  return indices_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* IndexBuffer::release_indices() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
+  
+  return indices_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void IndexBuffer::set_allocated_indices(std::string* indices) {
+  if (indices != nullptr) {
+    
+  } else {
+    
+  }
+  indices_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), indices);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
 }
 
 // -------------------------------------------------------------------

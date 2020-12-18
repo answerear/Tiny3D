@@ -274,7 +274,17 @@ namespace Tiny3D
 
             mTabCount = 0;
             Script::SceneSystem::Node *pNode = nullptr;
-            processFbxNode(pFbxRoot, model, nullptr, pNode);
+            ret = processFbxNode(pFbxRoot, model, nullptr, pNode);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = optimizeMesh();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (0);
 
         return ret;
@@ -625,34 +635,37 @@ namespace Tiny3D
             auto vbs = pMesh->mutable_vertex_buffers();
             auto vbo = &vbs->at(0);
 
+            mMeshData.pTarget = pMesh;
+
             FbxVector4 *pPoints = pFbxMesh->GetControlPoints();
             int32_t nPointsCount = pFbxMesh->GetControlPointsCount();
 
-            for (int32_t i = 0; i < nPointsCount; ++i)
-            {
-                FbxVector4 pos = pPoints[i];
-                vbo->add_vertices(float(pos[0]));
-                vbo->add_vertices(float(pos[1]));
-                vbo->add_vertices(float(pos[2]));
-                //auto v = vbo->add_vertices();
-                
-                //auto v = vbo->add_vertices();
-                //v->add_values(pos[0]);
-                //v->add_values(pos[1]);
-                //v->add_values(pos[2]);
-            }
+            //for (int32_t i = 0; i < nPointsCount; ++i)
+            //{
+            //    FbxVector4 pos = pPoints[i];
+            //    vbo->add_vertices(float(pos[0]));
+            //    vbo->add_vertices(float(pos[1]));
+            //    vbo->add_vertices(float(pos[2]));
+            //    //auto v = vbo->add_vertices();
+            //    
+            //    //auto v = vbo->add_vertices();
+            //    //v->add_values(pos[0]);
+            //    //v->add_values(pos[1]);
+            //    //v->add_values(pos[2]);
+            //}
 
-            FbxGeometryElementUV* pVertexUV = pFbxMesh->GetElementUV(0);
-            int rt = pVertexUV->RemapIndexTo(FbxLayerElement::eByControlPoint);
+            //FbxGeometryElementUV* pVertexUV = pFbxMesh->GetElementUV(0);
+            //int rt = pVertexUV->RemapIndexTo(FbxLayerElement::eByControlPoint);
 
-            auto pUV = pFbxMesh->GetElementUV();
-            auto mappingMode = pUV->GetMappingMode();
-            auto refMode = pUV->GetReferenceMode();
-            int32_t cnt = pFbxMesh->GetTextureUVCount();
+            //auto pUV = pFbxMesh->GetElementUV();
+            //auto mappingMode = pUV->GetMappingMode();
+            //auto refMode = pUV->GetReferenceMode();
+            //int32_t cnt = pFbxMesh->GetTextureUVCount();
 
-            FbxLayerElementArrayTemplate<FbxVector2>* pUVArray = nullptr;
-            pFbxMesh->GetTextureUV(&pUVArray);
-            cnt = pUVArray->GetCount();
+            //FbxLayerElementArrayTemplate<FbxVector2>* pUVArray = nullptr;
+            //pFbxMesh->GetTextureUV(&pUVArray);
+            //cnt = pUVArray->GetCount();
+
             int32_t triangleCount = pFbxMesh->GetPolygonCount();
 
             int32_t vertexCount = 0;
@@ -664,6 +677,10 @@ namespace Tiny3D
                 {
                     int32_t ctrlPointIdx = pFbxMesh->GetPolygonVertex(i, j);
 
+                    mMeshData.vertices.push_back(Vertex());
+
+                    mMeshData.vertices[vertexCount].mCtrlPointIdx = ctrlPointIdx;
+
                     // POSITION
                     Vector3 pos;
                     ret = readPosition(pFbxMesh, ctrlPointIdx, pos);
@@ -671,6 +688,10 @@ namespace Tiny3D
                     {
                         break;
                     }
+
+                    mMeshData.vertices[vertexCount].mPosition[0] = pos[0];
+                    mMeshData.vertices[vertexCount].mPosition[1] = pos[1];
+                    mMeshData.vertices[vertexCount].mPosition[2] = pos[2];
 
                     // COLOR
                     ColorRGBA color;
@@ -680,6 +701,10 @@ namespace Tiny3D
                     {
                         ret = readColor(pFbxMesh, ctrlPointIdx, vertexCount, k, 
                             color);
+                        if (ret == T3D_OK)
+                        {
+                            mMeshData.vertices[vertexCount].mColorElements.push_back(color);
+                        }
                     };
 
                     // TEXCOORD
@@ -689,6 +714,10 @@ namespace Tiny3D
                     {
                         int32_t uvIdx = pFbxMesh->GetTextureUVIndex(i, j);
                         ret = readUV(pFbxMesh, ctrlPointIdx, uvIdx, k, uv);
+                        if (ret == T3D_OK)
+                        {
+                            mMeshData.vertices[vertexCount].mTexElements.push_back(uv);
+                        }
                     }
 
                     // NORMAL
@@ -696,8 +725,11 @@ namespace Tiny3D
                     layers = pFbxMesh->GetElementNormalCount();
                     for (k = 0; k < layers; k++)
                     {
-                        ret = readNormal(pFbxMesh, ctrlPointIdx, vertexCount, k,
-                            normal);
+                        ret = readNormal(pFbxMesh, ctrlPointIdx, vertexCount, k, normal);
+                        if (ret == T3D_OK)
+                        {
+                            mMeshData.vertices[vertexCount].mNormalElements.push_back(normal);
+                        }
                     }
 
                     // BINORMAL
@@ -705,8 +737,11 @@ namespace Tiny3D
                     layers = pFbxMesh->GetElementBinormalCount();
                     for (k = 0; k < layers; k++)
                     {
-                        ret = readBinormal(pFbxMesh, ctrlPointIdx, vertexCount,
-                            k, binormal);
+                        ret = readBinormal(pFbxMesh, ctrlPointIdx, vertexCount, k, binormal);
+                        if (ret == T3D_OK)
+                        {
+                            mMeshData.vertices[vertexCount].mBinormalElements.push_back(binormal);
+                        }
                     }
 
                     // TANGENT
@@ -714,9 +749,14 @@ namespace Tiny3D
                     layers = pFbxMesh->GetElementTangentCount();
                     for (k = 0; k < layers; k++)
                     {
-                        ret = readTangent(pFbxMesh, ctrlPointIdx, vertexCount,
-                            k, tangent);
+                        ret = readTangent(pFbxMesh, ctrlPointIdx, vertexCount, k, tangent);
+                        if (ret == T3D_OK)
+                        {
+                            mMeshData.vertices[vertexCount].mTangentElements.push_back(tangent);
+                        }
                     }
+
+                    vertexCount++;
                 }
 
                 if (T3D_FAILED(ret))
@@ -1509,6 +1549,8 @@ namespace Tiny3D
 
                 for (k = 0; k < nIndexCount; ++k)
                 {
+                    updateBlendInfo(pIndices[k], j, pWeights[k]);
+
                     ss0 << pIndices[k];
                     ss1 << pWeights[k];
 
@@ -1625,6 +1667,145 @@ namespace Tiny3D
                 // 2. 把在 Binding 时刻的顶点，由世界空间变换到骨骼空间 Inverse(M(b)) * M(v) * M(G)
             }
         }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXReader::updateBlendInfo(int index, int boneIdx, float weight)
+    {
+        size_t i = 0;
+
+        for (i = 0; i < mMeshData.vertices.size(); ++i)
+        {
+            if (mMeshData.vertices[i].mCtrlPointIdx == index)
+            {
+                BlendInfo blend;
+                blend.mBlendIndex = boneIdx;
+                blend.mBlendWeight = weight;
+
+                bool found = false;
+                auto itr = mMeshData.vertices[i].mBlendInfo.begin();
+                while (itr != mMeshData.vertices[i].mBlendInfo.end())
+                {
+                    if (itr->mBlendIndex == boneIdx)
+                    {
+                        found = true;
+                        break;
+                    }
+
+                    ++itr;
+                }
+
+                if (!found)
+                {
+                    mMeshData.vertices[i].mBlendInfo.insert(blend);
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::optimizeMesh()
+    {
+        TResult ret = T3D_OK;
+
+        if (mMeshData.pTarget != nullptr)
+        {
+            std::set<Vertex> vertices;
+
+            size_t i = 0;
+
+            // 去掉所有属性相同的重复的顶点
+            for (i = 0; i < mMeshData.vertices.size(); ++i)
+            {
+                Vertex &src = mMeshData.vertices[i];
+
+                src.hash();
+
+                src.mCtrlPointIdx = i;
+                mMeshData.indices.push_back(i);
+                vertices.insert(src);
+            }
+
+            mMeshData.indices.resize(mMeshData.vertices.size());
+
+            // 新建顶点
+            size_t size = vertices.begin()->size();
+            char *data = nullptr;
+            size = vertices.size() * size;
+            data = new char[size];
+            char *dst = data;
+            memset(data, 0, size);
+
+            auto vbs = mMeshData.pTarget->mutable_vertex_buffers();
+            auto vbo = &vbs->at(0);
+
+            size_t idx = 0;
+            std::vector<float> v;
+            auto itr = vertices.begin();
+            while (itr != vertices.end())
+            {
+                // 复制顶点数据
+                size_t vertexSize = 0;
+                char *vertexData = itr->data(v, vertexSize);
+                memcpy(dst, vertexData, vertexSize);
+                dst += vertexSize;
+                v.clear();
+
+                // 重定向顶点索引
+                mMeshData.indices[itr->mCtrlPointIdx] = idx;
+
+                ++idx;
+                ++itr;
+            }
+
+            vbo->set_vertices(data, size);
+
+            T3D_SAFE_DELETE_ARRAY(data);
+
+            // 新建顶点索引
+            bool is16Bits = true;
+            size_t dataSize = 0;
+            if (mMeshData.indices.size())
+            {
+                dataSize = sizeof(uint16_t);
+                size = mMeshData.indices.size() * dataSize;
+                data = new char[size];
+                is16Bits = true;
+            }
+            else
+            {
+                dataSize = sizeof(uint32_t);
+                size = mMeshData.indices.size() * dataSize;
+                data = new char[size];
+                is16Bits = false;
+            }
+
+            dst = data;
+
+            for (i = 0; i < mMeshData.indices.size(); ++i)
+            {
+                int32_t value = mMeshData.indices[i];
+                memcpy(dst, &value, dataSize);
+                dst += dataSize;
+            }
+
+            Script::ModelSystem::IndexBuffer *ibo = mMeshData.pTarget->add_index_buffers();
+            
+            ibo->set_is_16bit(is16Bits);
+            ibo->set_primitive_type(Script::ModelSystem::PT_TRIANGLE_LIST);
+            ibo->set_primitive_count(mMeshData.indices.size() / 3);
+            ibo->set_indices(data, size);
+
+            T3D_SAFE_DELETE_ARRAY(data);
+
+            mMeshData.pTarget = nullptr;
+            mMeshData.vertices.clear();
+            mMeshData.indices.clear();
+        }
+
         return ret;
     }
 

@@ -60,7 +60,7 @@ message Vertex
 message VertexBuffer
 {
     repeated VertexAttribute    attributes = 1;
-    repeated float             vertices = 2;
+    bytes                       vertices = 2;
 }
 
 
@@ -140,7 +140,7 @@ message IndexBuffer
     uint32          primitive_count = 3;
     string          material = 4;
     Bound           bound = 5;
-    repeated int32  indices = 6;
+    bytes           indices = 6;
 }
 
 

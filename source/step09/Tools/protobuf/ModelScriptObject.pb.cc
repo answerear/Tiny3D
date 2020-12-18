@@ -457,7 +457,7 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "\"\030\n\006Vertex\022\016\n\006values\030\001 \003(\002\"`\n\014VertexBuff"
   "er\022>\n\nattributes\030\001 \003(\0132*.Tiny3D.Script.M"
   "odelSystem.VertexAttribute\022\020\n\010vertices\030\002"
-  " \003(\002\"@\n\006Sphere\022&\n\006center\030\001 \001(\0132\026.Tiny3D."
+  " \001(\014\"@\n\006Sphere\022&\n\006center\030\001 \001(\0132\026.Tiny3D."
   "Script.Vector3\022\016\n\006radius\030\002 \001(\002\"`\n\004Aabb\022\r"
   "\n\005min_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002\022\r\n\005min_y\030\003 "
   "\001(\002\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030\005 \001(\002\022\r\n\005max"
@@ -475,7 +475,7 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   ".Tiny3D.Script.ModelSystem.PrimitiveType"
   "\022\027\n\017primitive_count\030\003 \001(\r\022\020\n\010material\030\004 "
   "\001(\t\022/\n\005bound\030\005 \001(\0132 .Tiny3D.Script.Model"
-  "System.Bound\022\017\n\007indices\030\006 \003(\005\"\266\001\n\014Keyfra"
+  "System.Bound\022\017\n\007indices\030\006 \001(\014\"\266\001\n\014Keyfra"
   "meData\022\014\n\004time\030\001 \001(\002\022-\n\013translation\030\002 \001("
   "\0132\026.Tiny3D.Script.Vector3H\000\022-\n\010rotation\030"
   "\003 \001(\0132\031.Tiny3D.Script.QuaternionH\000\022)\n\007sc"
@@ -1114,14 +1114,18 @@ VertexBuffer::VertexBuffer()
 VertexBuffer::VertexBuffer(const VertexBuffer& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
-      attributes_(from.attributes_),
-      vertices_(from.vertices_) {
+      attributes_(from.attributes_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  vertices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_vertices().empty()) {
+    vertices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.vertices_);
+  }
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.VertexBuffer)
 }
 
 void VertexBuffer::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_VertexBuffer_ModelScriptObject_2eproto.base);
+  vertices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -1130,6 +1134,7 @@ VertexBuffer::~VertexBuffer() {
 }
 
 void VertexBuffer::SharedDtor() {
+  vertices_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void VertexBuffer::SetCachedSize(int size) const {
@@ -1148,7 +1153,7 @@ void VertexBuffer::Clear() {
   (void) cached_has_bits;
 
   attributes_.Clear();
-  vertices_.Clear();
+  vertices_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
@@ -1171,14 +1176,12 @@ const char* VertexBuffer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated float vertices = 2;
+      // bytes vertices = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_vertices(), ptr, ctx);
+          auto str = _internal_mutable_vertices();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21) {
-          _internal_add_vertices(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
-          ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
       default: {
@@ -1215,9 +1218,10 @@ failure:
       InternalWriteMessage(1, this->_internal_attributes(i), target, stream);
   }
 
-  // repeated float vertices = 2;
-  if (this->_internal_vertices_size() > 0) {
-    target = stream->WriteFixedPacked(2, _internal_vertices(), target);
+  // bytes vertices = 2;
+  if (this->vertices().size() > 0) {
+    target = stream->WriteBytesMaybeAliased(
+        2, this->_internal_vertices(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1243,19 +1247,11 @@ size_t VertexBuffer::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated float vertices = 2;
-  {
-    unsigned int count = static_cast<unsigned int>(this->_internal_vertices_size());
-    size_t data_size = 4UL * count;
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _vertices_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+  // bytes vertices = 2;
+  if (this->vertices().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_vertices());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1290,7 +1286,10 @@ void VertexBuffer::MergeFrom(const VertexBuffer& from) {
   (void) cached_has_bits;
 
   attributes_.MergeFrom(from.attributes_);
-  vertices_.MergeFrom(from.vertices_);
+  if (from.vertices().size() > 0) {
+
+    vertices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.vertices_);
+  }
 }
 
 void VertexBuffer::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1315,7 +1314,8 @@ void VertexBuffer::InternalSwap(VertexBuffer* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   attributes_.InternalSwap(&other->attributes_);
-  vertices_.InternalSwap(&other->vertices_);
+  vertices_.Swap(&other->vertices_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata VertexBuffer::GetMetadata() const {
@@ -2546,12 +2546,15 @@ IndexBuffer::IndexBuffer()
 }
 IndexBuffer::IndexBuffer(const IndexBuffer& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      indices_(from.indices_) {
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   material_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_material().empty()) {
     material_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.material_);
+  }
+  indices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_indices().empty()) {
+    indices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.indices_);
   }
   if (from._internal_has_bound()) {
     bound_ = new ::Tiny3D::Script::ModelSystem::Bound(*from.bound_);
@@ -2567,6 +2570,7 @@ IndexBuffer::IndexBuffer(const IndexBuffer& from)
 void IndexBuffer::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_IndexBuffer_ModelScriptObject_2eproto.base);
   material_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  indices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&bound_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&primitive_count_) -
       reinterpret_cast<char*>(&bound_)) + sizeof(primitive_count_));
@@ -2579,6 +2583,7 @@ IndexBuffer::~IndexBuffer() {
 
 void IndexBuffer::SharedDtor() {
   material_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  indices_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete bound_;
 }
 
@@ -2597,8 +2602,8 @@ void IndexBuffer::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  indices_.Clear();
   material_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  indices_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (GetArenaNoVirtual() == nullptr && bound_ != nullptr) {
     delete bound_;
   }
@@ -2654,13 +2659,11 @@ const char* IndexBuffer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated int32 indices = 6;
+      // bytes indices = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_indices(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48) {
-          _internal_add_indices(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          auto str = _internal_mutable_indices();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2727,13 +2730,10 @@ failure:
         5, _Internal::bound(this), target, stream);
   }
 
-  // repeated int32 indices = 6;
-  {
-    int byte_size = _indices_cached_byte_size_.load(std::memory_order_relaxed);
-    if (byte_size > 0) {
-      target = stream->WriteInt32Packed(
-          6, _internal_indices(), byte_size, target);
-    }
+  // bytes indices = 6;
+  if (this->indices().size() > 0) {
+    target = stream->WriteBytesMaybeAliased(
+        6, this->_internal_indices(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2752,26 +2752,18 @@ size_t IndexBuffer::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated int32 indices = 6;
-  {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->indices_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _indices_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
-  }
-
   // string material = 4;
   if (this->material().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_material());
+  }
+
+  // bytes indices = 6;
+  if (this->indices().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_indices());
   }
 
   // .Tiny3D.Script.ModelSystem.Bound bound = 5;
@@ -2830,10 +2822,13 @@ void IndexBuffer::MergeFrom(const IndexBuffer& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  indices_.MergeFrom(from.indices_);
   if (from.material().size() > 0) {
 
     material_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.material_);
+  }
+  if (from.indices().size() > 0) {
+
+    indices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.indices_);
   }
   if (from.has_bound()) {
     _internal_mutable_bound()->::Tiny3D::Script::ModelSystem::Bound::MergeFrom(from._internal_bound());
@@ -2870,8 +2865,9 @@ bool IndexBuffer::IsInitialized() const {
 void IndexBuffer::InternalSwap(IndexBuffer* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  indices_.InternalSwap(&other->indices_);
   material_.Swap(&other->material_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  indices_.Swap(&other->indices_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   swap(bound_, other->bound_);
   swap(is_16bit_, other->is_16bit_);
