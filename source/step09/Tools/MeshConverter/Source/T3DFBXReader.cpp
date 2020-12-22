@@ -27,17 +27,29 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    FBXReaderPtr FBXReader::create()
+    float precision(float value, int decimal = 2)
     {
-        FBXReaderPtr reader = new FBXReader();
+        return value;
+        //double val = (double)value * pow(10, decimal);
+        //val = std::round(val);
+        //val = val / pow(10, decimal);
+        //return val;
+    }
+
+    //--------------------------------------------------------------------------
+
+    FBXReaderPtr FBXReader::create(bool isTxt)
+    {
+        FBXReaderPtr reader = new FBXReader(isTxt);
         reader->release();
         return reader;
     }
 
     //--------------------------------------------------------------------------
 
-    FBXReader::FBXReader()
+    FBXReader::FBXReader(bool isTxt)
         : mFbxManager(nullptr)
+        , mIsTxt(isTxt)
     {
 
     }
@@ -288,11 +300,6 @@ namespace Tiny3D
         } while (0);
 
         return ret;
-    }
-
-    float precision(float value)
-    {
-        return (float)((std::ceil((double)value * 1000000)) / 1000000);
     }
 
     //--------------------------------------------------------------------------
@@ -620,6 +627,18 @@ namespace Tiny3D
             attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
             attr->set_size(3);
         }
+
+        // BLEND_INDEX
+        attr = attributes->Add();
+        attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDINDEX);
+        attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_INT8);
+        attr->set_size(4);
+        
+        // BLEND_WEIGHT
+        attr = attributes->Add();
+        attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDWEIGHT);
+        attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+        attr->set_size(4);
 
         return ret;
     }
@@ -1711,9 +1730,15 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        if (mMeshData.pTarget != nullptr)
+        do 
         {
-            std::set<Vertex> vertices;
+            if (mMeshData.pTarget == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            std::map<uint32_t, Vertex> vertices;
 
             size_t i = 0;
 
@@ -1726,21 +1751,257 @@ namespace Tiny3D
 
                 src.mCtrlPointIdx = i;
                 mMeshData.indices.push_back(i);
-                vertices.insert(src);
+                vertices.insert(std::pair<uint32_t, Vertex>(src.mHash, src));
             }
 
             mMeshData.indices.resize(mMeshData.vertices.size());
 
-            // 新建顶点
-            size_t size = vertices.begin()->size();
+            if (mIsTxt)
+            {
+                // 输出文本格式
+
+                // 重建顶点
+                ret = rebuildTxtVertices(vertices);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                // 重建顶点索引
+                ret = rebuildTxtIndices(vertices);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                // 输出二进制格式
+
+                // 重建顶点
+                ret = rebuildBinVertices(vertices);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                // 重建顶点索引
+                ret = rebuildBinIndices(vertices);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            mMeshData.pTarget = nullptr;
+            mMeshData.vertices.clear();
+            mMeshData.indices.clear();
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::rebuildTxtVertices(std::map<uint32_t, Vertex> &vertices)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            auto vbs = mMeshData.pTarget->mutable_vertex_buffers();
+            auto vbo = &vbs->at(0);
+
+            size_t idx = 0;
+            auto itr = vertices.begin();
+            while (itr != vertices.end())
+            {
+                // 复制顶点数据
+                float value;
+
+                // POSITION
+                value = precision(itr->second.mPosition[0]);
+                vbo->mutable_vertices()->add_values(value);
+                value = precision(itr->second.mPosition[1]);
+                vbo->mutable_vertices()->add_values(value);
+                value = precision(itr->second.mPosition[2]);
+                vbo->mutable_vertices()->add_values(value);
+
+                // COLOR
+                auto itrColor = itr->second.mColorElements.begin();
+                while (itrColor != itr->second.mColorElements.end())
+                {
+                    value = precision(itrColor->red());
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(itrColor->green());
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(itrColor->blue());
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(itrColor->alpha());
+                    vbo->mutable_vertices()->add_values(value);
+                    ++itrColor;
+                }
+
+                // TEXCOORD
+                auto itrTex = itr->second.mTexElements.begin();
+                while (itrTex != itr->second.mTexElements.end())
+                {
+                    auto uv = *itrTex;
+                    value = precision(uv[0]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(uv[1]);
+                    vbo->mutable_vertices()->add_values(value);
+                    ++itrTex;
+                }
+
+                // NORMAL
+                auto i = itr->second.mNormalElements.begin();
+                while (i != itr->second.mNormalElements.end())
+                {
+                    auto v = *i;
+                    value = precision(v[0]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(v[1]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(v[2]);
+                    vbo->mutable_vertices()->add_values(value);
+                    ++i;
+                }
+                
+                // BINORMAL
+                i = itr->second.mBinormalElements.begin();
+                while (i != itr->second.mBinormalElements.end())
+                {
+                    auto v = *i;
+                    value = precision(v[0]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(v[1]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(v[2]);
+                    vbo->mutable_vertices()->add_values(value);
+                    ++i;
+                }
+                
+                // TANGANT
+                i = itr->second.mTangentElements.begin();
+                while (i != itr->second.mTangentElements.end())
+                {
+                    auto v = *i;
+                    value = precision(v[0]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(v[1]);
+                    vbo->mutable_vertices()->add_values(value);
+                    value = precision(v[2]);
+                    vbo->mutable_vertices()->add_values(value);
+                    ++i;
+                }
+
+                // BLEND_INDEX
+                size_t j = 0;
+                auto itrBlend = itr->second.mBlendInfo.rbegin();
+                while (itrBlend != itr->second.mBlendInfo.rend() && j < 4)
+                {
+                    uint8_t index = itrBlend->mBlendIndex;
+                    vbo->mutable_vertices()->add_values(index);
+                    ++itrBlend;
+                    ++j;
+                }
+
+                while (j < 4)
+                {
+                    vbo->mutable_vertices()->add_values(-1);
+                    ++j;
+                }
+
+                // BLEND_WEIGHT
+                j = 0;
+                itrBlend = itr->second.mBlendInfo.rbegin();
+                while (itrBlend != itr->second.mBlendInfo.rend() && j < 4)
+                {
+                    value = precision(itrBlend->mBlendWeight);
+                    vbo->mutable_vertices()->add_values(value);
+                    ++itrBlend;
+                    ++j;
+                }
+
+                while (j < 4)
+                {
+                    vbo->mutable_vertices()->add_values(0.0f);
+                    ++j;
+                }
+
+                // 重定向顶点索引
+                mMeshData.indices[itr->second.mCtrlPointIdx] = idx;
+
+                itr->second.mIndex = idx;
+
+                ++idx;
+                ++itr;
+            }
+
+            size_t i = 0;
+            for (i = idx; i < mMeshData.indices.size(); ++i)
+            {
+                auto it = vertices.find(mMeshData.vertices[i].mHash);
+                mMeshData.indices[i] = it->second.mIndex;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::rebuildTxtIndices(std::map<uint32_t, Vertex> &vertices)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            bool is16Bits = true;
+            if (mMeshData.indices.size() <= std::numeric_limits<uint16_t>::max())
+            {
+                is16Bits = true;
+            }
+            else
+            {
+                is16Bits = false;
+            }
+
+            Script::ModelSystem::IndexBuffer *ibo = mMeshData.pTarget->add_index_buffers();
+            ibo->set_is_16bit(is16Bits);
+            ibo->set_primitive_type(Script::ModelSystem::PT_TRIANGLE_LIST);
+            ibo->set_primitive_count(mMeshData.indices.size() / 3);
+            
+            size_t i = 0;
+
+            for (i = 0; i < mMeshData.indices.size(); ++i)
+            {
+                ibo->mutable_indices()->add_values(mMeshData.indices[i]);
+            }
+            
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::rebuildBinVertices(std::map<uint32_t, Vertex> &vertices)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            auto vbs = mMeshData.pTarget->mutable_vertex_buffers();
+            auto vbo = &vbs->at(0);
+
+            size_t size = vertices.begin()->second.size();
             char *data = nullptr;
             size = vertices.size() * size;
             data = new char[size];
             char *dst = data;
             memset(data, 0, size);
-
-            auto vbs = mMeshData.pTarget->mutable_vertex_buffers();
-            auto vbo = &vbs->at(0);
 
             size_t idx = 0;
             std::vector<float> v;
@@ -1749,26 +2010,40 @@ namespace Tiny3D
             {
                 // 复制顶点数据
                 size_t vertexSize = 0;
-                char *vertexData = itr->data(v, vertexSize);
+                char *vertexData = itr->second.data(v, vertexSize);
                 memcpy(dst, vertexData, vertexSize);
                 dst += vertexSize;
                 v.clear();
 
                 // 重定向顶点索引
-                mMeshData.indices[itr->mCtrlPointIdx] = idx;
+                mMeshData.indices[itr->second.mCtrlPointIdx] = idx;
 
                 ++idx;
                 ++itr;
             }
 
-            vbo->set_vertices(data, size);
+            vbo->set_values(data, size);
 
             T3D_SAFE_DELETE_ARRAY(data);
+        } while (false);
 
-            // 新建顶点索引
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::rebuildBinIndices(std::map<uint32_t, Vertex> &vertices)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            size_t size = vertices.begin()->second.size();
+            char *data = nullptr;
+
             bool is16Bits = true;
             size_t dataSize = 0;
-            if (mMeshData.indices.size())
+            if (mMeshData.indices.size() <= std::numeric_limits<uint16_t>::max())
             {
                 dataSize = sizeof(uint16_t);
                 size = mMeshData.indices.size() * dataSize;
@@ -1783,7 +2058,8 @@ namespace Tiny3D
                 is16Bits = false;
             }
 
-            dst = data;
+            char *dst = data;
+            size_t i = 0;
 
             for (i = 0; i < mMeshData.indices.size(); ++i)
             {
@@ -1793,18 +2069,14 @@ namespace Tiny3D
             }
 
             Script::ModelSystem::IndexBuffer *ibo = mMeshData.pTarget->add_index_buffers();
-            
+
             ibo->set_is_16bit(is16Bits);
             ibo->set_primitive_type(Script::ModelSystem::PT_TRIANGLE_LIST);
             ibo->set_primitive_count(mMeshData.indices.size() / 3);
-            ibo->set_indices(data, size);
+            ibo->set_values(data, size);
 
             T3D_SAFE_DELETE_ARRAY(data);
-
-            mMeshData.pTarget = nullptr;
-            mMeshData.vertices.clear();
-            mMeshData.indices.clear();
-        }
+        } while (false);
 
         return ret;
     }

@@ -62,7 +62,7 @@ namespace Tiny3D
                 switch (opts.mSrcFileType)
                 {
                 case MeshFileType::FBX:
-                    reader = FBXReader::create();
+                    reader = FBXReader::create(opts.mDstFileType == MeshFileType::T3T);
                     break;
                 case MeshFileType::OGRE:
                     reader = OGREReader::create();

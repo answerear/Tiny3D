@@ -71,8 +71,8 @@ namespace Tiny3D
             return (mBlendWeight == other.mBlendWeight && mBlendIndex == other.mBlendIndex);
         }
 
-        int     mBlendIndex;
-        float   mBlendWeight;
+        uint8_t     mBlendIndex;
+        float       mBlendWeight;
     };
 
     typedef std::set<BlendInfo>                 BlendInfoList;
@@ -87,6 +87,7 @@ namespace Tiny3D
             : mCtrlPointIdx(0)
             , mPosition(0.0, 0.0, 0.0)
             , mMaterialIdx(-1)
+            , mIndex(0)
             , mHash(0)
         {
 
@@ -169,21 +170,6 @@ namespace Tiny3D
                 while (it != mBlendInfo.rend() && i < 4)
                 {
                     const BlendInfo &info = *it;//it->second;
-                    vertices.push_back(info.mBlendWeight);
-                    ++it;
-                    ++i;
-                }
-
-                while (i < 4)
-                {
-                    vertices.push_back(0);
-                    ++i;
-                }
-
-                i = 0;
-                while (it != mBlendInfo.rend() && i < 4)
-                {
-                    const BlendInfo &info = *it;//it->second;
                     vertices.push_back((float)info.mBlendIndex);
                     ++it;
                     ++i;
@@ -192,6 +178,23 @@ namespace Tiny3D
                 while (i < 4)
                 {
                     vertices.push_back(-1);
+                    ++i;
+                }
+
+                i = 0;
+                it = mBlendInfo.rbegin();
+
+                while (it != mBlendInfo.rend() && i < 4)
+                {
+                    const BlendInfo &info = *it;//it->second;
+                    vertices.push_back(info.mBlendWeight);
+                    ++it;
+                    ++i;
+                }
+
+                while (i < 4)
+                {
+                    vertices.push_back(0);
                     ++i;
                 }
             }
@@ -229,14 +232,14 @@ namespace Tiny3D
 
         int                 mCtrlPointIdx;
         Vector3             mPosition;
+        ColorElement        mColorElements;
         VectorElements2     mTexElements;
         VectorElements3     mNormalElements;
         VectorElements3     mBinormalElements;
         VectorElements3     mTangentElements;
-        ColorElement        mColorElements;
         BlendInfoList       mBlendInfo;
         int                 mMaterialIdx;
-
+        int                 mIndex;
         uint32_t            mHash;
     };
 

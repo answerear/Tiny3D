@@ -18,14 +18,16 @@ extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Aabb_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_Bound_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_IndexBuffer_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_IndexBuffer_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Indices_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Keyframe_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_KeyframeData_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Obb_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Sphere_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_VertexAttribute_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_VertexBuffer_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_VertexBuffer_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vertices_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Quaternion_CommonScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vector3_CommonScriptObject_2eproto;
 namespace Tiny3D {
@@ -35,13 +37,15 @@ class VertexAttributeDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<VertexAttribute> _instance;
 } _VertexAttribute_default_instance_;
-class VertexDefaultTypeInternal {
+class VerticesDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vertex> _instance;
-} _Vertex_default_instance_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Vertices> _instance;
+} _Vertices_default_instance_;
 class VertexBufferDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<VertexBuffer> _instance;
+  const ::Tiny3D::Script::ModelSystem::Vertices* vertices_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr values_;
 } _VertexBuffer_default_instance_;
 class SphereDefaultTypeInternal {
  public:
@@ -62,9 +66,15 @@ class BoundDefaultTypeInternal {
   const ::Tiny3D::Script::ModelSystem::Aabb* aabb_;
   const ::Tiny3D::Script::ModelSystem::Obb* obb_;
 } _Bound_default_instance_;
+class IndicesDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Indices> _instance;
+} _Indices_default_instance_;
 class IndexBufferDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<IndexBuffer> _instance;
+  const ::Tiny3D::Script::ModelSystem::Indices* indices_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr values_;
 } _IndexBuffer_default_instance_;
 class KeyframeDataDefaultTypeInternal {
  public:
@@ -149,9 +159,24 @@ static void InitDefaultsscc_info_IndexBuffer_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::IndexBuffer::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_IndexBuffer_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_IndexBuffer_ModelScriptObject_2eproto}, {
-      &scc_info_Bound_ModelScriptObject_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_IndexBuffer_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_IndexBuffer_ModelScriptObject_2eproto}, {
+      &scc_info_Bound_ModelScriptObject_2eproto.base,
+      &scc_info_Indices_ModelScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_Indices_ModelScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::ModelSystem::_Indices_default_instance_;
+    new (ptr) ::Tiny3D::Script::ModelSystem::Indices();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::ModelSystem::Indices::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Indices_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Indices_ModelScriptObject_2eproto}, {}};
 
 static void InitDefaultsscc_info_Keyframe_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -246,20 +271,6 @@ static void InitDefaultsscc_info_Sphere_ModelScriptObject_2eproto() {
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Sphere_ModelScriptObject_2eproto}, {
       &scc_info_Vector3_CommonScriptObject_2eproto.base,}};
 
-static void InitDefaultsscc_info_Vertex_ModelScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::ModelSystem::_Vertex_default_instance_;
-    new (ptr) ::Tiny3D::Script::ModelSystem::Vertex();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::ModelSystem::Vertex::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vertex_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Vertex_ModelScriptObject_2eproto}, {}};
-
 static void InitDefaultsscc_info_VertexAttribute_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -285,11 +296,26 @@ static void InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::VertexBuffer::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_VertexBuffer_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto}, {
-      &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_VertexBuffer_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_VertexBuffer_ModelScriptObject_2eproto}, {
+      &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,
+      &scc_info_Vertices_ModelScriptObject_2eproto.base,}};
 
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[13];
+static void InitDefaultsscc_info_Vertices_ModelScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::ModelSystem::_Vertices_default_instance_;
+    new (ptr) ::Tiny3D::Script::ModelSystem::Vertices();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::ModelSystem::Vertices::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vertices_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Vertices_ModelScriptObject_2eproto}, {}};
+
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[14];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_ModelScriptObject_2eproto[5];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_ModelScriptObject_2eproto = nullptr;
 
@@ -303,18 +329,20 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexAttribute, type_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexAttribute, size_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertices, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertex, values_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Vertices, values_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexBuffer, _internal_metadata_),
   ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexBuffer, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexBuffer, attributes_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexBuffer, vertices_),
+  offsetof(::Tiny3D::Script::ModelSystem::VertexBufferDefaultTypeInternal, vertices_),
+  offsetof(::Tiny3D::Script::ModelSystem::VertexBufferDefaultTypeInternal, values_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::VertexBuffer, VerticesOneof_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Sphere, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -352,16 +380,24 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   offsetof(::Tiny3D::Script::ModelSystem::BoundDefaultTypeInternal, obb_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Bound, ValueOf_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Indices, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Indices, values_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, _internal_metadata_),
+  ~0u,  // no _extensions_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, is_16bit_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, primitive_type_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, primitive_count_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, material_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, bound_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, indices_),
+  offsetof(::Tiny3D::Script::ModelSystem::IndexBufferDefaultTypeInternal, indices_),
+  offsetof(::Tiny3D::Script::ModelSystem::IndexBufferDefaultTypeInternal, values_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, IndicesOneof_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::KeyframeData, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -410,28 +446,30 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexAttribute)},
-  { 8, -1, sizeof(::Tiny3D::Script::ModelSystem::Vertex)},
+  { 8, -1, sizeof(::Tiny3D::Script::ModelSystem::Vertices)},
   { 14, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexBuffer)},
-  { 21, -1, sizeof(::Tiny3D::Script::ModelSystem::Sphere)},
-  { 28, -1, sizeof(::Tiny3D::Script::ModelSystem::Aabb)},
-  { 39, -1, sizeof(::Tiny3D::Script::ModelSystem::Obb)},
-  { 47, -1, sizeof(::Tiny3D::Script::ModelSystem::Bound)},
-  { 57, -1, sizeof(::Tiny3D::Script::ModelSystem::IndexBuffer)},
-  { 68, -1, sizeof(::Tiny3D::Script::ModelSystem::KeyframeData)},
-  { 78, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
-  { 86, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
-  { 94, 101, sizeof(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse)},
-  { 103, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
+  { 23, -1, sizeof(::Tiny3D::Script::ModelSystem::Sphere)},
+  { 30, -1, sizeof(::Tiny3D::Script::ModelSystem::Aabb)},
+  { 41, -1, sizeof(::Tiny3D::Script::ModelSystem::Obb)},
+  { 49, -1, sizeof(::Tiny3D::Script::ModelSystem::Bound)},
+  { 59, -1, sizeof(::Tiny3D::Script::ModelSystem::Indices)},
+  { 65, -1, sizeof(::Tiny3D::Script::ModelSystem::IndexBuffer)},
+  { 78, -1, sizeof(::Tiny3D::Script::ModelSystem::KeyframeData)},
+  { 88, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
+  { 96, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
+  { 104, 111, sizeof(::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse)},
+  { 113, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_VertexAttribute_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Vertex_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Vertices_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_VertexBuffer_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Sphere_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Aabb_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Obb_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Bound_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Indices_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_IndexBuffer_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Keyframe_default_instance_),
@@ -454,79 +492,84 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "\007\022\023\n\017VAS_BLENDWEIGHT\020\010\"`\n\004Type\022\r\n\tVAT_FL"
   "OAT\020\000\022\016\n\nVAT_DOUBLE\020\001\022\014\n\010VAT_INT8\020\002\022\r\n\tV"
   "AT_INT16\020\003\022\r\n\tVAT_INT32\020\004\022\r\n\tVAT_INT64\020\005"
-  "\"\030\n\006Vertex\022\016\n\006values\030\001 \003(\002\"`\n\014VertexBuff"
-  "er\022>\n\nattributes\030\001 \003(\0132*.Tiny3D.Script.M"
-  "odelSystem.VertexAttribute\022\020\n\010vertices\030\002"
-  " \001(\014\"@\n\006Sphere\022&\n\006center\030\001 \001(\0132\026.Tiny3D."
-  "Script.Vector3\022\016\n\006radius\030\002 \001(\002\"`\n\004Aabb\022\r"
-  "\n\005min_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002\022\r\n\005min_y\030\003 "
-  "\001(\002\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030\005 \001(\002\022\r\n\005max"
-  "_z\030\006 \001(\002\"c\n\003Obb\022&\n\006center\030\001 \001(\0132\026.Tiny3D"
-  ".Script.Vector3\022$\n\004axis\030\002 \003(\0132\026.Tiny3D.S"
-  "cript.Vector3\022\016\n\006extent\030\003 \003(\002\"\214\002\n\005Bound\022"
-  "3\n\004type\030\001 \001(\0162%.Tiny3D.Script.ModelSyste"
-  "m.Bound.Type\0223\n\006sphere\030\002 \001(\0132!.Tiny3D.Sc"
-  "ript.ModelSystem.SphereH\000\022/\n\004aabb\030\003 \001(\0132"
-  "\037.Tiny3D.Script.ModelSystem.AabbH\000\022-\n\003ob"
-  "b\030\004 \001(\0132\036.Tiny3D.Script.ModelSystem.ObbH"
-  "\000\".\n\004Type\022\r\n\tBT_SPHERE\020\000\022\013\n\007BT_AABB\020\001\022\n\n"
-  "\006BT_OBB\020\002B\t\n\007ValueOf\"\316\001\n\013IndexBuffer\022\020\n\010"
-  "is_16bit\030\001 \001(\010\022@\n\016primitive_type\030\002 \001(\0162("
-  ".Tiny3D.Script.ModelSystem.PrimitiveType"
-  "\022\027\n\017primitive_count\030\003 \001(\r\022\020\n\010material\030\004 "
-  "\001(\t\022/\n\005bound\030\005 \001(\0132 .Tiny3D.Script.Model"
-  "System.Bound\022\017\n\007indices\030\006 \001(\014\"\266\001\n\014Keyfra"
-  "meData\022\014\n\004time\030\001 \001(\002\022-\n\013translation\030\002 \001("
-  "\0132\026.Tiny3D.Script.Vector3H\000\022-\n\010rotation\030"
-  "\003 \001(\0132\031.Tiny3D.Script.QuaternionH\000\022)\n\007sc"
-  "aling\030\004 \001(\0132\026.Tiny3D.Script.Vector3H\000B\017\n"
-  "\rKeyframeOneOf\"\306\001\n\010Keyframe\0226\n\004type\030\001 \001("
-  "\0162(.Tiny3D.Script.ModelSystem.Keyframe.T"
-  "ype\022\014\n\004bone\030\002 \001(\t\0227\n\006frames\030\003 \003(\0132\'.Tiny"
-  "3D.Script.ModelSystem.KeyframeData\";\n\004Ty"
-  "pe\022\022\n\016KT_TRANSLATION\020\000\022\017\n\013KT_ROTATION\020\001\022"
-  "\016\n\nKT_SCALING\020\002\"g\n\rAnimationClip\022\014\n\004name"
-  "\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002\0226\n\tkeyframes\030\003 "
-  "\003(\0132#.Tiny3D.Script.ModelSystem.Keyframe"
-  "\"\331\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022\?\n\016vertex_bu"
-  "ffers\030\002 \003(\0132\'.Tiny3D.Script.ModelSystem."
-  "VertexBuffer\022=\n\rindex_buffers\030\003 \003(\0132&.Ti"
-  "ny3D.Script.ModelSystem.IndexBuffer\022\?\n\006o"
-  "ffset\030\004 \003(\0132/.Tiny3D.Script.ModelSystem."
-  "MeshData.OffsetEntry\0227\n\005clips\030\005 \003(\0132(.Ti"
-  "ny3D.Script.ModelSystem.AnimationClip\032E\n"
-  "\013OffsetEntry\022\013\n\003key\030\001 \001(\t\022%\n\005value\030\002 \001(\013"
-  "2\026.Tiny3D.Script.Matrix4:\0028\001*\211\001\n\rPrimiti"
-  "veType\022\021\n\rPT_POINT_LIST\020\000\022\020\n\014PT_LINE_LIS"
-  "T\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT_TRIANGLE_LI"
-  "ST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022\023\n\017PT_TRIANG"
-  "LE_FAN\020\005b\006proto3"
+  "\"\032\n\010Vertices\022\016\n\006values\030\001 \003(\002\"\252\001\n\014VertexB"
+  "uffer\022>\n\nattributes\030\001 \003(\0132*.Tiny3D.Scrip"
+  "t.ModelSystem.VertexAttribute\0227\n\010vertice"
+  "s\030\002 \001(\0132#.Tiny3D.Script.ModelSystem.Vert"
+  "icesH\000\022\020\n\006values\030\003 \001(\014H\000B\017\n\rVerticesOneo"
+  "f\"@\n\006Sphere\022&\n\006center\030\001 \001(\0132\026.Tiny3D.Scr"
+  "ipt.Vector3\022\016\n\006radius\030\002 \001(\002\"`\n\004Aabb\022\r\n\005m"
+  "in_x\030\001 \001(\002\022\r\n\005max_x\030\002 \001(\002\022\r\n\005min_y\030\003 \001(\002"
+  "\022\r\n\005max_y\030\004 \001(\002\022\r\n\005min_z\030\005 \001(\002\022\r\n\005max_z\030"
+  "\006 \001(\002\"c\n\003Obb\022&\n\006center\030\001 \001(\0132\026.Tiny3D.Sc"
+  "ript.Vector3\022$\n\004axis\030\002 \003(\0132\026.Tiny3D.Scri"
+  "pt.Vector3\022\016\n\006extent\030\003 \003(\002\"\214\002\n\005Bound\0223\n\004"
+  "type\030\001 \001(\0162%.Tiny3D.Script.ModelSystem.B"
+  "ound.Type\0223\n\006sphere\030\002 \001(\0132!.Tiny3D.Scrip"
+  "t.ModelSystem.SphereH\000\022/\n\004aabb\030\003 \001(\0132\037.T"
+  "iny3D.Script.ModelSystem.AabbH\000\022-\n\003obb\030\004"
+  " \001(\0132\036.Tiny3D.Script.ModelSystem.ObbH\000\"."
+  "\n\004Type\022\r\n\tBT_SPHERE\020\000\022\013\n\007BT_AABB\020\001\022\n\n\006BT"
+  "_OBB\020\002B\t\n\007ValueOf\"\031\n\007Indices\022\016\n\006values\030\001"
+  " \003(\r\"\226\002\n\013IndexBuffer\022\020\n\010is_16bit\030\001 \001(\010\022@"
+  "\n\016primitive_type\030\002 \001(\0162(.Tiny3D.Script.M"
+  "odelSystem.PrimitiveType\022\027\n\017primitive_co"
+  "unt\030\003 \001(\r\022\020\n\010material\030\004 \001(\t\022/\n\005bound\030\005 \001"
+  "(\0132 .Tiny3D.Script.ModelSystem.Bound\0225\n\007"
+  "indices\030\006 \001(\0132\".Tiny3D.Script.ModelSyste"
+  "m.IndicesH\000\022\020\n\006values\030\007 \001(\014H\000B\016\n\014Indices"
+  "Oneof\"\266\001\n\014KeyframeData\022\014\n\004time\030\001 \001(\002\022-\n\013"
+  "translation\030\002 \001(\0132\026.Tiny3D.Script.Vector"
+  "3H\000\022-\n\010rotation\030\003 \001(\0132\031.Tiny3D.Script.Qu"
+  "aternionH\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Scr"
+  "ipt.Vector3H\000B\017\n\rKeyframeOneOf\"\306\001\n\010Keyfr"
+  "ame\0226\n\004type\030\001 \001(\0162(.Tiny3D.Script.ModelS"
+  "ystem.Keyframe.Type\022\014\n\004bone\030\002 \001(\t\0227\n\006fra"
+  "mes\030\003 \003(\0132\'.Tiny3D.Script.ModelSystem.Ke"
+  "yframeData\";\n\004Type\022\022\n\016KT_TRANSLATION\020\000\022\017"
+  "\n\013KT_ROTATION\020\001\022\016\n\nKT_SCALING\020\002\"g\n\rAnima"
+  "tionClip\022\014\n\004name\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002"
+  "\0226\n\tkeyframes\030\003 \003(\0132#.Tiny3D.Script.Mode"
+  "lSystem.Keyframe\"\331\002\n\010MeshData\022\014\n\004name\030\001 "
+  "\001(\t\022\?\n\016vertex_buffers\030\002 \003(\0132\'.Tiny3D.Scr"
+  "ipt.ModelSystem.VertexBuffer\022=\n\rindex_bu"
+  "ffers\030\003 \003(\0132&.Tiny3D.Script.ModelSystem."
+  "IndexBuffer\022\?\n\006offset\030\004 \003(\0132/.Tiny3D.Scr"
+  "ipt.ModelSystem.MeshData.OffsetEntry\0227\n\005"
+  "clips\030\005 \003(\0132(.Tiny3D.Script.ModelSystem."
+  "AnimationClip\032E\n\013OffsetEntry\022\013\n\003key\030\001 \001("
+  "\t\022%\n\005value\030\002 \001(\0132\026.Tiny3D.Script.Matrix4"
+  ":\0028\001*\211\001\n\rPrimitiveType\022\021\n\rPT_POINT_LIST\020"
+  "\000\022\020\n\014PT_LINE_LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024"
+  "\n\020PT_TRIANGLE_LIST\020\003\022\025\n\021PT_TRIANGLE_STRI"
+  "P\020\004\022\023\n\017PT_TRIANGLE_FAN\020\005b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_ModelScriptObject_2eproto_deps[1] = {
   &::descriptor_table_CommonScriptObject_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ModelScriptObject_2eproto_sccs[13] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ModelScriptObject_2eproto_sccs[14] = {
   &scc_info_Aabb_ModelScriptObject_2eproto.base,
   &scc_info_AnimationClip_ModelScriptObject_2eproto.base,
   &scc_info_Bound_ModelScriptObject_2eproto.base,
   &scc_info_IndexBuffer_ModelScriptObject_2eproto.base,
+  &scc_info_Indices_ModelScriptObject_2eproto.base,
   &scc_info_Keyframe_ModelScriptObject_2eproto.base,
   &scc_info_KeyframeData_ModelScriptObject_2eproto.base,
   &scc_info_MeshData_ModelScriptObject_2eproto.base,
   &scc_info_MeshData_OffsetEntry_DoNotUse_ModelScriptObject_2eproto.base,
   &scc_info_Obb_ModelScriptObject_2eproto.base,
   &scc_info_Sphere_ModelScriptObject_2eproto.base,
-  &scc_info_Vertex_ModelScriptObject_2eproto.base,
   &scc_info_VertexAttribute_ModelScriptObject_2eproto.base,
   &scc_info_VertexBuffer_ModelScriptObject_2eproto.base,
+  &scc_info_Vertices_ModelScriptObject_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_ModelScriptObject_2eproto_once;
 static bool descriptor_table_ModelScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_ModelScriptObject_2eproto = {
-  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2376,
-  &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 13, 1,
+  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2552,
+  &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 14, 1,
   schemas, file_default_instances, TableStruct_ModelScriptObject_2eproto::offsets,
-  file_level_metadata_ModelScriptObject_2eproto, 13, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
+  file_level_metadata_ModelScriptObject_2eproto, 14, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
@@ -907,47 +950,47 @@ void VertexAttribute::InternalSwap(VertexAttribute* other) {
 
 // ===================================================================
 
-void Vertex::InitAsDefaultInstance() {
+void Vertices::InitAsDefaultInstance() {
 }
-class Vertex::_Internal {
+class Vertices::_Internal {
  public:
 };
 
-Vertex::Vertex()
+Vertices::Vertices()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.Vertex)
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.Vertices)
 }
-Vertex::Vertex(const Vertex& from)
+Vertices::Vertices(const Vertices& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       values_(from.values_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Vertex)
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Vertices)
 }
 
-void Vertex::SharedCtor() {
+void Vertices::SharedCtor() {
 }
 
-Vertex::~Vertex() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.Vertex)
+Vertices::~Vertices() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.Vertices)
   SharedDtor();
 }
 
-void Vertex::SharedDtor() {
+void Vertices::SharedDtor() {
 }
 
-void Vertex::SetCachedSize(int size) const {
+void Vertices::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const Vertex& Vertex::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Vertex_ModelScriptObject_2eproto.base);
+const Vertices& Vertices::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Vertices_ModelScriptObject_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void Vertex::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Vertex)
+void Vertices::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Vertices)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -956,7 +999,7 @@ void Vertex::Clear() {
   _internal_metadata_.Clear();
 }
 
-const char* Vertex::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Vertices::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -993,9 +1036,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Vertex::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* Vertices::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.Vertex)
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.Vertices)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1008,12 +1051,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.Vertex)
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.Vertices)
   return target;
 }
 
-size_t Vertex::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.Vertex)
+size_t Vertices::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.Vertices)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -1044,23 +1087,23 @@ size_t Vertex::ByteSizeLong() const {
   return total_size;
 }
 
-void Vertex::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.Vertex)
+void Vertices::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.Vertices)
   GOOGLE_DCHECK_NE(&from, this);
-  const Vertex* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Vertex>(
+  const Vertices* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Vertices>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.Vertex)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.Vertices)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.Vertex)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.Vertices)
     MergeFrom(*source);
   }
 }
 
-void Vertex::MergeFrom(const Vertex& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.Vertex)
+void Vertices::MergeFrom(const Vertices& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.Vertices)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -1069,31 +1112,31 @@ void Vertex::MergeFrom(const Vertex& from) {
   values_.MergeFrom(from.values_);
 }
 
-void Vertex::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.Vertex)
+void Vertices::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.Vertices)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Vertex::CopyFrom(const Vertex& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.Vertex)
+void Vertices::CopyFrom(const Vertices& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.Vertices)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Vertex::IsInitialized() const {
+bool Vertices::IsInitialized() const {
   return true;
 }
 
-void Vertex::InternalSwap(Vertex* other) {
+void Vertices::InternalSwap(Vertices* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   values_.InternalSwap(&other->values_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata Vertex::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata Vertices::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -1101,11 +1144,34 @@ void Vertex::InternalSwap(Vertex* other) {
 // ===================================================================
 
 void VertexBuffer::InitAsDefaultInstance() {
+  ::Tiny3D::Script::ModelSystem::_VertexBuffer_default_instance_.vertices_ = const_cast< ::Tiny3D::Script::ModelSystem::Vertices*>(
+      ::Tiny3D::Script::ModelSystem::Vertices::internal_default_instance());
+  ::Tiny3D::Script::ModelSystem::_VertexBuffer_default_instance_.values_.UnsafeSetDefault(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 class VertexBuffer::_Internal {
  public:
+  static const ::Tiny3D::Script::ModelSystem::Vertices& vertices(const VertexBuffer* msg);
 };
 
+const ::Tiny3D::Script::ModelSystem::Vertices&
+VertexBuffer::_Internal::vertices(const VertexBuffer* msg) {
+  return *msg->VerticesOneof_.vertices_;
+}
+void VertexBuffer::set_allocated_vertices(::Tiny3D::Script::ModelSystem::Vertices* vertices) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  clear_VerticesOneof();
+  if (vertices) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      vertices = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, vertices, submessage_arena);
+    }
+    set_has_vertices();
+    VerticesOneof_.vertices_ = vertices;
+  }
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.VertexBuffer.vertices)
+}
 VertexBuffer::VertexBuffer()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -1116,16 +1182,26 @@ VertexBuffer::VertexBuffer(const VertexBuffer& from)
       _internal_metadata_(nullptr),
       attributes_(from.attributes_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  vertices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_vertices().empty()) {
-    vertices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.vertices_);
+  clear_has_VerticesOneof();
+  switch (from.VerticesOneof_case()) {
+    case kVertices: {
+      _internal_mutable_vertices()->::Tiny3D::Script::ModelSystem::Vertices::MergeFrom(from._internal_vertices());
+      break;
+    }
+    case kValues: {
+      _internal_set_values(from._internal_values());
+      break;
+    }
+    case VERTICESONEOF_NOT_SET: {
+      break;
+    }
   }
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.VertexBuffer)
 }
 
 void VertexBuffer::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_VertexBuffer_ModelScriptObject_2eproto.base);
-  vertices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  clear_has_VerticesOneof();
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -1134,7 +1210,9 @@ VertexBuffer::~VertexBuffer() {
 }
 
 void VertexBuffer::SharedDtor() {
-  vertices_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (has_VerticesOneof()) {
+    clear_VerticesOneof();
+  }
 }
 
 void VertexBuffer::SetCachedSize(int size) const {
@@ -1146,6 +1224,25 @@ const VertexBuffer& VertexBuffer::default_instance() {
 }
 
 
+void VertexBuffer::clear_VerticesOneof() {
+// @@protoc_insertion_point(one_of_clear_start:Tiny3D.Script.ModelSystem.VertexBuffer)
+  switch (VerticesOneof_case()) {
+    case kVertices: {
+      delete VerticesOneof_.vertices_;
+      break;
+    }
+    case kValues: {
+      VerticesOneof_.values_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+      break;
+    }
+    case VERTICESONEOF_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[0] = VERTICESONEOF_NOT_SET;
+}
+
+
 void VertexBuffer::Clear() {
 // @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.VertexBuffer)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -1153,7 +1250,7 @@ void VertexBuffer::Clear() {
   (void) cached_has_bits;
 
   attributes_.Clear();
-  vertices_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  clear_VerticesOneof();
   _internal_metadata_.Clear();
 }
 
@@ -1176,10 +1273,17 @@ const char* VertexBuffer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
-      // bytes vertices = 2;
+      // .Tiny3D.Script.ModelSystem.Vertices vertices = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          auto str = _internal_mutable_vertices();
+          ptr = ctx->ParseMessage(_internal_mutable_vertices(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes values = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          auto str = _internal_mutable_values();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -1218,10 +1322,18 @@ failure:
       InternalWriteMessage(1, this->_internal_attributes(i), target, stream);
   }
 
-  // bytes vertices = 2;
-  if (this->vertices().size() > 0) {
+  // .Tiny3D.Script.ModelSystem.Vertices vertices = 2;
+  if (_internal_has_vertices()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        2, _Internal::vertices(this), target, stream);
+  }
+
+  // bytes values = 3;
+  if (_internal_has_values()) {
     target = stream->WriteBytesMaybeAliased(
-        2, this->_internal_vertices(), target);
+        3, this->_internal_values(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1247,13 +1359,25 @@ size_t VertexBuffer::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // bytes vertices = 2;
-  if (this->vertices().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_vertices());
+  switch (VerticesOneof_case()) {
+    // .Tiny3D.Script.ModelSystem.Vertices vertices = 2;
+    case kVertices: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+          *VerticesOneof_.vertices_);
+      break;
+    }
+    // bytes values = 3;
+    case kValues: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_values());
+      break;
+    }
+    case VERTICESONEOF_NOT_SET: {
+      break;
+    }
   }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -1286,9 +1410,18 @@ void VertexBuffer::MergeFrom(const VertexBuffer& from) {
   (void) cached_has_bits;
 
   attributes_.MergeFrom(from.attributes_);
-  if (from.vertices().size() > 0) {
-
-    vertices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.vertices_);
+  switch (from.VerticesOneof_case()) {
+    case kVertices: {
+      _internal_mutable_vertices()->::Tiny3D::Script::ModelSystem::Vertices::MergeFrom(from._internal_vertices());
+      break;
+    }
+    case kValues: {
+      _internal_set_values(from._internal_values());
+      break;
+    }
+    case VERTICESONEOF_NOT_SET: {
+      break;
+    }
   }
 }
 
@@ -1314,8 +1447,8 @@ void VertexBuffer::InternalSwap(VertexBuffer* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   attributes_.InternalSwap(&other->attributes_);
-  vertices_.Swap(&other->vertices_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
+  swap(VerticesOneof_, other->VerticesOneof_);
+  swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata VertexBuffer::GetMetadata() const {
@@ -2526,18 +2659,238 @@ void Bound::InternalSwap(Bound* other) {
 
 // ===================================================================
 
+void Indices::InitAsDefaultInstance() {
+}
+class Indices::_Internal {
+ public:
+};
+
+Indices::Indices()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.Indices)
+}
+Indices::Indices(const Indices& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
+      values_(from.values_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Indices)
+}
+
+void Indices::SharedCtor() {
+}
+
+Indices::~Indices() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.Indices)
+  SharedDtor();
+}
+
+void Indices::SharedDtor() {
+}
+
+void Indices::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Indices& Indices::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Indices_ModelScriptObject_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Indices::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Indices)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  values_.Clear();
+  _internal_metadata_.Clear();
+}
+
+const char* Indices::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated uint32 values = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_values(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8) {
+          _internal_add_values(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Indices::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.Indices)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated uint32 values = 1;
+  {
+    int byte_size = _values_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          1, _internal_values(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.Indices)
+  return target;
+}
+
+size_t Indices::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.Indices)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated uint32 values = 1;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->values_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _values_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Indices::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.Indices)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Indices* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Indices>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.Indices)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.Indices)
+    MergeFrom(*source);
+  }
+}
+
+void Indices::MergeFrom(const Indices& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.Indices)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  values_.MergeFrom(from.values_);
+}
+
+void Indices::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.Indices)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Indices::CopyFrom(const Indices& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.Indices)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Indices::IsInitialized() const {
+  return true;
+}
+
+void Indices::InternalSwap(Indices* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  values_.InternalSwap(&other->values_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Indices::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
 void IndexBuffer::InitAsDefaultInstance() {
   ::Tiny3D::Script::ModelSystem::_IndexBuffer_default_instance_._instance.get_mutable()->bound_ = const_cast< ::Tiny3D::Script::ModelSystem::Bound*>(
       ::Tiny3D::Script::ModelSystem::Bound::internal_default_instance());
+  ::Tiny3D::Script::ModelSystem::_IndexBuffer_default_instance_.indices_ = const_cast< ::Tiny3D::Script::ModelSystem::Indices*>(
+      ::Tiny3D::Script::ModelSystem::Indices::internal_default_instance());
+  ::Tiny3D::Script::ModelSystem::_IndexBuffer_default_instance_.values_.UnsafeSetDefault(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 class IndexBuffer::_Internal {
  public:
   static const ::Tiny3D::Script::ModelSystem::Bound& bound(const IndexBuffer* msg);
+  static const ::Tiny3D::Script::ModelSystem::Indices& indices(const IndexBuffer* msg);
 };
 
 const ::Tiny3D::Script::ModelSystem::Bound&
 IndexBuffer::_Internal::bound(const IndexBuffer* msg) {
   return *msg->bound_;
+}
+const ::Tiny3D::Script::ModelSystem::Indices&
+IndexBuffer::_Internal::indices(const IndexBuffer* msg) {
+  return *msg->IndicesOneof_.indices_;
+}
+void IndexBuffer::set_allocated_indices(::Tiny3D::Script::ModelSystem::Indices* indices) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  clear_IndicesOneof();
+  if (indices) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      indices = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, indices, submessage_arena);
+    }
+    set_has_indices();
+    IndicesOneof_.indices_ = indices;
+  }
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.IndexBuffer.indices)
 }
 IndexBuffer::IndexBuffer()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
@@ -2552,10 +2905,6 @@ IndexBuffer::IndexBuffer(const IndexBuffer& from)
   if (!from._internal_material().empty()) {
     material_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.material_);
   }
-  indices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_indices().empty()) {
-    indices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.indices_);
-  }
   if (from._internal_has_bound()) {
     bound_ = new ::Tiny3D::Script::ModelSystem::Bound(*from.bound_);
   } else {
@@ -2564,16 +2913,30 @@ IndexBuffer::IndexBuffer(const IndexBuffer& from)
   ::memcpy(&is_16bit_, &from.is_16bit_,
     static_cast<size_t>(reinterpret_cast<char*>(&primitive_count_) -
     reinterpret_cast<char*>(&is_16bit_)) + sizeof(primitive_count_));
+  clear_has_IndicesOneof();
+  switch (from.IndicesOneof_case()) {
+    case kIndices: {
+      _internal_mutable_indices()->::Tiny3D::Script::ModelSystem::Indices::MergeFrom(from._internal_indices());
+      break;
+    }
+    case kValues: {
+      _internal_set_values(from._internal_values());
+      break;
+    }
+    case INDICESONEOF_NOT_SET: {
+      break;
+    }
+  }
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.IndexBuffer)
 }
 
 void IndexBuffer::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_IndexBuffer_ModelScriptObject_2eproto.base);
   material_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  indices_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&bound_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&primitive_count_) -
       reinterpret_cast<char*>(&bound_)) + sizeof(primitive_count_));
+  clear_has_IndicesOneof();
 }
 
 IndexBuffer::~IndexBuffer() {
@@ -2583,8 +2946,10 @@ IndexBuffer::~IndexBuffer() {
 
 void IndexBuffer::SharedDtor() {
   material_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  indices_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete bound_;
+  if (has_IndicesOneof()) {
+    clear_IndicesOneof();
+  }
 }
 
 void IndexBuffer::SetCachedSize(int size) const {
@@ -2596,6 +2961,25 @@ const IndexBuffer& IndexBuffer::default_instance() {
 }
 
 
+void IndexBuffer::clear_IndicesOneof() {
+// @@protoc_insertion_point(one_of_clear_start:Tiny3D.Script.ModelSystem.IndexBuffer)
+  switch (IndicesOneof_case()) {
+    case kIndices: {
+      delete IndicesOneof_.indices_;
+      break;
+    }
+    case kValues: {
+      IndicesOneof_.values_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+      break;
+    }
+    case INDICESONEOF_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[0] = INDICESONEOF_NOT_SET;
+}
+
+
 void IndexBuffer::Clear() {
 // @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.IndexBuffer)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -2603,7 +2987,6 @@ void IndexBuffer::Clear() {
   (void) cached_has_bits;
 
   material_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  indices_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (GetArenaNoVirtual() == nullptr && bound_ != nullptr) {
     delete bound_;
   }
@@ -2611,6 +2994,7 @@ void IndexBuffer::Clear() {
   ::memset(&is_16bit_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&primitive_count_) -
       reinterpret_cast<char*>(&is_16bit_)) + sizeof(primitive_count_));
+  clear_IndicesOneof();
   _internal_metadata_.Clear();
 }
 
@@ -2659,10 +3043,17 @@ const char* IndexBuffer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bytes indices = 6;
+      // .Tiny3D.Script.ModelSystem.Indices indices = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          auto str = _internal_mutable_indices();
+          ptr = ctx->ParseMessage(_internal_mutable_indices(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes values = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
+          auto str = _internal_mutable_values();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -2730,10 +3121,18 @@ failure:
         5, _Internal::bound(this), target, stream);
   }
 
-  // bytes indices = 6;
-  if (this->indices().size() > 0) {
+  // .Tiny3D.Script.ModelSystem.Indices indices = 6;
+  if (_internal_has_indices()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        6, _Internal::indices(this), target, stream);
+  }
+
+  // bytes values = 7;
+  if (_internal_has_values()) {
     target = stream->WriteBytesMaybeAliased(
-        6, this->_internal_indices(), target);
+        7, this->_internal_values(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2757,13 +3156,6 @@ size_t IndexBuffer::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_material());
-  }
-
-  // bytes indices = 6;
-  if (this->indices().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_indices());
   }
 
   // .Tiny3D.Script.ModelSystem.Bound bound = 5;
@@ -2791,6 +3183,25 @@ size_t IndexBuffer::ByteSizeLong() const {
         this->_internal_primitive_count());
   }
 
+  switch (IndicesOneof_case()) {
+    // .Tiny3D.Script.ModelSystem.Indices indices = 6;
+    case kIndices: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+          *IndicesOneof_.indices_);
+      break;
+    }
+    // bytes values = 7;
+    case kValues: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_values());
+      break;
+    }
+    case INDICESONEOF_NOT_SET: {
+      break;
+    }
+  }
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -2826,10 +3237,6 @@ void IndexBuffer::MergeFrom(const IndexBuffer& from) {
 
     material_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.material_);
   }
-  if (from.indices().size() > 0) {
-
-    indices_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.indices_);
-  }
   if (from.has_bound()) {
     _internal_mutable_bound()->::Tiny3D::Script::ModelSystem::Bound::MergeFrom(from._internal_bound());
   }
@@ -2841,6 +3248,19 @@ void IndexBuffer::MergeFrom(const IndexBuffer& from) {
   }
   if (from.primitive_count() != 0) {
     _internal_set_primitive_count(from._internal_primitive_count());
+  }
+  switch (from.IndicesOneof_case()) {
+    case kIndices: {
+      _internal_mutable_indices()->::Tiny3D::Script::ModelSystem::Indices::MergeFrom(from._internal_indices());
+      break;
+    }
+    case kValues: {
+      _internal_set_values(from._internal_values());
+      break;
+    }
+    case INDICESONEOF_NOT_SET: {
+      break;
+    }
   }
 }
 
@@ -2867,12 +3287,12 @@ void IndexBuffer::InternalSwap(IndexBuffer* other) {
   _internal_metadata_.Swap(&other->_internal_metadata_);
   material_.Swap(&other->material_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
-  indices_.Swap(&other->indices_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
   swap(bound_, other->bound_);
   swap(is_16bit_, other->is_16bit_);
   swap(primitive_type_, other->primitive_type_);
   swap(primitive_count_, other->primitive_count_);
+  swap(IndicesOneof_, other->IndicesOneof_);
+  swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata IndexBuffer::GetMetadata() const {
@@ -4181,8 +4601,8 @@ PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::VertexAttribute* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::VertexAttribute >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::VertexAttribute >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Vertex* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::Vertex >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::Vertex >(arena);
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Vertices* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::Vertices >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::Vertices >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::VertexBuffer* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::VertexBuffer >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::VertexBuffer >(arena);
@@ -4198,6 +4618,9 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Obb* Arena::CreateMa
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Bound* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::Bound >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::Bound >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Indices* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::Indices >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::Indices >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::IndexBuffer* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::IndexBuffer >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::IndexBuffer >(arena);

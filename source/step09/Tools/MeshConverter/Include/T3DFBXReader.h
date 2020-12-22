@@ -36,12 +36,12 @@ namespace Tiny3D
     class FBXReader : public ModelReader
     {
     public:
-        static FBXReaderPtr create();
+        static FBXReaderPtr create(bool isTxt);
 
         virtual ~FBXReader();
 
     protected:
-        FBXReader();
+        FBXReader(bool isTxt);
 
         virtual TResult parse(DataStream &stream, Model *model) override;
 
@@ -97,6 +97,12 @@ namespace Tiny3D
 
         TResult optimizeMesh();
 
+        TResult rebuildTxtVertices(std::map<uint32_t, Vertex> &vertices);
+        TResult rebuildTxtIndices(std::map<uint32_t, Vertex> &vertices);
+
+        TResult rebuildBinVertices(std::map<uint32_t, Vertex> &vertices);
+        TResult rebuildBinIndices(std::map<uint32_t, Vertex> &vertices);
+
     protected:
         FbxManager  *mFbxManager;
         size_t      mTabCount;
@@ -110,6 +116,8 @@ namespace Tiny3D
         };
 
         MeshData    mMeshData;
+
+        bool        mIsTxt;
     };
 }
 

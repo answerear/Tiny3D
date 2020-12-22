@@ -49,7 +49,7 @@ message VertexAttribute
 }
 
 
-message Vertex
+message Vertices
 {
     repeated float  values = 1;
 }
@@ -60,7 +60,11 @@ message Vertex
 message VertexBuffer
 {
     repeated VertexAttribute    attributes = 1;
-    bytes                       vertices = 2;
+    oneof VerticesOneof
+    {
+        Vertices    vertices = 2;
+        bytes       values = 3;
+    }
 }
 
 
@@ -133,6 +137,11 @@ message Bound
     }
 }
 
+message Indices
+{
+    repeated uint32 values = 1;
+}
+
 message IndexBuffer
 {
     bool            is_16bit = 1;
@@ -140,7 +149,11 @@ message IndexBuffer
     uint32          primitive_count = 3;
     string          material = 4;
     Bound           bound = 5;
-    bytes           indices = 6;
+    oneof IndicesOneof
+    {
+        Indices     indices = 6;
+        bytes       values = 7;
+    }
 }
 
 
