@@ -525,7 +525,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = processFbxSkin(pFbxMesh);
+            ret = processFbxSkin(pFbxMesh, pMesh);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -627,18 +627,6 @@ namespace Tiny3D
             attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
             attr->set_size(3);
         }
-
-        // BLEND_INDEX
-        attr = attributes->Add();
-        attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDINDEX);
-        attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_INT8);
-        attr->set_size(4);
-        
-        // BLEND_WEIGHT
-        attr = attributes->Add();
-        attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDWEIGHT);
-        attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
-        attr->set_size(4);
 
         return ret;
     }
@@ -1529,7 +1517,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxSkin(FbxGeometry* pFbxGeometry)
+    TResult FBXReader::processFbxSkin(FbxGeometry* pFbxGeometry, Script::ModelSystem::MeshData *pMesh)
     {
         TResult ret = T3D_OK;
 
@@ -1537,6 +1525,25 @@ namespace Tiny3D
         int i = 0;
 
         MCONV_LOG_INFO("Skin (%d) : ", nSkinCount);
+
+        if (nSkinCount > 0)
+        {
+            auto vbs = pMesh->mutable_vertex_buffers();
+            auto vbo = vbs->Mutable(0);
+            auto attributes = vbo->mutable_attributes();
+
+            // BLEND_INDEX
+            auto attr = attributes->Add();
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDINDEX);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_INT8);
+            attr->set_size(4);
+
+            // BLEND_WEIGHT
+            attr = attributes->Add();
+            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDWEIGHT);
+            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+            attr->set_size(4);
+        }
 
         for (i = 0; i < nSkinCount; ++i)
         {

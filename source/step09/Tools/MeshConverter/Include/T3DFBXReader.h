@@ -69,7 +69,7 @@ namespace Tiny3D
 
         TResult processFbxBindPose(FbxScene *pFbxScene);
 
-        TResult processFbxSkin(FbxGeometry *pFbxGeometry);
+        TResult processFbxSkin(FbxGeometry *pFbxGeometry, Script::ModelSystem::MeshData *pMesh);
 
         int InterpolationFlagToIndex(int flags);
         int ConstantmodeFlagToIndex(int flags);
