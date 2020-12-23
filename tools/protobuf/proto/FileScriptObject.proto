@@ -39,16 +39,28 @@ message FileMeta
     MetaSystem.MetaData meta = 2;
 }
 
-message FileModel
+message FileModelData
 {
-    FileHeader                          header = 1;
+    string                              root = 1;
     map<string, SceneSystem.Node>       nodes = 2;
     map<string, ModelSystem.MeshData>   meshes = 3;
 }
 
+message FileModel
+{
+    FileHeader      header = 1;
+    FileModelData   data = 2;
+}
+
+message FileSceneData
+{
+    string                              root = 2;
+    map<string, SceneSystem.Node>       nodes = 3;
+    map<string, ModelSystem.MeshData>   meshes = 4; 
+}
+
 message FileScene
 {
-    FileHeader                          header = 1;
-    map<string, SceneSystem.Node>       nodes = 2;
-    map<string, ModelSystem.MeshData>   meshes = 3;
+    FileHeader          header = 1;
+    FileSceneData       data = 2;
 }

@@ -28,16 +28,6 @@
 
 namespace Tiny3D
 {
-    namespace Script
-    {
-        namespace FileFormat
-        {
-            class FileModel;
-        }
-    }
-
-    using FileModel = Script::FileFormat::FileModel;
-
     /**
      * @class   Archive
      * @brief   档案类，用于档案文件的组织管理，隔离文件系统、zip压缩文件的实现细节
@@ -62,7 +52,7 @@ namespace Tiny3D
          */
         virtual Type getType() const override;
 
-        FileModel *getModelData() const 
+        void *getModelData() const 
         { 
             return mModelData;
         }
@@ -82,7 +72,7 @@ namespace Tiny3D
         virtual ResourcePtr clone() const override;
 
     protected:
-        FileModel   *mModelData;
+        void   *mModelData;
     };
 }
 

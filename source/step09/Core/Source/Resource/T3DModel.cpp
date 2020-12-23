@@ -63,7 +63,7 @@ namespace Tiny3D
 
     TResult Model::load()
     {
-        mModelData = new FileModel();
+        mModelData = new Script::FileFormat::FileModel();
         return T3D_OK;
     }
 

@@ -51,10 +51,10 @@ namespace Tiny3D
         TResult importFbxScene(DataStream &stream, FbxScene *pFbxScene);
         TResult setupMetricSystem(FbxScene *pFbxScene);
 
-        TResult processFbxScene(FbxScene *pFbxScene, FileModel *model);
+        TResult processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileModel *model);
 
-        TResult processFbxNode(FbxNode *pFbxNode, FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
-        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, FileModel *model);
+        TResult processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
+        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileModel *model);
         TResult processFbxMeshAttributes(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
         TResult processFbxMeshData(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
         TResult processFbxMaterial(FbxNode *pFbxNode, FbxMesh *pFbxMesh);

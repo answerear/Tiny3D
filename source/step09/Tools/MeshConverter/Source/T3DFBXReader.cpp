@@ -208,7 +208,7 @@ namespace Tiny3D
         do 
         {
             // 文件头
-            FileModel *data = model->getModelData();
+            Script::FileFormat::FileModel *data = (Script::FileFormat::FileModel *)model->getModelData();
             Script::FileFormat::FileHeader *header = data->mutable_header();
             header->set_magic(T3D_FILE_MAGIC);
             header->set_version(T3D_FILE_MDL_VERSION);
@@ -274,7 +274,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, FileModel *model)
+    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileModel *model)
     {
         TResult ret = T3D_OK;
 
@@ -304,7 +304,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxNode(FbxNode *pFbxNode, FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode)
+    TResult FBXReader::processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode)
     {
         TResult ret = T3D_OK;
 
@@ -312,7 +312,7 @@ namespace Tiny3D
         {
             // 新建一个 node
             String uuid = UUID::generate();
-            auto nodes = model->mutable_nodes();
+            auto nodes = model->mutable_data()->mutable_nodes();
             auto rval = nodes->insert({ uuid, Script::SceneSystem::Node() });
             pNode = &rval.first->second;
             pNode->set_uuid(uuid);
@@ -326,6 +326,7 @@ namespace Tiny3D
             else
             {
                 pNode->set_parent("");
+                model->mutable_data()->set_root(uuid);
             }
 
             std::stringstream ss;
@@ -498,14 +499,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, FileModel *model)
+    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileModel *model)
     {
         TResult ret = T3D_OK;
 
         do 
         {
             // generate a mesh
-            auto meshes = model->mutable_meshes();
+            auto meshes = model->mutable_data()->mutable_meshes();
             String uuid = UUID::generate();
             auto rval = meshes->insert({ uuid, Script::ModelSystem::MeshData() });
             Script::ModelSystem::MeshData *pMesh = &rval.first->second;
