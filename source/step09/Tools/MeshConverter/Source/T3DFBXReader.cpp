@@ -1527,28 +1527,35 @@ namespace Tiny3D
 
         MCONV_LOG_INFO("Skin (%d) : ", nSkinCount);
 
-        if (nSkinCount > 0)
-        {
-            auto vbs = pMesh->mutable_vertex_buffers();
-            auto vbo = vbs->Mutable(0);
-            auto attributes = vbo->mutable_attributes();
-
-            // BLEND_INDEX
-            auto attr = attributes->Add();
-            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDINDEX);
-            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_INT8);
-            attr->set_size(4);
-
-            // BLEND_WEIGHT
-            attr = attributes->Add();
-            attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDWEIGHT);
-            attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
-            attr->set_size(4);
-        }
+        bool hasSkin = false;
 
         for (i = 0; i < nSkinCount; ++i)
         {
             FbxSkin* pFbxSkin = (FbxSkin*)pFbxGeometry->GetDeformer(i, FbxDeformer::eSkin);
+            if (pFbxSkin == nullptr)
+                continue;
+
+            if (!hasSkin)
+            {
+                auto vbs = pMesh->mutable_vertex_buffers();
+                auto vbo = vbs->Mutable(0);
+                auto attributes = vbo->mutable_attributes();
+
+                // BLEND_INDEX
+                auto attr = attributes->Add();
+                attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDINDEX);
+                attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_INT8);
+                attr->set_size(4);
+
+                // BLEND_WEIGHT
+                attr = attributes->Add();
+                attr->set_semantic(Script::ModelSystem::VertexAttribute_Semantic_VAS_BLENDWEIGHT);
+                attr->set_type(Script::ModelSystem::VertexAttribute_Type_VAT_FLOAT);
+                attr->set_size(4);
+
+                hasSkin = true;
+            }
+
             int nClusterCount = pFbxSkin->GetClusterCount();
 
             int j = 0;
