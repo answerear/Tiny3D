@@ -23,11 +23,27 @@
 
 
 #include "T3DResource.h"
-#include "Kernel/T3DModelData.h"
+#include "Render/T3DRenderer.h"
 
 
 namespace Tiny3D
 {
+    struct SubmeshData
+    {
+        Renderer::PrimitiveType primitive;
+        HardwareIndexBufferPtr  indices;
+        size_t                  primitiveCount;
+        String                  material;
+        BoundPtr                bound;
+    };
+
+    struct MeshData
+    {
+        VertexDeclarationPtr            declartion;
+        TArray<HardwareVertexBufferPtr> vertices;
+        TArray<SubmeshData>             submeshes;
+    };
+
     /**
      * @class   Archive
      * @brief   档案类，用于档案文件的组织管理，隔离文件系统、zip压缩文件的实现细节
@@ -52,12 +68,11 @@ namespace Tiny3D
          */
         virtual Type getType() const override;
 
-        void *getModelData() const 
-        { 
-            return mModelData;
-        }
+        void *getModelData() const  { return mModelData; }
 
         void setModelData(void *data);
+
+        MeshData getMeshData() const { return mMeshData; }
 
     protected:
         /**
@@ -73,12 +88,12 @@ namespace Tiny3D
 
         virtual ResourcePtr clone() const override;
 
-        TResult buildData();
+        TResult buildMeshData();
 
     protected:
         void   *mModelData;
 
-        SceneNodePtr    mRoot;
+        MeshData    mMeshData;
     };
 }
 

@@ -25,9 +25,17 @@
 #include "Serializer/T3DSerializerManager.h"
 #include "protobuf/FileScriptObject.pb.h"
 #include "Scene/T3DSceneManager.h"
+#include "Render/T3DHardwareBufferManager.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    TResult buildNode(google::protobuf::Map<String, Script::SceneSystem::Node>& nodes, const std::string& uuid, SceneNodePtr parent, SceneNodePtr& node);
+
     //--------------------------------------------------------------------------
 
     T3D_IMPLEMENT_CLASS_1(Model, Resource);
@@ -61,7 +69,7 @@ namespace Tiny3D
 
     Resource::Type Model::getType() const
     {
-        return Type::E_RT_MESHDATA;
+        return Type::E_RT_MODEL;
     }
 
     //--------------------------------------------------------------------------
@@ -103,7 +111,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = buildData();
+            ret = buildMeshData();
             if (T3D_FAILED(ret))
             {
                 break;
@@ -133,33 +141,107 @@ namespace Tiny3D
 
     void Model::setModelData(void *data)
     {
-        Script::FileFormat::FileModel *src = (Script::FileFormat::FileModel *)data;
-        Script::FileFormat::FileModel *dst = (Script::FileFormat::FileModel *)mModelData;
+        Script::FileFormat::FileModel *src 
+            = (Script::FileFormat::FileModel *)data;
+        Script::FileFormat::FileModel *dst 
+            = (Script::FileFormat::FileModel *)mModelData;
         dst->CopyFrom(*src);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Model::buildData()
+    TResult Model::buildMeshData()
     {
         TResult ret = T3D_OK;
 
-        Script::FileFormat::FileModel *model = (Script::FileFormat::FileModel *)mModelData;
-
-        auto body = model->data();
-        auto uuid = body.root();
-        auto nodes = body.nodes();
-        auto root = nodes[uuid];
-
-        mRoot = T3D_SCENE_MGR.createSceneNode(nullptr);
-        mRoot->setName(root.name());
-
-        auto children = root.children();
-
-        for (int32_t i = 0; i < root.children_size(); ++i)
+        do 
         {
-            auto child = children[i];
-            auto node = nodes[child];
+            Script::FileFormat::FileModel* model 
+                = (Script::FileFormat::FileModel*)mModelData;
+
+            mMeshData.vertices.clear();
+            mMeshData.submeshes.clear();
+
+            // Vertex delcaration
+            mMeshData.declartion = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+
+            auto meshes = model->data().meshes();
+            auto itr = meshes.begin();
+            while (itr != meshes.end())
+            {
+
+            }
+            //auto body = model->data();
+            //const std::string& uuid = body.root();
+            //auto nodes = body.nodes();
+
+            //// 构建场景结点
+            //ret = buildNode(nodes, uuid, nullptr, mRoot);
+            //if (T3D_FAILED(ret))
+            //{
+            //    break;
+            //}
+
+            //auto meshes = body.meshes();
+            //buildMesh(meshes);
+
+        } while (false);
+        
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult buildNode(
+        google::protobuf::Map<String, Script::SceneSystem::Node> &nodes, 
+        const std::string &uuid, SceneNodePtr parent, SceneNodePtr &node)
+    {
+        TResult ret = T3D_OK;
+
+        Script::SceneSystem::Node& src = nodes[uuid];
+
+        node = T3D_SCENE_MGR.createSceneNode(parent);
+        node->setName(src.name());
+
+        int32_t i = 0;
+        //for (i = 0; i < src.components_size(); ++i)
+        //{
+        //    auto component = src.components(i);
+        //    ret = buildComponent(component, node);
+        //}
+
+        auto children = src.children();
+
+        for (i = 0; i < src.children_size(); ++i)
+        {
+            SceneNodePtr child;
+            ret = buildNode(nodes, children[i], node, child);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    TResult buildComponent(Script::SceneSystem::Component &srcComponent, SceneNodePtr node)
+    {
+        TResult ret = T3D_OK;
+
+        switch (srcComponent.type())
+        {
+        case Script::SceneSystem::Component_Type_Transform:
+            {
+
+            }
+            break;
+        case Script::SceneSystem::Component_Type_SkinnedMesh:
+            {
+
+            }
+            break;
         }
 
         return ret;
@@ -167,15 +249,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult buildNode(const google::protobuf::Map<String, Script::SceneSystem::Node> &nodes, const std::string &uuid, SceneNodePtr parent, SceneNodePtr &node)
+    TResult buildMesh(
+        google::protobuf::Map<String, Script::ModelSystem::MeshData>& meshes)
     {
         TResult ret = T3D_OK;
 
-        auto itr = nodes.find(uuid);
-        const Script::SceneSystem::Node &src = itr->second;
-
-        node = T3D_SCENE_MGR.createSceneNode(parent);
-        node->setName(src.name());
 
         return ret;
     }

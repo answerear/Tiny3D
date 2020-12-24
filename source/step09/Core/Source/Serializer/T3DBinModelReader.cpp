@@ -21,6 +21,8 @@
 #include "Serializer/T3DBinModelReader.h"
 #include "Resource/T3DModel.h"
 #include "protobuf/FileScriptObject.pb.h"
+#include "T3DErrorDef.h"
+
 
 namespace Tiny3D
 {

@@ -20,6 +20,7 @@
 
 #include "Serializer/T3DJsonModelReader.h"
 #include "Resource/T3DModel.h"
+#include "T3DErrorDef.h"
 #include "protobuf/FileScriptObject.pb.h"
 #include <google/protobuf/util/json_util.h>
 
