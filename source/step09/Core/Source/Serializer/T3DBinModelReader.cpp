@@ -19,6 +19,8 @@
 
 
 #include "Serializer/T3DBinModelReader.h"
+#include "Resource/T3DModel.h"
+#include "protobuf/FileScriptObject.pb.h"
 
 namespace Tiny3D
 {
@@ -54,6 +56,51 @@ namespace Tiny3D
     TResult BinModelReader::parse(DataStream &stream, Model *model)
     {
         TResult ret = T3D_OK;
+
+        do 
+        {
+            uint8_t *data = nullptr;
+            size_t size = stream.size();
+            size = stream.read(data);
+
+            if (size == 0)
+            {
+                ret = T3D_ERR_INVALID_SIZE;
+                break;
+            }
+
+            // 读取文件头
+            T3DFileHeader *header = (T3DFileHeader *)data;
+
+            if (stricmp(header->magic, T3D_FILE_MAGIC) != 0)
+            {
+                // 非法的文件类型
+                ret = T3D_ERR_RES_INVALID_FILETYPE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid file type !");
+                break;
+            }
+
+            if (header->subtype != T3D_FILE_SUBTYPE_SCC)
+            {
+                // 非法模型类型
+                ret = T3D_ERR_RES_INVALID_FILETYPE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid file subtype !");
+                break;
+            }
+
+            // 从 proto buffer 解析出来 pb 对象
+            data += sizeof(T3DFileHeader);
+            size -= sizeof(T3DFileHeader);
+            Script::FileFormat::FileModel *modelData = (Script::FileFormat::FileModel *)model->getModelData();
+            Script::FileFormat::FileModelData *body = modelData->mutable_data();
+
+            if (!body->ParseFromArray(data, size))
+            {
+                ret = T3D_ERR_RES_INVALID_CONTENT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid file content !");
+                break;
+            }
+        } while (false);
 
         return ret;
     }

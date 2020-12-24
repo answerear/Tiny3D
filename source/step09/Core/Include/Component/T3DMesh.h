@@ -50,6 +50,8 @@ namespace Tiny3D
          */
         virtual ~Mesh();
 
+        void setModel(ModelPtr model);
+
     protected:
         /**
          * @fn  Mesh::Mesh(ID uID = E_CID_AUTOMATIC);
@@ -88,6 +90,9 @@ namespace Tiny3D
          * @return  The vertex array object.
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+
+    protected:
+        ModelPtr    mModel;
     };
 }
 

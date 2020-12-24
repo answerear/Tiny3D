@@ -18,7 +18,11 @@
  ******************************************************************************/
 
 
-#include "Serializer/T3DJSONModelReader.h"
+#include "Serializer/T3DJsonModelReader.h"
+#include "Resource/T3DModel.h"
+#include "protobuf/FileScriptObject.pb.h"
+#include <google/protobuf/util/json_util.h>
+
 
 namespace Tiny3D
 {
@@ -38,15 +42,16 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     JsonModelReader::JsonModelReader()
+        : mStr(nullptr)
     {
-
+        mStr = new char[JSON_STRING_SIZE];
     }
 
     //--------------------------------------------------------------------------
     
     JsonModelReader::~JsonModelReader()
     {
-
+        T3D_SAFE_DELETE_ARRAY(mStr);
     }
 
     //--------------------------------------------------------------------------
@@ -55,109 +60,46 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        rapidjson::Reader reader;
 
-        uint8_t *data = nullptr;
-        size_t size = stream.read(data);
-        rapidjson::MemoryStream is((const char *)data, size);
-        rapidjson::ParseResult result = reader.Parse(is, *this);
-        if (result.Code() != rapidjson::ParseErrorCode::kParseErrorNone)
+        do 
         {
-            ret = T3D_ERR_FAIL;
-            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Parse model file failed from json !");
-        }
+            long_t size = stream.size();
+            if (size >= JSON_STRING_SIZE)
+            {
+                ret = T3D_ERR_OUT_OF_BOUND;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE,
+                    "The length of json string is out of bound when parsing json material !");
+                break;
+            }
+
+            stream.read(mStr, size);
+            mStr[size] = 0;
+
+            Script::FileFormat::FileModel *modelData = (Script::FileFormat::FileModel *)model->getModelData();
+
+            google::protobuf::util::JsonParseOptions opts;
+            opts.ignore_unknown_fields = true;
+            google::protobuf::StringPiece input(mStr);
+            google::protobuf::util::Status status = google::protobuf::util::JsonStringToMessage(input, modelData, opts);
+
+            if (!status.ok())
+            {
+                ret = T3D_ERR_FAIL;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE,
+                    "Json string to message failed ! Error : %s",
+                    status.message().as_string().c_str());
+                break;
+            }
+
+            if (modelData->header().magic() != T3D_FILE_MAGIC
+                && modelData->header().type() != Script::FileFormat::FileHeader_FileType_Model)
+            {
+                ret = T3D_ERR_RES_INVALID_FILETYPE;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file type !");
+                break;
+            }
+        } while (false);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Null()
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Bool(bool b)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Int(int32_t i)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Uint(uint32_t u)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Int64(int64_t i)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Uint64(uint64_t u)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Double(float64_t f)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::String(const char *str, JsonSizeType length, bool copy)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::StartObject()
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::Key(const char *str, JsonSizeType length, bool copy)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::EndObject(JsonSizeType memberCount)
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::StartArray()
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool JsonModelReader::EndArray(JsonSizeType elementCount)
-    {
-        return true;
     }
 }

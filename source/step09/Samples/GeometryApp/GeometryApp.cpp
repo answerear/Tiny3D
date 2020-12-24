@@ -82,8 +82,16 @@ bool GeometryApp::applicationDidFinishLaunching()
     node->setCameraMask(OBJ_MASK_SCENE);
     SphereBoundPtr b1 = smart_pointer_cast<SphereBound>(node->addComponent(T3D_CLASS(SphereBound)));
     b1->setParams(Vector3::ZERO, radius);
+
     // 空间四边形
     
+    // 模型
+    //node = T3D_SCENE_MGR.createSceneNode(root);
+    //MeshPtr mesh = smart_pointer_cast<Mesh>(node->addComponent(T3D_CLASS(Mesh)));
+    //node->getTransform3D()->setPosition(Vector3::ZERO);
+    //node->setCameraMask(OBJ_MASK_SCENE);
+
+    ModelPtr model = T3D_MODEL_MGR.loadModel("models/tortoise.t3d");
 
     return true;
 }

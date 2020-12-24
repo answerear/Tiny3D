@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Serializer/T3DJSONMaterialReader.h"
+#include "Serializer/T3DJsonMaterialReader.h"
 #include "protobuf/FileScriptObject.pb.h"
 #include <google/protobuf/util/json_util.h>
 #include "T3DErrorDef.h"
@@ -63,8 +63,8 @@ namespace Tiny3D
 
         do 
         {
-            long_t len = stream.size();
-            if (len >= JSON_STRING_SIZE)
+            long_t size = stream.size();
+            if (size >= JSON_STRING_SIZE)
             {
                 ret = T3D_ERR_OUT_OF_BOUND;
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, 
@@ -72,7 +72,6 @@ namespace Tiny3D
                 break;
             }
 
-            long_t size = stream.size();
             stream.read(mStr, size);
             mStr[size] = 0;
 
@@ -81,8 +80,7 @@ namespace Tiny3D
             google::protobuf::util::JsonParseOptions opts;
             opts.ignore_unknown_fields = true;
             google::protobuf::StringPiece input(mStr);
-            google::protobuf::util::Status status 
-                = google::protobuf::util::JsonStringToMessage(input, &file, opts);
+            google::protobuf::util::Status status = google::protobuf::util::JsonStringToMessage(input, &file, opts);
 
             if (!status.ok())
             {

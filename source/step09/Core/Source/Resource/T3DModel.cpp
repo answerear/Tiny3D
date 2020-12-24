@@ -19,8 +19,12 @@
 
 
 #include "Resource/T3DModel.h"
+#include "Kernel/T3DAgent.h"
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Serializer/T3DSerializerManager.h"
 #include "protobuf/FileScriptObject.pb.h"
-
+#include "Scene/T3DSceneManager.h"
 
 namespace Tiny3D
 {
@@ -41,8 +45,9 @@ namespace Tiny3D
 
     Model::Model(const String &name)
         : Resource(name)
+        , mModelData(nullptr)
     {
-
+        mModelData = new Script::FileFormat::FileModel();
     }
 
     //--------------------------------------------------------------------------
@@ -63,7 +68,48 @@ namespace Tiny3D
 
     TResult Model::load()
     {
-        mModelData = new Script::FileFormat::FileModel();
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            // 加载模型文件
+            ArchivePtr archive = T3D_AGENT.getAssetsArchive(mName);
+            if (archive == nullptr)
+            {
+                ret = T3D_ERR_IMG_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Could not find the archive for file %s !",
+                    mName.c_str());
+                break;
+            }
+
+            String path = T3D_AGENT.getMainAssetsPath(mName);
+            MemoryDataStream stream;
+            ret = archive->read(path, stream);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read material content failed from file %s ! ",
+                    mName.c_str());
+                break;
+            }
+
+            // 交给模型解析器解析出来
+            ret = T3D_SERIALIZER_MGR.parseModel(stream, this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Could not parse material file %s !", mName.c_str());
+                break;
+            }
+
+            ret = buildData();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+
         return T3D_OK;
     }
 
@@ -83,4 +129,54 @@ namespace Tiny3D
         return model;
     }
 
+    //--------------------------------------------------------------------------
+
+    void Model::setModelData(void *data)
+    {
+        Script::FileFormat::FileModel *src = (Script::FileFormat::FileModel *)data;
+        Script::FileFormat::FileModel *dst = (Script::FileFormat::FileModel *)mModelData;
+        dst->CopyFrom(*src);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Model::buildData()
+    {
+        TResult ret = T3D_OK;
+
+        Script::FileFormat::FileModel *model = (Script::FileFormat::FileModel *)mModelData;
+
+        auto body = model->data();
+        auto uuid = body.root();
+        auto nodes = body.nodes();
+        auto root = nodes[uuid];
+
+        mRoot = T3D_SCENE_MGR.createSceneNode(nullptr);
+        mRoot->setName(root.name());
+
+        auto children = root.children();
+
+        for (int32_t i = 0; i < root.children_size(); ++i)
+        {
+            auto child = children[i];
+            auto node = nodes[child];
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult buildNode(const google::protobuf::Map<String, Script::SceneSystem::Node> &nodes, const std::string &uuid, SceneNodePtr parent, SceneNodePtr &node)
+    {
+        TResult ret = T3D_OK;
+
+        auto itr = nodes.find(uuid);
+        const Script::SceneSystem::Node &src = itr->second;
+
+        node = T3D_SCENE_MGR.createSceneNode(parent);
+        node->setName(src.name());
+
+        return ret;
+    }
 }

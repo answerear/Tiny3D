@@ -57,6 +57,8 @@ namespace Tiny3D
             return mModelData;
         }
 
+        void setModelData(void *data);
+
     protected:
         /**
          * @fn  MeshData::MeshData(const String &name);
@@ -71,8 +73,12 @@ namespace Tiny3D
 
         virtual ResourcePtr clone() const override;
 
+        TResult buildData();
+
     protected:
         void   *mModelData;
+
+        SceneNodePtr    mRoot;
     };
 }
 

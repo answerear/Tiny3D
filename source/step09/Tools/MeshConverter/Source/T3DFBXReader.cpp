@@ -207,10 +207,10 @@ namespace Tiny3D
 
         do 
         {
-            Script::FileFormat::FileModel *data = (Script::FileFormat::FileModel *)model->getModelData();
+            Script::FileFormat::FileModel data;
 
             // 文件头
-            Script::FileFormat::FileHeader *header = data->mutable_header();
+            Script::FileFormat::FileHeader *header = data.mutable_header();
             header->set_magic(T3D_FILE_MAGIC);
             header->set_version(T3D_FILE_MDL_VERSION);
             header->set_type(Script::FileFormat::FileHeader_FileType_Model);
@@ -247,14 +247,14 @@ namespace Tiny3D
             }
 
             // Scene，第一遍生成场景结点
-            ret = processFbxScene(pFbxScene, data);
+            ret = processFbxScene(pFbxScene, &data);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
             // Scene，第二遍生成 Mesh 数据
-            ret = processFbxScene(pFbxScene, data);
+            ret = processFbxScene(pFbxScene, &data);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -268,18 +268,20 @@ namespace Tiny3D
             }
 
             // Bind Pose
-            ret = processFbxBindPose(pFbxScene);
+            //ret = processFbxBindPose(pFbxScene);
+            //if (T3D_FAILED(ret))
+            //{
+            //    break;
+            //}
+
+            // Animation
+            ret = processFbxAnimation(pFbxScene, &data);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            // Animation
-            ret = processFbxAnimation(pFbxScene, data);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
+            model->setModelData(&data);
         } while (0);
 
         destroyFbxObjects();

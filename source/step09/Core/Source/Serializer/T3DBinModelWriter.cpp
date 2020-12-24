@@ -19,6 +19,9 @@
 
 
 #include "Serializer/T3DBinModelWriter.h"
+#include "Resource/T3DModel.h"
+#include "protobuf/FileScriptObject.pb.h"
+
 
 namespace Tiny3D
 {
@@ -54,6 +57,22 @@ namespace Tiny3D
     TResult BinModelWriter::serialize(DataStream &stream, Model *model)
     {
         TResult ret = T3D_OK;
+
+        Script::FileFormat::FileModel *data = (Script::FileFormat::FileModel *)model->getModelData();
+
+        T3DFileHeader header;
+        memcpy(header.magic, T3D_FILE_MAGIC, 3);
+        header.magic[3] = 0;
+        header.version = T3D_FILE_MDL_VERSION;
+        header.subtype = T3D_FILE_SUBTYPE_MDL;
+        header.filesize = 0;
+        int size = data->data().ByteSize();
+        char *buffer = new char[size + sizeof(header)];
+        memcpy(buffer, &header, sizeof(header));
+        char *body = buffer + sizeof(header);
+        data->data().SerializeToArray(body, size);
+        stream.write(buffer, size);
+        T3D_SAFE_DELETE_ARRAY(buffer);
 
         return ret;
     }

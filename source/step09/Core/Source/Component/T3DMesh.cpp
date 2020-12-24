@@ -19,6 +19,7 @@
 
 
 #include "Component/T3DMesh.h"
+#include "Resource/T3DModel.h"
 
 
 namespace Tiny3D

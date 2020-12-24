@@ -120,8 +120,8 @@ namespace Tiny3D
                     break;
                 }
 
-                //ModelPtr model = Model::create(opts.mSrcPath);
-                ModelPtr model = modelMgr->loadModel(opts.mSrcPath);
+                ModelPtr model = Model::create(opts.mSrcPath);
+                //ModelPtr model = modelMgr->loadModel(opts.mSrcPath);
                 ret = reader->parse(is, model);
                 if (T3D_FAILED(ret))
                 {

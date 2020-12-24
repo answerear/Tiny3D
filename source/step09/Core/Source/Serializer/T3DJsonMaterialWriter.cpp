@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Serializer/T3DJSONMaterialWriter.h"
+#include "Serializer/T3DJsonMaterialWriter.h"
 
 
 namespace Tiny3D

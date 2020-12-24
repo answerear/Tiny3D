@@ -21,7 +21,8 @@
 #include "T3DMeshConverter.h"
 
 // For debug
-// -i FBX -o t3t -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
+// Text : -i FBX -o t3t -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
+// Binary : -i FBX -o t3b -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx
 
 
 int main(int argc, char *argv[])

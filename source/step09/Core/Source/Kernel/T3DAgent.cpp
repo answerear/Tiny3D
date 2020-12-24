@@ -34,6 +34,8 @@
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DModel.h"
+#include "Resource/T3DModelManager.h"
 #include "Resource/T3DTexture.h"
 #include "Resource/T3DTextureManager.h"
 #include "Resource/T3DGPUProgram.h"
@@ -111,6 +113,7 @@ namespace Tiny3D
 
         mSamplerMgr->unloadAllResources();
         mMaterialMgr->unloadAllResources();
+        mModelMgr->unloadAllResources();
         mGPUConstBufferMgr->unloadAllResources();
         mGPUProgramMgr->unloadAllResources();
         mShaderMgr->unloadAllResources();
@@ -903,6 +906,7 @@ namespace Tiny3D
         mGPUConstBufferMgr = GPUConstBufferManager::create();
         mGPUProgramMgr = GPUProgramManager::create();
         mMaterialMgr = MaterialManager::create();
+        mModelMgr = ModelManager::create();
         mSamplerMgr = SamplerManager::create();
 
         mComponentCreator = ComponentCreator::create();
