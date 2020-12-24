@@ -245,8 +245,22 @@ namespace Tiny3D
                 break;
             }
 
-            // Scene
+            // Scene，第一遍生成场景结点
             ret = processFbxScene(pFbxScene, data);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // Scene，第二遍生成 Mesh 数据
+            ret = processFbxScene(pFbxScene, data);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 优化 Mesh
+            ret = optimizeMesh();
             if (T3D_FAILED(ret))
             {
                 break;
@@ -291,12 +305,6 @@ namespace Tiny3D
             {
                 break;
             }
-
-            ret = optimizeMesh();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
         } while (0);
 
         return ret;
@@ -310,176 +318,22 @@ namespace Tiny3D
 
         do 
         {
-            // 新建一个 node
-            String uuid = UUID::generate();
-            auto nodes = model->mutable_data()->mutable_nodes();
-            auto rval = nodes->insert({ uuid, Script::SceneSystem::Node() });
-            pNode = &rval.first->second;
-            pNode->set_uuid(uuid);
-            pNode->set_name(pFbxNode->GetName());
-
-            // set parent of this node
-            if (parent != nullptr)
+            pNode = (Script::SceneSystem::Node *)pFbxNode->GetUserDataPtr();
+            if (pNode == nullptr)
             {
-                pNode->set_parent(parent->uuid());
+                // 第一遍只处理结点
+                ret = generateNode(pFbxNode, model, parent, pNode);
             }
             else
             {
-                pNode->set_parent("");
-                model->mutable_data()->set_root(uuid);
+                // 第二遍只处理属性
+                ret = processFbxAttributes(pFbxNode, model, parent, pNode);
             }
 
-            std::stringstream ss;
-            for (size_t i = 0; i < mTabCount; ++i)
+            if (T3D_FAILED(ret))
             {
-                ss << "\t";
-            }
-
-            MCONV_LOG_INFO("%s%s(Node)", ss.str().c_str(), pFbxNode->GetName());
-            MCONV_LOG_INFO("%s{", ss.str().c_str());
-
-            FbxAMatrix &lFbxLocalMatrix = pFbxNode->EvaluateLocalTransform();
-            Matrix4 mat;
-            convertMatrix(lFbxLocalMatrix, mat);
-
-            Vector3 t;
-            Vector3 s;
-            Quaternion q;
-            mat.decomposition(t, s, q);
-            Matrix3 R;
-            q.toRotationMatrix(R);
-            
-            Radian pitch, yaw, roll;
-
-            EFbxRotationOrder order = pFbxNode->RotationOrder;
-            switch (order)
-            {
-            case eEulerXYZ:
-                R.toEulerAnglesZYX(roll, yaw, pitch);
-                break;
-            case eEulerXZY:
-                R.toEulerAnglesYZX(yaw, roll, pitch);
-                break;
-            case eEulerYZX:
-                R.toEulerAnglesXZY(pitch, roll, yaw);
-                break;
-            case eEulerYXZ:
-                R.toEulerAnglesZXY(roll, pitch, yaw);
-                break;
-            case eEulerZXY:
-                R.toEulerAnglesYXZ(yaw, pitch, roll);
-                break;
-            case eEulerZYX:
-                R.toEulerAnglesXYZ(pitch, yaw, roll);
-                break;
-            case eSphericXYZ:
                 break;
             }
-
-            // Transform
-            auto components = pNode->mutable_components();
-            auto component = components->Add();
-            component->set_type(Script::SceneSystem::Component_Type_Transform);
-            auto transform = component->mutable_transform();
-            // position
-            auto pos = transform->mutable_position();
-            pos->set_x(t.x());
-            pos->set_y(t.y());
-            pos->set_z(t.z());
-            // rotation
-            auto euler = transform->mutable_rotation();
-            euler->set_x(pitch.valueDegrees());
-            euler->set_y(yaw.valueDegrees());
-            euler->set_z(roll.valueDegrees());
-            // scaling
-            auto scaling = transform->mutable_scaling();
-            scaling->set_x(s.x());
-            scaling->set_y(s.y());
-            scaling->set_z(s.z());
-
-            MCONV_LOG_INFO("%s\tposition (%f, %f, %f)", ss.str().c_str(), t.x(), t.y(), t.z());
-            MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
-            MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
-
-            for (int32_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
-            {
-                FbxNodeAttribute *pFbxAttrib = pFbxNode->GetNodeAttributeByIndex(i);
-
-                FbxNodeAttribute::EType type = pFbxAttrib->GetAttributeType();
-
-                switch (type)
-                {
-                case FbxNodeAttribute::EType::eNull:
-                    MCONV_LOG_INFO("%s\tAttribute : eNull", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eMarker:
-                    MCONV_LOG_INFO("%s\tAttribute : eMarker", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eSkeleton:
-                    MCONV_LOG_INFO("%s\tAttribute : eSkeleton", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eMesh:
-                    {
-                        MCONV_LOG_INFO("%s\tAttribute : eMesh", ss.str().c_str());
-                        FbxMesh *pFbxMesh = (FbxMesh *)pFbxNode->GetNodeAttributeByIndex(i);
-                        ret = processFbxMesh(pFbxNode, pFbxMesh, model);
-                    }
-                    break;
-                case FbxNodeAttribute::EType::eNurbs:
-                    MCONV_LOG_INFO("%s\tAttribute : eNurbs", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::ePatch:
-                    MCONV_LOG_INFO("%s\tAttribute : ePatch", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eCamera:
-                    MCONV_LOG_INFO("%s\tAttribute : eCamera", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eCameraStereo:
-                    MCONV_LOG_INFO("%s\tAttribute : eCameraStereo", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eCameraSwitcher:
-                    MCONV_LOG_INFO("%s\tAttribute : eCameraSwitcher", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eLight:
-                    MCONV_LOG_INFO("%s\tAttribute : eLight", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eOpticalReference:
-                    MCONV_LOG_INFO("%s\tAttribute : eOpticalReference", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eOpticalMarker:
-                    MCONV_LOG_INFO("%s\tAttribute : eOpticalMarker", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eNurbsCurve:
-                    MCONV_LOG_INFO("%s\tAttribute : eNurbsCurve", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eTrimNurbsSurface:
-                    MCONV_LOG_INFO("%s\tAttribute : eTrimNurbsSurface", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eBoundary:
-                    MCONV_LOG_INFO("%s\tAttribute : eBoundary", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eNurbsSurface:
-                    MCONV_LOG_INFO("%s\tAttribute : eNurbsSurface", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eShape:
-                    MCONV_LOG_INFO("%s\tAttribute : eShape", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eLODGroup:
-                    MCONV_LOG_INFO("%s\tAttribute : eLODGroup", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eSubDiv:
-                    MCONV_LOG_INFO("%s\tAttribute : eSubDiv", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eCachedEffect:
-                    MCONV_LOG_INFO("%s\tAttribute : eCachedEffect", ss.str().c_str());
-                    break;
-                case FbxNodeAttribute::EType::eLine:
-                    MCONV_LOG_INFO("%s\tAttribute : eLine", ss.str().c_str());
-                    break;
-                }
-            }
-
-            MCONV_LOG_INFO("%s}", ss.str().c_str());
 
             mTabCount++;
 
@@ -488,11 +342,209 @@ namespace Tiny3D
                 FbxNode *pFbxChild = pFbxNode->GetChild(i);
                 Script::SceneSystem::Node *pChild = nullptr;
                 processFbxNode(pFbxChild, model, pNode, pChild);
-                pNode->add_children(pChild->uuid());
             }
 
             mTabCount--;
         } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::generateNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode)
+    {
+        TResult ret = T3D_OK;
+
+        // 新建一个 node
+        String uuid = UUID::generate();
+        auto nodes = model->mutable_data()->mutable_nodes();
+        auto rval = nodes->insert({ uuid, Script::SceneSystem::Node() });
+        pNode = &rval.first->second;
+        pNode->set_uuid(uuid);
+        pNode->set_name(pFbxNode->GetName());
+
+        // set parent of this node
+        if (parent != nullptr)
+        {
+            pNode->set_parent(parent->uuid());
+        }
+        else
+        {
+            pNode->set_parent("");
+            model->mutable_data()->set_root(uuid);
+        }
+
+        std::stringstream ss;
+        for (size_t i = 0; i < mTabCount; ++i)
+        {
+            ss << "\t";
+        }
+
+        //  设置上关联，方便处理 skin 的时候获取回来对应的骨骼结点
+        pFbxNode->SetUserDataPtr(pNode);
+
+        MCONV_LOG_INFO("%s%s(Node)", ss.str().c_str(), pFbxNode->GetName());
+        MCONV_LOG_INFO("%s{", ss.str().c_str());
+
+        FbxAMatrix &lFbxLocalMatrix = pFbxNode->EvaluateLocalTransform();
+        Matrix4 mat;
+        convertMatrix(lFbxLocalMatrix, mat);
+
+        Vector3 t;
+        Vector3 s;
+        Quaternion q;
+        mat.decomposition(t, s, q);
+        Matrix3 R;
+        q.toRotationMatrix(R);
+
+        Radian pitch, yaw, roll;
+
+        EFbxRotationOrder order = pFbxNode->RotationOrder;
+        switch (order)
+        {
+        case eEulerXYZ:
+            R.toEulerAnglesZYX(roll, yaw, pitch);
+            break;
+        case eEulerXZY:
+            R.toEulerAnglesYZX(yaw, roll, pitch);
+            break;
+        case eEulerYZX:
+            R.toEulerAnglesXZY(pitch, roll, yaw);
+            break;
+        case eEulerYXZ:
+            R.toEulerAnglesZXY(roll, pitch, yaw);
+            break;
+        case eEulerZXY:
+            R.toEulerAnglesYXZ(yaw, pitch, roll);
+            break;
+        case eEulerZYX:
+            R.toEulerAnglesXYZ(pitch, yaw, roll);
+            break;
+        case eSphericXYZ:
+            break;
+        }
+
+        // Transform
+        auto components = pNode->mutable_components();
+        auto component = components->Add();
+        component->set_type(Script::SceneSystem::Component_Type_Transform);
+        auto transform = component->mutable_transform();
+        // position
+        auto pos = transform->mutable_position();
+        pos->set_x(t.x());
+        pos->set_y(t.y());
+        pos->set_z(t.z());
+        // rotation
+        auto euler = transform->mutable_rotation();
+        euler->set_x(pitch.valueDegrees());
+        euler->set_y(yaw.valueDegrees());
+        euler->set_z(roll.valueDegrees());
+        // scaling
+        auto scaling = transform->mutable_scaling();
+        scaling->set_x(s.x());
+        scaling->set_y(s.y());
+        scaling->set_z(s.z());
+
+        MCONV_LOG_INFO("%s\tposition (%f, %f, %f)", ss.str().c_str(), t.x(), t.y(), t.z());
+        MCONV_LOG_INFO("%s\trotation (%f, %f, %f)", ss.str().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
+        MCONV_LOG_INFO("%s\tscaling (%f, %f, %f)", ss.str().c_str(), s.x(), s.y(), s.z());
+
+        if (parent != nullptr)
+        {
+            parent->add_children(uuid);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAttributes(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *pNode)
+    {
+        TResult ret = T3D_OK;
+
+        std::stringstream ss;
+
+        for (int32_t i = 0; i < pFbxNode->GetNodeAttributeCount(); ++i)
+        {
+            FbxNodeAttribute *pFbxAttrib = pFbxNode->GetNodeAttributeByIndex(i);
+
+            FbxNodeAttribute::EType type = pFbxAttrib->GetAttributeType();
+
+            switch (type)
+            {
+            case FbxNodeAttribute::EType::eNull:
+                MCONV_LOG_INFO("%s\tAttribute : eNull", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eMarker:
+                MCONV_LOG_INFO("%s\tAttribute : eMarker", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eSkeleton:
+                MCONV_LOG_INFO("%s\tAttribute : eSkeleton", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eMesh:
+                {
+                    MCONV_LOG_INFO("%s\tAttribute : eMesh", ss.str().c_str());
+                    FbxMesh *pFbxMesh = (FbxMesh *)pFbxAttrib;
+                    ret = processFbxMesh(pFbxNode, pFbxMesh, model);
+                }
+                break;
+            case FbxNodeAttribute::EType::eNurbs:
+                MCONV_LOG_INFO("%s\tAttribute : eNurbs", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::ePatch:
+                MCONV_LOG_INFO("%s\tAttribute : ePatch", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eCamera:
+                MCONV_LOG_INFO("%s\tAttribute : eCamera", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eCameraStereo:
+                MCONV_LOG_INFO("%s\tAttribute : eCameraStereo", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eCameraSwitcher:
+                MCONV_LOG_INFO("%s\tAttribute : eCameraSwitcher", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eLight:
+                MCONV_LOG_INFO("%s\tAttribute : eLight", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eOpticalReference:
+                MCONV_LOG_INFO("%s\tAttribute : eOpticalReference", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eOpticalMarker:
+                MCONV_LOG_INFO("%s\tAttribute : eOpticalMarker", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eNurbsCurve:
+                MCONV_LOG_INFO("%s\tAttribute : eNurbsCurve", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eTrimNurbsSurface:
+                MCONV_LOG_INFO("%s\tAttribute : eTrimNurbsSurface", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eBoundary:
+                MCONV_LOG_INFO("%s\tAttribute : eBoundary", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eNurbsSurface:
+                MCONV_LOG_INFO("%s\tAttribute : eNurbsSurface", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eShape:
+                MCONV_LOG_INFO("%s\tAttribute : eShape", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eLODGroup:
+                MCONV_LOG_INFO("%s\tAttribute : eLODGroup", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eSubDiv:
+                MCONV_LOG_INFO("%s\tAttribute : eSubDiv", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eCachedEffect:
+                MCONV_LOG_INFO("%s\tAttribute : eCachedEffect", ss.str().c_str());
+                break;
+            case FbxNodeAttribute::EType::eLine:
+                MCONV_LOG_INFO("%s\tAttribute : eLine", ss.str().c_str());
+                break;
+            }
+        }
+
+        MCONV_LOG_INFO("%s}", ss.str().c_str());
 
         return ret;
     }
@@ -1564,9 +1616,11 @@ namespace Tiny3D
                 FbxCluster* pFbxCluster = pFbxSkin->GetCluster(j);
                 const char* modes[] = { "Normalize", "Additive", "Total1" };
 
-                if (pFbxCluster->GetLink() != nullptr)
+                FbxNode *pFbxNode = pFbxCluster->GetLink();
+
+                if (pFbxNode != nullptr)
                 {
-                    MCONV_LOG_INFO("\tName : %s", pFbxCluster->GetLink()->GetName());
+                    MCONV_LOG_INFO("\tName : %s", pFbxNode->GetName());
                 }
 
                 MCONV_LOG_INFO("\tMode : %s", modes[pFbxCluster->GetLinkMode()]);
@@ -1603,14 +1657,14 @@ namespace Tiny3D
 
                 // Transformation
                 FbxAMatrix lMatrix;
-                Matrix4 m;
+                Matrix4 matVert;
 
                 lMatrix = pFbxCluster->GetTransformMatrix(lMatrix);
-                convertMatrix(lMatrix, m);
+                convertMatrix(lMatrix, matVert);
 
                 Vector3 T, S;
                 Quaternion Q;
-                m.decomposition(T, S, Q);
+                matVert.decomposition(T, S, Q);
 
                 ss0 << "Transform Translation: " << std::fixed << std::setprecision(6) << T[0] << ", " << T[1] << ", " << T[2];
                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
@@ -1630,8 +1684,9 @@ namespace Tiny3D
                 ss0.str("");
 
                 // Link transformation
+                Matrix4 matBone;
                 lMatrix = pFbxCluster->GetTransformLinkMatrix(lMatrix);
-                convertMatrix(lMatrix, m);
+                convertMatrix(lMatrix, matBone);
 
                 //ss0 << "\nMatrix value: \n";
 
@@ -1645,7 +1700,7 @@ namespace Tiny3D
                 MCONV_LOG_INFO("%s", ss0.str().c_str());
                 ss0.str("");
 
-                m.decomposition(T, S, Q);
+                matBone.decomposition(T, S, Q);
 
                 //FbxAMatrix lGlobalMatrix = pFbxCluster->GetLink()->EvaluateGlobalTransform();
                 //convertMatrix(lGlobalMatrix, m);
@@ -1699,6 +1754,19 @@ namespace Tiny3D
                 //  
                 // 1. 把在 Binding 时刻的顶点，由 Mesh 空间变换到世界空间 M(v) * M(G)
                 // 2. 把在 Binding 时刻的顶点，由世界空间变换到骨骼空间 Inverse(M(b)) * M(v) * M(G)
+
+                auto bone = pMesh->add_bones();
+                Script::SceneSystem::Node *node = (Script::SceneSystem::Node *)pFbxNode->GetUserDataPtr();
+                const String &bone_uuid = node->uuid();
+                bone->set_node_uuid(bone_uuid);
+
+                Matrix4 matOffset = matBone * matVert;
+                auto offset = bone->mutable_offset();
+                Real *data = matOffset;
+                for (size_t x = 0; x < 16; ++x)
+                {
+                    offset->add_values(data[x]);
+                }
             }
         }
         return ret;

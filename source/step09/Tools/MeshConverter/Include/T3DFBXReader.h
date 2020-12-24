@@ -54,6 +54,7 @@ namespace Tiny3D
         TResult processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileModel *model);
 
         TResult processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
+        TResult processFbxAttributes(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *pNode);
         TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileModel *model);
         TResult processFbxMeshAttributes(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
         TResult processFbxMeshData(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
@@ -79,6 +80,8 @@ namespace Tiny3D
 
 		void convertMatrix(const FbxAMatrix &src, Matrix4 &dst);
         void convertMatrix(const FbxMatrix &src, Matrix4 &dst);
+
+        TResult generateNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
 
         TResult readPosition(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
             Vector3 &pos);

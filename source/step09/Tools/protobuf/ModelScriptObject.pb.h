@@ -31,9 +31,6 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
-#include <google/protobuf/map.h>  // IWYU pragma: export
-#include <google/protobuf/map_entry.h>
-#include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "CommonScriptObject.pb.h"
@@ -68,6 +65,9 @@ extern AabbDefaultTypeInternal _Aabb_default_instance_;
 class AnimationClip;
 class AnimationClipDefaultTypeInternal;
 extern AnimationClipDefaultTypeInternal _AnimationClip_default_instance_;
+class BoneData;
+class BoneDataDefaultTypeInternal;
+extern BoneDataDefaultTypeInternal _BoneData_default_instance_;
 class Bound;
 class BoundDefaultTypeInternal;
 extern BoundDefaultTypeInternal _Bound_default_instance_;
@@ -86,9 +86,6 @@ extern KeyframeDataDefaultTypeInternal _KeyframeData_default_instance_;
 class MeshData;
 class MeshDataDefaultTypeInternal;
 extern MeshDataDefaultTypeInternal _MeshData_default_instance_;
-class MeshData_OffsetEntry_DoNotUse;
-class MeshData_OffsetEntry_DoNotUseDefaultTypeInternal;
-extern MeshData_OffsetEntry_DoNotUseDefaultTypeInternal _MeshData_OffsetEntry_DoNotUse_default_instance_;
 class Obb;
 class ObbDefaultTypeInternal;
 extern ObbDefaultTypeInternal _Obb_default_instance_;
@@ -110,13 +107,13 @@ extern VerticesDefaultTypeInternal _Vertices_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::ModelSystem::Aabb* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Aabb>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::AnimationClip* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::AnimationClip>(Arena*);
+template<> ::Tiny3D::Script::ModelSystem::BoneData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::BoneData>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Bound* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Bound>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::IndexBuffer* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::IndexBuffer>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Indices* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Indices>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Keyframe* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Keyframe>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::KeyframeData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::KeyframeData>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::MeshData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::MeshData>(Arena*);
-template<> ::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::MeshData_OffsetEntry_DoNotUse>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Obb* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Obb>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Sphere* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Sphere>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::VertexAttribute* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::VertexAttribute>(Arena*);
@@ -2522,36 +2519,156 @@ class AnimationClip :
 };
 // -------------------------------------------------------------------
 
-class MeshData_OffsetEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MeshData_OffsetEntry_DoNotUse, 
-    std::string, ::Tiny3D::Script::Matrix4,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-    0 > {
-public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<MeshData_OffsetEntry_DoNotUse, 
-    std::string, ::Tiny3D::Script::Matrix4,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-    0 > SuperType;
-  MeshData_OffsetEntry_DoNotUse();
-  MeshData_OffsetEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  void MergeFrom(const MeshData_OffsetEntry_DoNotUse& other);
-  static const MeshData_OffsetEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const MeshData_OffsetEntry_DoNotUse*>(&_MeshData_OffsetEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "Tiny3D.Script.ModelSystem.MeshData.OffsetEntry.key");
- }
-  static bool ValidateValue(void*) { return true; }
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& other) final;
+class BoneData :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.BoneData) */ {
+ public:
+  BoneData();
+  virtual ~BoneData();
+
+  BoneData(const BoneData& from);
+  BoneData(BoneData&& from) noexcept
+    : BoneData() {
+    *this = ::std::move(from);
+  }
+
+  inline BoneData& operator=(const BoneData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BoneData& operator=(BoneData&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const BoneData& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const BoneData* internal_default_instance() {
+    return reinterpret_cast<const BoneData*>(
+               &_BoneData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    12;
+
+  friend void swap(BoneData& a, BoneData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BoneData* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline BoneData* New() const final {
+    return CreateMaybeMessage<BoneData>(nullptr);
+  }
+
+  BoneData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<BoneData>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const BoneData& from);
+  void MergeFrom(const BoneData& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BoneData* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Tiny3D.Script.ModelSystem.BoneData";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
   private:
   static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
     ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_ModelScriptObject_2eproto);
-    return ::descriptor_table_ModelScriptObject_2eproto.file_level_metadata[12];
+    return ::descriptor_table_ModelScriptObject_2eproto.file_level_metadata[kIndexInFileMessages];
   }
 
   public:
-};
 
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNodeUuidFieldNumber = 1,
+    kOffsetFieldNumber = 2,
+  };
+  // string node_uuid = 1;
+  void clear_node_uuid();
+  const std::string& node_uuid() const;
+  void set_node_uuid(const std::string& value);
+  void set_node_uuid(std::string&& value);
+  void set_node_uuid(const char* value);
+  void set_node_uuid(const char* value, size_t size);
+  std::string* mutable_node_uuid();
+  std::string* release_node_uuid();
+  void set_allocated_node_uuid(std::string* node_uuid);
+  private:
+  const std::string& _internal_node_uuid() const;
+  void _internal_set_node_uuid(const std::string& value);
+  std::string* _internal_mutable_node_uuid();
+  public:
+
+  // .Tiny3D.Script.Matrix4 offset = 2;
+  bool has_offset() const;
+  private:
+  bool _internal_has_offset() const;
+  public:
+  void clear_offset();
+  const ::Tiny3D::Script::Matrix4& offset() const;
+  ::Tiny3D::Script::Matrix4* release_offset();
+  ::Tiny3D::Script::Matrix4* mutable_offset();
+  void set_allocated_offset(::Tiny3D::Script::Matrix4* offset);
+  private:
+  const ::Tiny3D::Script::Matrix4& _internal_offset() const;
+  ::Tiny3D::Script::Matrix4* _internal_mutable_offset();
+  public:
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.BoneData)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr node_uuid_;
+  ::Tiny3D::Script::Matrix4* offset_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_ModelScriptObject_2eproto;
+};
 // -------------------------------------------------------------------
 
 class MeshData :
@@ -2657,13 +2774,12 @@ class MeshData :
 
   // nested types ----------------------------------------------------
 
-
   // accessors -------------------------------------------------------
 
   enum : int {
     kVertexBuffersFieldNumber = 2,
     kIndexBuffersFieldNumber = 3,
-    kOffsetFieldNumber = 4,
+    kBonesFieldNumber = 4,
     kClipsFieldNumber = 5,
     kNameFieldNumber = 1,
   };
@@ -2703,22 +2819,23 @@ class MeshData :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::IndexBuffer >&
       index_buffers() const;
 
-  // map<string, .Tiny3D.Script.Matrix4> offset = 4;
-  int offset_size() const;
+  // repeated .Tiny3D.Script.ModelSystem.BoneData bones = 4;
+  int bones_size() const;
   private:
-  int _internal_offset_size() const;
+  int _internal_bones_size() const;
   public:
-  void clear_offset();
+  void clear_bones();
+  ::Tiny3D::Script::ModelSystem::BoneData* mutable_bones(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData >*
+      mutable_bones();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >&
-      _internal_offset() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
-      _internal_mutable_offset();
+  const ::Tiny3D::Script::ModelSystem::BoneData& _internal_bones(int index) const;
+  ::Tiny3D::Script::ModelSystem::BoneData* _internal_add_bones();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >&
-      offset() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
-      mutable_offset();
+  const ::Tiny3D::Script::ModelSystem::BoneData& bones(int index) const;
+  ::Tiny3D::Script::ModelSystem::BoneData* add_bones();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData >&
+      bones() const;
 
   // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
   int clips_size() const;
@@ -2761,12 +2878,7 @@ class MeshData :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexBuffer > vertex_buffers_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::IndexBuffer > index_buffers_;
-  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      MeshData_OffsetEntry_DoNotUse,
-      std::string, ::Tiny3D::Script::Matrix4,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
-      0 > offset_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData > bones_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip > clips_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -4425,6 +4537,122 @@ AnimationClip::keyframes() const {
 
 // -------------------------------------------------------------------
 
+// BoneData
+
+// string node_uuid = 1;
+inline void BoneData::clear_node_uuid() {
+  node_uuid_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& BoneData::node_uuid() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+  return _internal_node_uuid();
+}
+inline void BoneData::set_node_uuid(const std::string& value) {
+  _internal_set_node_uuid(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+}
+inline std::string* BoneData::mutable_node_uuid() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+  return _internal_mutable_node_uuid();
+}
+inline const std::string& BoneData::_internal_node_uuid() const {
+  return node_uuid_.GetNoArena();
+}
+inline void BoneData::_internal_set_node_uuid(const std::string& value) {
+  
+  node_uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void BoneData::set_node_uuid(std::string&& value) {
+  
+  node_uuid_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+}
+inline void BoneData::set_node_uuid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  node_uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+}
+inline void BoneData::set_node_uuid(const char* value, size_t size) {
+  
+  node_uuid_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+}
+inline std::string* BoneData::_internal_mutable_node_uuid() {
+  
+  return node_uuid_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* BoneData::release_node_uuid() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+  
+  return node_uuid_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void BoneData::set_allocated_node_uuid(std::string* node_uuid) {
+  if (node_uuid != nullptr) {
+    
+  } else {
+    
+  }
+  node_uuid_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), node_uuid);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.BoneData.node_uuid)
+}
+
+// .Tiny3D.Script.Matrix4 offset = 2;
+inline bool BoneData::_internal_has_offset() const {
+  return this != internal_default_instance() && offset_ != nullptr;
+}
+inline bool BoneData::has_offset() const {
+  return _internal_has_offset();
+}
+inline const ::Tiny3D::Script::Matrix4& BoneData::_internal_offset() const {
+  const ::Tiny3D::Script::Matrix4* p = offset_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::Tiny3D::Script::Matrix4*>(
+      &::Tiny3D::Script::_Matrix4_default_instance_);
+}
+inline const ::Tiny3D::Script::Matrix4& BoneData::offset() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.BoneData.offset)
+  return _internal_offset();
+}
+inline ::Tiny3D::Script::Matrix4* BoneData::release_offset() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.BoneData.offset)
+  
+  ::Tiny3D::Script::Matrix4* temp = offset_;
+  offset_ = nullptr;
+  return temp;
+}
+inline ::Tiny3D::Script::Matrix4* BoneData::_internal_mutable_offset() {
+  
+  if (offset_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Tiny3D::Script::Matrix4>(GetArenaNoVirtual());
+    offset_ = p;
+  }
+  return offset_;
+}
+inline ::Tiny3D::Script::Matrix4* BoneData::mutable_offset() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.BoneData.offset)
+  return _internal_mutable_offset();
+}
+inline void BoneData::set_allocated_offset(::Tiny3D::Script::Matrix4* offset) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(offset_);
+  }
+  if (offset) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      offset = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, offset, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  offset_ = offset;
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.BoneData.offset)
+}
+
 // -------------------------------------------------------------------
 
 // MeshData
@@ -4567,30 +4795,43 @@ MeshData::index_buffers() const {
   return index_buffers_;
 }
 
-// map<string, .Tiny3D.Script.Matrix4> offset = 4;
-inline int MeshData::_internal_offset_size() const {
-  return offset_.size();
+// repeated .Tiny3D.Script.ModelSystem.BoneData bones = 4;
+inline int MeshData::_internal_bones_size() const {
+  return bones_.size();
 }
-inline int MeshData::offset_size() const {
-  return _internal_offset_size();
+inline int MeshData::bones_size() const {
+  return _internal_bones_size();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >&
-MeshData::_internal_offset() const {
-  return offset_.GetMap();
+inline void MeshData::clear_bones() {
+  bones_.Clear();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >&
-MeshData::offset() const {
-  // @@protoc_insertion_point(field_map:Tiny3D.Script.ModelSystem.MeshData.offset)
-  return _internal_offset();
+inline ::Tiny3D::Script::ModelSystem::BoneData* MeshData::mutable_bones(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.MeshData.bones)
+  return bones_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
-MeshData::_internal_mutable_offset() {
-  return offset_.MutableMap();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData >*
+MeshData::mutable_bones() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.MeshData.bones)
+  return &bones_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::Matrix4 >*
-MeshData::mutable_offset() {
-  // @@protoc_insertion_point(field_mutable_map:Tiny3D.Script.ModelSystem.MeshData.offset)
-  return _internal_mutable_offset();
+inline const ::Tiny3D::Script::ModelSystem::BoneData& MeshData::_internal_bones(int index) const {
+  return bones_.Get(index);
+}
+inline const ::Tiny3D::Script::ModelSystem::BoneData& MeshData::bones(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.MeshData.bones)
+  return _internal_bones(index);
+}
+inline ::Tiny3D::Script::ModelSystem::BoneData* MeshData::_internal_add_bones() {
+  return bones_.Add();
+}
+inline ::Tiny3D::Script::ModelSystem::BoneData* MeshData::add_bones() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.MeshData.bones)
+  return _internal_add_bones();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData >&
+MeshData::bones() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.MeshData.bones)
+  return bones_;
 }
 
 // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;

@@ -197,6 +197,16 @@ message AnimationClip
 
 
 //-------------------------------------------------------------------------------------------------
+//                                      Bone Data
+//-------------------------------------------------------------------------------------------------
+
+message BoneData
+{
+    string      node_uuid = 1;
+    Matrix4     offset = 2;
+}
+
+//-------------------------------------------------------------------------------------------------
 //                                      Mesh Data
 //-------------------------------------------------------------------------------------------------
 
@@ -208,7 +218,7 @@ message MeshData
     string                  name = 1;
     repeated VertexBuffer   vertex_buffers = 2;
     repeated IndexBuffer    index_buffers = 3;
-    map<string, Matrix4>    offset = 4;
+    repeated BoneData       bones = 4;
     repeated AnimationClip  clips = 5;
 }
 
