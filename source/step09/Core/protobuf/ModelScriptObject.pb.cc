@@ -16,13 +16,13 @@
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_CommonScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Matrix4_CommonScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Aabb_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_KeyframesEntry_DoNotUse_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BoneData_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_Bound_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_IndexBuffer_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Indices_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Keyframe_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_KeyframeData_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Keyframe_ModelScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Keyframes_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Obb_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Sphere_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_VertexAttribute_ModelScriptObject_2eproto;
@@ -76,17 +76,21 @@ class IndexBufferDefaultTypeInternal {
   const ::Tiny3D::Script::ModelSystem::Indices* indices_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr values_;
 } _IndexBuffer_default_instance_;
-class KeyframeDataDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<KeyframeData> _instance;
-  const ::Tiny3D::Script::Vector3* translation_;
-  const ::Tiny3D::Script::Quaternion* rotation_;
-  const ::Tiny3D::Script::Vector3* scaling_;
-} _KeyframeData_default_instance_;
 class KeyframeDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Keyframe> _instance;
+  const ::Tiny3D::Script::Vector3* translation_;
+  const ::Tiny3D::Script::Quaternion* rotation_;
+  const ::Tiny3D::Script::Vector3* scaling_;
 } _Keyframe_default_instance_;
+class KeyframesDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Keyframes> _instance;
+} _Keyframes_default_instance_;
+class AnimationClip_KeyframesEntry_DoNotUseDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AnimationClip_KeyframesEntry_DoNotUse> _instance;
+} _AnimationClip_KeyframesEntry_DoNotUse_default_instance_;
 class AnimationClipDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AnimationClip> _instance;
@@ -129,7 +133,21 @@ static void InitDefaultsscc_info_AnimationClip_ModelScriptObject_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_ModelScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_AnimationClip_ModelScriptObject_2eproto}, {
-      &scc_info_Keyframe_ModelScriptObject_2eproto.base,}};
+      &scc_info_AnimationClip_KeyframesEntry_DoNotUse_ModelScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_AnimationClip_KeyframesEntry_DoNotUse_ModelScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::ModelSystem::_AnimationClip_KeyframesEntry_DoNotUse_default_instance_;
+    new (ptr) ::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse();
+  }
+  ::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_KeyframesEntry_DoNotUse_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_AnimationClip_KeyframesEntry_DoNotUse_ModelScriptObject_2eproto}, {
+      &scc_info_Keyframes_ModelScriptObject_2eproto.base,}};
 
 static void InitDefaultsscc_info_BoneData_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -204,25 +222,25 @@ static void InitDefaultsscc_info_Keyframe_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::Keyframe::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Keyframe_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Keyframe_ModelScriptObject_2eproto}, {
-      &scc_info_KeyframeData_ModelScriptObject_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Keyframe_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_Keyframe_ModelScriptObject_2eproto}, {
+      &scc_info_Vector3_CommonScriptObject_2eproto.base,
+      &scc_info_Quaternion_CommonScriptObject_2eproto.base,}};
 
-static void InitDefaultsscc_info_KeyframeData_ModelScriptObject_2eproto() {
+static void InitDefaultsscc_info_Keyframes_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_;
-    new (ptr) ::Tiny3D::Script::ModelSystem::KeyframeData();
+    void* ptr = &::Tiny3D::Script::ModelSystem::_Keyframes_default_instance_;
+    new (ptr) ::Tiny3D::Script::ModelSystem::Keyframes();
     ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::Tiny3D::Script::ModelSystem::KeyframeData::InitAsDefaultInstance();
+  ::Tiny3D::Script::ModelSystem::Keyframes::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_KeyframeData_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_KeyframeData_ModelScriptObject_2eproto}, {
-      &scc_info_Vector3_CommonScriptObject_2eproto.base,
-      &scc_info_Quaternion_CommonScriptObject_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Keyframes_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Keyframes_ModelScriptObject_2eproto}, {
+      &scc_info_Keyframe_ModelScriptObject_2eproto.base,}};
 
 static void InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -235,12 +253,11 @@ static void InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto() {
   ::Tiny3D::Script::ModelSystem::MeshData::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_MeshData_ModelScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 4, 0, InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto}, {
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_MeshData_ModelScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, 0, InitDefaultsscc_info_MeshData_ModelScriptObject_2eproto}, {
       &scc_info_VertexBuffer_ModelScriptObject_2eproto.base,
       &scc_info_IndexBuffer_ModelScriptObject_2eproto.base,
-      &scc_info_BoneData_ModelScriptObject_2eproto.base,
-      &scc_info_AnimationClip_ModelScriptObject_2eproto.base,}};
+      &scc_info_BoneData_ModelScriptObject_2eproto.base,}};
 
 static void InitDefaultsscc_info_Obb_ModelScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -316,8 +333,8 @@ static void InitDefaultsscc_info_Vertices_ModelScriptObject_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Vertices_ModelScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Vertices_ModelScriptObject_2eproto}, {}};
 
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[14];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_ModelScriptObject_2eproto[5];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_ModelScriptObject_2eproto[15];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_ModelScriptObject_2eproto[4];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_ModelScriptObject_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -400,23 +417,32 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   offsetof(::Tiny3D::Script::ModelSystem::IndexBufferDefaultTypeInternal, values_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::IndexBuffer, IndicesOneof_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::KeyframeData, _internal_metadata_),
-  ~0u,  // no _extensions_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::KeyframeData, _oneof_case_[0]),
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::KeyframeData, time_),
-  offsetof(::Tiny3D::Script::ModelSystem::KeyframeDataDefaultTypeInternal, translation_),
-  offsetof(::Tiny3D::Script::ModelSystem::KeyframeDataDefaultTypeInternal, rotation_),
-  offsetof(::Tiny3D::Script::ModelSystem::KeyframeDataDefaultTypeInternal, scaling_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::KeyframeData, KeyframeOneOf_),
-  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, _internal_metadata_),
+  ~0u,  // no _extensions_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, _oneof_case_[0]),
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, time_),
+  offsetof(::Tiny3D::Script::ModelSystem::KeyframeDefaultTypeInternal, translation_),
+  offsetof(::Tiny3D::Script::ModelSystem::KeyframeDefaultTypeInternal, rotation_),
+  offsetof(::Tiny3D::Script::ModelSystem::KeyframeDefaultTypeInternal, scaling_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, KeyframeOneOf_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, type_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, bone_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframe, frames_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframes, framest_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframes, framesr_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::Keyframes, framess_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse, value_),
+  0,
+  1,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::AnimationClip, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -441,7 +467,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_ModelScriptObject_2eproto::off
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, vertex_buffers_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, index_buffers_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, bones_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::ModelSystem::MeshData, clips_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::Tiny3D::Script::ModelSystem::VertexAttribute)},
@@ -453,11 +478,12 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 49, -1, sizeof(::Tiny3D::Script::ModelSystem::Bound)},
   { 59, -1, sizeof(::Tiny3D::Script::ModelSystem::Indices)},
   { 65, -1, sizeof(::Tiny3D::Script::ModelSystem::IndexBuffer)},
-  { 78, -1, sizeof(::Tiny3D::Script::ModelSystem::KeyframeData)},
-  { 88, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
-  { 96, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
-  { 104, -1, sizeof(::Tiny3D::Script::ModelSystem::BoneData)},
-  { 111, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
+  { 78, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframe)},
+  { 88, -1, sizeof(::Tiny3D::Script::ModelSystem::Keyframes)},
+  { 96, 103, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse)},
+  { 105, -1, sizeof(::Tiny3D::Script::ModelSystem::AnimationClip)},
+  { 113, -1, sizeof(::Tiny3D::Script::ModelSystem::BoneData)},
+  { 120, -1, sizeof(::Tiny3D::Script::ModelSystem::MeshData)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -470,8 +496,9 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Bound_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Indices_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_IndexBuffer_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Keyframe_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_Keyframes_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_AnimationClip_KeyframesEntry_DoNotUse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_AnimationClip_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_BoneData_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::ModelSystem::_MeshData_default_instance_),
@@ -517,44 +544,46 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "(\0132 .Tiny3D.Script.ModelSystem.Bound\0225\n\007"
   "indices\030\006 \001(\0132\".Tiny3D.Script.ModelSyste"
   "m.IndicesH\000\022\020\n\006values\030\007 \001(\014H\000B\016\n\014Indices"
-  "Oneof\"\266\001\n\014KeyframeData\022\014\n\004time\030\001 \001(\002\022-\n\013"
-  "translation\030\002 \001(\0132\026.Tiny3D.Script.Vector"
-  "3H\000\022-\n\010rotation\030\003 \001(\0132\031.Tiny3D.Script.Qu"
-  "aternionH\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Scr"
-  "ipt.Vector3H\000B\017\n\rKeyframeOneOf\"\306\001\n\010Keyfr"
-  "ame\0226\n\004type\030\001 \001(\0162(.Tiny3D.Script.ModelS"
-  "ystem.Keyframe.Type\022\014\n\004bone\030\002 \001(\t\0227\n\006fra"
-  "mes\030\003 \003(\0132\'.Tiny3D.Script.ModelSystem.Ke"
-  "yframeData\";\n\004Type\022\022\n\016KT_TRANSLATION\020\000\022\017"
-  "\n\013KT_ROTATION\020\001\022\016\n\nKT_SCALING\020\002\"g\n\rAnima"
-  "tionClip\022\014\n\004name\030\001 \001(\t\022\020\n\010duration\030\002 \001(\002"
-  "\0226\n\tkeyframes\030\003 \003(\0132#.Tiny3D.Script.Mode"
-  "lSystem.Keyframe\"E\n\010BoneData\022\021\n\tnode_uui"
+  "Oneof\"\262\001\n\010Keyframe\022\014\n\004time\030\001 \001(\002\022-\n\013tran"
+  "slation\030\002 \001(\0132\026.Tiny3D.Script.Vector3H\000\022"
+  "-\n\010rotation\030\003 \001(\0132\031.Tiny3D.Script.Quater"
+  "nionH\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Script."
+  "Vector3H\000B\017\n\rKeyframeOneOf\"\255\001\n\tKeyframes"
+  "\0224\n\007framesT\030\002 \003(\0132#.Tiny3D.Script.ModelS"
+  "ystem.Keyframe\0224\n\007framesR\030\003 \003(\0132#.Tiny3D"
+  ".Script.ModelSystem.Keyframe\0224\n\007framesS\030"
+  "\004 \003(\0132#.Tiny3D.Script.ModelSystem.Keyfra"
+  "me\"\323\001\n\rAnimationClip\022\014\n\004name\030\001 \001(\t\022\020\n\010du"
+  "ration\030\002 \001(\002\022J\n\tkeyframes\030\003 \003(\01327.Tiny3D"
+  ".Script.ModelSystem.AnimationClip.Keyfra"
+  "mesEntry\032V\n\016KeyframesEntry\022\013\n\003key\030\001 \001(\t\022"
+  "3\n\005value\030\002 \001(\0132$.Tiny3D.Script.ModelSyst"
+  "em.Keyframes:\0028\001\"E\n\010BoneData\022\021\n\tnode_uui"
   "d\030\001 \001(\t\022&\n\006offset\030\002 \001(\0132\026.Tiny3D.Script."
-  "Matrix4\"\205\002\n\010MeshData\022\014\n\004name\030\001 \001(\t\022\?\n\016ve"
+  "Matrix4\"\314\001\n\010MeshData\022\014\n\004name\030\001 \001(\t\022\?\n\016ve"
   "rtex_buffers\030\002 \003(\0132\'.Tiny3D.Script.Model"
   "System.VertexBuffer\022=\n\rindex_buffers\030\003 \003"
   "(\0132&.Tiny3D.Script.ModelSystem.IndexBuff"
   "er\0222\n\005bones\030\004 \003(\0132#.Tiny3D.Script.ModelS"
-  "ystem.BoneData\0227\n\005clips\030\005 \003(\0132(.Tiny3D.S"
-  "cript.ModelSystem.AnimationClip*\211\001\n\rPrim"
-  "itiveType\022\021\n\rPT_POINT_LIST\020\000\022\020\n\014PT_LINE_"
-  "LIST\020\001\022\021\n\rPT_LINE_STRIP\020\002\022\024\n\020PT_TRIANGLE"
-  "_LIST\020\003\022\025\n\021PT_TRIANGLE_STRIP\020\004\022\023\n\017PT_TRI"
-  "ANGLE_FAN\020\005b\006proto3"
+  "ystem.BoneData*\211\001\n\rPrimitiveType\022\021\n\rPT_P"
+  "OINT_LIST\020\000\022\020\n\014PT_LINE_LIST\020\001\022\021\n\rPT_LINE"
+  "_STRIP\020\002\022\024\n\020PT_TRIANGLE_LIST\020\003\022\025\n\021PT_TRI"
+  "ANGLE_STRIP\020\004\022\023\n\017PT_TRIANGLE_FAN\020\005b\006prot"
+  "o3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_ModelScriptObject_2eproto_deps[1] = {
   &::descriptor_table_CommonScriptObject_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ModelScriptObject_2eproto_sccs[14] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ModelScriptObject_2eproto_sccs[15] = {
   &scc_info_Aabb_ModelScriptObject_2eproto.base,
   &scc_info_AnimationClip_ModelScriptObject_2eproto.base,
+  &scc_info_AnimationClip_KeyframesEntry_DoNotUse_ModelScriptObject_2eproto.base,
   &scc_info_BoneData_ModelScriptObject_2eproto.base,
   &scc_info_Bound_ModelScriptObject_2eproto.base,
   &scc_info_IndexBuffer_ModelScriptObject_2eproto.base,
   &scc_info_Indices_ModelScriptObject_2eproto.base,
   &scc_info_Keyframe_ModelScriptObject_2eproto.base,
-  &scc_info_KeyframeData_ModelScriptObject_2eproto.base,
+  &scc_info_Keyframes_ModelScriptObject_2eproto.base,
   &scc_info_MeshData_ModelScriptObject_2eproto.base,
   &scc_info_Obb_ModelScriptObject_2eproto.base,
   &scc_info_Sphere_ModelScriptObject_2eproto.base,
@@ -565,10 +594,10 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Mod
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_ModelScriptObject_2eproto_once;
 static bool descriptor_table_ModelScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_ModelScriptObject_2eproto = {
-  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2539,
-  &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 14, 1,
+  &descriptor_table_ModelScriptObject_2eproto_initialized, descriptor_table_protodef_ModelScriptObject_2eproto, "ModelScriptObject.proto", 2562,
+  &descriptor_table_ModelScriptObject_2eproto_once, descriptor_table_ModelScriptObject_2eproto_sccs, descriptor_table_ModelScriptObject_2eproto_deps, 15, 1,
   schemas, file_default_instances, TableStruct_ModelScriptObject_2eproto::offsets,
-  file_level_metadata_ModelScriptObject_2eproto, 14, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
+  file_level_metadata_ModelScriptObject_2eproto, 15, file_level_enum_descriptors_ModelScriptObject_2eproto, file_level_service_descriptors_ModelScriptObject_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
@@ -663,32 +692,9 @@ constexpr Bound_Type Bound::Type_MIN;
 constexpr Bound_Type Bound::Type_MAX;
 constexpr int Bound::Type_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Keyframe_Type_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ModelScriptObject_2eproto);
-  return file_level_enum_descriptors_ModelScriptObject_2eproto[3];
-}
-bool Keyframe_Type_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
-}
-
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr Keyframe_Type Keyframe::KT_TRANSLATION;
-constexpr Keyframe_Type Keyframe::KT_ROTATION;
-constexpr Keyframe_Type Keyframe::KT_SCALING;
-constexpr Keyframe_Type Keyframe::Type_MIN;
-constexpr Keyframe_Type Keyframe::Type_MAX;
-constexpr int Keyframe::Type_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* PrimitiveType_descriptor() {
   ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_ModelScriptObject_2eproto);
-  return file_level_enum_descriptors_ModelScriptObject_2eproto[4];
+  return file_level_enum_descriptors_ModelScriptObject_2eproto[3];
 }
 bool PrimitiveType_IsValid(int value) {
   switch (value) {
@@ -3301,34 +3307,34 @@ void IndexBuffer::InternalSwap(IndexBuffer* other) {
 
 // ===================================================================
 
-void KeyframeData::InitAsDefaultInstance() {
-  ::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_.translation_ = const_cast< ::Tiny3D::Script::Vector3*>(
+void Keyframe::InitAsDefaultInstance() {
+  ::Tiny3D::Script::ModelSystem::_Keyframe_default_instance_.translation_ = const_cast< ::Tiny3D::Script::Vector3*>(
       ::Tiny3D::Script::Vector3::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_.rotation_ = const_cast< ::Tiny3D::Script::Quaternion*>(
+  ::Tiny3D::Script::ModelSystem::_Keyframe_default_instance_.rotation_ = const_cast< ::Tiny3D::Script::Quaternion*>(
       ::Tiny3D::Script::Quaternion::internal_default_instance());
-  ::Tiny3D::Script::ModelSystem::_KeyframeData_default_instance_.scaling_ = const_cast< ::Tiny3D::Script::Vector3*>(
+  ::Tiny3D::Script::ModelSystem::_Keyframe_default_instance_.scaling_ = const_cast< ::Tiny3D::Script::Vector3*>(
       ::Tiny3D::Script::Vector3::internal_default_instance());
 }
-class KeyframeData::_Internal {
+class Keyframe::_Internal {
  public:
-  static const ::Tiny3D::Script::Vector3& translation(const KeyframeData* msg);
-  static const ::Tiny3D::Script::Quaternion& rotation(const KeyframeData* msg);
-  static const ::Tiny3D::Script::Vector3& scaling(const KeyframeData* msg);
+  static const ::Tiny3D::Script::Vector3& translation(const Keyframe* msg);
+  static const ::Tiny3D::Script::Quaternion& rotation(const Keyframe* msg);
+  static const ::Tiny3D::Script::Vector3& scaling(const Keyframe* msg);
 };
 
 const ::Tiny3D::Script::Vector3&
-KeyframeData::_Internal::translation(const KeyframeData* msg) {
+Keyframe::_Internal::translation(const Keyframe* msg) {
   return *msg->KeyframeOneOf_.translation_;
 }
 const ::Tiny3D::Script::Quaternion&
-KeyframeData::_Internal::rotation(const KeyframeData* msg) {
+Keyframe::_Internal::rotation(const Keyframe* msg) {
   return *msg->KeyframeOneOf_.rotation_;
 }
 const ::Tiny3D::Script::Vector3&
-KeyframeData::_Internal::scaling(const KeyframeData* msg) {
+Keyframe::_Internal::scaling(const Keyframe* msg) {
   return *msg->KeyframeOneOf_.scaling_;
 }
-void KeyframeData::set_allocated_translation(::Tiny3D::Script::Vector3* translation) {
+void Keyframe::set_allocated_translation(::Tiny3D::Script::Vector3* translation) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_KeyframeOneOf();
   if (translation) {
@@ -3340,15 +3346,15 @@ void KeyframeData::set_allocated_translation(::Tiny3D::Script::Vector3* translat
     set_has_translation();
     KeyframeOneOf_.translation_ = translation;
   }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.KeyframeData.translation)
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Keyframe.translation)
 }
-void KeyframeData::clear_translation() {
+void Keyframe::clear_translation() {
   if (_internal_has_translation()) {
     delete KeyframeOneOf_.translation_;
     clear_has_KeyframeOneOf();
   }
 }
-void KeyframeData::set_allocated_rotation(::Tiny3D::Script::Quaternion* rotation) {
+void Keyframe::set_allocated_rotation(::Tiny3D::Script::Quaternion* rotation) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_KeyframeOneOf();
   if (rotation) {
@@ -3360,15 +3366,15 @@ void KeyframeData::set_allocated_rotation(::Tiny3D::Script::Quaternion* rotation
     set_has_rotation();
     KeyframeOneOf_.rotation_ = rotation;
   }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.KeyframeData.rotation)
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Keyframe.rotation)
 }
-void KeyframeData::clear_rotation() {
+void Keyframe::clear_rotation() {
   if (_internal_has_rotation()) {
     delete KeyframeOneOf_.rotation_;
     clear_has_KeyframeOneOf();
   }
 }
-void KeyframeData::set_allocated_scaling(::Tiny3D::Script::Vector3* scaling) {
+void Keyframe::set_allocated_scaling(::Tiny3D::Script::Vector3* scaling) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   clear_KeyframeOneOf();
   if (scaling) {
@@ -3380,20 +3386,20 @@ void KeyframeData::set_allocated_scaling(::Tiny3D::Script::Vector3* scaling) {
     set_has_scaling();
     KeyframeOneOf_.scaling_ = scaling;
   }
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.KeyframeData.scaling)
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Keyframe.scaling)
 }
-void KeyframeData::clear_scaling() {
+void Keyframe::clear_scaling() {
   if (_internal_has_scaling()) {
     delete KeyframeOneOf_.scaling_;
     clear_has_KeyframeOneOf();
   }
 }
-KeyframeData::KeyframeData()
+Keyframe::Keyframe()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.Keyframe)
 }
-KeyframeData::KeyframeData(const KeyframeData& from)
+Keyframe::Keyframe(const Keyframe& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -3416,37 +3422,37 @@ KeyframeData::KeyframeData(const KeyframeData& from)
       break;
     }
   }
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Keyframe)
 }
 
-void KeyframeData::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_KeyframeData_ModelScriptObject_2eproto.base);
+void Keyframe::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Keyframe_ModelScriptObject_2eproto.base);
   time_ = 0;
   clear_has_KeyframeOneOf();
 }
 
-KeyframeData::~KeyframeData() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.KeyframeData)
+Keyframe::~Keyframe() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.Keyframe)
   SharedDtor();
 }
 
-void KeyframeData::SharedDtor() {
+void Keyframe::SharedDtor() {
   if (has_KeyframeOneOf()) {
     clear_KeyframeOneOf();
   }
 }
 
-void KeyframeData::SetCachedSize(int size) const {
+void Keyframe::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const KeyframeData& KeyframeData::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_KeyframeData_ModelScriptObject_2eproto.base);
+const Keyframe& Keyframe::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Keyframe_ModelScriptObject_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void KeyframeData::clear_KeyframeOneOf() {
-// @@protoc_insertion_point(one_of_clear_start:Tiny3D.Script.ModelSystem.KeyframeData)
+void Keyframe::clear_KeyframeOneOf() {
+// @@protoc_insertion_point(one_of_clear_start:Tiny3D.Script.ModelSystem.Keyframe)
   switch (KeyframeOneOf_case()) {
     case kTranslation: {
       delete KeyframeOneOf_.translation_;
@@ -3468,8 +3474,8 @@ void KeyframeData::clear_KeyframeOneOf() {
 }
 
 
-void KeyframeData::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.KeyframeData)
+void Keyframe::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Keyframe)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -3479,7 +3485,7 @@ void KeyframeData::Clear() {
   _internal_metadata_.Clear();
 }
 
-const char* KeyframeData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Keyframe::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -3534,9 +3540,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* KeyframeData::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* Keyframe::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.Keyframe)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -3574,12 +3580,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.Keyframe)
   return target;
 }
 
-size_t KeyframeData::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.KeyframeData)
+size_t Keyframe::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.Keyframe)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -3626,23 +3632,23 @@ size_t KeyframeData::ByteSizeLong() const {
   return total_size;
 }
 
-void KeyframeData::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.KeyframeData)
+void Keyframe::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.Keyframe)
   GOOGLE_DCHECK_NE(&from, this);
-  const KeyframeData* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<KeyframeData>(
+  const Keyframe* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Keyframe>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.Keyframe)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.Keyframe)
     MergeFrom(*source);
   }
 }
 
-void KeyframeData::MergeFrom(const KeyframeData& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.KeyframeData)
+void Keyframe::MergeFrom(const Keyframe& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.Keyframe)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -3670,25 +3676,25 @@ void KeyframeData::MergeFrom(const KeyframeData& from) {
   }
 }
 
-void KeyframeData::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.KeyframeData)
+void Keyframe::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.Keyframe)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void KeyframeData::CopyFrom(const KeyframeData& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.KeyframeData)
+void Keyframe::CopyFrom(const Keyframe& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.Keyframe)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool KeyframeData::IsInitialized() const {
+bool Keyframe::IsInitialized() const {
   return true;
 }
 
-void KeyframeData::InternalSwap(KeyframeData* other) {
+void Keyframe::InternalSwap(Keyframe* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(time_, other->time_);
@@ -3696,107 +3702,108 @@ void KeyframeData::InternalSwap(KeyframeData* other) {
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata KeyframeData::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata Keyframe::GetMetadata() const {
   return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
-void Keyframe::InitAsDefaultInstance() {
+void Keyframes::InitAsDefaultInstance() {
 }
-class Keyframe::_Internal {
+class Keyframes::_Internal {
  public:
 };
 
-Keyframe::Keyframe()
+Keyframes::Keyframes()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.Keyframe)
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.ModelSystem.Keyframes)
 }
-Keyframe::Keyframe(const Keyframe& from)
+Keyframes::Keyframes(const Keyframes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
-      frames_(from.frames_) {
+      framest_(from.framest_),
+      framesr_(from.framesr_),
+      framess_(from.framess_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  bone_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_bone().empty()) {
-    bone_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.bone_);
-  }
-  type_ = from.type_;
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Keyframe)
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.ModelSystem.Keyframes)
 }
 
-void Keyframe::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Keyframe_ModelScriptObject_2eproto.base);
-  bone_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  type_ = 0;
+void Keyframes::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Keyframes_ModelScriptObject_2eproto.base);
 }
 
-Keyframe::~Keyframe() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.Keyframe)
+Keyframes::~Keyframes() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.ModelSystem.Keyframes)
   SharedDtor();
 }
 
-void Keyframe::SharedDtor() {
-  bone_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+void Keyframes::SharedDtor() {
 }
 
-void Keyframe::SetCachedSize(int size) const {
+void Keyframes::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const Keyframe& Keyframe::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Keyframe_ModelScriptObject_2eproto.base);
+const Keyframes& Keyframes::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Keyframes_ModelScriptObject_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void Keyframe::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Keyframe)
+void Keyframes::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.ModelSystem.Keyframes)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  frames_.Clear();
-  bone_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  type_ = 0;
+  framest_.Clear();
+  framesr_.Clear();
+  framess_.Clear();
   _internal_metadata_.Clear();
 }
 
-const char* Keyframe::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Keyframes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // .Tiny3D.Script.ModelSystem.Keyframe.Type type = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-          _internal_set_type(static_cast<::Tiny3D::Script::ModelSystem::Keyframe_Type>(val));
-        } else goto handle_unusual;
-        continue;
-      // string bone = 2;
+      // repeated .Tiny3D.Script.ModelSystem.Keyframe framesT = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          auto str = _internal_mutable_bone();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.ModelSystem.Keyframe.bone"));
-          CHK_(ptr);
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_framest(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.ModelSystem.KeyframeData frames = 3;
+      // repeated .Tiny3D.Script.ModelSystem.Keyframe framesR = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_frames(), ptr);
+            ptr = ctx->ParseMessage(_internal_add_framesr(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // repeated .Tiny3D.Script.ModelSystem.Keyframe framesS = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_framess(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -3819,71 +3826,71 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Keyframe::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* Keyframes::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.Keyframe)
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.ModelSystem.Keyframes)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .Tiny3D.Script.ModelSystem.Keyframe.Type type = 1;
-  if (this->type() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      1, this->_internal_type(), target);
-  }
-
-  // string bone = 2;
-  if (this->bone().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_bone().data(), static_cast<int>(this->_internal_bone().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "Tiny3D.Script.ModelSystem.Keyframe.bone");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_bone(), target);
-  }
-
-  // repeated .Tiny3D.Script.ModelSystem.KeyframeData frames = 3;
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesT = 2;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_frames_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->_internal_framest_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_frames(i), target, stream);
+      InternalWriteMessage(2, this->_internal_framest(i), target, stream);
+  }
+
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesR = 3;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_framesr_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(3, this->_internal_framesr(i), target, stream);
+  }
+
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesS = 4;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_framess_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(4, this->_internal_framess(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.Keyframe)
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.ModelSystem.Keyframes)
   return target;
 }
 
-size_t Keyframe::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.Keyframe)
+size_t Keyframes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.ModelSystem.Keyframes)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .Tiny3D.Script.ModelSystem.KeyframeData frames = 3;
-  total_size += 1UL * this->_internal_frames_size();
-  for (const auto& msg : this->frames_) {
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesT = 2;
+  total_size += 1UL * this->_internal_framest_size();
+  for (const auto& msg : this->framest_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string bone = 2;
-  if (this->bone().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_bone());
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesR = 3;
+  total_size += 1UL * this->_internal_framesr_size();
+  for (const auto& msg : this->framesr_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // .Tiny3D.Script.ModelSystem.Keyframe.Type type = 1;
-  if (this->type() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_type());
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesS = 4;
+  total_size += 1UL * this->_internal_framess_size();
+  for (const auto& msg : this->framess_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3895,67 +3902,78 @@ size_t Keyframe::ByteSizeLong() const {
   return total_size;
 }
 
-void Keyframe::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.Keyframe)
+void Keyframes::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.ModelSystem.Keyframes)
   GOOGLE_DCHECK_NE(&from, this);
-  const Keyframe* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Keyframe>(
+  const Keyframes* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Keyframes>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.Keyframe)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.ModelSystem.Keyframes)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.Keyframe)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.ModelSystem.Keyframes)
     MergeFrom(*source);
   }
 }
 
-void Keyframe::MergeFrom(const Keyframe& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.Keyframe)
+void Keyframes::MergeFrom(const Keyframes& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.ModelSystem.Keyframes)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  frames_.MergeFrom(from.frames_);
-  if (from.bone().size() > 0) {
-
-    bone_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.bone_);
-  }
-  if (from.type() != 0) {
-    _internal_set_type(from._internal_type());
-  }
+  framest_.MergeFrom(from.framest_);
+  framesr_.MergeFrom(from.framesr_);
+  framess_.MergeFrom(from.framess_);
 }
 
-void Keyframe::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.Keyframe)
+void Keyframes::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.ModelSystem.Keyframes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Keyframe::CopyFrom(const Keyframe& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.Keyframe)
+void Keyframes::CopyFrom(const Keyframes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.ModelSystem.Keyframes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Keyframe::IsInitialized() const {
+bool Keyframes::IsInitialized() const {
   return true;
 }
 
-void Keyframe::InternalSwap(Keyframe* other) {
+void Keyframes::InternalSwap(Keyframes* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  frames_.InternalSwap(&other->frames_);
-  bone_.Swap(&other->bone_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(type_, other->type_);
+  framest_.InternalSwap(&other->framest_);
+  framesr_.InternalSwap(&other->framesr_);
+  framess_.InternalSwap(&other->framess_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata Keyframe::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata Keyframes::GetMetadata() const {
   return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
+AnimationClip_KeyframesEntry_DoNotUse::AnimationClip_KeyframesEntry_DoNotUse() {}
+AnimationClip_KeyframesEntry_DoNotUse::AnimationClip_KeyframesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+    : SuperType(arena) {}
+void AnimationClip_KeyframesEntry_DoNotUse::MergeFrom(const AnimationClip_KeyframesEntry_DoNotUse& other) {
+  MergeFromInternal(other);
+}
+::PROTOBUF_NAMESPACE_ID::Metadata AnimationClip_KeyframesEntry_DoNotUse::GetMetadata() const {
+  return GetMetadataStatic();
+}
+void AnimationClip_KeyframesEntry_DoNotUse::MergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
+  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
 
 
@@ -3974,9 +3992,9 @@ AnimationClip::AnimationClip()
 }
 AnimationClip::AnimationClip(const AnimationClip& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      keyframes_(from.keyframes_) {
+      _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  keyframes_.MergeFrom(from.keyframes_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_name().empty()) {
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
@@ -4044,13 +4062,13 @@ const char* AnimationClip::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
-      // repeated .Tiny3D.Script.ModelSystem.Keyframe keyframes = 3;
+      // map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_keyframes(), ptr);
+            ptr = ctx->ParseMessage(&keyframes_, ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
@@ -4098,12 +4116,45 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_duration(), target);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.Keyframe keyframes = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_keyframes_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_keyframes(i), target, stream);
+  // map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
+  if (!this->_internal_keyframes().empty()) {
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >::const_pointer
+        ConstPtr;
+    typedef ConstPtr SortItem;
+    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
+    struct Utf8Check {
+      static void Check(ConstPtr p) {
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+          p->first.data(), static_cast<int>(p->first.length()),
+          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+          "Tiny3D.Script.ModelSystem.AnimationClip.KeyframesEntry.key");
+      }
+    };
+
+    if (stream->IsSerializationDeterministic() &&
+        this->_internal_keyframes().size() > 1) {
+      ::std::unique_ptr<SortItem[]> items(
+          new SortItem[this->_internal_keyframes().size()]);
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >::size_type size_type;
+      size_type n = 0;
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >::const_iterator
+          it = this->_internal_keyframes().begin();
+          it != this->_internal_keyframes().end(); ++it, ++n) {
+        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
+      }
+      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
+      for (size_type i = 0; i < n; i++) {
+        target = AnimationClip_KeyframesEntry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
+        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
+      }
+    } else {
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >::const_iterator
+          it = this->_internal_keyframes().begin();
+          it != this->_internal_keyframes().end(); ++it) {
+        target = AnimationClip_KeyframesEntry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
+        Utf8Check::Check(&(*it));
+      }
+    }
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4122,11 +4173,13 @@ size_t AnimationClip::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .Tiny3D.Script.ModelSystem.Keyframe keyframes = 3;
-  total_size += 1UL * this->_internal_keyframes_size();
-  for (const auto& msg : this->keyframes_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  // map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_keyframes_size());
+  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >::const_iterator
+      it = this->_internal_keyframes().begin();
+      it != this->_internal_keyframes().end(); ++it) {
+    total_size += AnimationClip_KeyframesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string name = 1;
@@ -4203,7 +4256,7 @@ bool AnimationClip::IsInitialized() const {
 void AnimationClip::InternalSwap(AnimationClip* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  keyframes_.InternalSwap(&other->keyframes_);
+  keyframes_.Swap(&other->keyframes_);
   name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   swap(duration_, other->duration_);
@@ -4481,8 +4534,7 @@ MeshData::MeshData(const MeshData& from)
       _internal_metadata_(nullptr),
       vertex_buffers_(from.vertex_buffers_),
       index_buffers_(from.index_buffers_),
-      bones_(from.bones_),
-      clips_(from.clips_) {
+      bones_(from.bones_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_name().empty()) {
@@ -4523,7 +4575,6 @@ void MeshData::Clear() {
   vertex_buffers_.Clear();
   index_buffers_.Clear();
   bones_.Clear();
-  clips_.Clear();
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
@@ -4578,18 +4629,6 @@ const char* MeshData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
-        } else goto handle_unusual;
-        continue;
-      // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_clips(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -4652,14 +4691,6 @@ failure:
       InternalWriteMessage(4, this->_internal_bones(i), target, stream);
   }
 
-  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_clips_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(5, this->_internal_clips(i), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
@@ -4693,13 +4724,6 @@ size_t MeshData::ByteSizeLong() const {
   // repeated .Tiny3D.Script.ModelSystem.BoneData bones = 4;
   total_size += 1UL * this->_internal_bones_size();
   for (const auto& msg : this->bones_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
-  }
-
-  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
-  total_size += 1UL * this->_internal_clips_size();
-  for (const auto& msg : this->clips_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
@@ -4745,7 +4769,6 @@ void MeshData::MergeFrom(const MeshData& from) {
   vertex_buffers_.MergeFrom(from.vertex_buffers_);
   index_buffers_.MergeFrom(from.index_buffers_);
   bones_.MergeFrom(from.bones_);
-  clips_.MergeFrom(from.clips_);
   if (from.name().size() > 0) {
 
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
@@ -4776,7 +4799,6 @@ void MeshData::InternalSwap(MeshData* other) {
   vertex_buffers_.InternalSwap(&other->vertex_buffers_);
   index_buffers_.InternalSwap(&other->index_buffers_);
   bones_.InternalSwap(&other->bones_);
-  clips_.InternalSwap(&other->clips_);
   name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
 }
@@ -4818,11 +4840,14 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Indices* Arena::Crea
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::IndexBuffer* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::IndexBuffer >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::IndexBuffer >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::KeyframeData* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::KeyframeData >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::KeyframeData >(arena);
-}
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Keyframe* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::Keyframe >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::Keyframe >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::Keyframes* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::Keyframes >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::Keyframes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::ModelSystem::AnimationClip* Arena::CreateMaybeMessage< ::Tiny3D::Script::ModelSystem::AnimationClip >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::ModelSystem::AnimationClip >(arena);

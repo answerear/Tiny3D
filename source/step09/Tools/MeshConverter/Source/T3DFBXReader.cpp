@@ -207,8 +207,9 @@ namespace Tiny3D
 
         do 
         {
-            // 文件头
             Script::FileFormat::FileModel *data = (Script::FileFormat::FileModel *)model->getModelData();
+
+            // 文件头
             Script::FileFormat::FileHeader *header = data->mutable_header();
             header->set_magic(T3D_FILE_MAGIC);
             header->set_version(T3D_FILE_MDL_VERSION);
@@ -274,7 +275,7 @@ namespace Tiny3D
             }
 
             // Animation
-            ret = processFbxAnimation(pFbxScene);
+            ret = processFbxAnimation(pFbxScene, data);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -1249,7 +1250,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxAnimation(FbxScene *pFbxScene)
+    TResult FBXReader::processFbxAnimation(FbxScene *pFbxScene, Script::FileFormat::FileModel *model)
     {
         TResult ret = T3D_OK;
 
@@ -1262,7 +1263,7 @@ namespace Tiny3D
         for (i = 0; i < nAnimStackCount; ++i)
         {
             FbxAnimStack *pFbxAnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
-            ret = processFbxAnimation(pFbxAnimStack, pFbxScene->GetRootNode(), i);
+            ret = processFbxAnimation(pFbxAnimStack, pFbxScene->GetRootNode(), model, i);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -1274,7 +1275,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, int32_t idx)
+    TResult FBXReader::processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, Script::FileFormat::FileModel *model, int32_t idx)
     {
         TResult ret = T3D_OK;
 
@@ -1289,10 +1290,16 @@ namespace Tiny3D
 
         MCONV_LOG_INFO("\tAnimation : %s (%d)", name.c_str(), nAnimLayerCount);
 
+        auto clips = model->mutable_data()->mutable_animations();
+        String uuid = UUID::generate();
+        auto rval = clips->insert({ uuid, Script::ModelSystem::AnimationClip() });
+        Script::ModelSystem::AnimationClip *pClip = &rval.first->second;
+        pClip->set_name(name);
+
         for (i = 0; i < nAnimLayerCount; ++i)
         {
             FbxAnimLayer *pFbxAnimLayer = pFbxAnimStack->GetMember<FbxAnimLayer>(i);
-            ret = processFbxAnimation(pFbxAnimLayer, pFbxNode, i);
+            ret = processFbxAnimation(pFbxAnimLayer, pFbxNode, pClip, i);
         }
 
         return ret;
@@ -1300,33 +1307,145 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxAnimation(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode, int32_t idx)
+    TResult FBXReader::processFbxAnimation(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode, Script::ModelSystem::AnimationClip *clip, int32_t idx)
     {
         TResult ret = T3D_OK;
 
-        String name = pFbxAnimLayer->GetName();
-        if (name.empty())
+        do 
         {
-            name = "Animation Clip #" + idx;
-        }
+            //String name = pFbxAnimLayer->GetName();
+            //if (name.empty())
+            //{
+            //    name = "Animation Clip #" + idx;
+            //}
+            //MCONV_LOG_INFO("\t\tAnimation Clip (%s) (%s)", pFbxNode->GetName(), name.c_str());
 
-        int nChildrenCount = pFbxNode->GetChildCount();
-        int i = 0;
+            ret = processFbxAnimationCurve(pFbxAnimLayer, pFbxNode, clip);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
 
-        MCONV_LOG_INFO("\t\tAnimation Clip (%s) (%s)", pFbxNode->GetName(), name.c_str());
+            int nChildrenCount = pFbxNode->GetChildCount();
+            int i = 0;
 
-        ret = processFbxAnimationChannels(pFbxAnimLayer, pFbxNode);
-        if (!T3D_FAILED(ret))
-        {
             for (i = 0; i < nChildrenCount; ++i)
             {
-                ret = processFbxAnimation(pFbxAnimLayer, pFbxNode->GetChild(i), idx);
+                ret = processFbxAnimation(pFbxAnimLayer, pFbxNode->GetChild(i), clip, idx);
                 if (T3D_FAILED(ret))
                 {
                     break;
                 }
             }
-        }
+
+            //ret = processFbxAnimationChannels(pFbxAnimLayer, pFbxNode);
+            //if (!T3D_FAILED(ret))
+            //{
+            //    for (i = 0; i < nChildrenCount; ++i)
+            //    {
+            //        ret = processFbxAnimation(pFbxAnimLayer, pFbxNode->GetChild(i), idx);
+            //        if (T3D_FAILED(ret))
+            //        {
+            //            break;
+            //        }
+            //    }
+            //}
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxAnimationCurve(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode, Script::ModelSystem::AnimationClip *clip)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            FbxAnimCurve *pFbxTransCurve = pFbxNode->LclTranslation.GetCurve(pFbxAnimLayer);
+            FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
+            FbxAnimCurve *pFbxScaleCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer);
+
+            Script::SceneSystem::Node *pNode = (Script::SceneSystem::Node *)pFbxNode->GetUserDataPtr();
+            T3D_ASSERT(pNode != nullptr);
+
+            auto rval = clip->mutable_keyframes()->insert({pNode->uuid(), Script::ModelSystem::Keyframes()});
+            Script::ModelSystem::Keyframes *keyframes = &rval.first->second;
+
+            // Translation
+            if (pFbxTransCurve != nullptr)
+            {
+                int nKeyframeCount = pFbxTransCurve->KeyGetCount();
+
+                int k = 0;
+                for (k = 0; k < nKeyframeCount; ++k)
+                {
+                    FbxTime frameTime = pFbxTransCurve->KeyGetTime(k);
+                    FbxVector4 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
+                    auto frame = keyframes->add_framest();
+                    frame->set_time(frameTime.GetSecondDouble());
+                    auto pos = frame->mutable_translation();
+                    pos->set_x(translate[0]);
+                    pos->set_y(translate[1]);
+                    pos->set_z(translate[2]);
+                    
+                    if (clip->duration() < frame->time())
+                        clip->set_duration(frame->time());
+                }
+            }
+
+            // Rotation
+            if (pFbxRotationCurve != nullptr)
+            {
+                int nKeyframeCount = pFbxRotationCurve->KeyGetCount();
+
+                int k = 0;
+                for (k = 0; k < nKeyframeCount; ++k)
+                {
+                    FbxTime frameTime = pFbxRotationCurve->KeyGetTime(k);
+                    FbxVector4 rotation = pFbxNode->EvaluateLocalRotation(frameTime);
+                    FbxQuaternion orientation;
+                    orientation.ComposeSphericalXYZ(rotation);
+                    FbxAMatrix M;
+                    M.SetIdentity();
+                    M.SetR(rotation);
+                    FbxQuaternion Q = M.GetQ();
+                    auto frame = keyframes->add_framesr();
+                    frame->set_time(frameTime.GetSecondDouble());
+                    auto quat = frame->mutable_rotation();
+                    quat->set_x(Q[0]);
+                    quat->set_y(Q[1]);
+                    quat->set_z(Q[2]);
+                    quat->set_w(Q[3]);
+
+                    if (clip->duration() < frame->time())
+                        clip->set_duration(frame->time());
+                }
+            }
+
+            // Scaling
+            if (pFbxScaleCurve != nullptr)
+            {
+                int nKeyframeCount = pFbxScaleCurve->KeyGetCount();
+
+                int k = 0;
+                for (k = 0; k < nKeyframeCount; ++k)
+                {
+                    FbxTime frameTime = pFbxScaleCurve->KeyGetTime(k);
+                    FbxVector4 scaling = pFbxNode->EvaluateLocalScaling(frameTime);
+                    auto frame = keyframes->add_framess();
+                    frame->set_time(frameTime.GetSecondDouble());
+                    auto s = frame->mutable_scaling();
+                    s->set_x(scaling[0]);
+                    s->set_y(scaling[1]);
+                    s->set_z(scaling[2]);
+                    
+                    if (clip->duration() < frame->time())
+                        clip->set_duration(frame->time());
+                }
+            }
+        } while (false);
 
         return ret;
     }

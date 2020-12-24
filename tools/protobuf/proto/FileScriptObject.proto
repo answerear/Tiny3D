@@ -41,9 +41,10 @@ message FileMeta
 
 message FileModelData
 {
-    string                              root = 1;
-    map<string, SceneSystem.Node>       nodes = 2;
-    map<string, ModelSystem.MeshData>   meshes = 3;
+    string                                  root = 1;
+    map<string, SceneSystem.Node>           nodes = 2;
+    map<string, ModelSystem.MeshData>       meshes = 3;
+    map<string, ModelSystem.AnimationClip>  animations = 4;
 }
 
 message FileModel

@@ -161,7 +161,7 @@ message IndexBuffer
 //                                      Animation Data
 //-------------------------------------------------------------------------------------------------
 
-message KeyframeData
+message Keyframe
 {
     float   time = 1;
     
@@ -173,26 +173,19 @@ message KeyframeData
     }
 }
 
-message Keyframe
+message Keyframes
 {
-    enum Type
-    {
-        KT_TRANSLATION = 0;
-        KT_ROTATION = 1;
-        KT_SCALING = 2;
-    }
-    
-    Type                    type = 1;
-    string                  bone = 2;
-    repeated KeyframeData   frames = 3;
+    repeated Keyframe       framesT = 2;
+    repeated Keyframe       framesR = 3;
+    repeated Keyframe       framesS = 4;
 }
 
 
 message AnimationClip
 {
-    string              name = 1;
-    float               duration = 2;
-    repeated Keyframe   keyframes = 3;
+    string                  name = 1;
+    float                   duration = 2;
+    map<string, Keyframes>  keyframes = 3;
 }
 
 
@@ -219,7 +212,6 @@ message MeshData
     repeated VertexBuffer   vertex_buffers = 2;
     repeated IndexBuffer    index_buffers = 3;
     repeated BoneData       bones = 4;
-    repeated AnimationClip  clips = 5;
 }
 
 

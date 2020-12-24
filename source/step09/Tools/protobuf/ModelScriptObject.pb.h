@@ -31,6 +31,9 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/map.h>  // IWYU pragma: export
+#include <google/protobuf/map_entry.h>
+#include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "CommonScriptObject.pb.h"
@@ -49,7 +52,7 @@ struct TableStruct_ModelScriptObject_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[14]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[15]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -65,6 +68,9 @@ extern AabbDefaultTypeInternal _Aabb_default_instance_;
 class AnimationClip;
 class AnimationClipDefaultTypeInternal;
 extern AnimationClipDefaultTypeInternal _AnimationClip_default_instance_;
+class AnimationClip_KeyframesEntry_DoNotUse;
+class AnimationClip_KeyframesEntry_DoNotUseDefaultTypeInternal;
+extern AnimationClip_KeyframesEntry_DoNotUseDefaultTypeInternal _AnimationClip_KeyframesEntry_DoNotUse_default_instance_;
 class BoneData;
 class BoneDataDefaultTypeInternal;
 extern BoneDataDefaultTypeInternal _BoneData_default_instance_;
@@ -80,9 +86,9 @@ extern IndicesDefaultTypeInternal _Indices_default_instance_;
 class Keyframe;
 class KeyframeDefaultTypeInternal;
 extern KeyframeDefaultTypeInternal _Keyframe_default_instance_;
-class KeyframeData;
-class KeyframeDataDefaultTypeInternal;
-extern KeyframeDataDefaultTypeInternal _KeyframeData_default_instance_;
+class Keyframes;
+class KeyframesDefaultTypeInternal;
+extern KeyframesDefaultTypeInternal _Keyframes_default_instance_;
 class MeshData;
 class MeshDataDefaultTypeInternal;
 extern MeshDataDefaultTypeInternal _MeshData_default_instance_;
@@ -107,12 +113,13 @@ extern VerticesDefaultTypeInternal _Vertices_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Tiny3D::Script::ModelSystem::Aabb* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Aabb>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::AnimationClip* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::AnimationClip>(Arena*);
+template<> ::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::AnimationClip_KeyframesEntry_DoNotUse>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::BoneData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::BoneData>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Bound* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Bound>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::IndexBuffer* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::IndexBuffer>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Indices* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Indices>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Keyframe* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Keyframe>(Arena*);
-template<> ::Tiny3D::Script::ModelSystem::KeyframeData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::KeyframeData>(Arena*);
+template<> ::Tiny3D::Script::ModelSystem::Keyframes* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Keyframes>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::MeshData* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::MeshData>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Obb* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Obb>(Arena*);
 template<> ::Tiny3D::Script::ModelSystem::Sphere* Arena::CreateMaybeMessage<::Tiny3D::Script::ModelSystem::Sphere>(Arena*);
@@ -210,32 +217,6 @@ inline bool Bound_Type_Parse(
     const std::string& name, Bound_Type* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Bound_Type>(
     Bound_Type_descriptor(), name, value);
-}
-enum Keyframe_Type : int {
-  Keyframe_Type_KT_TRANSLATION = 0,
-  Keyframe_Type_KT_ROTATION = 1,
-  Keyframe_Type_KT_SCALING = 2,
-  Keyframe_Type_Keyframe_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  Keyframe_Type_Keyframe_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
-};
-bool Keyframe_Type_IsValid(int value);
-constexpr Keyframe_Type Keyframe_Type_Type_MIN = Keyframe_Type_KT_TRANSLATION;
-constexpr Keyframe_Type Keyframe_Type_Type_MAX = Keyframe_Type_KT_SCALING;
-constexpr int Keyframe_Type_Type_ARRAYSIZE = Keyframe_Type_Type_MAX + 1;
-
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Keyframe_Type_descriptor();
-template<typename T>
-inline const std::string& Keyframe_Type_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Keyframe_Type>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Keyframe_Type_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Keyframe_Type_descriptor(), enum_t_value);
-}
-inline bool Keyframe_Type_Parse(
-    const std::string& name, Keyframe_Type* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Keyframe_Type>(
-    Keyframe_Type_descriptor(), name, value);
 }
 enum PrimitiveType : int {
   PT_POINT_LIST = 0,
@@ -1956,23 +1937,23 @@ class IndexBuffer :
 };
 // -------------------------------------------------------------------
 
-class KeyframeData :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.KeyframeData) */ {
+class Keyframe :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.Keyframe) */ {
  public:
-  KeyframeData();
-  virtual ~KeyframeData();
+  Keyframe();
+  virtual ~Keyframe();
 
-  KeyframeData(const KeyframeData& from);
-  KeyframeData(KeyframeData&& from) noexcept
-    : KeyframeData() {
+  Keyframe(const Keyframe& from);
+  Keyframe(Keyframe&& from) noexcept
+    : Keyframe() {
     *this = ::std::move(from);
   }
 
-  inline KeyframeData& operator=(const KeyframeData& from) {
+  inline Keyframe& operator=(const Keyframe& from) {
     CopyFrom(from);
     return *this;
   }
-  inline KeyframeData& operator=(KeyframeData&& from) noexcept {
+  inline Keyframe& operator=(Keyframe&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -1990,7 +1971,7 @@ class KeyframeData :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const KeyframeData& default_instance();
+  static const Keyframe& default_instance();
 
   enum KeyframeOneOfCase {
     kTranslation = 2,
@@ -2000,34 +1981,34 @@ class KeyframeData :
   };
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const KeyframeData* internal_default_instance() {
-    return reinterpret_cast<const KeyframeData*>(
-               &_KeyframeData_default_instance_);
+  static inline const Keyframe* internal_default_instance() {
+    return reinterpret_cast<const Keyframe*>(
+               &_Keyframe_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     9;
 
-  friend void swap(KeyframeData& a, KeyframeData& b) {
+  friend void swap(Keyframe& a, Keyframe& b) {
     a.Swap(&b);
   }
-  inline void Swap(KeyframeData* other) {
+  inline void Swap(Keyframe* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline KeyframeData* New() const final {
-    return CreateMaybeMessage<KeyframeData>(nullptr);
+  inline Keyframe* New() const final {
+    return CreateMaybeMessage<Keyframe>(nullptr);
   }
 
-  KeyframeData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<KeyframeData>(arena);
+  Keyframe* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Keyframe>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const KeyframeData& from);
-  void MergeFrom(const KeyframeData& from);
+  void CopyFrom(const Keyframe& from);
+  void MergeFrom(const Keyframe& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -2041,10 +2022,10 @@ class KeyframeData :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(KeyframeData* other);
+  void InternalSwap(Keyframe* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.ModelSystem.KeyframeData";
+    return "Tiny3D.Script.ModelSystem.Keyframe";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -2130,7 +2111,7 @@ class KeyframeData :
 
   void clear_KeyframeOneOf();
   KeyframeOneOfCase KeyframeOneOf_case() const;
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.KeyframeData)
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.Keyframe)
  private:
   class _Internal;
   void set_has_translation();
@@ -2155,23 +2136,23 @@ class KeyframeData :
 };
 // -------------------------------------------------------------------
 
-class Keyframe :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.Keyframe) */ {
+class Keyframes :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Tiny3D.Script.ModelSystem.Keyframes) */ {
  public:
-  Keyframe();
-  virtual ~Keyframe();
+  Keyframes();
+  virtual ~Keyframes();
 
-  Keyframe(const Keyframe& from);
-  Keyframe(Keyframe&& from) noexcept
-    : Keyframe() {
+  Keyframes(const Keyframes& from);
+  Keyframes(Keyframes&& from) noexcept
+    : Keyframes() {
     *this = ::std::move(from);
   }
 
-  inline Keyframe& operator=(const Keyframe& from) {
+  inline Keyframes& operator=(const Keyframes& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Keyframe& operator=(Keyframe&& from) noexcept {
+  inline Keyframes& operator=(Keyframes&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -2189,37 +2170,37 @@ class Keyframe :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const Keyframe& default_instance();
+  static const Keyframes& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const Keyframe* internal_default_instance() {
-    return reinterpret_cast<const Keyframe*>(
-               &_Keyframe_default_instance_);
+  static inline const Keyframes* internal_default_instance() {
+    return reinterpret_cast<const Keyframes*>(
+               &_Keyframes_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     10;
 
-  friend void swap(Keyframe& a, Keyframe& b) {
+  friend void swap(Keyframes& a, Keyframes& b) {
     a.Swap(&b);
   }
-  inline void Swap(Keyframe* other) {
+  inline void Swap(Keyframes* other) {
     if (other == this) return;
     InternalSwap(other);
   }
 
   // implements Message ----------------------------------------------
 
-  inline Keyframe* New() const final {
-    return CreateMaybeMessage<Keyframe>(nullptr);
+  inline Keyframes* New() const final {
+    return CreateMaybeMessage<Keyframes>(nullptr);
   }
 
-  Keyframe* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Keyframe>(arena);
+  Keyframes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Keyframes>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const Keyframe& from);
-  void MergeFrom(const Keyframe& from);
+  void CopyFrom(const Keyframes& from);
+  void MergeFrom(const Keyframes& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -2233,10 +2214,10 @@ class Keyframe :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(Keyframe* other);
+  void InternalSwap(Keyframes* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Tiny3D.Script.ModelSystem.Keyframe";
+    return "Tiny3D.Script.ModelSystem.Keyframes";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -2258,99 +2239,110 @@ class Keyframe :
 
   // nested types ----------------------------------------------------
 
-  typedef Keyframe_Type Type;
-  static constexpr Type KT_TRANSLATION =
-    Keyframe_Type_KT_TRANSLATION;
-  static constexpr Type KT_ROTATION =
-    Keyframe_Type_KT_ROTATION;
-  static constexpr Type KT_SCALING =
-    Keyframe_Type_KT_SCALING;
-  static inline bool Type_IsValid(int value) {
-    return Keyframe_Type_IsValid(value);
-  }
-  static constexpr Type Type_MIN =
-    Keyframe_Type_Type_MIN;
-  static constexpr Type Type_MAX =
-    Keyframe_Type_Type_MAX;
-  static constexpr int Type_ARRAYSIZE =
-    Keyframe_Type_Type_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Type_descriptor() {
-    return Keyframe_Type_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Type_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Type>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Type_Name.");
-    return Keyframe_Type_Name(enum_t_value);
-  }
-  static inline bool Type_Parse(const std::string& name,
-      Type* value) {
-    return Keyframe_Type_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFramesFieldNumber = 3,
-    kBoneFieldNumber = 2,
-    kTypeFieldNumber = 1,
+    kFramesTFieldNumber = 2,
+    kFramesRFieldNumber = 3,
+    kFramesSFieldNumber = 4,
   };
-  // repeated .Tiny3D.Script.ModelSystem.KeyframeData frames = 3;
-  int frames_size() const;
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesT = 2;
+  int framest_size() const;
   private:
-  int _internal_frames_size() const;
+  int _internal_framest_size() const;
   public:
-  void clear_frames();
-  ::Tiny3D::Script::ModelSystem::KeyframeData* mutable_frames(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::KeyframeData >*
-      mutable_frames();
+  void clear_framest();
+  ::Tiny3D::Script::ModelSystem::Keyframe* mutable_framest(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
+      mutable_framest();
   private:
-  const ::Tiny3D::Script::ModelSystem::KeyframeData& _internal_frames(int index) const;
-  ::Tiny3D::Script::ModelSystem::KeyframeData* _internal_add_frames();
+  const ::Tiny3D::Script::ModelSystem::Keyframe& _internal_framest(int index) const;
+  ::Tiny3D::Script::ModelSystem::Keyframe* _internal_add_framest();
   public:
-  const ::Tiny3D::Script::ModelSystem::KeyframeData& frames(int index) const;
-  ::Tiny3D::Script::ModelSystem::KeyframeData* add_frames();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::KeyframeData >&
-      frames() const;
+  const ::Tiny3D::Script::ModelSystem::Keyframe& framest(int index) const;
+  ::Tiny3D::Script::ModelSystem::Keyframe* add_framest();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+      framest() const;
 
-  // string bone = 2;
-  void clear_bone();
-  const std::string& bone() const;
-  void set_bone(const std::string& value);
-  void set_bone(std::string&& value);
-  void set_bone(const char* value);
-  void set_bone(const char* value, size_t size);
-  std::string* mutable_bone();
-  std::string* release_bone();
-  void set_allocated_bone(std::string* bone);
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesR = 3;
+  int framesr_size() const;
   private:
-  const std::string& _internal_bone() const;
-  void _internal_set_bone(const std::string& value);
-  std::string* _internal_mutable_bone();
+  int _internal_framesr_size() const;
   public:
-
-  // .Tiny3D.Script.ModelSystem.Keyframe.Type type = 1;
-  void clear_type();
-  ::Tiny3D::Script::ModelSystem::Keyframe_Type type() const;
-  void set_type(::Tiny3D::Script::ModelSystem::Keyframe_Type value);
+  void clear_framesr();
+  ::Tiny3D::Script::ModelSystem::Keyframe* mutable_framesr(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
+      mutable_framesr();
   private:
-  ::Tiny3D::Script::ModelSystem::Keyframe_Type _internal_type() const;
-  void _internal_set_type(::Tiny3D::Script::ModelSystem::Keyframe_Type value);
+  const ::Tiny3D::Script::ModelSystem::Keyframe& _internal_framesr(int index) const;
+  ::Tiny3D::Script::ModelSystem::Keyframe* _internal_add_framesr();
   public:
+  const ::Tiny3D::Script::ModelSystem::Keyframe& framesr(int index) const;
+  ::Tiny3D::Script::ModelSystem::Keyframe* add_framesr();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+      framesr() const;
 
-  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.Keyframe)
+  // repeated .Tiny3D.Script.ModelSystem.Keyframe framesS = 4;
+  int framess_size() const;
+  private:
+  int _internal_framess_size() const;
+  public:
+  void clear_framess();
+  ::Tiny3D::Script::ModelSystem::Keyframe* mutable_framess(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
+      mutable_framess();
+  private:
+  const ::Tiny3D::Script::ModelSystem::Keyframe& _internal_framess(int index) const;
+  ::Tiny3D::Script::ModelSystem::Keyframe* _internal_add_framess();
+  public:
+  const ::Tiny3D::Script::ModelSystem::Keyframe& framess(int index) const;
+  ::Tiny3D::Script::ModelSystem::Keyframe* add_framess();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+      framess() const;
+
+  // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.Keyframes)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::KeyframeData > frames_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bone_;
-  int type_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe > framest_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe > framesr_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe > framess_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
+// -------------------------------------------------------------------
+
+class AnimationClip_KeyframesEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<AnimationClip_KeyframesEntry_DoNotUse, 
+    std::string, ::Tiny3D::Script::ModelSystem::Keyframes,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
+    0 > {
+public:
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<AnimationClip_KeyframesEntry_DoNotUse, 
+    std::string, ::Tiny3D::Script::ModelSystem::Keyframes,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
+    0 > SuperType;
+  AnimationClip_KeyframesEntry_DoNotUse();
+  AnimationClip_KeyframesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  void MergeFrom(const AnimationClip_KeyframesEntry_DoNotUse& other);
+  static const AnimationClip_KeyframesEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const AnimationClip_KeyframesEntry_DoNotUse*>(&_AnimationClip_KeyframesEntry_DoNotUse_default_instance_); }
+  static bool ValidateKey(std::string* s) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "Tiny3D.Script.ModelSystem.AnimationClip.KeyframesEntry.key");
+ }
+  static bool ValidateValue(void*) { return true; }
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& other) final;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_ModelScriptObject_2eproto);
+    return ::descriptor_table_ModelScriptObject_2eproto.file_level_metadata[11];
+  }
+
+  public:
+};
+
 // -------------------------------------------------------------------
 
 class AnimationClip :
@@ -2395,7 +2387,7 @@ class AnimationClip :
                &_AnimationClip_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(AnimationClip& a, AnimationClip& b) {
     a.Swap(&b);
@@ -2456,6 +2448,7 @@ class AnimationClip :
 
   // nested types ----------------------------------------------------
 
+
   // accessors -------------------------------------------------------
 
   enum : int {
@@ -2463,23 +2456,22 @@ class AnimationClip :
     kNameFieldNumber = 1,
     kDurationFieldNumber = 2,
   };
-  // repeated .Tiny3D.Script.ModelSystem.Keyframe keyframes = 3;
+  // map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
   int keyframes_size() const;
   private:
   int _internal_keyframes_size() const;
   public:
   void clear_keyframes();
-  ::Tiny3D::Script::ModelSystem::Keyframe* mutable_keyframes(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
-      mutable_keyframes();
   private:
-  const ::Tiny3D::Script::ModelSystem::Keyframe& _internal_keyframes(int index) const;
-  ::Tiny3D::Script::ModelSystem::Keyframe* _internal_add_keyframes();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >&
+      _internal_keyframes() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >*
+      _internal_mutable_keyframes();
   public:
-  const ::Tiny3D::Script::ModelSystem::Keyframe& keyframes(int index) const;
-  ::Tiny3D::Script::ModelSystem::Keyframe* add_keyframes();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >&
       keyframes() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >*
+      mutable_keyframes();
 
   // string name = 1;
   void clear_name();
@@ -2511,7 +2503,12 @@ class AnimationClip :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe > keyframes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::MapField<
+      AnimationClip_KeyframesEntry_DoNotUse,
+      std::string, ::Tiny3D::Script::ModelSystem::Keyframes,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
+      0 > keyframes_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   float duration_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -2561,7 +2558,7 @@ class BoneData :
                &_BoneData_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(BoneData& a, BoneData& b) {
     a.Swap(&b);
@@ -2713,7 +2710,7 @@ class MeshData :
                &_MeshData_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(MeshData& a, MeshData& b) {
     a.Swap(&b);
@@ -2780,7 +2777,6 @@ class MeshData :
     kVertexBuffersFieldNumber = 2,
     kIndexBuffersFieldNumber = 3,
     kBonesFieldNumber = 4,
-    kClipsFieldNumber = 5,
     kNameFieldNumber = 1,
   };
   // repeated .Tiny3D.Script.ModelSystem.VertexBuffer vertex_buffers = 2;
@@ -2837,24 +2833,6 @@ class MeshData :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData >&
       bones() const;
 
-  // repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
-  int clips_size() const;
-  private:
-  int _internal_clips_size() const;
-  public:
-  void clear_clips();
-  ::Tiny3D::Script::ModelSystem::AnimationClip* mutable_clips(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >*
-      mutable_clips();
-  private:
-  const ::Tiny3D::Script::ModelSystem::AnimationClip& _internal_clips(int index) const;
-  ::Tiny3D::Script::ModelSystem::AnimationClip* _internal_add_clips();
-  public:
-  const ::Tiny3D::Script::ModelSystem::AnimationClip& clips(int index) const;
-  ::Tiny3D::Script::ModelSystem::AnimationClip* add_clips();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >&
-      clips() const;
-
   // string name = 1;
   void clear_name();
   const std::string& name() const;
@@ -2879,7 +2857,6 @@ class MeshData :
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::VertexBuffer > vertex_buffers_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::IndexBuffer > index_buffers_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::BoneData > bones_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip > clips_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
@@ -4126,40 +4103,40 @@ inline IndexBuffer::IndicesOneofCase IndexBuffer::IndicesOneof_case() const {
 }
 // -------------------------------------------------------------------
 
-// KeyframeData
+// Keyframe
 
 // float time = 1;
-inline void KeyframeData::clear_time() {
+inline void Keyframe::clear_time() {
   time_ = 0;
 }
-inline float KeyframeData::_internal_time() const {
+inline float Keyframe::_internal_time() const {
   return time_;
 }
-inline float KeyframeData::time() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.KeyframeData.time)
+inline float Keyframe::time() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.time)
   return _internal_time();
 }
-inline void KeyframeData::_internal_set_time(float value) {
+inline void Keyframe::_internal_set_time(float value) {
   
   time_ = value;
 }
-inline void KeyframeData::set_time(float value) {
+inline void Keyframe::set_time(float value) {
   _internal_set_time(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.KeyframeData.time)
+  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.Keyframe.time)
 }
 
 // .Tiny3D.Script.Vector3 translation = 2;
-inline bool KeyframeData::_internal_has_translation() const {
+inline bool Keyframe::_internal_has_translation() const {
   return KeyframeOneOf_case() == kTranslation;
 }
-inline bool KeyframeData::has_translation() const {
+inline bool Keyframe::has_translation() const {
   return _internal_has_translation();
 }
-inline void KeyframeData::set_has_translation() {
+inline void Keyframe::set_has_translation() {
   _oneof_case_[0] = kTranslation;
 }
-inline ::Tiny3D::Script::Vector3* KeyframeData::release_translation() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.KeyframeData.translation)
+inline ::Tiny3D::Script::Vector3* Keyframe::release_translation() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Keyframe.translation)
   if (_internal_has_translation()) {
     clear_has_KeyframeOneOf();
       ::Tiny3D::Script::Vector3* temp = KeyframeOneOf_.translation_;
@@ -4169,16 +4146,16 @@ inline ::Tiny3D::Script::Vector3* KeyframeData::release_translation() {
     return nullptr;
   }
 }
-inline const ::Tiny3D::Script::Vector3& KeyframeData::_internal_translation() const {
+inline const ::Tiny3D::Script::Vector3& Keyframe::_internal_translation() const {
   return _internal_has_translation()
       ? *KeyframeOneOf_.translation_
       : *reinterpret_cast< ::Tiny3D::Script::Vector3*>(&::Tiny3D::Script::_Vector3_default_instance_);
 }
-inline const ::Tiny3D::Script::Vector3& KeyframeData::translation() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.KeyframeData.translation)
+inline const ::Tiny3D::Script::Vector3& Keyframe::translation() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.translation)
   return _internal_translation();
 }
-inline ::Tiny3D::Script::Vector3* KeyframeData::_internal_mutable_translation() {
+inline ::Tiny3D::Script::Vector3* Keyframe::_internal_mutable_translation() {
   if (!_internal_has_translation()) {
     clear_KeyframeOneOf();
     set_has_translation();
@@ -4187,23 +4164,23 @@ inline ::Tiny3D::Script::Vector3* KeyframeData::_internal_mutable_translation() 
   }
   return KeyframeOneOf_.translation_;
 }
-inline ::Tiny3D::Script::Vector3* KeyframeData::mutable_translation() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.KeyframeData.translation)
+inline ::Tiny3D::Script::Vector3* Keyframe::mutable_translation() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframe.translation)
   return _internal_mutable_translation();
 }
 
 // .Tiny3D.Script.Quaternion rotation = 3;
-inline bool KeyframeData::_internal_has_rotation() const {
+inline bool Keyframe::_internal_has_rotation() const {
   return KeyframeOneOf_case() == kRotation;
 }
-inline bool KeyframeData::has_rotation() const {
+inline bool Keyframe::has_rotation() const {
   return _internal_has_rotation();
 }
-inline void KeyframeData::set_has_rotation() {
+inline void Keyframe::set_has_rotation() {
   _oneof_case_[0] = kRotation;
 }
-inline ::Tiny3D::Script::Quaternion* KeyframeData::release_rotation() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.KeyframeData.rotation)
+inline ::Tiny3D::Script::Quaternion* Keyframe::release_rotation() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Keyframe.rotation)
   if (_internal_has_rotation()) {
     clear_has_KeyframeOneOf();
       ::Tiny3D::Script::Quaternion* temp = KeyframeOneOf_.rotation_;
@@ -4213,16 +4190,16 @@ inline ::Tiny3D::Script::Quaternion* KeyframeData::release_rotation() {
     return nullptr;
   }
 }
-inline const ::Tiny3D::Script::Quaternion& KeyframeData::_internal_rotation() const {
+inline const ::Tiny3D::Script::Quaternion& Keyframe::_internal_rotation() const {
   return _internal_has_rotation()
       ? *KeyframeOneOf_.rotation_
       : *reinterpret_cast< ::Tiny3D::Script::Quaternion*>(&::Tiny3D::Script::_Quaternion_default_instance_);
 }
-inline const ::Tiny3D::Script::Quaternion& KeyframeData::rotation() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.KeyframeData.rotation)
+inline const ::Tiny3D::Script::Quaternion& Keyframe::rotation() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.rotation)
   return _internal_rotation();
 }
-inline ::Tiny3D::Script::Quaternion* KeyframeData::_internal_mutable_rotation() {
+inline ::Tiny3D::Script::Quaternion* Keyframe::_internal_mutable_rotation() {
   if (!_internal_has_rotation()) {
     clear_KeyframeOneOf();
     set_has_rotation();
@@ -4231,23 +4208,23 @@ inline ::Tiny3D::Script::Quaternion* KeyframeData::_internal_mutable_rotation() 
   }
   return KeyframeOneOf_.rotation_;
 }
-inline ::Tiny3D::Script::Quaternion* KeyframeData::mutable_rotation() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.KeyframeData.rotation)
+inline ::Tiny3D::Script::Quaternion* Keyframe::mutable_rotation() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframe.rotation)
   return _internal_mutable_rotation();
 }
 
 // .Tiny3D.Script.Vector3 scaling = 4;
-inline bool KeyframeData::_internal_has_scaling() const {
+inline bool Keyframe::_internal_has_scaling() const {
   return KeyframeOneOf_case() == kScaling;
 }
-inline bool KeyframeData::has_scaling() const {
+inline bool Keyframe::has_scaling() const {
   return _internal_has_scaling();
 }
-inline void KeyframeData::set_has_scaling() {
+inline void Keyframe::set_has_scaling() {
   _oneof_case_[0] = kScaling;
 }
-inline ::Tiny3D::Script::Vector3* KeyframeData::release_scaling() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.KeyframeData.scaling)
+inline ::Tiny3D::Script::Vector3* Keyframe::release_scaling() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Keyframe.scaling)
   if (_internal_has_scaling()) {
     clear_has_KeyframeOneOf();
       ::Tiny3D::Script::Vector3* temp = KeyframeOneOf_.scaling_;
@@ -4257,16 +4234,16 @@ inline ::Tiny3D::Script::Vector3* KeyframeData::release_scaling() {
     return nullptr;
   }
 }
-inline const ::Tiny3D::Script::Vector3& KeyframeData::_internal_scaling() const {
+inline const ::Tiny3D::Script::Vector3& Keyframe::_internal_scaling() const {
   return _internal_has_scaling()
       ? *KeyframeOneOf_.scaling_
       : *reinterpret_cast< ::Tiny3D::Script::Vector3*>(&::Tiny3D::Script::_Vector3_default_instance_);
 }
-inline const ::Tiny3D::Script::Vector3& KeyframeData::scaling() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.KeyframeData.scaling)
+inline const ::Tiny3D::Script::Vector3& Keyframe::scaling() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.scaling)
   return _internal_scaling();
 }
-inline ::Tiny3D::Script::Vector3* KeyframeData::_internal_mutable_scaling() {
+inline ::Tiny3D::Script::Vector3* Keyframe::_internal_mutable_scaling() {
   if (!_internal_has_scaling()) {
     clear_KeyframeOneOf();
     set_has_scaling();
@@ -4275,142 +4252,142 @@ inline ::Tiny3D::Script::Vector3* KeyframeData::_internal_mutable_scaling() {
   }
   return KeyframeOneOf_.scaling_;
 }
-inline ::Tiny3D::Script::Vector3* KeyframeData::mutable_scaling() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.KeyframeData.scaling)
+inline ::Tiny3D::Script::Vector3* Keyframe::mutable_scaling() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframe.scaling)
   return _internal_mutable_scaling();
 }
 
-inline bool KeyframeData::has_KeyframeOneOf() const {
+inline bool Keyframe::has_KeyframeOneOf() const {
   return KeyframeOneOf_case() != KEYFRAMEONEOF_NOT_SET;
 }
-inline void KeyframeData::clear_has_KeyframeOneOf() {
+inline void Keyframe::clear_has_KeyframeOneOf() {
   _oneof_case_[0] = KEYFRAMEONEOF_NOT_SET;
 }
-inline KeyframeData::KeyframeOneOfCase KeyframeData::KeyframeOneOf_case() const {
-  return KeyframeData::KeyframeOneOfCase(_oneof_case_[0]);
+inline Keyframe::KeyframeOneOfCase Keyframe::KeyframeOneOf_case() const {
+  return Keyframe::KeyframeOneOfCase(_oneof_case_[0]);
 }
 // -------------------------------------------------------------------
 
-// Keyframe
+// Keyframes
 
-// .Tiny3D.Script.ModelSystem.Keyframe.Type type = 1;
-inline void Keyframe::clear_type() {
-  type_ = 0;
+// repeated .Tiny3D.Script.ModelSystem.Keyframe framesT = 2;
+inline int Keyframes::_internal_framest_size() const {
+  return framest_.size();
 }
-inline ::Tiny3D::Script::ModelSystem::Keyframe_Type Keyframe::_internal_type() const {
-  return static_cast< ::Tiny3D::Script::ModelSystem::Keyframe_Type >(type_);
+inline int Keyframes::framest_size() const {
+  return _internal_framest_size();
 }
-inline ::Tiny3D::Script::ModelSystem::Keyframe_Type Keyframe::type() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.type)
-  return _internal_type();
+inline void Keyframes::clear_framest() {
+  framest_.Clear();
 }
-inline void Keyframe::_internal_set_type(::Tiny3D::Script::ModelSystem::Keyframe_Type value) {
-  
-  type_ = value;
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::mutable_framest(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframes.framesT)
+  return framest_.Mutable(index);
 }
-inline void Keyframe::set_type(::Tiny3D::Script::ModelSystem::Keyframe_Type value) {
-  _internal_set_type(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.Keyframe.type)
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
+Keyframes::mutable_framest() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.Keyframes.framesT)
+  return &framest_;
 }
-
-// string bone = 2;
-inline void Keyframe::clear_bone() {
-  bone_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline const ::Tiny3D::Script::ModelSystem::Keyframe& Keyframes::_internal_framest(int index) const {
+  return framest_.Get(index);
 }
-inline const std::string& Keyframe::bone() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.bone)
-  return _internal_bone();
+inline const ::Tiny3D::Script::ModelSystem::Keyframe& Keyframes::framest(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframes.framesT)
+  return _internal_framest(index);
 }
-inline void Keyframe::set_bone(const std::string& value) {
-  _internal_set_bone(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.Keyframe.bone)
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::_internal_add_framest() {
+  return framest_.Add();
 }
-inline std::string* Keyframe::mutable_bone() {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframe.bone)
-  return _internal_mutable_bone();
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::add_framest() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.Keyframes.framesT)
+  return _internal_add_framest();
 }
-inline const std::string& Keyframe::_internal_bone() const {
-  return bone_.GetNoArena();
-}
-inline void Keyframe::_internal_set_bone(const std::string& value) {
-  
-  bone_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void Keyframe::set_bone(std::string&& value) {
-  
-  bone_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Script.ModelSystem.Keyframe.bone)
-}
-inline void Keyframe::set_bone(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  bone_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Tiny3D.Script.ModelSystem.Keyframe.bone)
-}
-inline void Keyframe::set_bone(const char* value, size_t size) {
-  
-  bone_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Script.ModelSystem.Keyframe.bone)
-}
-inline std::string* Keyframe::_internal_mutable_bone() {
-  
-  return bone_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* Keyframe::release_bone() {
-  // @@protoc_insertion_point(field_release:Tiny3D.Script.ModelSystem.Keyframe.bone)
-  
-  return bone_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void Keyframe::set_allocated_bone(std::string* bone) {
-  if (bone != nullptr) {
-    
-  } else {
-    
-  }
-  bone_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), bone);
-  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.Keyframe.bone)
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+Keyframes::framest() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.Keyframes.framesT)
+  return framest_;
 }
 
-// repeated .Tiny3D.Script.ModelSystem.KeyframeData frames = 3;
-inline int Keyframe::_internal_frames_size() const {
-  return frames_.size();
+// repeated .Tiny3D.Script.ModelSystem.Keyframe framesR = 3;
+inline int Keyframes::_internal_framesr_size() const {
+  return framesr_.size();
 }
-inline int Keyframe::frames_size() const {
-  return _internal_frames_size();
+inline int Keyframes::framesr_size() const {
+  return _internal_framesr_size();
 }
-inline void Keyframe::clear_frames() {
-  frames_.Clear();
+inline void Keyframes::clear_framesr() {
+  framesr_.Clear();
 }
-inline ::Tiny3D::Script::ModelSystem::KeyframeData* Keyframe::mutable_frames(int index) {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframe.frames)
-  return frames_.Mutable(index);
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::mutable_framesr(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframes.framesR)
+  return framesr_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::KeyframeData >*
-Keyframe::mutable_frames() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.Keyframe.frames)
-  return &frames_;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
+Keyframes::mutable_framesr() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.Keyframes.framesR)
+  return &framesr_;
 }
-inline const ::Tiny3D::Script::ModelSystem::KeyframeData& Keyframe::_internal_frames(int index) const {
-  return frames_.Get(index);
+inline const ::Tiny3D::Script::ModelSystem::Keyframe& Keyframes::_internal_framesr(int index) const {
+  return framesr_.Get(index);
 }
-inline const ::Tiny3D::Script::ModelSystem::KeyframeData& Keyframe::frames(int index) const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.frames)
-  return _internal_frames(index);
+inline const ::Tiny3D::Script::ModelSystem::Keyframe& Keyframes::framesr(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframes.framesR)
+  return _internal_framesr(index);
 }
-inline ::Tiny3D::Script::ModelSystem::KeyframeData* Keyframe::_internal_add_frames() {
-  return frames_.Add();
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::_internal_add_framesr() {
+  return framesr_.Add();
 }
-inline ::Tiny3D::Script::ModelSystem::KeyframeData* Keyframe::add_frames() {
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.Keyframe.frames)
-  return _internal_add_frames();
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::add_framesr() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.Keyframes.framesR)
+  return _internal_add_framesr();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::KeyframeData >&
-Keyframe::frames() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.Keyframe.frames)
-  return frames_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+Keyframes::framesr() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.Keyframes.framesR)
+  return framesr_;
 }
+
+// repeated .Tiny3D.Script.ModelSystem.Keyframe framesS = 4;
+inline int Keyframes::_internal_framess_size() const {
+  return framess_.size();
+}
+inline int Keyframes::framess_size() const {
+  return _internal_framess_size();
+}
+inline void Keyframes::clear_framess() {
+  framess_.Clear();
+}
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::mutable_framess(int index) {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.Keyframes.framesS)
+  return framess_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
+Keyframes::mutable_framess() {
+  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.Keyframes.framesS)
+  return &framess_;
+}
+inline const ::Tiny3D::Script::ModelSystem::Keyframe& Keyframes::_internal_framess(int index) const {
+  return framess_.Get(index);
+}
+inline const ::Tiny3D::Script::ModelSystem::Keyframe& Keyframes::framess(int index) const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframes.framesS)
+  return _internal_framess(index);
+}
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::_internal_add_framess() {
+  return framess_.Add();
+}
+inline ::Tiny3D::Script::ModelSystem::Keyframe* Keyframes::add_framess() {
+  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.Keyframes.framesS)
+  return _internal_add_framess();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+Keyframes::framess() const {
+  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.Keyframes.framesS)
+  return framess_;
+}
+
+// -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
 
@@ -4496,7 +4473,7 @@ inline void AnimationClip::set_duration(float value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.AnimationClip.duration)
 }
 
-// repeated .Tiny3D.Script.ModelSystem.Keyframe keyframes = 3;
+// map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
 inline int AnimationClip::_internal_keyframes_size() const {
   return keyframes_.size();
 }
@@ -4506,33 +4483,23 @@ inline int AnimationClip::keyframes_size() const {
 inline void AnimationClip::clear_keyframes() {
   keyframes_.Clear();
 }
-inline ::Tiny3D::Script::ModelSystem::Keyframe* AnimationClip::mutable_keyframes(int index) {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
-  return keyframes_.Mutable(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >&
+AnimationClip::_internal_keyframes() const {
+  return keyframes_.GetMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >*
-AnimationClip::mutable_keyframes() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
-  return &keyframes_;
-}
-inline const ::Tiny3D::Script::ModelSystem::Keyframe& AnimationClip::_internal_keyframes(int index) const {
-  return keyframes_.Get(index);
-}
-inline const ::Tiny3D::Script::ModelSystem::Keyframe& AnimationClip::keyframes(int index) const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
-  return _internal_keyframes(index);
-}
-inline ::Tiny3D::Script::ModelSystem::Keyframe* AnimationClip::_internal_add_keyframes() {
-  return keyframes_.Add();
-}
-inline ::Tiny3D::Script::ModelSystem::Keyframe* AnimationClip::add_keyframes() {
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
-  return _internal_add_keyframes();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::Keyframe >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >&
 AnimationClip::keyframes() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
-  return keyframes_;
+  // @@protoc_insertion_point(field_map:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
+  return _internal_keyframes();
+}
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >*
+AnimationClip::_internal_mutable_keyframes() {
+  return keyframes_.MutableMap();
+}
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::Keyframes >*
+AnimationClip::mutable_keyframes() {
+  // @@protoc_insertion_point(field_mutable_map:Tiny3D.Script.ModelSystem.AnimationClip.keyframes)
+  return _internal_mutable_keyframes();
 }
 
 // -------------------------------------------------------------------
@@ -4834,48 +4801,11 @@ MeshData::bones() const {
   return bones_;
 }
 
-// repeated .Tiny3D.Script.ModelSystem.AnimationClip clips = 5;
-inline int MeshData::_internal_clips_size() const {
-  return clips_.size();
-}
-inline int MeshData::clips_size() const {
-  return _internal_clips_size();
-}
-inline void MeshData::clear_clips() {
-  clips_.Clear();
-}
-inline ::Tiny3D::Script::ModelSystem::AnimationClip* MeshData::mutable_clips(int index) {
-  // @@protoc_insertion_point(field_mutable:Tiny3D.Script.ModelSystem.MeshData.clips)
-  return clips_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >*
-MeshData::mutable_clips() {
-  // @@protoc_insertion_point(field_mutable_list:Tiny3D.Script.ModelSystem.MeshData.clips)
-  return &clips_;
-}
-inline const ::Tiny3D::Script::ModelSystem::AnimationClip& MeshData::_internal_clips(int index) const {
-  return clips_.Get(index);
-}
-inline const ::Tiny3D::Script::ModelSystem::AnimationClip& MeshData::clips(int index) const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.MeshData.clips)
-  return _internal_clips(index);
-}
-inline ::Tiny3D::Script::ModelSystem::AnimationClip* MeshData::_internal_add_clips() {
-  return clips_.Add();
-}
-inline ::Tiny3D::Script::ModelSystem::AnimationClip* MeshData::add_clips() {
-  // @@protoc_insertion_point(field_add:Tiny3D.Script.ModelSystem.MeshData.clips)
-  return _internal_add_clips();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Tiny3D::Script::ModelSystem::AnimationClip >&
-MeshData::clips() const {
-  // @@protoc_insertion_point(field_list:Tiny3D.Script.ModelSystem.MeshData.clips)
-  return clips_;
-}
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -4925,11 +4855,6 @@ template <> struct is_proto_enum< ::Tiny3D::Script::ModelSystem::Bound_Type> : :
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::ModelSystem::Bound_Type>() {
   return ::Tiny3D::Script::ModelSystem::Bound_Type_descriptor();
-}
-template <> struct is_proto_enum< ::Tiny3D::Script::ModelSystem::Keyframe_Type> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Tiny3D::Script::ModelSystem::Keyframe_Type>() {
-  return ::Tiny3D::Script::ModelSystem::Keyframe_Type_descriptor();
 }
 template <> struct is_proto_enum< ::Tiny3D::Script::ModelSystem::PrimitiveType> : ::std::true_type {};
 template <>
