@@ -163,7 +163,7 @@ message IndexBuffer
 
 message Keyframe
 {
-    float   time = 1;
+    uint32  time = 1;
     
     oneof KeyframeOneOf
     {
@@ -184,7 +184,7 @@ message Keyframes
 message AnimationClip
 {
     string                  name = 1;
-    float                   duration = 2;
+    uint32                  duration = 2;
     map<string, Keyframes>  keyframes = 3;
 }
 

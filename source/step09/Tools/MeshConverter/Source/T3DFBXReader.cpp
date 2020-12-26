@@ -1386,7 +1386,8 @@ namespace Tiny3D
                     FbxTime frameTime = pFbxTransCurve->KeyGetTime(k);
                     FbxVector4 translate = pFbxNode->EvaluateLocalTranslation(frameTime);
                     auto frame = keyframes->add_framest();
-                    frame->set_time(frameTime.GetSecondDouble());
+                    uint64_t t = (frameTime.GetSecondDouble() * 1000.0);
+                    frame->set_time(t);
                     auto pos = frame->mutable_translation();
                     pos->set_x(translate[0]);
                     pos->set_y(translate[1]);
@@ -1414,7 +1415,8 @@ namespace Tiny3D
                     M.SetR(rotation);
                     FbxQuaternion Q = M.GetQ();
                     auto frame = keyframes->add_framesr();
-                    frame->set_time(frameTime.GetSecondDouble());
+                    uint64_t t = (frameTime.GetSecondDouble() * 1000.0);
+                    frame->set_time(t);
                     auto quat = frame->mutable_rotation();
                     quat->set_x(Q[0]);
                     quat->set_y(Q[1]);
@@ -1437,7 +1439,8 @@ namespace Tiny3D
                     FbxTime frameTime = pFbxScaleCurve->KeyGetTime(k);
                     FbxVector4 scaling = pFbxNode->EvaluateLocalScaling(frameTime);
                     auto frame = keyframes->add_framess();
-                    frame->set_time(frameTime.GetSecondDouble());
+                    uint64_t t = (frameTime.GetSecondDouble() * 1000.0);
+                    frame->set_time(t);
                     auto s = frame->mutable_scaling();
                     s->set_x(scaling[0]);
                     s->set_y(scaling[1]);

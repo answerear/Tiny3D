@@ -544,7 +544,7 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   "(\0132 .Tiny3D.Script.ModelSystem.Bound\0225\n\007"
   "indices\030\006 \001(\0132\".Tiny3D.Script.ModelSyste"
   "m.IndicesH\000\022\020\n\006values\030\007 \001(\014H\000B\016\n\014Indices"
-  "Oneof\"\262\001\n\010Keyframe\022\014\n\004time\030\001 \001(\002\022-\n\013tran"
+  "Oneof\"\262\001\n\010Keyframe\022\014\n\004time\030\001 \001(\r\022-\n\013tran"
   "slation\030\002 \001(\0132\026.Tiny3D.Script.Vector3H\000\022"
   "-\n\010rotation\030\003 \001(\0132\031.Tiny3D.Script.Quater"
   "nionH\000\022)\n\007scaling\030\004 \001(\0132\026.Tiny3D.Script."
@@ -554,7 +554,7 @@ const char descriptor_table_protodef_ModelScriptObject_2eproto[] PROTOBUF_SECTIO
   ".Script.ModelSystem.Keyframe\0224\n\007framesS\030"
   "\004 \003(\0132#.Tiny3D.Script.ModelSystem.Keyfra"
   "me\"\323\001\n\rAnimationClip\022\014\n\004name\030\001 \001(\t\022\020\n\010du"
-  "ration\030\002 \001(\002\022J\n\tkeyframes\030\003 \003(\01327.Tiny3D"
+  "ration\030\002 \001(\r\022J\n\tkeyframes\030\003 \003(\01327.Tiny3D"
   ".Script.ModelSystem.AnimationClip.Keyfra"
   "mesEntry\032V\n\016KeyframesEntry\022\013\n\003key\030\001 \001(\t\022"
   "3\n\005value\030\002 \001(\0132$.Tiny3D.Script.ModelSyst"
@@ -3427,7 +3427,7 @@ Keyframe::Keyframe(const Keyframe& from)
 
 void Keyframe::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Keyframe_ModelScriptObject_2eproto.base);
-  time_ = 0;
+  time_ = 0u;
   clear_has_KeyframeOneOf();
 }
 
@@ -3480,7 +3480,7 @@ void Keyframe::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  time_ = 0;
+  time_ = 0u;
   clear_KeyframeOneOf();
   _internal_metadata_.Clear();
 }
@@ -3492,11 +3492,11 @@ const char* Keyframe::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // float time = 1;
+      // uint32 time = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
-          time_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
-          ptr += sizeof(float);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          time_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .Tiny3D.Script.Vector3 translation = 2;
@@ -3546,10 +3546,10 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // float time = 1;
-  if (!(this->time() <= 0 && this->time() >= 0)) {
+  // uint32 time = 1;
+  if (this->time() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_time(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_time(), target);
   }
 
   // .Tiny3D.Script.Vector3 translation = 2;
@@ -3592,9 +3592,11 @@ size_t Keyframe::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // float time = 1;
-  if (!(this->time() <= 0 && this->time() >= 0)) {
-    total_size += 1 + 4;
+  // uint32 time = 1;
+  if (this->time() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_time());
   }
 
   switch (KeyframeOneOf_case()) {
@@ -3654,7 +3656,7 @@ void Keyframe::MergeFrom(const Keyframe& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!(from.time() <= 0 && from.time() >= 0)) {
+  if (from.time() != 0) {
     _internal_set_time(from._internal_time());
   }
   switch (from.KeyframeOneOf_case()) {
@@ -4006,7 +4008,7 @@ AnimationClip::AnimationClip(const AnimationClip& from)
 void AnimationClip::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_AnimationClip_ModelScriptObject_2eproto.base);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  duration_ = 0;
+  duration_ = 0u;
 }
 
 AnimationClip::~AnimationClip() {
@@ -4035,7 +4037,7 @@ void AnimationClip::Clear() {
 
   keyframes_.Clear();
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  duration_ = 0;
+  duration_ = 0u;
   _internal_metadata_.Clear();
 }
 
@@ -4055,11 +4057,11 @@ const char* AnimationClip::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // float duration = 2;
+      // uint32 duration = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21)) {
-          duration_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
-          ptr += sizeof(float);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          duration_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
@@ -4110,10 +4112,10 @@ failure:
         1, this->_internal_name(), target);
   }
 
-  // float duration = 2;
-  if (!(this->duration() <= 0 && this->duration() >= 0)) {
+  // uint32 duration = 2;
+  if (this->duration() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_duration(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_duration(), target);
   }
 
   // map<string, .Tiny3D.Script.ModelSystem.Keyframes> keyframes = 3;
@@ -4189,9 +4191,11 @@ size_t AnimationClip::ByteSizeLong() const {
         this->_internal_name());
   }
 
-  // float duration = 2;
-  if (!(this->duration() <= 0 && this->duration() >= 0)) {
-    total_size += 1 + 4;
+  // uint32 duration = 2;
+  if (this->duration() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_duration());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4230,7 +4234,7 @@ void AnimationClip::MergeFrom(const AnimationClip& from) {
 
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
-  if (!(from.duration() <= 0 && from.duration() >= 0)) {
+  if (from.duration() != 0) {
     _internal_set_duration(from._internal_duration());
   }
 }

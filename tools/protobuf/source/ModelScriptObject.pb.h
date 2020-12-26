@@ -2055,13 +2055,13 @@ class Keyframe :
     kRotationFieldNumber = 3,
     kScalingFieldNumber = 4,
   };
-  // float time = 1;
+  // uint32 time = 1;
   void clear_time();
-  float time() const;
-  void set_time(float value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 time() const;
+  void set_time(::PROTOBUF_NAMESPACE_ID::uint32 value);
   private:
-  float _internal_time() const;
-  void _internal_set_time(float value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_time() const;
+  void _internal_set_time(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // .Tiny3D.Script.Vector3 translation = 2;
@@ -2122,7 +2122,7 @@ class Keyframe :
   inline void clear_has_KeyframeOneOf();
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  float time_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 time_;
   union KeyframeOneOfUnion {
     KeyframeOneOfUnion() {}
     ::Tiny3D::Script::Vector3* translation_;
@@ -2489,13 +2489,13 @@ class AnimationClip :
   std::string* _internal_mutable_name();
   public:
 
-  // float duration = 2;
+  // uint32 duration = 2;
   void clear_duration();
-  float duration() const;
-  void set_duration(float value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 duration() const;
+  void set_duration(::PROTOBUF_NAMESPACE_ID::uint32 value);
   private:
-  float _internal_duration() const;
-  void _internal_set_duration(float value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_duration() const;
+  void _internal_set_duration(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:Tiny3D.Script.ModelSystem.AnimationClip)
@@ -2510,7 +2510,7 @@ class AnimationClip :
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE,
       0 > keyframes_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
-  float duration_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 duration_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_ModelScriptObject_2eproto;
 };
@@ -4105,22 +4105,22 @@ inline IndexBuffer::IndicesOneofCase IndexBuffer::IndicesOneof_case() const {
 
 // Keyframe
 
-// float time = 1;
+// uint32 time = 1;
 inline void Keyframe::clear_time() {
-  time_ = 0;
+  time_ = 0u;
 }
-inline float Keyframe::_internal_time() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Keyframe::_internal_time() const {
   return time_;
 }
-inline float Keyframe::time() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Keyframe::time() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.Keyframe.time)
   return _internal_time();
 }
-inline void Keyframe::_internal_set_time(float value) {
+inline void Keyframe::_internal_set_time(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   
   time_ = value;
 }
-inline void Keyframe::set_time(float value) {
+inline void Keyframe::set_time(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_time(value);
   // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.Keyframe.time)
 }
@@ -4453,22 +4453,22 @@ inline void AnimationClip::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Script.ModelSystem.AnimationClip.name)
 }
 
-// float duration = 2;
+// uint32 duration = 2;
 inline void AnimationClip::clear_duration() {
-  duration_ = 0;
+  duration_ = 0u;
 }
-inline float AnimationClip::_internal_duration() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AnimationClip::_internal_duration() const {
   return duration_;
 }
-inline float AnimationClip::duration() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AnimationClip::duration() const {
   // @@protoc_insertion_point(field_get:Tiny3D.Script.ModelSystem.AnimationClip.duration)
   return _internal_duration();
 }
-inline void AnimationClip::_internal_set_duration(float value) {
+inline void AnimationClip::_internal_set_duration(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   
   duration_ = value;
 }
-inline void AnimationClip::set_duration(float value) {
+inline void AnimationClip::set_duration(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_duration(value);
   // @@protoc_insertion_point(field_set:Tiny3D.Script.ModelSystem.AnimationClip.duration)
 }

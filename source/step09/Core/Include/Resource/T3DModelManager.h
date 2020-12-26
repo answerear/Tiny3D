@@ -23,6 +23,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 #include "Resource/T3DResourceManager.h"
 #include "Resource/T3DModel.h"
 

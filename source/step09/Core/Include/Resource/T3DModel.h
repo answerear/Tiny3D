@@ -22,27 +22,32 @@
 #define __T3D_MODEL_H__
 
 
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 #include "T3DResource.h"
 #include "Render/T3DRenderer.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "Bound/T3DBound.h"
 
 
 namespace Tiny3D
 {
-    struct SubmeshData
-    {
-        Renderer::PrimitiveType primitive;
-        HardwareIndexBufferPtr  indices;
-        size_t                  primitiveCount;
-        String                  material;
-        BoundPtr                bound;
-    };
+    //struct T3D_ENGINE_API SubMeshData
+    //{
+    //    Renderer::PrimitiveType primitive;
+    //    HardwareIndexBufferPtr  indices;
+    //    size_t                  primitiveCount;
+    //    String                  material;
+    //    BoundPtr                bound;
+    //};
 
-    struct MeshData
-    {
-        VertexDeclarationPtr            declartion;
-        TArray<HardwareVertexBufferPtr> vertices;
-        TArray<SubmeshData>             submeshes;
-    };
+    //struct T3D_ENGINE_API MeshData
+    //{
+    //    VertexDeclarationPtr            declartion;
+    //    TArray<HardwareVertexBufferPtr> vertices;
+    //    TArray<SubMeshData>             submeshes;
+    //};
 
     /**
      * @class   Archive
@@ -72,7 +77,7 @@ namespace Tiny3D
 
         void setModelData(void *data);
 
-        MeshData getMeshData() const { return mMeshData; }
+        //MeshData getMeshData() const { return mMeshData; }
 
     protected:
         /**
@@ -93,7 +98,7 @@ namespace Tiny3D
     protected:
         void   *mModelData;
 
-        MeshData    mMeshData;
+        //MeshData    mMeshData;
     };
 }
 

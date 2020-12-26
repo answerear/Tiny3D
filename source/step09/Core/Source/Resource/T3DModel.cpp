@@ -28,6 +28,7 @@
 #include "Render/T3DHardwareBufferManager.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 #include "Render/T3DHardwareIndexBuffer.h"
+#include "Bound/T3DBound.h"
 
 
 namespace Tiny3D
@@ -159,18 +160,18 @@ namespace Tiny3D
             Script::FileFormat::FileModel* model 
                 = (Script::FileFormat::FileModel*)mModelData;
 
-            mMeshData.vertices.clear();
-            mMeshData.submeshes.clear();
+            //mMeshData.vertices.clear();
+            //mMeshData.submeshes.clear();
 
-            // Vertex delcaration
-            mMeshData.declartion = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
+            //// Vertex delcaration
+            //mMeshData.declartion = T3D_HARDWARE_BUFFER_MGR.createVertexDeclaration();
 
-            auto meshes = model->data().meshes();
-            auto itr = meshes.begin();
-            while (itr != meshes.end())
-            {
+            //auto meshes = model->data().meshes();
+            //auto itr = meshes.begin();
+            //while (itr != meshes.end())
+            //{
 
-            }
+            //}
             //auto body = model->data();
             //const std::string& uuid = body.root();
             //auto nodes = body.nodes();
