@@ -8,6 +8,13 @@
 set_project_name(MeshConverter)
 
 
+option (TINY3D_USE_FBXSDK "Use FBX SDK or use assimp library" OFF)
+
+if (TINY3D_USE_FBXSDK)
+	add_definitions(-DT3D_USE_FBXSDK)
+endif (TINY3D_USE_FBXSDK)
+
+
 if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ")
 
@@ -22,10 +29,12 @@ if (MSVC)
 	add_definitions(-DFBXSDK_SHARED)
 endif (MSVC)
 
-set(FBXSDK_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/fbxsdk" CACHE PATH "FBX SDK library path")
+if (TINY3D_USE_FBXSDK)
+	set(FBXSDK_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/fbxsdk" CACHE PATH "FBX SDK library path")
+	find_package(FBXSDK)
 
-    
-find_package(FBXSDK)
+	include_directories("${FBXSDK_INCLUDE_DIR}")
+endif (TINY3D_USE_FBXSDK)
 
 # Setup project include files path
 include_directories(
@@ -37,7 +46,7 @@ include_directories(
     "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${FBXSDK_INCLUDE_DIR}"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../assimp/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
 
@@ -59,24 +68,38 @@ if (TINY3D_OS_WINDOWS)
         ${SOURCE_FILES}
         )
 
-    target_link_libraries(
-        ${LIB_NAME}
-        T3DPlatform
-        T3DLog
-        T3DUtils
-        T3DMath
-		T3DFramework
-        T3DCore
-        ${FBXSDK_LIBRARY}
-        ${PROTOBUF_LIBRARY}
-        )
+	if (TINY3D_USE_FBXSDK)
+		target_link_libraries(
+			${LIB_NAME}
+			T3DPlatform
+			T3DLog
+			T3DUtils
+			T3DMath
+			T3DFramework
+			T3DCore
+			${FBXSDK_LIBRARY}
+			${PROTOBUF_LIBRARY}
+			)
 
-    add_custom_command(TARGET ${BIN_NAME}
-        PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${FBXSDK_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E copy ${FBXSDK_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        )
+		add_custom_command(TARGET ${BIN_NAME}
+			PRE_LINK
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+			COMMAND ${CMAKE_COMMAND} -E copy ${FBXSDK_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+			COMMAND ${CMAKE_COMMAND} -E copy ${FBXSDK_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+			)
+	else (TINY3D_USE_FBXSDK)
+		target_link_libraries(
+			${LIB_NAME}
+			T3DPlatform
+			T3DLog
+			T3DUtils
+			T3DMath
+			T3DFramework
+			T3DCore
+			assimp
+			${PROTOBUF_LIBRARY}
+			)
+	endif (TINY3D_USE_FBXSDK)
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
