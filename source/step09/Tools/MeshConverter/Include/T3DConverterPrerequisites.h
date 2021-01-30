@@ -23,11 +23,7 @@
 
 #include <Tiny3D.h>
 
-#ifdef T3D_USE_FBXSDK
-    #include <fbxsdk.h>
-#else
-
-#endif  /* T3D_USE_FBXSDK */
+#include <fbxsdk.h>
 
 
 namespace Tiny3D

@@ -20,7 +20,6 @@
 
 #include "T3DFBXDataStream.h"
 
-#ifdef T3D_USE_FBXSDK
 
 namespace Tiny3D
 {
@@ -163,4 +162,3 @@ namespace Tiny3D
     }
 }
 
-#endif  /* T3D_USE_FBXSDK */

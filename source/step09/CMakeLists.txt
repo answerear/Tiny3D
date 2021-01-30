@@ -260,14 +260,6 @@ add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLo
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
     add_dependencies(ScriptCompiler ${PROTOBUF_LIBRARY})
-    add_dependencies(MeshConverter assimp)
-    
-    # Project assimp
-    add_subdirectory(assimp)
-    set_property(TARGET assimp PROPERTY FOLDER "Third_Party/assimp")
-	set_property(TARGET zlib PROPERTY FOLDER "Third_Party/assimp")
-	set_property(TARGET zlibstatic PROPERTY FOLDER "Third_Party/assimp")
-	set_property(TARGET IrrXML PROPERTY FOLDER "Third_Party/assimp")
 endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)

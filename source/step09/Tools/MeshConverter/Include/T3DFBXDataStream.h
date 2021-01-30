@@ -22,7 +22,6 @@
 #define __T3D_FBX_DATA_STREAM_H__
 
 
-#ifdef T3D_USE_FBXSDK
 
 #include "T3DConverterPrerequisites.h"
 
@@ -68,7 +67,5 @@ namespace Tiny3D
         int mWriterID;
     };
 }
-
-#endif  /* T3D_USE_FBXSDK */
 
 #endif  /*__T3D_FBX_DATA_STREAM_H__*/
