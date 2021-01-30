@@ -206,11 +206,11 @@ add_subdirectory(protobuf)
 
 # Setup project folder
 if (protobuf_BUILD_LITE_LIBRARIES)
-    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party")
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party/protobuf")
     set (PROTOBUF_LIBRARY libprotobuf-lite)
 else (protobuf_BUILD_LITE_LIBRARIES)
-    set_property(TARGET libprotobuf PROPERTY FOLDER "Third_Party")
-    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party")
+    set_property(TARGET libprotobuf PROPERTY FOLDER "Third_Party/protobuf")
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party/protobuf")
     set (PROTOBUF_LIBRARY libprotobuf)
 endif (protobuf_BUILD_LITE_LIBRARIES)
 

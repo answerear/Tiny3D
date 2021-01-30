@@ -1781,14 +1781,14 @@ namespace Tiny3D
 
                 // Transformation
                 FbxAMatrix lMatrix;
-                Matrix4 matVert;
+                Matrix4 matMesh;
 
                 lMatrix = pFbxCluster->GetTransformMatrix(lMatrix);
-                convertMatrix(lMatrix, matVert);
+                convertMatrix(lMatrix, matMesh);
 
                 Vector3 T, S;
                 Quaternion Q;
-                matVert.decomposition(T, S, Q);
+                matMesh.decomposition(T, S, Q);
 
                 ss0 << "Transform Translation: " << std::fixed << std::setprecision(6) << T[0] << ", " << T[1] << ", " << T[2];
                 MCONV_LOG_INFO("\t%s", ss0.str().c_str());
@@ -1884,7 +1884,7 @@ namespace Tiny3D
                 const String &bone_uuid = node->uuid();
                 bone->set_node_uuid(bone_uuid);
 
-                Matrix4 matOffset = matBone * matVert;
+                Matrix4 matOffset = matBone.inverse() * matMesh;
                 auto offset = bone->mutable_offset();
                 Real *data = matOffset;
                 for (size_t x = 0; x < 16; ++x)
