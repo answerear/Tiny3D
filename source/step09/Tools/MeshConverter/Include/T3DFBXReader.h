@@ -21,6 +21,7 @@
 #ifndef __T3D_FBX_READER_H__
 #define __T3D_FBX_READER_H__
 
+#ifdef T3D_USE_FBXSDK
 
 #include "T3DConverterPrerequisites.h"
 #include "FileScriptObject.pb.h"
@@ -125,6 +126,7 @@ namespace Tiny3D
     };
 }
 
+#endif  /* T3D_USE_FBXSDK */
 
 #endif  /*__T3D_FBX_READER_H__*/
 

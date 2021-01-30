@@ -204,6 +204,7 @@ option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
 set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/protobuf/src")
 add_subdirectory(protobuf)
 
+
 # Setup project folder
 if (protobuf_BUILD_LITE_LIBRARIES)
     set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party/protobuf")
@@ -259,6 +260,14 @@ add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLo
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
     add_dependencies(ScriptCompiler ${PROTOBUF_LIBRARY})
+    add_dependencies(MeshConverter assimp)
+    
+    # Project assimp
+    add_subdirectory(assimp)
+    set_property(TARGET assimp PROPERTY FOLDER "Third_Party/assimp")
+	set_property(TARGET zlib PROPERTY FOLDER "Third_Party/assimp")
+	set_property(TARGET zlibstatic PROPERTY FOLDER "Third_Party/assimp")
+	set_property(TARGET IrrXML PROPERTY FOLDER "Third_Party/assimp")
 endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)
