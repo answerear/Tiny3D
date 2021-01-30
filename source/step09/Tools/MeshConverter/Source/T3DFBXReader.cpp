@@ -1225,7 +1225,20 @@ namespace Tiny3D
             // Name
             String name = pFbxMaterial->GetName();
 
+            if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+            {
+                // Phong material
+                FbxSurfacePhong *pFbxPhongMaterial = (FbxSurfacePhong *)pFbxMaterial;
 
+                ret = processPhongMaterial(pFbxPhongMaterial);
+            }
+            else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+            {
+                // Lambert material
+                FbxSurfaceLambert *pFbxLambertMaterial = (FbxSurfaceLambert *)pFbxMaterial;
+
+                ret = processLambertMaterial(pFbxLambertMaterial);
+            }
         }
 
         return ret;
@@ -1892,6 +1905,129 @@ namespace Tiny3D
                 }
             }
         }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processPhongMaterial(FbxSurfacePhong *pFbxMaterial)
+    {
+        TResult ret = T3D_OK;
+
+        // Ambient
+        FbxDouble3 color = pFbxMaterial->Ambient;
+
+        // Ambient factor
+        FbxDouble factor = pFbxMaterial->AmbientFactor;
+
+        // Diffuse
+        color = pFbxMaterial->Diffuse;
+
+        // Diffuse factor
+        factor = pFbxMaterial->DiffuseFactor;
+
+        // Specular
+        color = pFbxMaterial->Specular;
+
+        // Specular factor
+        factor = pFbxMaterial->SpecularFactor;
+
+        // Shininess
+        FbxDouble value = pFbxMaterial->Shininess;
+
+        // Reflection
+        color = pFbxMaterial->Reflection;
+
+        // Reflection factor
+        factor = pFbxMaterial->ReflectionFactor;
+
+        // Emissive
+        color = pFbxMaterial->Emissive;
+
+        // Emissive factor
+        factor = pFbxMaterial->EmissiveFactor;
+
+        // NormalMap
+        color = pFbxMaterial->NormalMap;
+
+        // Bump
+        color = pFbxMaterial->Bump;
+
+        // Bump factor
+        factor = pFbxMaterial->BumpFactor;
+
+        // Transparent color
+        color = pFbxMaterial->TransparentColor;
+
+        // Transparency factor
+        factor = pFbxMaterial->TransparencyFactor;
+
+        // Displacement color
+        color = pFbxMaterial->DisplacementColor;
+
+        // Displacement factor
+        factor = pFbxMaterial->DisplacementFactor;
+
+        // Vector displacement color
+        color = pFbxMaterial->VectorDisplacementColor;
+
+        // Vector displacement factor
+        factor = pFbxMaterial->VectorDisplacementFactor;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processLambertMaterial(FbxSurfaceLambert *pFbxMaterial)
+    {
+        TResult ret = T3D_OK;
+
+        // Ambient
+        FbxDouble3 color = pFbxMaterial->Ambient;
+
+        // Ambient factor
+        FbxDouble factor = pFbxMaterial->AmbientFactor;
+
+        // Diffuse
+        color = pFbxMaterial->Diffuse;
+
+        // Diffuse factor
+        factor = pFbxMaterial->DiffuseFactor;
+
+        // Emissive
+        color = pFbxMaterial->Emissive;
+
+        // Emissive factor
+        factor = pFbxMaterial->EmissiveFactor;
+
+        // NormalMap
+        color = pFbxMaterial->NormalMap;
+
+        // Bump
+        color = pFbxMaterial->Bump;
+
+        // Bump factor
+        factor = pFbxMaterial->BumpFactor;
+
+        // Transparent color
+        color = pFbxMaterial->TransparentColor;
+
+        // Transparency factor
+        factor = pFbxMaterial->TransparencyFactor;
+
+        // Displacement color
+        color = pFbxMaterial->DisplacementColor;
+
+        // Displacement factor
+        factor = pFbxMaterial->DisplacementFactor;
+
+        // Vector displacement color
+        color = pFbxMaterial->VectorDisplacementColor;
+
+        // Vector displacement factor
+        factor = pFbxMaterial->VectorDisplacementFactor;
+
         return ret;
     }
 

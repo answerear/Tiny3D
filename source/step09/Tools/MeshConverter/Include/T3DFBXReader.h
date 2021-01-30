@@ -73,6 +73,9 @@ namespace Tiny3D
 
         TResult processFbxSkin(FbxGeometry *pFbxGeometry, Script::ModelSystem::MeshData *pMesh);
 
+        TResult processPhongMaterial(FbxSurfacePhong *pFbxMaterial);
+        TResult processLambertMaterial(FbxSurfaceLambert *pFbxMaterial);
+
         int InterpolationFlagToIndex(int flags);
         int ConstantmodeFlagToIndex(int flags);
         int TangentmodeFlagToIndex(int flags);
