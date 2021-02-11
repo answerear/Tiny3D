@@ -6,7 +6,8 @@
 @cmake -G "Visual Studio 16 2019" ../
 
 @if %ERRORLEVEL% == 0 (
-    @devenv Tiny3D.sln
+    @rem @devenv Tiny3D.sln
+    @cmake --open ../vs2019-x64
     @cd ../Projects
 ) else (
     @cd ../Projects

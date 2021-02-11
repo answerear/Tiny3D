@@ -65,6 +65,7 @@ if (TINY3D_OS_WINDOWS)
 
     add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         )
 
