@@ -76,7 +76,7 @@ namespace Tiny3D
             stream.read(mStr, size);
             mStr[size] = 0;
 
-            Script::FileFormat::FileModel *modelData = (Script::FileFormat::FileModel *)model->getModelData();
+            Script::FileFormat::FileLevel *modelData = (Script::FileFormat::FileLevel *)model->getModelData();
 
             google::protobuf::util::JsonParseOptions opts;
             opts.ignore_unknown_fields = true;
@@ -93,7 +93,7 @@ namespace Tiny3D
             }
 
             if (modelData->header().magic() != T3D_FILE_MAGIC
-                && modelData->header().type() != Script::FileFormat::FileHeader_FileType_Model)
+                && modelData->header().type() != Script::FileFormat::FileHeader_FileType_Level)
             {
                 ret = T3D_ERR_RES_INVALID_FILETYPE;
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid file type !");

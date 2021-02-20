@@ -59,10 +59,15 @@ namespace Tiny3D
                 // 根据输入参数，创建输入文件解析器对象
                 ModelReaderPtr reader;
 
+                String name = opts.mSrcPath;
+                Dir dir;
+                dir.findFile(name);
+                name = dir.getFileTitle();
+
                 switch (opts.mSrcFileType)
                 {
                 case MeshFileType::FBX:
-                    reader = FBXReader::create(opts.mDstFileType == MeshFileType::T3T);
+                    reader = FBXReader::create(opts.mDstFileType == MeshFileType::T3T, name);
                     break;
                 case MeshFileType::OGRE:
                     reader = OGREReader::create();
@@ -84,8 +89,7 @@ namespace Tiny3D
 
                 // 创建引擎序列化模块模块
                 SerializerManagerPtr mgr = SerializerManager::create();
-                uint32_t flags 
-                    = FileDataStream::E_MODE_WRITE_ONLY;
+                uint32_t flags = FileDataStream::E_MODE_WRITE_ONLY;
 
                 // 根据输入参数，设置输出文件是二进制还是文本
                 switch (opts.mDstFileType)

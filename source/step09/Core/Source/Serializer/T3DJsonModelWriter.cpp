@@ -59,7 +59,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        Script::FileFormat::FileModel *data = (Script::FileFormat::FileModel *)model->getModelData();
+        Script::FileFormat::FileLevel *data = (Script::FileFormat::FileLevel *)model->getModelData();
 
         String str;
         google::protobuf::util::JsonOptions opts;

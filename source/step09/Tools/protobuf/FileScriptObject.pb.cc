@@ -15,18 +15,15 @@
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_FileHeader_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_FileModelData_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileModelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileModelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileModelData_NodesEntry_DoNotUse_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FileSceneData_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileSceneData_MeshesEntry_DoNotUse_FileScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileSceneData_NodesEntry_DoNotUse_FileScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_FileLevelData_FileScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileLevelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileLevelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_FileScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileLevelData_NodesEntry_DoNotUse_FileScriptObject_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_LevelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Node_LevelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MaterialScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<8> scc_info_Material_MaterialScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_MetaScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_MetaData_MetaScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AnimationClip_ModelScriptObject_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_ModelScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_MeshData_ModelScriptObject_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_SceneScriptObject_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Node_SceneScriptObject_2eproto;
 namespace Tiny3D {
 namespace Script {
 namespace FileFormat {
@@ -42,42 +39,26 @@ class FileMetaDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileMeta> _instance;
 } _FileMeta_default_instance_;
-class FileModelData_NodesEntry_DoNotUseDefaultTypeInternal {
+class FileLevelData_NodesEntry_DoNotUseDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileModelData_NodesEntry_DoNotUse> _instance;
-} _FileModelData_NodesEntry_DoNotUse_default_instance_;
-class FileModelData_MeshesEntry_DoNotUseDefaultTypeInternal {
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileLevelData_NodesEntry_DoNotUse> _instance;
+} _FileLevelData_NodesEntry_DoNotUse_default_instance_;
+class FileLevelData_MeshesEntry_DoNotUseDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileModelData_MeshesEntry_DoNotUse> _instance;
-} _FileModelData_MeshesEntry_DoNotUse_default_instance_;
-class FileModelData_AnimationsEntry_DoNotUseDefaultTypeInternal {
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileLevelData_MeshesEntry_DoNotUse> _instance;
+} _FileLevelData_MeshesEntry_DoNotUse_default_instance_;
+class FileLevelData_AnimationsEntry_DoNotUseDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileModelData_AnimationsEntry_DoNotUse> _instance;
-} _FileModelData_AnimationsEntry_DoNotUse_default_instance_;
-class FileModelDataDefaultTypeInternal {
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileLevelData_AnimationsEntry_DoNotUse> _instance;
+} _FileLevelData_AnimationsEntry_DoNotUse_default_instance_;
+class FileLevelDataDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileModelData> _instance;
-} _FileModelData_default_instance_;
-class FileModelDefaultTypeInternal {
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileLevelData> _instance;
+} _FileLevelData_default_instance_;
+class FileLevelDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileModel> _instance;
-} _FileModel_default_instance_;
-class FileSceneData_NodesEntry_DoNotUseDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileSceneData_NodesEntry_DoNotUse> _instance;
-} _FileSceneData_NodesEntry_DoNotUse_default_instance_;
-class FileSceneData_MeshesEntry_DoNotUseDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileSceneData_MeshesEntry_DoNotUse> _instance;
-} _FileSceneData_MeshesEntry_DoNotUse_default_instance_;
-class FileSceneDataDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileSceneData> _instance;
-} _FileSceneData_default_instance_;
-class FileSceneDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileScene> _instance;
-} _FileScene_default_instance_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FileLevel> _instance;
+} _FileLevel_default_instance_;
 }  // namespace FileFormat
 }  // namespace Script
 }  // namespace Tiny3D
@@ -94,6 +75,81 @@ static void InitDefaultsscc_info_FileHeader_FileScriptObject_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_FileHeader_FileScriptObject_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_FileHeader_FileScriptObject_2eproto}, {}};
+
+static void InitDefaultsscc_info_FileLevel_FileScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::FileFormat::_FileLevel_default_instance_;
+    new (ptr) ::Tiny3D::Script::FileFormat::FileLevel();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::FileFormat::FileLevel::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FileLevel_FileScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_FileLevel_FileScriptObject_2eproto}, {
+      &scc_info_FileHeader_FileScriptObject_2eproto.base,
+      &scc_info_FileLevelData_FileScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_FileLevelData_FileScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::FileFormat::_FileLevelData_default_instance_;
+    new (ptr) ::Tiny3D::Script::FileFormat::FileLevelData();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::Tiny3D::Script::FileFormat::FileLevelData::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_FileLevelData_FileScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, 0, InitDefaultsscc_info_FileLevelData_FileScriptObject_2eproto}, {
+      &scc_info_FileLevelData_NodesEntry_DoNotUse_FileScriptObject_2eproto.base,
+      &scc_info_FileLevelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto.base,
+      &scc_info_FileLevelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_FileLevelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::FileFormat::_FileLevelData_AnimationsEntry_DoNotUse_default_instance_;
+    new (ptr) ::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse();
+  }
+  ::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileLevelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileLevelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto}, {
+      &scc_info_AnimationClip_ModelScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_FileLevelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::FileFormat::_FileLevelData_MeshesEntry_DoNotUse_default_instance_;
+    new (ptr) ::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse();
+  }
+  ::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileLevelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileLevelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto}, {
+      &scc_info_MeshData_ModelScriptObject_2eproto.base,}};
+
+static void InitDefaultsscc_info_FileLevelData_NodesEntry_DoNotUse_FileScriptObject_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::Tiny3D::Script::FileFormat::_FileLevelData_NodesEntry_DoNotUse_default_instance_;
+    new (ptr) ::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse();
+  }
+  ::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileLevelData_NodesEntry_DoNotUse_FileScriptObject_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileLevelData_NodesEntry_DoNotUse_FileScriptObject_2eproto}, {
+      &scc_info_Node_LevelScriptObject_2eproto.base,}};
 
 static void InitDefaultsscc_info_FileMaterial_FileScriptObject_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -127,142 +183,7 @@ static void InitDefaultsscc_info_FileMeta_FileScriptObject_2eproto() {
       &scc_info_FileHeader_FileScriptObject_2eproto.base,
       &scc_info_MetaData_MetaScriptObject_2eproto.base,}};
 
-static void InitDefaultsscc_info_FileModel_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileModel_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileModel();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::FileFormat::FileModel::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FileModel_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_FileModel_FileScriptObject_2eproto}, {
-      &scc_info_FileHeader_FileScriptObject_2eproto.base,
-      &scc_info_FileModelData_FileScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileModelData_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileModelData_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileModelData();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::FileFormat::FileModelData::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_FileModelData_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, 0, InitDefaultsscc_info_FileModelData_FileScriptObject_2eproto}, {
-      &scc_info_FileModelData_NodesEntry_DoNotUse_FileScriptObject_2eproto.base,
-      &scc_info_FileModelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto.base,
-      &scc_info_FileModelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileModelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileModelData_AnimationsEntry_DoNotUse_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse();
-  }
-  ::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileModelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileModelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto}, {
-      &scc_info_AnimationClip_ModelScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileModelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileModelData_MeshesEntry_DoNotUse_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse();
-  }
-  ::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileModelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileModelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto}, {
-      &scc_info_MeshData_ModelScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileModelData_NodesEntry_DoNotUse_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileModelData_NodesEntry_DoNotUse_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse();
-  }
-  ::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileModelData_NodesEntry_DoNotUse_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileModelData_NodesEntry_DoNotUse_FileScriptObject_2eproto}, {
-      &scc_info_Node_SceneScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileScene_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileScene_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileScene();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::FileFormat::FileScene::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FileScene_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_FileScene_FileScriptObject_2eproto}, {
-      &scc_info_FileHeader_FileScriptObject_2eproto.base,
-      &scc_info_FileSceneData_FileScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileSceneData_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileSceneData_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileSceneData();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::Tiny3D::Script::FileFormat::FileSceneData::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FileSceneData_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_FileSceneData_FileScriptObject_2eproto}, {
-      &scc_info_FileSceneData_NodesEntry_DoNotUse_FileScriptObject_2eproto.base,
-      &scc_info_FileSceneData_MeshesEntry_DoNotUse_FileScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileSceneData_MeshesEntry_DoNotUse_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileSceneData_MeshesEntry_DoNotUse_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse();
-  }
-  ::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileSceneData_MeshesEntry_DoNotUse_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileSceneData_MeshesEntry_DoNotUse_FileScriptObject_2eproto}, {
-      &scc_info_MeshData_ModelScriptObject_2eproto.base,}};
-
-static void InitDefaultsscc_info_FileSceneData_NodesEntry_DoNotUse_FileScriptObject_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::Tiny3D::Script::FileFormat::_FileSceneData_NodesEntry_DoNotUse_default_instance_;
-    new (ptr) ::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse();
-  }
-  ::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FileSceneData_NodesEntry_DoNotUse_FileScriptObject_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FileSceneData_NodesEntry_DoNotUse_FileScriptObject_2eproto}, {
-      &scc_info_Node_SceneScriptObject_2eproto.base,}};
-
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_FileScriptObject_2eproto[12];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_FileScriptObject_2eproto[8];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_FileScriptObject_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_FileScriptObject_2eproto = nullptr;
 
@@ -289,184 +210,127 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_FileScriptObject_2eproto::offs
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileMeta, header_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileMeta, meta_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse, value_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse, value_),
   0,
   1,
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse, value_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse, value_),
   0,
   1,
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse, value_),
-  0,
-  1,
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData, root_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData, nodes_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData, meshes_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModelData, animations_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModel, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModel, header_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileModel, data_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse, value_),
-  0,
-  1,
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse, value_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse, value_),
   0,
   1,
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData, root_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData, nodes_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileSceneData, meshes_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData, root_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData, nodes_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData, meshes_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevelData, animations_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileScene, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevel, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileScene, header_),
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileScene, data_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevel, header_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Script::FileFormat::FileLevel, data_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::Tiny3D::Script::FileFormat::FileHeader)},
   { 8, -1, sizeof(::Tiny3D::Script::FileFormat::FileMaterial)},
   { 15, -1, sizeof(::Tiny3D::Script::FileFormat::FileMeta)},
-  { 22, 29, sizeof(::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse)},
-  { 31, 38, sizeof(::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse)},
-  { 40, 47, sizeof(::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse)},
-  { 49, -1, sizeof(::Tiny3D::Script::FileFormat::FileModelData)},
-  { 58, -1, sizeof(::Tiny3D::Script::FileFormat::FileModel)},
-  { 65, 72, sizeof(::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse)},
-  { 74, 81, sizeof(::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse)},
-  { 83, -1, sizeof(::Tiny3D::Script::FileFormat::FileSceneData)},
-  { 91, -1, sizeof(::Tiny3D::Script::FileFormat::FileScene)},
+  { 22, 29, sizeof(::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse)},
+  { 31, 38, sizeof(::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse)},
+  { 40, 47, sizeof(::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse)},
+  { 49, -1, sizeof(::Tiny3D::Script::FileFormat::FileLevelData)},
+  { 58, -1, sizeof(::Tiny3D::Script::FileFormat::FileLevel)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileHeader_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileMaterial_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileMeta_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileModelData_NodesEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileModelData_MeshesEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileModelData_AnimationsEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileModelData_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileModel_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileSceneData_NodesEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileSceneData_MeshesEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileSceneData_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileScene_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileLevelData_NodesEntry_DoNotUse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileLevelData_MeshesEntry_DoNotUse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileLevelData_AnimationsEntry_DoNotUse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileLevelData_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Tiny3D::Script::FileFormat::_FileLevel_default_instance_),
 };
 
 const char descriptor_table_protodef_FileScriptObject_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\026FileScriptObject.proto\022\030Tiny3D.Script."
   "FileFormat\032\032MaterialScriptObject.proto\032\027"
-  "ModelScriptObject.proto\032\027SceneScriptObje"
-  "ct.proto\032\026MetaScriptObject.proto\"\243\001\n\nFil"
+  "ModelScriptObject.proto\032\027LevelScriptObje"
+  "ct.proto\032\026MetaScriptObject.proto\"\230\001\n\nFil"
   "eHeader\022\r\n\005magic\030\001 \001(\t\022;\n\004type\030\002 \001(\0162-.T"
   "iny3D.Script.FileFormat.FileHeader.FileT"
-  "ype\022\017\n\007version\030\003 \001(\007\"8\n\010FileType\022\014\n\010Mate"
-  "rial\020\000\022\t\n\005Model\020\001\022\t\n\005Scene\020\002\022\010\n\004Meta\020\003\"~"
-  "\n\014FileMaterial\0224\n\006header\030\001 \001(\0132$.Tiny3D."
-  "Script.FileFormat.FileHeader\0228\n\010material"
-  "\030\002 \001(\0132&.Tiny3D.Script.MaterialSystem.Ma"
-  "terial\"r\n\010FileMeta\0224\n\006header\030\001 \001(\0132$.Tin"
-  "y3D.Script.FileFormat.FileHeader\0220\n\004meta"
-  "\030\002 \001(\0132\".Tiny3D.Script.MetaSystem.MetaDa"
-  "ta\"\362\003\n\rFileModelData\022\014\n\004root\030\001 \001(\t\022A\n\005no"
-  "des\030\002 \003(\01322.Tiny3D.Script.FileFormat.Fil"
-  "eModelData.NodesEntry\022C\n\006meshes\030\003 \003(\01323."
-  "Tiny3D.Script.FileFormat.FileModelData.M"
-  "eshesEntry\022K\n\nanimations\030\004 \003(\01327.Tiny3D."
-  "Script.FileFormat.FileModelData.Animatio"
-  "nsEntry\032M\n\nNodesEntry\022\013\n\003key\030\001 \001(\t\022.\n\005va"
-  "lue\030\002 \001(\0132\037.Tiny3D.Script.SceneSystem.No"
-  "de:\0028\001\032R\n\013MeshesEntry\022\013\n\003key\030\001 \001(\t\0222\n\005va"
-  "lue\030\002 \001(\0132#.Tiny3D.Script.ModelSystem.Me"
-  "shData:\0028\001\032[\n\017AnimationsEntry\022\013\n\003key\030\001 \001"
-  "(\t\0227\n\005value\030\002 \001(\0132(.Tiny3D.Script.ModelS"
-  "ystem.AnimationClip:\0028\001\"x\n\tFileModel\0224\n\006"
-  "header\030\001 \001(\0132$.Tiny3D.Script.FileFormat."
-  "FileHeader\0225\n\004data\030\002 \001(\0132\'.Tiny3D.Script"
-  ".FileFormat.FileModelData\"\310\002\n\rFileSceneD"
-  "ata\022\014\n\004root\030\002 \001(\t\022A\n\005nodes\030\003 \003(\01322.Tiny3"
-  "D.Script.FileFormat.FileSceneData.NodesE"
-  "ntry\022C\n\006meshes\030\004 \003(\01323.Tiny3D.Script.Fil"
-  "eFormat.FileSceneData.MeshesEntry\032M\n\nNod"
-  "esEntry\022\013\n\003key\030\001 \001(\t\022.\n\005value\030\002 \001(\0132\037.Ti"
-  "ny3D.Script.SceneSystem.Node:\0028\001\032R\n\013Mesh"
-  "esEntry\022\013\n\003key\030\001 \001(\t\0222\n\005value\030\002 \001(\0132#.Ti"
-  "ny3D.Script.ModelSystem.MeshData:\0028\001\"x\n\t"
-  "FileScene\0224\n\006header\030\001 \001(\0132$.Tiny3D.Scrip"
-  "t.FileFormat.FileHeader\0225\n\004data\030\002 \001(\0132\'."
-  "Tiny3D.Script.FileFormat.FileSceneDatab\006"
-  "proto3"
+  "ype\022\017\n\007version\030\003 \001(\007\"-\n\010FileType\022\014\n\010Mate"
+  "rial\020\000\022\t\n\005Level\020\001\022\010\n\004Meta\020\002\"~\n\014FileMater"
+  "ial\0224\n\006header\030\001 \001(\0132$.Tiny3D.Script.File"
+  "Format.FileHeader\0228\n\010material\030\002 \001(\0132&.Ti"
+  "ny3D.Script.MaterialSystem.Material\"r\n\010F"
+  "ileMeta\0224\n\006header\030\001 \001(\0132$.Tiny3D.Script."
+  "FileFormat.FileHeader\0220\n\004meta\030\002 \001(\0132\".Ti"
+  "ny3D.Script.MetaSystem.MetaData\"\362\003\n\rFile"
+  "LevelData\022\014\n\004root\030\001 \001(\t\022A\n\005nodes\030\002 \003(\01322"
+  ".Tiny3D.Script.FileFormat.FileLevelData."
+  "NodesEntry\022C\n\006meshes\030\003 \003(\01323.Tiny3D.Scri"
+  "pt.FileFormat.FileLevelData.MeshesEntry\022"
+  "K\n\nanimations\030\004 \003(\01327.Tiny3D.Script.File"
+  "Format.FileLevelData.AnimationsEntry\032M\n\n"
+  "NodesEntry\022\013\n\003key\030\001 \001(\t\022.\n\005value\030\002 \001(\0132\037"
+  ".Tiny3D.Script.LevelSystem.Node:\0028\001\032R\n\013M"
+  "eshesEntry\022\013\n\003key\030\001 \001(\t\0222\n\005value\030\002 \001(\0132#"
+  ".Tiny3D.Script.ModelSystem.MeshData:\0028\001\032"
+  "[\n\017AnimationsEntry\022\013\n\003key\030\001 \001(\t\0227\n\005value"
+  "\030\002 \001(\0132(.Tiny3D.Script.ModelSystem.Anima"
+  "tionClip:\0028\001\"x\n\tFileLevel\0224\n\006header\030\001 \001("
+  "\0132$.Tiny3D.Script.FileFormat.FileHeader\022"
+  "5\n\004data\030\002 \001(\0132\'.Tiny3D.Script.FileFormat"
+  ".FileLevelDatab\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_FileScriptObject_2eproto_deps[4] = {
+  &::descriptor_table_LevelScriptObject_2eproto,
   &::descriptor_table_MaterialScriptObject_2eproto,
   &::descriptor_table_MetaScriptObject_2eproto,
   &::descriptor_table_ModelScriptObject_2eproto,
-  &::descriptor_table_SceneScriptObject_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_FileScriptObject_2eproto_sccs[12] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_FileScriptObject_2eproto_sccs[8] = {
   &scc_info_FileHeader_FileScriptObject_2eproto.base,
+  &scc_info_FileLevel_FileScriptObject_2eproto.base,
+  &scc_info_FileLevelData_FileScriptObject_2eproto.base,
+  &scc_info_FileLevelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto.base,
+  &scc_info_FileLevelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto.base,
+  &scc_info_FileLevelData_NodesEntry_DoNotUse_FileScriptObject_2eproto.base,
   &scc_info_FileMaterial_FileScriptObject_2eproto.base,
   &scc_info_FileMeta_FileScriptObject_2eproto.base,
-  &scc_info_FileModel_FileScriptObject_2eproto.base,
-  &scc_info_FileModelData_FileScriptObject_2eproto.base,
-  &scc_info_FileModelData_AnimationsEntry_DoNotUse_FileScriptObject_2eproto.base,
-  &scc_info_FileModelData_MeshesEntry_DoNotUse_FileScriptObject_2eproto.base,
-  &scc_info_FileModelData_NodesEntry_DoNotUse_FileScriptObject_2eproto.base,
-  &scc_info_FileScene_FileScriptObject_2eproto.base,
-  &scc_info_FileSceneData_FileScriptObject_2eproto.base,
-  &scc_info_FileSceneData_MeshesEntry_DoNotUse_FileScriptObject_2eproto.base,
-  &scc_info_FileSceneData_NodesEntry_DoNotUse_FileScriptObject_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_FileScriptObject_2eproto_once;
 static bool descriptor_table_FileScriptObject_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_FileScriptObject_2eproto = {
-  &descriptor_table_FileScriptObject_2eproto_initialized, descriptor_table_protodef_FileScriptObject_2eproto, "FileScriptObject.proto", 1646,
-  &descriptor_table_FileScriptObject_2eproto_once, descriptor_table_FileScriptObject_2eproto_sccs, descriptor_table_FileScriptObject_2eproto_deps, 12, 4,
+  &descriptor_table_FileScriptObject_2eproto_initialized, descriptor_table_protodef_FileScriptObject_2eproto, "FileScriptObject.proto", 1182,
+  &descriptor_table_FileScriptObject_2eproto_once, descriptor_table_FileScriptObject_2eproto_sccs, descriptor_table_FileScriptObject_2eproto_deps, 8, 4,
   schemas, file_default_instances, TableStruct_FileScriptObject_2eproto::offsets,
-  file_level_metadata_FileScriptObject_2eproto, 12, file_level_enum_descriptors_FileScriptObject_2eproto, file_level_service_descriptors_FileScriptObject_2eproto,
+  file_level_metadata_FileScriptObject_2eproto, 8, file_level_enum_descriptors_FileScriptObject_2eproto, file_level_service_descriptors_FileScriptObject_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
@@ -483,7 +347,6 @@ bool FileHeader_FileType_IsValid(int value) {
     case 0:
     case 1:
     case 2:
-    case 3:
       return true;
     default:
       return false;
@@ -492,8 +355,7 @@ bool FileHeader_FileType_IsValid(int value) {
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 constexpr FileHeader_FileType FileHeader::Material;
-constexpr FileHeader_FileType FileHeader::Model;
-constexpr FileHeader_FileType FileHeader::Scene;
+constexpr FileHeader_FileType FileHeader::Level;
 constexpr FileHeader_FileType FileHeader::Meta;
 constexpr FileHeader_FileType FileHeader::FileType_MIN;
 constexpr FileHeader_FileType FileHeader::FileType_MAX;
@@ -1267,16 +1129,16 @@ void FileMeta::InternalSwap(FileMeta* other) {
 
 // ===================================================================
 
-FileModelData_NodesEntry_DoNotUse::FileModelData_NodesEntry_DoNotUse() {}
-FileModelData_NodesEntry_DoNotUse::FileModelData_NodesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+FileLevelData_NodesEntry_DoNotUse::FileLevelData_NodesEntry_DoNotUse() {}
+FileLevelData_NodesEntry_DoNotUse::FileLevelData_NodesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
     : SuperType(arena) {}
-void FileModelData_NodesEntry_DoNotUse::MergeFrom(const FileModelData_NodesEntry_DoNotUse& other) {
+void FileLevelData_NodesEntry_DoNotUse::MergeFrom(const FileLevelData_NodesEntry_DoNotUse& other) {
   MergeFromInternal(other);
 }
-::PROTOBUF_NAMESPACE_ID::Metadata FileModelData_NodesEntry_DoNotUse::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata FileLevelData_NodesEntry_DoNotUse::GetMetadata() const {
   return GetMetadataStatic();
 }
-void FileModelData_NodesEntry_DoNotUse::MergeFrom(
+void FileLevelData_NodesEntry_DoNotUse::MergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::Message& other) {
   ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
@@ -1284,16 +1146,16 @@ void FileModelData_NodesEntry_DoNotUse::MergeFrom(
 
 // ===================================================================
 
-FileModelData_MeshesEntry_DoNotUse::FileModelData_MeshesEntry_DoNotUse() {}
-FileModelData_MeshesEntry_DoNotUse::FileModelData_MeshesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+FileLevelData_MeshesEntry_DoNotUse::FileLevelData_MeshesEntry_DoNotUse() {}
+FileLevelData_MeshesEntry_DoNotUse::FileLevelData_MeshesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
     : SuperType(arena) {}
-void FileModelData_MeshesEntry_DoNotUse::MergeFrom(const FileModelData_MeshesEntry_DoNotUse& other) {
+void FileLevelData_MeshesEntry_DoNotUse::MergeFrom(const FileLevelData_MeshesEntry_DoNotUse& other) {
   MergeFromInternal(other);
 }
-::PROTOBUF_NAMESPACE_ID::Metadata FileModelData_MeshesEntry_DoNotUse::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata FileLevelData_MeshesEntry_DoNotUse::GetMetadata() const {
   return GetMetadataStatic();
 }
-void FileModelData_MeshesEntry_DoNotUse::MergeFrom(
+void FileLevelData_MeshesEntry_DoNotUse::MergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::Message& other) {
   ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
@@ -1301,16 +1163,16 @@ void FileModelData_MeshesEntry_DoNotUse::MergeFrom(
 
 // ===================================================================
 
-FileModelData_AnimationsEntry_DoNotUse::FileModelData_AnimationsEntry_DoNotUse() {}
-FileModelData_AnimationsEntry_DoNotUse::FileModelData_AnimationsEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+FileLevelData_AnimationsEntry_DoNotUse::FileLevelData_AnimationsEntry_DoNotUse() {}
+FileLevelData_AnimationsEntry_DoNotUse::FileLevelData_AnimationsEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
     : SuperType(arena) {}
-void FileModelData_AnimationsEntry_DoNotUse::MergeFrom(const FileModelData_AnimationsEntry_DoNotUse& other) {
+void FileLevelData_AnimationsEntry_DoNotUse::MergeFrom(const FileLevelData_AnimationsEntry_DoNotUse& other) {
   MergeFromInternal(other);
 }
-::PROTOBUF_NAMESPACE_ID::Metadata FileModelData_AnimationsEntry_DoNotUse::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata FileLevelData_AnimationsEntry_DoNotUse::GetMetadata() const {
   return GetMetadataStatic();
 }
-void FileModelData_AnimationsEntry_DoNotUse::MergeFrom(
+void FileLevelData_AnimationsEntry_DoNotUse::MergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::Message& other) {
   ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
@@ -1318,27 +1180,27 @@ void FileModelData_AnimationsEntry_DoNotUse::MergeFrom(
 
 // ===================================================================
 
-void FileModelData::InitAsDefaultInstance() {
+void FileLevelData::InitAsDefaultInstance() {
 }
-class FileModelData::_Internal {
+class FileLevelData::_Internal {
  public:
 };
 
-void FileModelData::clear_nodes() {
+void FileLevelData::clear_nodes() {
   nodes_.Clear();
 }
-void FileModelData::clear_meshes() {
+void FileLevelData::clear_meshes() {
   meshes_.Clear();
 }
-void FileModelData::clear_animations() {
+void FileLevelData::clear_animations() {
   animations_.Clear();
 }
-FileModelData::FileModelData()
+FileLevelData::FileLevelData()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileFormat.FileModelData)
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileFormat.FileLevelData)
 }
-FileModelData::FileModelData(const FileModelData& from)
+FileLevelData::FileLevelData(const FileLevelData& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -1349,34 +1211,34 @@ FileModelData::FileModelData(const FileModelData& from)
   if (!from._internal_root().empty()) {
     root_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.root_);
   }
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileFormat.FileModelData)
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileFormat.FileLevelData)
 }
 
-void FileModelData::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FileModelData_FileScriptObject_2eproto.base);
+void FileLevelData::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FileLevelData_FileScriptObject_2eproto.base);
   root_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
-FileModelData::~FileModelData() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileFormat.FileModelData)
+FileLevelData::~FileLevelData() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileFormat.FileLevelData)
   SharedDtor();
 }
 
-void FileModelData::SharedDtor() {
+void FileLevelData::SharedDtor() {
   root_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
-void FileModelData::SetCachedSize(int size) const {
+void FileLevelData::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const FileModelData& FileModelData::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileModelData_FileScriptObject_2eproto.base);
+const FileLevelData& FileLevelData::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileLevelData_FileScriptObject_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void FileModelData::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileFormat.FileModelData)
+void FileLevelData::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileFormat.FileLevelData)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1388,7 +1250,7 @@ void FileModelData::Clear() {
   _internal_metadata_.Clear();
 }
 
-const char* FileModelData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* FileLevelData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -1400,11 +1262,11 @@ const char* FileModelData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_root();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.FileFormat.FileModelData.root"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.FileFormat.FileLevelData.root"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // map<string, .Tiny3D.Script.SceneSystem.Node> nodes = 2;
+      // map<string, .Tiny3D.Script.LevelSystem.Node> nodes = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr -= 1;
@@ -1460,9 +1322,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* FileModelData::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* FileLevelData::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileFormat.FileModelData)
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileFormat.FileLevelData)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1471,14 +1333,14 @@ failure:
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_root().data(), static_cast<int>(this->_internal_root().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "Tiny3D.Script.FileFormat.FileModelData.root");
+      "Tiny3D.Script.FileFormat.FileLevelData.root");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_root(), target);
   }
 
-  // map<string, .Tiny3D.Script.SceneSystem.Node> nodes = 2;
+  // map<string, .Tiny3D.Script.LevelSystem.Node> nodes = 2;
   if (!this->_internal_nodes().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_pointer
+    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::LevelSystem::Node >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
@@ -1487,7 +1349,7 @@ failure:
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "Tiny3D.Script.FileFormat.FileModelData.NodesEntry.key");
+          "Tiny3D.Script.FileFormat.FileLevelData.NodesEntry.key");
       }
     };
 
@@ -1495,23 +1357,23 @@ failure:
         this->_internal_nodes().size() > 1) {
       ::std::unique_ptr<SortItem[]> items(
           new SortItem[this->_internal_nodes().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::size_type size_type;
+      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::LevelSystem::Node >::size_type size_type;
       size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::LevelSystem::Node >::const_iterator
           it = this->_internal_nodes().begin();
           it != this->_internal_nodes().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for (size_type i = 0; i < n; i++) {
-        target = FileModelData_NodesEntry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
+        target = FileLevelData_NodesEntry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_iterator
+      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::LevelSystem::Node >::const_iterator
           it = this->_internal_nodes().begin();
           it != this->_internal_nodes().end(); ++it) {
-        target = FileModelData_NodesEntry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
+        target = FileLevelData_NodesEntry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
     }
@@ -1528,7 +1390,7 @@ failure:
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "Tiny3D.Script.FileFormat.FileModelData.MeshesEntry.key");
+          "Tiny3D.Script.FileFormat.FileLevelData.MeshesEntry.key");
       }
     };
 
@@ -1545,14 +1407,14 @@ failure:
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for (size_type i = 0; i < n; i++) {
-        target = FileModelData_MeshesEntry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
+        target = FileLevelData_MeshesEntry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
       for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::const_iterator
           it = this->_internal_meshes().begin();
           it != this->_internal_meshes().end(); ++it) {
-        target = FileModelData_MeshesEntry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
+        target = FileLevelData_MeshesEntry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
     }
@@ -1569,7 +1431,7 @@ failure:
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), static_cast<int>(p->first.length()),
           ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "Tiny3D.Script.FileFormat.FileModelData.AnimationsEntry.key");
+          "Tiny3D.Script.FileFormat.FileLevelData.AnimationsEntry.key");
       }
     };
 
@@ -1586,14 +1448,14 @@ failure:
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
       for (size_type i = 0; i < n; i++) {
-        target = FileModelData_AnimationsEntry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
+        target = FileLevelData_AnimationsEntry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
         Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
       }
     } else {
       for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::AnimationClip >::const_iterator
           it = this->_internal_animations().begin();
           it != this->_internal_animations().end(); ++it) {
-        target = FileModelData_AnimationsEntry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
+        target = FileLevelData_AnimationsEntry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
         Utf8Check::Check(&(*it));
       }
     }
@@ -1603,25 +1465,25 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileFormat.FileModelData)
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileFormat.FileLevelData)
   return target;
 }
 
-size_t FileModelData::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileFormat.FileModelData)
+size_t FileLevelData::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileFormat.FileLevelData)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // map<string, .Tiny3D.Script.SceneSystem.Node> nodes = 2;
+  // map<string, .Tiny3D.Script.LevelSystem.Node> nodes = 2;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_nodes_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_iterator
+  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::LevelSystem::Node >::const_iterator
       it = this->_internal_nodes().begin();
       it != this->_internal_nodes().end(); ++it) {
-    total_size += FileModelData_NodesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+    total_size += FileLevelData_NodesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, .Tiny3D.Script.ModelSystem.MeshData> meshes = 3;
@@ -1630,7 +1492,7 @@ size_t FileModelData::ByteSizeLong() const {
   for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::const_iterator
       it = this->_internal_meshes().begin();
       it != this->_internal_meshes().end(); ++it) {
-    total_size += FileModelData_MeshesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+    total_size += FileLevelData_MeshesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, .Tiny3D.Script.ModelSystem.AnimationClip> animations = 4;
@@ -1639,7 +1501,7 @@ size_t FileModelData::ByteSizeLong() const {
   for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::AnimationClip >::const_iterator
       it = this->_internal_animations().begin();
       it != this->_internal_animations().end(); ++it) {
-    total_size += FileModelData_AnimationsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+    total_size += FileLevelData_AnimationsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string root = 1;
@@ -1658,23 +1520,23 @@ size_t FileModelData::ByteSizeLong() const {
   return total_size;
 }
 
-void FileModelData::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileFormat.FileModelData)
+void FileLevelData::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileFormat.FileLevelData)
   GOOGLE_DCHECK_NE(&from, this);
-  const FileModelData* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileModelData>(
+  const FileLevelData* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileLevelData>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileFormat.FileModelData)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileFormat.FileLevelData)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileFormat.FileModelData)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileFormat.FileLevelData)
     MergeFrom(*source);
   }
 }
 
-void FileModelData::MergeFrom(const FileModelData& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileFormat.FileModelData)
+void FileLevelData::MergeFrom(const FileLevelData& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileFormat.FileLevelData)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -1689,25 +1551,25 @@ void FileModelData::MergeFrom(const FileModelData& from) {
   }
 }
 
-void FileModelData::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileFormat.FileModelData)
+void FileLevelData::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileFormat.FileLevelData)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void FileModelData::CopyFrom(const FileModelData& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileFormat.FileModelData)
+void FileLevelData::CopyFrom(const FileLevelData& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileFormat.FileLevelData)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool FileModelData::IsInitialized() const {
+bool FileLevelData::IsInitialized() const {
   return true;
 }
 
-void FileModelData::InternalSwap(FileModelData* other) {
+void FileLevelData::InternalSwap(FileLevelData* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   nodes_.Swap(&other->nodes_);
@@ -1717,39 +1579,39 @@ void FileModelData::InternalSwap(FileModelData* other) {
     GetArenaNoVirtual());
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata FileModelData::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata FileLevelData::GetMetadata() const {
   return GetMetadataStatic();
 }
 
 
 // ===================================================================
 
-void FileModel::InitAsDefaultInstance() {
-  ::Tiny3D::Script::FileFormat::_FileModel_default_instance_._instance.get_mutable()->header_ = const_cast< ::Tiny3D::Script::FileFormat::FileHeader*>(
+void FileLevel::InitAsDefaultInstance() {
+  ::Tiny3D::Script::FileFormat::_FileLevel_default_instance_._instance.get_mutable()->header_ = const_cast< ::Tiny3D::Script::FileFormat::FileHeader*>(
       ::Tiny3D::Script::FileFormat::FileHeader::internal_default_instance());
-  ::Tiny3D::Script::FileFormat::_FileModel_default_instance_._instance.get_mutable()->data_ = const_cast< ::Tiny3D::Script::FileFormat::FileModelData*>(
-      ::Tiny3D::Script::FileFormat::FileModelData::internal_default_instance());
+  ::Tiny3D::Script::FileFormat::_FileLevel_default_instance_._instance.get_mutable()->data_ = const_cast< ::Tiny3D::Script::FileFormat::FileLevelData*>(
+      ::Tiny3D::Script::FileFormat::FileLevelData::internal_default_instance());
 }
-class FileModel::_Internal {
+class FileLevel::_Internal {
  public:
-  static const ::Tiny3D::Script::FileFormat::FileHeader& header(const FileModel* msg);
-  static const ::Tiny3D::Script::FileFormat::FileModelData& data(const FileModel* msg);
+  static const ::Tiny3D::Script::FileFormat::FileHeader& header(const FileLevel* msg);
+  static const ::Tiny3D::Script::FileFormat::FileLevelData& data(const FileLevel* msg);
 };
 
 const ::Tiny3D::Script::FileFormat::FileHeader&
-FileModel::_Internal::header(const FileModel* msg) {
+FileLevel::_Internal::header(const FileLevel* msg) {
   return *msg->header_;
 }
-const ::Tiny3D::Script::FileFormat::FileModelData&
-FileModel::_Internal::data(const FileModel* msg) {
+const ::Tiny3D::Script::FileFormat::FileLevelData&
+FileLevel::_Internal::data(const FileLevel* msg) {
   return *msg->data_;
 }
-FileModel::FileModel()
+FileLevel::FileLevel()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileFormat.FileModel)
+  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileFormat.FileLevel)
 }
-FileModel::FileModel(const FileModel& from)
+FileLevel::FileLevel(const FileLevel& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -1759,41 +1621,41 @@ FileModel::FileModel(const FileModel& from)
     header_ = nullptr;
   }
   if (from._internal_has_data()) {
-    data_ = new ::Tiny3D::Script::FileFormat::FileModelData(*from.data_);
+    data_ = new ::Tiny3D::Script::FileFormat::FileLevelData(*from.data_);
   } else {
     data_ = nullptr;
   }
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileFormat.FileModel)
+  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileFormat.FileLevel)
 }
 
-void FileModel::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FileModel_FileScriptObject_2eproto.base);
+void FileLevel::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FileLevel_FileScriptObject_2eproto.base);
   ::memset(&header_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&data_) -
       reinterpret_cast<char*>(&header_)) + sizeof(data_));
 }
 
-FileModel::~FileModel() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileFormat.FileModel)
+FileLevel::~FileLevel() {
+  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileFormat.FileLevel)
   SharedDtor();
 }
 
-void FileModel::SharedDtor() {
+void FileLevel::SharedDtor() {
   if (this != internal_default_instance()) delete header_;
   if (this != internal_default_instance()) delete data_;
 }
 
-void FileModel::SetCachedSize(int size) const {
+void FileLevel::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const FileModel& FileModel::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileModel_FileScriptObject_2eproto.base);
+const FileLevel& FileLevel::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileLevel_FileScriptObject_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void FileModel::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileFormat.FileModel)
+void FileLevel::Clear() {
+// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileFormat.FileLevel)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1809,7 +1671,7 @@ void FileModel::Clear() {
   _internal_metadata_.Clear();
 }
 
-const char* FileModel::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* FileLevel::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -1823,7 +1685,7 @@ const char* FileModel::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Script.FileFormat.FileModelData data = 2;
+      // .Tiny3D.Script.FileFormat.FileLevelData data = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_data(), ptr);
@@ -1850,9 +1712,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* FileModel::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* FileLevel::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileFormat.FileModel)
+  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileFormat.FileLevel)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1864,7 +1726,7 @@ failure:
         1, _Internal::header(this), target, stream);
   }
 
-  // .Tiny3D.Script.FileFormat.FileModelData data = 2;
+  // .Tiny3D.Script.FileFormat.FileLevelData data = 2;
   if (this->has_data()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
@@ -1876,12 +1738,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileFormat.FileModel)
+  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileFormat.FileLevel)
   return target;
 }
 
-size_t FileModel::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileFormat.FileModel)
+size_t FileLevel::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileFormat.FileLevel)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -1895,7 +1757,7 @@ size_t FileModel::ByteSizeLong() const {
         *header_);
   }
 
-  // .Tiny3D.Script.FileFormat.FileModelData data = 2;
+  // .Tiny3D.Script.FileFormat.FileLevelData data = 2;
   if (this->has_data()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -1911,23 +1773,23 @@ size_t FileModel::ByteSizeLong() const {
   return total_size;
 }
 
-void FileModel::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileFormat.FileModel)
+void FileLevel::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileFormat.FileLevel)
   GOOGLE_DCHECK_NE(&from, this);
-  const FileModel* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileModel>(
+  const FileLevel* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileLevel>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileFormat.FileModel)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileFormat.FileLevel)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileFormat.FileModel)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileFormat.FileLevel)
     MergeFrom(*source);
   }
 }
 
-void FileModel::MergeFrom(const FileModel& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileFormat.FileModel)
+void FileLevel::MergeFrom(const FileLevel& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileFormat.FileLevel)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -1937,656 +1799,36 @@ void FileModel::MergeFrom(const FileModel& from) {
     _internal_mutable_header()->::Tiny3D::Script::FileFormat::FileHeader::MergeFrom(from._internal_header());
   }
   if (from.has_data()) {
-    _internal_mutable_data()->::Tiny3D::Script::FileFormat::FileModelData::MergeFrom(from._internal_data());
+    _internal_mutable_data()->::Tiny3D::Script::FileFormat::FileLevelData::MergeFrom(from._internal_data());
   }
 }
 
-void FileModel::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileFormat.FileModel)
+void FileLevel::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileFormat.FileLevel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void FileModel::CopyFrom(const FileModel& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileFormat.FileModel)
+void FileLevel::CopyFrom(const FileLevel& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileFormat.FileLevel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool FileModel::IsInitialized() const {
+bool FileLevel::IsInitialized() const {
   return true;
 }
 
-void FileModel::InternalSwap(FileModel* other) {
+void FileLevel::InternalSwap(FileLevel* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(header_, other->header_);
   swap(data_, other->data_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata FileModel::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
-
-// ===================================================================
-
-FileSceneData_NodesEntry_DoNotUse::FileSceneData_NodesEntry_DoNotUse() {}
-FileSceneData_NodesEntry_DoNotUse::FileSceneData_NodesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void FileSceneData_NodesEntry_DoNotUse::MergeFrom(const FileSceneData_NodesEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
-::PROTOBUF_NAMESPACE_ID::Metadata FileSceneData_NodesEntry_DoNotUse::GetMetadata() const {
-  return GetMetadataStatic();
-}
-void FileSceneData_NodesEntry_DoNotUse::MergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
-  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
-}
-
-
-// ===================================================================
-
-FileSceneData_MeshesEntry_DoNotUse::FileSceneData_MeshesEntry_DoNotUse() {}
-FileSceneData_MeshesEntry_DoNotUse::FileSceneData_MeshesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
-void FileSceneData_MeshesEntry_DoNotUse::MergeFrom(const FileSceneData_MeshesEntry_DoNotUse& other) {
-  MergeFromInternal(other);
-}
-::PROTOBUF_NAMESPACE_ID::Metadata FileSceneData_MeshesEntry_DoNotUse::GetMetadata() const {
-  return GetMetadataStatic();
-}
-void FileSceneData_MeshesEntry_DoNotUse::MergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
-  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
-}
-
-
-// ===================================================================
-
-void FileSceneData::InitAsDefaultInstance() {
-}
-class FileSceneData::_Internal {
- public:
-};
-
-void FileSceneData::clear_nodes() {
-  nodes_.Clear();
-}
-void FileSceneData::clear_meshes() {
-  meshes_.Clear();
-}
-FileSceneData::FileSceneData()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileFormat.FileSceneData)
-}
-FileSceneData::FileSceneData(const FileSceneData& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  nodes_.MergeFrom(from.nodes_);
-  meshes_.MergeFrom(from.meshes_);
-  root_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_root().empty()) {
-    root_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.root_);
-  }
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileFormat.FileSceneData)
-}
-
-void FileSceneData::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FileSceneData_FileScriptObject_2eproto.base);
-  root_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-
-FileSceneData::~FileSceneData() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileFormat.FileSceneData)
-  SharedDtor();
-}
-
-void FileSceneData::SharedDtor() {
-  root_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-
-void FileSceneData::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const FileSceneData& FileSceneData::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileSceneData_FileScriptObject_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void FileSceneData::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileFormat.FileSceneData)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  nodes_.Clear();
-  meshes_.Clear();
-  root_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  _internal_metadata_.Clear();
-}
-
-const char* FileSceneData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // string root = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          auto str = _internal_mutable_root();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Script.FileFormat.FileSceneData.root"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // map<string, .Tiny3D.Script.SceneSystem.Node> nodes = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(&nodes_, ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
-        } else goto handle_unusual;
-        continue;
-      // map<string, .Tiny3D.Script.ModelSystem.MeshData> meshes = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(&meshes_, ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* FileSceneData::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileFormat.FileSceneData)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // string root = 2;
-  if (this->root().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_root().data(), static_cast<int>(this->_internal_root().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "Tiny3D.Script.FileFormat.FileSceneData.root");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_root(), target);
-  }
-
-  // map<string, .Tiny3D.Script.SceneSystem.Node> nodes = 3;
-  if (!this->_internal_nodes().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "Tiny3D.Script.FileFormat.FileSceneData.NodesEntry.key");
-      }
-    };
-
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_nodes().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_nodes().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_iterator
-          it = this->_internal_nodes().begin();
-          it != this->_internal_nodes().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        target = FileSceneData_NodesEntry_DoNotUse::Funcs::InternalSerialize(3, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
-      }
-    } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_iterator
-          it = this->_internal_nodes().begin();
-          it != this->_internal_nodes().end(); ++it) {
-        target = FileSceneData_NodesEntry_DoNotUse::Funcs::InternalSerialize(3, it->first, it->second, target, stream);
-        Utf8Check::Check(&(*it));
-      }
-    }
-  }
-
-  // map<string, .Tiny3D.Script.ModelSystem.MeshData> meshes = 4;
-  if (!this->_internal_meshes().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "Tiny3D.Script.FileFormat.FileSceneData.MeshesEntry.key");
-      }
-    };
-
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_meshes().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_meshes().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::const_iterator
-          it = this->_internal_meshes().begin();
-          it != this->_internal_meshes().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        target = FileSceneData_MeshesEntry_DoNotUse::Funcs::InternalSerialize(4, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
-      }
-    } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::const_iterator
-          it = this->_internal_meshes().begin();
-          it != this->_internal_meshes().end(); ++it) {
-        target = FileSceneData_MeshesEntry_DoNotUse::Funcs::InternalSerialize(4, it->first, it->second, target, stream);
-        Utf8Check::Check(&(*it));
-      }
-    }
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileFormat.FileSceneData)
-  return target;
-}
-
-size_t FileSceneData::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileFormat.FileSceneData)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // map<string, .Tiny3D.Script.SceneSystem.Node> nodes = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_nodes_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::SceneSystem::Node >::const_iterator
-      it = this->_internal_nodes().begin();
-      it != this->_internal_nodes().end(); ++it) {
-    total_size += FileSceneData_NodesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
-  }
-
-  // map<string, .Tiny3D.Script.ModelSystem.MeshData> meshes = 4;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_meshes_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::Tiny3D::Script::ModelSystem::MeshData >::const_iterator
-      it = this->_internal_meshes().begin();
-      it != this->_internal_meshes().end(); ++it) {
-    total_size += FileSceneData_MeshesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
-  }
-
-  // string root = 2;
-  if (this->root().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_root());
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void FileSceneData::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileFormat.FileSceneData)
-  GOOGLE_DCHECK_NE(&from, this);
-  const FileSceneData* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileSceneData>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileFormat.FileSceneData)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileFormat.FileSceneData)
-    MergeFrom(*source);
-  }
-}
-
-void FileSceneData::MergeFrom(const FileSceneData& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileFormat.FileSceneData)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  nodes_.MergeFrom(from.nodes_);
-  meshes_.MergeFrom(from.meshes_);
-  if (from.root().size() > 0) {
-
-    root_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.root_);
-  }
-}
-
-void FileSceneData::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileFormat.FileSceneData)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void FileSceneData::CopyFrom(const FileSceneData& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileFormat.FileSceneData)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool FileSceneData::IsInitialized() const {
-  return true;
-}
-
-void FileSceneData::InternalSwap(FileSceneData* other) {
-  using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  nodes_.Swap(&other->nodes_);
-  meshes_.Swap(&other->meshes_);
-  root_.Swap(&other->root_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata FileSceneData::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
-
-// ===================================================================
-
-void FileScene::InitAsDefaultInstance() {
-  ::Tiny3D::Script::FileFormat::_FileScene_default_instance_._instance.get_mutable()->header_ = const_cast< ::Tiny3D::Script::FileFormat::FileHeader*>(
-      ::Tiny3D::Script::FileFormat::FileHeader::internal_default_instance());
-  ::Tiny3D::Script::FileFormat::_FileScene_default_instance_._instance.get_mutable()->data_ = const_cast< ::Tiny3D::Script::FileFormat::FileSceneData*>(
-      ::Tiny3D::Script::FileFormat::FileSceneData::internal_default_instance());
-}
-class FileScene::_Internal {
- public:
-  static const ::Tiny3D::Script::FileFormat::FileHeader& header(const FileScene* msg);
-  static const ::Tiny3D::Script::FileFormat::FileSceneData& data(const FileScene* msg);
-};
-
-const ::Tiny3D::Script::FileFormat::FileHeader&
-FileScene::_Internal::header(const FileScene* msg) {
-  return *msg->header_;
-}
-const ::Tiny3D::Script::FileFormat::FileSceneData&
-FileScene::_Internal::data(const FileScene* msg) {
-  return *msg->data_;
-}
-FileScene::FileScene()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:Tiny3D.Script.FileFormat.FileScene)
-}
-FileScene::FileScene(const FileScene& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_header()) {
-    header_ = new ::Tiny3D::Script::FileFormat::FileHeader(*from.header_);
-  } else {
-    header_ = nullptr;
-  }
-  if (from._internal_has_data()) {
-    data_ = new ::Tiny3D::Script::FileFormat::FileSceneData(*from.data_);
-  } else {
-    data_ = nullptr;
-  }
-  // @@protoc_insertion_point(copy_constructor:Tiny3D.Script.FileFormat.FileScene)
-}
-
-void FileScene::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FileScene_FileScriptObject_2eproto.base);
-  ::memset(&header_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&data_) -
-      reinterpret_cast<char*>(&header_)) + sizeof(data_));
-}
-
-FileScene::~FileScene() {
-  // @@protoc_insertion_point(destructor:Tiny3D.Script.FileFormat.FileScene)
-  SharedDtor();
-}
-
-void FileScene::SharedDtor() {
-  if (this != internal_default_instance()) delete header_;
-  if (this != internal_default_instance()) delete data_;
-}
-
-void FileScene::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const FileScene& FileScene::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_FileScene_FileScriptObject_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void FileScene::Clear() {
-// @@protoc_insertion_point(message_clear_start:Tiny3D.Script.FileFormat.FileScene)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  if (GetArenaNoVirtual() == nullptr && header_ != nullptr) {
-    delete header_;
-  }
-  header_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && data_ != nullptr) {
-    delete data_;
-  }
-  data_ = nullptr;
-  _internal_metadata_.Clear();
-}
-
-const char* FileScene::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // .Tiny3D.Script.FileFormat.FileHeader header = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_header(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .Tiny3D.Script.FileFormat.FileSceneData data = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ctx->ParseMessage(_internal_mutable_data(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* FileScene::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Script.FileFormat.FileScene)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .Tiny3D.Script.FileFormat.FileHeader header = 1;
-  if (this->has_header()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::header(this), target, stream);
-  }
-
-  // .Tiny3D.Script.FileFormat.FileSceneData data = 2;
-  if (this->has_data()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::data(this), target, stream);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:Tiny3D.Script.FileFormat.FileScene)
-  return target;
-}
-
-size_t FileScene::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:Tiny3D.Script.FileFormat.FileScene)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // .Tiny3D.Script.FileFormat.FileHeader header = 1;
-  if (this->has_header()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *header_);
-  }
-
-  // .Tiny3D.Script.FileFormat.FileSceneData data = 2;
-  if (this->has_data()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *data_);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void FileScene::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:Tiny3D.Script.FileFormat.FileScene)
-  GOOGLE_DCHECK_NE(&from, this);
-  const FileScene* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<FileScene>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Tiny3D.Script.FileFormat.FileScene)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Tiny3D.Script.FileFormat.FileScene)
-    MergeFrom(*source);
-  }
-}
-
-void FileScene::MergeFrom(const FileScene& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:Tiny3D.Script.FileFormat.FileScene)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from.has_header()) {
-    _internal_mutable_header()->::Tiny3D::Script::FileFormat::FileHeader::MergeFrom(from._internal_header());
-  }
-  if (from.has_data()) {
-    _internal_mutable_data()->::Tiny3D::Script::FileFormat::FileSceneData::MergeFrom(from._internal_data());
-  }
-}
-
-void FileScene::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:Tiny3D.Script.FileFormat.FileScene)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void FileScene::CopyFrom(const FileScene& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:Tiny3D.Script.FileFormat.FileScene)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool FileScene::IsInitialized() const {
-  return true;
-}
-
-void FileScene::InternalSwap(FileScene* other) {
-  using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(header_, other->header_);
-  swap(data_, other->data_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata FileScene::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata FileLevel::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -2605,32 +1847,20 @@ template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileMaterial* Arena::
 template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileMeta* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileMeta >(Arena* arena) {
   return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileMeta >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileModelData_NodesEntry_DoNotUse >(arena);
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileLevelData_NodesEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileModelData_MeshesEntry_DoNotUse >(arena);
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileLevelData_MeshesEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileModelData_AnimationsEntry_DoNotUse >(arena);
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileLevelData_AnimationsEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileModelData* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileModelData >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileModelData >(arena);
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileLevelData* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileLevelData >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileLevelData >(arena);
 }
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileModel* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileModel >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileModel >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileSceneData_NodesEntry_DoNotUse >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileSceneData_MeshesEntry_DoNotUse >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileSceneData* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileSceneData >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileSceneData >(arena);
-}
-template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileScene* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileScene >(Arena* arena) {
-  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileScene >(arena);
+template<> PROTOBUF_NOINLINE ::Tiny3D::Script::FileFormat::FileLevel* Arena::CreateMaybeMessage< ::Tiny3D::Script::FileFormat::FileLevel >(Arena* arena) {
+  return Arena::CreateInternal< ::Tiny3D::Script::FileFormat::FileLevel >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

@@ -199,6 +199,8 @@ namespace Tiny3D
                 }
             }
 
+            vertices.push_back(mMaterialIdx);
+
             char *str = (char *)vertices.data();
             size = vertices.size() * sizeof(float);
             return str;

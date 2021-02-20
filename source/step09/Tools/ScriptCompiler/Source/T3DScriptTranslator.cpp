@@ -4274,7 +4274,7 @@ namespace Tiny3D
     {
         ObjectAbstractNode *obj = static_cast<ObjectAbstractNode*>(node.get());
 
-        // 对象头数据a
+        // 对象头数据
         Script::MaterialSystem::Pass *pass = (Script::MaterialSystem::Pass *)object;
         Script::MaterialSystem::TextureUnit *unit = pass->add_textures();
         Script::ObjectHeader *header = unit->mutable_header();

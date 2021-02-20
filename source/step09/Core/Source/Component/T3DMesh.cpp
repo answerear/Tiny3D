@@ -41,6 +41,7 @@ namespace Tiny3D
 
     Mesh::Mesh(ID uID /* = E_CID_AUTOMATIC */)
         : Renderable(uID)
+        , mModel(nullptr)
     {
 
     }
@@ -50,6 +51,16 @@ namespace Tiny3D
     Mesh::~Mesh()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Mesh::setModel(ModelPtr model)
+    {
+        if (model != mModel)
+        {
+
+        }
     }
 
     //--------------------------------------------------------------------------

@@ -37,18 +37,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    FBXReaderPtr FBXReader::create(bool isTxt)
+    FBXReaderPtr FBXReader::create(bool isTxt, const String &name)
     {
-        FBXReaderPtr reader = new FBXReader(isTxt);
+        FBXReaderPtr reader = new FBXReader(isTxt, name);
         reader->release();
         return reader;
     }
 
     //--------------------------------------------------------------------------
 
-    FBXReader::FBXReader(bool isTxt)
+    FBXReader::FBXReader(bool isTxt, const String &name)
         : mFbxManager(nullptr)
+        , mTabCount(0)
         , mIsTxt(isTxt)
+        , mFbxName(name)
     {
 
     }
@@ -206,13 +208,13 @@ namespace Tiny3D
 
         do 
         {
-            Script::FileFormat::FileModel data;
+            Script::FileFormat::FileLevel data;
 
             // 文件头
             Script::FileFormat::FileHeader *header = data.mutable_header();
             header->set_magic(T3D_FILE_MAGIC);
             header->set_version(T3D_FILE_MDL_VERSION);
-            header->set_type(Script::FileFormat::FileHeader_FileType_Model);
+            header->set_type(Script::FileFormat::FileHeader_FileType_Level);
 
             // Initialize fbx objects.
             ret = initFbxObjects();
@@ -290,7 +292,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileModel *model)
+    TResult FBXReader::processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileLevel *model)
     {
         TResult ret = T3D_OK;
 
@@ -301,7 +303,7 @@ namespace Tiny3D
             FbxNode *pFbxRoot = pFbxScene->GetRootNode();
 
             mTabCount = 0;
-            Script::SceneSystem::Node *pNode = nullptr;
+            Script::LevelSystem::Node *pNode = nullptr;
             ret = processFbxNode(pFbxRoot, model, nullptr, pNode);
             if (T3D_FAILED(ret))
             {
@@ -314,13 +316,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode)
+    TResult FBXReader::processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, Script::LevelSystem::Node *parent, Script::LevelSystem::Node *&pNode)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            pNode = (Script::SceneSystem::Node *)pFbxNode->GetUserDataPtr();
+            pNode = (Script::LevelSystem::Node *)pFbxNode->GetUserDataPtr();
             if (pNode == nullptr)
             {
                 // 第一遍只处理结点
@@ -342,7 +344,7 @@ namespace Tiny3D
             for (int32_t i = 0; i < pFbxNode->GetChildCount(); ++i)
             {
                 FbxNode *pFbxChild = pFbxNode->GetChild(i);
-                Script::SceneSystem::Node *pChild = nullptr;
+                Script::LevelSystem::Node *pChild = nullptr;
                 processFbxNode(pFbxChild, model, pNode, pChild);
             }
 
@@ -354,14 +356,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::generateNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode)
+    TResult FBXReader::generateNode(FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, Script::LevelSystem::Node *parent, Script::LevelSystem::Node *&pNode)
     {
         TResult ret = T3D_OK;
 
         // 新建一个 node
         String uuid = UUID::generate();
         auto nodes = model->mutable_data()->mutable_nodes();
-        auto rval = nodes->insert({ uuid, Script::SceneSystem::Node() });
+        auto rval = nodes->insert({ uuid, Script::LevelSystem::Node() });
         pNode = &rval.first->second;
         pNode->set_uuid(uuid);
         pNode->set_name(pFbxNode->GetName());
@@ -430,7 +432,7 @@ namespace Tiny3D
         // Transform
         auto components = pNode->mutable_components();
         auto component = components->Add();
-        component->set_type(Script::SceneSystem::Component_Type_Transform);
+        component->set_type(Script::LevelSystem::Component_Type_Transform);
         auto transform = component->mutable_transform();
         // position
         auto pos = transform->mutable_position();
@@ -462,7 +464,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxAttributes(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *pNode)
+    TResult FBXReader::processFbxAttributes(FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, Script::LevelSystem::Node *parent, Script::LevelSystem::Node *pNode)
     {
         TResult ret = T3D_OK;
 
@@ -544,6 +546,11 @@ namespace Tiny3D
                 MCONV_LOG_INFO("%s\tAttribute : eLine", ss.str().c_str());
                 break;
             }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         }
 
         MCONV_LOG_INFO("%s}", ss.str().c_str());
@@ -553,7 +560,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileModel *model)
+    TResult FBXReader::processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileLevel *model)
     {
         TResult ret = T3D_OK;
 
@@ -585,7 +592,13 @@ namespace Tiny3D
             {
                 break;
             }
-        } while (0);
+
+            ret = processFbxMaterial(pFbxNode, pFbxMesh);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
 
         return ret;
     }
@@ -817,6 +830,9 @@ namespace Tiny3D
                             mMeshData.vertices[vertexCount].mTangentElements.push_back(tangent);
                         }
                     }
+
+                    // Material Index
+                    ret = setupMaterialConnections(pFbxMesh, i, mMeshData.vertices[vertexCount]);
 
                     vertexCount++;
                 }
@@ -1211,11 +1227,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult FBXReader::setupMaterialConnections(FbxMesh* pFbxMesh, int32_t triangle, Vertex& vertex)
+    {
+        TResult ret = T3D_OK;
+
+        int32_t i = 0;
+        for (i = 0; i < pFbxMesh->GetElementMaterialCount(); ++i)
+        {
+            FbxGeometryElementMaterial *pFbxMaterialElement = pFbxMesh->GetElementMaterial(i);
+
+            switch (pFbxMaterialElement->GetMappingMode())
+            {
+            case FbxGeometryElement::eByPolygon:
+                {
+                    int32_t matIdx = pFbxMaterialElement->GetIndexArray().GetAt(triangle);
+                    vertex.mMaterialIdx = matIdx;
+                }
+                break;
+            case FbxGeometryElement::eAllSame:
+                {
+                    int32_t matIdx = pFbxMaterialElement->GetIndexArray().GetAt(0);
+                    vertex.mMaterialIdx = matIdx;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult FBXReader::processFbxMaterial(FbxNode *pFbxNode, FbxMesh *pFbxMesh)
     {
         TResult ret = T3D_OK;
 
         int32_t materialCount = pFbxNode->GetMaterialCount();
+        mMaterialNames.resize(materialCount);
+        mMaterials.resize(materialCount);
 
         int32_t i = 0;
         for (i = 0; i < materialCount; ++i)
@@ -1224,22 +1275,375 @@ namespace Tiny3D
 
             // Name
             String name = pFbxMaterial->GetName();
+            mMaterialNames[i] = mFbxName + "_" + name;
 
-            if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+            mMaterials[i] = Material::create(mMaterialNames[i], Material::E_MT_MANUAL);
+
+            const FbxImplementation* pFbxImpl
+                = GetImplementation(pFbxMaterial, FBXSDK_IMPLEMENTATION_HLSL);
+            
+            if (pFbxImpl != nullptr)
+            {
+                // User defined material
+                ret = processFbxShaderMaterial(pFbxMaterial, pFbxImpl, mMaterials[i]);
+            }
+            else if (pFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
             {
                 // Phong material
                 FbxSurfacePhong *pFbxPhongMaterial = (FbxSurfacePhong *)pFbxMaterial;
 
-                ret = processPhongMaterial(pFbxPhongMaterial);
+                ret = processFbxPhongMaterial(pFbxPhongMaterial, mMaterials[i]);
             }
             else if (pFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
             {
                 // Lambert material
                 FbxSurfaceLambert *pFbxLambertMaterial = (FbxSurfaceLambert *)pFbxMaterial;
 
-                ret = processLambertMaterial(pFbxLambertMaterial);
+                ret = processFbxLambertMaterial(pFbxLambertMaterial, mMaterials[i]);
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
             }
         }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxShaderMaterial(FbxSurfaceMaterial* pFbxMaterial, const FbxImplementation *pFbxImpl, MaterialPtr material)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // Language
+            const char *language = pFbxImpl->Language.Get().Buffer();
+
+            // Language version
+            const char *language_ver = pFbxImpl->LanguageVersion.Get().Buffer();
+
+            // Render name
+            const char *render_name = pFbxImpl->RenderName.Buffer();
+
+            // Render API
+            const char *render_api = pFbxImpl->RenderAPI.Get().Buffer();
+
+            // Render API version
+            const char *render_api_ver = pFbxImpl->RenderAPIVersion.Get().Buffer();
+
+
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxPhongMaterial(FbxSurfacePhong* pFbxMaterial, MaterialPtr material)
+    {
+        TResult ret = T3D_OK;
+
+        int32_t i = 0;
+        int32_t count = 0;
+
+        TechniquePtr tech;
+        material->addTechnique("Phong", tech);
+        PassPtr pass;
+        tech->addPass("0", pass);
+
+        // Ambient
+        FbxDouble3 color = pFbxMaterial->Ambient;
+
+        // Ambient texture
+        count = pFbxMaterial->Ambient.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Ambient.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    String name = pFbxTexture->GetFileName();
+
+                    Dir dir;
+                    dir.findFile(name);
+                    name = dir.getFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+
+                    TextureUnitPtr unit;
+                    pass->addTextureUnit("Ambient", unit);
+
+                    unit->setTextureName(name);
+                    SamplerPtr sampler;
+                }
+            }
+        }
+        else
+        {
+            pass->setAmbient(color[0], color[1], color[2]);
+        }
+
+        // Ambient factor
+        FbxDouble factor = pFbxMaterial->AmbientFactor;
+
+        // Diffuse
+        color = pFbxMaterial->Diffuse;
+
+        // Diffuse texture
+        count = pFbxMaterial->Diffuse.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Diffuse.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    String name = pFbxTexture->GetFileName();
+
+                    Dir dir;
+                    dir.findFile(name);
+                    name = dir.getFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+                }
+            }
+        }
+        else
+        {
+            pass->setDiffuse(color[0], color[1], color[2]);
+        }
+
+        // Diffuse factor
+        factor = pFbxMaterial->DiffuseFactor;
+
+        // Specular
+        color = pFbxMaterial->Specular;
+
+        // Specular texture
+        count = pFbxMaterial->Specular.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Specular.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    const char* name = pFbxTexture->GetFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+                }
+            }
+        }
+        else
+        {
+
+        }
+
+        // Specular factor
+        factor = pFbxMaterial->SpecularFactor;
+
+        // Shininess
+        FbxDouble value = pFbxMaterial->Shininess;
+
+        // Reflection
+        color = pFbxMaterial->Reflection;
+
+        // Reflection factor
+        factor = pFbxMaterial->ReflectionFactor;
+
+        // Emissive
+        color = pFbxMaterial->Emissive;
+
+        // Emissive texture
+        count = pFbxMaterial->Emissive.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Emissive.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    const char* name = pFbxTexture->GetFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+                }
+            }
+        }
+        else
+        {
+
+        }
+
+        // Emissive factor
+        factor = pFbxMaterial->EmissiveFactor;
+
+        // NormalMap
+        color = pFbxMaterial->NormalMap;
+
+        // Bump
+        color = pFbxMaterial->Bump;
+
+        // Bump factor
+        factor = pFbxMaterial->BumpFactor;
+
+        // Transparent color
+        color = pFbxMaterial->TransparentColor;
+
+        // Transparency factor
+        factor = pFbxMaterial->TransparencyFactor;
+
+        // Displacement color
+        color = pFbxMaterial->DisplacementColor;
+
+        // Displacement factor
+        factor = pFbxMaterial->DisplacementFactor;
+
+        // Vector displacement color
+        color = pFbxMaterial->VectorDisplacementColor;
+
+        // Vector displacement factor
+        factor = pFbxMaterial->VectorDisplacementFactor;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXReader::processFbxLambertMaterial(FbxSurfaceLambert* pFbxMaterial, MaterialPtr material)
+    {
+        TResult ret = T3D_OK;
+
+        int32_t i = 0;
+        int32_t count = 0;
+
+        // Ambient
+        FbxDouble3 color = pFbxMaterial->Ambient;
+
+        // Ambient texture
+        count = pFbxMaterial->Ambient.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Ambient.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    const char* name = pFbxTexture->GetFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+                }
+            }
+        }
+        else
+        {
+
+        }
+
+        // Ambient factor
+        FbxDouble factor = pFbxMaterial->AmbientFactor;
+
+        // Diffuse
+        color = pFbxMaterial->Diffuse;
+
+        // Diffuse texture
+        count = pFbxMaterial->Diffuse.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Diffuse.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    const char* name = pFbxTexture->GetFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+                }
+            }
+        }
+        else
+        {
+
+        }
+
+        // Diffuse factor
+        factor = pFbxMaterial->DiffuseFactor;
+
+        // Emissive
+        color = pFbxMaterial->Emissive;
+
+        count = pFbxMaterial->Emissive.GetSrcObjectCount();
+        if (count > 0)
+        {
+            for (i = 0; i < count; ++i)
+            {
+                FbxFileTexture* pFbxTexture = (FbxFileTexture*)pFbxMaterial->Emissive.GetSrcObject(i);
+                if (pFbxTexture != nullptr)
+                {
+                    // name
+                    const char* name = pFbxTexture->GetFileName();
+
+                    // wrapping mode
+                    pFbxTexture->WrapModeU.Get();
+                    pFbxTexture->WrapModeV.Get();
+                }
+            }
+        }
+        else
+        {
+
+        }
+
+        // Emissive factor
+        factor = pFbxMaterial->EmissiveFactor;
+
+        // NormalMap
+        color = pFbxMaterial->NormalMap;
+
+        // Bump
+        color = pFbxMaterial->Bump;
+
+        // Bump factor
+        factor = pFbxMaterial->BumpFactor;
+
+        // Transparent color
+        color = pFbxMaterial->TransparentColor;
+
+        // Transparency factor
+        factor = pFbxMaterial->TransparencyFactor;
+
+        // Displacement color
+        color = pFbxMaterial->DisplacementColor;
+
+        // Displacement factor
+        factor = pFbxMaterial->DisplacementFactor;
+
+        // Vector displacement color
+        color = pFbxMaterial->VectorDisplacementColor;
+
+        // Vector displacement factor
+        factor = pFbxMaterial->VectorDisplacementFactor;
 
         return ret;
     }
@@ -1264,7 +1668,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxAnimation(FbxScene *pFbxScene, Script::FileFormat::FileModel *model)
+    TResult FBXReader::processFbxAnimation(FbxScene *pFbxScene, Script::FileFormat::FileLevel *model)
     {
         TResult ret = T3D_OK;
 
@@ -1289,7 +1693,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXReader::processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, Script::FileFormat::FileModel *model, int32_t idx)
+    TResult FBXReader::processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, int32_t idx)
     {
         TResult ret = T3D_OK;
 
@@ -1381,7 +1785,7 @@ namespace Tiny3D
             FbxAnimCurve *pFbxRotationCurve = pFbxNode->LclRotation.GetCurve(pFbxAnimLayer);
             FbxAnimCurve *pFbxScaleCurve = pFbxNode->LclScaling.GetCurve(pFbxAnimLayer);
 
-            Script::SceneSystem::Node *pNode = (Script::SceneSystem::Node *)pFbxNode->GetUserDataPtr();
+            Script::LevelSystem::Node *pNode = (Script::LevelSystem::Node *)pFbxNode->GetUserDataPtr();
             T3D_ASSERT(pNode != nullptr);
 
             auto rval = clip->mutable_keyframes()->insert({pNode->uuid(), Script::ModelSystem::Keyframes()});
@@ -1892,7 +2296,7 @@ namespace Tiny3D
                 // 2. 把在 Binding 时刻的顶点，由世界空间变换到骨骼空间 Inverse(M(b)) * M(v) * M(G)
 
                 auto bone = pMesh->add_bones();
-                Script::SceneSystem::Node *node = (Script::SceneSystem::Node *)pFbxNode->GetUserDataPtr();
+                Script::LevelSystem::Node *node = (Script::LevelSystem::Node *)pFbxNode->GetUserDataPtr();
                 const String &bone_uuid = node->uuid();
                 bone->set_node_uuid(bone_uuid);
 
@@ -1905,129 +2309,6 @@ namespace Tiny3D
                 }
             }
         }
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult FBXReader::processPhongMaterial(FbxSurfacePhong *pFbxMaterial)
-    {
-        TResult ret = T3D_OK;
-
-        // Ambient
-        FbxDouble3 color = pFbxMaterial->Ambient;
-
-        // Ambient factor
-        FbxDouble factor = pFbxMaterial->AmbientFactor;
-
-        // Diffuse
-        color = pFbxMaterial->Diffuse;
-
-        // Diffuse factor
-        factor = pFbxMaterial->DiffuseFactor;
-
-        // Specular
-        color = pFbxMaterial->Specular;
-
-        // Specular factor
-        factor = pFbxMaterial->SpecularFactor;
-
-        // Shininess
-        FbxDouble value = pFbxMaterial->Shininess;
-
-        // Reflection
-        color = pFbxMaterial->Reflection;
-
-        // Reflection factor
-        factor = pFbxMaterial->ReflectionFactor;
-
-        // Emissive
-        color = pFbxMaterial->Emissive;
-
-        // Emissive factor
-        factor = pFbxMaterial->EmissiveFactor;
-
-        // NormalMap
-        color = pFbxMaterial->NormalMap;
-
-        // Bump
-        color = pFbxMaterial->Bump;
-
-        // Bump factor
-        factor = pFbxMaterial->BumpFactor;
-
-        // Transparent color
-        color = pFbxMaterial->TransparentColor;
-
-        // Transparency factor
-        factor = pFbxMaterial->TransparencyFactor;
-
-        // Displacement color
-        color = pFbxMaterial->DisplacementColor;
-
-        // Displacement factor
-        factor = pFbxMaterial->DisplacementFactor;
-
-        // Vector displacement color
-        color = pFbxMaterial->VectorDisplacementColor;
-
-        // Vector displacement factor
-        factor = pFbxMaterial->VectorDisplacementFactor;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult FBXReader::processLambertMaterial(FbxSurfaceLambert *pFbxMaterial)
-    {
-        TResult ret = T3D_OK;
-
-        // Ambient
-        FbxDouble3 color = pFbxMaterial->Ambient;
-
-        // Ambient factor
-        FbxDouble factor = pFbxMaterial->AmbientFactor;
-
-        // Diffuse
-        color = pFbxMaterial->Diffuse;
-
-        // Diffuse factor
-        factor = pFbxMaterial->DiffuseFactor;
-
-        // Emissive
-        color = pFbxMaterial->Emissive;
-
-        // Emissive factor
-        factor = pFbxMaterial->EmissiveFactor;
-
-        // NormalMap
-        color = pFbxMaterial->NormalMap;
-
-        // Bump
-        color = pFbxMaterial->Bump;
-
-        // Bump factor
-        factor = pFbxMaterial->BumpFactor;
-
-        // Transparent color
-        color = pFbxMaterial->TransparentColor;
-
-        // Transparency factor
-        factor = pFbxMaterial->TransparencyFactor;
-
-        // Displacement color
-        color = pFbxMaterial->DisplacementColor;
-
-        // Displacement factor
-        factor = pFbxMaterial->DisplacementFactor;
-
-        // Vector displacement color
-        color = pFbxMaterial->VectorDisplacementColor;
-
-        // Vector displacement factor
-        factor = pFbxMaterial->VectorDisplacementFactor;
-
         return ret;
     }
 
@@ -2315,6 +2596,10 @@ namespace Tiny3D
             ibo->set_primitive_type(Script::ModelSystem::PT_TRIANGLE_LIST);
             ibo->set_primitive_count(mMeshData.indices.size() / 3);
             
+            int32_t matIdx = mMeshData.vertices[mMeshData.indices[0]].mMaterialIdx;
+            const String& materialName = mMaterialNames[matIdx];
+            ibo->set_material(materialName);
+
             size_t i = 0;
 
             for (i = 0; i < mMeshData.indices.size(); ++i)
@@ -2415,6 +2700,11 @@ namespace Tiny3D
             ibo->set_is_16bit(is16Bits);
             ibo->set_primitive_type(Script::ModelSystem::PT_TRIANGLE_LIST);
             ibo->set_primitive_count(mMeshData.indices.size() / 3);
+
+            int32_t matIdx = mMeshData.vertices[mMeshData.indices[0]].mMaterialIdx;
+            const String& materialName = mMaterialNames[matIdx];
+            ibo->set_material(materialName);
+
             ibo->set_values(data, size);
 
             T3D_SAFE_DELETE_ARRAY(data);

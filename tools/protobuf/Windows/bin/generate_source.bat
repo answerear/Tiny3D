@@ -1,6 +1,6 @@
 @rem generate proto buffer source files.
 @del /Q ..\..\source
-@set input_file=CommonScriptObject.proto MaterialScriptObject.proto ModelScriptObject.proto SceneScriptObject.proto FileScriptObject.proto MetaScriptObject.proto
+@set input_file=CommonScriptObject.proto MaterialScriptObject.proto ModelScriptObject.proto LevelScriptObject.proto FileScriptObject.proto MetaScriptObject.proto
 .\protoc.exe --proto_path="../../proto" --cpp_out="../../source" %input_file%
 
 @rem copy all generated files to target directory.

@@ -26,6 +26,7 @@
 #include "Component/T3DCamera.h"
 #include "Component/T3DCube.h"
 #include "Component/T3DGlobe.h"
+#include "Component/T3DMesh.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DFrustumBound.h"
 #include "Bound/T3DObbBound.h"
@@ -111,6 +112,10 @@ namespace Tiny3D
                 Vector3 center = va_arg(args, Vector3);
                 Real *radius = va_arg(args, Real*);
                 component = Globe::create(center, *radius);
+            }
+            else if (cls == T3D_CLASS(Mesh))
+            {
+                component = Mesh::create();
             }
 
             va_end(params);

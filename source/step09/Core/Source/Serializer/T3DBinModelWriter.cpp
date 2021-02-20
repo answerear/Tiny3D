@@ -58,7 +58,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        Script::FileFormat::FileModel *data = (Script::FileFormat::FileModel *)model->getModelData();
+        Script::FileFormat::FileLevel *data = (Script::FileFormat::FileLevel *)model->getModelData();
 
         T3DFileHeader header;
         memcpy(header.magic, T3D_FILE_MAGIC, 3);
