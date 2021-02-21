@@ -24,8 +24,6 @@
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
-#include "Resource/T3DSampler.h"
-#include "Resource/T3DSamplerManager.h"
 #include "Resource/T3DGPUConstBuffer.h"
 #include "Resource/T3DGPUConstBufferManager.h"
 #include "Resource/T3DGPUProgram.h"
@@ -33,6 +31,7 @@
 #include "Kernel/T3DTechnique.h"
 #include "Kernel/T3DPass.h"
 #include "Kernel/T3DTextureUnit.h"
+#include "Kernel/T3DSampler.h"
 
 #include "protobuf/MaterialScriptObject.pb.h"
 
@@ -1360,7 +1359,7 @@ namespace Tiny3D
     {
         if (src->has_sampler_ref())
         {
-            dst->setSampler(src->sampler_ref().value());
+//             dst->setSampler(src->sampler_ref().value());
         }
 
         return T3D_OK;
@@ -1377,7 +1376,7 @@ namespace Tiny3D
         {
             // name
             auto header = src->header();
-            SamplerPtr sampler = T3D_SAMPLER_MGR.loadSampler(header.name());
+            SamplerPtr sampler = Sampler::create(header.name());
             if (sampler == nullptr)
             {
                 ret = T3D_ERR_RES_INVALID_PROPERTY;

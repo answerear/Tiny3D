@@ -18,66 +18,73 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Plugin.h"
+#include "T3DD3D11GPUProgram.h"
 #include "T3DD3D11Renderer.h"
-#include "T3DD3D11GPUProgramCreator.h"
-#include "T3DD3D11Sampler.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11Plugin, Plugin);
+    T3D_IMPLEMENT_CLASS_1(D3D11GPUProgram, GPUProgram);
 
     //--------------------------------------------------------------------------
 
-    D3D11Plugin::D3D11Plugin()
-        : mName("D3D11Renderer")
-        , mRenderer(nullptr)
-        , mShaderCreator(nullptr)
-        , mGPUCreator(nullptr)
+    D3D11GPUProgramPtr D3D11GPUProgram::create(const String &name)
+    {
+        D3D11GPUProgramPtr program = new D3D11GPUProgram(name);
+        program->release();
+        return program;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11GPUProgram::D3D11GPUProgram(const String &name)
+        : GPUProgram(name)
+        , mHasLinked(false)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11Plugin::~D3D11Plugin()
+    D3D11GPUProgram::~D3D11GPUProgram()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &D3D11Plugin::getName() const
-    {
-        return mName;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Plugin::install()
+    TResult D3D11GPUProgram::link(bool force /* = false */)
     {
         TResult ret = T3D_OK;
 
-        do
+        do 
         {
-            mRenderer = D3D11Renderer::create();
-            if (mRenderer != nullptr)
+            if (mHasLinked)
+                break;
+
+            for (auto i = mShaders.begin(); i != mShaders.end(); ++i)
             {
-                ret = T3D_AGENT.addRenderer(mRenderer);
-                if (T3D_FAILED(ret))
+                ShaderPtr shader = *i;
+                if (shader == nullptr)
+                    continue;
+
+                if (!shader->hasCompiled())
                 {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
+                        "Shader has not compiled !");
+                    ret = T3D_ERR_D3D11_SHADER_NOT_COMPILED;
                     break;
                 }
             }
 
-            mShaderCreator = new D3D11ShaderCreator();
-            mGPUCreator = new D3D11GPUProgramCreator();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
 
-            T3D_SHADER_MGR.setShaderCreator(mShaderCreator);
-            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(mGPUCreator);
+            mHasLinked = true;
         } while (0);
 
         return ret;
@@ -85,7 +92,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::startup()
+    bool D3D11GPUProgram::hasLinked() const
+    {
+        return mHasLinked;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11GPUProgram::load()
     {
         TResult ret = T3D_OK;
 
@@ -94,7 +108,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::shutdown()
+    TResult D3D11GPUProgram::unload()
     {
         TResult ret = T3D_OK;
 
@@ -103,25 +117,39 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::uninstall()
+    ResourcePtr D3D11GPUProgram::clone() const
     {
-        TResult ret = T3D_OK;
+        D3D11GPUProgramPtr program = create(getName());
 
-        do
+        TResult ret = cloneProperties(program);
+        if (T3D_FAILED(ret))
         {
-            ret = T3D_AGENT.removeRenderer(mRenderer);
+            program = nullptr;
+        }
+
+        return program;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11GPUProgram::cloneProperties(GPUProgramPtr newObj) const
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            ret = GPUProgram::cloneProperties(newObj);
             if (T3D_FAILED(ret))
             {
+                ret = T3D_ERR_RES_CLONE;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Clone GPU program proterties failed !");
                 break;
             }
 
-            T3D_SHADER_MGR.setShaderCreator(nullptr);
-            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(nullptr);
-
-            delete mShaderCreator;
-            delete mGPUCreator;
-
-            mRenderer = nullptr;
+            D3D11GPUProgramPtr program 
+                = smart_pointer_cast<D3D11GPUProgram>(newObj);
+            program->mHasLinked = mHasLinked;
         } while (0);
 
         return ret;

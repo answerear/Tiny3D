@@ -18,34 +18,4 @@
  ******************************************************************************/
 
 
-namespace Tiny3D
-{
-    //--------------------------------------------------------------------------
-
-    inline const String &TextureUnit::getName() const
-    {
-        return mName;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void TextureUnit::setSampler(SamplerPtr sampler)
-    {
-        mSampler = sampler;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline SamplerPtr TextureUnit::getSampler()
-    {
-        return mSampler;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
-    }
-}
+#include "T3DD3D11RenderState.h"

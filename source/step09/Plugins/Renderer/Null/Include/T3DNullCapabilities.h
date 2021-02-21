@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_PLUGIN_H__
-#define __T3D_D3D11_PLUGIN_H__
+#ifndef __T3D_D3D11_CAPABILITIES_H__
+#define __T3D_D3D11_CAPABILITIES_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -27,53 +27,42 @@
 
 namespace Tiny3D
 {
-    class D3D11Plugin : public Plugin
+    /**
+     * @class   D3D11Capabilities
+     * @brief   DirectX 11 渲染器渲染能力组
+     */
+    class D3D11Capabilities : public RendererCapabilities
     {
         T3D_DECLARE_CLASS();
 
     public:
         /**
-         * @brief 默认构造函数
+         * @brief   创建一个 D3D11 渲染器相关能力组对象
+         * @returns 调用成功返回新建 D3D11 能力组对象
          */
-        D3D11Plugin();
+        static D3D11CapabilitiesPtr create();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual D3D11Capabilities::~D3D11Capabilities();
+         * @brief   Destructor
          */
-        virtual ~D3D11Plugin();
-
-        /**
-         * @brief 获取插件名称
-         */
-        virtual const String &getName() const override;
-
-        /**
-         * @brief 安装插件
-         */
-        virtual TResult install() override;
-
-        /**
-         * @brief 启动插件
-         */
-        virtual TResult startup() override;
-
-        /**
-         * @brief 关闭插件
-         */
-        virtual TResult shutdown() override;
-
-        /**
-         * @brief 卸载插件
-         */
-        virtual TResult uninstall() override;
+        virtual ~D3D11Capabilities();
 
     protected:
-        String                  mName;
-        RendererPtr             mRenderer;
-        D3D11ShaderCreator      *mShaderCreator;
-        D3D11GPUProgramCreator  *mGPUCreator;
+        /**
+         * @fn  D3D11Capabilities::D3D11Capabilities();
+         * @brief   Default constructor
+         */
+        D3D11Capabilities();
+
+        /**
+         * @fn  virtual TResult D3D11Capabilities::init() override;
+         * @brief   Initializes this object
+         * @return  A TResult.
+         */
+        virtual TResult init() override;
     };
 }
 
 
-#endif  /*__T3D_D3D11_PLUGIN_H__*/
+#endif  /*__T3D_D3D11_CAPABILITIES_H__*/

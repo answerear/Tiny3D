@@ -25,7 +25,6 @@
 
 namespace Tiny3D
 {
-#if 0
     //--------------------------------------------------------------------------
 
     T3D_IMPLEMENT_CLASS_1(D3D11SamplerCreator, SamplerCreator);
@@ -148,5 +147,4 @@ namespace Tiny3D
 
         return mD3DSampler;
     }
-#endif
 }

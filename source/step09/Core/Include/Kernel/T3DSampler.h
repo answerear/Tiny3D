@@ -22,8 +22,9 @@
 #define __T3D_SAMPLER_H__
 
 
-#include "T3DResource.h"
-#include "Kernel/T3DCreator.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
+#include "T3DObject.h"
 #include "Kernel/T3DCommon.h"
 
 
@@ -33,19 +34,16 @@ namespace Tiny3D
      * @class   Sampler
      * @brief   采样器
      */
-    class T3D_ENGINE_API Sampler : public Resource
+    class T3D_ENGINE_API Sampler : public Object
     {
         T3D_DECLARE_CLASS();
 
     public:
+        static SamplerPtr create(const String &name);
+
         virtual ~Sampler();
 
-        /**
-         * @fn  virtual Type Sampler::getType() const override;
-         * @brief   获取资源类型，重写基类 Resource::getType() 接口
-         * @return  The type.
-         */
-        virtual Type getType() const override;
+        void setTextureUnit(TextureUnit *unit);
 
         /**
          * @fn  const UVWAddressMode Sampler::&getAddressMode() const;
@@ -181,16 +179,9 @@ namespace Tiny3D
          */
         Sampler(const String &name);
 
-        /**
-         * @fn  virtual TResult Sampler::cloneProperties(
-         *      SamplerPtr newObj) const;
-         * @brief   克隆属性
-         * @param   newObj  The new object.
-         * @returns A TResult.
-         */
-        virtual TResult cloneProperties(SamplerPtr newObj) const;
-
     protected:
+        TextureUnit     *mParent;
+
         UVWAddressMode  mAddressMode;   /**< The address mode */
         ColorRGBA       mBorderColor;   /**< The border color */
         FilterOptions   mMinFilter;     /**< A filter specifying the minimum */
@@ -201,16 +192,6 @@ namespace Tiny3D
         Real            mMipmapBias;    /**< The mipmap bias */
         bool            mCompareEnabled;/**< True if compare enabled */
         bool            mIsDirty;       /**< True if is dirty, false if not */
-    };
-
-    /**
-     * @class   SamplerCreator
-     * @brief   A 3D engine api.
-     */
-    class T3D_ENGINE_API SamplerCreator : public Creator<Sampler>
-    {
-        T3D_DECLARE_INTERFACE(SamplerCreator);
-        T3D_DECLARE_CLASS();
     };
 }
 

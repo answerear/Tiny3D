@@ -161,11 +161,11 @@ namespace Tiny3D
         const String &getName() const;
 
         /**
-         * @fn  void TextureUnit::setSampler(const String &name);
+         * @fn  void TextureUnit::setSampler(SamplerPtr sampler);
          * @brief   Sets a sampler
          * @param   name    The name.
          */
-        void setSampler(const String &name);
+        void setSampler(SamplerPtr sampler);
 
         /**
          * @fn  SamplerPtr TextureUnit::getSampler();
@@ -204,6 +204,7 @@ namespace Tiny3D
          */
         TextureUnit(const String &name, Pass *pass);
 
+    protected:
         typedef TMultimap<EffectType, TextureEffect>    EffectMap;
         typedef EffectMap::iterator                     EffectMapItr;
         typedef EffectMap::const_iterator               EffectMapConstItr;

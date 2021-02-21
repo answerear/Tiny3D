@@ -27,7 +27,6 @@
 
 namespace Tiny3D
 {
-#if 0
     /**
      * @class   D3D11SamplerCreator
      * @brief   DirectX 11 采样器创建器.
@@ -123,7 +122,6 @@ namespace Tiny3D
     protected:
         ID3D11SamplerState  *mD3DSampler;   /**< ID3D11SamplerState 对象 */
     };
-#endif
 }
 
 

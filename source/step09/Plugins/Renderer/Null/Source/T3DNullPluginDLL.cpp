@@ -18,34 +18,29 @@
  ******************************************************************************/
 
 
-namespace Tiny3D
+#include "T3DD3D11Plugin.h"
+
+
+Tiny3D::D3D11Plugin *gPlugin = nullptr;
+
+extern "C"
 {
-    //--------------------------------------------------------------------------
-
-    inline const String &TextureUnit::getName() const
+    T3D_D3D11RENDERER_API TResult dllStartPlugin()
     {
-        return mName;
+        gPlugin = new Tiny3D::D3D11Plugin();
+        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 
-    //--------------------------------------------------------------------------
-
-    inline void TextureUnit::setSampler(SamplerPtr sampler)
+    T3D_D3D11RENDERER_API TResult dllStopPlugin()
     {
-        mSampler = sampler;
-    }
+        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 
-    //--------------------------------------------------------------------------
+        if (ret == Tiny3D::T3D_OK)
+        {
+            delete gPlugin;
+            gPlugin = nullptr;
+        }
 
-    inline SamplerPtr TextureUnit::getSampler()
-    {
-        return mSampler;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
+        return ret;
     }
 }

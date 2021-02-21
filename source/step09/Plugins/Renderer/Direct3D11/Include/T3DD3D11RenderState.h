@@ -17,35 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_D3D11_RENDER_STATE_H__
+#define __T3D_D3D11_RENDER_STATE_H__
+
+
+#include "T3DD3D11Prerequisites.h"
+
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
 
-    inline const String &TextureUnit::getName() const
-    {
-        return mName;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline void TextureUnit::setSampler(SamplerPtr sampler)
-    {
-        mSampler = sampler;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline SamplerPtr TextureUnit::getSampler()
-    {
-        return mSampler;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
-    }
 }
+
+
+#endif  /*__T3D_D3D11_RENDER_STATE_H__*/

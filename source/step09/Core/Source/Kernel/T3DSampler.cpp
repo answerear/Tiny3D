@@ -18,34 +18,48 @@
  ******************************************************************************/
 
 
+#include "Kernel/T3DSampler.h"
+#include "Kernel/T3DTextureUnit.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline const String &TextureUnit::getName() const
+    T3D_IMPLEMENT_CLASS_1(Sampler, Object);
+
+    //--------------------------------------------------------------------------
+
+    SamplerPtr Sampler::create(const String& name)
     {
-        return mName;
+        SamplerPtr sampler = new Sampler(name);
+        sampler->release();
+        return sampler;
     }
 
     //--------------------------------------------------------------------------
 
-    inline void TextureUnit::setSampler(SamplerPtr sampler)
+    Sampler::Sampler(const String &name)
+        : mParent(nullptr)
+        , mAddressMode()
+        , mBorderColor(ColorRGBA::WHITE)
+        , mMinFilter(FilterOptions::LINEAR)
+        , mMagFilter(FilterOptions::LINEAR)
+        , mMipFilter(FilterOptions::LINEAR)
+        , mCompareFunc(CompareFunction::ALWAYS_FAIL)
+        , mAnisotropy(1)
+        , mMipmapBias(0.0f)
+        , mCompareEnabled(true)
+        , mIsDirty(true)
     {
-        mSampler = sampler;
+
     }
 
     //--------------------------------------------------------------------------
 
-    inline SamplerPtr TextureUnit::getSampler()
+    Sampler::~Sampler()
     {
-        return mSampler;
-    }
 
-    //--------------------------------------------------------------------------
-
-    inline TexturePtr TextureUnit::getTexture()
-    {
-        T3D_ASSERT(mCurrentFrame < mFrames.size());
-        return mFrames[mCurrentFrame];
     }
 }
+

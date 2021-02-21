@@ -6,7 +6,8 @@
 @cmake -G "Visual Studio 15 2017 Win64" ../
 
 @if %ERRORLEVEL% == 0 (
-    @devenv Tiny3D.sln
+    @rem @devenv Tiny3D.sln
+    @cmake --open ../vs2017-x64
     @cd ../Projects
 ) else (
     @cd ../Projects

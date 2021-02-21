@@ -367,7 +367,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline const BlendState &Pass::getBlendState() const
+    inline const BlendMode &Pass::getBlendState() const
     {
         return mBlendState;
     }
