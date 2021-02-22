@@ -96,8 +96,8 @@ bool GeometryApp::applicationDidFinishLaunching()
     node->getTransform3D()->setPosition(Vector3::ZERO);
     node->setCameraMask(OBJ_MASK_SCENE);
     MeshPtr mesh = smart_pointer_cast<Mesh>(node->addComponent(T3D_CLASS(Mesh)));
-    ModelPtr model = T3D_MODEL_MGR.loadModel("models/tortoise.t3d");
-    mesh->setModel(model);
+//     ModelPtr model = T3D_MODEL_MGR.loadModel();
+    mesh->setModel("models/tortoise.t3d");
 
     return true;
 }
