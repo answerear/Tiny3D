@@ -20,10 +20,9 @@
 
 #include "Kernel/T3DTextureUnit.h"
 #include "Kernel/T3DPass.h"
+#include "Kernel/T3DSampler.h"
 #include "Resource/T3DTexture.h"
 #include "Resource/T3DTextureManager.h"
-#include "Resource/T3DSampler.h"
-#include "Resource/T3DSamplerManager.h"
 
 
 namespace Tiny3D
@@ -57,13 +56,6 @@ namespace Tiny3D
     TextureUnit::~TextureUnit()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    void TextureUnit::setSampler(const String &name)
-    {
-        mSampler = T3D_SAMPLER_MGR.loadSampler(name);
     }
 
     //--------------------------------------------------------------------------

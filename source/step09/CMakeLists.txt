@@ -146,7 +146,7 @@ endif (TINY3D_OS_DESKTOP)
 set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}" CACHE PATH "Tiny3D binary path")
 set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}" CACHE PATH "Tiny3D library path")
 set(TINY3D_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Tiny3D include path")
-set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/resources" CACHE PATH "Tiny3D resourcs path")
+set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/assets" CACHE PATH "Tiny3D assets path")
 
 # Set this directory for debugging app
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}" CACHE STRING "Tiny3D binaries files" FORCE)
@@ -207,11 +207,11 @@ add_subdirectory(protobuf)
 
 # Setup project folder
 if (protobuf_BUILD_LITE_LIBRARIES)
-    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party/protobuf")
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "ThirdParties/protobuf")
     set (PROTOBUF_LIBRARY libprotobuf-lite)
 else (protobuf_BUILD_LITE_LIBRARIES)
-    set_property(TARGET libprotobuf PROPERTY FOLDER "Third_Party/protobuf")
-    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "Third_Party/protobuf")
+    set_property(TARGET libprotobuf PROPERTY FOLDER "ThirdParties/protobuf")
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "ThirdParties/protobuf")
     set (PROTOBUF_LIBRARY libprotobuf)
 endif (protobuf_BUILD_LITE_LIBRARIES)
 

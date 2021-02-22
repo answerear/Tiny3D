@@ -18,67 +18,64 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DSampler.h"
+#include "Render/T3DRenderState.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Sampler, Resource);
-    T3D_IMPLEMENT_CLASS_0(SamplerCreator);
-
-    //--------------------------------------------------------------------------
-
-    Sampler::Sampler(const String &name)
-        : Resource(name)
-        , mAddressMode()
-        , mBorderColor(ColorRGBA::WHITE)
-        , mMinFilter(FilterOptions::LINEAR)
-        , mMagFilter(FilterOptions::LINEAR)
-        , mMipFilter(FilterOptions::LINEAR)
-        , mCompareFunc(CompareFunction::ALWAYS_FAIL)
-        , mAnisotropy(1)
-        , mMipmapBias(0.0f)
-        , mIsDirty(true)
+    HWBlendState::HWBlendState()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    Sampler::~Sampler()
+    HWBlendState::~HWBlendState()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::Type Sampler::getType() const
+    HWDepthStencilState::HWDepthStencilState()
     {
-        return Type::E_RT_SAMPLER;
+
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Sampler::cloneProperties(SamplerPtr newObj) const
+    HWDepthStencilState::~HWDepthStencilState()
     {
-        TResult ret = T3D_OK;
 
-        do
-        {
-            newObj->mAddressMode = mAddressMode;
-            newObj->mBorderColor = mBorderColor;
-            newObj->mMinFilter = mMinFilter;
-            newObj->mMagFilter = mMagFilter;
-            newObj->mMipFilter = mMipFilter;
-            newObj->mCompareFunc = mCompareFunc;
-            newObj->mAnisotropy = mAnisotropy;
-            newObj->mMipmapBias = mMipmapBias;
-            newObj->mIsDirty = true;
-        } while (0);
+    }
 
-        return ret;
+    //--------------------------------------------------------------------------
+
+    HWRasterizerState::HWRasterizerState()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    HWRasterizerState::~HWRasterizerState()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    HWSamplerState::HWSamplerState()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    HWSamplerState::~HWSamplerState()
+    {
+
     }
 }
-

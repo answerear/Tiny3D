@@ -437,7 +437,7 @@ namespace Tiny3D
          * @brief   Gets blend state
          * @return  The blend state.
          */
-        const BlendState &getBlendState() const;
+        const BlendMode &getBlendState() const;
 
         /**
          * @fn  bool Pass::isTransparent() const;
@@ -1113,7 +1113,7 @@ namespace Tiny3D
 //         bool    mSeparateBlend;
 //         bool    mSeparateBlendOperation;
 
-        BlendState  mBlendState;
+        BlendMode  mBlendState;
 
         //---------------------------------------
         // Command : depth_check

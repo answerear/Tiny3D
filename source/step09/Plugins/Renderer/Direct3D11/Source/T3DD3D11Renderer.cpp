@@ -613,9 +613,9 @@ namespace Tiny3D
                 = smart_pointer_cast<D3D11Sampler>(unit->getSampler());
             if (sampler != nullptr)
             {
-                ID3D11SamplerState *pSampler = sampler->getD3DSamplerState();
-                mD3DDeviceContext->PSSetSamplers(0, 1,
-                    (ID3D11SamplerState *const *)&pSampler);
+//                 ID3D11SamplerState *pSampler = sampler->getD3DSamplerState();
+//                 mD3DDeviceContext->PSSetSamplers(0, 1,
+//                     (ID3D11SamplerState *const *)&pSampler);
             }
         } while (0);
 

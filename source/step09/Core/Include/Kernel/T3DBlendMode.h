@@ -199,7 +199,7 @@ namespace Tiny3D
      * @struct  BlendState
      * @brief   A 3D engine api.
      */
-    struct T3D_ENGINE_API BlendState
+    struct T3D_ENGINE_API BlendMode
     {
         bool    writeR;
         bool    writeG;
@@ -214,7 +214,7 @@ namespace Tiny3D
         BlendOperation  operation;
         BlendOperation  alphaOperation;
 
-        BlendState()
+        BlendMode()
             : writeR(true)
             , writeG(true)
             , writeB(true)

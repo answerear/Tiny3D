@@ -35,7 +35,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TResult buildNode(google::protobuf::Map<String, Script::SceneSystem::Node>& nodes, const std::string& uuid, SceneNodePtr parent, SceneNodePtr& node);
+    TResult buildNode(google::protobuf::Map<String, Script::LevelSystem::Node>& nodes, const std::string& uuid, SceneNodePtr parent, SceneNodePtr& node);
 
     //--------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ namespace Tiny3D
         : Resource(name)
         , mModelData(nullptr)
     {
-        mModelData = new Script::FileFormat::FileModel();
+        mModelData = new Script::FileFormat::FileLevel();
     }
 
     //--------------------------------------------------------------------------
@@ -142,10 +142,10 @@ namespace Tiny3D
 
     void Model::setModelData(void *data)
     {
-        Script::FileFormat::FileModel *src 
-            = (Script::FileFormat::FileModel *)data;
-        Script::FileFormat::FileModel *dst 
-            = (Script::FileFormat::FileModel *)mModelData;
+        Script::FileFormat::FileLevel *src 
+            = (Script::FileFormat::FileLevel *)data;
+        Script::FileFormat::FileLevel *dst 
+            = (Script::FileFormat::FileLevel *)mModelData;
         dst->CopyFrom(*src);
     }
 
@@ -157,8 +157,8 @@ namespace Tiny3D
 
         do 
         {
-            Script::FileFormat::FileModel* model 
-                = (Script::FileFormat::FileModel*)mModelData;
+            Script::FileFormat::FileLevel* model 
+                = (Script::FileFormat::FileLevel*)mModelData;
 
             //mMeshData.vertices.clear();
             //mMeshData.submeshes.clear();
@@ -195,12 +195,12 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult buildNode(
-        google::protobuf::Map<String, Script::SceneSystem::Node> &nodes, 
+        google::protobuf::Map<String, Script::LevelSystem::Node> &nodes, 
         const std::string &uuid, SceneNodePtr parent, SceneNodePtr &node)
     {
         TResult ret = T3D_OK;
 
-        Script::SceneSystem::Node& src = nodes[uuid];
+        Script::LevelSystem::Node& src = nodes[uuid];
 
         node = T3D_SCENE_MGR.createSceneNode(parent);
         node->setName(src.name());
@@ -227,18 +227,18 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult buildComponent(Script::SceneSystem::Component &srcComponent, SceneNodePtr node)
+    TResult buildComponent(Script::LevelSystem::Component &srcComponent, SceneNodePtr node)
     {
         TResult ret = T3D_OK;
 
         switch (srcComponent.type())
         {
-        case Script::SceneSystem::Component_Type_Transform:
+        case Script::LevelSystem::Component_Type_Transform:
             {
 
             }
             break;
-        case Script::SceneSystem::Component_Type_SkinnedMesh:
+        case Script::LevelSystem::Component_Type_SkinnedMesh:
             {
 
             }

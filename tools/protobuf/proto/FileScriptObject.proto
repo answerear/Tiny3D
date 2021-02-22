@@ -3,7 +3,7 @@ syntax = "proto3";
 
 import "MaterialScriptObject.proto";
 import "ModelScriptObject.proto";
-import "SceneScriptObject.proto";
+import "LevelScriptObject.proto";
 import "MetaScriptObject.proto";
 
 
@@ -15,9 +15,8 @@ message FileHeader
     enum FileType
     {
         Material = 0;
-        Model = 1;
-        Scene = 2;
-        Meta = 3;
+        Level = 1;
+        Meta = 2;
     }
     
     string      magic = 1;
@@ -39,29 +38,17 @@ message FileMeta
     MetaSystem.MetaData meta = 2;
 }
 
-message FileModelData
+message FileLevelData
 {
     string                                  root = 1;
-    map<string, SceneSystem.Node>           nodes = 2;
+    map<string, LevelSystem.Node>           nodes = 2;
     map<string, ModelSystem.MeshData>       meshes = 3;
     map<string, ModelSystem.AnimationClip>  animations = 4;
 }
 
-message FileModel
+message FileLevel
 {
     FileHeader      header = 1;
-    FileModelData   data = 2;
+    FileLevelData   data = 2;
 }
 
-message FileSceneData
-{
-    string                              root = 2;
-    map<string, SceneSystem.Node>       nodes = 3;
-    map<string, ModelSystem.MeshData>   meshes = 4; 
-}
-
-message FileScene
-{
-    FileHeader          header = 1;
-    FileSceneData       data = 2;
-}

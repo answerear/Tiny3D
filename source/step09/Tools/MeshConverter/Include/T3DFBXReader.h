@@ -36,12 +36,14 @@ namespace Tiny3D
     class FBXReader : public ModelReader
     {
     public:
-        static FBXReaderPtr create(bool isTxt);
+        static FBXReaderPtr create(bool isTxt, const String &name);
 
         virtual ~FBXReader();
 
+        const TArray<MaterialPtr> &getMaterials() const { return mMaterials; }
+
     protected:
-        FBXReader(bool isTxt);
+        FBXReader(bool isTxt, const String &name);
 
         virtual TResult parse(DataStream &stream, Model *model) override;
 
@@ -51,19 +53,24 @@ namespace Tiny3D
         TResult importFbxScene(DataStream &stream, FbxScene *pFbxScene);
         TResult setupMetricSystem(FbxScene *pFbxScene);
 
-        TResult processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileModel *model);
+        TResult processFbxScene(FbxScene *pFbxScene, Script::FileFormat::FileLevel *model);
 
-        TResult processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
-        TResult processFbxAttributes(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *pNode);
-        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileModel *model);
+        TResult processFbxNode(FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, Script::LevelSystem::Node *parent, Script::LevelSystem::Node *&pNode);
+        TResult processFbxAttributes(FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, Script::LevelSystem::Node *parent, Script::LevelSystem::Node *pNode);
+        TResult processFbxMesh(FbxNode *pFbxNode, FbxMesh *pFbxMesh, Script::FileFormat::FileLevel *model);
         TResult processFbxMeshAttributes(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
         TResult processFbxMeshData(FbxMesh *pFbxMesh, Script::ModelSystem::MeshData *pMesh);
+
         TResult processFbxMaterial(FbxNode *pFbxNode, FbxMesh *pFbxMesh);
+        TResult processFbxShaderMaterial(FbxSurfaceMaterial* pFbxMaterial, const FbxImplementation *pFbxImpl, MaterialPtr material);
+        TResult processFbxPhongMaterial(FbxSurfacePhong* pFbxMaterial, MaterialPtr material);
+        TResult processFbxLambertMaterial(FbxSurfaceLambert* pFbxMaterial, MaterialPtr material);
+
         TResult processFbxCamera(FbxNode *pFbxNode);
         TResult processFbxLight(FbxNode *pFbxNode);
 
-        TResult processFbxAnimation(FbxScene *pFbxScene, Script::FileFormat::FileModel *model);
-        TResult processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, Script::FileFormat::FileModel *model, int32_t idx);
+        TResult processFbxAnimation(FbxScene *pFbxScene, Script::FileFormat::FileLevel *model);
+        TResult processFbxAnimation(FbxAnimStack *pFbxAnimStack, FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, int32_t idx);
         TResult processFbxAnimation(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode, Script::ModelSystem::AnimationClip *clip, int32_t idx);
         TResult processFbxAnimationChannels(FbxAnimLayer *pFbxAnimLayer, FbxNode *pFbxNode);
         TResult processFbxAnimationCurve(FbxAnimCurve *pFbxAnimCurve);
@@ -73,8 +80,6 @@ namespace Tiny3D
 
         TResult processFbxSkin(FbxGeometry *pFbxGeometry, Script::ModelSystem::MeshData *pMesh);
 
-        TResult processPhongMaterial(FbxSurfacePhong *pFbxMaterial);
-        TResult processLambertMaterial(FbxSurfaceLambert *pFbxMaterial);
 
         int InterpolationFlagToIndex(int flags);
         int ConstantmodeFlagToIndex(int flags);
@@ -85,7 +90,7 @@ namespace Tiny3D
 		void convertMatrix(const FbxAMatrix &src, Matrix4 &dst);
         void convertMatrix(const FbxMatrix &src, Matrix4 &dst);
 
-        TResult generateNode(FbxNode *pFbxNode, Script::FileFormat::FileModel *model, Script::SceneSystem::Node *parent, Script::SceneSystem::Node *&pNode);
+        TResult generateNode(FbxNode *pFbxNode, Script::FileFormat::FileLevel *model, Script::LevelSystem::Node *parent, Script::LevelSystem::Node *&pNode);
 
         TResult readPosition(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
             Vector3 &pos);
@@ -99,6 +104,8 @@ namespace Tiny3D
             int32_t vertexIdx, int32_t layer, Vector3 &binormal);
         TResult readTangent(FbxMesh *pFbxMesh, int32_t ctrlPointIdx,
             int32_t vertexIdx, int32_t layer, Vector3 &tangent);
+
+        TResult setupMaterialConnections(FbxMesh *pFbxMesh, int32_t triangle, Vertex &vertex);
 
         void updateBlendInfo(int index, int boneIdx, float weight);
 
@@ -124,6 +131,11 @@ namespace Tiny3D
 
         MeshData    mMeshData;
 
+        TArray<String>  mMaterialNames;
+
+        TArray<MaterialPtr>    mMaterials;
+
+        String      mFbxName;
         bool        mIsTxt;
     };
 }

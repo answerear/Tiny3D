@@ -29,6 +29,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline void TextureUnit::setSampler(SamplerPtr sampler)
+    {
+        mSampler = sampler;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline SamplerPtr TextureUnit::getSampler()
     {
         return mSampler;

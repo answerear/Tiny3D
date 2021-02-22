@@ -93,8 +93,8 @@ namespace Tiny3D
             // 从 proto buffer 解析出来 pb 对象
             data += sizeof(T3DFileHeader);
             size -= sizeof(T3DFileHeader);
-            Script::FileFormat::FileModel *modelData = (Script::FileFormat::FileModel *)model->getModelData();
-            Script::FileFormat::FileModelData *body = modelData->mutable_data();
+            Script::FileFormat::FileLevel *modelData = (Script::FileFormat::FileLevel *)model->getModelData();
+            Script::FileFormat::FileLevelData *body = modelData->mutable_data();
 
             if (!body->ParseFromArray(data, size))
             {

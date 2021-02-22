@@ -22,6 +22,13 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    inline void Sampler::setTextureUnit(TextureUnit *unit)
+    {
+        mParent = unit;
+    }
+
+    //--------------------------------------------------------------------------
+
     inline const UVWAddressMode &Sampler::getAddressMode() const
     {
         return mAddressMode;

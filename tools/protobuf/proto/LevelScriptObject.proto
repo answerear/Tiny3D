@@ -4,7 +4,7 @@ syntax = "proto3";
 import "CommonScriptObject.proto";
 //import "ModelScriptObject.proto";
 
-package Tiny3D.Script.SceneSystem;
+package Tiny3D.Script.LevelSystem;
 
 
 

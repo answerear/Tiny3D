@@ -99,6 +99,18 @@ namespace Tiny3D
         GREATER
     };
 
+    enum class StencilOp : uint32_t
+    {
+        KEEP,       /**< 保持现有的模板值 */
+        ZERO,       /**< 将模板值置为0 */
+        REPLACE,    /**< 将模板值设置为用 HWDepthStencilState::setStencilRef 函数设置的 ref 值*/
+        INCR,       /**< 如果模板值不是最大值就将模板值+1 */
+        INCR_WRAP,  /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
+        DECR,       /**< 如果模板值不是最小值就将模板值-1 */
+        DECR_WRAP,  /**< 与 DECR 一样将模板值-1，如果模板值已经是最小值则设为最大值 */
+        INVERT      /**< 把模板值按位取反 */
+    };
+
     /**
      * @typedef uint32_t TrackVertexColorType
      * @brief   Defines an alias representing type of the track vertex color

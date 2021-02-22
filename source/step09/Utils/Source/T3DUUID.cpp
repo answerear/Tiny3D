@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         std::stringstream ss;
 
-        for (auto i = 0; i < len; i++) 
+        for (uint32_t i = 0; i < len; i++) 
         {
             const uint32_t rc = random_char();
             std::stringstream hexstream;
