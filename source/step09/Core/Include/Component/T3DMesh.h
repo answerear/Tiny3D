@@ -50,7 +50,7 @@ namespace Tiny3D
          */
         virtual ~Mesh();
 
-        void setModel(ModelPtr model);
+        void setModel(const String &modelName);
 
     protected:
         /**
@@ -91,8 +91,14 @@ namespace Tiny3D
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
+        TResult setupVAO();
+
+        TResult setupMaterial();
+
     protected:
-        ModelPtr    mModel;
+        ModelPtr                mModel;
+        VertexArrayObjectPtr    mVAO;
+        MaterialPtr             mMaterial;
     };
 }
 

@@ -28,6 +28,24 @@
 
 namespace Tiny3D
 {
+    namespace Script
+    {
+        namespace MaterialSystem
+        {
+            class Material;
+            class Technique;
+            class Pass;
+            class GPUConstantBufferRef;
+            class TextureUnit;
+            class Sampler;
+            class GPUConstantBuffer;
+            class GPUProgram;
+            class Param;
+            class ParamAuto;
+            class Shader;
+        }
+    }
+
     class T3D_ENGINE_API MaterialWriter : public Object
     {
         T3D_DECLARE_CLASS();
@@ -35,6 +53,8 @@ namespace Tiny3D
 
     public:
         virtual TResult serialize(DataStream &stream, Material *material) = 0;
+
+        TResult setupMaterial(const Material *src, Script::MaterialSystem::Material *dst);
     };
 }
 

@@ -24,5 +24,17 @@
 namespace Tiny3D
 {
     T3D_IMPLEMENT_CLASS_1(MaterialWriter, Object);
+
+    //--------------------------------------------------------------------------
+
+    TResult MaterialWriter::setupMaterial(const Material *src, 
+        Script::MaterialSystem::Material *dst)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
 }
 

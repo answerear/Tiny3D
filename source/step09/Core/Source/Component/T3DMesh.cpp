@@ -20,6 +20,11 @@
 
 #include "Component/T3DMesh.h"
 #include "Resource/T3DModel.h"
+#include "Resource/T3DModelManager.h"
+#include "Render/T3DHardwareBufferManager.h"
+#include "Render/T3DHardwareVertexBuffer.h"
+#include "Render/T3DHardwareIndexBuffer.h"
+#include "protobuf/ModelScriptObject.pb.h"
 
 
 namespace Tiny3D
@@ -50,6 +55,19 @@ namespace Tiny3D
     Mesh::~Mesh()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Mesh::setModel(const String &modelName)
+    {
+        if (mModel != nullptr)
+        {
+            T3D_MODEL_MGR.unload(mModel);
+            mModel = nullptr;
+        }
+
+        mModel = T3D_MODEL_MGR.loadModel(modelName);
     }
 
     //--------------------------------------------------------------------------
@@ -85,13 +103,32 @@ namespace Tiny3D
 
     MaterialPtr Mesh::getMaterial() const
     {
-        return nullptr;
+        return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
     VertexArrayObjectPtr Mesh::getVertexArrayObject() const
     {
-        return nullptr;
+        return mVAO;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Mesh::setupVAO()
+    {
+        Script::ModelSystem::MeshData *meshData 
+            = (Script::ModelSystem::MeshData *)mModel->getModelData();
+
+
+        mVAO = T3D_HARDWARE_BUFFER_MGR.createVertexArrayObject(true);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Mesh::setupMaterial()
+    {
+        return T3D_OK;
     }
 }
