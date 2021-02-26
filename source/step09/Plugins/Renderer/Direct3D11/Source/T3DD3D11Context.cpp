@@ -18,16 +18,16 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Renderer.h"
-#include "T3DD3D11RenderWindow.h"
-#include "T3DD3D11HardwareBufferManager.h"
+#include "T3DD3D11Context.h"
+#include "T3DD3D11Window.h"
+#include "T3DD3D11BufferManager.h"
 #include "T3DD3D11GPUProgram.h"
-#include "T3DD3D11HardwareConstantBuffer.h"
+#include "T3DD3D11ConstantBuffer.h"
 #include "T3DD3D11Mappings.h"
 #include "T3DD3D11VertexArrayObject.h"
-#include "T3DD3D11HardwareVertexBuffer.h"
-#include "T3DD3D11HardwareIndexBuffer.h"
-#include "T3DD3D11HardwarePixelBuffer.h"
+#include "T3DD3D11VertexBuffer.h"
+#include "T3DD3D11IndexBuffer.h"
+#include "T3DD3D11PixelBuffer.h"
 #include "T3DD3D11VertexDeclaration.h"
 #include "T3DD3D11Capabilities.h"
 #include "T3DD3D11Sampler.h"
@@ -37,21 +37,21 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(D3D11Renderer);
-    T3D_IMPLEMENT_CLASS_1(D3D11Renderer, Renderer);
+    T3D_INIT_SINGLETON(D3D11Context);
+    T3D_IMPLEMENT_CLASS_1(D3D11Context, RenderContext);
 
     //--------------------------------------------------------------------------
 
-    D3D11RendererPtr D3D11Renderer::create()
+    D3D11ContextPtr D3D11Context::create()
     {
-        D3D11RendererPtr renderer = new D3D11Renderer();
+        D3D11ContextPtr renderer = new D3D11Context();
         renderer->release();
         return renderer;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11Renderer::D3D11Renderer()
+    D3D11Context::D3D11Context()
         : mInstance(nullptr)
         , mD3DDevice(nullptr)
         , mD3DDeviceContext(nullptr)
@@ -60,27 +60,27 @@ namespace Tiny3D
         , mVendorID(0)
         , mIsRSStateDirty(false)
     {
-        mName = Renderer::DIRECT3D11;
+        mName = RenderContext::DIRECT3D11;
         memset(&mD3DRSDesc, 0, sizeof(mD3DRSDesc));
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11Renderer::~D3D11Renderer()
+    D3D11Context::~D3D11Context()
     {
         destroy();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::init()
+    TResult D3D11Context::init()
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            D3D11HardwareBufferManagerPtr mgr 
-                = D3D11HardwareBufferManager::create();
+            D3D11BufferManagerPtr mgr 
+                = D3D11BufferManager::create();
             mHardwareBufferMgr = HardwareBufferManager::create(mgr);
 
             HRESULT hr = S_OK;
@@ -148,7 +148,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::destroy()
+    TResult D3D11Context::destroy()
     {
         TResult ret = T3D_OK;
 
@@ -169,7 +169,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::renderAllTargets()
+    TResult D3D11Context::renderAllTargets()
     {
         TResult ret = T3D_OK;
 
@@ -180,7 +180,7 @@ namespace Tiny3D
             bindGPUConstantBuffer(1, mGPUBufferUpdateFrame->getBufferImpl());
             bindGPUConstantBuffer(2, mGPUBufferUpdateRarely->getBufferImpl());
 
-            ret = Renderer::renderAllTargets();
+            ret = RenderContext::renderAllTargets();
 
             // 清理 GPU 程序对象
             mBoundGPUProgram = nullptr;
@@ -191,7 +191,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderWindowPtr D3D11Renderer::createRenderWindow(const String &name,
+    RenderWindowPtr D3D11Context::createRenderWindow(const String &name,
         const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
     {
@@ -201,7 +201,7 @@ namespace Tiny3D
 
         do
         {
-            window = D3D11RenderWindow::create(name);
+            window = D3D11Window::create(name);
             if (window == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
@@ -233,14 +233,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RendererCapabilitiesPtr D3D11Renderer::createRendererCapabilities() const
+    RenderCapabilitiesPtr D3D11Context::createRendererCapabilities() const
     {
         return D3D11Capabilities::create();
     }
 
     //--------------------------------------------------------------------------
 
-    Matrix4 D3D11Renderer::perspective(const Radian &fovY, Real aspect,
+    Matrix4 D3D11Context::perspective(const Radian &fovY, Real aspect,
         Real nearDist, Real farDist)
     {
         // Direct3D 9 NDC (Normalized Device Coordinates) is : 
@@ -325,7 +325,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Matrix4 D3D11Renderer::orthographic(Real width, Real height, 
+    Matrix4 D3D11Context::orthographic(Real width, Real height, 
         Real nearDist, Real farDist)
     {
         // Direct3D 9 NDC (Normalized Device Coordinates) is : 
@@ -382,7 +382,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Matrix4 D3D11Renderer::makeViewportMatrix(ViewportPtr viewport)
+    Matrix4 D3D11Context::makeViewportMatrix(ViewportPtr viewport)
     {
         Matrix4 mat(false);
         mat[0][0] = Real(viewport->getActualWidth()) * REAL_HALF;
@@ -399,7 +399,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::updateFrustum(const Matrix4 &m, FrustumBoundPtr bound)
+    TResult D3D11Context::updateFrustum(const Matrix4 &m, FrustumBoundPtr bound)
     {
         // 快速计算视棱锥六个裁剪平面原理：
         //
@@ -497,7 +497,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setCullingMode(CullingMode mode)
+    TResult D3D11Context::setCullingMode(CullingMode mode)
     {
         mD3DRSDesc.CullMode = D3D11Mappings::get(mode);
         mCullingMode = mode;
@@ -507,7 +507,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setPolygonMode(PolygonMode mode)
+    TResult D3D11Context::setPolygonMode(PolygonMode mode)
     {
         mD3DRSDesc.FillMode = D3D11Mappings::get(mode);
         mPolygonMode = mode;
@@ -517,7 +517,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::setViewport(ViewportPtr viewport)
+    TResult D3D11Context::setViewport(ViewportPtr viewport)
     {
         TResult ret = T3D_OK;
 
@@ -541,15 +541,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::bindGPUConstantBuffer(size_t slot,
+    TResult D3D11Context::bindGPUConstantBuffer(size_t slot,
         HardwareConstantBufferPtr buffer)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            D3D11HardwareConstantBufferPtr d3dBuffer 
-                = smart_pointer_cast<D3D11HardwareConstantBuffer>(buffer);
+            D3D11ConstantBufferPtr d3dBuffer 
+                = smart_pointer_cast<D3D11ConstantBuffer>(buffer);
             ID3D11Buffer *pBuffer = d3dBuffer->getD3DBuffer();
             mD3DDeviceContext->VSSetConstantBuffers((UINT)slot, 1, 
                 (ID3D11Buffer * const *)&pBuffer);
@@ -563,7 +563,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::bindGPUProgram(GPUProgramPtr program)
+    TResult D3D11Context::bindGPUProgram(GPUProgramPtr program)
     {
         TResult ret = T3D_OK;
 
@@ -588,7 +588,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::bindTexture(TextureUnitPtr unit)
+    TResult D3D11Context::bindTexture(TextureUnitPtr unit)
     {
         TResult ret = T3D_OK;
 
@@ -600,8 +600,8 @@ namespace Tiny3D
             TexturePtr texture = unit->getTexture();
             if (texture != nullptr)
             {
-                D3D11HardwarePixelBufferPtr pbo
-                    = smart_pointer_cast<D3D11HardwarePixelBuffer>(
+                D3D11PixelBufferPtr pbo
+                    = smart_pointer_cast<D3D11PixelBuffer>(
                         texture->getPixelBuffer());
 
                 ID3D11ShaderResourceView *pD3DSRView = pbo->getD3DSRView();
@@ -624,7 +624,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::renderObject(VertexArrayObjectPtr vao)
+    TResult D3D11Context::renderObject(VertexArrayObjectPtr vao)
     {
         TResult ret = T3D_OK;
 
@@ -685,7 +685,7 @@ namespace Tiny3D
             if (vao->isIndicesUsed())
             {
                 // 索引缓冲区
-                D3D11HardwareIndexBufferPtr ibo = smart_pointer_cast<D3D11HardwareIndexBuffer>(vao->getIndexBuffer());
+                D3D11IndexBufferPtr ibo = smart_pointer_cast<D3D11IndexBuffer>(vao->getIndexBuffer());
                 ID3D11Buffer *d3dBuffer = ibo->getD3D11Buffer();
                 DXGI_FORMAT idxFormat = D3D11Mappings::get(ibo->getIndexType());
                 mD3DDeviceContext->IASetIndexBuffer(d3dBuffer, idxFormat, 0);
@@ -705,7 +705,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::initD3DRasterizerState()
+    TResult D3D11Context::initD3DRasterizerState()
     {
         TResult ret = T3D_OK;
 
@@ -745,7 +745,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::updateD3DRasterizerState()
+    TResult D3D11Context::updateD3DRasterizerState()
     {
         TResult ret = T3D_OK;
 
@@ -773,7 +773,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Renderer::collectInformation()
+    TResult D3D11Context::collectInformation()
     {
         TResult ret = T3D_OK;
 

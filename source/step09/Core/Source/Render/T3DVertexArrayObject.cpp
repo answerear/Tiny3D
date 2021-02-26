@@ -73,32 +73,32 @@ namespace Tiny3D
 
         switch (getPrimitiveType())
         {
-        case Renderer::PrimitiveType::E_PT_POINT_LIST:
+        case RenderContext::PrimitiveType::E_PT_POINT_LIST:
             primCount = (isIndicesUsed() 
                 ? ibo->getIndexCount() : vbo->getVertexCount());
             break;
 
-        case Renderer::PrimitiveType::E_PT_LINE_LIST:
+        case RenderContext::PrimitiveType::E_PT_LINE_LIST:
             primCount = (isIndicesUsed() 
                 ? ibo->getIndexCount() : vbo->getVertexCount()) / 2;
             break;
 
-        case Renderer::PrimitiveType::E_PT_LINE_STRIP:
+        case RenderContext::PrimitiveType::E_PT_LINE_STRIP:
             primCount = (isIndicesUsed() 
                 ? ibo->getIndexCount() : vbo->getVertexCount()) - 1;
             break;
 
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_LIST:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_LIST:
             primCount = (isIndicesUsed() 
                 ? ibo->getIndexCount() : vbo->getVertexCount()) / 3;
             break;
 
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_STRIP:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_STRIP:
             primCount = (isIndicesUsed() 
                 ? ibo->getIndexCount() : vbo->getVertexCount()) - 2;
             break;
 
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_FAN:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_FAN:
             primCount = (isIndicesUsed() 
                 ? ibo->getIndexCount() : vbo->getVertexCount()) - 2;
             break;

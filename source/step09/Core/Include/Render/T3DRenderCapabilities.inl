@@ -22,231 +22,231 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline const DriverVersion &RendererCapabilities::getDriverVersion() const
+    inline const DriverVersion &RenderCapabilities::getDriverVersion() const
     {
         return mDriverVersion;
     }
 
     //--------------------------------------------------------------------------
 
-    inline GPUVendor RendererCapabilities::getVendor() const
+    inline GPUVendor RenderCapabilities::getVendor() const
     {
         return mVendor;
     }
 
     //--------------------------------------------------------------------------
 
-    inline const String &RendererCapabilities::getDeviceName() const
+    inline const String &RenderCapabilities::getDeviceName() const
     {
         return mDeviceName;
     }
 
     //--------------------------------------------------------------------------
 
-    inline const String &RendererCapabilities::getRendererName() const
+    inline const String &RenderCapabilities::getRendererName() const
     {
         return mRendererName;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getNumTextureUnits() const
+    inline uint16_t RenderCapabilities::getNumTextureUnits() const
     {
         return mNumTextureUnits;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getNumVertexTextureUnits() const
+    inline uint16_t RenderCapabilities::getNumVertexTextureUnits() const
     {
         return mNumVertexTextureUnits;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getStencilBufferBitDepth() const
+    inline uint16_t RenderCapabilities::getStencilBufferBitDepth() const
     {
         return mStencilBufferBitDepth;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getNumVertexBlendMatrices() const
+    inline uint16_t RenderCapabilities::getNumVertexBlendMatrices() const
     {
         return mNumVertexBlendMatrices;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getNumMultiRenderTargets() const
+    inline uint16_t RenderCapabilities::getNumMultiRenderTargets() const
     {
         return mNumMultiRenderTargets;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getNumVertexAttributes() const
+    inline uint16_t RenderCapabilities::getNumVertexAttributes() const
     {
         return mNumVertexAttributes;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getVSConstantFloatCount() const
+    inline uint16_t RenderCapabilities::getVSConstantFloatCount() const
     {
         return mVSConstantFloatCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getVSConstantIntCount() const
+    inline uint16_t RenderCapabilities::getVSConstantIntCount() const
     {
         return mVSConstantIntCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getVSConstantBoolCount() const
+    inline uint16_t RenderCapabilities::getVSConstantBoolCount() const
     {
         return mVSConstantBoolCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getGSConstantFloatCount() const
+    inline uint16_t RenderCapabilities::getGSConstantFloatCount() const
     {
         return mGSConstantFloatCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getGSConstantIntCount() const
+    inline uint16_t RenderCapabilities::getGSConstantIntCount() const
     {
         return mGSConstantIntCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getGSConstantBoolCount() const
+    inline uint16_t RenderCapabilities::getGSConstantBoolCount() const
     {
         return mGSConstantBoolCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getPSConstantFloatCount() const
+    inline uint16_t RenderCapabilities::getPSConstantFloatCount() const
     {
         return mPSConstantFloatCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getPSConstantIntCount() const
+    inline uint16_t RenderCapabilities::getPSConstantIntCount() const
     {
         return mPSConstantIntCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getPSConstantBoolCount() const
+    inline uint16_t RenderCapabilities::getPSConstantBoolCount() const
     {
         return mPSConstantBoolCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getHSConstantFloatCount() const
+    inline uint16_t RenderCapabilities::getHSConstantFloatCount() const
     {
         return mHSConstantFloatCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getHSConstantIntCount() const
+    inline uint16_t RenderCapabilities::getHSConstantIntCount() const
     {
         return mHSConstantIntCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getHSConstantBoolCount() const
+    inline uint16_t RenderCapabilities::getHSConstantBoolCount() const
     {
         return mHSConstantBoolCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getDSConstantFloatCount() const
+    inline uint16_t RenderCapabilities::getDSConstantFloatCount() const
     {
         return mDSConstantFloatCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getDSConstantIntCount() const
+    inline uint16_t RenderCapabilities::getDSConstantIntCount() const
     {
         return mDSConstantIntCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getDSConstantBoolCount() const
+    inline uint16_t RenderCapabilities::getDSConstantBoolCount() const
     {
         return mDSConstantBoolCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getCSConstantFloatCount() const
+    inline uint16_t RenderCapabilities::getCSConstantFloatCount() const
     {
         return mCSConstantFloatCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getCSConstantIntCount() const
+    inline uint16_t RenderCapabilities::getCSConstantIntCount() const
     {
         return mCSConstantIntCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline uint16_t RendererCapabilities::getCSConstantBoolCount() const
+    inline uint16_t RenderCapabilities::getCSConstantBoolCount() const
     {
         return mCSConstantBoolCount;
     }
 
     //--------------------------------------------------------------------------
 
-    inline int32_t RendererCapabilities::getGSNumOutputVertices() const
+    inline int32_t RenderCapabilities::getGSNumOutputVertices() const
     {
         return mGSNumOutputVertices;
     }
 
     //--------------------------------------------------------------------------
 
-    inline Real RendererCapabilities::getMaxPointSize() const
+    inline Real RenderCapabilities::getMaxPointSize() const
     {
         return mMaxPointSize;
     }
 
     //--------------------------------------------------------------------------
 
-    inline Real RendererCapabilities::getMaxAnisotropy() const
+    inline Real RenderCapabilities::getMaxAnisotropy() const
     {
         return mMaxAnisotropy;
     }
 
     //--------------------------------------------------------------------------
 
-    inline bool RendererCapabilities::isNPOTLimited() const
+    inline bool RenderCapabilities::isNPOTLimited() const
     {
         return mNPOTLimited;
     }
 
     //--------------------------------------------------------------------------
 
-    inline bool RendererCapabilities::hasCapabilities(Capabilities cap) const
+    inline bool RenderCapabilities::hasCapabilities(Capabilities cap) const
     {
         bool ret = false;
         int32_t idx = (CAPS_CATEGORY_MASK & cap) >> CAPS_BITSHIFT;
@@ -257,7 +257,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline bool RendererCapabilities::isCapabilityRendererSpecific(
+    inline bool RenderCapabilities::isCapabilityRendererSpecific(
         Capabilities cap) const
     {
         int cat = cap >> CAPS_BITSHIFT;
@@ -272,7 +272,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void RendererCapabilities::setCapability(Capabilities cap)
+    inline void RenderCapabilities::setCapability(Capabilities cap)
     {
         int index = (CAPS_CATEGORY_MASK & cap) >> CAPS_BITSHIFT;
         mCapabilities[index] |= (cap & ~CAPS_CATEGORY_MASK);
@@ -280,7 +280,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    inline void RendererCapabilities::unsetCapability(Capabilities cap)
+    inline void RenderCapabilities::unsetCapability(Capabilities cap)
     {
         int index = (CAPS_CATEGORY_MASK & cap) >> CAPS_BITSHIFT;
         mCapabilities[index] &= (~cap | CAPS_CATEGORY_MASK);

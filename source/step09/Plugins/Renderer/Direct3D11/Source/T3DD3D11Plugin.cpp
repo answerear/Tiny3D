@@ -19,7 +19,7 @@
 
 
 #include "T3DD3D11Plugin.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 #include "T3DD3D11GPUProgramCreator.h"
 #include "T3DD3D11Sampler.h"
 
@@ -63,7 +63,7 @@ namespace Tiny3D
 
         do
         {
-            mRenderer = D3D11Renderer::create();
+            mRenderer = D3D11Context::create();
             if (mRenderer != nullptr)
             {
                 ret = T3D_AGENT.addRenderer(mRenderer);

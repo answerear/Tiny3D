@@ -23,7 +23,7 @@
 
 
 #include "Component/T3DComponent.h"
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderContext.h"
 #include "Render/T3DVertexArrayObject.h"
 #include "Resource/T3DMaterial.h"
 

@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_HARDWARE_BUFFER_MANAGER_H__
-#define __T3D_D3D11_HARDWARE_BUFFER_MANAGER_H__
+#ifndef __T3D_D3D11_BUFFER_MANAGER_H__
+#define __T3D_D3D11_BUFFER_MANAGER_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -31,25 +31,25 @@ namespace Tiny3D
      * @class   D3D11HardwareBufferManager
      * @brief   DirectX 11 GPU 缓冲区管理器.
      */
-    class D3D11HardwareBufferManager : public HardwareBufferManagerBase
+    class D3D11BufferManager : public HardwareBufferManagerBase
     {
         T3D_DECLARE_CLASS();
 
     public:
         /**
-         * @fn  static D3D11HardwareBufferManagerPtr 
+         * @fn  static D3D11BufferManagerPtr 
          *      D3D11HardwareBufferManager::create();
          * @brief   创建 DirectX 11 渲染器相关的 GPU 缓冲区管理对象
          * @returns 返回一个 DirectX 11 渲染器相关 GPU 缓冲区管理对象.
          */
-        static D3D11HardwareBufferManagerPtr create();
+        static D3D11BufferManagerPtr create();
 
         /**
          * @fn  virtual 
          *      D3D11HardwareBufferManager::~D3D11HardwareBufferManager();
          * @brief   析构函数
          */
-        virtual ~D3D11HardwareBufferManager();
+        virtual ~D3D11BufferManager();
 
         /**
          * @fn  virtual HardwareVertexBufferPtr 
@@ -172,9 +172,9 @@ namespace Tiny3D
          * @fn  D3D11HardwareBufferManager::D3D11HardwareBufferManager();
          * @brief   构造函数
          */
-        D3D11HardwareBufferManager();
+        D3D11BufferManager();
     };
 }
 
 
-#endif  /*__T3D_D3D11_HARDWARE_BUFFER_MANAGER_H__*/
+#endif  /*__T3D_D3D11_BUFFER_MANAGER_H__*/

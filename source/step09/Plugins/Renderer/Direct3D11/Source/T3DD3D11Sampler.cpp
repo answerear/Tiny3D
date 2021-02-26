@@ -20,7 +20,7 @@
 
 #include "T3DD3D11Sampler.h"
 #include "T3DD3D11Mappings.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
@@ -134,7 +134,7 @@ namespace Tiny3D
             d3dDesc.MinLOD = 0;
             d3dDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
             HRESULT hr = S_OK;
             hr = pD3DDevice->CreateSamplerState(&d3dDesc, &mD3DSampler);
             if (FAILED(hr))

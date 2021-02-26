@@ -46,7 +46,7 @@
 
 #include "Memory/T3DObjectTracer.h"
 
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderContext.h"
 
 #include "Scene/T3DSceneManager.h"
 #include "Scene/T3DDefaultSceneMgr.h"
@@ -726,7 +726,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::setActiveRenderer(RendererPtr renderer)
+    TResult Agent::setActiveRenderer(RenderContextPtr renderer)
     {
         TResult ret = T3D_OK;
 
@@ -750,14 +750,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RendererPtr Agent::getActiveRenderer() const
+    RenderContextPtr Agent::getActiveRenderer() const
     {
         return mActiveRenderer;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::addRenderer(RendererPtr renderer)
+    TResult Agent::addRenderer(RenderContextPtr renderer)
     {
         const String &name = renderer->getName();
         auto r = mRenderers.insert(RenderersValue(name, renderer));
@@ -771,7 +771,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::removeRenderer(RendererPtr renderer)
+    TResult Agent::removeRenderer(RenderContextPtr renderer)
     {
         auto itr = mRenderers.find(renderer->getName());
 
@@ -787,9 +787,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RendererPtr Agent::getRenderer(const String &name) const
+    RenderContextPtr Agent::getRenderer(const String &name) const
     {
-        RendererPtr renderer = nullptr;
+        RenderContextPtr renderer = nullptr;
         auto itr = mRenderers.find(name);
 
         if (itr != mRenderers.end())
@@ -1069,7 +1069,7 @@ namespace Tiny3D
             String rendererName = settings["Renderer"].stringValue();
 
             // 设置当前要使用的渲染器
-            RendererPtr renderer = getRenderer(rendererName);
+            RenderContextPtr renderer = getRenderer(rendererName);
             if (renderer == nullptr)
             {
                 ret = T3D_ERR_PLG_NOT_LOADED;

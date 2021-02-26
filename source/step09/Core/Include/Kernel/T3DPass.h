@@ -31,8 +31,8 @@
 #include "Resource/T3DGPUProgram.h"
 #include "Resource/T3DGPUConstBuffer.h"
 #include "Kernel/T3DTextureUnit.h"
-#include "Render/T3DRenderer.h"
-#include "Render/T3DRendererCapabilities.h"
+#include "Render/T3DRenderContext.h"
+#include "Render/T3DRenderCapabilities.h"
 
 
 namespace Tiny3D

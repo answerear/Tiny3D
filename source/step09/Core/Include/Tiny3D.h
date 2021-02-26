@@ -79,8 +79,8 @@
 #include <ImageCodec/T3DImage.h>
 
 // Render
-#include <Render/T3DRenderer.h>
-#include <Render/T3DRendererCapabilities.h>
+#include <Render/T3DRenderContext.h>
+#include <Render/T3DRenderCapabilities.h>
 #include <Render/T3DRenderQueue.h>
 #include <Render/T3DRenderTarget.h>
 #include <Render/T3DRenderWindow.h>

@@ -19,7 +19,7 @@
 
 
 #include "T3DD3D11PixelShader.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
@@ -70,7 +70,7 @@ namespace Tiny3D
 
         do 
         {
-            D3D_FEATURE_LEVEL featureLevel = D3D11_RENDERER.getFeatureLevel();
+            D3D_FEATURE_LEVEL featureLevel = D3D11_CONTEXT.getFeatureLevel();
 
             if (featureLevel >= D3D_FEATURE_LEVEL_11_0)
             {
@@ -89,7 +89,7 @@ namespace Tiny3D
             if (mD3DPixelShader == nullptr)
             {
                 // 创建 ID3D11PixelShader 对象
-                ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+                ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
 
                 HRESULT hr = S_OK;
                 hr = pD3DDevice->CreatePixelShader(mContent, mContentLength,
@@ -167,7 +167,7 @@ namespace Tiny3D
             if (mD3DPixelShader != nullptr)
             {
                 // 创建 ID3D11VertexShader 对象
-                ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+                ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
 
                 HRESULT hr = S_OK;
                 hr = pD3DDevice->CreatePixelShader(mContent, mContentLength,

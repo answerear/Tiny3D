@@ -25,7 +25,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DObject.h"
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderContext.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 
 
@@ -163,18 +163,18 @@ namespace Tiny3D
         typedef Indices::const_iterator IndicesConstItr;
 
         static SubMeshDataPtr create(const String &name, 
-            const String &materialName, Renderer::PrimitiveType priType, 
+            const String &materialName, RenderContext::PrimitiveType priType, 
             bool is16Bits, size_t indexCount);
 
         String                  mName;
         String                  mMaterialName;
-        Renderer::PrimitiveType mPrimitiveType;
+        RenderContext::PrimitiveType mPrimitiveType;
         bool                    mIs16Bits;
         Indices                 mIndices;
 
     protected:
         SubMeshData(const String &name, const String &materialName, 
-            Renderer::PrimitiveType priType, bool is16Bits, size_t indexCount);
+            RenderContext::PrimitiveType priType, bool is16Bits, size_t indexCount);
     };
 
     //--------------------------------------------------------------------------

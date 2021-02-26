@@ -102,7 +102,7 @@ namespace Tiny3D
         mActualWidth = size_t(nWidth * mWidth);
         mActualHeight = size_t(nHeight * mHeight);
 
-        RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+        RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
         mMatrix = renderer->makeViewportMatrix(this);
     }
 }

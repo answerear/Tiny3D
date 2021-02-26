@@ -102,8 +102,8 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Viewport);
 
-    T3D_DECLARE_SMART_PTR(Renderer);
-    T3D_DECLARE_SMART_PTR(RendererCapabilities);
+    T3D_DECLARE_SMART_PTR(RenderContext);
+    T3D_DECLARE_SMART_PTR(RenderCapabilities);
 
     T3D_DECLARE_SMART_PTR(RenderGroup);
     T3D_DECLARE_SMART_PTR(RenderQueue);
@@ -148,7 +148,7 @@ namespace Tiny3D
 
     typedef VariantMap                      Settings;
 
-    typedef TMap<String, RendererPtr>       Renderers;
+    typedef TMap<String, RenderContextPtr>       Renderers;
     typedef Renderers::iterator             RenderersItr;
     typedef Renderers::const_iterator       RenderersConstItr;
     typedef Renderers::value_type           RenderersValue;

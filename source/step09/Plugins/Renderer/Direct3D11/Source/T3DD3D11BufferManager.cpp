@@ -18,11 +18,11 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11HardwareBufferManager.h"
-#include "T3DD3D11HardwareVertexBuffer.h"
-#include "T3DD3D11HardwareIndexBuffer.h"
-#include "T3DD3D11HardwarePixelBuffer.h"
-#include "T3DD3D11HardwareConstantBuffer.h"
+#include "T3DD3D11BufferManager.h"
+#include "T3DD3D11VertexBuffer.h"
+#include "T3DD3D11IndexBuffer.h"
+#include "T3DD3D11PixelBuffer.h"
+#include "T3DD3D11ConstantBuffer.h"
 #include "T3DD3D11VertexDeclaration.h"
 #include "T3DD3D11VertexArrayObject.h"
 
@@ -31,74 +31,74 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11HardwareBufferManager, HardwareBufferManagerBase);
+    T3D_IMPLEMENT_CLASS_1(D3D11BufferManager, HardwareBufferManagerBase);
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareBufferManagerPtr D3D11HardwareBufferManager::create()
+    D3D11BufferManagerPtr D3D11BufferManager::create()
     {
-        D3D11HardwareBufferManagerPtr mgr = new D3D11HardwareBufferManager();
+        D3D11BufferManagerPtr mgr = new D3D11BufferManager();
         mgr->release();
         return mgr;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareBufferManager::D3D11HardwareBufferManager()
+    D3D11BufferManager::D3D11BufferManager()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareBufferManager::~D3D11HardwareBufferManager()
+    D3D11BufferManager::~D3D11BufferManager()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    HardwareVertexBufferPtr D3D11HardwareBufferManager::createVertexBuffer(
+    HardwareVertexBufferPtr D3D11BufferManager::createVertexBuffer(
         size_t vertexSize, size_t vertexCount, const void *vertices,
         HardwareBuffer::Usage usage, uint32_t mode)
     {
-        return D3D11HardwareVertexBuffer::create(vertexSize, vertexCount, 
+        return D3D11VertexBuffer::create(vertexSize, vertexCount, 
             vertices, usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
-    HardwareIndexBufferPtr D3D11HardwareBufferManager::createIndexBuffer(
+    HardwareIndexBufferPtr D3D11BufferManager::createIndexBuffer(
         HardwareIndexBuffer::Type indexType, size_t indexCount, 
         const void *indices, HardwareBuffer::Usage usage, uint32_t mode)
     {
-        return D3D11HardwareIndexBuffer::create(indexType, indexCount, indices,
+        return D3D11IndexBuffer::create(indexType, indexCount, indices,
             usage, mode);
     }
 
     //--------------------------------------------------------------------------
 
-    HardwarePixelBufferPtr D3D11HardwareBufferManager::createPixelBuffer(
+    HardwarePixelBufferPtr D3D11BufferManager::createPixelBuffer(
         size_t width, size_t height, PixelFormat format, const void *pixels,
         HardwareBuffer::Usage usage, uint32_t mode, size_t mipmaps)
     {
-        return D3D11HardwarePixelBuffer::create(width, height, format, pixels, 
+        return D3D11PixelBuffer::create(width, height, format, pixels, 
             usage, mode, mipmaps);
     }
 
     //--------------------------------------------------------------------------
 
-    HardwareConstantBufferPtr D3D11HardwareBufferManager::createConstantBuffer(
+    HardwareConstantBufferPtr D3D11BufferManager::createConstantBuffer(
         size_t bufSize, const void *buffer,
         HardwareBuffer::Usage usage, uint32_t mode)
     {
-        return D3D11HardwareConstantBuffer::create(bufSize, buffer, usage,
+        return D3D11ConstantBuffer::create(bufSize, buffer, usage,
             mode);
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr D3D11HardwareBufferManager::createVertexArrayObject(
+    VertexArrayObjectPtr D3D11BufferManager::createVertexArrayObject(
         bool useIndices)
     {
         return D3D11VertexArrayObject::create(useIndices);
@@ -106,7 +106,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr D3D11HardwareBufferManager::createVertexDeclaration()
+    VertexDeclarationPtr D3D11BufferManager::createVertexDeclaration()
     {
         return D3D11VertexDeclaration::create();
     }

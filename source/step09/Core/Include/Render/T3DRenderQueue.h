@@ -64,7 +64,7 @@ namespace Tiny3D
          * @param [in] renderer : 渲染器对象
          * @return 成功返回 T3D_OK
          */
-        TResult render(ID groupID, RendererPtr renderer);
+        TResult render(ID groupID, RenderContextPtr renderer);
 
     protected:
         /**
@@ -149,7 +149,7 @@ namespace Tiny3D
          * @param [in] renderer : 渲染器
          * @return 成功返回 T3D_OK
          */
-        TResult render(RendererPtr renderer);
+        TResult render(RenderContextPtr renderer);
 
     protected:
         /**

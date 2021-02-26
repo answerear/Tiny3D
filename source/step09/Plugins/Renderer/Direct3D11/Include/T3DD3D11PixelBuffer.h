@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_HARDWARE_PIXEL_BUFFER_H__
-#define __T3D_D3D11_HARDWARE_PIXEL_BUFFER_H__
+#ifndef __T3D_D3D11_PIXEL_BUFFER_H__
+#define __T3D_D3D11_PIXEL_BUFFER_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -31,13 +31,13 @@ namespace Tiny3D
      * @class   D3D11HardwarePixelBuffer
      * @brief   DirectX 11 渲染器相关的像素缓冲区类
      */
-    class D3D11HardwarePixelBuffer : public HardwarePixelBuffer
+    class D3D11PixelBuffer : public HardwarePixelBuffer
     {
         T3D_DECLARE_CLASS();
 
     public:
         /**
-         * @fn  static D3D11HardwarePixelBufferPtr 
+         * @fn  static D3D11PixelBufferPtr 
          *      D3D11HardwarePixelBuffer::create(size_t width, size_t height, 
          *      PixelFormat format, const void *pixels, Usage usage, 
          *      uint32_t mode);
@@ -50,7 +50,7 @@ namespace Tiny3D
          * @param [in]  mode    缓冲区访问方式.
          * @returns 返回一个 GPU 像素缓冲区对象.
          */
-        static D3D11HardwarePixelBufferPtr create(size_t width, size_t height,
+        static D3D11PixelBufferPtr create(size_t width, size_t height,
             PixelFormat format, const void *pixels, Usage usage, uint32_t mode,
             size_t mipmaps);
 
@@ -58,7 +58,7 @@ namespace Tiny3D
          * @fn  virtual D3D11HardwarePixelBuffer::~D3D11HardwarePixelBuffer();
          * @brief   析构函数
          */
-        virtual ~D3D11HardwarePixelBuffer();
+        virtual ~D3D11PixelBuffer();
 
         /**
          * @fn  virtual TResult D3D11HardwarePixelBuffer::readImage(
@@ -120,7 +120,7 @@ namespace Tiny3D
          * @param [in]  usage   缓冲区用途.
          * @param [in]  mode    缓冲区访问方式.
          */
-        D3D11HardwarePixelBuffer(size_t width, size_t height,
+        D3D11PixelBuffer(size_t width, size_t height,
             PixelFormat format, Usage usage, uint32_t mode, size_t mipmaps);
 
         /**
@@ -162,4 +162,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_D3D11_HARDWARE_PIXEL_BUFFER_H__*/
+#endif  /*__T3D_D3D11_PIXEL_BUFFER_H__*/

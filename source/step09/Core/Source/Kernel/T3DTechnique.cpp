@@ -22,8 +22,8 @@
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPass.h"
 #include "T3DErrorDef.h"
-#include "Render/T3DRenderer.h"
-#include "Render/T3DRendererCapabilities.h"
+#include "Render/T3DRenderContext.h"
+#include "Render/T3DRenderCapabilities.h"
 
 
 namespace Tiny3D
@@ -69,8 +69,8 @@ namespace Tiny3D
 
         do 
         {
-            RendererPtr renderer = T3D_AGENT.getActiveRenderer();
-            RendererCapabilitiesPtr caps = renderer->getRendererCapabilities();
+            RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
+            RenderCapabilitiesPtr caps = renderer->getRendererCapabilities();
             size_t numTexUnits = caps->getNumTextureUnits();
 
             for (auto i = mPasses.begin(); i != mPasses.end(); ++i)

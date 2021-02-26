@@ -158,7 +158,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SubMeshDataPtr SubMeshData::create(const String &name,
-        const String &materialName, Renderer::PrimitiveType priType,
+        const String &materialName, RenderContext::PrimitiveType priType,
         bool is16Bits, size_t indexCount)
     {
         SubMeshDataPtr submesh = new SubMeshData(name, materialName, priType, 
@@ -170,7 +170,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SubMeshData::SubMeshData(const String &name, const String &materialName,
-        Renderer::PrimitiveType priType, bool is16Bits, size_t indexCount)
+        RenderContext::PrimitiveType priType, bool is16Bits, size_t indexCount)
         : mName(name)
         , mMaterialName(materialName)
         , mPrimitiveType(priType)

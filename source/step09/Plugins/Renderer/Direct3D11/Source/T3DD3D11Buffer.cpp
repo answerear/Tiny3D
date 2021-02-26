@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11HardwareBuffer.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Buffer.h"
+#include "T3DD3D11Context.h"
 #include "T3DD3D11Mappings.h"
 #include "T3DD3D11Error.h"
 
@@ -28,16 +28,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11HardwareBuffer, HardwareBuffer);
+    T3D_IMPLEMENT_CLASS_1(D3D11Buffer, HardwareBuffer);
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareBufferPtr D3D11HardwareBuffer::create(BufferType type, 
+    D3D11BufferPtr D3D11Buffer::create(BufferType type, 
         size_t dataSize, const void *data, Usage usage, uint32_t mode, 
         bool streamOut)
     {
-        D3D11HardwareBufferPtr buffer 
-            = new D3D11HardwareBuffer(usage, mode);
+        D3D11BufferPtr buffer 
+            = new D3D11Buffer(usage, mode);
         buffer->release();
         if (buffer->init(type, dataSize, data, streamOut) != T3D_OK)
         {
@@ -48,7 +48,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareBuffer::D3D11HardwareBuffer(Usage usage, 
+    D3D11Buffer::D3D11Buffer(Usage usage, 
         uint32_t mode)
         : HardwareBuffer(usage, mode)
         , mD3DBuffer(nullptr)
@@ -58,14 +58,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareBuffer::~D3D11HardwareBuffer()
+    D3D11Buffer::~D3D11Buffer()
     {
         D3D_SAFE_RELEASE(mD3DBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareBuffer::init(BufferType type, size_t dataSize, 
+    TResult D3D11Buffer::init(BufferType type, size_t dataSize, 
         const void *data, bool streamOut)
     {
         TResult ret = T3D_OK;
@@ -131,7 +131,7 @@ namespace Tiny3D
             desc.BindFlags = bindFlags;
             desc.CPUAccessFlags = d3dAccess;
 
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
             HRESULT hr = S_OK;
             hr = pD3DDevice->CreateBuffer(&desc, &d3dData, &mD3DBuffer);
             if (FAILED(hr))
@@ -148,7 +148,7 @@ namespace Tiny3D
                 && mAccessMode == AccessMode::CPU_WRITE)
             {
                 // 需要借助 stage 缓冲区更新 default 缓冲区
-                mStageBuffer = D3D11HardwareBuffer::create(type, dataSize, data,
+                mStageBuffer = D3D11Buffer::create(type, dataSize, data,
                     Usage::STREAM, AccessMode::GPU_COPY, streamOut);
 
                 if (mStageBuffer == nullptr)
@@ -168,7 +168,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareBuffer::readData(size_t offset, size_t size,
+    size_t D3D11Buffer::readData(size_t offset, size_t size,
         void *dst)
     {
         size_t bytesOfRead = 0;
@@ -196,7 +196,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareBuffer::writeData(size_t offset, size_t size,
+    size_t D3D11Buffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
         size_t bytesOfWritten = 0;
@@ -237,7 +237,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareBuffer::copyData(HardwareBufferPtr srcBuffer, 
+    size_t D3D11Buffer::copyData(HardwareBufferPtr srcBuffer, 
         size_t srcOffset, size_t dstOffset, size_t size, 
         bool discardWholeBuffer)
     {
@@ -246,9 +246,9 @@ namespace Tiny3D
         if (srcOffset == 0 && dstOffset == 0
             && size == mBufferSize && mBufferSize == srcBuffer->getBufferSize())
         {
-            ID3D11DeviceContext *pContext = D3D11_RENDERER.getD3DDeviceContext();
-            D3D11HardwareBufferPtr src 
-                = smart_pointer_cast<D3D11HardwareBuffer>(srcBuffer);
+            ID3D11DeviceContext *pContext = D3D11_CONTEXT.getD3DDeviceContext();
+            D3D11BufferPtr src 
+                = smart_pointer_cast<D3D11Buffer>(srcBuffer);
             pContext->CopyResource(mD3DBuffer, src->getD3DBuffer());
             sizeOfCopied = size;
         }
@@ -262,9 +262,9 @@ namespace Tiny3D
             srcBox.front = 0;
             srcBox.back = 1;
 
-            ID3D11DeviceContext *pContext = D3D11_RENDERER.getD3DDeviceContext();
-            D3D11HardwareBufferPtr src
-                = smart_pointer_cast<D3D11HardwareBuffer>(srcBuffer);
+            ID3D11DeviceContext *pContext = D3D11_CONTEXT.getD3DDeviceContext();
+            D3D11BufferPtr src
+                = smart_pointer_cast<D3D11Buffer>(srcBuffer);
             pContext->CopySubresourceRegion(mD3DBuffer, 0, (UINT)dstOffset, 0, 0,
                 src->getD3DBuffer(), 0, &srcBox);
             sizeOfCopied = size;
@@ -275,7 +275,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *D3D11HardwareBuffer::lockImpl(size_t offset, size_t size,
+    void *D3D11Buffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
         uint8_t *pLockedData = nullptr;
@@ -288,7 +288,7 @@ namespace Tiny3D
                 break;
             }
 
-            ID3D11DeviceContext *pContext = D3D11_RENDERER.getD3DDeviceContext();
+            ID3D11DeviceContext *pContext = D3D11_CONTEXT.getD3DDeviceContext();
 
             D3D11_MAP d3dMapType = D3D11Mappings::get(options);
             D3D11_MAPPED_SUBRESOURCE d3dMappedData;
@@ -320,7 +320,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareBuffer::unlockImpl()
+    TResult D3D11Buffer::unlockImpl()
     {
         TResult ret = T3D_OK;
 
@@ -339,7 +339,7 @@ namespace Tiny3D
             else
             {
                 ID3D11DeviceContext *pContext 
-                    = D3D11_RENDERER.getD3DDeviceContext();
+                    = D3D11_CONTEXT.getD3DDeviceContext();
                 pContext->Unmap(mD3DBuffer, 0);
             }
         } while (0);
@@ -349,7 +349,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareBuffer::checkLockOptions(LockOptions options)
+    TResult D3D11Buffer::checkLockOptions(LockOptions options)
     {
         TResult ret = T3D_OK;
 

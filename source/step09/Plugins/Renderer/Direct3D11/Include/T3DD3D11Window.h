@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_RENDER_WINDOW_H__
-#define __T3D_D3D11_RENDER_WINDOW_H__
+#ifndef __T3D_D3D11_WINDOW_H__
+#define __T3D_D3D11_WINDOW_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -31,7 +31,7 @@ namespace Tiny3D
      * @class   D3D11RenderWindow
      * @brief   DirectX 11 渲染窗口.
      */
-    class D3D11RenderWindow : public RenderWindow
+    class D3D11Window : public RenderWindow
     {
         T3D_DECLARE_CLASS();
 
@@ -41,13 +41,13 @@ namespace Tiny3D
          * @param [in] name : 渲染窗口名字
          * @return 返回一个渲染窗口对象
          */
-        static D3D11RenderWindowPtr create(const String &name);
+        static D3D11WindowPtr create(const String &name);
 
         /**
          * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
          * @brief   析构函数
          */
-        virtual ~D3D11RenderWindow();
+        virtual ~D3D11Window();
 
         /**
          * @fn  virtual TResult D3D11RenderWindow::create(
@@ -98,7 +98,7 @@ namespace Tiny3D
          * @brief   Constructor
          * @param   name    The name.
          */
-        D3D11RenderWindow(const String &name);
+        D3D11Window(const String &name);
 
         /**
          * @fn  TResult D3D11RenderWindow::loadIcon(const String &iconPath);
@@ -168,4 +168,4 @@ namespace Tiny3D
 
 
 
-#endif  /*__T3D_D3D11_RENDER_WINDOW_H__*/
+#endif  /*__T3D_D3D11_WINDOW_H__*/

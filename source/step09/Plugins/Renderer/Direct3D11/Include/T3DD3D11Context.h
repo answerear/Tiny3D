@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+#ifndef __T3D_D3D11_CONTEXT_H__
+#define __T3D_D3D11_CONTEXT_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -31,25 +31,25 @@ namespace Tiny3D
      * @class   D3D11Renderer
      * @brief   DirectX 11 渲染器.
      */
-    class D3D11Renderer 
-        : public Renderer
-        , public Singleton<D3D11Renderer>
+    class D3D11Context 
+        : public RenderContext
+        , public Singleton<D3D11Context>
     {
         T3D_DECLARE_CLASS();
 
     public:
         /**
-         * @fn  static D3D11RendererPtr create();
+         * @fn  static D3D11ContextPtr create();
          * @brief   创建一个D3D11Renderer对象
          * @returns 返回一个新建对象.
          */
-        static D3D11RendererPtr create();
+        static D3D11ContextPtr create();
 
         /**
          * @fn  virtual ~D3D11Renderer();
          * @brief   析构函数
          */
-        virtual ~D3D11Renderer();
+        virtual ~D3D11Context();
 
         /**
          * @fn  virtual TResult init() override;
@@ -93,7 +93,7 @@ namespace Tiny3D
          * @returns 调用成功返回一个渲染平台相关的渲染器能力组对象
          * @remarks 具体渲染系统实现本接口
          */
-        virtual RendererCapabilitiesPtr createRendererCapabilities() const override;
+        virtual RenderCapabilitiesPtr createRendererCapabilities() const override;
 
         /**
          * @fn  virtual Matrix4 perspective(const Radian &amp;fovY, Real aspect,
@@ -247,7 +247,7 @@ namespace Tiny3D
          * @fn  D3D11Renderer();
          * @brief   构造函数
          */
-        D3D11Renderer();
+        D3D11Context();
 
         /**
          * @fn  TResult initD3DRasterizerState();
@@ -292,8 +292,8 @@ namespace Tiny3D
         bool        mIsRSStateDirty;    /**< 光栅化状态是否有改变标识 */
     };
 
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
+    #define D3D11_CONTEXT      (D3D11Context::getInstance())
 }
 
 
-#endif  /*__T3D_D3D11_RENDERER_H__*/
+#endif  /*__T3D_D3D11_CONTEXT_H__*/

@@ -19,7 +19,7 @@
 
 
 #include "T3DD3D11Mappings.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
@@ -152,25 +152,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11_PRIMITIVE_TOPOLOGY D3D11Mappings::get(Renderer::PrimitiveType primitive)
+    D3D11_PRIMITIVE_TOPOLOGY D3D11Mappings::get(RenderContext::PrimitiveType primitive)
     {
         D3D11_PRIMITIVE_TOPOLOGY d3dPrimitive;
 
         switch (primitive)
         {
-        case Renderer::PrimitiveType::E_PT_POINT_LIST:
+        case RenderContext::PrimitiveType::E_PT_POINT_LIST:
             d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
             break;
-        case Renderer::PrimitiveType::E_PT_LINE_LIST:
+        case RenderContext::PrimitiveType::E_PT_LINE_LIST:
             d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
             break;
-        case Renderer::PrimitiveType::E_PT_LINE_STRIP:
+        case RenderContext::PrimitiveType::E_PT_LINE_STRIP:
             d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
             break;
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_LIST:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_LIST:
             d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
             break;
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_STRIP:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_STRIP:
             d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
             break;
         default:
@@ -436,7 +436,7 @@ namespace Tiny3D
 
     D3D11_TEXTURE_ADDRESS_MODE D3D11Mappings::get(TextureAddressMode mode)
     {
-        if (D3D11_RENDERER.getFeatureLevel() == D3D_FEATURE_LEVEL_9_1)
+        if (D3D11_CONTEXT.getFeatureLevel() == D3D_FEATURE_LEVEL_9_1)
             return D3D11_TEXTURE_ADDRESS_WRAP;
 
         switch (mode)

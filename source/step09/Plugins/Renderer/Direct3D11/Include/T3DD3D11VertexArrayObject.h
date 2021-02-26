@@ -73,7 +73,7 @@ namespace Tiny3D
          * @return  A TResult.
          */
         virtual TResult setPrimitiveType(
-            Renderer::PrimitiveType priType) override;
+            RenderContext::PrimitiveType priType) override;
 
         /**
          * @fn  virtual Renderer::PrimitiveType 
@@ -81,7 +81,7 @@ namespace Tiny3D
          * @brief   获取渲染图元类型，实现基类接口
          * @return  The primitive type.
          */
-        virtual Renderer::PrimitiveType getPrimitiveType() const override;
+        virtual RenderContext::PrimitiveType getPrimitiveType() const override;
 
         /**
          * @fn  virtual TResult D3D11VertexArrayObject::setVertexDeclaration(
@@ -192,7 +192,7 @@ namespace Tiny3D
         typedef VBOList::iterator                   VBOListItr;
         typedef VBOList::const_iterator             VBOListConstItr;
 
-        Renderer::PrimitiveType mPrimitiveType; /**< 渲染图元 */
+        RenderContext::PrimitiveType mPrimitiveType; /**< 渲染图元 */
 
         VertexDeclarationPtr    mDecl;          /**< 顶点声明对象 */
         VBOList                 mVBOList;       /**< 顶点缓冲区对象集合 */

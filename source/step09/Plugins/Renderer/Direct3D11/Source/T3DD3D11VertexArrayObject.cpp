@@ -19,7 +19,7 @@
 
 
 #include "T3DD3D11VertexArrayObject.h"
-#include "T3DD3D11HardwareVertexBuffer.h"
+#include "T3DD3D11VertexBuffer.h"
 #include "T3DD3D11Error.h"
 
 
@@ -41,7 +41,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     D3D11VertexArrayObject::D3D11VertexArrayObject(bool useIndices)
-        : mPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST)
+        : mPrimitiveType(RenderContext::PrimitiveType::E_PT_TRIANGLE_LIST)
         , mDecl(nullptr)
         , mIBO(nullptr)
         , mUseIndices(useIndices)
@@ -97,8 +97,8 @@ namespace Tiny3D
 
             while (itr != mVBOList.end())
             {
-                D3D11HardwareVertexBufferPtr vbo =
-                    smart_pointer_cast<D3D11HardwareVertexBuffer>(*itr);
+                D3D11VertexBufferPtr vbo =
+                    smart_pointer_cast<D3D11VertexBuffer>(*itr);
                 mD3D11Buffers[i] = vbo->getD3D11Buffer();
                 mD3D11BufferStrides[i] = (UINT)vbo->getVertexSize();
                 mD3D11BufferOffsets[i] = 0;
@@ -112,7 +112,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult D3D11VertexArrayObject::setPrimitiveType(
-        Renderer::PrimitiveType priType)
+        RenderContext::PrimitiveType priType)
     {
         mPrimitiveType = priType;
         setDirty(true);
@@ -121,7 +121,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Renderer::PrimitiveType D3D11VertexArrayObject::getPrimitiveType() const
+    RenderContext::PrimitiveType D3D11VertexArrayObject::getPrimitiveType() const
     {
         return mPrimitiveType;
     }

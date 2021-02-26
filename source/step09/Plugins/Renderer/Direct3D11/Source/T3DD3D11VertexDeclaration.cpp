@@ -20,7 +20,7 @@
 
 #include "T3DD3D11VertexDeclaration.h"
 #include "T3DD3D11Mappings.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 #include "T3DD3D11VertexShader.h"
 
 
@@ -177,7 +177,7 @@ namespace Tiny3D
                     ++itr;
                 }
 
-                ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+                ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
 
                 const char *bytecode = nullptr;
                 size_t bytecodeLength = 0;

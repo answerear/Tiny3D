@@ -880,7 +880,7 @@ namespace Tiny3D
 
     inline void Pass::setPointSpritesEnabled(bool enabled)
     {
-        RendererCapabilitiesPtr caps = T3D_AGENT.getActiveRenderer()->getRendererCapabilities();
+        RenderCapabilitiesPtr caps = T3D_AGENT.getActiveRenderer()->getRendererCapabilities();
         if (!caps->hasCapabilities(Capabilities::POINT_SPRITES))
             return;
 

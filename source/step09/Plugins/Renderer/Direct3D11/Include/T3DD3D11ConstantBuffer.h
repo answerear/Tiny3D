@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
- * For latest info, see https://github.com/answerear/Tiny3D
+ * For latest info, see https://github.com/answerear/D3D11
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,52 +18,50 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_HARDWARE_INDEX_BUFFER_H__
-#define __T3D_D3D11_HARDWARE_INDEX_BUFFER_H__
+#ifndef __T3D_D3D11_CONSTANT_BUFFER_H__
+#define __T3D_D3D11_CONSTANT_BUFFER_H__
 
 
 #include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11HardwareBuffer.h"
+#include "T3DD3D11Buffer.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @class   D3D11HardwareIndexBuffer.
-     * @brief   DirectX 11 渲染器相关的索引缓冲区类
+     * @class   D3D11HardwareConstantBuffer
+     * @brief   DirectX 11 渲染器相关的常量缓冲区类
      */
-    class D3D11HardwareIndexBuffer : public HardwareIndexBuffer
+    class D3D11ConstantBuffer : public HardwareConstantBuffer
     {
         T3D_DECLARE_CLASS();
 
     public:
         /**
-         * @fn  static D3D11HardwareIndexBufferPtr 
-         *      D3D11HardwareIndexBuffer::create(Type indexType, 
-         *      size_t indexCount, const void *indices, 
-         *      HardwareBuffer::Usage usage, uint32_t mode);
-         * @brief   创建 Direct3D9 渲染器相关的索引缓冲区对象
-         * @param [in]  indexType   索引类型.
-         * @param [in]  indexCount  索引数量.
-         * @param [in]  indices     索引数据.
-         * @param [in]  usage       缓冲区使用方式.
-         * @param [in]  mode        缓冲区访问方式.
-         * @returns 返回 DirectX 11 相关的 GPU 索引缓冲区对象.
+         * @fn  static D3D11ConstantBufferPtr 
+         *      D3D11HardwareConstantBuffer::create(size_t bufSize, 
+         *      const void *buffer, Usage usage, uint32_t mode);
+         * @brief   创建 Direct X 11 渲染器相关的常量缓冲区对象
+         * @param   bufSize 缓冲区大小.
+         * @param   buffer  常量数据.
+         * @param   usage   缓冲区使用方式.
+         * @param   mode    缓冲区访问方式.
+         * @returns 返回新建的 DirectX 11 GPU 常量缓冲区对象.
          */
-        static D3D11HardwareIndexBufferPtr create(Type indexType,
-            size_t indexCount, const void *indices, HardwareBuffer::Usage usage,
-            uint32_t mode);
+        static D3D11ConstantBufferPtr create(size_t bufSize,
+            const void *buffer, Usage usage, uint32_t mode);
 
         /**
-         * @fn  virtual D3D11HardwareIndexBuffer::~D3D11HardwareIndexBuffer();
+         * @fn  virtual 
+         *      D3D11HardwareConstantBuffer::~D3D11HardwareConstantBuffer();
          * @brief   析构函数
          */
-        virtual ~D3D11HardwareIndexBuffer();
+        virtual ~D3D11ConstantBuffer();
 
         /**
-         * @fn  virtual size_t D3D11HardwareIndexBuffer::readData(size_t offset, 
-         *      size_t size, void *dst) override;
-         * @brief   从缓冲区读取数据出来。 实现基类接口
+         * @fn  virtual size_t D3D11HardwareConstantBuffer::readData(
+         *      size_t offset, size_t size, void *dst) override;
+         * @brief   从缓冲区读取数据出来，实现基类接口
          * @param [in]  offset  要读取的相对缓冲区首地址的偏移位置.
          * @param [in]  size    要读取缓冲区大小.
          * @param [in]  dst     存储返回读取到数据的缓冲区首地址.
@@ -74,10 +72,10 @@ namespace Tiny3D
         virtual size_t readData(size_t offset, size_t size, void *dst) override;
 
         /**
-         * @fn  virtual size_t D3D11HardwareIndexBuffer::writeData(
+         * @fn  virtual size_t D3D11HardwareConstantBuffer::writeData(
          *      size_t offset, size_t size, const void *src, 
          *      bool discardWholeBuffer = false) override;
-         * @brief   向缓冲区写数据。 实现基类接口
+         * @brief   向缓冲区写数据，实现基类接口
          * @param [in]  offset              要写入的相对缓冲区首地址的偏移位置.
          * @param [in]  size                要写入缓冲区大小.
          * @param [in]  src                 写入的数据地址.
@@ -89,39 +87,31 @@ namespace Tiny3D
         virtual size_t writeData(size_t offset, size_t size, const void *src,
             bool discardWholeBuffer = false) override;
 
-        /**
-         * @fn  ID3D11Buffer D3D11HardwareVertexBuffer::*getD3D11Buffer()
-         * @brief   获取 ID3D11Buffer 对象
-         * @returns 返回 ID3D11Buffer 对象.
-         */
-        ID3D11Buffer *getD3D11Buffer() { return mBufferImpl->getD3DBuffer(); }
+        ID3D11Buffer *getD3DBuffer() const { return mBufferImpl->getD3DBuffer(); }
 
     protected:
         /**
-         * @fn  D3D11HardwareIndexBuffer::D3D11HardwareIndexBuffer(
-         *      Type indexType, size_t indexCount, HardwareBuffer::Usage usage, 
-         *      bool useSystemMemory, bool useShadowBuffer);
+         * @fn  D3D11HardwareConstantBuffer::D3D11HardwareConstantBuffer(
+         *      size_t bufSize, Usage usage, uint32_t mode);
          * @brief   构造函数
-         * @param [in]  indexType   索引类型.
-         * @param [in]  indexCount  索引数量.
-         * @param [in]  usage       缓冲区使用方式.
-         * @param [in]  mode        缓冲区访问方式.
+         * @param [in]  bufSize 缓冲区大小.
+         * @param [in]  usage   缓冲区使用方式.
+         * @param [in]  mode    缓冲区访问方式.
          */
-        D3D11HardwareIndexBuffer(Type indexType, size_t indexCount,
-            HardwareBuffer::Usage usage, uint32_t mode);
+        D3D11ConstantBuffer(size_t bufSize, Usage usage, uint32_t mode);
 
         /**
          * @fn  virtual TResult 
-         *      D3D11HardwareIndexBuffer::init(const void *indices);
+         *      D3D11HardwareConstantBuffer::init(const void *buffer);
          * @brief   初始化对象
-         * @param [in]  indices 索引数据.
+         * @param [in]  buffer  常量数据.
          * @returns 调用成功返回 T3D_OK.
          */
-        virtual TResult init(const void *indices);
+        virtual TResult init(const void *buffer);
 
         /**
-         * @fn  virtual void D3D11HardwareIndexBuffer::*lockImpl(size_t offset, 
-         *      size_t size, LockOptions options) override;
+         * @fn  virtual void D3D11HardwareConstantBuffer::*lockImpl(
+         *      size_t offset, size_t size, LockOptions options) override;
          * @brief   锁定缓冲区的具体实现接口，实现基类接口
          * @param [in]  offset  锁定区域相对缓冲区开始偏移位置.
          * @param [in]  size    锁定区域大小.
@@ -134,7 +124,8 @@ namespace Tiny3D
             LockOptions options) override;
 
         /**
-         * @fn  virtual TResult D3D11HardwareIndexBuffer::unlockImpl() override;
+         * @fn  virtual TResult 
+         *      D3D11HardwareConstantBuffer::unlockImpl() override;
          * @brief   解锁缓冲区的具体实现接口，实现基类接口
          * @returns 成功调用返回 T3D_OK.
          * @sa  TResult HardwareBuffer::unlockImpl()
@@ -142,9 +133,9 @@ namespace Tiny3D
         virtual TResult unlockImpl() override;
 
     protected:
-        D3D11HardwareBufferPtr  mBufferImpl;    /**< D3D11 Buffer 具体实现 */
+        D3D11BufferPtr  mBufferImpl;    /**< D3D11 Buffer 具体实现 */
     };
 }
 
 
-#endif  /*__T3D_D3D11_HARDWARE_INDEX_BUFFER_H__*/
+#endif  /*__T3D_D3D11_CONSTANT_BUFFER_H__*/

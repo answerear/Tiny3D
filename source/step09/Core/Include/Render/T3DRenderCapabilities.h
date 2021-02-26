@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_CAPABILITIES_H__
-#define __T3D_RENDERER_CAPABILITIES_H__
+#ifndef __T3D_RENDER_CAPABILITIES_H__
+#define __T3D_RENDER_CAPABILITIES_H__
 
 #include <sstream>
 #include "T3DPrerequisites.h"
@@ -239,7 +239,7 @@ namespace Tiny3D
      * @class   RendererCapabilities
      * @brief   渲染器能力值组.
      */
-    class T3D_ENGINE_API RendererCapabilities : public Object
+    class T3D_ENGINE_API RenderCapabilities : public Object
     {
         T3D_DECLARE_CLASS();
 
@@ -266,7 +266,7 @@ namespace Tiny3D
          * @fn  virtual RendererCapabilities::~RendererCapabilities();
          * @brief   析构函数
          */
-        virtual ~RendererCapabilities();
+        virtual ~RenderCapabilities();
 
         /**
          * @fn  const DriverVersion 
@@ -516,7 +516,7 @@ namespace Tiny3D
          * @fn  RendererCapabilities::RendererCapabilities();
          * @brief   Default constructor
          */
-        RendererCapabilities();
+        RenderCapabilities();
 
         /**
          * @fn  virtual TResult RendererCapabilities::init() = 0;
@@ -592,7 +592,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DRendererCapabilities.inl"
+#include "T3DRenderCapabilities.inl"
 
 
-#endif  /*__T3D_RENDERER_CAPABILITIES_H__*/
+#endif  /*__T3D_RENDER_CAPABILITIES_H__*/

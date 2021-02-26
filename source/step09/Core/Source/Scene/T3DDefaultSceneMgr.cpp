@@ -129,7 +129,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+        RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
 
         // 设置当前视口
         if (renderer->getViewport() != viewport)

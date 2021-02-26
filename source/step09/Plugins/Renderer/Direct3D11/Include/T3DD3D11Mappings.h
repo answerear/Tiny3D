@@ -86,7 +86,7 @@ namespace Tiny3D
          * @param [in]  primitive   Tiny3D 的渲染图元类型.
          * @returns 返回 D3D11 渲染图元类型.
          */
-        static D3D11_PRIMITIVE_TOPOLOGY get(Renderer::PrimitiveType primitive);
+        static D3D11_PRIMITIVE_TOPOLOGY get(RenderContext::PrimitiveType primitive);
 
         /**
          * @fn  static DXGI_FORMAT D3D11Mappings::get(

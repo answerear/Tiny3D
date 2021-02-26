@@ -137,8 +137,8 @@ namespace Tiny3D
     
     class Viewport;
 
-    class Renderer;
-    class RendererCapabilities;
+    class RenderContext;
+    class RenderCapabilities;
     class RenderGroup;
     class RenderQueue;
 

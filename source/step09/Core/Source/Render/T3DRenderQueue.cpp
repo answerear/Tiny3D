@@ -102,7 +102,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RenderGroup::render(ID groupID, RendererPtr renderer)
+    TResult RenderGroup::render(ID groupID, RenderContextPtr renderer)
     {
         PolygonMode renderMode;
 
@@ -184,7 +184,7 @@ namespace Tiny3D
 
     size_t RenderGroup::calcPrimitiveCount(VertexArrayObjectPtr vao) const
     {
-        Renderer::PrimitiveType priType = vao->getPrimitiveType();
+        RenderContext::PrimitiveType priType = vao->getPrimitiveType();
         bool useIndex = vao->isIndicesUsed();
         size_t indexCount 
             = (useIndex ? vao->getIndexBuffer()->getIndexCount() : 0);
@@ -194,27 +194,27 @@ namespace Tiny3D
 
         switch (priType)
         {
-        case Renderer::PrimitiveType::E_PT_POINT_LIST:
+        case RenderContext::PrimitiveType::E_PT_POINT_LIST:
             primCount = (useIndex ? indexCount : vertexCount);
             break;
 
-        case Renderer::PrimitiveType::E_PT_LINE_LIST:
+        case RenderContext::PrimitiveType::E_PT_LINE_LIST:
             primCount = (useIndex ? indexCount : vertexCount) / 2;
             break;
 
-        case Renderer::PrimitiveType::E_PT_LINE_STRIP:
+        case RenderContext::PrimitiveType::E_PT_LINE_STRIP:
             primCount = (useIndex ? indexCount : vertexCount) - 1;
             break;
 
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_LIST:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_LIST:
             primCount = (useIndex ? indexCount : vertexCount) / 3;
             break;
 
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_STRIP:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_STRIP:
             primCount = (useIndex ? indexCount : vertexCount) - 2;
             break;
 
-        case Renderer::PrimitiveType::E_PT_TRIANGLE_FAN:
+        case RenderContext::PrimitiveType::E_PT_TRIANGLE_FAN:
             primCount = (useIndex ? indexCount : vertexCount) - 2;
             break;
         }
@@ -282,7 +282,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RenderQueue::render(RendererPtr renderer)
+    TResult RenderQueue::render(RenderContextPtr renderer)
     {
         RenderableGroupItr itr = mGroups.begin();
 

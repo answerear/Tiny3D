@@ -22,49 +22,49 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline const String &Renderer::getName() const
+    inline const String &RenderContext::getName() const
     {
         return mName;
     }
 
     //--------------------------------------------------------------------------
 
-    inline TResult Renderer::setViewTransform(const Matrix4 &mat)
+    inline TResult RenderContext::setViewTransform(const Matrix4 &mat)
     {
         return setTransform(TransformState::VIEW, mat);
     }
 
     //--------------------------------------------------------------------------
 
-    inline TResult Renderer::setWorldTransform(const Matrix4 &mat)
+    inline TResult RenderContext::setWorldTransform(const Matrix4 &mat)
     {
         return setTransform(TransformState::WORLD, mat);
     }
 
     //--------------------------------------------------------------------------
 
-    inline TResult Renderer::setProjectionTransform(const Matrix4 &mat)
+    inline TResult RenderContext::setProjectionTransform(const Matrix4 &mat)
     {
         return setTransform(TransformState::PROJECTION, mat);
     }
 
     //--------------------------------------------------------------------------
 
-    inline ViewportPtr Renderer::getViewport() const
+    inline ViewportPtr RenderContext::getViewport() const
     {
         return mViewport;
     }
 
     //--------------------------------------------------------------------------
 
-    inline CullingMode Renderer::getCullingMode() const
+    inline CullingMode RenderContext::getCullingMode() const
     {
         return mCullingMode;
     }
 
     //--------------------------------------------------------------------------
 
-    inline PolygonMode Renderer::getPolygonMode() const
+    inline PolygonMode RenderContext::getPolygonMode() const
     {
         return mPolygonMode;
     }

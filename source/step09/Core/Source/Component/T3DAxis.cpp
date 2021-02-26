@@ -159,7 +159,7 @@ namespace Tiny3D
 
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
-            mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_LINE_LIST);
+            mVAO->setPrimitiveType(RenderContext::PrimitiveType::E_PT_LINE_LIST);
 
             mVAO->endBinding();
 

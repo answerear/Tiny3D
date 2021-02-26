@@ -50,15 +50,15 @@ namespace Tiny3D
 {
     #define LOG_TAG_D3D11RENDERER        "D3D11Renderer"
 
-    class D3D11Renderer;
+    class D3D11Context;
     class D3D11Capabilities;
-    class D3D11RenderWindow;
-    class D3D11HardwareBufferManager;
-    class D3D11HardwareBuffer;
-    class D3D11HardwareVertexBuffer;
-    class D3D11HardwareIndexBuffer;
-    class D3D11HardwarePixelBuffer;
-    class D3D11HardwareConstantBuffer;
+    class D3D11Window;
+    class D3D11BufferManager;
+    class D3D11Buffer;
+    class D3D11VertexBuffer;
+    class D3D11IndexBuffer;
+    class D3D11PixelBuffer;
+    class D3D11ConstantBuffer;
     class D3D11VertexDeclaration;
     class D3D11VertexArrayObject;
     class D3D11Shader;
@@ -70,15 +70,15 @@ namespace Tiny3D
     class D3D11Sampler;
     class D3D11SamplerCreator;
 
-    T3D_DECLARE_SMART_PTR(D3D11Renderer);
+    T3D_DECLARE_SMART_PTR(D3D11Context);
     T3D_DECLARE_SMART_PTR(D3D11Capabilities);
-    T3D_DECLARE_SMART_PTR(D3D11RenderWindow);
-    T3D_DECLARE_SMART_PTR(D3D11HardwareBufferManager);
-    T3D_DECLARE_SMART_PTR(D3D11HardwareBuffer);
-    T3D_DECLARE_SMART_PTR(D3D11HardwareVertexBuffer);
-    T3D_DECLARE_SMART_PTR(D3D11HardwareIndexBuffer);
-    T3D_DECLARE_SMART_PTR(D3D11HardwarePixelBuffer);
-    T3D_DECLARE_SMART_PTR(D3D11HardwareConstantBuffer);
+    T3D_DECLARE_SMART_PTR(D3D11Window);
+    T3D_DECLARE_SMART_PTR(D3D11BufferManager);
+    T3D_DECLARE_SMART_PTR(D3D11Buffer);
+    T3D_DECLARE_SMART_PTR(D3D11VertexBuffer);
+    T3D_DECLARE_SMART_PTR(D3D11IndexBuffer);
+    T3D_DECLARE_SMART_PTR(D3D11PixelBuffer);
+    T3D_DECLARE_SMART_PTR(D3D11ConstantBuffer);
     T3D_DECLARE_SMART_PTR(D3D11VertexDeclaration);
     T3D_DECLARE_SMART_PTR(D3D11VertexArrayObject);
     T3D_DECLARE_SMART_PTR(D3D11Shader);

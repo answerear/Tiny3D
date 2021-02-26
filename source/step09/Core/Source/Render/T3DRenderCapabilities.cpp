@@ -18,22 +18,22 @@
  ******************************************************************************/
 
 
-#include "Render/T3DRendererCapabilities.h"
+#include "Render/T3DRenderCapabilities.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(RendererCapabilities, Object);
+    T3D_IMPLEMENT_CLASS_1(RenderCapabilities, Object);
 
     //--------------------------------------------------------------------------
 
-    String RendererCapabilities::GPUVendorStrings[GPUVendor::GPU_VENDOR_COUNT];
+    String RenderCapabilities::GPUVendorStrings[GPUVendor::GPU_VENDOR_COUNT];
 
     //--------------------------------------------------------------------------
 
-    void RendererCapabilities::initVendorStrings()
+    void RenderCapabilities::initVendorStrings()
     {
         if (GPUVendorStrings[0].empty())
         {
@@ -56,7 +56,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GPUVendor RendererCapabilities::vendorFromString(const String &str)
+    GPUVendor RenderCapabilities::vendorFromString(const String &str)
     {
         initVendorStrings();
         GPUVendor vendor = GPUVendor::UNKNOWN;
@@ -77,7 +77,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String RendererCapabilities::vendorToString(GPUVendor vendor)
+    String RenderCapabilities::vendorToString(GPUVendor vendor)
     {
         initVendorStrings();
         return GPUVendorStrings[vendor];
@@ -85,7 +85,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RendererCapabilities::RendererCapabilities()
+    RenderCapabilities::RenderCapabilities()
         : mDriverVersion()
         , mVendor(GPUVendor::UNKNOWN)
         , mNumTextureUnits(0)
@@ -134,7 +134,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RendererCapabilities::~RendererCapabilities()
+    RenderCapabilities::~RenderCapabilities()
     {
 
     }

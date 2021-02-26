@@ -20,14 +20,14 @@
 
 #include "T3DD3D11Prerequisites.h"
 #include "T3DD3D11Capabilities.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11Capabilities, RendererCapabilities);
+    T3D_IMPLEMENT_CLASS_1(D3D11Capabilities, RenderCapabilities);
 
     //--------------------------------------------------------------------------
 
@@ -65,12 +65,12 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+        ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
 
         // 驱动信息
-        mDriverVersion = D3D11_RENDERER.getDriverVersion();
-        mDeviceName = D3D11_RENDERER.getDeviceName();
-        mRendererName = D3D11_RENDERER.getName();
+        mDriverVersion = D3D11_CONTEXT.getDriverVersion();
+        mDeviceName = D3D11_CONTEXT.getDeviceName();
+        mRendererName = D3D11_CONTEXT.getName();
 
         // 一些限定值
         mNumTextureUnits = 16;
@@ -112,7 +112,7 @@ namespace Tiny3D
         mNPOTLimited = true;
 
         // 能力值
-        D3D_FEATURE_LEVEL featureLevel = D3D11_RENDERER.getFeatureLevel();
+        D3D_FEATURE_LEVEL featureLevel = D3D11_CONTEXT.getFeatureLevel();
 
         uint32_t fmtSupport;
         HRESULT hr = S_OK;

@@ -22,7 +22,7 @@
 #include "Component/T3DTransform3D.h"
 #include "Scene/T3DSceneNode.h"
 #include "Render/T3DViewport.h"
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderContext.h"
 #include "Kernel/T3DAgent.h"
 #include "Bound/T3DFrustumBound.h"
 
@@ -155,7 +155,7 @@ namespace Tiny3D
 
             mViewMatrix = invertS * invertR * invertT;
 
-            RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+            RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
             renderer->setViewTransform(mViewMatrix);
 
             mIsViewDirty = false;
@@ -170,7 +170,7 @@ namespace Tiny3D
     {
         if (mIsFrustumDirty)
         {
-            RendererPtr renderer = T3D_AGENT.getActiveRenderer();
+            RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
 
             switch (mProjType)
             {
@@ -250,7 +250,7 @@ namespace Tiny3D
             // 相机比较特殊，直接先更新自身的frustum，
             // 避免其他物体无法做frustum culling
             Matrix4 M = P * V;
-            Renderer *renderer = T3D_AGENT.getActiveRenderer();
+            RenderContext *renderer = T3D_AGENT.getActiveRenderer();
             FrustumBoundPtr bound = smart_pointer_cast<FrustumBound>(mBound);
             renderer->updateFrustum(M, bound);
         }

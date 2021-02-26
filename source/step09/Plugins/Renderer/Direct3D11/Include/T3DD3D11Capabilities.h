@@ -31,7 +31,7 @@ namespace Tiny3D
      * @class   D3D11Capabilities
      * @brief   DirectX 11 渲染器渲染能力组
      */
-    class D3D11Capabilities : public RendererCapabilities
+    class D3D11Capabilities : public RenderCapabilities
     {
         T3D_DECLARE_CLASS();
 

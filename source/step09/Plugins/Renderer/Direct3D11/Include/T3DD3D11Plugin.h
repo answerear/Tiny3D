@@ -69,7 +69,7 @@ namespace Tiny3D
 
     protected:
         String                  mName;
-        RendererPtr             mRenderer;
+        RenderContextPtr             mRenderer;
         D3D11ShaderCreator      *mShaderCreator;
         D3D11GPUProgramCreator  *mGPUCreator;
     };

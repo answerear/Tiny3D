@@ -254,43 +254,43 @@ namespace Tiny3D
         void enumerateAvailableRenderers(Renderers &renderers) const;
 
         /**
-         * @fn  TResult Agent::setActiveRenderer(RendererPtr renderer);
+         * @fn  TResult Agent::setActiveRenderer(RenderContextPtr renderer);
          * @brief   设置当前可用的渲染器
          * @param [in]  renderer    : 渲染器对象.
          * @return  成功返回 T3D_OK.
          */
-        TResult setActiveRenderer(RendererPtr renderer);
+        TResult setActiveRenderer(RenderContextPtr renderer);
 
         /**
-         * @fn  RendererPtr Agent::getActiveRenderer() const;
+         * @fn  RenderContextPtr Agent::getActiveRenderer() const;
          * @brief   获取当前可用的渲染器
          * @return  成功返回当前渲染器对象.
          */
-        RendererPtr getActiveRenderer() const;
+        RenderContextPtr getActiveRenderer() const;
 
         /**
-         * @fn  TResult Agent::addRenderer(RendererPtr renderer);
+         * @fn  TResult Agent::addRenderer(RenderContextPtr renderer);
          * @brief   添加渲染器
          * @param [in]  renderer    : 要添加的渲染器对象.
          * @return  成功返回 T3D_OK.
          */
-        TResult addRenderer(RendererPtr renderer);
+        TResult addRenderer(RenderContextPtr renderer);
 
         /**
-         * @fn  TResult Agent::removeRenderer(RendererPtr renderer);
+         * @fn  TResult Agent::removeRenderer(RenderContextPtr renderer);
          * @brief   移除渲染器
          * @param [in]  renderer    : 要移除的渲染器对象.
          * @return  成功返回 T3D_OK.
          */
-        TResult removeRenderer(RendererPtr renderer);
+        TResult removeRenderer(RenderContextPtr renderer);
 
         /**
-         * @fn  RendererPtr Agent::getRenderer(const String &name) const;
+         * @fn  RenderContextPtr Agent::getRenderer(const String &name) const;
          * @brief   获取渲染器对象
          * @param [in]  name    : 渲染器名称.
          * @return  成功返回渲染器对象.
          */
-        RendererPtr getRenderer(const String &name) const;
+        RenderContextPtr getRenderer(const String &name) const;
 
         /**
          * @fn  TResult Agent::setSceneManager(SceneManagerBasePtr mgr);
@@ -435,7 +435,7 @@ namespace Tiny3D
 
         ImageCodecPtr           mImageCodec;        /**< 图像编解码器对象 */
 
-        RendererPtr             mActiveRenderer;    /**< 当前渲染器对象 */
+        RenderContextPtr             mActiveRenderer;    /**< 当前渲染器对象 */
         SceneManagerPtr         mSceneMgr;
 
         ComponentCreatorPtr     mComponentCreator;

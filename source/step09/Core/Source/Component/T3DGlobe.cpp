@@ -180,7 +180,7 @@ namespace Tiny3D
             mVAO->setVertexDeclaration(decl);
             mVAO->addVertexBuffer(vbo);
             mVAO->setIndexBuffer(ibo);
-            mVAO->setPrimitiveType(Renderer::PrimitiveType::E_PT_TRIANGLE_LIST);
+            mVAO->setPrimitiveType(RenderContext::PrimitiveType::E_PT_TRIANGLE_LIST);
 
             mVAO->endBinding();
         } while (0);

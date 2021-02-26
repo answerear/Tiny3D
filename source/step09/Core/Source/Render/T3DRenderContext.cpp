@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "Render/T3DRenderer.h"
-#include "Render/T3DRendererCapabilities.h"
+#include "Render/T3DRenderContext.h"
+#include "Render/T3DRenderCapabilities.h"
 #include "Resource/T3DGPUConstBufferManager.h"
 #include "Resource/T3DGPUProgramManager.h"
 
@@ -28,22 +28,22 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Renderer, Object);
+    T3D_IMPLEMENT_CLASS_1(RenderContext, Object);
 
     //--------------------------------------------------------------------------
 
-    const char * const Renderer::REFERENCE3D = "Reference3D";
-    const char * const Renderer::DIRECT3D9 = "Direct3D9";
-    const char * const Renderer::DIRECT3D11 = "Direct3D11";
-    const char * const Renderer::OPENGL3 = "OpenGL 3.x";
-    const char * const Renderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const Renderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const Renderer::VULKAN = "Vulkan";
-    const char * const Renderer::METAL = "Metal";
+    const char * const RenderContext::REFERENCE3D = "Reference3D";
+    const char * const RenderContext::DIRECT3D9 = "Direct3D9";
+    const char * const RenderContext::DIRECT3D11 = "Direct3D11";
+    const char * const RenderContext::OPENGL3 = "OpenGL 3.x";
+    const char * const RenderContext::OPENGLES2 = "OpenGL ES 2";
+    const char * const RenderContext::OPENGLES3 = "OpenGL ES 3";
+    const char * const RenderContext::VULKAN = "Vulkan";
+    const char * const RenderContext::METAL = "Metal";
 
     //--------------------------------------------------------------------------
 
-    Renderer::Renderer()
+    RenderContext::RenderContext()
         : mGPUBufferUpdateObject(nullptr)
         , mGPUBufferUpdateFrame(nullptr)
         , mGPUBufferUpdateRarely(nullptr)
@@ -60,14 +60,14 @@ namespace Tiny3D
 
     }
 
-    Renderer::~Renderer()
+    RenderContext::~RenderContext()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::clear(const ColorRGB &color, uint32_t clearFlags, 
+    TResult RenderContext::clear(const ColorRGB &color, uint32_t clearFlags, 
         Real depth, uint32_t stencil)
     {
         if (mRenderTarget != nullptr)
@@ -80,7 +80,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::renderAllTargets()
+    TResult RenderContext::renderAllTargets()
     {
         auto itr = mRenderTargets.begin();
 
@@ -101,7 +101,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::attachRenderTarget(RenderTargetPtr target)
+    TResult RenderContext::attachRenderTarget(RenderTargetPtr target)
     {
         TPair<RenderTargetListItr, bool> ret =
             mRenderTargets.insert(RenderTargetListValue(target->getName(),
@@ -117,7 +117,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::detachRenderTarget(const String &name)
+    TResult RenderContext::detachRenderTarget(const String &name)
     {
         auto itr = mRenderTargets.find(name);
         if (itr == mRenderTargets.end())
@@ -132,7 +132,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderTargetPtr Renderer::getRenderTarget(const String &name)
+    RenderTargetPtr RenderContext::getRenderTarget(const String &name)
     {
         RenderTargetListItr itr = mRenderTargets.find(name);
 
@@ -146,7 +146,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::setTransform(TransformState state, const Matrix4 &mat)
+    TResult RenderContext::setTransform(TransformState state, const Matrix4 &mat)
     {
         TResult ret = T3D_OK;
 
@@ -186,7 +186,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const Matrix4 &Renderer::getTransform(TransformState state) const
+    const Matrix4 &RenderContext::getTransform(TransformState state) const
     {
         switch (state)
         {
@@ -206,7 +206,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::postInit()
+    TResult RenderContext::postInit()
     {
         TResult ret = T3D_OK;
 
@@ -303,7 +303,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::updateBufferPerObject()
+    TResult RenderContext::updateBufferPerObject()
     {
         TResult ret = T3D_OK;
 
@@ -342,7 +342,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::updateBufferPerFrame()
+    TResult RenderContext::updateBufferPerFrame()
     {
         TResult ret = T3D_OK;
 
@@ -372,7 +372,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderer::updateBufferRarely()
+    TResult RenderContext::updateBufferRarely()
     {
         TResult ret = T3D_OK;
 

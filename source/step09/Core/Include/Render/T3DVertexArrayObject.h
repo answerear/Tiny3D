@@ -25,7 +25,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DObject.h"
-#include "Render/T3DRenderer.h"
+#include "Render/T3DRenderContext.h"
 
 
 namespace Tiny3D
@@ -62,13 +62,13 @@ namespace Tiny3D
         /**
          * @brief 设置绘制图元类型
          */
-        virtual TResult setPrimitiveType(Renderer::PrimitiveType priType) = 0;
+        virtual TResult setPrimitiveType(RenderContext::PrimitiveType priType) = 0;
 
         /**
          * @brief 获取渲染图元类型
          * @return 返回渲染图元类型
          */
-        virtual Renderer::PrimitiveType getPrimitiveType() const = 0;
+        virtual RenderContext::PrimitiveType getPrimitiveType() const = 0;
 
         /**
          * @brief 设置顶点声明

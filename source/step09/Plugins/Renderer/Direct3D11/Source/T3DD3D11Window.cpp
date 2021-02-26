@@ -18,29 +18,29 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11RenderWindow.h"
+#include "T3DD3D11Window.h"
 #include "T3DD3D11Error.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11RenderWindow, RenderWindow);
+    T3D_IMPLEMENT_CLASS_1(D3D11Window, RenderWindow);
 
     //--------------------------------------------------------------------------
 
-    D3D11RenderWindowPtr D3D11RenderWindow::create(const String &name)
+    D3D11WindowPtr D3D11Window::create(const String &name)
     {
-        D3D11RenderWindowPtr window = new D3D11RenderWindow(name);
+        D3D11WindowPtr window = new D3D11Window(name);
         window->release();
         return window;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11RenderWindow::D3D11RenderWindow(const String &name)
+    D3D11Window::D3D11Window(const String &name)
         : RenderWindow(name)
         , mWindow(nullptr)
         , mD3DSwapChain(nullptr)
@@ -52,7 +52,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11RenderWindow::~D3D11RenderWindow()
+    D3D11Window::~D3D11Window()
     {
         D3D_SAFE_RELEASE(mD3DSwapChain);
         D3D_SAFE_RELEASE(mD3DRTView);
@@ -63,7 +63,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::create(const RenderWindowCreateParam &param,
+    TResult D3D11Window::create(const RenderWindowCreateParam &param,
         const RenderWindowCreateParamEx &paramEx)
     {
         TResult ret = T3D_OK;
@@ -104,7 +104,7 @@ namespace Tiny3D
                 }
 
                 String title = param.windowTitle + " - " 
-                    + D3D11_RENDERER.getName();
+                    + D3D11_CONTEXT.getName();
                 ret = mWindow->create(title.c_str(),
                     param.windowLeft, param.windowTop,
                     param.windowWidth, param.windowHeight, flags);
@@ -142,7 +142,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::destroy()
+    TResult D3D11Window::destroy()
     {
         TResult ret = T3D_OK;
 
@@ -171,7 +171,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::swapBuffers()
+    TResult D3D11Window::swapBuffers()
     {
         TResult ret = T3D_OK;
 
@@ -193,7 +193,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void D3D11RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+    void D3D11Window::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
         Real depth, uint32_t stencil)
     {
         do 
@@ -209,7 +209,7 @@ namespace Tiny3D
             }
 
             ID3D11DeviceContext *pD3DContext 
-                = D3D11_RENDERER.getD3DDeviceContext();
+                = D3D11_CONTEXT.getD3DDeviceContext();
             const float clr[4] = 
             { clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f };
             pD3DContext->ClearRenderTargetView(mD3DRTView, clr);
@@ -220,7 +220,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::loadIcon(const String &iconPath)
+    TResult D3D11Window::loadIcon(const String &iconPath)
     {
         TResult ret = T3D_OK;
 
@@ -284,7 +284,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::setupD3D11Environment(
+    TResult D3D11Window::setupD3D11Environment(
         const RenderWindowCreateParam &param, 
         const RenderWindowCreateParamEx &paramEx)
     {
@@ -301,7 +301,7 @@ namespace Tiny3D
             else if (uMSAAQuality > 16)
                 uMSAAQuality = 16;
 
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
             DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
             HRESULT hr = S_OK;
 
@@ -353,7 +353,7 @@ namespace Tiny3D
             }
 
             ID3D11DeviceContext *pD3DContext 
-                = D3D11_RENDERER.getD3DDeviceContext();
+                = D3D11_CONTEXT.getD3DDeviceContext();
             pD3DContext->OMSetRenderTargets(1, &mD3DRTView, mD3DDSView);
 
         } while (0);
@@ -363,7 +363,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::createSwapChain(UINT uWidth, UINT uHeight, 
+    TResult D3D11Window::createSwapChain(UINT uWidth, UINT uHeight, 
         bool bFullscreen, UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format)
     {
         TResult ret = T3D_OK;
@@ -378,7 +378,7 @@ namespace Tiny3D
             mWindow->getSystemInfo(info);
             HWND hWnd = (HWND)info.hWnd;
 
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
 
             DXGI_SWAP_CHAIN_DESC desc;
 
@@ -454,7 +454,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::createRenderTargetView()
+    TResult D3D11Window::createRenderTargetView()
     {
         TResult ret = T3D_OK;
 
@@ -463,7 +463,7 @@ namespace Tiny3D
         do 
         {
             HRESULT hr = S_OK;
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
             hr = mD3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
                 reinterpret_cast<void **>(&pD3DBackBuffer));
             if (FAILED(hr))
@@ -492,7 +492,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::createDepthStencilView(UINT uWidth, UINT uHeight,
+    TResult D3D11Window::createDepthStencilView(UINT uWidth, UINT uHeight,
         UINT uMSAACount, UINT uMSAAQuality)
     {
         TResult ret = T3D_OK;
@@ -501,7 +501,7 @@ namespace Tiny3D
 
         do 
         {
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
 
             D3D11_TEXTURE2D_DESC desc;
             desc.Width = uWidth;

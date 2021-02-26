@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_RENDER_CONTEXT_H__
+#define __T3D_RENDER_CONTEXT_H__
 
 
 #include "T3DPrerequisites.h"
@@ -34,7 +34,7 @@ namespace Tiny3D
      * @class   Renderer
      * @brief   渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
      */
-    class T3D_ENGINE_API Renderer : public Object
+    class T3D_ENGINE_API RenderContext : public Object
     {
         T3D_DECLARE_CLASS();
 
@@ -91,13 +91,13 @@ namespace Tiny3D
          * @fn  Renderer::Renderer();
          * @brief   构造函数
          */
-        Renderer();
+        RenderContext();
 
         /**
          * @fn  virtual Renderer::~Renderer();
          * @brief   析构函数
          */
-        virtual ~Renderer();
+        virtual ~RenderContext();
 
         /**
          * @fn  virtual TResult Renderer::init() = 0;
@@ -148,12 +148,12 @@ namespace Tiny3D
          * @returns 调用成功返回一个渲染平台相关的渲染器能力组对象
          * @remarks 具体渲染系统实现本接口
          */
-        virtual RendererCapabilitiesPtr createRendererCapabilities() const = 0;
+        virtual RenderCapabilitiesPtr createRendererCapabilities() const = 0;
 
         /**
          * @brief   获取渲染器能力值对象
          */
-        RendererCapabilitiesPtr getRendererCapabilities() const 
+        RenderCapabilitiesPtr getRendererCapabilities() const 
         { 
             return mCapabilities; 
         }
@@ -473,7 +473,7 @@ namespace Tiny3D
 
         RenderTargetList        mRenderTargets;     /**< 渲染目标列表 */
 
-        RendererCapabilitiesPtr mCapabilities;      /**< 渲染能力值 */
+        RenderCapabilitiesPtr mCapabilities;      /**< 渲染能力值 */
         RenderWindowPtr         mPrimaryWindow;     /**< 主窗口 */
         RenderTargetPtr         mRenderTarget;      /**< 当前渲染目标 */
         
@@ -485,7 +485,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DRenderer.inl"
+#include "T3DRenderContext.inl"
 
 
-#endif  /*__T3D_RENDERER_H__*/
+#endif  /*__T3D_RENDER_CONTEXT_H__*/

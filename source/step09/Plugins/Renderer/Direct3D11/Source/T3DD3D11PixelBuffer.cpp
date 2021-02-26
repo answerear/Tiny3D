@@ -18,9 +18,9 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11HardwarePixelBuffer.h"
+#include "T3DD3D11PixelBuffer.h"
 #include "T3DD3D11Mappings.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 #include "T3DD3D11Error.h"
 
 
@@ -28,15 +28,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11HardwarePixelBuffer, HardwarePixelBuffer);
+    T3D_IMPLEMENT_CLASS_1(D3D11PixelBuffer, HardwarePixelBuffer);
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwarePixelBufferPtr D3D11HardwarePixelBuffer::create(size_t width,
+    D3D11PixelBufferPtr D3D11PixelBuffer::create(size_t width,
         size_t height, PixelFormat format, const void *pixels, Usage usage, 
         uint32_t mode, size_t mipmaps)
     {
-        D3D11HardwarePixelBufferPtr pb = new D3D11HardwarePixelBuffer(width, 
+        D3D11PixelBufferPtr pb = new D3D11PixelBuffer(width, 
             height, format, usage, mode, mipmaps);
         pb->release();
 
@@ -50,7 +50,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwarePixelBuffer::D3D11HardwarePixelBuffer(size_t width,
+    D3D11PixelBuffer::D3D11PixelBuffer(size_t width,
         size_t height, PixelFormat format, Usage usage, uint32_t mode, 
         size_t mipmaps)
         : HardwarePixelBuffer(width, height, format, usage, mode, mipmaps)
@@ -61,7 +61,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwarePixelBuffer::~D3D11HardwarePixelBuffer()
+    D3D11PixelBuffer::~D3D11PixelBuffer()
     {
         D3D_SAFE_RELEASE(mD3DSRView);
         D3D_SAFE_RELEASE(mD3DTexture2D);
@@ -69,7 +69,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwarePixelBuffer::init(const void *pixels)
+    TResult D3D11PixelBuffer::init(const void *pixels)
     {
         TResult ret = T3D_OK;
 
@@ -99,7 +99,7 @@ namespace Tiny3D
             d3dData.SysMemPitch = (UINT)Image::calcPitch(mWidth, 32);
             d3dData.SysMemSlicePitch = 0;
 
-            ID3D11Device *pD3DDevice = D3D11_RENDERER.getD3DDevice();
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
             HRESULT hr = pD3DDevice->CreateTexture2D(&d3dDesc, &d3dData,
                 &mD3DTexture2D);
             if (FAILED(hr))
@@ -128,7 +128,7 @@ namespace Tiny3D
 //             if (mMipmaps != 1)
 //             {
 //                 ID3D11DeviceContext *pD3DContext 
-//                     = D3D11_RENDERER.getD3DDeviceContext();
+//                     = D3D11_CONTEXT.getD3DDeviceContext();
 //                 pD3DContext->GenerateMips(mD3DSRView);
 //             }
         } while (0);
@@ -138,7 +138,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwarePixelBuffer::readImage(const Image &image,
+    TResult D3D11PixelBuffer::readImage(const Image &image,
         Rect *srcRect /* = nullptr */, Rect *dstRect /* = nullptr */)
     {
         TResult ret = T3D_OK;
@@ -201,7 +201,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwarePixelBuffer::writeImage(Image &image,
+    TResult D3D11PixelBuffer::writeImage(Image &image,
         Rect *dstRect /* = nullptr */, Rect *srcRect /* = nullptr */)
     {
         TResult ret = T3D_OK;
@@ -257,7 +257,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *D3D11HardwarePixelBuffer::lockImpl(const Rect &rect,
+    void *D3D11PixelBuffer::lockImpl(const Rect &rect,
         LockOptions options, size_t &lockedPitch)
     {
         if (rect.left < 0 || rect.right < 0
@@ -280,7 +280,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwarePixelBuffer::unlockImpl()
+    TResult D3D11PixelBuffer::unlockImpl()
     {
         TResult ret = T3D_OK;
 

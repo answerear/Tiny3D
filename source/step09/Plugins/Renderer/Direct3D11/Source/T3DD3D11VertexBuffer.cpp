@@ -18,10 +18,8 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11HardwareConstantBuffer.h"
-#include "T3DD3D11HardwareBuffer.h"
-#include "T3DD3D11Mappings.h"
-#include "T3DD3D11Renderer.h"
+#include "T3DD3D11VertexBuffer.h"
+#include "T3DD3D11Buffer.h"
 #include "T3DD3D11Error.h"
 
 
@@ -29,56 +27,56 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11HardwareConstantBuffer, HardwareConstantBuffer);
+    T3D_IMPLEMENT_CLASS_1(D3D11VertexBuffer, HardwareVertexBuffer);
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareConstantBufferPtr D3D11HardwareConstantBuffer::create(
-        size_t bufSize, const void *buffer, Usage usage, uint32_t mode)
+    D3D11VertexBufferPtr D3D11VertexBuffer::create(
+        size_t vertexSize, size_t vertexCount, const void *vertices, 
+        Usage usage, uint32_t mode)
     {
-        D3D11HardwareConstantBufferPtr ubo = new D3D11HardwareConstantBuffer(
-            bufSize, usage, mode);
-        ubo->release();
-
-        if (ubo->init(buffer) != T3D_OK)
+        D3D11VertexBufferPtr vb = new D3D11VertexBuffer(
+            vertexSize, vertexCount, usage, mode);
+        vb->release();
+        if (vb->init(vertices) != T3D_OK)
         {
-            ubo = nullptr;
+            vb = nullptr;
         }
-
-        return ubo;
+        return vb;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareConstantBuffer::D3D11HardwareConstantBuffer(
-        size_t bufSize, HardwareBuffer::Usage usage, uint32_t mode)
-        : HardwareConstantBuffer(bufSize, usage, mode)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11HardwareConstantBuffer::~D3D11HardwareConstantBuffer()
+    D3D11VertexBuffer::D3D11VertexBuffer(size_t vertexSize,
+        size_t vertexCount, Usage usage, uint32_t mode)
+        : HardwareVertexBuffer(vertexSize, vertexCount, usage, mode)
+        , mBufferImpl(nullptr)
     {
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareConstantBuffer::init(const void *buffer)
+    D3D11VertexBuffer::~D3D11VertexBuffer()
+    {
+        mBufferImpl = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11VertexBuffer::init(const void *vertices)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            mBufferImpl = D3D11HardwareBuffer::create(
-                D3D11HardwareBuffer::BufferType::CONSTANT, mBufferSize, buffer,
+            mBufferImpl = D3D11Buffer::create(
+                D3D11Buffer::BufferType::VERTEX, mBufferSize, vertices,
                 mUsage, mAccessMode, false);
             if (mBufferImpl == nullptr)
             {
                 ret = T3D_ERR_D3D11_CREATE_BUFFER;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Create constant buffer failed !");
+                    "Create vertex buffer failed !");
                 break;
             }
         } while (0);
@@ -88,7 +86,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareConstantBuffer::readData(size_t offset, size_t size, 
+    size_t D3D11VertexBuffer::readData(size_t offset, size_t size,
         void *dst)
     {
         if (mBufferImpl == nullptr)
@@ -98,7 +96,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareConstantBuffer::writeData(size_t offset, size_t size,
+    size_t D3D11VertexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
         if (mBufferImpl == nullptr)
@@ -108,7 +106,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *D3D11HardwareConstantBuffer::lockImpl(size_t offset, size_t size,
+    void *D3D11VertexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
         return mBufferImpl->lockImpl(offset, size, options);
@@ -116,7 +114,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareConstantBuffer::unlockImpl()
+    TResult D3D11VertexBuffer::unlockImpl()
     {
         return mBufferImpl->unlockImpl();
     }

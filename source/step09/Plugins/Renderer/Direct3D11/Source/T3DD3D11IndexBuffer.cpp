@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11HardwareVertexBuffer.h"
-#include "T3DD3D11HardwareBuffer.h"
+#include "T3DD3D11IndexBuffer.h"
+#include "T3DD3D11Buffer.h"
 #include "T3DD3D11Error.h"
 
 
@@ -27,56 +27,57 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11HardwareVertexBuffer, HardwareVertexBuffer);
+    T3D_IMPLEMENT_CLASS_1(D3D11IndexBuffer, HardwareIndexBuffer);
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareVertexBufferPtr D3D11HardwareVertexBuffer::create(
-        size_t vertexSize, size_t vertexCount, const void *vertices, 
-        Usage usage, uint32_t mode)
+    D3D11IndexBufferPtr D3D11IndexBuffer::create(
+        Type indexType, size_t indexCount, const void *indices, 
+        HardwareBuffer::Usage usage, uint32_t mode)
     {
-        D3D11HardwareVertexBufferPtr vb = new D3D11HardwareVertexBuffer(
-            vertexSize, vertexCount, usage, mode);
-        vb->release();
-        if (vb->init(vertices) != T3D_OK)
+        D3D11IndexBufferPtr ibo = new D3D11IndexBuffer(
+            indexType, indexCount, usage, mode);
+        ibo->release();
+
+        if (ibo->init(indices) != T3D_OK)
         {
-            vb = nullptr;
+            ibo = nullptr;
         }
-        return vb;
+
+        return ibo;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareVertexBuffer::D3D11HardwareVertexBuffer(size_t vertexSize,
-        size_t vertexCount, Usage usage, uint32_t mode)
-        : HardwareVertexBuffer(vertexSize, vertexCount, usage, mode)
-        , mBufferImpl(nullptr)
+    D3D11IndexBuffer::D3D11IndexBuffer(Type indexType,
+        size_t indexCount, HardwareBuffer::Usage usage, uint32_t mode)
+        : HardwareIndexBuffer(indexType, indexCount, usage, mode)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11IndexBuffer::~D3D11IndexBuffer()
     {
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareVertexBuffer::~D3D11HardwareVertexBuffer()
-    {
-        mBufferImpl = nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11HardwareVertexBuffer::init(const void *vertices)
+    TResult D3D11IndexBuffer::init(const void *indices)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            mBufferImpl = D3D11HardwareBuffer::create(
-                D3D11HardwareBuffer::BufferType::VERTEX, mBufferSize, vertices,
-                mUsage, mAccessMode, false);
+            mBufferImpl = D3D11Buffer::create(
+                D3D11Buffer::BufferType::INDEX, mBufferSize, indices, 
+                mUsage, mAccessMode,  false);
             if (mBufferImpl == nullptr)
             {
                 ret = T3D_ERR_D3D11_CREATE_BUFFER;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Create vertex buffer failed !");
+                    "Create index buffer failed !");
                 break;
             }
         } while (0);
@@ -86,7 +87,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareVertexBuffer::readData(size_t offset, size_t size,
+    size_t D3D11IndexBuffer::readData(size_t offset, size_t size, 
         void *dst)
     {
         if (mBufferImpl == nullptr)
@@ -96,7 +97,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareVertexBuffer::writeData(size_t offset, size_t size,
+    size_t D3D11IndexBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
         if (mBufferImpl == nullptr)
@@ -106,7 +107,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *D3D11HardwareVertexBuffer::lockImpl(size_t offset, size_t size,
+    void *D3D11IndexBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
         return mBufferImpl->lockImpl(offset, size, options);
@@ -114,7 +115,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareVertexBuffer::unlockImpl()
+    TResult D3D11IndexBuffer::unlockImpl()
     {
         return mBufferImpl->unlockImpl();
     }

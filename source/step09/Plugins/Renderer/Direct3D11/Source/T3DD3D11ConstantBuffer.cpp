@@ -18,8 +18,10 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11HardwareIndexBuffer.h"
-#include "T3DD3D11HardwareBuffer.h"
+#include "T3DD3D11ConstantBuffer.h"
+#include "T3DD3D11Buffer.h"
+#include "T3DD3D11Mappings.h"
+#include "T3DD3D11Context.h"
 #include "T3DD3D11Error.h"
 
 
@@ -27,57 +29,56 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11HardwareIndexBuffer, HardwareIndexBuffer);
+    T3D_IMPLEMENT_CLASS_1(D3D11ConstantBuffer, HardwareConstantBuffer);
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareIndexBufferPtr D3D11HardwareIndexBuffer::create(
-        Type indexType, size_t indexCount, const void *indices, 
-        HardwareBuffer::Usage usage, uint32_t mode)
+    D3D11ConstantBufferPtr D3D11ConstantBuffer::create(
+        size_t bufSize, const void *buffer, Usage usage, uint32_t mode)
     {
-        D3D11HardwareIndexBufferPtr ibo = new D3D11HardwareIndexBuffer(
-            indexType, indexCount, usage, mode);
-        ibo->release();
+        D3D11ConstantBufferPtr ubo = new D3D11ConstantBuffer(
+            bufSize, usage, mode);
+        ubo->release();
 
-        if (ibo->init(indices) != T3D_OK)
+        if (ubo->init(buffer) != T3D_OK)
         {
-            ibo = nullptr;
+            ubo = nullptr;
         }
 
-        return ibo;
+        return ubo;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareIndexBuffer::D3D11HardwareIndexBuffer(Type indexType,
-        size_t indexCount, HardwareBuffer::Usage usage, uint32_t mode)
-        : HardwareIndexBuffer(indexType, indexCount, usage, mode)
+    D3D11ConstantBuffer::D3D11ConstantBuffer(
+        size_t bufSize, HardwareBuffer::Usage usage, uint32_t mode)
+        : HardwareConstantBuffer(bufSize, usage, mode)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HardwareIndexBuffer::~D3D11HardwareIndexBuffer()
+    D3D11ConstantBuffer::~D3D11ConstantBuffer()
     {
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareIndexBuffer::init(const void *indices)
+    TResult D3D11ConstantBuffer::init(const void *buffer)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            mBufferImpl = D3D11HardwareBuffer::create(
-                D3D11HardwareBuffer::BufferType::INDEX, mBufferSize, indices, 
-                mUsage, mAccessMode,  false);
+            mBufferImpl = D3D11Buffer::create(
+                D3D11Buffer::BufferType::CONSTANT, mBufferSize, buffer,
+                mUsage, mAccessMode, false);
             if (mBufferImpl == nullptr)
             {
                 ret = T3D_ERR_D3D11_CREATE_BUFFER;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Create index buffer failed !");
+                    "Create constant buffer failed !");
                 break;
             }
         } while (0);
@@ -87,7 +88,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareIndexBuffer::readData(size_t offset, size_t size, 
+    size_t D3D11ConstantBuffer::readData(size_t offset, size_t size, 
         void *dst)
     {
         if (mBufferImpl == nullptr)
@@ -97,7 +98,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t D3D11HardwareIndexBuffer::writeData(size_t offset, size_t size,
+    size_t D3D11ConstantBuffer::writeData(size_t offset, size_t size,
         const void *src, bool discardWholeBuffer /* = false */)
     {
         if (mBufferImpl == nullptr)
@@ -107,7 +108,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void *D3D11HardwareIndexBuffer::lockImpl(size_t offset, size_t size,
+    void *D3D11ConstantBuffer::lockImpl(size_t offset, size_t size,
         LockOptions options)
     {
         return mBufferImpl->lockImpl(offset, size, options);
@@ -115,7 +116,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11HardwareIndexBuffer::unlockImpl()
+    TResult D3D11ConstantBuffer::unlockImpl()
     {
         return mBufferImpl->unlockImpl();
     }
