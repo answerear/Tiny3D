@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -27,5 +27,12 @@
     #define T3D_PLATFORM_API    T3D_IMPORT_API
 #endif
 
+namespace Tiny3D
+{
+    class System;
+    class Application;
+    class Window;
+}
+ 
 
 #endif  /*__T3D_PLATFORM_MACRO_H__*/

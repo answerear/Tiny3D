@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -27,69 +27,54 @@
 
 namespace Tiny3D
 {
-    class ConsoleInterface;
-    class DeviceInfoInterface;
-    class DirInterface;
-    class TimerInterface;
-
+    class IWindow;
+    class IApplication;
 
     enum EPlatform
     {
         E_PLATFORM_UNKNOWN = 0,
-        E_PLATFORM_WIN32 = 1,
-        E_PLATFORM_MACOSX,
+        E_PLATFORM_WIN32,
+        E_PLATFORM_OSX,
         E_PLATFORM_LINUX,
         E_PLATFORM_IOS,
         E_PLATFORM_ANDROID,
     };
 
     /**
-     * @class IAdapterFactory
-     * @brief ²Ù×÷ÏµÍ³ÊÊÅä²ã¹¤³§½Ó¿Ú.
-     * @note ²»Í¬²Ù×÷ÏµÍ³Æ½Ì¨ĞèÒªÊµÏÖ¼Ì³Ğ¸ÃÀàÊµÏÖ¾ßÌåÆ½Ì¨½Ó¿Ú
+     * @class IFactory
+     * @brief æ“ä½œç³»ç»Ÿé€‚é…å±‚å·¥å‚æ¥å£.
+     * @note ä¸åŒæ“ä½œç³»ç»Ÿå¹³å°éœ€è¦å®ç°ç»§æ‰¿è¯¥ç±»å®ç°å…·ä½“å¹³å°æ¥å£
      */
-    class FactoryInterface
+    class IFactory
     {
-        T3D_DECLARE_INTERFACE(FactoryInterface);
+        T3D_DECLARE_INTERFACE(IFactory);
 
     public:
         /**
-         * @brief ´´½¨²Ù×÷ÏµÍ³Ïà¹ØµÄ¿ØÖÆÌ¨¶ÔÏó.
-         * @return ·µ»Ø¿ØÖÆÌ¨¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å×ÊÔ´
+         * @brief åˆ›å»ºæ“ä½œç³»ç»Ÿå¹³å°ç›¸å…³çš„åº”ç”¨ç¨‹åºå¯¹è±¡
+         * @return è¿”å›å¹³å°ç›¸å…³çš„åº”ç”¨ç¨‹åºå¯¹è±¡ï¼Œéœ€è¦ç”¨æˆ·è°ƒç”¨deleteé‡Šæ”¾å¯¹è±¡
          */
-        virtual ConsoleInterface *createConsoleAdapter() = 0;
+        virtual IApplication *createPlatformApplication() = 0;
 
         /**
-         * @brief ´´½¨²Ù×÷ÏµÍ³Ïà¹ØµÄ¶¨Ê±Æ÷¶ÔÏó.
-         * @return ·µ»Ø¶¨Ê±Æ÷¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å×ÊÔ´
+         * @brief åˆ›å»ºæ“ä½œç³»ç»Ÿå¹³å°ç›¸å…³çš„çª—å£.
+         * @return è¿”å›å¹³å°ç›¸å…³çš„çª—å£æ“ä½œå¯¹è±¡ï¼Œéœ€è¦ç”¨æˆ·è°ƒç”¨deleteé‡Šæ”¾å¯¹è±¡
          */
-        virtual TimerInterface *createTimerAdapter() = 0;
+        virtual IWindow *createPlatformWindow() = 0;
 
         /**
-         * @brief ´´½¨²Ù×÷ÏµÍ³Ïà¹ØµÄËÑË÷Â·¾¶¶ÔÏó.
-         * @return ·µ»ØËÑË÷Â·¾¶¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å×ÊÔ´
-         */
-        virtual DirInterface *createDirAdapter() = 0;
-
-        /**
-         * @brief ´´½¨²Ù×÷ÏµÍ³Ïà¹ØµÄÉè±¸ĞÅÏ¢¶ÔÏó.
-         * @return ·µ»ØÉè±¸ĞÅÏ¢²Ù×÷¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å×ÊÔ´
-         */
-        virtual DeviceInfoInterface *createDeviceInfoAdapter() = 0;
-
-        /**
-         * @brief »ñÈ¡µ±Ç°Æ½Ì¨ÀàĞÍ.
-         * @return ·µ»Øµ±Ç°Æ½Ì¨ÀàĞÍ
+         * @brief è·å–å½“å‰å¹³å°ç±»å‹.
+         * @return è¿”å›å½“å‰å¹³å°ç±»å‹
          */
         virtual EPlatform getPlatform() = 0;
     };
 
     /**
-     * @brief ´´½¨²Ù×÷ÏµÍ³Ïà¹ØµÄÊÊÅä²ã¹¤³§¶ÔÏó.
-     * @note ²»Í¬²Ù×÷ÏµÍ³Æ½Ì¨ĞèÒªÊµÏÖ¸Ã½Ó¿ÚÒÔ·µ»Ø²Ù×÷ÏµÍ³ÊÊÅä²ã¹¤³§¶ÔÏó
-     * @return ·µ»ØÊÊÅä²ã¹¤³§¶ÔÏó£¬ĞèÒªÓÃ»§µ÷ÓÃdeleteÊÍ·Å×ÊÔ´
+     * @brief åˆ›å»ºæ“ä½œç³»ç»Ÿç›¸å…³çš„é€‚é…å±‚å·¥å‚å¯¹è±¡.
+     * @note ä¸åŒæ“ä½œç³»ç»Ÿå¹³å°éœ€è¦å®ç°è¯¥æ¥å£ä»¥è¿”å›æ“ä½œç³»ç»Ÿé€‚é…å±‚å·¥å‚å¯¹è±¡
+     * @return è¿”å›é€‚é…å±‚å·¥å‚å¯¹è±¡ï¼Œéœ€è¦ç”¨æˆ·è°ƒç”¨deleteé‡Šæ”¾èµ„æº
      */
-    FactoryInterface *createAdapterFactory();
+    IFactory *createPlatformFactory();
 }
 
 

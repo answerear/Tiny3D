@@ -77,36 +77,33 @@ FIND_PATH(SDL2_INCLUDE_DIR SDL.h
   #$ENV{SDL2DIR}
   ${SDL2DIR}
   PATH_SUFFIXES include/SDL2 include
-  PATHS
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local/include/SDL2
-  /usr/include/SDL2
-  /sw # Fink
-  /opt/local # DarwinPorts
-  /opt/csw # Blastwave
-  /opt
+#  PATHS
+#  ~/Library/Frameworks
+#  /Library/Frameworks
+#  /usr/local/include/SDL2
+#  /usr/include/SDL2
+#  /sw # Fink
+#  /opt/local # DarwinPorts
+#  /opt/csw # Blastwave
+#  /opt
 )
+
 
 FIND_LIBRARY(SDL2_LIBRARY_TEMP
   NAMES SDL2
-  HINTS
-  #$ENV{SDL2DIR}
-  ${SDL2DIR}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
-  PATHS
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
+  HINTS ${SDL2DIR}
+  PATH_SUFFIXES lib64 lib ${SDL2LIB_SUFFIXES}
+#  PATHS
+#  /sw
+#  /opt/local
+#  /opt/csw
+#  /opt
 )
 
 FIND_FILE(SDL2_BINARY
-  NAMES "SDL2.dll"
-  HINTS ${Cg_BIN_SEARCH_PATH}
-  #$ENV{SDL2DIR}
-  ${SDL2DIR}
-  PATH_SUFFIXES lib64 lib prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+  NAMES "SDL2.dll" "libSDL2.so"
+  HINTS ${SDL2DIR}
+  PATH_SUFFIXES lib64 lib ${SDL2LIB_SUFFIXES}
 )
 
 
@@ -117,11 +114,11 @@ IF(NOT SDL2_BUILDING_LIBRARY)
     # seem to provide SDL2main for compatibility even though they don't
     # necessarily need it.
     FIND_LIBRARY(SDL2MAIN_LIBRARY
-      NAMES SDL2main
+      NAMES SDL2main main
       HINTS
       #$ENV{SDL2DIR}
 	  ${SDL2DIR}
-      PATH_SUFFIXES lib64 prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}
+      PATH_SUFFIXES lib64 ${SDL2LIB_SUFFIXES}
       PATHS
       /sw
       /opt/local
@@ -161,9 +158,9 @@ IF(SDL2_LIBRARY_TEMP)
   # I think it has something to do with the CACHE STRING.
   # So I use a temporary variable until the end so I can set the
   # "real" variable in one-shot.
-  IF(APPLE)
+  IF(APPLE AND NOT IOS)
     SET(SDL2_LIBRARY_TEMP ${SDL2_LIBRARY_TEMP} "-framework Cocoa")
-  ENDIF(APPLE)
+  ENDIF(APPLE AND NOT IOS)
 
   # For threads, as mentioned Apple doesn't need this.
   # In fact, there seems to be a problem if I used the Threads package
@@ -201,3 +198,58 @@ IF(SDL2_STATIC)
     SET(SDL2_LIBRARY ${SDL2_LINK_FLAGS})
   ENDIF()
 ENDIF(SDL2_STATIC)
+
+if (APPLE)
+	# Set all dependencies frameworks for SDL2
+	set(SDL2_OSX_FRAMEWORKS "")
+	
+	if (IOS)
+		find_library(FWK_FOUNDATION Foundation)
+		find_library(FWK_QUARTZCORE QuartzCore)
+		find_library(FWK_UIKIT UIKit)
+		find_library(FWK_OPENGLES OpenGLES)
+		find_library(FWK_AVFOUNDATION AVFoundation)
+		find_library(FWK_AUDIOTOOLBOX AudioToolbox)
+		find_library(FWK_IMAGEIO ImageIO)
+		find_library(FWK_COREGRAPHICS CoreGraphics)
+		find_library(FWK_MOBILECORESERVICES MobileCoreServices)
+		find_library(FWK_GAMECONTROLLER GameController)
+		find_library(FWK_COREMOTION CoreMotion)
+		
+		list(APPEND SDL2_OSX_FRAMEWORKS 
+			${FWK_FOUNDATION}
+			${FWK_QUARTZCORE}
+			${FWK_UIKIT}
+			${FWK_OPENGLES}
+			${FWK_AVFOUNDATION}
+			${FWK_AUDIOTOOLBOX}
+			${FWK_IMAGEIO}
+			${FWK_COREGRAPHICS}
+			${FWK_MOBILECORESERVICES}
+			${FWK_GAMECONTROLLER}
+			${FWK_COREMOTION}
+			)
+	else (IOS)
+		find_library(FWK_COREAUDIO CoreAudio)
+		find_library(FWK_AUDIOTOOLBOX AudioToolBox)
+		find_library(FWK_OPENAL OpenAL)
+		find_library(FWK_COCOA Cocoa)
+		find_library(FWK_OPENGL OpenGL)
+		find_library(FWK_COREVIDEO CoreVideo)
+		find_library(FWK_IOKIT IOKit)
+		find_library(FWK_FORCEFEEDBACK ForceFeedback)
+		find_library(FWK_CARBON Carbon)
+		
+		list(APPEND SDL2_OSX_FRAMEWORKS 
+			${FWK_COREAUDIO}
+			${FWK_AUDIOTOOLBOX}
+			${FWK_OPENAL}
+			${FWK_COCOA}
+			${FWK_OPENGL}
+			${FWK_COREVIDEO}
+			${FWK_IOKIT}
+			${FWK_FORCEFEEDBACK}
+			${FWK_CARBON}
+			)
+	endif (IOS)
+endif (APPLE)

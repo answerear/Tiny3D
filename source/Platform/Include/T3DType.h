@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -29,8 +29,6 @@
 #include <map>
 #include <algorithm>
 
-// #define __T3D_HIGH_PERCISION_FLOAT__
-
 
 typedef signed char         char_t;
 typedef unsigned char       uchar_t;
@@ -48,8 +46,10 @@ typedef unsigned short      uint16_t;
 typedef signed int          int32_t;
 typedef unsigned int        uint32_t;
 
+#if !defined (T3D_OS_ANDROID) && !defined (T3D_OS_LINUX)
 typedef signed long long    int64_t;
 typedef unsigned long long  uint64_t;
+#endif
 
 
 typedef std::string         String;
@@ -61,20 +61,6 @@ typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 
-#if defined (__T3D_HIGH_PERCISION_FLOAT__)
-typedef double  Real;
-#else
-typedef float   Real;
-#endif
-
-
-#if defined T3D_OS_WINDOWS
-#define T3D_EXPORT_API      __declspec(dllexport)
-#define T3D_IMPORT_API      __declspec(dllimport)
-#else
-#define T3D_EXPORT_API
-#define T3D_IMPORT_API
-#endif
 
 
 #endif  /*__T3D_TYPE_H__*/

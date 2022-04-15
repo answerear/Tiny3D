@@ -20,7 +20,6 @@
 #ifndef __T3D_MACRO_H__
 #define __T3D_MACRO_H__
 
-
 #include "T3DType.h"
 #include <assert.h>
 
@@ -39,13 +38,19 @@
     #define snprintf    _snprintf
     #define vsnprintf   _vsnprintf
 
-#elif defined T3D_OS_IOS || defined T3D_OS_MAC || defined T3D_OS_LINUX  // iOS or Mac OS x or Linux
+	#define T3D_EXPORT_API      __declspec(dllexport)
+	#define T3D_IMPORT_API      __declspec(dllimport)
+
+#elif defined T3D_OS_IOS || defined T3D_OS_OSX || defined T3D_OS_LINUX  // iOS or Mac OS x or Linux
 
     #ifdef DEBUG    // debug
         #define T3D_DEBUG
     #else           // release
         #undef T3D_DEBUG
     #endif
+
+	#define T3D_EXPORT_API
+	#define T3D_IMPORT_API
 
 #elif defined T3D_OS_ANDROID    // Android
 
@@ -54,6 +59,9 @@
     #else               // release
         #undef T3D_DEBUG
     #endif
+
+	#define T3D_EXPORT_API
+	#define T3D_IMPORT_API
 
 #endif
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -27,16 +27,12 @@
 
 namespace Tiny3D
 {
-    class FactoryInterface;
-    class Console;
-    class DeviceInfo;
-    class TextCodec;
-    class RunLoop;
+    class IFactory;
 
     /**
      * @class VSystem
-     * @brief ÏµÍ³Àà.
-     * @note ¸ÃÀà¶ÔÒ»Ğ©È«¾ÖµÄµ¥Àı´´½¨ºÍÊÍ·Å£¬ÎªÉÏ²ãÌá¹©¿ò¼Ü²ãºÍÏµÍ³²ãÍ³Ò»½Ó¿Ú.
+     * @brief ç³»ç»Ÿç±».
+     * @note è¯¥ç±»å¯¹ä¸€äº›å…¨å±€çš„å•ä¾‹åˆ›å»ºå’Œé‡Šæ”¾ï¼Œä¸ºä¸Šå±‚æä¾›æ¡†æ¶å±‚å’Œç³»ç»Ÿå±‚ç»Ÿä¸€æ¥å£.
      */
     class T3D_PLATFORM_API System : public Singleton<System>
     {
@@ -44,42 +40,35 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief Constructor for VSystem.
+         * @brief Constructor for System.
          */
         System();
 
         /**
-         * @brief Destructor for VSystem.
+         * @brief Destructor for System.
          */
         ~System();
 
         /**
-         * @brief Ã¿¸ö³ÌĞòÑ­»·µ÷ÓÃ´¦Àí.
+         * @brief æ¯ä¸ªç¨‹åºå¾ªç¯è°ƒç”¨å¤„ç†.
          * @return void
          */
         void process();
 
         /**
-         * @brief »ñÈ¡²Ù×÷ÏµÍ³ÊÊÅä²ã¹¤³§½Ó¿Ú¶ÔÏó
+         * @brief è·å–æ“ä½œç³»ç»Ÿé€‚é…å±‚å·¥å‚æ¥å£å¯¹è±¡
          */
-        FactoryInterface &getAdapterFactory()
+        IFactory &getPlatformFactory()
         {
-            return (*m_pAdapterFactory);
+            return (*mPlatformFactory);
         }
 
-        RunLoop &getMainRunLoop();
-
     private:
-        FactoryInterface        *m_pAdapterFactory;
-        TextCodec               *m_pTextCodec;
-        Console                 *m_pConsole;
-        DeviceInfo              *m_pDeviceInfo;
-        RunLoop                 *m_pMainRunLoop;
+        IFactory        *mPlatformFactory;
     };
 
     #define T3D_SYSTEM              (System::getInstance())
-    #define T3D_ADAPTER_FACTORY     (T3D_SYSTEM.getAdapterFactory())
-    #define T3D_MAIN_RUNLOOP        (System::getInstance().getMainRunLoop())
+    #define T3D_PLATFORM_FACTORY    (T3D_SYSTEM.getPlatformFactory())
 }
 
 
