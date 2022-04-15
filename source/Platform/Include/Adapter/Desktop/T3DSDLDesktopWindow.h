@@ -37,7 +37,7 @@ namespace Tiny3D
 
         virtual ~SDLDesktopWindow();
 
-        virtual bool create(const char *title, int32_t x, int32_t y, 
+        virtual int32_t create(const char *title, int32_t x, int32_t y, 
             int32_t w, int32_t h, uint32_t flags) override;
 
         virtual void destroy() override;

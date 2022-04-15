@@ -38,6 +38,8 @@ protected:  /// from Tiny3D::Application
     virtual void applicationWillEnterForeground() override;
 
     virtual void applicationWillTerminate() override;
+
+    virtual void applicationLowMemory() override;
 };
 
 

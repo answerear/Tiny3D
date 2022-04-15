@@ -39,6 +39,8 @@ protected:  // from Tiny3D::Application
 
     virtual void applicationWillTerminate() override;
 
+    virtual void applicationLowMemory() override;
+
     // 射线和三角形相交检测
     void testRayTriangle();
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -28,7 +28,7 @@
 namespace Tiny3D
 {
     /**
-     * @brief ÒıÇæÈë¿ÚÀà
+     * @brief å¼•æ“å…¥å£ç±»
      */
     class T3D_ENGINE_API Engine : public Singleton<Engine>
     {
@@ -36,60 +36,40 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief ¹¹Ôìº¯Êı
+         * @brief æ„é€ å‡½æ•°
          */
         Engine();
 
         /**
-         * @brief Îö¹¹º¯Êı
+         * @brief ææ„å‡½æ•°
          */
         virtual ~Engine();
 
         /**
-         * @brief Æô¶¯ÒıÇæ
-         * @remarks ÒıÇæµÄÒ»ÇĞÓ¦ÓÃ¶¼ÒªÔÚµ÷ÓÃ±¾½Ó¿ÚÖ®ºó²ÅÓĞĞ§¡£
+         * @brief åˆå§‹åŒ–å¼•æ“
+         * @remarks å¼•æ“çš„ä¸€åˆ‡åº”ç”¨éƒ½è¦åœ¨è°ƒç”¨æœ¬æ¥å£ä¹‹åæ‰æœ‰æ•ˆã€‚
          */
-        bool startup(/*Window *window = nullptr*/);
+        int32_t init(const String &title);
 
         /**
-         * @brief ÔËĞĞÒıÇæ
+         * @brief è¿è¡Œå¼•æ“
          */
         bool run();
 
         /**
-         * @brief äÖÈ¾Ò»Ö¡
+         * @brief æ¸²æŸ“ä¸€å¸§
          */
         void renderOneFrame();
 
-//     protected:
-//         /**
-//         * @brief ´°¿Ú´óĞ¡¸Ä±äÍ¨Öª
-//         * @param [in] w : ĞÂµÄ´°¿Ú¿í¶È
-//         * @param [in] h : ĞÂµÄ´°¿Ú¸ß¶È
-//         * @return void
-//         */
-//         virtual void windowResized(int32_t w, int32_t h) override;
-// 
-//         /**
-//         * @brief ´°¿ÚÒÆ¶¯Í¨Öª
-//         * @param [in] x : ĞÂµÄ´°¿ÚÎ»ÖÃ
-//         * @param [in] y : ĞÂµÄ´°¿ÚÎ»ÖÃ
-//         */
-//         virtual void windowMoved(int32_t x, int32_t y) override;
-// 
-//         /**
-//         * @brief ´°¿ÚÊÂ¼şÑ­»·Í¨Öª
-//         */
-//         virtual void windowRender() override;
-// 
-//         /**
-//         * @brief
-//         */
-//         virtual void windowClosed() override;
+        void appDidEnterBackground();
+
+        void appWillEnterForeground();
 
     protected:
-        Window              *mWindow;               /// ´°¿Ú
-        bool                mIsRunning;             /// ÒıÇæÊÇ·ñÔÚÔËĞĞÖĞ
+        Logger              *mLogger;               /// æ—¥å¿—å¯¹è±¡
+
+        Window              *mWindow;               /// çª—å£
+        bool                mIsRunning;             /// å¼•æ“æ˜¯å¦åœ¨è¿è¡Œä¸­
     };
 
     #define T3D_ENGINE      (Engine::getInstance())

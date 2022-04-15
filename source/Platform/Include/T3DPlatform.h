@@ -20,13 +20,21 @@
 #ifndef __T3D_PLATFORM_H__
 #define __T3D_PLATFORM_H__
 
+#include <T3DType.h>
+#include <T3DMacro.h>
+#include <T3DPlatformErrorDef.h>
 #include <T3DSystem.h>
-#include <T3DApplication.h>
-#include <T3DWindow.h>
+#include <Application/T3DApplication.h>
+#include <Window/T3DWindow.h>
+#include <Time/T3DTimerManager.h>
+#include <Time/T3DDateTime.h>
+#include <Time/T3DTimerListener.h>
+#include <IO/T3DDataStream.h>
+#include <IO/T3DFileDataStream.h>
+#include <IO/T3DMemoryDataStream.h>
+#include <IO/T3DDir.h>
+#include <Console/T3DConsole.h>
+#include <Device/T3DDeviceInfo.h>
 
-#if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
-#include <SDL_main.h>
-#else
-#endif
 
 #endif  /*__T3D_PLATFORM_H__*/

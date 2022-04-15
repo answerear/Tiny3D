@@ -28,8 +28,8 @@ namespace Tiny3D
     const int64_t fix64::MAX_INT_VALUE = 549755813887LL; // 549755813887LL
     const int64_t fix64::MIN_INT_VALUE = -549755813888LL; // -549755813888LL
 
-    const float32_t fix64::MAX_FLOAT_VALUE = (fix64::MAX_INT_VALUE * 1.0f); // 549755813887.0f
-    const float32_t fix64::MIN_FLOAT_VALUE = (fix64::MIN_INT_VALUE * 1.0f); // -549755813888.0f
+    const float32_t fix64::MAX_FLOAT_VALUE = ((float32_t)fix64::MAX_INT_VALUE * 1.0f); // 549755813887.0f
+    const float32_t fix64::MIN_FLOAT_VALUE = ((float32_t)fix64::MIN_INT_VALUE * 1.0f); // -549755813888.0f
 
     const fix64 fix64::ZERO = fix64(0);
     const fix64 fix64::HALF = fix64(0.5f);

@@ -36,6 +36,14 @@ namespace Tiny3D
 
         virtual IWindow *createPlatformWindow() override;
 
+        virtual ITime *createPlatformTime() override;
+
+        virtual IDir *createPlatformDir() override;
+
+        virtual IDeviceInfo *createPlatformDeviceInfo() override;
+
+        virtual IConsole *createPlatformConsole() override;
+
         virtual EPlatform getPlatform() override;
 
     protected:

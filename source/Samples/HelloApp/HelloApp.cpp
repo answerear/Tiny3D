@@ -50,3 +50,8 @@ void HelloApp::applicationWillTerminate()
 {
 
 }
+
+void HelloApp::applicationLowMemory()
+{
+
+}

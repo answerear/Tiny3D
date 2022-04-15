@@ -156,20 +156,25 @@ find_package(SDL2)
 
 # Project Platform
 add_subdirectory(Platform)
+# Project Log
+add_subdirectory(Log)
 # Project Math
 add_subdirectory(Math)
 # Project Core
 add_subdirectory(Core)
 
 # Set the dependencies for all projects.
-add_dependencies(T3DMath T3DPlatform)
-add_dependencies(T3DCore T3DMath T3DPlatform)
+add_dependencies(T3DLog T3DPlatform)
+add_dependencies(T3DMath T3DLog T3DPlatform)
+add_dependencies(T3DCore T3DMath T3DLog T3DPlatform)
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(HelloApp T3DCore T3DMath T3DPlatform)
+    add_dependencies(HelloApp T3DCore T3DMath T3DLog T3DPlatform)
+    add_dependencies(PlatformApp T3DCore T3DMath T3DLog T3DPlatform)
     if (TINY3D_OS_DESKTOP)
-        add_dependencies(TransformationApp T3DMath T3DPlatform)
+        add_dependencies(TransformationApp T3DMath T3DLog T3DPlatform)
+        add_dependencies(IntersectionApp T3DMath T3DLog T3DPlatform)
     endif (TINY3D_OS_DESKTOP)
 endif (TINY3D_BUILD_SAMPLES)

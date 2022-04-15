@@ -149,4 +149,7 @@ void TransformationApp::applicationWillTerminate()
 
 }
 
+void TransformationApp::applicationLowMemory()
+{
 
+}

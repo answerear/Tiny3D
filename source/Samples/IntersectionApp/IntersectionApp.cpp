@@ -177,6 +177,11 @@ void IntersectionApp::applicationWillTerminate()
 
 }
 
+void IntersectionApp::applicationLowMemory()
+{
+
+}
+
 void IntersectionApp::testRayTriangle()
 {
     // 位于 (0, 0, 5) 位置起点，朝向 -Z 方向的射线

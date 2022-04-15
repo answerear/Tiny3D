@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -18,10 +18,16 @@ if (MSVC)
 endif (MSVC)
 
 
+add_definitions(-DT3D_ERR_PLATFORM=0x1000)
+
 # Setup search header path for this project.
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Common"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Application"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Window"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Time"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Include/IO"
 	"${SDL2_INCLUDE_DIR}"
 	)
 
@@ -66,6 +72,12 @@ endif (TINY3D_OS_WINDOWS)
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/ .h)
 set_project_files(Include\\\\Adapter\\\\Common ${CMAKE_CURRENT_SOURCE_DIR}/Include/Adapter/Common/ .h)
+set_project_files(Include\\\\Application ${CMAKE_CURRENT_SOURCE_DIR}/Include/Application/ .h)
+set_project_files(Include\\\\Window ${CMAKE_CURRENT_SOURCE_DIR}/Include/Window/ .h)
+set_project_files(Include\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Include/Time/ .h)
+set_project_files(Include\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Include/IO/ .h)
+set_project_files(Include\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Include/Device/ .h)
+set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -102,6 +114,12 @@ endif (TINY3D_OS_DESKTOP)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Adapter ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/ .cpp)
 set_project_files(Source\\\\Adapter\\\\Common ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Common/ .cpp)
+set_project_files(Source\\\\Application ${CMAKE_CURRENT_SOURCE_DIR}/Source/Application/ .cpp)
+set_project_files(Source\\\\Window ${CMAKE_CURRENT_SOURCE_DIR}/Source/Window/ .cpp)
+set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
+set_project_files(Source\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Source/IO/ .cpp)
+set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .cpp)
+set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -111,8 +129,9 @@ elseif (TINY3D_OS_MACOSX)
 	# Mac OS X
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
 	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .cpp)
+	set_project_files(Source\\\\Adapter\\\\OSX ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/OSX/ .mm)
 	set_project_files(Source\\\\Adapter\\\\Desktop ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Desktop/ .cpp)
-	
+
 	#foreach(FW ${TINY3D_FRAMEWORKS})
     #    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
     #endforeach()
@@ -125,7 +144,10 @@ elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 	# iOS
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
-	set_project_files("Source\\\\Adapter\\\\iOS" "${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/" .cpp)
+	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .cpp)
+	set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .mm)
+    set_project_files(Include\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .h)
+    set_project_files(Source\\\\Adapter\\\\iOS ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/iOS/ .m)
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	set_project_files(Source\\\\Adapter\\\\Unix ${CMAKE_CURRENT_SOURCE_DIR}/Source/Adapter/Unix/ .cpp)
@@ -161,7 +183,7 @@ if (TINY3D_OS_WINDOWS)
 		ARCHIVE DESTINATION lib/Debug CONFIGURATIONS Debug
 		)
 
-	install(DIRECTORY 
+	install(DIRECTORY
 		${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Platform
 		FILE_PERMISSIONS GROUP_READ OWNER_READ
 		PATTERN "Android" EXCLUDE
@@ -181,17 +203,20 @@ elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
+		LINK_PRIVATE X11
+		LINK_PRIVATE ${SDL2_LIBRARY}
 		)
 elseif (TINY3D_OS_IOS)
 	# iOS
 	target_link_libraries(
-		${LIB_NAME}
+        ${LIB_NAME}
 		)
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE ${SDL2_BINARY}
+		log
 		)
 endif (TINY3D_OS_WINDOWS)
 

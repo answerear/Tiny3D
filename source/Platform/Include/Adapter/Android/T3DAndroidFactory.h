@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -35,6 +35,14 @@ namespace Tiny3D
         virtual IApplication *createPlatformApplication() override;
 
         virtual IWindow *createPlatformWindow() override;
+
+        virtual ITime *createPlatformTime() override;
+
+        virtual IDir *createPlatformDir() override;
+
+        virtual IDeviceInfo *createPlatformDeviceInfo() override;
+
+        virtual IConsole *createPlatformConsole() override;
 
         virtual EPlatform getPlatform() override;
 

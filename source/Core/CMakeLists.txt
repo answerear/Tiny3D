@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -16,15 +16,18 @@ if (MSVC)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
+add_definitions(-DT3D_ERR_CORE=0x5000)
 
 # Setup all cmake variables for this project.
-set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform/Include")
+set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
+set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies")
 
 
-# Setup search header path for this project.
+# Setup search header path for this project.
 include_directories(
-	"${TINY3D_PLATFORM_DIR}"
+	"${TINY3D_PLATFORM_DIR}/Include"
+	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	"${SDL2_INCLUDE_DIR}"
@@ -53,13 +56,14 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
-	
+
 	# Setup link libraries for this project.
 	if (MSVC_VERSION GREATER_EQUAL 1900)
 		# Visual Studio version is 2015 or later.
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DLog
 			LINK_PRIVATE legacy_stdio_definitions
 			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
@@ -68,10 +72,11 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DLog
 			LINK_PRIVATE ${SDL2_LIBRARY}
 			)
 	endif ()
-	
+
 
 	install(TARGETS ${LIB_NAME}
 		RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug
@@ -79,7 +84,7 @@ if (TINY3D_OS_WINDOWS)
 		ARCHIVE DESTINATION lib/Debug CONFIGURATIONS Debug
 		)
 
-	install(DIRECTORY 
+	install(DIRECTORY
 		${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Core
 		FILE_PERMISSIONS GROUP_READ OWNER_READ
 		PATTERN "Android" EXCLUDE
@@ -96,16 +101,17 @@ if (TINY3D_OS_WINDOWS)
 		)
 
 	add_custom_command(TARGET ${BIN_NAME}
-		PRE_LINK 
+		PRE_LINK
 		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-		COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+		#COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
 		)
 elseif (TINY3D_OS_MACOSX)
 	# Mac OS X
-	
+
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
 		)
@@ -114,6 +120,7 @@ elseif (TINY3D_OS_LINUX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
@@ -128,6 +135,7 @@ elseif (TINY3D_OS_ANDROID)
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DLog
         LINK_PRIVATE ${SDL2_BINARY}
         )
 endif (TINY3D_OS_WINDOWS)
