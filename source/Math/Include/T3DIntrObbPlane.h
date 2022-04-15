@@ -17,26 +17,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_INTR_OBB_PLANE_H__
+#define __T3D_INTR_OBB_PLANE_H__
 
-#include "T3DFix64.h"
+
+#include "T3DMathPrerequisites.h"
+#include "T3DObb.h"
+#include "T3DPlane.h"
+
 
 namespace Tiny3D
 {
-    const int32_t fix64::INTEGER_BITS = 40;
-    const int32_t fix64::DECIMAL_BITS = 24;
+    template <typename T>
+    class TIntrObbPlane
+    {
+    public:
+        TIntrObbPlane();
+        TIntrObbPlane(const TObb<T> *box, const TPlane<T> *plane);
+        TIntrObbPlane(const TObb<T> &box, const TPlane<T> &plane);
 
-    const int64_t fix64::MAX_INT_VALUE = 549755813887LL; // 549755813887LL
-    const int64_t fix64::MIN_INT_VALUE = -549755813888LL; // -549755813888LL
+        int32_t test();
 
-    const float32_t fix64::MAX_FLOAT_VALUE = (fix64::MAX_INT_VALUE * 1.0f); // 549755813887.0f
-    const float32_t fix64::MIN_FLOAT_VALUE = (fix64::MIN_INT_VALUE * 1.0f); // -549755813888.0f
+        const TObb<T> *getBox0() const
+        {
+            return mBox;
+        }
 
-    const fix64 fix64::ZERO = fix64(0);
-    const fix64 fix64::HALF = fix64(0.5f);
-    const fix64 fix64::ONE = fix64(1);
-    const fix64 fix64::MINUS_ONE = fix64(-1);
-    const fix64 fix64::INF = fix64(0x7FFFFFFFFFFFFFFFLL, 0);
-    const fix64 fix64::MINUSINF = fix64(0x8000000000000000LL, 0);
+        const TPlane<T> *getBox1() const
+        {
+            return mPlane;
+        }
+
+        void setBox(const TObb<T> *box)
+        {
+            mBox = box;
+        }
+
+        void setPlane(const TPlane<T> *plane)
+        {
+            mPlane = plane;
+        }
+
+    private:
+        const TObb<T>   *mBox;
+        const TPlane<T> *mPlane;
+    };
 }
 
 
+#include "T3DIntrObbPlane.inl"
+
+
+#endif  /*__T3D_INTR_OBB_PLANE_H__*/
