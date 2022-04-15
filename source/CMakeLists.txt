@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -25,6 +25,11 @@ if (CMAKE_BINARY_DIR MATCHES " ")
 endif()
 
 
+# 定义扩展错误码的开始值
+add_definitions(-DT3D_ERR_EXTEND=0x1000)
+
+set(TINY3D_OS "")
+
 if (WIN32)
     # Windows
     message(STATUS "Platform : Windows")
@@ -32,9 +37,11 @@ if (WIN32)
     add_definitions(-DT3D_OS_WINDOWS)
     add_definitions(-DT3D_OS_DESKTOP)
     add_definitions(-D_HAS_EXCEPTIONS=0)
-    
+
     set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
+
+    set(TINY3D_OS "Windows" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
 
@@ -48,6 +55,7 @@ elseif (ANDROID)
 
     set(TINY3D_OS_ANDROID TRUE CACHE STRING "Android")
     set(TINY3D_OS_MOBILE TRUE CACHE STRING "Mobile")
+    set(TINY3D_OS "Android" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
 
@@ -63,6 +71,7 @@ elseif (APPLE AND IOS)
 
     set(TINY3D_OS_IOS TRUE CACHE STRING "iOS")
     set(TINY3D_OS_MOBILE TRUE CACHE STRING "Mobile")
+    set(TINY3D_OS "iOS" CACHE STRING "OS")
 
     set(CMAKE_OSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
@@ -78,6 +87,7 @@ elseif (APPLE AND NOT IOS)
 
     set(TINY3D_OS_MACOSX TRUE CACHE STRING "Mac OS X")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
+    set(TINY3D_OS "OSX" CACHE STRING "OS")
 
     set(CMAKE_MACOSX_RPATH true)
     set(SDL2LIB_SUFFIXES "prebuilt/OSX")
@@ -86,43 +96,47 @@ elseif (APPLE AND NOT IOS)
 elseif (UNIX AND NOT APPLE)
     # Linux
     message(STATUS "Platform : Linux")
-    
+
     add_definitions(-DT3D_OS_LINUX)
     add_definitions(-DT3D_OS_DESKTOP)
-    
+
     set(TINY3D_OS_LINUX TRUE CACHE STRING "Linux")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
+    set(TINY3D_OS "Linux" CACHE STRING "OS")
+
     set(SDL2LIB_SUFFIXES "prebuilt/Linux")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
 
 if (TINY3D_OS_IOS)
-    # Because in iOS, there only support static library. 
+    # Because in iOS, there only support static library.
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
 else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID)
-    # In Android, this switch is setted by build.gradle in Android Studio. 
+    # In Android, this switch is setted by build.gradle in Android Studio.
     option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID)
 
 # Set all relative directory
-set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Tiny3D binary path")
-set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Tiny3D library path")
+set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}" CACHE PATH "Tiny3D binary path")
+set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}" CACHE PATH "Tiny3D library path")
 set(TINY3D_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Tiny3D include path")
 set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/resources" CACHE PATH "Tiny3D resourcs path")
 
 # Set this directory for debugging app
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin" CACHE STRING "Tiny3D binaries files" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}" CACHE STRING "Tiny3D binaries files" FORCE)
+
+message(STATUS "Runtime dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/bin/${OUTPUTCONFIG}")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}")
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/bin/${OUTPUTCONFIG}/${TINY3D_OS}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}/${TINY3D_OS}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}/${TINY3D_OS}")
 endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
 # Set cmake module path.
@@ -140,16 +154,22 @@ include(ProjectCMakeModule)
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
-# Project Platform 
+# Project Platform
 add_subdirectory(Platform)
+# Project Math
+add_subdirectory(Math)
 # Project Core
 add_subdirectory(Core)
 
 # Set the dependencies for all projects.
-add_dependencies(T3DCore T3DPlatform)
+add_dependencies(T3DMath T3DPlatform)
+add_dependencies(T3DCore T3DMath T3DPlatform)
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(HelloApp T3DCore T3DPlatform)
+    add_dependencies(HelloApp T3DCore T3DMath T3DPlatform)
+    if (TINY3D_OS_DESKTOP)
+        add_dependencies(TransformationApp T3DMath T3DPlatform)
+    endif (TINY3D_OS_DESKTOP)
 endif (TINY3D_BUILD_SAMPLES)
