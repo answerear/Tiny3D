@@ -26,15 +26,18 @@ namespace Tiny3D
 
     Engine::Engine()
         : mLogger(nullptr)
+        , mEventMgr(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
     {
         mLogger = new Logger();
+        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
     {
         T3D_SAFE_DELETE(mWindow);
+        T3D_SAFE_DELETE(mEventMgr);
 
         mLogger->shutdown();
         T3D_SAFE_DELETE(mLogger);
@@ -65,6 +68,7 @@ namespace Tiny3D
             }
 
             T3D_LOG_INFO("Start Tiny3D ...... version %s", T3D_DEVICE_INFO.getSoftwareVersion().c_str());
+            T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
 
             mWindow = new Window();
             ret = mWindow->create(title.c_str(), 100, 100, 800, 600, Window::WINDOW_SHOWN);
@@ -92,6 +96,9 @@ namespace Tiny3D
 
             if (!mIsRunning)
                 break;
+
+            // 事件系统派发事件
+            T3D_EVENT_MGR.dispatchEvent();
 
             // 渲染一帧
             renderOneFrame();
