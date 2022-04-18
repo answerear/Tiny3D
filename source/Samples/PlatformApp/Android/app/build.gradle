@@ -34,6 +34,12 @@ android {
             version "3.10.2.4988404"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildToolsVersion '32.0.0'
+    ndkVersion '24.0.8215888'
 }
 
 dependencies {
