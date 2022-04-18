@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -89,7 +89,7 @@ namespace Tiny3D
         /**
          * @brief 获取系统内存总数
          */
-        virtual uint32_t getSystemRAM() const override;
+        virtual uint64_t getSystemRAM() const override;
         
         /**
          * @brief 获取设备ID.
