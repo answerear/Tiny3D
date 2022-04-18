@@ -17,3 +17,17 @@ source/codeblocks-linux
 source/bin
 source/lib
 source/Samples/hello/Android/app/libs
+source/Samples/FrameworkApp/Android/.idea/gradle.xml
+source/Samples/FrameworkApp/Android/.idea/misc.xml
+source/Samples/FrameworkApp/Android/.idea/modules.xml
+source/Samples/FrameworkApp/Android/.idea/runConfigurations.xml
+source/Samples/FrameworkApp/Android/.idea/compiler.xml
+source/Samples/FrameworkApp/Android/.idea/encodings.xml
+source/Samples/FrameworkApp/Android/.idea/jarRepositories.xml
+source/Samples/FrameworkApp/Android/.idea/vcs.xml
+source/Samples/FrameworkApp/Android/app/libs/armeabi-v7a/libSDL2.so
+source/Samples/FrameworkApp/Android/app/libs/armeabi-v7a/libmain.so
+source/Samples/FrameworkApp/Android/app/libs/armeabi/libSDL2.so
+source/Samples/FrameworkApp/Android/app/libs/armeabi/libmain.so
+source/Samples/FrameworkApp/Android/app/libs/x86/libSDL2.so
+source/Samples/FrameworkApp/Android/app/libs/x86/libmain.so
