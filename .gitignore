@@ -31,3 +31,4 @@ source/Samples/FrameworkApp/Android/app/libs/armeabi/libSDL2.so
 source/Samples/FrameworkApp/Android/app/libs/armeabi/libmain.so
 source/Samples/FrameworkApp/Android/app/libs/x86/libSDL2.so
 source/Samples/FrameworkApp/Android/app/libs/x86/libmain.so
+source/Samples/PlatformApp/Android/.idea

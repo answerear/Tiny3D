@@ -111,7 +111,42 @@ namespace Tiny3D
 
     void Engine::renderOneFrame()
     {
-
+        {
+            T3D_LOG_INFO("Begin Application Stage ......");
+            {
+                T3D_LOG_INFO("\t#0 Travel each node in scene graph and transform from local space to world space.");
+                T3D_LOG_INFO("\t#1 Travel each node in scene graph, then do object frustum culling and put their into rendering queue.");
+                T3D_LOG_INFO("\t#2 Travel rendering queue, then setup their rendering status and call rendering API.");
+            }
+            T3D_LOG_INFO("End Application Stage.");
+        }
+        {
+            T3D_LOG_INFO("Begin Geometry Stage ......");
+            {
+                T3D_LOG_INFO("\t#0 Vertex Shader.");
+                T3D_LOG_INFO("\t#1 Tessellation Shader.");
+                T3D_LOG_INFO("\t#2 Geometry Shader.");
+                T3D_LOG_INFO("\t#3 Culling.");
+                T3D_LOG_INFO("\t#4 Screen Mapping.");
+            }
+            T3D_LOG_INFO("End Geometry Stage.");
+        }
+        {
+            T3D_LOG_INFO("Begin Rasterization Stage ......");
+            {
+                T3D_LOG_INFO("\t#0 Triangle setup.");
+                T3D_LOG_INFO("\t#1 Triangle Traversal.");
+                T3D_LOG_INFO("\t#2 Fragment Shader.");
+                T3D_LOG_INFO("\t#3 Fragment primitvie operating");
+                {
+                    T3D_LOG_INFO("\t\t3.1 Stencil buffer test.");
+                    T3D_LOG_INFO("\t\t3.2 Depth buffer test.");
+                    T3D_LOG_INFO("\t\t3.3 Alpha blending.");
+                    T3D_LOG_INFO("\t\t3.4 Output framebuffer.");
+                }
+            }
+            T3D_LOG_INFO("End Rasterization Stage.");
+        }
     }
 
     void Engine::appWillEnterForeground()
