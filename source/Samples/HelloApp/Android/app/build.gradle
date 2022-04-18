@@ -31,7 +31,14 @@ android {
     externalNativeBuild {
         cmake {
             path "../../../../CMakeLists.txt"
+            version "3.10.2.4988404"
         }
+    }
+    buildToolsVersion '32.0.0'
+    ndkVersion '24.0.8215888'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
