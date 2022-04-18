@@ -451,7 +451,7 @@ namespace Tiny3D
         return mCPUCores;
     }
 
-    uint32_t OSXDeviceInfo::getSystemRAM() const
+    uint64_t OSXDeviceInfo::getSystemRAM() const
     {
         return mSystemRAM;
     }
