@@ -215,6 +215,7 @@ elseif (TINY3D_OS_ANDROID)
 		${LIB_NAME}
 		LINK_PRIVATE ${SDL2_BINARY}
 		log
+		z
 		)
 endif (TINY3D_OS_WINDOWS)
 
