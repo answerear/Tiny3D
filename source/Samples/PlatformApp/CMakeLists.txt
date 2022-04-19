@@ -119,10 +119,10 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}"
-	    COMMAND cp "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*.dylib" "${APPS}"
-	    COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
+            #COMMAND cp "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*.dylib" "${APPS}"
+            #COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
-	    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
             )
 	elseif (TINY3D_OS_MACOSX)
 		# Setup all link libraries frameworks for Mac OS X
@@ -142,7 +142,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
 			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
 			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
-		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
+            XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
 	    	XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--deep"
 	        )
 
