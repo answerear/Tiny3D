@@ -143,7 +143,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
 			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
 		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
-		XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--depp"
+		XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--deep"
 	        )
 
 	    # Setup installing files for making a *.app for this project
