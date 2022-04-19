@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,8 @@
 #include <memory>
 #include <vector>
 #include <list>
+#include <queue>
+#include <stack>
 #include <set>
 #include <map>
 #include <algorithm>
@@ -66,6 +68,12 @@ typedef std::u32string      UTF32String;
 
 typedef void*               THandle;
 
+typedef int32_t             TResult;
+
+typedef uint32_t            ID;
+
+#define T3D_INVALID_ID      0
+
 typedef std::thread                     TThread;
 typedef std::mutex                      TMutex;
 typedef std::recursive_mutex            TRecursiveMutex;
@@ -74,5 +82,25 @@ typedef std::condition_variable         TCondVariable;
 template <typename T>
 using TAutoLock = std::unique_lock<T>;
 
+template <typename T>
+using TArray = std::vector<T>;
+
+template <typename T>
+using TList = std::list<T>;
+
+template <typename T>
+using TQueue = std::queue<T>;
+
+template <typename T>
+using TStack = std::stack<T>;
+
+template <typename T>
+using TSet = std::set<T>;
+
+template <typename K, typename V>
+using TMap = std::map<K, V>;
+
+template <typename T1, typename T2>
+using TPair = std::pair<T1, T2>;
 
 #endif  /*__T3D_TYPE_H__*/

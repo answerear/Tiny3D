@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -45,22 +45,22 @@ namespace Tiny3D
         /**
          * @brief 发送同步事件给指定对象
          */
-        int32_t sendEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
+        TResult sendEvent(EventID evid, EventParam *param, TINSTANCE receiver);
 
         /**
          * @brief 发送异步事件给指定对象
          */
-        int32_t postEvent(uint32_t evid, EventParam *param, TINSTANCE receiver);
+        TResult postEvent(EventID evid, EventParam *param, TINSTANCE receiver);
 
         /**
          * @brief 发送同步事件给关注事件的对象
          */
-        int32_t sendEvent(uint32_t evid, EventParam *param);
+        TResult sendEvent(EventID evid, EventParam *param);
 
         /**
          * @brief 发送异步事件给关注事件的对象
          */
-        int32_t postEvent(uint32_t evid, EventParam *param);
+        TResult postEvent(EventID evid, EventParam *param);
 
         /**
          * @brief 获取实例句柄
@@ -74,7 +74,7 @@ namespace Tiny3D
         * @param [in] sender : 事件发送实例句柄
         * @return 有处理事件返回true，否则返回false。
         */
-        virtual int32_t processEvent(uint32_t evid, EventParam *param,
+        virtual TResult processEvent(EventID evid, EventParam *param,
             TINSTANCE sender);
 
     protected:
@@ -86,24 +86,24 @@ namespace Tiny3D
         /**
          * @brief 反注册对象，调用后无法再继续收发事件
          */
-        int32_t unregisterHandler();
+        TResult unregisterHandler();
 
         /**
          * @brief 建立事件过滤器，只有在过滤器里面的才会收到不定对象的事件通知
          */
-        int32_t setupEventFilter();
+        TResult setupEventFilter();
 
         /**
          * @brief 注册关注的事件到过滤器里面
          * @param [in] evid : 事件ID 
          */
-        int32_t registerEvent(uint32_t evid);
+        TResult registerEvent(EventID evid);
 
         /**
          * @brief 反注册关注的事件，反注册后，过滤器里面没有该事件
          * @param [in] evid : 事件ID
          */
-        int32_t unregisterEvent(uint32_t evid);
+        TResult unregisterEvent(EventID evid);
 
         /**
          * @brief 反注册所有关注的事件
@@ -111,7 +111,7 @@ namespace Tiny3D
         void unregisterAllEvent();
 
     private:
-        typedef std::list<uint32_t>         EventList;
+        typedef TList<uint32_t>             EventList;
         typedef EventList::iterator         EventListItr;
         typedef EventList::const_iterator   EventListConstItr;
 

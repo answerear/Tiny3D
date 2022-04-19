@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,67 +18,106 @@
  ******************************************************************************/
 
 #include "Kernel/T3DEngine.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DFileSystemArchive.h"
+#include "Resource/T3DZipArchieve.h"
+#include "Kernel/T3DConfigFile.h"
+#include "DataStruct/T3DString.h"
+#include "Memory/T3DObjectTracer.h"
 
 
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(Engine);
 
+    //--------------------------------------------------------------------------
+
     Engine::Engine()
         : mLogger(nullptr)
         , mEventMgr(nullptr)
+        , mObjTracer(nullptr)
         , mWindow(nullptr)
         , mIsRunning(false)
+        , mArchiveMgr(nullptr)
     {
-        mLogger = new Logger();
-        mEventMgr = new EventManager(10);
     }
 
     Engine::~Engine()
     {
+        mArchiveMgr = nullptr;
+
         T3D_SAFE_DELETE(mWindow);
         T3D_SAFE_DELETE(mEventMgr);
+
+        mObjTracer->dumpMemoryInfo();
+        T3D_SAFE_DELETE(mObjTracer);
 
         mLogger->shutdown();
         T3D_SAFE_DELETE(mLogger);
     }
 
-    int32_t Engine::init(const String &title)
+    //--------------------------------------------------------------------------
+
+    TResult Engine::init(const String &appPath, 
+        const String &config /* = "Tiny3D.cfg" */)
     {
-        int32_t ret = T3D_ERR_FAIL;
+        TResult ret = T3D_ERR_OK;
 
         do
         {
-            Application *theApp = Application::getInstancePtr();
-            if (theApp == nullptr)
-            {
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
+            // 获取应用程序路径、应用程序名称
+            StringUtil::split(appPath, mAppPath, mAppName);
 
-            ret = theApp->init();
+            // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
+            ret = initApplication();
             if (ret != T3D_ERR_OK)
             {
                 break;
             }
 
-            if (mLogger != nullptr)
+            // 初始化日志系统，这个需要放在前面，避免日志无法输出
+            ret = initLogSystem();
+            if (ret != T3D_ERR_OK)
             {
-                mLogger->startup(1000, "Engine", true, true);
+                break;
             }
 
-            T3D_LOG_INFO("Start Tiny3D ...... version %s", T3D_DEVICE_INFO.getSoftwareVersion().c_str());
-            T3D_LOG_INFO("System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
+            // 初始化事件系统
+            ret = initEventSystem();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
 
-            mWindow = new Window();
-            ret = mWindow->create(title.c_str(), 100, 100, 800, 600, Window::WINDOW_SHOWN);
+            // 初始化对象追踪器
+            ret = initObjectTracer();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            // 初始化档案系统
+            ret = initArchives();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            // 加载配置文件
+            ret = loadConfig(config);
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            // 创建渲染窗口
+            ret = createRenderWindow();
             if (ret != T3D_ERR_OK)
             {
                 break;
             }
 
             mIsRunning = true;
-            ret = T3D_ERR_OK;
         } while (0);
 
         return ret;
@@ -149,6 +188,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Engine::appWillEnterForeground()
     {
         T3D_LOG_ENTER_FOREGROUND();
@@ -157,5 +198,130 @@ namespace Tiny3D
     void Engine::appDidEnterBackground()
     {
         T3D_LOG_ENTER_BACKGROUND();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::initApplication()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do
+        {
+            Application *theApp = Application::getInstancePtr();
+            if (theApp == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = theApp->init();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult Engine::initLogSystem()
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        mLogger = new Logger();
+
+        if (mLogger != nullptr)
+        {
+            ret = mLogger->startup(1000, "Engine", true, true);
+        }
+
+        T3D_LOG_INFO("Start Tiny3D ...... version %s",
+            T3D_DEVICE_INFO.getSoftwareVersion().c_str());
+
+        T3D_LOG_INFO("System Information : \n%s",
+            T3D_DEVICE_INFO.getSystemInfo().c_str());
+
+        return ret;
+    }
+
+    TResult Engine::initEventSystem()
+    {
+        mEventMgr = new EventManager(10);
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::initObjectTracer()
+    {
+        mObjTracer = new ObjectTracer();
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::createRenderWindow()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            Settings settings = mSettings["Render"].mapValue();
+
+            // 窗口标题
+            String title = settings["Title"].stringValue();
+            // 窗口位置
+            int32_t x = settings["x"].int32Value();
+            int32_t y = settings["y"].int32Value();
+            // 窗口大小
+            int32_t w = settings["Width"].int32Value();
+            int32_t h = settings["Height"].int32Value();
+            // 是否全屏
+            bool fullscreen = settings["FullScreen"].boolValue();
+            // 创建标记位
+            uint32_t flags = Window::WINDOW_SHOWN;
+            if (fullscreen)
+                flags |= Window::WINDOW_FULLSCREEN;
+
+            // 创建窗口
+            mWindow = new Window();
+            ret = mWindow->create(title.c_str(), x, y, w, h, flags);
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+        } while (0);
+        
+        return ret;
+    }
+
+    TResult Engine::initArchives()
+    {
+        mArchiveMgr = ArchiveManager::create();
+
+        FileSystemArchiveCreator *fsCreator = new FileSystemArchiveCreator();
+        mArchiveMgr->addArchiveCreator(fsCreator);
+
+        ZipArchiveCreator *zipCreator = new ZipArchiveCreator();
+        mArchiveMgr->addArchiveCreator(zipCreator);
+
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::loadConfig(const String &cfgPath)
+    {
+        TResult ret = T3D_ERR_OK;
+
+#if defined (T3D_OS_ANDROID)
+        // Android，只能读取apk包里面的文件
+        String apkPath = Dir::getAppPath();
+        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+        ConfigFile cfgFile("assets/" + cfgPath, archive);
+        ret = cfgFile.loadXML(mSettings);
+#else
+        // 其他不需要从 apk 包里面读取文件的
+        String path = mAppPath + cfgPath;
+        ConfigFile cfgFile(path);
+        ret = cfgFile.loadXML(mSettings);
+#endif
+
+        return ret;
     }
 }

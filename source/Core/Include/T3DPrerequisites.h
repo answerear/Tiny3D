@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #ifndef __T3D_PREREQUISITES_H__
 #define __T3D_PREREQUISITES_H__
 
-
+#include "T3DMacro.h"
 
 #if defined T3DCORE_EXPORT
     #define T3D_ENGINE_API        T3D_EXPORT_API
@@ -41,8 +41,21 @@
 
 namespace Tiny3D
 {
-    /// Core
+    class Object;
+    class ObjectTracer;
+
     class Engine;
+
+    class Variant;
+
+    class Resource;
+    class ResourceManager;
+    class Dylib;
+    class DylibManager;
+    class Archive;
+    class FileSystemArchive;
+    class ZipArchive;
+    class ArchiveManager;
 }
 
 

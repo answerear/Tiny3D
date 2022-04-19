@@ -53,6 +53,9 @@ namespace Tiny3D
          * @return 返回应用程序可写路径.
          */
         virtual String getWritablePath() const override;
+
+	protected:
+    	String	mApkPath;
     };
 }
 

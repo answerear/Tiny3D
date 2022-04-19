@@ -1,6 +1,6 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,16 +26,17 @@
 
 namespace Tiny3D
 {
-    /// �ɹ�
-    #define T3D_ERR_NONE                    0
-    #define T3D_ERR_OK                      T3D_ERR_NONE
-    #define T3D_ERR_SUCCESS                 T3D_ERR_NONE
-    /// ͨ�ô���
-    #define T3D_ERR_FAIL                    1
-    /// ��ָ����߷Ƿ�ָ��
-    #define T3D_ERR_INVALID_POINTER         2
-    /// ��Ч�Ķ�ʱ��ID
-    #define T3D_ERR_INVALID_TIMERID         3
+    enum CommonErrorCode
+    {
+        T3D_ERR_NONE                = 0,            /**< 没有错误 */
+        T3D_ERR_OK                  = T3D_ERR_NONE, /**< 成功 */
+        T3D_ERR_SUCCESS             = T3D_ERR_NONE, /**< 成功 */
+        T3D_ERR_FAIL                = 0x00000001,   /**< 通用错误 */
+        T3D_ERR_INVALID_POINTER     = 0x00000002,   /**< 空指针或者非法指针 */
+        T3D_ERR_INVALID_TIMERID     = 0x00000003,   /**< 无效定时器ID */
+        T3D_ERR_FILE_NOT_EXIST      = 0x00000004,   /**< 文件不存在 */
+        T3D_ERR_FILE_DATA_MISSING   = 0x00000005,   /**< 文件内容缺失 */
+    };
 };
 
 #endif  /*__T3D_COMMON_ERROR_DEF_H__*/

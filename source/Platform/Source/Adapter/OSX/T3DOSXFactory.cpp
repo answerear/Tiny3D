@@ -19,6 +19,7 @@
 
 #include "T3DOSXFactory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
 #include "Adapter/OSX/T3DOSXDir.h"
@@ -51,6 +52,11 @@ namespace Tiny3D
 	{
 		return new UnixTime();
 	}
+    
+    ITimerService *OSXFactory::createPlatformTimerService()
+    {
+        return new TimerService();
+    }
 	
 	IDir *OSXFactory::createPlatformDir()
 	{

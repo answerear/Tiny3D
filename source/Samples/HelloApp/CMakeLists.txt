@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
-# The contents of this file are placed in the public domain. 
+# The contents of this file are placed in the public domain.
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
@@ -83,64 +83,79 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     
     if (TINY3D_OS_IOS)
         find_library(FWK_SECURITY Security)
-        # Setup all link libraries and frameworks for iOS.
-        target_link_libraries(
-            ${LIB_NAME}
-            T3DPlatform
-            T3DLog
-                T3DFramework
-            T3DCore
-            ${SDL2_LIBRARY}
-            ${SDL2_OSX_FRAMEWORKS}
-                ${FWK_SECURITY}
-            )
-    
-        # Setup all properties for this iOS project.
-        set_target_properties(${BIN_NAME}
-            PROPERTIES
-            MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
-            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"	# Info.plist for this app.
-            MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
-            XCODE_ATTRIBUTE_SDKROOT "iphoneos"										# SDK root for this app.
-            XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"						# Minimum deployment target for this app.
-            XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"							# Development team id for this app.
-            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"					# Code sign identity for this app.
-            MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
-            )
-    elseif (TINY3D_OS_MACOSX)
-        # Setup all link libraries frameworks for Mac OS X
-        target_link_libraries(
-            ${LIB_NAME}
-            T3DPlatform
-            T3DLog
+
+		# Setup all link libraries and frameworks for iOS.
+		target_link_libraries(
+	        ${LIB_NAME}
+	        T3DPlatform
+	        T3DLog
             T3DFramework
-            T3DCore
-            )
-            
-        # Setup all properties for this Mac OS X project.
-        set_target_properties(${BIN_NAME}
-            PROPERTIES
-            MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
-            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/OSX/Info.plist"	# Info.plist for this app.
-            MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
-            MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
-            )
-                    
-        # Setup installing files for making a *.app for this project 
+	        T3DCore
+            z
+	        ${SDL2_LIBRARY}
+	        ${SDL2_OSX_FRAMEWORKS}
+            ${FWK_SECURITY}
+	        )
+
+		# Setup all properties for this iOS project.
+	    set_target_properties(${BIN_NAME}
+	        PROPERTIES
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
+	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/iOS/Info.plist"	# Info.plist for this app.
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
+	        XCODE_ATTRIBUTE_SDKROOT "iphoneos"										# SDK root for this app.
+	        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"						# Minimum deployment target for this app.
+	        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"							# Development team id for this app.
+	        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"					# Code sign identity for this app.
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
+	        )
+
         set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
         set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
-        install(CODE "
-            include(BundleUtilities)
-            fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
-            " COMPONENT Runtime)
-            
-        install(TARGETS ${BIN_NAME}
-            BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug
-            RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
-            LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
-            ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
+
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}"
+            )
+	elseif (TINY3D_OS_MACOSX)
+		# Setup all link libraries frameworks for Mac OS X
+		target_link_libraries(
+	        ${LIB_NAME}
+	        T3DPlatform
+	        T3DLog
+	        T3DFramework
+	        T3DCore
+	        )
+
+	    # Setup all properties for this Mac OS X project.
+	    set_target_properties(${BIN_NAME}
+	        PROPERTIES
+	        MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}									# Bundle name for this app.
+	        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/OSX/Info.plist"	# Info.plist for this app.
+	        MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"							# Bundle ID for this app.
+			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
+	        )
+
+	    # Setup installing files for making a *.app for this project
+		set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
+		set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
+		install(CODE "
+			include(BundleUtilities)
+			fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
+			" COMPONENT Runtime)
+
+		install(TARGETS ${BIN_NAME}
+			BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug
+			RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
+			LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
+			ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
+			)
+
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
             )
     endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)

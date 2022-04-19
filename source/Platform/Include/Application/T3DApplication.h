@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -47,7 +47,7 @@ namespace Tiny3D
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
          * @return 调用成功返回T3D_ERR_OK
          */
-        int32_t init();
+        TResult init();
 
         /**
          * @brief 应用事件处理

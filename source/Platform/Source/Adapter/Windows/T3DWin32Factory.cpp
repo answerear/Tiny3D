@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 
 #include "T3DWin32Factory.h"
 #include "Adapter/Common/T3DSDLApplication.h"
+#include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Windows/T3DWin32Time.h"
 #include "Adapter/Windows/T3DWin32Dir.h"
@@ -51,6 +52,11 @@ namespace Tiny3D
     ITime *Win32Factory::createPlatformTime()
     {
         return new Win32Time();
+    }
+
+    ITimerService *Win32Factory::createPlatformTimerService()
+    {
+        return new TimerService();
     }
 
     IDir *Win32Factory::createPlatformDir()

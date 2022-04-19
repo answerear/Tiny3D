@@ -51,6 +51,12 @@ namespace Tiny3D
         virtual ITime *createPlatformTime() override;
 
         /**
+         * @brief 创建操作系统平台相关的定时器服务对象.
+         * @return 返回平台相关的定时器服务对象，需要用户调用delete释放对象
+         */
+        virtual ITimerService *createPlatformTimerService() override;
+
+        /**
          * @brief 创建操作系统平台相关的路径搜索对象.
          * @return 返回平台相关的路径搜索对象，需要用户调用delete释放对象
          */

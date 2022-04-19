@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,11 +23,13 @@
 
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
+#include "T3DPlatformErrorDef.h"
 
 
 namespace Tiny3D
 {
     class ITimerListener;
+    class ITimerService;
 
     class T3D_PLATFORM_API TimerManager : public Singleton<TimerManager>
     {
@@ -35,68 +37,47 @@ namespace Tiny3D
 
     private:
         /**
-         * @brief Constructor
+         * @brief 构造函数
          */
         TimerManager();
 
     public:
-        static const uint32_t INVALID_TIMER_ID;
+        static const ID INVALID_TIMER_ID;
 
         /**
-         * @brief Destructor
+         * @brief 析构函数
          */
         virtual ~TimerManager();
 
         /**
          * @brief 启动定时器
+         * @param [in] interval : 时间间隔
+         * @param [in] repeat : 是否循环定时器
+         * @param [in] listener : 定时器回调对象
+         * @return 调用成功返回有效定时器ID，否则返回T3D_INVALID_TIMER_ID
          */
-        uint32_t startTimer(uint32_t interval, bool repeat, 
-            ITimerListener *listener);
+        ID startTimer(uint32_t interval, bool repeat, ITimerListener *listener);
 
-        int32_t stopTimer(uint32_t timerID);
+        /**
+         * @brief 停止定时器
+         * @param [in] timerID : 有效定时器ID，通过startTimer返回
+         * @return 调用成功返回T3D_ERR_OK
+         */
+        TResult stopTimer(ID timerID);
 
     protected:
-        int32_t init();
+        /**
+         * @brief 初始化定时器服务
+         */
+        TResult init();
 
-        int32_t pollEvents();
+        /**
+         * @brief 轮询是否有定时器事件触发
+         */
+        TResult pollEvents();
 
-        void update();
-
-        struct Timer
-        {
-            int64_t         timestamp;  /// 定时器启动时间戳
-            int64_t         interval;   /// 定时器触发间隔
-            ITimerListener  *listener;  /// 定时器触发的监听对象
-            bool            repeat;     /// 定时器是否循环
-            bool            alive;      /// 定时器是否有效
-        };
-
-        struct TimerEvent
-        {
-            uint32_t        timerID;    /// 定时器ID
-            int32_t         dt;         /// 实际时间间隔
-            ITimerListener  *listener;  /// 定时器触发的监听对象
-        };
-
-        typedef std::map<uint32_t, Timer>   TimerList;
-        typedef TimerList::iterator         TimerListItr;
-        typedef TimerList::const_iterator   TimerListConstItr;
-        typedef TimerList::value_type       TimerValue;
-
-        typedef std::list<TimerEvent>           TimerEventQueue;
-        typedef TimerEventQueue::iterator       TimerEventQueueItr;
-        typedef TimerEventQueue::const_iterator TimerEventQueueConstItr;
-
-
-        TimerList       mTimerList;         /// 定时器对象列表
-        TimerEventQueue mTimerEventQueue;   /// 定时器事件队列
-        uint32_t        mTimerID;           /// 当前定时器ID，用于下一个生成的ID
-
-        bool            mIsRunning;         /// 轮询线程是否在运行
-
-        TThread         mPollThread;        /// 轮询线程
-        TMutex          mTimerListMutex;    /// 操作定时器对象列表的互斥量
-        TRecursiveMutex mEventListMutex;    /// 操作事件队列的互斥量
+    protected:
+        ITimerService   *mTimerService;
     };
 
     #define T3D_TIMER_MGR       TimerManager::getInstance()

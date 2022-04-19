@@ -1,6 +1,6 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     FrameworkApp *theApp = new FrameworkApp();
     Tiny3D::Engine *theEngine = new Tiny3D::Engine();
 
-    theEngine->init("FrameworkApp");
+    theEngine->init(argv[0]);
     theEngine->run();
 
     delete theEngine;

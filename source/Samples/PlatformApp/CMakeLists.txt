@@ -43,6 +43,7 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+        T3DFramework
         T3DCore
         )
 
@@ -60,6 +61,7 @@ elseif (TINY3D_OS_ANDROID)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+        T3DFramework
         T3DCore
         )
 
@@ -89,6 +91,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        T3DLog
 	        T3DCore
             T3DFramework
+            z
 	        ${SDL2_LIBRARY}
 	        ${SDL2_OSX_FRAMEWORKS}
             ${FWK_SECURITY}
@@ -107,12 +110,21 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"								# Long version string for this app.
 			MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"								# Short version string for this app.
 	        )
+
+        set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
+        set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
+
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}"
+            )
 	elseif (TINY3D_OS_MACOSX)
 		# Setup all link libraries frameworks for Mac OS X
 		target_link_libraries(
 	        ${LIB_NAME}
 	        T3DPlatform
 	        T3DLog
+            T3DFramework
 	        T3DCore
 	        )
 
@@ -140,6 +152,11 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
 			ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
 			)
+
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
+            )
  	endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)
 	# Setup executable project for Linux.
@@ -152,6 +169,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+        T3DFramework
         T3DCore
         )
 

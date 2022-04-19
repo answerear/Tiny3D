@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2017  Answer Wong
+ * Copyright (C) 2015-2019  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,168 +19,66 @@
 
 
 #include "T3DTimerManager.h"
-#include "T3DTimerListener.h"
-#include "T3DDateTime.h"
-#include "T3DPlatformErrorDef.h"
-#include <chrono>
-#include <functional>
+#include "Adapter/Common/T3DTimerService.h"
+#include "Adapter/T3DFactoryInterface.h"
+#include "T3DSystem.h"
 
 namespace Tiny3D
 {
     T3D_INIT_SINGLETON(TimerManager);
 
-    const uint32_t TimerManager::INVALID_TIMER_ID = 0;
+    const ID TimerManager::INVALID_TIMER_ID = ITimerService::INVALID_TIMER_ID;
 
     TimerManager::TimerManager()
-        : mTimerID(0)
-        , mIsRunning(true)
-        , mPollThread()
-        , mTimerListMutex()
-        , mEventListMutex()
+        : mTimerService(nullptr)
     {
-
+        mTimerService = T3D_PLATFORM_FACTORY.createPlatformTimerService();
     }
 
     TimerManager::~TimerManager()
     {
-        // 设置线程退出，等待线程结束，才析构
-        mIsRunning = false;
-        mPollThread.join();
+        T3D_SAFE_DELETE(mTimerService);
     }
 
-    uint32_t TimerManager::startTimer(uint32_t interval, bool repeat,
+    ID TimerManager::startTimer(uint32_t interval, bool repeat,
         ITimerListener *listener)
     {
-        if (nullptr == listener)
-            return INVALID_TIMER_ID;
-
-        int64_t timestamp = DateTime::currentMSecsSinceEpoch();
-        Timer timer = { timestamp, interval, listener, repeat, true };
-
-        TAutoLock<TMutex> lockL(mTimerListMutex);
-
-        uint32_t timerID = mTimerID + 1;
-        auto r = mTimerList.insert(TimerValue(timerID, timer));
-        if (r.second)
+        if (mTimerService != nullptr)
         {
-            if (timerID == (uint32_t)-1)
-            {
-                timerID = 1;
-            }
-
-            mTimerID = timerID;
+            return mTimerService->startTimer(interval, repeat, listener);
         }
 
-        return timerID;
+        return INVALID_TIMER_ID;
     }
 
-    int32_t TimerManager::stopTimer(uint32_t timerID)
+    TResult TimerManager::stopTimer(ID timerID)
     {
-        int32_t ret = T3D_ERR_OK;
-
-        do
+        if (mTimerService != nullptr)
         {
-            if (INVALID_TIMER_ID == timerID)
-            {
-                ret = T3D_ERR_INVALID_TIMERID;
-                break;
-            }
-
-            TAutoLock<TMutex> lockL(mTimerListMutex);
-            mTimerList.erase(timerID);
-            lockL.unlock();
-
-            // 事件队列里面把这个ID的都干掉
-            TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-
-            auto itrQ = mTimerEventQueue.begin();
-
-            while (itrQ != mTimerEventQueue.end())
-            {
-                auto itrCur = itrQ++;
-                if (timerID == itrCur->timerID)
-                {
-                    mTimerEventQueue.erase(itrCur);
-                }
-            }
-        } while (0);
-
-        return ret;
-    }
-
-    int32_t TimerManager::init()
-    {
-        int32_t ret = T3D_ERR_OK;
-
-        mPollThread = TThread(std::bind(&TimerManager::update, this));
-
-        return ret;
-    }
-
-    void TimerManager::update()
-    {
-        while (mIsRunning)
-        {
-            if (!mTimerList.empty())
-            {
-                int64_t timestamp = DateTime::currentMSecsSinceEpoch();
-
-                TAutoLock<TMutex> lockL(mTimerListMutex);
-
-                auto itr = mTimerList.begin();
-
-                while (itr != mTimerList.end())
-                {
-                    uint32_t timerID = itr->first;
-                    auto itrCur = itr++;
-
-                    Timer &timer = itrCur->second;
-                    int32_t dt = int32_t(timestamp - timer.timestamp);
-
-                    if (dt >= timer.interval)
-                    {
-                        timer.timestamp = timestamp;
-
-                        // 放到事件队列里
-                        TimerEvent ev = { timerID, dt, timer.listener };
-
-                        if (!timer.repeat)
-                        {
-                            // 不循环的定时器，直接删掉
-                            mTimerList.erase(itrCur);
-                        }
-
-                        TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-                        mTimerEventQueue.push_back(ev);
-                    }
-                }
-
-                lockL.unlock();
-            }
-
-            // 挂起10ms
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            return mTimerService->stopTimer(timerID);
         }
 
-        int a = 0;
+        return T3D_ERR_INVALID_POINTER;
     }
 
-    int32_t TimerManager::pollEvents()
+    TResult TimerManager::init()
     {
-        // 查询事件并派发
-        TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-
-        auto itr = mTimerEventQueue.begin();
-
-        while (itr != mTimerEventQueue.end())
+        if (mTimerService != nullptr)
         {
-            TimerEvent ev = *itr++;
-            ev.listener->onTimer(ev.timerID, ev.dt);
+            return mTimerService->init();
         }
 
-        mTimerEventQueue.clear();
+        return T3D_ERR_INVALID_POINTER;
+    }
 
-        return T3D_ERR_OK;
+    TResult TimerManager::pollEvents()
+    {
+        if (mTimerService != nullptr)
+        {
+            return mTimerService->pollEvents();
+        }
+
+        return T3D_ERR_INVALID_POINTER;
     }
 }
 
