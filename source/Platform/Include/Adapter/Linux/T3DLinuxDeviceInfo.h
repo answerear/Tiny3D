@@ -92,7 +92,7 @@ namespace Tiny3D
         /**
          * @brief 获取内存信息.
          */
-        virtual uint32_t getSystemRAM() const override;
+        virtual uint64_t getSystemRAM() const override;
 
         /**
          * @brief 获取设备ID.

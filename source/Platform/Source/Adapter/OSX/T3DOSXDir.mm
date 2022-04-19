@@ -105,5 +105,10 @@ namespace Tiny3D
     {
         return getAppPath() + "/Documents";
     }
+    
+    String OSXDir::getLibraryPath() const
+    {
+        return getAppPath();
+    }
 }
 

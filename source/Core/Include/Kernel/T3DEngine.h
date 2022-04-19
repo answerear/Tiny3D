@@ -76,6 +76,43 @@ namespace Tiny3D
         void appWillEnterForeground();
 
         /**
+         * @brief 安装插件
+         * @param [in] plugin : 对应的插件对象
+         * @return 成功返回 T3D_ERR_OK
+         */
+        TResult installPlugin(Plugin *plugin);
+
+        /**
+         * @brief 卸载插件
+         * @param [in] plugin : 对应的插件对象
+         * @return 成功返回 T3D_ERR_OK
+         */
+        TResult uninstallPlugin(Plugin *plugin);
+
+        /**
+         * @brief 加载指定名称的插件
+         * @return 成功返回 T3D_ERR_OK
+         */
+        TResult loadPlugin(const String &name);
+
+        /**
+         * @brief 卸载指定名称的插件
+         */
+        TResult unloadPlugin(const String &name);
+
+        /**
+         * @brief 添加档案结构构造器
+         * @return 成功返回 T3D_ERR_OK
+         */
+        TResult addArchiveCreator(ArchiveCreator *creator);
+
+        /**
+         * @brief 移除档案结构构造器
+         * @return 成功返回 T3D_ERR_OK
+         */
+        TResult removeArchiveCreator(ArchiveCreator *creator);
+
+        /**
          * @brief 获取应用程序路径，不包含程序名称
          */
         const String &getAppPath() const { return mAppPath;  }
@@ -112,9 +149,9 @@ namespace Tiny3D
         TResult initObjectTracer();
 
         /**
-         * @brief 初始化档案结构系统
+         * @brief 初始化各种管理器
          */
-        TResult initArchives();
+        TResult initManagers();
 
         /**
          * @brief 加载配置文件
@@ -124,11 +161,33 @@ namespace Tiny3D
         TResult loadConfig(const String &cfgPath);
 
         /**
+         * @brief 加载配置文件中指定的插件
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult loadPlugins();
+
+        /**
+         * @brief 卸载所有插件
+         * @return 调用成功返回 T3D_ERR_OK
+         */
+        TResult unloadPlugins();
+
+        /**
          * @brief 创建渲染窗口
          */
         TResult createRenderWindow();
 
     protected:
+        typedef TMap<String, Plugin*>       Plugins;
+        typedef Plugins::iterator           PluginsItr;
+        typedef Plugins::const_iterator     PluginsConstItr;
+        typedef Plugins::value_type         PluginsValue;
+
+        typedef TMap<String, DylibPtr>      Dylibs;
+        typedef Dylibs::iterator            DylibsItr;
+        typedef Dylibs::const_iterator      DylibsConstItr;
+        typedef Dylibs::value_type          DylibsValue;
+
         Logger              *mLogger;           /**< 日志对象 */
         EventManager        *mEventMgr;         /**< 事件管理器对象 */
         ObjectTracer        *mObjTracer;        /**< 对象内存跟踪 */
@@ -137,6 +196,10 @@ namespace Tiny3D
         bool                mIsRunning;         /**< 引擎是否在运行中 */
 
         ArchiveManagerPtr   mArchiveMgr;        /**< 档案管理对象 */
+        DylibManagerPtr     mDylibMgr;          /**< 动态库管理对象 */
+
+        Plugins             mPlugins;           /**< 当前安装的插件列表 */
+        Dylibs              mDylibs;            /**< 当前加载的动态库列表 */
 
         String              mAppPath;           /**< 程序路径 */
         String              mAppName;           /**< 程序名称 */

@@ -1,5 +1,7 @@
 cd ../
 rm -rf xcode-osx
+rm -rf bin
+rm -rf lib
 mkdir -p xcode-osx && cd xcode-osx
 CMAKE_C_COMPILER=$(xcrun -find cc)
 CMAKE_CXX_COMPILER=$(xcrun -find c++)

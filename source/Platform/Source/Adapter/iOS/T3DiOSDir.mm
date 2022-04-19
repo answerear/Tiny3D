@@ -113,6 +113,11 @@ namespace Tiny3D
         return appPath;
     }
     
+    String iOSDir::getLibraryPath() const
+    {
+        return getAppPath();
+    }
+    
     String iOSDir::getWritablePath() const
     {
         String writablePath;

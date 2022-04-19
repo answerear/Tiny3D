@@ -48,6 +48,7 @@ set_project_files(Include\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Include/Resour
 set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .h)
 set_project_files(Include\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Include/DataStruct/ .inl)
 set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
+set_project_files(Include\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Include/Render/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
@@ -55,14 +56,13 @@ set_project_files(Source\\\\Kernel ${CMAKE_CURRENT_SOURCE_DIR}/Source/Kernel/ .c
 set_project_files(Source\\\\Resource ${CMAKE_CURRENT_SOURCE_DIR}/Source/Resource/ .cpp)
 set_project_files(Source\\\\DataStruct ${CMAKE_CURRENT_SOURCE_DIR}/Source/DataStruct/ .cpp)
 set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
+set_project_files(Source\\\\Render ${CMAKE_CURRENT_SOURCE_DIR}/Source/Render/ .cpp)
 
 # tinyxml2
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
-# unzip
-set_project_files(Source\\\\Support\\\\minizip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/minizip/ .h)
-set_project_files(Source\\\\Support\\\\minizip ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/minizip/ .c)
+
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -72,8 +72,6 @@ else (TINY3D_BUILD_SHARED_LIBS)
 	# Make static library for this project.
 	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
-
-
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -89,7 +87,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE T3DMath
 			LINK_PRIVATE legacy_stdio_definitions
 			LINK_PRIVATE ${SDL2_LIBRARY}
-			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
+#			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
 			)
 	else ()
 		# Visual Studio version is older than 2015
@@ -100,7 +98,7 @@ if (TINY3D_OS_WINDOWS)
 			LINK_PRIVATE T3DFramework
 			LINK_PRIVATE T3DMath
 			LINK_PRIVATE ${SDL2_LIBRARY}
-			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
+#			LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
 			)
 	endif ()
 
@@ -138,7 +136,7 @@ if (TINY3D_OS_WINDOWS)
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Tiny3D.cfg
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
-		#COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
+		#COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
 		)
 elseif (TINY3D_OS_MACOSX)
 	# Mac OS X
@@ -151,7 +149,7 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE ${SDL2_LIBRARY}
 		LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
-		LINK_PRIVATE z
+#		LINK_PRIVATE z
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
@@ -162,20 +160,23 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE T3DFramework
 		LINK_PRIVATE T3DMath
 		LINK_PRIVATE ${SDL2_LIBRARY}
-		LINK_PRIVATE z
+#		LINK_PRIVATE z
 		)
 
         add_custom_command(TARGET ${BIN_NAME}
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Tiny3D.cfg
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/lib${BIN_NAME}.so" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${BIN_NAME}.so"
 		)
 elseif (TINY3D_OS_IOS)
 	# iOS
-#	target_link_libraries(
-#        ${LIB_NAME}
-#        LINK_PRIVATE T3DPlatform
-#        LINK_PRIVATE ${SDL2_LIBRARY}
-#        )
+	target_link_libraries(
+        ${LIB_NAME}
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DFramework
+        LINK_PRIVATE T3DMath
+        )
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	target_link_libraries(
@@ -185,14 +186,14 @@ elseif (TINY3D_OS_ANDROID)
         LINK_PRIVATE T3DFramework
 	LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}
-	LINK_PRIVATE z
+#		LINK_PRIVATE z
         )
 	
 	add_custom_command(TARGET ${BIN_NAME}
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Tiny3D.cfg ${CMAKE_CURRENT_BINARY_DIR}/../../../../../src/main/assets/Tiny3D.cfg
 	#	COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
-	#	#COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
+	#	#COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
 		)
 endif (TINY3D_OS_WINDOWS)
 

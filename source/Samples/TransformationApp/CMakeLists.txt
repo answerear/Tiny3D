@@ -43,6 +43,9 @@ if (TINY3D_OS_WINDOWS)
         T3DMath
         )
 
+    # Setup project folder
+    set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Samples")
+    
     # Setup install files and path for Windows.
 	install(TARGETS ${BIN_NAME}
 		RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug

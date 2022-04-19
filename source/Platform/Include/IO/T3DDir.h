@@ -176,6 +176,13 @@ namespace Tiny3D
         static const String &getWritablePath();
 
         /**
+         * @brief 获取动态库路径
+         * @return 返回动态库路径
+         * @remarks 本接口在android上才有效，其他平台跟getAppPath()相同
+         */
+        static const String &getLibraryPath();
+
+        /**
          * @brief 获取系统相关的路径分隔符
          */
         static char getNativeSeparator();
@@ -186,6 +193,7 @@ namespace Tiny3D
         static String  sCachePath;
         static String  sAppPath;
         static String  sWritablePath;
+        static String  sLibPath;
 
         static IDir *sDir;
     };

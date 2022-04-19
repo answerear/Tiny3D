@@ -54,6 +54,13 @@ namespace Tiny3D
          */
         virtual String getWritablePath() const override;
 
+		/**
+         * @brief 获取动态库路径
+         * @return 返回动态库路径
+         * @remarks 本接口在android上才有效，其他平台跟getAppPath()相同
+         */
+		virtual String getLibraryPath() const override;
+
 	protected:
     	String	mApkPath;
     };

@@ -17,17 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "T3DErrorDef.h"
 #include "Kernel/T3DEngine.h"
-#include "Resource/T3DArchiveManager.h"
-#include "Resource/T3DFileSystemArchive.h"
-#include "Resource/T3DZipArchieve.h"
+#include "Kernel/T3DPlugin.h"
 #include "Kernel/T3DConfigFile.h"
+
+#include "Resource/T3DArchive.h"
+#include "Resource/T3DArchiveCreator.h"
+#include "Resource/T3DArchiveManager.h"
+#include "Resource/T3DDylib.h"
+#include "Resource/T3DDylibManager.h"
+
 #include "DataStruct/T3DString.h"
+
 #include "Memory/T3DObjectTracer.h"
+
 
 
 namespace Tiny3D
 {
+    typedef TResult (*DLL_START_PLUGIN)(void);
+    typedef TResult (*DLL_STOP_PLUGIN)(void);
+
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(Engine);
 
     //--------------------------------------------------------------------------
@@ -44,6 +57,9 @@ namespace Tiny3D
 
     Engine::~Engine()
     {
+        unloadPlugins();
+
+        mDylibMgr = nullptr;
         mArchiveMgr = nullptr;
 
         T3D_SAFE_DELETE(mWindow);
@@ -67,6 +83,12 @@ namespace Tiny3D
         {
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);
+
+#if defined (T3D_OS_ANDROID)
+            // Android 单独设置插件路径，不使用配置文件里面设置的路径
+            // 因为android的插件在/data/data/appname/lib文件下
+            mPluginsPath = Dir::getLibraryPath();
+#endif
 
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
             ret = initApplication();
@@ -96,8 +118,8 @@ namespace Tiny3D
                 break;
             }
 
-            // 初始化档案系统
-            ret = initArchives();
+            // 初始化各种管理器
+            ret = initManagers();
             if (ret != T3D_ERR_OK)
             {
                 break;
@@ -105,6 +127,13 @@ namespace Tiny3D
 
             // 加载配置文件
             ret = loadConfig(config);
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            // 加载配置文件中指定的插件
+            ret = loadPlugins();
             if (ret != T3D_ERR_OK)
             {
                 break;
@@ -202,6 +231,198 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Engine::installPlugin(Plugin *plugin)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            if (plugin == nullptr)
+            {
+                // 空指针
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR("Invalid plugin !!!");
+                break;
+            }
+
+            auto rval 
+                = mPlugins.insert(PluginsValue(plugin->getName(), plugin));
+            if (!rval.second)
+            {
+                ret = T3D_ERR_PLG_DUPLICATED;
+                T3D_LOG_ERROR("Duplicated plugin [%s] !", 
+                    plugin->getName().c_str());
+                break;
+            }
+
+            // 安装插件
+            ret = plugin->install();
+            if (ret != T3D_ERR_OK)
+            {
+                mPlugins.erase(plugin->getName());
+                T3D_LOG_ERROR("Install plugin [%s] failed !",
+                    plugin->getName().c_str());
+                break;
+            }
+
+            // 启动插件
+            ret = plugin->startup();
+            if (ret != T3D_ERR_OK)
+            {
+                mPlugins.erase(plugin->getName());
+                T3D_LOG_ERROR("Startup plugin [%s] failed !", 
+                    plugin->getName().c_str());
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult Engine::uninstallPlugin(Plugin *plugin)
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            if (plugin == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR("Invalid plugin !!!");
+                break;
+            }
+
+            ret = plugin->shutdown();
+            if (ret != T3D_ERR_OK)
+            {
+                T3D_LOG_ERROR("Shutdown plugin [%s] failed !", 
+                    plugin->getName().c_str());
+                break;
+            }
+
+            ret = plugin->uninstall();
+            if (ret != T3D_ERR_OK)
+            {
+
+                T3D_LOG_ERROR("Uninstall plugin [%s] failed !",
+                    plugin->getName().c_str())
+                break;
+            }
+
+            mPlugins.erase(plugin->getName());
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::loadPlugin(const String &name)
+    {
+        T3D_LOG_INFO("Load plugin %s ...", name.c_str());
+
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            auto rval = mDylibs.find(name);
+            if (rval != mDylibs.end())
+            {
+                // 已经加载过了，直接返回吧
+                T3D_LOG_INFO("Load plugin [%s] , but it already loaded !",
+                    name.c_str());
+                break;
+            }
+            
+            DylibPtr dylib = DylibManager::getInstance().loadDylib(name);
+
+            if (dylib->getType() != Resource::E_TYPE_DYLIB)
+            {
+                ret = T3D_ERR_PLG_NOT_DYLIB;
+                T3D_LOG_ERROR("Load plugin [%s] failed !", name.c_str());
+                break;
+            }
+
+            DLL_START_PLUGIN pFunc 
+                = (DLL_START_PLUGIN)(dylib->getSymbol("dllStartPlugin"));
+            if (pFunc == nullptr)
+            {
+                ret = T3D_ERR_PLG_NO_FUNCTION;
+                T3D_LOG_ERROR("Load plugin [%s] get function dllStartPlugin \
+                    failed !", name.c_str());
+                break;
+            }
+
+            ret = pFunc();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            mDylibs.insert(DylibsValue(dylib->getName(), dylib));
+        } while (0);
+
+        return ret;
+    }
+
+    TResult Engine::unloadPlugin(const String &name)
+    {
+        T3D_LOG_INFO("Unload plugin %s ...", name.c_str());
+
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            DylibsItr itr = mDylibs.find(name);
+            if (itr == mDylibs.end())
+            {
+                ret = T3D_ERR_PLG_NOT_EXISTS;
+                T3D_LOG_ERROR("Unload plugin [%s] , it don't exist !",
+                    name.c_str());
+                break;
+            }
+
+            DylibPtr dylib = itr->second;
+            DLL_STOP_PLUGIN pFunc 
+                = (DLL_STOP_PLUGIN)(dylib->getSymbol("dllStopPlugin"));
+            if (pFunc == nullptr)
+            {
+                ret = T3D_ERR_PLG_NO_FUNCTION;
+                T3D_LOG_ERROR("Unload plugin [%s], get function dllStopPlugin \
+                    failed !", name.c_str());
+                break;
+            }
+
+            ret = pFunc();
+            if (ret != T3D_ERR_OK)
+            {
+                break;
+            }
+
+            mDylibs.erase(itr);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::addArchiveCreator(ArchiveCreator *creator)
+    {
+        TResult ret = T3D_ERR_OK;
+        mArchiveMgr->addArchiveCreator(creator);
+        return ret;
+    }
+
+    TResult Engine::removeArchiveCreator(ArchiveCreator *creator)
+    {
+        TResult ret = T3D_ERR_OK;
+        mArchiveMgr->removeArchiveCreator(creator->getType());
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Engine::initApplication()
     {
         TResult ret = T3D_ERR_OK;
@@ -257,6 +478,120 @@ namespace Tiny3D
         return T3D_ERR_OK;
     }
 
+    TResult Engine::initManagers()
+    {
+        mArchiveMgr = ArchiveManager::create();
+        mDylibMgr = DylibManager::create();
+
+        return T3D_ERR_OK;
+    }
+
+    TResult Engine::loadConfig(const String &cfgPath)
+    {
+        TResult ret = T3D_ERR_OK;
+
+#if defined (T3D_OS_ANDROID)
+        // Android，只能读取apk包里面的文件
+        ret = loadPlugin("ZipArchive");
+        if (ret != T3D_ERR_OK)
+        {
+            return ret;
+        }
+
+        String apkPath = Dir::getAppPath();
+        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+        ConfigFile cfgFile("assets/" + cfgPath, archive);
+        ret = cfgFile.loadXML(mSettings);
+#else
+        // 其他不需要从 apk 包里面读取文件的
+        String path = mAppPath + cfgPath;
+        ConfigFile cfgFile(path);
+        ret = cfgFile.loadXML(mSettings);
+#endif
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Engine::loadPlugins()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        do 
+        {
+            Settings pluginSettings = mSettings["Plugins"].mapValue();
+            String s("Path");
+            Variant key(s);
+            Settings::const_iterator itr = pluginSettings.find(key);
+            if (itr == pluginSettings.end())
+            {
+                ret = T3D_ERR_PLG_NO_PATH;
+                T3D_LOG_ERROR("Load plguins - the plugin path don't set !");
+                break;
+            }
+
+#if !defined (T3D_OS_ANDROID)
+            mPluginsPath = itr->second.stringValue();
+#endif
+
+            key.setString("List");
+            itr = pluginSettings.find(key);
+
+            if (itr == pluginSettings.end())
+            {
+                // 虽然没有获取到任何插件，但是仍然是合法的，正常返回
+                ret = T3D_ERR_OK;
+                break;
+            }
+
+            const VariantArray &plugins = itr->second.arrayValue();
+            VariantArrayConstItr i = plugins.begin();
+
+            while (i != plugins.end())
+            {
+                String name = i->stringValue();
+                ret = loadPlugin(name);
+                if (ret != T3D_ERR_OK)
+                {
+                    break;
+                }
+
+                ++i;
+            }
+        } while (0);
+
+        return ret;
+    }
+
+    TResult Engine::unloadPlugins()
+    {
+        TResult ret = T3D_ERR_OK;
+
+        DylibsItr itr = mDylibs.begin();
+        while (itr != mDylibs.end())
+        {
+            DylibPtr dylib = itr->second;
+            DLL_STOP_PLUGIN pFunc 
+                = (DLL_STOP_PLUGIN)(dylib->getSymbol("dllStopPlugin"));
+            if (pFunc != nullptr)
+            {
+                ret = pFunc();
+                if (ret == T3D_ERR_OK)
+                {
+                    DylibManager::getInstance().unloadDylib(dylib);
+                }
+            }
+            ++itr;
+        }
+
+        mDylibs.clear();
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Engine::createRenderWindow()
     {
         TResult ret = T3D_ERR_OK;
@@ -289,39 +624,6 @@ namespace Tiny3D
             }
         } while (0);
         
-        return ret;
-    }
-
-    TResult Engine::initArchives()
-    {
-        mArchiveMgr = ArchiveManager::create();
-
-        FileSystemArchiveCreator *fsCreator = new FileSystemArchiveCreator();
-        mArchiveMgr->addArchiveCreator(fsCreator);
-
-        ZipArchiveCreator *zipCreator = new ZipArchiveCreator();
-        mArchiveMgr->addArchiveCreator(zipCreator);
-
-        return T3D_ERR_OK;
-    }
-
-    TResult Engine::loadConfig(const String &cfgPath)
-    {
-        TResult ret = T3D_ERR_OK;
-
-#if defined (T3D_OS_ANDROID)
-        // Android，只能读取apk包里面的文件
-        String apkPath = Dir::getAppPath();
-        ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
-        ConfigFile cfgFile("assets/" + cfgPath, archive);
-        ret = cfgFile.loadXML(mSettings);
-#else
-        // 其他不需要从 apk 包里面读取文件的
-        String path = mAppPath + cfgPath;
-        ConfigFile cfgFile(path);
-        ret = cfgFile.loadXML(mSettings);
-#endif
-
         return ret;
     }
 }

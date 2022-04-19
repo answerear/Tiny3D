@@ -106,12 +106,12 @@ elseif (UNIX AND NOT APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
 
-if (TINY3D_OS_IOS)
+#if (TINY3D_OS_IOS)
     # Because in iOS, there only support static library.
-    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
-else (TINY3D_OS_IOS)
+#    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
+#else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
-endif (TINY3D_OS_IOS)
+#endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID)
     # In Android, this switch is setted by build.gradle in Android Studio.
@@ -131,9 +131,10 @@ message(STATUS "Runtime dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/bin/${OUTPUTCONFIG}/${TINY3D_OS}")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}/${TINY3D_OS}")
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${OUTPUTCONFIG}/${TINY3D_OS}")
+    
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}/${OUTPUTCONFIG}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}/${OUTPUTCONFIG}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}/${OUTPUTCONFIG}")
 endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
 # Set cmake module path.
@@ -143,6 +144,9 @@ set(CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Packages"
     )
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+
 # Platform error code
 add_definitions(-DT3D_ERR_PLATFORM=0x00001000)
 # Log error code
@@ -151,7 +155,8 @@ add_definitions(-DT3D_ERR_LOG=0x00002000)
 add_definitions(-DT3D_ERR_FRAMEWORK=0x00003000)
 # Core error code
 add_definitions(-DT3D_ERR_CORE=0x00004000)
-
+# Plugin error code
+add_definitions(-DT3D_ERR_PLUGINS=0x00010000)
 
 include(FindPkgMacros)
 include(ProjectCMakeModule)
@@ -171,6 +176,27 @@ add_subdirectory(Math)
 # Project Core
 add_subdirectory(Core)
 
+#foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+#    string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
+#    set(RUNTIME_OUTPUT_DIR_TEMP_${BUILTTYPE} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE}}")
+#    set(LIBRARY_OUTPUT_DIR_TEMP_${BUILTTYPE} "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE}}")
+#    set(ARCHIVE_OUTPUT_DIR_TEMP_${BUILTTYPE} "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE}}")
+#    
+#    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE}}/Plugins")
+#    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE} "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE}}/Plugins")
+#    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE}}/Plugins")
+#endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+
+# Project plugins
+add_subdirectory(Plugins)
+
+#foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+#    string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
+#    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${RUNTIME_OUTPUT_DIR_TEMP_${BUILTTYPE}}")
+#    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILTTYPE} "${LIBRARY_OUTPUT_DIR_TEMP_${BUILTTYPE}}")
+#    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${ARCHIVE_OUTPUT_DIR_TEMP_${BUILTTYPE}}")
+#endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+
 # Set the dependencies for all projects.
 add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
@@ -182,7 +208,7 @@ if (TINY3D_BUILD_SAMPLES)
     add_subdirectory(Samples)
     add_dependencies(HelloApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
     add_dependencies(PlatformApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
-	add_dependencies(FrameworkApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
+    add_dependencies(FrameworkApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DPlatform)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DPlatform)

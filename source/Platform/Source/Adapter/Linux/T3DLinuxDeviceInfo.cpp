@@ -304,7 +304,7 @@ namespace Tiny3D
         return mCPUCores;
     }
 
-    uint32_t LinuxDeviceInfo::getSystemRAM() const
+    uint64_t LinuxDeviceInfo::getSystemRAM() const
     {
         return mSystemRAM;
     }

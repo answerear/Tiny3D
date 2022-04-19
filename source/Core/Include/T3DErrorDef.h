@@ -41,6 +41,12 @@ namespace Tiny3D
         T3D_ERR_ZIP_FILE_READ_DATA      = T3D_ERR_CORE + 0x0044, /**< 获取 zip 中的单个文件数据出错 */
         T3D_ERR_ZIP_FILE_NOT_SUPPORT    = T3D_ERR_CORE + 0x0045, /**< 不支持该功能 */
         T3D_ERR_ZIP_FILE_OPEN_FILE      = T3D_ERR_CORE + 0x0046, /**< 打开当前被压缩的文件失败 */
+
+        T3D_ERR_PLG_NOT_EXISTS          = T3D_ERR_CORE + 0x0060, /**< 插件不存在 */
+        T3D_ERR_PLG_DUPLICATED          = T3D_ERR_CORE + 0x0061, /**< 插件已经存在 */
+        T3D_ERR_PLG_NOT_DYLIB           = T3D_ERR_CORE + 0x0062, /**< 不是插件资源*/
+        T3D_ERR_PLG_NO_FUNCTION         = T3D_ERR_CORE + 0x0063, /**< 获取插件函数失败 */
+        T3D_ERR_PLG_NO_PATH             = T3D_ERR_CORE + 0x0064, /**< 无法获取到插件路径 */
     };
 }
 

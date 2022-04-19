@@ -33,8 +33,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Dylib);
     T3D_DECLARE_SMART_PTR(DylibManager);
     T3D_DECLARE_SMART_PTR(Archive);
-    T3D_DECLARE_SMART_PTR(FileSystemArchive);
-    T3D_DECLARE_SMART_PTR(ZipArchive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
 
     typedef TArray<Variant>                 VariantArray;

@@ -18,12 +18,11 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FILE_SYSTEM_ARCHIEVE_H__
-#define __T3D_FILE_SYSTEM_ARCHIEVE_H__
+#ifndef __T3D_FS_ARCHIEVE_H__
+#define __T3D_FS_ARCHIEVE_H__
 
 
-#include "Resource/T3DArchive.h"
-#include "Resource/T3DArchiveCreator.h"
+#include "T3DFSArchivePrerequisites.h"
 
 
 namespace Tiny3D
@@ -31,7 +30,7 @@ namespace Tiny3D
     /**
      * @brief 文件系统档案结构类，用于访问文件系统里面的文件
      */
-    class T3D_ENGINE_API FileSystemArchive : public Archive
+    class FileSystemArchive : public Archive
     {
     public:
         static const char * const ARCHIVE_TYPE; /**< 档案类型 */
@@ -131,24 +130,7 @@ namespace Tiny3D
         FileIndexCache  mFileIndexCache;    /**< 文件流索引缓存，其中第一个是存在时间最长的对象 */
         FileStreamCache mFileStreamCache;   /**< 使用中的文件流缓存 */
     };
-
-    /**
-     * @brief 文件系统档案结构构建器类，用于构建文件系统档案结构对象
-     */
-    class T3D_ENGINE_API FileSystemArchiveCreator : public ArchiveCreator
-    {
-    public:
-        /**
-         * @brief 重写 ArchieveCreator::getType() 接口
-         */
-        virtual String getType() const override;
-
-        /**
-         * @brief 重写 ArchieveCreator::createObject() 接口
-         */
-        virtual ArchivePtr createObject(int32_t argc, ...) const override;
-    };
 }
 
 
-#endif  /*__T3D_FILE_SYSTEM_ARCHIEVE_H__*/
+#endif  /*__T3D_FS_ARCHIEVE_H__*/
