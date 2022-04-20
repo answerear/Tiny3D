@@ -144,33 +144,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String StringConverter::toString(long_t val,
-        uint16_t width /* = 0 */, char fill /* = ' ' */,
-        std::ios::fmtflags flags /* = std::ios::fmtflags(0) */)
-    {
-        std::stringstream ss;
-        ss.width(width);
-        ss.fill(fill);
-        if (flags)
-            ss.setf(flags);
-        ss << val;
-        return ss.str();
-    }
+    //String StringConverter::toString(long_t val,
+    //    uint16_t width /* = 0 */, char fill /* = ' ' */,
+    //    std::ios::fmtflags flags /* = std::ios::fmtflags(0) */)
+    //{
+    //    std::stringstream ss;
+    //    ss.width(width);
+    //    ss.fill(fill);
+    //    if (flags)
+    //        ss.setf(flags);
+    //    ss << val;
+    //    return ss.str();
+    //}
 
     //--------------------------------------------------------------------------
 
-    String StringConverter::toString(ulong_t val,
-        uint16_t width /* = 0 */, char fill /* = ' ' */,
-        std::ios::fmtflags flags /* = std::ios::fmtflags(0) */)
-    {
-        std::stringstream ss;
-        ss.width(width);
-        ss.fill(fill);
-        if (flags)
-            ss.setf(flags);
-        ss << val;
-        return ss.str();
-    }
+    //String StringConverter::toString(ulong_t val,
+    //    uint16_t width /* = 0 */, char fill /* = ' ' */,
+    //    std::ios::fmtflags flags /* = std::ios::fmtflags(0) */)
+    //{
+    //    std::stringstream ss;
+    //    ss.width(width);
+    //    ss.fill(fill);
+    //    if (flags)
+    //        ss.setf(flags);
+    //    ss << val;
+    //    return ss.str();
+    //}
 
     //--------------------------------------------------------------------------
 

@@ -136,7 +136,7 @@ namespace Tiny3D
                     ret = T3D_ERR_RES_LOAD_FAILED;
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                         "Load GPU constant buffer [%s] failed !",
-                        bufferRef->getName());
+                        bufferRef->getName().c_str());
                     break;
                 }
 

@@ -127,9 +127,9 @@ namespace Tiny3D
          * @param [in] flags : 标记，请参考std::ios::fmtflags
          * @return 返回字符串对象
          */
-        static String toString(long_t val,
-            uint16_t width = 0, char fill = ' ',
-            std::ios::fmtflags flags = std::ios::fmtflags(0));
+        //static String toString(long_t val,
+        //    uint16_t width = 0, char fill = ' ',
+        //    std::ios::fmtflags flags = std::ios::fmtflags(0));
 
         /**
          * @brief 把OS字长相关无符号整型转换成字符串
@@ -139,9 +139,9 @@ namespace Tiny3D
          * @param [in] flags : 标记，请参考std::ios::fmtflags
          * @return 返回字符串对象
          */
-        static String toString(ulong_t val,
-            uint16_t width = 0, char fill = ' ',
-            std::ios::fmtflags flags = std::ios::fmtflags(0));
+        //static String toString(ulong_t val,
+        //    uint16_t width = 0, char fill = ' ',
+        //    std::ios::fmtflags flags = std::ios::fmtflags(0));
 
         /**
          * @brief 把布尔型转换成字符串

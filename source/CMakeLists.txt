@@ -258,7 +258,7 @@ add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLo
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
-    add_dependencies(ScriptCompiler T3DCore)
+    #add_dependencies(ScriptCompiler T3DCore)
 	add_dependencies(ShaderCrossCompiler T3DCore)
 endif(TINY3D_BUILD_TOOLS)
 
