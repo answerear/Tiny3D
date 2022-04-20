@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,51 +21,59 @@
 #define __T3D_MATH_LIB_H__
 
 
-#include "T3DMathPrerequisites.h"
+#include <T3DMathPrerequisites.h>
 
-#include "T3DFix32.h"
-#include "T3DFix64.h"
-#include "T3DReal.h"
-#include "T3DDegree.h"
-#include "T3DRadian.h"
-#include "T3DMath.h"
-#include "T3DVector2.h"
-#include "T3DVector3.h"
-#include "T3DVector4.h"
-#include "T3DMatrix2.h"
-#include "T3DMatrix3.h"
-#include "T3DQuaternion.h"
-#include "T3DMatrix4.h"
-#include "T3DRay.h"
-#include "T3DPlane.h"
-#include "T3DTriangle.h"
-#include "T3DSphere.h"
-#include "T3DAabb.h"
-#include "T3DObb.h"
-#include "T3DFrustum.h"
+#include <T3DReal.h>
+#include <T3DDegree.h>
+#include <T3DRadian.h>
+#include <T3DMath.h>
+#include <T3DColor4.h>
+#include <T3DColorRGB.h>
+#include <T3DColorARGB.h>
+#include <T3DColorRGBA.h>
+#include <T3DRect.h>
+#include <T3DVector2.h>
+#include <T3DVector3.h>
+#include <T3DVector4.h>
+#include <T3DMatrix2.h>
+#include <T3DMatrix3.h>
+#include <T3DQuaternion.h>
+#include <T3DMatrix4.h>
+#include <T3DRay.h>
+#include <T3DPlane.h>
+#include <T3DTriangle.h>
+#include <T3DSphere.h>
+#include <T3DAabb.h>
+#include <T3DObb.h>
+#include <T3DFrustum.h>
 
-#include "T3DIntrRayTriangle.h"
-#include "T3DIntrRayPlane.h"
-#include "T3DIntrRaySphere.h"
-#include "T3DIntrRayAabb.h"
-#include "T3DIntrRayObb.h"
+#include <T3DIntrRayTriangle.h>
+#include <T3DIntrRayPlane.h>
+#include <T3DIntrRaySphere.h>
+#include <T3DIntrRayAabb.h>
+#include <T3DIntrRayObb.h>
 
-#include "T3DIntrSphereTriangle.h"
-#include "T3DIntrSpherePlane.h"
-#include "T3DIntrSphereSphere.h"
-#include "T3DIntrSphereObb.h"
-#include "T3DIntrSphereAabb.h"
+#include <T3DIntrSphereTriangle.h>
+#include <T3DIntrSpherePlane.h>
+#include <T3DIntrSphereSphere.h>
+#include <T3DIntrSphereObb.h>
+#include <T3DIntrSphereAabb.h>
 
-#include "T3DIntrAabbPlane.h"
-#include "T3DIntrAabbAabb.h"
-#include "T3DIntrAabbObb.h"
+#include <T3DIntrAabbPlane.h>
+#include <T3DIntrAabbAabb.h>
+#include <T3DIntrAabbObb.h>
 
-#include "T3DIntrObbPlane.h"
-#include "T3DIntrObbObb.h"
+#include <T3DIntrObbPlane.h>
+#include <T3DIntrObbObb.h>
 
-#include "T3DIntrFrustumAabb.h"
-#include "T3DIntrFrustumObb.h"
-#include "T3DIntrFrustumSphere.h"
+#include <T3DIntrFrustumAabb.h>
+#include <T3DIntrFrustumObb.h>
+#include <T3DIntrFrustumSphere.h>
+
+#include <T3DIntrPointSphere.h>
+#include <T3DIntrPointAabb.h>
+#include <T3DIntrPointObb.h>
+#include <T3DIntrPointFrustum.h>
 
 
 namespace Tiny3D
@@ -91,6 +99,15 @@ namespace Tiny3D
 typedef TDegree<Real>       Degree;
 typedef TRadian<Real>       Radian;
 typedef TMath<Real>         Math;
+
+typedef TSize<size_t>       Size;
+typedef TSize<Real>         RealSize;
+
+typedef TPoint<size_t>      Point;
+typedef TPoint<Real>        RealPoint;
+
+typedef TRect<size_t>       Rect;
+typedef TRect<Real>         RealRect;
 
 typedef TVector2<Real>      Vector2;
 typedef TVector3<Real>      Vector3;
@@ -118,7 +135,7 @@ typedef TIntrSphereTriangle<Real>   IntrSphereTriangle;
 typedef TIntrSpherePlane<Real>      IntrSpherePlane;
 typedef TIntrSphereSphere<Real>     IntrSphereSphere;
 typedef TIntrSphereAabb<Real>       IntrSphereAabb;
-typedef TIntrSphereObb<Real>        IntrShpereObb;
+typedef TIntrSphereObb<Real>        IntrSphereObb;
 
 typedef TIntrAabbPlane<Real>        IntrAabbPlane;
 typedef TIntrAabbAabb<Real>         IntrAabbAabb;
@@ -130,6 +147,11 @@ typedef TIntrObbObb<Real>           IntrObbObb;
 typedef TIntrFrustumSphere<Real>    IntrFrustumSphere;
 typedef TIntrFrustumAabb<Real>      IntrFrustumAabb;
 typedef TIntrFrustumObb<Real>       IntrFrustumObb;
+
+typedef TIntrPointSphere<Real>      IntrPointSphere;
+typedef TIntrPointAabb<Real>        IntrPointAabb;
+typedef TIntrPointObb<Real>         IntrPointObb;
+typedef TIntrPointFrustum<Real>     IntrPointFrustum;
 
 
 #define REAL_ZERO           TReal<Real>::ZERO

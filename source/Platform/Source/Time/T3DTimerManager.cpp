@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,11 +23,20 @@
 #include "Adapter/T3DFactoryInterface.h"
 #include "T3DSystem.h"
 
+
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(TimerManager);
+    T3D_IMPLEMENT_CLASS_0(TimerManager);
+
+    //--------------------------------------------------------------------------
 
     const ID TimerManager::INVALID_TIMER_ID = ITimerService::INVALID_TIMER_ID;
+
+    //--------------------------------------------------------------------------
+
 
     TimerManager::TimerManager()
         : mTimerService(nullptr)
@@ -35,10 +44,14 @@ namespace Tiny3D
         mTimerService = T3D_PLATFORM_FACTORY.createPlatformTimerService();
     }
 
+    //--------------------------------------------------------------------------
+
     TimerManager::~TimerManager()
     {
         T3D_SAFE_DELETE(mTimerService);
     }
+
+    //--------------------------------------------------------------------------
 
     ID TimerManager::startTimer(uint32_t interval, bool repeat,
         ITimerListener *listener)
@@ -51,6 +64,8 @@ namespace Tiny3D
         return INVALID_TIMER_ID;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult TimerManager::stopTimer(ID timerID)
     {
         if (mTimerService != nullptr)
@@ -61,6 +76,8 @@ namespace Tiny3D
         return T3D_ERR_INVALID_POINTER;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult TimerManager::init()
     {
         if (mTimerService != nullptr)
@@ -70,6 +87,8 @@ namespace Tiny3D
 
         return T3D_ERR_INVALID_POINTER;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult TimerManager::pollEvents()
     {

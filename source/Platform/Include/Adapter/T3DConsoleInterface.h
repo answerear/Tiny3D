@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,10 @@
 #define __T3D_CONSOLE_INTERFACE_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -34,6 +36,7 @@ namespace Tiny3D
     class IConsole
     {
         T3D_DECLARE_INTERFACE(IConsole);
+        T3D_DECLARE_CLASS();
 
     public:
         /**

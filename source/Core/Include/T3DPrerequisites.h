@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,7 @@
 #ifndef __T3D_PREREQUISITES_H__
 #define __T3D_PREREQUISITES_H__
 
+
 #include "T3DMacro.h"
 
 #if defined T3DCORE_EXPORT
@@ -32,6 +33,7 @@
 #include <T3DPlatform.h>
 #include <T3DMathLib.h>
 #include <T3DLog.h>
+#include <T3DUtils.h>
 #include <T3DFramework.h>
 
 #if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
@@ -39,15 +41,45 @@
 #else
 #endif
 
+#include <algorithm>
+#undef min
+
 namespace Tiny3D
 {
+    #define LOG_TAG_CONFIG_FILE         "ConfigFile"
+    #define LOG_TAG_ENGINE              "Agent"
+    #define LOG_TAG_IMAGE               "Image"
+    #define LOG_TAG_RENDER              "Render"
+    #define LOG_TAG_PLUGIN              "Plugin"
+    #define LOG_TAG_IMAGE_CODEC         "ImageCodec"
+    #define LOG_TAG_SCENE               "Scene"
+    #define LOG_TAG_RESOURCE            "Resource"
+    #define LOG_TAG_COMPONENT           "Component"
+
     class Object;
     class ObjectTracer;
 
-    class Engine;
+    class Agent;
     class Plugin;
 
     class Variant;
+
+    class Component;
+    class ComponentCreator;
+
+    class SerializerManager;
+    class MaterialReader;
+    class MaterialWriter;
+    class BinMaterialReader;
+    class BinMaterialWriter;
+    class JsonMaterialReader;
+    class JsonMaterialWriter;
+    class ModelReader;
+    class ModelWriter;
+    class BinModelReader;
+    class BinModelWriter;
+    class JsonModelReader;
+    class JsonModelWriter;
 
     class Resource;
     class ResourceManager;
@@ -56,6 +88,101 @@ namespace Tiny3D
     class Archive;
     class ArchiveCreator;
     class ArchiveManager;
+    class Material;
+    class MaterialManager;
+    class Texture;
+    class TextureManager;
+    class Shader;
+    class ShaderManager;
+    class GPUProgram;
+    class GPUProgramManager;
+    class GPUConstBuffer;
+    class GPUConstBufferManager;
+    class Model;
+    class ModelManager;
+
+    class NodeData;
+    class KeyFrameData;
+    class KeyFrameDataT;
+    class KeyFrameDataR;
+    class KeyFrameDataS;
+    class ActionData;
+    class SubMeshData;
+    class VertexData;
+    class MeshData;
+
+    class HardwareBuffer;
+    class HardwareIndexBuffer;
+    class HardwarePixelBuffer;
+    class HardwareVertexBuffer;
+    class HardwareConstantBuffer;
+    class VertexAttribute;
+    class VertexDeclaration;
+
+    class GPUProgramRef;
+    class GPUConstBufferRef;
+
+    class Technique;
+    class Pass;
+    class TextureUnit;
+    class Sampler;
+
+    class VertexArrayObject;
+
+    class HardwareBufferManagerBase;
+    class HardwareBufferManager;
+
+    class RenderTarget;
+    class RenderWindow;
+    
+    class Viewport;
+
+    class RenderContext;
+    class RenderCapabilities;
+    class RenderGroup;
+    class RenderQueue;
+
+    class BlendState;
+    class DepthStencilState;
+    class RasterizerState;
+    class SamplerState;
+
+    class ImageCodecBase;
+    class ImageCodec;
+
+    class Node;
+
+    class Bound;
+    class SphereBound;
+    class AabbBound;
+    class ObbBound;
+    class FrustumBound;
+
+    class SceneManagerBase;
+    class SceneManager;
+    class DefaultSceneMgr;
+
+    class SceneNode;
+
+    class Transform3D;
+    class Bone;
+
+    class Camera;
+    class Light;
+    class SceneModel;
+
+    class Renderable;
+    class Mesh;
+    class SceneTerrain;
+    class Billboard;
+    class Quad;
+    class Cube;
+    class Axis;
+    class Globe;
+
+    class SceneTransform2D;
+    class SceneText2D;
+    class SceneSprite;
 }
 
 

@@ -1,0 +1,62 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+
+import "ShaderScriptObject.proto";
+import "MaterialScriptObject.proto";
+import "ModelScriptObject.proto";
+import "LevelScriptObject.proto";
+import "MetaScriptObject.proto";
+
+
+package Tiny3D.Script.FileFormat;
+
+
+message FileHeader
+{
+    enum FileType
+    {
+        Material = 0;
+        Level = 1;
+        Meta = 2;
+		Shader = 3;
+    }
+    
+    string      magic = 1;
+    FileType    type = 2;
+    fixed32     version = 3;
+}
+
+
+message FileMaterial
+{
+    FileHeader              header = 1;
+    MaterialSystem.Material material = 2;
+}
+
+message FileShader
+{
+	FileHeader			header = 1;
+	ShaderSystem.Shader	shader = 2;
+}
+
+message FileMeta
+{
+    FileHeader          header = 1;
+    MetaSystem.MetaData meta = 2;
+}
+
+message FileLevelData
+{
+    string                                  root = 1;
+    map<string, LevelSystem.Node>           nodes = 2;
+    map<string, ModelSystem.MeshData>       meshes = 3;
+    map<string, ModelSystem.AnimationClip>  animations = 4;
+}
+
+message FileLevel
+{
+    FileHeader      header = 1;
+    FileLevelData   data = 2;
+}
+

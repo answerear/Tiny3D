@@ -1,7 +1,7 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,7 +28,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(System);
+    T3D_IMPLEMENT_CLASS_0(System);
+
+    //--------------------------------------------------------------------------
 
     System::System()
         : mPlatformFactory(nullptr)
@@ -42,6 +47,8 @@ namespace Tiny3D
         mTimerMgr = new TimerManager();
     }
 
+    //--------------------------------------------------------------------------
+
     System::~System()
     {
         T3D_SAFE_DELETE(mTimerMgr);
@@ -50,9 +57,11 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mPlatformFactory);
     }
 
+    //--------------------------------------------------------------------------
+
     int32_t System::init()
     {
-        int32_t ret = T3D_ERR_OK;
+        int32_t ret = T3D_OK;
 
         do
         {
@@ -64,13 +73,15 @@ namespace Tiny3D
             }
             
             ret  = mTimerMgr->init();
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
                 break;
             
         } while (0);
         
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void System::poll()
     {

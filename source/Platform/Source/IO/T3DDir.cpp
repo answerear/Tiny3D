@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     IDir *Dir::sDir = nullptr;
 
     String Dir::sCachePath;
@@ -35,15 +37,23 @@ namespace Tiny3D
 
     char Dir::NATIVE_SEPARATOR = 0;
 
+    T3D_IMPLEMENT_CLASS_0(Dir);
+
+    //--------------------------------------------------------------------------
+
     Dir::Dir()
     {
         mDir = T3D_PLATFORM_FACTORY.createPlatformDir();
     }
 
+    //--------------------------------------------------------------------------
+
     Dir::~Dir()
     {
         T3D_SAFE_DELETE(mDir);
     }
+
+    //--------------------------------------------------------------------------
 
     bool Dir::findFile(const String &strPath)
     {
@@ -55,6 +65,8 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+
     bool Dir::findNextFile()
     {
         if (mDir != nullptr)
@@ -65,6 +77,8 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+
     void Dir::close()
     {
         if (mDir != nullptr)
@@ -72,6 +86,8 @@ namespace Tiny3D
             mDir->close();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     String Dir::getRoot() const
     {
@@ -83,6 +99,8 @@ namespace Tiny3D
         return "";
     }
 
+    //--------------------------------------------------------------------------
+
     String Dir::getFileName() const
     {
         if (mDir != nullptr)
@@ -92,6 +110,8 @@ namespace Tiny3D
 
         return "";
     }
+
+    //--------------------------------------------------------------------------
 
     String Dir::getFilePath() const
     {
@@ -103,6 +123,8 @@ namespace Tiny3D
         return "";
     }
 
+    //--------------------------------------------------------------------------
+
     String Dir::getFileTitle() const
     {
         if (mDir != nullptr)
@@ -112,6 +134,8 @@ namespace Tiny3D
 
         return "";
     }
+
+    //--------------------------------------------------------------------------
 
     uint32_t Dir::getFileSize() const
     {
@@ -123,6 +147,8 @@ namespace Tiny3D
         return 0;
     }
 
+    //--------------------------------------------------------------------------
+
     bool Dir::isDots() const
     {
         if (mDir != nullptr)
@@ -132,6 +158,8 @@ namespace Tiny3D
 
         return false;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Dir::isDirectory() const
     {
@@ -143,6 +171,8 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+
     long_t Dir::getCreationTime() const
     {
         if (mDir != nullptr)
@@ -152,6 +182,8 @@ namespace Tiny3D
 
         return 0;
     }
+
+    //--------------------------------------------------------------------------
 
     long_t Dir::getLastAccessTime() const
     {
@@ -163,6 +195,8 @@ namespace Tiny3D
         return 0;
     }
 
+    //--------------------------------------------------------------------------
+
     long_t Dir::getLastWriteTime() const
     {
         if (mDir != nullptr)
@@ -172,6 +206,8 @@ namespace Tiny3D
 
         return 0;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Dir::makeDir(const String &strDir)
     {
@@ -186,6 +222,8 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+
     bool Dir::removeDir(const String &strDir)
     {
         if (nullptr == sDir)
@@ -198,6 +236,8 @@ namespace Tiny3D
 
         return false;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Dir::remove(const String &strFileName)
     {
@@ -212,6 +252,8 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+
     bool Dir::exists(const String &strPath)
     {
         if (nullptr == sDir)
@@ -224,6 +266,8 @@ namespace Tiny3D
 
         return false;
     }
+
+    //--------------------------------------------------------------------------
 
     const String &Dir::getCachePath()
     {
@@ -241,6 +285,8 @@ namespace Tiny3D
         return sCachePath;
     }
 
+    //--------------------------------------------------------------------------
+
     const String &Dir::getAppPath()
     {
         if (sAppPath.empty())
@@ -256,6 +302,8 @@ namespace Tiny3D
 
         return sAppPath;
     }
+
+    //--------------------------------------------------------------------------
 
     const String &Dir::getWritablePath()
     {
@@ -273,6 +321,8 @@ namespace Tiny3D
         return sWritablePath;
     }
 
+    //--------------------------------------------------------------------------
+
     const String &Dir::getLibraryPath()
     {
         if (sLibPath.empty())
@@ -289,6 +339,8 @@ namespace Tiny3D
         return sLibPath;
     }
 
+    //--------------------------------------------------------------------------
+
     char Dir::getNativeSeparator()
     {
         if (NATIVE_SEPARATOR == 0)
@@ -303,5 +355,64 @@ namespace Tiny3D
         }
 
         return NATIVE_SEPARATOR;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Dir::parsePath(const String& path, String& dir, String& title, String& ext)
+    {
+        String name;
+
+        bool ret = parsePath(path, dir, name);
+        if (ret)
+        {
+            String::size_type pos = name.find_last_of('.');
+
+            if (pos == String::npos)
+            {
+                title = name;
+                ext = "";
+            }
+            else
+            {
+                title = name.substr(0, pos);
+                ext = name.substr(pos + 1);
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Dir::parsePath(const String& path, String& dir, String& name)
+    {
+        String::size_type pos = path.find_last_of('/');
+
+        if (pos == String::npos)
+        {
+            pos = path.find_last_of('\\');
+        }
+
+        if (pos == String::npos)
+        {
+            name = path;
+            dir = "";
+        }
+        else
+        {
+            dir = path.substr(0, pos);
+            name = path.substr(pos + 1);
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Dir::parsePath(const String& path, String& name)
+    {
+        String dir;
+        return parsePath(path, dir, name);
     }
 }

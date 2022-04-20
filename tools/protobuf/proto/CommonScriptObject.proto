@@ -1,0 +1,113 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+
+package Tiny3D.Script;
+
+
+/**
+ * @brief The header of script object.
+ */
+message ObjectHeader
+{
+    uint32  ID = 1;             // ID. (Required)
+    string  name = 2;           // The name of this object. (Required)
+}
+
+/**
+ * @brief Define a structure for color value.
+ */
+message Color
+{
+    float   r = 1;
+    float   g = 2;
+    float   b = 3;
+    float   a = 4;
+}
+
+message Matrix4
+{
+    repeated float values = 1;
+}
+
+message Vector2
+{
+    float   x = 1;
+    float   y = 2;
+}
+
+message Vector3
+{
+    float   x = 1;
+    float   y = 2;
+    float   z = 3;
+}
+
+message Vector4
+{
+	float	x = 1;
+	float	y = 2;
+	float	z = 3;
+	float	w = 4;
+}
+
+message Quaternion
+{
+    float   w = 1;
+    float   x = 2;
+    float   y = 3;
+    float   z = 4;
+}
+
+message Vector2List
+{
+    repeated Vector2    values = 1;
+}
+
+message Vector3List
+{
+    repeated Vector3    values = 1;
+}
+
+message ColorList
+{
+    repeated Color      values = 1;
+}
+
+message UintList
+{
+    repeated uint32     values = 1;
+}
+
+message FloatList
+{
+    repeated float      values = 1;
+}
+
+message Bool
+{
+    bool    value = 1;
+}
+
+message Float
+{
+    float   value = 1;
+}
+
+message UInt32
+{
+    uint32  value = 1;
+}
+
+message Int32
+{
+    sint32  value = 1;
+}
+
+message String
+{
+    string  value = 1;
+}
+
+
+

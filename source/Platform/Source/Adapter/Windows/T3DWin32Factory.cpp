@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,55 +29,81 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(Win32Factory, IFactory);
+
+    //--------------------------------------------------------------------------
+
     Win32Factory::Win32Factory()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     Win32Factory::~Win32Factory()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     IApplication *Win32Factory::createPlatformApplication()
     {
         return new SDLApplication();
     }
+
+    //--------------------------------------------------------------------------
 
     IWindow *Win32Factory::createPlatformWindow()
     {
         return new SDLDesktopWindow();
     }
 
+    //--------------------------------------------------------------------------
+
     ITime *Win32Factory::createPlatformTime()
     {
         return new Win32Time();
     }
+
+    //--------------------------------------------------------------------------
 
     ITimerService *Win32Factory::createPlatformTimerService()
     {
         return new TimerService();
     }
 
+    //--------------------------------------------------------------------------
+
     IDir *Win32Factory::createPlatformDir()
     {
         return new Win32Dir();
     }
+
+    //--------------------------------------------------------------------------
 
     IDeviceInfo *Win32Factory::createPlatformDeviceInfo()
     {
         return new Win32DeviceInfo();
     }
 
+    //--------------------------------------------------------------------------
+
     IConsole *Win32Factory::createPlatformConsole()
     {
         return new Win32Console();
     }
 
+    //--------------------------------------------------------------------------
+
     EPlatform Win32Factory::getPlatform()
     {
         return E_PLATFORM_WIN32;
     }
+
+    //--------------------------------------------------------------------------
 
     IFactory *createPlatformFactory()
     {

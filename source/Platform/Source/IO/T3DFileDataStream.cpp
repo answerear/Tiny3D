@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(FileDataStream, DataStream);
+
+    //--------------------------------------------------------------------------
+
     FileDataStream::FileDataStream()
         : m_pFileHandle(nullptr)
         , m_lSize(0)
@@ -30,6 +36,8 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     FileDataStream::~FileDataStream()
     {
@@ -40,6 +48,8 @@ namespace Tiny3D
             close();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     bool FileDataStream::open(const char *szFileName, uint32_t unMode)
     {
@@ -112,6 +122,8 @@ namespace Tiny3D
         m_bIsOpened = false;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t FileDataStream::read(void *pBuffer, size_t nSize)
     {
         size_t nBytesOfRead = 0;
@@ -123,6 +135,8 @@ namespace Tiny3D
 
         return nBytesOfRead;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t FileDataStream::write(void *pBuffer, size_t nSize)
     {
@@ -136,6 +150,8 @@ namespace Tiny3D
         return nBytesOfWritten;
     }
 
+    //--------------------------------------------------------------------------
+
     void FileDataStream::flush()
     {
         if (m_pFileHandle != nullptr)
@@ -143,6 +159,8 @@ namespace Tiny3D
             fflush(m_pFileHandle);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     bool FileDataStream::seek(long_t lPos, bool relative)
     {
@@ -152,14 +170,14 @@ namespace Tiny3D
         {
             if (relative)
             {
-                if (fseek(m_pFileHandle, lPos, SEEK_CUR) == 0)
+                if (fseek(m_pFileHandle, (long)lPos, SEEK_CUR) == 0)
                 {
                     ret = true;
                 }
             }
             else
             {
-                if (fseek(m_pFileHandle, lPos, SEEK_SET) == 0)
+                if (fseek(m_pFileHandle, (long)lPos, SEEK_SET) == 0)
                 {
                     ret = true;
                 }
@@ -168,6 +186,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     long_t FileDataStream::tell() const
     {
@@ -181,6 +201,8 @@ namespace Tiny3D
         return lPos;
     }
 
+    //--------------------------------------------------------------------------
+
     long_t FileDataStream::size() const
     {
         if (m_pFileHandle != nullptr)
@@ -190,12 +212,14 @@ namespace Tiny3D
                 long_t lPos = ftell(m_pFileHandle);
                 fseek(m_pFileHandle, 0, SEEK_END);
                 m_lSize = ftell(m_pFileHandle);
-                fseek(m_pFileHandle, lPos, SEEK_SET);
+                fseek(m_pFileHandle, (long)lPos, SEEK_SET);
             }
         }
 
         return m_lSize;
     }
+
+    //--------------------------------------------------------------------------
 
     bool FileDataStream::eof() const
     {
@@ -203,13 +227,15 @@ namespace Tiny3D
 
         if (m_pFileHandle != nullptr)
         {
-            uint32_t unPos = ftell(m_pFileHandle);
-            uint32_t unSize = size();
+            long unPos = ftell(m_pFileHandle);
+            long unSize = (long)size();
             bEnd = (unPos == unSize);
         }
 
         return bEnd;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t FileDataStream::read(uint8_t *&pData)
     {

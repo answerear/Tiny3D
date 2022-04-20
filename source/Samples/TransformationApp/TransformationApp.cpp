@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -71,8 +71,8 @@ bool TransformationApp::applicationDidFinishLaunching()
     p4 = p4 * m4;
 
     // test
-    m3[0][0] = 0.707, m3[0][1] = 1.25, m3[0][2] = 0;
-    m3[1][0] = -0.707, m3[1][1] = 1.25, m3[1][2] = 0;
+    m3[0][0] = 0.707f, m3[0][1] = 1.25f, m3[0][2] = 0;
+    m3[1][0] = -0.707f, m3[1][1] = 1.25f, m3[1][2] = 0;
     m3[2][0] = 0, m3[2][1] = 0, m3[2][2] = 1;
 
     Matrix3 R;

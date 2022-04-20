@@ -1,0 +1,220 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+import "CommonScriptObject.proto";
+
+package Tiny3D.Script.ModelSystem;
+
+//-------------------------------------------------------------------------------------------------
+//                                      Vertex Buffer
+//-------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Vertex attribute to descript one vertex
+ */
+message VertexAttribute
+{
+    /**
+     * @brief Enumerate the semantic of value in a vertex
+     */
+    enum Semantic
+    {
+        VAS_POSITION = 0;
+        VAS_TEXCOORD = 1;
+        VAS_NORMAL = 2;
+        VAS_TANGENT = 3;
+        VAS_BINORMAL = 4;
+        VAS_DIFFUSE = 5;
+        VAS_SPECULAR = 6;
+        VAS_BLENDINDEX = 7;
+        VAS_BLENDWEIGHT = 8;
+    }
+
+    /**
+     * @brief Enumerate the data type of value in a vertex
+     */
+    enum Type
+    {
+        VAT_FLOAT = 0;
+        VAT_DOUBLE = 1;
+        VAT_INT8 = 2;
+        VAT_INT16 = 3;
+        VAT_INT32 = 4;
+        VAT_INT64 = 5;
+    }
+    
+    Semantic    semantic = 1;   // Semantic of value in a vertex
+    Type        type = 2;       // Data type of value in a vertex
+    uint32      size = 3;       // Number of value in a vertex
+}
+
+
+message Vertices
+{
+    repeated float  values = 1;
+}
+
+/**
+ * @brief A structure to store a buffer of vertex
+ */
+message VertexBuffer
+{
+    repeated VertexAttribute    attributes = 1;
+    oneof VerticesOneof
+    {
+        Vertices    vertices = 2;
+        bytes       values = 3;
+    }
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Index Buffer
+//-------------------------------------------------------------------------------------------------
+
+
+/**
+ * @brief Enumerate all primitive type
+ */
+enum PrimitiveType
+{
+    PT_POINT_LIST = 0;
+    PT_LINE_LIST = 1;
+    PT_LINE_STRIP = 2;
+    PT_TRIANGLE_LIST = 3;
+    PT_TRIANGLE_STRIP = 4;
+    PT_TRIANGLE_FAN = 5;
+}
+
+/**
+ * @brief A structure to store the data for sphere
+ */
+message Sphere
+{
+    Vector3 center = 1;
+    float   radius = 2;
+}
+
+/**
+ * @brief A structure to store the data for axis aligned bounding box
+ */
+message Aabb
+{
+    float   min_x = 1;
+    float   max_x = 2;
+    float   min_y = 3;
+    float   max_y = 4;
+    float   min_z = 5;
+    float   max_z = 6;
+}
+
+/**
+ * @brief A structure tor store the data for oriented bounding box
+ */
+message Obb
+{
+    Vector3             center = 1;
+    repeated Vector3    axis = 2;
+    repeated float      extent = 3;
+}
+
+message Bound
+{
+    enum Type
+    {
+        BT_SPHERE = 0;
+        BT_AABB = 1;
+        BT_OBB = 2;
+    }
+    
+    Type    type = 1;
+    
+    oneof ValueOf
+    {
+        Sphere  sphere = 2;
+        Aabb    aabb = 3;
+        Obb     obb = 4;
+    }
+}
+
+message Indices
+{
+    repeated uint32 values = 1;
+}
+
+message IndexBuffer
+{
+    bool            is_16bit = 1;
+    PrimitiveType   primitive_type = 2;
+    uint32          primitive_count = 3;
+    string          material = 4;
+    Bound           bound = 5;
+    oneof IndicesOneof
+    {
+        Indices     indices = 6;
+        bytes       values = 7;
+    }
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Animation Data
+//-------------------------------------------------------------------------------------------------
+
+message Keyframe
+{
+    uint32  time = 1;
+    
+    oneof KeyframeOneOf
+    {
+        Vector3     translation = 2;
+        Quaternion  rotation = 3;
+        Vector3     scaling = 4;
+    }
+}
+
+message Keyframes
+{
+    repeated Keyframe       framesT = 2;
+    repeated Keyframe       framesR = 3;
+    repeated Keyframe       framesS = 4;
+}
+
+
+message AnimationClip
+{
+    string                  name = 1;
+    uint32                  duration = 2;
+    map<string, Keyframes>  keyframes = 3;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Bone Data
+//-------------------------------------------------------------------------------------------------
+
+message BoneData
+{
+    string      node_uuid = 1;
+    Matrix4     offset = 2;
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                      Mesh Data
+//-------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Mesh data
+ */
+message MeshData
+{
+    string                  name = 1;
+    repeated VertexBuffer   vertex_buffers = 2;
+    repeated IndexBuffer    index_buffers = 3;
+    repeated BoneData       bones = 4;
+}
+
+
+
+
+

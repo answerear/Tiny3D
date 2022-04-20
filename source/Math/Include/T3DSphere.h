@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -34,11 +34,11 @@ namespace Tiny3D
     class TSphere
     {
     public:
-        enum BuildOption
+        enum class BuildOption : uint32_t
         {
-            E_BUILD_WELZL = 0,      /// Welzl最小包围球算法
-            E_BUILD_RITTER = 1,     /// Ritter包围球算法
-            E_BUILD_AVERAGE = 2,    /// 均值法
+            WELZL = 0,      /// Welzl最小包围球算法
+            RITTER = 1,     /// Ritter包围球算法
+            AVERAGE = 2,    /// 均值法
         };
 
         /// 默认构造函数
@@ -64,7 +64,7 @@ namespace Tiny3D
 
         /// 通过多个点构造包围球
         void build(const TVector3<T> points[], size_t count, 
-            BuildOption option = E_BUILD_RITTER);
+            BuildOption option = BuildOption::RITTER);
 
         /// 通过空间三点构造包围球
         bool build(const TVector3<T> &p0, const TVector3<T> &p1,

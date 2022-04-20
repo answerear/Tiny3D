@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+
 #ifndef __T3D_PLATFORM_H__
 #define __T3D_PLATFORM_H__
 
@@ -24,6 +25,7 @@
 #include <T3DMacro.h>
 #include <T3DCommonErrorDef.h>
 #include <T3DPlatformErrorDef.h>
+#include <T3DClass.h>
 #include <T3DSystem.h>
 #include <Application/T3DApplication.h>
 #include <Window/T3DWindow.h>
@@ -36,6 +38,5 @@
 #include <IO/T3DDir.h>
 #include <Console/T3DConsole.h>
 #include <Device/T3DDeviceInfo.h>
-
 
 #endif  /*__T3D_PLATFORM_H__*/

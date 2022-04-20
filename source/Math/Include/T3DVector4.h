@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,6 +36,8 @@ namespace Tiny3D
         TVector4();
         /// 通过 X, Y, Z, W 构造对象
         TVector4(T x, T y, T z, T w);
+        /// 通过一个三维向量和w值构造对象
+        TVector4(const TVector3<T> &v, T w);
         /// 拷贝构造函数
         TVector4(const TVector4 &other);
 

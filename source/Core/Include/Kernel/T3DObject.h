@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,33 +28,43 @@
 namespace Tiny3D
 {
     /**
-     * @brief 引擎所有对象基类
+     * @class   Object
+     * @brief   引擎所有对象基类
      */
     class T3D_ENGINE_API Object
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
-         * @brief 构造函数
+         * @fn  Object::Object();
+         * @brief   构造函数
          */
         Object();
 
         /**
-         * @brief 析构函数
+         * @fn  virtual Object::~Object();
+         * @brief   析构函数
          */
         virtual ~Object();
 
         /**
-         * @brief 持有对象，让对象引用计数加一
+         * @fn  Object Object::*acquire();
+         * @brief   持有对象，让对象引用计数加一
+         * @return  Null if it fails, else a pointer to an Object.
          */
         Object *acquire();
 
         /**
-         * @brief 释放对象，让对象引用计数减一
+         * @fn  void Object::release();
+         * @brief   释放对象，让对象引用计数减一
          */
         void release();
 
         /**
-         * @brief 返回对象当前引用计数
+         * @fn  uint32_t Object::referCount() const
+         * @brief   返回对象当前引用计数
+         * @return  An uint32_t.
          */
         uint32_t referCount() const
         {

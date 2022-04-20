@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,27 +19,41 @@
 
 
 #include "Resource/T3DResourceManager.h"
+#include "T3DErrorDef.h"
+#include <sstream>
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(ResourceManager, Object);
+
+    //--------------------------------------------------------------------------
+
     ResourceManager::ResourceManager()
         : mCloneID(T3D_INVALID_ID)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     ResourceManager::~ResourceManager()
     {
-
+        unloadAllResources();
     }
 
-    ID ResourceManager::toID(const String &name)
+    //--------------------------------------------------------------------------
+
+    ID ResourceManager::toID(const String &name) const
     {
         return hash(name.c_str());
     }
 
-    uint32_t ResourceManager::hash(const char *str)
+    //--------------------------------------------------------------------------
+
+    uint32_t ResourceManager::hash(const char *str) const
     {
         uint32_t value = 5381;
 
@@ -51,218 +65,238 @@ namespace Tiny3D
         return (value & 0x7FFFFFFF);
     }
 
+    //--------------------------------------------------------------------------
+
+    ID ResourceManager::toCloneID(const String &name, ID cloneID) const
+    {
+        std::stringstream ss;
+        ss.width(4);
+        ss.fill('0');
+        ss << name << "_clone#" << cloneID;
+        return hash(ss.str().c_str());
+    }
+
+    //--------------------------------------------------------------------------
+
     ResourcePtr ResourceManager::load(const String &name, int32_t argc, ...)
     {
         ResourcePtr res = nullptr;
 
-        // First, search cache
-        auto itr = mResourcesCache.find(name);
+        ID resID = toID(name);
 
-        if (itr != mResourcesCache.end())
+        do 
         {
-            // Found it in cache.
-            Resources &resources = itr->second;
-
-            if (resources.size() > 0)
+            // 從 cache 中搜索
+            auto itr = mResourcesCache.find(resID);
+            if (itr != mResourcesCache.end())
             {
-                auto i = resources.find(0);
-
-                if (i != resources.end())
-                {
-                    // Found in original resource list
-                    res = i->second;
-                }
-                else
-                {
-                    // Found not in original resource list
-                    va_list params;
-                    va_start(params, argc);
-                    res = create(name, argc, params);
-                    va_end(params);
-
-                    if (res != nullptr)
-                    {
-                        bool ret = res->load();
-
-                        if (ret)
-                        {
-                            resources.insert(ResourcesValue(0, res));
-                        }
-                        else
-                        {
-                            res = nullptr;
-                        }
-                    }
-                }
+                // cache 中存在，直接返回cache中的，並且把引用計數遞增
+                res = itr->second;
+                res->mResReferCount++;
+                break;
             }
-        }
-        else
-        {
-            // Found not, it should create a new instance.
+
+            // cache 中沒有，只能新建對象
             va_list params;
             va_start(params, argc);
             res = create(name, argc, params);
             va_end(params);
 
-            if (res != nullptr)
+            if (res == nullptr)
             {
-                TResult ret = res->load();
-
-                if (ret == T3D_ERR_OK)
-                {
-                    Resources resources;
-                    resources.insert(ResourcesValue(0, res));
-                    mResourcesCache.insert(ResourcesMapValue(name, resources));
-                }
-                else
-                {
-                    res = nullptr;
-                }
+                // 創建失敗
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create resource [%s] object failed !", name.c_str());
+                break;
             }
-        }
+
+            TResult ret = res->load();
+            if (T3D_FAILED(ret))
+            {
+                // 加載失敗
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Load resource [%s] failed !", name.c_str());
+                res = nullptr;
+                break;
+            }
+
+            auto rval = mResourcesCache.insert(ResourcesValue(resID, res));
+            if (!rval.second)
+            {
+                // 插入緩存失敗
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Insert resource [%s] to cache failed !", name.c_str());
+                res = nullptr;
+                break;
+            }
+
+            res->mID = resID;
+            res->mIsLoaded = true;
+        } while (0);
 
         return res;
     }
 
-    void ResourceManager::unload(ResourcePtr &res)
+    //--------------------------------------------------------------------------
+
+    TResult ResourceManager::unload(ResourcePtr res)
     {
-        if (res != nullptr && res->referCount() > 1)
-        {
-            Resource *r = res;
-            res = nullptr;
+        TResult ret = T3D_OK;
 
-            if (r->referCount() == 1)
+        do 
+        {
+            if (res == nullptr)
             {
-                // Only one instance is used. It should be deleted.
-                auto itr = mResourcesCache.find(r->getName());
-
-                if (itr != mResourcesCache.end())
-                {
-                    // The resource is valid and in the cache.
-                    Resources &resources = itr->second;
-
-                    if (r->isCloned())
-                    {
-                        // erase cloning resource
-                        resources.erase(r->getCloneID());
-                    }
-                    else
-                    {
-                        // erase original resource
-                        resources.erase(0);
-                    }
-                }
+                ret = T3D_ERR_RES_INVALID_OBJECT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid resource object !");
+                break;
             }
-        }
-        else
-        {
-            res = nullptr;
-        }
+
+            if (res->mResReferCount == 0)
+            {
+                // 沒有地方引用了，已經卸載了
+                break;
+            }
+
+            // 引用計數遞減，減少一次引用
+            res->mResReferCount--;
+
+            if (res->resReferCount() > 0)
+            {
+                // 資源還有其他地方引用，不卸載
+                break;
+            }
+
+            // 卸載資源
+            ID resID = (res->isCloned() ? res->getCloneID() : res->getID());
+            auto itr = mResourcesCache.find(resID);
+            if (itr == mResourcesCache.end())
+            {
+                ret = T3D_ERR_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Couldn't find the resource [%s] in the cache !", 
+                    res->getName().c_str());
+                break;
+            }
+
+            // 讓資源自己處理卸載事情
+            ret = res->unload();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 最後從緩存中清除掉
+            mResourcesCache.erase(itr);
+        } while (0);
+
+        return ret;
     }
 
-    void ResourceManager::unloadUnused()
-    {
-        auto itr = mResourcesCache.begin();
+    //--------------------------------------------------------------------------
 
+    TResult ResourceManager::unloadAllResources()
+    {
+        TResult ret = T3D_OK;
+
+        auto itr = mResourcesCache.begin();
         while (itr != mResourcesCache.end())
         {
-            Resources &resources = itr->second;
-
-            auto i = resources.begin();
-
-            while (i != resources.end())
-            {
-                ResourcePtr &res = i->second;
-
-                if (res->referCount() == 1)
-                {
-                    resources.erase(i++);
-                }
-                else
-                {
-                    ++i;
-                }
-            }
-
-            if (resources.empty())
-            {
-                mResourcesCache.erase(itr++);
-            }
-            else
-            {
-                ++itr;
-            }
+            auto res = itr->second;
+            itr++;
+            if (res->isLoaded())
+                unload(res);
         }
+
+        mResourcesCache.clear();
+
+        return ret;
     }
 
-    ResourcePtr ResourceManager::clone(const ResourcePtr &src)
+    //--------------------------------------------------------------------------
+
+    TResult ResourceManager::unloadUnused()
     {
-        uint32_t unCloneID = (++mCloneID);
+        TResult ret = T3D_OK;
 
-        ResourcePtr res = src->clone();
-
-        if (res != nullptr)
+        do 
         {
-            res->mCloneID = unCloneID;
+        } while (0);
 
-            auto i = mResourcesCache.find(src->getName());
+        return ret;
+    }
 
-            if (i != mResourcesCache.end())
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::clone(ResourcePtr src)
+    {
+        ResourcePtr res;
+
+        do 
+        {
+            if (src == nullptr)
             {
-                Resources &resources = i->second;
-                resources.insert(ResourcesValue(unCloneID, res));
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid source object to clone !");
+                break;
             }
-            else
+
+            res = src->clone();
+            if (res == nullptr)
             {
-                T3D_ASSERT(0);
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Clone resource [%s] object failed !", 
+                    src->getName().c_str());
+                break;
             }
-        }
+
+            ID cloneID = toCloneID(res->getName(), mCloneID++);
+            res->mCloneID = cloneID;
+
+            auto rval = mResourcesCache.insert(ResourcesValue(cloneID, res));
+            if (!rval.second)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Add resource [%s] cloned to cache failed !",
+                    res->getName().c_str());
+                res = nullptr;
+            }
+        } while (0);
 
         return res;
     }
 
-    ResourcePtr ResourceManager::getResource(const String &name, uint32_t cloneID /* = 0 */) const
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::getResource(
+        const String &name, ID cloneID /* = T3D_INVALID_ID */) const
     {
-        ResourcePtr res = nullptr;
+        ResourcePtr res;
 
-        auto i = mResourcesCache.find(name);
-
-        if (i != mResourcesCache.end())
+        do 
         {
-            const Resources &resources = i->second;
-
-            auto itr = resources.find(cloneID);
-
-            if (itr != resources.end())
+            ID resID = T3D_INVALID_ID;
+            if (cloneID != T3D_INVALID_ID)
             {
-                res = itr->second;
+                // 克隆對象
+                resID = cloneID;
             }
-        }
+            else
+            {
+                resID = toID(name);
+            }
+
+            auto itr = mResourcesCache.find(resID);
+            if (itr == mResourcesCache.end())
+            {
+                break;
+            }
+
+            res = itr->second;
+        } while (0);
 
         return res;
-    }
-
-    bool ResourceManager::getResources(const String &name, TList<ResourcePtr> &rList) const
-    {
-        bool bRet = false;
-        auto i = mResourcesCache.find(name);
-
-        if (i != mResourcesCache.end())
-        {
-            const Resources &resources = i->second;
-
-            auto itr = resources.begin();
-
-            while (itr != resources.end())
-            {
-                rList.push_back(itr->second);
-                ++itr;
-            }
-
-            bRet = true;
-        }
-
-        return bRet;
     }
 }
 

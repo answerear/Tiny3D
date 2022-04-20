@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,7 +32,7 @@
         #undef T3D_DEBUG
     #endif
 
-    #pragma warning(disable:4996)
+//     #pragma warning(disable:4996)
     #pragma warning(disable:4251)
     #pragma warning(disable:4819)   // UTF-8 encode will trigger warning
 

@@ -35,14 +35,21 @@ if (WIN32)
     add_definitions(-DT3D_OS_DESKTOP)
     add_definitions(-D_HAS_EXCEPTIONS=0)
 
+	add_definitions(/MP)
+
     set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
 
     set(TINY3D_OS "Windows" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
+    set(PROTOBUF_SUFFIXES "prebuilt/Windows/${MSVC_CXX_ARCHITECTURE_ID}")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    set(CMAKE_SYSTEM_VERSION 10.0.17763)
+    set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION 10.0.17763.0)
+
+    add_compile_options(/wd4996)
+#    set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (ANDROID)
     # Android
     message(STATUS "Platform : Android")
@@ -55,6 +62,7 @@ elseif (ANDROID)
     set(TINY3D_OS "Android" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
+    set(PROTOBUF_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
 
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
@@ -73,6 +81,7 @@ elseif (APPLE AND IOS)
     set(CMAKE_OSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
+    set(PROTOBUF_SUFFIXES "prebuilt/iOS")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 elseif (APPLE AND NOT IOS)
@@ -88,6 +97,7 @@ elseif (APPLE AND NOT IOS)
 
     set(CMAKE_MACOSX_RPATH true)
     set(SDL2LIB_SUFFIXES "prebuilt/OSX")
+    set(PROTOBUF_SUFFIXES "prebuilt/OSX")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
 elseif (UNIX AND NOT APPLE)
@@ -102,27 +112,41 @@ elseif (UNIX AND NOT APPLE)
     set(TINY3D_OS "Linux" CACHE STRING "OS")
 
     set(SDL2LIB_SUFFIXES "prebuilt/Linux")
+    set(PROTOBUF_SUFFIXES "prebuilt/Linux")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
 
-#if (TINY3D_OS_IOS)
+
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    add_definitions(-DT3D_OS_X64)
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    add_definitions(-DT3D_OS_X86)
+endif ()
+
+if (TINY3D_OS_IOS)
     # Because in iOS, there only support static library.
-#    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" FALSE)
-#else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
-#endif (TINY3D_OS_IOS)
+else (TINY3D_OS_IOS)
+    option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
+endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID)
     # In Android, this switch is setted by build.gradle in Android Studio.
     option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID)
 
+if (TINY3D_OS_DESKTOP)
+    option(TINY3D_BUILD_TOOLS "Build tools" TRUE)
+else (TINY3D_OS_DESKTOP)
+    option(TINY3D_BUILD_TOOLS "Build tools" FALSE)
+endif (TINY3D_OS_DESKTOP)
+
 # Set all relative directory
 set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}" CACHE PATH "Tiny3D binary path")
 set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}" CACHE PATH "Tiny3D library path")
 set(TINY3D_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Tiny3D include path")
-set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/resources" CACHE PATH "Tiny3D resourcs path")
+set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/assets" CACHE PATH "Tiny3D assets path")
 
 # Set this directory for debugging app
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}" CACHE STRING "Tiny3D binaries files" FORCE)
@@ -161,20 +185,48 @@ add_definitions(-DT3D_ERR_PLUGINS=0x00010000)
 include(FindPkgMacros)
 include(ProjectCMakeModule)
 
-# Find SDL2 library for all projects.
+# Search SDL2 library for all projects.
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
+
+# Search protobuf library for all projects.
+#set(PROTOBUF_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/protobuf" CACHE PATH "protobuf library path")
+#find_package(protobuf)
+
+# Search rapidjson library for all projects.
+set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/rapidjson" CACHE PATH "rapidjson library path")
+find_package(rapidjson)
+
+# Third Parties
+# Project protobuf
+option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
+set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/protobuf/src")
+add_subdirectory(protobuf)
+
+
+# Setup project folder
+if (protobuf_BUILD_LITE_LIBRARIES)
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+    set (PROTOBUF_LIBRARY libprotobuf-lite)
+else (protobuf_BUILD_LITE_LIBRARIES)
+    set_property(TARGET libprotobuf PROPERTY FOLDER "External/protobuf")
+    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+    set (PROTOBUF_LIBRARY libprotobuf)
+endif (protobuf_BUILD_LITE_LIBRARIES)
 
 # Project Platform
 add_subdirectory(Platform)
 # Project Log
 add_subdirectory(Log)
+# Project Utils
+add_subdirectory(Utils)
 # Project Framework
 add_subdirectory(Framework)
 # Project Math
 add_subdirectory(Math)
 # Project Core
 add_subdirectory(Core)
+
 
 #foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 #    string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
@@ -199,16 +251,25 @@ add_subdirectory(Plugins)
 
 # Set the dependencies for all projects.
 add_dependencies(T3DLog T3DPlatform)
+add_dependencies(T3DUtils T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
+add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
+
+if (TINY3D_BUILD_TOOLS)
+    add_subdirectory(Tools)
+    add_dependencies(ScriptCompiler T3DCore)
+	add_dependencies(ShaderCrossCompiler T3DCore)
+endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(HelloApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
-    add_dependencies(PlatformApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
-    add_dependencies(FrameworkApp T3DCore T3DMath T3DFramework T3DLog T3DPlatform)
+    add_dependencies(HelloApp T3DCore)
+    add_dependencies(PlatformApp T3DCore)
+    add_dependencies(FrameworkApp T3DCore)
+    add_dependencies(GeometryApp T3DCore)
+    add_dependencies(TextureApp T3DCore)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DPlatform)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DPlatform)

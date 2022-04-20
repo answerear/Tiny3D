@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,17 +25,27 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(Win32Time, ITime);
+
     const uint64_t Win32Time::EPOCH = ((uint64_t)116444736000000000ULL);
+
+    //--------------------------------------------------------------------------
 
     Win32Time::Win32Time()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     Win32Time::~Win32Time()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     int64_t Win32Time::currentSecsSinceEpoch()
     {
@@ -54,6 +64,8 @@ namespace Tiny3D
 
         return (int64_t)((ularge.QuadPart - EPOCH) / 10000000L);
     }
+
+    //--------------------------------------------------------------------------
 
     int64_t Win32Time::currentMSecsSinceEpoch()
     {

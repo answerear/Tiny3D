@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,8 @@
 
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
+#include "T3DClass.h"
+
 
 namespace Tiny3D
 {
@@ -32,6 +34,8 @@ namespace Tiny3D
 
     class T3D_PLATFORM_API Application : public Singleton<Application>
     {
+        T3D_DECLARE_CLASS();
+
     public:
         /**
          * Constructor
@@ -45,7 +49,7 @@ namespace Tiny3D
 
         /**
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回T3D_OK
          */
         TResult init();
 

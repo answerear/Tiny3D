@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,8 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DClass.h"
+
 
 namespace Tiny3D
 {
@@ -35,21 +37,23 @@ namespace Tiny3D
     */
     class T3D_PLATFORM_API DateTime
     {
+        T3D_DECLARE_CLASS();
+
     public:
-        enum TimeFormat
+        enum class TimeFormat : uint32_t
         {
-            TF_HH_MM_SS_XXX = 0,        /// 转成字符串格式为：HH:MM:SS.XXX
-            TF_HH_MM_SS,
-            TF_HH_MM,
-            TF_HHMMSS,
+            HH_MM_SS_XXX = 0,        /// 转成字符串格式为：HH:MM:SS.XXX
+            HH_MM_SS,
+            HH_MM,
+            HHMMSS,
         };
 
-        enum DateFormat
+        enum class DateFormat : uint32_t
         {
-            DF_YY_MM_DD = 0,
-            DF_MM_DD,
-            DF_YY_MM,
-            DF_YYMMDD,
+            YY_MM_DD = 0,
+            MM_DD,
+            YY_MM,
+            YYMMDD,
         };
 
     public:
@@ -89,14 +93,14 @@ namespace Tiny3D
         * @note 字符串格式形如：HH:MM:SS.XXX
         * @return 返回String对象
         */
-        String timeToString(TimeFormat eFormat = TF_HH_MM_SS_XXX) const;
+        String timeToString(TimeFormat eFormat = TimeFormat::HH_MM_SS_XXX) const;
 
         /**
         * @brief 把QGDataTime中时间转成字符串.
         * @note 字符串格式形如：YYYY-MM-DD
         * @return 返回String对象
         */
-        String dateToString(DateFormat eFormat = DF_YY_MM_DD) const;
+        String dateToString(DateFormat eFormat = DateFormat::YY_MM_DD) const;
 
         /**
         * @brief 判断时间是否相等

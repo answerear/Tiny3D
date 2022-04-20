@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     static int AppEventWatcher(void *userdata, SDL_Event *event)
     {
         switch (event->type)
@@ -53,16 +55,26 @@ namespace Tiny3D
         
         return 0;
     }
-    
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(SDLApplication, IApplication);
+
+    //--------------------------------------------------------------------------
+
     SDLApplication::SDLApplication()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     SDLApplication::~SDLApplication()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     TResult SDLApplication::init()
     {
@@ -84,11 +96,13 @@ namespace Tiny3D
             
             SDL_AddEventWatch(AppEventWatcher, nullptr);
 
-            ret = T3D_ERR_OK;
+            ret = T3D_OK;
         } while (0);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     bool SDLApplication::pollEvents()
     {
@@ -110,10 +124,14 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void SDLApplication::release()
     {
         SDL_Quit();
     }
+
+    //--------------------------------------------------------------------------
 
     void *SDLApplication::getNativeAppObject()
     {

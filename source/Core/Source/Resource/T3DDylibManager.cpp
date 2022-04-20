@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,7 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(DylibManager);
+    T3D_IMPLEMENT_CLASS_1(DylibManager, ResourceManager);
+
+    //--------------------------------------------------------------------------
 
     DylibManagerPtr DylibManager::create()
     {
@@ -33,28 +38,39 @@ namespace Tiny3D
         return mgr;
     }
 
+    //--------------------------------------------------------------------------
+
     DylibManager::DylibManager()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     DylibManager::~DylibManager()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     DylibPtr DylibManager::loadDylib(const String &name)
     {
         return smart_pointer_cast<Dylib>(ResourceManager::load(name, 0));
     }
 
-    ResourcePtr DylibManager::create(const String &name, int32_t argc, va_list args)
+    //--------------------------------------------------------------------------
+
+    ResourcePtr DylibManager::create(
+        const String &name, int32_t argc, va_list args)
     {
         return Dylib::create(name);
     }
 
-    void DylibManager::unloadDylib(DylibPtr &dylib)
+    //--------------------------------------------------------------------------
+
+    TResult DylibManager::unloadDylib(DylibPtr dylib)
     {
-        unload((ResourcePtr &)dylib);
+        return unload(dylib);
     }
 }

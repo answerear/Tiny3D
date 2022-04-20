@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -81,17 +81,20 @@ namespace Tiny3D
         void setStrategy(const Strategy &strategy);
 
         /**
-         * @brief 设置当前日志输出的最高级别，高于该级别的日志被忽略不输出
+         * @brief 设置当前日志输出的最高级别
+         * @remarks 高于该级别的日志被忽略不输出
          */
         void setLevel(Level eLevel);
 
         /**
-         * @brief 设置最大缓存大小，大于该大小的缓存日志会马上提交异步线程写回文件
+         * @brief 设置最大缓存大小
+         * @remarks 大于该大小的缓存日志会马上提交异步线程写回文件
          */
         void setMaxCacheSize(uint32_t unMaxCacheSize);
 
         /**
-         * @brief 设置最大缓存时间间隔，超过该时间间隔缓存日志会马上提交异步线程写回文件
+         * @brief 设置最大缓存时间间隔
+         * @remarks 超过该时间间隔缓存日志会马上提交异步线程写回文件
          */
         void setMaxCacheTime(uint32_t unMaxCacheTime);
 
@@ -105,7 +108,7 @@ namespace Tiny3D
          * @param [in] appID : 标识当前应用程序的ID，以便区分日志文件
          * @param [in] tag : 额外的应用程序标签，给日志文件名附加额外信息以作区别
          * @param [in] force : 是否忽略日志级别，全量日志输出
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回T3D_OK
          * @note 调用该函数前，请先通过setStrategy()或者setLevel()、
          *      setMaxCacheSize()、setMaxCacheTime()设置好日志输出策略，
          *      否则会用默认策略
@@ -118,11 +121,13 @@ namespace Tiny3D
          * @param [in] level : 输出日志相应级别
          * @param [in] filename : 输出日志的源码文件
          * @param [in] line : 输出日志对应源码文件的行数
+         * @param [in] tag : 打个特殊标签，用于区分不同日志
          * @param [in] fmt : 格式化字符串
          * @param [in] var_list : 可变参数
          * @return void
          */
-        void trace(Level level, const char *filename, int32_t line, const char *fmt, ...);
+        void trace(Level level, const char *filename, int32_t line, 
+            const char *tag, const char *fmt, ...);
 
         /**
          * @brief 关闭日志模块

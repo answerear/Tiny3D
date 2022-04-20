@@ -16,11 +16,12 @@ endif (MSVC)
 
 # Setup project include files path
 include_directories(
-    "${TINY3D_CORE_INC_DIR}/Include"
+    "${TINY3D_CORE_SOURCE_DIR}/Include"
     "${TINY3D_MATH_SOURCE_DIR}/Include"
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
+	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${DirectX11_INCLUDE_DIR}"
     )
@@ -43,14 +44,16 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 target_link_libraries(
     ${LIB_NAME}
     ${DirectX11_LIBRARIES}
+	d3dcompiler
     T3DMath
     T3DLog
+	T3DUtils
     T3DPlatform
     T3DCore
     )
 
 # Setup project folder
-set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Plugins/Renderer")
+set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/Renderer")
 
 install(TARGETS ${LIB_NAME}
     RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

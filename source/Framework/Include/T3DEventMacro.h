@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,14 +78,14 @@ namespace Tiny3D
 	    TResult theClass::setupEventFilter()	\
 	    {	\
 		    classBase::setupEventFilter();	\
-            TResult ret = T3D_ERR_OK;   \
+            TResult ret = T3D_OK;   \
             do  \
             {   
 
     // 注册事件过滤
     #define T3D_EVENT_FILTER(eid)	\
 		        ret = registerEvent(eid);   \
-                if (ret != T3D_ERR_OK)  \
+                if (T3D_FAILED(ret))  \
                     break;
 
     // 结束事件过滤

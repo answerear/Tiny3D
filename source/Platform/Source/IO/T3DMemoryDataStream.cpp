@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,7 +23,13 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(MemoryDataStream, DataStream);
+
     const uint32_t MemoryDataStream::MEMORY_BUFFER_SIZE = 2 * 1024;
+
+    //--------------------------------------------------------------------------
 
     MemoryDataStream::MemoryDataStream()
         : m_pBuffer(nullptr)
@@ -33,6 +39,8 @@ namespace Tiny3D
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     MemoryDataStream::MemoryDataStream(uchar_t *pBuffer, size_t unSize,
         bool reallocate /* = true */)
@@ -49,6 +57,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     MemoryDataStream::MemoryDataStream(size_t unSize)
         : m_pBuffer(nullptr)
         , m_lSize(unSize)
@@ -58,10 +68,14 @@ namespace Tiny3D
         m_pBuffer = new uchar_t[unSize];
     }
 
+    //--------------------------------------------------------------------------
+
     MemoryDataStream::MemoryDataStream(const MemoryDataStream &other)
     {
         copy(other);
     }
+
+    //--------------------------------------------------------------------------
 
     MemoryDataStream::~MemoryDataStream()
     {
@@ -71,11 +85,15 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     MemoryDataStream &MemoryDataStream::operator=(const MemoryDataStream &other)
     {
         copy(other);
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 
     size_t MemoryDataStream::read(void *pBuffer, size_t nSize)
     {
@@ -86,6 +104,8 @@ namespace Tiny3D
         return lBytesOfRead;
     }
 
+    //--------------------------------------------------------------------------
+
     size_t MemoryDataStream::write(void *pBuffer, size_t nSize)
     {
         long_t lSpace = m_lSize - m_lCurPos - 1;
@@ -95,6 +115,8 @@ namespace Tiny3D
         m_lCurPos += lBytesOfWritten;
         return lBytesOfWritten;
     }
+
+    //--------------------------------------------------------------------------
 
     bool MemoryDataStream::seek(long_t lPos, bool relative)
     {
@@ -120,26 +142,36 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     long_t MemoryDataStream::tell() const
     {
         return m_lCurPos;
     }
+
+    //--------------------------------------------------------------------------
 
     long_t MemoryDataStream::size() const
     {
         return m_lSize;
     }
 
+    //--------------------------------------------------------------------------
+
     bool MemoryDataStream::eof() const
     {
-        return (m_lCurPos == m_lSize - 1);
+        return (m_lCurPos == m_lSize);
     }
+
+    //--------------------------------------------------------------------------
 
     size_t MemoryDataStream::read(uint8_t *&pData)
     {
         pData = m_pBuffer;
         return m_lSize;
     }
+
+    //--------------------------------------------------------------------------
 
     void MemoryDataStream::setBuffer(uint8_t *buffer, size_t bufSize,
         bool reallocate /* = true */)
@@ -160,11 +192,15 @@ namespace Tiny3D
         m_bCreated = true;
     }
 
+    //--------------------------------------------------------------------------
+
     void MemoryDataStream::getBuffer(uint8_t *&buffer, size_t &bufSize) const
     {
         buffer = m_pBuffer;
         bufSize = m_lSize;
     }
+
+    //--------------------------------------------------------------------------
 
     void MemoryDataStream::copy(const MemoryDataStream &other)
     {

@@ -76,6 +76,7 @@ set_project_files(Include\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Include/Time/ .h)
 set_project_files(Include\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Include/IO/ .h)
 set_project_files(Include\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Include/Device/ .h)
 set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console/ .h)
+set_project_files(Include\\\\Reflection ${CMAKE_CURRENT_SOURCE_DIR}/Include/Reflection/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -118,6 +119,7 @@ set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
 set_project_files(Source\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Source/IO/ .cpp)
 set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .cpp)
 set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ .cpp)
+set_project_files(Source\\\\Reflection ${CMAKE_CURRENT_SOURCE_DIR}/Source/Reflection/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -160,11 +162,11 @@ endif (TINY3D_OS_DESKTOP)
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
-	# Make dynamic library for this project.
-	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+    # Make dynamic library for this project.
+    add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 else (TINY3D_BUILD_SHARED_LIBS)
-	# Make static library for this project.
-	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+    # Make static library for this project.
+    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
@@ -199,6 +201,7 @@ elseif (TINY3D_OS_MACOSX)
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
+    add_definitions(-DSDL_VIDEO_DRIVER_X11=1)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE X11
@@ -212,6 +215,14 @@ elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
 	# iOS
     find_library(FWK_SECURITY Security)
+
+    set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath")
+
+    set_target_properties (${LIB_NAME} PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        MACOSX_RPATH 1
+        INSTALL_NAME_DIR "@rpath"
+        )
 
 	target_link_libraries(
         ${LIB_NAME}
@@ -227,5 +238,10 @@ elseif (TINY3D_OS_ANDROID)
 		log
 		)
 endif (TINY3D_OS_WINDOWS)
+
+
+# Setup project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Kernel")
+
 
 message(STATUS "Generating project : ${BIN_NAME} - done")

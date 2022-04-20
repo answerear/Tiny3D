@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,7 +28,11 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(Logger);
+
+    //--------------------------------------------------------------------------
 
     const char * const Logger::LEVEL_OFF = "OFF";
     const char * const Logger::LEVEL_FATAL = "FATAL";
@@ -37,6 +41,8 @@ namespace Tiny3D
     const char * const Logger::LEVEL_WARNING = "WARNING";
     const char * const Logger::LEVEL_INFO = "INFO";
     const char * const Logger::LEVEL_DEBUG = "DEBUG";
+
+    //--------------------------------------------------------------------------
 
     Logger::Logger()
         : mFlushCacheTimerID(T3D_INVALID_TIMER_ID)
@@ -54,10 +60,14 @@ namespace Tiny3D
         mStrategy.unMaxCacheTime = 1000 * 5;
     }
 
+    //--------------------------------------------------------------------------
+
     Logger::~Logger()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::setLevel(Level eLevel)
     {
@@ -81,15 +91,21 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::setMaxCacheSize(uint32_t unMaxCacheSize)
     {
         mStrategy.unMaxCacheSize = unMaxCacheSize;
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::setExpired(uint32_t unExpired)
     {
         mStrategy.unExpired = unExpired;
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::setMaxCacheTime(uint32_t unMaxCacheTime)
     {
@@ -102,6 +118,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::setStrategy(const Strategy &strategy)
     {
         setMaxCacheSize(strategy.unMaxCacheSize);
@@ -109,6 +127,8 @@ namespace Tiny3D
         setExpired(strategy.unExpired);
         setLevel(strategy.eLevel);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Logger::startup(ID appID, const String &tag,
         bool force /* = false */, bool outputConsole /* = false */)
@@ -132,11 +152,13 @@ namespace Tiny3D
         /// 不管是否要输出日志，都提交一个检查过期日志文件的异步任务
         commitCheckExpiredTask();
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::trace(Level level, const char *filename, int32_t line,
-        const char *fmt, ...)
+        const char *tag, const char *fmt, ...)
     {
         if (!mIsForced && level > mStrategy.eLevel)
             return;
@@ -152,7 +174,7 @@ namespace Tiny3D
         String name = getFileName(filename);
 
         /// 生成一条日志项
-        LogItem *item = new LogItem(level, name.c_str(), line, content);
+        LogItem *item = new LogItem(level, name.c_str(), line, tag, content);
 
         /// 输出到控制台
         if (mIsOutputConsole)
@@ -168,6 +190,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::shutdown()
     {
         /// 停止缓存写回文件间隔定时器
@@ -180,6 +204,8 @@ namespace Tiny3D
         closeLogFile();
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::enterBackground()
     {
         // 强制输出缓存中日志到文件中
@@ -191,6 +217,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::enterForeground()
     {
         // 重启写日志定时器
@@ -200,6 +228,8 @@ namespace Tiny3D
             startFlushTimer();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     Logger::Level Logger::toLevelValue(const String &level)
     {
@@ -237,6 +267,8 @@ namespace Tiny3D
         return eLevel;
     }
 
+    //--------------------------------------------------------------------------
+
     String Logger::toLevelString(Level eLevel)
     {
         String level[E_LEVEL_MAX] =
@@ -248,12 +280,16 @@ namespace Tiny3D
         return level[eLevel];
     }
 
+    //--------------------------------------------------------------------------
+
     String Logger::getLogPath() const
     {
         String cachePath = Dir::getCachePath();
-        String path = cachePath + Dir::NATIVE_SEPARATOR + "Log";
+        String path = cachePath + Dir::getNativeSeparator() + "Log";
         return path;
     }
+
+    //--------------------------------------------------------------------------
 
     String Logger::makeLogFileName(uint32_t appID, const String &tag,
         const DateTime &dt)
@@ -261,12 +297,15 @@ namespace Tiny3D
         String logPath = getLogPath();
 
         std::stringstream ss;
-        ss<<appID<<"_"<<tag<<"_"
-            <<dt.dateToString(DateTime::DF_YY_MM_DD)<<"_"<<dt.Hour()<<".log";
+        ss << appID << "_" << tag << "_";
+        ss << dt.dateToString(DateTime::DateFormat::YY_MM_DD);
+        ss << "_" << dt.Hour() << ".log";
 
-        String fullPath = logPath + Dir::NATIVE_SEPARATOR + ss.str();
+        String fullPath = logPath + Dir::getNativeSeparator() + ss.str();
         return fullPath;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Logger::openLogFile()
     {
@@ -286,6 +325,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::writeLogFile(TArray<LogItem*> &cache)
     {
@@ -310,6 +351,8 @@ namespace Tiny3D
         cache.clear();
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::closeLogFile()
     {
         if (mFileStream.isOpened())
@@ -318,6 +361,8 @@ namespace Tiny3D
             mFileStream.close();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::flushCache()
     {
@@ -343,11 +388,15 @@ namespace Tiny3D
         mStrategy.eLevel = eLevel;
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::startFlushTimer()
     {
         mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(mStrategy.unMaxCacheTime,
             true, this);
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::stopFlushTimer()
     {
@@ -358,6 +407,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::onTimer(ID timerID, int32_t dt)
     {
         if (timerID == mFlushCacheTimerID)
@@ -366,10 +417,12 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     String Logger::getFileName(const String &path) const
     {
         String name;
-        int32_t pos = path.rfind("\\");
+        size_t pos = path.rfind("\\");
         if (pos == String::npos)
         {
             pos = path.rfind("/");
@@ -382,10 +435,14 @@ namespace Tiny3D
         return name;
     }
 
+    //--------------------------------------------------------------------------
+
 //     int32_t Logger::asyncWorkingProcedure(Logger *pThis)
 //     {
 //         return pThis->workingProcedure();
 //     }
+
+    //--------------------------------------------------------------------------
 
 //     int32_t Logger::workingProcedure()
     void Logger::workingProcedure()
@@ -445,6 +502,8 @@ namespace Tiny3D
 //         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::startAsyncTask()
     {
         if (!mWorkingThread.joinable())
@@ -466,6 +525,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::stopAsyncTask()
     {
         if (mIsRunning && mWorkingThread.joinable())
@@ -485,6 +546,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::suspendAsyncTask()
     {
         TAutoLock<TMutex> lock(mWaitMutex);
@@ -495,12 +558,16 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     void Logger::wakeAsyncTask()
     {
         TAutoLock<TMutex> lock(mWaitMutex);
         mIsSuspended = false;
         mWaitCond.notify_all();
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::commitCheckExpiredTask()
     {
@@ -512,6 +579,8 @@ namespace Tiny3D
 
         startAsyncTask();
     }
+
+    //--------------------------------------------------------------------------
 
     void Logger::commitFlushCacheTask()
     {
@@ -532,6 +601,8 @@ namespace Tiny3D
         startAsyncTask();
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Logger::processCheckExpiredTask(LogTask *task)
     {
         mTaskType = LogTask::E_TYPE_CHECK_EXPIRED;
@@ -540,7 +611,7 @@ namespace Tiny3D
         Dir dir;
         String logPath = getLogPath();
 
-        String path = logPath + Dir::NATIVE_SEPARATOR + "*.log";
+        String path = logPath + Dir::getNativeSeparator() + "*.log";
 
         bool working = dir.findFile(path);
         while (working)
@@ -567,8 +638,10 @@ namespace Tiny3D
         delete task;
         mTaskType = LogTask::E_TYPE_NONE;
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Logger::processFlushCacheTask(LogTask *task)
     {
@@ -579,6 +652,6 @@ namespace Tiny3D
         delete task;
         mTaskType = LogTask::E_TYPE_NONE;
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 }

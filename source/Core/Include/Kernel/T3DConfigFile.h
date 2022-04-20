@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,101 +36,217 @@ namespace tinyxml2
 namespace Tiny3D
 {
     /**
-     * @brief 配置文件类，用于读写配置文件，支持二进制和XML格式
+     * @class   ConfigFile
+     * @brief   配置文件类，用于读写配置文件，支持二进制和XML格式
      */
     class T3D_ENGINE_API ConfigFile
     {
     public:
-        /** 
-         * @brief 构造函数
-         * @param [in] filename : 配置文件名
-         * @param [in] archive : 配置文件所在的档案结构。 默认值为nullptr。
-         *          当为默认值时，filename 需要是绝对路径。 如果指定档案结构对象，
-         *          则 filename 是相对档案结构根目录的相对路径。
+        /**
+         * @fn  ConfigFile::ConfigFile(const String &filename, 
+         *      ArchivePtr archive = nullptr);
+         * @brief   构造函数
+         * @param [in]  filename    : 配置文件名.
+         * @param [in]  archive     (Optional) : 配置文件所在的档案结构。 
+         *              默认值为nullptr。 当为默认值时，filename 需要是绝对路径。 
+         *              如果指定档案结构对象， 则 filename 是相对档案结构根
+         *              目录的相对路径。.
          */
         ConfigFile(const String &filename, ArchivePtr archive = nullptr);
 
-        /** 
-         * @brief 析构函数 
+        /**
+         * @fn  virtual ConfigFile::~ConfigFile();
+         * @brief   析构函数
          */
         virtual ~ConfigFile();
 
         /**
-         * @brief 从XML格式文件加载
-         * @param [in][out] settings : 设置项对象
-         * @return 调用成功返回T3D_ERR_OK。
+         * @fn  TResult ConfigFile::loadXML(Settings &settings);
+         * @brief   从XML格式文件加载
+         * @param [in]  settings    settings : 设置项对象.
+         * @return  调用成功返回T3D_OK。.
          */
         TResult loadXML(Settings &settings);
 
         /**
-         * @brief 把设置项写到XML格式文件中
-         * @param [in] settings : 要保存的设置项
-         * @return 调用成功返回true，否则返回false。
+         * @fn  TResult ConfigFile::saveXML(const Settings &settings);
+         * @brief   把设置项写到XML格式文件中
+         * @param [in]  settings    : 要保存的设置项.
+         * @return  调用成功返回true，否则返回false。.
          */
         TResult saveXML(const Settings &settings);
 
         /**
-         * @brief 从二进制格式文件加载
-         * @param [in][out] settings : 设置项对象
-         * @return 调用成功返回true，否则返回false。
+         * @fn  bool ConfigFile::loadBinary(Settings &settings);
+         * @brief   从二进制格式文件加载
+         * @param [in]  settings    settings : 设置项对象.
+         * @return  调用成功返回true，否则返回false。.
          */
         bool loadBinary(Settings &settings);
 
         /**
-         * @brief 把设置项写到二进制格式文件中
-         * @param [in] settings : 要保存的设置项
-         * @return 调用成功返回true，否则返回false。
+         * @fn  bool ConfigFile::saveBinary(const Settings &settings);
+         * @brief   把设置项写到二进制格式文件中
+         * @param [in]  settings    : 要保存的设置项.
+         * @return  调用成功返回true，否则返回false。.
          */
         bool saveBinary(const Settings &settings);
 
     protected:
-        /** 解析 XML 格式 */
-        TResult parseXML(const tinyxml2::XMLDocument &doc, Settings &settings);
+        /**
+         * @fn  TResult ConfigFile::parseXML(const tinyxml2::XMLDocument &doc, 
+         *      Settings &settings);
+         * @brief   解析 XML 格式
+         * @param           doc         The document.
+         * @param [in,out]  settings    Options for controlling the operation.
+         * @return  A TResult.
+         */
+        TResult parseXML(
+            const tinyxml2::XMLDocument &doc, Settings &settings);
 
-        /** 解析 XML 格式字典结构容器 */
-        TResult parseXMLDict(const tinyxml2::XMLElement *root, VariantMap &dict);
+        /**
+         * @fn  TResult ConfigFile::parseXMLDict(
+         *      const tinyxml2::XMLElement *root, VariantMap &dict);
+         * @brief   解析 XML 格式字典结构容器
+         * @param           root    The root.
+         * @param [in,out]  dict    The dictionary.
+         * @return  A TResult.
+         */
+        TResult parseXMLDict(
+            const tinyxml2::XMLElement *root, VariantMap &dict);
 
-        /** 解析 XML 格式数组结构容器 */
-        TResult parseXMLArray(const tinyxml2::XMLElement *root, VariantArray &arr);
+        /**
+         * @fn  TResult ConfigFile::parseXMLArray(
+         *      const tinyxml2::XMLElement *root, VariantArray &arr);
+         * @brief   解析 XML 格式数组结构容器
+         * @param           root    The root.
+         * @param [in,out]  arr     The array.
+         * @return  A TResult.
+         */
+        TResult parseXMLArray(
+            const tinyxml2::XMLElement *root, VariantArray &arr);
 
-        /** 构建 XML 格式 */
-        TResult buildXML(tinyxml2::XMLDocument &doc, const Settings &settings);
+        /**
+         * @fn  TResult ConfigFile::buildXML(tinyxml2::XMLDocument &doc, 
+         *      const Settings &settings);
+         * @brief   构建 XML 格式
+         * @param [in,out]  doc         The document.
+         * @param           settings    Options for controlling the operation.
+         * @return  A TResult.
+         */
+        TResult buildXML(
+            tinyxml2::XMLDocument &doc, const Settings &settings);
 
-        /** 从字典结构容器构建XML */
+        /**
+         * @fn  TResult ConfigFile::buildXMLDict(tinyxml2::XMLDocument &doc, 
+         *      tinyxml2::XMLElement *root, const VariantMap &dict);
+         * @brief   从字典结构容器构建XML
+         * @param [in,out]  doc     The document.
+         * @param [in,out]  root    If non-null, the root.
+         * @param           dict    The dictionary.
+         * @return  A TResult.
+         */
         TResult buildXMLDict(tinyxml2::XMLDocument &doc, 
             tinyxml2::XMLElement *root,
             const VariantMap &dict);
 
-        /** 从数组结构容器构建XML */
+        /**
+         * @fn  TResult ConfigFile::buildXMLArray(tinyxml2::XMLDocument &doc, 
+         *      tinyxml2::XMLElement *root, const VariantArray &arr);
+         * @brief   从数组结构容器构建XML
+         * @param [in,out]  doc     The document.
+         * @param [in,out]  root    If non-null, the root.
+         * @param           arr     The array.
+         * @return  A TResult.
+         */
         TResult buildXMLArray(tinyxml2::XMLDocument &doc, 
             tinyxml2::XMLElement *root,
             const VariantArray &arr);
 
+        /**
+         * @fn  TResult ConfigFile::buildXMLList(tinyxml2::XMLDocument &doc, 
+         *      tinyxml2::XMLElement *root, const VariantList &list);
+         * @brief   Builds XML list
+         * @param [in,out]  doc     The document.
+         * @param [in,out]  root    If non-null, the root.
+         * @param           list    The list.
+         * @return  A TResult.
+         */
         TResult buildXMLList(tinyxml2::XMLDocument &doc,
             tinyxml2::XMLElement *root,
             const VariantList &list);
 
-        /** 根据可变类型对象构建XML */
+        /**
+         * @fn  TResult ConfigFile::buildXMLVariant(tinyxml2::XMLDocument &doc, 
+         *      tinyxml2::XMLElement *root, const Variant &value);
+         * @brief   根据可变类型对象构建XML
+         * @param [in,out]  doc     The document.
+         * @param [in,out]  root    If non-null, the root.
+         * @param           value   The value.
+         * @return  A TResult.
+         */
         TResult buildXMLVariant(tinyxml2::XMLDocument &doc, 
             tinyxml2::XMLElement *root,
             const Variant &value);
 
-        /** 解析二进制格式 */
+        /**
+         * @fn  bool ConfigFile::parseBinary(DataStream &stream, 
+         *      Settings &settings);
+         * @brief   解析二进制格式
+         * @param [in,out]  stream      The stream.
+         * @param [in,out]  settings    Options for controlling the operation.
+         * @return  True if it succeeds, false if it fails.
+         */
         bool parseBinary(DataStream &stream, Settings &settings);
 
-        /** 解析二进制格式字段结构容器 */
+        /**
+         * @fn  bool ConfigFile::parseBinDict(DataStream &stream, 
+         *      VariantMap &dict);
+         * @brief   解析二进制格式字段结构容器
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  dict    The dictionary.
+         * @return  True if it succeeds, false if it fails.
+         */
         bool parseBinDict(DataStream &stream, VariantMap &dict);
 
-        /** 解析二进制格式数组结构容器 */
+        /**
+         * @fn  bool ConfigFile::parseBinArray(DataStream &stream, 
+         *      VariantArray &arr);
+         * @brief   解析二进制格式数组结构容器
+         * @param [in,out]  stream  The stream.
+         * @param [in,out]  arr     The array.
+         * @return  True if it succeeds, false if it fails.
+         */
         bool parseBinArray(DataStream &stream, VariantArray &arr);
 
-        /** 用字典结构容器构建二进制数据 */
+        /**
+         * @fn  bool ConfigFile::buildBinDict(DataStream &stream, 
+         *      const VariantMap &dict);
+         * @brief   用字典结构容器构建二进制数据
+         * @param [in,out]  stream  The stream.
+         * @param           dict    The dictionary.
+         * @return  True if it succeeds, false if it fails.
+         */
         bool buildBinDict(DataStream &stream, const VariantMap &dict);
 
-        /** 用数组结构容器构建二进制数据 */
+        /**
+         * @fn  bool ConfigFile::buildBinArray(DataStream &stream, 
+         *      const VariantArray &arr);
+         * @brief   用数组结构容器构建二进制数据
+         * @param [in,out]  stream  The stream.
+         * @param           arr     The array.
+         * @return  True if it succeeds, false if it fails.
+         */
         bool buildBinArray(DataStream &stream, const VariantArray &arr);
 
-        /** 用可变类型对象构建二进制数据 */
+        /**
+         * @fn  bool ConfigFile::buildBinVariant(DataStream &stream, 
+         *      const Variant &value);
+         * @brief   用可变类型对象构建二进制数据
+         * @param [in,out]  stream  The stream.
+         * @param           value   The value.
+         * @return  True if it succeeds, false if it fails.
+         */
         bool buildBinVariant(DataStream &stream, const Variant &value);
 
     private:

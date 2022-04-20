@@ -21,12 +21,14 @@ endif (MSVC)
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
+set(TINY3D_UTILS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Utils")
 
 
 # Setup search header path for this project.
 include_directories(
 	"${TINY3D_PLATFORM_DIR}/Include"
     "${TINY3D_LOG_DIR}/Include"
+	"${TINY3D_UTILS_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	)
@@ -42,11 +44,11 @@ set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
-	# Make dynamic library for this project.
-	add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+    # Make dynamic library for this project.
+    add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 else (TINY3D_BUILD_SHARED_LIBS)
-	# Make static library for this project.
-	add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+    # Make static library for this project.
+    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
@@ -60,6 +62,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DUtils
 			LINK_PRIVATE legacy_stdio_definitions
 			)
 	else ()
@@ -67,6 +70,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DUtils
 			)
 	endif ()
 	
@@ -98,12 +102,14 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DUtils
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DUtils
 		)
 
 	add_custom_command(TARGET ${BIN_NAME}
@@ -112,16 +118,31 @@ elseif (TINY3D_OS_LINUX)
 		)
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	# iOS
+    set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath")
+
+    set_target_properties (${LIB_NAME} PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        MACOSX_RPATH 1
+        INSTALL_NAME_DIR "@rpath"
+        )
+
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DUtils
         )
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DUtils
         )
 endif (TINY3D_OS_WINDOWS)
+
+
+# Setup project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Kernel")
+
 
 message(STATUS "Generating project : ${BIN_NAME} - done")

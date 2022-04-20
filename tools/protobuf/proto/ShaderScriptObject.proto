@@ -1,0 +1,333 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+import "CommonScriptObject.proto";
+
+package Tiny3D.Script.ShaderSystem;
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      	Shader
+//-------------------------------------------------------------------------------------------------
+
+message Shader
+{
+	string 				name = 1;			// Shader 名称
+	repeated Property 	properties = 2;		// 材质属性
+	repeated SubShader 	subshaders = 3;		// SubShader
+	Fallback 			fallback = 4;		// Fallback
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      	材质属性
+//-------------------------------------------------------------------------------------------------
+
+message Range
+{
+	float	value = 1;
+	float	lower = 2;
+	float	upper = 3;
+}
+
+message PropertyValue
+{
+	oneof PropertyValueOneof
+	{
+		Int32	ival = 1;			// Int
+		Float	fval = 2;			// Float
+		Range	rval = 3;			// Range(0.0, 1.0)
+		String	tex2d = 4;			// 2D
+		String	tex2d_array = 5;	// 2DArray
+		String	tex3d = 6;			// 3D
+		String	cubemap = 7;		// Cube
+		String	cubemap_array = 8;	// CubeArray
+		Color	color = 9;			// Color
+		Vector4	vector = 10;		// Vector
+	}
+}
+
+
+message Property
+{
+	string	name = 1;				// 属性名称
+	string	display_name = 2;		// 属性显示名称
+	PropertyValue values = 3;		// 属性值
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      材质 Fallback
+//-------------------------------------------------------------------------------------------------
+
+message Fallback
+{
+	oneof FallbackOneof
+	{
+		Bool	enable = 1;		// 是否开启 fallback
+		String	name = 2;		// fallback 对应的 shader 名称
+	}
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      SubShader
+//-------------------------------------------------------------------------------------------------
+
+message SubShader
+{
+	sint32				lod = 1;		// LOD
+	map<string, string>	tags = 2;		// 标签
+	oneof Command
+	{
+		State	state = 3;				// 渲染状态
+		String	use_pass = 4;			// 使用另一个 shader 里的 pass
+		String	grab_pass = 5;			// 将帧缓冲抓取到纹理里
+	}
+	repeated Pass		passes = 6;		// pass
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Pass
+//-------------------------------------------------------------------------------------------------
+
+message Pass
+{
+	string				name = 1;		// pass 名称
+	map<string, string>	tags = 2;		// pass 标签
+	oneof Command
+	{
+		State	state = 3;				// 渲染状态
+		String	use_pass = 4;			// 使用另一个 shader 里的 pass
+		String	grab_pass = 5;			// 将帧缓冲抓取到纹理里
+	}	
+	Program				program = 6;	// shader 代码
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Shader 命令
+//-------------------------------------------------------------------------------------------------
+
+// state
+message State
+{
+	// 用于设置渲染状态的命令
+	bool 		alpha2Mask = 1;		// 设置 alpha-to-coverage 模式
+	Blend		blend = 2;			// 启用和配置 alpha 混合
+	BlendOp		blend_op = 3;		// 设置blend 命令使用的操作
+	ColorMask	color_mask = 4;		// 设置颜色通道写入掩码
+	bool		conservative = 5;	// 启用和禁用保守光栅化
+	Cull		cull = 6;			// 设置多边形剔除模式
+	DepthBias	depth_bias = 7;		// 设置多边形深度偏移， depth bias
+	Stencil		stencil = 8;		// 配置模板测试，以及向模板缓冲区写入的内容
+	bool		z_clip = 9;		// 设置深度裁剪模式
+	Comp		z_test = 10;		// 设置深度测试模式
+	bool		z_write = 11;		// 设置深度缓冲区写入模式
+}
+
+// 片元着色器输出与渲染目标的混合模式
+message Blend
+{
+	oneof BlendOneof
+	{
+		BlendState				state = 1;
+		BlendStateRenderTarget	target = 2;
+	}
+}
+
+// 混合因子
+enum BlendFactor
+{
+	ZERO = 0;
+	ONE = 1;
+	SRC_COLOR = 2;
+	SRC_ALPHA = 3;
+	DST_COLOR = 4;
+	DST_ALPHA = 5;
+	ONE_MINUS_SRC_COLOR = 6;
+	ONE_MINUS_SRC_ALPHA = 7;
+	ONE_MINUS_DST_COLOR = 8;
+	ONE_MINUS_DST_ALPHA = 9;
+}
+
+message BlendState
+{
+	BlendFactor	src_rgb = 1;
+	BlendFactor	dst_rgb = 2;
+	BlendFactor	src_alpha = 3;
+	BlendFactor	dst_alpha = 4;
+}
+
+message BlendStateRenderTarget
+{
+	sint32	target = 1;
+	BlendFactor	src_rgb = 2;
+	BlendFactor	dst_rgb = 3;
+	BlendFactor	src_alpha = 4;
+	BlendFactor	dst_alpha = 5;
+}
+
+
+// Blend 命令使用的混合操作
+enum BlendOp
+{
+	ADD = 0;			// 将源和目标相加
+	SUB = 1;			// 从源减去目标
+	REV_SUB = 2;		// 从目标减去源
+	MIN = 3;			// 使用源和目标中的较小者
+	MAX = 4;			// 使用源和目标中的较大者
+	CLEAR = 5;			// Clear (0)
+	SET = 6;			// Set (1)
+	COPY = 7;			// Copy (s)
+	COPY_INVERTED = 8;	// Copy inverted (!s)
+	NOOP = 9;			// Noop (d)
+	INVERT = 10;		// Invert (!d)
+	AND = 11;			// And (s & d)
+	NAND = 12;			// Nand !(s & d)
+	OR = 13;			// Or (s | d)
+	NOR = 14;			// Nor !(s | d)
+	XOR = 15;			// Xor (s^d)
+	EQUIV = 16;			// Equivalence !(s ^ d)
+	AND_REVERSE = 17;	// Reverse And (s& !d)
+	AND_INVERTED = 18;	// Inverted Add (!s & d)
+	OR_REVERSE = 19;	// Reverse Or (s | !d)
+	OR_INVERTED = 20;	// Inverted Or (!s | d)
+	MULTIPLY = 21;		// 高级 OpenGL 混合操作
+	SCREEN = 22;		// 高级 OpenGL 混合操作
+	OVERLAY = 23;		// 高级 OpenGL 混合操作
+	DARKEN = 24;		// 高级 OpenGL 混合操作
+	LIGHTEN = 25;		// 高级 OpenGL 混合操作
+	COLOR_DODGE = 26;	// 高级 OpenGL 混合操作
+	COLOR_BURN = 27;	// 高级 OpenGL 混合操作
+	HARD_LIGHT = 28;	// 高级 OpenGL 混合操作
+	SOFT_LIGHT = 29;	// 高级 OpenGL 混合操作
+	DIFFERENCE = 30;	// 高级 OpenGL 混合操作
+	EXCLUSION = 31;		// 高级 OpenGL 混合操作
+	HSL_HUE = 32;		// 高级 OpenGL 混合操作
+	HSL_SATURATION = 33;// 高级 OpenGL 混合操作
+	HSL_COLOR = 34;		// 高级 OpenGL 混合操作
+	HSL_LUMINOSITY = 35;// 高级 OpenGL 混合操作
+}
+
+
+message ColorMaskState1
+{
+	sint32	channels = 1;	// 渲染目标给定通道，0表示启用RGBA四个通道的写入，其他RGBA每个通道占用一位，可以任意组合 
+}
+
+message ColorMaskState2
+{
+	sint32	channels = 1;	// 渲染目标给定通道，0表示启用RGBA四个通道的写入，其他RGBA每个通道占用一位，可以任意组合
+	sint32	target = 2;		// render target
+}
+
+// 设置颜色通道写入掩码
+message ColorMask
+{
+	oneof ColorMaskOneof
+	{
+		ColorMaskState1	state1 = 1;
+		ColorMaskState2	state2 = 2;
+	}
+}
+
+// 设置 GPU 应该基于多边形相对于相机的方向剔除哪些多边形
+enum Cull
+{
+	OFF = 0;	// 关闭背面剔除
+	BACK = 1;	// 默认值，剔除背面
+	FRONT = 2;	// 剔除正面
+}
+
+// 设置 GPU 上的深度偏差
+message DepthBias
+{
+	float	factor = 1;	// 缩放最大 Z 斜率，也称为深度斜率，以生成每个多边形的可变深度偏移。
+	float	units = 2;	// 缩放最小可分辨深度缓冲区值，以产生恒定的深度偏移。最小可分辨深度缓冲区值（一个 _unit_）因设备而异。
+}
+
+// 配置与 GPU 上的 stencil buffer 相关的设置
+//message Stencil
+//{
+//	repeated StencilOp	values = 1;
+//}
+
+enum Comp
+{
+	DISABLED = 0;
+	NEVER = 1;
+	LESS = 2;
+	EQUAL = 3;
+	L_EQUAL = 4;
+	GREATER = 5;
+	NOT_EQUALT = 6;
+	G_EQUAL = 7;
+	ALWAYS = 8;
+}
+	
+message Stencil
+{
+	sint32		ref = 1;			// 参考值
+	sint32		read_mask = 2;		// GPU 在执行模板测试时使用此值作为掩码
+	sint32		write_mask = 3;		// GPU 在写入模板缓冲区时使用此值作为掩码
+	StencilOp	op = 4;				// 适用于所有像素
+	StencilOp	op_back = 5;		// 仅适用于背面像素
+	StencilOp	op_front = 6;		// 仅适用于正面像素
+}
+
+message StencilOp
+{
+	enum Op
+	{
+		KEEP = 0;
+		ZERO = 1;
+		REPLACE = 2;
+		INCR_SAT = 3;
+		DECR_SAT = 4;
+		INVERT = 5;
+		INCR_WRAP = 7;
+		DECR_WRAP = 8;
+	}
+	
+	Comp	comp = 1;		// 比较操作，GPU 为所有像素的模板测试执行的操作
+	Op		pass = 2;		// 模板操作，当像素通过模板测试和深度测试时，GPU 对模板缓冲区执行的操作
+	Op		fail = 3;		// 模板操作，当像素未能通过模板测试时，GPU 对模板缓冲区执行的操作
+	Op		z_fail = 4;		// 模板操作，当像素通过模板测试，但未能通过深度测试时，GPU 对模板缓冲区执行的操作
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                      Shader 代码
+//-------------------------------------------------------------------------------------------------
+
+message Program
+{
+	oneof ProgramOneof
+	{
+		SourceProgram 		source = 1;
+		CompiledProgram	compiled = 2;
+	}
+}
+
+enum ProgramType
+{
+	CG = 0;
+	HLSL = 1;
+	GLSL = 2;
+}
+
+message SourceProgram
+{
+	ProgramType	type = 1;
+	string		code = 2;
+}
+
+message CompiledProgram
+{
+	string	source = 1;				// 对应平台的 shader 代码文件
+	string	stage = 2;				// shader 阶段
+	string	entry = 3;				// 源码入口
+	repeated string keywords = 4;	// 对应关键字
+}

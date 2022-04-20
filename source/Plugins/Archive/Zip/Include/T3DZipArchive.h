@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,8 @@ namespace Tiny3D
      */
     class ZipArchive : public Archive
     {
+        T3D_DECLARE_CLASS();
+
     public:
         static const char * const ARCHIVE_TYPE; /**< 档案类型 */
 
@@ -65,6 +67,11 @@ namespace Tiny3D
          * @brief 重写 Resource::clone() 接口
          */
         virtual ResourcePtr clone() const override;
+
+        /**
+         * @brief 重写 Achive::Init(const String &assetPath) 接口
+         */
+        virtual TResult init(const String& assetPath) override;
 
         /**
          * @brief 重写 Archieve::getLocation() 接口

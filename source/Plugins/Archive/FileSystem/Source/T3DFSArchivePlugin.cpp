@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(FileSystemArchivePlugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     FileSystemArchivePlugin::FileSystemArchivePlugin()
         : mName("FileSystemArchive")
         , mFSCreator(nullptr)
@@ -31,44 +37,56 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     FileSystemArchivePlugin::~FileSystemArchivePlugin()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     const String &FileSystemArchivePlugin::getName() const
     {
         return mName;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FileSystemArchivePlugin::install()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         mFSCreator = new FileSystemArchiveCreator();
-        Engine::getInstance().addArchiveCreator(mFSCreator);
+        Agent::getInstance().addArchiveCreator(mFSCreator);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchivePlugin::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchivePlugin::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FileSystemArchivePlugin::uninstall()
     {
-        TResult ret = T3D_ERR_OK;
-        Engine::getInstance().removeArchiveCreator(mFSCreator);
+        TResult ret = T3D_OK;
+        Agent::getInstance().removeArchiveCreator(mFSCreator);
         delete mFSCreator;
         mFSCreator = nullptr;
 

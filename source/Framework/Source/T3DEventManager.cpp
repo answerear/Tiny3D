@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(EventManager);
+    T3D_IMPLEMENT_CLASS_0(EventManager);
+
+    //--------------------------------------------------------------------------
 
     const TINSTANCE EventManager::INVALID_INSTANCE = nullptr;
     const TINSTANCE EventManager::BROADCAST_INSTANCE = (const TINSTANCE)-1;
@@ -63,7 +68,7 @@ namespace Tiny3D
     TResult EventManager::sendEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -109,6 +114,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::broadcastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
@@ -149,7 +156,7 @@ namespace Tiny3D
                     EventHandler *handler = *itr;
                     // 没有暂停，那全部给派发吧
                     handler->processEvent(evid, param, sender);
-                    ret = T3D_ERR_OK;
+                    ret = T3D_OK;
                     ++itr;
                 }
             } while (0);
@@ -159,6 +166,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::multicastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
@@ -212,7 +221,7 @@ namespace Tiny3D
                     if (getEventHandler(receiver, handler))
                     {
                         handler->processEvent(evid, param, sender);
-                        ret = T3D_ERR_OK;
+                        ret = T3D_OK;
                     }
 
                     ++itr;
@@ -224,6 +233,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::singlecastEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
@@ -267,7 +278,7 @@ namespace Tiny3D
     TResult EventManager::postEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -312,6 +323,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::pushBroadcastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
     {
@@ -341,13 +354,15 @@ namespace Tiny3D
                 EventParam *para = param->clone();
                 EventItem item(evid, para, handler->getInstance(), sender);
                 mEventQueue[mCurrentQueue].push_back(item);
-                ret = T3D_ERR_OK;
+                ret = T3D_OK;
                 ++itr;
             }
         }
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::pushMulticastEvent(EventID evid, EventParam *param,
         TINSTANCE sender)
@@ -380,7 +395,7 @@ namespace Tiny3D
                 EventParam *para = param->clone();
                 EventItem item(evid, para, recv, sender);
                 mEventQueue[mCurrentQueue].push_back(item);
-                ret = T3D_ERR_OK;
+                ret = T3D_OK;
                 ++itr;
             }
         }
@@ -388,10 +403,12 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::pushSinglecastEvent(EventID evid, EventParam *param,
         TINSTANCE receiver, TINSTANCE sender)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         if (mIsDispatchPaused)
         {
@@ -436,6 +453,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     bool EventManager::isValidHandler(EventHandler *handler)
     {
         if (nullptr == handler)
@@ -463,7 +482,7 @@ namespace Tiny3D
 
     TResult EventManager::dispatchEvent()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -507,14 +526,18 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void EventManager::pauseDispatching()
     {
         mIsDispatchPaused = true;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventManager::resumeDispatching(bool dispatchImmdiately)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         mIsDispatchPaused = false;
 
@@ -599,8 +622,10 @@ namespace Tiny3D
             mEventHandlers.push_back(handler);
         }
 
-        return new _TINSTANCE(handler, slot);
+        return new _TINSTANCE(handler, (int32_t)slot);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::unregisterHandler(TINSTANCE instance)
     {
@@ -619,12 +644,14 @@ namespace Tiny3D
             if (mEventHandlers[idx] == (EventHandler *)obj)
             {
                 mEventHandlers[idx] = nullptr;
-                ret = T3D_ERR_OK;
+                ret = T3D_OK;
             }
         } while (0);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::registerEvent(EventID evid, TINSTANCE instance)
     {
@@ -648,7 +675,7 @@ namespace Tiny3D
             std::pair<EventInstSetItr, bool> r = instSet.insert(instance);
             if (r.second)
             {
-                ret = T3D_ERR_OK;
+                ret = T3D_OK;
             }
             else
             {
@@ -658,6 +685,8 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventManager::unregisterEvent(EventID evid, TINSTANCE instance)
     {
@@ -679,11 +708,13 @@ namespace Tiny3D
 
             EventInstSet &instSet = mEventFilters[evid];
             instSet.erase(instance);
-            ret = T3D_ERR_OK;
+            ret = T3D_OK;
         } while (0);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void EventManager::clearEventQueue()
     {

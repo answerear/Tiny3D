@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,7 @@
 
 #include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -32,6 +33,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API DeviceInfo : public Singleton<DeviceInfo>
     {
         T3D_DISABLE_COPY(DeviceInfo);
+        T3D_DECLARE_CLASS();
 
     public:
         static const uint32_t PLATFORM_UNKNOWN;
@@ -120,7 +122,7 @@ namespace Tiny3D
         /**
          * @brief 获取系统内存总数.
          */
-        uint32_t getSystemRAM() const;
+        uint64_t getSystemRAM() const;
         
         /**
          * @brief 获取设备ID.

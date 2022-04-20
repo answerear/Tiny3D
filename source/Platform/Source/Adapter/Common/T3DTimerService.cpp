@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,13 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(TimerService, ITimerService);
+
     const ID ITimerService::INVALID_TIMER_ID = T3D_INVALID_ID;
+
+    //--------------------------------------------------------------------------
 
     TimerService::TimerService()
         : mTimerID(0)
@@ -39,12 +45,19 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     TimerService::~TimerService()
     {
         // 设置线程退出，等待线程结束，才析构
-        mIsRunning = false;
-        mPollThread.join();
+        if (mIsRunning)
+        {
+            mIsRunning = false;
+            mPollThread.join();
+        }
     }
+
+    //--------------------------------------------------------------------------
 
     ID TimerService::startTimer(uint32_t interval, bool repeat,
         ITimerListener *listener)
@@ -73,9 +86,11 @@ namespace Tiny3D
         return timerID;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult TimerService::stopTimer(uint32_t timerID)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do
         {
@@ -107,13 +122,17 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult TimerService::init()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         mIsRunning = true;
         mPollThread = TThread(std::bind(&TimerService::update, this));
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     void TimerService::update()
     {
@@ -162,9 +181,9 @@ namespace Tiny3D
             // 挂起10ms
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-
-        int a = 0;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult TimerService::pollEvents()
     {
@@ -181,6 +200,6 @@ namespace Tiny3D
 
         mTimerEventQueue.clear();
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
 }

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,8 +22,12 @@
 
 using namespace Tiny3D;
 
+
+HelloApp theApp;
+
+
 HelloApp::HelloApp()
-    : Application()
+    : SampleApp()
 {
 }
 
@@ -33,42 +37,8 @@ HelloApp::~HelloApp()
 
 bool HelloApp::applicationDidFinishLaunching()
 {
-    mTimerID1 = T3D_TIMER_MGR.startTimer(2000, true, this);
-    mTimerID2 = T3D_TIMER_MGR.startTimer(5000, false, this);
-
+//     MaterialPtr material = T3D_MATERIAL_MGR.loadMaterial("BuiltinBox.t3b", Material::E_MT_DEFAULT);
     return true;
 }
 
-void HelloApp::applicationDidEnterBackground()
-{
-    T3D_ENGINE.appDidEnterBackground();
-}
-
-void HelloApp::applicationWillEnterForeground()
-{
-    T3D_ENGINE.appWillEnterForeground();
-}
-
-void HelloApp::applicationWillTerminate()
-{
-
-}
-
-void HelloApp::applicationLowMemory()
-{
-
-}
-
-void HelloApp::onTimer(uint32_t timerID, int32_t dt)
-{
-    if (timerID == mTimerID1)
-    {
-        T3D_LOG_INFO("onTimer : TimerID #1 : %u, dt : %d", timerID, dt);
-    }
-    else if (timerID == mTimerID2)
-    {
-        T3D_TIMER_MGR.stopTimer(mTimerID1);
-        T3D_LOG_INFO("onTimer : TimerID #2 : %u, dt : %d", timerID, dt);
-    }
-}
 

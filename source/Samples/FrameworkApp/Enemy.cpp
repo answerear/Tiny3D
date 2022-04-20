@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,7 +45,7 @@ Enemy::~Enemy()
 void Enemy::fire(TINSTANCE target)
 {
     mState = ST_FIRING;
-    T3D_LOG_INFO("Enemy [%s] fire skill. State [%d]", mName.c_str(), mState);
+    T3D_LOG_INFO(LOG_TAG_APP, "Enemy [%s] fire skill. State [%d]", mName.c_str(), mState);
     AttackParam param(10, false);
     postEvent(EV_ATTACKED, &param, target);
 }
@@ -53,7 +53,7 @@ void Enemy::fire(TINSTANCE target)
 void Enemy::attack(TINSTANCE target)
 {
     mState = ST_ATTACKING;
-    T3D_LOG_INFO("Enemy [%s] attack ! State [%d]", mName.c_str(), mState);
+    T3D_LOG_INFO(LOG_TAG_APP, "Enemy [%s] attack ! State [%d]", mName.c_str(), mState);
     AttackParam param(5, true);
     postEvent(EV_ATTACKED, &param, target);
 }
@@ -61,7 +61,7 @@ void Enemy::attack(TINSTANCE target)
 void Enemy::defend(TINSTANCE attacker)
 {
     mState = ST_DEFENDING;
-    T3D_LOG_INFO("Enemy [%s] defend ! State [%d]", mName.c_str(), mState);
+    T3D_LOG_INFO(LOG_TAG_APP, "Enemy [%s] defend ! State [%d]", mName.c_str(), mState);
     DefendParam param;
     sendEvent(EV_DEFEND, &param, attacker);
 }
@@ -78,14 +78,14 @@ bool Enemy::onAttacked(EventParam *param, TINSTANCE sender)
     if (attackParam->IsNormal)
     {
         mHP -= attackParam->DecreaseHP;
-        T3D_LOG_INFO("Enemy [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
+        T3D_LOG_INFO(LOG_TAG_APP, "Enemy [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
         defend(sender);
         fire(sender);
     }
     else
     {
         mHP -= attackParam->DecreaseHP;
-        T3D_LOG_INFO("Enemy [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
+        T3D_LOG_INFO(LOG_TAG_APP, "Enemy [%s] was attacked, HP [%d] ! State [%d]", mName.c_str(), mHP, mState);
     }
 
     return true;

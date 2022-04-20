@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,16 +44,20 @@ namespace std
 namespace Tiny3D
 {
     /**
-     * @brief 智能指针类
+     * @class   SmartPtr
+     * @brief   智能指针类
+     * @tparam  T   Generic type parameter.
      */
     template <typename T>
     class SmartPtr
     {
     public:
-        static const SmartPtr NULL_PTR;
+        static const SmartPtr NULL_PTR; /**< The null pointer */
 
         /**
-         * @brief 构造函数
+         * @fn  SmartPtr::SmartPtr(T *obj = nullptr)
+         * @brief   构造函数
+         * @param [in,out]  obj (Optional) If non-null, the object.
          */
         SmartPtr(T *obj = nullptr)
         {
@@ -65,6 +69,11 @@ namespace Tiny3D
             }
         }
 
+        /**
+         * @fn  SmartPtr::SmartPtr(const SmartPtr &rkPointer)
+         * @brief   Copy constructor
+         * @param   rkPointer   The rk pointer.
+         */
         SmartPtr(const SmartPtr &rkPointer)
         {
             mReferObject = rkPointer.mReferObject;
@@ -75,6 +84,16 @@ namespace Tiny3D
             }
         }
 
+        /**
+         * @fn  template <typename T2> SmartPtr::SmartPtr(
+         *      const SmartPtr<T2> &rkOther, 
+         *      typename std::enable_if<std::is_convertible<T2 *, 
+         *      T *>::value, void>::type ** = 0)
+         * @brief   Constructor
+         * @tparam  T2  Generic type parameter.
+         * @param           rkOther     The rk other.
+         * @param [in,out]  parameter2  (Optional) If non-null, the second parameter.
+         */
         template <typename T2>
         SmartPtr(const SmartPtr<T2> &rkOther,
             typename std::enable_if<std::is_convertible<T2 *, T *>::value, void>::type ** = 0)
@@ -87,6 +106,14 @@ namespace Tiny3D
             }
         }
 
+        /**
+         * @fn  template <typename T2> SmartPtr::SmartPtr(
+         *      const SmartPtr<T2> &rkOther, const std::_Static_tag &)
+         * @brief   Constructor
+         * @tparam  T2  Generic type parameter.
+         * @param   rkOther     The rk other.
+         * @param   parameter2  The second parameter.
+         */
         template <typename T2>
         SmartPtr(const SmartPtr<T2> &rkOther, const std::_Static_tag &)
         {
@@ -98,6 +125,10 @@ namespace Tiny3D
             }
         }
 
+        /**
+         * @fn  virtual SmartPtr::~SmartPtr()
+         * @brief   Destructor
+         */
         virtual ~SmartPtr()
         {
             if (mReferObject != nullptr)
@@ -106,21 +137,42 @@ namespace Tiny3D
             }
         }
 
+        /**
+         * @fn  operator SmartPtr::T*() const
+         * @brief   T* casting operator
+         * @return  The result of the operation.
+         */
         operator T*() const
         {
             return (T*)mReferObject;
         }
 
+        /**
+         * @fn  T SmartPtr::&operator*() const
+         * @brief   Indirection operator
+         * @return  The result of the operation.
+         */
         T &operator *() const
         {
             return (T&)(*mReferObject);
         }
 
+        /**
+         * @fn  T SmartPtr::*operator->() const
+         * @brief   Member dereference operator
+         * @return  The dereferenced object.
+         */
         T *operator ->() const
         {
             return (T*)mReferObject;
         }
 
+        /**
+         * @fn  SmartPtr SmartPtr::&operator=(T *obj)
+         * @brief   Assignment operator
+         * @param [in,out]  obj If non-null, the object.
+         * @return  A shallow copy of this object.
+         */
         SmartPtr &operator =(T *obj)
         {
             if (mReferObject != obj)
@@ -141,6 +193,12 @@ namespace Tiny3D
             return *this;
         }
 
+        /**
+         * @fn  SmartPtr SmartPtr::&operator=(const SmartPtr &rkPointer)
+         * @brief   Assignment operator
+         * @param   rkPointer   The rk pointer.
+         * @return  A shallow copy of this object.
+         */
         SmartPtr &operator =(const SmartPtr &rkPointer)
         {
             if (mReferObject != rkPointer.mReferObject)
@@ -161,6 +219,14 @@ namespace Tiny3D
             return *this;
         }
 
+        /**
+         * @fn  template <typename T2> SmartPtr 
+         *      SmartPtr::&operator=(const SmartPtr<T2> &rkOther)
+         * @brief   Assignment operator
+         * @tparam  T2  Generic type parameter.
+         * @param   rkOther The rk other.
+         * @return  The result of the operation.
+         */
         template <typename T2>
         SmartPtr &operator =(const SmartPtr<T2> &rkOther)
         {
@@ -183,7 +249,7 @@ namespace Tiny3D
         }
 
     protected:
-        Object  *mReferObject;
+        Object  *mReferObject;  /**< The refer object */
     };
 
     template <typename T1, typename T2>
@@ -200,4 +266,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_APP_EVENT_LISTENER_H__*/
+#endif  /*__T3D_SMART_PTR_H__*/

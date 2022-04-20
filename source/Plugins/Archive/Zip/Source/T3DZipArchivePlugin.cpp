@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,10 +20,16 @@
 
 #include "T3DZipArchivePlugin.h"
 #include "T3DZipArchiveCreator.h"
-
+#include "T3DZipArchiveError.h"
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(ZipArchivePlugin, Plugin);
+
+    //--------------------------------------------------------------------------
+
     ZipArchivePlugin::ZipArchivePlugin()
         : mName("ZipArchive")
         , mZipCreator(nullptr)
@@ -31,44 +37,56 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     ZipArchivePlugin::~ZipArchivePlugin()
     {
 
     }
+
+    //--------------------------------------------------------------------------
 
     const String &ZipArchivePlugin::getName() const
     {
         return mName;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult ZipArchivePlugin::install()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         mZipCreator = new ZipArchiveCreator();
-        Engine::getInstance().addArchiveCreator(mZipCreator);
+        Agent::getInstance().addArchiveCreator(mZipCreator);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchivePlugin::startup()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchivePlugin::shutdown()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult ZipArchivePlugin::uninstall()
     {
-        TResult ret = T3D_ERR_OK;
-        Engine::getInstance().removeArchiveCreator(mZipCreator);
+        TResult ret = T3D_OK;
+        Agent::getInstance().removeArchiveCreator(mZipCreator);
         delete mZipCreator;
         mZipCreator = nullptr;
 

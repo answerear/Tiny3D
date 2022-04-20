@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(Application);
+    T3D_IMPLEMENT_CLASS_0(Application);
+
+    //--------------------------------------------------------------------------
 
     Application::Application()
         : mSystem(new System())
@@ -35,11 +40,15 @@ namespace Tiny3D
         mApp = T3D_PLATFORM_FACTORY.createPlatformApplication();
     }
 
+    //--------------------------------------------------------------------------
+
     Application::~Application()
     {
         T3D_SAFE_DELETE(mApp);
         T3D_SAFE_DELETE(mSystem);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Application::init()
     {
@@ -54,16 +63,18 @@ namespace Tiny3D
             }
 
             ret = mApp->init();
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ret = mSystem->init();
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
                 break;
         } while (0);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     bool Application::pollEvents()
     {
@@ -83,6 +94,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void Application::release()
     {
         if (mApp != nullptr)
@@ -90,6 +103,8 @@ namespace Tiny3D
             mApp->release();
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void *Application::getNativeAppObject()
     {

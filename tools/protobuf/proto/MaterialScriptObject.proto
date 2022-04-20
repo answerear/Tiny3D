@@ -1,0 +1,726 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+import "CommonScriptObject.proto";
+
+package Tiny3D.Script.MaterialSystem;
+
+
+
+message CompareFunc
+{
+    CompareFunction value = 1;
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                      GPU program & shader
+//-------------------------------------------------------------------------------------------------
+
+
+/**
+ * @brief A structure for shader.
+ */
+message Shader
+{
+    ObjectHeader    header = 1;
+    string          source = 2;
+    string          target = 3;
+    string          entry = 4;
+    string          stage = 5;
+}
+
+message GPUProgram
+{
+    ObjectHeader    header = 1;
+    repeated Shader shaders = 2;
+}
+
+
+message GPUConstantBufferRef
+{
+    ObjectHeader    header = 1;
+    uint32          slot = 2;
+}
+
+message GPUProgramRef
+{
+    ObjectHeader                    header = 1;
+    repeated GPUConstantBufferRef   gpu_cbuffer_ref = 2;
+}
+
+
+enum BuiltInType
+{
+    BT_NONE = 0;
+    BT_REAL = 1;
+    BT_INT = 2;
+}
+
+message Param
+{
+    uint32          index = 1;
+    string          name = 2;
+    BuiltInType     type = 3;
+    repeated float  fvalues = 4;
+    repeated sint32 ivalues = 5;
+}
+
+message ParamAuto
+{
+    uint32          index = 1;
+    string          name = 2;
+    uint32          value_code = 3;
+    repeated float  fextra_params = 4;
+    repeated uint32 iextra_params = 5;
+}
+
+
+message GPUConstantBuffer
+{
+    ObjectHeader        header = 1;
+    uint32              buffer_size = 2;
+    repeated Param      param_indexed = 3;
+    repeated ParamAuto  param_indexed_auto = 4;
+    repeated Param      param_named = 5;
+    repeated ParamAuto  param_named_auto = 6;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                          Sampler
+//-------------------------------------------------------------------------------------------------
+
+enum TextureAddressMode
+{
+    TAM_NONE = 0;
+    TAM_WRAP = 1;
+    TAM_MIRROR = 2;
+    TAM_BORDER = 3;
+    TAM_CLAMP = 4;
+}
+
+enum FilterType
+{
+    FT_MIN = 0;
+    FT_MAG = 1;
+    FT_MIP = 2;
+}
+
+enum FilterOption
+{
+    FO_NONE = 0;
+    FO_POINT = 1;
+    FO_LINEAR = 2;
+    FO_ANISOTROPIC = 3;
+}
+
+enum TexFilterOptions
+{
+    TFO_NONE = 0;
+    TFO_BILINEAR = 1;
+    TFO_TRILINEAR = 2;
+    TFO_ANISOTROPIC = 3;
+}
+
+message TexAddressModeSimple
+{
+    TextureAddressMode  uvw_mode = 1;
+}
+
+message TexAddressModeComplex
+{
+    TextureAddressMode  u_mode = 1;
+    TextureAddressMode  v_mode = 2;
+    TextureAddressMode  w_mode = 3;
+}
+
+message TexAddressMode
+{
+    oneof TexAddresModeOneOf
+    {
+        TexAddressModeSimple    simple = 1;
+        TexAddressModeComplex   complex = 2;
+    }
+}
+
+message TexFilterSimple
+{
+    TexFilterOptions    filter = 1;
+}
+
+message TexFilterComplex
+{
+    FilterOption    minification = 1;
+    FilterOption    magnification = 2;
+    FilterOption    mip = 3;
+}
+
+message TexFilter
+{
+    oneof TexFilterOneOf
+    {
+        TexFilterSimple     simple = 1;
+        TexFilterComplex    complex = 2;
+    }
+}
+
+message Sampler
+{
+    ObjectHeader    header = 1;
+    TexAddressMode  tex_address_mode = 2;   // Defines what happens when texture coordinates exceed 1.0 for this texture layer.
+    Color           tex_border_color = 3;   // Sets the border colour of border texture address mode.
+    TexFilter       filtering = 4;          // Sets the type of texture filtering used when magnifying or minifying a texture.
+    Bool            compare_test = 5;       // Sets the test for comparison on or not.
+    CompareFunc     compare_func = 6;       // Sets the function for comparison.
+    UInt32          max_anisotropy = 7;     // Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures.
+    Float           mipmap_bias = 8;        // Sets the bias value applied to the mipmapping calculation.
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                          Texture Unit
+//-------------------------------------------------------------------------------------------------
+
+enum TextureType
+{
+    TEX_NONE = 0;
+    TEX_1D = 1;
+    TEX_2D = 2;
+    TEX_3D = 3;
+    TEX_CUBIC = 4;
+    TEX_2D_ARRAY = 5;
+    TEX_2D_RECT = 6;
+    
+}
+
+enum CubicTextureMode
+{
+    CTM_COMBINED_UVW = 0;
+    CTM_SEPARATE_UV = 1;
+}
+
+enum BindingType
+{
+    BT_VERTEX = 0;
+    BT_FRAGMENT = 1;
+}
+
+enum EnvMap
+{
+    EM_OFF = 0;
+    EM_SPHERICAL = 1;
+    EM_PLANAR = 2;
+    EM_CUBIC_REFLECTION = 3;
+    EM_CUBIC_NORMAL = 4;
+}
+
+
+message Texture
+{
+    string      name = 1;       // the name of the static texture image this layer will use.
+    TextureType type = 2;       // specify a the type of texture to create - the default is ’2d’.
+    sint32      mipmaps = 3;    // specify the number of mipmaps to generate for this texture.
+    bool        alpha = 4;      // specify that a single channel (luminance) texture should be loaded as alpha
+    bool        gamma = 5;      // informs the renderer that you want the graphics hardware to perform gamma correction on the texture values as they are sampled for rendering.
+}
+
+message AnimTextureSimple
+{
+    string      base_name = 1;
+    uint32      num_frames = 2;
+    float       duration = 3;
+}
+
+message AnimTextureComplex
+{
+    float           duration = 1;
+    repeated string frames = 2;
+}
+
+message AnimTexture
+{
+    oneof AnimTextureOneOf
+    {
+        AnimTextureSimple   simple = 1;
+        AnimTextureComplex  complex = 2;
+    }
+}
+
+message CubicTextureSimple
+{
+    string  base_name = 1;
+}
+
+message CubicTextureComplex
+{
+    string  front = 1;
+    string  back = 2;
+    string  left = 3;
+    string  right = 4;
+    string  up = 5;
+    string  down = 6;
+}
+
+message CubicTexture
+{
+    oneof CubicTextureOneOf
+    {
+        CubicTextureSimple  simple = 1;
+        CubicTextureComplex complex = 2;
+    }
+    CubicTextureMode    cubic_texture_mode = 3;
+}
+
+message Binding
+{
+    BindingType value = 1;
+}
+
+message ColorOp
+{
+    BlendType   value = 1;
+}
+
+
+message TextureUnit
+{
+    ObjectHeader    header = 1;
+    String          texture_alias = 2;  // Sets the alias name for this texture unit.
+    Texture         texture = 3;        // Sets the name of the static texture image this layer will use.
+    AnimTexture     anim_texture = 4;   // Sets the images to be used in an animated texture layer.
+    CubicTexture    cubic_texture = 5;  // Sets the images used in a cubic texture.
+    Binding         binding_type = 6;   // Tells this texture unit to bind to either the fragment processing unit or the vertex processing unit.
+    UInt32          tex_coord_set = 7;  // Sets which texture coordinate set is to be used for this texture layer.
+    ColorOp         color_op = 8;       // Determines how the colour of this texture layer is combined with
+    String          sampler_ref = 9;
+}
+
+//-------------------------------------------------------------------------------------------------
+//                                          Pass
+//-------------------------------------------------------------------------------------------------
+
+
+/**
+ * @brief Blend type
+ */
+enum BlendType
+{
+    BT_ALPHA_BLEND = 0;    // The alpha value of the rendering output is used as a mask.
+    BT_COLOR_BLEND = 1;    // Color the scene based on the brightness of the input colours, but don’t darken.
+    BT_ADD = 2;            // The color of the rendering output is added to the scene.
+    BT_MODULATE = 3;       // The color of the rendering output is multiplied with the scene contents. 
+    BT_REPLACE = 4;        // The color of the rendering output is replaced with the source scene contents.
+}
+
+enum BlendFactor
+{
+    BF_ONE = 0;
+    BF_ZERO = 1;
+    BF_DEST_COLOR = 2;
+    BF_SRC_COLOR = 3;
+    BF_ONE_MINUS_DEST_COLOR = 4;
+    BF_ONE_MINUS_SRC_COLOR = 5;
+    BF_DEST_ALPHA = 6;
+    BF_SRC_ALPHA = 7;
+    BF_ONE_MINUS_DEST_ALPHA = 8;
+    BF_ONE_MINUS_SRC_ALPHA = 9;
+}
+
+enum BlendOperation
+{
+    BO_ADD = 0;
+    BO_SUBTRACT = 1;
+    BO_REVERSE_SUBTRACT = 2;
+    BO_MIN = 3;
+    BO_MAX = 4;
+}
+
+enum CompareFunction
+{
+    CF_ALWAYS_FAIL = 0;
+    CF_ALWAYS_PASS = 1;
+    CF_LESS = 2;
+    CF_LESS_EQUAL = 3;
+    CF_EQUAL = 4;
+    CF_NOT_EQUAL = 5;
+    CF_GREATER_EQUAL = 6;
+    CF_GREATER = 7;
+}
+
+enum IlluminationStage
+{
+    IS_NONE = 0;
+    IS_AMBIENT = 1;
+    IS_PER_LIGHT = 2;
+    IS_DECAL = 3;
+}
+
+enum TransparentSorting
+{
+    TS_OFF = 0;
+    TS_ON = 1;
+    TS_FORCE = 2;
+}
+
+enum CullHardware
+{
+    CH_NONE = 0;
+    CH_CLOCKWISE = 1;
+    CH_ANTICLOCKWISE = 2;
+}
+
+enum CullSoftware
+{
+    CS_NONE = 0;
+    CS_BACK = 1;
+    CS_FRONT = 2;
+}
+
+enum ShadingMode
+{
+    SM_FLAT = 0;
+    SM_GOURAUD = 1;
+    SM_PHONG = 2;
+}
+
+enum PolygonMode
+{
+    PM_NONE = 0;
+    PM_POINTS = 1;
+    PM_WIREFRAME = 2;
+    PM_SOLID = 3;
+}
+
+enum FogType
+{
+    FT_NONE = 0;
+    FT_EXP = 1;
+    FT_EXP2 = 2;
+    FT_LINEAR = 3;
+}
+
+enum IterationType
+{
+    IT_ONCE = 0;
+    IT_ONCE_PER_LIGHT = 1;
+    IT_PER_LIGHT = 2;
+    IT_PER_N_LIGHTS = 3;
+}
+
+enum LightType
+{
+    LT_POINT = 0;
+    LT_DIRECTIONAL = 1;
+    LT_SPOT = 2;
+}
+
+/**
+ * @brief A structure for the color of light.
+ */
+message LightColor
+{
+    Color   color = 1;          // color
+    bool    vertex_color = 2;   // color in mesh vertex
+}
+
+message BlendSceneFactor
+{
+    BlendFactor src_factor = 1;
+    BlendFactor dest_factor = 2;
+}
+
+
+message BlendScene
+{
+    oneof BlendSceneOneOf
+    {
+        BlendType           blend_type = 1;
+        BlendSceneFactor    blend_factor = 2;
+    }
+}
+
+message SimpleBlendType
+{
+    BlendType   color_blend = 1;
+    BlendType   alpha_blend = 2;
+}
+
+message SimpleBlendSceneFactor
+{
+    BlendFactor color_src_factor = 1;
+    BlendFactor color_dest_factor = 2;
+    BlendFactor alpha_src_factor = 3;
+    BlendFactor alpha_dest_factor = 4;
+}
+
+message SeparateBlendScene
+{
+    oneof SeparateBlendSceneOneOf
+    {
+        SimpleBlendType         blend_type = 1;
+        SimpleBlendSceneFactor  blend_factor = 2;
+    }
+}
+
+message SceneBlendOperation
+{
+    BlendOperation  value = 1;
+}
+
+message SeparateSceneBlendOperation
+{
+    BlendOperation  color_op = 1;
+    BlendOperation  alpha_op = 2;
+}
+
+
+message DepthBias
+{
+    float   constant_bias = 1;
+    float   slopescale_bias = 2;        // 
+}
+
+
+message AlphaRejection
+{
+    CompareFunction function = 1;
+    uint32          value = 2;
+}
+
+message Illumination
+{
+    IlluminationStage   stage = 1;
+}
+
+message SortingTransparent
+{
+    TransparentSorting  value = 1;
+}
+
+message CullingHardware
+{
+    CullHardware    value = 1;
+}
+
+message CullingSoftware
+{
+    CullSoftware    value = 1;
+}
+
+message Shading
+{
+    ShadingMode value = 1;
+}
+
+message Polygon
+{
+    PolygonMode value = 1;
+}
+
+message Fog
+{
+    bool    overrideable = 1;
+    FogType type = 2;
+    Color   color = 3;
+    float   density = 4;
+    float   start = 5;
+    float   end = 6;
+}
+
+message IterationOnce
+{
+    IterationType   type = 1;
+}
+
+message IterationOncePerLight
+{
+    IterationType   type = 1;
+    LightType       light_type = 2;
+}
+
+message IterationNumber
+{
+    uint32  number  = 1;
+}
+
+message IterationPerLight
+{
+    uint32          number  = 1;
+    IterationType   type = 2;
+    LightType       light_type = 3;
+}
+
+message IterationPerNLight
+{
+    uint32          number = 1;
+    IterationType   type = 2;
+    uint32          num_lights = 3;
+    LightType       light_type = 4;
+}
+
+message Iteration
+{
+    oneof IterationOneof
+    {
+        IterationOnce           once = 1;
+        IterationOncePerLight   once_per_light = 2;
+        IterationNumber         number = 3;
+        IterationPerLight       per_light = 4;
+        IterationPerNLight      per_n_light = 5;
+    }
+}
+
+message PointSizeAttenuation
+{
+    bool            enable = 1;
+    float           constant = 2;
+    float           linear = 3;
+    float           quadratic = 4;
+}
+
+/**
+ * @brief A structure for rendering pass.
+ */
+message Pass
+{
+    ObjectHeader                header = 1;
+    LightColor                  ambient = 2;                    // The ambient colour reflectance properties of this pass.
+    LightColor                  diffuse = 3;                    // The diffuse colour reflectance properties of this pass.
+    LightColor                  specular = 4;                   // The specular colour reflectance properties of this pass.
+    LightColor                  emissive = 5;                   // The amount of self-illumination an object has.
+    Float                       shininess = 6;                  // The color of the specular highlights is determined by the color parameters, 
+                                                                // and the size of the highlights by the separate shininess parameter.
+    BlendScene                  scene_blend = 7;                // The kind of blending this pass has with the existing contents of the scene.
+    SeparateBlendScene          separate_scene_blend = 8;       // The operations to perform between the rendered pixel and the frame buffer separately for colour and alpha components.
+    SceneBlendOperation         scene_blend_op = 9;             // This directive changes the operation which is applied between the two components of the scene blending equation.
+    SeparateSceneBlendOperation separate_scene_blend_op = 10;   // This directive is as scene_blend_op, except that you can set the operation for colour and alpha separately.
+    Bool                        depth_check = 11;               // This pass renders with depth-buffer checking on or not.
+    Bool                        depth_write = 12;               // This pass renders with depth-buffer writing on or not.
+    CompareFunc                 depth_func = 13;                // The function used to compare depth values when depth checking is on.
+    DepthBias                   depth_bias = 14;                // The bias applied to the depth value of this pass.
+    Float                       iteration_depth_bias = 15;      // An additional bias derived from the number of times a given pass has been iterated.
+    AlphaRejection              alpha_rejection = 16;           // The way the pass will have use alpha to totally reject pixels from the pipeline.
+    Bool                        alpha_to_coverage = 17;         // This pass will use ’alpha to coverage’ or not.
+    Bool                        light_scissor = 18;             // Sets whether when rendering this pass, rendering will be limited to a screen-space scissor rectangle representing 
+                                                                // the coverage of the light(s) being used in this pass, derived from their attenuation ranges.
+    Bool                        light_clip_planes = 19;         // Sets whether when rendering this pass, triangle setup will be limited to clipping volume covered by the light.
+    Illumination                illumination_stage = 20;        // 
+    Bool                        normailize_normals = 21;        // Sets whether or not this pass renders with all vertex normals being automatically re-normalised.
+    SortingTransparent          transparent_sorting = 22;       // Sets if transparent textures should be sorted by depth or not.
+    CullingHardware             cull_hardware = 23;             // The hardware culling mode for this pass.
+    CullingSoftware             cull_software = 24;             // The software culling mode for this pass.
+    Bool                        lighting = 25;                  // Dynamic lighting is turned on for this pass or not.
+    Shading                     shading = 26;                   // The kind of shading which should be used for representing dynamic lighting for this pass.
+    Polygon                     polygon_mode = 27;              // How polygons should be rasterised.
+    Bool                        polygon_mode_overrideable = 28; // Sets whether or not the polygon_mode set on this pass can be downgraded by the camera, 
+                                                                // if the camera itself is set to a lower polygon mode.
+    Fog                         fog = 29;                       // Tells the pass whether it should override the scene fog settings.
+    Bool                        color_write = 30;               // This pass renders with colour writing on or not.
+    UInt32                      max_lights = 31;                // The maximum number of lights which will be considered for use with this pass.
+    UInt32                      start_light = 32;               // The first light which will be considered for use with this pass.
+    Iteration                   iteration = 33;                 // Sets whether or not this pass is iterated.
+    Float                       point_size = 34;                // This setting allows you to change the size of points when rendering a point list, or a list of point sprites.
+    Bool                        point_sprites = 35;             // This setting specifies whether or not hardware point sprite rendering is enabled for this pass.
+    PointSizeAttenuation        point_size_attenuation = 36;    // Defines whether point size is attenuated with view space distance, and in what fashion.
+    Float                       point_size_min = 37;            // Sets the minimum point size after attenuation.
+    Float                       point_size_max = 38;            // Sets the maximum point size after attenuation.
+    
+    GPUProgramRef               gpu_program_ref = 39;
+    repeated TextureUnit        textures = 40;
+}
+
+
+//-------------------------------------------------------------------------------------------------
+//                                          Technique
+//-------------------------------------------------------------------------------------------------
+
+
+
+/**
+ * @brief Enumeration for GPU rule type
+ */
+enum GPURuleType
+{
+    INCLUDE = 0;    // Rule for including.
+    EXCLUDE = 1;    // Rule for excluding.
+}
+
+/**
+ * @brief GPU rule for vendor
+ */
+message GPUVendorRule
+{
+    GPURuleType rule = 1;           // Rule type.
+    string      vendor_name = 2;    // The name of vendor.
+}
+
+/**
+ * @brief GPU rule for device
+ */
+message GPUDeviceRule
+{
+    GPURuleType rule = 1;           // Rule type.
+    string      device_pattern = 2; // The device pattern.
+    bool        case_sensitive = 3; // Case sensitive for device pattern.
+}
+
+
+/**
+ * @brief The sciprt object for technique.
+ */
+message Technique
+{
+    ObjectHeader    header = 1;                     // The header of object. (Required)
+    UInt32          render_queue = 2;               // The render queue of this technique. (Optional) Default : 2000
+    UInt32          lod_index = 3;                  // The level-of-detail (LOD) index this Technique belongs to. (Optional) Default : 0
+    String          scheme = 4;                     // The ’scheme’ this Technique belongs to. (Optional) Default : Default
+    String          shadow_caster_material = 5;     // An alternate material to use when rendering the object using this material into the shadow texture. (Optional)
+    String          shadow_receiver_material = 6;   // An alternate material to use when performing the receiver shadow pass. (Optional)
+    GPUVendorRule   gpu_vendor_rule = 7;            // Rule for GPU vendor. (Optional)
+    GPUDeviceRule   gpu_device_rule = 8;            // Rule for GPU device. (Optional)
+    repeated Pass   passes = 9;
+}
+
+
+
+//-------------------------------------------------------------------------------------------------
+//                                          Material
+//-------------------------------------------------------------------------------------------------
+
+
+/**
+ * @brief Define a structure for information about LOD.
+ */
+message LODValues
+{
+    repeated float  values = 2;     // The LOD values. (Optional)
+    string          strategy = 3;   // The LOD Strategy. (Optional) Default : Distance
+}
+
+/**
+ * @brief Define a structure for texture alias
+ */
+message TextureAlias
+{
+    string  alias_name = 1;      // The texture alias name. (Optional)
+    string  texture_name = 2;    // The texture name. (Optional)
+}
+
+/**
+ * @brief The script object for material.
+ */
+message Material
+{
+    ObjectHeader                header = 1;                     // The header of object. (Required)
+    LODValues                   values = 2;                     // LOD values. (Optional)
+    Bool                        receive_shadows = 3;            // This attribute controls whether objects using this material can have shadows cast upon them. (Optional) Default : true
+    Bool                        transparency_casts_shadows = 4; // This attribute controls whether transparent materials can cast certain kinds of shadow. (Optional) Default : false
+    TextureAlias                texture_alias = 5;              // This attribute associates a texture alias with a texture name. (Optional)
+    repeated Technique          techniques = 6;                 // The techniques. (Optional)
+    repeated GPUConstantBuffer  cbuffers = 7;                   // The constant buffers. (Optional)
+    repeated GPUProgram         programs = 8;                   // The GPU programs. (Optional)
+    repeated Sampler            samplers = 9;                   // The texture samplers. (Optional)
+}
+
+
+
+

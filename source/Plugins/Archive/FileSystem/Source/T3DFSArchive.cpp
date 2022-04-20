@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(FileSystemArchive, Archive);
+
+    //--------------------------------------------------------------------------
+
     const char * const FileSystemArchive::ARCHIVE_TYPE = "FileSystem";
 
     //--------------------------------------------------------------------------
@@ -42,6 +48,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     FileSystemArchive::~FileSystemArchive()
     {
         clearFileStreamCache();
@@ -52,14 +60,18 @@ namespace Tiny3D
     TResult FileSystemArchive::load()
     {
         initFileStreamCache();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchive::unload()
     {
         clearFileStreamCache();
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr FileSystemArchive::clone() const
     {
@@ -74,29 +86,41 @@ namespace Tiny3D
         return ARCHIVE_TYPE;
     }
 
+    //--------------------------------------------------------------------------
+
     String FileSystemArchive::getLocation() const
     {
         return getName();
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult FileSystemArchive::init(const String& assetPath)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool FileSystemArchive::exists(const String &name) const
     {
-        String path = getLocation() + Dir::NATIVE_SEPARATOR + name;
+        String path = getLocation() + Dir::getNativeSeparator() + name;
         return Dir::exists(path);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult FileSystemArchive::read(const String &name, 
         MemoryDataStream &stream)
     {
-        String path = Engine::getInstance().getAppPath() + getLocation() 
-            + Dir::NATIVE_SEPARATOR + name;
+        String path = getLocation() + Dir::getNativeSeparator() + name;
         FileDataStream *fs = nullptr;
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             ret = getFileStreamFromCache(name, fs);
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -107,8 +131,8 @@ namespace Tiny3D
                 if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open file [%s] from file system failed !", 
-                        name.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file"
+                         " system failed !", name.c_str());
                     break;
                 }
             }
@@ -118,8 +142,8 @@ namespace Tiny3D
             if (fs->read(data, size) != size)
             {
                 ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR("Read file [%s] from file system failed !", 
-                    name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Read file [%s] from file "
+                    "system failed !", name.c_str());
                 break;
             }
 
@@ -129,18 +153,19 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult FileSystemArchive::write(const String &name, 
         const MemoryDataStream &stream)
     {
-        String path = Engine::getInstance().getAppPath() + getLocation() 
-            + Dir::NATIVE_SEPARATOR + name;
+        String path = getLocation() + Dir::getNativeSeparator() + name;
         FileDataStream *fs = nullptr;
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             ret = getFileStreamFromCache(name, fs);
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -151,8 +176,8 @@ namespace Tiny3D
                 if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open file [%s] from file system failed !", 
-                        name.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Open file [%s] from file"
+                         " system failed !", name.c_str());
                     break;
                 }
             }
@@ -163,8 +188,8 @@ namespace Tiny3D
             if (fs->write(data, size) != size)
             {
                 ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR("Write file [%s] from file system failed !", 
-                    name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_FILESYSTEM, "Write file [%s] from file "
+                    "system failed !", name.c_str());
                 break;
             }
 
@@ -178,7 +203,7 @@ namespace Tiny3D
     TResult FileSystemArchive::getFileStreamFromCache(const String &name,
         FileDataStream *&stream)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -229,6 +254,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void FileSystemArchive::initFileStreamCache()
     {
         size_t i = 0;
@@ -238,6 +265,8 @@ namespace Tiny3D
             mFileStreamPool.push_back(fs);
         }
     }
+
+    //--------------------------------------------------------------------------
 
     void FileSystemArchive::clearFileStreamCache()
     {

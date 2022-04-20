@@ -1,0 +1,134 @@
+{
+ "header": {
+  "magic": "T3D",
+  "type": "Shader",
+  "version": 256
+ },
+ "shader": {
+  "name": "Particles/Blend",
+  "properties": [
+   {
+    "name": "_MainTex",
+    "displayName": "Particle Texture",
+    "values": {
+     "tex2d": {
+      "value": "white"
+     }
+    }
+   },
+   {
+    "name": "_InvFade",
+    "displayName": "Soft Particles Factor",
+    "values": {
+     "rval": {
+      "value": 1,
+      "lower": 0.01,
+      "upper": 3
+     }
+    }
+   },
+   {
+    "name": "_Intensity",
+    "displayName": "_Intensity",
+    "values": {
+     "rval": {
+      "value": 1.2,
+      "lower": 0.01,
+      "upper": 3
+     }
+    }
+   },
+   {
+    "name": "_Intensito",
+    "displayName": "_Intensito",
+    "values": {
+     "rval": {
+      "value": 2.2,
+      "lower": 0.01,
+      "upper": 3
+     }
+    }
+   }
+  ],
+  "subshaders": [
+   {
+    "lod": 0,
+    "tags": {
+     "IgnoreProjector": "True",
+     "Queue": "Transparent",
+     "RenderType": "Transparent"
+    },
+    "passes": [
+     {
+      "name": "",
+      "tags": {
+       "IgnoreProjector": "True",
+       "Queue": "Transparent",
+       "RenderType": "Transparent"
+      },
+      "state": {
+       "alpha2Mask": false,
+       "blend": {
+        "state": {
+         "srcRgb": "DST_COLOR",
+         "dstRgb": "ONE",
+         "srcAlpha": "DST_COLOR",
+         "dstAlpha": "ONE"
+        }
+       },
+       "blendOp": "ADD",
+       "colorMask": {
+        "state1": {
+         "channels": 14
+        }
+       },
+       "conservative": false,
+       "cull": "OFF",
+       "depthBias": {
+        "factor": 0,
+        "units": 0
+       },
+       "stencil": {
+        "ref": 0,
+        "readMask": 255,
+        "writeMask": 255,
+        "op": {
+         "comp": "ALWAYS",
+         "pass": "KEEP",
+         "fail": "KEEP",
+         "zFail": "KEEP"
+        },
+        "opBack": {
+         "comp": "ALWAYS",
+         "pass": "KEEP",
+         "fail": "KEEP",
+         "zFail": "KEEP"
+        },
+        "opFront": {
+         "comp": "ALWAYS",
+         "pass": "KEEP",
+         "fail": "KEEP",
+         "zFail": "KEEP"
+        }
+       },
+       "zClip": true,
+       "zTest": "L_EQUAL",
+       "zWrite": false
+      },
+      "program": {
+       "source": {
+        "type": "CG",
+        "code": "\r\n\r\n\t\t\t\t #pragma vertex vert\r\n\t\t\t\t #pragma fragment frag\r\n\t\t\t\t #pragma multi_compile TEST1 TEST2\r\n\t\t\t\t #pragma multi_compile TEST3 TEST4 TEST5\r\n\t\t\t\t #pragma multi_compile TEST6 TEST7 TEST8 TEST9\r\n\t\t\t\t #pragma target 4.0 //gles30 opengl gles20 ios mac vulkan hlsl\r\n\r\n\t\t\t\t #include \"TestInclude.cginc\"\r\n\r\n\t\t\t\t struct PSInput\r\n\t\t\t\t {\r\n\t\t\t\t     float4 pos      : SV_Position;\r\n\t\t\t\t     float3 normal   : NORMAL;\r\n\t\t\t\t     float3 lightVec : TEXCOORD0;\r\n\t\t\t\t     float3 halfway  : TEXCOORD1;\r\n\t\t\t\t };\r\n\r\n\t\t\t\t cbuffer PerObjectBuffer : register(b0)\r\n\t\t\t\t {\r\n\t\t\t\t     float3 diffColor;\r\n\t\t\t\t     float3 specColor;\r\n\t\t\t\t     float  shininess;\r\n\t\t\t\t };\r\n\r\n\t\t\t\t float3 CalcBrdf(float3 diffColor, float3 specColor, float shininess, float3 lightVec, float3 halfway, float3 normal)\r\n\t\t\t\t {\r\n\t\t\t\t \treturn diffColor * specColor + shininess * lightVec + halfway * normal;\r\n\t\t\t\t }\r\n\r\n\t\t\t\t float4 vert() : SV_Position\r\n\t\t\t\t {\r\n\t\t\t\t \treturn float4(1, 2, 3, 4);\r\n\t\t\t\t }\r\n\t\t\t\t\r\n\t\t\t\t float4 frag(PSInput input) : SV_Target\r\n\t\t\t\t {\r\n\t\t\t\t     float4 color;\r\n\t\t\t\t     color.rgb = CalcBrdf(diffColor, specColor, shininess, input.lightVec, input.halfway, input.normal);\r\n\t\t\t\t     color.a = TestCGIncludeFunc(1.0);\r\n\t\t\t\t     return color;\r\n\t\t\t\t }\r\n\r\n\t\t\t\t "
+       }
+      }
+     }
+    ]
+   }
+  ],
+  "fallback": {
+   "enable": {
+    "value": false
+   }
+  }
+ }
+}

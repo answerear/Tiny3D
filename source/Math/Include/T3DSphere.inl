@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -122,13 +122,13 @@ namespace Tiny3D
     {
         switch (option)
         {
-        case E_BUILD_WELZL:
+        case BuildOption::WELZL:
             buildByWelzl(points, count);
             break;
-        case E_BUILD_RITTER:
+        case BuildOption::RITTER:
             buildByRitter(points, count);
             break;
-        case E_BUILD_AVERAGE:
+        case BuildOption::AVERAGE:
             buildByAverage(points, count);
             break;
         default:

@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,27 +18,44 @@
  ******************************************************************************/
 
 
-#include <Resource/T3DResource.h>
+#include "Resource/T3DResource.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(Resource, Object);
+
+    //--------------------------------------------------------------------------
+
     Resource::Resource(const String &strName)
-        : mSize(0)
+        : mResReferCount(1)
+        , mID(T3D_INVALID_ID)
+        , mCloneID(T3D_INVALID_ID)
+        , mSize(0)
         , mIsLoaded(false)
         , mName(strName)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     Resource::~Resource()
     {
         if (mIsLoaded)
+        {
             unload();
+        }
     }
+
+    //--------------------------------------------------------------------------
 
     TResult Resource::unload()
     {
-        return T3D_ERR_OK;
+        mResReferCount = 0;
+        mIsLoaded = false;
+        return T3D_OK;
     }
 }

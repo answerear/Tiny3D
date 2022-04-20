@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,12 +19,11 @@
 
 
 #include "Kernel/T3DConfigFile.h"
-#include "DataStruct/T3DVariant.h"
 #include "Support/tinyxml2/tinyxml2.h"
 #include "T3DErrorDef.h"
 #include "Resource/T3DArchive.h"
 #include "Resource/T3DArchiveManager.h"
-
+#include <sstream>
 
 namespace Tiny3D
 {
@@ -44,7 +43,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ConfigFile::ConfigFile(const String &filename, ArchivePtr archive /* = nullptr */)
+    ConfigFile::ConfigFile(const String &filename, 
+        ArchivePtr archive /* = nullptr */)
         : mFilename(filename)
         , mArchive(archive)
     {
@@ -72,9 +72,10 @@ namespace Tiny3D
             {
                 // 从档案结构系统中获取文件内容
                 ret = mArchive->read(mFilename, stream);
-                if (ret != T3D_ERR_OK)
+                if (T3D_FAILED(ret))
                 {
-                    T3D_LOG_ERROR("Read config file [%s] failed !",
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Read config file [%s] failed !",
                         mFilename.c_str());
                     break;
                 }
@@ -85,10 +86,12 @@ namespace Tiny3D
             {
                 // 配置文件不在某种档案结构管理里面，就在本地文件系统，直接访问。
                 FileDataStream fs;
-                if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_READ_ONLY))
+                if (!fs.open(mFilename.c_str(), 
+                    FileDataStream::E_MODE_READ_ONLY))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open config file [%s] failed !",
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Open config file [%s] failed !",
                         mFilename.c_str());
                     break;
                 }
@@ -99,7 +102,8 @@ namespace Tiny3D
                 {
                     fs.close();
                     ret = T3D_ERR_FILE_DATA_MISSING;
-                    T3D_LOG_ERROR("Read config file [%s] data failed !",
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Read config file [%s] data failed !",
                         mFilename.c_str());
                     break;
                 }
@@ -112,7 +116,8 @@ namespace Tiny3D
             if (doc.Parse(content, contentSize) != tinyxml2::XML_NO_ERROR)
             {
                 ret = T3D_ERR_CFG_FILE_PARSING_XML;
-                T3D_LOG_ERROR("Parse xml config file [%s] failed !", 
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                    "Parse xml config file [%s] failed !",
                     mFilename.c_str());
                 break;
             }
@@ -126,7 +131,7 @@ namespace Tiny3D
     TResult ConfigFile::parseXML(const tinyxml2::XMLDocument &doc, 
         Settings &settings)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -135,7 +140,8 @@ namespace Tiny3D
             if (plist == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node \
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                    "Parse xml file [%s] failed ! Get xml node \
                     [plist] failed !", mFilename.c_str());
                 break;
             }
@@ -145,7 +151,8 @@ namespace Tiny3D
             if (root == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR("Parse xml file [%s] failed ! Get xml node \
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                    "Parse xml file [%s] failed ! Get xml node \
                     [dict] failed !", mFilename.c_str());
                 break;
             }
@@ -159,7 +166,7 @@ namespace Tiny3D
     TResult ConfigFile::parseXMLDict(const tinyxml2::XMLElement *root, 
         VariantMap &dict)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         bool bKeyFound = false;
         String key;
@@ -175,8 +182,9 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error key \
-                        node !", mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Parse xml file [%s] failed ! Error key  node !", 
+                        mFilename.c_str());
                     break;
                 }
                 else
@@ -193,7 +201,7 @@ namespace Tiny3D
                     bKeyFound = false;
                     VariantMap subDict;
                     ret = parseXMLDict(child, subDict);
-                    if (ret == T3D_ERR_OK)
+                    if (ret == T3D_OK)
                         dict.insert(VariantMapValue(key, subDict));
                     else
                         break;
@@ -202,8 +210,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error dict \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error dict node !");
                     break;
                 }
             }
@@ -214,7 +222,7 @@ namespace Tiny3D
                     bKeyFound = false;
                     VariantArray subArray;
                     ret = parseXMLArray(child, subArray);
-                    if (ret == T3D_ERR_OK)
+                    if (ret == T3D_OK)
                         dict.insert(VariantMapValue(key, subArray));
                     else
                         break;
@@ -223,8 +231,8 @@ namespace Tiny3D
                 {
                     // wrong format
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error array \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error array node !");
                     break;
                 }
             }
@@ -239,8 +247,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error string \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error string node !");
                     break;
                 }
             }
@@ -255,8 +263,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error integer \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error integer node !");
                     break;
                 }
             }
@@ -271,8 +279,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error real \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error real node !");
                     break;
                 }
             }
@@ -287,8 +295,8 @@ namespace Tiny3D
                 else
                 {
                     ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                    T3D_LOG_ERROR("Parse xml file [%s] failed ! Error boolean \
-                        node !");
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                        "Parse xml file [%s] failed ! Error boolean node !");
                     break;
                 }
             }
@@ -308,7 +316,7 @@ namespace Tiny3D
     TResult ConfigFile::parseXMLArray(const tinyxml2::XMLElement *root, 
         VariantArray &arr)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         String key;
         const tinyxml2::XMLElement *child = root->FirstChildElement();
@@ -321,7 +329,7 @@ namespace Tiny3D
             {
                 VariantMap subDict;
                 ret = parseXMLDict(child, subDict);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     arr.push_back(subDict);
                 else
                     break;
@@ -330,7 +338,7 @@ namespace Tiny3D
             {
                 VariantArray subArray;
                 ret = parseXMLArray(child, subArray);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     arr.push_back(subArray);
                 else
                     break;
@@ -379,14 +387,14 @@ namespace Tiny3D
 
     TResult ConfigFile::saveXML(const Settings &settings)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         
         do 
         {
             // 构建 XML 格式文件
             tinyxml2::XMLDocument doc;
             ret = buildXML(doc, settings);
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -396,7 +404,8 @@ namespace Tiny3D
             if (!doc.Accept(&printer))
             {
                 ret = T3D_ERR_CFG_FILE_XML_FORMAT;
-                T3D_LOG_ERROR("Write config file [%s] to memory failed !",
+                T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE, 
+                    "Write config file [%s] to memory failed !",
                     mFilename.c_str());
                 break;
             }
@@ -409,10 +418,10 @@ namespace Tiny3D
                 // 保存到档案系统中的文件
                 MemoryDataStream stream((uchar_t*)content, contentSize);
                 ret = mArchive->write(mFilename, stream);
-                if (ret != T3D_ERR_OK)
+                if (T3D_FAILED(ret))
                 {
-                    T3D_LOG_ERROR("Write config file [%s] failed !",
-                        mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Write config file [%s] failed !", mFilename.c_str());
                     break;
                 }
             }
@@ -423,8 +432,8 @@ namespace Tiny3D
                 if (!fs.open(mFilename.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
                 {
                     ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR("Open config file [%s] failed !",
-                        mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Open config file [%s] failed !", mFilename.c_str());
                     break;
                 }
 
@@ -432,8 +441,8 @@ namespace Tiny3D
                 {
                     fs.close();
                     ret = T3D_ERR_FILE_DATA_MISSING;
-                    T3D_LOG_ERROR("Write config file [%s] failed !",
-                        mFilename.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_CONFIG_FILE,
+                        "Write config file [%s] failed !", mFilename.c_str());
                     break;
                 }
 
@@ -459,7 +468,7 @@ namespace Tiny3D
 
         TResult ret = buildXMLDict(doc, root, settings);
 
-        if (ret == T3D_ERR_OK)
+        if (ret == T3D_OK)
         {
             plist->LinkEndChild(root);
         }
@@ -470,7 +479,7 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLDict(tinyxml2::XMLDocument &doc,
         tinyxml2::XMLElement *root, const VariantMap &dict)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
         VariantMapConstItr itr = dict.begin();
 
         while (itr != dict.end())
@@ -485,7 +494,7 @@ namespace Tiny3D
             root->LinkEndChild(child);
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ++itr;
@@ -497,8 +506,8 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLArray(tinyxml2::XMLDocument &doc,
         tinyxml2::XMLElement *root, const VariantArray &arr)
     {
-        TResult ret = T3D_ERR_OK;
-        tinyxml2::XMLElement *child = nullptr;
+        TResult ret = T3D_OK;
+//         tinyxml2::XMLElement *child = nullptr;
         VariantArrayConstItr itr = arr.begin();
 
         while (itr != arr.end())
@@ -506,7 +515,7 @@ namespace Tiny3D
             const Variant &value = *itr;
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ++itr;
@@ -518,8 +527,8 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLList(tinyxml2::XMLDocument &doc, 
         tinyxml2::XMLElement *root, const VariantList &list)
     {
-        TResult ret = T3D_ERR_OK;
-        tinyxml2::XMLElement *child = nullptr;
+        TResult ret = T3D_OK;
+//         tinyxml2::XMLElement *child = nullptr;
         VariantListConstItr itr = list.begin();
 
         while (itr != list.end())
@@ -527,7 +536,7 @@ namespace Tiny3D
             const Variant &value = *itr;
 
             ret = buildXMLVariant(doc, root, value);
-            if (ret != T3D_ERR_OK)
+            if (T3D_FAILED(ret))
                 break;
 
             ++itr;
@@ -539,14 +548,14 @@ namespace Tiny3D
     TResult ConfigFile::buildXMLVariant(tinyxml2::XMLDocument &doc, 
         tinyxml2::XMLElement *root, const Variant &value)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             tinyxml2::XMLElement *child = nullptr;
             tinyxml2::XMLText *text = nullptr;
 
-            if (value.valueType() == Variant::E_BOOL)
+            if (value.valueType() == Variant::Type::E_BOOL)
             {
                 bool val = value.boolValue();
 
@@ -557,29 +566,31 @@ namespace Tiny3D
 
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_INT8
-                || value.valueType() == Variant::E_UINT8
-                || value.valueType() == Variant::E_INT16
-                || value.valueType() == Variant::E_UINT16
-                || value.valueType() == Variant::E_INT32
-                || value.valueType() == Variant::E_UINT32
-                || value.valueType() == Variant::E_INT64
-                || value.valueType() == Variant::E_UINT64
-                || value.valueType() == Variant::E_LONG
-                || value.valueType() == Variant::E_ULONG)
+            else if (value.valueType() == Variant::Type::E_INT8
+                || value.valueType() == Variant::Type::E_UINT8
+                || value.valueType() == Variant::Type::E_INT16
+                || value.valueType() == Variant::Type::E_UINT16
+                || value.valueType() == Variant::Type::E_INT32
+                || value.valueType() == Variant::Type::E_UINT32
+                || value.valueType() == Variant::Type::E_INT64
+                || value.valueType() == Variant::Type::E_UINT64
+                || value.valueType() == Variant::Type::E_LONG
+                || value.valueType() == Variant::Type::E_ULONG)
             {
                 long_t val = value.longValue();
                 child = doc.NewElement(TAG_NAME_INTEGER);
-                char buf[64] = { 0 };
-                snprintf(buf, sizeof(buf) - 1, "%ld", val);
-                text = doc.NewText(buf);
+//                 char buf[64] = { 0 };
+//                 snprintf(buf, sizeof(buf) - 1, "%ld", val);
+                std::stringstream ss;
+                ss << val;
+                text = doc.NewText(ss.str().c_str());
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_FLOAT32
-                || value.valueType() == Variant::E_FLOAT64
-                || value.valueType() == Variant::E_FIX32
-                || value.valueType() == Variant::E_FIX64)
+            else if (value.valueType() == Variant::Type::E_FLOAT32
+                || value.valueType() == Variant::Type::E_FLOAT64
+                || value.valueType() == Variant::Type::E_FIX32
+                || value.valueType() == Variant::Type::E_FIX64)
             {
                 Real val = value.float32Value();
                 child = doc.NewElement(TAG_NAME_REAL);
@@ -589,7 +600,7 @@ namespace Tiny3D
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_STRING)
+            else if (value.valueType() == Variant::Type::E_STRING)
             {
                 String val = value.stringValue();
                 child = doc.NewElement(TAG_NAME_STRING);
@@ -597,32 +608,32 @@ namespace Tiny3D
                 child->LinkEndChild(text);
                 root->LinkEndChild(child);
             }
-            else if (value.valueType() == Variant::E_ARRAY)
+            else if (value.valueType() == Variant::Type::E_ARRAY)
             {
                 const VariantArray &val = value.arrayValue();
                 child = doc.NewElement(TAG_NAME_ARRAY);
                 ret = buildXMLArray(doc, child, val);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     root->LinkEndChild(child);
                 else
                     break;
             }
-            else if (value.valueType() == Variant::E_LIST)
+            else if (value.valueType() == Variant::Type::E_LIST)
             {
                 const VariantList &val = value.listValue();
                 child = doc.NewElement(TAG_NAME_ARRAY);
                 ret = buildXMLList(doc, child, val);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     root->LinkEndChild(child);
                 else
                     break;
             }
-            else if (value.valueType() == Variant::E_MAP)
+            else if (value.valueType() == Variant::Type::E_MAP)
             {
                 const VariantMap &val = value.mapValue();
                 child = doc.NewElement(TAG_NAME_DICT);
                 ret = buildXMLDict(doc, child, val);
-                if (ret == T3D_ERR_OK)
+                if (ret == T3D_OK)
                     root->LinkEndChild(child);
                 else
                     break;

@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,7 @@
 
 #include <typeinfo>
 #include <string>
+#include <iostream>
 #include <memory>
 #include <vector>
 #include <list>
@@ -43,8 +44,6 @@ typedef signed short        short_t;
 typedef unsigned short      ushort_t;
 typedef signed int          int_t;
 typedef unsigned int        uint_t;
-typedef signed long         long_t;
-typedef unsigned long       ulong_t;
 
 typedef signed char         int8_t;
 typedef unsigned char       uint8_t;
@@ -54,10 +53,20 @@ typedef signed int          int32_t;
 typedef unsigned int        uint32_t;
 
 #if !defined (T3D_OS_ANDROID) && !defined (T3D_OS_LINUX)
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
+    typedef signed long long    int64_t;
+    typedef unsigned long long  uint64_t;
 #endif
 
+#if defined (T3D_OS_X64)
+    typedef int64_t             long_t;
+    typedef uint64_t            ulong_t;
+#else
+    typedef int32_t             long_t;
+    typedef uint32_t            ulong_t;
+#endif
+
+typedef float               float32_t;
+typedef double              float64_t;
 
 typedef std::string         String;
 typedef std::wstring        WString;
@@ -99,6 +108,9 @@ using TSet = std::set<T>;
 
 template <typename K, typename V>
 using TMap = std::map<K, V>;
+
+template <typename K, typename V>
+using TMultimap = std::multimap<K, V>;
 
 template <typename T1, typename T2>
 using TPair = std::pair<T1, T2>;

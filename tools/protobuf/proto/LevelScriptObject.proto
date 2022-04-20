@@ -1,0 +1,64 @@
+syntax = "proto3";
+//option optimize_for = LITE_RUNTIME;
+
+import "CommonScriptObject.proto";
+//import "ModelScriptObject.proto";
+
+package Tiny3D.Script.LevelSystem;
+
+
+
+/**
+ * @brief Node in scene graph
+ */
+message Node
+{
+    string              uuid = 1;       // the uuid for this node
+    string              name = 2;       // the name of this node
+    repeated Component  components = 3; // ID components attaching to
+    string              parent = 4;     // the uuid for parent node
+    repeated string     children = 5;   // the list of uuid for children nodes
+}
+
+
+
+/**
+ * @brief Component
+ */
+message Component
+{
+    /**
+     * @brief Type of component
+     */
+    enum Type
+    {
+        Transform = 0;      // Transform
+        SkinnedMesh = 1;    // Skinned Mesh
+    }
+    
+    Type    type = 1;
+    
+    oneof ComponentOneOf
+    {
+        Transform   transform = 2;
+        Mesh        mesh = 3;
+    }
+}
+
+/**
+ * @brief Transform
+ */
+message Transform
+{
+    Vector3     position = 1;
+    Vector3     rotation = 2;
+    Vector3     scaling = 3;
+}
+
+/**
+ * @brief Skinned Mesh
+ */
+message Mesh
+{
+    string      uuid = 1;
+}

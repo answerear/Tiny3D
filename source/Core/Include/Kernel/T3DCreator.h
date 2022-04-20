@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,21 +23,33 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Memory/T3DSmartPtr.h"
 
 
 namespace Tiny3D
 {
+    /**
+     * @class   Creator
+     * @brief   A creator.
+     * @tparam  T   Generic type parameter.
+     */
     template <typename T>
     class Creator
     {
     public:
         /**
-         * @brief 获取字符串表示的对象类型
+         * @fn  virtual String Creator::getType() const = 0;
+         * @brief   获取字符串表示的对象类型
+         * @return  The type.
          */
         virtual String getType() const = 0;
 
         /**
-         * @brief 创建具体对象
+         * @fn  virtual SmartPtr<T> Creator::createObject(int32_t argc, ...) const = 0;
+         * @brief   创建具体对象
+         * @param   argc    The argc.
+         * @param   ...     Variable arguments providing additional information.
+         * @return  The new object.
          */
         virtual SmartPtr<T> createObject(int32_t argc, ...) const = 0;
     };

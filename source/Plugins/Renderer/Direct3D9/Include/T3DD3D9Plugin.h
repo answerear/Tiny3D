@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,9 +18,59 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDERER_H__
-#define __T3D_RENDERER_H__
+#ifndef __T3D_D3D9_PLUGIN_H__
+#define __T3D_D3D9_PLUGIN_H__
+
+
+#include "T3DD3D9Prerequisites.h"
+
+
+namespace Tiny3D
+{
+    class D3D9Plugin : public Plugin
+    {
+    public:
+        /**
+         * @brief 默认构造函数
+         */
+        D3D9Plugin();
+
+        /**
+         * @brief 析构函数
+         */
+        virtual ~D3D9Plugin();
+
+        /**
+         * @brief 获取插件名称
+         */
+        virtual const String &getName() const override;
+
+        /**
+         * @brief 安装插件
+         */
+        virtual TResult install() override;
+
+        /**
+         * @brief 启动插件
+         */
+        virtual TResult startup() override;
+
+        /**
+         * @brief 关闭插件
+         */
+        virtual TResult shutdown() override;
+
+        /**
+         * @brief 卸载插件
+         */
+        virtual TResult uninstall() override;
+
+    protected:
+        String      mName;
+        RendererPtr mRenderer;
+    };
+}
 
 
 
-#endif  /*__T3D_RENDERER_H__*/
+#endif  /*__T3D_D3D9_PLUGIN_H__*/

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,13 +21,13 @@
 #define __FRAMEWORK_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../Common/SampleApp.h"
 
 
 class Entity;
 
 
-class FrameworkApp : public Tiny3D::Application
+class FrameworkApp : public SampleApp
 {
 public:
     FrameworkApp();
@@ -36,13 +36,7 @@ public:
 protected:  /// from Tiny3D::Application
     virtual bool applicationDidFinishLaunching() override;
 
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
     virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
 
     Entity  *mPlayer;
     Entity  *mEnemy;

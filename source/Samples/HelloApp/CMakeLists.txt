@@ -19,17 +19,19 @@ include_directories(
     "${TINY3D_FRAMEWORK_INC_DIR}"
     "${TINY3D_LOG_INC_DIR}"
     "${TINY3D_CORE_INC_DIR}"
+	"${TINY3D_UTILS_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     )
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
-
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .cpp)
 
 
 if (TINY3D_OS_WINDOWS)
@@ -43,12 +45,11 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
+        T3DMath
         T3DFramework
         T3DCore
         )
-
-    # Setup project folder
-    set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Samples")
     
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
@@ -64,6 +65,8 @@ elseif (TINY3D_OS_ANDROID)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
+        T3DMath
         T3DFramework
         T3DCore
         )
@@ -92,8 +95,14 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ${LIB_NAME}
             T3DPlatform
             T3DLog
+			T3DUtils
+            T3DMath
             T3DFramework
             T3DCore
+            #T3DXRenderer
+            #FileSystemArchive
+            #ZipArchive
+            #FreeImageCodec
             #z
             #${SDL2_LIBRARY}
             #${SDL2_OSX_FRAMEWORKS}
@@ -112,19 +121,26 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"                   # Code sign identity for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
+            XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
             )
 
         set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
         set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
 
-	set(ASSETS_DIR "${APPS}/assets/")
-	
+        install(CODE "
+            include(BundleUtilities)
+            fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
+            " COMPONENT Runtime)
+
+        set(ASSETS_DIR "${APPS}/Assets/")
+
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}"
             #COMMAND ${CMAKE_COMMAND} -E make_directory "${APPS}/Plugins"
             #COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Plugins/*.dylib" "${APPS}/Plugins"
+	    COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
             )
@@ -134,6 +150,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ${LIB_NAME}
             T3DPlatform
             T3DLog
+			T3DUtils
             T3DFramework
             T3DCore
             )
@@ -146,7 +163,6 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"                         # Bundle ID for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
-
             XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
             XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--deep"
             )
@@ -188,6 +204,7 @@ elseif (TINY3D_OS_LINUX)
         ${LIB_NAME}
         T3DPlatform
         T3DLog
+		T3DUtils
         T3DFramework
         T3DCore
         )
@@ -200,4 +217,7 @@ elseif (TINY3D_OS_LINUX)
         )
 endif (TINY3D_OS_WINDOWS)
 
+
+# Setup project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Samples")
 

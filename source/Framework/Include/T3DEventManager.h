@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,7 @@ namespace Tiny3D
         friend class EventHandler;
 
         T3D_DISABLE_COPY(EventManager);
+        T3D_DECLARE_CLASS();
 
         /** 事件项 */
         struct EventItem
@@ -97,7 +98,7 @@ namespace Tiny3D
          * @param [in] receiver : 事件接收者实例。
          * @param [in] sender : 事件发送者实例
          * @return 
-         *  - T3D_ERR_OK : 调用成功返回
+         *  - T3D_OK : 调用成功返回
          *  - T3D_ERR_FWK_INVALID_RECVER : 无效的接收者实例句柄。
          *  - T3D_ERR_FWK_INVALID_SENDER : 无效的发送者实例句柄。
          *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 当receiver是T3D_BROADCAST_INSTANCE
@@ -121,7 +122,7 @@ namespace Tiny3D
          * @param [in] receiver : 事件接收者实例
          * @param [in] sender : 事件发送者实例
          * @return 
-         *  - T3D_ERR_OK : 只要事件ID没错误，都返回该值
+         *  - T3D_OK : 只要事件ID没错误，都返回该值
          *  - T3D_ERR_INVALID_EVID : 无效事件ID
          * @note 需要注意一点就是调用返回T3D_OK也不代表接收者一定能接收到。
          *      因为这个接口是把所有事件存放到事件队列，然后在dispatchEvent()
@@ -156,7 +157,7 @@ namespace Tiny3D
         /**
          * @brief 派发事件，用于派发事件队列里面的事件
          * @return 
-         *  - T3D_ERR_OK : 当事件全部派发完或者没有事件要派发时返回本值
+         *  - T3D_OK : 当事件全部派发完或者没有事件要派发时返回本值
          *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 事件处理时间过长返回本值
          *  - T3D_ERR_FWK_CALLSTACK_OVERFLOW : 事件嵌套栈溢出返回本值
          * @see
@@ -178,7 +179,7 @@ namespace Tiny3D
          * @brief 继续事件派发
          * @param [in] dispatchImmdiately : 是否马上派发队列里所有事件
          * @return
-         *  - T3D_ERR_OK : 当dispatchImmdiately是false的时候，一定返回本值；当
+         *  - T3D_OK : 当dispatchImmdiately是false的时候，一定返回本值；当
          *              dispatchImmdiately是true的时候，只有所有堆积的事件都派发
          *              完了，才返回本值
          *  - T3D_ERR_FWK_HANDLING_TIMEOVER : 当dispatchImmdiately是true的时候，
@@ -231,7 +232,7 @@ namespace Tiny3D
          * @brief 反注册事件处理对象
          * @param [in] instance : 实例句柄
          * @return
-         *  - T3D_ERR_OK : 反注册成功返回本值
+         *  - T3D_OK : 反注册成功返回本值
          *  - T3D_ERR_FWK_INVALID_INSTANCE : 无效实例句柄
          */
         TResult unregisterHandler(TINSTANCE instance);
@@ -242,7 +243,7 @@ namespace Tiny3D
         * @param [in] evid : 事件ID
         * @param [in] instance : 关注该事件ID的实例句柄
         * @return
-        *   - T3D_ERR_OK : 注册成功返回该值
+        *   - T3D_OK : 注册成功返回该值
         *   - T3D_ERR_FWK_INVALID_EVID : 无效的事件ID返回该值
         *   - T3D_ERR_FWK_DUPLICATE_INSTANCE : 该instance已经注册过了返回该值
         *   - T3D_INVALID_INSTANCE : 无效实例句柄返回该值
@@ -255,7 +256,7 @@ namespace Tiny3D
         * @param [in] evid : 事件ID
         * @param [in] instance : 关注该事件ID的处理对象
         * @return
-        *   - T3D_ERR_OK : 反注册成功返回该值
+        *   - T3D_OK : 反注册成功返回该值
         *   - T3D_ERR_FWK_INVALID_EVID : 无效的事件ID返回该值
         *   - T3D_INVALID_INSTANCE : 无效实例句柄返回该值
         */
@@ -320,7 +321,7 @@ namespace Tiny3D
         uint32_t        mMaxHandlingDuration;       /// 处理事件持续最大时间
         int64_t         mStartHandleTime;           /// 开始处理事件时间
         uint32_t        mMaxCallStackLevel;         /// 处理事件嵌套调用栈层级
-        int32_t         mCurrentCallStack;          /// 当前栈深度
+        uint32_t        mCurrentCallStack;          /// 当前栈深度
 
         HandleEventMode mHandlingMode;              /// 被打断后续事件处理方式
 

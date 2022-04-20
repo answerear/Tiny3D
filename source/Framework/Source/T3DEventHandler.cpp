@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_0(EventHandler);
+
+    //--------------------------------------------------------------------------
+
     EventHandler::EventHandler(bool canAutoRegister /* = true */)
         : mInstance(T3D_INVALID_INSTANCE)
     {
@@ -34,11 +40,15 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+
     EventHandler::~EventHandler()
     {
         unregisterAllEvent();
         T3D_EVENT_MGR.unregisterHandler(mInstance);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventHandler::sendEvent(EventID evid, EventParam *param,
         TINSTANCE receiver)
@@ -46,11 +56,15 @@ namespace Tiny3D
         return T3D_EVENT_MGR.sendEvent(evid, param, receiver, mInstance);
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventHandler::postEvent(EventID evid, EventParam *param,
         TINSTANCE receiver)
     {
         return T3D_EVENT_MGR.postEvent(evid, param, receiver, mInstance);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventHandler::sendEvent(EventID evid, EventParam *param)
     {
@@ -58,11 +72,15 @@ namespace Tiny3D
             T3D_MULTICAST_INSTANCE, mInstance);
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventHandler::postEvent(EventID evid, EventParam *param)
     {
         return T3D_EVENT_MGR.postEvent(evid, param, 
             T3D_MULTICAST_INSTANCE, mInstance);
     }
+
+    //--------------------------------------------------------------------------
 
     TINSTANCE EventHandler::registerHandler()
     {
@@ -74,11 +92,13 @@ namespace Tiny3D
         return mInstance;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventHandler::unregisterHandler()
     {
         TResult ret = T3D_EVENT_MGR.unregisterHandler(mInstance);
 
-        if (ret != T3D_ERR_OK)
+        if (T3D_FAILED(ret))
         {
             mInstance = T3D_INVALID_INSTANCE;
         }
@@ -86,16 +106,20 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventHandler::setupEventFilter()
     {
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventHandler::registerEvent(EventID evid)
     {
         TResult ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
 
-        if (T3D_ERR_OK == ret)
+        if (T3D_OK == ret)
         {
             mEventList.push_back(evid);
         }
@@ -103,11 +127,13 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult EventHandler::unregisterEvent(EventID evid)
     {
         TResult ret = T3D_EVENT_MGR.unregisterEvent(evid, mInstance);
 
-        if (T3D_ERR_OK == ret)
+        if (T3D_OK == ret)
         {
             auto itr = mEventList.begin();
 
@@ -126,6 +152,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     void EventHandler::unregisterAllEvent()
     {
         while (!mEventList.empty())
@@ -137,6 +165,8 @@ namespace Tiny3D
 
         mEventList.clear();
     }
+
+    //--------------------------------------------------------------------------
 
     TResult EventHandler::processEvent(EventID evid, EventParam *param,
         TINSTANCE sender)

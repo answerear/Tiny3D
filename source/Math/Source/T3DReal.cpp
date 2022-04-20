@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,7 +28,7 @@ namespace Tiny3D
     const float32_t TReal<float32_t>::MINUS_ONE = -1.0f;
     const float32_t TReal<float32_t>::INF = std::numeric_limits<float32_t>::infinity();
     const float32_t TReal<float32_t>::MINUS_INF = -std::numeric_limits<float32_t>::infinity();
-    const float32_t TReal<float32_t>::EPSILON = 1e-5;
+    const float32_t TReal<float32_t>::EPSILON = 1e-5f;
 
     const float64_t TReal<float64_t>::ZERO = 0.0;
     const float64_t TReal<float64_t>::ONE = 1.0;

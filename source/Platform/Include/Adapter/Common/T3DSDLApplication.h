@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,18 +23,19 @@
 #include "Adapter/T3DApplicationInterface.h"
 #include <SDL.h>
 
-
 namespace Tiny3D
 {
     class SDLApplication : public IApplication
     {
+        T3D_DECLARE_CLASS();
+
     public:
         SDLApplication();
         virtual ~SDLApplication();
 
         /**
          * @brief 初始化应用程序
-         * @return 调用成功返回T3D_ERR_OK
+         * @return 调用成功返回T3D_OK
          */
         virtual TResult init() override;
 

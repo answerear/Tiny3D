@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,10 +20,15 @@
 
 #include "T3DZipArchive.h"
 #include "minizip/unzip.h"
+#include "T3DZipArchiveError.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(ZipArchive, Archive);
+
     //--------------------------------------------------------------------------
 
     const char * const ZipArchive::ARCHIVE_TYPE = "Zip";
@@ -46,6 +51,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+
     ZipArchive::~ZipArchive()
     {
 
@@ -55,24 +62,27 @@ namespace Tiny3D
 
     TResult ZipArchive::load()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
-            String path = Engine::getInstance().getAppPath() + getLocation();
+            String path = getLocation();
 
             // 打开 zip 文件
             mZipFile = unzOpen64(path.c_str());
             if (mZipFile == nullptr)
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                T3D_LOG_ERROR("Open zip file [%s] failed !", path.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ZIP, "Open zip file [%s] failed !", 
+                    path.c_str());
                 break;
             }
         } while (0);
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 
     TResult ZipArchive::unload()
     {
@@ -82,8 +92,10 @@ namespace Tiny3D
             mZipFile = nullptr;
         }
         
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr ZipArchive::clone() const
     {
@@ -98,10 +110,21 @@ namespace Tiny3D
         return ARCHIVE_TYPE;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ZipArchive::init(const String& assetPath)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     String ZipArchive::getLocation() const
     {
         return mName;
     }
+
+    //--------------------------------------------------------------------------
 
     bool ZipArchive::exists(const String &name) const
     {
@@ -112,7 +135,8 @@ namespace Tiny3D
             if (mZipFile == nullptr)
             {
                 ret = false;
-                T3D_LOG_ERROR("Open zip file [%s] failed !", mName.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ZIP, "Open zip file [%s] failed !", 
+                    mName.c_str());
                 break;
             }
 
@@ -122,8 +146,9 @@ namespace Tiny3D
             if (zret != UNZ_OK)
             {
                 ret = false;
-                T3D_LOG_ERROR("Locate file [%s] in zip file [%s] failed ! \
-                    Error : %d", name.c_str(), mName.c_str(), zret);
+                T3D_LOG_ERROR(LOG_TAG_ZIP, 
+                    "Locate file [%s] in zip file [%s] failed ! Error : %d", 
+                    name.c_str(), mName.c_str(), zret);
                 break;
             }
 
@@ -133,16 +158,19 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult ZipArchive::read(const String &name, MemoryDataStream &stream)
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
             if (mZipFile == nullptr)
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                T3D_LOG_ERROR("Open zip file [%s] failed !", mName.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ZIP, "Open zip file [%s] failed !", 
+                    mName.c_str());
                 break;
             }
 
@@ -153,8 +181,9 @@ namespace Tiny3D
             if (zret != UNZ_OK)
             {
                 ret = T3D_ERR_ZIP_FILE_LOCATE_FILE;
-                T3D_LOG_ERROR("Locate file [%s] in zip file [%s] failed ! \
-                    Error : %d", name.c_str(), mName.c_str(), zret);
+                T3D_LOG_ERROR(LOG_TAG_ZIP, 
+                    "Locate file [%s] in zip file [%s] failed ! Error : %d", 
+                    name.c_str(), mName.c_str(), zret);
                 break;
             }
 
@@ -166,8 +195,9 @@ namespace Tiny3D
             if (zret != UNZ_OK)
             {
                 ret = T3D_ERR_ZIP_FILE_GET_FILE_INFO;
-                T3D_LOG_ERROR("Get file [%s] info in zip file [%s] failed ! \
-                    Error : %d", name.c_str(), mName.c_str(), zret);
+                T3D_LOG_ERROR(LOG_TAG_ZIP, 
+                    "Get file [%s] info in zip file [%s] failed ! Error : %d", 
+                    name.c_str(), mName.c_str(), zret);
                 break;
             }
 
@@ -176,8 +206,9 @@ namespace Tiny3D
             if (zret != UNZ_OK)
             {
                 ret = T3D_ERR_ZIP_FILE_OPEN_FILE;
-                T3D_LOG_ERROR("Open current file [%s] in zip file [%s] failed !\
-                    Error : %d", name.c_str(), mName.c_str(), zret);
+                T3D_LOG_ERROR(LOG_TAG_ZIP,
+                    "Open file [%s] in zip file [%s] failed ! Error : %d", 
+                    name.c_str(), mName.c_str(), zret);
                 break;
             }
 
@@ -185,13 +216,14 @@ namespace Tiny3D
             uint64_t contentSize = fileInfo.uncompressed_size;
             uchar_t *content = new uchar_t[contentSize];
 
-            zret = unzReadCurrentFile(mZipFile, content, contentSize);
+            zret = unzReadCurrentFile(mZipFile, content, (uint32_t)contentSize);
             if (zret < 0)
             {
                 unzCloseCurrentFile(mZipFile);
                 ret = T3D_ERR_ZIP_FILE_READ_DATA;
-                T3D_LOG_ERROR("Get file [%s] data in zip file [%s] failed ! \
-                    Error : %d", name.c_str(), mName.c_str(), zret);
+                T3D_LOG_ERROR(LOG_TAG_ZIP, 
+                    "Get file [%s] data in zip file [%s] failed ! Error : %d", 
+                    name.c_str(), mName.c_str(), zret);
                 break;
             }
 
@@ -202,9 +234,13 @@ namespace Tiny3D
         return ret;
     }
 
-    TResult ZipArchive::write(const String &name, const MemoryDataStream &stream)
+    //--------------------------------------------------------------------------
+
+    TResult ZipArchive::write(const String &name, 
+        const MemoryDataStream &stream)
     {
-        T3D_LOG_ERROR("Could not support append any file into current zip file [%s] !",
+        T3D_LOG_ERROR(LOG_TAG_ZIP,
+            "Could not support append any file into current zip file [%s] !",
             mName.c_str());
         return T3D_ERR_ZIP_FILE_NOT_SUPPORT;
     }

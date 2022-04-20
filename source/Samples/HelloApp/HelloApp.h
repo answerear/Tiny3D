@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,9 +21,10 @@
 #define __HELLO_APP_H__
 
 
-#include <Tiny3D.h>
+#include "../Common/SampleApp.h"
 
-class HelloApp : public Tiny3D::Application, public Tiny3D::ITimerListener
+
+class HelloApp : public SampleApp
 {
 public:
     HelloApp();
@@ -31,20 +32,8 @@ public:
 
 protected:  /// from Tiny3D::Application
     virtual bool applicationDidFinishLaunching() override;
-
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
-	
-	virtual void onTimer(uint32_t timerID, int32_t dt) override;
 	
 protected:
-	uint32_t	mTimerID1;
-	uint32_t	mTimerID2;
 };
 
 

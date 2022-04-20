@@ -216,37 +216,37 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline const T *TMatrix3<T>::operator [](int32_t nRow) const
+    inline const T *TMatrix3<T>::operator [](size_t nRow) const
     {
         T3D_ASSERT(nRow >= 0 && nRow < 3);
         return &mTuples[nRow * 3];
     }
 
     template <typename T>
-    inline T *TMatrix3<T>::operator [](int32_t nRow)
+    inline T *TMatrix3<T>::operator [](size_t nRow)
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 3);
+        T3D_ASSERT(nRow < 3);
         return &mTuples[nRow * 3];
     }
 
     template <typename T>
-    inline T TMatrix3<T>::operator ()(int32_t nRow, int32_t nCol) const
+    inline T TMatrix3<T>::operator ()(size_t nRow, size_t nCol) const
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 3 && nCol >=0 && nCol < 3);
+        T3D_ASSERT(nRow < 3 && nCol < 3);
         return mTuples[nRow * 3 + nCol];
     }
 
     template <typename T>
-    inline T &TMatrix3<T>::operator ()(int32_t nRow, int32_t nCol)
+    inline T &TMatrix3<T>::operator ()(size_t nRow, size_t nCol)
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 3 && nCol >= 0 && nCol < 3);
+        T3D_ASSERT(nRow < 3 && nCol < 3);
         return mTuples[nRow * 3 + nCol];
     }
 
     template <typename T>
-    inline void TMatrix3<T>::setRow(int32_t nRow, const TVector3<T> &rkV)
+    inline void TMatrix3<T>::setRow(size_t nRow, const TVector3<T> &rkV)
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 3);
+        T3D_ASSERT(nRow < 3);
         int32_t i = nRow * 3;
         mTuples[i] = rkV[0];
         mTuples[i+1] = rkV[1];
@@ -254,24 +254,24 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TVector3<T> TMatrix3<T>::getRow(int32_t nRow) const
+    inline TVector3<T> TMatrix3<T>::getRow(size_t nRow) const
     {
-        T3D_ASSERT(nRow >= 0 && nRow < 3);
+        T3D_ASSERT(nRow < 3);
         int32_t i = nRow * 3;
         return TVector3<T>(mTuples[i], mTuples[i+1], mTuples[i+2]);
     }
 
     template <typename T>
-    inline void TMatrix3<T>::setColumn(int32_t nCol, const TVector3<T> &rkV)
+    inline void TMatrix3<T>::setColumn(size_t nCol, const TVector3<T> &rkV)
     {
-        T3D_ASSERT(nCol >= 0 && nCol < 3);
+        T3D_ASSERT(nCol < 3);
         mTuples[nCol] = rkV[0];
         mTuples[nCol+3] = rkV[1];
         mTuples[nCol+6] = rkV[2];
     }
 
     template <typename T>
-    inline TVector3<T> TMatrix3<T>::getColumn(int32_t nCol) const
+    inline TVector3<T> TMatrix3<T>::getColumn(size_t nCol) const
     {
         T3D_ASSERT(nCol >= 0 && nCol < 3);
         return TVector3<T>(mTuples[nCol], mTuples[nCol+3], mTuples[nCol+6]);

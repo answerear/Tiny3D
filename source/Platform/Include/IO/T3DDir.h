@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -33,9 +34,7 @@ namespace Tiny3D
     class T3D_PLATFORM_API Dir
     {
         T3D_DISABLE_COPY(Dir);
-
-    public:
-        static char NATIVE_SEPARATOR;
+        T3D_DECLARE_CLASS();
 
     public:
         /**
@@ -187,6 +186,33 @@ namespace Tiny3D
          */
         static char getNativeSeparator();
 
+        /**
+         * @brief 从一个文件完整路径里解析出文件夹、文件名、文件扩展名
+         * @param [in] path : 带完整路径的文件名
+         * @param [out] dir : 文件目录
+         * @param [out] title : 不带扩展名的文件名
+         * @param [out] ext : 扩展名
+         * @return 调用成功返回 true
+         */
+        static bool parsePath(const String &path, String &dir, String &title, String &ext);
+
+        /**
+         * @brief 从一个文件完整路径里解析出文件夹、带扩展名的文件名
+         * @param [in] path : 带完整路径的文件名
+         * @param [out] dir : 文件目录
+         * @param [out] name : 带扩展名的文件名
+         * @return 调用成功返回 true
+         */
+        static bool parsePath(const String &path, String &dir, String &name);
+
+        /**
+         * @brief 从一个文件完整路径里解析出带扩展名的文件名
+         * @param [in] path : 带完整路径的文件名
+         * @param [out] name : 带扩展名的文件名
+         * @return 调用成功返回 true
+         */
+        static bool parsePath(const String &path, String &name);
+
     protected:
         IDir    *mDir;
 
@@ -196,6 +222,7 @@ namespace Tiny3D
         static String  sLibPath;
 
         static IDir *sDir;
+        static char NATIVE_SEPARATOR;
     };
 }
 

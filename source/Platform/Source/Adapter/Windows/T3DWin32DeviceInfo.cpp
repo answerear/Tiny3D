@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,6 +31,10 @@ namespace Tiny3D
     #define __USE_MAC_FOR_DEVICE_ID__                   0
     #define __USE_CPUID_FOR_DEVICE_ID__                 0
     #define __USE_MAINBOARD_UUID_FOR_DEVICE_ID__        1
+
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(Win32DeviceInfo, IDeviceInfo);
 
     //--------------------------------------------------------------------------
 
@@ -144,7 +148,7 @@ namespace Tiny3D
                 // 获取操作系统名称
                 dwSize = 64;
                 lResult = RegQueryValueEx(hKey, "ProductName", NULL,
-                    &dwType, (BYTE*)szName, &dwSize);
+                    &dwType, (BYTE *)szName, &dwSize);
                 if (lResult != ERROR_SUCCESS)
                 {
                     RegCloseKey(hKey);
@@ -155,7 +159,7 @@ namespace Tiny3D
                 dwSize = 64;
                 char szCSDVersion[64];
                 lResult = RegQueryValueEx(hKey, "CSDVersion", NULL,
-                    &dwType, (BYTE*)szCSDVersion, &dwSize);
+                    &dwType, (BYTE *)szCSDVersion, &dwSize);
                 if (lResult != ERROR_SUCCESS)
                 {
                     RegCloseKey(hKey);
@@ -166,7 +170,7 @@ namespace Tiny3D
                 dwSize = 64;
                 char szVersion[64];
                 lResult = RegQueryValueEx(hKey, "CurrentVersion", NULL,
-                    &dwType, (BYTE*)szVersion, &dwSize);
+                    &dwType, (BYTE *)szVersion, &dwSize);
                 if (lResult != ERROR_SUCCESS)
                 {
                     RegCloseKey(hKey);
@@ -177,7 +181,7 @@ namespace Tiny3D
                 dwSize = 64;
                 char szBuild[64];
                 lResult = RegQueryValueEx(hKey, "CurrentBuild", NULL,
-                    &dwType, (BYTE*)szBuild, &dwSize);
+                    &dwType, (BYTE *)szBuild, &dwSize);
                 if (lResult != ERROR_SUCCESS)
                 {
                     RegCloseKey(hKey);
@@ -224,7 +228,7 @@ namespace Tiny3D
                 }
 
                 lReturn = RegQueryValueEx(hKey, "ProcessorNameString",
-                    NULL, NULL, (BYTE*)strBuf, &dwSize);
+                    NULL, NULL, (BYTE *)strBuf, &dwSize);
 
                 if (lReturn != ERROR_SUCCESS)
                 {
@@ -328,7 +332,7 @@ namespace Tiny3D
             os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
             String version;
 
-            if (::GetVersionEx((OSVERSIONINFO*)&os))
+            if (::GetVersionEx((OSVERSIONINFO *)&os))
             {
                 std::stringstream ss;
                 ss << os.dwMajorVersion << "." << os.dwMinorVersion
@@ -375,21 +379,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String& Win32DeviceInfo::getSoftwareVersion() const
+    const String &Win32DeviceInfo::getSoftwareVersion() const
     {
         return mSWVersion;
     }
 
     //--------------------------------------------------------------------------
 
-    void Win32DeviceInfo::setSoftwareVersion(const char* version)
+    void Win32DeviceInfo::setSoftwareVersion(const char *version)
     {
         mSWVersion = version;
     }
 
     //--------------------------------------------------------------------------
 
-    const String& Win32DeviceInfo::getOSVersion() const
+    const String &Win32DeviceInfo::getOSVersion() const
     {
         return mOSVersion;
     }
@@ -404,7 +408,7 @@ namespace Tiny3D
         os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
         String version;
 
-        if (::GetVersionEx((OSVERSIONINFO*)&os))
+        if (::GetVersionEx((OSVERSIONINFO *)&os))
         {
             // 下面根据版本信息判断操作系统名称
             if (os.dwMajorVersion == 10)
@@ -600,7 +604,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String& Win32DeviceInfo::getDeviceVersion() const
+    const String &Win32DeviceInfo::getDeviceVersion() const
     {
         return mHWVersion;
     }
@@ -628,14 +632,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String& Win32DeviceInfo::getCPUType() const
+    const String &Win32DeviceInfo::getCPUType() const
     {
         return mCPUType;
     }
 
     //--------------------------------------------------------------------------
 
-    const String& Win32DeviceInfo::getCPUArchitecture() const
+    const String &Win32DeviceInfo::getCPUArchitecture() const
     {
         return mCPUArchitecture;
     }
@@ -656,7 +660,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String& Win32DeviceInfo::getDeviceID() const
+    const String &Win32DeviceInfo::getDeviceID() const
     {
         return mDeviceID;
     }
@@ -861,7 +865,7 @@ namespace Tiny3D
         CloseHandle(hReadPipe);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
-
+        
         return lpszBaseBoard;
     }
 }

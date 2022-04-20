@@ -1,7 +1,7 @@
 ﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -73,22 +73,22 @@ namespace Tiny3D
         operator T *();
 
         /// 根据获取矩阵对应行的元素值.
-        const T *operator [](int32_t row) const;
-        T *operator [](int32_t row);
+        const T *operator [](size_t row) const;
+        T *operator [](size_t row);
 
         /// 通过指定行和列获取对应的元素.
-        T operator ()(int32_t row, int32_t col) const;
-        T &operator ()(int32_t row, int32_t col);
+        T operator ()(size_t row, size_t col) const;
+        T &operator ()(size_t row, size_t col);
 
         /// 设置矩阵指定行向量.
-        void setRow(int32_t row, const TVector3<T> &rkV);
+        void setRow(size_t row, const TVector3<T> &rkV);
         /// 获取矩阵指定行向量.
-        TVector3<T> getRow(int32_t row) const;
+        TVector3<T> getRow(size_t row) const;
 
         /// 设置矩阵指定列向量.
-        void setColumn(int32_t col, const TVector3<T> &rkV);
+        void setColumn(size_t col, const TVector3<T> &rkV);
         /// 获取矩阵指定列向量.
-        TVector3<T> getColumn(int32_t col) const;
+        TVector3<T> getColumn(size_t col) const;
 
         /// 按照列向量优先获取矩阵数据.
         void getColumnMajor(T *columns) const;

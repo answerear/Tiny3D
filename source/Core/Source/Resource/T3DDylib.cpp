@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
- * Copyright (C) 2015-2019  Answer Wong
- * For latest info, see https://github.com/asnwerear/Tiny3D
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@
 
 
 #include "Resource/T3DDylib.h"
-#include "Kernel/T3DEngine.h"
+#include "Kernel/T3DAgent.h"
 #include "T3DErrorDef.h"
 
 
@@ -45,6 +45,12 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    T3D_IMPLEMENT_CLASS_1(Dylib, Resource);
+
+    //--------------------------------------------------------------------------
+
     DylibPtr Dylib::create(const String &name)
     {
         DylibPtr dylib = new Dylib(name);
@@ -52,30 +58,40 @@ namespace Tiny3D
         return dylib;
     }
 
+    //--------------------------------------------------------------------------
+
     Dylib::Dylib(const String &name)
         : Resource(name)
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     Dylib::~Dylib()
     {
 
     }
 
+    //--------------------------------------------------------------------------
+
     Resource::Type Dylib::getType() const
     {
-        return E_TYPE_DYLIB;
+        return Type::E_RT_DYLIB;
     }
+
+    //--------------------------------------------------------------------------
 
     void *Dylib::getSymbol(const String &name) const
     {
         return DYLIB_GETSYM(mHandle, name.c_str());
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Dylib::load()
     {
-        TResult ret = T3D_ERR_OK;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -87,15 +103,15 @@ namespace Tiny3D
             String name = "lib" + mName + ".dylib";
 #endif
 
-            String pluginsPath = Engine::getInstance().getPluginsPath();
-            String path = Engine::getInstance().getAppPath() + pluginsPath 
-                + Dir::NATIVE_SEPARATOR + name;
+            const String &pluginsPath = Agent::getInstance().getPluginsPath();
+            String path = pluginsPath + Dir::getNativeSeparator() + name;
             mHandle = DYLIB_LOAD(path.c_str());
 
             if (mHandle == nullptr)
             {
-                ret = T3D_ERR_PLUGIN_LOAD_FAILED;
-                T3D_LOG_ERROR("Load plugin failed !");
+                ret = T3D_ERR_PLG_LOAD_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s",
+                    DYLIB_ERROR());
                 break;
             }
 
@@ -105,6 +121,8 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult Dylib::unload()
     {
         if (mIsLoaded)
@@ -113,8 +131,10 @@ namespace Tiny3D
             mIsLoaded = false;
         }
 
-        return T3D_ERR_OK;
+        return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 
     ResourcePtr Dylib::clone() const
     {
