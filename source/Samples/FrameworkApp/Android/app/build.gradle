@@ -1,18 +1,18 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 26
     defaultConfig {
         applicationId "com.tiny3d.framework"
-        minSdkVersion 14
-        targetSdkVersion 32
+        minSdkVersion 26
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions -Wno-undefined-var-template -Wparentheses"
-                arguments "-DTINY3D_BUILD_SAMPLES=TRUE"
+                cppFlags "-std=c++11 -frtti -fexceptions -Wno-undefined-var-template -Wparentheses -ferror-limit=0"
+                arguments "-DTINY3D_BUILD_SAMPLES=TRUE -DANDROID_PLATFORM=android-26"
                 abiFilters 'x86', 'armeabi-v7a'
             }
         }

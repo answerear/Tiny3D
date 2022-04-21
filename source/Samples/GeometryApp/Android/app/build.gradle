@@ -3,16 +3,16 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "com.tiny3d.hello"
-        minSdkVersion 24
+        applicationId "com.tiny3d.geometryapp"
+        minSdkVersion 26
         targetSdkVersion 26
         versionCode 1
-        versionName "0.1.0"
+        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions -Wno-undefined-var-template"
-                arguments "-DTINY3D_BUILD_SAMPLES=TRUE"
+                cppFlags "-std=c++11 -frtti -fexceptions -Wno-undefined-var-template -Wparentheses -ferror-limit=0"
+                arguments "-DTINY3D_BUILD_SAMPLES=TRUE -DANDROID_PLATFORM=android-26"
                 abiFilters 'x86', 'armeabi-v7a'
             }
         }
@@ -22,32 +22,31 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            packagingOptions{
-                doNotStrip "**/*/*.so"
-            }
-        }
     }
     sourceSets{
         main{
             jniLibs.srcDirs = ['libs']
-            assets.srcDirs = ['src/main/assets']
         }
     }
     externalNativeBuild {
         cmake {
             path "../../../../CMakeLists.txt"
+            version "3.10.2.4988404"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildToolsVersion '32.0.0'
+    ndkVersion '24.0.8215888'
 }
 
 dependencies {
-//    debugCompile project(':Tiny3DLib:Tiny3D', configuration:'debug')
-//    releaseCompile project(':Tiny3DLib:Tiny3D', configuration:'release')
-
     implementation project(':Tiny3DLib:Tiny3D')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:26.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

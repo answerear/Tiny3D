@@ -203,30 +203,30 @@ namespace Tiny3D
         makeTensorProduct(rkU, rkV);
     }
 
-    template <typename T>
-    inline TMatrix3<T>::operator const T *() const
-    {
-        return mTuples;
-    }
+    //template <typename T>
+    //inline TMatrix3<T>::operator const T *() const
+    //{
+    //    return mTuples;
+    //}
 
-    template <typename T>
-    inline TMatrix3<T>::operator T *()
-    {
-        return mTuples;
-    }
+    //template <typename T>
+    //inline TMatrix3<T>::operator T *()
+    //{
+    //    return mTuples;
+    //}
 
     template <typename T>
     inline const T *TMatrix3<T>::operator [](size_t nRow) const
     {
         T3D_ASSERT(nRow >= 0 && nRow < 3);
-        return &mTuples[nRow * 3];
+        return m3x3[nRow];
     }
 
     template <typename T>
     inline T *TMatrix3<T>::operator [](size_t nRow)
     {
         T3D_ASSERT(nRow < 3);
-        return &mTuples[nRow * 3];
+        return m3x3[nRow];
     }
 
     template <typename T>

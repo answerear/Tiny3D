@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include <type_traits>
+#include "Kernel/T3DObject.h"
 
 
 #if defined (T3D_OS_WINDOWS)

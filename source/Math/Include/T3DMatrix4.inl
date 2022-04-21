@@ -134,17 +134,17 @@ namespace Tiny3D
         m4x4[3][0] = TReal<T>::ZERO, m4x4[3][1] = TReal<T>::ZERO, m4x4[3][2] = TReal<T>::ZERO, m4x4[3][3] = TReal<T>::ONE;
     }
 
-    template <typename T>
-    inline TMatrix4<T>::operator const T *() const
-    {
-        return mTuples;
-    }
+    //template <typename T>
+    //inline TMatrix4<T>::operator const T *() const
+    //{
+    //    return mTuples;
+    //}
 
-    template <typename T>
-    inline TMatrix4<T>::operator T *()
-    {
-        return mTuples;
-    }
+    //template <typename T>
+    //inline TMatrix4<T>::operator T *()
+    //{
+    //    return mTuples;
+    //}
 
     template <typename T>
     inline const T *TMatrix4<T>::operator [](size_t row) const

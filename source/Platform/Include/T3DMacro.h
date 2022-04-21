@@ -61,6 +61,8 @@
         #undef T3D_DEBUG
     #endif
 
+    #define stricmp strcasecmp
+
 	#define T3D_EXPORT_API      __attribute__ ((visibility ("default")))
 	#define T3D_IMPORT_API
 

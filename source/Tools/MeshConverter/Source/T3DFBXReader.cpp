@@ -2302,10 +2302,10 @@ namespace Tiny3D
 
                 Matrix4 matOffset = matBone.inverse() * matMesh;
                 auto offset = bone->mutable_offset();
-                Real *data = matOffset;
+                //Real *data = matOffset;
                 for (size_t x = 0; x < 16; ++x)
                 {
-                    offset->add_values(data[x]);
+                    offset->add_values(matOffset[x>>2][x&0x11]);
                 }
             }
         }

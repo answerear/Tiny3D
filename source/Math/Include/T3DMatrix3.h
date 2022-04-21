@@ -69,8 +69,8 @@ namespace Tiny3D
         void toAxisAngle(TVector3<T> &rAxis, TRadian<T> &rRadians) const;
 
         /// 获取矩阵元素数组首地址.
-        operator const T *() const;
-        operator T *();
+        //operator const T *() const;
+        //operator T *();
 
         /// 根据获取矩阵对应行的元素值.
         const T *operator [](size_t row) const;

@@ -65,7 +65,7 @@ bool GeometryApp::applicationDidFinishLaunching()
     // Ïä×Ó
     node = T3D_SCENE_MGR.createSceneNode(root);
     Vector3 extent(1.0f, 1.0f, 1.0f);
-    CubePtr cube = smart_pointer_cast<Cube>(node->addComponent(T3D_CLASS(Cube), Vector3::ZERO, extent));
+    CubePtr cube = smart_pointer_cast<Cube>(node->addComponent(T3D_CLASS(Cube), &Vector3::ZERO, &extent));
     node->getTransform3D()->setPosition(Vector3(-4.0f, 0.0f, -2.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
     ObbBoundPtr b0 = smart_pointer_cast<ObbBound>(node->addComponent(T3D_CLASS(ObbBound)));
@@ -77,7 +77,7 @@ bool GeometryApp::applicationDidFinishLaunching()
     // Çò
     node = T3D_SCENE_MGR.createSceneNode(root);
     Real radius(1.0f);
-    GlobePtr sphere = smart_pointer_cast<Globe>(node->addComponent(T3D_CLASS(Globe), Vector3::ZERO, &radius));
+    GlobePtr sphere = smart_pointer_cast<Globe>(node->addComponent(T3D_CLASS(Globe), &Vector3::ZERO, &radius));
     node->getTransform3D()->setPosition(Vector3(2.0f, 0.0f, 0.0f));
     node->setCameraMask(OBJ_MASK_SCENE);
     SphereBoundPtr b1 = smart_pointer_cast<SphereBound>(node->addComponent(T3D_CLASS(SphereBound)));

@@ -103,15 +103,15 @@ namespace Tiny3D
             }
             else if (cls == T3D_CLASS(Cube))
             {
-                Vector3 center = va_arg(args, Vector3);
-                Vector3 extent = va_arg(args, Vector3);
-                component = Cube::create(center, extent);
+                Vector3 *center = va_arg(args, Vector3*);
+                Vector3 *extent = va_arg(args, Vector3*);
+                component = Cube::create(*center, *extent);
             }
             else if (cls == T3D_CLASS(Globe))
             {
-                Vector3 center = va_arg(args, Vector3);
+                Vector3 *center = va_arg(args, Vector3*);
                 Real *radius = va_arg(args, Real*);
-                component = Globe::create(center, *radius);
+                component = Globe::create(*center, *radius);
             }
             else if (cls == T3D_CLASS(Mesh))
             {

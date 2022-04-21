@@ -222,6 +222,7 @@ elseif (TINY3D_OS_LINUX)
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
 #       LINK_PRIVATE z
         )
 
@@ -267,6 +268,8 @@ elseif (TINY3D_OS_ANDROID)
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
+        LINK_PRIVATE log
 #       LINK_PRIVATE z
         )
     
