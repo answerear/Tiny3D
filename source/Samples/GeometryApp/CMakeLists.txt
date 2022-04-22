@@ -132,7 +132,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
             " COMPONENT Runtime)
 
-        set(ASSETS_DIR "${APPS}/Assets/")
+        set(ASSETS_DIR "${APPS}/assets/")
 
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
@@ -147,7 +147,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 #            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DLog.dylib" "@rpath/libT3DLog.dylib" "${APPS}/libT3DCore.dylib"
             COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ASSETS_DIR}/Icon
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
             )
     elseif (TINY3D_OS_MACOSX)
         # Setup all link libraries frameworks for Mac OS X
@@ -170,6 +170,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
             XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
+            XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--deep"
             )
 
         # Setup installing files for making a *.app for this project
@@ -187,14 +188,14 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
             )
 
-        set(ASSETS_DIR "${APPS}/Contents/MacOS/Assets/")
+        set(ASSETS_DIR "${APPS}/Contents/MacOS/assets/")
 
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/OSX/Tiny3D.cfg" "${APPS}/Contents/MacOS"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/OSX/Tiny3D.cfg" "${APPS}/Contents/MacOS"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}/Contents/MacOS"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ASSETS_DIR}/Icon
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
             )
     endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)

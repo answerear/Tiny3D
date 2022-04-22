@@ -26,7 +26,7 @@ set(SHADERCONDUCTOR_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/Shad
 
 if (TINY3D_OS_WINDOWS)
     set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
-elseif (TINY3D_OS_OSX)
+elseif (TINY3D_OS_MACOSX)
     set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/OSX")
 elseif (TINY3D_OS_LINUX)
     set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/Linux")
@@ -45,6 +45,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser"
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${SDL2_INCLUDE_DIR}"
     "${SHADERCONDUCTOR_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
@@ -121,6 +122,10 @@ elseif (TINY3D_OS_MACOSX)
         T3DLog
         T3DUtils
         T3DMath
+        T3DFramework
+        T3DCore
+        ${PROTOBUF_LIBRARY}
+        ${SHADERCONDUCTOR_LIBRARY}
         )
 
     # Setup all properties for this Mac OS X project.

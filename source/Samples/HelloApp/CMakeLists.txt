@@ -151,6 +151,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DPlatform
             T3DLog
 			T3DUtils
+            T3DMath
             T3DFramework
             T3DCore
             )

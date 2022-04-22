@@ -83,7 +83,7 @@ elseif (APPLE AND IOS)
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
     set(PROTOBUF_SUFFIXES "prebuilt/iOS")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
+    set(CMAKE_CXX_FLAGS "-stdlib=stdc++ -std=c++11 -Wno-undefined-var-template")
 elseif (APPLE AND NOT IOS)
     # Mac OS X
     message(STATUS "Platform : Mac OS X")

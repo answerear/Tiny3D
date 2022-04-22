@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -49,6 +49,8 @@
     #else           // release
         #undef T3D_DEBUG
     #endif
+
+    #define stricmp strcasecmp
 
 	#define T3D_EXPORT_API
 	#define T3D_IMPORT_API

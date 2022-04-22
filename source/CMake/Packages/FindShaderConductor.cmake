@@ -1,5 +1,7 @@
 
 message(STATUS "Looking for ShaderConductor ...")
+message(STATUS "Looking for ShaderConductor home : ${SHADERCONDUCTOR_HOME}")
+message(STATUS "Looking for ShaderConductor suffixes : ${SHADERCONDUCTOR_LIB_SUFFIXES}")
 
 FIND_PATH(SHADERCONDUCTOR_INCLUDE_DIR 
   NAMES ShaderConductor.hpp
@@ -16,7 +18,7 @@ FIND_LIBRARY(SHADERCONDUCTOR_LIBRARY_TEMP
 )
 
 FIND_FILE(SHADERCONDUCTOR_BINARY
-  NAMES "ShaderConductor.dll" "libShaderConductor.so" "ShaderConductor.dylib"
+  NAMES "ShaderConductor.dll" "libShaderConductor.so" "libShaderConductor.dylib"
   HINTS ${SHADERCONDUCTOR_HOME}
   PATH_SUFFIXES ${SHADERCONDUCTOR_LIB_SUFFIXES}
 )

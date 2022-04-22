@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -72,10 +72,10 @@ namespace Tiny3D
 
         do 
         {
-            va_list params;
-            va_start(params, argc);
-            const Class *cls = va_arg(params, const Class *);
-            va_list args = va_arg(params, va_list);
+            va_list args;
+            va_start(args, argc);
+            const Class *cls = va_arg(args, const Class *);
+//            va_list args = va_arg(params, va_list);
 
             if (cls == T3D_CLASS(Transform3D))
             {
@@ -118,7 +118,7 @@ namespace Tiny3D
                 component = Mesh::create();
             }
 
-            va_end(params);
+            va_end(args);
 
         } while (0);
 

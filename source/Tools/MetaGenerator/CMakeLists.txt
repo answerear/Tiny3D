@@ -29,7 +29,7 @@ include_directories(
     "${TINY3D_MATH_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${SHADERCONDUCTOR_INCLUDE_DIR}"
+    "${SDL2_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
@@ -85,10 +85,11 @@ elseif (TINY3D_OS_MACOSX)
     # Setup all link libraries frameworks for Mac OS X
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DLog
-        T3DUtils
-        T3DMath
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DMath
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         )
 
     # Setup all properties for this Mac OS X project.

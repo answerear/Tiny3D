@@ -36,7 +36,9 @@ include_directories(
     "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${SDL2_INCLUDE_DIR}"
 	"${FBXSDK_INCLUDE_DIR}"
+    "${PROTOBUF_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
 
@@ -85,6 +87,10 @@ if (TINY3D_OS_WINDOWS)
         ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
         )
 elseif (TINY3D_OS_MACOSX)
+    find_package(LibXml2 REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(ICONV MODULE REQUIRED)
+
     # Setup executable project for iOS or Mac OS X.
     add_executable(
         ${BIN_NAME} MACOSX_BUNDLE
@@ -94,10 +100,17 @@ elseif (TINY3D_OS_MACOSX)
     # Setup all link libraries frameworks for Mac OS X
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DLog
-        T3DUtils
-        T3DMath
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DFramework
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
+        LINK_PRIVATE ${FBXSDK_LIBRARY}
+        LINK_PRIVATE ${Iconv_LIBRARIES}
+        LINK_PRIVATE ${ZLIB_LIBRARIES}
+        LINK_PRIVATE ${LIBXML2_LIBRARY}
         )
 
     # Setup all properties for this Mac OS X project.
@@ -136,6 +149,10 @@ elseif (TINY3D_OS_MACOSX)
 #       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../../Assets/Icon ${ASSETS_DIR}/Icon
 #       )
 elseif (TINY3D_OS_LINUX)
+    find_package(LibXml2 REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(ICONV MODULE REQUIRED)
+
     # Setup executable project for Linux.
     add_executable(
         ${BIN_NAME}
@@ -148,6 +165,9 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DUtils
         T3DMath
+        ${Iconv_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        ${LIBXML2_LIBRARY}
         )
 
     # Setup install files and path for Windows.
