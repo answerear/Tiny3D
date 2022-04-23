@@ -1,6 +1,6 @@
 echo -- Combining libfreeimage.a ...
 currentpath=$(pwd)
-cd ../../../dependencies/FreeImage/prebuilt/iOS/
+cd ../../dependencies/FreeImage/prebuilt/iOS/
 lipo -create libfreeimage-arm64.a libfreeimage-armv7.a libfreeimage-armv7s.a libfreeimage-i386.a libfreeimage-x86_64.a -o libfreeimage.a
 cd $currentpath
 echo -- Combining libfreeimage.a - done
