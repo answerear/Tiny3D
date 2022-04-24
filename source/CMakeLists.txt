@@ -83,12 +83,13 @@ elseif (APPLE AND IOS)
     set(SDL2LIB_SUFFIXES "prebuilt/iOS")
     set(PROTOBUF_SUFFIXES "prebuilt/iOS")
 
-    set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wno-undefined-var-template")
     
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-    set(CMAKE_HAVE_THREADS_LIBRARY 1)
-    set(CMAKE_USE_WIN32_THREADS_INIT 0)
-    set(CMAKE_USE_PTHREADS_INIT 1)
+    #set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    #set(CMAKE_USE_WIN32_THREADS_INIT 0)
+    #set(CMAKE_USE_PTHREADS_INIT 1)
+    
 elseif (APPLE AND NOT IOS)
     # Mac OS X
     message(STATUS "Platform : Mac OS X")
@@ -210,6 +211,8 @@ add_subdirectory(protobuf)
 
 
 # Setup project folder
+set(protobuf_VERBOSE TRUE)
+#set(protobuf_HAVE_BUILTIN_ATOMICS TRUE)
 if (protobuf_BUILD_LITE_LIBRARIES)
     set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
     set (PROTOBUF_LIBRARY libprotobuf-lite)

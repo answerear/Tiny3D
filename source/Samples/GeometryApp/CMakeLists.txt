@@ -117,7 +117,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"                         # Bundle ID for this app.
             XCODE_ATTRIBUTE_SDKROOT "iphoneos"                                      # SDK root for this app.
             XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"                        # Minimum deployment target for this app.
-            XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"                           # Development team id for this app.
+            #XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"                           # Development team id for this app.
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"                   # Code sign identity for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
@@ -136,16 +136,9 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../../assets/config/iOS/Tiny3D.cfg" "${APPS}"
-            COMMAND cp "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*.dylib" "${APPS}"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DPlatform.dylib" "@rpath/libT3DPlatform.dylib" "${APPS}/${BIN_NAME}"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DLog.dylib" "@rpath/libT3DLog.dylib" "${APPS}/${BIN_NAME}"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DMath.dylib" "@rpath/libT3DMath.dylib" "${APPS}/${BIN_NAME}"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DFramework.dylib" "@rpath/libT3DFramework.dylib" "${APPS}/${BIN_NAME}"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DCore.dylib" "@rpath/libT3DCore.dylib" "${APPS}/${BIN_NAME}"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DPlatform.dylib" "@rpath/libT3DPlatform.dylib" "${APPS}/libT3DCore.dylib"
-#            COMMAND install_name_tool -change "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/libT3DLog.dylib" "@rpath/libT3DLog.dylib" "${APPS}/libT3DCore.dylib"
-            COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/iOS/Tiny3D.cfg" "${APPS}"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}"
+            #COMMAND codesign --force --verbose --sign "iPhone Developer" "${APPS}/*.dylib"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
             )

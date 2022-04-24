@@ -118,7 +118,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"                         # Bundle ID for this app.
             XCODE_ATTRIBUTE_SDKROOT "iphoneos"                                      # SDK root for this app.
             XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "9.0"                        # Minimum deployment target for this app.
-            XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"                           # Development team id for this app.
+            #XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "F2KJRUV5HC"                           # Development team id for this app.
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"                   # Code sign identity for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.

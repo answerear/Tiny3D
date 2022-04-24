@@ -244,13 +244,15 @@ elseif (TINY3D_OS_LINUX)
 elseif (TINY3D_OS_IOS)
     # iOS
     set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath")
-
+        
     set_target_properties (${LIB_NAME} PROPERTIES
         BUILD_WITH_INSTALL_RPATH 1
         MACOSX_RPATH 1
         INSTALL_NAME_DIR "@rpath"
         )
 
+    set(CMAKE_XCODE_ATTRIBUTE_SYSTEM_HEADER_SEARCH_PATHS "")
+    
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
@@ -258,6 +260,7 @@ elseif (TINY3D_OS_IOS)
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         )
 elseif (TINY3D_OS_ANDROID)
     # Android
