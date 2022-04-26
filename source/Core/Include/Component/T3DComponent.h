@@ -33,11 +33,10 @@ namespace Tiny3D
      * @class   Component
      * @brief   组件类
      */
-    class T3D_ENGINE_API Component : public Object
+    class T3D_ENGINE_API Component : public Object, public Noncopyable
     {
         friend class SceneNode;
 
-        T3D_DISABLE_COPY(Component);
         T3D_DECLARE_CLASS();
 
     public:

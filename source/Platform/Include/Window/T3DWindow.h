@@ -32,9 +32,8 @@ namespace Tiny3D
 {
     class IWindow;
 
-    class T3D_PLATFORM_API Window
+    class T3D_PLATFORM_API Window : public Noncopyable
     {
-        T3D_DISABLE_COPY(Window);
         T3D_DECLARE_CLASS();
 
     public:

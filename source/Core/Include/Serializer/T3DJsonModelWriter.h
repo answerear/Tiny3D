@@ -26,10 +26,9 @@
 
 namespace Tiny3D
 {
-    class JsonModelWriter : public ModelWriter
+    class JsonModelWriter : public ModelWriter, public Noncopyable
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(JsonModelWriter);
 
     public:
         static JsonModelWriterPtr create();

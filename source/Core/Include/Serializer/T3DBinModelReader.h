@@ -26,10 +26,9 @@
 
 namespace Tiny3D
 {
-    class BinModelReader : public ModelReader
+    class BinModelReader : public ModelReader, public Noncopyable
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(BinModelReader);
 
     public:
         static BinModelReaderPtr create();

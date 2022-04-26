@@ -23,6 +23,7 @@
 
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DNoncopyable.h"
 #include <vector>
 
 
@@ -37,10 +38,8 @@
 namespace Tiny3D
 {
     template <typename T>
-    class Singleton
+    class Singleton : public Noncopyable
     {
-        T3D_DISABLE_COPY(Singleton);
-
     public:
         typedef T  value_type;
         typedef T* pointer;

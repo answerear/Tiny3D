@@ -31,11 +31,10 @@ namespace Tiny3D
      * @class   SceneNode
      * @brief   Scene Graph 中的结点基类
      */
-    class T3D_ENGINE_API SceneNode : public Node
+    class T3D_ENGINE_API SceneNode : public Node, public Noncopyable
     {
         friend class DefaultSceneMgr;
 
-        T3D_DISABLE_COPY(SceneNode);
         T3D_DECLARE_CLASS();
 
     public:

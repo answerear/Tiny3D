@@ -33,8 +33,6 @@ namespace Tiny3D
         : public Singleton<Logger>
         , public ITimerListener
     {
-        T3D_DISABLE_COPY(Logger);
-
     public:
         enum Level
         {

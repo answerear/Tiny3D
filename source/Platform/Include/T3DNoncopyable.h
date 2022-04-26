@@ -1,4 +1,4 @@
-﻿/***************************************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -15,28 +15,27 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **************************************************************************************************/
+ ******************************************************************************/
 
-#ifndef __T3D_WIN32_CONSOLE_H__
-#define __T3D_WIN32_CONSOLE_H__
+#ifndef __T3D_NONCOPYABLE_H__
+#define __T3D_NONCOPYABLE_H__
 
 
-#include "Adapter/T3DConsoleInterface.h"
+#include "T3DPlatformPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class Win32Console : public IConsole, public Noncopyable
+    class T3D_PLATFORM_API Noncopyable
     {
-        T3D_DECLARE_CLASS();
-
-    public:
-        Win32Console();
-
     protected:
-        virtual void print(const char *pText);
+        Noncopyable() = default;
+        virtual ~Noncopyable() = default;
+
+    private:
+        Noncopyable(const Noncopyable&) = delete;
+        Noncopyable& operator =(const Noncopyable&) = delete;
     };
 }
 
-
-#endif  /*__T3D_WIN32_CONSOLE_H__*/
+#endif  /*__T3D_NONCOPYABLE_H__*/

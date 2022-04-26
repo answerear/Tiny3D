@@ -27,6 +27,7 @@
 #include <T3DPlatformErrorDef.h>
 #include <T3DClass.h>
 #include <T3DSystem.h>
+#include <T3DNoncopyable.h>
 #include <Application/T3DApplication.h>
 #include <Window/T3DWindow.h>
 #include <Time/T3DTimerManager.h>

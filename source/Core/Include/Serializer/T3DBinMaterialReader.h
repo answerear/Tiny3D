@@ -35,10 +35,9 @@ namespace Tiny3D
      * @class   BinMaterialReader
      * @brief   A bin material reader.
      */
-    class BinMaterialReader : public MaterialReader
+    class BinMaterialReader : public MaterialReader, public Noncopyable
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(BinMaterialReader);
 
     public:
         /**

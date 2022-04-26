@@ -26,9 +26,8 @@
 
 namespace Tiny3D
 {
-    class Win32DeviceInfo : public IDeviceInfo
+    class Win32DeviceInfo : public IDeviceInfo, public Noncopyable
     {
-        T3D_DISABLE_COPY(Win32DeviceInfo);
         T3D_DECLARE_CLASS();
 
     public:

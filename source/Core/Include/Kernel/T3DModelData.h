@@ -33,10 +33,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    class T3D_ENGINE_API NodeData : public Object
+    class T3D_ENGINE_API NodeData : public Object, public Noncopyable
     {
-        T3D_DISABLE_COPY(NodeData);
-
     public:
         static NodeDataPtr create(const String &name);
 
@@ -54,10 +52,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    class T3D_ENGINE_API KeyFrameData : public Object
+    class T3D_ENGINE_API KeyFrameData : public Object, public Noncopyable
     {
-        T3D_DISABLE_COPY(KeyFrameData);
-
     public:
         enum class Type : uint32_t
         {
@@ -79,8 +75,6 @@ namespace Tiny3D
 
     class T3D_ENGINE_API KeyFrameDataT : public KeyFrameData
     {
-        T3D_DISABLE_COPY(KeyFrameDataT);
-
     public:
         static KeyFrameDataTPtr create(int64_t timestamp, 
             const Vector3 &translation);
@@ -95,8 +89,6 @@ namespace Tiny3D
 
     class T3D_ENGINE_API KeyFrameDataR : public KeyFrameData
     {
-        T3D_DISABLE_COPY(KeyFrameDataR);
-
     public:
         static KeyFrameDataRPtr create(int64_t timestamp, 
             const Quaternion &orientation);
@@ -111,8 +103,6 @@ namespace Tiny3D
 
     class T3D_ENGINE_API KeyFrameDataS : public KeyFrameData
     {
-        T3D_DISABLE_COPY(KeyFrameDataS);
-
     public:
         static KeyFrameDataSPtr create(int64_t timestamp, 
             const Vector3 &scaling);
@@ -125,10 +115,8 @@ namespace Tiny3D
         KeyFrameDataS(int64_t timestamp, const Vector3 &scaling);
     };
 
-    class T3D_ENGINE_API ActionData : public Object
+    class T3D_ENGINE_API ActionData : public Object, public Noncopyable
     {
-        T3D_DISABLE_COPY(ActionData);
-
     public:
         static ActionDataPtr create(const String &name, int32_t duration);
 
@@ -153,10 +141,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    class T3D_ENGINE_API SubMeshData : public Object
+    class T3D_ENGINE_API SubMeshData : public Object, public Noncopyable
     {
-        T3D_DISABLE_COPY(SubMeshData);
-
     public:
         typedef TArray<uint8_t>         Indices;
         typedef Indices::iterator       IndicesItr;
@@ -179,10 +165,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    class T3D_ENGINE_API VertexData : public Object
+    class T3D_ENGINE_API VertexData : public Object, public Noncopyable
     {
-        T3D_DISABLE_COPY(VertexData);
-
     public:
         typedef TList<VertexAttribute>      Attributes;
         typedef Attributes::iterator        AttributesItr;
@@ -203,10 +187,8 @@ namespace Tiny3D
         VertexData(const String &name);
     };
 
-    class T3D_ENGINE_API MeshData : public Object
+    class T3D_ENGINE_API MeshData : public Object, public Noncopyable
     {
-        T3D_DISABLE_COPY(MeshData);
-
     public:
         typedef TList<VertexDataPtr>            VertexBuffers;
         typedef VertexBuffers::iterator         VertexBuffersItr;

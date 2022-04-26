@@ -27,9 +27,8 @@
 
 namespace Tiny3D
 {
-    class Win32Dir : public IDir
+    class Win32Dir : public IDir, public Noncopyable
     {
-        T3D_DISABLE_COPY(Win32Dir);
         T3D_DECLARE_CLASS();
 
     public:

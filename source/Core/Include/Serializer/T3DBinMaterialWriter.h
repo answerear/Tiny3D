@@ -26,10 +26,9 @@
 
 namespace Tiny3D
 {
-    class BinMaterialWriter : public MaterialWriter
+    class BinMaterialWriter : public MaterialWriter, public Noncopyable
     {
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(BinMaterialWriter);
 
     public:
         static BinMaterialWriterPtr create();

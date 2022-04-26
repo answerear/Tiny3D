@@ -25,15 +25,15 @@
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
 #include "T3DClass.h"
+#include "T3DNoncopyable.h"
 
 
 namespace Tiny3D
 {
     class IDir;
 
-    class T3D_PLATFORM_API Dir
+    class T3D_PLATFORM_API Dir : public Noncopyable
     {
-        T3D_DISABLE_COPY(Dir);
         T3D_DECLARE_CLASS();
 
     public:

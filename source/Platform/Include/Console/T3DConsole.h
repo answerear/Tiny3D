@@ -32,7 +32,6 @@ namespace Tiny3D
 
     class T3D_PLATFORM_API Console : public Singleton<Console>
     {
-        T3D_DISABLE_COPY(Console);
         T3D_DECLARE_CLASS();
 
     public:

@@ -37,8 +37,6 @@ namespace Tiny3D
      */
     class T3D_PLATFORM_API System : public Singleton<System>
     {
-        T3D_DISABLE_COPY(System);
-
         T3D_DECLARE_CLASS();
 
     public:

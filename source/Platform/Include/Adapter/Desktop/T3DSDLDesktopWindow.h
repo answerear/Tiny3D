@@ -27,9 +27,8 @@
 
 namespace Tiny3D
 {
-    class SDLDesktopWindow : public IWindow
+    class SDLDesktopWindow : public IWindow, public Noncopyable
     {
-        T3D_DISABLE_COPY(SDLDesktopWindow);
         T3D_DECLARE_CLASS();
 
     public:

@@ -92,10 +92,10 @@
     public:     \
         virtual ~T()    {}
 
-#define T3D_DISABLE_COPY(T) \
-    private:    \
-        T(const T &);   \
-        T &operator =(const T &);
+//#define T3D_DISABLE_COPY(T) \
+//    private:    \
+//        T(const T &);   \
+//        T &operator =(const T &);
 
 #define T3D_SAFE_DELETE(p)  \
     if (p != nullptr)   \

@@ -26,7 +26,7 @@
 
 namespace Tiny3D
 {
-    class JsonMaterialReader : public MaterialReader
+    class JsonMaterialReader : public MaterialReader, public Noncopyable
     {
         enum 
         {
@@ -34,7 +34,6 @@ namespace Tiny3D
         };
 
         T3D_DECLARE_CLASS();
-        T3D_DISABLE_COPY(JsonMaterialReader);
 
     public:
         static JsonMaterialReaderPtr create(const BuiltinConstantMap& definitions);
