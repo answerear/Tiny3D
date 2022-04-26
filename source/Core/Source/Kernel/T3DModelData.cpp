@@ -18,7 +18,6 @@
  ******************************************************************************/
 
 #include "Kernel/T3DModelData.h"
-#include "Memory/T3DSmartPtr.h"
 
 
 namespace Tiny3D

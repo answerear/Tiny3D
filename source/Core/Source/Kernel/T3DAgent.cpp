@@ -44,8 +44,6 @@
 #include "Resource/T3DGPUConstBuffer.h"
 #include "Resource/T3DGPUConstBufferManager.h"
 
-#include "Memory/T3DObjectTracer.h"
-
 #include "Render/T3DRenderContext.h"
 
 #include "Scene/T3DSceneManager.h"

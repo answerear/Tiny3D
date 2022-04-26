@@ -24,7 +24,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "T3DObject.h"
 #include "Resource/T3DTexture.h"
 #include "Kernel/T3DCommon.h"
 #include "Kernel/T3DBlendMode.h"

@@ -18,8 +18,6 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DObject.h"
-#include "Memory/T3DSmartPtr.h"
 #include "Resource/T3DGPUProgramCreator.h"
 
 

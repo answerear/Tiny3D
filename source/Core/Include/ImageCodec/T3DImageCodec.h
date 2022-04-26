@@ -23,7 +23,6 @@
 
 
 #include "ImageCodec/T3DImageCodecBase.h"
-#include "Kernel/T3DObject.h"
 
 
 namespace Tiny3D

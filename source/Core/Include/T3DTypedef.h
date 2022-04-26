@@ -21,8 +21,9 @@
 #ifndef __T3D_TYPEDEF_H__
 #define __T3D_TYPEDEF_H__
 
-#include "Kernel/T3DObject.h"
-#include "Memory/T3DSmartPtr.h"
+
+#include "T3DPrerequisites.h"
+
 
 namespace Tiny3D
 {

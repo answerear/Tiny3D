@@ -20,7 +20,6 @@
 
 #include "Component/T3DComponent.h"
 #include "Scene/T3DSceneNode.h"
-#include "Memory/T3DSmartPtr.h"
 
 
 namespace Tiny3D

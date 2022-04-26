@@ -22,6 +22,9 @@
 
 
 #include <T3DClass.h>
+#include <T3DObject.h>
+#include <T3DSmartPtr.h>
+#include <T3DObjectTracer.h>
 
 
 #endif  /*__T3D_SYSTEM_LIB_H__*/

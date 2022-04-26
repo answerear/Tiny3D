@@ -22,9 +22,9 @@
 #define __T3D_SMART_PTR_H__
 
 
-#include "T3DPrerequisites.h"
+#include "T3DSystemPrerequisites.h"
 #include <type_traits>
-#include "Kernel/T3DObject.h"
+#include "T3DObject.h"
 
 
 #if defined (T3D_OS_WINDOWS)

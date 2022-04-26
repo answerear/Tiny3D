@@ -32,7 +32,6 @@
 #include <Kernel/T3DAgent.h>
 #include <Kernel/T3DConfigFile.h>
 #include <Kernel/T3DCreator.h>
-#include <Kernel/T3DObject.h>
 #include <Kernel/T3DPlugin.h>
 #include <Kernel/T3DNode.h>
 #include <Kernel/T3DBlendMode.h>
@@ -41,9 +40,6 @@
 #include <Kernel/T3DTextureUnit.h>
 #include <Kernel/T3DSampler.h>
 
-// Memory
-#include <Memory/T3DSmartPtr.h>
-#include <Memory/T3DObjectTracer.h>
 
 // Resource
 #include <Resource/T3DArchive.h>

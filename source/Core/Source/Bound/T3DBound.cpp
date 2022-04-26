@@ -18,7 +18,6 @@
  ******************************************************************************/
 
 
-#include "Memory/T3DSmartPtr.h"
 #include "Bound/T3DBound.h"
 #include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"

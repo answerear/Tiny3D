@@ -24,7 +24,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Memory/T3DSmartPtr.h"
 #include "Component/T3DComponent.h"
 #include "Component/T3DTransform3D.h"
 

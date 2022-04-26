@@ -24,7 +24,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Kernel/T3DObject.h"
 #include "Render/T3DRenderContext.h"
 #include "Render/T3DHardwareVertexBuffer.h"
 

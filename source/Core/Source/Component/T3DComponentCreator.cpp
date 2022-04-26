@@ -18,8 +18,6 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DObject.h"
-#include "Memory/T3DSmartPtr.h"
 #include "Component/T3DComponentCreator.h"
 #include "T3DErrorDef.h"
 #include "Component/T3DTransform3D.h"

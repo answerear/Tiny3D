@@ -22,7 +22,8 @@
 #define __T3D_OBJECT_H__
 
 
-#include "T3DPrerequisites.h"
+#include "T3DSystemPrerequisites.h"
+#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -31,7 +32,7 @@ namespace Tiny3D
      * @class   Object
      * @brief   引擎所有对象基类
      */
-    class T3D_ENGINE_API Object
+    class T3D_SYSTEM_API Object
     {
         T3D_DECLARE_CLASS();
 

@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Kernel/T3DObject.h"
-#include "Memory/T3DObjectTracer.h"
+#include "T3DObject.h"
+#include "T3DObjectTracer.h"
 
 
 namespace Tiny3D
