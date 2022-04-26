@@ -24,7 +24,6 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -34,7 +33,6 @@ namespace Tiny3D
     class ITimerService
     {
         T3D_DECLARE_INTERFACE(ITimerService);
-        T3D_DECLARE_CLASS();
 
     public:
         static const ID INVALID_TIMER_ID;   /**< 无效定时器ID */

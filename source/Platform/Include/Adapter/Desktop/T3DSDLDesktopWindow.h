@@ -22,6 +22,7 @@
 
 
 #include "Adapter/T3DWindowInterface.h"
+#include "T3DNoncopyable.h"
 #include <SDL.h>
 
 
@@ -29,8 +30,6 @@ namespace Tiny3D
 {
     class SDLDesktopWindow : public IWindow, public Noncopyable
     {
-        T3D_DECLARE_CLASS();
-
     public:
         SDLDesktopWindow();
 

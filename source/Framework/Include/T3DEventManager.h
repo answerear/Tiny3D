@@ -31,8 +31,6 @@ namespace Tiny3D
     {
         friend class EventHandler;
 
-        T3D_DECLARE_CLASS();
-
         /** 事件项 */
         struct EventItem
         {

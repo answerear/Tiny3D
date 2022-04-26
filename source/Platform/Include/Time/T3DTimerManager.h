@@ -24,7 +24,6 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
 #include "T3DPlatformErrorDef.h"
-#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -35,8 +34,6 @@ namespace Tiny3D
     class T3D_PLATFORM_API TimerManager : public Singleton<TimerManager>
     {
         friend class System;
-
-        T3D_DECLARE_CLASS();
 
     private:
         /**

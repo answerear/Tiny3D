@@ -29,12 +29,4 @@
 
 namespace Tiny3D
 {
-    T3D_IMPLEMENT_CLASS_0(IApplication);
-    T3D_IMPLEMENT_CLASS_0(IConsole);
-    T3D_IMPLEMENT_CLASS_0(IDeviceInfo);
-    T3D_IMPLEMENT_CLASS_0(IDir);
-    T3D_IMPLEMENT_CLASS_0(IFactory);
-    T3D_IMPLEMENT_CLASS_0(ITime);
-    T3D_IMPLEMENT_CLASS_0(ITimerService);
-    T3D_IMPLEMENT_CLASS_0(IWindow);
 }

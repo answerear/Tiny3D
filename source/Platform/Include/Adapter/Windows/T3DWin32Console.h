@@ -22,14 +22,13 @@
 
 
 #include "Adapter/T3DConsoleInterface.h"
+#include "T3DNoncopyable.h"
 
 
 namespace Tiny3D
 {
     class Win32Console : public IConsole, public Noncopyable
     {
-        T3D_DECLARE_CLASS();
-
     public:
         Win32Console();
 

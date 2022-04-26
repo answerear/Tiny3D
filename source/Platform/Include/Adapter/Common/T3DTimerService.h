@@ -29,8 +29,6 @@ namespace Tiny3D
 {
     class TimerService : public ITimerService
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /** 构造函数 */
         TimerService();

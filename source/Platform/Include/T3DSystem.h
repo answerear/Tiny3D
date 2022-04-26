@@ -23,7 +23,6 @@
 
 #include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
-#include "T3DClass.h"
 
 
 namespace Tiny3D
@@ -37,8 +36,6 @@ namespace Tiny3D
      */
     class T3D_PLATFORM_API System : public Singleton<System>
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief Constructor for System.

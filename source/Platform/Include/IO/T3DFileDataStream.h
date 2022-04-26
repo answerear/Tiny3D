@@ -33,10 +33,8 @@ namespace Tiny3D
      * @brief 文件流类.
      * @note 该类提供文件流读写操作.
      */
-    class T3D_PLATFORM_API FileDataStream : public DataStream, public Noncopyable
+    class T3D_PLATFORM_API FileDataStream : public DataStream
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 文件流打开模式

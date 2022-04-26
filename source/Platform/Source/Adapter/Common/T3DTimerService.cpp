@@ -29,8 +29,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(TimerService, ITimerService);
-
     const ID ITimerService::INVALID_TIMER_ID = T3D_INVALID_ID;
 
     //--------------------------------------------------------------------------
@@ -88,7 +86,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult TimerService::stopTimer(uint32_t timerID)
+    TResult TimerService::stopTimer(ID timerID)
     {
         TResult ret = T3D_OK;
 

@@ -34,10 +34,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Win32Dir, IDir);
-
-    //--------------------------------------------------------------------------
-
     Win32Dir::Win32Dir()
         : m_hFindFile(INVALID_HANDLE_VALUE)
         , m_bExtractName(false)

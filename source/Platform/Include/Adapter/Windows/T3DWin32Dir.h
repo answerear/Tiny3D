@@ -22,6 +22,7 @@
 
 
 #include "Adapter/T3DDirInterface.h"
+#include "T3DNoncopyable.h"
 #include <windows.h>
 
 
@@ -29,8 +30,6 @@ namespace Tiny3D
 {
     class Win32Dir : public IDir, public Noncopyable
     {
-        T3D_DECLARE_CLASS();
-
     public:
         Win32Dir();
         virtual ~Win32Dir();
