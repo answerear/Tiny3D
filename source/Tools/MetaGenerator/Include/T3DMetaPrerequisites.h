@@ -21,7 +21,7 @@
 #define __T3D_META_PREREQUISITES_H__
 
 
-#include <T3DPlatform.h>
+#include <T3DPlatformLib.h>
 #include <T3DLog.h>
 #include <T3DUtils.h>
 #include <T3DMathLib.h>

@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
-    System *system = new System();
-    system->init();
+    Platform *platform = new Platform();
+    platform->init();
 
     Logger *logger = new Logger();
     logger->startup(1001, "MeshConverter", true, false);
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     logger->shutdown();
 
     delete logger;
-    delete system;
+    delete platform;
 
     return ret;
 }

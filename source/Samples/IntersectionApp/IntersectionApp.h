@@ -20,7 +20,7 @@
 #ifndef __INTERSECTION_APP_H__
 #define __INTERSECTION_APP_H__
 
-#include <T3DPlatform.h>
+#include <T3DPlatformLib.h>
 #include <T3DMathLib.h>
 
 

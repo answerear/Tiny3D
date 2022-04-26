@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Time/T3DTimerManager.h"
 #include "IO/T3DDir.h"
@@ -30,11 +30,11 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(System);
+    T3D_INIT_SINGLETON(Platform);
 
     //--------------------------------------------------------------------------
 
-    System::System()
+    Platform::Platform()
         : mPlatformFactory(nullptr)
         , mConsole(nullptr)
         , mDeviceInfo(nullptr)
@@ -48,7 +48,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    System::~System()
+    Platform::~Platform()
     {
         T3D_SAFE_DELETE(mTimerMgr);
         T3D_SAFE_DELETE(mDeviceInfo);
@@ -58,7 +58,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    int32_t System::init()
+    int32_t Platform::init()
     {
         int32_t ret = T3D_OK;
 
@@ -82,7 +82,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void System::poll()
+    void Platform::poll()
     {
         mTimerMgr->pollEvents();
     }

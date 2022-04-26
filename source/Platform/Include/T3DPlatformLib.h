@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -17,30 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __TRANSFORMATION_APP_H__
-#define __TRANSFORMATION_APP_H__
 
-#include <T3DPlatformLib.h>
-#include <T3DMathLib.h>
+#ifndef __T3D_PLATFORM_LIB_H__
+#define __T3D_PLATFORM_LIB_H__
 
+#include <T3DType.h>
+#include <T3DMacro.h>
+#include <T3DCommonErrorDef.h>
+#include <T3DPlatformErrorDef.h>
+#include <T3DClass.h>
+#include <T3DPlatform.h>
+#include <T3DNoncopyable.h>
+#include <Application/T3DApplication.h>
+#include <Window/T3DWindow.h>
+#include <Time/T3DTimerManager.h>
+#include <Time/T3DDateTime.h>
+#include <Time/T3DTimerListener.h>
+#include <IO/T3DDataStream.h>
+#include <IO/T3DFileDataStream.h>
+#include <IO/T3DMemoryDataStream.h>
+#include <IO/T3DDir.h>
+#include <Console/T3DConsole.h>
+#include <Device/T3DDeviceInfo.h>
 
-class TransformationApp : public Tiny3D::Application
-{
-public:
-    TransformationApp();
-    virtual ~TransformationApp();
-
-protected:  // from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
-
-    virtual void applicationDidEnterBackground() override;
-
-    virtual void applicationWillEnterForeground() override;
-
-    virtual void applicationWillTerminate() override;
-
-    virtual void applicationLowMemory() override;
-};
-
-
-#endif  /*__TRANSFORMATION_APP_H__*/
+#endif  /*__T3D_PLATFORM_LIB_H__*/

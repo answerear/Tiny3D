@@ -21,7 +21,7 @@
 #include "T3DTimerManager.h"
 #include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/T3DFactoryInterface.h"
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 
 
 namespace Tiny3D

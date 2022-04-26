@@ -20,7 +20,7 @@
 #include "Device/T3DDeviceInfo.h"
 #include "Adapter/T3DDeviceInfoInterface.h"
 #include "Adapter/T3DFactoryInterface.h"
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 
 #include <sstream>
 

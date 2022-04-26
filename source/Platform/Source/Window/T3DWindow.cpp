@@ -20,7 +20,7 @@
 #include "T3DWindow.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DWindowInterface.h"
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 #include "T3DPlatformErrorDef.h"
 #include <stdarg.h>
 #include <SDL.h>

@@ -20,7 +20,7 @@
 #include "T3DDateTime.h"
 #include <time.h>
 #include "Adapter/T3DTimeInterface.h"
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 #include "Adapter/T3DFactoryInterface.h"
 
 

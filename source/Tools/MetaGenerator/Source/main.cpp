@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
-    System *system = new System();
+    Platform* platform = new Platform();
     Logger *logger = new Logger();
     T3D_LOG_STARTUP(1000, "MetaGenerator", true, true);
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
     T3D_LOG_SHUTDOWN();
     delete logger;
-    delete system;
+    delete platform;
 
     return ret;
 }

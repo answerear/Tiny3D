@@ -28,7 +28,7 @@
 
 namespace Tiny3D
 {
-    class System;
+    class Platform;
     class IApplication;
 
     class T3D_PLATFORM_API Application : public Singleton<Application>
@@ -74,7 +74,7 @@ namespace Tiny3D
         virtual void applicationLowMemory() = 0;
 
     private:
-        System          *mSystem;       /// 具体平台系统对象
+        Platform        *mPlatform;     /// 具体平台系统对象
         IApplication    *mApp;          /// 具体平台应用程序对象
     };
 

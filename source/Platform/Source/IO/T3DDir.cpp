@@ -20,7 +20,7 @@
 #include "IO/T3DDir.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DDirInterface.h"
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 #include "T3DType.h"
 
 

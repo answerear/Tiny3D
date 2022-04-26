@@ -28,7 +28,7 @@
 #endif
 
 
-#include <T3DPlatform.h>
+#include <T3DPlatformLib.h>
 
 
 

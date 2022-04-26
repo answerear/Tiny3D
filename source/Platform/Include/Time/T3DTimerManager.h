@@ -33,7 +33,7 @@ namespace Tiny3D
 
     class T3D_PLATFORM_API TimerManager : public Singleton<TimerManager>
     {
-        friend class System;
+        friend class Platform;
 
     private:
         /**

@@ -31,7 +31,7 @@
 #endif
 
 
-#include <T3DPlatform.h>
+#include <T3DPlatformLib.h>
 #include <T3DUtils.h>
 
 

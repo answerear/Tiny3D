@@ -20,7 +20,7 @@
 #include "Console/T3DConsole.h"
 #include "Adapter/T3DConsoleInterface.h"
 #include "Adapter/T3DFactoryInterface.h"
-#include "T3DSystem.h"
+#include "T3DPlatform.h"
 #include <stdarg.h>
 
 namespace Tiny3D

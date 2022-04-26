@@ -17,27 +17,66 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
 #ifndef __T3D_PLATFORM_H__
 #define __T3D_PLATFORM_H__
 
-#include <T3DType.h>
-#include <T3DMacro.h>
-#include <T3DCommonErrorDef.h>
-#include <T3DPlatformErrorDef.h>
-#include <T3DClass.h>
-#include <T3DSystem.h>
-#include <T3DNoncopyable.h>
-#include <Application/T3DApplication.h>
-#include <Window/T3DWindow.h>
-#include <Time/T3DTimerManager.h>
-#include <Time/T3DDateTime.h>
-#include <Time/T3DTimerListener.h>
-#include <IO/T3DDataStream.h>
-#include <IO/T3DFileDataStream.h>
-#include <IO/T3DMemoryDataStream.h>
-#include <IO/T3DDir.h>
-#include <Console/T3DConsole.h>
-#include <Device/T3DDeviceInfo.h>
+
+#include "T3DSingleton.h"
+#include "T3DPlatformPrerequisites.h"
+
+
+namespace Tiny3D
+{
+    class IFactory;
+
+    /**
+     * @class System
+     * @brief 系统类.
+     * @note 该类对一些全局的单例创建和释放，为上层提供框架层和系统层统一接口.
+     */
+    class T3D_PLATFORM_API Platform : public Singleton<Platform>
+    {
+    public:
+        /**
+         * @brief Constructor for System.
+         */
+        Platform();
+
+        /**
+         * @brief Destructor for System.
+         */
+        ~Platform();
+
+        /**
+         * @brief 初始化系统
+         * @note 没有调用初始化之前，部分功能无法使用
+         */
+        int32_t init();
+
+        /**
+         * @brief 每个程序循环调用处理.
+         * @return void
+         */
+        void poll();
+
+        /**
+         * @brief 获取操作系统适配层工厂接口对象
+         */
+        IFactory &getPlatformFactory()
+        {
+            return (*mPlatformFactory);
+        }
+
+    private:
+        IFactory        *mPlatformFactory;
+        TimerManager    *mTimerMgr;
+        Console         *mConsole;
+        DeviceInfo      *mDeviceInfo;
+    };
+
+    #define T3D_PLATFORM              (Platform::getInstance())
+    #define T3D_PLATFORM_FACTORY    (T3D_PLATFORM.getPlatformFactory())
+}
+
 
 #endif  /*__T3D_PLATFORM_H__*/
