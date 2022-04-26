@@ -39,6 +39,7 @@ include_directories(
     "${TINY3D_MATH_SOURCE_DIR}/Include"
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
+    "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
@@ -76,6 +77,7 @@ if (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
@@ -86,6 +88,7 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
@@ -103,6 +106,7 @@ elseif (TINY3D_OS_WINDOWS)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
@@ -123,6 +127,7 @@ elseif (TINY3D_OS_MACOSX)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
@@ -133,6 +138,7 @@ elseif (TINY3D_OS_ANDROID)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath

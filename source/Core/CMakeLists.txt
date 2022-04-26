@@ -28,6 +28,7 @@ endif (MSVC)
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
+set(TINY3D_SYSTEM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../System")
 set(TINY3D_MATH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Math")
 set(TINY3D_UTILS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Utils")
 set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
@@ -38,6 +39,7 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 # Setup search header path for this project.
 include_directories(
     "${TINY3D_PLATFORM_DIR}/Include"
+    "${TINY3D_SYSTEM_DIR}/Include"
     "${TINY3D_MATH_DIR}/Include"
     "${TINY3D_LOG_DIR}/Include"
     "${TINY3D_UTILS_DIR}/Include"
@@ -114,6 +116,7 @@ if (TINY3D_OS_WINDOWS)
         target_link_libraries(
             ${LIB_NAME}
             LINK_PRIVATE T3DPlatform
+            LINK_PRIVATE T3DSystem
             LINK_PRIVATE T3DLog
             LINK_PRIVATE T3DUtils
             LINK_PRIVATE T3DFramework
@@ -128,6 +131,7 @@ if (TINY3D_OS_WINDOWS)
         target_link_libraries(
             ${LIB_NAME}
             LINK_PRIVATE T3DPlatform
+            LINK_PRIVATE T3DSystem
             LINK_PRIVATE T3DLog
             LINK_PRIVATE T3DUtils
             LINK_PRIVATE T3DFramework
@@ -204,6 +208,7 @@ elseif (TINY3D_OS_MACOSX)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
@@ -218,6 +223,7 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
@@ -256,6 +262,7 @@ elseif (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework
@@ -267,6 +274,7 @@ elseif (TINY3D_OS_ANDROID)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DFramework

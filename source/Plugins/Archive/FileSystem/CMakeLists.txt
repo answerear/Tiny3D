@@ -20,6 +20,7 @@ include_directories(
     "${TINY3D_MATH_SOURCE_DIR}/Include"
     "${TINY3D_FRAMEWORK_SOURCE_DIR}/Include"
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
+    "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
@@ -56,6 +57,7 @@ if (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DSystem
         T3DLog
 		T3DUtils
         T3DMath
@@ -65,6 +67,7 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DSystem
         T3DLog
 		T3DUtils
         T3DMath
@@ -81,6 +84,7 @@ else (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DSystem
         T3DLog
 		T3DUtils
         T3DMath

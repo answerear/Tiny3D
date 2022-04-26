@@ -22,9 +22,7 @@
 #define __T3D_CLASS_H__
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DMacro.h"
-#include "T3DNoncopyable.h"
+#include "T3DSystemPrerequisites.h"
 
 
 namespace Tiny3D
@@ -33,7 +31,7 @@ namespace Tiny3D
      * @class   Class
      * @brief   用于运行时动态类型检查机制 
      */
-    class T3D_PLATFORM_API Class : public Noncopyable
+    class T3D_SYSTEM_API Class : public Noncopyable
     {
     public:
         static const size_t MAX_BASE_CLASS_COUNT = 8;

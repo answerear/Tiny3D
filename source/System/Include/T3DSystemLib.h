@@ -17,26 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_SYSTEM_LIB_H__
+#define __T3D_SYSTEM_LIB_H__
 
-#ifndef __T3D_PLATFORM_LIB_H__
-#define __T3D_PLATFORM_LIB_H__
 
-#include <T3DType.h>
-#include <T3DMacro.h>
-#include <T3DCommonErrorDef.h>
-#include <T3DPlatformErrorDef.h>
-#include <T3DPlatform.h>
-#include <T3DNoncopyable.h>
-#include <Application/T3DApplication.h>
-#include <Window/T3DWindow.h>
-#include <Time/T3DTimerManager.h>
-#include <Time/T3DDateTime.h>
-#include <Time/T3DTimerListener.h>
-#include <IO/T3DDataStream.h>
-#include <IO/T3DFileDataStream.h>
-#include <IO/T3DMemoryDataStream.h>
-#include <IO/T3DDir.h>
-#include <Console/T3DConsole.h>
-#include <Device/T3DDeviceInfo.h>
+#include <T3DClass.h>
 
-#endif  /*__T3D_PLATFORM_LIB_H__*/
+
+#endif  /*__T3D_SYSTEM_LIB_H__*/

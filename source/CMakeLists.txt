@@ -224,6 +224,8 @@ endif (protobuf_BUILD_LITE_LIBRARIES)
 
 # Project Platform
 add_subdirectory(Platform)
+# Project System
+add_subdirectory(System)
 # Project Log
 add_subdirectory(Log)
 # Project Utils
@@ -262,7 +264,8 @@ add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DUtils T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DPlatform)
+add_dependencies(T3DSystem T3DPlatform)
+add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
@@ -279,7 +282,7 @@ if (TINY3D_BUILD_SAMPLES)
     add_dependencies(GeometryApp T3DCore)
     add_dependencies(TextureApp T3DCore)
     if (TINY3D_OS_DESKTOP)
-        add_dependencies(TransformationApp T3DMath T3DLog T3DPlatform)
-        add_dependencies(IntersectionApp T3DMath T3DLog T3DPlatform)
+        add_dependencies(TransformationApp T3DMath T3DLog T3DSystem)
+        add_dependencies(IntersectionApp T3DMath T3DLog T3DSystem)
     endif (TINY3D_OS_DESKTOP)
 endif (TINY3D_BUILD_SAMPLES)

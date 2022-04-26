@@ -29,6 +29,7 @@ find_package(FBXSDK)
 # Setup project include files path
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
+    "${TINY3D_SYSTEM_INC_DIR}"
     "${TINY3D_LOG_INC_DIR}"
     "${TINY3D_UTILS_INC_DIR}"
     "${TINY3D_MATH_INC_DIR}"
@@ -63,6 +64,7 @@ if (TINY3D_OS_WINDOWS)
 	target_link_libraries(
 		${LIB_NAME}
 		T3DPlatform
+		T3DSystem
 		T3DLog
 		T3DUtils
 		T3DMath
@@ -101,6 +103,7 @@ elseif (TINY3D_OS_MACOSX)
     target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
@@ -162,6 +165,7 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         T3DPlatform
+        T3DSystem
         T3DLog
         T3DUtils
         T3DMath
