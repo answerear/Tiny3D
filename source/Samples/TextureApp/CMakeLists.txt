@@ -23,6 +23,7 @@ include_directories(
     "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     )
 
 # Setup project header files
@@ -51,6 +52,7 @@ if (TINY3D_OS_WINDOWS)
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         )
     
     # Setup install files and path for Windows.
@@ -72,6 +74,7 @@ elseif (TINY3D_OS_ANDROID)
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         )
 
     # Setup all files (.so) for Android APK
@@ -103,6 +106,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DMath
             T3DFramework
             T3DCore
+            rttr_core
             #T3DXRenderer
             #FileSystemArchive
             #ZipArchive
@@ -156,6 +160,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DMath
             T3DFramework
             T3DCore
+            rttr_core
             )
 
         # Setup all properties for this Mac OS X project.
@@ -211,6 +216,7 @@ elseif (TINY3D_OS_LINUX)
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         )
 
     # Setup install files and path for Windows.

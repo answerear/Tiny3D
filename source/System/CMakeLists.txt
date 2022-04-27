@@ -24,6 +24,7 @@ set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 
 # Setup search header path for this project.
 include_directories(
+	"${RTTR_INCLUDE_DIR}"
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
@@ -56,6 +57,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE rttr_core
 			LINK_PRIVATE legacy_stdio_definitions
 			)
 	else ()
@@ -63,6 +65,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE rttr_core
 			)
 	endif ()
 	
@@ -94,12 +97,14 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE rttr_core
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE rttr_core
 		)
 
 	add_custom_command(TARGET ${BIN_NAME}
@@ -119,12 +124,14 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE rttr_core
         )
 elseif (TINY3D_OS_ANDROID)
 	# Android
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE rttr_core
         )
 endif (TINY3D_OS_WINDOWS)
 

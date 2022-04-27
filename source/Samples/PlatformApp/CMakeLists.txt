@@ -14,15 +14,16 @@ endif (MSVC)
 
 # Setup project include files path
 include_directories(
-	"${TINY3D_PLATFORM_INC_DIR}"
-	"${TINY3D_SYSTEM_INC_DIR}"
-	"${TINY3D_MATH_INC_DIR}"
-	"${TINY3D_LOG_INC_DIR}"
-	"${TINY3D_FRAMEWORK_INC_DIR}"
-	"${TINY3D_CORE_INC_DIR}"
-	"${TINY3D_UTILS_INC_DIR}"
-	"${CMAKE_CURRENT_SOURCE_DIR}"
+    "${TINY3D_PLATFORM_INC_DIR}"
+    "${TINY3D_SYSTEM_INC_DIR}"
+    "${TINY3D_MATH_INC_DIR}"
+    "${TINY3D_LOG_INC_DIR}"
+    "${TINY3D_FRAMEWORK_INC_DIR}"
+    "${TINY3D_CORE_INC_DIR}"
+    "${TINY3D_UTILS_INC_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     )
 
 # Setup project header files
@@ -48,10 +49,11 @@ if (TINY3D_OS_WINDOWS)
         T3DPlatform
         T3DSystem
         T3DLog
-		T3DUtils
+        T3DUtils
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         )
     
     # Setup install files and path for Windows.
@@ -69,10 +71,11 @@ elseif (TINY3D_OS_ANDROID)
         T3DPlatform
         T3DSystem
         T3DLog
-		T3DUtils
+        T3DUtils
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         )
 
     # Setup all files (.so) for Android APK
@@ -94,16 +97,17 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     if (TINY3D_OS_IOS)
         find_library(FWK_SECURITY Security)
 
-		# Setup all link libraries and frameworks for iOS.
-		target_link_libraries(
-	        ${LIB_NAME}
-	        T3DPlatform
-	        T3DSystem
-	        T3DLog
-			T3DUtils
-	        T3DMath
+        # Setup all link libraries and frameworks for iOS.
+        target_link_libraries(
+            ${LIB_NAME}
+            T3DPlatform
+            T3DSystem
+            T3DLog
+            T3DUtils
+            T3DMath
             T3DFramework
             T3DCore
+            rttr_core
             #T3DXRenderer
             #FileSystemArchive
             #ZipArchive
@@ -131,8 +135,8 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
         set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
         set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
 
-	set(ASSETS_DIR "${APPS}/assets/")
-	
+    set(ASSETS_DIR "${APPS}/assets/")
+    
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}"
@@ -149,10 +153,11 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             T3DPlatform
             T3DSystem
             T3DLog
-			T3DUtils
+            T3DUtils
             T3DMath
             T3DFramework
             T3DCore
+            rttr_core
             )
 
         # Setup all properties for this Mac OS X project.
@@ -182,8 +187,8 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
             )
 
-	set(ASSETS_DIR "${APPS}/Contents/MacOS/assets/")
-	
+    set(ASSETS_DIR "${APPS}/Contents/MacOS/assets/")
+    
         add_custom_command(TARGET ${BIN_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/Tiny3D.cfg" "${APPS}/Contents/MacOS"
@@ -205,10 +210,11 @@ elseif (TINY3D_OS_LINUX)
         T3DPlatform
         T3DSystem
         T3DLog
-		T3DUtils
+        T3DUtils
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         )
 
     # Setup install files and path for Windows.

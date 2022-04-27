@@ -24,7 +24,7 @@ include_directories(
     "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
-    "${DirectX11_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     )
 
 
@@ -50,6 +50,7 @@ target_link_libraries(
     T3DPlatform
     T3DSystem
     T3DCore
+    rttr_core
     )
 
 # Setup project folder

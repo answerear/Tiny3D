@@ -38,6 +38,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
 	"${FBXSDK_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
@@ -70,6 +71,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DMath
 		T3DFramework
 		T3DCore
+        rttr_core
 		${FBXSDK_LIBRARY}
 		${PROTOBUF_LIBRARY}
 		)
@@ -109,6 +111,7 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE ${PROTOBUF_LIBRARY}
         LINK_PRIVATE ${FBXSDK_LIBRARY}
         LINK_PRIVATE ${Iconv_LIBRARIES}
@@ -169,6 +172,8 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DUtils
         T3DMath
+        T3DCore
+        rttr_core
         ${Iconv_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${LIBXML2_LIBRARY}

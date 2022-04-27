@@ -20,6 +20,7 @@ include_directories(
 	"${TINY3D_UTILS_INC_DIR}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
+	"${RTTR_INCLUDE_DIR}"
 	)
 
 # Setup project header files

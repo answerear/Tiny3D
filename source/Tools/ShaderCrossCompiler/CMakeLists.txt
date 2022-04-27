@@ -47,6 +47,7 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     "${SHADERCONDUCTOR_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
@@ -87,6 +88,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DMath
 		T3DFramework
 		T3DCore
+        rttr_core
         ${SHADERCONDUCTOR_LIBRARY}
         #${PROTOBUF_LITE_LIBRARY_D}
         ${PROTOBUF_LIBRARY}
@@ -127,6 +129,7 @@ elseif (TINY3D_OS_MACOSX)
         T3DMath
         T3DFramework
         T3DCore
+        rttr_core
         ${PROTOBUF_LIBRARY}
         ${SHADERCONDUCTOR_LIBRARY}
         )
@@ -180,6 +183,8 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DUtils
         T3DMath
+        T3DCore
+        rttr_core
         )
 
     # Setup install files and path for Windows.

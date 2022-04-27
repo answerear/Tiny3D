@@ -48,6 +48,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     "${TINY3D_DEP_DIR}/rapidjson"
     "${PROTOBUF_INCLUDE_DIR}"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
@@ -124,6 +125,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE legacy_stdio_definitions
             LINK_PRIVATE ${SDL2_LIBRARY}
             LINK_PRIVATE ${PROTOBUF_LIBRARY}
+            LINK_PRIVATE rttr_core
             #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     else ()
@@ -138,6 +140,7 @@ if (TINY3D_OS_WINDOWS)
             LINK_PRIVATE T3DMath
             LINK_PRIVATE ${SDL2_LIBRARY}
             LINK_PRIVATE ${PROTOBUF_LIBRARY}
+            LINK_PRIVATE rttr_core
             #LINK_PRIVATE ${FREEIMAGE_LIBRARY}
             )
     endif ()
@@ -216,6 +219,7 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE ${SDL2_LIBRARY}
         LINK_PRIVATE ${SDL2_OSX_FRAMEWORKS}
         LINK_PRIVATE ${PROTOBUF_LIBRARY}
+        LINK_PRIVATE rttr_core
 #       LINK_PRIVATE z
         )
 elseif (TINY3D_OS_LINUX)
@@ -268,6 +272,7 @@ elseif (TINY3D_OS_IOS)
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${PROTOBUF_LIBRARY}
+        LINK_PRIVATE rttr_core
         )
 elseif (TINY3D_OS_ANDROID)
     # Android
@@ -281,6 +286,7 @@ elseif (TINY3D_OS_ANDROID)
         LINK_PRIVATE T3DMath
         LINK_PRIVATE ${SDL2_BINARY}
         LINK_PRIVATE ${PROTOBUF_LIBRARY}
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE log
 #       LINK_PRIVATE z
         )

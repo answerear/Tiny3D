@@ -24,6 +24,7 @@ include_directories(
     "${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     )
 
@@ -62,6 +63,7 @@ if (TINY3D_OS_IOS)
 		T3DUtils
         T3DMath
         T3DCore
+        rttr_core
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
@@ -72,6 +74,7 @@ elseif (TINY3D_OS_LINUX)
 		T3DUtils
         T3DMath
         T3DCore
+        rttr_core
         )
 
     add_custom_command(TARGET ${BIN_NAME}
@@ -89,6 +92,7 @@ else (TINY3D_OS_IOS)
 		T3DUtils
         T3DMath
         T3DCore
+        rttr_core
         )
 endif (TINY3D_OS_IOS)
 

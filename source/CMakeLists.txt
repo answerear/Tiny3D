@@ -203,11 +203,17 @@ find_package(SDL2)
 set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/rapidjson" CACHE PATH "rapidjson library path")
 find_package(rapidjson)
 
-# Third Parties
+
 # Project protobuf
 option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
-set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/protobuf/src")
-add_subdirectory(protobuf)
+set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
+
+# Project rttr
+set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
+message(STATUS "rttr include : ${RTTR_INCLUDE_DIR}")
+
+# All Third Parties Sources
+add_subdirectory(External)
 
 
 # Setup project folder
@@ -221,6 +227,8 @@ else (protobuf_BUILD_LITE_LIBRARIES)
     set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
     set (PROTOBUF_LIBRARY libprotobuf)
 endif (protobuf_BUILD_LITE_LIBRARIES)
+
+set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 
 # Project Platform
 add_subdirectory(Platform)
@@ -264,7 +272,7 @@ add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DUtils T3DLog T3DPlatform)
 add_dependencies(T3DMath T3DLog T3DPlatform)
 add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DSystem T3DPlatform)
+add_dependencies(T3DSystem rttr_core T3DPlatform)
 add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
 
 if (TINY3D_BUILD_TOOLS)

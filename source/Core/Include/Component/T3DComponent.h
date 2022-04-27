@@ -37,6 +37,7 @@ namespace Tiny3D
         friend class SceneNode;
 
         T3D_DECLARE_CLASS();
+        RTTR_ENABLE();
 
     public:
         /**
@@ -123,6 +124,13 @@ namespace Tiny3D
         ID          mID;            /**< The identifier */
         SceneNode   *mSceneNode;    /**< The scene node */
     };
+
+    RTTR_REGISTRATION
+    {
+        using namespace rttr;
+
+        registration::class_<Component>("Component");
+    }
 }
 
 

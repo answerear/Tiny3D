@@ -24,6 +24,7 @@ include_directories(
     "${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
     )
@@ -62,6 +63,7 @@ if (TINY3D_OS_WINDOWS)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE ${TINY3D_ZLIB_LIBRARY}
         )
 elseif (TINY3D_OS_LINUX)
@@ -73,6 +75,7 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE z
         )
 
@@ -99,6 +102,7 @@ elseif (TINY3D_OS_IOS)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE z
         )
 elseif (TINY3D_OS_MACOSX)
@@ -112,6 +116,7 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE z
         )
 else (TINY3D_OS_ANDROID)
@@ -123,6 +128,7 @@ else (TINY3D_OS_ANDROID)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
         LINK_PRIVATE z
         )
 endif (TINY3D_OS_WINDOWS)
