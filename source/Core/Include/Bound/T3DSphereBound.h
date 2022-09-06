@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API SphereBound : public Bound
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Bound);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -76,6 +77,8 @@ namespace Tiny3D
         void setParams(const Vector3 &center, Real radius);
 
         const Sphere &getSphere() const { return mSphere; }
+
+        const Sphere& getOriginalSphere() const { return mOriginalSphere; }
 
         /**
          * @fn  virtual RenderablePtr SphereBound::getRenderable() override;

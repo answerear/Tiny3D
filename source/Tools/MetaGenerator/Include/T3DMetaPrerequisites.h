@@ -21,10 +21,7 @@
 #define __T3D_META_PREREQUISITES_H__
 
 
-#include <T3DPlatformLib.h>
-#include <T3DLog.h>
-#include <T3DUtils.h>
-#include <T3DMathLib.h>
+#include <Tiny3D.h>
 
 
 namespace Tiny3D

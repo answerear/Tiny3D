@@ -37,8 +37,6 @@ namespace Tiny3D
         : public Singleton<TextureManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static TextureManagerPtr create();
@@ -122,8 +120,8 @@ namespace Tiny3D
         TextureManager();
 
         /**
-         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, 
-         *      va_list args) override;
+         * @fn  virtual ResourcePtr create(const String &name, Meta *meta,
+         *      int32_t argc, va_list args) override;
          * @brief   重写基类接口，实现创建纹理对象
          * @param   name    The name.
          * @param   argc    The argc.
@@ -132,8 +130,11 @@ namespace Tiny3D
          * @sa  ResourcePtr Resource::create(const String &amp;name, int32_t argc,
          *  va_list args)
          */
-        virtual ResourcePtr create(const String &name, int32_t argc,
-            va_list args) override;
+        virtual ResourcePtr create(const String &name, Meta *meta, 
+            int32_t argc, va_list args) override;
+
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
 
     protected:
         size_t  mDefaultMipMaps;    /**< 默认纹理层级 */

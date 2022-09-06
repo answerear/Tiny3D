@@ -1,0 +1,18 @@
+{
+    "RTTI_Type": "Tiny3D::Meta",
+    "RTTI_Value": {
+        "UUID": {
+            "RTTI_Type": "Tiny3D::UUID",
+            "RTTI_Value": {
+                "value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "380d4f3e6e2ce622428c80f8093550d3"
+                }
+            }
+        },
+        "Type": {
+            "RTTI_Type": "Tiny3D::Meta::FileType",
+            "RTTI_Value": "Dir"
+        }
+    }
+}

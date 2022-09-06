@@ -90,8 +90,11 @@ namespace Tiny3D
          * @sa  ResourcePtr Resource::create(const String &amp;name, 
          *      int32_t argc, va_list args)
          */
-        virtual ResourcePtr create(const String &name, int32_t argc, 
-            va_list args) override;
+        virtual ResourcePtr create(const String &name, Meta *meta,
+            int32_t argc, va_list args) override;
+
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
 
     protected:
 

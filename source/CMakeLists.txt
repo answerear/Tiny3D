@@ -200,8 +200,8 @@ find_package(SDL2)
 #find_package(protobuf)
 
 # Search rapidjson library for all projects.
-set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/rapidjson" CACHE PATH "rapidjson library path")
-find_package(rapidjson)
+#set(RAPIDJSON_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/rapidjson" CACHE PATH "rapidjson library path")
+#find_package(rapidjson)
 
 
 # Project protobuf
@@ -211,6 +211,9 @@ set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
 # Project rttr
 set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
 message(STATUS "rttr include : ${RTTR_INCLUDE_DIR}")
+
+# Project rapidjson
+set(RAPIDJSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rapidjson")
 
 # All Third Parties Sources
 add_subdirectory(External)

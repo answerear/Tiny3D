@@ -260,7 +260,7 @@ namespace Tiny3D
          * @brief   重寫 Resource::load()
          * @returns 调用成功返回 T3D_OK.
          */
-        virtual TResult load() override;
+        virtual TResult load(Meta *meta) override;
 
         /**
          * @fn  virtual TResult Material::unload() override;
@@ -274,7 +274,7 @@ namespace Tiny3D
          * @brief   重寫 Resource::clone()
          * @returns 调用成功返回一个新的材质对象.
          */
-        virtual ResourcePtr clone() const override;
+        virtual ResourcePtr clone(Meta *meta) const override;
 
         /**
          * @fn  TResult Material::compile();

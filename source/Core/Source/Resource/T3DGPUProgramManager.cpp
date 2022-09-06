@@ -32,7 +32,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(ShaderManager);
-    T3D_IMPLEMENT_CLASS_1(ShaderManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -93,8 +92,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ShaderManager::create(const String &name, int32_t argc,
-        va_list args)
+    ResourcePtr ShaderManager::create(const String &name, Meta *meta,
+        int32_t argc, va_list args)
     {
         ShaderPtr shader;
 
@@ -123,8 +122,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    MetaPtr ShaderManager::readMetaInfo(const String& name, 
+        int32_t argc, va_list args)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     T3D_INIT_SINGLETON(GPUProgramManager);
-    T3D_IMPLEMENT_CLASS_1(GPUProgramManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -174,8 +180,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr GPUProgramManager::create(const String &name, int32_t argc,
-        va_list args)
+    ResourcePtr GPUProgramManager::create(const String &name, Meta *meta,
+        int32_t argc, va_list args)
     {
         if (mCreator == nullptr)
         {
@@ -184,6 +190,14 @@ namespace Tiny3D
 
         GPUProgramPtr program = mCreator->createObject(1, name.c_str());
         return program;
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr GPUProgramManager::readMetaInfo(const String& name, 
+        int32_t argc, va_list args)
+    {
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -219,7 +233,7 @@ namespace Tiny3D
 
             // 交給腳本解析器解析
 //             ret = T3D_SCRIPT_PARSER.parse(stream);
-            ret = T3D_SERIALIZER_MGR.parseMaterial(stream, nullptr);
+            //ret = T3D_SERIALIZER_MGR.parseMaterial(stream, nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

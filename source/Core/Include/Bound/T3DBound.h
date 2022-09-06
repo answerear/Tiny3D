@@ -38,7 +38,7 @@ namespace Tiny3D
         : public Component
         , public ITransformListener
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Component);
 
     public:
         /**

@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Mesh : public Renderable
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Renderable);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -52,29 +53,12 @@ namespace Tiny3D
 
         void setModel(const String &modelName);
 
-    protected:
-        /**
-         * @fn  Mesh::Mesh(ID uID = E_CID_AUTOMATIC);
-         * @brief   Constructor
-         * @param   uID (Optional) The identifier.
-         */
-        Mesh(ID uID = E_CID_AUTOMATIC);
-
         /**
          * @fn  virtual ComponentPtr Mesh::clone() const override;
          * @brief   Makes a deep copy of this object
          * @return  A copy of this object.
          */
         virtual ComponentPtr clone() const override;
-
-        /**
-         * @fn  virtual TResult 
-         *      Mesh::cloneProperties(ComponentPtr newObj) const override;
-         * @brief   Initializes this object from the given properties
-         * @param   newObj  The new object.
-         * @return  A TResult.
-         */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         /**
          * @fn  virtual MaterialPtr Mesh::getMaterial() const override;
@@ -84,12 +68,29 @@ namespace Tiny3D
         virtual MaterialPtr getMaterial() const override;
 
         /**
-         * @fn  virtual VertexArrayObjectPtr 
+         * @fn  virtual VertexArrayObjectPtr
          *      Mesh::getVertexArrayObject() const override;
          * @brief   Gets vertex array object
          * @return  The vertex array object.
          */
         virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+
+    protected:
+        /**
+         * @fn  Mesh::Mesh(ID uID = E_CID_AUTOMATIC);
+         * @brief   Constructor
+         * @param   uID (Optional) The identifier.
+         */
+        Mesh(ID uID = E_CID_AUTOMATIC);
+
+        /**
+         * @fn  virtual TResult 
+         *      Mesh::cloneProperties(ComponentPtr newObj) const override;
+         * @brief   Initializes this object from the given properties
+         * @param   newObj  The new object.
+         * @return  A TResult.
+         */
+        virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
         TResult setupVAO();
 

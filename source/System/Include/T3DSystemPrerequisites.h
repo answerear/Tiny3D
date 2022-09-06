@@ -29,6 +29,7 @@
 
 
 #include <T3DPlatformLib.h>
-
+#include <rttr/registration>
+#include <rttr/registration_friend>
 
 #endif  /*__T3D_SYSTEM_PREREQUISITES_H__*/

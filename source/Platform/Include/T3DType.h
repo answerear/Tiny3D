@@ -79,7 +79,10 @@ typedef void*               THandle;
 
 typedef int32_t             TResult;
 
-typedef uint32_t            ID;
+namespace Tiny3D
+{
+    typedef uint32_t            ID;
+}
 
 #define T3D_INVALID_ID      0
 

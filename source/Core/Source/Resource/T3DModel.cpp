@@ -75,7 +75,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Model::load()
+    TResult Model::load(Meta *meta)
     {
         TResult ret = T3D_OK;
 
@@ -104,7 +104,7 @@ namespace Tiny3D
             }
 
             // 交给模型解析器解析出来
-            ret = T3D_SERIALIZER_MGR.parseModel(stream, this);
+            //ret = T3D_SERIALIZER_MGR.parseModel(stream, this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -132,7 +132,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr Model::clone() const
+    ResourcePtr Model::clone(Meta *meta) const
     {
         ModelPtr model = Model::create(mName);
         return model;

@@ -28,7 +28,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(ArchiveManager);
-    T3D_IMPLEMENT_CLASS_1(ArchiveManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -56,14 +55,28 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ArchivePtr ArchiveManager::loadArchive(const String &name,
-        const String &archiveType)
+        const String &archiveType, Archive::AccessMode accessMode)
     {
-        ArchivePtr archive = smart_pointer_cast<Archive>
-            (ResourceManager::load(name, 1, archiveType.c_str()));
+        ArchivePtr archive;
 
-        if (archive != nullptr)
+        Key key = { name, accessMode };
+        auto itr = mArchives.find(key);
+        if (itr != mArchives.end())
         {
-            mArchives.insert(ArchivesValue(name, archive));
+            // 已经缓存了，直接从缓存中获取
+            archive = itr->second;
+        }
+        else
+        {
+            // 没有缓存，加载吧
+            archive = smart_pointer_cast<Archive>
+                (ResourceManager::load(name, 2, archiveType.c_str(), accessMode));
+
+            // 加入缓存
+            if (archive != nullptr)
+            {
+                mArchives.insert({ key, archive });
+            }
         }
 
         return archive;
@@ -75,20 +88,8 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        // 清理加速缓存
-        auto itr = mArchivesCache.begin();
-
-        while (itr != mArchivesCache.end())
-        {
-            auto i = itr++;
-            if (itr->second->getID() == archive->getID())
-            {
-                mArchivesCache.erase(i);
-            }
-        }
-
-        // 清理普通緩存
-        mArchives.erase(archive->getName());
+        // 清理緩存
+        mArchives.erase({archive->getName(), archive->getAccessMode()});
 
         return unload(archive);
     }
@@ -99,10 +100,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        // 清理整個加速緩存
-        mArchivesCache.clear();
-
-        // 清理普通緩存
+        // 清理緩存
         mArchives.clear();
 
         return ResourceManager::unloadAllResources();
@@ -110,20 +108,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ArchiveManager::create(
-        const String &name, int32_t argc, va_list args)
+    ResourcePtr ArchiveManager::create(const String &name, Meta *meta, 
+        int32_t argc, va_list args)
     {
         ArchivePtr res;
-        if (argc == 1)
+        if (argc == 2)
         {
+            // archive type
             String archiveType = va_arg(args, char *);
+            // archive access mode
+            Archive::AccessMode accessMode = va_arg(args, Archive::AccessMode);
 
             CreatorsConstItr itr = mCreators.find(archiveType);
 
             if (itr != mCreators.end())
             {
                 ArchiveCreator *creator = itr->second;
-                res = creator->createObject(1, name.c_str());
+                res = creator->createObject(2, name.c_str(), accessMode);
             }
         }
 
@@ -157,22 +158,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ArchiveManager::getArchive(const String &name, const String &path, 
+    bool ArchiveManager::getArchive(const String &name, Archive::AccessMode mode, 
         ArchivePtr &archive)
     {
         bool found = false;
-        auto itr = mArchives.find(name);
+        auto itr = mArchives.find({name, mode});
 
         if (itr != mArchives.end())
         {
-            if (itr->second->exists(path))
-            {
-                archive = itr->second;
-                found = true;
-
-                // 放入緩存，提升下次獲取同一個文件的性能
-                mArchivesCache.insert(ArchivesValue(path, archive));
-            }
+            archive = itr->second;
+            found = true;
         }
 
         return found;
@@ -180,40 +175,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ArchiveManager::getArchive(const String &filename, ArchivePtr &archive)
+    MetaPtr ArchiveManager::readMetaInfo(const String& name, 
+        int32_t argc, va_list args)
     {
-        bool found = false;
-
-        // 從緩存中查找
-        auto i = mArchivesCache.find(filename);
-        if (i != mArchivesCache.end())
-        {
-            // 文件在緩存中存在，直接返回對應的對象
-            archive = i->second;
-            found = true;
-        }
-        else
-        {
-            // 文件緩存中不存在，到檔案系統找
-            auto itr = mArchives.begin();
-
-            while (itr != mArchives.end())
-            {
-                if (itr->second->exists(filename))
-                {
-                    archive = itr->second;
-                    found = true;
-
-                    // 放入緩存，提升下次獲取同一個文件的性能
-                    mArchivesCache.insert(ArchivesValue(filename, archive));
-                    break;
-                }
-
-                ++itr;
-            }
-        }
-
-        return found;
+        MetaPtr meta = Meta::create();
+        meta->uuid = UUID::generate();
+        return meta;
     }
 }
 

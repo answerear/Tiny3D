@@ -29,6 +29,8 @@
 
 
 #include <T3DPlatformLib.h>
+#include <rttr/registration>
+#include <rttr/registration_friend>
 
 
 namespace Tiny3D

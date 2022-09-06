@@ -25,12 +25,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Archive, Resource);
-
-    //--------------------------------------------------------------------------
-
     Archive::Archive(const String &name)
         : Resource(name)
+        , mAccessMode(AccessMode::kNone)
     {
 
     }

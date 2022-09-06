@@ -87,11 +87,11 @@ namespace Tiny3D
          */
         Model(const String &name);
 
-        virtual TResult load() override;
+        virtual TResult load(Meta *meta) override;
 
         virtual TResult unload() override;
 
-        virtual ResourcePtr clone() const override;
+        virtual ResourcePtr clone(Meta *meta) const override;
 
         TResult buildMeshData();
 

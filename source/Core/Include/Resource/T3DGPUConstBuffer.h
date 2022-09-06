@@ -220,7 +220,7 @@ namespace Tiny3D
          * @brief   重寫 Resource::load()
          * @returns 調用成功返回T3D_OK.
          */
-        virtual TResult load() override;
+        virtual TResult load(Meta *meta) override;
 
         /**
          * @fn  virtual TResult GPUConstBuffer::unload() override;
@@ -234,7 +234,7 @@ namespace Tiny3D
          * @brief   重寫 Resource::clone()
          * @returns 調用成功返回一個新資源對象.
          */
-        virtual ResourcePtr clone() const override;
+        virtual ResourcePtr clone(Meta *meta) const override;
 
     protected:
         typedef TMap<BuiltinConstantType, uint32_t> QuickSearchOffsets;

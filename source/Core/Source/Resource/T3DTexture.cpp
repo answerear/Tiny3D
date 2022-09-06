@@ -29,10 +29,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Texture, Resource);
-
-    //--------------------------------------------------------------------------
-
     TexturePtr Texture::create(const String &name, HardwareBuffer::Usage usage, 
         uint32_t access, size_t mipmaps, size_t texWidth /* = 0 */, 
         size_t texHeight /* = 0 */, TexUsage texUsage /* = E_TU_DEFAULT */, 
@@ -83,14 +79,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr Texture::clone() const
+    ResourcePtr Texture::clone(Meta *meta) const
     {
         TexturePtr texture = Texture::create(mName, mUsage, mAccessMode, 
             mMipmaps, mTexWidth, mTexHeight, mTexUsage, mTexType, mFormat);
 
         if (texture != nullptr)
         {
-            TResult ret = texture->load();
+            TResult ret = texture->load(meta);
             if (T3D_FAILED(ret))
             {
                 texture = nullptr;
@@ -102,7 +98,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Texture::load()
+    TResult Texture::load(Meta *meta)
     {
         TResult ret = T3D_OK;
 
@@ -211,7 +207,8 @@ namespace Tiny3D
     {
         if (!texture->isLoaded())
         {
-            texture->load();
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "");
+            return T3D_ERR_RES_INVALID_OBJECT;
         }
 
         return mPBO->copyTo(texture->getPixelBuffer(), dstRect, srcRect);

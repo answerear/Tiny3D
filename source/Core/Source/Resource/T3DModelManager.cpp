@@ -61,8 +61,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ModelManager::create(
-        const String &name, int32_t argc, va_list args)
+    ResourcePtr ModelManager::create(const String &name, Meta *meta,
+        int32_t argc, va_list args)
     {
         ModelPtr mesh;
 
@@ -72,6 +72,14 @@ namespace Tiny3D
         }
 
         return mesh;
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr ModelManager::readMetaInfo(const String& name, 
+        int32_t argc, va_list args)
+    {
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------

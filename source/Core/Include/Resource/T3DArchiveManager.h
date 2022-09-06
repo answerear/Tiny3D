@@ -23,6 +23,7 @@
 
 
 #include "Resource/T3DResourceManager.h"
+#include "Resource/T3DArchive.h"
 
 
 namespace Tiny3D
@@ -37,8 +38,6 @@ namespace Tiny3D
         : public Singleton<ArchiveManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static ArchiveManagerPtr create();
@@ -62,7 +61,7 @@ namespace Tiny3D
          * @return  The archive.
          */
         virtual ArchivePtr loadArchive(const String &name, 
-            const String &archiveType);
+            const String &archiveType, Archive::AccessMode accessMode);
 
         /**
          * @fn  virtual TResult unloadArchive(ArchivePtr archive);
@@ -103,24 +102,15 @@ namespace Tiny3D
         TResult removeAllArchiveCreator();
 
         /**
-         * @fn  bool getArchive(const String &name, const String &path, ArchivePtr &archive);
+         * @fn  bool getArchive(const String &name, Archive::AccessMode mode, ArchivePtr &archive);
          * @brief   根據名稱獲取檔案對象
-         * @param [in]  name    : 檔案名稱.
-         * @param [in]  path    : 相對檔案的路徑.
+         * @param [in]  name            : 檔案根路径.
+         * @param [in]  mode            : 档案访问模式.
          * @param [in]  archive archive : 返回的檔案對象.
          * @return  找到則返回 true.
          */
-        bool getArchive(const String &name, const String &path, 
+        bool getArchive(const String &name, Archive::AccessMode mode, 
             ArchivePtr &archive);
-
-        /**
-         * @fn  bool getArchive(const String &filename, ArchivePtr &archive);
-         * @brief   根據名稱獲取檔案對象
-         * @param [in]  filename    : 文件名.
-         * @param [in]  archive     archive : 返回的檔案對象.
-         * @return  找到則返回true.
-         */
-        bool getArchive(const String &filename, ArchivePtr &archive);
 
     protected:
         /**
@@ -130,29 +120,51 @@ namespace Tiny3D
         ArchiveManager();
 
         /**
-         * @fn  virtual ResourcePtr create(const String &name, int32_t argc, va_list args) override;
+         * @fn  virtual ResourcePtr create(const String &name, Meta *meta,
+         *      int32_t argc, va_list args) override;
          * @brief   重寫 Resource::create() 接口
          * @param   name    The name.
          * @param   argc    The argc.
          * @param   args    The arguments.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr create(const String &name, int32_t argc, 
-            va_list args) override;
+        virtual ResourcePtr create(const String &name, Meta *meta,
+            int32_t argc, va_list args) override;
+
+        /**
+         * @fn  virtual MetaPtr readMetaInfo(const String& name,
+         *      int32_t argc, va_list args) override;
+         * @brief   重写 Resource::readMetaInfo() 接口
+         * @param   name    The name.
+         * @return  A pointer to meta object.
+         */
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
+
+    protected:
+        struct Key
+        {
+            String              name;
+            Archive::AccessMode access;
+
+            bool operator <(const Key& other) const
+            {
+                return (name < other.name && access < other.access);
+            }
+        };
 
         typedef TMap<String, ArchiveCreator*>   Creators;
         typedef Creators::iterator              CreatorsItr;
         typedef Creators::const_iterator        CreatorsConstItr;
         typedef Creators::value_type            CreatorsValue;
 
-        typedef TMap<String, ArchivePtr>        Archives;
+        typedef TMap<Key, ArchivePtr>           Archives;
         typedef Archives::iterator              ArchivesItr;
         typedef Archives::const_iterator        ArchivesConstItr;
         typedef Archives::value_type            ArchivesValue;
 
         Creators    mCreators;      /**< 檔案創建器 */
         Archives    mArchives;      /**< 緩存的檔案對象 */
-        Archives    mArchivesCache; /**< 用於加速查找文件的緩存 */
     };
 
     #define T3D_ARCHIVE_MGR     ArchiveManager::getInstance()

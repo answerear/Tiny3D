@@ -49,7 +49,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
-    "${TINY3D_DEP_DIR}/rapidjson"
+    "${RAPIDJSON_INCLUDE_DIR}"
     "${PROTOBUF_INCLUDE_DIR}"
     "${TINY3D_DEP_DIR}/zlib/include"    # only for windows
     )

@@ -163,7 +163,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GPUConstBuffer::load()
+    TResult GPUConstBuffer::load(Meta *meta)
     {
         // Do nothing here.
         return T3D_OK;
@@ -185,7 +185,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr GPUConstBuffer::clone() const
+    ResourcePtr GPUConstBuffer::clone(Meta *meta) const
     {
         GPUConstBufferPtr buffer;
 

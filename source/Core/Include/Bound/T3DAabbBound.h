@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API AabbBound : public Bound
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Bound);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -76,6 +77,16 @@ namespace Tiny3D
         const Aabb &getAlignAxisBox() const 
         { 
             return mAabb; 
+        }
+
+        /**
+         * @fn  const Aabb AabbBound::&getOriginalAlignAxisBox() const
+         * @brief   获取原始的没经过变换的轴对齐包围盒对象
+         * @return  The align axis box.
+         */
+        const Aabb& getOriginalAlignAxisBox() const
+        {
+            return mOriginalAabb;
         }
 
         /**

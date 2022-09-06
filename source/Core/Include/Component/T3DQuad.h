@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Quad : public Renderable
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Renderable);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -87,14 +88,6 @@ namespace Tiny3D
         virtual ~Quad();
 
         /**
-         * @fn  virtual ComponentPtr Quad::clone() const override;
-         * @brief   重写基类接口，实现克隆对象功能
-         * @return  A copy of this object.
-         * @sa  NodePtr Node::clone() const
-         */
-        virtual ComponentPtr clone() const override;
-
-        /**
          * @fn  void Quad::setVertexPos(size_t idx, const Vector3 &pos)
          * @brief   设置空间四边形四个顶点的本地坐标
          * @param   idx Zero-based index of the.
@@ -142,6 +135,31 @@ namespace Tiny3D
             return mQuad.vertices[idx].uv;
         }
 
+        /**
+         * @fn  virtual ComponentPtr Quad::clone() const override;
+         * @brief   重写基类接口，实现克隆对象功能
+         * @return  A copy of this object.
+         * @sa  NodePtr Node::clone() const
+         */
+        virtual ComponentPtr clone() const override;
+
+        /**
+         * @fn  virtual MaterialPtr Quad::getMaterial() const override;
+         * @brief   重写基类接口，获取渲染材质对象
+         * @return  The material.
+         * @sa  MaterialPtr Renderable::getMaterial() const
+         */
+        virtual MaterialPtr getMaterial() const override;
+
+        /**
+         * @fn  virtual VertexArrayObjectPtr
+         *      Quad::getVertexArrayObject() const override;
+         * @brief   重写基类接口，获取渲染VAO数据对象
+         * @return  The vertex array object.
+         * @sa  VertexArrayObjectPtr Renderable::getVertexArrayObject() const
+         */
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+
     protected:
         /**
          * @fn  Quad::Quad(ID uID = E_CID_AUTOMATIC);
@@ -169,23 +187,6 @@ namespace Tiny3D
          * @sa  TResult Node::cloneProperties(NodePtr node) const
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
-
-        /**
-         * @fn  virtual MaterialPtr Quad::getMaterial() const override;
-         * @brief   重写基类接口，获取渲染材质对象
-         * @return  The material.
-         * @sa  MaterialPtr Renderable::getMaterial() const
-         */
-        virtual MaterialPtr getMaterial() const override;
-
-        /**
-         * @fn  virtual VertexArrayObjectPtr 
-         *      Quad::getVertexArrayObject() const override;
-         * @brief   重写基类接口，获取渲染VAO数据对象
-         * @return  The vertex array object.
-         * @sa  VertexArrayObjectPtr Renderable::getVertexArrayObject() const
-         */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     protected:
         QuadData    mQuad;                          /**< 原始数据 */

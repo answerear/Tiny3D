@@ -35,8 +35,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Agent : public Singleton<Agent>
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  Agent::Agent();
@@ -224,6 +222,13 @@ namespace Tiny3D
          * @return  成功返回档案结构对象.
          */
         ArchivePtr getAssetsArchive(const String &filename) const;
+
+        /**
+         * @fn  ArchivePtr Agent::getAssetsArchive(const String &filename) const;
+         * @brief   获取资源档案访问器，用于访问游戏资源
+         * @return  返回档案结构对象.
+         */
+        ArchivePtr getAssetsArchive() const;
 
         /**
          * @fn  TResult Agent::addImageCodec(ImageCodecBase::FileType type, 
@@ -434,7 +439,9 @@ namespace Tiny3D
 
         ImageCodecPtr           mImageCodec;        /**< 图像编解码器对象 */
 
-        RenderContextPtr             mActiveRenderer;    /**< 当前渲染器对象 */
+        ArchivePtr              mAssetsArchive;     /**< 资源档案访问器 */
+
+        RenderContextPtr        mActiveRenderer;    /**< 当前渲染器对象 */
         SceneManagerPtr         mSceneMgr;
 
         ComponentCreatorPtr     mComponentCreator;

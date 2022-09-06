@@ -27,7 +27,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(DylibManager);
-    T3D_IMPLEMENT_CLASS_1(DylibManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -62,9 +61,17 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ResourcePtr DylibManager::create(
-        const String &name, int32_t argc, va_list args)
+        const String &name, Meta *meta, int32_t argc, va_list args)
     {
         return Dylib::create(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr DylibManager::readMetaInfo(
+        const String& name, int32_t argc, va_list args)
+    {
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------

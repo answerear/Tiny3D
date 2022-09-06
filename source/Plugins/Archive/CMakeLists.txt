@@ -17,6 +17,11 @@ set(TINY3D_SYSTEM_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../System" CACHE PA
 
 add_definitions(-DT3D_ERR_FS_ARCHIVE=T3D_ERR_ARCHIVE)
 add_definitions(-DT3D_ERR_ZIP_ARCHIVE=T3D_ERR_ARCHIVE+0x00000200)
+add_definitions(-DT3D_ERR_BUNDL_ARCHIVE=T3D_ERR_ARCHIVE+0x00000300)
+add_definitions(-DT3D_ERR_META_FS_ARCHIVE=T3D_ERR_ARCHIVE+0x00000400)
 
 add_subdirectory(FileSystem)
 add_subdirectory(Zip)
+add_subdirectory(Bundle)
+add_subdirectory(MetaFileSystem)
+

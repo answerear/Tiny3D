@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Renderable, Component);
-
-    //--------------------------------------------------------------------------
-
     Renderable::Renderable(ID uID /* = E_CID_AUTOMATIC */)
         : Component(uID)
     {
@@ -56,4 +52,18 @@ namespace Tiny3D
 
         return ret;
     }
+}
+
+
+//------------------------------------------------------------------------------
+//                                  RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::Renderable>("Tiny3D::Renderable")
+        .method("getMaterial", &Tiny3D::Renderable::getMaterial)
+        .method("getVertexArrayObject", &Tiny3D::Renderable::getVertexArrayObject);
 }

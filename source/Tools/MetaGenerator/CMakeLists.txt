@@ -28,21 +28,24 @@ include_directories(
     "${TINY3D_LOG_INC_DIR}"
     "${TINY3D_UTILS_INC_DIR}"
     "${TINY3D_MATH_INC_DIR}"
+    "${TINY3D_FRAMEWORK_INC_DIR}"
+    "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
-    "${PROTOBUF_INCLUDE_DIR}"
+    #"${PROTOBUF_INCLUDE_DIR}"
+    "${RTTR_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.h)
+#set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.h)
 
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.cc)
+#set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.cc)
 
 
 if (TINY3D_OS_WINDOWS)
@@ -62,7 +65,10 @@ if (TINY3D_OS_WINDOWS)
         T3DLog
         T3DUtils
         T3DMath
-        ${PROTOBUF_LIBRARY}
+        T3DFramework
+        T3DCore
+        rttr_core
+        #${PROTOBUF_LIBRARY}
         )
 
     add_custom_command(TARGET ${BIN_NAME}
@@ -92,7 +98,10 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE T3DLog
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
-        LINK_PRIVATE ${PROTOBUF_LIBRARY}
+        LINK_PRIVATE T3DFramework
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
+        #LINK_PRIVATE ${PROTOBUF_LIBRARY}
         )
 
     # Setup all properties for this Mac OS X project.
@@ -144,6 +153,9 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DUtils
         T3DMath
+        T3DFramework
+        T3DCore
+        rttr_core
         )
 
     # Setup install files and path for Windows.

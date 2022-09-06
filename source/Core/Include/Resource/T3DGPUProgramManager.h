@@ -41,8 +41,6 @@ namespace Tiny3D
         : public Singleton<ShaderManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static ShaderManagerPtr create();
@@ -111,8 +109,11 @@ namespace Tiny3D
          * @param   args    The arguments.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr create(const String &name, int32_t argc,
-            va_list args) override;
+        virtual ResourcePtr create(const String &name, Meta *meta,
+            int32_t argc, va_list args) override;
+
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
 
     protected:
         ShaderCreator   *mCreator;      /**< GPU程序创建器对象 */
@@ -130,8 +131,6 @@ namespace Tiny3D
         : public Singleton<GPUProgramManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static GPUProgramManagerPtr create();
@@ -192,8 +191,11 @@ namespace Tiny3D
          * @param   args    The arguments.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr create(const String &name, int32_t argc,
-            va_list args) override;
+        virtual ResourcePtr create(const String &name, Meta *meta,
+            int32_t argc, va_list args) override;
+
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
 
     protected:
         GPUProgramCreator   *mCreator;      /**< GPU程序创建器对象 */

@@ -56,7 +56,7 @@ namespace Tiny3D
         /**
          * @brief 重写 Resource::load() 接口
          */
-        virtual TResult load() override;
+        virtual TResult load(Meta *meta) override;
 
         /**
          * @brief 重写 Resource::unload() 接口
@@ -66,12 +66,7 @@ namespace Tiny3D
         /**
          * @brief 重写 Resource::clone() 接口
          */
-        virtual ResourcePtr clone() const override;
-
-        /**
-         * @brief 重写 Achive::Init(const String &assetPath) 接口
-         */
-        virtual TResult init(const String& assetPath) override;
+        virtual ResourcePtr clone(Meta *meta) const override;
 
         /**
          * @brief 重写 Archieve::getLocation() 接口

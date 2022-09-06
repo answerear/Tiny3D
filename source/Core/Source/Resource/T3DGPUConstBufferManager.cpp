@@ -29,7 +29,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(GPUConstBufferManager);
-    T3D_IMPLEMENT_CLASS_1(GPUConstBufferManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -72,8 +71,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr GPUConstBufferManager::create(const String &name, int32_t argc,
-        va_list args)
+    ResourcePtr GPUConstBufferManager::create(const String &name, Meta *meta,
+        int32_t argc, va_list args)
     {
         GPUConstBufferPtr buffer;
 
@@ -84,6 +83,14 @@ namespace Tiny3D
         }
         
         return buffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr GPUConstBufferManager::readMetaInfo(const String& name, 
+        int32_t argc, va_list args)
+    {
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -119,7 +126,7 @@ namespace Tiny3D
 
             // 交給腳本解析器解析
 //             ret = T3D_SCRIPT_PARSER.parse(stream);
-            ret = T3D_SERIALIZER_MGR.parseMaterial(stream, nullptr);
+            //ret = T3D_SERIALIZER_MGR.parseMaterial(stream, nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,

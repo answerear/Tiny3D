@@ -60,3 +60,11 @@ namespace Tiny3D
         }
     }
 }
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::Object>("Tiny3D::Object")
+        .constructor<>();
+}

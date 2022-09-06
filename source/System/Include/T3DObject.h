@@ -35,6 +35,7 @@ namespace Tiny3D
     class T3D_SYSTEM_API Object
     {
         T3D_DECLARE_CLASS();
+        RTTR_ENABLE();
 
     public:
         /**

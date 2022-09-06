@@ -31,6 +31,8 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API BlendState : public Object
     {
+        RTTR_ENABLE(Object);
+
     public:
         enum
         {
@@ -71,14 +73,14 @@ namespace Tiny3D
 
         struct RTBlendState
         {
-            bool            mBlendEnable;
+            bool            mBlendEnable;       /**< */
             BlendFactor     mSrcBlend;
             BlendFactor     mDestBlend;
             BlendOperation  mBlendOp;
             BlendFactor     mSrcBlendAlpha;
             BlendFactor     mDestBlendAlpha;
             BlendOperation  mBlendOpAlpha;
-            uint8_t         mRenderTargetWriteMask;
+            uint8_t         mColorMask;
         };
 
         bool    mIsDirty;

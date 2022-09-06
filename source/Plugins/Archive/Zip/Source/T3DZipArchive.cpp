@@ -60,7 +60,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ZipArchive::load()
+    TResult ZipArchive::load(Meta *meta)
     {
         TResult ret = T3D_OK;
 
@@ -97,7 +97,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ZipArchive::clone() const
+    ResourcePtr ZipArchive::clone(Meta *meta) const
     {
         ArchivePtr archive = create(mName);
         return archive;
@@ -108,13 +108,6 @@ namespace Tiny3D
     String ZipArchive::getArchiveType() const
     {
         return ARCHIVE_TYPE;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ZipArchive::init(const String& assetPath)
-    {
-        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

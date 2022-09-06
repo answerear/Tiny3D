@@ -37,6 +37,7 @@
 #include <T3DUtils.h>
 #include <T3DFramework.h>
 #include <rttr/registration>
+#include <rttr/registration_friend>
 
 
 #if defined (T3D_OS_IOS) || defined (T3D_OS_OSX)
@@ -58,6 +59,9 @@ namespace Tiny3D
     #define LOG_TAG_SCENE               "Scene"
     #define LOG_TAG_RESOURCE            "Resource"
     #define LOG_TAG_COMPONENT           "Component"
+    #define LOG_TAG_SERIALIZE           "Serialize"
+
+    #define TXT_DESCRIPTION             "Description"
 
     class Object;
     class ObjectTracer;
@@ -70,6 +74,9 @@ namespace Tiny3D
     class Component;
     class ComponentCreator;
 
+    class Serializer;
+    class BinSerializer;
+    class JsonSerializer;
     class SerializerManager;
     class MaterialReader;
     class MaterialWriter;
@@ -84,6 +91,7 @@ namespace Tiny3D
     class JsonModelReader;
     class JsonModelWriter;
 
+    class Meta;
     class Resource;
     class ResourceManager;
     class Dylib;

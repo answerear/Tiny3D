@@ -28,9 +28,95 @@ namespace Tiny3D
 {
     class T3D_UTILS_API UUID
     {
+        RTTR_ENABLE();
+
     public:
-        static String generate(uint32_t len);
-        static String generate();
+        enum
+        {
+            kDefaultLength = 16
+        };
+
+        //static String generate(uint32_t len);
+        //static String generate();
+
+        static const UUID INVALID;
+
+        static UUID generate();
+
+        UUID()
+        {
+            values.low = values.high = 0;
+        }
+
+        UUID(const UUID& other)
+        {
+            values.low = other.values.low;
+            values.high = other.values.high;
+        }
+
+        UUID& operator =(const UUID& other)
+        {
+            values.low = other.values.low;
+            values.high = other.values.high;
+            return *this;
+        }
+
+        String toString() const;
+
+        void fromString(const String& str);
+
+        String getValue() const
+        {
+            return toString();
+        }
+
+        void setValue(String str)
+        {
+            fromString(str);
+        }
+
+        //const char *get_value() const
+        //{
+        //    static const size_t len = kDefaultLength * 4;
+        //    static char temp[len+1];
+        //    String str = toString();
+        //    strncpy(temp, str.c_str(), str.length());
+        //    temp[str.length()] = 0;
+        //    return temp;
+        //}
+
+        //void set_value(const char *str)
+        //{
+        //    fromString(str);
+        //}
+
+        bool operator ==(const UUID& other) const
+        {
+            return (this->values.low == other.values.low 
+                && this->values.high == other.values.high);
+        }
+
+        bool operator !=(const UUID& other) const
+        {
+            return !operator ==(other);
+        }
+
+        bool operator <(const UUID& other) const
+        {
+            return (this->values.high < other.values.high
+                || this->values.high == other.values.high && this->values.low < other.values.low);
+        }
+
+        union
+        {
+            uint8_t bytes[kDefaultLength];
+
+            struct Value
+            {
+                uint64_t    low;
+                uint64_t    high;
+            } values;
+        };
     };
 }
 

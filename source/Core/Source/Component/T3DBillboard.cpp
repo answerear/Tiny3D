@@ -25,10 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Billboard, Renderable);
-
-    //--------------------------------------------------------------------------
-
     BillboardPtr Billboard::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         BillboardPtr billboard = new Billboard(uID);
@@ -95,3 +91,19 @@ namespace Tiny3D
         return nullptr;
     }
 }
+
+//------------------------------------------------------------------------------
+//                                  RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::Billboard>("Tiny3D::Billboard")
+        .constructor(&Tiny3D::Billboard::create)
+        .method("clone", &Tiny3D::Billboard::clone)
+        .method("getMaterial", &Tiny3D::Billboard::getMaterial)
+        .method("getVertexArrayObject", &Tiny3D::Billboard::getVertexArrayObject);
+}
+

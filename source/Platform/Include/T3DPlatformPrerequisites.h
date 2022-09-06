@@ -27,6 +27,7 @@
     #define T3D_PLATFORM_API    T3D_IMPORT_API
 #endif
 
+
 namespace Tiny3D
 {
     class System;

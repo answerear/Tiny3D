@@ -47,10 +47,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Dylib, Resource);
-
-    //--------------------------------------------------------------------------
-
     DylibPtr Dylib::create(const String &name)
     {
         DylibPtr dylib = new Dylib(name);
@@ -62,6 +58,7 @@ namespace Tiny3D
 
     Dylib::Dylib(const String &name)
         : Resource(name)
+        , mHandle(nullptr)
     {
 
     }
@@ -89,7 +86,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::load()
+    TResult Dylib::load(Meta *meta)
     {
         TResult ret = T3D_OK;
 
@@ -136,7 +133,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr Dylib::clone() const
+    ResourcePtr Dylib::clone(Meta *meta) const
     {
         return Dylib::create(getName());
     }

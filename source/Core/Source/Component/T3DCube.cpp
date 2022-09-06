@@ -35,10 +35,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Cube, Renderable);
-
-    //--------------------------------------------------------------------------
-
     /** 长方体顶点数据格式 */
     struct BoxVertex
     {
@@ -329,3 +325,29 @@ namespace Tiny3D
         return mVAO;
     }
 }
+
+//------------------------------------------------------------------------------
+//                                  RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::Cube>("Tiny3D::Cube")
+        .constructor(&Tiny3D::Cube::create)
+        .method("getCenter", &Tiny3D::Cube::getCenter)
+        .method("getExtent", &Tiny3D::Cube::getExtent)
+        .method("clone", &Tiny3D::Cube::clone)
+        .method("getMaterial", &Tiny3D::Cube::getMaterial)
+        .method("getVertexArrayObject", &Tiny3D::Cube::getVertexArrayObject)
+        .property("Center", &Tiny3D::Cube::mCenter, registration::protected_access)
+        (
+            metadata(TXT_DESCRIPTION, "The center of this cube.")
+        )
+        .property("Extent", &Tiny3D::Cube::mExtent, registration::protected_access)
+        (
+            metadata(TXT_DESCRIPTION, "The extension along three axes of this cube.")
+        );
+}
+

@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         friend class DefaultSceneMgr;
 
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Component);
 
     public:
         /**

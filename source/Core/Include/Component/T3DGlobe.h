@@ -32,7 +32,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Globe : public Renderable
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Renderable);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -54,14 +55,6 @@ namespace Tiny3D
         virtual ~Globe();
 
         /**
-         * @fn  virtual ComponentPtr Globe::clone() const override;
-         * @brief   重写基类接口，实现克隆对象功能
-         * @return  A copy of this object.
-         * @sa  NodePtr Node::clone() const
-         */
-        virtual ComponentPtr clone() const override;
-
-        /**
          * @fn  const Vector3 Globe::&getCenter() const
          * @brief   获取球心
          * @return  The center.
@@ -74,6 +67,30 @@ namespace Tiny3D
          * @return  The radius.
          */
         Real getRadius() const { return mRadius; }
+
+        /**
+         * @fn  virtual ComponentPtr Globe::clone() const override;
+         * @brief   重写基类接口，实现克隆对象功能
+         * @return  A copy of this object.
+         * @sa  NodePtr Node::clone() const
+         */
+        virtual ComponentPtr clone() const override;
+
+        /**
+         * @fn  virtual MaterialPtr Globe::getMaterial() const override;
+         * @brief   重写基类接口，获取渲染材质对象
+         * @return  The material.
+         * @sa  MaterialPtr Renderable::getMaterial() const
+         */
+        virtual MaterialPtr getMaterial() const override;
+
+        /**
+         * @fn  virtual VertexArrayObjectPtr Globe::getVertexArrayObject() const override;
+         * @brief   重写基类接口，获取渲染VAO数据对象
+         * @return  The vertex array object.
+         * @sa  VertexArrayObjectPtr Renderable::getVertexArrayObject() const
+         */
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     protected:
         /**
@@ -102,22 +119,6 @@ namespace Tiny3D
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
 
-        /**
-         * @fn  virtual MaterialPtr Globe::getMaterial() const override;
-         * @brief   重写基类接口，获取渲染材质对象
-         * @return  The material.
-         * @sa  MaterialPtr Renderable::getMaterial() const
-         */
-        virtual MaterialPtr getMaterial() const override;
-
-        /**
-         * @fn  virtual VertexArrayObjectPtr Globe::getVertexArrayObject() const override;
-         * @brief   重写基类接口，获取渲染VAO数据对象
-         * @return  The vertex array object.
-         * @sa  VertexArrayObjectPtr Renderable::getVertexArrayObject() const
-         */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
-
     private:
         /**
          * @fn  void Globe::setupSphere(void *vertices, size_t vertexCount, 
@@ -136,7 +137,6 @@ namespace Tiny3D
         Real                    mRadius;    /**< 球半径 */
 
         VertexArrayObjectPtr    mVAO;       /**< 渲染用的VAO */
-
         MaterialPtr             mMaterial;  /**< 材质 */
     };
 }

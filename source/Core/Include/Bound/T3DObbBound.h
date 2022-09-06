@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API ObbBound : public Bound
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Bound);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -76,6 +77,16 @@ namespace Tiny3D
         const Obb &getObb() const
         {
             return mObb;
+        }
+
+        /**
+         * @fn  const Obb ObbBound::&getObb() const
+         * @brief   获取未参与变换的原始有向包围盒对象
+         * @return  The obb.
+         */
+        const Obb& getOriginalObb() const
+        {
+            return mOriginalObb;
         }
 
         /**

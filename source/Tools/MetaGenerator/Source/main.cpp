@@ -21,7 +21,8 @@
 
 
 // For debug
-// $(SolutionDir)..\..\..\assets
+// generate : $(SolutionDir)..\..\assets
+// clear : -d $(SolutionDir)..\..\assets
 
 
 int main(int argc, char *argv[])
@@ -31,6 +32,8 @@ int main(int argc, char *argv[])
     Platform* platform = new Platform();
     Logger *logger = new Logger();
     T3D_LOG_STARTUP(1000, "MetaGenerator", true, true);
+    
+    ObjectTracer* tracer = new ObjectTracer(true);
 
     MetaGenerator *generator = new MetaGenerator();
     int ret = 0;
@@ -56,7 +59,10 @@ int main(int argc, char *argv[])
     
     delete generator;
 
+    delete tracer;
+
     T3D_LOG_SHUTDOWN();
+
     delete logger;
     delete platform;
 

@@ -29,14 +29,45 @@
 namespace Tiny3D
 {
     /**
+     * @class   Meta
+     * @brief   元信息基类
+     */
+    class T3D_ENGINE_API Meta : public Object
+    {
+        RTTR_ENABLE(Object)
+        RTTR_REGISTRATION_FRIEND
+        
+    public:
+        enum class FileType : uint32_t
+        {
+            kNone = 0,
+            kFile = 1,
+            kDir = 2
+        };
+
+        static MetaPtr create();
+
+        virtual ~Meta();
+
+        virtual MetaPtr clone() const;
+
+    protected:
+        Meta();
+
+        virtual void cloneProperties(Meta* meta) const;
+
+    public:
+        UUID        uuid;
+        FileType    type;
+    };
+
+    /**
      * @class   Resource
      * @brief   A 3D engine api.
      */
     class T3D_ENGINE_API Resource : public Object
     {
         friend class ResourceManager;
-
-        T3D_DECLARE_CLASS();
 
     public:
         /**
@@ -75,7 +106,7 @@ namespace Tiny3D
          * @brief   獲取資源唯一ID
          * @return  The identifier.
          */
-        ID getID() const
+        UUID getID() const
         {
             return mID;
         }
@@ -85,7 +116,7 @@ namespace Tiny3D
          * @brief   獲取克隆資源唯一ID，當該資源是從其他資源克隆出來試，該ID才有效
          * @return  The clone identifier.
          */
-        ID getCloneID() const
+        UUID getCloneID() const
         {
             return mCloneID;
         }
@@ -97,7 +128,7 @@ namespace Tiny3D
          */
         bool isCloned() const
         {
-            return (mCloneID != T3D_INVALID_ID);
+            return (mCloneID != UUID::INVALID);
         }
 
         /**
@@ -152,10 +183,11 @@ namespace Tiny3D
         /**
          * @fn  virtual TResult Resource::load() = 0;
          * @brief   加載資源
+         * @param [in] meta : 资源的相关信息
          * @return  A TResult.
          * @remarks 每種類型資源需要各自實現其加載邏輯，資源只有加載後才能使用.
          */
-        virtual TResult load() = 0;
+        virtual TResult load(Meta *meta) = 0;
 
         /**
          * @fn  virtual TResult Resource::unload();
@@ -166,19 +198,20 @@ namespace Tiny3D
         virtual TResult unload();
 
         /**
-         * @fn  virtual ResourcePtr Resource::clone() const = 0;
+         * @fn  virtual ResourcePtr Resource::clone(Meta *meta) const = 0;
          * @brief   克隆資源
+         * @param [in] meta : 元信息对象
          * @return  A copy of this object.
          * @remarks  每種類型資源需要各自實現其克隆邏輯，克隆出一個新資源對象.
          */
-        virtual ResourcePtr clone() const = 0;
+        virtual ResourcePtr clone(Meta *meta) const = 0;
 
     private:
         uint32_t    mResReferCount; /**< 資源自身的引用計數 */
 
     protected:
-        ID      mID;        /**< 資源ID */
-        ID      mCloneID;   /**< 如果資源是從其他資源克隆出來的，該ID才有效 */
+        UUID    mID;        /**< 資源ID */
+        UUID    mCloneID;   /**< 如果資源是從其他資源克隆出來的，該ID才有效 */
         size_t  mSize;      /**< 資源大小 */
         bool    mIsLoaded;  /**< 資源是否加載標記 */
         String  mName;      /**< 資源名稱 */

@@ -74,7 +74,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(Agent);
-    T3D_IMPLEMENT_CLASS_0(Agent);
 
     //--------------------------------------------------------------------------
 
@@ -647,16 +646,16 @@ namespace Tiny3D
     {
         ArchivePtr archive = nullptr;
 
-        if (mArchiveMgr != nullptr)
-        {
-            String fullpath = getMainAssetsPath(path);
-#if defined T3D_OS_ANDROID
-            mArchiveMgr->getArchive(mAppPath, fullpath, archive);
-#else
-            String name = mAppPath + "Assets";
-            mArchiveMgr->getArchive(name, fullpath, archive);
-#endif
-        }
+//        if (mArchiveMgr != nullptr)
+//        {
+//            String fullpath = getMainAssetsPath(path);
+//#if defined T3D_OS_ANDROID
+//            mArchiveMgr->getArchive(mAppPath, fullpath, archive);
+//#else
+//            String name = mAppPath + "Assets";
+//            mArchiveMgr->getArchive(name, fullpath, archive);
+//#endif
+//        }
 
         return archive;
     }
@@ -680,24 +679,31 @@ namespace Tiny3D
         bool found = false;
         ArchivePtr archive;
 
-        if (mArchiveMgr != nullptr)
-        {
-            String fullpath = getMainAssetsPath(filename);
-#if defined T3D_OS_ANDROID
-            found = mArchiveMgr->getArchive(mAppPath, fullpath, archive);
-#else
-            String name = mAppPath + "Assets";
-            found = mArchiveMgr->getArchive(name, fullpath, archive);
-#endif
-
-            if (!found)
-            {
-                // 主的没找到，只能循环查找
-                found = mArchiveMgr->getArchive(filename, archive);
-            }
-        }
+//        if (mArchiveMgr != nullptr)
+//        {
+//            String fullpath = getMainAssetsPath(filename);
+//#if defined T3D_OS_ANDROID
+//            found = mArchiveMgr->getArchive(mAppPath, fullpath, archive);
+//#else
+//            String name = mAppPath + "Assets";
+//            found = mArchiveMgr->getArchive(name, fullpath, archive);
+//#endif
+//
+//            if (!found)
+//            {
+//                // 主的没找到，只能循环查找
+//                found = mArchiveMgr->getArchive(filename, archive);
+//            }
+//        }
 
         return archive;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ArchivePtr Agent::getAssetsArchive() const
+    {
+        return mAssetsArchive;
     }
 
     //--------------------------------------------------------------------------
@@ -1023,35 +1029,35 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        do 
-        {
-#if defined (T3D_OS_ANDROID)
-            // Android需要加载apk里面的资源，所以设置的是zip文件里面的assets
-            ArchivePtr archive = mArchiveMgr->loadArchive(mAppPath, "Zip");
-#else
-            String path = mAppPath + "Assets";
-            ArchivePtr archive = mArchiveMgr->loadArchive(path, "FileSystem");
-            
-            Settings &assets = mSettings["Assets"].mapValue();
-            auto itr = assets.begin();
-            while (itr != assets.end())
-            {
-                String subpath = path + Dir::getNativeSeparator() + itr->first.stringValue();
-                String achiveType = itr->second.stringValue();
-                archive = mArchiveMgr->loadArchive(subpath, achiveType);
-                ++itr;
-            }
-
-            // 加入内置资源路径
-            String subpath = path + Dir::getNativeSeparator() + "builtin";
-            String archiveType = "FileSystem";
-            archive = mArchiveMgr->loadArchive(subpath, archiveType);
-
-            subpath = path + Dir::getNativeSeparator() + "builtin/program";
-            archiveType = "FileSystem";
-            archive = mArchiveMgr->loadArchive(subpath, archiveType);
-#endif
-        } while (0);
+//        do 
+//        {
+//#if defined (T3D_OS_ANDROID)
+//            // Android需要加载apk里面的资源，所以设置的是zip文件里面的assets
+//            ArchivePtr archive = mArchiveMgr->loadArchive(mAppPath, "Zip");
+//#else
+//            String path = mAppPath + "Assets";
+//            ArchivePtr archive = mArchiveMgr->loadArchive(path, "FileSystem");
+//            
+//            Settings &assets = mSettings["Assets"].mapValue();
+//            auto itr = assets.begin();
+//            while (itr != assets.end())
+//            {
+//                String subpath = path + Dir::getNativeSeparator() + itr->first.stringValue();
+//                String achiveType = itr->second.stringValue();
+//                archive = mArchiveMgr->loadArchive(subpath, achiveType);
+//                ++itr;
+//            }
+//
+//            // 加入内置资源路径
+//            String subpath = path + Dir::getNativeSeparator() + "builtin";
+//            String archiveType = "FileSystem";
+//            archive = mArchiveMgr->loadArchive(subpath, archiveType);
+//
+//            subpath = path + Dir::getNativeSeparator() + "builtin/program";
+//            archiveType = "FileSystem";
+//            archive = mArchiveMgr->loadArchive(subpath, archiveType);
+//#endif
+//        } while (0);
 
         return ret;
     }

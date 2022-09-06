@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Dylib : public Resource
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static DylibPtr Dylib::create(const String &name);
@@ -74,11 +72,11 @@ namespace Tiny3D
         Dylib(const String &name);
 
         /**
-         * @fn  virtual TResult Dylib::load() override;
+         * @fn  virtual TResult Dylib::load(Meta *meta) override;
          * @brief   重写 Resource::load()
          * @return  A TResult.
          */
-        virtual TResult load() override;
+        virtual TResult load(Meta *meta) override;
 
         /**
          * @fn  virtual TResult Dylib::unload() override;
@@ -88,11 +86,11 @@ namespace Tiny3D
         virtual TResult unload() override;
 
         /**
-         * @fn  virtual ResourcePtr Dylib::clone() const override;
+         * @fn  virtual ResourcePtr Dylib::clone(Meta *meta) const override;
          * @brief   重写 Resource::clone()
          * @return  A copy of this object.
          */
-        virtual ResourcePtr clone() const override;
+        virtual ResourcePtr clone(Meta *meta) const override;
 
     protected:
         THandle mHandle;    /**< The handle */

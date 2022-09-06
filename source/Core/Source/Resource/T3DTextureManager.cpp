@@ -26,7 +26,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     T3D_INIT_SINGLETON(TextureManager);
-    T3D_IMPLEMENT_CLASS_1(TextureManager, ResourceManager);
 
     //--------------------------------------------------------------------------
 
@@ -85,8 +84,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr TextureManager::create(const String &name, int32_t argc, 
-        va_list args)
+    ResourcePtr TextureManager::create(const String &name, Meta *meta,
+        int32_t argc, va_list args)
     {
         ResourcePtr res;
 
@@ -106,6 +105,14 @@ namespace Tiny3D
         }
 
         return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr TextureManager::readMetaInfo(const String& name, int32_t argc, va_list args)
+    {
+        MetaPtr meta;
+        return meta;
     }
 
     //--------------------------------------------------------------------------

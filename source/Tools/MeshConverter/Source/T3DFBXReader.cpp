@@ -361,11 +361,12 @@ namespace Tiny3D
         TResult ret = T3D_OK;
 
         // 新建一个 node
-        String uuid = UUID::generate();
+        UUID uuid = UUID::generate();
+        String suid = uuid.toString();
         auto nodes = model->mutable_data()->mutable_nodes();
-        auto rval = nodes->insert({ uuid, Script::LevelSystem::Node() });
+        auto rval = nodes->insert({ suid, Script::LevelSystem::Node() });
         pNode = &rval.first->second;
-        pNode->set_uuid(uuid);
+        pNode->set_uuid(suid);
         pNode->set_name(pFbxNode->GetName());
 
         // set parent of this node
@@ -376,7 +377,7 @@ namespace Tiny3D
         else
         {
             pNode->set_parent("");
-            model->mutable_data()->set_root(uuid);
+            model->mutable_data()->set_root(suid);
         }
 
         std::stringstream ss;
@@ -456,7 +457,7 @@ namespace Tiny3D
 
         if (parent != nullptr)
         {
-            parent->add_children(uuid);
+            parent->add_children(suid);
         }
 
         return ret;
@@ -568,8 +569,9 @@ namespace Tiny3D
         {
             // generate a mesh
             auto meshes = model->mutable_data()->mutable_meshes();
-            String uuid = UUID::generate();
-            auto rval = meshes->insert({ uuid, Script::ModelSystem::MeshData() });
+            UUID uuid = UUID::generate();
+            String suid = uuid.toString();
+            auto rval = meshes->insert({ suid, Script::ModelSystem::MeshData() });
             Script::ModelSystem::MeshData *pMesh = &rval.first->second;
             pMesh->set_name(pFbxNode->GetName());
 
@@ -1709,8 +1711,9 @@ namespace Tiny3D
         MCONV_LOG_INFO("\tAnimation : %s (%d)", name.c_str(), nAnimLayerCount);
 
         auto clips = model->mutable_data()->mutable_animations();
-        String uuid = UUID::generate();
-        auto rval = clips->insert({ uuid, Script::ModelSystem::AnimationClip() });
+        UUID uuid = UUID::generate();
+        String suid = uuid.toString();
+        auto rval = clips->insert({ suid, Script::ModelSystem::AnimationClip() });
         Script::ModelSystem::AnimationClip *pClip = &rval.first->second;
         pClip->set_name(name);
 

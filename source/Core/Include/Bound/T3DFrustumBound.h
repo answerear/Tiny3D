@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API FrustumBound : public Bound
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Bound);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -76,6 +77,16 @@ namespace Tiny3D
         const Frustum &getFrustum() const
         {
             return mFrustum;
+        }
+
+        /**
+         * @fn  const Frustum FrustumBound::&getFrustum() const
+         * @brief   获取未参与变换更新的原始视锥体包围体对象
+         * @return  The frustum.
+         */
+        const Frustum& getOriginalFrustum() const
+        {
+            return mOriginalFrustum;
         }
 
         /**

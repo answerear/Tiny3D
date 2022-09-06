@@ -24,15 +24,52 @@
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
+    MetaPtr Meta::create()
+    {
+        MetaPtr meta = new Meta();
+        meta->release();
+        return meta;
+    }
 
-    T3D_IMPLEMENT_CLASS_1(Resource, Object);
+    //--------------------------------------------------------------------------
+
+    Meta::Meta()
+        : uuid()
+        , type(FileType::kNone)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    Meta::~Meta()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr Meta::clone() const
+    {
+        MetaPtr meta = Meta::create();
+        cloneProperties(meta);
+        return meta;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Meta::cloneProperties(Meta* meta) const
+    {
+        meta->uuid = uuid;
+        meta->type = type;
+    }
 
     //--------------------------------------------------------------------------
 
     Resource::Resource(const String &strName)
         : mResReferCount(1)
-        , mID(T3D_INVALID_ID)
-        , mCloneID(T3D_INVALID_ID)
+        , mID()
+        , mCloneID()
         , mSize(0)
         , mIsLoaded(false)
         , mName(strName)
@@ -59,3 +96,30 @@ namespace Tiny3D
         return T3D_OK;
     }
 }
+
+//------------------------------------------------------------------------------
+//                              Meta RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::Meta>("Tiny3D::Meta")
+        .enumeration<Tiny3D::Meta::FileType>("Tiny3D::Meta::FileType")
+        (
+            value("None", Tiny3D::Meta::FileType::kNone),
+            value("File", Tiny3D::Meta::FileType::kFile),
+            value("Dir", Tiny3D::Meta::FileType::kDir)
+        )
+        .constructor()(policy::ctor::as_raw_ptr)
+        .property("UUID", &Tiny3D::Meta::uuid)
+        (
+            metadata(TXT_DESCRIPTION, "Universal Unique Identifier")
+        )
+        .property("Type", &Tiny3D::Meta::type)
+        (
+            metadata(TXT_DESCRIPTION, "File type corresponding to this meta.")
+        );
+}
+

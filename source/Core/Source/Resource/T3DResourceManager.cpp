@@ -27,10 +27,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(ResourceManager, Object);
-
-    //--------------------------------------------------------------------------
-
     ResourceManager::ResourceManager()
         : mCloneID(T3D_INVALID_ID)
     {
@@ -46,35 +42,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID ResourceManager::toID(const String &name) const
-    {
-        return hash(name.c_str());
-    }
+    //ID ResourceManager::toID(const String &name) const
+    //{
+    //    return hash(name.c_str());
+    //}
 
     //--------------------------------------------------------------------------
 
-    uint32_t ResourceManager::hash(const char *str) const
-    {
-        uint32_t value = 5381;
+    //uint32_t ResourceManager::hash(const char *str) const
+    //{
+    //    uint32_t value = 5381;
 
-        while (*str)
-        {
-            value += (value << 5) + (*str++);
-        }
+    //    while (*str)
+    //    {
+    //        value += (value << 5) + (*str++);
+    //    }
 
-        return (value & 0x7FFFFFFF);
-    }
+    //    return (value & 0x7FFFFFFF);
+    //}
 
     //--------------------------------------------------------------------------
 
-    ID ResourceManager::toCloneID(const String &name, ID cloneID) const
-    {
-        std::stringstream ss;
-        ss.width(4);
-        ss.fill('0');
-        ss << name << "_clone#" << cloneID;
-        return hash(ss.str().c_str());
-    }
+    //ID ResourceManager::toCloneID(const String &name, ID cloneID) const
+    //{
+    //    std::stringstream ss;
+    //    ss.width(4);
+    //    ss.fill('0');
+    //    ss << name << "_clone#" << cloneID;
+    //    return hash(ss.str().c_str());
+    //}
 
     //--------------------------------------------------------------------------
 
@@ -82,12 +78,36 @@ namespace Tiny3D
     {
         ResourcePtr res = nullptr;
 
-        ID resID = toID(name);
-
         do 
         {
+            va_list params;
+
+            // 从 Meta cache 中搜索，避免多次读取文件
+            MetaPtr meta = nullptr;
+            auto it = mMetaCache.find(name);
+            if (it != mMetaCache.end())
+            {
+                // cache 中存在，直接从缓存中获取
+                meta = it->second;
+            }
+            else
+            {
+                // cache 中不存在，只能去本地存储中获取
+                va_start(params, argc);
+                meta = readMetaInfo(name, argc, params);
+                va_end(params);
+                if (meta == nullptr)
+                {
+                    // 出错了
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                        "Read meta info about file [%s] failed !",
+                        name.c_str());
+                    break;
+                }
+            }
+            
             // 從 cache 中搜索
-            auto itr = mResourcesCache.find(resID);
+            auto itr = mResourcesCache.find(meta->uuid);
             if (itr != mResourcesCache.end())
             {
                 // cache 中存在，直接返回cache中的，並且把引用計數遞增
@@ -97,9 +117,8 @@ namespace Tiny3D
             }
 
             // cache 中沒有，只能新建對象
-            va_list params;
             va_start(params, argc);
-            res = create(name, argc, params);
+            res = create(name, meta, argc, params);
             va_end(params);
 
             if (res == nullptr)
@@ -110,7 +129,7 @@ namespace Tiny3D
                 break;
             }
 
-            TResult ret = res->load();
+            TResult ret = res->load(meta);
             if (T3D_FAILED(ret))
             {
                 // 加載失敗
@@ -120,7 +139,7 @@ namespace Tiny3D
                 break;
             }
 
-            auto rval = mResourcesCache.insert(ResourcesValue(resID, res));
+            auto rval = mResourcesCache.insert(ResourcesValue(meta->uuid, res));
             if (!rval.second)
             {
                 // 插入緩存失敗
@@ -130,7 +149,7 @@ namespace Tiny3D
                 break;
             }
 
-            res->mID = resID;
+            res->mID = meta->uuid;
             res->mIsLoaded = true;
         } while (0);
 
@@ -169,7 +188,7 @@ namespace Tiny3D
             }
 
             // 卸載資源
-            ID resID = (res->isCloned() ? res->getCloneID() : res->getID());
+            UUID resID = (res->isCloned() ? res->getCloneID() : res->getID());
             auto itr = mResourcesCache.find(resID);
             if (itr == mResourcesCache.end())
             {
@@ -200,6 +219,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        // 清理所有资源缓存
         auto itr = mResourcesCache.begin();
         while (itr != mResourcesCache.end())
         {
@@ -210,6 +230,9 @@ namespace Tiny3D
         }
 
         mResourcesCache.clear();
+
+        // 清理所有资源元信息缓存
+        mMetaCache.clear();
 
         return ret;
     }
@@ -242,7 +265,18 @@ namespace Tiny3D
                 break;
             }
 
-            res = src->clone();
+            auto itr = mMetaCache.find(src->getName());
+            if (itr == mMetaCache.end())
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid source object ! Because it did not be loaded yet. ");
+                break;
+            }
+
+            UUID cloneID = UUID::generate();
+            MetaPtr meta = itr->second->clone();
+            meta->uuid = cloneID;
+            res = src->clone(meta);
             if (res == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -251,7 +285,6 @@ namespace Tiny3D
                 break;
             }
 
-            ID cloneID = toCloneID(res->getName(), mCloneID++);
             res->mCloneID = cloneID;
 
             auto rval = mResourcesCache.insert(ResourcesValue(cloneID, res));
@@ -270,24 +303,50 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ResourcePtr ResourceManager::getResource(
-        const String &name, ID cloneID /* = T3D_INVALID_ID */) const
+        const String &name, UUID cloneID /* = UUID::INVALID */) const
     {
         ResourcePtr res;
 
         do 
         {
-            ID resID = T3D_INVALID_ID;
-            if (cloneID != T3D_INVALID_ID)
+            UUID resID = UUID::INVALID;
+            if (cloneID != UUID::INVALID)
             {
                 // 克隆對象
                 resID = cloneID;
             }
             else
             {
-                resID = toID(name);
+                auto it = mMetaCache.find(name);
+                if (it == mMetaCache.end())
+                {
+                    break;
+                }
+
+                resID = it->second->uuid;
             }
 
             auto itr = mResourcesCache.find(resID);
+            if (itr == mResourcesCache.end())
+            {
+                break;
+            }
+
+            res = itr->second;
+        } while (0);
+
+        return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::getResource(UUID uuid) const
+    {
+        ResourcePtr res;
+
+        do
+        {
+            auto itr = mResourcesCache.find(uuid);
             if (itr == mResourcesCache.end())
             {
                 break;

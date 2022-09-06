@@ -32,6 +32,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Component);
     T3D_DECLARE_SMART_PTR(ComponentCreator);
 
+    T3D_DECLARE_SMART_PTR(Meta);
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);
     T3D_DECLARE_SMART_PTR(Dylib);
@@ -63,6 +64,9 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(VertexData);
     T3D_DECLARE_SMART_PTR(MeshData);
 
+    T3D_DECLARE_SMART_PTR(Serializer);
+    T3D_DECLARE_SMART_PTR(BinSerializer);
+    T3D_DECLARE_SMART_PTR(JsonSerializer);
     T3D_DECLARE_SMART_PTR(SerializerManager);
     T3D_DECLARE_SMART_PTR(MaterialReader);
     T3D_DECLARE_SMART_PTR(MaterialWriter);

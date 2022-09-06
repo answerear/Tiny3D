@@ -69,8 +69,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr MaterialManager::create(const String &name, int32_t argc, 
-        va_list args)
+    ResourcePtr MaterialManager::create(const String &name, Meta *meta,
+        int32_t argc, va_list args)
     {
         MaterialPtr material;
 
@@ -82,5 +82,13 @@ namespace Tiny3D
         }
 
         return material;
+    }
+
+    //--------------------------------------------------------------------------
+
+    MetaPtr MaterialManager::readMetaInfo(const String& name, 
+        int32_t argc, va_list args)
+    {
+        return nullptr;
     }
 }

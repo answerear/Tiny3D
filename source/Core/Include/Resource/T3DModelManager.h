@@ -86,8 +86,11 @@ namespace Tiny3D
          * @param   args    The arguments.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr create(
-            const String &strName, int32_t argc, va_list args) override;
+        virtual ResourcePtr create(const String &strName, Meta *meta, 
+            int32_t argc, va_list args) override;
+
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
     };
 
     #define T3D_MODEL_MGR   (ModelManager::getInstance())

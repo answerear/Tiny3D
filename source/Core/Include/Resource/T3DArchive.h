@@ -33,9 +33,17 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Archive : public Resource
     {
-        T3D_DECLARE_CLASS();
-
     public:
+        enum class AccessMode : uint32_t
+        {
+            kNone = 0x0,                        /**< None */
+            kRead = 0x1,                        /**< 只读 */
+            kTruncate = 0x2,                    /**< 忽略原档案内容，直接覆盖 */
+            kAppend = 0x4,                      /**< 追加到原档案末尾 */
+            kReadTruncate = kRead | kTruncate,  /**< */
+            kReadAppend = kRead | kAppend
+        };
+
         /**
          * @fn  virtual Archive::~Archive();
          * @brief   析构函数
@@ -50,12 +58,11 @@ namespace Tiny3D
         virtual Type getType() const override;
 
         /**
-         * @fn virtual TResult init(const String &assetPath);
-         * @brief   初始化档案系统
-         * @param [in]  assetPath   : 资源根目录
-         * @return  调用成功返回 T3D_OK
+         * @fn  AccessMode getAccessMode() const;
+         * @brief   获取访问模式
+         * @return  The access mode.
          */
-        virtual TResult init(const String &assetPath) = 0;
+        AccessMode getAccessMode() const { return mAccessMode; }
 
         /**
          * @fn  virtual String Archive::getArchiveType() const = 0;
@@ -106,6 +113,8 @@ namespace Tiny3D
          * @param [in]  name    : 资源名称，一般使用档案路径作为名称.
          */
         Archive(const String &name);
+
+        AccessMode  mAccessMode;    /**< 访问模式 */
     };
 }
 

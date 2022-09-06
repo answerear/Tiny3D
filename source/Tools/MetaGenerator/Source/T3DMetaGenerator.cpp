@@ -21,8 +21,8 @@
 #include "T3DMetaGenerator.h"
 #include "T3DGeneratorCommand.h"
 #include "T3DGeneratorOptions.h"
-#include "FileScriptObject.pb.h"
-#include <google/protobuf/util/json_util.h>
+//#include "FileScriptObject.pb.h"
+//#include <google/protobuf/util/json_util.h>
 
 
 namespace Tiny3D
@@ -156,15 +156,41 @@ namespace Tiny3D
 
         if (!Dir::exists(fullpath))
         {
+#if 1
+            MetaPtr meta = Meta::create();
+            meta->uuid = UUID::generate();
+            meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
+
+            FileDataStream fs;
+
+            if (fs.open(fullpath.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_WRITE_ONLY))
+            {
+                auto serializer = SerializerManager::create();
+                serializer->setFileMode(SerializerManager::FileMode::kText);
+                serializer->serialize(fs, meta);
+                fs.close();
+            }
+
+            // meta = Meta::create();
+            if (fs.open(fullpath.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_READ_ONLY))
+            {
+                auto serializer = SerializerManager::create();
+                serializer->setFileMode(SerializerManager::FileMode::kText);
+                meta = static_cast<Meta*>(serializer->deserialize(fs));
+                fs.close();
+            }
+#else
             Script::FileFormat::FileMeta file;
             Script::FileFormat::FileHeader *header = file.mutable_header();
             header->set_magic(T3D_FILE_MAGIC);
             header->set_type(Script::FileFormat::FileHeader_FileType_Meta);
             header->set_version(T3D_FILE_CURRENT_VERSION);
 
-            String uuid = UUID::generate();
+            //String uuid = UUID::generate();
+            UUID uuid = UUID::generate();
+            String suid = uuid.toString();
             Script::MetaSystem::MetaData* meta = file.mutable_meta();
-            meta->set_uuid(uuid.c_str());
+            meta->set_uuid(suid.c_str());
             meta->set_name(name.c_str());
 
             if (isDir)
@@ -190,6 +216,7 @@ namespace Tiny3D
                 fs.write((void*)content.c_str(), content.length());
                 fs.close();
             }
+#endif
         }
     }
 

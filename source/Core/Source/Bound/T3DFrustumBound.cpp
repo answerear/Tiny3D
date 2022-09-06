@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(FrustumBound, Bound);
-
-    //--------------------------------------------------------------------------
-
     FrustumBoundPtr FrustumBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         FrustumBoundPtr bound = new FrustumBound(uID);
@@ -158,5 +154,29 @@ namespace Tiny3D
     {
         // 这里就不做变换了，引擎直接通过相机重建frustum
     }
+}
+
+//------------------------------------------------------------------------------
+//                                  RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::FrustumBound>("Tiny3D::FrustumBound")
+        .constructor(&Tiny3D::FrustumBound::create)
+        .method("getType", &Tiny3D::FrustumBound::getType)
+        .method("clone", &Tiny3D::FrustumBound::clone)
+        .method("getFrustum", &Tiny3D::FrustumBound::getFrustum)
+        .method("getOriginalFrustum", &Tiny3D::FrustumBound::getOriginalFrustum)
+        .method("setFrustumFace", &Tiny3D::FrustumBound::setFrustumFace)
+        .method("setFrustumFaces", &Tiny3D::FrustumBound::setFrustumFaces)
+        .method("getRenderable", &Tiny3D::FrustumBound::getRenderable)
+        .method("update", &Tiny3D::FrustumBound::update)
+        .property("OriginalFrustum", &Tiny3D::FrustumBound::mOriginalFrustum, registration::protected_access)
+        (
+            metadata(TXT_DESCRIPTION, "The original frustum bounding volume.")
+        );
 }
 

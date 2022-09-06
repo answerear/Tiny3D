@@ -72,7 +72,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Material::load()
+    TResult Material::load(Meta *meta)
     {
         TResult ret = T3D_OK;
 
@@ -106,7 +106,7 @@ namespace Tiny3D
 
                 // 交給腳本解析器解析
 //                 ret = T3D_SCRIPT_PARSER.parse(stream, this);
-                ret = T3D_SERIALIZER_MGR.parseMaterial(stream, this);
+                //ret = T3D_SERIALIZER_MGR.parseMaterial(stream, this);
                 if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -164,7 +164,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr Material::clone() const
+    ResourcePtr Material::clone(Meta *meta) const
     {
         MaterialPtr material = Material::create(mName, mMaterialType);
 

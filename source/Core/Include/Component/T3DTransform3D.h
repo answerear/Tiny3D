@@ -34,7 +34,6 @@ namespace Tiny3D
     class T3D_ENGINE_API ITransformListener
     {
         T3D_DECLARE_INTERFACE(ITransformListener);
-        T3D_DECLARE_CLASS();
 
     public:
         virtual void updateTransform(const Transform3D *xform) = 0;
@@ -46,7 +45,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Transform3D : public Component
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Component);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**

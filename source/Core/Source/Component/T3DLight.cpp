@@ -25,10 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Light, Component);
-
-    //--------------------------------------------------------------------------
-
     LightPtr Light::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         LightPtr light = new Light(uID);
@@ -79,4 +75,17 @@ namespace Tiny3D
 
         return ret;
     }
+}
+
+//------------------------------------------------------------------------------
+//                                  RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::Light>("Tiny3D::Light")
+        .constructor(&Tiny3D::Light::create)
+        .method("clone", &Tiny3D::Light::clone);
 }

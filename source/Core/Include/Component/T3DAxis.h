@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Axis : public Renderable
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Renderable);
+        RTTR_REGISTRATION_FRIEND;
 
     public:
         /**
@@ -67,14 +68,6 @@ namespace Tiny3D
         virtual ~Axis();
 
         /**
-         * @fn  virtual NodePtr Axis::clone() const override;
-         * @brief   重写基类接口，实现当前结点的克隆功能
-         * @return  A copy of this object.
-         * @sa  NodePr Node::clone() const
-         */
-        virtual ComponentPtr clone() const override;
-
-        /**
          * @fn  Real Axis::getAxisLength(Axis axis) const;
          * @brief   获取坐标轴长度
          * @param   axis    The axis.
@@ -83,6 +76,31 @@ namespace Tiny3D
          * @sa  enum Axis
          */
         Real getAxisLength(Axis::Type axis) const;
+
+        /**
+         * @fn  virtual NodePtr Axis::clone() const override;
+         * @brief   重写基类接口，实现当前结点的克隆功能
+         * @return  A copy of this object.
+         * @sa  NodePr Node::clone() const
+         */
+        virtual ComponentPtr clone() const override;
+
+        /**
+         * @fn  virtual MaterialPtr Axis::getMaterial() const override;
+         * @brief   重写基类接口，实现获取渲染用的材质
+         * @return  The material.
+         * @sa  MaterialPtr Renderable::getMaterial() const
+         */
+        virtual MaterialPtr getMaterial() const override;
+
+        /**
+         * @fn  virtual VertexArrayObjectPtr Axis::getVertexArrayObject()
+         *      const override;
+         * @brief   重写基类接口，实现获取VAO对象
+         * @return  The vertex array object.
+         * @sa  VertexArrayObjectPtr Renderable::getVertexArrrayObject() const
+         */
+        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     protected:
         /**
@@ -111,23 +129,6 @@ namespace Tiny3D
          * @sa  TResult Node::cloneProperties(NodePtr node)
          */
         virtual TResult cloneProperties(ComponentPtr newObj) const override;
-
-        /**
-         * @fn  virtual MaterialPtr Axis::getMaterial() const override;
-         * @brief   重写基类接口，实现获取渲染用的材质
-         * @return  The material.
-         * @sa  MaterialPtr Renderable::getMaterial() const
-         */
-        virtual MaterialPtr getMaterial() const override;
-
-        /**
-         * @fn  virtual VertexArrayObjectPtr Axis::getVertexArrayObject() 
-         *      const override;
-         * @brief   重写基类接口，实现获取VAO对象
-         * @return  The vertex array object.
-         * @sa  VertexArrayObjectPtr Renderable::getVertexArrrayObject() const
-         */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
 
     private:
         Real                    mAxisX; /**< X轴长度 */

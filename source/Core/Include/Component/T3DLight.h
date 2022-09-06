@@ -33,7 +33,8 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Light : public Component
     {
-        T3D_DECLARE_CLASS();
+        RTTR_ENABLE(Component);
+
     public:
         /**
          * @fn  static LightPtr Light::create(ID uID = E_CID_AUTOMATIC);
@@ -49,6 +50,13 @@ namespace Tiny3D
          */
         virtual ~Light();
 
+        /**
+         * @fn  virtual ComponentPtr Light::clone() const override;
+         * @brief   Makes a deep copy of this object
+         * @return  A copy of this object.
+         */
+        virtual ComponentPtr clone() const override;
+
     protected:
         /**
          * @fn  Light::Light(ID uID = E_CID_AUTOMATIC);
@@ -56,13 +64,6 @@ namespace Tiny3D
          * @param   uID (Optional) The identifier.
          */
         Light(ID uID = E_CID_AUTOMATIC);
-
-        /**
-         * @fn  virtual ComponentPtr Light::clone() const override;
-         * @brief   Makes a deep copy of this object
-         * @return  A copy of this object.
-         */
-        virtual ComponentPtr clone() const override;
 
         /**
          * @fn  virtual TResult 

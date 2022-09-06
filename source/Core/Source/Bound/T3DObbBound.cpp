@@ -27,10 +27,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(ObbBound, Bound);
-
-    //--------------------------------------------------------------------------
-
     ObbBoundPtr ObbBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         ObbBoundPtr bound = new ObbBound(uID);
@@ -200,3 +196,29 @@ namespace Tiny3D
         }
     }
 }
+
+//------------------------------------------------------------------------------
+//                                  RTTR
+//------------------------------------------------------------------------------
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+
+    registration::class_<Tiny3D::ObbBound>("Tiny3D::ObbBound")
+        .constructor(&Tiny3D::ObbBound::create)
+        .method("getType", &Tiny3D::ObbBound::getType)
+        .method("clone", &Tiny3D::ObbBound::clone)
+        .method("getObb", &Tiny3D::ObbBound::getObb)
+        .method("getOriginalObb", &Tiny3D::ObbBound::getOriginalObb)
+        .method("setCenter", &Tiny3D::ObbBound::setCenter)
+        .method("setAxis", &Tiny3D::ObbBound::setAxis)
+        .method("setExtent", &Tiny3D::ObbBound::setExtent)
+        .method("getRenderable", &Tiny3D::ObbBound::getRenderable)
+        .method("update", &Tiny3D::ObbBound::update)
+        .property("OriginalObb", &Tiny3D::ObbBound::mOriginalObb, registration::protected_access)
+        (
+            metadata(TXT_DESCRIPTION, "The original orient bounding box.")
+        );
+}
+

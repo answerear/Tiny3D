@@ -97,7 +97,14 @@ namespace Tiny3D
     {
         long_t lLeft = m_lSize - m_lCurPos;
         long_t lBytesOfRead = (long_t)nSize > lLeft ? lLeft : (long_t)nSize;
-        memcpy(pBuffer, m_pBuffer + m_lCurPos, lBytesOfRead);
+        if (lBytesOfRead == 1)
+        {
+            *(uint8_t*)pBuffer = *(m_pBuffer + m_lCurPos);
+        }
+        else
+        {
+            memcpy(pBuffer, m_pBuffer + m_lCurPos, lBytesOfRead);
+        }
         m_lCurPos += lBytesOfRead;
         return lBytesOfRead;
     }
@@ -109,7 +116,14 @@ namespace Tiny3D
         long_t lSpace = m_lSize - m_lCurPos - 1;
         long_t lBytesOfWritten =
             (long_t)nSize > lSpace ? lSpace : (long_t)nSize;
-        memcpy(m_pBuffer + m_lCurPos, pBuffer, lBytesOfWritten);
+        if (lBytesOfWritten == 1)
+        {
+            *(m_pBuffer + m_lCurPos) = *(uint8_t*)pBuffer;
+        }
+        else
+        {
+            memcpy(m_pBuffer + m_lCurPos, pBuffer, lBytesOfWritten);
+        }
         m_lCurPos += lBytesOfWritten;
         return lBytesOfWritten;
     }

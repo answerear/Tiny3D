@@ -57,7 +57,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FileSystemArchive::load()
+    TResult FileSystemArchive::load(Meta *meta)
     {
         initFileStreamCache();
         return T3D_OK;
@@ -73,7 +73,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr FileSystemArchive::clone() const
+    ResourcePtr FileSystemArchive::clone(Meta *meta) const
     {
         ArchivePtr archive = create(mName);
         return archive;
@@ -91,13 +91,6 @@ namespace Tiny3D
     String FileSystemArchive::getLocation() const
     {
         return getName();
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult FileSystemArchive::init(const String& assetPath)
-    {
-        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

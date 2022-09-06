@@ -36,8 +36,6 @@ namespace Tiny3D
         : public Singleton<DylibManager>
         , public ResourceManager
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @fn  static DylibManagerPtr create();
@@ -80,12 +78,16 @@ namespace Tiny3D
          *      int32_t argc, va_list args) override;
          * @brief   重寫基類 Resource::create() 接口
          * @param   strName The name.
+         * @param   meta    The pointer to meta object.
          * @param   argc    The argc.
          * @param   args    The arguments.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr create(
-            const String &strName, int32_t argc, va_list args) override;
+        virtual ResourcePtr create(const String &strName, Meta *meta, 
+            int32_t argc, va_list args) override;
+
+        virtual MetaPtr readMetaInfo(const String& name, 
+            int32_t argc, va_list args) override;
     };
 
     #define T3D_DYLIB_MGR   (DylibManager::getInstance())
