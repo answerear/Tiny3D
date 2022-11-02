@@ -311,8 +311,8 @@ namespace Tiny3D
     {
         /// 先创建日志文件夹
         String logPath = getLogPath();
-        Dir dir;
-        dir.makeDir(logPath);
+        Dir::makeDir(Dir::getCachePath());
+        Dir::makeDir(logPath);
 
         DateTime dt = DateTime::currentDateTime();
         String filename = makeLogFileName(mAppID, mTag, dt);

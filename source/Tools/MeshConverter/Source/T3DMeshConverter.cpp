@@ -95,10 +95,10 @@ namespace Tiny3D
                 switch (opts.mDstFileType)
                 {
                 case MeshFileType::T3B:
-                    mgr->setFileMode(SerializerManager::FileMode::BINARY);
+                    mgr->setFileMode(SerializerManager::FileMode::kBinary);
                     break;
                 case MeshFileType::T3T:
-                    mgr->setFileMode(SerializerManager::FileMode::TEXT);
+                    mgr->setFileMode(SerializerManager::FileMode::kText);
                     flags |= FileDataStream::E_MODE_TEXT;
                     break;
                 default:
@@ -145,7 +145,8 @@ namespace Tiny3D
                     break;
                 }
 
-                ret = mgr->serializeModel(os, model);
+                T3D_ASSERT(0);  // 这里为了编译通过，先屏蔽， 后续跑到这里会断言，说明还有代码没完成
+                // ret = mgr->serializeModel(os, model);
                 if (T3D_FAILED(ret))
                 {
                     os.close();

@@ -32,20 +32,16 @@ namespace Tiny3D
      * @class   Component
      * @brief   组件类
      */
+    TCLASS()
     class T3D_ENGINE_API Component : public Object, public Noncopyable
     {
         friend class SceneNode;
-
-        T3D_DECLARE_CLASS();
-
-        RTTR_ENABLE();
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @enum    ComponentID
          * @brief   Values that represent component Identifiers
          */
+        TENUM()
         enum ComponentID : uint32_t
         {
             E_CID_AUTOMATIC = 0xFFFFFFFF,   /**< 自动生成ID */
@@ -63,6 +59,7 @@ namespace Tiny3D
          * @brief   Makes a deep copy of this object
          * @return  A copy of this object.
          */
+        TFUNCTION()
         virtual ComponentPtr clone() const = 0;
 
         /**
@@ -123,7 +120,10 @@ namespace Tiny3D
         virtual void update();
 
     protected:
+        TPROPERTY()
         ID          mID;            /**< The identifier */
+
+        TPROPERTY()
         SceneNode   *mSceneNode;    /**< The scene node */
     };
 }

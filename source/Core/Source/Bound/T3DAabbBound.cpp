@@ -285,26 +285,3 @@ namespace Tiny3D
 }
 
 
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::AabbBound>("Tiny3D::AabbBound")
-        .constructor(&Tiny3D::AabbBound::create)
-        .method("getType", &Tiny3D::AabbBound::getType)
-        .method("clone", &Tiny3D::AabbBound::clone)
-        .method("getAlignAxisBox", &Tiny3D::AabbBound::getAlignAxisBox)
-        .method("getOriginalAlignAxisBox", &Tiny3D::AabbBound::getOriginalAlignAxisBox)
-        .method("setParams", &Tiny3D::AabbBound::setParams)
-        .method("getRenderable", &Tiny3D::AabbBound::getRenderable)
-        .method("update", &Tiny3D::AabbBound::update)
-        .property("OriginalAabb", &Tiny3D::AabbBound::mOriginalAabb, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The original aligned axis bounding box.")
-        );
-}
-

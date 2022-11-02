@@ -45,9 +45,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Transform3D : public Component
     {
-        RTTR_ENABLE(Component);
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @fn  static Transform3DPtr 

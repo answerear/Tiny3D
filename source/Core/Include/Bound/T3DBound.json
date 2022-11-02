@@ -1,0 +1,796 @@
+{
+    "___###ASTRoot###___": {
+        "Type": "Default",
+        "Children": {
+            "AA": {
+                "Type": "Namespace",
+                "Children": {
+                    "AADerived": {
+                        "Type": "Class",
+                        "Base Classes": [
+                            {
+                                "Test::AA::Derived": "Class"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 190,
+                            "End Line": 194
+                        },
+                        "Children": {
+                            "AADerived": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@AA@S@AADerived@F@AADerived#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Base1": {
+                        "Type": "Class",
+                        "Base Classes": [],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 206,
+                            "End Line": 210
+                        },
+                        "Children": {
+                            "Base1": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@AA@S@Base1@F@Base1#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Base2": {
+                        "Type": "Class",
+                        "Base Classes": [],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 213,
+                            "End Line": 217
+                        },
+                        "Children": {
+                            "Base2": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@AA@S@Base2@F@Base2#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Derived": {
+                        "Type": "Class",
+                        "Base Classes": [
+                            {
+                                "Test::Base": "Class"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 183,
+                            "End Line": 187
+                        },
+                        "Children": {
+                            "Derived": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@AA@S@Derived@F@Derived#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "MultiDerived": {
+                        "Type": "Class",
+                        "Base Classes": [
+                            {
+                                "AA::Base1": "Class"
+                            },
+                            {
+                                "AA::Base2": "Class"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 220,
+                            "End Line": 224
+                        },
+                        "Children": {
+                            "MultiDerived": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@AA@S@MultiDerived@F@MultiDerived#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "TestManager": {
+                        "Type": "Class",
+                        "Base Classes": [],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 199,
+                            "End Line": 203
+                        },
+                        "Children": {}
+                    }
+                }
+            },
+            "Test": {
+                "Type": "Namespace",
+                "Children": {
+                    "AA": {
+                        "Type": "Namespace",
+                        "Children": {
+                            "Derived": {
+                                "Type": "Class",
+                                "Base Classes": [
+                                    {
+                                        "Test::AA::Object": "Class"
+                                    }
+                                ],
+                                "Specifiers": [],
+                                "File Info": {
+                                    "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                                    "Start Line": 128,
+                                    "End Line": 176
+                                },
+                                "Children": {
+                                    "Derived": {
+                                        "Type": "Function",
+                                        "Children": {
+                                            "c:@N@Test@N@AA@S@Derived@F@Derived#": {
+                                                "Type": "Constructor",
+                                                "Return Type": "void",
+                                                "Parameters": [],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            },
+                                            "c:@N@Test@N@AA@S@Derived@F@Derived#&&$@N@Test@N@AA@S@Derived#": {
+                                                "Type": "Constructor",
+                                                "Return Type": "void",
+                                                "Parameters": [
+                                                    {
+                                                        "Name": "other",
+                                                        "Type": "Test::AA::Derived &&"
+                                                    }
+                                                ],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            },
+                                            "c:@N@Test@N@AA@S@Derived@F@Derived#&1$@N@Test@N@AA@S@Derived#": {
+                                                "Type": "Constructor",
+                                                "Return Type": "void",
+                                                "Parameters": [
+                                                    {
+                                                        "Name": "other",
+                                                        "Type": "const Test::AA::Derived &"
+                                                    }
+                                                ],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            },
+                                            "c:@N@Test@N@AA@S@Derived@F@Derived#I#": {
+                                                "Type": "Constructor",
+                                                "Return Type": "void",
+                                                "Parameters": [
+                                                    {
+                                                        "Name": "a",
+                                                        "Type": "int32_t"
+                                                    }
+                                                ],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            }
+                                        }
+                                    },
+                                    "NestedDerived": {
+                                        "Type": "Class",
+                                        "Base Classes": [],
+                                        "Specifiers": [],
+                                        "File Info": {
+                                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                                            "Start Line": 145,
+                                            "End Line": 149
+                                        },
+                                        "Children": {
+                                            "NestedDerived": {
+                                                "Type": "Function",
+                                                "Children": {
+                                                    "c:@N@Test@N@AA@S@Derived@S@NestedDerived@F@NestedDerived#": {
+                                                        "Type": "Constructor",
+                                                        "Return Type": "void",
+                                                        "Parameters": [],
+                                                        "Specifiers": [],
+                                                        "Children": {}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "XXfunction": {
+                                        "Type": "Function",
+                                        "Children": {
+                                            "c:@N@Test@N@AA@S@Derived@F@XXfunction#I#*$@N@Test@N@AA@S@Object#f#": {
+                                                "Type": "Instance Function",
+                                                "Return Type": "void",
+                                                "Parameters": [
+                                                    {
+                                                        "Name": "a",
+                                                        "Type": "int"
+                                                    },
+                                                    {
+                                                        "Name": "ob",
+                                                        "Type": "Test::AA::Object *"
+                                                    },
+                                                    {
+                                                        "Name": "c",
+                                                        "Type": "float"
+                                                    }
+                                                ],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            },
+                                            "c:@N@Test@N@AA@S@Derived@F@XXfunction#I#f#": {
+                                                "Type": "Instance Function",
+                                                "Return Type": "int32_t",
+                                                "Parameters": [
+                                                    {
+                                                        "Name": "a",
+                                                        "Type": "int"
+                                                    },
+                                                    {
+                                                        "Name": "c",
+                                                        "Type": "float"
+                                                    }
+                                                ],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            },
+                                            "c:@N@Test@N@AA@S@Derived@F@XXfunction#S": {
+                                                "Type": "Static Function",
+                                                "Return Type": "void",
+                                                "Parameters": [],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            }
+                                        }
+                                    },
+                                    "~Derived": {
+                                        "Type": "Function",
+                                        "Children": {
+                                            "c:@N@Test@N@AA@S@Derived@F@~Derived#": {
+                                                "Type": "Constructor",
+                                                "Return Type": "void",
+                                                "Parameters": [],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "Object": {
+                                "Type": "Class",
+                                "Base Classes": [
+                                    {
+                                        "Test::Derived": "Class"
+                                    }
+                                ],
+                                "Specifiers": [],
+                                "File Info": {
+                                    "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                                    "Start Line": 121,
+                                    "End Line": 125
+                                },
+                                "Children": {
+                                    "Object": {
+                                        "Type": "Function",
+                                        "Children": {
+                                            "c:@N@Test@N@AA@S@Object@F@Object#": {
+                                                "Type": "Constructor",
+                                                "Return Type": "void",
+                                                "Parameters": [],
+                                                "Specifiers": [],
+                                                "Children": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Base": {
+                        "Type": "Class",
+                        "Base Classes": [],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 106,
+                            "End Line": 110
+                        },
+                        "Children": {
+                            "Base": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Test@S@Base@F@Base#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Derived": {
+                        "Type": "Class",
+                        "Base Classes": [
+                            {
+                                "Tiny3D::Object": "Class"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 98,
+                            "End Line": 103
+                        },
+                        "Children": {
+                            "Derived": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Test@S@Derived@F@Derived#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "XXfunction": {
+                        "Type": "Function",
+                        "Children": {
+                            "c:@N@Test@F@XXfunction#": {
+                                "Type": "Overload Function",
+                                "Return Type": "void",
+                                "Parameters": [],
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "c:@N@Test@F@XXfunction#I#": {
+                                "Type": "Overload Function",
+                                "Return Type": "int",
+                                "Parameters": [
+                                    {
+                                        "Name": "a",
+                                        "Type": "int"
+                                    }
+                                ],
+                                "Specifiers": [],
+                                "Children": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "Tiny3D": {
+                "Type": "Namespace",
+                "Children": {
+                    "Bound": {
+                        "Type": "Class",
+                        "Base Classes": [
+                            {
+                                "Tiny3D::Component": "Class"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\Core\\Include\\Bound\\T3DBound.h",
+                            "Start Line": 38,
+                            "End Line": 211
+                        },
+                        "Children": {
+                            "Bound": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@Bound#i#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [
+                                            {
+                                                "Name": "uID",
+                                                "Type": "Tiny3D::ID"
+                                            }
+                                        ],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "Type": {
+                                "Type": "Enumeration",
+                                "Children": {
+                                    "AABB": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 2,
+                                        "Children": {}
+                                    },
+                                    "FRUSTUM": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 4,
+                                        "Children": {}
+                                    },
+                                    "NONE": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 0,
+                                        "Children": {}
+                                    },
+                                    "OBB": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 3,
+                                        "Children": {}
+                                    },
+                                    "SPHERE": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 1,
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "getGroupID": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@getGroupID#1": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "Tiny3D::ID",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "getRenderable": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@getRenderable#": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "Tiny3D::RenderablePtr",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "getType": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@getType#1": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "Tiny3D::Bound::Type",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "isCollisionSource": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@isCollisionSource#1": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "bool",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "isEnabled": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@isEnabled#1": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "bool",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "mGroupID": {
+                                "Type": "Property",
+                                "Data Type": "Tiny3D::ID",
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "mIsCollisionSource": {
+                                "Type": "Property",
+                                "Data Type": "bool",
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "mIsEnabled": {
+                                "Type": "Property",
+                                "Data Type": "bool",
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "mIsMovable": {
+                                "Type": "Property",
+                                "Data Type": "bool",
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "setCollisionSource": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@setCollisionSource#b#": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "void",
+                                        "Parameters": [
+                                            {
+                                                "Name": "isSource",
+                                                "Type": "bool"
+                                            }
+                                        ],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "setEnabled": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@setEnabled#b#": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "void",
+                                        "Parameters": [
+                                            {
+                                                "Name": "isEnabled",
+                                                "Type": "bool"
+                                            }
+                                        ],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "setGroupID": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@setGroupID#i#": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "void",
+                                        "Parameters": [
+                                            {
+                                                "Name": "groupID",
+                                                "Type": "Tiny3D::ID"
+                                            }
+                                        ],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "test": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@test#$@N@Tiny3D@S@SmartPtr>#$@N@Tiny3D@S@Bound#1": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "bool",
+                                        "Parameters": [
+                                            {
+                                                "Name": "bound",
+                                                "Type": "Tiny3D::BoundPtr"
+                                            }
+                                        ],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "~Bound": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Bound@F@~Bound#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Component": {
+                        "Type": "Class",
+                        "Base Classes": [
+                            {
+                                "Tiny3D::Object": "Class"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\Core\\Include\\Component\\T3DComponent.h",
+                            "Start Line": 36,
+                            "End Line": 134
+                        },
+                        "Children": {
+                            "Component": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Component@F@Component#i#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [
+                                            {
+                                                "Name": "uID",
+                                                "Type": "Tiny3D::ID"
+                                            }
+                                        ],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "ComponentID": {
+                                "Type": "Enumeration",
+                                "Children": {
+                                    "E_CID_AUTOMATIC": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 4294967295,
+                                        "Children": {}
+                                    },
+                                    "E_CID_INVALID": {
+                                        "Type": "Enumeration Constant",
+                                        "Value": 0,
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "clone": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Component@F@clone#1": {
+                                        "Type": "Instance Function",
+                                        "Return Type": "Tiny3D::ComponentPtr",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "mID": {
+                                "Type": "Property",
+                                "Data Type": "Tiny3D::ID",
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "mSceneNode": {
+                                "Type": "Property",
+                                "Data Type": "Tiny3D::SceneNode *",
+                                "Specifiers": [],
+                                "Children": {}
+                            },
+                            "~Component": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Component@F@~Component#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Object": {
+                        "Type": "Class",
+                        "Base Classes": [],
+                        "Specifiers": [],
+                        "File Info": {
+                            "Path": "E:\\workspace\\private\\Tiny3D\\source\\System\\Include\\T3DObject.h",
+                            "Start Line": 43,
+                            "End Line": 86
+                        },
+                        "Children": {
+                            "Object": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Object@F@Object#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            },
+                            "~Object": {
+                                "Type": "Function",
+                                "Children": {
+                                    "c:@N@Tiny3D@S@Object@F@~Object#": {
+                                        "Type": "Constructor",
+                                        "Return Type": "void",
+                                        "Parameters": [],
+                                        "Specifiers": [],
+                                        "Children": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "XXfunction": {
+                "Type": "Function",
+                "Children": {
+                    "c:@F@XXfunction#": {
+                        "Type": "Overload Function",
+                        "Return Type": "float",
+                        "Parameters": [],
+                        "Specifiers": [],
+                        "Children": {}
+                    },
+                    "c:@F@XXfunction#f#": {
+                        "Type": "Overload Function",
+                        "Return Type": "void",
+                        "Parameters": [
+                            {
+                                "Name": "fval",
+                                "Type": "float"
+                            }
+                        ],
+                        "Specifiers": [],
+                        "Children": {}
+                    }
+                }
+            }
+        }
+    }
+}

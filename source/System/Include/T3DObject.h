@@ -32,10 +32,11 @@ namespace Tiny3D
      * @class   Object
      * @brief   引擎所有对象基类
      */
+    TCLASS(EditorOnly, Catogary=Base)
     class T3D_SYSTEM_API Object
     {
         T3D_DECLARE_CLASS();
-        RTTR_ENABLE();
+        TRTTI_ENABLE();
 
     public:
         /**
@@ -78,5 +79,205 @@ namespace Tiny3D
     };
 }
 
+// TFUNCTION()
+// void Globalfunction(float fval)
+// {}
+//
+// TFUNCTION()
+// float Globalfunction()
+// { return 0.0f; }
+
+TENUM()
+enum class AAType : uint32_t
+{
+    kNone = 0,
+    kReal,
+    kFake
+};
+
+namespace Test
+{
+    // TFUNCTION()
+    // int NSFunction()
+    // {
+    //     return 0;
+    // }
+
+    TENUM()
+    enum class AAType : uint32_t
+    {
+        kNone = 0,
+        kReal,
+        kFake
+    };
+    
+    TCLASS()
+    class Derived : public Tiny3D::Object
+    {
+    public:
+        Derived() {}
+        
+    };
+
+    TCLASS()
+    class Base
+    {
+    public:
+        Base() = default;
+    };
+
+    // TFUNCTION()
+    // void XXfunction()
+    // {}
+    //
+    // TFUNCTION()
+    // int XXfunction(int a)
+    // { return 0; }
+
+    namespace AA
+    {
+        TCLASS()
+        class Object : public Derived
+        {
+        public:
+            Object() = default;
+        };
+
+        TCLASS()
+        class Derived : public Object
+        {
+        public:
+			TENUM()
+			enum class EType : uint32_t
+			{
+				kNull = 0,
+				kBool,
+				kChar,
+				kInt8,
+				kUInt8,
+				kInt16,
+				kUInt16,
+				kInt32,
+				kUInt32,
+				kInt64,
+				kUInt64,
+				kSingle,
+				kDouble,
+				kPointer
+			};
+			
+            Derived() = default;
+            Derived(int32_t a)
+            {}
+
+            Derived(const Derived &other)
+            {}
+
+            Derived(Derived &&other)
+            {}
+            
+            ~Derived()
+            {}
+
+            TCLASS()
+            class NestedDerived
+            {
+            public:
+                NestedDerived() = default;
+            };
+
+            TFUNCTION()
+            int32_t XXfunction(int a, float c)
+            {
+                return 0;
+            }
+
+            TFUNCTION()
+            static void XXfunction()
+            {
+                
+            }
+			
+			TFUNCTION()
+			int32_t TestFunction() const
+			{
+				return 0;
+			}
+
+            TFUNCTION()
+            void XXfunction(int a, Object *ob, float c)
+            {
+                TCLASS()
+                class TempDerived
+                {
+                public:
+                    TempDerived() = default;
+
+                    void test();
+                };
+                TempDerived temp;
+            }
+			
+			TPROPERTY()
+			int32_t iValue;
+			
+			TPROPERTY()
+			float32_t fValue;
+			
+			TPROPERTY()
+			char *szName;
+
+            TPROPERTY()
+            EType eType;
+        };
+    }
+}
+
+namespace AA
+{
+    TCLASS()
+    class Derived : public Test::Base
+    {
+    public:
+        Derived() = default;
+    };
+
+    TCLASS()
+    class AADerived : public Test::AA::Derived
+    {
+    public:
+        AADerived() = default;
+    };
+
+    using namespace Tiny3D;
+    
+    TCLASS()
+    class TestManager : public Singleton<TestManager>
+    {
+    public:
+        
+    };
+
+    TCLASS()
+    class Base1
+    {
+    public:
+        Base1() = default;
+    };
+
+    TCLASS()
+    class Base2
+    {
+    public:
+        Base2() = default;
+    };
+
+    TCLASS()
+    class MultiDerived : public Base1, public Base2
+    {
+    public:
+        MultiDerived() = default;
+    };
+}
 
 #endif  /*__T3D_OBJECT_H__*/

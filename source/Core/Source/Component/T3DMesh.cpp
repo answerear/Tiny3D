@@ -128,24 +128,3 @@ namespace Tiny3D
         return T3D_OK;
     }
 }
-
-
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Mesh>("Tiny3D::Mesh")
-        .constructor(&Tiny3D::Mesh::create)
-        .method("setModel", &Tiny3D::Mesh::setModel)
-        .method("clone", &Tiny3D::Mesh::clone)
-        .method("getMaterial", &Tiny3D::Mesh::getMaterial)
-        .method("getVertexArrayObject", &Tiny3D::Mesh::getVertexArrayObject)
-        .property("Model", &Tiny3D::Mesh::mModel, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The modal data of this mesh.")
-        );
-}

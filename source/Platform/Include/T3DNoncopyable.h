@@ -32,9 +32,12 @@ namespace Tiny3D
         Noncopyable() = default;
         virtual ~Noncopyable() = default;
 
-    private:
+    public:
         Noncopyable(const Noncopyable&) = delete;
         Noncopyable& operator =(const Noncopyable&) = delete;
+
+        Noncopyable(Noncopyable &&) = delete;
+        Noncopyable& operator =(Noncopyable &&) = delete;
     };
 }
 

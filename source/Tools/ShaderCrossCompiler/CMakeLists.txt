@@ -22,7 +22,7 @@ if (MSVC)
     )
 endif (MSVC)
 
-set(SHADERCONDUCTOR_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/ShaderConductor" CACHE PATH "ShaderConductor library path")
+set(SHADERCONDUCTOR_HOME "${TINY3D_DEP_DIR}/ShaderConductor" CACHE PATH "ShaderConductor library path")
 
 if (TINY3D_OS_WINDOWS)
     set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")

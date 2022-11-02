@@ -242,37 +242,4 @@ namespace Tiny3D
     }
 }
 
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Axis>("Tiny3D::Axis")
-        .enumeration<Tiny3D::Axis::Type>("Tiny3D::Axis::Type")
-        (
-            value("AXIS_X", Tiny3D::Axis::Type::AXIS_X),
-            value("AXIS_Y", Tiny3D::Axis::Type::AXIS_Y),
-            value("AXIS_Z", Tiny3D::Axis::Type::AXIS_Z)
-        )
-        .constructor(&Tiny3D::Axis::create)
-        .method("getAxisLength", &Tiny3D::Axis::getAxisLength)
-        .method("clone", &Tiny3D::Axis::clone)
-        .method("getMaterial", &Tiny3D::Axis::getMaterial)
-        .method("getVertexArrayObject", &Tiny3D::Axis::getVertexArrayObject)
-        .property("AxisX", &Tiny3D::Axis::mAxisX, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The length along axis-x.")
-        )
-        .property("AxisX", &Tiny3D::Axis::mAxisY, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The length along axis-y.")
-        )
-        .property("AxisX", &Tiny3D::Axis::mAxisZ, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The length along axis-z.")
-        );
-}
 

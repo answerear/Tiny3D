@@ -168,26 +168,3 @@ namespace Tiny3D
         }
     }
 }
-
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::SphereBound>("Tiny3D::SphereBound")
-        .constructor(&Tiny3D::SphereBound::create)
-        .method("getType", &Tiny3D::SphereBound::getType)
-        .method("clone", &Tiny3D::SphereBound::clone)
-        .method("getSphere", &Tiny3D::SphereBound::getSphere)
-        .method("getOriginalSphere", &Tiny3D::SphereBound::getOriginalSphere)
-        .method("setParams", &Tiny3D::SphereBound::setParams)
-        .method("getRenderable", &Tiny3D::SphereBound::getRenderable)
-        .method("update", &Tiny3D::SphereBound::update)
-        .property("OriginalSphere", &Tiny3D::SphereBound::mOriginalSphere, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The original sphere bounding volume.")
-        );
-}

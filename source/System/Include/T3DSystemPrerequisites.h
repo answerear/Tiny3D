@@ -32,4 +32,15 @@
 #include <rttr/registration>
 #include <rttr/registration_friend>
 
+
+namespace Tiny3D
+{
+    #define TCLASS(...)
+    #define TFUNCTION(...)
+    #define TPROPERTY(...)
+    #define TENUM(...)
+    #define TRTTI_ENABLE    RTTR_ENABLE
+    #define TRTTI_FRIEND    RTTR_REGISTRATION_FRIEND
+}
+
 #endif  /*__T3D_SYSTEM_PREREQUISITES_H__*/

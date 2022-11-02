@@ -53,6 +53,7 @@ namespace Tiny3D
             bool rt = cmd.parse(argc, argv, opts);
             if (!rt)
             {
+                ret = T3D_ERR_FAIL;
                 break;
             }
 
@@ -84,9 +85,9 @@ namespace Tiny3D
                 // directory
                 if (!isClear)
                 {
-                    const String &path = dir.getFilePath();
+                    const String &filepath = dir.getFilePath();
                     const String &name = dir.getFileName();
-                    generate(path, name, true);
+                    generate(filepath, name, true);
                 }
 
                 process(dir.getFilePath(), isClear);
@@ -94,7 +95,7 @@ namespace Tiny3D
             else
             {
                 // file
-                const String &path = dir.getFilePath();
+                const String &filepath = dir.getFilePath();
                 const String &name = dir.getFileName();
                 
                 if (isClear)
@@ -102,7 +103,7 @@ namespace Tiny3D
                     // delete *.meta
                     if (isMetaFile(name))
                     {
-                        clear(path);
+                        clear(filepath);
                     }
                 }
                 else
@@ -110,14 +111,14 @@ namespace Tiny3D
                     // generate *.meta
                     if (!isMetaFile(name))
                     {
-                        generate(path, name, false);
+                        generate(filepath, name, false);
                     }
                     else
                     {
                         // 有元文件，如果没有资源文件，则删掉元文件
                         const String& title = dir.getFileTitle();
-                        String path = dir.getRoot() + title;
-                        if (!Dir::exists(path))
+                        String filepath = dir.getRoot() + title;
+                        if (!Dir::exists(filepath))
                         {
                             Dir::remove(dir.getFilePath());
                         }

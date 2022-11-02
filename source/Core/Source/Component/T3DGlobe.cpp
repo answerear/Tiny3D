@@ -292,28 +292,3 @@ namespace Tiny3D
         return mVAO;
     }
 }
-
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Globe>("Tiny3D::Globe")
-        .constructor(&Tiny3D::Globe::create)
-        .method("getCenter", &Tiny3D::Globe::getCenter)
-        .method("getRadius", &Tiny3D::Globe::getRadius)
-        .method("clone", &Tiny3D::Globe::clone)
-        .method("getMaterial", &Tiny3D::Globe::getMaterial)
-        .method("getVertexArrayObject", &Tiny3D::Globe::getVertexArrayObject)
-        .property("Center", &Tiny3D::Globe::mCenter, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The center of this globe.")
-        )
-        .property("Radius", &Tiny3D::Globe::mRadius, registration::protected_access)
-        (
-            metadata(TXT_DESCRIPTION, "The radius of this globe.")
-        );
-}

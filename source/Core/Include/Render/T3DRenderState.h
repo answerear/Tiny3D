@@ -29,9 +29,10 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     class T3D_ENGINE_API BlendState : public Object
     {
-        RTTR_ENABLE(Object);
+        TRTTI_ENABLE(Object);
 
     public:
         enum
@@ -41,7 +42,10 @@ namespace Tiny3D
 
         virtual ~BlendState();
 
+        TFUNCTION();
         void setAlpha2CoverageEnabled(bool enabled);
+
+        TFUNCTION();
         bool isAlpha2CoverageEnabled() const;
 
         void setIndependentBlendEnabled(bool enabled);
@@ -72,7 +76,7 @@ namespace Tiny3D
         BlendState();
 
         struct RTBlendState
-        {
+        {            
             bool            mBlendEnable;       /**< */
             BlendFactor     mSrcBlend;
             BlendFactor     mDestBlend;

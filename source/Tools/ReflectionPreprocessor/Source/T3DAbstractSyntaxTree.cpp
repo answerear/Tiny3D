@@ -1,0 +1,499 @@
+﻿/*******************************************************************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+#include "T3DAbstractSyntaxTree.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+    
+    ASTNode::ASTNode(const String &name)
+        : HaveRTTI(false)
+        , mName(name)
+        , mParent(nullptr)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+    
+    ASTNode::~ASTNode()
+    {
+        removeAllChildren();
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    void ASTNode::removeAllChildren()
+    {
+        for (const auto &val : mChildren)
+        {
+            ASTNode *child = val.second;
+            child->removeAllChildren();
+            delete child;
+        }
+        mChildren.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    String ASTNode::getHierarchyName() const
+    {
+        String name = getName();
+        const ASTNode *node = getParent();
+        while (node != nullptr)
+        {
+            if (node->getType() != Type::kNull)
+            {
+                name = node->getName() + "::" + name;    
+            }
+            node = node->getParent();
+        }
+        return name;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    void ASTNode::dump(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        // Name
+        writer.String(mName);
+
+        {
+            writer.StartObject();
+        
+            // Type
+            writer.Key("Type");
+            String str = getTypeString();
+            writer.String(str);
+
+            dumpProperties(writer);
+
+            writer.Key("Children");
+
+            {
+                writer.StartObject();
+                
+                for (const auto &val : mChildren)
+                {
+                    val.second->dump(writer);
+                }
+
+                writer.EndObject();
+            }            
+        
+            writer.EndObject();
+        }
+        
+    }
+
+    //--------------------------------------------------------------------------
+    
+    ASTNode *ASTNode::getChildRecursively(const StringList &names) const
+    {
+        ASTNode *child = nullptr;
+
+        if (!names.empty())
+        {
+            auto itr = names.begin();
+            child = getChildDirectly(*itr);
+            ++itr;
+        
+            while (itr != names.end() && child != nullptr)
+            {
+                child = child->getChildDirectly(*itr);
+                ++itr;
+            }
+        }
+        
+        return child;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ASTNode::dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTNode::generateSourceFile(FileDataStream& fs) const
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTStruct::dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const
+    {
+        // Base Classes
+        writer.Key("Base Classes");
+        {
+            writer.StartArray();
+            for (const auto &val : BaseClasses)
+            {
+                writer.StartObject();
+                writer.Key(val.second->getHierarchyName());
+                writer.String(val.second->getTypeString());
+                writer.EndObject();
+            }
+            writer.EndArray();    
+        }
+        
+        // Specifiers
+        writer.Key("Specifiers");
+        {
+            writer.StartArray();
+            for (const auto &val : Specifiers)
+            {
+                writer.StartObject();
+                writer.Key(val.name);
+                writer.String(val.value);
+                writer.EndObject();
+            }
+            writer.EndArray();            
+        }
+        
+        // File info
+        writer.Key("File Info");
+        {
+            writer.StartObject();
+            writer.Key("Path");
+            writer.String(FileInfo.Path);
+            writer.Key("Start Line");
+            writer.Uint(FileInfo.StartLine);
+            writer.Key("End Line");
+            writer.Uint(FileInfo.EndLine);
+            writer.EndObject();   
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTStruct::generateSourceFile(FileDataStream& fs) const
+    {
+        // 构造类名
+        String name = getHierarchyName();
+            
+        // 写类名
+        fs << std::endl << "\tregistration::class_<" << name << ">(\"" << name << "\")";
+
+        // 交给子结点写
+        if (mChildren.empty())
+        {
+            fs << ";" << std::endl;
+        }
+        else
+        {
+            fs << std::endl;
+            
+            size_t i = 0;
+            for (const auto &child : mChildren)
+            {
+                if (child.second->getType() == Type::kEnum
+                    || child.second->getType() == Type::kFunction
+                    || child.second->getType() == Type::kProperty)
+                {
+                    // 类的构造函数、析构函数、函数、枚举、属性，可以直接写
+                    child.second->generateSourceFile(fs);
+                    if (i != mChildren.size() - 1)
+                    {
+                        fs << std::endl;
+                    }
+                }
+                
+                i++;
+            }
+            fs << ";" << std::endl;
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTFunction::generateSourceFile(FileDataStream &fs) const
+    {
+        bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
+        
+        TResult ret = T3D_OK;
+
+        if (isGlobal)
+        {
+            fs << std::endl << "\tregistration";
+        }
+        
+        // 构造函数名
+        String name = getHierarchyName();
+
+        size_t idx = 0;
+
+        bool hasOverload = (mChildren.size() > 1);
+        
+        for (const auto &child : mChildren)
+        {
+            switch (child.second->getType())
+            {
+            case Type::kOverloadFunction:
+            case Type::kInstanceFunction:
+            case Type::kStaticFunction:
+                {
+                    // 普通可重载函数 & 成员函数
+                    if (isGlobal && idx == 0)
+                    {
+                        fs << "::";
+                    }
+                    else
+                    {
+                        fs << "\t\t.";
+                    }
+                    
+                    if (hasOverload)
+                    {
+                        ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(child.second);
+
+                        // 返回值
+                        const String &retType = overload->RetType;
+
+                        // 构造参数列表
+                        String params;
+                        size_t i = 0;                        
+                        for (const auto &val : overload->Params)
+                        {
+                            params += val.Type;
+                            if (i != overload->Params.size() - 1)
+                            {
+                                params += ", ";
+                            }
+                            i++;
+                        }
+                        
+                        fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << name << "))";
+
+                        if (idx != mChildren.size() - 1)
+                        {
+                            fs << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        fs << "method(\"" << getName() << "\", &" << name << ")";
+                    }
+                }
+                break;
+            case Type::kConstructor:
+                {
+                    // 构造函数
+                    ASTConstructor *constructor = static_cast<ASTConstructor*>(child.second);
+                    String params;
+                    size_t i = 0;
+                    for (const auto &val : constructor->Params)
+                    {
+                        params += val.Type;
+                        if (i != constructor->Params.size() - 1)
+                        {
+                            params += ", ";
+                        }
+                    }
+                    fs << "\t\t.constructor<" << params << ">()";
+
+                    if (hasOverload && idx != mChildren.size() - 1)
+                    {
+                        fs << std::endl;
+                    }
+                }
+                break;
+            case Type::kDestructor:
+                {
+                    // 析构函数
+                }
+                break;
+            }
+
+            idx++;
+        }
+
+        if (isGlobal)
+        {
+            fs << ";" << std::endl;
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTSpecifierFunction::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        // Specifiers
+        writer.Key("Specifiers");
+        {
+            writer.StartArray();
+            for (const auto &val : Specifiers)
+            {
+                writer.StartObject();
+                writer.Key(val.name);
+                writer.String(val.value);
+                writer.EndObject();
+            }
+            writer.EndArray();            
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTParameterFunction::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        // Parameters
+        writer.Key("Parameters");
+        {
+            writer.StartArray();
+            for (const auto &val : Params)
+            {
+                writer.StartObject();
+                writer.Key("Name");
+                writer.String(val.Name);
+                writer.Key("Type");
+                writer.String(val.Type);
+                writer.EndObject();
+            }
+            writer.EndArray();
+        }
+        
+        ASTSpecifierFunction::dumpProperties(writer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTOverloadFunction::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        // Return Type
+        writer.Key("Return Type");
+        writer.String(RetType);
+        
+        ASTParameterFunction::dumpProperties(writer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTProperty::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        // Type
+        writer.Key("Data Type");
+        writer.String(DataType);
+
+        // Specifiers
+        writer.Key("Specifiers");
+        {
+            writer.StartArray();
+            for (const auto &val : Specifiers)
+            {
+                writer.StartObject();
+                writer.Key(val.name);
+                writer.String(val.value);
+                writer.EndObject();
+            }
+            writer.EndArray();            
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTProperty::generateSourceFile(FileDataStream &fs) const
+    {
+        bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
+
+        String name = getHierarchyName();
+        
+        if (isGlobal)
+        {   
+            fs << std::endl << "\tregistration::property(\"" << name << "\", &" << name << ");" << std::endl;
+        }
+        else
+        {
+            fs << "\t\t.property(\"" << getName() << "\", &" << name << ")";
+        }
+
+        // fs << "property(\"" << name << "\", &" << name << ")";
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTEnum::generateSourceFile(FileDataStream &fs) const
+    {
+        bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
+        
+        // 枚举名称
+        String name = getHierarchyName();
+
+        if (isGlobal)
+        {
+            fs << std::endl << "\tregistration::enumeration<" << name << ">(\"" << name << "\")" << std::endl;
+        }
+        else
+        {
+            fs << "\t\t.enumeration<" << name << ">(\"" << name << "\")" << std::endl;
+        }
+
+        fs << "\t\t(" << std::endl;
+
+        {
+            size_t i = 0;
+            for (const auto &child : mChildren)
+            {
+                ASTEnumConstant *constant = static_cast<ASTEnumConstant*>(child.second);
+
+                fs << "\t\t\tvalue(\"" << child.second->getName() << "\", " << child.second->getHierarchyName() << ")";
+
+                if (i != mChildren.size() - 1)
+                {
+                    fs << ",";
+                }
+                
+                fs << std::endl;
+
+                i++;
+            }
+        }
+
+        fs << "\t\t)";
+
+        if (isGlobal)
+        {
+            fs << ";" << std::endl;
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTEnumConstant::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        // Value
+        writer.Key("Value");
+        writer.Uint64(Value);
+    }
+
+    //--------------------------------------------------------------------------
+}

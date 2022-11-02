@@ -219,13 +219,13 @@ namespace Tiny3D
             StringArray tokens = StringUtil::split(str, ".");
             if (!tokens.empty())
             {
-                major = StringConverter::parseInt32(tokens[0]);
+                major = StringConverter::parseValue<int32_t>(tokens[0]);
                 if (tokens.size() > 1)
-                    minor = StringConverter::parseInt32(tokens[1]);
+                    minor = StringConverter::parseValue<int32_t>(tokens[1]);
                 if (tokens.size() > 2)
-                    release = StringConverter::parseInt32(tokens[2]);
+                    release = StringConverter::parseValue<int32_t>(tokens[2]);
                 if (tokens.size() > 3)
-                    build = StringConverter::parseInt32(tokens[3]);
+                    build = StringConverter::parseValue<int32_t>(tokens[3]);
             }
         }
 

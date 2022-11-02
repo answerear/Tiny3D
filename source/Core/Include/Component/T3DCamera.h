@@ -37,9 +37,6 @@ namespace Tiny3D
         : public Component
         , public ITransformListener
     {
-        RTTR_ENABLE(Component);
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @enum    Type

@@ -45,7 +45,8 @@ namespace Tiny3D
 
     Win32Dir::~Win32Dir()
     {
-        close();
+        // close();
+        T3D_ASSERT(m_hFindFile == INVALID_HANDLE_VALUE);
     }
 
     //--------------------------------------------------------------------------
@@ -351,6 +352,15 @@ namespace Tiny3D
         *ptr = 0;
 
         return String(szBuf);
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getCurrentPath() const
+    {
+        char buff[FILENAME_MAX];
+        _getcwd(buff, FILENAME_MAX);
+        return buff;
     }
 
     //--------------------------------------------------------------------------

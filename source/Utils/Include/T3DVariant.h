@@ -22,8 +22,8 @@
 
 
 #include "T3DUtilsPrerequisites.h"
-#include "T3DFix32.h"
-#include "T3DFix64.h"
+// #include "T3DFix32.h"
+// #include "T3DFix64.h"
 
 
 namespace Tiny3D
@@ -70,8 +70,8 @@ namespace Tiny3D
         Variant(uint64_t value);
         Variant(float32_t value);
         Variant(float64_t value);
-        Variant(const fix32_t &value);
-        Variant(const fix64_t &value);
+        // Variant(const fix32_t &value);
+        // Variant(const fix64_t &value);
         Variant(char value);
         Variant(wchar_t value);
         Variant(const char *value);
@@ -103,8 +103,8 @@ namespace Tiny3D
         void setULong(ulong_t value);
         void setFloat32(float32_t value);
         void setFloat64(float64_t value);
-        void setFix32(const fix32_t &value);
-        void setFix64(const fix64_t &value);
+        // void setFix32(const fix32_t &value);
+        // void setFix64(const fix64_t &value);
         void setChar(char value);
         void setWChar(wchar_t value);
         void setString(const String &value);
@@ -126,8 +126,8 @@ namespace Tiny3D
         ulong_t ulongValue(bool *ok = nullptr) const;
         float32_t float32Value(bool *ok = nullptr) const;
         float64_t float64Value(bool *ok = nullptr) const;
-        fix32_t fix32Value(bool *ok = nullptr) const;
-        fix64_t fix64Value(bool *ok = nullptr) const;
+        // fix32_t fix32Value(bool *ok = nullptr) const;
+        // fix64_t fix64Value(bool *ok = nullptr) const;
         char charValue(bool *ok = nullptr) const;
         wchar_t wcharValue(bool *ok = nullptr) const;
         String stringValue(bool *ok = nullptr) const;
@@ -194,8 +194,8 @@ namespace Tiny3D
             ulong_t     mULongValue;
             float32_t   mFloat32Value;
             float64_t   mFloat64Value;
-            fix32_t     mFix32Value;
-            fix64_t     mFix64Value;
+            // fix32_t     mFix32Value;
+            // fix64_t     mFix64Value;
             char        mCharValue;
             wchar_t     mWCharValue;
             char        *mStrValue;

@@ -157,6 +157,12 @@ namespace Tiny3D
         virtual String getAppPath() const override;
 
         /**
+            * @brief 获取程序当前工作路径
+            * @return 返回程序当前工作路径
+            */
+        virtual String getCurrentPath() const override;
+
+        /**
         * @brief 获取应用程序可写路径，不同平台指定对应的路径
         * @return 返回应用程序可写路径.
         */

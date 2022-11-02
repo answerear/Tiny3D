@@ -222,17 +222,55 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Dir::removeDir(const String &strDir)
+    bool Dir::removeDir(const String &strDir, bool force/* = false */)
     {
         if (nullptr == sDir)
             sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
 
+        bool ret = false;
+        
         if (sDir != nullptr)
         {
-            return sDir->removeDir(strDir);
+            if (force)
+            {
+                Dir dir;
+                bool working = dir.findFile(strDir + getNativeSeparator() + "*.*");
+
+                while (working)
+                {
+                    working = dir.findNextFile();
+
+                    if (dir.isDots())
+                    {
+                        // . or ..
+                        continue;
+                    }
+                    
+                    if (dir.isDirectory())
+                    {
+                        // directory
+                        const String filePath = dir.getFilePath();
+                        removeDir(filePath, true);
+                    }
+                    else
+                    {
+                        // file
+                        const String filePath = dir.getFilePath();
+                        remove(filePath);
+                    }
+                }
+                
+                sDir->removeDir(strDir);
+
+                dir.close();
+            }
+            else
+            {
+                ret = sDir->removeDir(strDir);
+            }
         }
 
-        return false;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -299,6 +337,23 @@ namespace Tiny3D
         }
 
         return sAppPath;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Dir::getCurrentPath()
+    {
+        String path;
+        
+        if (nullptr == sDir)
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+        if (sDir != nullptr)
+        {
+            path = sDir->getCurrentPath();
+        }
+        
+        return path;
     }
 
     //--------------------------------------------------------------------------
@@ -413,4 +468,86 @@ namespace Tiny3D
         String dir;
         return parsePath(path, dir, name);
     }
+
+    //--------------------------------------------------------------------------
+
+    String Dir::formatPath(const String& path)
+    {
+        String fullpath;
+        
+        if (path[0] == '.')
+        {
+            // 相对路径
+            fullpath = Dir::getCurrentPath() + Dir::getNativeSeparator() + path;
+        }
+        else
+        {
+            fullpath = path;
+        }
+        
+        TList<String> strings;
+        String s;
+        s.reserve(fullpath.size());
+        size_t jumpCount = 0;
+        int32_t i = (int32_t)fullpath.length() - 1;
+        
+        while (i >= 0)
+        {
+            if (fullpath[i] == '\\' || fullpath[i] == '/')
+            {
+                if (!s.empty() && jumpCount == 0)
+                {
+                    strings.push_front(s);
+                    s.clear();
+                }
+                else if (jumpCount > 0)
+                {
+                    // 退掉一级目录
+                    jumpCount--;
+                }
+            }
+            else
+            {
+                if (fullpath[i] == '.' && fullpath[i-1] == '.')
+                {
+                    // 要退到上一级目录，也就是删掉上一级目录
+                    jumpCount++;
+                    i-=2;
+                }
+                else if (fullpath[i] == '.' && fullpath[i-1] != '.')
+                {
+                    // 当前目录，只需要删掉 . 即可
+                }
+                else if (jumpCount == 0)
+                {
+                    // 没有跳到上一级目录，存起来
+                    s.insert(s.begin(), fullpath[i]);
+                }
+            }
+            
+            i--;
+        }
+
+        if (!s.empty())
+        {
+            strings.push_front(s);
+        }
+
+        String ret;
+        ret.reserve(fullpath.size());
+        
+        // 重新用系统路径分隔符组合路径
+        i = 0;
+        for (const auto &str : strings)
+        {
+            ret += str;
+            if (i != strings.size() - 1)
+                ret += getNativeSeparator();
+            i++;
+        }        
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
 }

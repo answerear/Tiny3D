@@ -34,8 +34,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Technique : public Object
     {
-        RTTR_ENABLE();
-
     public:
         typedef TArray<PassPtr>                 Passes;
         typedef Passes::iterator                PassesItr;

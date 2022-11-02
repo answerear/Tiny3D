@@ -1,0 +1,110 @@
+﻿/*******************************************************************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+#ifndef __T3D_REFLECTION_GENERATOR_H__
+#define __T3D_REFLECTION_GENERATOR_H__
+
+
+#include "T3DRPPrerequisites.h"
+#include "T3DPreprocessorOptions.h"
+#include "T3DAbstractSyntaxTree.h"
+
+
+namespace Tiny3D
+{
+    class ReflectionGenerator : public Noncopyable
+    {
+    public:
+        ReflectionGenerator();
+
+        virtual ~ReflectionGenerator() override;
+        
+        TResult generateAST(const String &srcPath, const ClangArgs &args);
+
+        TResult generateSource(const String &generatedPath);
+
+        void dumpReflectionInfo(const String &path) const;
+        
+    protected:
+        String toString(const CXString &s) const
+        {
+            const char *str = clang_getCString(s);
+            String result(str);
+            clang_disposeString(s);
+            return result;
+        }
+
+        CXChildVisitResult visitChildren(CXCursor cxCursor, CXCursor cxParent);
+
+        // TResult processNamespace(CXCursor cxCursor, CXCursor cxParent);
+        
+        TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass);
+
+        TResult processClassBaseSpecifier(CXCursor cxCursor, CXCursor cxParent);
+
+        TResult processFunctionDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember, bool isConstructor, bool isDestructor);
+
+        TResult processEnumDeclaration(CXCursor cxCursor, CXCursor cxParent);
+
+        TResult processEnumConstDeclaration(CXCursor cxCursor, CXCursor cxParent);
+
+        TResult processVariableDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember);
+        
+        // TResult processOverloadDeclaration(CXCursor cxCursor, CXCursor cxParent);
+        
+        TResult processMacroExpansion(CXCursor cxCursor, CXCursor cxParent);
+
+        void getASTNodeInfo(CXCursor cxCursor, String &filePath, uint32_t &start, uint32_t &end, uint32_t &column, uint32_t &offset) const;
+        
+        ASTNode *createNode(const ASTNodeInfo &info) const;
+
+        ASTNode *getOrConstructParentNode(CXCursor cxCursor);
+
+        void insertSourceFiles(const String &path, ASTNode *node);
+        
+    protected:
+        struct FileReflectionInfo
+        {
+            Specifiers      structs;
+            Specifiers      classes;
+            Specifiers      functions;
+            Specifiers      properties;
+            Specifiers      enumerations;
+            TSet<uint32_t>  RTTISwitches;
+        };
+
+        typedef std::shared_ptr<FileReflectionInfo> FileReflectionInfoPtr;
+
+        typedef TMap<String, FileReflectionInfoPtr> Files;
+        typedef Files::value_type FilesValue;
+
+        typedef TMap<String, ASTNode*> ASTNodeMap;
+        typedef ASTNodeMap::value_type ASTNodeMapValue;
+        
+        typedef TMap<String, ASTNodeMap> SourceFileMap;
+        typedef SourceFileMap::value_type SourceFileMapValue;
+        
+        SourceFileMap   mSourceFiles;   /// 源码集合
+        Files           mFiles;         /// 带反射信息的文件集合
+        ASTNode         *mRoot;         /// AST 根结点
+    };
+}
+
+
+#endif  /*__T3D_REFLECTION_GENERATOR_H__*/

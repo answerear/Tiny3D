@@ -33,9 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Mesh : public Renderable
     {
-        RTTR_ENABLE(Renderable);
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @fn  static MeshPtr Mesh::create(ID uID = E_CID_AUTOMATIC);

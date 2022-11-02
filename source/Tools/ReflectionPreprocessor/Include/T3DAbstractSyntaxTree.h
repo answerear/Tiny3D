@@ -1,0 +1,591 @@
+﻿/*******************************************************************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+#ifndef __T3D_ABSTRACT_SYNTAX_TREE_H__
+#define __T3D_ABSTRACT_SYNTAX_TREE_H__
+
+
+#include "T3DRPPrerequisites.h"
+
+
+namespace Tiny3D
+{
+    static const String kMacroClass = "TCLASS";
+    static const String kMacroFunction = "TFUNCTION";
+    static const String kMacroProperty = "TPROPERTY";
+    static const String kMacroStruct = "TSTRUCT";
+    static const String kMacroEnum = "TENUM";
+    
+    struct Specifier
+    {
+        String  name;
+        String  value;
+    };
+
+    typedef TMap<uint32_t, TList<Specifier>> Specifiers;
+    typedef Specifiers::value_type SpecifiersValue;
+
+    struct ASTNodeInfo
+    {
+        String name;
+        CXCursorKind cxKind;
+    };
+
+    /**
+     * @brief AST 语法树结点
+     */
+    class ASTNode : public Noncopyable
+    {
+    public:
+        /** 结点类型 */
+        enum class Type : uint32_t
+        {
+            kNone = 0,
+            kNull,              /// 空结点，表示什么都不是
+            kNamespace,         /// 命名空间
+            kClass,             /// 类
+            kStruct,            /// 结构体
+            kFunction,          /// 函数
+            kOverloadFunction,  /// 可重载函数
+            kStaticFunction,    /// 静态函数
+            kInstanceFunction,  /// 成员函数
+            kConstructor,       /// 构造函数
+            kDestructor,        /// 析构函数
+            kProperty,          /// 属性
+            kEnum,              /// 枚举
+            kEnumConstant,      /// 枚举值
+        };
+
+        /** Constructor */
+        ASTNode(const String &name);
+
+        /** Destructor */
+        virtual ~ASTNode() override;
+        
+        /** 获取结点类型 */
+        virtual Type getType() const
+        {
+            return Type::kNull;
+        }
+
+        /** 获取结点类型字符串描述 */
+        virtual String getTypeString() const
+        {
+            return "Default";
+        }
+
+        /** 获取结点名称 */
+        const String &getName() const
+        {
+            return mName;
+        }
+
+        /**
+         * @brief 添加子结点
+         * @param [in] name : 结点名称
+         * @param [in] child : 子结点对象
+         */
+        void addChild(const String &name, ASTNode *child)
+        {
+            child->mParent = this;
+            mChildren[name] = child;
+        }
+
+        /**
+         * @brief 移除子结点
+         * @param [in] name : 结点名称
+         */
+        void removeChild(const String &name)
+        {
+            const auto itr = mChildren.find(name);
+            if (itr != mChildren.end())
+            {
+                ASTNode *child = itr->second;
+                delete child;
+                mChildren.erase(itr);
+            }
+        }
+
+        /**
+         * @brief 移除所有子结点
+         */
+        void removeAllChildren();
+
+        /**
+         * @brief 返回当前结点父结点
+         * @return 父结点对象
+         */
+        ASTNode *getParent() const
+        {
+            return mParent;
+        }
+
+        /**
+         * @brief 根据名称获取子结点。
+         * @param [in] name : 子结点名称。 可以用 :: 隔开，递归查找子树，如：Namespace::Class::Member 作为查找名称
+         * @param [in] recursive : 是否递归找子树
+         * @return 返回指定名称的子结点，没有对应子结点则返回 nullptr
+         */
+        ASTNode *getChild(const String &name, bool recursive = false) const
+        {
+            if (!recursive)
+                return getChildDirectly(name);
+            return getChildRecursively(name);
+        }
+
+        /**
+         * @brief 根据名称列表获取叶子结点
+         * @param [in] names : 各层级子结点名称列表
+         * @return 返回指定名称列表下的叶子结点，没有对应的叶子结点返回 nullptr
+         */
+        ASTNode *getChild(const StringList &names) const
+        {
+            return getChildRecursively(names);
+        }
+
+        /**
+         * @brief 获取层级结构名称
+         * @return 返回以 :: 分割的当前结点各级父结点组成的名称
+         */
+        String getHierarchyName() const;
+
+        /**
+         * @brief 输出 AST 到 json 文件
+         * @param [in] writer : json 写对象
+         */
+        void dump(rapidjson::PrettyWriter<JsonStream> &writer) const;
+
+        /**
+         * @brief 生成源码文件
+         */
+        virtual TResult generateSourceFile(FileDataStream &fs) const;
+        
+        bool    HaveRTTI;    /// 该结点及其子结点是否有反射
+
+    protected:        
+        ASTNode *getChildDirectly(const String &name) const
+        {
+            if (mChildren.find(name) == mChildren.end())
+                return nullptr;
+            return mChildren.at(name);
+        }
+
+        ASTNode *getChildRecursively(const StringList &names) const;
+
+        ASTNode *getChildRecursively(const String &name) const
+        {
+            StringList names = StringUtil::split2(name, "::");
+            return getChildRecursively(names);
+        }
+
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
+        
+        typedef TMap<String, ASTNode*> ASTChildren;
+        typedef ASTChildren::value_type ASTChildrenValue;
+
+        String          mName;          /// 结点名称
+        ASTNode         *mParent;       /// 父结点
+        ASTChildren     mChildren;      /// 子结点
+    };
+
+    /**
+     * @brief 文件信息
+     */
+    class ASTFileInfo
+    {
+    public:
+        ASTFileInfo()
+            : StartLine(-1)
+            , EndLine(-1)
+        {}
+
+        String      Path;       /// 文件路径
+        uint32_t    StartLine;  /// 所在文件的起始行号
+        uint32_t    EndLine;    /// 所在文件的结束行号
+    };
+
+    typedef std::shared_ptr<ASTFileInfo> ASTFileInfoPtr;
+
+    // 重载小于号，给 set 用
+    inline bool operator <(const ASTFileInfoPtr &info1, const ASTFileInfoPtr &info2)
+    {
+        return (info1->Path < info2->Path && info1->StartLine < info2->StartLine);
+    }
+    
+    typedef TSet<ASTFileInfoPtr> ASTFileInfos;
+
+    /**
+     * @brief 命名空间结点
+     */
+    class ASTNamespace : public ASTNode
+    {
+    public:
+        ASTNamespace(const String &name)
+            : ASTNode(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kNamespace;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Namespace";
+        }
+    };
+
+    class ASTStruct;
+    typedef TMap<String, ASTStruct*> ASTBaseClasses;
+    typedef ASTBaseClasses::value_type ASTBaseClassesValue;
+    
+    /**
+     * @brief 结构体结点
+     */
+    class ASTStruct : public ASTNode
+    {
+    public:
+        ASTStruct(const String &name)
+            : ASTNode(name)
+            , RTTIEnabled(false)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kStruct;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Struct";
+        }
+
+        virtual TResult generateSourceFile(FileDataStream& fs) const override;
+
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+
+    public:
+        ASTBaseClasses      BaseClasses;    /// 基类列表
+        TList<Specifier>    Specifiers;     /// 反射属性说明符
+        ASTFileInfo         FileInfo;       /// 结构体所在文件信息
+        bool                RTTIEnabled;    /// 是否开启了反射功能
+    };
+
+    /**
+     * @brief 类结点
+     */
+    class ASTClass : public ASTStruct
+    {
+    public:
+        ASTClass(const String &name)
+            : ASTStruct(name)
+        {}
+        
+        virtual Type getType() const override
+        {
+            return Type::kClass;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Class";
+        }
+    };
+    
+    /**
+     * @brief 函数结点
+     */
+    class ASTFunction : public ASTNode
+    {
+    public:
+        ASTFunction(const String &name)
+            : ASTNode(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kFunction;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Function";
+        }
+
+        virtual TResult generateSourceFile(FileDataStream &fs) const override;
+
+        ASTFileInfo         FileInfo;       /// 函数所在文件信息
+    };
+
+    /**
+     * @brief 函数参数
+     */
+    struct ASTFunctionParam
+    {
+        String Type;    /// 参数类型
+        String Name;    /// 参数名称
+    };
+
+    #define AST_NO_IMPLEMENTATION(x) { T3D_ASSERT(0); return x; }
+    #define AST_NODE_NOT_INSTANTIATE() \
+        virtual Type getType() const override   \
+        {   \
+            AST_NO_IMPLEMENTATION(Type::kNone); \
+        }   \
+        virtual String getTypeString() const override   \
+        {   \
+            AST_NO_IMPLEMENTATION("None");  \
+        }
+    
+    /**
+     * @brief 可带说明符的函数
+     */
+    class ASTSpecifierFunction : public ASTFunction
+    {
+    public:
+        ASTSpecifierFunction(const String &name)
+            : ASTFunction(name)
+        {}
+
+        AST_NODE_NOT_INSTANTIATE();
+        
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        
+    public:
+        TList<Specifier>        Specifiers;     /// 反射属性说明符
+    };
+
+    /**
+     * @brief 有参数的函数：普通函数、构造函数都是这类
+     */
+    class ASTParameterFunction : public ASTSpecifierFunction
+    {
+    public:
+        ASTParameterFunction(const String &name)
+            : ASTSpecifierFunction(name)
+        {}
+
+        AST_NODE_NOT_INSTANTIATE();
+        
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        
+    public:
+        TList<ASTFunctionParam> Params;         /// 函数参数列表
+    };
+
+    /**
+     * @brief 可重载的函数结点
+     */
+    class ASTOverloadFunction : public ASTParameterFunction
+    {
+    public:
+        ASTOverloadFunction(const String &name)
+            : ASTParameterFunction(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kOverloadFunction;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Overload Function";
+        }
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        
+    public:
+        String                  RetType;        /// 函数返回值类型
+    };
+
+    /**
+     * @brief 静态函数结点
+     */
+    class ASTStaticFunction : public ASTOverloadFunction
+    {
+    public:
+        ASTStaticFunction(const String &name)
+            : ASTOverloadFunction(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kStaticFunction;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Static Function";
+        }
+    };
+
+    /**
+     * @brief 非静态函数结点。 可以是全局函数，也可以是类实例成员函数
+     */
+    class ASTInstanceFunction : public ASTOverloadFunction
+    {
+    public:
+        ASTInstanceFunction(const String &name)
+            : ASTOverloadFunction(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kInstanceFunction;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Instance Function";
+        }
+    };
+
+    /**
+     * @brief 构造函数结点
+     */
+    class ASTConstructor : public ASTOverloadFunction
+    {
+    public:
+        ASTConstructor(const String &name)
+            : ASTOverloadFunction(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kConstructor;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Constructor";
+        }
+    };
+
+    /**
+     * @brief 析构函数结点
+     */
+    class ASTDestructor : public ASTOverloadFunction
+    {
+    public:
+        ASTDestructor(const String &name)
+            : ASTOverloadFunction(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kDestructor;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Destructor";
+        }
+    };
+
+    /**
+     * @brief 属性结点
+     */
+    class ASTProperty : public ASTNode
+    {
+    public:
+        ASTProperty(const String &name)
+            : ASTNode(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kProperty;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Property";
+        }
+
+        virtual TResult generateSourceFile(FileDataStream &fs) const override;
+
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        
+    public:
+        TList<Specifier>    Specifiers;     /// 反射属性说明符
+        String              DataType;       /// 数据类型
+        ASTFileInfo         FileInfo;       /// 属性所在文件信息
+    };
+
+    /**
+     * @brief 枚举结点
+     */
+    class ASTEnum : public ASTNode
+    {
+    public:
+        ASTEnum(const String &name)
+            : ASTNode(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kEnum;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Enumeration";
+        }
+
+        virtual TResult generateSourceFile(FileDataStream& fs) const override;
+
+        TList<Specifier>    Specifiers;     /// 反射属性说明符
+        ASTFileInfo         FileInfo;       /// 枚举所在文件信息
+    };
+
+    /**
+     * @brief 枚举常量
+     */
+    class ASTEnumConstant : public ASTNode
+    {
+    public:
+        ASTEnumConstant(const String &name)
+            : ASTNode(name)
+            , Value(0)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kEnumConstant;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Enumeration Constant";
+        }
+
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        
+    public:
+        uint64_t    Value;
+    };
+}
+
+#endif  /*__T3D_ABSTRACT_SYNTAX_TREE_H__*/

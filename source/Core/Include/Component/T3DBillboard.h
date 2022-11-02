@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Billboard : public Renderable
     {
-        RTTR_ENABLE(Renderable);
-
     public:
         /**
          * @fn  static BillboardPtr Billboard::create(ID uID = E_CID_AUTOMATIC);

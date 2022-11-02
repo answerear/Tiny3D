@@ -115,6 +115,17 @@ namespace Tiny3D
         DataStream &operator<<(const char *s);
         DataStream &operator<<(const String &s);
 
+        static DataStream &endl(DataStream &stream);
+
+        // this is the type of std::cout
+        typedef std::basic_ostream<char, std::char_traits<char> > CoutType;
+
+        // this is the function signature of std::endl
+        typedef CoutType& (*StandardEndLine)(CoutType&);
+
+        // define an operator<< to take in std::endl
+        DataStream& operator<<(StandardEndLine manip);
+
         /**
          * @brief 输入数据流到基本类型值
          */

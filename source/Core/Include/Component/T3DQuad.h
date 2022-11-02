@@ -33,9 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Quad : public Renderable
     {
-        RTTR_ENABLE(Renderable);
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @enum    VertexIndex

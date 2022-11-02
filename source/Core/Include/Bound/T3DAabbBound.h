@@ -33,9 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API AabbBound : public Bound
     {
-        RTTR_ENABLE(Bound);
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @fn  static AabbBoundPtr AabbBound::create(SceneNode *node, 

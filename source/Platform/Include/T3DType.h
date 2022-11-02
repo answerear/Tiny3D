@@ -22,6 +22,7 @@
 
 #include <typeinfo>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -34,6 +35,8 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <functional>
+
 #include <string.h>
 #include <memory.h>
 

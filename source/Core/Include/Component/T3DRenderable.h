@@ -37,9 +37,6 @@ namespace Tiny3D
     class T3D_ENGINE_API Renderable : public Component
     {
         friend class DefaultSceneMgr;
-
-        RTTR_ENABLE(Component);
-
     public:
         /**
          * @fn  virtual Renderable::~Renderable();

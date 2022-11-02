@@ -160,6 +160,12 @@ namespace Tiny3D
         virtual String getAppPath() const = 0;
 
         /**
+         * @brief 获取程序当前工作路径
+         * @return 返回程序当前工作路径
+         */
+        virtual String getCurrentPath() const = 0;
+
+        /**
          * @brief 获取动态库路径
          * @return 返回动态库路径
          * @remarks 本接口在android上才有效，其他平台跟getAppPath()相同

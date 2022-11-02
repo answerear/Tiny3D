@@ -34,17 +34,20 @@ namespace Tiny3D
      * @class   Bound
      * @brief   碰撞体基类
      */
+    TCLASS()
     class T3D_ENGINE_API Bound 
         : public Component
         , public ITransformListener
     {
-        RTTR_ENABLE(Component);
-
+        TRTTI_ENABLE(Component)
+        TRTTI_FRIEND
+     
     public:
         /**
          * @enum    Type
          * @brief   碰撞体类型
          */
+        TENUM()
         enum class Type : uint32_t
         {
             NONE = 0,       /**< 未知碰撞体类型 */
@@ -65,6 +68,7 @@ namespace Tiny3D
          * @brief   获取碰撞体类型
          * @return  The type.
          */
+        TFUNCTION()
         virtual Type getType() const = 0;
 
         /**
@@ -74,6 +78,7 @@ namespace Tiny3D
          *
          * ### remarks  相同分组ID的碰撞体相互之间不会检测碰撞.
          */
+        TFUNCTION()
         void setGroupID(ID groupID);
 
         /**
@@ -81,6 +86,7 @@ namespace Tiny3D
          * @brief   获取碰撞分组ID
          * @return  The group identifier.
          */
+        TFUNCTION()
         ID getGroupID() const;
 
         /**
@@ -89,6 +95,7 @@ namespace Tiny3D
          * @param   bound   The bound.
          * @return  True if it succeeds, false if it fails.
          */
+        TFUNCTION()
         virtual bool test(BoundPtr bound) const;
 
         /**
@@ -96,6 +103,7 @@ namespace Tiny3D
          * @brief   设置碰撞相交检测源，源对象发起检测，非源对象是被动检测
          * @param [in]  isSource    : true 表示源对象.
          */
+        TFUNCTION()
         void setCollisionSource(bool isSource);
 
         /**
@@ -103,6 +111,7 @@ namespace Tiny3D
          * @brief   获取是否碰撞相交检测源
          * @return  True if collision source, false if not.
          */
+        TFUNCTION()
         bool isCollisionSource() const;
 
         /**
@@ -110,6 +119,7 @@ namespace Tiny3D
          * @brief   设置碰撞体是否有效
          * @param   isEnabled   True if is enabled, false if not.
          */
+        TFUNCTION()
         void setEnabled(bool isEnabled);
 
         /**
@@ -117,6 +127,7 @@ namespace Tiny3D
          * @brief   碰撞体是否有效
          * @return  True if enabled, false if not.
          */
+        TFUNCTION()
         bool isEnabled() const;
 
         /**
@@ -124,6 +135,7 @@ namespace Tiny3D
          * @brief   获取可渲染对象，用于渲染该碰撞体
          * @return  返回可渲染对象.
          */
+        TFUNCTION()
         virtual RenderablePtr getRenderable() = 0;
 
     protected:
@@ -182,9 +194,16 @@ namespace Tiny3D
         virtual void updateTransform(const Transform3D *xform) override;
 
     private:
+        TPROPERTY()
         ID          mGroupID;           /**< 碰撞体分组ID */
+
+        TPROPERTY()
         bool        mIsMovable;         /**< 是否可移动碰撞体 */
+
+        TPROPERTY()
         bool        mIsCollisionSource; /**< 是否检测源碰撞体 */
+
+        TPROPERTY()
         bool        mIsEnabled;         /**< 是否开启碰撞检测 */
 
     protected:

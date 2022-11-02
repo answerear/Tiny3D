@@ -18,10 +18,47 @@
  ******************************************************************************/
 
 #include "T3DStringUtil.h"
-
+#include <sstream>
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    String StringUtil::merge(const StringArray& strings, const String& delims)
+    {
+        if (!strings.empty())
+        {
+            std::stringstream ss;
+
+            ss << strings[0];
+            
+            for (size_t i = 1; i < strings.size(); ++i)
+            {
+                ss << delims << strings[i];
+            }
+
+            return ss.str();
+        }
+        
+        return "";
+    }
+
+    //--------------------------------------------------------------------------
+
+    StringList StringUtil::split2(const String& str, const String& delims/* = " "*/)
+    {
+        StringList ret;
+
+        StringArray strs = split(str, delims);
+        
+        for (String s : strs)
+        {
+            ret.push_back(s);
+        }
+        
+        return ret;
+    }
+
     //--------------------------------------------------------------------------
 
     StringArray StringUtil::split(const String &str, 

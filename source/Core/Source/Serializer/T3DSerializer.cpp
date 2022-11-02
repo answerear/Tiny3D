@@ -31,20 +31,3 @@ namespace Tiny3D
 
     }
 }
-
-
-//-----------------------------------------------------------------------
-// -------
-//                              FileObject RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::FileObject>("Tiny3D::FileObject")
-        .constructor<>()
-        .property("Magic", &Tiny3D::FileObject::magic)
-        .property("Version", &Tiny3D::FileObject::version)
-        .property("Object", &Tiny3D::FileObject::object);
-}

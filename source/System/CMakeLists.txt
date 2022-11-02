@@ -9,13 +9,18 @@ set_project_name(T3DSystem)
 
 message(STATUS "Generating project : ${BIN_NAME}")
 
+
+if (TINY3D_SYSTEM_RTTR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif (TINY3D_SYSTEM_RTTR)
+
+
 if (MSVC)
 	# Add definition only for Windows.
 	if (TINY3D_BUILD_SHARED_LIBS)
 		add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
 	endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
-
 
 
 # Setup all cmake variables for this project.
@@ -36,6 +41,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
 
 
 # Setup all files for building this project.

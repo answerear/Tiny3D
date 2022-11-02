@@ -184,9 +184,24 @@ namespace Tiny3D
         {
             write((void*)s.c_str(), nLength);
         }
-        char c = 0;
-        write(&c, sizeof(c));
+        // char c = 0;
+        // write(&c, sizeof(c));
         return *this;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DataStream &DataStream::endl(DataStream& stream)
+    {
+        stream << "\n";
+        return stream;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DataStream& DataStream::operator<<(StandardEndLine manip)
+    {
+        return endl(*this);
     }
 
     //--------------------------------------------------------------------------

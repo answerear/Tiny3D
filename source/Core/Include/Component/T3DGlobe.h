@@ -32,9 +32,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Globe : public Renderable
     {
-        RTTR_ENABLE(Renderable);
-        RTTR_REGISTRATION_FRIEND;
-
     public:
         /**
          * @fn  static GlobePtr Globe::create(const Vector3 &center, 

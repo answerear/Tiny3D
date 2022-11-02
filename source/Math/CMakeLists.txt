@@ -9,6 +9,12 @@ set_project_name(T3DMath)
 
 message(STATUS "Generating project : ${BIN_NAME}")
 
+
+if (TINY3D_MATH_RTTR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif (TINY3D_MATH_RTTR)
+
+
 if (MSVC)
 	# Add definition only for Windows.
 	if (TINY3D_BUILD_SHARED_LIBS)

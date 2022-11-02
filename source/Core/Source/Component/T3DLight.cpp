@@ -76,16 +76,3 @@ namespace Tiny3D
         return ret;
     }
 }
-
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Light>("Tiny3D::Light")
-        .constructor(&Tiny3D::Light::create)
-        .method("clone", &Tiny3D::Light::clone);
-}

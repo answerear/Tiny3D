@@ -59,7 +59,6 @@ namespace Tiny3D
 
         /**
          * @brief 结束当前枚举搜索.
-         * @return void
          */
         void close();
 
@@ -135,9 +134,10 @@ namespace Tiny3D
          * @brief 删除文件夹.
          * @note 该接口不能删除多级文件夹.
          * @param [in] strDir : 文件夹路径名称
+         * @param [in] force : 是否删除非空文件夹
          * @return 调用成功返回true，否则返回false.
          */
-        static bool removeDir(const String &strDir);
+        static bool removeDir(const String &strDir, bool force = false);
 
         /**
          * @brief 删除文件.
@@ -164,6 +164,12 @@ namespace Tiny3D
          * @return 返回应用程序路径.
          */
         static const String &getAppPath();
+
+        /**
+         * @brief 获取程序当前工作路径
+         * @return 返回程序当前工作路径
+         */
+        static String getCurrentPath();
 
         /**
          * @brief 获取应用程序可写路径.
@@ -209,6 +215,13 @@ namespace Tiny3D
          * @return 调用成功返回 true
          */
         static bool parsePath(const String &path, String &name);
+
+        /**
+         * @brief 格式化路径字符串，把 斜杠和反斜杠统一成系统相关的，并且把其中的 . 和 .. 转换成绝对路径
+         * @param [in] path : 需要格式化的路径字符串，格式化完后作为返回值
+         * @return 调用成功返回格式化后的路径字符串
+         */
+        static String formatPath(const String &path);
 
     protected:
         IDir    *mDir;

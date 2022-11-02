@@ -25,6 +25,7 @@
 #include <T3DObject.h>
 #include <T3DSmartPtr.h>
 #include <T3DObjectTracer.h>
+#include <T3DUUID.h>
 
 
 #endif  /*__T3D_SYSTEM_LIB_H__*/

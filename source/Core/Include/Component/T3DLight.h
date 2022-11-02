@@ -33,8 +33,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Light : public Component
     {
-        RTTR_ENABLE(Component);
-
     public:
         /**
          * @fn  static LightPtr Light::create(ID uID = E_CID_AUTOMATIC);

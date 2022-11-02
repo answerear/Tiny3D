@@ -124,21 +124,21 @@ namespace Tiny3D
         mFloat64Value = value;
     }
 
-    inline Variant::Variant(const fix32_t &value)
-        : mType(Type::E_FIX32)
-        , mValueSize(sizeof(fix32_t))
-    {
-        memset(mValue, 0, sizeof(mValue));
-        mFix32Value = value;
-    }
-
-    inline Variant::Variant(const fix64_t &value)
-        : mType(Type::E_FIX64)
-        , mValueSize(sizeof(fix64_t))
-    {
-        memset(mValue, 0, sizeof(mValue));
-        mFix64Value = value;
-    }
+    // inline Variant::Variant(const fix32_t &value)
+    //     : mType(Type::E_FIX32)
+    //     , mValueSize(sizeof(fix32_t))
+    // {
+    //     memset(mValue, 0, sizeof(mValue));
+    //     mFix32Value = value;
+    // }
+    //
+    // inline Variant::Variant(const fix64_t &value)
+    //     : mType(Type::E_FIX64)
+    //     , mValueSize(sizeof(fix64_t))
+    // {
+    //     memset(mValue, 0, sizeof(mValue));
+    //     mFix64Value = value;
+    // }
 
     inline Variant::Variant(char value)
         : mType(Type::E_CHAR)
@@ -329,21 +329,21 @@ namespace Tiny3D
         mFloat64Value = value;
     }
 
-    inline void Variant::setFix32(const fix32_t &value)
-    {
-        releaseMemory();
-        mType = Type::E_FIX32;
-        mValueSize = sizeof(fix32_t);
-        mFix32Value = value;
-    }
-
-    inline void Variant::setFix64(const fix64_t &value)
-    {
-        releaseMemory();
-        mType = Type::E_FIX64;
-        mValueSize = sizeof(fix64_t);
-        mFix64Value = value;
-    }
+    // inline void Variant::setFix32(const fix32_t &value)
+    // {
+    //     releaseMemory();
+    //     mType = Type::E_FIX32;
+    //     mValueSize = sizeof(fix32_t);
+    //     mFix32Value = value;
+    // }
+    //
+    // inline void Variant::setFix64(const fix64_t &value)
+    // {
+    //     releaseMemory();
+    //     mType = Type::E_FIX64;
+    //     mValueSize = sizeof(fix64_t);
+    //     mFix64Value = value;
+    // }
 
     inline void Variant::setChar(char value)
     {
@@ -656,39 +656,39 @@ namespace Tiny3D
         return val;
     }
 
-    inline fix32_t Variant::fix32Value(bool *ok /* = nullptr */) const
-    {
-        fix32_t val = fix32_t::ZERO;
-        bool ret = false;
-
-        if (isNumber())
-        {
-            val = mFix32Value;
-            ret = true;
-        }
-
-        if (ok != nullptr)
-            *ok = ret;
-
-        return val;
-    }
-
-    inline fix64_t Variant::fix64Value(bool *ok /* = nullptr */) const
-    {
-        fix64_t val = fix64_t::ZERO;
-        bool ret = false;
-
-        if (isNumber())
-        {
-            val = mFix64Value;
-            ret = true;
-        }
-
-        if (ok != nullptr)
-            *ok = ret;
-
-        return val;
-    }
+    // inline fix32_t Variant::fix32Value(bool *ok /* = nullptr */) const
+    // {
+    //     fix32_t val = fix32_t::ZERO;
+    //     bool ret = false;
+    //
+    //     if (isNumber())
+    //     {
+    //         val = mFix32Value;
+    //         ret = true;
+    //     }
+    //
+    //     if (ok != nullptr)
+    //         *ok = ret;
+    //
+    //     return val;
+    // }
+    //
+    // inline fix64_t Variant::fix64Value(bool *ok /* = nullptr */) const
+    // {
+    //     fix64_t val = fix64_t::ZERO;
+    //     bool ret = false;
+    //
+    //     if (isNumber())
+    //     {
+    //         val = mFix64Value;
+    //         ret = true;
+    //     }
+    //
+    //     if (ok != nullptr)
+    //         *ok = ret;
+    //
+    //     return val;
+    // }
 
     inline char Variant::charValue(bool *ok /* = nullptr */) const
     {

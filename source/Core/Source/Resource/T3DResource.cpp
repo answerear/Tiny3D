@@ -96,30 +96,3 @@ namespace Tiny3D
         return T3D_OK;
     }
 }
-
-//------------------------------------------------------------------------------
-//                              Meta RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Meta>("Tiny3D::Meta")
-        .enumeration<Tiny3D::Meta::FileType>("Tiny3D::Meta::FileType")
-        (
-            value("None", Tiny3D::Meta::FileType::kNone),
-            value("File", Tiny3D::Meta::FileType::kFile),
-            value("Dir", Tiny3D::Meta::FileType::kDir)
-        )
-        .constructor()(policy::ctor::as_raw_ptr)
-        .property("UUID", &Tiny3D::Meta::uuid)
-        (
-            metadata(TXT_DESCRIPTION, "Universal Unique Identifier")
-        )
-        .property("Type", &Tiny3D::Meta::type)
-        (
-            metadata(TXT_DESCRIPTION, "File type corresponding to this meta.")
-        );
-}
-

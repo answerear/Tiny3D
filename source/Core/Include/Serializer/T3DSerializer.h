@@ -35,8 +35,6 @@ namespace Tiny3D
 
     struct FileObject
     {
-        RTTR_ENABLE();
-
     public:
         FileObject();
 

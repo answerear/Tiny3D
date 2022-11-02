@@ -92,18 +92,3 @@ namespace Tiny3D
     }
 }
 
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Billboard>("Tiny3D::Billboard")
-        .constructor(&Tiny3D::Billboard::create)
-        .method("clone", &Tiny3D::Billboard::clone)
-        .method("getMaterial", &Tiny3D::Billboard::getMaterial)
-        .method("getVertexArrayObject", &Tiny3D::Billboard::getVertexArrayObject);
-}
-

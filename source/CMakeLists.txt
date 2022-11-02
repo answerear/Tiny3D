@@ -137,7 +137,7 @@ else (TINY3D_OS_IOS)
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 endif (TINY3D_OS_IOS)
 
-if (NOT TINY3D_OS_ANDROID)
+if (NOT TINY3D_OS_ANDROID AND NOT TINY3D_BUILD_RTTR_TOOL)
     # In Android, this switch is setted by build.gradle in Android Studio.
     option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID)
@@ -204,49 +204,59 @@ find_package(SDL2)
 #find_package(rapidjson)
 
 
-# Project protobuf
-option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
-set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
-
-# Project rttr
-set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
-message(STATUS "rttr include : ${RTTR_INCLUDE_DIR}")
 
 # Project rapidjson
 set(RAPIDJSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rapidjson")
 
-# All Third Parties Sources
-add_subdirectory(External)
+if (NOT TINY3D_BUILD_RTTR_TOOL)
+	# Project protobuf
+	option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
+	set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
+
+	# Project rttr
+	set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
+	message(STATUS "rttr include : ${RTTR_INCLUDE_DIR}")
+
+    # All Third Parties Sources
+    add_subdirectory(External)
+	
+	# Setup project folder
+	set(protobuf_VERBOSE TRUE)
+	#set(protobuf_HAVE_BUILTIN_ATOMICS TRUE)
+	if (protobuf_BUILD_LITE_LIBRARIES)
+		set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+		set (PROTOBUF_LIBRARY libprotobuf-lite)
+	else (protobuf_BUILD_LITE_LIBRARIES)
+		set_property(TARGET libprotobuf PROPERTY FOLDER "External/protobuf")
+		set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+		set (PROTOBUF_LIBRARY libprotobuf)
+	endif (protobuf_BUILD_LITE_LIBRARIES)
+
+	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
+endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 
-# Setup project folder
-set(protobuf_VERBOSE TRUE)
-#set(protobuf_HAVE_BUILTIN_ATOMICS TRUE)
-if (protobuf_BUILD_LITE_LIBRARIES)
-    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
-    set (PROTOBUF_LIBRARY libprotobuf-lite)
-else (protobuf_BUILD_LITE_LIBRARIES)
-    set_property(TARGET libprotobuf PROPERTY FOLDER "External/protobuf")
-    set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
-    set (PROTOBUF_LIBRARY libprotobuf)
-endif (protobuf_BUILD_LITE_LIBRARIES)
-
-set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 
 # Project Platform
 add_subdirectory(Platform)
-# Project System
-add_subdirectory(System)
 # Project Log
 add_subdirectory(Log)
 # Project Utils
 add_subdirectory(Utils)
-# Project Framework
-add_subdirectory(Framework)
-# Project Math
-add_subdirectory(Math)
-# Project Core
-add_subdirectory(Core)
+
+if (NOT TINY3D_BUILD_RTTR_TOOL)
+	# Project System
+	add_subdirectory(System)
+    # Project Framework
+    add_subdirectory(Framework)
+    # Project Math
+    add_subdirectory(Math)
+    # Project Core
+    add_subdirectory(Core)
+    
+    # Project plugins
+    add_subdirectory(Plugins)
+endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 
 #foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -260,9 +270,6 @@ add_subdirectory(Core)
 #    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE} "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILTTYPE}}/Plugins")
 #endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
-# Project plugins
-add_subdirectory(Plugins)
-
 #foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 #    string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
 #    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILTTYPE} "${RUNTIME_OUTPUT_DIR_TEMP_${BUILTTYPE}}")
@@ -273,15 +280,21 @@ add_subdirectory(Plugins)
 # Set the dependencies for all projects.
 add_dependencies(T3DLog T3DPlatform)
 add_dependencies(T3DUtils T3DLog T3DPlatform)
-add_dependencies(T3DMath T3DLog T3DPlatform)
-add_dependencies(T3DFramework T3DLog T3DPlatform)
-add_dependencies(T3DSystem rttr_core T3DPlatform)
-add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
+
+
+if (NOT TINY3D_BUILD_RTTR_TOOL)
+	add_dependencies(T3DSystem rttr_core T3DPlatform)
+    add_dependencies(T3DMath T3DLog T3DPlatform)
+    add_dependencies(T3DFramework T3DLog T3DPlatform)
+    add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
+endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
     #add_dependencies(ScriptCompiler T3DCore)
-	add_dependencies(ShaderCrossCompiler T3DCore)
+    if (NOT TINY3D_BUILD_RTTR_TOOL)
+	    add_dependencies(ShaderCrossCompiler T3DCore)
+	endif (NOT TINY3D_BUILD_RTTR_TOOL)
 endif(TINY3D_BUILD_TOOLS)
 
 if (TINY3D_BUILD_SAMPLES)

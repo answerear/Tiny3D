@@ -34,9 +34,6 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API Meta : public Object
     {
-        RTTR_ENABLE(Object)
-        RTTR_REGISTRATION_FRIEND
-        
     public:
         enum class FileType : uint32_t
         {
