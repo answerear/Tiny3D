@@ -17,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+
 #include "T3DAbstractSyntaxTree.h"
+#include "T3DRPErrorCode.h"
 
 
 namespace Tiny3D
@@ -232,6 +234,26 @@ namespace Tiny3D
 
     TResult ASTFunction::generateSourceFile(FileDataStream &fs) const
     {
+        TResult ret;
+        
+        if (IsProperty)
+        {
+           // 属性
+            ret = generateSourceFileForProperty(fs);
+        }
+        else
+        {
+           // 函数
+           ret = generateSourceFileForFunction(fs);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTFunction::generateSourceFileForFunction(FileDataStream &fs) const
+    {
         bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
         
         TResult ret = T3D_OK;
@@ -240,7 +262,7 @@ namespace Tiny3D
         {
             fs << std::endl << "\tregistration";
         }
-        
+
         // 构造函数名
         String name = getHierarchyName();
 
@@ -275,7 +297,7 @@ namespace Tiny3D
 
                         // 构造参数列表
                         String params;
-                        size_t i = 0;                        
+                        size_t i = 0;
                         for (const auto &val : overload->Params)
                         {
                             params += val.Type;
@@ -285,8 +307,15 @@ namespace Tiny3D
                             }
                             i++;
                         }
-                        
-                        fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << name << "))";
+
+                        if (overload->IsConst)
+                        {
+                            fs << "method(\"" << getName() << "\", select_const<" << retType << "(" << params << ")>(&" << name << "))";
+                        }
+                        else
+                        {
+                            fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << name << "))";
+                        }
 
                         if (idx != mChildren.size() - 1)
                         {
@@ -335,7 +364,85 @@ namespace Tiny3D
         {
             fs << ";" << std::endl;
         }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTFunction::generateSourceFileForProperty(FileDataStream &fs) const
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
+
+            ASTOverloadFunction *setter = nullptr, *getter = nullptr;
+            
+            if (mChildren.size() == 1)
+            {
+                // 只有 getter
+                const auto itr = mChildren.begin();
+                ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(itr->second);
+                if (overload->IsConst)
+                {
+                    // getter
+                    getter = overload;
+                }
+                else
+                {
+                    // 错误了，只有一个属性函数的时候，只能是 getter 函数
+                }
+            }
+            else if (mChildren.size() == 2)
+            {
+                // 有 getter 和 setter
+                for (const auto &child : mChildren)
+                {
+                    ASTOverloadFunction *overload = static_cast<ASTOverloadFunction *>(child.second);
+                    if (overload->IsConst)
+                    {
+                        getter = overload;
+                    }
+                    else
+                    {
+                        setter = overload;
+                    }
+                }
+            }
+            else
+            {
+                // 错误了
+                ret = T3D_ERR_RP_INVALID_NUM_PROPERTY_FUNC;
+                break;
+            }
+
+            if (isGlobal)
+            {
+                fs << std::endl << "\tregistration::";
+            }
+            else
+            {
+                fs << "\t\t.";
+            }
+
+            if (getter != nullptr && setter == nullptr)
+            {
+                fs << "property_readonly(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ")";
+            }
+            else
+            {
+                fs << "property(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ", &" << setter->getPropertyFunctionName() << ")"; 
+            }
+
+            if (isGlobal)
+            {
+                fs << ";" << std::endl;
+            }
+        } while (false);
         
+
         return T3D_OK;
     }
 
@@ -385,11 +492,62 @@ namespace Tiny3D
 
     void ASTOverloadFunction::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
     {
+        // Is constant function
+        writer.Key("Is Constant");
+        writer.Bool(IsConst);
+
+        // Is property function
+        writer.Key("Is Property");
+        writer.Bool(IsProperty);
+
+        // Is getter
+        writer.Key("Is Getter");
+        writer.Bool(IsGetter);
+        
+        // File Info
+        writer.Key("File Info");
+        {
+            writer.StartObject();
+            writer.Key("Path");
+            writer.String(FileInfo.Path);
+            writer.Key("Start Line");
+            writer.Uint(FileInfo.StartLine);
+            writer.Key("End Line");
+            writer.Uint(FileInfo.EndLine);
+            writer.EndObject();   
+        }
+        
         // Return Type
         writer.Key("Return Type");
         writer.String(RetType);
         
         ASTParameterFunction::dumpProperties(writer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    String ASTOverloadFunction::getPropertyFunctionName() const
+    {
+        String name = getName();
+        
+        const ASTNode *node = getParent();
+
+        // 跳开父结点，因为这个不是函数名字
+        if (node != nullptr)
+        {
+            node = node->getParent();
+        }
+        
+        while (node != nullptr)
+        {
+            if (node->getType() != Type::kNull)
+            {
+                name = node->getName() + "::" + name;    
+            }
+            node = node->getParent();
+        }
+        
+        return name;
     }
 
     //--------------------------------------------------------------------------

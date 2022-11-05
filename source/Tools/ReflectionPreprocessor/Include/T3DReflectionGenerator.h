@@ -31,12 +31,21 @@ namespace Tiny3D
     class ReflectionGenerator : public Noncopyable
     {
     public:
+        /// Constructor
         ReflectionGenerator();
 
+        /// Destructor
         virtual ~ReflectionGenerator() override;
-        
+
+        /**
+         * @brief 生成 AST
+         * @param [in] srcPath : 源码文件路径 
+         * @param [in] args : clang 编译参数
+         * @return 调用成功返回 T3D_OK
+         */
         TResult generateAST(const String &srcPath, const ClangArgs &args);
 
+        
         TResult generateSource(const String &generatedPath);
 
         void dumpReflectionInfo(const String &path) const;
@@ -52,8 +61,6 @@ namespace Tiny3D
 
         CXChildVisitResult visitChildren(CXCursor cxCursor, CXCursor cxParent);
 
-        // TResult processNamespace(CXCursor cxCursor, CXCursor cxParent);
-        
         TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass);
 
         TResult processClassBaseSpecifier(CXCursor cxCursor, CXCursor cxParent);
@@ -65,19 +72,26 @@ namespace Tiny3D
         TResult processEnumConstDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
         TResult processVariableDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember);
-        
+
         // TResult processOverloadDeclaration(CXCursor cxCursor, CXCursor cxParent);
-        
+
+        /// 处理宏
         TResult processMacroExpansion(CXCursor cxCursor, CXCursor cxParent);
 
+        /// 处理反射标签宏
+        TResult processMacroTags(const String &name, CXCursor cxCursor, CXCursor cxParent);
+
+        /// 处理反射开关宏
+        TResult processMacroSwitch(CXCursor cxCursor, CXCursor cxParent);
+
         void getASTNodeInfo(CXCursor cxCursor, String &filePath, uint32_t &start, uint32_t &end, uint32_t &column, uint32_t &offset) const;
-        
+
         ASTNode *createNode(const ASTNodeInfo &info) const;
 
         ASTNode *getOrConstructParentNode(CXCursor cxCursor);
 
         void insertSourceFiles(const String &path, ASTNode *node);
-        
+
     protected:
         struct FileReflectionInfo
         {

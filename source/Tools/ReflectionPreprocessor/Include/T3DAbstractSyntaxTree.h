@@ -26,12 +26,21 @@
 
 namespace Tiny3D
 {
-    static const String kMacroClass = "TCLASS";
-    static const String kMacroFunction = "TFUNCTION";
-    static const String kMacroProperty = "TPROPERTY";
-    static const String kMacroStruct = "TSTRUCT";
-    static const String kMacroEnum = "TENUM";
-    
+    const String kMacroClass = "TCLASS";
+    const String kMacroFunction = "TFUNCTION";
+    const String kMacroProperty = "TPROPERTY";
+    const String kMacroStruct = "TSTRUCT";
+    const String kMacroEnum = "TENUM";
+    const String kRTTIEnable = "TRTTI_ENABLE";
+    const String kRTTIFriend = "TRTTI_FRIEND";
+
+    /// 分类名
+    const String kSpecName = "Name";
+    const String kSpecDisplayName = "DisplayName";
+    const String kSpecPropertyType = "Type";
+    const String kSpecPropertyGetter = "getter";
+    const String kSpecPropertySetter = "setter";
+
     struct Specifier
     {
         String  name;
@@ -39,6 +48,8 @@ namespace Tiny3D
     };
 
     typedef TMap<uint32_t, TList<Specifier>> Specifiers;
+    typedef Specifiers::iterator SpecifiersItr;
+    typedef Specifiers::const_iterator SpecifiersConstItr;
     typedef Specifiers::value_type SpecifiersValue;
 
     struct ASTNodeInfo
@@ -317,6 +328,8 @@ namespace Tiny3D
     public:
         ASTFunction(const String &name)
             : ASTNode(name)
+            , IsProperty(false)
+            , IsGetter(false)
         {}
 
         virtual Type getType() const override
@@ -331,6 +344,14 @@ namespace Tiny3D
 
         virtual TResult generateSourceFile(FileDataStream &fs) const override;
 
+    protected:
+        TResult generateSourceFileForProperty(FileDataStream &fs) const;
+
+        TResult generateSourceFileForFunction(FileDataStream &fs) const;
+
+    public:
+        bool                IsProperty;     /// 是否属性函数
+        bool                IsGetter;       /// 是否 Getter 属性函数，当 IsProperty 为 false 时，该字段无效
         ASTFileInfo         FileInfo;       /// 函数所在文件信息
     };
 
@@ -400,6 +421,7 @@ namespace Tiny3D
     public:
         ASTOverloadFunction(const String &name)
             : ASTParameterFunction(name)
+            , IsConst(false)
         {}
 
         virtual Type getType() const override
@@ -411,11 +433,15 @@ namespace Tiny3D
         {
             return "Overload Function";
         }
+
+        String getPropertyFunctionName() const;
+
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
-        
+
     public:
-        String                  RetType;        /// 函数返回值类型
+        String  RetType;        /// 函数返回值类型
+        bool    IsConst;        /// 是否常量函数
     };
 
     /**

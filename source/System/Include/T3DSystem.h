@@ -21,7 +21,18 @@
 #define __T3D_SYSTEM_H__
 
 
+#include "T3DSystemPrerequisites.h"
 
+
+namespace Tiny3D
+{
+    #define TCLASS(...)
+    #define TFUNCTION(...)
+    #define TPROPERTY(...)
+    #define TENUM(...)
+    #define TRTTI_ENABLE    RTTR_ENABLE
+    #define TRTTI_FRIEND    RTTR_REGISTRATION_FRIEND
+}
 
 
 #endif  /*__T3D_SYSTEM_H__*/

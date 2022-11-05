@@ -187,6 +187,8 @@ add_definitions(-DT3D_ERR_FRAMEWORK=0x00003000)
 add_definitions(-DT3D_ERR_CORE=0x00004000)
 # Plugin error code
 add_definitions(-DT3D_ERR_PLUGINS=0x00010000)
+# User error code
+add_definitions(-DT3D_ERR_USER=0x00020000)
 
 include(FindPkgMacros)
 include(ProjectCMakeModule)

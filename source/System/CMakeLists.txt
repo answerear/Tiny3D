@@ -27,6 +27,8 @@ endif (MSVC)
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
 
 
+message(STATUS "System Generated Dir : ${CMAKE_CURRENT_BINARY_DIR}")
+
 # Setup search header path for this project.
 include_directories(
 	"${RTTR_INCLUDE_DIR}"

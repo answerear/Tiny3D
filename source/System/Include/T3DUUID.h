@@ -22,13 +22,15 @@
 
 
 #include "T3DSystemPrerequisites.h"
+#include "T3DSystem.h"
 
 
 namespace Tiny3D
 {
+    TCLASS()
     class T3D_SYSTEM_API UUID
     {
-        // TRTTI_ENABLE()
+        TRTTI_ENABLE()
         
     public:
         enum
@@ -65,11 +67,13 @@ namespace Tiny3D
 
         void fromString(const String& str);
 
+        TPROPERTY(Name=value, Type=getter)
         String getValue() const
         {
             return toString();
         }
 
+        TPROPERTY(Name=value, Type=setter)
         void setValue(String str)
         {
             fromString(str);
