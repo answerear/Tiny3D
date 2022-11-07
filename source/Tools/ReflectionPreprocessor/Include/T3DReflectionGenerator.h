@@ -82,7 +82,7 @@ namespace Tiny3D
         TResult processMacroTags(const String &name, CXCursor cxCursor, CXCursor cxParent);
 
         /// 处理反射开关宏
-        TResult processMacroSwitch(CXCursor cxCursor, CXCursor cxParent);
+        TResult processMacroSwitch(const String &name, CXCursor cxCursor, CXCursor cxParent);
 
         void getASTNodeInfo(CXCursor cxCursor, String &filePath, uint32_t &start, uint32_t &end, uint32_t &column, uint32_t &offset) const;
 
@@ -93,6 +93,20 @@ namespace Tiny3D
         void insertSourceFiles(const String &path, ASTNode *node);
 
     protected:
+        struct RTTISwitch
+        {
+            RTTISwitch()
+                : enabled(false)
+            {}
+            
+            bool            enabled;
+            TList<String>   baseClasses;
+        };
+
+        typedef std::shared_ptr<RTTISwitch> RTTISwitchPtr;
+        typedef TMap<uint32_t, RTTISwitchPtr> RTTISwitches;
+        typedef RTTISwitches::value_type RTTISwitchesValue;
+        
         struct FileReflectionInfo
         {
             Specifiers      structs;
@@ -100,12 +114,14 @@ namespace Tiny3D
             Specifiers      functions;
             Specifiers      properties;
             Specifiers      enumerations;
-            TSet<uint32_t>  RTTISwitches;
+            RTTISwitches    switches;   /// 是否开启 RTTI 功能
         };
 
         typedef std::shared_ptr<FileReflectionInfo> FileReflectionInfoPtr;
 
         typedef TMap<String, FileReflectionInfoPtr> Files;
+        typedef Files::iterator FilesItr;
+        typedef Files::const_iterator FilesConstItr;
         typedef Files::value_type FilesValue;
 
         typedef TMap<String, ASTNode*> ASTNodeMap;

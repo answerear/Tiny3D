@@ -50,6 +50,12 @@ namespace Tiny3D
         T3D_ERR_RP_INVALID_NUM_PROPERTY_FUNC    = T3D_ERR_RP_ERROR + 4,
         /**< 函数名冲突 */
         T3D_ERR_RP_FUNCTION_NAME_CONFLICT       = T3D_ERR_RP_ERROR + 5,
+        /**< RTTI 开关没打开，但是又打了标签 */
+        T3D_ERR_RP_RTTI_DISABLED                = T3D_ERR_RP_ERROR + 6,
+        /**< 基类没有开启反射 */
+        T3D_ERR_RP_BASE_CLASS_NO_RTTI           = T3D_ERR_RP_ERROR + 7,
+        /**< 父结点不存在 */
+        T3D_ERR_RP_AST_NO_PARENT                = T3D_ERR_RP_ERROR + 8,
         
         /**< 致命级别 */
         T3D_ERR_RP_FATAL                        = T3D_ERR_REFLECTION_PREPROCESSOR + 0x200,

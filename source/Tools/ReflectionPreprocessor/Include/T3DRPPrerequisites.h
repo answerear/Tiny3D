@@ -50,25 +50,28 @@ namespace Tiny3D
     #define LOG_TAG                 "ReflectionPreprocessor"
 
     #define RP_LOG_ERROR(fmt, ...)   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");   \
         T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
 
     #define RP_LOG_WARNING(fmt, ...) \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");   \
         T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
 
     #define RP_LOG_INFO(fmt, ...)    \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");   \
         T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
 
     #define RP_LOG_DEBUG(fmt, ...)   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");   \
         T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);
-    
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
     
     class JsonStream
     {

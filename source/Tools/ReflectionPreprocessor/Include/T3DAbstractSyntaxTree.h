@@ -275,6 +275,7 @@ namespace Tiny3D
         ASTStruct(const String &name)
             : ASTNode(name)
             , RTTIEnabled(false)
+            , RTTIBaseClasses(nullptr)
         {}
 
         virtual Type getType() const override
@@ -293,10 +294,11 @@ namespace Tiny3D
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
 
     public:
-        ASTBaseClasses      BaseClasses;    /// 基类列表
-        TList<Specifier>    Specifiers;     /// 反射属性说明符
-        ASTFileInfo         FileInfo;       /// 结构体所在文件信息
-        bool                RTTIEnabled;    /// 是否开启了反射功能
+        ASTBaseClasses      BaseClasses;        /// 基类列表
+        TList<Specifier>    Specifiers;         /// 反射属性说明符
+        ASTFileInfo         FileInfo;           /// 结构体所在文件信息
+        bool                RTTIEnabled;        /// 是否开启了反射功能
+        TList<String>       *RTTIBaseClasses;   /// 反射的基类列表
     };
 
     /**

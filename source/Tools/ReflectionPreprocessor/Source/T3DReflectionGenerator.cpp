@@ -24,22 +24,35 @@ namespace Tiny3D
 {
     //-------------------------------------------------------------------------
 
-    #define CHECK_TAG(RESULT, ITR, CURSOR, SPECIFIERS, PATH, START, END, COL, OFFSET)    \
+    #define CHECK_TAG_RET_FILE_SPEC(RESULT, ITR_FILE, ITR_SPEC, CURSOR, SPECIFIERS, PATH, START, END, COL, OFFSET)   \
+    {   \
+        (RESULT) = false; \
+        getASTNodeInfo(CURSOR, PATH, START, END, COL, OFFSET); \
+        FilesItr _itrFile = mFiles.find(PATH);   \
+        if (_itrFile != mFiles.end())    \
         {   \
-            RESULT = false; \
-            getASTNodeInfo(CURSOR, PATH, START, END, COL, OFFSET); \
-            auto itrFile = mFiles.find(PATH);   \
-            if (itrFile != mFiles.end())    \
+            (ITR_FILE) = _itrFile; \
+            FileReflectionInfoPtr info = _itrFile->second;   \
+            uint32_t tagLine = START - 1;   \
+            const auto &_itrSpec = info->SPECIFIERS.find(tagLine);    \
+            if (_itrSpec != info->SPECIFIERS.end())    \
             {   \
-                FileReflectionInfoPtr info = itrFile->second;   \
-                uint32_t tagLine = START - 1;   \
-                const auto &itrSpec = info->SPECIFIERS.find(tagLine);    \
-                if (itrSpec != info->SPECIFIERS.end())    \
-                {   \
-                    RESULT = true;  \
-                    ITR = itrSpec;  \
-                }   \
+                (RESULT) = true;  \
+                (ITR_SPEC) = _itrSpec;  \
             }   \
+        }   \
+    }
+
+    #define CHECK_TAG_RET_SPEC(RESULT, ITR_SPEC, CURSOR, SPECIFIERS, PATH, START, END, COL, OFFSET)    \
+        {   \
+            FilesItr itFile;   \
+            CHECK_TAG_RET_FILE_SPEC(RESULT, itFile, ITR_SPEC, CURSOR, SPECIFIERS, PATH, START, END, COL, OFFSET); \
+        }
+
+    #define CHECK_TAG(RESULT, CURSOR, SPECIFIERS, PATH, START, END, COL, OFFSET) \
+        {   \
+            SpecifiersConstItr itSpec; \
+            CHECK_TAG_RET_SPEC(RESULT, itSpec, CURSOR, SPECIFIERS, PATH, START, END, COL, OFFSET); \
         }
     
     //-------------------------------------------------------------------------
@@ -255,10 +268,10 @@ namespace Tiny3D
                 // 反射标签
                 ret = processMacroTags(name, cxCursor, cxParent);
             }
-            else if (name != kRTTIEnable || name != kRTTIFriend)
+            else if (name == kRTTIEnable)
             {
                 // 反射开关
-                ret = processMacroSwitch(cxCursor, cxParent);
+                ret = processMacroSwitch(name, cxCursor, cxParent);
             }
         } while (false);
         
@@ -274,9 +287,6 @@ namespace Tiny3D
 
         do
         {
-            CXString cxName = clang_getCursorSpelling(cxCursor);
-            String name = toString(cxName);
-            
             TStack<String> stack;
             
             String path;
@@ -434,13 +444,111 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
-    TResult ReflectionGenerator::processMacroSwitch(CXCursor cxCursor, CXCursor cxParent)
+    TResult ReflectionGenerator::processMacroSwitch(const String &name, CXCursor cxCursor, CXCursor cxParent)
     {
         TResult ret = T3D_OK;
 
         do
         {
+            String path;
+            uint32_t start, end, column, offset;
+            // 获取反射标签的源码文件、行数等信息
+            getASTNodeInfo(cxCursor, path, start, end, column, offset);
+
+            FileReflectionInfoPtr info;
+            auto itrFile = mFiles.find(path);
+            if (itrFile == mFiles.end())
+            {
+                // 该文件第一次解析，缓存起来
+                info.reset(new FileReflectionInfo());
+                mFiles.insert(FilesValue(path, info));
+            }
+            else
+            {
+                info = itrFile->second;
+            }
+
+            TList<String> baseClasses;
+            TStack<String> stack;
             
+            // 解析符号，提取反射标签信息
+            CXSourceRange cxRange = clang_getCursorExtent(cxCursor);
+            CXTranslationUnit cxUnit = clang_Cursor_getTranslationUnit(cxCursor);
+            CXToken *cxTokens;
+            uint32_t cxNumTokens = 0;
+            clang_tokenize(cxUnit, cxRange, &cxTokens, &cxNumTokens);
+            for (uint32_t i = 1; i < cxNumTokens; ++i)
+            {
+                CXTokenKind cxTokenKind = clang_getTokenKind(cxTokens[i]);
+                CXString cxStr = clang_getTokenSpelling(cxUnit, cxTokens[i]);
+                String token = toString(cxStr);
+                
+                switch (cxTokenKind)
+                {
+                case CXToken_Punctuation:
+                    {
+                        // RP_LOG_INFO("Token(punctuation) : %s", token.c_str());
+                        if (token == "(")
+                        {
+                            // Do nothing
+                        }
+                        else if (token == "," || token == ")" && stack.size() == 1)
+                        {
+                            // At the end of identifier
+                            Specifier spec;
+                            String klass = stack.top();
+                            stack.pop();
+                            baseClasses.push_back(klass);
+                        }
+                        else if (!stack.empty())
+                        {
+                            // Errors
+                            RP_LOG_ERROR("Reflection tag (%s:%s) [%s:%u] syntax error !",
+                                name.c_str(), token.c_str(), path.c_str(), start);
+                            ret = T3D_ERR_RP_TAG_SYNTAX;
+                        }
+                    }
+                    break;
+                case CXToken_Keyword:
+                    {
+                        RP_LOG_INFO("Token(keyword) : %s", token.c_str());
+                    }
+                    break;
+                case CXToken_Identifier:
+                    {
+                        // RP_LOG_INFO("Token(identifier) : %s", token.c_str());
+                        stack.push(token);
+                    }
+                    break;
+                case CXToken_Literal:
+                    {
+                        // RP_LOG_INFO("Token(literal) : %s", token.c_str());
+                        stack.push(token);
+                    }
+                    break;
+                case CXToken_Comment:
+                    {
+                        // RP_LOG_INFO("Token(comment) : %s", token.c_str());
+                    }
+                    break;
+                }
+
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            RTTISwitchPtr sw(new RTTISwitch());
+            sw->enabled = true;
+            sw->baseClasses = std::move(baseClasses);
+
+            info->switches.insert(RTTISwitchesValue(start, sw));
         } while (false);
 
         return ret;
@@ -455,35 +563,63 @@ namespace Tiny3D
 
         do
         {
+            // 先检测是否有打反射标签
             bool rval;
-            SpecifiersConstItr itr;
+            FilesItr itrFile;
+            SpecifiersConstItr itrSpec;
             String path;
             uint32_t start, end, column, offset;
-            CHECK_TAG(rval, itr, cxCursor, classes, path, start, end, column, offset);
+            CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxCursor, classes, path, start, end, column, offset);
             if (!rval)
             {
                 break;
             }
-            // getASTNodeInfo(cxCursor, path, start, end, column, offset);
-            //
-            // auto itrFile = mFiles.find(path);
-            // if (itrFile == mFiles.end())
-            // {
-            //     // 该类没有 TCLASS 标签
-            //     break;
-            // }
-            //
-            // FileReflectionInfoPtr info = itrFile->second;
-            // uint32_t tagLine = start - 1;
-            // auto itrClass = info->classes.find(tagLine);
-            // if (itrClass == info->classes.end())
-            // {
-            //     // 该类的 TCLASS 标签不符合语法规则，不是在 class 声明上一行
-            //     break;
-            // }
 
+            // 检测反射开关是否打开
+            bool RTTIEnabled = false;
+            FileReflectionInfoPtr info = itrFile->second;
+            TList<String> *baseClasses = nullptr;
+            for (const auto &pair : info->switches)
+            {
+                if (pair.first >= start && pair.first <= end)
+                {
+                    // 开关在类内部
+                    RTTIEnabled = pair.second->enabled;
+                    baseClasses = &pair.second->baseClasses;
+                    break;
+                }
+            }
+
+            if (!RTTIEnabled)
+            {
+                // 没有打开反射功能
+                ret = T3D_ERR_RP_RTTI_DISABLED;
+                RP_LOG_ERROR("RTTI has not enable [%s:%u] !", path.c_str(), start);
+                break;
+            }
+
+            // 获取类名
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
+
+            // 获取父结点
+            ASTNode *parent = getOrConstructParentNode(cxCursor);
+            if (parent == nullptr)
+            {
+                // 父结点不存在
+                ret = T3D_ERR_RP_AST_NO_PARENT;
+                RP_LOG_ERROR("The parent of class %s is null [%s:%u] !",
+                    name.c_str(), path.c_str(), start);
+                break;
+            }
+
+            ASTNode *node = parent->getChild(name);
+            if (node != nullptr)
+            {
+                // 如果自己已经在父结点下，则只记录类所在的文件信息
+                insertSourceFiles(path, node);
+                break;
+            }
             
             // 新建 class 结点
             ASTStruct *klass = nullptr;
@@ -498,14 +634,11 @@ namespace Tiny3D
             klass->FileInfo.Path = path;
             klass->FileInfo.StartLine = start;
             klass->FileInfo.EndLine = end;
+            klass->RTTIEnabled = RTTIEnabled;
+            klass->RTTIBaseClasses = baseClasses;
 
-            // 获取父结点
-            ASTNode *parent = getOrConstructParentNode(cxCursor);
-            
             // 把自己加到父结点上
-            T3D_ASSERT(parent != nullptr);
             parent->addChild(name, klass);
-
             insertSourceFiles(path, klass);
         } while (false);
         
@@ -807,11 +940,11 @@ namespace Tiny3D
             ASTNode *node = getASTStructNode(cxBaseCursor);
             if (node == nullptr)
             {
-                ret = T3D_ERR_NOT_FOUND;
+                ret = T3D_ERR_RP_BASE_CLASS_NO_RTTI;
                 break;
             }
             auto baseNode = dynamic_cast<ASTStruct*>(node);
-            
+
             // 派生类信息
             node = getASTStructNode(cxParent);
             if (node == nullptr)
@@ -821,6 +954,21 @@ namespace Tiny3D
             }
             
             auto derivedNode = dynamic_cast<ASTStruct*>(node);
+
+            // 检测反射继承链是否跟实际父子类继承链相一致
+            T3D_ASSERT(baseNode->RTTIEnabled);
+            auto itr = std::find(baseNode->RTTIBaseClasses->begin(), baseNode->RTTIBaseClasses->end(), baseNode->getName());
+            if (itr == baseNode->RTTIBaseClasses->end())
+            {
+                // 父类没有在使用 TRTTI_ENABLE 打开反射功能
+                ret = T3D_ERR_RP_BASE_CLASS_NO_RTTI;
+                RP_LOG_ERROR("Base class has not enabled RTTI feature [%s:%u] ! "
+                    "Please use TRTTI_ENABLE() in class declaration to enable this feature.",
+                    baseNode->FileInfo.Path.c_str(), baseNode->FileInfo.StartLine);
+                break;
+            }
+
+            // 都合法，放到基类列表中
             derivedNode->BaseClasses.insert(ASTBaseClassesValue(baseNode->getName(), baseNode));
         } while (false);
         
@@ -953,11 +1101,11 @@ namespace Tiny3D
                 // 非构造和析构函数，需要看是否打标签
                 String path;
                 uint32_t start, end, column, offset;
-                CHECK_TAG(rval, itr, cxCursor, functions, path, start, end, column, offset);
+                CHECK_TAG_RET_SPEC(rval, itr, cxCursor, functions, path, start, end, column, offset);
                 if (!rval)
                 {
                     // 没有打函数标签，那可能是属性，查是否打了属性标签
-                    CHECK_TAG(rval, itr, cxCursor, properties, path, start, end, column, offset);
+                    CHECK_TAG_RET_SPEC(rval, itr, cxCursor, properties, path, start, end, column, offset);
                     if (!rval)
                     {
                         // 属性标签也没有，那没有反射
@@ -978,9 +1126,8 @@ namespace Tiny3D
                     || cxParent.kind == CXCursor_ClassTemplate
                     || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
                 {
-                    SpecifiersConstItr it;
                     // 是类函数，还需要类有打反射标签
-                    CHECK_TAG(rval, it, cxParent, classes, path, start, end, column, offset);
+                    CHECK_TAG(rval, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -989,8 +1136,7 @@ namespace Tiny3D
                 else if (cxParent.kind == CXCursor_StructDecl)
                 {
                     // 结构体成员函数，需要结构体有打反射标签
-                    SpecifiersConstItr it;
-                    CHECK_TAG(rval, it, cxParent, structs, path, start, end, column, offset);
+                    CHECK_TAG(rval, cxParent, structs, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1007,7 +1153,7 @@ namespace Tiny3D
                     || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
                 {
                     // 类函数，需要类有打反射标签
-                    CHECK_TAG(rval, itr, cxParent, classes, path, start, end, column, offset);
+                    CHECK_TAG_RET_SPEC(rval, itr, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1016,7 +1162,7 @@ namespace Tiny3D
                 else if (cxParent.kind == CXCursor_StructDecl)
                 {
                     // 结构体函数，需要结构体有打反射标签
-                    CHECK_TAG(rval, itr, cxParent, structs, path, start, end, column, offset);
+                    CHECK_TAG_RET_SPEC(rval, itr, cxParent, structs, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1078,8 +1224,6 @@ namespace Tiny3D
 
             overload->IsConst = (clang_CXXMethod_isConst(cxCursor) == 1);
             
-            overload->FileInfo = std::move(fileInfo);
-            
             CXType cxType = clang_getCursorType(cxCursor);
             
             // 函数返回值
@@ -1135,11 +1279,10 @@ namespace Tiny3D
                 if (!found)
                 {
                     // 没有给名字，错误了
+                    delete overload;
                     ret = T3D_ERR_RP_INVALID_SPECFIER;
                     RP_LOG_ERROR("Invalid specifier in TPROPERTY [%s:%u] !",
-                        overload->FileInfo.Path.c_str(),
-                        overload->FileInfo.StartLine);
-                    delete overload;
+                        fileInfo.Path.c_str(), fileInfo.StartLine);
                     break;
                 }
             }
@@ -1152,7 +1295,14 @@ namespace Tiny3D
             
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
-            T3D_ASSERT(parent != nullptr);
+            if (parent == nullptr)
+            {
+                
+                ret = T3D_ERR_RP_AST_NO_PARENT;
+                RP_LOG_ERROR("The parent is null [%s:%u] !", fileInfo.Path.c_str(), fileInfo.StartLine);
+                break;
+            }
+            
             ASTNode *child = parent->getChild(funcName);
             if (child == nullptr)
             {
@@ -1171,14 +1321,14 @@ namespace Tiny3D
             if (function->IsProperty != isProperty)
             {
                 // 函数类型不一致，存在同名函数
+                delete overload;
                 ret = T3D_ERR_RP_FUNCTION_NAME_CONFLICT;
                 RP_LOG_ERROR("Function name (%s) conflict [%s:%u] !",
-                    parent->getHierarchyName().c_str(),
-                    function->FileInfo.Path.c_str(),
-                    function->FileInfo.StartLine);
+                    parent->getHierarchyName().c_str(), fileInfo.Path.c_str(), fileInfo.StartLine);
                 break;
             }
 
+            overload->FileInfo = std::move(fileInfo);
             overload->IsGetter = isGetter;
             parent->addChild(USR, overload);
 
@@ -1284,23 +1434,27 @@ namespace Tiny3D
         do
         {
             bool rval;
-            SpecifiersConstItr itr;
             String path;
             uint32_t start, end, col, offset;
-            
+
             // 枚举是否打了反射标签
-            CHECK_TAG(rval, itr, cxCursor, enumerations, path, start, end, col, offset);
+            CHECK_TAG(rval, cxCursor, enumerations, path, start, end, col, offset);
             if (!rval)
             {
                 break;
             }
 
+            ASTFileInfo fileInfo;
+            fileInfo.Path = path;
+            fileInfo.StartLine = start;
+            fileInfo.EndLine = end;
+            
             // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
                 || cxParent.kind == CXCursor_ClassTemplate
                 || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
             {
-                CHECK_TAG(rval, itr, cxParent, classes, path, start, end, col, offset);
+                CHECK_TAG(rval, cxParent, classes, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
@@ -1308,7 +1462,7 @@ namespace Tiny3D
             }
             else if (cxParent.kind == CXCursor_StructDecl)
             {
-                CHECK_TAG(rval, itr, cxParent, structs, path, start, end, col, offset);
+                CHECK_TAG(rval, cxParent, structs, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
@@ -1317,7 +1471,12 @@ namespace Tiny3D
 
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
-            T3D_ASSERT(parent != nullptr);
+            if (parent == nullptr)
+            {
+                ret = T3D_ERR_RP_AST_NO_PARENT;
+                RP_LOG_ERROR("The parent is null [%s:%u] !", fileInfo.Path.c_str(), fileInfo.StartLine);
+                break;
+            }
 
             // 构造枚举结点并加到父结点上
             CXString cxName = clang_getCursorSpelling(cxCursor);
@@ -1325,9 +1484,7 @@ namespace Tiny3D
             ASTEnum *enumeration = new ASTEnum(name);
             parent->addChild(name, enumeration);
 
-            enumeration->FileInfo.Path = path;
-            enumeration->FileInfo.StartLine = start;
-            enumeration->FileInfo.EndLine = end;
+            enumeration->FileInfo = std::move(fileInfo);
 
             if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
             {
@@ -1348,12 +1505,11 @@ namespace Tiny3D
         do
         {
             bool rval;
-            SpecifiersConstItr itr;
             String path;
             uint32_t start, end, col, offset;
             
             // 枚举是否打了反射标签
-            CHECK_TAG(rval, itr, cxParent, enumerations, path, start, end, col, offset);
+            CHECK_TAG(rval, cxParent, enumerations, path, start, end, col, offset);
             if (!rval)
             {
                 break;
@@ -1361,7 +1517,12 @@ namespace Tiny3D
 
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
-            T3D_ASSERT(parent != nullptr);
+            if (parent == nullptr)
+            {
+                ret = T3D_ERR_RP_AST_NO_PARENT;
+                RP_LOG_ERROR("The parent is null [%s:%u] !", path.c_str(), start);
+                break;
+            }
 
             // 构造枚举常量结点并加到父结点上            
             CXString cxName = clang_getCursorSpelling(cxCursor);
@@ -1383,23 +1544,27 @@ namespace Tiny3D
         do
         {
             bool rval;
-            SpecifiersConstItr itr;
             String path;
             uint32_t start, end, col, offset;
             
             // 变量是否打了反射标签
-            CHECK_TAG(rval, itr, cxCursor, properties, path, start, end, col, offset);
+            CHECK_TAG(rval, cxCursor, properties, path, start, end, col, offset);
             if (!rval)
             {
                 break;
             }
 
+            ASTFileInfo fileInfo;
+            fileInfo.Path = path;
+            fileInfo.StartLine = start;
+            fileInfo.EndLine = end;
+            
             // class 或 struct 的成员变量，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
                 || cxParent.kind == CXCursor_ClassTemplate
                 || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
             {
-                CHECK_TAG(rval, itr, cxParent, classes, path, start, end, col, offset);
+                CHECK_TAG(rval, cxParent, classes, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
@@ -1407,7 +1572,7 @@ namespace Tiny3D
             }
             else if (cxParent.kind == CXCursor_StructDecl)
             {
-                CHECK_TAG(rval, itr, cxParent, structs, path, start, end, col, offset);
+                CHECK_TAG(rval, cxParent, structs, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
@@ -1416,7 +1581,12 @@ namespace Tiny3D
 
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
-            T3D_ASSERT(parent != nullptr);
+            if (parent == nullptr)
+            {
+                ret = T3D_ERR_RP_AST_NO_PARENT;
+                RP_LOG_ERROR("The parent is null [%s:%u] !", fileInfo.Path.c_str(), fileInfo.StartLine);
+                break;
+            }
 
             // 构造属性结点并加到父结点上
             CXString cxName = clang_getCursorSpelling(cxCursor);
@@ -1561,14 +1731,14 @@ namespace Tiny3D
             break;
         case CXCursor_ClassDecl:
             {
-                node = new ASTClass(info.name);
-                node->HaveRTTI = true;
+                // node = new ASTClass(info.name);
+                // node->HaveRTTI = true;
             }
             break;
         case CXCursor_StructDecl:
             {
-                node = new ASTStruct(info.name);
-                node->HaveRTTI = true;
+                // node = new ASTStruct(info.name);
+                // node->HaveRTTI = true;
             }
             break;
         default:
@@ -1613,8 +1783,13 @@ namespace Tiny3D
             {
                 // 没有对应的结点，创建一个
                 child = createNode(node);
-                parent->addChild(node.name, child);
             }
+            if (child == nullptr)
+            {
+                parent = child;
+                break;
+            }
+            parent->addChild(node.name, child);
             parent = child;
             T3D_ASSERT(parent->getType() == ASTNode::Type::kNamespace
                 || parent->getType() == ASTNode::Type::kStruct
