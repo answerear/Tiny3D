@@ -566,7 +566,7 @@ namespace Tiny3D
             // 先检测是否有打反射标签
             bool rval;
             FilesItr itrFile;
-            SpecifiersConstItr itrSpec;
+            SpecifiersItr itrSpec;
             String path;
             uint32_t start, end, column, offset;
             CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxCursor, classes, path, start, end, column, offset);
@@ -636,9 +636,12 @@ namespace Tiny3D
             klass->FileInfo.EndLine = end;
             klass->RTTIEnabled = RTTIEnabled;
             klass->RTTIBaseClasses = baseClasses;
+            klass->Specifiers = &itrSpec->second;
 
             // 把自己加到父结点上
             parent->addChild(name, klass);
+
+            // 放到源码文件缓存中
             insertSourceFiles(path, klass);
         } while (false);
         
@@ -1092,7 +1095,7 @@ namespace Tiny3D
         {
             bool isProperty = false;
             bool rval;
-            SpecifiersConstItr itr;
+            SpecifiersItr itrSpec;
             
             ASTFileInfo fileInfo;
             
@@ -1101,11 +1104,11 @@ namespace Tiny3D
                 // 非构造和析构函数，需要看是否打标签
                 String path;
                 uint32_t start, end, column, offset;
-                CHECK_TAG_RET_SPEC(rval, itr, cxCursor, functions, path, start, end, column, offset);
+                CHECK_TAG_RET_SPEC(rval, itrSpec, cxCursor, functions, path, start, end, column, offset);
                 if (!rval)
                 {
                     // 没有打函数标签，那可能是属性，查是否打了属性标签
-                    CHECK_TAG_RET_SPEC(rval, itr, cxCursor, properties, path, start, end, column, offset);
+                    CHECK_TAG_RET_SPEC(rval, itrSpec, cxCursor, properties, path, start, end, column, offset);
                     if (!rval)
                     {
                         // 属性标签也没有，那没有反射
@@ -1153,7 +1156,7 @@ namespace Tiny3D
                     || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
                 {
                     // 类函数，需要类有打反射标签
-                    CHECK_TAG_RET_SPEC(rval, itr, cxParent, classes, path, start, end, column, offset);
+                    CHECK_TAG_RET_SPEC(rval, itrSpec, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1162,7 +1165,7 @@ namespace Tiny3D
                 else if (cxParent.kind == CXCursor_StructDecl)
                 {
                     // 结构体函数，需要结构体有打反射标签
-                    CHECK_TAG_RET_SPEC(rval, itr, cxParent, structs, path, start, end, column, offset);
+                    CHECK_TAG_RET_SPEC(rval, itrSpec, cxParent, structs, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1250,7 +1253,7 @@ namespace Tiny3D
             {
                 // 属性函数，用反射标签里面的名字
                 bool found = false;
-                const TList<Specifier> &specs = itr->second;
+                const TList<Specifier> &specs = itrSpec->second;
                 for (const auto &spec : specs)
                 {
                     if (spec.name == kSpecName)
@@ -1331,6 +1334,13 @@ namespace Tiny3D
 
             overload->FileInfo = std::move(fileInfo);
             overload->IsGetter = isGetter;
+            
+            if (!isConstructor && !isDestructor)
+            {
+                // 非构造函数、非析构函数才能有说明符
+                overload->Specifiers = &itrSpec->second;
+            }
+            
             parent->addChild(USR, overload);
 
             if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
@@ -1437,9 +1447,10 @@ namespace Tiny3D
             bool rval;
             String path;
             uint32_t start, end, col, offset;
-
+            SpecifiersItr itrSpec;
+            
             // 枚举是否打了反射标签
-            CHECK_TAG(rval, cxCursor, enumerations, path, start, end, col, offset);
+            CHECK_TAG_RET_SPEC(rval, itrSpec, cxCursor, enumerations, path, start, end, col, offset);
             if (!rval)
             {
                 break;
@@ -1486,7 +1497,8 @@ namespace Tiny3D
             parent->addChild(name, enumeration);
 
             enumeration->FileInfo = std::move(fileInfo);
-
+            enumeration->Specifiers = &itrSpec->second;
+            
             if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
             {
                 // 非类和结构体函数
@@ -1547,9 +1559,10 @@ namespace Tiny3D
             bool rval;
             String path;
             uint32_t start, end, col, offset;
+            SpecifiersItr itrSpec;
             
             // 变量是否打了反射标签
-            CHECK_TAG(rval, cxCursor, properties, path, start, end, col, offset);
+            CHECK_TAG_RET_SPEC(rval, itrSpec, cxCursor, properties, path, start, end, col, offset);
             if (!rval)
             {
                 break;
@@ -1594,6 +1607,7 @@ namespace Tiny3D
             String name = toString(cxName);
             ASTProperty *property = new ASTProperty(name);
             property->DataType = toString(clang_getTypeSpelling(clang_getCursorType(cxCursor)));
+            property->Specifiers = &itrSpec->second;
             parent->addChild(name, property);
 
             if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
@@ -1727,7 +1741,6 @@ namespace Tiny3D
         case CXCursor_Namespace:
             {
                 node = new ASTNamespace(info.name);
-                node->HaveRTTI = true;
             }
             break;
         case CXCursor_ClassDecl:

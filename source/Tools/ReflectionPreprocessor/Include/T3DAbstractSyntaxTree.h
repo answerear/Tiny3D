@@ -186,7 +186,7 @@ namespace Tiny3D
          */
         virtual TResult generateSourceFile(FileDataStream &fs) const;
         
-        bool    HaveRTTI;    /// 该结点及其子结点是否有反射
+        TList<Specifier>    *Specifiers;        /// 反射属性说明符
 
     protected:        
         ASTNode *getChildDirectly(const String &name) const
@@ -294,7 +294,6 @@ namespace Tiny3D
 
     public:
         ASTBaseClasses      BaseClasses;        /// 基类列表
-        TList<Specifier>    Specifiers;         /// 反射属性说明符
         ASTFileInfo         FileInfo;           /// 结构体所在文件信息
         bool                RTTIEnabled;        /// 是否开启了反射功能
         TList<String>       *RTTIBaseClasses;   /// 反射的基类列表
@@ -390,9 +389,6 @@ namespace Tiny3D
         
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
-        
-    public:
-        TList<Specifier>        Specifiers;     /// 反射属性说明符
     };
 
     /**
@@ -555,7 +551,6 @@ namespace Tiny3D
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
         
     public:
-        TList<Specifier>    Specifiers;     /// 反射属性说明符
         String              DataType;       /// 数据类型
         ASTFileInfo         FileInfo;       /// 属性所在文件信息
     };
@@ -582,7 +577,6 @@ namespace Tiny3D
 
         virtual TResult generateSourceFile(FileDataStream& fs) const override;
 
-        TList<Specifier>    Specifiers;     /// 反射属性说明符
         ASTFileInfo         FileInfo;       /// 枚举所在文件信息
     };
 

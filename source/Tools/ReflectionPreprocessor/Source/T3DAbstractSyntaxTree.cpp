@@ -27,7 +27,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     ASTNode::ASTNode(const String &name)
-        : HaveRTTI(false)
+        : Specifiers(nullptr)
         , mName(name)
         , mParent(nullptr)
     {
@@ -164,14 +164,17 @@ namespace Tiny3D
         writer.Key("Specifiers");
         {
             writer.StartArray();
-            for (const auto &val : Specifiers)
+            if (Specifiers != nullptr)
             {
-                writer.StartObject();
-                writer.Key(val.name);
-                writer.String(val.value);
-                writer.EndObject();
+                for (const auto &val : *Specifiers)
+                {
+                    writer.StartObject();
+                    writer.Key(val.name);
+                    writer.String(val.value);
+                    writer.EndObject();
+                }
             }
-            writer.EndArray();            
+            writer.EndArray();
         }
         
         // File info
@@ -454,12 +457,15 @@ namespace Tiny3D
         writer.Key("Specifiers");
         {
             writer.StartArray();
-            for (const auto &val : Specifiers)
+            if (Specifiers != nullptr)
             {
-                writer.StartObject();
-                writer.Key(val.name);
-                writer.String(val.value);
-                writer.EndObject();
+                for (const auto &val : *Specifiers)
+                {
+                    writer.StartObject();
+                    writer.Key(val.name);
+                    writer.String(val.value);
+                    writer.EndObject();
+                }
             }
             writer.EndArray();            
         }
@@ -562,12 +568,15 @@ namespace Tiny3D
         writer.Key("Specifiers");
         {
             writer.StartArray();
-            for (const auto &val : Specifiers)
+            if (Specifiers != nullptr)
             {
-                writer.StartObject();
-                writer.Key(val.name);
-                writer.String(val.value);
-                writer.EndObject();
+                for (const auto &val : *Specifiers)
+                {
+                    writer.StartObject();
+                    writer.Key(val.name);
+                    writer.String(val.value);
+                    writer.EndObject();
+                }
             }
             writer.EndArray();            
         }
