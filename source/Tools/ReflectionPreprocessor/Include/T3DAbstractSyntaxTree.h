@@ -35,11 +35,10 @@ namespace Tiny3D
     const String kRTTIFriend = "TRTTI_FRIEND";
 
     /// 分类名
-    const String kSpecName = "Name";
-    const String kSpecDisplayName = "DisplayName";
-    const String kSpecPropertyType = "Type";
-    const String kSpecPropertyGetter = "getter";
-    const String kSpecPropertySetter = "setter";
+    const String kSpecName = "RTTRFuncName";
+    const String kSpecPropertyType = "RTTRFuncType";
+    const String kSpecPropertyGetter = "\"getter\"";
+    const String kSpecPropertySetter = "\"setter\"";
 
     struct Specifier
     {

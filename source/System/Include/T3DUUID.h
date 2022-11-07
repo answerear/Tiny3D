@@ -67,13 +67,13 @@ namespace Tiny3D
 
         void fromString(const String& str);
 
-        TPROPERTY(Name=value, Type=getter)
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter")
         String getValue() const
         {
             return toString();
         }
 
-        TPROPERTY(Name=value, Type=setter)
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter")
         void setValue(String str)
         {
             fromString(str);

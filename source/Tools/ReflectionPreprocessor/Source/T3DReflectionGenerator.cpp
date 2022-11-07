@@ -1256,6 +1256,7 @@ namespace Tiny3D
                     if (spec.name == kSpecName)
                     {
                         funcName = spec.value;
+                        StringUtil::replaceAll(funcName, "\"", "");
                         found = true;
                     }
                     else if (spec.name == kSpecPropertyType)
