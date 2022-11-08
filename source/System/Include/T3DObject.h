@@ -33,7 +33,7 @@ namespace Tiny3D
      * @class   Object
      * @brief   引擎所有对象基类
      */
-    TCLASS(EditorOnly, Catogary=Base)
+    TCLASS()
     class T3D_SYSTEM_API Object
     {
         T3D_DECLARE_CLASS();
@@ -80,11 +80,11 @@ namespace Tiny3D
     };
 }
 
-TFUNCTION()
+TFUNCTION("Discription"="This is a function.")
 inline void Globalfunction(float fval)
 {}
 
-TFUNCTION()
+TFUNCTION("Discription"="This is a function.")
 inline float Globalfunction()
 { return 0.0f; }
 
@@ -112,13 +112,15 @@ namespace Test
         kFake
     };
     
-    TCLASS()
+    TCLASS("EditorOnly", "Category"="Derived")
     class Derived : public Tiny3D::Object
     {
+        TRTTI_ENABLE(Tiny3D::Object);
+        
     public:
         Derived() {}
 
-        TPROPERTY(Name=value, Type=getter)
+        TPROPERTY(Name="value", Type="getter", "Discription"="This is the value.")
         const std::string &getValue() const
         {
             return mStr;
@@ -130,6 +132,7 @@ namespace Test
     TCLASS()
     class Base
     {
+        TRTTI_ENABLE();
     public:
         Base() = default;
     };
@@ -147,6 +150,7 @@ namespace Test
         TCLASS()
         class Object : public Derived
         {
+            TRTTI_ENABLE();
         public:
             Object() = default;
         };
@@ -154,6 +158,7 @@ namespace Test
         TCLASS()
         class Derived : public Object
         {
+            TRTTI_ENABLE(Object);
         public:
 			TENUM()
 			enum class EType : uint32_t
@@ -200,13 +205,13 @@ namespace Test
                 return 0;
             }
 
-            TFUNCTION()
+            TFUNCTION("Discription"="This is a static function.")
             static void XXfunction()
             {
                 
             }
 			
-			TFUNCTION()
+			TFUNCTION("Discription"="This is a member function.")
 			int32_t TestFunction() const
 			{
 				return 0;
@@ -226,7 +231,7 @@ namespace Test
                 TempDerived temp;
             }
 			
-			TPROPERTY()
+			TPROPERTY("Discription"="This is an integer value.")
 			int32_t iValue;
 			
 			TPROPERTY()
@@ -246,6 +251,8 @@ namespace AA
     TCLASS()
     class Derived : public Test::Base
     {
+        TRTTI_ENABLE(Test::Base);
+        
     public:
         Derived() = default;
     };
@@ -253,6 +260,7 @@ namespace AA
     TCLASS()
     class AADerived : public Test::AA::Derived
     {
+        TRTTI_ENABLE(Test::AA::Derived);
     public:
         AADerived() = default;
     };
@@ -269,6 +277,7 @@ namespace AA
     TCLASS()
     class Base1
     {
+        TRTTI_ENABLE();
     public:
         Base1() = default;
     };
@@ -276,6 +285,7 @@ namespace AA
     TCLASS()
     class Base2
     {
+        TRTTI_ENABLE();
     public:
         Base2() = default;
     };
@@ -283,6 +293,7 @@ namespace AA
     TCLASS()
     class MultiDerived : public Base1, public Base2
     {
+        TRTTI_ENABLE(Base1, Base2);
     public:
         MultiDerived() = default;
     };

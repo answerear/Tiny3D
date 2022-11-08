@@ -185,6 +185,8 @@ namespace Tiny3D
          * @brief 生成源码文件
          */
         virtual TResult generateSourceFile(FileDataStream &fs) const;
+
+        virtual TResult generateMetaInfo(FileDataStream &fs, int32_t indents) const;
         
         TList<Specifier>    *Specifiers;        /// 反射属性说明符
 
@@ -205,7 +207,7 @@ namespace Tiny3D
         }
 
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
-        
+
         typedef TMap<String, ASTNode*> ASTChildren;
         typedef ASTChildren::value_type ASTChildrenValue;
 
@@ -549,7 +551,7 @@ namespace Tiny3D
 
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
-        
+
     public:
         String              DataType;       /// 数据类型
         ASTFileInfo         FileInfo;       /// 属性所在文件信息

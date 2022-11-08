@@ -144,6 +144,81 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ASTNode::generateMetaInfo(FileDataStream &fs, int32_t indents) const
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (Specifiers == nullptr || Specifiers->empty())
+            {
+                break;
+            }
+
+            TList<Specifier> specifiers;
+            for (const auto &spec : *Specifiers)
+            {
+                if (!StringUtil::startsWith(spec.name, "RTTR", false))
+                {
+                    specifiers.push_back(spec);
+                }
+            }
+
+            if (specifiers.empty())
+            {
+                break;
+            }
+        
+            const std::function<void(FileDataStream&, int32_t)> generateIndent = [](FileDataStream &fs, int32_t indents)
+            {
+                int32_t i = 0;
+                for (i = 0; i < indents; i++)
+                {
+                    fs << "\t";
+                }
+            };
+
+            fs << std::endl;
+            int32_t tabs = indents;
+            generateIndent(fs, tabs);
+            fs << "(" << std::endl;
+
+            {
+                tabs++;
+
+                size_t i = 0;
+                for (const auto &spec : specifiers)
+                {
+                    generateIndent(fs, tabs);
+                    if (spec.value.empty())
+                    {
+                        fs << "metadata(" << spec.name << ", true)";
+                    }
+                    else
+                    {
+                        fs << "metadata(" << spec.name << ", " << spec.value << ")";
+                    }
+                    if (i != specifiers.size() - 1)
+                    {
+                        fs << ",";
+                    }
+                    fs << std::endl;
+                    i++;
+                }
+                
+                tabs--;
+            }
+        
+            generateIndent(fs, tabs);
+            fs << ")";
+        } while (false);
+        
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ASTStruct::dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const
     {
         // Base Classes
@@ -204,6 +279,7 @@ namespace Tiny3D
         // 交给子结点写
         if (mChildren.empty())
         {
+            generateMetaInfo(fs, 2);
             fs << ";" << std::endl;
         }
         else
@@ -227,6 +303,9 @@ namespace Tiny3D
                 
                 i++;
             }
+            
+            generateMetaInfo(fs, 2);
+            
             fs << ";" << std::endl;
         }
         
@@ -320,6 +399,8 @@ namespace Tiny3D
                             fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << name << "))";
                         }
 
+                        overload->generateMetaInfo(fs, 2);
+                        
                         if (idx != mChildren.size() - 1)
                         {
                             fs << std::endl;
@@ -328,6 +409,7 @@ namespace Tiny3D
                     else
                     {
                         fs << "method(\"" << getName() << "\", &" << name << ")";
+                        child.second->generateMetaInfo(fs, 2);
                     }
                 }
                 break;
@@ -347,6 +429,8 @@ namespace Tiny3D
                     }
                     fs << "\t\t.constructor<" << params << ">()";
 
+                    constructor->generateMetaInfo(fs, 2);
+                    
                     if (hasOverload && idx != mChildren.size() - 1)
                     {
                         fs << std::endl;
@@ -439,6 +523,8 @@ namespace Tiny3D
                 fs << "property(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ", &" << setter->getPropertyFunctionName() << ")"; 
             }
 
+            getter->generateMetaInfo(fs, 2);
+            
             if (isGlobal)
             {
                 fs << ";" << std::endl;
@@ -599,6 +685,7 @@ namespace Tiny3D
             fs << "\t\t.property(\"" << getName() << "\", &" << name << ")";
         }
 
+        generateMetaInfo(fs, 2);
         // fs << "property(\"" << name << "\", &" << name << ")";
         
         return T3D_OK;
@@ -645,6 +732,8 @@ namespace Tiny3D
 
         fs << "\t\t)";
 
+        generateMetaInfo(fs, 2);
+        
         if (isGlobal)
         {
             fs << ";" << std::endl;
