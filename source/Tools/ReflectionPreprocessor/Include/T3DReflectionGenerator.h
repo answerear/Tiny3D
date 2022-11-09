@@ -45,9 +45,14 @@ namespace Tiny3D
          */
         TResult generateAST(const String &srcPath, const ClangArgs &args);
 
-        
+        /**
+         * @brief 生成源码
+         */
         TResult generateSource(const String &generatedPath);
 
+        /**
+         * @brief 输出 AST 到 ast.json 文件
+         */
         void dumpReflectionInfo(const String &path) const;
         
     protected:
@@ -61,7 +66,7 @@ namespace Tiny3D
 
         CXChildVisitResult visitChildren(CXCursor cxCursor, CXCursor cxParent);
 
-        TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass);
+        TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass, bool isTemplate);
 
         TResult processClassBaseSpecifier(CXCursor cxCursor, CXCursor cxParent);
 
@@ -72,6 +77,8 @@ namespace Tiny3D
         TResult processEnumConstDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
         TResult processVariableDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember);
+
+        TResult processTemplateParameter(CXCursor cxCursor, CXCursor cxParent);
 
         // TResult processOverloadDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
@@ -91,6 +98,8 @@ namespace Tiny3D
         ASTNode *getOrConstructParentNode(CXCursor cxCursor);
 
         void insertSourceFiles(const String &path, ASTNode *node);
+
+        void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 
     protected:
         struct RTTISwitch
@@ -129,10 +138,14 @@ namespace Tiny3D
         
         typedef TMap<String, ASTNodeMap> SourceFileMap;
         typedef SourceFileMap::value_type SourceFileMapValue;
-        
-        SourceFileMap   mSourceFiles;   /// 源码集合
-        Files           mFiles;         /// 带反射信息的文件集合
-        ASTNode         *mRoot;         /// AST 根结点
+
+        typedef TMap<String, ASTClassTemplate*> ASTClassTemplateMap;
+        typedef ASTClassTemplateMap::value_type ASTClassTemplateMapValue;
+
+        ASTClassTemplateMap mClassTemplates;    /// 类模板集合
+        SourceFileMap       mSourceFiles;       /// 源码集合
+        Files               mFiles;             /// 带反射信息的文件集合
+        ASTNode             *mRoot;             /// AST 根结点
     };
 }
 

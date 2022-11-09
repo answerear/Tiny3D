@@ -78,11 +78,70 @@ namespace Tiny3D
     private:
         uint32_t    mReferCount;
     };
+
+    template<typename T>
+    T TemplateMax(const T &a, const T &b)
+    {
+        return (a > b ? a : b);
+    }
+
+    TCLASS()
+    template<typename T>
+    class TemplateArray
+    {
+        TRTTI_ENABLE();
+        
+    public:
+        TemplateArray()
+            : mData(nullptr)
+        {}
+
+        virtual ~TemplateArray()
+        {
+            delete mData;
+            mData = nullptr;
+        }
+
+        TFUNCTION()
+        void Insert(const T &data)
+        {
+            if (mSize >= mCapacity)
+            {
+                Extend();
+            }
+            else if (mSize <= mCapacity / 4)
+            {
+                Shrink();
+            }
+
+            size_t index = mSize;
+            mData[index] = data;
+        }
+        
+    protected:
+        void Extend()
+        {
+            
+        }
+        
+        void Shrink()
+        {
+            
+        }
+        
+        T *mData;
+        size_t mSize;
+        size_t mCapacity;
+    };
 }
+
 
 TFUNCTION("Discription"="This is a function.")
 inline void Globalfunction(float fval)
-{}
+{
+    Tiny3D::TemplateArray<int> arr;
+    int a = Tiny3D::TemplateMax(10, 20);
+}
 
 TFUNCTION("Discription"="This is a function.")
 inline float Globalfunction()
@@ -150,7 +209,7 @@ namespace Test
         TCLASS()
         class Object : public Derived
         {
-            TRTTI_ENABLE();
+            TRTTI_ENABLE(Derived);
         public:
             Object() = default;
         };
@@ -158,7 +217,7 @@ namespace Test
         TCLASS()
         class Derived : public Object
         {
-            TRTTI_ENABLE(Object);
+            TRTTI_ENABLE(Test::AA::Object);
         public:
 			TENUM()
 			enum class EType : uint32_t
@@ -293,7 +352,7 @@ namespace AA
     TCLASS()
     class MultiDerived : public Base1, public Base2
     {
-        TRTTI_ENABLE(Base1, Base2);
+        TRTTI_ENABLE(AA::Base1, AA::Base2);
     public:
         MultiDerived() = default;
     };

@@ -30,7 +30,7 @@ namespace Tiny3D
     #define TFUNCTION(...)
     #define TPROPERTY(...)
     #define TENUM(...)
-    #define TRTTI_ENABLE    RTTR_ENABLE
+    #define TRTTI_ENABLE(...)   RTTR_ENABLE(__VA_ARGS__)
     #define TRTTI_FRIEND    RTTR_REGISTRATION_FRIEND
 }
 

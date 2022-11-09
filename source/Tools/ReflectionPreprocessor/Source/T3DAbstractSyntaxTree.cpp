@@ -314,6 +314,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ASTClassTemplate::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        ASTStruct::dumpProperties(writer);
+
+        const std::function<String(ASTTemplateParam::Type)> getParamTypeString = [](ASTTemplateParam::Type type)
+        {
+            switch (type)
+            {
+            case ASTTemplateParam::Type::kTemplateType:
+                return "Template Type";
+            case ASTTemplateParam::Type::kNonType:
+                return "Non Type";
+            case ASTTemplateParam::Type::kTemplateTemplate:
+                return "Template Template";
+            default:
+                return "None";
+            }
+        };
+        
+        // Template parameters
+        writer.Key("Template Parameters");
+        {
+            writer.StartArray();
+
+            for (const auto &param : TemplateParams)
+            {
+                writer.StartObject();
+                writer.Key("Name");
+                writer.String(param.name);
+                writer.Key("Type");
+                writer.String(getParamTypeString(param.type));
+                writer.EndObject();
+            }
+            
+            writer.EndArray();            
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ASTFunction::generateSourceFile(FileDataStream &fs) const
     {
         TResult ret;

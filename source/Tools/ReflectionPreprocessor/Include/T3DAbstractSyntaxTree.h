@@ -71,6 +71,8 @@ namespace Tiny3D
             kNamespace,         /// 命名空间
             kClass,             /// 类
             kStruct,            /// 结构体
+            kClassTemplate,     /// 模板类
+            kFunctionTemplate,  /// 模板函数
             kFunction,          /// 函数
             kOverloadFunction,  /// 可重载函数
             kStaticFunction,    /// 静态函数
@@ -299,6 +301,55 @@ namespace Tiny3D
         ASTFileInfo         FileInfo;           /// 结构体所在文件信息
         bool                RTTIEnabled;        /// 是否开启了反射功能
         TList<String>       *RTTIBaseClasses;   /// 反射的基类列表
+    };
+
+    /**
+     * @brief 模板参数
+     */
+    struct ASTTemplateParam
+    {
+        /** 模板参数类型 */
+        enum class Type : uint32_t
+        {
+            kNone = 0,
+            kTemplateType,      /// 模板类型参数，T
+            kNonType,           /// 非模板类型参数，int
+            kTemplateTemplate,  /// 模板的模板类型参数，vector<T>
+        };
+
+        ASTTemplateParam()
+            : type(Type::kNone)
+        {}
+        
+        String  name;   /// 模板参数名称
+        Type    type;   /// 模板参数类型
+    };
+    
+    /**
+     * @brief 模板类结点
+     */
+    class ASTClassTemplate : public ASTStruct
+    {
+    public:
+        ASTClassTemplate(const String &name)
+            : ASTStruct(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kClassTemplate;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "ClassTemplate";
+        }
+
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+        
+    public:
+        TList<ASTTemplateParam> TemplateParams;   /// 模板参数列表
     };
 
     /**

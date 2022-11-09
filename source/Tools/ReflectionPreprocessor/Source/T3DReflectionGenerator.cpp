@@ -33,12 +33,16 @@ namespace Tiny3D
         {   \
             (ITR_FILE) = _itrFile; \
             FileReflectionInfoPtr info = _itrFile->second;   \
-            uint32_t tagLine = START - 1;   \
-            const auto &_itrSpec = info->SPECIFIERS.find(tagLine);    \
-            if (_itrSpec != info->SPECIFIERS.end())    \
+            uint32_t tagLine = (START) - 1;   \
+            for (uint32_t _idx = tagLine; _idx >= tagLine - 3; _idx--)  \
             {   \
-                (RESULT) = true;  \
-                (ITR_SPEC) = _itrSpec;  \
+                const auto &_itrSpec = info->SPECIFIERS.find(tagLine);    \
+                if (_itrSpec != info->SPECIFIERS.end())    \
+                {   \
+                    (RESULT) = true;  \
+                    (ITR_SPEC) = _itrSpec;  \
+                    break;  \
+                }   \
             }   \
         }   \
     }
@@ -162,13 +166,13 @@ namespace Tiny3D
         case CXCursor_StructDecl:
             {
                 // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
-                processClassDeclaration(cxCursor, cxParent, false);
+                processClassDeclaration(cxCursor, cxParent, false, false);
             }
             break;
         case CXCursor_ClassDecl:
             {
                 // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
-                processClassDeclaration(cxCursor, cxParent, true);
+                processClassDeclaration(cxCursor, cxParent, true, false);
             }
             break;
         case CXCursor_EnumDecl:
@@ -224,16 +228,40 @@ namespace Tiny3D
                 processFunctionDeclaration(cxCursor, cxParent, true, false, true);
             }
             break;
+        case CXCursor_TemplateTypeParameter:
+            {
+                RP_LOG_INFO("CXCursor_TemplateTypeParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_NonTypeTemplateParameter:
+            {
+                RP_LOG_INFO("CXCursor_NonTypeTemplateParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_TemplateTemplateParameter:
+            {
+                RP_LOG_INFO("CXCursor_TemplateTemplateParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_FunctionTemplate:
+            {
+                RP_LOG_INFO("CXCursor_FunctionTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_ClassTemplate:
+            {
+                RP_LOG_INFO("CXCursor_ClassTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_ClassTemplatePartialSpecialization:
+            {
+                RP_LOG_INFO("CXCursor_ClassTemplatePartialSpecialization %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
         case CXCursor_CXXBaseSpecifier:
             {
                 // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
                 processClassBaseSpecifier(cxCursor, cxParent);
-            }
-            break;
-        case CXCursor_OverloadedDeclRef:
-            {
-                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
-                // processOverloadDeclaration(cxCursor, cxParent);
             }
             break;
         case CXCursor_MacroExpansion:
@@ -500,6 +528,10 @@ namespace Tiny3D
                             stack.pop();
                             baseClasses.push_back(klass);
                         }
+                        else if (token == "::")
+                        {
+                            stack.top().append(token);
+                        }
                         else if (!stack.empty())
                         {
                             // Errors
@@ -517,13 +549,27 @@ namespace Tiny3D
                 case CXToken_Identifier:
                     {
                         // RP_LOG_INFO("Token(identifier) : %s", token.c_str());
-                        stack.push(token);
+                        if (stack.empty())
+                        {
+                            stack.push(token);
+                        }
+                        else
+                        {
+                            stack.top().append(token);
+                        }
                     }
                     break;
                 case CXToken_Literal:
                     {
                         // RP_LOG_INFO("Token(literal) : %s", token.c_str());
-                        stack.push(token);
+                        if (stack.empty())
+                        {
+                            stack.push(token);
+                        }
+                        else
+                        {
+                            stack.top().append(token);
+                        }
                     }
                     break;
                 case CXToken_Comment:
@@ -557,7 +603,7 @@ namespace Tiny3D
     //-------------------------------------------------------------------------
 
 #if 1
-    TResult ReflectionGenerator::processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass)
+    TResult ReflectionGenerator::processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass, bool isTemplate)
     {
         TResult ret = T3D_OK;
 
@@ -617,13 +663,24 @@ namespace Tiny3D
             if (node != nullptr)
             {
                 // 如果自己已经在父结点下，则只记录类所在的文件信息
-                insertSourceFiles(path, node);
+                if (isTemplate)
+                {
+                    insertClassTemplate(node->getHierarchyName(), static_cast<ASTClassTemplate*>(node));
+                }
+                else
+                {
+                    insertSourceFiles(path, node);
+                }
                 break;
             }
             
             // 新建 class 结点
             ASTStruct *klass = nullptr;
-            if (isClass)
+            if (isTemplate)
+            {
+                klass = new ASTClassTemplate(name);
+            }
+            else if (isClass)
             {
                 klass = new ASTClass(name);
             }
@@ -642,7 +699,14 @@ namespace Tiny3D
             parent->addChild(name, klass);
 
             // 放到源码文件缓存中
-            insertSourceFiles(path, klass);
+            if (isTemplate)
+            {
+                insertClassTemplate(klass->getHierarchyName(), static_cast<ASTClassTemplate*>(klass));
+            }
+            else
+            {
+                insertSourceFiles(path, klass);
+            }
         } while (false);
         
         return ret;
@@ -960,10 +1024,10 @@ namespace Tiny3D
 
             // 检测反射继承链是否跟实际父子类继承链相一致
             T3D_ASSERT(baseNode->RTTIEnabled);
-            auto itr = std::find(baseNode->RTTIBaseClasses->begin(), baseNode->RTTIBaseClasses->end(), baseNode->getName());
-            if (itr == baseNode->RTTIBaseClasses->end())
+            auto itr = std::find(derivedNode->RTTIBaseClasses->begin(), derivedNode->RTTIBaseClasses->end(), baseNode->getHierarchyName());
+            if (itr == derivedNode->RTTIBaseClasses->end())
             {
-                // 父类没有在使用 TRTTI_ENABLE 打开反射功能
+                // 父类没有在使用 RTTR_ENABLE 打开反射功能
                 ret = T3D_ERR_RP_BASE_CLASS_NO_RTTI;
                 RP_LOG_ERROR("Base class has not enabled RTTI feature [%s:%u] ! "
                     "Please use TRTTI_ENABLE() in class declaration to enable this feature.",
@@ -972,7 +1036,7 @@ namespace Tiny3D
             }
 
             // 都合法，放到基类列表中
-            derivedNode->BaseClasses.insert(ASTBaseClassesValue(baseNode->getName(), baseNode));
+            derivedNode->BaseClasses.insert(ASTBaseClassesValue(baseNode->getHierarchyName(), baseNode));
         } while (false);
         
         return ret;
@@ -1696,6 +1760,15 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    TResult ReflectionGenerator::processTemplateParameter(CXCursor cxCursor, CXCursor cxParent)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
     void ReflectionGenerator::dumpReflectionInfo(const String &path) const
     {
         FileDataStream stream;
@@ -1755,6 +1828,16 @@ namespace Tiny3D
                 // node->HaveRTTI = true;
             }
             break;
+        case CXCursor_ClassTemplate:
+            {
+                
+            }
+            break;
+        case CXCursor_ClassTemplatePartialSpecialization:
+            {
+                
+            }
+            break;
         default:
             {
                 T3D_ASSERT(0);
@@ -1779,6 +1862,8 @@ namespace Tiny3D
             nodes.push_front({ancestorName, cxAncestorKind});
 
             T3D_ASSERT(cxAncestorKind == CXCursor_Namespace
+                || cxAncestorKind == CXCursor_ClassTemplate
+                || cxAncestorKind == CXCursor_ClassTemplatePartialSpecialization
                 || cxAncestorKind == CXCursor_ClassDecl
                 || cxAncestorKind == CXCursor_StructDecl
                 || cxAncestorKind == CXCursor_EnumDecl);
@@ -1806,6 +1891,7 @@ namespace Tiny3D
             parent->addChild(node.name, child);
             parent = child;
             T3D_ASSERT(parent->getType() == ASTNode::Type::kNamespace
+                || parent->getType() == ASTNode::Type::kClassTemplate
                 || parent->getType() == ASTNode::Type::kStruct
                 || parent->getType() == ASTNode::Type::kClass
                 || parent->getType() == ASTNode::Type::kEnum);
@@ -1892,5 +1978,20 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::insertClassTemplate(const String &name, ASTClassTemplate *klass)
+    {
+        // 查找该类是否 cache 了，有则忽略
+        auto itr = mClassTemplates.find(name);
+        if (itr != mClassTemplates.end())
+        {
+            // 该类已经在里面了，忽略之
+            return;
+        }
+
+       mClassTemplates.insert(ASTClassTemplateMapValue(name, klass));
+    }
+    
     //-------------------------------------------------------------------------
 }
