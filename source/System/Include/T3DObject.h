@@ -86,7 +86,17 @@ namespace Tiny3D
     }
 
     TCLASS()
-    template<typename T>
+    template<typename T, template<typename U> class Container>
+    class XCls
+    {
+        TRTTI_ENABLE();
+        
+    protected:
+        Container<T> c;
+    };
+
+    TCLASS()
+    template<typename T, size_t size>
     class TemplateArray
     {
         TRTTI_ENABLE();
@@ -136,14 +146,14 @@ namespace Tiny3D
 }
 
 
-TFUNCTION("Discription"="This is a function.")
+TFUNCTION("Description"="This is a function.")
 inline void Globalfunction(float fval)
 {
-    Tiny3D::TemplateArray<int> arr;
+    Tiny3D::TemplateArray<int, 10> arr;
     int a = Tiny3D::TemplateMax(10, 20);
 }
 
-TFUNCTION("Discription"="This is a function.")
+TFUNCTION("Description"="This is a function.")
 inline float Globalfunction()
 { return 0.0f; }
 
@@ -179,7 +189,7 @@ namespace Test
     public:
         Derived() {}
 
-        TPROPERTY(Name="value", Type="getter", "Discription"="This is the value.")
+        TPROPERTY(Name="value", Type="getter", "Description"="This is the value.")
         const std::string &getValue() const
         {
             return mStr;
@@ -264,13 +274,13 @@ namespace Test
                 return 0;
             }
 
-            TFUNCTION("Discription"="This is a static function.")
+            TFUNCTION("Description"="This is a static function.")
             static void XXfunction()
             {
                 
             }
 			
-			TFUNCTION("Discription"="This is a member function.")
+			TFUNCTION("Description"="This is a member function.")
 			int32_t TestFunction() const
 			{
 				return 0;
@@ -290,7 +300,7 @@ namespace Test
                 TempDerived temp;
             }
 			
-			TPROPERTY("Discription"="This is an integer value.")
+			TPROPERTY("Description"="This is an integer value.")
 			int32_t iValue;
 			
 			TPROPERTY()

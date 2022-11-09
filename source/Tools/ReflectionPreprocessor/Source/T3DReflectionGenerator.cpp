@@ -231,31 +231,35 @@ namespace Tiny3D
         case CXCursor_TemplateTypeParameter:
             {
                 RP_LOG_INFO("CXCursor_TemplateTypeParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                processTemplateParameter(cxCursor, cxParent);
             }
             break;
         case CXCursor_NonTypeTemplateParameter:
             {
-                RP_LOG_INFO("CXCursor_NonTypeTemplateParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_NonTypeTemplateParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                processTemplateParameter(cxCursor, cxParent);
             }
             break;
         case CXCursor_TemplateTemplateParameter:
             {
-                RP_LOG_INFO("CXCursor_TemplateTemplateParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_TemplateTemplateParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                processTemplateParameter(cxCursor, cxParent);
             }
             break;
         case CXCursor_FunctionTemplate:
             {
-                RP_LOG_INFO("CXCursor_FunctionTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_FunctionTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
             }
             break;
         case CXCursor_ClassTemplate:
             {
-                RP_LOG_INFO("CXCursor_ClassTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_ClassTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                processClassDeclaration(cxCursor, cxParent, true, true);
             }
             break;
         case CXCursor_ClassTemplatePartialSpecialization:
             {
-                RP_LOG_INFO("CXCursor_ClassTemplatePartialSpecialization %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_ClassTemplatePartialSpecialization %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
             }
             break;
         case CXCursor_CXXBaseSpecifier:
@@ -975,7 +979,8 @@ namespace Tiny3D
                 StringList names;
                 CXCursor cxAncestor = cxCursor;
                 CXCursorKind cxAncestorKind = clang_getCursorKind(cxAncestor);
-                while (!clang_equalCursors(cxAncestor, clang_getNullCursor()) && cxAncestorKind != CXCursor_TranslationUnit)
+                while (!clang_equalCursors(cxAncestor, clang_getNullCursor())
+                    && cxAncestorKind != CXCursor_TranslationUnit)
                 {
                     CXString cxAncestorName = clang_getCursorSpelling(cxAncestor);
                     String ancestorName = toString(cxAncestorName);
@@ -1407,7 +1412,8 @@ namespace Tiny3D
             
             parent->addChild(USR, overload);
 
-            if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
+            if (cxParent.kind == CXCursor_Namespace
+                || cxParent.kind == CXCursor_TranslationUnit)
             {
                 // 非类和结构体函数
                 insertSourceFiles(overload->FileInfo.Path, parent);       
@@ -1563,7 +1569,8 @@ namespace Tiny3D
             enumeration->FileInfo = std::move(fileInfo);
             enumeration->Specifiers = &itrSpec->second;
             
-            if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
+            if (cxParent.kind == CXCursor_Namespace
+                || cxParent.kind == CXCursor_TranslationUnit)
             {
                 // 非类和结构体函数
                 insertSourceFiles(path, enumeration);       
@@ -1674,7 +1681,8 @@ namespace Tiny3D
             property->Specifiers = &itrSpec->second;
             parent->addChild(name, property);
 
-            if (cxParent.kind == CXCursor_Namespace || cxParent.kind == CXCursor_TranslationUnit)
+            if (cxParent.kind == CXCursor_Namespace
+                || cxParent.kind == CXCursor_TranslationUnit)
             {
                 // 非类和结构体函数
                 insertSourceFiles(path, property);       
@@ -1763,6 +1771,74 @@ namespace Tiny3D
     TResult ReflectionGenerator::processTemplateParameter(CXCursor cxCursor, CXCursor cxParent)
     {
         TResult ret = T3D_OK;
+
+        do
+        {
+            String path;
+            uint32_t start, end, col, offset;
+            getASTNodeInfo(cxCursor, path, start, end, col, offset);
+            
+            TList<String> names;
+            CXCursor cxAncestor = cxParent;
+            CXCursorKind cxAncestorKind = cxParent.kind;
+            while (!clang_equalCursors(cxAncestor, clang_getNullCursor())
+                && cxAncestorKind != CXCursor_TranslationUnit)
+            {
+                CXString cxAncestorName = clang_getCursorSpelling(cxAncestor);
+                String ancestorName = toString(cxAncestorName);
+                names.push_front(ancestorName);
+                cxAncestor = clang_getCursorSemanticParent(cxAncestor);
+                cxAncestorKind = clang_getCursorKind(cxAncestor);
+            }
+
+            ASTNode *node = mRoot->getChild(names);
+            if (node == nullptr)
+            {
+                break;
+            }
+            
+            T3D_ASSERT(node->getType() == ASTNode::Type::kClassTemplate);
+            
+            String name = toString(clang_getCursorSpelling(cxCursor));
+            
+            ASTClassTemplate *klass = static_cast<ASTClassTemplate*>(node);
+
+            // 看是否已经添加过，如果添加过，则不添加该参数
+            bool found = false;
+            for (const auto &param : klass->TemplateParams)
+            {
+                if (param.name == name)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found)
+            {
+                break;
+            }
+
+            ASTTemplateParam param;
+            param.name = name;
+
+            switch (cxCursor.kind)
+            {
+            case CXCursor_TemplateTypeParameter:
+                param.type = ASTTemplateParam::Type::kTemplateType;
+                break;
+            case CXCursor_NonTypeTemplateParameter:
+                param.type = ASTTemplateParam::Type::kNonType;
+                break;
+            case CXCursor_TemplateTemplateParameter:
+                param.type = ASTTemplateParam::Type::kTemplateTemplate;
+                break;
+            default:
+                break;
+            }
+
+            klass->TemplateParams.push_back(std::move(param));
+        } while (false);
 
         return ret;
     }
@@ -1854,19 +1930,21 @@ namespace Tiny3D
     {
         TList<ASTNodeInfo> nodes;
         CXCursor cxAncestor = cxCursor;
-        CXCursorKind cxAncestorKind = CXCursor_ClassDecl;
-        while (!clang_equalCursors(cxAncestor, clang_getNullCursor()) && cxAncestorKind != CXCursor_TranslationUnit)
+        CXCursorKind cxAncestorKind = cxCursor.kind;
+        while (!clang_equalCursors(cxAncestor, clang_getNullCursor())
+            && cxAncestorKind != CXCursor_TranslationUnit)
         {
             CXString cxAncestorName = clang_getCursorSpelling(cxAncestor);
             String ancestorName = toString(cxAncestorName);
             nodes.push_front({ancestorName, cxAncestorKind});
 
-            T3D_ASSERT(cxAncestorKind == CXCursor_Namespace
-                || cxAncestorKind == CXCursor_ClassTemplate
-                || cxAncestorKind == CXCursor_ClassTemplatePartialSpecialization
-                || cxAncestorKind == CXCursor_ClassDecl
-                || cxAncestorKind == CXCursor_StructDecl
-                || cxAncestorKind == CXCursor_EnumDecl);
+            // T3D_ASSERT(cxAncestorKind == CXCursor_Namespace
+            //     || cxAncestorKind == CXCursor_ClassTemplate
+            //     || cxAncestorKind == CXCursor_ClassTemplatePartialSpecialization
+            //     || cxAncestorKind == CXCursor_ClassDecl
+            //     || cxAncestorKind == CXCursor_StructDecl
+            //     || cxAncestorKind == CXCursor_EnumDecl
+            //     || cxAncestorKind == CXCursor_FunctionTemplate);
                 
             cxAncestor = clang_getCursorSemanticParent(cxAncestor);
             cxAncestorKind = clang_getCursorKind(cxAncestor);

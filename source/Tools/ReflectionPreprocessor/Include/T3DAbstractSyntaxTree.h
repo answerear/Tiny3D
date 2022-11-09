@@ -314,7 +314,7 @@ namespace Tiny3D
             kNone = 0,
             kTemplateType,      /// 模板类型参数，T
             kNonType,           /// 非模板类型参数，int
-            kTemplateTemplate,  /// 模板的模板类型参数，vector<T>
+            kTemplateTemplate,  /// 模板的模板类型参数，template<typename T> class U
         };
 
         ASTTemplateParam()
