@@ -64,21 +64,21 @@ namespace Tiny3D
             return result;
         }
 
-        CXChildVisitResult visitChildren(CXCursor cxCursor, CXCursor cxParent);
+        CXChildVisitResult visitChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
         TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass, bool isTemplate);
 
-        TResult processClassBaseSpecifier(CXCursor cxCursor, CXCursor cxParent);
+        TResult processClassBaseSpecifier(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
         TResult processFunctionDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember, bool isConstructor, bool isDestructor);
 
         TResult processEnumDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
-        TResult processEnumConstDeclaration(CXCursor cxCursor, CXCursor cxParent);
+        TResult processEnumConstDeclaration(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
         TResult processVariableDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember);
 
-        TResult processTemplateParameter(CXCursor cxCursor, CXCursor cxParent);
+        TResult processTemplateParameter(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
         // TResult processOverloadDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
@@ -102,6 +102,12 @@ namespace Tiny3D
         void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 
     protected:
+        struct ClientData
+        {
+            ASTNode *parent;
+            ReflectionGenerator *generator;
+        };
+        
         struct RTTISwitch
         {
             RTTISwitch()

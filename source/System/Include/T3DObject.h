@@ -78,7 +78,28 @@ namespace Tiny3D
     private:
         uint32_t    mReferCount;
     };
+}
 
+
+TFUNCTION("Description"="This is a function.")
+inline void Globalfunction(float fval)
+{
+}
+
+TFUNCTION("Description"="This is a function.")
+inline float Globalfunction()
+{ return 0.0f; }
+
+TENUM()
+enum class AAType : uint32_t
+{
+    kNone = 0,
+    kReal,
+    kFake
+};
+
+namespace Test
+{
     template<typename T>
     T TemplateMax(const T &a, const T &b)
     {
@@ -93,6 +114,24 @@ namespace Tiny3D
         
     protected:
         Container<T> c;
+    };
+
+    TCLASS()
+    template<typename K, typename V>
+    class TemplateMap
+    {
+        TRTTI_ENABLE();
+
+    public:
+        TemplateMap() = default;
+
+        virtual ~TemplateMap() = default;
+    };
+
+    template<size_t N, typename T>
+    class TemplateList
+    {
+        
     };
 
     TCLASS()
@@ -143,30 +182,7 @@ namespace Tiny3D
         size_t mSize;
         size_t mCapacity;
     };
-}
-
-
-TFUNCTION("Description"="This is a function.")
-inline void Globalfunction(float fval)
-{
-    Tiny3D::TemplateArray<int, 10> arr;
-    int a = Tiny3D::TemplateMax(10, 20);
-}
-
-TFUNCTION("Description"="This is a function.")
-inline float Globalfunction()
-{ return 0.0f; }
-
-TENUM()
-enum class AAType : uint32_t
-{
-    kNone = 0,
-    kReal,
-    kFake
-};
-
-namespace Test
-{
+    
     // TFUNCTION()
     // int NSFunction()
     // {
@@ -204,6 +220,14 @@ namespace Test
         TRTTI_ENABLE();
     public:
         Base() = default;
+
+        TPROPERTY()
+        TemplateArray<float, 10> items;
+
+        TPROPERTY()
+        TemplateMap<int, float> caches;
+        // TPROPERTY()
+        // XCls<int, std::vector> cls;
     };
 
     // TFUNCTION()
@@ -299,18 +323,18 @@ namespace Test
                 };
                 TempDerived temp;
             }
-			
-			TPROPERTY("Description"="This is an integer value.")
-			int32_t iValue;
-			
-			TPROPERTY()
-			float32_t fValue;
-			
-			TPROPERTY()
-			char *szName;
-
-            TPROPERTY()
-            EType eType;
+            
+            // TPROPERTY("Description"="This is an integer value.")
+            // int32_t iValue;
+            //
+            // TPROPERTY()
+            // float32_t fValue;
+            //
+            // TPROPERTY()
+            // char *szName;
+            //
+            // TPROPERTY()
+            // EType eType;
         };
     }
 }
