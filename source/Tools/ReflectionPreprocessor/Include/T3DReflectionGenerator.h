@@ -101,6 +101,8 @@ namespace Tiny3D
 
         void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 
+        TResult instantiateTemplate(CXCursor cxCursor);
+
     protected:
         struct ClientData
         {

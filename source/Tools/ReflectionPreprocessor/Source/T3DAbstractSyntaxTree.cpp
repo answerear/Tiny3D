@@ -219,6 +219,61 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ASTNode *ASTNode::clone() const
+    {
+        ASTNode *node = new ASTNode(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTNode::cloneProperties(ASTNode *newNode) const
+    {
+        newNode->Specifiers = Specifiers;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTNode::cloneChildren(ASTNode *newNode) const
+    {
+        for (const auto &val : mChildren)
+        {
+            ASTNode *child = val.second->clone();
+            newNode->addChild(val.first, child);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTNode::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    {
+        replaceChildrenTemplateParams(formals, actuals);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTNode::replaceChildrenTemplateParams(const StringArray &formals, const StringArray &actuals)
+    {
+        for (const auto &val : mChildren)
+        {
+            val.second->replaceTemplateParams(formals, actuals);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTNamespace::clone() const
+    {
+        ASTNode *node = new ASTNamespace(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ASTStruct::dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const
     {
         // Base Classes
@@ -314,19 +369,42 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ASTNode *ASTStruct::clone() const
+    {
+        ASTNode *node = new ASTStruct(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTStruct::cloneProperties(ASTNode *newNode) const
+    {
+        ASTNode::cloneProperties(newNode);
+        
+        ASTStruct *strct = static_cast<ASTStruct*>(newNode);
+        strct->BaseClasses = BaseClasses;
+        strct->FileInfo = FileInfo;
+        strct->RTTIEnabled = RTTIEnabled;
+        strct->RTTIBaseClasses = RTTIBaseClasses;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ASTClassTemplate::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
     {
         ASTStruct::dumpProperties(writer);
 
-        const std::function<String(ASTTemplateParam::Type)> getParamTypeString = [](ASTTemplateParam::Type type)
+        const std::function<String(ASTTemplateParam::Kind)> getParamTypeString = [](ASTTemplateParam::Kind kind)
         {
-            switch (type)
+            switch (kind)
             {
-            case ASTTemplateParam::Type::kTemplateType:
+            case ASTTemplateParam::Kind::kTemplateType:
                 return "Template Type";
-            case ASTTemplateParam::Type::kNonType:
+            case ASTTemplateParam::Kind::kNonType:
                 return "Non Type";
-            case ASTTemplateParam::Type::kTemplateTemplate:
+            case ASTTemplateParam::Kind::kTemplateTemplate:
                 return "Template Template";
             default:
                 return "None";
@@ -341,15 +419,75 @@ namespace Tiny3D
             for (const auto &param : TemplateParams)
             {
                 writer.StartObject();
+                writer.Key("Type");
+                writer.String(param.type);
                 writer.Key("Name");
                 writer.String(param.name);
-                writer.Key("Type");
-                writer.String(getParamTypeString(param.type));
+                writer.Key("Kind");
+                writer.String(getParamTypeString(param.kind));
                 writer.EndObject();
             }
             
             writer.EndArray();            
         }
+
+        // Specialization
+        writer.Key("Specialization");
+        writer.Bool(IsSpecialization);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTClassTemplate::clone() const
+    {
+        ASTNode *node = new ASTClassTemplate(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTClassTemplate::cloneProperties(ASTNode *newNode) const
+    {
+        ASTStruct::cloneProperties(newNode);
+        
+        ASTClassTemplate *klass = static_cast<ASTClassTemplate*>(newNode);
+        klass->TemplateParams = TemplateParams;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTClassTemplate::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    {
+        T3D_ASSERT(formals.size() == actuals.size()
+            && formals.size() == TemplateParams.size());
+
+        size_t i = 0;
+        for (auto &param : TemplateParams)
+        {
+            if (!formals[i].empty() && formals[i] == param.name)
+            {
+                param.type = actuals[i];
+                param.kind = ASTTemplateParam::Kind::kNonType;
+            }
+            
+            i++;
+        }
+
+        replaceChildrenTemplateParams(formals, actuals);
+
+        IsSpecialization = true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTClass::clone() const
+    {
+        ASTNode *node = new ASTClass(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
     }
 
     //--------------------------------------------------------------------------
@@ -577,6 +715,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ASTNode *ASTFunction::clone() const
+    {
+        ASTNode *node = new ASTFunction(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTFunction::cloneProperties(ASTNode *newNode) const
+    {
+        ASTNode::cloneProperties(newNode);
+        
+        ASTFunction *function = static_cast<ASTFunction*>(newNode);
+        function->IsProperty = IsProperty;
+        function->IsGetter = IsGetter;
+        function->FileInfo = FileInfo;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ASTSpecifierFunction::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
     {
         // Specifiers
@@ -618,6 +778,16 @@ namespace Tiny3D
         }
         
         ASTSpecifierFunction::dumpProperties(writer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTParameterFunction::cloneProperties(ASTNode *newNode) const
+    {
+        ASTSpecifierFunction::cloneProperties(newNode);
+        
+        ASTParameterFunction *function = static_cast<ASTParameterFunction*>(newNode);
+        function->Params = Params;
     }
 
     //--------------------------------------------------------------------------
@@ -684,6 +854,97 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ASTNode *ASTOverloadFunction::clone() const
+    {
+        ASTNode *node = new ASTOverloadFunction(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTOverloadFunction::cloneProperties(ASTNode *newNode) const
+    {
+        ASTParameterFunction::cloneProperties(newNode);
+        
+        ASTOverloadFunction *function = static_cast<ASTOverloadFunction *>(newNode);
+        function->RetType = RetType;
+        function->IsConst = IsConst;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTOverloadFunction::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    {
+        size_t i = 0;
+        for (i = 0; i < formals.size(); i++)
+        {
+            const String &formal = formals[i];
+            if (!formal.empty())
+            {
+                // 查参数
+                for (auto &param : Params)
+                {
+                    if (param.Type == formal)
+                    {
+                        param.Type = actuals[i];
+                    }
+                }
+
+                // 查返回值
+                if (RetType == formal)
+                {
+                    RetType = actuals[i];
+                }
+            }
+        }
+
+        replaceChildrenTemplateParams(formals, actuals);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTStaticFunction::clone() const
+    {
+        ASTNode *node = new ASTStaticFunction(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTInstanceFunction::clone() const
+    {
+        ASTNode *node = new ASTInstanceFunction(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTConstructor::clone() const
+    {
+        ASTNode *node = new ASTConstructor(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTDestructor::clone() const
+    {
+        ASTNode *node = new ASTDestructor(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ASTProperty::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
     {
         // Type
@@ -729,6 +990,44 @@ namespace Tiny3D
         // fs << "property(\"" << name << "\", &" << name << ")";
         
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTProperty::clone() const
+    {
+        ASTNode *node = new ASTProperty(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTProperty::cloneProperties(ASTNode *newNode) const
+    {
+        ASTNode::cloneProperties(newNode);
+        
+        ASTProperty *property = static_cast<ASTProperty *>(newNode);
+        property->DataType = DataType;
+        property->FileInfo = FileInfo;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTProperty::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    {
+        for (size_t i = 0; i < formals.size(); i++)
+        {
+            const String &formal = formals[i];
+
+            if (!formal.empty())
+            {
+                DataType = actuals[i];
+            }
+        }
+        
+        replaceChildrenTemplateParams(formals, actuals);
     }
 
     //--------------------------------------------------------------------------
@@ -784,11 +1083,51 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ASTNode *ASTEnum::clone() const
+    {
+        ASTNode *node = new ASTEnum(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTEnum::cloneProperties(ASTNode *newNode) const
+    {
+        ASTNode::cloneProperties(newNode);
+        
+        ASTEnum *enumerate = static_cast<ASTEnum *>(newNode);
+        enumerate->FileInfo = FileInfo;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ASTEnumConstant::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
     {
         // Value
         writer.Key("Value");
         writer.Uint64(Value);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTEnumConstant::clone() const
+    {
+        ASTNode *node = new ASTEnumConstant(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTEnumConstant::cloneProperties(ASTNode *newNode) const
+    {
+        ASTNode::cloneProperties(newNode);
+
+        ASTEnumConstant *constant = static_cast<ASTEnumConstant *>(newNode);
+        constant->Value = Value;
     }
 
     //--------------------------------------------------------------------------

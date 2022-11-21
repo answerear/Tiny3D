@@ -135,7 +135,7 @@ namespace Test
     };
 
     TCLASS()
-    template<typename T, size_t size>
+    template<typename T, size_t N>
     class TemplateArray
     {
         TRTTI_ENABLE();
@@ -165,6 +165,12 @@ namespace Test
 
             size_t index = mSize;
             mData[index] = data;
+        }
+
+        TFUNCTION()
+        void Test(const T &data)
+        {
+            
         }
         
     protected:
@@ -288,6 +294,8 @@ namespace Test
             TCLASS()
             class NestedDerived
             {
+                TRTTI_ENABLE();
+                
             public:
                 NestedDerived() = default;
             };

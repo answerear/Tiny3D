@@ -67,21 +67,21 @@ namespace Tiny3D
         enum class Type : uint32_t
         {
             kNone = 0,
-            kNull,              /// 空结点，表示什么都不是
-            kNamespace,         /// 命名空间
-            kClass,             /// 类
-            kStruct,            /// 结构体
-            kClassTemplate,     /// 模板类
-            kFunctionTemplate,  /// 模板函数
-            kFunction,          /// 函数
-            kOverloadFunction,  /// 可重载函数
-            kStaticFunction,    /// 静态函数
-            kInstanceFunction,  /// 成员函数
-            kConstructor,       /// 构造函数
-            kDestructor,        /// 析构函数
-            kProperty,          /// 属性
-            kEnum,              /// 枚举
-            kEnumConstant,      /// 枚举值
+            kNull,                      /// 空结点，表示什么都不是
+            kNamespace,                 /// 命名空间
+            kClass,                     /// 类
+            kStruct,                    /// 结构体
+            kClassTemplate,             /// 类模板
+            kFunctionTemplate,          /// 函数模板
+            kFunction,                  /// 函数
+            kOverloadFunction,          /// 可重载函数
+            kStaticFunction,            /// 静态函数
+            kInstanceFunction,          /// 成员函数
+            kConstructor,               /// 构造函数
+            kDestructor,                /// 析构函数
+            kProperty,                  /// 属性
+            kEnum,                      /// 枚举
+            kEnumConstant,              /// 枚举值
         };
 
         /** Constructor */
@@ -188,11 +188,36 @@ namespace Tiny3D
          */
         virtual TResult generateSourceFile(FileDataStream &fs) const;
 
+        /**
+         * @brief 生成元信息
+         */
         virtual TResult generateMetaInfo(FileDataStream &fs, int32_t indents) const;
+
+        /**
+         * @brief 克隆一个新对象，包括复制所有子树
+         */
+        virtual ASTNode *clone() const;
+
+        /**
+         * @brief 复制属性
+         */
+        virtual void cloneProperties(ASTNode *newNode) const;
+        
+        /**
+         * @brief 克隆所有子树
+         */
+        virtual void cloneChildren(ASTNode *newNode) const;
+
+        /**
+         * @brief 替换模板中的形参为实参
+         * @param [in] formals : 形参
+         * @param [in] actuals : 实参
+         */
+        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals);
         
         TList<Specifier>    *Specifiers;        /// 反射属性说明符
 
-    protected:        
+    protected:
         ASTNode *getChildDirectly(const String &name) const
         {
             if (mChildren.find(name) == mChildren.end())
@@ -207,6 +232,11 @@ namespace Tiny3D
             StringList names = StringUtil::split2(name, "::");
             return getChildRecursively(names);
         }
+
+        /**
+         * @brief 用实参替换子结点的形参
+         */
+        virtual void replaceChildrenTemplateParams(const StringArray &formals, const StringArray &actuals);
 
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
 
@@ -236,14 +266,6 @@ namespace Tiny3D
 
     typedef std::shared_ptr<ASTFileInfo> ASTFileInfoPtr;
 
-    // 重载小于号，给 set 用
-    inline bool operator <(const ASTFileInfoPtr &info1, const ASTFileInfoPtr &info2)
-    {
-        return (info1->Path < info2->Path && info1->StartLine < info2->StartLine);
-    }
-    
-    typedef TSet<ASTFileInfoPtr> ASTFileInfos;
-
     /**
      * @brief 命名空间结点
      */
@@ -263,6 +285,8 @@ namespace Tiny3D
         {
             return "Namespace";
         }
+
+        virtual ASTNode *clone() const override;
     };
 
     class ASTStruct;
@@ -293,6 +317,10 @@ namespace Tiny3D
 
         virtual TResult generateSourceFile(FileDataStream& fs) const override;
 
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+        
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
 
@@ -309,7 +337,7 @@ namespace Tiny3D
     struct ASTTemplateParam
     {
         /** 模板参数类型 */
-        enum class Type : uint32_t
+        enum class Kind : uint32_t
         {
             kNone = 0,
             kTemplateType,      /// 模板类型参数，T
@@ -318,11 +346,12 @@ namespace Tiny3D
         };
 
         ASTTemplateParam()
-            : type(Type::kNone)
+            : kind(Kind::kNone)
         {}
-        
+
+        String  type;   /// 数据类型
         String  name;   /// 模板参数名称
-        Type    type;   /// 模板参数类型
+        Kind    kind;   /// 模板参数类型
     };
     
     /**
@@ -333,6 +362,7 @@ namespace Tiny3D
     public:
         ASTClassTemplate(const String &name)
             : ASTStruct(name)
+            , IsSpecialization(false)
         {}
 
         virtual Type getType() const override
@@ -345,11 +375,23 @@ namespace Tiny3D
             return "ClassTemplate";
         }
 
+        void setName(const String &name)
+        {
+            mName = name;
+        }
+
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+
+        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
         
     public:
-        TList<ASTTemplateParam> TemplateParams;   /// 模板参数列表
+        TList<ASTTemplateParam> TemplateParams;     /// 模板参数列表
+        bool                    IsSpecialization;   /// 是否特化或实例化
     };
 
     /**
@@ -371,6 +413,8 @@ namespace Tiny3D
         {
             return "Class";
         }
+
+        virtual ASTNode *clone() const override;
     };
     
     /**
@@ -397,6 +441,10 @@ namespace Tiny3D
 
         virtual TResult generateSourceFile(FileDataStream &fs) const override;
 
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+        
     protected:
         TResult generateSourceFileForProperty(FileDataStream &fs) const;
 
@@ -455,6 +503,8 @@ namespace Tiny3D
         {}
 
         AST_NODE_NOT_INSTANTIATE();
+
+        void cloneProperties(ASTNode *newNode) const override;
         
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
@@ -486,6 +536,12 @@ namespace Tiny3D
 
         String getPropertyFunctionName() const;
 
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+
+        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
 
@@ -513,6 +569,8 @@ namespace Tiny3D
         {
             return "Static Function";
         }
+
+        virtual ASTNode *clone() const override;
     };
 
     /**
@@ -534,6 +592,8 @@ namespace Tiny3D
         {
             return "Instance Function";
         }
+
+        virtual ASTNode *clone() const override;
     };
 
     /**
@@ -555,6 +615,8 @@ namespace Tiny3D
         {
             return "Constructor";
         }
+
+        virtual ASTNode *clone() const override;
     };
 
     /**
@@ -576,6 +638,8 @@ namespace Tiny3D
         {
             return "Destructor";
         }
+
+        virtual ASTNode *clone() const override;
     };
 
     /**
@@ -600,9 +664,15 @@ namespace Tiny3D
 
         virtual TResult generateSourceFile(FileDataStream &fs) const override;
 
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+
+        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
-
+        
     public:
         String              DataType;       /// 数据类型
         ASTFileInfo         FileInfo;       /// 属性所在文件信息
@@ -630,6 +700,11 @@ namespace Tiny3D
 
         virtual TResult generateSourceFile(FileDataStream& fs) const override;
 
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+        
+    public:
         ASTFileInfo         FileInfo;       /// 枚举所在文件信息
     };
 
@@ -654,6 +729,10 @@ namespace Tiny3D
             return "Enumeration Constant";
         }
 
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+        
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
         
