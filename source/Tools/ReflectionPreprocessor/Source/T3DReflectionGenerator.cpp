@@ -78,6 +78,13 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    void ReflectionGenerator::collectProjectHeaders(const String &path)
+    {
+        mSourceFiles.insert(SourceFileMapValue(path, ASTNodeMap()));
+    }
+
+    //-------------------------------------------------------------------------
+
     TResult ReflectionGenerator::generateAST(const String &srcPath, const ClangArgs &args)
     {
         TResult ret = T3D_OK;
@@ -86,8 +93,6 @@ namespace Tiny3D
         {
             RP_LOG_INFO("[%s] Generating reflection source file ...", srcPath.c_str());
 
-            mSourceFiles.insert(SourceFileMapValue(srcPath, ASTNodeMap()));
-            
             CXIndex cxIndex = clang_createIndex(0, 0);
 
             CXTranslationUnit cxUnit = clang_parseTranslationUnit(cxIndex, srcPath.c_str(),
@@ -289,6 +294,11 @@ namespace Tiny3D
                 // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
                 ret = processClassBaseSpecifier(cxCursor, cxParent, parent);
                 cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_TemplateRef:
+            {
+                RP_LOG_INFO("CXCursor_TemplateRef %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
             }
             break;
         case CXCursor_MacroExpansion:
@@ -1488,7 +1498,16 @@ namespace Tiny3D
             }
 
             instantiateTemplate(cxCursor);
-            
+
+            ClientData data = {property, this};
+            clang_visitChildren(cxCursor,
+                [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
+                {
+                    auto *data = static_cast<ClientData*>(cxData);
+                    auto *property = static_cast<ASTProperty*>(data->parent);
+                    return data->generator->visitChildren(cxCursor, cxParent, property);
+                },
+                &data);
             // RP_LOG_INFO("Variable -> Name : %s, Type : %s, CXXMember : %d (Parent Name : %s, Type : %s)",
             //     toString(clang_getCursorSpelling(cxCursor)).c_str(),
             //     toString(clang_getTypeSpelling(clang_getCursorType(cxCursor))).c_str(),//toString(clang_getCursorKindSpelling(cxCursor.kind)).c_str(),

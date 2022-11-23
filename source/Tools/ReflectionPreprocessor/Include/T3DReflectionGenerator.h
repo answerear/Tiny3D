@@ -38,6 +38,12 @@ namespace Tiny3D
         virtual ~ReflectionGenerator() override;
 
         /**
+         * @brief 收集工程所有头文件
+         * @param [in] path : 头文件完整路径
+         */
+        void collectProjectHeaders(const String &path);
+
+        /**
          * @brief 生成 AST
          * @param [in] srcPath : 源码文件路径 
          * @param [in] args : clang 编译参数

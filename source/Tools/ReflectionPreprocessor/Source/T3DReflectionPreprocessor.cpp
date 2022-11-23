@@ -25,293 +25,327 @@
 
 namespace  Tiny3D
 {
-	//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-	const String ReflectionPreprocessor::kReflectionSettingsFile = "ReflectionSettings.json";
-	
-	//-------------------------------------------------------------------------
-	
-	ReflectionPreprocessor::ReflectionPreprocessor()
-		: mGenerator(new ReflectionGenerator())
-	{
-		
-	}
+    const String ReflectionPreprocessor::kReflectionSettingsFile = "ReflectionSettings.json";
+    
+    //-------------------------------------------------------------------------
+    
+    ReflectionPreprocessor::ReflectionPreprocessor()
+        : mGenerator(new ReflectionGenerator())
+    {
+        
+    }
 
-	//-------------------------------------------------------------------------
-	
-	ReflectionPreprocessor::~ReflectionPreprocessor()
-	{
-		delete mGenerator;
-		mGenerator = nullptr;
-	}
+    //-------------------------------------------------------------------------
+    
+    ReflectionPreprocessor::~ReflectionPreprocessor()
+    {
+        delete mGenerator;
+        mGenerator = nullptr;
+    }
 
-	//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-	TResult ReflectionPreprocessor::execute(int32_t argc, char* argv[])
-	{
-		TResult ret = T3D_OK;
+    TResult ReflectionPreprocessor::execute(int32_t argc, char* argv[])
+    {
+        TResult ret = T3D_OK;
 
-		do
-		{
-			PreprocessorCommand cmd;
-			PreprocessorOptions opts;
+        do
+        {
+            PreprocessorCommand cmd;
+            PreprocessorOptions opts;
 
-			// 解析命令行参数
-			if (!cmd.parse(argc, argv, opts))
-			{
-				ret = T3D_ERR_FAIL;
-				break;
-			}
+            // 解析命令行参数
+            if (!cmd.parse(argc, argv, opts))
+            {
+                ret = T3D_ERR_FAIL;
+                break;
+            }
 
-			// 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
-			ClangArgs args = parseSettingsFile(opts.SettingsPath);
-			ret = generateAST(opts.SourcePath, args);
-			if (T3D_FAILED(ret))
-			{
-				break;
-			}
+            // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
+            ClangArgs args = parseSettingsFile(opts.SettingsPath);
+            ret = generateAST(opts.SourcePath, args);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
 
-			// 生成源码文件
-			String path = opts.SourcePath + Dir::getNativeSeparator() + mGeneratedPath;
-			ret = generateSource(path);
-		} while (false);
-		
-		return ret;
-	}
-	
-	//-------------------------------------------------------------------------
+            // 生成源码文件
+            String path = opts.SourcePath + Dir::getNativeSeparator() + mGeneratedPath;
+            ret = generateSource(path);
+        } while (false);
+        
+        return ret;
+    }
+    
+    //-------------------------------------------------------------------------
 
-	class JsonHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, JsonHandler> 
-	{
-	public:
-		static const std::string kTagIncludePath;
-		static const std::string kTagMacroDefinition;
-		static const std::string kTagOtherFlags;
-		static const std::string kTagGeneratedPath;
-		
-		JsonHandler(const std::string &path, ClangArgs &clangArgs, StringList &args, std::string &generatedPath)
-			: mPath(path)
-			, mClangArgs(clangArgs)
-			, mArgs(args)
-			, mGeneratedPath(generatedPath)
-			, mState(kExpectObjectStart)
-		{}
+    class JsonHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, JsonHandler> 
+    {
+    public:
+        static const std::string kTagIncludePath;
+        static const std::string kTagMacroDefinition;
+        static const std::string kTagOtherFlags;
+        static const std::string kTagGeneratedPath;
+        
+        JsonHandler(const std::string &path, ClangArgs &clangArgs, StringList &args, std::string &generatedPath)
+            : mPath(path)
+            , mClangArgs(clangArgs)
+            , mArgs(args)
+            , mGeneratedPath(generatedPath)
+            , mState(kExpectObjectStart)
+        {}
 
-		bool Default()
-		{
-			return false;
-		}
-		
-		bool String(const Ch* str, rapidjson::SizeType length, bool copy)
-		{
-			if (mState & kExpectNameOrObjectEnd)
-			{
-				mState = kExpectValue;
-				
-				std::string name(str);
-				if (name == kTagIncludePath)
-				{
-					mState |= kExpectIncludePath;
-				}
-				else if (name == kTagMacroDefinition)
-				{
-					mState |= kExpectMacroDefinition;
-				}
-				else if (name == kTagOtherFlags)
-				{
-					mState |= kExpectOtherFlags;
-				}
-				else if (name == kTagGeneratedPath)
-				{
-					mState |= kExpectGeneratedPath;
-				}
-			}
-			else if (mState & kExpectValue)
-			{
-				if (mState & kExpectIncludePath)
-				{
-					// 头文件路径
-					std::string arg(str);
-					// arg = mPath + Dir::getNativeSeparator() + arg;
-					arg = Dir::formatPath(arg);
-					arg = "-I" + arg;
-					mArgs.push_back(std::move(arg));
-					mClangArgs.push_back(mArgs.back().c_str());
-				}
-				else if (mState & kExpectMacroDefinition)
-				{
-					// 宏定义
-					std::string arg(str);
-					arg = "-D" + arg;
-					mArgs.push_back(std::move(arg));
-					mClangArgs.push_back(mArgs.back().c_str());
-				}
-				else if (mState & kExpectOtherFlags)
-				{
-					// 其他标记
-					std::string arg(str);
-					mArgs.push_back(std::move(arg));
-					mClangArgs.push_back(mArgs.back().c_str());
-				}
-				else if (mState & kExpectGeneratedPath)
-				{
-					// 生成路径
-					mGeneratedPath = str;
-				}
-			}
-			
-			return true;
-		}
-		
-		bool StartObject()
-		{
-			bool ret = false;
-			if (mState & kExpectObjectStart)
-			{
-				mState = kExpectNameOrObjectEnd;
-				ret = true;
-			}
-			return ret;
-		}
-		
-		bool EndObject(rapidjson::SizeType memberCount)
-		{
-			mState = kExpectObjectStart;
-			return true;			
-		}
-		
-		bool StartArray()
-		{
-			bool ret = mState & kExpectValue;
-			return ret;
-		}
-		
-		bool EndArray(rapidjson::SizeType elementCount)
-		{
-			mState = kExpectNameOrObjectEnd;
-			return true;
-		}
+        bool Default()
+        {
+            return false;
+        }
+        
+        bool String(const Ch* str, rapidjson::SizeType length, bool copy)
+        {
+            if (mState & kExpectNameOrObjectEnd)
+            {
+                mState = kExpectValue;
+                
+                std::string name(str);
+                if (name == kTagIncludePath)
+                {
+                    mState |= kExpectIncludePath;
+                }
+                else if (name == kTagMacroDefinition)
+                {
+                    mState |= kExpectMacroDefinition;
+                }
+                else if (name == kTagOtherFlags)
+                {
+                    mState |= kExpectOtherFlags;
+                }
+                else if (name == kTagGeneratedPath)
+                {
+                    mState |= kExpectGeneratedPath;
+                }
+            }
+            else if (mState & kExpectValue)
+            {
+                if (mState & kExpectIncludePath)
+                {
+                    // 头文件路径
+                    std::string arg(str);
+                    // arg = mPath + Dir::getNativeSeparator() + arg;
+                    arg = Dir::formatPath(arg);
+                    arg = "-I" + arg;
+                    mArgs.push_back(std::move(arg));
+                    mClangArgs.push_back(mArgs.back().c_str());
+                }
+                else if (mState & kExpectMacroDefinition)
+                {
+                    // 宏定义
+                    std::string arg(str);
+                    arg = "-D" + arg;
+                    mArgs.push_back(std::move(arg));
+                    mClangArgs.push_back(mArgs.back().c_str());
+                }
+                else if (mState & kExpectOtherFlags)
+                {
+                    // 其他标记
+                    std::string arg(str);
+                    mArgs.push_back(std::move(arg));
+                    mClangArgs.push_back(mArgs.back().c_str());
+                }
+                else if (mState & kExpectGeneratedPath)
+                {
+                    // 生成路径
+                    mGeneratedPath = str;
+                }
+            }
+            
+            return true;
+        }
+        
+        bool StartObject()
+        {
+            bool ret = false;
+            if (mState & kExpectObjectStart)
+            {
+                mState = kExpectNameOrObjectEnd;
+                ret = true;
+            }
+            return ret;
+        }
+        
+        bool EndObject(rapidjson::SizeType memberCount)
+        {
+            mState = kExpectObjectStart;
+            return true;			
+        }
+        
+        bool StartArray()
+        {
+            bool ret = mState & kExpectValue;
+            return ret;
+        }
+        
+        bool EndArray(rapidjson::SizeType elementCount)
+        {
+            mState = kExpectNameOrObjectEnd;
+            return true;
+        }
 
-	protected:
-		const std::string &mPath;  
-		ClangArgs &mClangArgs;
-		StringList &mArgs;
-		std::string &mGeneratedPath;
+    protected:
+        const std::string &mPath;  
+        ClangArgs &mClangArgs;
+        StringList &mArgs;
+        std::string &mGeneratedPath;
 
-		enum State : uint32_t
-		{
-			kExpectObjectStart = 0x000000001,
-			kExpectNameOrObjectEnd = 0x00000002,
-			kExpectValue = 0x00000004,
-			kExpectIncludePath = 0x00000100,
-			kExpectMacroDefinition = 0x00000200,
-			kExpectOtherFlags = 0x00000400,
-			kExpectGeneratedPath = 0x00000800
-		};
+        enum State : uint32_t
+        {
+            kExpectObjectStart = 0x000000001,
+            kExpectNameOrObjectEnd = 0x00000002,
+            kExpectValue = 0x00000004,
+            kExpectIncludePath = 0x00000100,
+            kExpectMacroDefinition = 0x00000200,
+            kExpectOtherFlags = 0x00000400,
+            kExpectGeneratedPath = 0x00000800
+        };
 
-		uint32_t mState;
-	};
+        uint32_t mState;
+    };
 
-	const std::string JsonHandler::kTagIncludePath = "IncludePath";
-	const std::string JsonHandler::kTagMacroDefinition = "MacroDefinition";
-	const std::string JsonHandler::kTagOtherFlags = "OtherFlags";
-	const std::string JsonHandler::kTagGeneratedPath = "GeneratedPath";
+    const std::string JsonHandler::kTagIncludePath = "IncludePath";
+    const std::string JsonHandler::kTagMacroDefinition = "MacroDefinition";
+    const std::string JsonHandler::kTagOtherFlags = "OtherFlags";
+    const std::string JsonHandler::kTagGeneratedPath = "GeneratedPath";
 
-	ClangArgs ReflectionPreprocessor::parseSettingsFile(const String& path)
-	{
-		ClangArgs args;
-		
-		String filename = path + Dir::getNativeSeparator() + kReflectionSettingsFile;
-		FileDataStream fs;
-		
-		if (fs.open(filename.c_str(), FileDataStream::E_MODE_READ_ONLY))
-		{
-			JsonStream stream(fs);
-			JsonHandler handler(path, args, mArgs, mGeneratedPath);
-			rapidjson::Reader reader;
+    ClangArgs ReflectionPreprocessor::parseSettingsFile(const String& path)
+    {
+        ClangArgs args;
+        
+        String filename = path + Dir::getNativeSeparator() + kReflectionSettingsFile;
+        FileDataStream fs;
+        
+        if (fs.open(filename.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            JsonStream stream(fs);
+            JsonHandler handler(path, args, mArgs, mGeneratedPath);
+            rapidjson::Reader reader;
 
-			if (!reader.Parse(stream, handler))
-			{
-				rapidjson::ParseErrorCode e = reader.GetParseErrorCode();
-				size_t o = reader.GetErrorOffset();
-				std::stringstream ss;
-				ss << "Error: " << rapidjson::GetParseError_En(e) << std::endl;;
-				ss << " at offset " << o << std::endl;
-				RP_LOG_ERROR("Parse json failed ! %s", ss.str().c_str());
-			}
-			else
-			{
+            if (!reader.Parse(stream, handler))
+            {
+                rapidjson::ParseErrorCode e = reader.GetParseErrorCode();
+                size_t o = reader.GetErrorOffset();
+                std::stringstream ss;
+                ss << "Error: " << rapidjson::GetParseError_En(e) << std::endl;;
+                ss << " at offset " << o << std::endl;
+                RP_LOG_ERROR("Parse json failed ! %s", ss.str().c_str());
+            }
+            else
+            {
 #ifdef T3D_RP_DEBUG
-				mArgs.push_back("-IC:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\VC\\Tools\\MSVC\\14.29.30133\\include");
-				args.push_back(mArgs.back().c_str());
-				mArgs.push_back("-IC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\ucrt");
-				args.push_back(mArgs.back().c_str());
+                mArgs.push_back("-IC:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\VC\\Tools\\MSVC\\14.29.30133\\include");
+                args.push_back(mArgs.back().c_str());
+                mArgs.push_back("-IC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\ucrt");
+                args.push_back(mArgs.back().c_str());
 #endif
-			}
-			
-			fs.close();
-		}
-		
-		return args;
-	}
+            }
+            
+            fs.close();
+        }
+        
+        return args;
+    }
 
-	//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-	TResult ReflectionPreprocessor::generateAST(const String& path, const ClangArgs &args)
-	{
-		TResult ret = T3D_OK;
+    TResult ReflectionPreprocessor::generateAST(const String& path, const ClangArgs &args)
+    {
+        TResult ret = T3D_OK;
 
-		String searchPath = path + Dir::getNativeSeparator() + "*.*";
+        String searchPath = path + Dir::getNativeSeparator() + "*.*";
 
-		Dir dir;
-		bool working = dir.findFile(searchPath);
+        Dir dir;
 
-		while (working)
-		{
-			working = dir.findNextFile();
+        // 收集工程头文件信息
+        bool working = dir.findFile(searchPath);
 
-			if (dir.isDots())
-			{
-				// . or ..
-				continue;
-			}
-			else if (dir.isDirectory())
-			{
-				// directory
-				generateAST(dir.getFilePath(), args);
-			}
-			else
-			{
-				// file
-				const String filePath = dir.getFilePath();
-				String fileDir, fileTitle, fileExt;
-				Dir::parsePath(filePath, fileDir, fileTitle, fileExt);
-				if (fileExt == "h")
-				{
-					mGenerator->generateAST(filePath, args);
-				}
-			}
-		}
+        while (working)
+        {
+            working = dir.findNextFile();
 
-		dir.close();
+            if (dir.isDots())
+            {
+                // . or ..
+                continue;
+            }
+            else if (dir.isDirectory())
+            {
+                // directory
+                generateAST(dir.getFilePath(), args);
+            }
+            else
+            {
+                // file
+                const String filePath = dir.getFilePath();
+                String fileDir, fileTitle, fileExt;
+                Dir::parsePath(filePath, fileDir, fileTitle, fileExt);
+                if (fileExt == "h" || fileExt == "hpp")
+                {
+                    mGenerator->collectProjectHeaders(filePath);
+                }
+            }
+        }
 
-		return ret;
-	}
+        dir.close();
 
-	//-------------------------------------------------------------------------
+        // 分析源码文件，生成 AST
+        working = dir.findFile(searchPath);
 
-	TResult ReflectionPreprocessor::generateSource(const String& path)
-	{
-		Dir::removeDir(path, true);
+        while (working)
+        {
+            working = dir.findNextFile();
 
-		Dir::makeDir(path);
-		
-		// 输出 AST 到文件，方便 debug
-		String dumpPath = path + Dir::getNativeSeparator() + "ast.json";
-		mGenerator->dumpReflectionInfo(dumpPath);
+            if (dir.isDots())
+            {
+                // . or ..
+                continue;
+            }
+            else if (dir.isDirectory())
+            {
+                // directory
+                generateAST(dir.getFilePath(), args);
+            }
+            else
+            {
+                // file
+                const String filePath = dir.getFilePath();
+                String fileDir, fileTitle, fileExt;
+                Dir::parsePath(filePath, fileDir, fileTitle, fileExt);
+                if (fileExt == "cpp" || fileExt == "cxx")
+                {
+                    mGenerator->generateAST(filePath, args);
+                }
+            }
+        }
 
-		return mGenerator->generateSource(path);
-	}
+        dir.close();
 
-	//-------------------------------------------------------------------------
+        return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionPreprocessor::generateSource(const String& path)
+    {
+        Dir::removeDir(path, true);
+
+        Dir::makeDir(path);
+        
+        // 输出 AST 到文件，方便 debug
+        String dumpPath = path + Dir::getNativeSeparator() + "ast.json";
+        mGenerator->dumpReflectionInfo(dumpPath);
+
+        return mGenerator->generateSource(path);
+    }
+
+    //-------------------------------------------------------------------------
 }
