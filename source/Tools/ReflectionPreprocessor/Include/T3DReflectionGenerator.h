@@ -70,7 +70,11 @@ namespace Tiny3D
             return result;
         }
 
-        CXChildVisitResult visitChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
+        CXChildVisitResult visitRootChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
+
+        CXChildVisitResult visitClassChildren(CXCursor cxCursor, CXCursor cxParent, ASTStruct *parent);
+
+        CXChildVisitResult visitEnumChildren(CXCursor cxCursor, CXCursor cxParent, ASTEnum *parent);
 
         TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass, bool isTemplate);
 

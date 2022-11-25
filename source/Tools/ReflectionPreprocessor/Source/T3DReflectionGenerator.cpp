@@ -97,7 +97,7 @@ namespace Tiny3D
 
             CXTranslationUnit cxUnit = clang_parseTranslationUnit(cxIndex, srcPath.c_str(),
                 args.data(), args.size(), nullptr, 0,
-                CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_SkipFunctionBodies);
+                CXTranslationUnit_DetailedPreprocessingRecord);
             if (cxUnit == nullptr)
             {
                 RP_LOG_ERROR("Parse source file [%s] failed !", srcPath.c_str());
@@ -142,7 +142,7 @@ namespace Tiny3D
                 [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
                 {
                     ClientData *data = static_cast<ClientData*>(cxData);
-                    return data->generator->visitChildren(cxCursor, cxParent, data->parent);
+                    return data->generator->visitRootChildren(cxCursor, cxParent, data->parent);
                 },
                 &data);
 			
@@ -158,7 +158,109 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
-    CXChildVisitResult ReflectionGenerator::visitChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent)
+    CXChildVisitResult ReflectionGenerator::visitRootChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent)
+    {
+        CXChildVisitResult cxResult = CXChildVisit_Continue;
+
+        TResult ret = T3D_OK;
+        
+        CXCursorKind cxKind = clang_getCursorKind(cxCursor);
+
+        CXString cxName = clang_getCursorSpelling(cxCursor);
+        String name = toString(cxName);
+        CXString cxType = clang_getCursorKindSpelling(cxKind);
+        String type = toString(cxType);
+
+        // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+        
+        switch (cxKind)
+        {
+        case CXCursor_StructDecl:
+            {
+                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                ret = processClassDeclaration(cxCursor, cxParent, false, false);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_ClassDecl:
+            {
+                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                ret = processClassDeclaration(cxCursor, cxParent, true, false);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_EnumDecl:
+            {
+                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                ret = processEnumDeclaration(cxCursor, cxParent);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_FunctionDecl:
+            {
+                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                ret = processFunctionDeclaration(cxCursor, cxParent, false, false, false);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_VarDecl:
+            {
+                ret = processVariableDeclaration(cxCursor, cxParent, false);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_Namespace:
+            {
+                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                // processNamespace(cxCursor, cxParent);
+                cxResult = CXChildVisit_Recurse;
+            }
+            break;
+        case CXCursor_FunctionTemplate:
+            {
+                // RP_LOG_INFO("CXCursor_FunctionTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_ClassTemplate:
+            {
+                // RP_LOG_INFO("CXCursor_ClassTemplate %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                ret = processClassDeclaration(cxCursor, cxParent, true, true);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_ClassTemplatePartialSpecialization:
+            {
+                // RP_LOG_INFO("CXCursor_ClassTemplatePartialSpecialization %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_TemplateRef:
+            {
+                RP_LOG_INFO("CXCursor_TemplateRef %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_MacroExpansion:
+            {
+                ret = processMacroExpansion(cxCursor, cxParent);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        default:
+            {
+            }
+            break;
+        }
+
+        if (T3D_RP_FATAL(ret))
+        {
+            cxResult = CXChildVisit_Break;
+        }
+        
+        return cxResult;
+    }
+
+    //-------------------------------------------------------------------------
+
+    CXChildVisitResult ReflectionGenerator::visitClassChildren(CXCursor cxCursor, CXCursor cxParent, ASTStruct *parent)
     {
         CXChildVisitResult cxResult = CXChildVisit_Continue;
 
@@ -203,38 +305,11 @@ namespace Tiny3D
                 cxResult = CXChildVisit_Continue;
             }
             break;
-        case CXCursor_EnumConstantDecl:
-            {
-                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
-                processEnumConstDeclaration(cxCursor, cxParent, parent);
-                cxResult = CXChildVisit_Continue;
-            }
-            break;
-        case CXCursor_FunctionDecl:
-            {
-                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
-                ret = processFunctionDeclaration(cxCursor, cxParent, false, false, false);
-                cxResult = CXChildVisit_Continue;
-            }
-            break;
-        case CXCursor_VarDecl:
-            {
-                ret = processVariableDeclaration(cxCursor, cxParent, false);
-                cxResult = CXChildVisit_Continue;
-            }
-            break;
         case CXCursor_CXXMethod:
             {
                 // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
                 ret = processFunctionDeclaration(cxCursor, cxParent, true, false, false);
                 cxResult = CXChildVisit_Continue;
-            }
-            break;
-        case CXCursor_Namespace:
-            {
-                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
-                // processNamespace(cxCursor, cxParent);
-                cxResult = CXChildVisit_Recurse;
             }
             break;
         case CXCursor_Constructor:
@@ -299,6 +374,51 @@ namespace Tiny3D
         case CXCursor_TemplateRef:
             {
                 RP_LOG_INFO("CXCursor_TemplateRef %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+            }
+            break;
+        case CXCursor_MacroExpansion:
+            {
+                ret = processMacroExpansion(cxCursor, cxParent);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
+        default:
+            {
+            }
+            break;
+        }
+
+        if (T3D_RP_FATAL(ret))
+        {
+            cxResult = CXChildVisit_Break;
+        }
+        
+        return cxResult;
+    }
+
+    //-------------------------------------------------------------------------
+
+    CXChildVisitResult ReflectionGenerator::visitEnumChildren(CXCursor cxCursor, CXCursor cxParent, ASTEnum *parent)
+    {
+        CXChildVisitResult cxResult = CXChildVisit_Continue;
+
+        TResult ret = T3D_OK;
+        
+        CXCursorKind cxKind = clang_getCursorKind(cxCursor);
+
+        CXString cxName = clang_getCursorSpelling(cxCursor);
+        String name = toString(cxName);
+        CXString cxType = clang_getCursorKindSpelling(cxKind);
+        String type = toString(cxType);
+
+        // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+        
+        switch (cxKind)
+        {
+        case CXCursor_EnumConstantDecl:
+            {
+                processEnumConstDeclaration(cxCursor, cxParent, parent);
+                cxResult = CXChildVisit_Continue;
             }
             break;
         case CXCursor_MacroExpansion:
@@ -756,7 +876,7 @@ namespace Tiny3D
                 {
                     auto *data = static_cast<ClientData*>(cxData);
                     auto *klass = static_cast<ASTStruct*>(data->parent);
-                    return data->generator->visitChildren(cxCursor, cxParent, klass);
+                    return data->generator->visitClassChildren(cxCursor, cxParent, klass);
                 },
                 &data);
         } while (false);
@@ -1380,8 +1500,8 @@ namespace Tiny3D
                 [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
                 {
                     auto *data = static_cast<ClientData*>(cxData);
-                    auto *klass = static_cast<ASTStruct*>(data->parent);
-                    return data->generator->visitChildren(cxCursor, cxParent, klass);
+                    auto *enumeration = static_cast<ASTEnum*>(data->parent);
+                    return data->generator->visitEnumChildren(cxCursor, cxParent, enumeration);
                 },
                 &data);
         } while (false);
@@ -1499,15 +1619,16 @@ namespace Tiny3D
 
             instantiateTemplate(cxCursor);
 
-            ClientData data = {property, this};
-            clang_visitChildren(cxCursor,
-                [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
-                {
-                    auto *data = static_cast<ClientData*>(cxData);
-                    auto *property = static_cast<ASTProperty*>(data->parent);
-                    return data->generator->visitChildren(cxCursor, cxParent, property);
-                },
-                &data);
+            // ClientData data = {property, this};
+            // clang_visitChildren(cxCursor,
+            //     [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
+            //     {
+            //         auto *data = static_cast<ClientData*>(cxData);
+            //         auto *property = static_cast<ASTProperty*>(data->parent);
+            //         return data->generator->visitChildren(cxCursor, cxParent, property);
+            //     },
+            //     &data);
+            
             // RP_LOG_INFO("Variable -> Name : %s, Type : %s, CXXMember : %d (Parent Name : %s, Type : %s)",
             //     toString(clang_getCursorSpelling(cxCursor)).c_str(),
             //     toString(clang_getTypeSpelling(clang_getCursorType(cxCursor))).c_str(),//toString(clang_getCursorKindSpelling(cxCursor.kind)).c_str(),
