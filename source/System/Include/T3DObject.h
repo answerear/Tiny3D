@@ -329,6 +329,8 @@ namespace Test
             {
                 int b = 0;
                 int r = TemplateMax<int>(a, b);
+                float t0 = 1.0f, t1 = 2.0f;
+                TemplateMax(t0, t1);
                 TemplateMap<int, int> map;
                 TemplateArray<int, 5> arr;
                 return r;

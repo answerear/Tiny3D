@@ -509,35 +509,13 @@ namespace Tiny3D
                 //     String strParent = toString(clang_getCursorSpelling(cxDeclParent));
                 //     ret = T3D_OK;
                 // }
-                instantiateClassTemplate(cxCursor);
-                cxResult = CXChildVisit_Continue;
+                ret = instantiateClassTemplate(cxCursor);
+                // cxResult = CXChildVisit_Continue;
             }
             break;
         case CXCursor_DeclRefExpr:
             {
-                // if (name == "TemplateMax")
-                {
-                    CXType cxType = clang_getCursorType(cxCursor);
-                    if (cxType.kind == CXType_FunctionProto)
-                    {
-                        // CXCursor cxDeclCursor = clang_getTypeDeclaration(cxType);
-                        // String strDecl = toString(clang_getCursorSpelling(cxDeclCursor));
-                        // int numOfTemplateArgs = clang_Type_getNumTemplateArguments(cxType);
-                        CXCursor cxDeclCursor = clang_getCursorReferenced(cxCursor);
-                        CXCursor cxTemplateCursor = clang_getSpecializedCursorTemplate(cxDeclCursor);
-                        if (cxTemplateCursor.kind == CXCursor_FunctionTemplate)
-                        {
-                            String strType = toString(clang_getTypeSpelling(cxType));
-                            String strDecl = toString(clang_getCursorSpelling(cxDeclCursor));
-                            String strUSR = toString(clang_getCursorUSR(cxDeclCursor));
-                            String strTemplate = toString(clang_getCursorSpelling(cxTemplateCursor));
-                            String strTemplateUSR = toString(clang_getCursorUSR(cxTemplateCursor));
-                            CXCursor cxDeclParent = clang_getCursorSemanticParent(cxDeclCursor);
-                            String strParent = toString(clang_getCursorSpelling(cxDeclParent));
-                            ret = T3D_OK;
-                        }
-                    }
-                }
+                ret = instantiateFunctionTemplate(cxCursor);
                 cxResult = CXChildVisit_Continue;
             }
             break;
@@ -1501,7 +1479,7 @@ namespace Tiny3D
                 // 非类和结构体成员函数、并且非模板函数
                 insertSourceFiles(overload->FileInfo.Path, parent);
             }
-            else if (!isCXXMember && isTemplate)
+            else if (cxParent.kind != CXCursor_ClassTemplate && isTemplate)
             {
                 // 非类的成员模板函数
                 ASTFunctionTemplate *func = static_cast<ASTFunctionTemplate *>(parent);
@@ -1797,16 +1775,6 @@ namespace Tiny3D
             }
 
             instantiateClassTemplate(cxCursor);
-
-            // ClientData data = {property, this};
-            // clang_visitChildren(cxCursor,
-            //     [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
-            //     {
-            //         auto *data = static_cast<ClientData*>(cxData);
-            //         auto *property = static_cast<ASTProperty*>(data->parent);
-            //         return data->generator->visitVariableChildren(cxCursor, cxParent, property);
-            //     },
-            //     &data);
             
             // RP_LOG_INFO("Variable -> Name : %s, Type : %s, CXXMember : %d (Parent Name : %s, Type : %s)",
             //     toString(clang_getCursorSpelling(cxCursor)).c_str(),
@@ -1816,6 +1784,14 @@ namespace Tiny3D
             //     toString(clang_getCursorKindSpelling(cxParent.kind)).c_str());
         } while (false);
 
+        // ClientData data = {nullptr, this};
+        // clang_visitChildren(cxCursor,
+        //     [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
+        //     {
+        //         auto *data = static_cast<ClientData*>(cxData);
+        //         return data->generator->visitVariableChildren(cxCursor, cxParent, nullptr);
+        //     },
+        //     &data);
         return ret;
     }
 
@@ -2224,6 +2200,137 @@ namespace Tiny3D
 
         do
         {
+            // CXCursor cxTemplateInst = clang_getSpecializedCursorTemplate(cxCursor);
+            // String inst = toString(clang_getCursorSpelling(cxTemplateInst));
+            // int numOfInstParams = clang_Cursor_getNumTemplateArguments(cxCursor);
+            
+            CXType cxVarType = clang_getCursorType(cxCursor);
+            String varType = toString(clang_getTypeSpelling(cxVarType));
+            // CXType cxCanonicalType = clang_getCanonicalType(cxVarType);
+            // String canonicalType = toString(clang_getTypeSpelling(cxCanonicalType));
+            CXCursor cxCursorDecl = clang_getTypeDeclaration(cxVarType);
+            CXCursor cxTemplateCursor = clang_getSpecializedCursorTemplate(cxCursorDecl);
+            String templateName = toString(clang_getCursorUSR(cxTemplateCursor));
+            // CXType cxType = clang_getCursorType(cxCursorDecl);
+            // String typeName = toString(clang_getTypeSpelling(cxType));
+            // String decl = toString(clang_getCursorUSR(cxCursorDecl));
+
+            auto itrTemplate = mClassTemplates.find(templateName);
+            if (itrTemplate == mClassTemplates.end())
+            {
+                // 居然没有对应模板，那就跳开吧
+                break;
+            }
+            
+            int numOfTemplateArg = clang_Type_getNumTemplateArguments(cxVarType);
+            TArray<String> actualParams;
+            if (numOfTemplateArg != -1)
+            {
+                actualParams.reserve(numOfTemplateArg);
+                // 收集模板实参
+                uint32_t i = 0;
+                for (i = 0; i < numOfTemplateArg; i++)
+                {
+                    CXType cxArgType = clang_Type_getTemplateArgumentAsType(cxVarType, i);
+                    String argName = toString(clang_getTypeSpelling(cxArgType));
+                    actualParams.push_back(argName);
+                    RP_LOG_INFO("Template argument [%u] type : %s", i, argName.c_str());
+                }
+            }
+            else
+            {
+                // 不是模板，跳过
+                break;
+            }
+
+            // 创建一个 class template instance 出来，复制属性并加到 AST 上
+            ASTClassTemplate *klassTemplate = itrTemplate->second;
+            ASTNode *parent = klassTemplate->getParent();
+            if (parent->getChild(varType) != nullptr)
+            {
+                // 已经实例化过了，就不实例化了
+                break;
+            }
+
+            // 收集形参
+            TArray<String> formalParams;
+            for (const auto &param : klassTemplate->TemplateParams)
+            {
+                switch (param.kind)
+                {
+                case ASTTemplateParam::Kind::kTemplateType:
+                    {
+                        formalParams.push_back(param.type);
+                    }
+                    break;
+                case ASTTemplateParam::Kind::kNonType:
+                    {
+                        formalParams.push_back("");
+                    }
+                    break;
+                case ASTTemplateParam::Kind::kTemplateTemplate:
+                    {
+                        formalParams.push_back(param.name);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            
+            ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
+            parent->addChild(varType, templateInstance);
+            templateInstance->setName(varType);
+
+            // 替换模板参数，变成实例类
+            templateInstance->replaceTemplateParams(formalParams, actualParams);
+
+            // 加入到导出文件
+            insertSourceFiles(templateInstance->FileInfo.Path, templateInstance);
+        } while (false);
+        
+        return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::instantiateFunctionTemplate(CXCursor cxCursor)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String strName = toString(clang_getCursorSpelling(cxCursor));
+            // if (strName == "TemplateMax")
+            {
+                CXType cxType = clang_getCursorType(cxCursor);
+                if (cxType.kind == CXType_FunctionProto)
+                {
+                    // CXCursor cxDeclCursor = clang_getTypeDeclaration(cxType);
+                    // String strDecl = toString(clang_getCursorSpelling(cxDeclCursor));
+                    // int numOfTemplateArgs = clang_Type_getNumTemplateArguments(cxType);
+                    CXCursor cxDeclCursor = clang_getCursorReferenced(cxCursor);
+                    CXCursor cxTemplateCursor = clang_getSpecializedCursorTemplate(cxDeclCursor);
+                    if (cxTemplateCursor.kind == CXCursor_FunctionTemplate)
+                    {
+                        String strType = toString(clang_getTypeSpelling(cxType));
+                        String strDecl = toString(clang_getCursorSpelling(cxDeclCursor));
+                        String strUSR = toString(clang_getCursorUSR(cxDeclCursor));
+                        String strTemplate = toString(clang_getCursorSpelling(cxTemplateCursor));
+                        String strTemplateUSR = toString(clang_getCursorUSR(cxTemplateCursor));
+                        CXCursor cxDeclParent = clang_getCursorSemanticParent(cxDeclCursor);
+                        String strParent = toString(clang_getCursorSpelling(cxDeclParent));
+                        auto itr = mFunctionTemplates.find(strTemplateUSR);
+                        if (itr == mFunctionTemplates.end())
+                        {
+                            break;
+                        }
+                        ret = T3D_OK;
+                    }
+                }
+            }
+
+            break;
             // CXCursor cxTemplateInst = clang_getSpecializedCursorTemplate(cxCursor);
             // String inst = toString(clang_getCursorSpelling(cxTemplateInst));
             // int numOfInstParams = clang_Cursor_getNumTemplateArguments(cxCursor);
