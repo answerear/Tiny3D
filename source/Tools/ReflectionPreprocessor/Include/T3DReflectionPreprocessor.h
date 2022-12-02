@@ -40,6 +40,8 @@ namespace Tiny3D
 
     protected:
         ClangArgs parseSettingsFile(const String &path);
+
+        TResult collectProjectHeaders(const String &path);
         
         TResult generateAST(const String &path, const ClangArgs &args);
 

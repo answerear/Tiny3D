@@ -355,7 +355,7 @@ namespace Tiny3D
     };
     
     /**
-     * @brief 模板类结点
+     * @brief 类模板结点
      */
     class ASTClassTemplate : public ASTStruct
     {
@@ -446,14 +446,52 @@ namespace Tiny3D
         virtual void cloneProperties(ASTNode *newNode) const override;
         
     protected:
-        TResult generateSourceFileForProperty(FileDataStream &fs) const;
+        virtual TResult generateSourceFileForProperty(FileDataStream &fs) const;
 
-        TResult generateSourceFileForFunction(FileDataStream &fs) const;
+        virtual TResult generateSourceFileForFunction(FileDataStream &fs) const;
 
     public:
         bool                IsProperty;     /// 是否属性函数
         bool                IsGetter;       /// 是否 Getter 属性函数，当 IsProperty 为 false 时，该字段无效
         ASTFileInfo         FileInfo;       /// 函数所在文件信息
+    };
+
+    /**
+     * @brief 函数模板结点
+     */
+    class ASTFunctionTemplate : public ASTFunction
+    {
+    public:
+        ASTFunctionTemplate(const String &name)
+            : ASTFunction(name)
+            , IsSpecialization(false)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kFunctionTemplate;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "FunctionTemplate";
+        }
+
+        virtual TResult generateSourceFile(FileDataStream &fs) const override;
+
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+        
+    protected:
+        virtual TResult generateSourceFileForProperty(FileDataStream &fs) const override;
+
+        virtual TResult generateSourceFileForFunction(FileDataStream &fs) const override;
+
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+
+    public:
+        bool IsSpecialization;  /// 是否模板实例化
     };
 
     /**

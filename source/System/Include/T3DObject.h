@@ -100,11 +100,22 @@ enum class AAType : uint32_t
 
 namespace Test
 {
+    TFUNCTION()
     template<typename T>
     T TemplateMax(const T &a, const T &b)
     {
         return (a > b ? a : b);
     }
+
+    // template<typename T>
+    // using TemplateMaxAlias = T(*)(const T&, const T &);
+    
+    // TemplateMaxAlias<int> TemplateMaxInt;
+    
+    // using TemplateMaxInt = int(*TemplateMax<int>)(const int&, const in&);
+    
+    // typedef (int)(*TemplateMaxInt)(const int&, const int&)
+    // using TemplateMaxInt = int (*)(const int&, const int &);
 
     TCLASS()
     template<typename T, template<typename U> class Container>
@@ -300,12 +311,29 @@ namespace Test
                 NestedDerived() = default;
             };
 
+            template<typename T>
+            Derived(T val)
+            {}
+
+            TFUNCTION()
+            template<typename T>
+            T TemplateFunc(T a)
+            {
+                T t = {};
+                t = a;
+                return t;
+            }
+
             TFUNCTION()
             int32_t XXfunction(int a, float c)
             {
-                return 0;
+                int b = 0;
+                int r = TemplateMax<int>(a, b);
+                TemplateMap<int, int> map;
+                TemplateArray<int, 5> arr;
+                return r;
             }
-
+            
             TFUNCTION("Description"="This is a static function.")
             static void XXfunction()
             {

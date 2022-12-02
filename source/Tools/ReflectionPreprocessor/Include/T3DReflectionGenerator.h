@@ -76,11 +76,15 @@ namespace Tiny3D
 
         CXChildVisitResult visitEnumChildren(CXCursor cxCursor, CXCursor cxParent, ASTEnum *parent);
 
+        CXChildVisitResult visitFunctionChildren(CXCursor cxCursor, CXCursor cxParent, ASTFunction *parent);
+
+        CXChildVisitResult visitVariableChildren(CXCursor cxCursor, CXCursor cxParent, ASTProperty *parent);
+
         TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass, bool isTemplate);
 
         TResult processClassBaseSpecifier(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
-        TResult processFunctionDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember, bool isConstructor, bool isDestructor);
+        TResult processFunctionDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isCXXMember, bool isConstructor, bool isDestructor, bool isTemplate);
 
         TResult processEnumDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
@@ -111,7 +115,11 @@ namespace Tiny3D
 
         void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 
-        TResult instantiateTemplate(CXCursor cxCursor);
+        void insertFunctionTemplate(const String &name, ASTFunctionTemplate *function);
+
+        TResult instantiateClassTemplate(CXCursor cxCursor);
+
+        TResult instantiateFunctionTemplate(CXCursor cxCursor);
 
     protected:
         struct ClientData
@@ -160,10 +168,14 @@ namespace Tiny3D
         typedef TMap<String, ASTClassTemplate*> ASTClassTemplateMap;
         typedef ASTClassTemplateMap::value_type ASTClassTemplateMapValue;
 
-        ASTClassTemplateMap mClassTemplates;    /// 类模板集合
-        SourceFileMap       mSourceFiles;       /// 源码集合
-        Files               mFiles;             /// 带反射信息的文件集合
-        ASTNode             *mRoot;             /// AST 根结点
+        typedef TMap<String, ASTFunctionTemplate*> ASTFunctionTemplateMap;
+        typedef ASTFunctionTemplateMap::value_type ASTFunctionTemplateMapValue;
+
+        ASTFunctionTemplateMap  mFunctionTemplates; /// 函数模板集合
+        ASTClassTemplateMap     mClassTemplates;    /// 类模板集合
+        SourceFileMap           mSourceFiles;       /// 源码集合
+        Files                   mFiles;             /// 带反射信息的文件集合
+        ASTNode                 *mRoot;             /// AST 根结点
     };
 }
 

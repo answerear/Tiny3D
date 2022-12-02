@@ -708,7 +708,6 @@ namespace Tiny3D
                 fs << ";" << std::endl;
             }
         } while (false);
-        
 
         return T3D_OK;
     }
@@ -733,6 +732,261 @@ namespace Tiny3D
         function->IsProperty = IsProperty;
         function->IsGetter = IsGetter;
         function->FileInfo = FileInfo;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTFunctionTemplate::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        ASTFunction::dumpProperties(writer);
+
+        // Specialization
+        writer.Key("Specialization");
+        writer.Bool(IsSpecialization);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTFunctionTemplate::generateSourceFile(FileDataStream &fs) const
+    {
+        TResult ret = T3D_OK;
+
+        if (IsSpecialization)
+        {
+            if (IsProperty)
+            {
+                // 属性
+                ret = generateSourceFileForProperty(fs);
+            }
+            else
+            {
+                // 函数
+                ret = generateSourceFileForFunction(fs);
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTFunctionTemplate::generateSourceFileForFunction(FileDataStream &fs) const
+    {
+        bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
+        
+        TResult ret = T3D_OK;
+
+        if (isGlobal)
+        {
+            fs << std::endl << "\tregistration";
+        }
+
+        // 构造函数名
+        String name = getHierarchyName();
+
+        size_t idx = 0;
+
+        bool hasOverload = (mChildren.size() > 1);
+        
+        for (const auto &child : mChildren)
+        {
+            switch (child.second->getType())
+            {
+            case Type::kOverloadFunction:
+            case Type::kInstanceFunction:
+            case Type::kStaticFunction:
+                {
+                    // 普通可重载函数 & 成员函数
+                    if (isGlobal && idx == 0)
+                    {
+                        fs << "::";
+                    }
+                    else
+                    {
+                        fs << "\t\t.";
+                    }
+                    
+                    if (hasOverload)
+                    {
+                        ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(child.second);
+
+                        // 返回值
+                        const String &retType = overload->RetType;
+
+                        // 构造参数列表
+                        String params;
+                        size_t i = 0;
+                        for (const auto &val : overload->Params)
+                        {
+                            params += val.Type;
+                            if (i != overload->Params.size() - 1)
+                            {
+                                params += ", ";
+                            }
+                            i++;
+                        }
+
+                        if (overload->IsConst)
+                        {
+                            fs << "method(\"" << getName() << "\", select_const<" << retType << "(" << params << ")>(&" << name << "))";
+                        }
+                        else
+                        {
+                            fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << name << "))";
+                        }
+
+                        overload->generateMetaInfo(fs, 2);
+                        
+                        if (idx != mChildren.size() - 1)
+                        {
+                            fs << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        fs << "method(\"" << getName() << "\", &" << name << ")";
+                        child.second->generateMetaInfo(fs, 2);
+                    }
+                }
+                break;
+            case Type::kConstructor:
+                {
+                    // 构造函数
+                    ASTConstructor *constructor = static_cast<ASTConstructor*>(child.second);
+                    String params;
+                    size_t i = 0;
+                    for (const auto &val : constructor->Params)
+                    {
+                        params += val.Type;
+                        if (i != constructor->Params.size() - 1)
+                        {
+                            params += ", ";
+                        }
+                    }
+                    fs << "\t\t.constructor<" << params << ">()";
+
+                    constructor->generateMetaInfo(fs, 2);
+                    
+                    if (hasOverload && idx != mChildren.size() - 1)
+                    {
+                        fs << std::endl;
+                    }
+                }
+                break;
+            case Type::kDestructor:
+                {
+                    // 析构函数
+                }
+                break;
+            }
+
+            idx++;
+        }
+
+        if (isGlobal)
+        {
+            fs << ";" << std::endl;
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ASTFunctionTemplate::generateSourceFileForProperty(FileDataStream &fs) const
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            bool isGlobal = (getParent()->getType() == Type::kNamespace || getParent()->getType() == Type::kNull);
+
+            ASTOverloadFunction *setter = nullptr, *getter = nullptr;
+            
+            if (mChildren.size() == 1)
+            {
+                // 只有 getter
+                const auto itr = mChildren.begin();
+                ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(itr->second);
+                if (overload->IsConst)
+                {
+                    // getter
+                    getter = overload;
+                }
+                else
+                {
+                    // 错误了，只有一个属性函数的时候，只能是 getter 函数
+                }
+            }
+            else if (mChildren.size() == 2)
+            {
+                // 有 getter 和 setter
+                for (const auto &child : mChildren)
+                {
+                    ASTOverloadFunction *overload = static_cast<ASTOverloadFunction *>(child.second);
+                    if (overload->IsConst)
+                    {
+                        getter = overload;
+                    }
+                    else
+                    {
+                        setter = overload;
+                    }
+                }
+            }
+            else
+            {
+                // 错误了
+                ret = T3D_ERR_RP_INVALID_NUM_PROPERTY_FUNC;
+                break;
+            }
+
+            if (isGlobal)
+            {
+                fs << std::endl << "\tregistration::";
+            }
+            else
+            {
+                fs << "\t\t.";
+            }
+
+            if (getter != nullptr && setter == nullptr)
+            {
+                fs << "property_readonly(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ")";
+            }
+            else
+            {
+                fs << "property(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ", &" << setter->getPropertyFunctionName() << ")"; 
+            }
+
+            getter->generateMetaInfo(fs, 2);
+            
+            if (isGlobal)
+            {
+                fs << ";" << std::endl;
+            }
+        } while (false);
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTFunctionTemplate::clone() const
+    {
+        ASTNode *node = new ASTFunctionTemplate(getName());
+        cloneProperties(node);
+        cloneChildren(node);
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTFunctionTemplate::cloneProperties(ASTNode *newNode) const
+    {
+        ASTFunction::cloneProperties(newNode);
+        ASTFunctionTemplate *function = static_cast<ASTFunctionTemplate*>(newNode);
+        function->IsSpecialization = IsSpecialization;
     }
 
     //--------------------------------------------------------------------------

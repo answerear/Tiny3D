@@ -63,6 +63,13 @@ namespace  Tiny3D
                 break;
             }
 
+            // 收集项目头文件信息
+            ret = collectProjectHeaders(opts.SourcePath);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
             // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
             ClangArgs args = parseSettingsFile(opts.SettingsPath);
             ret = generateAST(opts.SourcePath, args);
@@ -257,7 +264,7 @@ namespace  Tiny3D
 
     //-------------------------------------------------------------------------
 
-    TResult ReflectionPreprocessor::generateAST(const String& path, const ClangArgs &args)
+    TResult ReflectionPreprocessor::collectProjectHeaders(const String& path)
     {
         TResult ret = T3D_OK;
 
@@ -272,6 +279,9 @@ namespace  Tiny3D
         {
             working = dir.findNextFile();
 
+            if (!working)
+                break;
+            
             if (dir.isDots())
             {
                 // . or ..
@@ -280,7 +290,7 @@ namespace  Tiny3D
             else if (dir.isDirectory())
             {
                 // directory
-                generateAST(dir.getFilePath(), args);
+                collectProjectHeaders(dir.getFilePath());
             }
             else
             {
@@ -296,14 +306,30 @@ namespace  Tiny3D
         }
 
         dir.close();
+        
+        return ret;
+    }
+    
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionPreprocessor::generateAST(const String& path, const ClangArgs &args)
+    {
+        TResult ret = T3D_OK;
+
+        String searchPath = path + Dir::getNativeSeparator() + "*.*";
+
+        Dir dir;
 
         // 分析源码文件，生成 AST
-        working = dir.findFile(searchPath);
+        bool working = dir.findFile(searchPath);
 
         while (working)
         {
             working = dir.findNextFile();
 
+            if (!working)
+                break;
+            
             if (dir.isDots())
             {
                 // . or ..
