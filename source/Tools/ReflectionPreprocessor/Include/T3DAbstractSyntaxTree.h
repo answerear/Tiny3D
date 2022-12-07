@@ -51,6 +51,9 @@ namespace Tiny3D
     typedef Specifiers::const_iterator SpecifiersConstItr;
     typedef Specifiers::value_type SpecifiersValue;
 
+    typedef TMap<String, class ASTNode*> ASTChildren;
+    typedef ASTChildren::value_type ASTChildrenValue;
+
     struct ASTNodeInfo
     {
         String name;
@@ -72,13 +75,17 @@ namespace Tiny3D
             kClass,                     /// 类
             kStruct,                    /// 结构体
             kClassTemplate,             /// 类模板
-            kFunctionTemplate,          /// 函数模板
             kFunction,                  /// 函数
             kOverloadFunction,          /// 可重载函数
             kStaticFunction,            /// 静态函数
             kInstanceFunction,          /// 成员函数
             kConstructor,               /// 构造函数
             kDestructor,                /// 析构函数
+            kFunctionTemplate,          /// 函数模板
+            // kOverloadFunctionTemplate,  /// 可重载函数模板
+            // kStaticFunctionTemplate,    /// 静态函数模板
+            // kInstanceFunctionTemplate,  /// 成员函数模板
+            // kConstructorTemplate,       /// 构造函数模板
             kProperty,                  /// 属性
             kEnum,                      /// 枚举
             kEnumConstant,              /// 枚举值
@@ -146,6 +153,14 @@ namespace Tiny3D
         ASTNode *getParent() const
         {
             return mParent;
+        }
+
+        /**
+         * @brief 返回所有子结点
+         */
+        const ASTChildren &getChildren() const
+        {
+            return mChildren;
         }
 
         /**
@@ -240,9 +255,6 @@ namespace Tiny3D
 
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
 
-        typedef TMap<String, ASTNode*> ASTChildren;
-        typedef ASTChildren::value_type ASTChildrenValue;
-
         String          mName;          /// 结点名称
         ASTNode         *mParent;       /// 父结点
         ASTChildren     mChildren;      /// 子结点
@@ -332,69 +344,6 @@ namespace Tiny3D
     };
 
     /**
-     * @brief 模板参数
-     */
-    struct ASTTemplateParam
-    {
-        /** 模板参数类型 */
-        enum class Kind : uint32_t
-        {
-            kNone = 0,
-            kTemplateType,      /// 模板类型参数，T
-            kNonType,           /// 非模板类型参数，int
-            kTemplateTemplate,  /// 模板的模板类型参数，template<typename T> class U
-        };
-
-        ASTTemplateParam()
-            : kind(Kind::kNone)
-        {}
-
-        String  type;   /// 数据类型
-        String  name;   /// 模板参数名称
-        Kind    kind;   /// 模板参数类型
-    };
-    
-    /**
-     * @brief 类模板结点
-     */
-    class ASTClassTemplate : public ASTStruct
-    {
-    public:
-        ASTClassTemplate(const String &name)
-            : ASTStruct(name)
-            , IsSpecialization(false)
-        {}
-
-        virtual Type getType() const override
-        {
-            return Type::kClassTemplate;
-        }
-
-        virtual String getTypeString() const override
-        {
-            return "ClassTemplate";
-        }
-
-        void setName(const String &name)
-        {
-            mName = name;
-        }
-
-        virtual ASTNode *clone() const override;
-
-        virtual void cloneProperties(ASTNode *newNode) const override;
-
-        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
-        
-    protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
-        
-    public:
-        TList<ASTTemplateParam> TemplateParams;     /// 模板参数列表
-        bool                    IsSpecialization;   /// 是否特化或实例化
-    };
-
-    /**
      * @brief 类结点
      */
     class ASTClass : public ASTStruct
@@ -455,45 +404,7 @@ namespace Tiny3D
         bool                IsGetter;       /// 是否 Getter 属性函数，当 IsProperty 为 false 时，该字段无效
         ASTFileInfo         FileInfo;       /// 函数所在文件信息
     };
-
-    /**
-     * @brief 函数模板结点
-     */
-    class ASTFunctionTemplate : public ASTFunction
-    {
-    public:
-        ASTFunctionTemplate(const String &name)
-            : ASTFunction(name)
-            , IsSpecialization(false)
-        {}
-
-        virtual Type getType() const override
-        {
-            return Type::kFunctionTemplate;
-        }
-
-        virtual String getTypeString() const override
-        {
-            return "FunctionTemplate";
-        }
-
-        virtual TResult generateSourceFile(FileDataStream &fs) const override;
-
-        virtual ASTNode *clone() const override;
-
-        virtual void cloneProperties(ASTNode *newNode) const override;
-        
-    protected:
-        virtual TResult generateSourceFileForProperty(FileDataStream &fs) const override;
-
-        virtual TResult generateSourceFileForFunction(FileDataStream &fs) const override;
-
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
-
-    public:
-        bool IsSpecialization;  /// 是否模板实例化
-    };
-
+    
     /**
      * @brief 函数参数
      */
@@ -610,7 +521,7 @@ namespace Tiny3D
 
         virtual ASTNode *clone() const override;
     };
-
+    
     /**
      * @brief 非静态函数结点。 可以是全局函数，也可以是类实例成员函数
      */
@@ -777,6 +688,248 @@ namespace Tiny3D
     public:
         uint64_t    Value;
     };
+
+    /**
+     * @brief 模板参数
+     */
+    struct ASTTemplateParam
+    {
+        /** 模板参数类型 */
+        enum class Kind : uint32_t
+        {
+            kNone = 0,
+            kTemplateType,      /// 模板类型参数，T
+            kNonType,           /// 非模板类型参数，int
+            kTemplateTemplate,  /// 模板的模板类型参数，template<typename T> class U
+        };
+
+        ASTTemplateParam()
+            : kind(Kind::kNone)
+        {}
+
+        String  type;   /// 数据类型
+        String  name;   /// 模板参数名称
+        Kind    kind;   /// 模板参数类型
+    };
+
+    /**
+     * @brief 模板（类模板和函数模板）
+     */
+    class ASTTemplate
+    {
+    public:
+        ASTTemplate()
+            : IsSpecialization(false)
+        {}
+
+        void instantiateTemplate(const StringArray &actuals);
+        
+        void cloneTemplateProperties(ASTTemplate *newTemplate) const;
+        
+    protected:
+        void dumpTemplateProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
+
+    public:
+        TList<ASTTemplateParam> TemplateParams;     /// 模板参数列表
+        bool                    IsSpecialization;   /// 是否特化或实例化
+    };
+    
+    /**
+     * @brief 类模板结点
+     */
+    class ASTClassTemplate : public ASTStruct, public ASTTemplate
+    {
+    public:
+        ASTClassTemplate(const String &name)
+            : ASTStruct(name)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kClassTemplate;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Class Template";
+        }
+
+        void setName(const String &name)
+        {
+            mName = name;
+        }
+
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+
+        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+    };
+
+    /**
+     * @brief 函数模板结点
+     */
+    class ASTFunctionTemplate : public ASTFunction, public ASTTemplate
+    {
+    public:
+        ASTFunctionTemplate(const String &name)
+            : ASTFunction(name)
+            , HasSpecialization(false)
+        {}
+
+        virtual Type getType() const override
+        {
+            return Type::kFunctionTemplate;
+        }
+
+        virtual String getTypeString() const override
+        {
+            return "Function Template";
+        }
+
+        void setName(const String &name)
+        {
+            mName = name;
+        }
+        
+        virtual TResult generateSourceFile(FileDataStream &fs) const override;
+
+        virtual ASTNode *clone() const override;
+
+        virtual void cloneProperties(ASTNode *newNode) const override;
+        
+    protected:
+        virtual TResult generateSourceFileForProperty(FileDataStream &fs) const override;
+
+        virtual TResult generateSourceFileForFunction(FileDataStream &fs) const override;
+
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+
+    public:
+        bool HasSpecialization;  /// 是否有实例化模板
+    };
+    
+    // /**
+    //  * @brief 可重载函数模板结点
+    //  */
+    // class ASTOverloadFunctionTemplate : public ASTOverloadFunction, public ASTTemplate
+    // {
+    // public:
+    //     ASTOverloadFunctionTemplate(const String &name)
+    //         : ASTOverloadFunction(name)
+    //     {}
+    //
+    //     virtual Type getType() const override
+    //     {
+    //         return Type::kOverloadFunctionTemplate;
+    //     }
+    //
+    //     virtual String getTypeString() const override
+    //     {
+    //         return "Overload Function Template";
+    //     }
+    //
+    //     void setName(const String &name)
+    //     {
+    //         mName = name;
+    //     }
+    //
+    //     virtual ASTNode *clone() const override;
+    //
+    //     virtual void cloneProperties(ASTNode *newNode) const override;
+    //
+    //     virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+    //
+    // protected:
+    //     virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+    // };
+    //
+    // /**
+    //  * @brief 静态函数模板结点
+    //  */
+    // class ASTStaticFunctionTemplate : public ASTStaticFunction, public ASTTemplate
+    // {
+    // public:
+    //     ASTStaticFunctionTemplate(const String &name)
+    //         : ASTStaticFunction(name)
+    //     {}
+    //
+    //     virtual Type getType() const override
+    //     {
+    //         return Type::kStaticFunctionTemplate;
+    //     }
+    //
+    //     virtual String getTypeString() const override
+    //     {
+    //         return "Static Function Template";
+    //     }
+    //
+    //     virtual ASTNode *clone() const override;
+    //
+    //     virtual void cloneProperties(ASTNode *newNode) const override;
+    //     
+    // protected:
+    //     virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+    // };
+    //
+    // /**
+    //  * @brief 成员函数模板结点
+    //  */
+    // class ASTInstanceFunctionTemplate : public ASTInstanceFunction, public ASTTemplate
+    // {
+    // public:
+    //     ASTInstanceFunctionTemplate(const String &name)
+    //         : ASTInstanceFunction(name)
+    //     {}
+    //
+    //     virtual Type getType() const override
+    //     {
+    //         return Type::kInstanceFunctionTemplate;
+    //     }
+    //
+    //     virtual String getTypeString() const override
+    //     {
+    //         return "Instance Function Template";
+    //     }
+    //
+    //     virtual ASTNode *clone() const override;
+    //
+    //     virtual void cloneProperties(ASTNode *newNode) const override;
+    //
+    // protected:
+    //     virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+    // };
+    //
+    // /**
+    //  * @brief 构造函数模板结点
+    //  */
+    // class ASTConstructorTemplate : public ASTConstructor, public ASTTemplate
+    // {
+    // public:
+    //     ASTConstructorTemplate(const String &name)
+    //         : ASTConstructor(name)
+    //     {}
+    //
+    //     virtual Type getType() const override
+    //     {
+    //         return Type::kConstructorTemplate;
+    //     }
+    //
+    //     virtual String getTypeString() const override
+    //     {
+    //         return "Constructor Template";
+    //     }
+    //
+    //     virtual ASTNode *clone() const override;
+    //
+    //     virtual void cloneProperties(ASTNode *newNode) const override;
+    //     
+    // protected:
+    //     virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+    // };
 }
 
 #endif  /*__T3D_ABSTRACT_SYNTAX_TREE_H__*/

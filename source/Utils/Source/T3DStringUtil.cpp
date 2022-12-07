@@ -210,7 +210,7 @@ namespace Tiny3D
             pos = str.find(replaceWhat, pos);
             if (pos == String::npos)
                 break;
-            str.replace(pos, 1, replaceWithWhat);
+            str.replace(pos, replaceWhat.length(), replaceWithWhat);
             pos++;
         }
     }

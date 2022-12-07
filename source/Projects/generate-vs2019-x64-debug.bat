@@ -36,12 +36,12 @@ xcopy compile_commands.json .\Core
 @rem =============== Generate ReflectionSettings.json =============
 @mkdir ..\vs2019-x64\System\Generated
 ..\bin\Windows\Debug\cct.exe .\System ..\vs2019-x64\System\Generated
-@mkdir ..\vs2019-x64\Core\Generated
-..\bin\Windows\Debug\cct.exe .\Core ..\vs2019-x64\Core\Generated
+@rem mkdir ..\vs2019-x64\Core\Generated
+@rem ..\bin\Windows\Debug\cct.exe .\Core ..\vs2019-x64\Core\Generated
 
 
 @rem Generate reflection source by ReflectionPreprocessor.
-@rem ..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System
+..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System
 
 
 @rem ==================== Generate all projects ===================

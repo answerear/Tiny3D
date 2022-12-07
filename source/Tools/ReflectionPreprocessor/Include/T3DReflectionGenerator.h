@@ -115,7 +115,7 @@ namespace Tiny3D
 
         void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 
-        void insertFunctionTemplate(const String &name, ASTFunctionTemplate *function);
+        void insertFunctionTemplate(const String &name, ASTOverloadFunction *function);
 
         TResult instantiateClassTemplate(CXCursor cxCursor);
 
@@ -168,7 +168,7 @@ namespace Tiny3D
         typedef TMap<String, ASTClassTemplate*> ASTClassTemplateMap;
         typedef ASTClassTemplateMap::value_type ASTClassTemplateMapValue;
 
-        typedef TMap<String, ASTFunctionTemplate*> ASTFunctionTemplateMap;
+        typedef TMap<String, ASTOverloadFunction*> ASTFunctionTemplateMap;
         typedef ASTFunctionTemplateMap::value_type ASTFunctionTemplateMapValue;
 
         ASTFunctionTemplateMap  mFunctionTemplates; /// 函数模板集合

@@ -102,7 +102,7 @@ namespace Test
 {
     TFUNCTION()
     template<typename T>
-    T TemplateMax(const T &a, const T &b)
+    const T TemplateMax(const T &a, const T b)
     {
         return (a > b ? a : b);
     }
@@ -179,10 +179,19 @@ namespace Test
         }
 
         TFUNCTION()
+        void Insert(const T &data, bool check)
+        {
+            Insert(data);
+        }
+
+        TFUNCTION()
         void Test(const T &data)
         {
             
         }
+
+        TPROPERTY()
+        T InitData;
         
     protected:
         void Extend()
@@ -331,6 +340,7 @@ namespace Test
                 int r = TemplateMax<int>(a, b);
                 float t0 = 1.0f, t1 = 2.0f;
                 TemplateMax(t0, t1);
+                b = TemplateMax(a, b);
                 TemplateMap<int, int> map;
                 TemplateArray<int, 5> arr;
                 return r;
