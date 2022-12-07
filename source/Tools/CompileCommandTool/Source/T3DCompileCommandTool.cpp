@@ -248,8 +248,6 @@ namespace Tiny3D
             writer.String("c++");
             writer.String("-std=c++14");
             writer.String("-fsyntax-only");
-            writer.String("-pedantic");
-            writer.String("-Wc++11-extensions");
             writer.EndArray();
         }
 
