@@ -72,6 +72,12 @@ namespace  Tiny3D
 
             // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
             ClangArgs args = parseSettingsFile(opts.SettingsPath);
+            if (args.empty())
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+            
             ret = generateAST(opts.SourcePath, args);
             if (T3D_FAILED(ret))
             {
@@ -245,6 +251,7 @@ namespace  Tiny3D
                 ss << "Error: " << rapidjson::GetParseError_En(e) << std::endl;;
                 ss << " at offset " << o << std::endl;
                 RP_LOG_ERROR("Parse json failed ! %s", ss.str().c_str());
+                args.clear();
             }
             else
             {
@@ -257,6 +264,10 @@ namespace  Tiny3D
             }
             
             fs.close();
+        }
+        else
+        {
+            RP_LOG_ERROR("The file %s did not exist !", filename.c_str());
         }
         
         return args;
