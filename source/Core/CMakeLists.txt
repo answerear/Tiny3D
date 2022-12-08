@@ -98,6 +98,9 @@ set_project_files(Source\\\\Serializer ${CMAKE_CURRENT_SOURCE_DIR}/Source/Serial
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .h)
 set_project_files(Source\\\\Support\\\\tinyxml2 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Support/tinyxml2/ .cpp)
 
+# Generated source for reflection.
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
+
 # protobuf source files
 set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.h)
 set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.cc)

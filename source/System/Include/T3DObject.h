@@ -80,7 +80,7 @@ namespace Tiny3D
     };
 }
 
-
+#if 0
 TFUNCTION("Description"="This is a function.")
 inline void Globalfunction(float fval)
 {
@@ -439,5 +439,6 @@ namespace AA
         MultiDerived() = default;
     };
 }
+#endif
 
 #endif  /*__T3D_OBJECT_H__*/

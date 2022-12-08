@@ -38,6 +38,12 @@ namespace Tiny3D
         virtual ~ReflectionGenerator() override;
 
         /**
+         * @brief 分析项目头文件路径，获取包含头文件路径信息
+         * @param [in] args : 编译选项
+         */
+        void parseProjectHeaderPath(const ClangArgs &args);
+
+        /**
          * @brief 收集工程所有头文件
          * @param [in] path : 头文件完整路径
          */
@@ -162,8 +168,8 @@ namespace Tiny3D
         typedef TMap<String, ASTNode*> ASTNodeMap;
         typedef ASTNodeMap::value_type ASTNodeMapValue;
         
-        typedef TMap<String, ASTNodeMap> SourceFileMap;
-        typedef SourceFileMap::value_type SourceFileMapValue;
+        typedef TMap<String, ASTNodeMap> SourceFilesMap;
+        typedef SourceFilesMap::value_type SourceFilesMapValue;
 
         typedef TMap<String, ASTClassTemplate*> ASTClassTemplateMap;
         typedef ASTClassTemplateMap::value_type ASTClassTemplateMapValue;
@@ -171,9 +177,14 @@ namespace Tiny3D
         typedef TMap<String, ASTOverloadFunction*> ASTFunctionTemplateMap;
         typedef ASTFunctionTemplateMap::value_type ASTFunctionTemplateMapValue;
 
+        typedef TMap<String, String> HeaderFilesMap;
+        typedef HeaderFilesMap::value_type HeaderFilesMapValue;
+
         ASTFunctionTemplateMap  mFunctionTemplates; /// 函数模板集合
         ASTClassTemplateMap     mClassTemplates;    /// 类模板集合
-        SourceFileMap           mSourceFiles;       /// 源码集合
+        SourceFilesMap          mSourceFiles;       /// 源码集合
+        HeaderFilesMap          mHeaderFiles;       /// 项目头文件
+        StringList              mIncludePathes;     /// 项目头文件包含路径
         Files                   mFiles;             /// 带反射信息的文件集合
         ASTNode                 *mRoot;             /// AST 根结点
     };

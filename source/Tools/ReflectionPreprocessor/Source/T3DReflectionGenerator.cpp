@@ -78,9 +78,28 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    void ReflectionGenerator::parseProjectHeaderPath(const ClangArgs &args)
+    {
+        for (const auto &arg : args)
+        {
+            String str = arg;
+            if (StringUtil::match(str, "-I*", true))
+            {
+                StringUtil::replaceAll(str, "-I", "");
+                mIncludePathes.push_back(str);
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     void ReflectionGenerator::collectProjectHeaders(const String &path)
     {
-        mSourceFiles.insert(SourceFileMapValue(path, ASTNodeMap()));
+        mSourceFiles.insert(SourceFilesMapValue(path, ASTNodeMap()));
+
+        String dir, title, ext;
+        Dir::parsePath(path, dir, title, ext);
+        mHeaderFiles.insert(HeaderFilesMapValue(title, dir));
     }
 
     //-------------------------------------------------------------------------
@@ -132,7 +151,7 @@ namespace Tiny3D
                     ret = T3D_ERR_RP_COMPILE_WARNING;
                 }
             }
-        
+
             auto cxCursor = clang_getTranslationUnitCursor(cxUnit);
 
             ClientData data = {mRoot, this};
@@ -145,7 +164,7 @@ namespace Tiny3D
                     return data->generator->visitRootChildren(cxCursor, cxParent, data->parent);
                 },
                 &data);
-			
+
             clang_disposeTranslationUnit(cxUnit);
             
             clang_disposeIndex(cxIndex);
@@ -2152,6 +2171,27 @@ namespace Tiny3D
                 break;
             }
 
+            // 构造需要的头文件
+            auto itr = mHeaderFiles.find(title);
+            if (itr == mHeaderFiles.end())
+            {
+                break;
+            }
+
+            String headerPath = itr->second;
+            for (const auto &includePath : mIncludePathes)
+            {
+                String pattern = includePath + "*";
+                if (StringUtil::match(headerPath, pattern, false))
+                {
+                    StringUtil::replaceAll(headerPath, includePath, "");
+                    if (headerPath[0] == Dir::getNativeSeparator())
+                    {
+                        headerPath.erase(0, 1);
+                    }
+                }
+            }
+
             // 文件头注释
             fs << "// Copyright (C) 2015-2020  Answer Wong" << std::endl;
             fs << "// Generated code exported from ReflectionPreprocessor." << std::endl;
@@ -2160,7 +2200,7 @@ namespace Tiny3D
             // 需要包含的头文件
             fs << std::endl;
             fs << "#include <rttr/registration>" << std::endl;
-            fs << "#include \"" << title << ".h\"" << std::endl;
+            fs << "#include \"" << headerPath << (headerPath.empty() ? "" : "/") << title << ".h\"" << std::endl;
 
             // 开始注册类信息
             fs << std::endl << "RTTR_REGISTRATION" << std::endl;
@@ -2179,6 +2219,11 @@ namespace Tiny3D
             fs << "}" << std::endl;
                 
             // 是在这里打开的文件，就在这里关闭
+            fs.close();
+        }
+
+        if (fs.isOpened())
+        {
             fs.close();
         }
         

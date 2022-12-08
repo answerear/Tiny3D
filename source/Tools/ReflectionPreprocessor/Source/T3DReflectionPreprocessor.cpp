@@ -63,6 +63,17 @@ namespace  Tiny3D
                 break;
             }
 
+            // 从配置文件获取编译参数
+            ClangArgs args = parseSettingsFile(opts.SettingsPath);
+            if (args.empty())
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+
+            // 分析头文件包含路径并记录
+            mGenerator->parseProjectHeaderPath(args);
+
             // 收集项目头文件信息
             ret = collectProjectHeaders(opts.SourcePath);
             if (T3D_FAILED(ret))
@@ -71,13 +82,6 @@ namespace  Tiny3D
             }
 
             // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
-            ClangArgs args = parseSettingsFile(opts.SettingsPath);
-            if (args.empty())
-            {
-                ret = T3D_ERR_FILE_NOT_EXIST;
-                break;
-            }
-            
             ret = generateAST(opts.SourcePath, args);
             if (T3D_FAILED(ret))
             {

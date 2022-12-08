@@ -32,9 +32,13 @@ namespace Tiny3D
      * @class   Meta
      * @brief   元信息基类
      */
+    TCLASS()
     class T3D_ENGINE_API Meta : public Object
     {
+        TRTTI_ENABLE(Object)
+        
     public:
+        TENUM()
         enum class FileType : uint32_t
         {
             kNone = 0,
@@ -54,7 +58,10 @@ namespace Tiny3D
         virtual void cloneProperties(Meta* meta) const;
 
     public:
+        TPROPERTY()
         UUID        uuid;
+        
+        TPROPERTY()
         FileType    type;
     };
 

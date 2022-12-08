@@ -39,6 +39,7 @@ namespace Tiny3D
     const String kSpecPropertyType = "RTTRFuncType";
     const String kSpecPropertyGetter = "\"getter\"";
     const String kSpecPropertySetter = "\"setter\"";
+    const String kSpecFuncConstructor = "\"constructor\"";
 
     struct Specifier
     {
