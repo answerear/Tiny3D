@@ -46,6 +46,7 @@ namespace Tiny3D
             kDir = 2
         };
 
+        TFUNCTION(RTTRAsConstructor)
         static MetaPtr create();
 
         virtual ~Meta();

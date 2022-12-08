@@ -627,6 +627,11 @@ namespace Tiny3D
                 // 反射开关
                 ret = processMacroSwitch(name, cxCursor, cxParent);
             }
+            else if (name == kRTTIFriend)
+            {
+                // 反射友元
+                ret = processMacroFriend(name, cxCursor, cxParent);
+            }
         } while (false);
         
         return ret;
@@ -920,6 +925,38 @@ namespace Tiny3D
             sw->baseClasses = std::move(baseClasses);
 
             info->switches.insert(RTTISwitchesValue(start, sw));
+        } while (false);
+
+        return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::processMacroFriend(const String &name, CXCursor cxCursor, CXCursor cxParent)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String path;
+            uint32_t start, end, column, offset;
+            // 获取反射标签的源码文件、行数等信息
+            getASTNodeInfo(cxCursor, path, start, end, column, offset);
+
+            FileReflectionInfoPtr info;
+            auto itrFile = mFiles.find(path);
+            if (itrFile == mFiles.end())
+            {
+                // 该文件第一次解析，缓存起来
+                info.reset(new FileReflectionInfo());
+                mFiles.insert(FilesValue(path, info));
+            }
+            else
+            {
+                info = itrFile->second;
+            }
+
+            info->isFriend = true;
         } while (false);
 
         return ret;
@@ -1246,7 +1283,9 @@ namespace Tiny3D
         
         do
         {
+            bool isFriend = false;    // 是否对RTTR开启友元访问权限
             bool isProperty = false;
+            bool asConstructor = false; // 是否作为构造函数使用
             bool rval;
             SpecifiersItr itrSpec;
             
@@ -1267,40 +1306,54 @@ namespace Tiny3D
                         // 属性标签也没有，那没有反射
                         break;
                     }
-                    else
-                    {
-                        // 属性函数
-                        isProperty = true;
-                    }
+                    
+                    // 属性函数
+                    isProperty = true;
                 }
                 
                 fileInfo.Path = path;
                 fileInfo.StartLine = start;
                 fileInfo.EndLine = end;
+
+                SpecifiersItr itrClsSpec;
+                FilesItr itrFile;
                 
                 if (cxParent.kind == CXCursor_ClassDecl
                     || cxParent.kind == CXCursor_ClassTemplate
                     || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
                 {
                     // 是类函数，还需要类有打反射标签
-                    CHECK_TAG(rval, cxParent, classes, path, start, end, column, offset);
+                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
                     }
+                    isFriend = itrFile->second->isFriend;
                 }
                 else if (cxParent.kind == CXCursor_StructDecl)
                 {
                     // 结构体成员函数，需要结构体有打反射标签
-                    CHECK_TAG(rval, cxParent, structs, path, start, end, column, offset);
+                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
+                    }
+                    isFriend = itrFile->second->isFriend;
+                }
+
+                // 查找是否有打标签，作为构造函数用
+                for (const auto &spec : itrSpec->second)
+                {
+                    if (spec.name == kSpecAsConstructor)
+                    {
+                        asConstructor = true;
                     }
                 }
             }
             else
             {
+                FilesItr itrFile;
+                
                 // 构造函数和析构函数不用打标签，只要类打了标签就可以反射
                 String path;
                 uint32_t start, end, column, offset;
@@ -1309,7 +1362,7 @@ namespace Tiny3D
                     || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
                 {
                     // 类函数，需要类有打反射标签
-                    CHECK_TAG_RET_SPEC(rval, itrSpec, cxParent, classes, path, start, end, column, offset);
+                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1318,7 +1371,7 @@ namespace Tiny3D
                 else if (cxParent.kind == CXCursor_StructDecl)
                 {
                     // 结构体函数，需要结构体有打反射标签
-                    CHECK_TAG_RET_SPEC(rval, itrSpec, cxParent, structs, path, start, end, column, offset);
+                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
                     if (!rval)
                     {
                         break;
@@ -1332,6 +1385,16 @@ namespace Tiny3D
                 fileInfo.Path = path;
                 fileInfo.StartLine = start;
                 fileInfo.EndLine = end;
+
+                isFriend = itrFile->second->isFriend;
+            }
+
+            auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
+            if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)
+                && !isFriend)
+            {
+                // 私有、保护访问，并且没有开启友元，忽略该反射
+                break;
             }
             
             // 创建函数重载结点，哪怕没有函数重载，函数的声明都在该结点上，ASTFunction 只是函数入口结点
@@ -1351,21 +1414,26 @@ namespace Tiny3D
             
             ASTOverloadFunction *overload = nullptr;
 
-            if (clang_CXXMethod_isStatic(cxCursor))
-            {
-                // 静态函数
-                overload = new ASTStaticFunction(USR);
-            }
-            else if (isConstructor)
+            if (isConstructor || asConstructor)
             {
                 // 构造函数
                 overload = new ASTConstructor(USR);
+
+                if (asConstructor)
+                {
+                    ASTConstructor *constructor = static_cast<ASTConstructor *>(overload);
+                    constructor->IsNormal = false;
+                }
             }
             else if (isDestructor)
             {
                 // 析构函数
                 break;
-                overload = new ASTDestructor(USR);
+            }
+            else if (clang_CXXMethod_isStatic(cxCursor))
+            {
+                // 静态函数
+                overload = new ASTStaticFunction(USR);
             }
             else if (isCXXMember)
             {
@@ -1648,13 +1716,16 @@ namespace Tiny3D
             fileInfo.Path = path;
             fileInfo.StartLine = start;
             fileInfo.EndLine = end;
+
+            FilesItr itrFile;
+            SpecifiersItr itrClsSpec;
             
             // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
                 || cxParent.kind == CXCursor_ClassTemplate
                 || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
             {
-                CHECK_TAG(rval, cxParent, classes, path, start, end, col, offset);
+                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, classes, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
@@ -1662,13 +1733,21 @@ namespace Tiny3D
             }
             else if (cxParent.kind == CXCursor_StructDecl)
             {
-                CHECK_TAG(rval, cxParent, structs, path, start, end, col, offset);
+                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
                 }
             }
 
+            auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
+            if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)
+                && !itrFile->second->isFriend)
+            {
+                // 私有、保护访问，并且没有开启友元，忽略该反射
+                break;
+            }
+            
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
             if (parent == nullptr)
@@ -1772,12 +1851,15 @@ namespace Tiny3D
             fileInfo.StartLine = start;
             fileInfo.EndLine = end;
             
-            // class 或 struct 的成员变量，看 class 或 struct 是否有打反射标签
+            FilesItr itrFile;
+            SpecifiersItr itrClsSpec;
+            
+            // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
                 || cxParent.kind == CXCursor_ClassTemplate
                 || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
             {
-                CHECK_TAG(rval, cxParent, classes, path, start, end, col, offset);
+                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, classes, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
@@ -1785,11 +1867,19 @@ namespace Tiny3D
             }
             else if (cxParent.kind == CXCursor_StructDecl)
             {
-                CHECK_TAG(rval, cxParent, structs, path, start, end, col, offset);
+                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
                 if (!rval)
                 {
                     break;
                 }
+            }
+
+            auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
+            if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)
+                && !itrFile->second->isFriend)
+            {
+                // 私有、保护访问，并且没有开启友元，忽略该反射
+                break;
             }
 
             // 获取父结点

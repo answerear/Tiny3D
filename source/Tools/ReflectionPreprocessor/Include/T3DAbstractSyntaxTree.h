@@ -39,7 +39,7 @@ namespace Tiny3D
     const String kSpecPropertyType = "RTTRFuncType";
     const String kSpecPropertyGetter = "\"getter\"";
     const String kSpecPropertySetter = "\"setter\"";
-    const String kSpecFuncConstructor = "\"constructor\"";
+    const String kSpecAsConstructor = "RTTRAsConstructor";
 
     struct Specifier
     {
@@ -554,6 +554,7 @@ namespace Tiny3D
     public:
         ASTConstructor(const String &name)
             : ASTOverloadFunction(name)
+            , IsNormal(true)
         {}
 
         virtual Type getType() const override
@@ -567,6 +568,11 @@ namespace Tiny3D
         }
 
         virtual ASTNode *clone() const override;
+
+        bool IsNormal;  /// 非标准构造函数（即一般函数）作为其构造函数
+
+    protected:
+        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
     };
 
     /**

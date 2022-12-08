@@ -40,7 +40,6 @@ namespace Tiny3D
         , public ITransformListener
     {
         TRTTI_ENABLE(Component)
-        TRTTI_FRIEND
      
     public:
         /**

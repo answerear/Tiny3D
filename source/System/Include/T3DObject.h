@@ -80,7 +80,7 @@ namespace Tiny3D
     };
 }
 
-#if 0
+#if 1
 TFUNCTION("Description"="This is a function.")
 inline void Globalfunction(float fval)
 {
@@ -229,7 +229,11 @@ namespace Test
         TRTTI_ENABLE(Tiny3D::Object);
         
     public:
-        Derived() {}
+        TFUNCTION(RTTRAsConstructor)
+        static Derived *create()
+        {
+            return new Derived();
+        }
 
         TPROPERTY(Name="value", Type="getter", "Description"="This is the value.")
         const std::string &getValue() const
@@ -237,7 +241,10 @@ namespace Test
             return mStr;
         }
 
+    protected:
         std::string mStr;
+
+        Derived() {}
     };
 
     TCLASS()

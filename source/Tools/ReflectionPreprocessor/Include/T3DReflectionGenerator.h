@@ -111,6 +111,9 @@ namespace Tiny3D
         /// 处理反射开关宏
         TResult processMacroSwitch(const String &name, CXCursor cxCursor, CXCursor cxParent);
 
+        /// 处理反射友元宏
+        TResult processMacroFriend(const String &name, CXCursor cxCursor, CXCursor cxParent);
+
         void getASTNodeInfo(CXCursor cxCursor, String &filePath, uint32_t &start, uint32_t &end, uint32_t &column, uint32_t &offset) const;
 
         ASTNode *createNode(const ASTNodeInfo &info) const;
@@ -140,8 +143,8 @@ namespace Tiny3D
                 : enabled(false)
             {}
             
-            bool            enabled;
-            TList<String>   baseClasses;
+            bool            enabled;        /// 是否开启 RTTR
+            TList<String>   baseClasses;    /// 基类列表
         };
 
         typedef std::shared_ptr<RTTISwitch> RTTISwitchPtr;
@@ -150,12 +153,17 @@ namespace Tiny3D
         
         struct FileReflectionInfo
         {
+            FileReflectionInfo()
+                : isFriend(false)
+            {}
+            
             Specifiers      structs;
             Specifiers      classes;
             Specifiers      functions;
             Specifiers      properties;
             Specifiers      enumerations;
             RTTISwitches    switches;   /// 是否开启 RTTI 功能
+            bool            isFriend;   /// 是否对 RTTI 开启友元
         };
 
         typedef std::shared_ptr<FileReflectionInfo> FileReflectionInfoPtr;

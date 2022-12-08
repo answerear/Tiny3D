@@ -518,7 +518,15 @@ namespace Tiny3D
                             params += ", ";
                         }
                     }
-                    fs << "\t\t.constructor<" << params << ">()";
+
+                    if (constructor->IsNormal)
+                    {
+                        fs << "\t\t.constructor<" << params << ">()";
+                    }
+                    else
+                    {
+                        fs << "\t\t.constructor<" << params << ">(&" << name << ")"; 
+                    }
 
                     constructor->generateMetaInfo(fs, 2);
                     
@@ -861,6 +869,17 @@ namespace Tiny3D
         cloneProperties(node);
         cloneChildren(node);
         return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ASTConstructor::dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const
+    {
+        ASTOverloadFunction::dumpProperties(writer);
+        
+        // Is normal constructor
+        writer.Key("IsNormal");
+        writer.Bool(IsNormal);
     }
 
     //--------------------------------------------------------------------------
