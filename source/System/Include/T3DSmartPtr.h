@@ -49,6 +49,7 @@ namespace Tiny3D
      * @brief   智能指针类
      * @tparam  T   Generic type parameter.
      */
+    TCLASS()
     template <typename T>
     class SmartPtr
     {

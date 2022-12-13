@@ -222,6 +222,40 @@ namespace Test
         kReal,
         kFake
     };
+
+    TCLASS()
+    class IIntersect
+    {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+        
+    public:
+        
+        virtual ~IIntersect() {}
+
+        TFUNCTION()
+        virtual bool test() = 0;
+
+    protected:
+        IIntersect() {}
+    };
+
+    TCLASS()
+    class SphereIntersect : public IIntersect
+    {
+        TRTTI_ENABLE(IIntersect)
+        TRTTI_FRIEND
+
+    public:
+        SphereIntersect() {}
+        virtual ~SphereIntersect() {}
+
+        TFUNCTION()
+        bool test() override
+        {
+            return true;
+        }
+    };
     
     TCLASS("EditorOnly", "Category"="Derived")
     class Derived : public Tiny3D::Object
@@ -279,6 +313,21 @@ namespace Test
             TRTTI_ENABLE(Derived);
         public:
             Object() = default;
+
+            TFUNCTION()
+            TemplateArray<int, 3> GetArray() const
+            {
+                return data;
+            }
+
+            TFUNCTION()
+            void SetArray(const TemplateArray<int, 3> &arr)
+            {
+                data = arr;
+            }
+
+        protected:
+            TemplateArray<int, 3> data;
         };
 
         TCLASS()

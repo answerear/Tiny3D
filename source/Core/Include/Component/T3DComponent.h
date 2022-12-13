@@ -36,6 +36,9 @@ namespace Tiny3D
     class T3D_ENGINE_API Component : public Object, public Noncopyable
     {
         friend class SceneNode;
+
+        TRTTI_ENABLE(Object)
+     
     public:
         /**
          * @enum    ComponentID
@@ -59,7 +62,6 @@ namespace Tiny3D
          * @brief   Makes a deep copy of this object
          * @return  A copy of this object.
          */
-        TFUNCTION()
         virtual ComponentPtr clone() const = 0;
 
         /**
@@ -120,10 +122,7 @@ namespace Tiny3D
         virtual void update();
 
     protected:
-        TPROPERTY()
         ID          mID;            /**< The identifier */
-
-        TPROPERTY()
         SceneNode   *mSceneNode;    /**< The scene node */
     };
 }

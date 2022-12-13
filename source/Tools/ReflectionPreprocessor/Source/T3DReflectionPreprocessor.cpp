@@ -71,6 +71,9 @@ namespace  Tiny3D
                 break;
             }
 
+            // 设置工程路径
+            mGenerator->setProjectPath(opts.SourcePath);
+
             // 分析头文件包含路径并记录
             mGenerator->parseProjectHeaderPath(args);
 

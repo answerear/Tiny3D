@@ -34,9 +34,13 @@ namespace Tiny3D
      * @class   Renderable
      * @brief   场景中 3D 可渲染对象基类，用于渲染 3D 物体
      */
+    TCLASS()
     class T3D_ENGINE_API Renderable : public Component
     {
         friend class DefaultSceneMgr;
+
+        TRTTI_ENABLE(Component)
+
     public:
         /**
          * @fn  virtual Renderable::~Renderable();

@@ -38,6 +38,14 @@ namespace Tiny3D
         virtual ~ReflectionGenerator() override;
 
         /**
+         * @brief 设置工程根目录
+         */
+        void setProjectPath(const String &projectPath)
+        {
+            mProjectPath = projectPath;
+        }
+
+        /**
          * @brief 分析项目头文件路径，获取包含头文件路径信息
          * @param [in] args : 编译选项
          */
@@ -114,13 +122,16 @@ namespace Tiny3D
         /// 处理反射友元宏
         TResult processMacroFriend(const String &name, CXCursor cxCursor, CXCursor cxParent);
 
+        /// 处理包含的头文件
+        TResult processInclusionDirective(const String &name, CXCursor cxCursor, CXCursor cxParent);
+
         void getASTNodeInfo(CXCursor cxCursor, String &filePath, uint32_t &start, uint32_t &end, uint32_t &column, uint32_t &offset) const;
 
         ASTNode *createNode(const ASTNodeInfo &info) const;
 
         ASTNode *getOrConstructParentNode(CXCursor cxCursor);
 
-        void insertSourceFiles(const String &path, ASTNode *node);
+        void insertSourceFiles(const String &path, ASTNode *node, bool isTemplate);
 
         void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 
@@ -150,12 +161,13 @@ namespace Tiny3D
         typedef std::shared_ptr<RTTISwitch> RTTISwitchPtr;
         typedef TMap<uint32_t, RTTISwitchPtr> RTTISwitches;
         typedef RTTISwitches::value_type RTTISwitchesValue;
+
+        typedef TMap<uint32_t, bool> RTTIFriends;
+        typedef RTTIFriends::value_type RTTIFriendsValue;
         
         struct FileReflectionInfo
         {
-            FileReflectionInfo()
-                : isFriend(false)
-            {}
+            FileReflectionInfo() = default;
             
             Specifiers      structs;
             Specifiers      classes;
@@ -163,7 +175,7 @@ namespace Tiny3D
             Specifiers      properties;
             Specifiers      enumerations;
             RTTISwitches    switches;   /// 是否开启 RTTI 功能
-            bool            isFriend;   /// 是否对 RTTI 开启友元
+            RTTIFriends     friends;    /// 是否对 RTTI 开启友元
         };
 
         typedef std::shared_ptr<FileReflectionInfo> FileReflectionInfoPtr;
@@ -185,8 +197,10 @@ namespace Tiny3D
         typedef TMap<String, ASTOverloadFunction*> ASTFunctionTemplateMap;
         typedef ASTFunctionTemplateMap::value_type ASTFunctionTemplateMapValue;
 
-        typedef TMap<String, String> HeaderFilesMap;
+        typedef TMap<String, StringList> HeaderFilesMap;
         typedef HeaderFilesMap::value_type HeaderFilesMapValue;
+
+        bool isRTTIFriend(FileReflectionInfoPtr info, uint32_t start, uint32_t end) const;
 
         ASTFunctionTemplateMap  mFunctionTemplates; /// 函数模板集合
         ASTClassTemplateMap     mClassTemplates;    /// 类模板集合
@@ -195,6 +209,7 @@ namespace Tiny3D
         StringList              mIncludePathes;     /// 项目头文件包含路径
         Files                   mFiles;             /// 带反射信息的文件集合
         ASTNode                 *mRoot;             /// AST 根结点
+        String                  mProjectPath;       /// 工程根目录
     };
 }
 

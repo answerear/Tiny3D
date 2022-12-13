@@ -97,9 +97,9 @@ namespace Tiny3D
     {
         mSourceFiles.insert(SourceFilesMapValue(path, ASTNodeMap()));
 
-        String dir, title, ext;
-        Dir::parsePath(path, dir, title, ext);
-        mHeaderFiles.insert(HeaderFilesMapValue(title, dir));
+        // String dir, title, ext;
+        // Dir::parsePath(path, dir, title, ext);
+        // mHeaderFiles.insert(HeaderFilesMapValue(title, dir));
     }
 
     //-------------------------------------------------------------------------
@@ -263,6 +263,12 @@ namespace Tiny3D
             {
                 ret = processMacroExpansion(cxCursor, cxParent);
                 cxResult = CXChildVisit_Continue;
+            }
+            break;
+        case CXCursor_InclusionDirective:
+            {
+                // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                ret = processInclusionDirective(name, cxCursor, cxParent);
             }
             break;
         default:
@@ -956,10 +962,68 @@ namespace Tiny3D
                 info = itrFile->second;
             }
 
-            info->isFriend = true;
+            info->friends.insert(RTTIFriendsValue(start, true));
         } while (false);
 
         return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::processInclusionDirective(const String &name, CXCursor cxCursor, CXCursor cxParent)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            CXTranslationUnit cxTU = clang_Cursor_getTranslationUnit(cxCursor);
+            String unit = toString(clang_getTranslationUnitSpelling(cxTU));
+            
+            String path;
+            uint32_t start, end, col, offset;
+            getASTNodeInfo(cxCursor, path, start, end, col, offset);
+
+            if (unit != path)
+            {
+                break;
+            }
+
+            String dir, title, ext;
+            Dir::parsePath(path, dir, title, ext);
+            if (ext != "cpp" && ext != "cxx" && ext != "c")
+            {
+                // 只有源码文件的头文件才有效
+                break;
+            }
+
+            // 对应的头文件集合
+            auto itrFile = mHeaderFiles.find(title);
+            if (itrFile == mHeaderFiles.end())
+            {
+                auto rval = mHeaderFiles.insert(HeaderFilesMapValue(title, StringList()));
+                itrFile = rval.first;
+            }
+
+            itrFile->second.push_back(name);
+        } while (false);
+        
+        return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionGenerator::isRTTIFriend(FileReflectionInfoPtr info, uint32_t start, uint32_t end) const
+    {
+        bool isFriend = false;
+        for (const auto &val : info->friends)
+        {
+            if (val.first >= start && val.first <= end)
+            {
+                isFriend = true;
+                break;
+            }
+        }
+        return isFriend;
     }
 
     //-------------------------------------------------------------------------
@@ -1030,7 +1094,7 @@ namespace Tiny3D
                 }
                 else
                 {
-                    insertSourceFiles(path, node);
+                    insertSourceFiles(path, node, false);
                 }
                 break;
             }
@@ -1067,7 +1131,7 @@ namespace Tiny3D
             }
             else
             {
-                insertSourceFiles(path, klass);
+                insertSourceFiles(path, klass, false);
             }
 
             ClientData data = {klass, this};
@@ -1328,7 +1392,9 @@ namespace Tiny3D
                     {
                         break;
                     }
-                    isFriend = itrFile->second->isFriend;
+                    
+                    isFriend = isRTTIFriend(itrFile->second, start, end);
+                    // isFriend = itrFile->second->isFriend;
                 }
                 else if (cxParent.kind == CXCursor_StructDecl)
                 {
@@ -1338,7 +1404,9 @@ namespace Tiny3D
                     {
                         break;
                     }
-                    isFriend = itrFile->second->isFriend;
+                    
+                    isFriend = isRTTIFriend(itrFile->second, start, end);
+                    // isFriend = itrFile->second->isFriend;
                 }
 
                 // 查找是否有打标签，作为构造函数用
@@ -1353,6 +1421,12 @@ namespace Tiny3D
             else
             {
                 FilesItr itrFile;
+
+                if (clang_CXXRecord_isAbstract(cxParent))
+                {
+                    // 抽象类不能反射构造，要跳过
+                    break;
+                }
                 
                 // 构造函数和析构函数不用打标签，只要类打了标签就可以反射
                 String path;
@@ -1382,11 +1456,14 @@ namespace Tiny3D
                     break;
                 }
 
+                isFriend = isRTTIFriend(itrFile->second, start, end);
+                
+                getASTNodeInfo(cxCursor, path, start, end, column, offset);
                 fileInfo.Path = path;
                 fileInfo.StartLine = start;
                 fileInfo.EndLine = end;
-
-                isFriend = itrFile->second->isFriend;
+                
+                // isFriend = itrFile->second->isFriend;
             }
 
             auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
@@ -1453,6 +1530,9 @@ namespace Tiny3D
             // 函数返回值
             CXType cxResultType = clang_getResultType(cxType);
             overload->RetType = toString(clang_getTypeSpelling(cxResultType));
+
+            CXCursor cxResultCursor = clang_getTypeDeclaration(cxResultType);
+            instantiateClassTemplate(cxResultCursor);
             
             // 函数参数列表
             int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
@@ -1466,6 +1546,9 @@ namespace Tiny3D
                 CXType cxArgType = clang_getArgType(cxType, i);
                 param.Type = toString(clang_getTypeSpelling(cxArgType));
                 overload->Params.push_back(param);
+
+                CXCursor cxArgCursor = clang_getTypeDeclaration(cxResultType);
+                instantiateClassTemplate(cxArgCursor);
             }
 
             bool isGetter = false;
@@ -1587,7 +1670,7 @@ namespace Tiny3D
                 && !isTemplate)
             {
                 // 非类和结构体成员函数、并且非模板函数
-                insertSourceFiles(overload->FileInfo.Path, parent);
+                insertSourceFiles(overload->FileInfo.Path, parent, false);
             }
             else if (cxParent.kind != CXCursor_ClassTemplate && isTemplate)
             {
@@ -1719,6 +1802,7 @@ namespace Tiny3D
 
             FilesItr itrFile;
             SpecifiersItr itrClsSpec;
+            bool isFriend = false;
             
             // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
@@ -1730,6 +1814,8 @@ namespace Tiny3D
                 {
                     break;
                 }
+
+                isFriend = isRTTIFriend(itrFile->second, start, end);
             }
             else if (cxParent.kind == CXCursor_StructDecl)
             {
@@ -1738,11 +1824,13 @@ namespace Tiny3D
                 {
                     break;
                 }
+                
+                isFriend = isRTTIFriend(itrFile->second, start, end);
             }
 
             auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
             if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)
-                && !itrFile->second->isFriend)
+                && !isFriend)
             {
                 // 私有、保护访问，并且没有开启友元，忽略该反射
                 break;
@@ -1770,7 +1858,7 @@ namespace Tiny3D
                 || cxParent.kind == CXCursor_TranslationUnit)
             {
                 // 非类和结构体函数
-                insertSourceFiles(path, enumeration);       
+                insertSourceFiles(path, enumeration, false);       
             }
 
             ClientData data = {enumeration, this};
@@ -1853,6 +1941,7 @@ namespace Tiny3D
             
             FilesItr itrFile;
             SpecifiersItr itrClsSpec;
+            bool isFriend = false;
             
             // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
@@ -1864,6 +1953,8 @@ namespace Tiny3D
                 {
                     break;
                 }
+
+                isFriend = isRTTIFriend(itrFile->second, start, end);
             }
             else if (cxParent.kind == CXCursor_StructDecl)
             {
@@ -1872,11 +1963,12 @@ namespace Tiny3D
                 {
                     break;
                 }
+                isFriend = isRTTIFriend(itrFile->second, start, end);
             }
 
             auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
             if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)
-                && !itrFile->second->isFriend)
+                && !isFriend)
             {
                 // 私有、保护访问，并且没有开启友元，忽略该反射
                 break;
@@ -1903,7 +1995,7 @@ namespace Tiny3D
                 || cxParent.kind == CXCursor_TranslationUnit)
             {
                 // 非类和结构体函数
-                insertSourceFiles(path, property);       
+                insertSourceFiles(path, property, false);       
             }
 
             instantiateClassTemplate(cxCursor);
@@ -2218,24 +2310,67 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
-    void ReflectionGenerator::insertSourceFiles(const String &path, ASTNode *node)
+    void ReflectionGenerator::insertSourceFiles(const String &path, ASTNode *node, bool isTemplate)
     {
-        // 查找该类是否当前工程的，如果是，放到里面
-        auto itr = mSourceFiles.find(path);
-        if (itr == mSourceFiles.end())
+        do
         {
-            return;
-        }
+            // 查找该类是否当前工程的，如果是，放到里面
+            auto itr = mSourceFiles.find(path);
+            if (itr == mSourceFiles.end())
+            {
+                if (isTemplate)
+                {
+                    // 模板实例化，那加到源码文件里，避免模板没有实例化
+                    auto ret = mSourceFiles.insert(SourceFilesMapValue(path, ASTNodeMap()));
+                    itr = ret.first;
 
-        String hierarchyName = node->getHierarchyName();
-        auto it = itr->second.find(hierarchyName);
-        if (it != itr->second.end())
-        {
-            // 该类已经在里面了，忽略之
-            return;
-        }
+                    // 提取头文件作为 cpp 文件中包含的头文件
+                    String dir, title, ext;
+                    Dir::parsePath(path, dir, title, ext);
 
-        itr->second.insert(ASTNodeMapValue(hierarchyName, node));
+                    auto rval = mHeaderFiles.insert(HeaderFilesMapValue(title, StringList()));
+
+                    // 根据包含路径，搜索到对应路径，并提取头文件
+                    for (const auto &includePath : mIncludePathes)
+                    {
+                        String pattern = includePath + "*";
+                        String headerPath = path;
+                        if (StringUtil::match(headerPath, pattern, false))
+                        {
+                            StringUtil::replaceAll(headerPath, includePath, "");
+                            if (headerPath[0] == Dir::getNativeSeparator())
+                            {
+                                headerPath.erase(0, 1);
+                                rval.first->second.push_back(headerPath);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else if (!isTemplate)
+            {
+                // 非模板，那必须是工程文件才可以放入导出文件列表
+                String pattern = mProjectPath + "*";
+                if (!StringUtil::match(path, pattern, false))
+                {
+                    break;
+                }
+            }
+
+            String hierarchyName = node->getHierarchyName();
+            auto it = itr->second.find(hierarchyName);
+            if (it != itr->second.end())
+            {
+                // 该类已经在里面了，忽略之
+                break;
+            }
+
+            itr->second.insert(ASTNodeMapValue(hierarchyName, node));
+        } while (false);
     }
 
     //-------------------------------------------------------------------------
@@ -2254,34 +2389,34 @@ namespace Tiny3D
             String dir, title, ext;
             Dir::parsePath(val.first, dir, title, ext);
             String path = generatedPath + Dir::getNativeSeparator() + title + ".generated.cpp";
-                
-            if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_APPEND | FileDataStream::E_MODE_WRITE_ONLY))
-            {
-                // 文件打开失败
-                break;
-            }
 
             // 构造需要的头文件
             auto itr = mHeaderFiles.find(title);
             if (itr == mHeaderFiles.end())
             {
-                break;
+                continue;
             }
 
-            String headerPath = itr->second;
-            for (const auto &includePath : mIncludePathes)
+            // String headerPath = itr->second;
+            // for (const auto &includePath : mIncludePathes)
+            // {
+            //     String pattern = includePath + "*";
+            //     if (StringUtil::match(headerPath, pattern, false))
+            //     {
+            //         StringUtil::replaceAll(headerPath, includePath, "");
+            //         if (headerPath[0] == Dir::getNativeSeparator())
+            //         {
+            //             headerPath.erase(0, 1);
+            //         }
+            //     }
+            // }
+            
+            if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_APPEND | FileDataStream::E_MODE_WRITE_ONLY))
             {
-                String pattern = includePath + "*";
-                if (StringUtil::match(headerPath, pattern, false))
-                {
-                    StringUtil::replaceAll(headerPath, includePath, "");
-                    if (headerPath[0] == Dir::getNativeSeparator())
-                    {
-                        headerPath.erase(0, 1);
-                    }
-                }
+                // 文件打开失败
+                continue;
             }
-
+            
             // 文件头注释
             fs << "// Copyright (C) 2015-2020  Answer Wong" << std::endl;
             fs << "// Generated code exported from ReflectionPreprocessor." << std::endl;
@@ -2290,7 +2425,11 @@ namespace Tiny3D
             // 需要包含的头文件
             fs << std::endl;
             fs << "#include <rttr/registration>" << std::endl;
-            fs << "#include \"" << headerPath << (headerPath.empty() ? "" : "/") << title << ".h\"" << std::endl;
+            // fs << "#include \"" << headerPath << (headerPath.empty() ? "" : "/") << title << ".h\"" << std::endl;
+            for (const auto &header : itr->second)
+            {
+                fs << "#include \"" << header << "\"" << std::endl;
+            }
 
             // 开始注册类信息
             fs << std::endl << "RTTR_REGISTRATION" << std::endl;
@@ -2363,6 +2502,14 @@ namespace Tiny3D
             // int numOfInstParams = clang_Cursor_getNumTemplateArguments(cxCursor);
             
             CXType cxVarType = clang_getCursorType(cxCursor);
+            int numOfTemplateArg = clang_Type_getNumTemplateArguments(cxVarType);
+            
+            if (numOfTemplateArg == -1)
+            {
+                // 不是模板，跳过
+                break;
+            }
+            
             String varType = toString(clang_getTypeSpelling(cxVarType));
             // CXType cxCanonicalType = clang_getCanonicalType(cxVarType);
             // String canonicalType = toString(clang_getTypeSpelling(cxCanonicalType));
@@ -2371,7 +2518,8 @@ namespace Tiny3D
             String templateName = toString(clang_getCursorUSR(cxTemplateCursor));
             // CXType cxType = clang_getCursorType(cxCursorDecl);
             // String typeName = toString(clang_getTypeSpelling(cxType));
-            // String decl = toString(clang_getCursorUSR(cxCursorDecl));
+            String USR = toString(clang_getCursorUSR(cxCursorDecl));
+            // String decl = toString(clang_getCursorSpelling(cxCursorDecl));
 
             auto itrTemplate = mClassTemplates.find(templateName);
             if (itrTemplate == mClassTemplates.end())
@@ -2379,14 +2527,9 @@ namespace Tiny3D
                 // 居然没有对应模板，那就跳开吧
                 break;
             }
-            
-            int numOfTemplateArg = clang_Type_getNumTemplateArguments(cxVarType);
-            
-            if (numOfTemplateArg == -1)
-            {
-                // 不是模板，跳过
-                break;
-            }
+
+            const auto names = StringUtil::split2(varType, "::");
+            const String &name = names.back();
 
             StringArray actualParams;
             actualParams.reserve(numOfTemplateArg);
@@ -2436,14 +2579,19 @@ namespace Tiny3D
             }
             
             ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
-            parent->addChild(varType, templateInstance);
-            templateInstance->setName(varType);
+            parent->addChild(name, templateInstance);
+            templateInstance->setName(name);
 
             // 替换模板实参，变成模板类
             templateInstance->replaceTemplateParams(formalParams, actualParams);
 
             // 加入到导出文件
-            insertSourceFiles(templateInstance->FileInfo.Path, templateInstance);
+            String decl = name;
+            StringUtil::replaceAll(decl, "<", "_");
+            StringUtil::replaceAll(decl, ",", "_");
+            StringUtil::replaceAll(decl, ">", "_");
+            StringUtil::replaceAll(decl, " ", "");
+            insertSourceFiles(templateInstance->FileInfo.Path, templateInstance, true);
         } while (false);
         
         return ret;
@@ -2583,7 +2731,7 @@ namespace Tiny3D
             // functionTemplate->replaceTemplateParams(formalParams, actualParams);
 
             // 加入到导出文件
-            insertSourceFiles(functionInstance->FileInfo.Path, function);
+            insertSourceFiles(functionInstance->FileInfo.Path, function, true);
         } while (false);
         
         return ret;
