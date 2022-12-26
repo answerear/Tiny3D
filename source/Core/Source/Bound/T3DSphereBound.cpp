@@ -30,7 +30,7 @@ namespace Tiny3D
     SphereBoundPtr SphereBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         SphereBoundPtr bound = new SphereBound(uID);
-        bound->release();
+        // bound->release();
         return bound;
     }
 

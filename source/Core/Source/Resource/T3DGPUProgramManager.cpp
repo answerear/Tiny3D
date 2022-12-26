@@ -38,7 +38,7 @@ namespace Tiny3D
     ShaderManagerPtr ShaderManager::create()
     {
         ShaderManagerPtr mgr = new ShaderManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 
@@ -137,7 +137,7 @@ namespace Tiny3D
     GPUProgramManagerPtr GPUProgramManager::create()
     {
         GPUProgramManagerPtr mgr = new GPUProgramManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

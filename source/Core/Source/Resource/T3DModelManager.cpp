@@ -34,7 +34,7 @@ namespace Tiny3D
     ModelManagerPtr ModelManager::create()
     {
         ModelManagerPtr mgr = new ModelManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

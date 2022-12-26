@@ -36,6 +36,7 @@ namespace Tiny3D
     class T3D_ENGINE_API Meta : public Object
     {
         TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
         
     public:
         TENUM()
@@ -46,7 +47,6 @@ namespace Tiny3D
             kDir = 2
         };
 
-        TFUNCTION(RTTRAsConstructor)
         static MetaPtr create();
 
         virtual ~Meta();

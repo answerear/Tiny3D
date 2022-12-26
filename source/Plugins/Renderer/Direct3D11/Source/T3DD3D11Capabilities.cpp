@@ -36,7 +36,7 @@ namespace Tiny3D
         D3D11CapabilitiesPtr cap = new D3D11Capabilities();
         if (cap != nullptr && cap->init() == T3D_OK)
         {
-            cap->release();
+            // cap->release();
         }
         else
         {

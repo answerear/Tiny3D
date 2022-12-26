@@ -36,7 +36,7 @@ namespace Tiny3D
     PassPtr Pass::create(const String &name, Technique *tech)
     {
         PassPtr pass = new Pass(name, tech);
-        pass->release();
+        // pass->release();
         return pass;
     }
 

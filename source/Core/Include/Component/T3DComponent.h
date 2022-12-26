@@ -38,6 +38,7 @@ namespace Tiny3D
         friend class SceneNode;
 
         TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
      
     public:
         /**
@@ -62,6 +63,7 @@ namespace Tiny3D
          * @brief   Makes a deep copy of this object
          * @return  A copy of this object.
          */
+        TFUNCTION()
         virtual ComponentPtr clone() const = 0;
 
         /**
@@ -69,6 +71,7 @@ namespace Tiny3D
          * @brief   Gets the identifier
          * @return  The identifier.
          */
+        TPROPERTY(RTTRFuncName="ID", RTTRFuncType="getter", "Description"="UUID value")
         ID getID() const { return mID; }
 
         /**

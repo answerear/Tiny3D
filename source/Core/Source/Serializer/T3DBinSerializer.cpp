@@ -27,7 +27,7 @@ namespace Tiny3D
     BinSerializerPtr BinSerializer::create()
     {
         BinSerializerPtr serializer = new BinSerializer();
-        serializer->release();
+        // serializer->release();
         return serializer;
     }
 
@@ -47,7 +47,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BinSerializer::serialize(DataStream& stream, Object* object)
+    TResult BinSerializer::serialize(DataStream &stream, const RTTRObject &obj)
     {
         TResult ret = T3D_OK;
 
@@ -56,10 +56,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Object* BinSerializer::deserialize(DataStream& stream)
+    RTTRObject BinSerializer::deserialize(DataStream &stream)
     {
-        Object* object = nullptr;
+        RTTRObject ret;
 
-        return object;
+        return ret;
     }
 }

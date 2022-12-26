@@ -30,7 +30,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Object::Object()
-        : mReferCount(1)
+        : mReferCount(0)
     {
         ObjectTracer::getInstance().addObject(this);
     }

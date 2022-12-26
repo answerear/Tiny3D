@@ -38,7 +38,7 @@ namespace Tiny3D
     ComponentCreatorPtr ComponentCreator::create()
     {
         ComponentCreatorPtr creator = new ComponentCreator();
-        creator->release();
+        // creator->release();
         return creator;
     }
 

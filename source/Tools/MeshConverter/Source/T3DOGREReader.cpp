@@ -28,7 +28,7 @@ namespace Tiny3D
     OGREReaderPtr OGREReader::create()
     {
         OGREReaderPtr reader = new OGREReader();
-        reader->release();
+        // reader->release();
         return reader;
     }
 

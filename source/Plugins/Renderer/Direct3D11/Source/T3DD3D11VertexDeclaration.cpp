@@ -35,7 +35,7 @@ namespace Tiny3D
     D3D11VertexDeclarationPtr D3D11VertexDeclaration::create()
     {
         D3D11VertexDeclarationPtr decl = new D3D11VertexDeclaration();
-        decl->release();
+        // decl->release();
         return decl;
     }
 

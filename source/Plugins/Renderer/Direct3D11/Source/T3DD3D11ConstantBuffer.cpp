@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         D3D11ConstantBufferPtr ubo = new D3D11ConstantBuffer(
             bufSize, usage, mode);
-        ubo->release();
+        // ubo->release();
 
         if (ubo->init(buffer) != T3D_OK)
         {

@@ -32,7 +32,7 @@ namespace Tiny3D
     BinMaterialWriterPtr BinMaterialWriter::create()
     {
         BinMaterialWriterPtr writer = new BinMaterialWriter();
-        writer->release();
+        // writer->release();
         return writer;
     }
 

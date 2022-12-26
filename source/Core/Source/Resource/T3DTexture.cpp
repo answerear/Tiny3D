@@ -37,7 +37,7 @@ namespace Tiny3D
     {
         TexturePtr texture = new Texture(name, usage, access, mipmaps, 
             texWidth, texHeight, texUsage, texType, format);
-        texture->release();
+        // texture->release();
         return texture;
     }
 

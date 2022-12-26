@@ -61,7 +61,7 @@ namespace Tiny3D
         ID uID /* = E_CID_AUTOMATIC */)
     {
         GlobePtr sphere = new Globe(uID);
-        sphere->release();
+        // sphere->release();
 
         if (sphere->init(center, radius) != T3D_OK)
         {
@@ -253,7 +253,7 @@ namespace Tiny3D
     ComponentPtr Globe::clone() const
     {
         GlobePtr sphere = new Globe();
-        sphere->release();
+        // sphere->release();
 
         if (cloneProperties(sphere) != T3D_OK)
         {

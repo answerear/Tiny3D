@@ -37,7 +37,7 @@ namespace Tiny3D
     ShaderCrossPtr ShaderCross::create()
     {
         ShaderCrossPtr ptr = new ShaderCross();
-        ptr->release();
+        // ptr->release();
         return ptr;
     }
 

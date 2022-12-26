@@ -33,4 +33,12 @@
 #include <rttr/registration_friend>
 
 
+namespace Tiny3D
+{
+    using RTTRObject = rttr::instance;
+    using RTTRVariant = rttr::variant;
+    using RTTRType = rttr::type;
+}
+
+
 #endif  /*__T3D_SYSTEM_PREREQUISITES_H__*/

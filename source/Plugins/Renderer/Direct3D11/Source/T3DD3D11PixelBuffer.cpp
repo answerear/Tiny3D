@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         D3D11PixelBufferPtr pb = new D3D11PixelBuffer(width, 
             height, format, usage, mode, mipmaps);
-        pb->release();
+        // pb->release();
 
         if (pb->init(pixels) != T3D_OK)
         {

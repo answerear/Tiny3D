@@ -57,7 +57,7 @@ namespace Tiny3D
     DefaultSceneMgrPtr DefaultSceneMgr::create()
     {
         DefaultSceneMgrPtr mgr = new DefaultSceneMgr();
-        mgr->release();
+        // mgr->release();
 
         if (mgr->init() != T3D_OK)
         {

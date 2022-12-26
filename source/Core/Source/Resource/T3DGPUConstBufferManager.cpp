@@ -35,7 +35,7 @@ namespace Tiny3D
     GPUConstBufferManagerPtr GPUConstBufferManager::create()
     {
         GPUConstBufferManagerPtr mgr = new GPUConstBufferManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

@@ -31,8 +31,12 @@ namespace Tiny3D
      * @class   AabbBound
      * @brief   轴对齐碰撞体
      */
+    TCLASS()
     class T3D_ENGINE_API AabbBound : public Bound
     {
+         TRTTI_ENABLE(Bound)
+         TRTTI_FRIEND
+
     public:
         /**
          * @fn  static AabbBoundPtr AabbBound::create(SceneNode *node, 
@@ -56,6 +60,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
+        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
         virtual Type getType() const override;
 
         /**
@@ -64,6 +69,7 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  BoundPtr Bound::clone() const
          */
+        TFUNCTION()
         virtual ComponentPtr clone() const override;
 
         /**
@@ -71,6 +77,7 @@ namespace Tiny3D
          * @brief   获取轴对齐包围盒对象
          * @return  The align axis box.
          */
+        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="getter", "Description"="Aligned Axis Box")
         const Aabb &getAlignAxisBox() const 
         { 
             return mAabb; 
@@ -81,6 +88,7 @@ namespace Tiny3D
          * @brief   获取原始的没经过变换的轴对齐包围盒对象
          * @return  The align axis box.
          */
+        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="getter", "Description"="Original Aligned Axis Box")
         const Aabb& getOriginalAlignAxisBox() const
         {
             return mOriginalAabb;
@@ -97,6 +105,7 @@ namespace Tiny3D
          * @param   minZ    The minimum z coordinate.
          * @param   maxZ    The maximum z coordinate.
          */
+        TFUNCTION()
         void setParams(Real minX, Real maxX, Real minY, Real maxY, 
             Real minZ, Real maxZ);
 

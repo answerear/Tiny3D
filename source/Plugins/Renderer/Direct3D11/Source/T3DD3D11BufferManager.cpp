@@ -38,7 +38,7 @@ namespace Tiny3D
     D3D11BufferManagerPtr D3D11BufferManager::create()
     {
         D3D11BufferManagerPtr mgr = new D3D11BufferManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

@@ -31,7 +31,7 @@ namespace Tiny3D
     D3D11BlendStatePtr D3D11BlendState::create()
     {
         D3D11BlendStatePtr state = new D3D11BlendState();
-        state->release();
+        // state->release();
         return state;
     }
 
@@ -83,7 +83,7 @@ namespace Tiny3D
     D3D11DepthStencilStatePtr D3D11DepthStencilState::create()
     {
         D3D11DepthStencilStatePtr state = new D3D11DepthStencilState();
-        state->release();
+        // state->release();
         return state;
     }
 
@@ -136,7 +136,7 @@ namespace Tiny3D
     D3D11RasterizerStatePtr D3D11RasterizerState::create()
     {
         D3D11RasterizerStatePtr state = new D3D11RasterizerState();
-        state->release();
+        // state->release();
         return state;
     }
 
@@ -188,7 +188,7 @@ namespace Tiny3D
     D3D11SamplerStatePtr D3D11SamplerState::create()
     {
         D3D11SamplerStatePtr state = new D3D11SamplerState();
-        state->release();
+        // state->release();
         return state;
     }
 

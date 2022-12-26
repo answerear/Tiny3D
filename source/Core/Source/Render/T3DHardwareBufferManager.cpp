@@ -34,7 +34,7 @@ namespace Tiny3D
         HardwareBufferManagerBase *impl)
     {
         HardwareBufferManagerPtr mgr = new HardwareBufferManager(impl);
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

@@ -28,7 +28,7 @@ namespace Tiny3D
     BillboardPtr Billboard::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         BillboardPtr billboard = new Billboard(uID);
-        billboard->release();
+        // billboard->release();
         return billboard;
     }
 

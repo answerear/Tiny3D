@@ -29,7 +29,7 @@ namespace Tiny3D
     FrustumBoundPtr FrustumBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         FrustumBoundPtr bound = new FrustumBound(uID);
-        bound->release();
+        // bound->release();
         return bound;
     }
 

@@ -23,12 +23,41 @@
 
 #include "T3DSystemPrerequisites.h"
 #include "T3DSystem.h"
-
+#include "T3DObject.h"
+#include "T3DSmartPtr.h"
 
 namespace Tiny3D
 {
+    typedef SmartPtr<class TestObject> TestObjectPtr;
+    
     TCLASS()
-    class T3D_SYSTEM_API UUID
+    class T3D_SYSTEM_API TestObject : public Object
+    {
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
+        
+    public:
+        static TestObjectPtr create()
+        {
+            return new TestObject();
+        }
+
+        virtual ~TestObject() = default;
+
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter")
+        int getValue() const { return mValue; }
+
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter")
+        void setValue(int val) { mValue = val; }
+        
+    protected:
+        TestObject() = default;
+
+        int mValue = 10;
+    };
+    
+    TCLASS()
+    struct T3D_SYSTEM_API UUID
     {
         TRTTI_ENABLE()
         
@@ -54,12 +83,14 @@ namespace Tiny3D
         {
             values.low = other.values.low;
             values.high = other.values.high;
+            TestObj = other.TestObj;
         }
 
         UUID& operator =(const UUID& other)
         {
             values.low = other.values.low;
             values.high = other.values.high;
+            TestObj = other.TestObj;
             return *this;
         }
 
@@ -121,6 +152,9 @@ namespace Tiny3D
                 uint64_t    high;
             } values;
         };
+
+        TPROPERTY()
+        TestObjectPtr TestObj;
     };
 }
 

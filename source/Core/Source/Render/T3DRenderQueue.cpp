@@ -42,7 +42,7 @@ namespace Tiny3D
     RenderGroupPtr RenderGroup::create()
     {
         RenderGroupPtr group = new RenderGroup();
-        group->release();
+        // group->release();
         return group;
     }
 
@@ -231,7 +231,7 @@ namespace Tiny3D
     RenderQueuePtr RenderQueue::create()
     {
         RenderQueuePtr rq = new RenderQueue();
-        rq->release();
+        // rq->release();
         return rq;
     }
 

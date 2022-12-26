@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         D3D11BufferPtr buffer 
             = new D3D11Buffer(usage, mode);
-        buffer->release();
+        // buffer->release();
         if (buffer->init(type, dataSize, data, streamOut) != T3D_OK)
         {
             buffer = nullptr;

@@ -55,7 +55,7 @@ namespace Tiny3D
         ID uID /* = E_CID_AUTOMATIC */)
     {
         QuadPtr q = new Quad(uID);
-        q->release();
+        // q->release();
 
         if (q->init(quad, materialName) != T3D_OK)
         {
@@ -205,7 +205,7 @@ namespace Tiny3D
     ComponentPtr Quad::clone() const
     {
         QuadPtr quad = new Quad();
-        quad->release();
+        // quad->release();
 
         if (cloneProperties(quad) != T3D_OK)
         {

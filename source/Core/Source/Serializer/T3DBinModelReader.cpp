@@ -35,7 +35,7 @@ namespace Tiny3D
     BinModelReaderPtr BinModelReader::create()
     {
         BinModelReaderPtr reader = new BinModelReader();
-        reader->release();
+        // reader->release();
         return reader;
     }
 

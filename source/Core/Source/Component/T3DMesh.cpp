@@ -34,7 +34,7 @@ namespace Tiny3D
     MeshPtr Mesh::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         MeshPtr mesh = new Mesh(uID);
-        mesh->release();
+        // mesh->release();
         return mesh;
     }
 

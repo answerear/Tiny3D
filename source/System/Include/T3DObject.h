@@ -39,6 +39,8 @@ namespace Tiny3D
         T3D_DECLARE_CLASS();
         TRTTI_ENABLE();
 
+        template<typename T>
+        friend class SmartPtr;
     public:
         /**
          * @fn  Object::Object();
@@ -53,6 +55,17 @@ namespace Tiny3D
         virtual ~Object();
 
         /**
+         * @fn  uint32_t Object::referCount() const
+         * @brief   返回对象当前引用计数
+         * @return  An uint32_t.
+         */
+        uint32_t referCount() const
+        {
+            return mReferCount;
+        }
+
+    protected:
+        /**
          * @fn  Object Object::*acquire();
          * @brief   持有对象，让对象引用计数加一
          * @return  Null if it fails, else a pointer to an Object.
@@ -64,17 +77,7 @@ namespace Tiny3D
          * @brief   释放对象，让对象引用计数减一
          */
         void release();
-
-        /**
-         * @fn  uint32_t Object::referCount() const
-         * @brief   返回对象当前引用计数
-         * @return  An uint32_t.
-         */
-        uint32_t referCount() const
-        {
-            return mReferCount;
-        }
-
+        
     private:
         uint32_t    mReferCount;
     };

@@ -34,7 +34,7 @@ namespace Tiny3D
     BundleArchivePtr BundleArchive::create(const String &name)
     {
         BundleArchivePtr archive = new BundleArchive(name);
-        archive->release();
+        // archive->release();
         return archive;
     }
 

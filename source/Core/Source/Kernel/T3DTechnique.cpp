@@ -33,7 +33,7 @@ namespace Tiny3D
     TechniquePtr Technique::create(const String &name, Material *material)
     {
         TechniquePtr tech = new Technique(name, material);
-        tech->release();
+        // tech->release();
         return tech;
     }
 

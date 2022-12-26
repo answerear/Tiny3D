@@ -45,12 +45,12 @@ namespace Tiny3D
         /**
          * @brief   重写 Serializer::serialize() 接口
          */
-        TResult serialize(DataStream& stream, Object* object) override;
+        TResult serialize(DataStream &stream, const RTTRObject &obj) override;
 
         /**
          * @brief   重写 Serializer::deserialize() 接口
          */
-        Object* deserialize(DataStream& stream) override;
+        RTTRObject deserialize(DataStream &stream) override;
 
     protected:
         /**

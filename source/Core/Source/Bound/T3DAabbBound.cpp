@@ -30,7 +30,7 @@ namespace Tiny3D
     AabbBoundPtr AabbBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         AabbBoundPtr bound = new AabbBound(uID);
-        bound->release();
+        // bound->release();
         return bound;
     }
 

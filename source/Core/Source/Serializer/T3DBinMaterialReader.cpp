@@ -34,7 +34,7 @@ namespace Tiny3D
     BinMaterialReaderPtr BinMaterialReader::create(const BuiltinConstantMap &definitions)
     {
         BinMaterialReaderPtr reader = new BinMaterialReader(definitions);
-        reader->release();
+        // reader->release();
         return reader;
     }
 

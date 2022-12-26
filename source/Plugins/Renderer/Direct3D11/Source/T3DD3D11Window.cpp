@@ -34,7 +34,7 @@ namespace Tiny3D
     D3D11WindowPtr D3D11Window::create(const String &name)
     {
         D3D11WindowPtr window = new D3D11Window(name);
-        window->release();
+        // window->release();
         return window;
     }
 

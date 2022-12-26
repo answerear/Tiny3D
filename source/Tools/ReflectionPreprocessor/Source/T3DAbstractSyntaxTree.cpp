@@ -279,6 +279,10 @@ namespace Tiny3D
 
     void ASTStruct::dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const
     {
+        // Construct as pointer or as object
+        writer.Key("Construct As Pointer");
+        writer.Bool(ConstructAsPointer);
+        
         // Base Classes
         writer.Key("Base Classes");
         {
@@ -390,9 +394,46 @@ namespace Tiny3D
         strct->BaseClasses = BaseClasses;
         strct->FileInfo = FileInfo;
         strct->RTTIEnabled = RTTIEnabled;
+        strct->ConstructAsPointer = ConstructAsPointer;
         strct->RTTIBaseClasses = RTTIBaseClasses;
     }
     
+    //--------------------------------------------------------------------------
+
+    bool ASTStruct::isDerivedOf(const String &name) const
+    {
+        bool ret = false;
+        
+        StringList names = StringUtil::split2(name, "::");
+        auto itr = names.rbegin();
+        
+        ASTNode *parent = getParent();
+        while (parent != nullptr)
+        {
+            if (parent->getName() == *itr)
+            {
+                ret = true;
+                break;
+            }
+            parent = parent->getParent();
+        }
+
+        for (itr = names.rbegin(); itr != names.rend() && parent != nullptr; ++itr, parent = parent->getParent())
+        {
+            if (parent->getName() == *itr)
+            {
+                ret = true;
+            }
+            else
+            {
+                ret = false;
+                break;
+            }
+        }
+        
+        return ret;
+    }
+
     //--------------------------------------------------------------------------
 
     ASTNode *ASTClass::clone() const
@@ -507,6 +548,8 @@ namespace Tiny3D
             case Type::kConstructor:
                 {
                     // 构造函数
+                    ASTStruct *klass = static_cast<ASTStruct*>(getParent());
+                    
                     ASTConstructor *constructor = static_cast<ASTConstructor*>(child.second);
                     String params;
                     size_t i = 0;
@@ -527,6 +570,21 @@ namespace Tiny3D
                     {
                         fs << "\t\t.constructor<" << params << ">(&" << name << ")"; 
                     }
+
+                    fs << std::endl << "\t\t(" << std::endl;
+                    
+                    if (klass->ConstructAsPointer)
+                    {
+                        // 构造成指针
+                        fs << "\t\t\tpolicy::ctor::as_raw_ptr";
+                    }
+                    else
+                    {
+                        // 构造成普通对象
+                        fs << "\t\t\tpolicy::ctor::as_object";
+                    }
+
+                    fs << std::endl << "\t\t)";
 
                     constructor->generateMetaInfo(fs, 2);
                     

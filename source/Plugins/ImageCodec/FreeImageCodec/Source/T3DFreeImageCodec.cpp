@@ -55,7 +55,7 @@ namespace Tiny3D
     FreeImageCodecPtr FreeImageCodec::create()
     {
         FreeImageCodecPtr codec = new FreeImageCodec();
-        codec->release();
+        // codec->release();
         return codec;
     }
 

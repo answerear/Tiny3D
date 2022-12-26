@@ -33,7 +33,7 @@ namespace Tiny3D
     GPUConstBufferPtr GPUConstBuffer::create(const String& name, size_t bufSize)
     {
         GPUConstBufferPtr mgr = new GPUConstBuffer(name, bufSize);
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

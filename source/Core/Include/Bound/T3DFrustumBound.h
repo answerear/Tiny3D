@@ -31,6 +31,7 @@ namespace Tiny3D
      * @class   FrustumBound
      * @brief   A 3D engine api.
      */
+    TCLASS()
     class T3D_ENGINE_API FrustumBound : public Bound
     {
     public:
@@ -56,6 +57,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
+        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
         virtual Type getType() const override;
 
         /**
@@ -64,6 +66,7 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  BoundPtr Bound::clone() const
          */
+        TFUNCTION()
         virtual ComponentPtr clone() const override;
 
         /**
@@ -71,6 +74,7 @@ namespace Tiny3D
          * @brief   获取视锥体包围体对象
          * @return  The frustum.
          */
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter", "Description"="Frustum")
         const Frustum &getFrustum() const
         {
             return mFrustum;
@@ -81,6 +85,7 @@ namespace Tiny3D
          * @brief   获取未参与变换更新的原始视锥体包围体对象
          * @return  The frustum.
          */
+        TPROPERTY(RTTRFuncName="originalFrustum", RTTRFuncType="getter", "Description"="Original Frustum")
         const Frustum& getOriginalFrustum() const
         {
             return mOriginalFrustum;
@@ -93,6 +98,7 @@ namespace Tiny3D
          * @param   face    The face.
          * @param   plane   The plane.
          */
+        TFUNCTION()
         void setFrustumFace(Frustum::Face face, const Plane &plane);
 
         /**
@@ -102,6 +108,7 @@ namespace Tiny3D
          * @param [in,out]  plane       If non-null, the plane.
          * @param           planeCount  Number of planes.
          */
+        TFUNCTION()
         void setFrustumFaces(Plane *plane, size_t planeCount);
 
         /**

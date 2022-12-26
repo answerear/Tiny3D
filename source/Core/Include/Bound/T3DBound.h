@@ -40,7 +40,8 @@ namespace Tiny3D
         , public ITransformListener
     {
         TRTTI_ENABLE(Component)
-     
+        TRTTI_FRIEND
+
     public:
         /**
          * @enum    Type
@@ -67,7 +68,7 @@ namespace Tiny3D
          * @brief   获取碰撞体类型
          * @return  The type.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
         virtual Type getType() const = 0;
 
         /**
@@ -77,7 +78,7 @@ namespace Tiny3D
          *
          * ### remarks  相同分组ID的碰撞体相互之间不会检测碰撞.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="groupID", RTTRFuncType="setter", "Description"="Group ID")
         void setGroupID(ID groupID);
 
         /**
@@ -85,7 +86,7 @@ namespace Tiny3D
          * @brief   获取碰撞分组ID
          * @return  The group identifier.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="groupID", RTTRFuncType="getter", "Description"="Group ID")
         ID getGroupID() const;
 
         /**
@@ -94,7 +95,7 @@ namespace Tiny3D
          * @param   bound   The bound.
          * @return  True if it succeeds, false if it fails.
          */
-        TFUNCTION()
+        TPROPERTY()
         virtual bool test(BoundPtr bound) const;
 
         /**
@@ -102,7 +103,7 @@ namespace Tiny3D
          * @brief   设置碰撞相交检测源，源对象发起检测，非源对象是被动检测
          * @param [in]  isSource    : true 表示源对象.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="collisionSource", RTTRFuncType="setter", "Description"="Collision Source")
         void setCollisionSource(bool isSource);
 
         /**
@@ -110,7 +111,7 @@ namespace Tiny3D
          * @brief   获取是否碰撞相交检测源
          * @return  True if collision source, false if not.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="collisionSource", RTTRFuncType="getter", "Description"="Collision Source")
         bool isCollisionSource() const;
 
         /**
@@ -118,7 +119,7 @@ namespace Tiny3D
          * @brief   设置碰撞体是否有效
          * @param   isEnabled   True if is enabled, false if not.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="enable", RTTRFuncType="setter", "Description"="Enable")
         void setEnabled(bool isEnabled);
 
         /**
@@ -126,7 +127,7 @@ namespace Tiny3D
          * @brief   碰撞体是否有效
          * @return  True if enabled, false if not.
          */
-        TFUNCTION()
+        TPROPERTY(RTTRFuncName="enable", RTTRFuncType="getter", "Description"="Enable")
         bool isEnabled() const;
 
         /**
@@ -193,16 +194,9 @@ namespace Tiny3D
         virtual void updateTransform(const Transform3D *xform) override;
 
     private:
-        TPROPERTY()
         ID          mGroupID;           /**< 碰撞体分组ID */
-
-        TPROPERTY()
         bool        mIsMovable;         /**< 是否可移动碰撞体 */
-
-        TPROPERTY()
         bool        mIsCollisionSource; /**< 是否检测源碰撞体 */
-
-        TPROPERTY()
         bool        mIsEnabled;         /**< 是否开启碰撞检测 */
 
     protected:

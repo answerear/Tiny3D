@@ -35,7 +35,7 @@ namespace Tiny3D
     JsonMaterialReaderPtr JsonMaterialReader::create(const BuiltinConstantMap& definitions)
     {
         JsonMaterialReaderPtr reader = new JsonMaterialReader(definitions);
-        reader->release();
+        // reader->release();
         return reader;
     }
 

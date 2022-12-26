@@ -1123,6 +1123,46 @@ namespace Tiny3D
             // 把自己加到父结点上
             parent->addChild(name, klass);
 
+            // 如果是 Tiny3D::Object 派生类，默认就是构造出指针对象，否则看 specifiers 指定的标记来定
+            bool isDerivedOfbject = klass->isDerivedOf("Tiny3D::Object");
+            if (isDerivedOfbject)
+            {
+                klass->ConstructAsPointer = isDerivedOfbject;
+            }
+            else
+            {
+                bool constructAsPointer = false;
+
+                if (!isTemplate)
+                {
+                    if (isClass)
+                    {
+                        // 类默认构造是指针返回
+                        constructAsPointer = true;
+                    }
+                    else
+                    {
+                        // 结构体默认构造是普通对象返回
+                        constructAsPointer = false;
+                    }
+                }
+                
+                for (const auto &spec : itrSpec->second)
+                {
+                    // 如果有设置指示符构造返回类型，那就用指定的
+                    if (spec.name == kSpecConstructAsPointer)
+                    {
+                        constructAsPointer = true;
+                    }
+                    else if (spec.name == kSpecConstructAsObject)
+                    {
+                        constructAsPointer = false;
+                    }
+                }
+
+                klass->ConstructAsPointer = constructAsPointer;
+            }
+
             // 放到源码文件缓存中
             if (isTemplate)
             {
@@ -1384,30 +1424,36 @@ namespace Tiny3D
                 
                 if (cxParent.kind == CXCursor_ClassDecl
                     || cxParent.kind == CXCursor_ClassTemplate
-                    || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
+                    || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization
+                    || cxParent.kind == CXCursor_StructDecl)
                 {
                     // 是类函数，还需要类有打反射标签
                     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
-                        break;
+                        // 结构体成员函数，需要结构体有打反射标签
+                        CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, column, offset);
+                        if (!rval)
+                        {
+                            break;
+                        }
                     }
                     
                     isFriend = isRTTIFriend(itrFile->second, start, end);
                     // isFriend = itrFile->second->isFriend;
                 }
-                else if (cxParent.kind == CXCursor_StructDecl)
-                {
-                    // 结构体成员函数，需要结构体有打反射标签
-                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, column, offset);
-                    if (!rval)
-                    {
-                        break;
-                    }
-                    
-                    isFriend = isRTTIFriend(itrFile->second, start, end);
-                    // isFriend = itrFile->second->isFriend;
-                }
+                // else if (cxParent.kind == CXCursor_StructDecl)
+                // {
+                //     // 结构体成员函数，需要结构体有打反射标签
+                //     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, column, offset);
+                //     if (!rval)
+                //     {
+                //         break;
+                //     }
+                //     
+                //     isFriend = isRTTIFriend(itrFile->second, start, end);
+                //     // isFriend = itrFile->second->isFriend;
+                // }
 
                 // 查找是否有打标签，作为构造函数用
                 for (const auto &spec : itrSpec->second)
@@ -1433,24 +1479,30 @@ namespace Tiny3D
                 uint32_t start, end, column, offset;
                 if (cxParent.kind == CXCursor_ClassDecl
                     || cxParent.kind == CXCursor_ClassTemplate
-                    || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
+                    || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization
+                    || cxParent.kind == CXCursor_StructDecl)
                 {
                     // 类函数，需要类有打反射标签
                     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, classes, path, start, end, column, offset);
                     if (!rval)
                     {
-                        break;
+                        // 结构体函数，需要结构体有打反射标签
+                        CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
+                        if (!rval)
+                        {
+                            break;
+                        }
                     }
                 }
-                else if (cxParent.kind == CXCursor_StructDecl)
-                {
-                    // 结构体函数，需要结构体有打反射标签
-                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
-                    if (!rval)
-                    {
-                        break;
-                    }
-                }
+                // else if (cxParent.kind == CXCursor_StructDecl)
+                // {
+                //     // 结构体函数，需要结构体有打反射标签
+                //     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
+                //     if (!rval)
+                //     {
+                //         break;
+                //     }
+                // }
                 else
                 {
                     break;
@@ -1807,26 +1859,31 @@ namespace Tiny3D
             // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
                 || cxParent.kind == CXCursor_ClassTemplate
-                || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
+                || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization
+                || cxParent.kind == CXCursor_StructDecl)
             {
                 CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, classes, path, start, end, col, offset);
                 if (!rval)
                 {
-                    break;
+                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
+                    if (!rval)
+                    {
+                        break;
+                    }
                 }
 
                 isFriend = isRTTIFriend(itrFile->second, start, end);
             }
-            else if (cxParent.kind == CXCursor_StructDecl)
-            {
-                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
-                if (!rval)
-                {
-                    break;
-                }
-                
-                isFriend = isRTTIFriend(itrFile->second, start, end);
-            }
+            // else if (cxParent.kind == CXCursor_StructDecl)
+            // {
+            //     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
+            //     if (!rval)
+            //     {
+            //         break;
+            //     }
+            //     
+            //     isFriend = isRTTIFriend(itrFile->second, start, end);
+            // }
 
             auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
             if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)
@@ -1946,25 +2003,30 @@ namespace Tiny3D
             // 枚举属于 class 或 struct，看 class 或 struct 是否有打反射标签
             if (cxParent.kind == CXCursor_ClassDecl
                 || cxParent.kind == CXCursor_ClassTemplate
-                || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization)
+                || cxParent.kind == CXCursor_ClassTemplatePartialSpecialization
+                || cxParent.kind == CXCursor_StructDecl)
             {
                 CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, classes, path, start, end, col, offset);
                 if (!rval)
                 {
-                    break;
+                    CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
+                    if (!rval)
+                    {
+                        break;
+                    }
                 }
 
                 isFriend = isRTTIFriend(itrFile->second, start, end);
             }
-            else if (cxParent.kind == CXCursor_StructDecl)
-            {
-                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
-                if (!rval)
-                {
-                    break;
-                }
-                isFriend = isRTTIFriend(itrFile->second, start, end);
-            }
+            // else if (cxParent.kind == CXCursor_StructDecl)
+            // {
+            //     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, col, offset);
+            //     if (!rval)
+            //     {
+            //         break;
+            //     }
+            //     isFriend = isRTTIFriend(itrFile->second, start, end);
+            // }
 
             auto cxxAccess = clang_getCXXAccessSpecifier(cxCursor);
             if ((cxxAccess == CX_CXXPrivate || cxxAccess == CX_CXXProtected)

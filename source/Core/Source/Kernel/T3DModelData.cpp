@@ -27,7 +27,7 @@ namespace Tiny3D
     NodeDataPtr NodeData::create(const String &name)
     {
         NodeDataPtr data = new NodeData(name);
-        data->release();
+        // data->release();
         return data;
     }
 
@@ -63,7 +63,7 @@ namespace Tiny3D
         const Vector3 &translation)
     {
         KeyFrameDataTPtr keyframe = new KeyFrameDataT(timestamp, translation);
-        keyframe->release();
+        // keyframe->release();
         return keyframe;
     }
 
@@ -89,7 +89,7 @@ namespace Tiny3D
         const Quaternion &orientation)
     {
         KeyFrameDataRPtr keyframe = new KeyFrameDataR(timestamp, orientation);
-        keyframe->release();
+        // keyframe->release();
         return keyframe;
     }
 
@@ -116,7 +116,7 @@ namespace Tiny3D
         const Vector3 &scaling)
     {
         KeyFrameDataSPtr keyframe = new KeyFrameDataS(timestamp, scaling);
-        keyframe->release();
+        // keyframe->release();
         return keyframe;
     }
 
@@ -141,7 +141,7 @@ namespace Tiny3D
     ActionDataPtr ActionData::create(const String &name, int32_t duration)
     {
         ActionDataPtr action = new ActionData(name, duration);
-        action->release();
+        // action->release();
         return action;
     }
 
@@ -162,7 +162,7 @@ namespace Tiny3D
     {
         SubMeshDataPtr submesh = new SubMeshData(name, materialName, priType, 
             is16Bits, indexCount);
-        submesh->release();
+        // submesh->release();
         return submesh;
     }
 
@@ -184,7 +184,7 @@ namespace Tiny3D
     VertexDataPtr VertexData::create(const String &name)
     {
         VertexDataPtr data = new VertexData(name);
-        data->release();
+        // data->release();
         return data;
     }
 
@@ -204,7 +204,7 @@ namespace Tiny3D
     MeshDataPtr MeshData::create(const String &name)
     {
         MeshDataPtr mesh = new MeshData(name);
-        mesh->release();
+        // mesh->release();
         return mesh;
     }
 

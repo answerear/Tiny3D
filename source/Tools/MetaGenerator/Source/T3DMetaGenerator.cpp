@@ -160,6 +160,7 @@ namespace Tiny3D
 #if 1
             MetaPtr meta = Meta::create();
             meta->uuid = UUID::generate();
+            meta->uuid.TestObj->setValue(100);
             meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
 
             FileDataStream fs;
@@ -177,7 +178,7 @@ namespace Tiny3D
             {
                 auto serializer = SerializerManager::create();
                 serializer->setFileMode(SerializerManager::FileMode::kText);
-                meta = static_cast<Meta*>(serializer->deserialize(fs));
+                meta = serializer->deserialize<Meta>(fs);
                 fs.close();
             }
 #else

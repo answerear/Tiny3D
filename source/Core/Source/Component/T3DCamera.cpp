@@ -34,7 +34,7 @@ namespace Tiny3D
     CameraPtr Camera::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         CameraPtr camera = new Camera(uID);
-        camera->release();
+        // camera->release();
 
         if (camera->init() != T3D_OK)
         {

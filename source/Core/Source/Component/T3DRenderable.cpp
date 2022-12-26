@@ -19,7 +19,7 @@
 
 
 #include "Component/T3DRenderable.h"
-#include "Scene/T3DSceneNode.h"
+// #include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D

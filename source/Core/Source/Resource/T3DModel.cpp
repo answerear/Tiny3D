@@ -46,7 +46,7 @@ namespace Tiny3D
     ModelPtr Model::create(const String &name)
     {
         ModelPtr mesh = new Model(name);
-        mesh->release();
+        // mesh->release();
         return mesh;
     }
 

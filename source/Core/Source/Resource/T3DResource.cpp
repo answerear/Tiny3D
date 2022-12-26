@@ -27,7 +27,7 @@ namespace Tiny3D
     MetaPtr Meta::create()
     {
         MetaPtr meta = new Meta();
-        meta->release();
+        // meta->release();
         return meta;
     }
 

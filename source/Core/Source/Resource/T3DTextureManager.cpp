@@ -32,7 +32,7 @@ namespace Tiny3D
     TextureManagerPtr TextureManager::create()
     {
         TextureManagerPtr mgr = new TextureManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

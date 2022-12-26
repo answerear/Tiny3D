@@ -99,7 +99,7 @@ namespace Tiny3D
     ShaderCompilerPtr ShaderCompiler::create()
     {
         ShaderCompilerPtr compiler = new ShaderCompiler();
-        compiler->release();
+        // compiler->release();
         return compiler;
     }
 

@@ -37,7 +37,7 @@ namespace Tiny3D
     {
         D3D11VertexBufferPtr vb = new D3D11VertexBuffer(
             vertexSize, vertexCount, usage, mode);
-        vb->release();
+        // vb->release();
         if (vb->init(vertices) != T3D_OK)
         {
             vb = nullptr;

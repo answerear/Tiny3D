@@ -33,7 +33,7 @@ namespace Tiny3D
     MaterialManagerPtr MaterialManager::create()
     {
         MaterialManagerPtr mgr = new MaterialManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

@@ -37,7 +37,7 @@ namespace Tiny3D
     {
         D3D11IndexBufferPtr ibo = new D3D11IndexBuffer(
             indexType, indexCount, usage, mode);
-        ibo->release();
+        // ibo->release();
 
         if (ibo->init(indices) != T3D_OK)
         {

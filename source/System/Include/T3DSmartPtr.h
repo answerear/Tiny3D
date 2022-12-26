@@ -49,11 +49,15 @@ namespace Tiny3D
      * @brief   智能指针类
      * @tparam  T   Generic type parameter.
      */
-    TCLASS()
+    // TCLASS()
     template <typename T>
     class SmartPtr
     {
+        // TRTTI_ENABLE()
+        
     public:
+        typedef T element_type;
+        
         static const SmartPtr NULL_PTR; /**< The null pointer */
 
         /**
@@ -250,6 +254,10 @@ namespace Tiny3D
             return *this;
         }
 
+        T *get() const
+        {
+            return (T*)mReferObject;
+        }
     protected:
         Object  *mReferObject;  /**< The refer object */
     };
@@ -267,5 +275,41 @@ namespace Tiny3D
             typedef SmartPtr<classname> classname##Ptr
 }
 
+namespace rttr
+{
+    class type;
+
+    template<typename T>
+    struct wrapper_mapper<Tiny3D::SmartPtr<T>>
+    {
+        using wrapped_type = decltype(Tiny3D::SmartPtr<T>().get());
+        using type = Tiny3D::SmartPtr<T>;
+
+        static RTTR_INLINE wrapped_type get(const type& obj)
+        {
+            return obj.get();
+        }
+
+        static RTTR_INLINE type create(const wrapped_type& t)
+        {
+            return type(t);
+        }
+
+        template<typename U>
+        static Tiny3D::SmartPtr<U> convert(const type& source, bool& ok)
+        {
+            if (auto p = rttr_cast<typename Tiny3D::SmartPtr<U>::element_type*>(source.get()))
+            {
+                ok = true;
+                return Tiny3D::SmartPtr<U>(source, p);
+            }
+            else
+            {
+                ok = false;
+                return Tiny3D::SmartPtr<U>();
+            }
+        }
+    };
+}
 
 #endif  /*__T3D_SMART_PTR_H__*/

@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         ViewportPtr viewport = new Viewport(camera, target, left, top, 
             width, height, nZOrder);
-        viewport->release();
+        // viewport->release();
         return viewport;
     }
 

@@ -346,7 +346,7 @@ namespace Tiny3D
     JsonSerializerPtr JsonSerializer::create()
     {
         JsonSerializerPtr serializer = new JsonSerializer();
-        serializer->release();
+        // serializer->release();
         return serializer;
     }
 
@@ -570,7 +570,9 @@ namespace Tiny3D
 
     void WriteObject(rapidjson::PrettyWriter<JsonStream> &writer, const rttr::instance &obj)
     {
-        const auto className = obj.get_derived_type().get_name();
+        const instance obj2 = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+        
+        const auto className = obj2.get_derived_type().get_name();
         
         // Type
         writer.Key(RTTI_TYPE);
@@ -579,15 +581,14 @@ namespace Tiny3D
         // Properties
         writer.Key(RTTI_VALUE);
         writer.StartObject();
-        const instance obj2 = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
 
-        auto prop_list = obj.get_derived_type().get_properties();
+        auto prop_list = obj2.get_derived_type().get_properties();
         for (auto prop : prop_list)
         {
             if (prop.get_metadata("NO_SERIALIZE"))
                 continue;
 
-            variant prop_value = prop.get_value(obj);
+            variant prop_value = prop.get_value(obj2);
             if (!prop_value)
                 continue; // cannot serialize, because we cannot retrieve the value
 
@@ -596,15 +597,13 @@ namespace Tiny3D
         writer.EndObject();
     }
     
-    TResult JsonSerializer::serialize(DataStream& stream, Object* object)
+    TResult JsonSerializer::serialize(DataStream &stream, const RTTRObject &obj)
     {
         TResult ret = T3D_OK;
 
         JsonStream os(stream);
         PrettyWriter<JsonStream> writer(os);
 
-        instance obj(*object);
-        
         writer.StartObject();
         WriteObject(writer, obj);        
         writer.EndObject();
@@ -678,6 +677,8 @@ namespace Tiny3D
                 klass.destroy(obj);
                 break;
             }
+
+            obj = obj.get_type().get_raw_type().is_wrapper() ? obj.extract_wrapped_value() : obj;
             
             const auto &value = itr->value;
 
@@ -699,22 +700,35 @@ namespace Tiny3D
                 {
                     // property name
                     const auto &name = it->name;
-                        
+
                     // property type & value
                     variant prop = ReadObject(it->value);
-                    bool ret = klass.set_property_value(name.GetString(), obj, prop);
-                    T3D_ASSERT(ret);
+                    auto pro = klass.get_property(name.GetString());
+                    bool isWrapper = pro.get_type().get_raw_type().is_wrapper();
+                    if (isWrapper)
+                    {
+                        // pro.set_value("", prop);
+                        bool rt = prop.convert(type::get<SmartPtr<Object>>());
+                        bool ret = klass.set_property_value(name.GetString(), obj, pro);
+                        T3D_ASSERT(ret);
+                    }
+                    else
+                    {
+                        bool ret = klass.set_property_value(name.GetString(), obj, prop);
+                        T3D_ASSERT(ret);
+                    }
+                    
                 }
-            }            
+            }
         } while (false);
         
         return obj;
     }
     
-    Object* JsonSerializer::deserialize(DataStream& stream)
+    RTTRObject JsonSerializer::deserialize(DataStream &stream)
     {
-        Object* object = nullptr;
-
+        RTTRObject ret;
+        
         do
         {
             JsonStream is(stream);
@@ -728,11 +742,9 @@ namespace Tiny3D
             }
 
             T3D_ASSERT(doc.IsObject());
-            variant var = ReadObject(doc);
-            object = var.get_value<Object*>();
-        }
-        while (false);
+            return ReadObject(doc);
+        } while (false);
         
-        return object;
+        return ret;
     }
 }

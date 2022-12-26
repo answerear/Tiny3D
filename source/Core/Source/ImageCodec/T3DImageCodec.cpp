@@ -36,7 +36,7 @@ namespace Tiny3D
     ImageCodecPtr ImageCodec::create()
     {
         ImageCodecPtr codec = new ImageCodec();
-        codec->release();
+        // codec->release();
         return codec;
     }
 

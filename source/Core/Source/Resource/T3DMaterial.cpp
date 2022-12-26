@@ -42,7 +42,7 @@ namespace Tiny3D
     MaterialPtr Material::create(const String &name, MaterialType type)
     {
         MaterialPtr material = new Material(name, type);
-        material->release();
+        // material->release();
         return material;
     }
 

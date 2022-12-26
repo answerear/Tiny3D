@@ -67,6 +67,7 @@ namespace Tiny3D
             uuid.bytes[i] = (uint8_t)rc;
         }
 
+        uuid.TestObj = TestObject::create();
         return uuid;
     }
 
@@ -74,7 +75,7 @@ namespace Tiny3D
     {
         std::stringstream ss;
 
-        for (uint32_t i = 0; i < kDefaultLength; i++)
+        for (int32_t i = kDefaultLength - 1; i >= 0; i--)
         {
             std::stringstream hexstream;
             hexstream << std::hex << (uint32_t)bytes[i];
@@ -87,7 +88,7 @@ namespace Tiny3D
 
     void UUID::fromString(const String& str)
     {
-        for (uint32_t i = 0; i < kDefaultLength; i++)
+        for (int32_t i = 0; i < kDefaultLength; i++)
         {
             std::stringstream ss;
             //ss.put('0');
@@ -96,7 +97,7 @@ namespace Tiny3D
             ss.put(str[(i<<1)+1]);
             uint32_t val;
             ss >> std::hex >> val;
-            bytes[i] = val;
+            bytes[kDefaultLength-i-1] = val;
             ss.str().clear();
         }
     }

@@ -35,7 +35,7 @@ namespace Tiny3D
     JsonModelWriterPtr JsonModelWriter::create()
     {
         JsonModelWriterPtr writer = new JsonModelWriter();
-        writer->release();
+        // writer->release();
         return writer;
     }
 

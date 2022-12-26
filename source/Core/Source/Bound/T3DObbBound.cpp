@@ -30,7 +30,7 @@ namespace Tiny3D
     ObbBoundPtr ObbBound::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         ObbBoundPtr bound = new ObbBound(uID);
-        bound->release();
+        // bound->release();
         return bound;
     }
 

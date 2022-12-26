@@ -34,7 +34,7 @@ namespace Tiny3D
         const String &content)
     {
         D3D11PixelShaderPtr shader = new D3D11PixelShader(name, content);
-        shader->release();
+        // shader->release();
         return shader;
     }
 
@@ -152,7 +152,7 @@ namespace Tiny3D
     ResourcePtr D3D11PixelShader::clone() const
     {
         D3D11PixelShaderPtr shader = new D3D11PixelShader(getName(), "");
-        shader->release();
+        // shader->release();
 
         TResult ret = T3D_OK;
 

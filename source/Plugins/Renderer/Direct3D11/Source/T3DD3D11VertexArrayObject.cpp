@@ -34,7 +34,7 @@ namespace Tiny3D
     D3D11VertexArrayObjectPtr D3D11VertexArrayObject::create(bool useIndices)
     {
         D3D11VertexArrayObjectPtr vao = new D3D11VertexArrayObject(useIndices);
-        vao->release();
+        // vao->release();
         return vao;
     }
 

@@ -44,7 +44,7 @@ namespace Tiny3D
     SerializerManagerPtr SerializerManager::create()
     {
         SerializerManagerPtr mgr = new SerializerManager();
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 
@@ -79,7 +79,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SerializerManager::serialize(DataStream& stream, Object* object)
+    TResult SerializerManager::serializeObject(DataStream &stream, const RTTRObject &obj)
     {
         TResult ret = T3D_OK;
 
@@ -87,7 +87,7 @@ namespace Tiny3D
 
         if (serializer != nullptr)
         {
-            ret = serializer->serialize(stream, object);
+            ret = serializer->serialize(stream, obj);
         }
 
         return ret;
@@ -95,18 +95,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Object* SerializerManager::deserialize(DataStream& stream)
+    RTTRObject SerializerManager::deserializeObject(DataStream &stream)
     {
-        Object* object = nullptr;
-
         SerializerPtr serializer = createSerializer();
 
         if (serializer != nullptr)
         {
-            object = serializer->deserialize(stream);
+            return serializer->deserialize(stream);
         }
 
-        return object;
+        return RTTRObject();
     }
 
     //--------------------------------------------------------------------------

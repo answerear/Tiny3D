@@ -28,7 +28,7 @@ namespace Tiny3D
     LightPtr Light::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         LightPtr light = new Light(uID);
-        light->release();
+        // light->release();
         return light;
     }
 

@@ -34,7 +34,7 @@ namespace Tiny3D
     BinModelWriterPtr BinModelWriter::create()
     {
         BinModelWriterPtr writer = new BinModelWriter();
-        writer->release();
+        // writer->release();
         return writer;
     }
 

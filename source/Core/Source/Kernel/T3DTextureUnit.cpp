@@ -36,7 +36,7 @@ namespace Tiny3D
     TextureUnitPtr TextureUnit::create(const String &name, Pass *pass)
     {
         TextureUnitPtr unit = new TextureUnit(name, pass);
-        unit->release();
+        // unit->release();
         return unit;
     }
 

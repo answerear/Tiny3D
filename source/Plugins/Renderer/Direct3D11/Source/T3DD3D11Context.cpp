@@ -46,7 +46,7 @@ namespace Tiny3D
     D3D11ContextPtr D3D11Context::create()
     {
         D3D11ContextPtr renderer = new D3D11Context();
-        renderer->release();
+        // renderer->release();
         return renderer;
     }
 
@@ -200,8 +200,8 @@ namespace Tiny3D
             ret = window->create(param, paramEx);
             if (T3D_FAILED(ret))
             {
-                window->release();
-                window = nullptr;
+                // window->release();
+                // window = nullptr;
                 break;
             }
 

@@ -29,7 +29,7 @@ namespace Tiny3D
     Transform3DPtr Transform3D::create(ID uID /* = E_CID_AUTOMATIC */)
     {
         Transform3DPtr node = new Transform3D(uID);
-        node->release();
+        // node->release();
         return node;
     }
 

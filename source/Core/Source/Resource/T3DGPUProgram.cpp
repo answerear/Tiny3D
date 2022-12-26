@@ -35,7 +35,7 @@ namespace Tiny3D
         uint32_t slot)
     {
         GPUConstBufferRefPtr buffer = new GPUConstBufferRef(name, slot);
-        buffer->release();
+        // buffer->release();
         return buffer;
     }
 
@@ -64,7 +64,7 @@ namespace Tiny3D
     GPUProgramRefPtr GPUProgramRef::create(const String& name)
     {
         GPUProgramRefPtr program = new GPUProgramRef(name);
-        program->release();
+        // program->release();
         return program;
     }
 

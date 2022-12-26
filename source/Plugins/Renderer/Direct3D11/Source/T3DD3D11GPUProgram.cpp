@@ -33,7 +33,7 @@ namespace Tiny3D
     D3D11GPUProgramPtr D3D11GPUProgram::create(const String &name)
     {
         D3D11GPUProgramPtr program = new D3D11GPUProgram(name);
-        program->release();
+        // program->release();
         return program;
     }
 

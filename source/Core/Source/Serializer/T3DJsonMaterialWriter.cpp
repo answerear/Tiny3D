@@ -32,7 +32,7 @@ namespace Tiny3D
     JsonMaterialWriterPtr JsonMaterialWriter::create()
     {
         JsonMaterialWriterPtr writer = new JsonMaterialWriter();
-        writer->release();
+        // writer->release();
         return writer;
     }
 

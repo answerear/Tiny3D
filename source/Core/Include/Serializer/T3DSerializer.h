@@ -35,7 +35,6 @@ namespace Tiny3D
 
     struct FileObject
     {
-    public:
         FileObject();
 
         char        magic[4];   /**< 文件魔数 */
@@ -53,25 +52,24 @@ namespace Tiny3D
 
     public:
         /**
-         * @brief   序列化对象到数据流对象中。 该接口把类型一起序列化
-         * @param [in,out] stream  : 数据流对象
-         * @param [in] object       : 要序列化的对象
-         * @return  序列化成功返回 T3D_OK .
-         * @see     serializeWithoutType()
+         * @brief 序列化对象到数据流对象中
+         * @param [in,out] stream   : 数据流对象
+         * @param [in] obj          : 要序列化的可反射对象
+         * @return 序列化成功返回 T3D_OK .
+         * @remarks 序列化的时候把数据和类型一起序列化保存起来，方便反序列化生成对象
          */
-        virtual TResult serialize(DataStream &stream, Object *object) = 0;
+        virtual TResult serialize(DataStream &stream, const RTTRObject &obj) = 0;
 
         /**
-         * @brief   从数据流中反序列化生成对象. 
+         * @brief 从数据流中反序列化生成对象. 
          *          该接口借助序列化时候保存了类型，能自动还原所有类型和数据.
-         * @param [in,out] stream  : 数据流对象
-         * @return 反序列化成功返回一个对象
-         * @remarks 由于序列化的时候保存了类型信息，所以反序列化的时候能类型
+         * @param [in,out] stream   : 数据流对象
+         * @param [in,out] obj      : 返回的可序列化对象
+         * @return 反序列化成功返回 T3D_OK .
+         * @remarks 由于序列化的时候保存了类型信息，所以反序列化的时候能把类型
          *          和数据还原。
-         * @see     serializeWithType()
-         * @see     deserializeWithoutType()
          */
-        virtual Object* deserialize(DataStream& stream) = 0;
+        virtual RTTRObject deserialize(DataStream &stream) = 0;
     };
 }
 

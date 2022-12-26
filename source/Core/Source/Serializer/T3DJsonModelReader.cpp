@@ -36,7 +36,7 @@ namespace Tiny3D
     JsonModelReaderPtr JsonModelReader::create()
     {
         JsonModelReaderPtr reader = new JsonModelReader();
-        reader->release();
+        // reader->release();
         return reader;
     }
 

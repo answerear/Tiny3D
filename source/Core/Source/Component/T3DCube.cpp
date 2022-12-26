@@ -55,7 +55,7 @@ namespace Tiny3D
         ID uID /* = E_CID_AUTOMATIC */)
     {
         CubePtr box = new Cube(uID);
-        box->release();
+        // box->release();
         
         if (box->init(center, extent) != T3D_OK)
         {
@@ -286,7 +286,7 @@ namespace Tiny3D
     ComponentPtr Cube::clone() const
     {
         CubePtr box = new Cube();
-        box->release();
+        // box->release();
 
         if (cloneProperties(box) != T3D_OK)
         {

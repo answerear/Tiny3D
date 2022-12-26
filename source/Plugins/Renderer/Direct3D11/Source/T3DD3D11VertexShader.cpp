@@ -34,7 +34,7 @@ namespace Tiny3D
         const String &content)
     {
         D3D11VertexShaderPtr shader = new D3D11VertexShader(name, content);
-        shader->release();
+        // shader->release();
         return shader;
     }
 
@@ -150,7 +150,7 @@ namespace Tiny3D
     ResourcePtr D3D11VertexShader::clone() const
     {
         D3D11VertexShaderPtr shader = new D3D11VertexShader(getName(), "");
-        shader->release();
+        // shader->release();
 
         TResult ret = T3D_OK;
 

@@ -31,6 +31,7 @@ namespace Tiny3D
      * @class   ObbBound
      * @brief   有向包围盒碰撞体
      */
+    TCLASS()
     class T3D_ENGINE_API ObbBound : public Bound
     {
     public:

@@ -44,7 +44,7 @@ namespace Tiny3D
     SceneNodePtr SceneNode::create(ID uID /* = E_NID_AUTOMATIC */)
     {
         SceneNodePtr node = new SceneNode(uID);
-        node->release();
+        // node->release();
         return node;
     }
 

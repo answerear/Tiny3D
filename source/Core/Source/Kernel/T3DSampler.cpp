@@ -33,7 +33,7 @@ namespace Tiny3D
     SamplerPtr Sampler::create(const String& name)
     {
         SamplerPtr sampler = new Sampler(name);
-        sampler->release();
+        // sampler->release();
         return sampler;
     }
 

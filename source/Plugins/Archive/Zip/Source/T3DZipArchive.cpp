@@ -38,7 +38,7 @@ namespace Tiny3D
     ZipArchivePtr ZipArchive::create(const String &name)
     {
         ZipArchivePtr archive = new ZipArchive(name);
-        archive->release();
+        // archive->release();
         return archive;
     }
 

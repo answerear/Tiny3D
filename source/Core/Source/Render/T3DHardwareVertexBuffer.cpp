@@ -178,7 +178,7 @@ namespace Tiny3D
     VertexDeclarationPtr VertexDeclaration::create()
     {
         VertexDeclarationPtr decl = new VertexDeclaration();
-        decl->release();
+        // decl->release();
         return decl;
     }
 

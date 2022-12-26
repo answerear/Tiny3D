@@ -34,7 +34,7 @@ namespace Tiny3D
     SceneManagerPtr SceneManager::create(SceneManagerBase *impl)
     {
         SceneManagerPtr mgr = new SceneManager(impl);
-        mgr->release();
+        // mgr->release();
         return mgr;
     }
 

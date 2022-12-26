@@ -40,7 +40,7 @@ namespace Tiny3D
     FBXReaderPtr FBXReader::create(bool isTxt, const String &name)
     {
         FBXReaderPtr reader = new FBXReader(isTxt, name);
-        reader->release();
+        // reader->release();
         return reader;
     }
 

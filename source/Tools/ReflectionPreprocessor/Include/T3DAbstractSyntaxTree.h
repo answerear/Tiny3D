@@ -40,6 +40,8 @@ namespace Tiny3D
     const String kSpecPropertyGetter = "\"getter\"";
     const String kSpecPropertySetter = "\"setter\"";
     const String kSpecAsConstructor = "RTTRAsConstructor";
+    const String kSpecConstructAsPointer = "RTTRConstructAsPointer";
+    const String kSpecConstructAsObject = "RTTRConstructAsObject";
 
     struct Specifier
     {
@@ -230,7 +232,7 @@ namespace Tiny3D
          * @param [in] actuals : 实参
          */
         virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals);
-        
+
         TList<Specifier>    *Specifiers;        /// 反射属性说明符
 
     protected:
@@ -315,6 +317,7 @@ namespace Tiny3D
         ASTStruct(const String &name)
             : ASTNode(name)
             , RTTIEnabled(false)
+            , ConstructAsPointer(false)
             , RTTIBaseClasses(nullptr)
         {}
 
@@ -333,6 +336,11 @@ namespace Tiny3D
         virtual ASTNode *clone() const override;
 
         virtual void cloneProperties(ASTNode *newNode) const override;
+
+        /**
+         * @brief 是否指定类名的派生类
+         */
+        bool isDerivedOf(const String &name) const;
         
     protected:
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
@@ -341,6 +349,7 @@ namespace Tiny3D
         ASTBaseClasses      BaseClasses;        /// 基类列表
         ASTFileInfo         FileInfo;           /// 结构体所在文件信息
         bool                RTTIEnabled;        /// 是否开启了反射功能
+        bool                ConstructAsPointer; /// 构造返回指针或者普通对象
         TList<String>       *RTTIBaseClasses;   /// 反射的基类列表
     };
 

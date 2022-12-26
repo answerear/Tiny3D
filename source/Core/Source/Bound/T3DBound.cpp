@@ -112,37 +112,37 @@ namespace Tiny3D
     }
 }
 
-//------------------------------------------------------------------------------
-//                                  RTTR
-//------------------------------------------------------------------------------
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-
-    registration::class_<Tiny3D::Bound>("Tiny3D::Bound")
-        .enumeration<Tiny3D::Bound::Type>("Tiny3D::Bound::Type")
-        (
-            value("NONE", Tiny3D::Bound::Type::NONE),
-            value("SPHERE", Tiny3D::Bound::Type::SPHERE),
-            value("AABB", Tiny3D::Bound::Type::AABB),
-            value("OBB", Tiny3D::Bound::Type::OBB),
-            value("FRUSTUM", Tiny3D::Bound::Type::FRUSTUM)
-        )
-        .method("getType", &Tiny3D::Bound::getType)
-        .method("test", &Tiny3D::Bound::test)
-        .method("getRenderable", &Tiny3D::Bound::getRenderable)
-        .property("GroupID", &Tiny3D::Bound::getGroupID, &Tiny3D::Bound::setGroupID)
-        (
-            metadata(TXT_DESCRIPTION, "Group ID is used to divide different bounds.")
-        )
-        .property("CollsionSource", &Tiny3D::Bound::isCollisionSource, &Tiny3D::Bound::setCollisionSource)
-        (
-            metadata(TXT_DESCRIPTION, "The flag is used to mark the collision detection source.")
-        )
-        .property("Enabled", &Tiny3D::Bound::isEnabled, &Tiny3D::Bound::setEnabled)
-        (
-            metadata(TXT_DESCRIPTION, "The flag is used to the bounding volume is valid or not.")
-        );
-}
+// //------------------------------------------------------------------------------
+// //                                  RTTR
+// //------------------------------------------------------------------------------
+//
+// RTTR_REGISTRATION
+// {
+//     using namespace rttr;
+//
+//     registration::class_<Tiny3D::Bound>("Tiny3D::Bound")
+//         .enumeration<Tiny3D::Bound::Type>("Tiny3D::Bound::Type")
+//         (
+//             value("NONE", Tiny3D::Bound::Type::NONE),
+//             value("SPHERE", Tiny3D::Bound::Type::SPHERE),
+//             value("AABB", Tiny3D::Bound::Type::AABB),
+//             value("OBB", Tiny3D::Bound::Type::OBB),
+//             value("FRUSTUM", Tiny3D::Bound::Type::FRUSTUM)
+//         )
+//         .method("getType", &Tiny3D::Bound::getType)
+//         .method("test", &Tiny3D::Bound::test)
+//         .method("getRenderable", &Tiny3D::Bound::getRenderable)
+//         .property("GroupID", &Tiny3D::Bound::getGroupID, &Tiny3D::Bound::setGroupID)
+//         (
+//             metadata(TXT_DESCRIPTION, "Group ID is used to divide different bounds.")
+//         )
+//         .property("CollsionSource", &Tiny3D::Bound::isCollisionSource, &Tiny3D::Bound::setCollisionSource)
+//         (
+//             metadata(TXT_DESCRIPTION, "The flag is used to mark the collision detection source.")
+//         )
+//         .property("Enabled", &Tiny3D::Bound::isEnabled, &Tiny3D::Bound::setEnabled)
+//         (
+//             metadata(TXT_DESCRIPTION, "The flag is used to the bounding volume is valid or not.")
+//         );
+// }
 

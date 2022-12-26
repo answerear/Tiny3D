@@ -53,7 +53,7 @@ namespace Tiny3D
         ID uID /* = E_NID_AUTOMATIC */)
     {
         AxisPtr axis = new Axis(uID);
-        axis->release();
+        // axis->release();
 
         if (axis->init(X, Y, Z) != T3D_OK)
         {
@@ -200,7 +200,7 @@ namespace Tiny3D
     ComponentPtr Axis::clone() const
     {
         AxisPtr axis = new Axis();
-        axis->release();
+        // axis->release();
 
         if (cloneProperties(axis) != T3D_OK)
         {
