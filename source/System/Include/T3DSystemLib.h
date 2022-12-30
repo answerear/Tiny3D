@@ -21,6 +21,7 @@
 #define __T3D_SYSTEM_LIB_H__
 
 
+#include <T3DSystem.h>
 #include <T3DClass.h>
 #include <T3DObject.h>
 #include <T3DSmartPtr.h>

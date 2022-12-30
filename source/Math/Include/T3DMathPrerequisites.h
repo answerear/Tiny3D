@@ -33,6 +33,7 @@
 
 #include <T3DPlatformLib.h>
 #include <T3DUtils.h>
+#include <T3DSystemLib.h>
 
 
 namespace Tiny3D

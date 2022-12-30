@@ -674,11 +674,75 @@ namespace Tiny3D
 
             if (getter != nullptr && setter == nullptr)
             {
-                fs << "property_readonly(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ")";
+                // 构造参数列表
+                String params;
+                size_t i = 0;
+                for (const auto &val : getter->Params)
+                {
+                    params += val.Type;
+                    if (i != getter->Params.size() - 1)
+                    {
+                        params += ", ";
+                    }
+                    i++;
+                }
+
+                // 返回值
+                const String &retType = getter->RetType;
+
+                if (getter->IsConst)
+                {
+                    fs << "property_readonly(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")const>(&" << getter->getPropertyFunctionName() << "))";
+                }
+                else
+                {
+                    fs << "property_readonly(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << getter->getPropertyFunctionName() << "))";
+                }
             }
             else
             {
-                fs << "property(\"" << getName() << "\", &" << getter->getPropertyFunctionName() << ", &" << setter->getPropertyFunctionName() << ")"; 
+                // 构造参数列表
+                String getterParams;
+                size_t i = 0;
+                for (const auto &val : getter->Params)
+                {
+                    getterParams += val.Type;
+                    if (i != getter->Params.size() - 1)
+                    {
+                        getterParams += ", ";
+                    }
+                    i++;
+                }
+
+                // 返回值
+                const String &getterRetType = getter->RetType;
+
+                if (getter->IsConst)
+                {
+                    fs << "property(\"" << getName() << "\", select_overload<" << getterRetType << "(" << getterParams << ")const>(&" << getter->getPropertyFunctionName();
+                }
+                else
+                {
+                    fs << "property(\"" << getName() << "\", select_overload<" << getterRetType << "(" << getterParams << ")>(&" << getter->getPropertyFunctionName();
+                }
+                
+
+                // 构造参数列表
+                String setterParams;
+                i = 0;
+                for (const auto &val : setter->Params)
+                {
+                    setterParams += val.Type;
+                    if (i != setter->Params.size() - 1)
+                    {
+                        setterParams += ", ";
+                    }
+                    i++;
+                }
+
+                // 返回值
+                const String &setterRetType = setter->RetType;
+                fs << "), select_overload<" << setterRetType << "(" << setterParams << ")>(&" << setter->getPropertyFunctionName() << "))"; 
             }
 
             getter->generateMetaInfo(fs, 2);

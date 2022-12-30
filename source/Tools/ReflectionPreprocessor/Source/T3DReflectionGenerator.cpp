@@ -559,14 +559,15 @@ namespace Tiny3D
             break;
         case CXCursor_TypeRef:
             {
-                if (parent != nullptr && cxParent.kind == CXCursor_ParmDecl)
+                if (parent != nullptr && (cxParent.kind == CXCursor_ParmDecl
+                    || cxParent.kind == CXCursor_CXXMethod || cxParent.kind == CXCursor_FunctionDecl))
                 {
                     // RP_LOG_INFO("FunctionChildren -- %s : %s (parent %s : %s)", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
                     CXType cxType = clang_getCursorType(cxCursor);
                     cxType = clang_getCanonicalType(cxType);
                     CXCursor cxParam = clang_getTypeDeclaration(cxType);
                     instantiateClassTemplate(cxParam);
-                    RP_LOG_INFO("FunctionChildren -- %s(%s) : %s (parent %s : %s)", type.c_str(), toString(clang_getCursorSpelling(cxParam)).c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+                    // RP_LOG_INFO("FunctionChildren -- %s(%s) : %s (parent %s : %s)", type.c_str(), toString(clang_getCursorSpelling(cxParam)).c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
                 }
             }
             break;
@@ -1589,32 +1590,74 @@ namespace Tiny3D
             }
 
             overload->IsConst = (clang_CXXMethod_isConst(cxCursor) == 1);
+
+            // 获取父结点
+            ASTNode *parent = getOrConstructParentNode(cxCursor);
+            if (parent == nullptr)
+            {
+                delete overload;
+                ret = T3D_ERR_RP_AST_NO_PARENT;
+                RP_LOG_ERROR("The parent is null [%s:%u] !", fileInfo.Path.c_str(), fileInfo.StartLine);
+                break;
+            }
             
             CXType cxType = clang_getCursorType(cxCursor);
-            
-            // 函数返回值
-            CXType cxResultType = clang_getResultType(cxType);
-            overload->RetType = toString(clang_getTypeSpelling(cxResultType));
 
-            CXCursor cxResultCursor = clang_getTypeDeclaration(cxResultType);
-            instantiateClassTemplate(cxResultCursor);
-            
-            // 函数参数列表
-            int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
-            for (int32_t i = 0; i < numArgs; i++)
+            if (parent->getType() == ASTNode::Type::kClassTemplate
+                && isConstructor && clang_CXXConstructor_isCopyConstructor(cxCursor))
             {
-                ASTFunctionParam param;
-                // 参数名
-                CXCursor cxArg = clang_Cursor_getArgument(cxCursor, i);
-                param.Name = toString(clang_getCursorSpelling(cxArg));
-                // 参数类型
-                CXType cxArgType = clang_getArgType(cxType, i);
-                param.Type = toString(clang_getTypeSpelling(cxArgType));
-                overload->Params.push_back(param);
+                // 函数参数，就是自己的引用
+                String paramType = parent->getHierarchyName();
+                int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
+                for (int32_t i = 0; i < numArgs; i++)
+                {
+                    ASTFunctionParam param;
+                    // 参数名
+                    CXCursor cxArg = clang_Cursor_getArgument(cxCursor, i);
+                    param.Name = toString(clang_getCursorSpelling(cxArg));
+                    // 参数类型
+                    param.Type = "const " + paramType + "<";
+                    ASTClassTemplate *klassTemplate = static_cast<ASTClassTemplate*>(parent);
+                    size_t j = 0;
+                    for (const auto &temp : klassTemplate->TemplateParams)
+                    {
+                        param.Type += temp.type;
+                        if (j != klassTemplate->TemplateParams.size() - 1)
+                        {
+                            param.Type += ", ";
+                        }
+                        j++;
+                    }
+                    param.Type += "> &";
+                    overload->Params.push_back(param);
+                }
+            }
+            else
+            {
+                // 函数返回值
+                CXType cxResultType = clang_getResultType(cxType);
+                overload->RetType = toString(clang_getTypeSpelling(cxResultType));
 
-                cxArgType = clang_getCursorType(cxArg);
-                CXCursor cxArgCursor = clang_getTypeDeclaration(cxArgType);
-                instantiateClassTemplate(cxArgCursor);
+                // CXCursor cxResultCursor = clang_getTypeDeclaration(cxResultType);
+                // instantiateClassTemplate(cxResultCursor);
+            
+                // 函数参数列表
+                int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
+                for (int32_t i = 0; i < numArgs; i++)
+                {
+                    ASTFunctionParam param;
+                    // 参数名
+                    CXCursor cxArg = clang_Cursor_getArgument(cxCursor, i);
+                    param.Name = toString(clang_getCursorSpelling(cxArg));
+                    // 参数类型
+                    CXType cxArgType = clang_getArgType(cxType, i);
+                    param.Type = toString(clang_getTypeSpelling(cxArgType));
+                    overload->Params.push_back(param);
+
+                    // cxArgType = clang_getCursorType(cxArg);
+                    // CXCursor cxArgCursor = clang_getTypeDeclaration(cxArgType);
+                    // instantiateClassTemplate(cxArgCursor);
+                }
             }
 
             bool isGetter = false;
@@ -1671,17 +1714,7 @@ namespace Tiny3D
                     funcName = "#TEMPLATE#" + funcName;
                 }
             }
-            
-            // 获取父结点
-            ASTNode *parent = getOrConstructParentNode(cxCursor);
-            if (parent == nullptr)
-            {
-                
-                ret = T3D_ERR_RP_AST_NO_PARENT;
-                RP_LOG_ERROR("The parent is null [%s:%u] !", fileInfo.Path.c_str(), fileInfo.StartLine);
-                break;
-            }
-            
+
             ASTNode *child = parent->getChild(funcName);
             if (child == nullptr
                 || (isTemplate && parent->getType() != ASTNode::Type::kFunctionTemplate))
