@@ -191,13 +191,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Transform3D::cloneProperties(ComponentPtr newObj) const
+    TResult Transform3D::cloneProperties(Component *newObj) const
     {
         TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            Transform3DPtr obj = smart_pointer_cast<Transform3D>(newObj);
+            Transform3D *obj = static_cast<Transform3D*>(newObj);
             obj->mPosition = mPosition;
             obj->mOrientation = mOrientation;
             obj->mScaling = mScaling;

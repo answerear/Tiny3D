@@ -153,7 +153,18 @@ namespace Tiny3D
             } values;
         };
 
-        TPROPERTY()
+        TPROPERTY(RTTRFuncName="TestObj", RTTRFuncType="getter")
+        TestObject *getTestObj() const
+        {
+            return TestObj.get();
+        }
+
+        TPROPERTY(RTTRFuncName="TestObj", RTTRFuncType="setter")
+        void setTestObj(TestObject *obj)
+        {
+            TestObj = obj;
+        }
+
         TestObjectPtr TestObj;
     };
 }

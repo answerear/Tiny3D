@@ -83,7 +83,7 @@ namespace Tiny3D
     };
 }
 
-#if 1
+#if 0
 TFUNCTION("Description"="This is a function.")
 inline void Globalfunction(float fval)
 {

@@ -217,13 +217,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Quad::cloneProperties(ComponentPtr newObj) const
+    TResult Quad::cloneProperties(Component *newObj) const
     {
         TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            QuadPtr quad = smart_pointer_cast<Quad>(newObj);
+            Quad *quad = static_cast<Quad*>(newObj);
             ret = quad->init(mQuad, mMaterial->getName());
         }
 
@@ -232,14 +232,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr Quad::getMaterial() const
+    Material *Quad::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr Quad::getVertexArrayObject() const
+    VertexArrayObject *Quad::getVertexArrayObject() const
     {
         return mVAO;
     }

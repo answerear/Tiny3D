@@ -209,13 +209,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Camera::cloneProperties(ComponentPtr newObj) const
+    TResult Camera::cloneProperties(Component *newObj) const
     {
         TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            CameraPtr camera = smart_pointer_cast<Camera>(newObj);
+            Camera *camera = static_cast<Camera*>(newObj);
             camera->mProjType = mProjType;
             camera->mObjectMask = mObjectMask;
             camera->mFovY = mFovY;

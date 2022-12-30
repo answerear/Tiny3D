@@ -560,6 +560,7 @@ namespace Tiny3D
                         {
                             params += ", ";
                         }
+                        i++;
                     }
 
                     if (constructor->IsNormal)
@@ -886,6 +887,9 @@ namespace Tiny3D
                 String pattern = "* " + arg + " *";
                 String formal = " " + arg + " ";
                 String actual = " " + actuals[i] + " ";
+                String pattern2 = "*<" + arg + ">*";
+                String formal2 = "<" + arg + ">";
+                String actual2 = "<" + actuals[i] + ">";
                 
                 // 查找参数里面的模板类型并替换
                 for (auto &param : Params)
@@ -894,12 +898,28 @@ namespace Tiny3D
                     {
                         StringUtil::replaceAll(param.Type, formal, actual);
                     }
+                    else if (StringUtil::match(param.Type, pattern2, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal2, actual2);
+                    }
+                    else if (param.Type == arg)
+                    {
+                        param.Type = actuals[i];
+                    }
                 }
 
                 // 查找返回值里面的模板类型并替换
                 if (StringUtil::match(RetType, pattern, true))
                 {
                     StringUtil::replaceAll(RetType, formal, actual);
+                }
+                else if (StringUtil::match(RetType, pattern2, true))
+                {
+                    StringUtil::replaceAll(RetType, formal2, actual2);
+                }
+                else if (RetType == arg)
+                {
+                    RetType = actuals[i];
                 }
             }
             

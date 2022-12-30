@@ -62,7 +62,7 @@ namespace Tiny3D
          * @fn  virtual Axis::~Axis();
          * @brief   析构函数
          */
-        virtual ~Axis();
+        virtual ~Axis() override;
 
         /**
          * @fn  Real Axis::getAxisLength(Axis axis) const;
@@ -88,7 +88,7 @@ namespace Tiny3D
          * @return  The material.
          * @sa  MaterialPtr Renderable::getMaterial() const
          */
-        virtual MaterialPtr getMaterial() const override;
+        virtual Material *getMaterial() const override;
 
         /**
          * @fn  virtual VertexArrayObjectPtr Axis::getVertexArrayObject()
@@ -97,7 +97,7 @@ namespace Tiny3D
          * @return  The vertex array object.
          * @sa  VertexArrayObjectPtr Renderable::getVertexArrrayObject() const
          */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+        virtual VertexArrayObject *getVertexArrayObject() const override;
 
     protected:
         /**
@@ -121,11 +121,11 @@ namespace Tiny3D
          * @fn  virtual TResult Axis::cloneProperties(NodePtr node) 
          *      const override;
          * @brief   重写基类接口，实现当前结点的属性克隆功能
-         * @param   node    The node.
+         * @param   newObj    The node.
          * @return  A TResult.
          * @sa  TResult Node::cloneProperties(NodePtr node)
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
     private:
         Real                    mAxisX; /**< X轴长度 */

@@ -28,9 +28,13 @@
 namespace Tiny3D
 {
     /// 3D向量类
+    TCLASS()
     template <typename T>
     class TVector3
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+        
     public:
         /// 默认构造函数
         TVector3();
@@ -133,8 +137,13 @@ namespace Tiny3D
         int32_t compareArrays(const TVector3 &other) const;
 
     private:
+        TPROPERTY()
         T    _x;
+
+        TPROPERTY()
         T    _y;
+
+        TPROPERTY()
         T    _z;
     };
 

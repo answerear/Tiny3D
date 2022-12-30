@@ -56,7 +56,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Component::cloneProperties(ComponentPtr newObj) const
+    TResult Component::cloneProperties(Component *newObj) const
     {
         newObj->mSceneNode = mSceneNode;
         return T3D_OK;

@@ -49,7 +49,7 @@ namespace Tiny3D
          * @fn  virtual FrustumBound::~FrustumBound();
          * @brief   析构函数
          */
-        virtual ~FrustumBound();
+        virtual ~FrustumBound() override;
 
         /**
          * @fn  virtual Type FrustumBound::getType() const override;
@@ -118,7 +118,7 @@ namespace Tiny3D
          * @return  The renderable.
          * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual RenderablePtr getRenderable() override;
+        virtual Renderable *getRenderable() override;
 
         /**
          * @fn  virtual void FrustumBound::updateBound(
@@ -183,10 +183,10 @@ namespace Tiny3D
          * @fn  virtual void FrustumBound::cloneProperties(BoundPtr bound) 
          *      const override;
          * @brief   实现基类接口
-         * @param   bound   The bound.
+         * @param   newObj   The bound.
          * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
     protected:
         Frustum     mFrustum;           /**< 可变换的视锥体对象 */

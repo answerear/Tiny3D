@@ -557,6 +557,19 @@ namespace Tiny3D
                 // cxResult = CXChildVisit_Continue;
             }
             break;
+        case CXCursor_TypeRef:
+            {
+                if (parent != nullptr && cxParent.kind == CXCursor_ParmDecl)
+                {
+                    // RP_LOG_INFO("FunctionChildren -- %s : %s (parent %s : %s)", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+                    CXType cxType = clang_getCursorType(cxCursor);
+                    cxType = clang_getCanonicalType(cxType);
+                    CXCursor cxParam = clang_getTypeDeclaration(cxType);
+                    instantiateClassTemplate(cxParam);
+                    RP_LOG_INFO("FunctionChildren -- %s(%s) : %s (parent %s : %s)", type.c_str(), toString(clang_getCursorSpelling(cxParam)).c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+                }
+            }
+            break;
         default:
             {
             }
@@ -1599,7 +1612,8 @@ namespace Tiny3D
                 param.Type = toString(clang_getTypeSpelling(cxArgType));
                 overload->Params.push_back(param);
 
-                CXCursor cxArgCursor = clang_getTypeDeclaration(cxResultType);
+                cxArgType = clang_getCursorType(cxArg);
+                CXCursor cxArgCursor = clang_getTypeDeclaration(cxArgType);
                 instantiateClassTemplate(cxArgCursor);
             }
 

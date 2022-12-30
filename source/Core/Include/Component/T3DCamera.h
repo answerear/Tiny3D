@@ -217,7 +217,7 @@ namespace Tiny3D
          * @param   newObj  The new object.
          * @return  A TResult.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
         virtual void updateTransform(const Transform3D *xform) override;
 

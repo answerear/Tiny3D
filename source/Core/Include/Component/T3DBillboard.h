@@ -46,7 +46,7 @@ namespace Tiny3D
          * @fn  virtual Billboard::~Billboard();
          * @brief   Destructor
          */
-        virtual ~Billboard();
+        virtual ~Billboard() override;
 
         /**
          * @fn  virtual ComponentPtr Billboard::clone() const override;
@@ -60,7 +60,7 @@ namespace Tiny3D
          * @brief   Gets the material
          * @return  The material.
          */
-        virtual MaterialPtr getMaterial() const override;
+        virtual Material *getMaterial() const override;
 
         /**
          * @fn  virtual VertexArrayObjectPtr
@@ -68,7 +68,7 @@ namespace Tiny3D
          * @brief   Gets vertex array object
          * @return  The vertex array object.
          */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+        virtual VertexArrayObject *getVertexArrayObject() const override;
 
     protected:
         /**
@@ -85,7 +85,7 @@ namespace Tiny3D
          * @param   newObj  The new object.
          * @return  A TResult.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
     };
 }
 

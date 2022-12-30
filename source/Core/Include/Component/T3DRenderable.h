@@ -46,14 +46,14 @@ namespace Tiny3D
          * @fn  virtual Renderable::~Renderable();
          * @brief   析构函数
          */
-        virtual ~Renderable();
+        virtual ~Renderable() override;
 
         /**
          * @fn  virtual MaterialPtr Renderable::getMaterial() const = 0;
          * @brief   获取渲染使用的材质
          * @return  返回渲染用的材质对象.
          */
-        virtual MaterialPtr getMaterial() const = 0;
+        virtual Material *getMaterial() const = 0;
 
         /**
          * @fn  virtual VertexArrayObjectPtr 
@@ -61,7 +61,7 @@ namespace Tiny3D
          * @brief   获取渲染使用的VAO对象
          * @return  返回渲染数据的VAO对象.
          */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const = 0;
+        virtual VertexArrayObject *getVertexArrayObject() const = 0;
 
     protected:
         /**
@@ -78,7 +78,7 @@ namespace Tiny3D
          * @param   newObj  The new object.
          * @return  A TResult.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const;
+        virtual TResult cloneProperties(Component *newObj) const override;
     };
 }
 

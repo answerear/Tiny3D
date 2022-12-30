@@ -50,7 +50,7 @@ namespace Tiny3D
          * @fn  virtual Cube::~Cube();
          * @brief   析构函数
          */
-        virtual ~Cube();
+        virtual ~Cube() override;
 
         /**
          * @fn  const Vector3 Cube::&getCenter() const
@@ -80,7 +80,7 @@ namespace Tiny3D
          * @return  The material.
          * @sa  MaterialPtr Renderable::getMaterial() const
          */
-        virtual MaterialPtr getMaterial() const override;
+        virtual Material *getMaterial() const override;
 
         /**
          * @fn  virtual VertexArrayObjectPtr
@@ -89,7 +89,7 @@ namespace Tiny3D
          * @return  The vertex array object.
          * @sa  VertexArrayObjectPtr Renderable::getVertexArrayObject() const
          */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+        virtual VertexArrayObject *getVertexArrayObject() const override;
 
     protected:
         /**
@@ -117,7 +117,7 @@ namespace Tiny3D
          * @return  A TResult.
          * @sa  TResult Node::cloneProperties(NodePtr node) const
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
     private:
         /**

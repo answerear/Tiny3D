@@ -41,13 +41,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Renderable::cloneProperties(ComponentPtr newObj) const
+    TResult Renderable::cloneProperties(Component *newObj) const
     {
         TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            RenderablePtr obj = smart_pointer_cast<Renderable>(newObj);
+            Renderable *obj = static_cast<Renderable*>(newObj);
         }
 
         return ret;

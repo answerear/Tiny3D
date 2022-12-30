@@ -265,13 +265,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Globe::cloneProperties(ComponentPtr newObj) const
+    TResult Globe::cloneProperties(Component *newObj) const
     {
         TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            GlobePtr sphere = smart_pointer_cast<Globe>(newObj);
+            Globe *sphere = static_cast<Globe*>(newObj);
             ret = sphere->init(mCenter, mRadius);
         }
 
@@ -280,14 +280,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr Globe::getMaterial() const
+    Material *Globe::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr Globe::getVertexArrayObject() const
+    VertexArrayObject *Globe::getVertexArrayObject() const
     {
         return mVAO;
     }

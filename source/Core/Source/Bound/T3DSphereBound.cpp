@@ -74,13 +74,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SphereBound::cloneProperties(ComponentPtr newObj) const
+    TResult SphereBound::cloneProperties(Component *newObj) const
     {
         TResult ret = Bound::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            SphereBoundPtr sphereBound = smart_pointer_cast<SphereBound>(newObj);
+            SphereBound *sphereBound = static_cast<SphereBound*>(newObj);
             sphereBound->mOriginalSphere = mOriginalSphere;
             sphereBound->mSphere = mSphere;
             sphereBound->mRenderable
@@ -103,7 +103,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderablePtr SphereBound::getRenderable()
+    Renderable *SphereBound::getRenderable()
     {
         return mRenderable;
     }

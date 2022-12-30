@@ -72,13 +72,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FrustumBound::cloneProperties(ComponentPtr bound) const
+    TResult FrustumBound::cloneProperties(Component *newObj) const
     {
-        TResult ret = Bound::cloneProperties(bound);
+        TResult ret = Bound::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            FrustumBoundPtr newBound = smart_pointer_cast<FrustumBound>(bound);
+            FrustumBound *newBound = static_cast<FrustumBound*>(newObj);
             newBound->mFrustum = mFrustum;
             newBound->mOriginalFrustum = mOriginalFrustum;
             newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
@@ -111,7 +111,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderablePtr FrustumBound::getRenderable()
+    Renderable *FrustumBound::getRenderable()
     {
         return mRenderable;
     }

@@ -52,7 +52,7 @@ namespace Tiny3D
          * @fn  virtual AabbBound::~AabbBound();
          * @brief   析构函数
          */
-        virtual ~AabbBound();
+        virtual ~AabbBound() override;
 
         /**
          * @fn  virtual Type AabbBound::getType() const override;
@@ -69,7 +69,6 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  BoundPtr Bound::clone() const
          */
-        TFUNCTION()
         virtual ComponentPtr clone() const override;
 
         /**
@@ -115,64 +114,22 @@ namespace Tiny3D
          * @return  The renderable.
          * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual RenderablePtr getRenderable() override;
+        virtual Renderable *getRenderable() override;
 
         virtual void update() override;
 
     protected:
-        /**
-         * @fn  AabbBound::AabbBound(SceneNode *node, ID uID = E_BID_AUTOMATIC);
-         * @brief   构造函数
-         * @param [in]  node    : 碰撞体所在的结点对象.
-         * @param [in]  uID     (Optional) : 碰撞体ID.
-         */
         AabbBound(ID uID = E_CID_AUTOMATIC);
 
-        /**
-         * @fn  virtual bool AabbBound::testSphere(
-         *      const Sphere &sphere) const override;
-         * @brief   实现基类接口
-         * @param   sphere  The sphere.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testSphere(const Spher &amp;sphere) const
-         */
         virtual bool testSphere(const Sphere &sphere) const override;
 
-        /**
-         * @fn  virtual bool AabbBound::testAabb(
-         *      const Aabb &aabb) const override;
-         * @brief   实现基类接口
-         * @param   aabb    The aabb.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testAabb(const Aabb &amp;aabb) const
-         */
         virtual bool testAabb(const Aabb &aabb) const override;
 
-        /**
-         * @fn  virtual bool AabbBound::testObb(const Obb &obb) const override;
-         * @brief   实现基类接口
-         * @param   obb The obb.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testObb(const Obb &amp;obb) const
-         */
         virtual bool testObb(const Obb &obb) const override;
 
-        /**
-         * @fn  virtual bool AabbBound::testFrustum(const Frustum &frustum) const override;
-         * @brief   实现基类接口
-         * @param   frustum The frustum.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testFrustum(const Frustum &amp;frustum) const
-         */
         virtual bool testFrustum(const Frustum &frustum) const override;
 
-        /**
-         * @fn  virtual void AabbBound::cloneProperties(BoundPtr bound) const override;
-         * @brief   实现基类接口
-         * @param   bound   The bound.
-         * @sa  void Bound::cloneProperties(BoundPtr bound) const
-         */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
     protected:
         Aabb        mAabb;          /**< 实时变换的AABB */

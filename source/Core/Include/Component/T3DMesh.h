@@ -46,7 +46,7 @@ namespace Tiny3D
          * @fn  virtual Mesh::~Mesh();
          * @brief   Destructor
          */
-        virtual ~Mesh();
+        virtual ~Mesh() override;
 
         void setModel(const String &modelName);
 
@@ -62,7 +62,7 @@ namespace Tiny3D
          * @brief   Gets the material
          * @return  The material.
          */
-        virtual MaterialPtr getMaterial() const override;
+        virtual Material *getMaterial() const override;
 
         /**
          * @fn  virtual VertexArrayObjectPtr
@@ -70,7 +70,7 @@ namespace Tiny3D
          * @brief   Gets vertex array object
          * @return  The vertex array object.
          */
-        virtual VertexArrayObjectPtr getVertexArrayObject() const override;
+        virtual VertexArrayObject *getVertexArrayObject() const override;
 
     protected:
         /**
@@ -87,7 +87,7 @@ namespace Tiny3D
          * @param   newObj  The new object.
          * @return  A TResult.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
         TResult setupVAO();
 

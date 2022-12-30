@@ -22,7 +22,7 @@
 #define __T3D_LIGHT_H__
 
 
-#include "Component/T3DTransform3D.h"
+#include "Component/T3DComponent.h"
 
 
 namespace Tiny3D
@@ -70,7 +70,7 @@ namespace Tiny3D
          * @param   newObj  The new object.
          * @return  A TResult.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
     };
 }
 

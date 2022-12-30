@@ -65,7 +65,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Billboard::cloneProperties(ComponentPtr newObj) const
+    TResult Billboard::cloneProperties(Component *newObj) const
     {
         TResult ret = Renderable::cloneProperties(newObj);
 
@@ -79,14 +79,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr Billboard::getMaterial() const
+    Material *Billboard::getMaterial() const
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr Billboard::getVertexArrayObject() const
+    VertexArrayObject *Billboard::getVertexArrayObject() const
     {
         return nullptr;
     }

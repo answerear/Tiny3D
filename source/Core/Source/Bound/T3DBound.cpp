@@ -48,7 +48,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Bound::test(BoundPtr bound) const
+    bool Bound::test(Bound *bound) const
     {
         bool ret = false;
 
@@ -56,26 +56,26 @@ namespace Tiny3D
         {
         case Type::SPHERE:
             {
-                SphereBoundPtr sphere = smart_pointer_cast<SphereBound>(bound);
+                SphereBound *sphere = static_cast<SphereBound*>(bound);
                 ret = testSphere(sphere->getSphere());
             }
             break;
         case Type::AABB:
             {
-                AabbBoundPtr aabb = smart_pointer_cast<AabbBound>(bound);
+                AabbBound *aabb = static_cast<AabbBound*>(bound);
                 ret = testAabb(aabb->getAlignAxisBox());
             }
             break;
         case Type::OBB:
             {
-                ObbBoundPtr obb = smart_pointer_cast<ObbBound>(bound);
+                ObbBound *obb = static_cast<ObbBound*>(bound);
                 ret = testObb(obb->getObb());
             }
             break;
         case Type::FRUSTUM:
             {
-                FrustumBoundPtr frustum
-                    = smart_pointer_cast<FrustumBound>(bound);
+                FrustumBound *frustum
+                    = static_cast<FrustumBound*>(bound);
                 ret = testFrustum(frustum->getFrustum());
             }
             break;
@@ -88,13 +88,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Bound::cloneProperties(ComponentPtr newObj) const
+    TResult Bound::cloneProperties(Component *newObj) const
     {
         TResult ret = Component::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            BoundPtr bound = smart_pointer_cast<Bound>(newObj);
+            Bound *bound = static_cast<Bound*>(newObj);
             bound->mGroupID = mGroupID;
             bound->mIsMovable = mIsMovable;
             bound->mIsCollisionSource = mIsCollisionSource;

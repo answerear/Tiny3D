@@ -43,8 +43,12 @@ namespace Tiny3D
      * @class   Transform3D
      * @brief   带变换属性的场景树结点
      */
+    TCLASS()
     class T3D_ENGINE_API Transform3D : public Component
     {
+        TRTTI_ENABLE(Component)
+        TRTTI_FRIEND
+     
     public:
         /**
          * @fn  static Transform3DPtr 
@@ -59,7 +63,7 @@ namespace Tiny3D
          * @fn  virtual Transform3D::~Transform3D();
          * @brief   析构函数
          */
-        virtual ~Transform3D();
+        virtual ~Transform3D() override;
 
         /**
          * @fn  void Transform3D::setPosition(const Vector3 &pos);
@@ -69,6 +73,7 @@ namespace Tiny3D
          *
          * ### return   void.
          */
+        TPROPERTY(RTTRFuncName="position", RTTRFuncType="setter")
         void setPosition(const Vector3 &pos);
 
         /**
@@ -86,6 +91,7 @@ namespace Tiny3D
          * @brief   获取在父结点空间坐标系下的位置
          * @return  返回位置.
          */
+        TPROPERTY(RTTRFuncName="position", RTTRFuncType="getter")
         const Vector3 &getPosition() const;
 
         /**
@@ -161,7 +167,6 @@ namespace Tiny3D
          * @param [in] x : X轴上偏移值
          * @param [in] y : Y轴上偏移值
          * @param [in] z : Z轴上偏移值
-         * @return void
          */
         void translate(Real x, Real y, Real z);
 
@@ -293,7 +298,7 @@ namespace Tiny3D
          * @fn  virtual void Transform3D::updateTransform();
          * @brief   从父类继承，重写实现更新变换操作
          */
-        virtual void update();
+        virtual void update() override;
 
         /**
          * @fn  virtual void Transform3D::setDirty(bool isDirty, 
@@ -358,7 +363,7 @@ namespace Tiny3D
          * @param [in]  newObj  : 新的结点对象.
          * @return  void.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
         void notifyListener() const;
 

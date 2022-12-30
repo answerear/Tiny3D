@@ -56,14 +56,13 @@ namespace Tiny3D
          * @fn  virtual Component::~Component();
          * @brief   析构函数
          */
-        virtual ~Component();
+        virtual ~Component() override;
 
         /**
          * @fn  virtual ComponentPtr Component::clone() const = 0;
          * @brief   Makes a deep copy of this object
          * @return  A copy of this object.
          */
-        TFUNCTION()
         virtual ComponentPtr clone() const = 0;
 
         /**
@@ -102,7 +101,7 @@ namespace Tiny3D
          * @param   newObj  The new object.
          * @return  A TResult.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const;
+        virtual TResult cloneProperties(Component *newObj) const;
 
         /**
          * @fn  virtual void Component::onAttachSceneNode(SceneNode *node);

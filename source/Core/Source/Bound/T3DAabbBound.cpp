@@ -73,13 +73,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult AabbBound::cloneProperties(ComponentPtr bound) const
+    TResult AabbBound::cloneProperties(Component *bound) const
     {
         TResult ret = Bound::cloneProperties(bound);
 
         if (ret == T3D_OK)
         {
-            AabbBoundPtr aabbBound = smart_pointer_cast<AabbBound>(bound);
+            AabbBound *aabbBound = static_cast<AabbBound*>(bound);
             aabbBound->mAabb = mAabb;
             aabbBound->mOriginalAabb = mOriginalAabb;
             aabbBound->mRenderable
@@ -100,7 +100,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderablePtr AabbBound::getRenderable()
+    Renderable *AabbBound::getRenderable()
     {
         return mRenderable;
     }

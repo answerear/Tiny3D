@@ -83,7 +83,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Mesh::cloneProperties(ComponentPtr newObj) const
+    TResult Mesh::cloneProperties(Component *newObj) const
     {
         TResult ret = Renderable::cloneProperties(newObj);
 
@@ -97,14 +97,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr Mesh::getMaterial() const
+    Material *Mesh::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr Mesh::getVertexArrayObject() const
+    VertexArrayObject *Mesh::getVertexArrayObject() const
     {
         return mVAO;
     }

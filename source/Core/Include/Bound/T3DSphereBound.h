@@ -48,7 +48,7 @@ namespace Tiny3D
          * @fn  virtual SphereBound::~SphereBound();
          * @brief   析构函数
          */
-        virtual ~SphereBound();
+        virtual ~SphereBound() override;
 
         /**
          * @fn  virtual Type SphereBound::getType() const override;
@@ -83,7 +83,7 @@ namespace Tiny3D
          * @return  The renderable.
          * @sa  RenderablePtr Bound::getRenderable()
          */
-        virtual RenderablePtr getRenderable() override;
+        virtual Renderable *getRenderable() override;
 
         /**
          * @fn  virtual void SphereBound::updateBound(
@@ -95,62 +95,17 @@ namespace Tiny3D
         virtual void update() override;
 
     protected:
-        /**
-         * @fn  SphereBound::SphereBound(SceneNode *node, 
-         *      ID uID = E_BID_AUTOMATIC);
-         * @brief   构造函数
-         * @param [in]  node    : 碰撞体所在的结点对象.
-         * @param [in]  uID     (Optional) : 碰撞体ID.
-         */
         SphereBound(ID uID = E_CID_AUTOMATIC);
 
-        /**
-         * @fn  virtual bool SphereBound::testSphere(
-         *      const Sphere &sphere) const override;
-         * @brief   实现基类接口
-         * @param   sphere  The sphere.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testSphere(const Sphere &amp;sphere) const
-         */
         virtual bool testSphere(const Sphere &sphere) const override;
 
-        /**
-         * @fn  virtual bool SphereBound::testAabb(
-         *      const Aabb &aabb) const override;
-         * @brief   实现基类接口
-         * @param   aabb    The aabb.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testAabb(const Aabb &amp;aabb) const
-         */
         virtual bool testAabb(const Aabb &aabb) const override;
 
-        /**
-         * @fn  virtual bool SphereBound::testObb(const Obb &obb) const override;
-         * @brief   实现基类接口
-         * @param   obb The obb.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testObb(const Obb &amp;obb) const
-         */
         virtual bool testObb(const Obb &obb) const override;
 
-        /**
-         * @fn  virtual bool SphereBound::testFrustum(
-         *      const Frustum &frustum) const override;
-         * @brief   实现基类接口
-         * @param   frustum The frustum.
-         * @return  True if the test passes, false if the test fails.
-         * @sa  bool Bound::testFrustum(const Frustum &amp;frustum) const
-         */
         virtual bool testFrustum(const Frustum &frustum) const override;
 
-        /**
-         * @fn  virtual void SphereBound::cloneProperties(
-         *      BoundPtr bound) const override;
-         * @brief   实现基类接口
-         * @param   bound   The bound.
-         * @sa  void Bound::cloneProperties(BoundPtr bound) const
-         */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
     private:
         Sphere    mOriginalSphere;  /**< 原始球体 */

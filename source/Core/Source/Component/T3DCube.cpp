@@ -298,13 +298,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Cube::cloneProperties(ComponentPtr newObj) const
+    TResult Cube::cloneProperties(Component *newObj) const
     {
         TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            CubePtr box = smart_pointer_cast<Cube>(newObj);
+            Cube *box = static_cast<Cube*>(newObj);
             ret = box->init(mCenter, mExtent);
         }
 
@@ -313,14 +313,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr Cube::getMaterial() const
+    Material *Cube::getMaterial() const
     {
         return mMaterial;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr Cube::getVertexArrayObject() const
+    VertexArrayObject *Cube::getVertexArrayObject() const
     {
         return mVAO;
     }

@@ -73,13 +73,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ObbBound::cloneProperties(ComponentPtr bound) const
+    TResult ObbBound::cloneProperties(Component *newObj) const
     {
-        TResult ret = Bound::cloneProperties(bound);
+        TResult ret = Bound::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            ObbBoundPtr newBound = smart_pointer_cast<ObbBound>(bound);
+            ObbBound *newBound = static_cast<ObbBound*>(newObj);
             newBound->mObb = mObb;
             newBound->mOriginalObb = mOriginalObb;
             newBound->mRenderable = smart_pointer_cast<Cube>(mRenderable->clone());
@@ -120,7 +120,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderablePtr ObbBound::getRenderable()
+    Renderable *ObbBound::getRenderable()
     {
         return mRenderable;
     }

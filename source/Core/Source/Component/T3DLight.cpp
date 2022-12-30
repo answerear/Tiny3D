@@ -64,7 +64,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Light::cloneProperties(ComponentPtr newObj) const
+    TResult Light::cloneProperties(Component *newObj) const
     {
         TResult ret = Component::cloneProperties(newObj);
 

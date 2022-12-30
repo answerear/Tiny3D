@@ -61,7 +61,7 @@ namespace Tiny3D
          * @fn  virtual Bound::~Bound();
          * @brief   析构函数
          */
-        virtual ~Bound();
+        virtual ~Bound() override;
 
         /**
          * @fn  virtual Type Bound::getType() const = 0;
@@ -96,7 +96,7 @@ namespace Tiny3D
          * @return  True if it succeeds, false if it fails.
          */
         TPROPERTY()
-        virtual bool test(BoundPtr bound) const;
+        virtual bool test(Bound *bound) const;
 
         /**
          * @fn  void Bound::setCollisionSource(bool isSource);
@@ -136,7 +136,7 @@ namespace Tiny3D
          * @return  返回可渲染对象.
          */
         TFUNCTION()
-        virtual RenderablePtr getRenderable() = 0;
+        virtual Renderable *getRenderable() = 0;
 
     protected:
         /**
@@ -189,7 +189,7 @@ namespace Tiny3D
          * @brief   克隆属性
          * @param   bound   The bound.
          */
-        virtual TResult cloneProperties(ComponentPtr newObj) const override;
+        virtual TResult cloneProperties(Component *newObj) const override;
 
         virtual void updateTransform(const Transform3D *xform) override;
 

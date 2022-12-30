@@ -212,13 +212,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Axis::cloneProperties(ComponentPtr newObj) const
+    TResult Axis::cloneProperties(Component *newObj) const
     {
         TResult ret = Renderable::cloneProperties(newObj);
 
         if (ret == T3D_OK)
         {
-            AxisPtr axis = smart_pointer_cast<Axis>(newObj);
+            Axis *axis = static_cast<Axis*>(newObj);
             ret = axis->init(getAxisLength(Type::AXIS_X), 
                 getAxisLength(Type::AXIS_Y),
                 getAxisLength(Type::AXIS_Z));
@@ -229,14 +229,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MaterialPtr Axis::getMaterial() const
+    Material *Axis::getMaterial() const
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    VertexArrayObjectPtr Axis::getVertexArrayObject() const
+    VertexArrayObject *Axis::getVertexArrayObject() const
     {
         return mVAO;
     }
