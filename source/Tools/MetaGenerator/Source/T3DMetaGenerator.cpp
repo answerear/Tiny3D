@@ -161,6 +161,11 @@ namespace Tiny3D
             MetaPtr meta = Meta::create();
             meta->uuid = UUID::generate();
             meta->uuid.TestObj->setValue(100);
+            meta->uuid.ArrayData.reserve(5);
+            for (size_t i = 0; i < 5; i++)
+            {
+                meta->uuid.ArrayData.push_back(10+i*10);
+            }
             meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
 
             FileDataStream fs;

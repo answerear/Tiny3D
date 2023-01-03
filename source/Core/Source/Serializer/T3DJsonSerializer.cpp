@@ -443,14 +443,19 @@ namespace Tiny3D
         return false;
     }
 
-    void WriteSequentialContainer(PrettyWriter<JsonStream> &writer, const variant_sequential_view &view)
+    void WriteSequentialContainer(PrettyWriter<JsonStream> &writer, const type &t, const variant_sequential_view &view)
     {
+        writer.Key(RTTI_TYPE);
+        const auto name = t.get_name();
+        writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+        writer.Key(RTTI_VALUE);
+        
         writer.StartArray();
         for (const auto& item : view)
         {
             if (item.is_sequential_container())
             {
-                WriteSequentialContainer(writer, item.create_sequential_view());
+                WriteSequentialContainer(writer, item.get_type(), item.create_sequential_view());
             }
             else
             {
@@ -458,7 +463,9 @@ namespace Tiny3D
                 type value_type = wrapped_var.get_type();
                 if (value_type.is_arithmetic() || value_type == type::get<std::string>() || value_type.is_enumeration())
                 {
+                    writer.StartObject();
                     WriteAtomicType(writer, value_type, wrapped_var);
+                    writer.EndObject();
                 }
                 else // object
                 {
@@ -515,7 +522,7 @@ namespace Tiny3D
         }
         else if (var.is_sequential_container())
         {
-            WriteSequentialContainer(writer, var.create_sequential_view());
+            WriteSequentialContainer(writer, value_type, var.create_sequential_view());
         }
         else if (var.is_associative_container())
         {

@@ -84,6 +84,7 @@ namespace Tiny3D
             values.low = other.values.low;
             values.high = other.values.high;
             TestObj = other.TestObj;
+            ArrayData = other.ArrayData;
         }
 
         UUID& operator =(const UUID& other)
@@ -91,6 +92,7 @@ namespace Tiny3D
             values.low = other.values.low;
             values.high = other.values.high;
             TestObj = other.TestObj;
+            ArrayData = other.ArrayData;
             return *this;
         }
 
@@ -166,6 +168,9 @@ namespace Tiny3D
         }
 
         TestObjectPtr TestObj;
+
+        TPROPERTY()
+        TArray<int> ArrayData;
     };
 }
 
