@@ -2739,48 +2739,8 @@ namespace Tiny3D
                 break;
             }
 
-            StringList names;
-            String str;
-            int inBracket = 0;
-            String::size_type pos = 0;
-            while (pos < varType.length())
-            {
-                if (varType[pos] == ':' && varType[pos+1] == ':')
-                {
-                    if (inBracket == 0)
-                    {
-                        names.push_back(str);
-                        str.clear();
-                    }
-                    else
-                    {
-                        str.push_back(varType[pos]);
-                        str.push_back(varType[pos+1]);
-                    }
-                    pos++;
-                }
-                else if (varType[pos] == '<')
-                {
-                    str.push_back(varType[pos]);
-                    inBracket++;
-                }
-                else if (varType[pos] == '>')
-                {
-                    str.push_back(varType[pos]);
-                    inBracket--;
-                }
-                else
-                {
-                    str.push_back(varType[pos]);
-                }
-                pos++;
-                if (pos == varType.length())
-                {
-                    names.push_back(str);
-                }
-            }
-            
-            const auto tnames = StringUtil::split2(varType, "::");
+            // const auto tnames = StringUtil::split2(varType, "::");
+            StringList names = split(varType);
             const String &name = names.back();
             // const String &name = declName;
 
@@ -2988,6 +2948,54 @@ namespace Tiny3D
         } while (false);
         
         return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    StringList ReflectionGenerator::split(const String &name) const
+    {
+        StringList names;
+        String str;
+        int inBracket = 0;
+        String::size_type pos = 0;
+        while (pos < name.length())
+        {
+            if (name[pos] == ':' && name[pos+1] == ':')
+            {
+                if (inBracket == 0)
+                {
+                    names.push_back(str);
+                    str.clear();
+                }
+                else
+                {
+                    str.push_back(name[pos]);
+                    str.push_back(name[pos+1]);
+                }
+                pos++;
+            }
+            else if (name[pos] == '<')
+            {
+                str.push_back(name[pos]);
+                inBracket++;
+            }
+            else if (name[pos] == '>')
+            {
+                str.push_back(name[pos]);
+                inBracket--;
+            }
+            else
+            {
+                str.push_back(name[pos]);
+            }
+            pos++;
+            if (pos == name.length())
+            {
+                names.push_back(str);
+            }
+        }
+
+        return names;
     }
 
     //-------------------------------------------------------------------------

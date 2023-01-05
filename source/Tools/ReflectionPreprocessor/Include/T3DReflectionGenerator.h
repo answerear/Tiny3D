@@ -89,6 +89,8 @@ namespace Tiny3D
             return result;
         }
 
+        StringList split(const String &str) const;
+
         CXChildVisitResult visitRootChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
         CXChildVisitResult visitClassChildren(CXCursor cxCursor, CXCursor cxParent, ASTStruct *parent);

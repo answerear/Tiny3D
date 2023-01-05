@@ -74,6 +74,19 @@ namespace  Tiny3D
             // 设置自动反射类
             StringList whitelist;
             whitelist.push_back("std::vector");
+            whitelist.push_back("std::list");
+            whitelist.push_back("std::deque");
+            whitelist.push_back("std::queue");
+            whitelist.push_back("std::stack");
+            whitelist.push_back("std::priority_queue");
+            whitelist.push_back("std::set");
+            whitelist.push_back("std::multiset");
+            whitelist.push_back("std::map");
+            whitelist.push_back("std::multimap");
+            whitelist.push_back("std::unordered_set");
+            whitelist.push_back("std::std::unordered_map");
+            whitelist.push_back("std::std::unordered_multiset");
+            whitelist.push_back("std::std::unordered_multimap");
             mGenerator->setBuiltinClass(whitelist);
 
             // 设置工程路径

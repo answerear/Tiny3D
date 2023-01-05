@@ -107,6 +107,12 @@ template <typename T>
 using TQueue = std::queue<T>;
 
 template <typename T>
+using TDeque = std::deque<T>;
+
+template <typename T>
+using TPriorityQueue = std::priority_queue<T>;
+
+template <typename T>
 using TStack = std::stack<T>;
 
 template <typename T>
