@@ -946,7 +946,7 @@ namespace Tiny3D
         size_t i = 0;
         for (const auto &arg : formals)
         {
-            if (!arg.empty())
+            if (!arg.empty() && i < actuals.size())
             {
                 String pattern = "* " + arg + " *";
                 String formal = " " + arg + " ";
@@ -954,6 +954,12 @@ namespace Tiny3D
                 String pattern2 = "*<" + arg + ">*";
                 String formal2 = "<" + arg + ">";
                 String actual2 = "<" + actuals[i] + ">";
+                String pattern3 = "*<" + arg + ",*";
+                String formal3 = "<" + arg + ",";
+                String actual3 = "<" + actuals[i] + ",";
+                String pattern4 = "*" + arg + ">*";
+                String formal4 = arg + ">";
+                String actual4 = actuals[i] + ">";
                 
                 // 查找参数里面的模板类型并替换
                 for (auto &param : Params)
@@ -965,6 +971,14 @@ namespace Tiny3D
                     else if (StringUtil::match(param.Type, pattern2, true))
                     {
                         StringUtil::replaceAll(param.Type, formal2, actual2);
+                    }
+                    else if (StringUtil::match(param.Type, pattern3, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal3, actual3);
+                    }
+                    else if (StringUtil::match(param.Type, pattern4, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal4, actual4);
                     }
                     else if (param.Type == arg)
                     {
@@ -980,6 +994,51 @@ namespace Tiny3D
                 else if (StringUtil::match(RetType, pattern2, true))
                 {
                     StringUtil::replaceAll(RetType, formal2, actual2);
+                }
+                else if (StringUtil::match(RetType, pattern3, true))
+                {
+                    StringUtil::replaceAll(RetType, formal3, actual3);
+                }
+                else if (StringUtil::match(RetType, pattern4, true))
+                {
+                    StringUtil::replaceAll(RetType, formal4, actual4);
+                }
+                else if (RetType == arg)
+                {
+                    RetType = actuals[i];
+                }
+            }
+            else if (!arg.empty() && i >= actuals.size())
+            {
+                String pattern = "*, " + arg + ">*";
+                String formal = ", " + arg + ">";
+                String actual = ">";
+                String pattern1 = "*," + arg + ">*";
+                String formal1 = "," + arg + ">";
+
+                for (auto &param : Params)
+                {
+                    if (StringUtil::match(param.Type, pattern, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal, actual);
+                    }
+                    else if (StringUtil::match(param.Type, pattern1, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal1, actual);
+                    }
+                    else if (param.Type == arg)
+                    {
+                        param.Type = actuals[i];
+                    }
+                }
+
+                if (StringUtil::match(RetType, pattern, true))
+                {
+                    StringUtil::replaceAll(RetType, formal, actual);
+                }
+                else if (StringUtil::match(RetType, pattern1, true))
+                {
+                    StringUtil::replaceAll(RetType, formal1, actual);
                 }
                 else if (RetType == arg)
                 {

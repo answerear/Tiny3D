@@ -71,6 +71,11 @@ namespace  Tiny3D
                 break;
             }
 
+            // 设置自动反射类
+            StringList whitelist;
+            whitelist.push_back("std::vector");
+            mGenerator->setBuiltinClass(whitelist);
+
             // 设置工程路径
             mGenerator->setProjectPath(opts.SourcePath);
 

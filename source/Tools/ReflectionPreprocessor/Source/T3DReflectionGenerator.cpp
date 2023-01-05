@@ -18,6 +18,9 @@
  ******************************************************************************/
 
 #include "T3DReflectionGenerator.h"
+
+#include <SDL_syswm.h>
+
 #include "T3DRPErrorCode.h"
 
 
@@ -74,6 +77,18 @@ namespace Tiny3D
     ReflectionGenerator::~ReflectionGenerator()
     {
         delete mRoot;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::setBuiltinClass(const StringList &whitelist)
+    {
+        for (const auto &str : whitelist)
+        {
+            StringArray names = StringUtil::split(str, "::");
+            const String &name = names.back();
+            mClassWhiteList.insert(ASTWhiteListValue(name, str));
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -299,7 +314,7 @@ namespace Tiny3D
         String name = toString(cxName);
         CXString cxType = clang_getCursorKindSpelling(cxKind);
         String type = toString(cxType);
-
+        
         // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
         
         switch (cxKind)
@@ -1048,43 +1063,16 @@ namespace Tiny3D
 
         do
         {
-            // 先检测是否有打反射标签
+            // 检测是否有打反射标签
             bool rval;
             FilesItr itrFile;
             SpecifiersItr itrSpec;
             String path;
             uint32_t start, end, column, offset;
             CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxCursor, classes, path, start, end, column, offset);
-            if (!rval)
-            {
-                break;
-            }
-
-            // 检测反射开关是否打开
-            bool RTTIEnabled = false;
-            FileReflectionInfoPtr info = itrFile->second;
-            TList<String> *baseClasses = nullptr;
-            for (const auto &pair : info->switches)
-            {
-                if (pair.first >= start && pair.first <= end)
-                {
-                    // 开关在类内部
-                    RTTIEnabled = pair.second->enabled;
-                    baseClasses = &pair.second->baseClasses;
-                    break;
-                }
-            }
-
-            if (!RTTIEnabled)
-            {
-                // 没有打开反射功能
-                ret = T3D_ERR_RP_RTTI_DISABLED;
-                RP_LOG_ERROR("RTTI has not enable [%s:%u] !", path.c_str(), start);
-                break;
-            }
 
             // 获取类名
-            CXString cxName = clang_getCursorSpelling(cxCursor);
+            CXString cxName = clang_getCursorSpelling(clang_getCanonicalCursor(cxCursor));
             String name = toString(cxName);
 
             // 获取父结点
@@ -1096,6 +1084,54 @@ namespace Tiny3D
                 RP_LOG_ERROR("The parent of class %s is null [%s:%u] !",
                     name.c_str(), path.c_str(), start);
                 break;
+            }
+            
+            bool inWhitelist = false;
+            auto itrWhitelist = mClassWhiteList.find(name);
+            if (itrWhitelist != mClassWhiteList.end())
+            {
+                // 在白名单里，再看看命名空间是否对得上
+                String hierarchyName = parent->getHierarchyName();
+                hierarchyName = hierarchyName + "::" + name;
+                inWhitelist = (hierarchyName == itrWhitelist->second);
+            }
+
+            bool RTTIEnabled = false;
+            TList<String> *baseClasses = nullptr;
+            
+            if (!inWhitelist)
+            {
+                // class 没在自动反射白名单里
+                if (!rval)
+                {
+                    break;
+                }
+
+                // 检测反射开关是否打开
+                FileReflectionInfoPtr info = itrFile->second;
+                
+                for (const auto &pair : info->switches)
+                {
+                    if (pair.first >= start && pair.first <= end)
+                    {
+                        // 开关在类内部
+                        RTTIEnabled = pair.second->enabled;
+                        baseClasses = &pair.second->baseClasses;
+                        break;
+                    }
+                }
+
+                if (!RTTIEnabled)
+                {
+                    // 没有打开反射功能
+                    ret = T3D_ERR_RP_RTTI_DISABLED;
+                    RP_LOG_ERROR("RTTI has not enable [%s:%u] !", path.c_str(), start);
+                    break;
+                }
+            }
+            else
+            {
+                RTTIEnabled = true;
             }
 
             ASTNode *node = parent->getChild(name);
@@ -1132,7 +1168,7 @@ namespace Tiny3D
             klass->FileInfo.EndLine = end;
             klass->RTTIEnabled = RTTIEnabled;
             klass->RTTIBaseClasses = baseClasses;
-            klass->Specifiers = &itrSpec->second;
+            klass->Specifiers = (!inWhitelist ? &itrSpec->second : nullptr);
 
             // 把自己加到父结点上
             parent->addChild(name, klass);
@@ -1160,18 +1196,25 @@ namespace Tiny3D
                         constructAsPointer = false;
                     }
                 }
-                
-                for (const auto &spec : itrSpec->second)
+
+                if (!inWhitelist)
                 {
-                    // 如果有设置指示符构造返回类型，那就用指定的
-                    if (spec.name == kSpecConstructAsPointer)
+                    for (const auto &spec : itrSpec->second)
                     {
-                        constructAsPointer = true;
+                        // 如果有设置指示符构造返回类型，那就用指定的
+                        if (spec.name == kSpecConstructAsPointer)
+                        {
+                            constructAsPointer = true;
+                        }
+                        else if (spec.name == kSpecConstructAsObject)
+                        {
+                            constructAsPointer = false;
+                        }
                     }
-                    else if (spec.name == kSpecConstructAsObject)
-                    {
-                        constructAsPointer = false;
-                    }
+                }
+                else
+                {
+                    constructAsPointer = false;
                 }
 
                 klass->ConstructAsPointer = constructAsPointer;
@@ -1406,7 +1449,7 @@ namespace Tiny3D
             bool asConstructor = false; // 是否作为构造函数使用
             bool rval;
             SpecifiersItr itrSpec;
-            
+            bool inWhitelist = false;
             ASTFileInfo fileInfo;
             
             if (!isConstructor && !isDestructor)
@@ -1498,7 +1541,32 @@ namespace Tiny3D
                 {
                     // 类函数，需要类有打反射标签
                     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, classes, path, start, end, column, offset);
-                    if (!rval)
+
+                    // 获取类名
+                    CXString cxClassName = clang_getCursorSpelling(cxParent);
+                    String className = toString(cxClassName);
+
+                    // 获取父结点
+                    ASTNode *parentn = getOrConstructParentNode(cxParent);
+                    if (parentn == nullptr)
+                    {
+                        // 父结点不存在
+                        ret = T3D_ERR_RP_AST_NO_PARENT;
+                        RP_LOG_ERROR("The parent of class %s is null [%s:%u] !",
+                            className.c_str(), path.c_str(), start);
+                        break;
+                    }
+
+                    auto itrWhitelist = mClassWhiteList.find(className);
+                    if (itrWhitelist != mClassWhiteList.end())
+                    {
+                        // 在白名单里，再看看命名空间是否对得上
+                        String hierarchyName = parentn->getHierarchyName();
+                        hierarchyName = hierarchyName + "::" + className;
+                        inWhitelist = (hierarchyName == itrWhitelist->second);
+                    }
+                    
+                    if (!inWhitelist && !rval)
                     {
                         // 结构体函数，需要结构体有打反射标签
                         CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
@@ -1507,22 +1575,27 @@ namespace Tiny3D
                             break;
                         }
                     }
+                    else if (inWhitelist && !clang_CXXConstructor_isMoveConstructor(cxCursor)
+                        && !clang_CXXConstructor_isCopyConstructor(cxCursor)
+                        && !clang_CXXConstructor_isDefaultConstructor(cxCursor))
+                    {
+                        // 白名单类里面的非默认构造、非拷贝构造、非赋值构造，均不自动反射
+                        break;
+                    }
                 }
-                // else if (cxParent.kind == CXCursor_StructDecl)
-                // {
-                //     // 结构体函数，需要结构体有打反射标签
-                //     CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
-                //     if (!rval)
-                //     {
-                //         break;
-                //     }
-                // }
                 else
                 {
                     break;
                 }
 
-                isFriend = isRTTIFriend(itrFile->second, start, end);
+                if (inWhitelist)
+                {
+                    isFriend = false;
+                }
+                else
+                {
+                    isFriend = isRTTIFriend(itrFile->second, start, end);
+                }
                 
                 getASTNodeInfo(cxCursor, path, start, end, column, offset);
                 fileInfo.Path = path;
@@ -1629,6 +1702,35 @@ namespace Tiny3D
                         j++;
                     }
                     param.Type += "> &";
+                    overload->Params.push_back(param);
+                }
+            }
+            else if (parent->getType() == ASTNode::Type::kClassTemplate
+                && isConstructor && clang_CXXConstructor_isMoveConstructor(cxCursor))
+            {
+                // 函数参数，就是自己的引用
+                String paramType = parent->getHierarchyName();
+                int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
+                for (int32_t i = 0; i < numArgs; i++)
+                {
+                    ASTFunctionParam param;
+                    // 参数名
+                    CXCursor cxArg = clang_Cursor_getArgument(cxCursor, i);
+                    param.Name = toString(clang_getCursorSpelling(cxArg));
+                    // 参数类型
+                    param.Type = paramType + "<";
+                    ASTClassTemplate *klassTemplate = static_cast<ASTClassTemplate*>(parent);
+                    size_t j = 0;
+                    for (const auto &temp : klassTemplate->TemplateParams)
+                    {
+                        param.Type += temp.type;
+                        if (j != klassTemplate->TemplateParams.size() - 1)
+                        {
+                            param.Type += ", ";
+                        }
+                        j++;
+                    }
+                    param.Type += "> &&";
                     overload->Params.push_back(param);
                 }
             }
@@ -2619,7 +2721,7 @@ namespace Tiny3D
                 break;
             }
             
-            String varType = toString(clang_getTypeSpelling(cxVarType));
+            String varType = toString(clang_getTypeSpelling(clang_getCanonicalType(cxVarType)));
             // CXType cxCanonicalType = clang_getCanonicalType(cxVarType);
             // String canonicalType = toString(clang_getTypeSpelling(cxCanonicalType));
             CXCursor cxCursorDecl = clang_getTypeDeclaration(cxVarType);
@@ -2628,7 +2730,7 @@ namespace Tiny3D
             // CXType cxType = clang_getCursorType(cxCursorDecl);
             // String typeName = toString(clang_getTypeSpelling(cxType));
             String USR = toString(clang_getCursorUSR(cxCursorDecl));
-            // String decl = toString(clang_getCursorSpelling(cxCursorDecl));
+            String declName = toString(clang_getCursorSpelling(cxCursorDecl));
 
             auto itrTemplate = mClassTemplates.find(templateName);
             if (itrTemplate == mClassTemplates.end())
@@ -2637,8 +2739,50 @@ namespace Tiny3D
                 break;
             }
 
-            const auto names = StringUtil::split2(varType, "::");
+            StringList names;
+            String str;
+            int inBracket = 0;
+            String::size_type pos = 0;
+            while (pos < varType.length())
+            {
+                if (varType[pos] == ':' && varType[pos+1] == ':')
+                {
+                    if (inBracket == 0)
+                    {
+                        names.push_back(str);
+                        str.clear();
+                    }
+                    else
+                    {
+                        str.push_back(varType[pos]);
+                        str.push_back(varType[pos+1]);
+                    }
+                    pos++;
+                }
+                else if (varType[pos] == '<')
+                {
+                    str.push_back(varType[pos]);
+                    inBracket++;
+                }
+                else if (varType[pos] == '>')
+                {
+                    str.push_back(varType[pos]);
+                    inBracket--;
+                }
+                else
+                {
+                    str.push_back(varType[pos]);
+                }
+                pos++;
+                if (pos == varType.length())
+                {
+                    names.push_back(str);
+                }
+            }
+            
+            const auto tnames = StringUtil::split2(varType, "::");
             const String &name = names.back();
+            // const String &name = declName;
 
             StringArray actualParams;
             actualParams.reserve(numOfTemplateArg);

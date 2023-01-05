@@ -113,10 +113,10 @@ namespace Tiny3D
 // {
 //     using namespace rttr;
 //
-//     registration::class_<Tiny3D::UUID>("Tiny3D::UUID")
-//         .constructor<>()(policy::ctor::as_object)
-//         .method("toString", &Tiny3D::UUID::toString)
-//         .method("fromString", &Tiny3D::UUID::fromString)
-//         .property("value", &Tiny3D::UUID::getValue, &Tiny3D::UUID::setValue);
+//     registration::class_<std::vector<int>>("std::vector<int>")
+//         .constructor<>()
+//         (
+//             policy::ctor::as_object
+//         );
 // }
 

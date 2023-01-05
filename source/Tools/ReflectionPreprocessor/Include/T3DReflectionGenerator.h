@@ -74,6 +74,11 @@ namespace Tiny3D
          * @brief 输出 AST 到 ast.json 文件
          */
         void dumpReflectionInfo(const String &path) const;
+
+        /**
+         * @brief 设置内置类，即不打标签也自动反射的类，主要是用于各种 stl 容器模板
+         */
+        void setBuiltinClass(const StringList &whitelist);
         
     protected:
         String toString(const CXString &s) const
@@ -200,8 +205,14 @@ namespace Tiny3D
         typedef TMap<String, StringList> HeaderFilesMap;
         typedef HeaderFilesMap::value_type HeaderFilesMapValue;
 
+        typedef TMap<String, String> ASTWhiteList;
+        typedef ASTWhiteList::iterator ASTWhiteListItr;
+        typedef ASTWhiteList::const_iterator ASTWhiteListConstItr;
+        typedef ASTWhiteList::value_type ASTWhiteListValue;
+
         bool isRTTIFriend(FileReflectionInfoPtr info, uint32_t start, uint32_t end) const;
 
+        ASTWhiteList            mClassWhiteList;    /// 白名单类列表
         ASTFunctionTemplateMap  mFunctionTemplates; /// 函数模板集合
         ASTClassTemplateMap     mClassTemplates;    /// 类模板集合
         SourceFilesMap          mSourceFiles;       /// 源码集合

@@ -658,6 +658,35 @@ namespace Tiny3D
         return ret;
     }
 
+    void ReadSequentialContainer(variant_sequential_view &view, Value &array_value)
+    {
+        // view.set_size(array_value.Size());
+        // const type array_value_type = view.get_rank_type(1);
+        //
+        // for (SizeType i = 0; i < array_value.Size(); ++i)
+        // {
+        //     auto& json_index_value = array_value[i];
+        //     if (json_index_value.IsArray())
+        //     {
+        //         auto sub_array_view = view.get_value(i).create_sequential_view();
+        //         ReadSequentialContainer(sub_array_view, json_index_value);
+        //     }
+        //     else if (json_index_value.IsObject())
+        //     {
+        //         variant var_tmp = view.get_value(i);
+        //         variant wrapped_var = var_tmp.extract_wrapped_value();
+        //         fromjson_recursively(wrapped_var, json_index_value);
+        //         view.set_value(i, wrapped_var);
+        //     }
+        //     else
+        //     {
+        //         variant extracted_value = extract_basic_types(json_index_value);
+        //         if (extracted_value.convert(array_value_type))
+        //             view.set_value(i, extracted_value);
+        //     }
+        // }
+    }
+
     variant ReadObject(const Value &node)
     {
         variant obj;
@@ -695,11 +724,19 @@ namespace Tiny3D
             }
             else if (klass.is_sequential_container())
             {
-                        
+                const auto &array = value.GetArray();
+                auto view = obj.create_sequential_view();
+                view.set_size(array.Size());
+                for (size_t i = 0; i < array.Size(); i++)
+                {
+                    const auto &item = array[i];
+                    variant var = ReadObject(item);
+                    view.set_value(i, var);
+                }
             }
             else if (klass.is_associative_container())
             {
-                        
+                
             }
             else
             {
@@ -710,21 +747,8 @@ namespace Tiny3D
 
                     // property type & value
                     variant prop = ReadObject(it->value);
-                    auto pro = klass.get_property(name.GetString());
-                    bool isWrapper = pro.get_type().get_raw_type().is_wrapper();
-                    if (isWrapper)
-                    {
-                        // pro.set_value("", prop);
-                        bool rt = prop.convert(type::get<SmartPtr<Object>>());
-                        bool ret = klass.set_property_value(name.GetString(), obj, pro);
-                        T3D_ASSERT(ret);
-                    }
-                    else
-                    {
-                        bool ret = klass.set_property_value(name.GetString(), obj, prop);
-                        T3D_ASSERT(ret);
-                    }
-                    
+                    bool ret = klass.set_property_value(name.GetString(), obj, prop);
+                    T3D_ASSERT(ret);
                 }
             }
         } while (false);
