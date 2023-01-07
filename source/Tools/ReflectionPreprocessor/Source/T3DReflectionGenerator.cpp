@@ -370,7 +370,7 @@ namespace Tiny3D
             break;
         case CXCursor_TemplateTypeParameter:
             {
-                RP_LOG_INFO("CXCursor_TemplateTypeParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_TemplateTypeParameter %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
                 ret = processTemplateParameter(cxCursor, cxParent, parent);
                 cxResult = CXChildVisit_Continue;
             }
@@ -432,7 +432,7 @@ namespace Tiny3D
             break;
         case CXCursor_TemplateRef:
             {
-                RP_LOG_INFO("CXCursor_TemplateRef %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
+                // RP_LOG_INFO("CXCursor_TemplateRef %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
             }
             break;
         // case CXCursor_MacroExpansion:
@@ -1240,6 +1240,24 @@ namespace Tiny3D
                     return data->generator->visitClassChildren(cxCursor, cxParent, klass);
                 },
                 &data);
+
+            if (klass->HasConstructor && !klass->HasDefaultConstructor)
+            {
+                // 有构造函数但是没有默认构造函数，需要报错
+                ret = T3D_ERR_RP_NO_DEFAULT_CONSTRUCTOR;
+                RP_LOG_ERROR("The class %s has constructor but no default constructor [%s:%u] !",
+                    name.c_str(), path.c_str(), start);
+                break;
+            }
+            
+            if (!klass->HasConstructor)
+            {
+                // 没有任何构造函数，添加默认构造函数
+                ASTFunction *function = new ASTFunction(name);
+                klass->addChild(name, function);
+                ASTConstructor *constructor = new ASTConstructor(name);
+                function->addChild(name, constructor);
+            }
         } while (false);
         
         return ret;
@@ -1672,6 +1690,20 @@ namespace Tiny3D
                 ret = T3D_ERR_RP_AST_NO_PARENT;
                 RP_LOG_ERROR("The parent is null [%s:%u] !", fileInfo.Path.c_str(), fileInfo.StartLine);
                 break;
+            }
+
+            if (isConstructor)
+            {
+                T3D_ASSERT(parent->getType() == ASTNode::Type::kClass
+                    || parent->getType() == ASTNode::Type::kStruct
+                    || parent->getType() == ASTNode::Type::kClassTemplate);
+                ASTClass *klass = static_cast<ASTClass *>(parent);
+                klass->HasConstructor = true;
+
+                if (clang_CXXConstructor_isDefaultConstructor(cxCursor))
+                {
+                    klass->HasDefaultConstructor = true;
+                }
             }
             
             CXType cxType = clang_getCursorType(cxCursor);
@@ -2521,7 +2553,7 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
-    void ReflectionGenerator::insertSourceFiles(const String &path, ASTNode *node, bool isTemplate)
+    void ReflectionGenerator::insertSourceFiles(const String &path, ASTNode *node, bool isTemplate, const StringList &pathes)
     {
         do
         {
@@ -2553,6 +2585,24 @@ namespace Tiny3D
                             {
                                 headerPath.erase(0, 1);
                                 rval.first->second.push_back(headerPath);
+                            }
+                        }
+
+                        for (const auto &str : pathes)
+                        {
+                            headerPath = str;
+                            if (StringUtil::match(headerPath, pattern, false))
+                            {
+                                StringUtil::replaceAll(headerPath, includePath, "");
+                                if (headerPath[0] == Dir::getNativeSeparator())
+                                {
+                                    headerPath.erase(0, 1);
+                                    auto it = std::find(rval.first->second.begin(), rval.first->second.end(), headerPath);
+                                    if (it == rval.first->second.end())
+                                    {
+                                        rval.first->second.push_back(headerPath);
+                                    }
+                                }
                             }
                         }
                     }
@@ -2651,6 +2701,28 @@ namespace Tiny3D
             
                 for (const auto &value : val.second)
                 {
+                    ASTNode *parent = value.second->getParent();
+                    bool hasNS = false, first = false;
+                    if (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
+                    {
+                        hasNS = true;
+                        first = true;
+                        fs << std::endl << "\tusing namespace ";
+                    }
+                    while (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
+                    {
+                        if (!first)
+                        {
+                            fs << "::";
+                        }
+                        fs << parent->getName();
+                        parent = parent->getParent();
+                    }
+                    if (hasNS)
+                    {
+                        fs << ";" << std::endl;
+                    }
+                    
                     value.second->generateSourceFile(fs);
                 }
             }
@@ -2711,7 +2783,7 @@ namespace Tiny3D
             // CXCursor cxTemplateInst = clang_getSpecializedCursorTemplate(cxCursor);
             // String inst = toString(clang_getCursorSpelling(cxTemplateInst));
             // int numOfInstParams = clang_Cursor_getNumTemplateArguments(cxCursor);
-            
+
             CXType cxVarType = clang_getCursorType(cxCursor);
             int numOfTemplateArg = clang_Type_getNumTemplateArguments(cxVarType);
             
@@ -2790,6 +2862,10 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            String path;
+            uint32_t start, end, col, offset;
+            getASTNodeInfo(cxCursor, path, start, end, col, offset);
             
             ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
             parent->addChild(name, templateInstance);
@@ -2804,7 +2880,9 @@ namespace Tiny3D
             StringUtil::replaceAll(decl, ",", "_");
             StringUtil::replaceAll(decl, ">", "_");
             StringUtil::replaceAll(decl, " ", "");
-            insertSourceFiles(templateInstance->FileInfo.Path, templateInstance, true);
+            StringList pathes;
+            pathes.push_back(path);
+            insertSourceFiles(templateInstance->FileInfo.Path, templateInstance, true, pathes);
         } while (false);
         
         return ret;

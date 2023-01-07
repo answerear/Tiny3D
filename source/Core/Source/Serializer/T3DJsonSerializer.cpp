@@ -469,7 +469,9 @@ namespace Tiny3D
                 }
                 else // object
                 {
+                    writer.StartObject();
                     WriteObject(writer, wrapped_var);
+                    writer.EndObject();
                 }
             }
         }

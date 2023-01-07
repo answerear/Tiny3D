@@ -34,6 +34,9 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API FrustumBound : public Bound
     {
+        TRTTI_ENABLE(Bound)
+        TRTTI_FRIEND
+
     public:
         /**
          * @fn  static FrustumBoundPtr FrustumBound::create(SceneNode *node, 
@@ -66,7 +69,6 @@ namespace Tiny3D
          * @return  A copy of this object.
          * @sa  BoundPtr Bound::clone() const
          */
-        TFUNCTION()
         virtual ComponentPtr clone() const override;
 
         /**

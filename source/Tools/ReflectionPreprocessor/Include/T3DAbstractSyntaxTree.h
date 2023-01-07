@@ -318,6 +318,8 @@ namespace Tiny3D
             : ASTNode(name)
             , RTTIEnabled(false)
             , ConstructAsPointer(false)
+            , HasDefaultConstructor(false)
+            , HasConstructor(false)
             , RTTIBaseClasses(nullptr)
         {}
 
@@ -346,11 +348,13 @@ namespace Tiny3D
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
 
     public:
-        ASTBaseClasses      BaseClasses;        /// 基类列表
-        ASTFileInfo         FileInfo;           /// 结构体所在文件信息
-        bool                RTTIEnabled;        /// 是否开启了反射功能
-        bool                ConstructAsPointer; /// 构造返回指针或者普通对象
-        TList<String>       *RTTIBaseClasses;   /// 反射的基类列表
+        ASTBaseClasses      BaseClasses;            /// 基类列表
+        ASTFileInfo         FileInfo;               /// 结构体所在文件信息
+        bool                RTTIEnabled;            /// 是否开启了反射功能
+        bool                ConstructAsPointer;     /// 构造返回指针或者普通对象
+        bool                HasDefaultConstructor;  /// 是否有默认构造函数
+        bool                HasConstructor;         /// 是否有构造函数
+        TList<String>       *RTTIBaseClasses;       /// 反射的基类列表
     };
 
     /**

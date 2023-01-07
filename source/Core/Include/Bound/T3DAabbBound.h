@@ -131,6 +131,18 @@ namespace Tiny3D
 
         virtual TResult cloneProperties(Component *newObj) const override;
 
+        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="getter", "Description"="Aligned Axis Box")
+        void setAlignAxisBox(const Aabb &aabb)
+        {
+            mAabb = aabb;
+        }
+
+        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="getter", "Description"="Original Aligned Axis Box")
+        void setOriginalAlignAxisBox(const Aabb &aabb)
+        {
+            mOriginalAabb = aabb;
+        }
+
     protected:
         Aabb        mAabb;          /**< 实时变换的AABB */
         Aabb        mOriginalAabb;  /**< 不参与变换的原始AABB */

@@ -165,6 +165,11 @@ namespace Tiny3D
             for (size_t i = 0; i < 5; i++)
             {
                 meta->uuid.ArrayData.push_back(10+i*10);
+                meta->uuid.ListData.push_back(1.0f+i*1.0f);
+                UUID::Item item;
+                item.key = (int32_t)i;
+                item.value = (int32_t)i * 100;
+                meta->uuid.ItemData.push_back(item);
             }
             meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
 

@@ -23,14 +23,19 @@
 
 #include "T3DMathPrerequisites.h"
 #include "T3DSphere.h"
+#include "T3DVector3.h"
 
 
 namespace Tiny3D
 {
     /// 轴对齐包围盒类（Axis Aligned Bounding Box）
+    TCLASS()
     template <typename T>
     class TAabb
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+        
     public:
         /// 默认构造函数
         TAabb();
@@ -38,37 +43,70 @@ namespace Tiny3D
 
         void build(const TVector3<T> points[], size_t count);
 
+        TPROPERTY(RTTRFuncName="width", RTTRFuncType="getter", "Description"="The width of the aligned axis box.")
         T getWidth() const;
+        
+        TPROPERTY(RTTRFuncName="height", RTTRFuncType="getter", "Description"="The height of the aligned axis box.")
         T getHeight() const;
+        
+        TPROPERTY(RTTRFuncName="depth", RTTRFuncType="getter", "Description"="The depth of the aligned axis box.")
         T getDepth() const;
 
+        TPROPERTY(RTTRFuncName="minX", RTTRFuncType="getter", "Description"="The minimum in x-axis.")
         T getMinX() const;
+        
+        TPROPERTY(RTTRFuncName="maxX", RTTRFuncType="getter", "Description"="The maximum in x-axis.")
         T getMaxX() const;
 
+        TPROPERTY(RTTRFuncName="minY", RTTRFuncType="getter", "Description"="The minimum in y-axis.")
         T getMinY() const;
+        
+        TPROPERTY(RTTRFuncName="maxY", RTTRFuncType="getter", "Description"="The maximum in y-axis.")
         T getMaxY() const;
 
+        TPROPERTY(RTTRFuncName="minZ", RTTRFuncType="getter", "Description"="The minimum in z-axis.")
         T getMinZ() const;
+        
+        TPROPERTY(RTTRFuncName="maxZ", RTTRFuncType="getter", "Description"="The maximum in z-axis.")
         T getMaxZ() const;
 
+        TPROPERTY(RTTRFuncName="center", RTTRFuncType="getter", "Description"="The center in the aligned axis box.")
         const TVector3<T> &getCenter() const;
+
+        TPROPERTY(RTTRFuncName="radius", RTTRFuncType="getter", "Description"="The radius of the sphere surrounding the aligned axis box.")
         T getRadius() const;
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter", "Description"="The sphere surrounding the aligned axis box.")
         const TSphere<T> &getSphere() const;
-        
+
+        TPROPERTY(RTTRFuncName="width", RTTRFuncType="setter", "Description"="The width of the aligned axis box.")
         void setWidth(T fWidth);
+
+        TPROPERTY(RTTRFuncName="height", RTTRFuncType="setter", "Description"="The height of the aligned axis box.")
         void setHeight(T fHeight);
+
+        TPROPERTY(RTTRFuncName="depth", RTTRFuncType="setter", "Description"="The depth of the aligned axis box.")
         void setDepth(T fDepth);
 
+        TPROPERTY(RTTRFuncName="minX", RTTRFuncType="setter", "Description"="The minimum in x-axis.")
         void setMinX(T x);
+
+        TPROPERTY(RTTRFuncName="maxX", RTTRFuncType="setter", "Description"="The maximum in x-axis.")
         void setMaxX(T x);
 
+        TPROPERTY(RTTRFuncName="minY", RTTRFuncType="setter", "Description"="The minimum in y-axis.")
         void setMinY(T y);
+
+        TPROPERTY(RTTRFuncName="maxY", RTTRFuncType="setter", "Description"="The maximum in y-axis.")
         void setMaxY(T y);
 
+        TPROPERTY(RTTRFuncName="minZ", RTTRFuncType="setter", "Description"="The minimum in z-axis.")
         void setMinZ(T z);
+
+        TPROPERTY(RTTRFuncName="maxZ", RTTRFuncType="setter", "Description"="The maximum in z-axis.")
         void setMaxZ(T z);
 
+        TFUNCTION()
         void setParam(const TVector3<T> &vMin, const TVector3<T> &vMax);
 
     private:

@@ -85,6 +85,8 @@ namespace Tiny3D
             values.high = other.values.high;
             TestObj = other.TestObj;
             ArrayData = other.ArrayData;
+            ListData = other.ListData;
+            ItemData = other.ItemData;
         }
 
         UUID& operator =(const UUID& other)
@@ -93,6 +95,8 @@ namespace Tiny3D
             values.high = other.values.high;
             TestObj = other.TestObj;
             ArrayData = other.ArrayData;
+            ListData = other.ListData;
+            ItemData = other.ItemData;
             return *this;
         }
 
@@ -171,6 +175,24 @@ namespace Tiny3D
 
         TPROPERTY()
         TArray<int> ArrayData;
+
+        TPROPERTY()
+        TList<float> ListData;
+
+        TCLASS()
+        struct Item
+        {
+            TPROPERTY()
+            int key;
+
+            TPROPERTY()
+            int value;
+
+            TRTTI_ENABLE()
+        };
+
+        TPROPERTY()
+        TArray<Item> ItemData;
     };
 }
 

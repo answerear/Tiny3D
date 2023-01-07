@@ -27,6 +27,7 @@
 namespace Tiny3D
 {
     #define TCLASS(...)
+    #define TSTRUCT(...)
     #define TFUNCTION(...)
     #define TPROPERTY(...)
     #define TENUM(...)

@@ -138,7 +138,7 @@ namespace Tiny3D
 
         ASTNode *getOrConstructParentNode(CXCursor cxCursor);
 
-        void insertSourceFiles(const String &path, ASTNode *node, bool isTemplate);
+        void insertSourceFiles(const String &path, ASTNode *node, bool isTemplate, const StringList &pathes = StringList());
 
         void insertClassTemplate(const String &name, ASTClassTemplate *klass);
 

@@ -135,7 +135,6 @@ namespace Tiny3D
          * @brief   获取可渲染对象，用于渲染该碰撞体
          * @return  返回可渲染对象.
          */
-        TFUNCTION()
         virtual Renderable *getRenderable() = 0;
 
     protected:

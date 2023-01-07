@@ -34,6 +34,9 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API ObbBound : public Bound
     {
+        TRTTI_ENABLE(Bound)
+        TRTTI_FRIEND
+
     public:
         /**
          * @fn  static ObbBoundPtr ObbBound::create(SceneNode *node, 
@@ -57,6 +60,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
+        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
         virtual Type getType() const override;
 
         /**
@@ -72,6 +76,7 @@ namespace Tiny3D
          * @brief   获取有向包围盒对象
          * @return  The obb.
          */
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter", "Description"="Frustum")
         const Obb &getObb() const
         {
             return mObb;

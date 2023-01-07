@@ -282,6 +282,14 @@ namespace Tiny3D
         // Construct as pointer or as object
         writer.Key("Construct As Pointer");
         writer.Bool(ConstructAsPointer);
+
+        // Has default constructor
+        writer.Key("Has Default Constructor");
+        writer.Bool(HasDefaultConstructor);
+
+        // Has Constructor
+        writer.Key("Has Constructor");
+        writer.Bool(HasConstructor);
         
         // Base Classes
         writer.Key("Base Classes");
