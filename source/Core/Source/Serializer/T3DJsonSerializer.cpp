@@ -478,12 +478,17 @@ namespace Tiny3D
         writer.EndArray();
     }
 
-    void WriteAssociatvieContainer(PrettyWriter<JsonStream> &writer, const variant_associative_view &view)
+    void WriteAssociatvieContainer(PrettyWriter<JsonStream> &writer, const type &t, const variant_associative_view &view)
     {
+        writer.Key(RTTI_TYPE);
+        const auto name = t.get_name();
+        writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+        writer.Key(RTTI_VALUE);
+        
         static const string_view key_name(RTTI_MAP_KEY);
         static const string_view value_name(RTTI_MAP_VALUE);
 
-        // writer.StartArray();
+        writer.StartArray();
 
         if (view.is_key_only_type())
         {
@@ -498,7 +503,7 @@ namespace Tiny3D
         {
             for (auto& item : view)
             {
-                writer.StartObject();
+                // writer.StartObject();
                 writer.Key(key_name.data(), static_cast<rapidjson::SizeType>(key_name.length()), false);
 
                 writer.StartObject();
@@ -511,11 +516,11 @@ namespace Tiny3D
                 WriteVariant(writer, item.second);
                 writer.EndObject();
                 
-                writer.EndObject();
+                // writer.EndObject();
             }
         }
 
-        // writer.EndArray();
+        writer.EndArray();
     }
 
     bool WriteVariant(PrettyWriter<JsonStream> &writer, const variant &var)
@@ -534,7 +539,7 @@ namespace Tiny3D
         }
         else if (var.is_associative_container())
         {
-            WriteAssociatvieContainer(writer, var.create_associative_view());
+            WriteAssociatvieContainer(writer, value_type, var.create_associative_view());
         }
         else
         {

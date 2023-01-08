@@ -1250,9 +1250,9 @@ namespace Tiny3D
                 break;
             }
             
-            if (!klass->HasConstructor)
+            if (!klass->HasConstructor && !clang_CXXRecord_isAbstract(cxCursor))
             {
-                // 没有任何构造函数，添加默认构造函数
+                // 没有任何构造函数，并且非抽象类，添加默认构造函数
                 ASTFunction *function = new ASTFunction(name);
                 klass->addChild(name, function);
                 ASTConstructor *constructor = new ASTConstructor(name);

@@ -87,6 +87,7 @@ namespace Tiny3D
             ArrayData = other.ArrayData;
             ListData = other.ListData;
             ItemData = other.ItemData;
+            MapData = other.MapData;
         }
 
         UUID& operator =(const UUID& other)
@@ -97,6 +98,7 @@ namespace Tiny3D
             ArrayData = other.ArrayData;
             ListData = other.ListData;
             ItemData = other.ItemData;
+            MapData = other.MapData;
             return *this;
         }
 

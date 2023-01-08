@@ -32,8 +32,9 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API BlendState : public Object
     {
-        TRTTI_ENABLE(Object);
-
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
+        
     public:
         enum
         {
