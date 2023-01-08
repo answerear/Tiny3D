@@ -503,7 +503,7 @@ namespace Tiny3D
         {
             for (auto& item : view)
             {
-                // writer.StartObject();
+                writer.StartObject();
                 writer.Key(key_name.data(), static_cast<rapidjson::SizeType>(key_name.length()), false);
 
                 writer.StartObject();
@@ -516,7 +516,7 @@ namespace Tiny3D
                 WriteVariant(writer, item.second);
                 writer.EndObject();
                 
-                // writer.EndObject();
+                writer.EndObject();
             }
         }
 
@@ -751,13 +751,14 @@ namespace Tiny3D
             {
                 const auto &array = value.GetArray();
                 auto view = obj.create_associative_view();
-                for (size_t i = 0; i < array.Size() / 2; i++)
+                for (size_t i = 0; i < array.Size(); i++)
                 {
-                    const auto &itemKey = array[i*2];
-                    variant key = ReadObject(itemKey);
-                    const auto &itemValue = array[i*2+1];
-                    variant var = ReadObject(itemValue);
-                    view.insert(key, var);
+                    const auto &item = array[i];
+                    const auto &keyNode = item.FindMember(RTTI_MAP_KEY);
+                    variant key = ReadObject(keyNode->value);
+                    const auto &valNode = item.FindMember(RTTI_MAP_VALUE);
+                    variant val = ReadObject(valNode->value);
+                    view.insert(key, val);
                 }
             }
             else

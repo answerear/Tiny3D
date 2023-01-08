@@ -88,6 +88,7 @@ namespace Tiny3D
             ListData = other.ListData;
             ItemData = other.ItemData;
             MapData = other.MapData;
+            MapItemData = other.MapItemData;
         }
 
         UUID& operator =(const UUID& other)
@@ -99,6 +100,7 @@ namespace Tiny3D
             ListData = other.ListData;
             ItemData = other.ItemData;
             MapData = other.MapData;
+            MapItemData = other.MapItemData;
             return *this;
         }
 
@@ -198,6 +200,21 @@ namespace Tiny3D
 
         TPROPERTY()
         TMap<int, int> MapData;
+
+        TCLASS()
+        struct Data
+        {
+            TPROPERTY()
+            int ival;
+            
+            TPROPERTY()
+            float fval;
+
+            TRTTI_ENABLE()
+        };
+ 
+        TPROPERTY()
+        TMap<String, Data> MapItemData;
     };
 }
 

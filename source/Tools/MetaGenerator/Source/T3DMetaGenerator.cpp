@@ -171,6 +171,15 @@ namespace Tiny3D
                 item.value = (int32_t)i * 100;
                 meta->uuid.ItemData.push_back(item);
                 meta->uuid.MapData.insert(TMap<int,int>::value_type(i, 1000*i));
+                UUID::Data data;
+                data.ival = i * 100;
+                data.fval = i * 10.0f;
+                std::stringstream ss;
+                ss << i;
+                String key;
+                key = ss.str();
+                ss.str() = "";
+                meta->uuid.MapItemData.insert(TMap<String, UUID::Data>::value_type(key, data));
             }
             meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
 
