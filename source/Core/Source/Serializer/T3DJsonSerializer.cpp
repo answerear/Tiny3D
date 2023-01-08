@@ -749,7 +749,16 @@ namespace Tiny3D
             }
             else if (klass.is_associative_container())
             {
-                
+                const auto &array = value.GetArray();
+                auto view = obj.create_associative_view();
+                for (size_t i = 0; i < array.Size() / 2; i++)
+                {
+                    const auto &itemKey = array[i*2];
+                    variant key = ReadObject(itemKey);
+                    const auto &itemValue = array[i*2+1];
+                    variant var = ReadObject(itemValue);
+                    view.insert(key, var);
+                }
             }
             else
             {
