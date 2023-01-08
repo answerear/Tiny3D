@@ -968,6 +968,9 @@ namespace Tiny3D
                 String pattern4 = "*" + arg + ">*";
                 String formal4 = arg + ">";
                 String actual4 = actuals[i] + ">";
+                String pattern5 = "*" + arg + ",*";
+                String formal5 = arg + ",";
+                String actual5 = actuals[i] + ",";
                 
                 // 查找参数里面的模板类型并替换
                 for (auto &param : Params)
@@ -987,6 +990,10 @@ namespace Tiny3D
                     else if (StringUtil::match(param.Type, pattern4, true))
                     {
                         StringUtil::replaceAll(param.Type, formal4, actual4);
+                    }
+                    else if (StringUtil::match(param.Type, pattern5, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal5, actual5);
                     }
                     else if (param.Type == arg)
                     {
@@ -1011,6 +1018,10 @@ namespace Tiny3D
                 {
                     StringUtil::replaceAll(RetType, formal4, actual4);
                 }
+                else if (StringUtil::match(RetType, pattern5, true))
+                {
+                    StringUtil::replaceAll(RetType, formal5, actual5);
+                }
                 else if (RetType == arg)
                 {
                     RetType = actuals[i];
@@ -1023,6 +1034,11 @@ namespace Tiny3D
                 String actual = ">";
                 String pattern1 = "*," + arg + ">*";
                 String formal1 = "," + arg + ">";
+                String pattern2 = "* " + arg + ">*";
+                String formal2 = " " + arg + ">";
+                String pattern3 = "*" + arg + ",*";
+                String formal3 = arg + ",";
+                String actualEmpty = "";
 
                 for (auto &param : Params)
                 {
@@ -1033,6 +1049,21 @@ namespace Tiny3D
                     else if (StringUtil::match(param.Type, pattern1, true))
                     {
                         StringUtil::replaceAll(param.Type, formal1, actual);
+                    }
+                    else if (StringUtil::match(param.Type, pattern2, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal2, actual);
+                        String patternEnd = "*, >*";
+                        String formalEnd = ", >";
+                        String actualEnd = ">";
+                        if (StringUtil::match(param.Type, patternEnd, true))
+                        {
+                            StringUtil::replaceAll(param.Type, formalEnd, actualEnd);
+                        }
+                    }
+                    else if (StringUtil::match(param.Type, pattern3, true))
+                    {
+                        StringUtil::replaceAll(param.Type, formal3, actualEmpty);
                     }
                     else if (param.Type == arg)
                     {
@@ -1047,6 +1078,21 @@ namespace Tiny3D
                 else if (StringUtil::match(RetType, pattern1, true))
                 {
                     StringUtil::replaceAll(RetType, formal1, actual);
+                }
+                else if (StringUtil::match(RetType, pattern2, true))
+                {
+                    StringUtil::replaceAll(RetType, formal2, actual);
+                    String patternEnd = "*, >";
+                    String formalEnd = ", >";
+                    String actualEnd = ">";
+                    if (StringUtil::match(RetType, patternEnd, true))
+                    {
+                        StringUtil::replaceAll(RetType, formalEnd, actualEnd);
+                    }
+                }
+                else if (StringUtil::match(RetType, pattern3, true))
+                {
+                    StringUtil::replaceAll(RetType, formal3, actualEmpty);
                 }
                 else if (RetType == arg)
                 {

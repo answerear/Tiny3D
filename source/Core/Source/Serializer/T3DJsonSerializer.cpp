@@ -483,13 +483,15 @@ namespace Tiny3D
         static const string_view key_name(RTTI_MAP_KEY);
         static const string_view value_name(RTTI_MAP_VALUE);
 
-        writer.StartArray();
+        // writer.StartArray();
 
         if (view.is_key_only_type())
         {
             for (auto& item : view)
             {
+                writer.StartObject();
                 WriteVariant(writer, item.first);
+                writer.EndObject();
             }
         }
         else
@@ -497,19 +499,23 @@ namespace Tiny3D
             for (auto& item : view)
             {
                 writer.StartObject();
-                writer.String(key_name.data(), static_cast<rapidjson::SizeType>(key_name.length()), false);
+                writer.Key(key_name.data(), static_cast<rapidjson::SizeType>(key_name.length()), false);
 
+                writer.StartObject();
                 WriteVariant(writer, item.first);
+                writer.EndObject();
+                
+                writer.Key(value_name.data(), static_cast<rapidjson::SizeType>(value_name.length()), false);
 
-                writer.String(value_name.data(), static_cast<rapidjson::SizeType>(value_name.length()), false);
-
+                writer.StartObject();
                 WriteVariant(writer, item.second);
-
+                writer.EndObject();
+                
                 writer.EndObject();
             }
         }
 
-        writer.EndArray();
+        // writer.EndArray();
     }
 
     bool WriteVariant(PrettyWriter<JsonStream> &writer, const variant &var)

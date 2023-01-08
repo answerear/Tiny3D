@@ -170,6 +170,7 @@ namespace Tiny3D
                 item.key = (int32_t)i;
                 item.value = (int32_t)i * 100;
                 meta->uuid.ItemData.push_back(item);
+                meta->uuid.MapData.insert(i, 1000*i);
             }
             meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
 

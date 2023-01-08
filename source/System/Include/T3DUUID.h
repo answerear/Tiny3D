@@ -193,6 +193,9 @@ namespace Tiny3D
 
         TPROPERTY()
         TArray<Item> ItemData;
+
+        TPROPERTY()
+        TMap<int, int> MapData;
     };
 }
 
