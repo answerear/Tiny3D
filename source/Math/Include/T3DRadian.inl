@@ -1,8 +1,15 @@
 ﻿
+template <typename T>
+TRadian<T>::TRadian()
+    : mRadian(TReal<T>::ZERO)
+{
+    
+}
+
 
 template <typename T>
 inline TRadian<T>::TRadian(T radian)
-        : mRadian(radian)
+    : mRadian(radian)
 {
 
 }

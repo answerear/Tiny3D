@@ -336,7 +336,7 @@ namespace Tiny3D
          * @brief   默认构造函数
          * @param [in]  uID (Optional) : 结点唯一标识，默认是自动生成.
          */
-        Transform3D(ID uID = E_CID_AUTOMATIC);
+        Transform3D(ID uID = Transform3D::E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual void 

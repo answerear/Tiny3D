@@ -1,6 +1,14 @@
 ﻿
 
 template <typename T>
+inline TDegree<T>::TDegree()
+    : mDegree(TReal<T>::ZERO)
+{
+    
+}
+
+
+template <typename T>
 inline TDegree<T>::TDegree(T degree /* = TReal<T>::ZERO */)
     : mDegree(degree)
 {

@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrObbPlane
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrObbPlane();
         TIntrObbPlane(const TObb<T> *box, const TPlane<T> *plane);
         TIntrObbPlane(const TObb<T> &box, const TPlane<T> &plane);
 
+        TFUNCTION()
         int32_t test();
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="getter")
         const TObb<T> *getBox0() const
         {
             return mBox;
         }
 
+        TPROPERTY(RTTRFuncName="plane", RTTRFuncType="getter")
         const TPlane<T> *getBox1() const
         {
             return mPlane;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="setter")
         void setBox(const TObb<T> *box)
         {
             mBox = box;
         }
 
+        TPROPERTY(RTTRFuncName="plane", RTTRFuncType="setter")
         void setPlane(const TPlane<T> *plane)
         {
             mPlane = plane;

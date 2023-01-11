@@ -28,9 +28,12 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrSpherePlane
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrSpherePlane();
         TIntrSpherePlane(const TSphere<T> *sphere, const TPlane<T> *plane);
@@ -43,23 +46,28 @@ namespace Tiny3D
          *  -  0 : 表示球与平面相交
          *  - -1 : 表示球与平面不相交且位于平面的背面
          */
+        TFUNCTION()
         int32_t test();
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter")
         const TSphere<T> *getSphere() const
         {
             return mSphere;
         }
 
+        TPROPERTY(RTTRFuncName="plane", RTTRFuncType="getter")
         const TPlane<T> *getPlane() const
         {
             return mPlane;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="setter")
         void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;
         }
 
+        TPROPERTY(RTTRFuncName="plane", RTTRFuncType="setter")
         void setPlane(const TPlane<T> *plane)
         {
             mPlane = plane;

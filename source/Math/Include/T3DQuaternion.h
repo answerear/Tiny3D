@@ -28,9 +28,13 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TQuaternion
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
     public:
         /// 默认构造函数，构造一个单位四元数(1,0,0,0)对象.
         TQuaternion();
@@ -61,18 +65,22 @@ namespace Tiny3D
         T &operator [](int32_t i);
 
         /// 获取X元素值.
+        TPROPERTY(RTTRFuncName="x", RTTRFuncType="getter")
         T x() const;
         T &x();
 
         /// 获取Y元素值.
+        TPROPERTY(RTTRFuncName="y", RTTRFuncType="getter")
         T y() const;
         T &y();
 
         /// 获取Z元素值.
+        TPROPERTY(RTTRFuncName="z", RTTRFuncType="getter")
         T z() const;
         T &z();
 
         /// 获取W元素值.
+        TPROPERTY(RTTRFuncName="w", RTTRFuncType="getter")
         T w() const;
         T &w();
 
@@ -113,52 +121,81 @@ namespace Tiny3D
         TVector3<T> operator* (const TVector3<T> &rkVector) const;
 
         /// 计算四元数点积.
+        TFUNCTION()
         T dot(const TQuaternion &other) const;
 
         /// 计算四元数的范数的平方.
+        TFUNCTION()
         T norm() const;
         /// 规范化四元数，返回四元数长度.
+        TFUNCTION()
         T normalize();
 
         /// 计算四元数的逆.
+        TFUNCTION()
         TQuaternion inverse() const;
 
         /// 根据指定旋转弧度和旋转轴构造一个四元数.
+        TFUNCTION()
         void fromAngleAxis(const TRadian<T> &rkRadians, const TVector3<T> &rkAxis);
+
         /// 根据指定三个正交向量构造一个四元数.
+        TFUNCTION()
         void fromAxis(
             const TVector3<T> &rkXAxis, 
             const TVector3<T> &rkYAxis, 
             const TVector3<T> &rkZAxis);
+
         /// 根据指定三个正交向量数组首地址构造一个四元数.
+        TFUNCTION()
         void fromAxis(const TVector3<T> *akAxis);
+
         /// 根据一个旋转矩阵构造一个四元数.
+        TFUNCTION()
         void fromRotationMatrix(const TMatrix3<T> &rkRot);
 
         /// 把四元数转成一个旋转角(弧度)和一个单位向量表示的旋转轴.
+        TFUNCTION()
         void toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const;
+        
         /// 把四元数转成一个旋转角(角度)和一个单位向量表示的旋转轴.
+        TFUNCTION()
         void toAngleAxis(TDegree<T> &rAngle, TVector3<T> &rAxis) const;
+
         /// 把四元数转成三个正交单位向量.
+        TFUNCTION()
         void toAngleAxis(TVector3<T> *aAxis) const;
+
         /// 把四元数转成一个旋转矩阵.
+        TFUNCTION()
         void toRotationMatrix(TMatrix3<T> &rRot) const;
 
         /// 获取绕X轴旋转(俯仰角)的角度(单位：弧度).
+        TFUNCTION()
         TRadian<T> getPitch(bool reprojectAxis = true) const;
+
         /// 获取绕Z轴旋转(翻滚角)的角度(单位：弧度).
+        TFUNCTION()
         TRadian<T> getRoll(bool reprojectAxis = true) const;
+
         /// 获取绕Y轴旋转(偏航角)的角度(单位：弧度).
+        TFUNCTION()
         TRadian<T> getYaw(bool reprojectAxis = true) const;
 
         /// 获取X正交轴.
+        TFUNCTION()
         TVector3<T> xAxis() const;
+
         /// 获取Y正交轴.
+        TFUNCTION()
         TVector3<T> yAxis() const;
+
         /// 获取Z正交轴.
+        TFUNCTION()
         TVector3<T> zAxis() const;
 
         /// 两个四元数球面插值构造一个四元数.
+        TFUNCTION()
         TQuaternion &slerp(const TQuaternion &rkP, const TQuaternion &rkQ, 
             T times, bool shortestPath = true, T epsilon = TReal<T>::EPSILON);
 
@@ -166,6 +203,18 @@ namespace Tiny3D
         static const TQuaternion ZERO;           /// 零四元数
 
     private:
+        TPROPERTY(RTTRFuncName="x", RTTRFuncType="setter")
+        void setX(T x) { _x = x;}
+
+        TPROPERTY(RTTRFuncName="y", RTTRFuncType="setter")
+        void setY(T y) { _y = y;}
+
+        TPROPERTY(RTTRFuncName="z", RTTRFuncType="setter")
+        void setZ(T z) { _z = z;}
+
+        TPROPERTY(RTTRFuncName="w", RTTRFuncType="setter")
+        void setW(T w) { _w = w;}
+        
         T    _w;
         T    _x;
         T    _y;

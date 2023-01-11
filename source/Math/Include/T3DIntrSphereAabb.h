@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrSphereAabb
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrSphereAabb();
         TIntrSphereAabb(const TSphere<T> *sphere, const TAabb<T> *box);
         TIntrSphereAabb(const TSphere<T> &sphere, const TAabb<T> &box);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter")
         const TSphere<T> *getSphere() const
         {
             return mSphere;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="getter")
         const TAabb<T> *getBox() const
         {
             return mBox;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="setter")
         void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="setter")
         void setBox(const TAabb<T> *box)
         {
             mBox = box;

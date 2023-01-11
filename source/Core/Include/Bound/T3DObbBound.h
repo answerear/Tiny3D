@@ -138,7 +138,7 @@ namespace Tiny3D
         virtual void update() override;
 
     protected:
-        ObbBound(ID uID = E_CID_AUTOMATIC);
+        ObbBound(ID uID = ObbBound::E_CID_AUTOMATIC);
 
         virtual bool testSphere(const Sphere &sphere) const override;
 

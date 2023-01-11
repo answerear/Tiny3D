@@ -29,31 +29,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrSphereTriangle
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrSphereTriangle();
         TIntrSphereTriangle(const TSphere<T> *sphere, const TTriangle<T> *triangle);
         TIntrSphereTriangle(const TSphere<T> &sphere, const TTriangle<T> &triangle);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter")
         const TSphere<T> *getSphere() const
         {
             return mSphere;
         }
 
+        TPROPERTY(RTTRFuncName="triangle", RTTRFuncType="getter")
         const TTriangle<T> *getTriangle() const
         {
             return mTriangle;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="setter")
         void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;
         }
 
+        TPROPERTY(RTTRFuncName="triangle", RTTRFuncType="setter")
         void setTriangle(const TTriangle<T> *triangle)
         {
             mTriangle = triangle;

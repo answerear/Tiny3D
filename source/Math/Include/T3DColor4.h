@@ -28,8 +28,12 @@
 
 namespace Tiny3D
 {
+    TCLASS("Description"="A color structure from the four 8-bit ARGB components (alpha, red, green, and blue) values.")
     class T3D_MATH_API Color4
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+        
     public:
         static const Color4 BLACK;
         static const Color4 WHITE;
@@ -57,8 +61,16 @@ namespace Tiny3D
         static const uint32_t RGB_BLUE_MASK;
         static const uint32_t RGB_ALPHA_MASK;
 
-        Color4(uint8_t r = 0xFF, uint8_t g = 0xFF, uint8_t b = 0xFF, 
-            uint8_t a = 0xFF)
+        Color4()
+            : mBlue(0xFF)
+            , mGreen(0xFF)
+            , mRed(0xFF)
+            , mAlpha(0xFF)
+        {
+            
+        }
+
+        Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xFF)
             : mBlue(b)
             , mGreen(g)
             , mRed(r)
@@ -104,7 +116,8 @@ namespace Tiny3D
                 && mGreen == other.mGreen && mBlue == other.mBlue);
         }
 
-        void from(const ColorRGB &color)
+        TFUNCTION("Description"="Convert from RGB with 3 float")
+        void fromColor3f(ColorRGB color)
         {
             mAlpha = 0xFF;
             mRed = (uint8_t)(color.red() * 255.0f);
@@ -112,7 +125,8 @@ namespace Tiny3D
             mBlue = (uint8_t)(color.blue() * 255.0f);
         }
 
-        void from(const ColorARGB &color)
+        TFUNCTION("Description"="Convert from ARGB with 4 float")
+        void fromColor4f(ColorARGB color)
         {
             mAlpha = (uint8_t)(color.alpha() * 255.0f);
             mRed = (uint8_t)(color.red() * 255.0f);
@@ -120,6 +134,7 @@ namespace Tiny3D
             mBlue = (uint8_t)(color.blue() * 255.0f);
         }
 
+        TFUNCTION("Description"="Convert to RGB with 3 float")
         ColorRGB toColor3f() const
         {
             return ColorRGB(
@@ -129,6 +144,7 @@ namespace Tiny3D
             );
         }
 
+        TFUNCTION("Description"="Convert to ARGB with 4 float")
         ColorARGB toColor4f() const
         {
             return ColorARGB(
@@ -139,18 +155,23 @@ namespace Tiny3D
             );
         }
 
+        TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="getter", "Description"="The alpha component")
         uint8_t alpha() const   { return mAlpha; }
         uint8_t &alpha()        { return mAlpha; }
 
+        TPROPERTY(RTTRFuncName="red", RTTRFuncType="getter", "Description"="The red component")
         uint8_t red() const     { return mRed; }
         uint8_t &red()          { return mRed; }
 
+        TPROPERTY(RTTRFuncName="green", RTTRFuncType="getter", "Description"="The green component")
         uint8_t green() const   { return mGreen; }
         uint8_t &green()        { return mGreen; }
 
+        TPROPERTY(RTTRFuncName="blue", RTTRFuncType="getter", "Description"="The blue component")
         uint8_t blue() const    { return mBlue; }
         uint8_t &blue()         { return mBlue; }
 
+        TFUNCTION("Description"="Convert to ARGB32")
         uint32_t A8R8G8B8() const
         {
             return ((mAlpha << 24) & RGB_ALPHA_MASK) 
@@ -159,6 +180,7 @@ namespace Tiny3D
                 | (mBlue & RGB_BLUE_MASK);
         }
 
+        TFUNCTION("Description"="Convert to ARGB1555")
         uint16_t A1R5G5B5() const
         {
             uint8_t alpha = (mAlpha > 0 ? 1 : 0);
@@ -168,6 +190,7 @@ namespace Tiny3D
                 | (mBlue & RGB555_BLUE_MASK);
         }
 
+        TFUNCTION("Description"="Convert to RGB565")
         uint16_t R5G6B5() const
         {
             return ((mRed << 11) & RGB565_RED_MASK) 
@@ -175,6 +198,7 @@ namespace Tiny3D
                 | (mBlue & RGB565_BLUE_MASK);
         }
 
+        TFUNCTION("Description"="Convert to ARGB4444")
         uint16_t A4R4G4B4() const
         {
             uint8_t alpha = (mAlpha >> 1);
@@ -185,6 +209,18 @@ namespace Tiny3D
         }
 
     private:
+        TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="setter", "Description"="alpha")
+        void setAlpha(uint8_t a) { mAlpha = a; }
+
+        TPROPERTY(RTTRFuncName="red", RTTRFuncTYpe="setter", "Description"="red")
+        void setRed(uint8_t r) { mRed = r; }
+
+        TPROPERTY(RTTRFuncName="green", RTTRFuncTYpe="setter", "Description"="green")
+        void setGreen(uint8_t g) { mGreen = g; }
+        
+        TPROPERTY(RTTRFuncName="blue", RTTRFuncTYpe="setter", "Description"="blue")
+        void setBlue(uint8_t b) { mBlue = b; }
+        
         uint8_t     mBlue;
         uint8_t     mGreen;
         uint8_t     mRed;

@@ -29,12 +29,18 @@
 namespace Tiny3D
 {
     /// 行优先存储构成的2x2方阵.
+    TCLASS()
     template <typename T>
     class TMatrix2
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
     public:
+        /// 构造一个零矩阵
+        TMatrix2();
         /// 构造一个零矩阵或者单位矩阵.
-        TMatrix2(bool isZero = true);
+        TMatrix2(bool isZero);
         /// 拷贝构造函数.
         TMatrix2(const TMatrix2 &other);
         /// 通过指定行列值构造矩阵.
@@ -53,17 +59,27 @@ namespace Tiny3D
         TMatrix2(const TVector2<T> &rkU, const TVector2<T> &rkV);
 
         /// 构造零矩阵.
+        TFUNCTION()
         void makeZero();
+
         /// 构造单位矩阵.
+        TFUNCTION()
         void makeIdentity();
+
         /// 构造对角矩阵.
+        TFUNCTION()
         void makeDiagonal(T m00, T m11);
+
         /// 通过两个向量张量积构造矩阵 M = U * (V ^ T).
+        TFUNCTION()
         void makeTensorProduct(const TVector2<T> &rkU, const TVector2<T> &rkV);
 
         /// 通过一个弧度构造旋转矩阵.
+        TFUNCTION()
         void fromAngle(const TRadian<T> &radians);
+
         /// 从矩阵提取出旋转弧度.
+        TFUNCTION()
         TRadian<T> toAngle() const;
 
         /// 获取矩阵元素数组首地址.
@@ -79,16 +95,23 @@ namespace Tiny3D
         T &operator ()(int32_t row, int32_t col);
 
         /// 设置矩阵指定行向量.
+        TFUNCTION()
         void setRow(int32_t row, const TVector2<T> &rkV);
+
         /// 获取矩阵指定行向量.
+        TFUNCTION()
         TVector2<T> getRow(int32_t row) const;
 
         /// 设置矩阵指定列向量.
+        TFUNCTION()
         void setColumn(int32_t col, const TVector2<T> &rkV);
+
         /// 获取矩阵指定列向量.
+        TFUNCTION()
         TVector2<T> getColumn(int32_t col) const;
 
         /// 按照列向量优先获取矩阵数据.
+        TFUNCTION()
         void getColumnMajor(T *columns) const;
 
         /// 重载赋值运算符.
@@ -136,28 +159,39 @@ namespace Tiny3D
         TVector2<T> operator *(const TVector2<T> &rkV) const;
 
         /// 矩阵转置 M = M ^ T.
+        TFUNCTION()
         TMatrix2 transpose() const;
+
         /// 矩阵转置后乘以另外一个矩阵 M2 = (M ^ T) * M1.
+        TFUNCTION()
         TMatrix2 transposeTimes(const TMatrix2 &other) const;
+
         /// 矩阵乘以另一个矩阵的转置矩阵 M2 = M * (M1 ^ T).
+        TFUNCTION()
         TMatrix2 timesTranspose(const TMatrix2 &other) const;
 
         /// 计算矩阵的逆.
+        TFUNCTION()
         TMatrix2 inverse() const;
 
         /// 计算矩阵的伴随矩阵.
+        TFUNCTION()
         TMatrix2 adjoint() const;
 
         /// 计算矩阵行列式.
+        TFUNCTION()
         T determinant() const;
 
         /// 二次型 ret = (U ^ T) * M * V.
+        TFUNCTION()
         T qform(const TVector2<T> &rkU, const TVector2<T> &rkV) const;
 
         /// 矩阵标准正交化，使用 Gram-Schmidt 算法
+        TFUNCTION()
         void orthonormalize();
 
         /// 特征分解
+        TFUNCTION()
         void eigendecomposition(TMatrix2 &rRot, TMatrix2 &rDiag) const;
 
     public:
@@ -169,6 +203,12 @@ namespace Tiny3D
         int32_t compareArrays(const TMatrix2 &other) const;
 
     private:
+        TPROPERTY(RTTRFuncName="data", RTTRFuncType="getter")
+        TArray<T> getData() const;
+
+        TPROPERTY(RTTRFuncName="data", RTTRFuncType="setter")
+        void setData(TArray<T> data);
+        
         T    mTuples[4];       /// 以行优先存储的矩阵元素
     };
 

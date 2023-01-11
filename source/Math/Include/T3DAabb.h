@@ -29,7 +29,7 @@
 namespace Tiny3D
 {
     /// 轴对齐包围盒类（Axis Aligned Bounding Box）
-    TCLASS()
+    TCLASS("Description"="Class represents an axis aligned bonding box.")
     template <typename T>
     class TAabb
     {
@@ -43,13 +43,13 @@ namespace Tiny3D
 
         void build(const TVector3<T> points[], size_t count);
 
-        TPROPERTY(RTTRFuncName="width", RTTRFuncType="getter", "Description"="The width of the aligned axis box.")
+        TFUNCTION("Description"="The width of the aligned axis box.")
         T getWidth() const;
         
-        TPROPERTY(RTTRFuncName="height", RTTRFuncType="getter", "Description"="The height of the aligned axis box.")
+        TFUNCTION("Description"="The height of the aligned axis box.")
         T getHeight() const;
         
-        TPROPERTY(RTTRFuncName="depth", RTTRFuncType="getter", "Description"="The depth of the aligned axis box.")
+        TFUNCTION("Description"="The depth of the aligned axis box.")
         T getDepth() const;
 
         TPROPERTY(RTTRFuncName="minX", RTTRFuncType="getter", "Description"="The minimum in x-axis.")
@@ -70,22 +70,22 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="maxZ", RTTRFuncType="getter", "Description"="The maximum in z-axis.")
         T getMaxZ() const;
 
-        TPROPERTY(RTTRFuncName="center", RTTRFuncType="getter", "Description"="The center in the aligned axis box.")
+        TFUNCTION("Description"="The center in the aligned axis box.")
         const TVector3<T> &getCenter() const;
 
-        TPROPERTY(RTTRFuncName="radius", RTTRFuncType="getter", "Description"="The radius of the sphere surrounding the aligned axis box.")
+        TFUNCTION("Description"="The radius of the sphere surrounding the aligned axis box.")
         T getRadius() const;
 
-        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter", "Description"="The sphere surrounding the aligned axis box.")
+        TFUNCTION("Description"="The sphere surrounding the aligned axis box.")
         const TSphere<T> &getSphere() const;
 
-        TPROPERTY(RTTRFuncName="width", RTTRFuncType="setter", "Description"="The width of the aligned axis box.")
+        TFUNCTION("Description"="The width of the aligned axis box.")
         void setWidth(T fWidth);
 
-        TPROPERTY(RTTRFuncName="height", RTTRFuncType="setter", "Description"="The height of the aligned axis box.")
+        TFUNCTION("Description"="The height of the aligned axis box.")
         void setHeight(T fHeight);
 
-        TPROPERTY(RTTRFuncName="depth", RTTRFuncType="setter", "Description"="The depth of the aligned axis box.")
+        TFUNCTION("Description"="The depth of the aligned axis box.")
         void setDepth(T fDepth);
 
         TPROPERTY(RTTRFuncName="minX", RTTRFuncType="setter", "Description"="The minimum in x-axis.")

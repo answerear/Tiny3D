@@ -19,9 +19,6 @@
 
 
 #include "T3DAbstractSyntaxTree.h"
-
-#include <SDL_syswm.h>
-
 #include "T3DRPErrorCode.h"
 
 
@@ -131,6 +128,30 @@ namespace Tiny3D
         return child;
     }
     
+    //--------------------------------------------------------------------------
+
+    ASTNode *ASTNode::findChild(const String &name) const
+    {
+        ASTNode *child = nullptr;
+        
+        for (const auto &item : mChildren)
+        {
+            if (item.second->getName() == name)
+            {
+                child = item.second;
+                break;
+            }
+
+            child = item.second->findChild(name);
+            if (child != nullptr)
+            {
+                break;
+            }
+        }
+
+        return child;
+    }
+
     //--------------------------------------------------------------------------
 
     void ASTNode::dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const
@@ -509,34 +530,60 @@ namespace Tiny3D
                     {
                         fs << "\t\t.";
                     }
-                    
-                    if (hasOverload)
-                    {
-                        ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(child.second);
 
+                    ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(child.second);
+                    
+                    String defaultArgs;
+                        
+                    // 构造参数列表
+                    String params;
+                    size_t i = 0;
+                    for (const auto &val : overload->Params)
+                    {
+                        params += val.Type;
+                            
+                        String pattern = "\"*\"";
+                        if (StringUtil::match(val.Default, pattern, false))
+                        {
+                            // 字符串
+                            String str = "std::string(" + val.Default + ")";
+                            defaultArgs += str;
+                        }
+                        else
+                        {
+                            defaultArgs += val.Default;
+                        }
+                            
+                        if (i != overload->Params.size() - 1)
+                        {
+                            params += ", ";
+                            if (!defaultArgs.empty())
+                            {
+                                defaultArgs += ", ";
+                            }
+                        }
+                        i++;
+                    }
+                    
+                    // if (hasOverload)
+                    {
                         // 返回值
                         const String &retType = overload->RetType;
 
-                        // 构造参数列表
-                        String params;
-                        size_t i = 0;
-                        for (const auto &val : overload->Params)
-                        {
-                            params += val.Type;
-                            if (i != overload->Params.size() - 1)
-                            {
-                                params += ", ";
-                            }
-                            i++;
-                        }
-
                         if (overload->IsConst)
                         {
-                            fs << "method(\"" << getName() << "\", select_const<" << retType << "(" << params << ")>(&" << name << "))";
+                            fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")const>(&" << name << "))";
                         }
                         else
                         {
                             fs << "method(\"" << getName() << "\", select_overload<" << retType << "(" << params << ")>(&" << name << "))";
+                        }
+
+                        if (!defaultArgs.empty())
+                        {
+                            fs << std::endl << "\t\t(" << std::endl;
+                            fs << "\t\t\tdefault_arguments(" << defaultArgs << ");" << std::endl;
+                            fs << "\t\t)";
                         }
 
                         overload->generateMetaInfo(fs, 2);
@@ -546,11 +593,26 @@ namespace Tiny3D
                             fs << std::endl;
                         }
                     }
-                    else
-                    {
-                        fs << "method(\"" << getName() << "\", &" << name << ")";
-                        child.second->generateMetaInfo(fs, 2);
-                    }
+                    // else
+                    // {
+                    //     if (overload->IsConst)
+                    //     {
+                    //         fs << "method(\"" << getName() << "\", select_const(&" << name << "))";
+                    //     }
+                    //     else
+                    //     {
+                    //         fs << "method(\"" << getName() << "\", &" << name << ")";
+                    //     }
+                    //
+                    //     if (!defaultArgs.empty())
+                    //     {
+                    //         fs << std::endl << "\t\t(" << std::endl;
+                    //         fs << "\t\t\tdefault_arguments(" << defaultArgs << ")" << std::endl;
+                    //         fs << "\t\t)";
+                    //     }
+                    //     
+                    //     child.second->generateMetaInfo(fs, 2);
+                    // }
                 }
                 break;
             case Type::kConstructor:
@@ -559,14 +621,32 @@ namespace Tiny3D
                     ASTStruct *klass = static_cast<ASTStruct*>(getParent());
                     
                     ASTConstructor *constructor = static_cast<ASTConstructor*>(child.second);
+                    String defaultArgs;
                     String params;
                     size_t i = 0;
                     for (const auto &val : constructor->Params)
                     {
                         params += val.Type;
+
+                        String pattern = "\"*\"";
+                        if (StringUtil::match(val.Default, pattern, false))
+                        {
+                            // 字符串
+                            String str = "std::string(" + val.Default + ")";
+                            defaultArgs += str;
+                        }
+                        else
+                        {
+                            defaultArgs += val.Default;
+                        }
+                        
                         if (i != constructor->Params.size() - 1)
                         {
                             params += ", ";
+                            if (!defaultArgs.empty())
+                            {
+                                defaultArgs += ", ";
+                            }
                         }
                         i++;
                     }
@@ -595,6 +675,13 @@ namespace Tiny3D
 
                     fs << std::endl << "\t\t)";
 
+                    if (!defaultArgs.empty())
+                    {
+                        fs << std::endl << "\t\t(" << std::endl;
+                        fs << "\t\t\tdefault_arguments(" << defaultArgs << ")" << std::endl;
+                        fs << "\t\t)";
+                    }
+                    
                     constructor->generateMetaInfo(fs, 2);
                     
                     if (hasOverload && idx != mChildren.size() - 1)
@@ -638,7 +725,7 @@ namespace Tiny3D
                 // 只有 getter
                 const auto itr = mChildren.begin();
                 ASTOverloadFunction *overload = static_cast<ASTOverloadFunction*>(itr->second);
-                if (overload->IsConst)
+                if (overload->IsGetter)
                 {
                     // getter
                     getter = overload;
@@ -654,7 +741,7 @@ namespace Tiny3D
                 for (const auto &child : mChildren)
                 {
                     ASTOverloadFunction *overload = static_cast<ASTOverloadFunction *>(child.second);
-                    if (overload->IsConst)
+                    if (overload->IsGetter)
                     {
                         getter = overload;
                     }
@@ -823,6 +910,8 @@ namespace Tiny3D
                 writer.String(val.Name);
                 writer.Key("Type");
                 writer.String(val.Type);
+                writer.Key("Default");
+                writer.String(val.Default);
                 writer.EndObject();
             }
             writer.EndArray();

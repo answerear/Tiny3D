@@ -26,13 +26,19 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     /// 角度类，用于表示角度
     template <typename T>
     class TDegree
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
     public:
+        explicit TDegree();
+
         /// 指定实数角度值的构造函数
-        explicit TDegree(T degree = TReal<T>::ZERO);
+        explicit TDegree(T degree);
         /// 指定弧度对象的构造函数
         TDegree(const TRadian<T> &radian);
         /// 拷贝构造函数
@@ -94,11 +100,17 @@ namespace Tiny3D
         TDegree &operator /=(T scalar);
 
         /// 获取真实的角度值，返回一个实数值
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter", "Description"="A real value")
         T valueDegrees() const;
+        
         /// 获取真实的弧度制，返回一个实数值
+        TFUNCTION()
         T valueRadians() const;
 
     private:
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter", "Description"="A real value")
+        void setValue(T degree) { mDegree = degree; }
+        
         T    mDegree;
     };
 

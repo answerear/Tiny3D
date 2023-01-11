@@ -27,19 +27,24 @@
 
 namespace Tiny3D
 {
+    TENUM()
+    enum class ObbBuildOption : uint32_t
+    {
+        kByAABB = 0,       /**< 通过AABB直接构造 */
+        kByCovariance = 1, /**< 利用协方差矩阵构造 */
+    };
+    
     /**
      * @brief 有向包围盒类（Oriented Bounding Box）
      */
+    TCLASS()
     template <typename T>
     class TObb
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+        
     public:
-        enum BuildOption
-        {
-            E_BUILD_AABB = 0,       /**< 通过AABB直接构造 */
-            E_BUILD_COVARIANCE = 1, /**< 利用协方差矩阵构造 */
-        };
-
         /// 默认构造函数
         TObb();
         TObb(const TVector3<T> &rkCenter, const TVector3<T> *akAxis,
@@ -48,26 +53,34 @@ namespace Tiny3D
             const TVector3<T> &rkAxis1, const TVector3<T> &rkAxis2,
             T fExtent0, T fExtent1, T fExtent2);
 
+        TFUNCTION()
         void build(const TVector3<T> points[], size_t count, 
-            BuildOption option = E_BUILD_AABB);
+            ObbBuildOption option = ObbBuildOption::kByAABB);
 
+        TFUNCTION()
         void computeVertices(TVector3<T> *akVertex) const;
 
+        TPROPERTY(RTTRFuncName="center", RTTRFuncType="getter")
         const TVector3<T> &getCenter() const;
 
+        TFUNCTION()
         const TVector3<T> &getAxis(int32_t idx) const;
 
         const TVector3<T> *getAxis() const;
 
+        TFUNCTION()
         T getExtent(int32_t idx) const;
 
         const T *getExtent() const;
 
+        TPROPERTY(RTTRFuncName="center", RTTRFuncType="setter")
         void setCenter(const TVector3<T> &rkCenter);
 
+        TFUNCTION()
         void setAxis(const TVector3<T> &rkAxis0, const TVector3<T> &rkAxis1,
             const TVector3<T> &rkAxis2);
 
+        TFUNCTION()
         void setExtent(int32_t idx, T fExtent);
 
     protected:
@@ -75,6 +88,18 @@ namespace Tiny3D
 
         void buildByCovariance(const TVector3<T> points[], size_t count);
 
+        TPROPERTY(RTTRFuncName="axis", RTTRFuncType="getter")
+        TArray<TVector3<T>> getAxes() const;
+        
+        TPROPERTY(RTTRFuncName="axis", RTTRFuncTYpe="setter")
+        void setAxes(TArray<TVector3<T>> axis);
+
+        TPROPERTY(RTTRFuncName="extents", RTTRFuncType="getter")
+        TArray<T> getExtents() const;
+
+        TPROPERTY(RTTRFuncName="extents", RTTRFuncType="setter")
+        void setExtents(TArray<T> extents);
+        
     private:
         TVector3<T> mCenter;
         TVector3<T> mAxis[3];

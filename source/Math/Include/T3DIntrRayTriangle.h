@@ -29,32 +29,42 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrRayTriangle
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrRayTriangle();
         TIntrRayTriangle(const TRay<T> *ray, const TTriangle<T> *triangle);
         TIntrRayTriangle(const TRay<T> &ray, const TTriangle<T> &triangle);
 
+        TFUNCTION()
         bool test();
+
+        TFUNCTION()
         bool test(TVector3<T> &intersection);
 
+        TPROPERTY(RTTRFuncName="ray", RTTRFuncType="getter")
         const TRay<T> *getRay() const
         {
             return mRay;
         }
 
+        TPROPERTY(RTTRFuncName="triangle", RTTRFuncType="getter")
         const TTriangle<T> *getTriangle() const
         {
             return mTriangle;
         }
 
+        TPROPERTY(RTTRFuncName="ray", RTTRFuncType="setter")
         void setRay(const TRay<T> *ray)
         {
             mRay = ray;
         }
 
+        TPROPERTY(RTTRFuncName="triangle", RTTRFuncType="setter")
         void setTriangle(const TTriangle<T> *triangle)
         {
             mTriangle = triangle;

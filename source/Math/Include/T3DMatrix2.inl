@@ -71,7 +71,13 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TMatrix2<T>::TMatrix2(bool isZero /* = true */)
+    TMatrix2<T>::TMatrix2()
+    {
+        makeZero();
+    }
+
+    template <typename T>
+    inline TMatrix2<T>::TMatrix2(bool isZero)
     {
         if (isZero)
         {
@@ -535,6 +541,21 @@ namespace Tiny3D
             {
                 rRot.makeIdentity();
             }
+        }
+    }
+
+    template <typename T>
+    TArray<T> TMatrix2<T>::getData() const
+    {
+        return TArray<T>(mTuples, mTuples+4);
+    }
+
+    template <typename T>
+    void TMatrix2<T>::setData(TArray<T> data)
+    {
+        for (size_t i = 0; i < 4; i++)
+        {
+            mTuples[i] = data[i];
         }
     }
 

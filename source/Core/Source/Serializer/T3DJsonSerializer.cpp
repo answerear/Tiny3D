@@ -718,7 +718,9 @@ namespace Tiny3D
                 break;
             }
 
-            obj = klass.create();
+            constructor ctor = klass.get_constructor();
+            obj = ctor.invoke();
+            // obj = klass.create();
 
             itr = node.FindMember(RTTI_VALUE);
             if (itr == node.MemberEnd())

@@ -28,9 +28,13 @@
 namespace Tiny3D
 {
     /// 4D向量类
+    TCLASS()
     template <typename T>
     class TVector4
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
     public:
         /// 默认构造函数
         TVector4();
@@ -50,18 +54,22 @@ namespace Tiny3D
         T &operator [](int32_t i);
 
         /// 获取x分量.
+        TPROPERTY(RTTRFuncName="x", RTTRFuncType="getter", "Description"="x component")
         T x() const;
         T &x();
 
         /// 获取y分量.
+        TPROPERTY(RTTRFuncName="y", RTTRFuncType="getter", "Description"="y component")
         T y() const;
         T &y();
 
         /// 获取z分量.
+        TPROPERTY(RTTRFuncName="z", RTTRFuncType="getter", "Description"="z component")
         T z() const;
         T &z();
 
         /// 获取w分量.
+        TPROPERTY(RTTRFuncName="w", RTTRFuncType="getter", "Description"="w component")
         T w() const;
         T &w();
 
@@ -95,27 +103,46 @@ namespace Tiny3D
         TVector4 &operator /=(T scalar);
 
         /// 获取向量长度, sqrt(x*x + y*y + z*z + w*w).
+        TFUNCTION("Description"="The length of the vector.")
         T length() const;
         /// 获取向量长度的平方值, x*x + y*y + z*z + w*w.
-        T squaredLength() const;
+        TFUNCTION("Description"="The squared length of vector.")
+        T length2() const;
 
         /// 获取两向量的距离.
+        TFUNCTION("Description"="Calculate the distance between two vector.")
         T distance(const TVector4 &other) const;
         /// 获取两向量的距离平方.
-        T squaredDistance(const TVector4 &other) const;
+        TFUNCTION("Description"="Calculate the squared distance between two vector.")
+        T distance2(const TVector4 &other) const;
 
         /// 点积、点乘、内积.
+        TFUNCTION("Description"="Calculate dot product.")
         T dot(const TVector4 &other) const;
 
         /// 外积、叉乘.
+        TFUNCTION("Description"="Calculate cross product.")
         TVector4 cross(const TVector4 &other) const;
 
         /// 规范化.
+        TFUNCTION("Description"="Normalize the vector")
         T normalize();
 
         static const TVector4 ZERO;      /// 零向量
 
     private:
+        TPROPERTY(RTTRFuncName="x", RTTRFuncType="setter", "Description"="x component")
+        void setX(T x) { _x = x; }
+
+        TPROPERTY(RTTRFuncName="y", RTTRFuncType="setter", "Description"="y component")
+        void setY(T y) { _y = y; }
+
+        TPROPERTY(RTTRFuncName="z", RTTRFuncType="setter", "Description"="z component")
+        void setZ(T z) { _y = z; }
+
+        TPROPERTY(RTTRFuncName="w", RTTRFuncType="setter", "Description"="w component")
+        void setW(T w) { _w = w; }
+        
         T    _x;
         T    _y;
         T    _z;

@@ -24,35 +24,43 @@
 #include "T3DMathPrerequisites.h"
 #include "T3DFrustum.h"
 #include "T3DAabb.h"
-
+#include "T3DIntrAabbPlane.h"
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrFrustumAabb
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrFrustumAabb();
         TIntrFrustumAabb(const TFrustum<T> *frustum, const TAabb<T> *box);
         TIntrFrustumAabb(const TFrustum<T> &frustum, const TAabb<T> &box);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter")
         const TFrustum<T> *getFrustum() const
         {
             return mFrustum;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="getter")
         const TAabb<T> *getBox() const
         {
             return mBox;
         }
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter")
         void setFrustum(const TFrustum<T> *frustum)
         {
             mFrustum = frustum;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="setter")
         void setBox(const TAabb<T> *box)
         {
             mBox = box;

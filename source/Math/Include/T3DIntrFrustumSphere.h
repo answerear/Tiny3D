@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrFrustumSphere
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrFrustumSphere();
         TIntrFrustumSphere(const TFrustum<T> *frustum, const TSphere<T> *sphere);
         TIntrFrustumSphere(const TFrustum<T> &frustum, const TSphere<T> &sphere);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter")
         const TFrustum<T> *getFrustum() const
         {
             return mFrustum;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter")
         const TSphere<T> *getSphere() const
         {
             return mSphere;
         }
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter")
         void setFrustum(const TFrustum<T> *frustum)
         {
             mFrustum = frustum;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="setter")
         void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;

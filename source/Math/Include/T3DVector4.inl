@@ -252,7 +252,7 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline T TVector4<T>::squaredLength() const
+    inline T TVector4<T>::length2() const
     {
         return _x * _x + _y * _y + _z * _z + _w * _w;
     }
@@ -264,9 +264,9 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline T TVector4<T>::squaredDistance(const TVector4 &other) const
+    inline T TVector4<T>::distance2(const TVector4 &other) const
     {
-        return (*this - other).squaredLength();
+        return (*this - other).length2();
     }
 
     template <typename T>

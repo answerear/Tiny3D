@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrPointSphere
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrPointSphere();
         TIntrPointSphere(const TVector3<T> *point, const TSphere<T> *sphere);
         TIntrPointSphere(const TVector3<T> &point, const TSphere<T> &sphere);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="point", RTTRFuncType="getter")
         const TVector3<T> *getPoint() const
         {
             return mPoint;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter")
         const TSphere<T> *getSphere() const
         {
             return mSphere;
         }
 
+        TPROPERTY(RTTRFuncName="point", RTTRFuncType="setter")
         void setPoint(const TVector3<T> *point)
         {
             mPoint = point;
         }
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="setter")
         void setSphere(const TSphere<T> *sphere)
         {
             mSphere = sphere;

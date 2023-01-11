@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrFrustumObb
     {
+        TRTTI_ENABLE()
+        
     public:
         TIntrFrustumObb();
         TIntrFrustumObb(const TFrustum<T> *frustum, const TObb<T> *box);
         TIntrFrustumObb(const TFrustum<T> &frustum, const TObb<T> &box);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter")
         const TFrustum<T> *getFrustum() const
         {
             return mFrustum;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="getter")
         const TObb<T> *getBox() const
         {
             return mBox;
         }
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter")
         void setFrustum(const TFrustum<T> *frustum)
         {
             mFrustum = frustum;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="setter")
         void setBox(const TObb<T> *box)
         {
             mBox = box;

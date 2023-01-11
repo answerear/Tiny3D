@@ -15,7 +15,7 @@
 @mkdir nmake && cd nmake
 
 @rem ==================== System project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_CORE_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -23,8 +23,17 @@
 @rem Copy System compile commands to the project folder.
 xcopy compile_commands.json .\System 
 
+@rem ==================== Math project =======================
+@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@if not %ERRORLEVEL% == 0 (
+	@cd ../Projects
+	@goto end
+)
+@rem Copy Math compile commands to the project folder.
+xcopy compile_commands.json .\Math 
+
 @rem ==================== Core project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -36,12 +45,15 @@ xcopy compile_commands.json .\Core
 @rem =============== Generate ReflectionSettings.json =============
 @mkdir ..\vs2019-x64\System\Generated
 ..\bin\Windows\Debug\cct.exe .\System ..\vs2019-x64\System\Generated
+@mkdir ..\vs2019-x64\Math\Generated
+..\bin\Windows\Debug\cct.exe .\Math ..\vs2019-x64\Math\Generated
 @mkdir ..\vs2019-x64\Core\Generated
 ..\bin\Windows\Debug\cct.exe .\Core ..\vs2019-x64\Core\Generated
 
 
 @rem Generate reflection source by ReflectionPreprocessor.
 ..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System
+..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Math ..\Math
 ..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Core ..\Core
 
 

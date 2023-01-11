@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrAabbObb
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrAabbObb();
         TIntrAabbObb(const TAabb<T> *aabb, const TObb<T> *obb);
         TIntrAabbObb(const TAabb<T> &aabb, const TObb<T> &obb);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="getter")
         const TAabb<T> *getAabb() const
         {
             return mAabb;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="getter")
         const TObb<T> *getObb() const
         {
             return mObb;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="setter")
         void setAabb(const TAabb<T> *aabb)
         {
             mAabb = aabb;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="setter")
         void setObb(const TObb<T> *obb)
         {
             mObb = obb;

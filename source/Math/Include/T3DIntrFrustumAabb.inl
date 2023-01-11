@@ -18,9 +18,6 @@
  ******************************************************************************/
 
 
-#include "T3DIntrAabbPlane.h"
-
-
 namespace Tiny3D
 {
     template <typename T>
@@ -62,32 +59,32 @@ namespace Tiny3D
 
         intr.setBox(mBox);
 
-        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_NEAR));
+        intr.setPlane(&mFrustum->getFace(E_FACE_NEAR));
         result = intr.test();
         if (result < 0)
             return false;
 
-        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_FAR));
+        intr.setPlane(&mFrustum->getFace(E_FACE_FAR));
         result = intr.test();
         if (result < 0)
             return false;
 
-        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_LEFT));
+        intr.setPlane(&mFrustum->getFace(E_FACE_LEFT));
         result = intr.test();
         if (result < 0)
             return false;
 
-        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_RIGHT));
+        intr.setPlane(&mFrustum->getFace(E_FACE_RIGHT));
         result = intr.test();
         if (result < 0)
             return false;
 
-        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_TOP));
+        intr.setPlane(&mFrustum->getFace(E_FACE_TOP));
         result = intr.test();
         if (result < 0)
             return false;
 
-        intr.setPlane(&mFrustum->getFace(TFrustum<T>::E_FACE_BOTTOM));
+        intr.setPlane(&mFrustum->getFace(E_FACE_BOTTOM));
         result = intr.test();
         if (result < 0)
             return false;

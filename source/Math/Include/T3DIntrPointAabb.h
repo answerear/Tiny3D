@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrPointAabb
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrPointAabb();
         TIntrPointAabb(const TVector3<T> *point, const TAabb<T> *box);
         TIntrPointAabb(const TVector3<T> &point, const TAabb<T> &box);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="point", RTTRFuncType="getter")
         const TVector3<T> *getPoint() const
         {
             return mPoint;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="getter")
         const TAabb<T> *getBox() const
         {
             return mBox;
         }
 
+        TPROPERTY(RTTRFuncName="point", RTTRFuncType="setter")
         void setPoint(const TVector3<T> *point)
         {
             mPoint = point;
         }
 
+        TPROPERTY(RTTRFuncName="aabb", RTTRFuncType="setter")
         void setBox(const TAabb<T> *box)
         {
             mBox = box;

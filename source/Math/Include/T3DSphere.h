@@ -29,18 +29,22 @@
 
 namespace Tiny3D
 {
+    TENUM()
+    enum class SphereBuildOption : uint32_t
+    {
+        kByWelzl = 0,   /// Welzl最小包围球算法
+        kByRitter,      /// Ritter包围球算法
+        kByAverage,     /// 均值法
+    };
+
     /// 球类
+    TCLASS()
     template <typename T>
     class TSphere
     {
+        TRTTI_ENABLE()
+        
     public:
-        enum class BuildOption : uint32_t
-        {
-            WELZL = 0,      /// Welzl最小包围球算法
-            RITTER = 1,     /// Ritter包围球算法
-            AVERAGE = 2,    /// 均值法
-        };
-
         /// 默认构造函数
         TSphere();
         /// 通过空间一个点构造包围球
@@ -63,32 +67,40 @@ namespace Tiny3D
         TSphere &operator =(const TSphere &sphere);
 
         /// 通过多个点构造包围球
+        TFUNCTION()
         void build(const TVector3<T> points[], size_t count, 
-            BuildOption option = BuildOption::RITTER);
+            SphereBuildOption option = SphereBuildOption::kByRitter);
 
         /// 通过空间三点构造包围球
+        TFUNCTION()
         bool build(const TVector3<T> &p0, const TVector3<T> &p1,
             const TVector3<T> &p2);
 
         /// 通过空间四点构造包围球
+        TFUNCTION()
         bool build(const TVector3<T> &p0, const TVector3<T> &p1,
             const TVector3<T> &p2, const TVector3<T> &p3);
         
         /// 获取球心
+        TPROPERTY(RTTRFuncName="center", RTTRFuncType="getter")
         const TVector3<T> &getCenter() const;
         TVector3<T> &getCenter();
 
         /// 获取半径
+        TPROPERTY(RTTRFuncName="radius", RTTRFuncType="getter")
         const T &getRadius() const;
         T &getRadius();
 
-            /// 设置球心
+        /// 设置球心
+        TPROPERTY(RTTRFuncName="center", RTTRFuncType="setter")
         void setCenter(const TVector3<T> &center);
 
         /// 设置半径
+        TPROPERTY(RTTRFuncName="radius", RTTRFuncType="setter")
         void setRadius(const T &radius);
 
         /// 检测指定点是否在球内部
+        TFUNCTION()
         bool contains(const TVector3<T> &point) const;
 
     protected:

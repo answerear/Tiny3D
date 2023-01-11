@@ -29,8 +29,12 @@ namespace Tiny3D
      * @brief 64位定点数类
      * @remarks 64位定点数构成是用高40位作为整数部分，低24位用来做小数部分
      */
+    TCLASS()
     class T3D_MATH_API fix64
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
     public:
         static const int32_t INTEGER_BITS;      // 整数位数
         static const int32_t DECIMAL_BITS;      // 小数位数
@@ -67,6 +71,7 @@ namespace Tiny3D
         fix64(const fix64 &value);
         
         /// 获取定点数的整型值
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter", "Description"="The value in fix64")
         int64_t mantissa() const;
         /// 获取定点数的整型值
         int64_t &mantissa();
@@ -202,6 +207,9 @@ namespace Tiny3D
         operator fix32() const;
 
     private:
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter", "Description"="The value in fix64")
+        void setValue(int64_t _m) { m = _m; }
+        
         int64_t	m;
     };
 

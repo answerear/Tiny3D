@@ -189,6 +189,8 @@ namespace Tiny3D
             return getChildRecursively(names);
         }
 
+        ASTNode *findChild(const String &name) const;
+
         /**
          * @brief 获取层级结构名称
          * @return 返回以 :: 分割的当前结点各级父结点组成的名称
@@ -424,8 +426,9 @@ namespace Tiny3D
      */
     struct ASTFunctionParam
     {
-        String Type;    /// 参数类型
-        String Name;    /// 参数名称
+        String Type;        /// 参数类型
+        String Name;        /// 参数名称
+        String Default;     /// 默认参数
     };
 
     #define AST_NO_IMPLEMENTATION(x) { T3D_ASSERT(0); return x; }

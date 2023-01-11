@@ -67,7 +67,7 @@ namespace Tiny3D
             uuid.bytes[i] = (uint8_t)rc;
         }
 
-        uuid.TestObj = TestObject::create();
+        // uuid.TestObj = TestObject::create();
         return uuid;
     }
 

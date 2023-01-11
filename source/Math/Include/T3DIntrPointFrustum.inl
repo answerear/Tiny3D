@@ -19,7 +19,6 @@
 
 
 #include "T3DPlane.h"
-#include "T3DReal.h"
 
 
 namespace Tiny3D
@@ -61,37 +60,37 @@ namespace Tiny3D
         const TVector3<T> &point = *mPoint;
 
         // 近平面
-        const TPlane<T> &nearPlane = mFrustum->getFace(TFrustum<T>::E_FACE_NEAR);
+        const TPlane<T> &nearPlane = mFrustum->getFace(E_FACE_NEAR);
         typename TPlane<T>::Side side = nearPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;
 
         // 远平面
-        const TPlane<T> &farPlane = mFrustum->getFace(TFrustum<T>::E_FACE_FAR);
+        const TPlane<T> &farPlane = mFrustum->getFace(E_FACE_FAR);
         side = farPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;
 
         // 左平面
-        const TPlane<T> &leftPlane = mFrustum->getFace(TFrustum<T>::E_FACE_LEFT);
+        const TPlane<T> &leftPlane = mFrustum->getFace(E_FACE_LEFT);
         side = farPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;
 
         // 右平面
-        const TPlane<T> &rightPlane = mFrustum->getFace(TFrustum<T>::E_FACE_RIGHT);
+        const TPlane<T> &rightPlane = mFrustum->getFace(E_FACE_RIGHT);
         side = farPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;
 
         // 上平面
-        const TPlane<T> &topPlane = mFrustum->getFace(TFrustum<T>::E_FACE_TOP);
+        const TPlane<T> &topPlane = mFrustum->getFace(E_FACE_TOP);
         side = topPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;
 
         // 下平面
-        const TPlane<T> &bottomPlane = mFrustum->getFace(TFrustum<T>::E_FACE_BOTTOM);
+        const TPlane<T> &bottomPlane = mFrustum->getFace(E_FACE_BOTTOM);
         side = bottomPlane.fastSideForPoint(point);
         if (side == TPlane<T>::E_SIDE_NEGATIVE)
             return false;

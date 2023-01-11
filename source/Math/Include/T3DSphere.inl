@@ -118,17 +118,17 @@ namespace Tiny3D
 
     template <typename T>
     inline void TSphere<T>::build(const TVector3<T> points[], size_t count, 
-        BuildOption option /* = E_BUILD_WELZL */)
+        SphereBuildOption option /* = SphereBuildOption::kByRitter */)
     {
         switch (option)
         {
-        case BuildOption::WELZL:
+        case SphereBuildOption::kByWelzl:
             buildByWelzl(points, count);
             break;
-        case BuildOption::RITTER:
+        case SphereBuildOption::kByRitter:
             buildByRitter(points, count);
             break;
-        case BuildOption::AVERAGE:
+        case SphereBuildOption::kByAverage:
             buildByAverage(points, count);
             break;
         default:

@@ -48,7 +48,13 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TMatrix4<T>::TMatrix4(bool isZero /* = true */)
+    inline TMatrix4<T>::TMatrix4()
+    {
+        makeZero();
+    }
+    
+    template <typename T>
+    inline TMatrix4<T>::TMatrix4(bool isZero)
     {
         if (isZero)
             makeZero();
@@ -833,4 +839,20 @@ namespace Tiny3D
         m4x4[3][2] = TReal<T>::ZERO;
         m4x4[3][3] = TReal<T>::ONE;
     }
+
+    template <typename T>
+    TArray<T> TMatrix4<T>::getData() const
+    {
+        return TArray<T>(mTuples, mTuples+16);
+    }
+
+    template <typename T>
+    void TMatrix4<T>::setData(TArray<T> data)
+    {
+        for (size_t i = 0; i < 16; i++)
+        {
+            mTuples[i] = data[i];
+        }
+    }
+
 }

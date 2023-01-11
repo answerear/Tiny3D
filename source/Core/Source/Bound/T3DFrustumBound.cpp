@@ -89,7 +89,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void FrustumBound::setFrustumFace(Frustum::Face face, const Plane &plane)
+    void FrustumBound::setFrustumFace(Face face, const Plane &plane)
     {
         mFrustum.setFace(face, plane);
         mOriginalFrustum.setFace(face, plane);
@@ -99,13 +99,13 @@ namespace Tiny3D
 
     void FrustumBound::setFrustumFaces(Plane *plane, size_t planeCount)
     {
-        T3D_ASSERT(planeCount <= Frustum::E_MAX_FACE);
+        T3D_ASSERT(planeCount <= E_MAX_FACE);
 
         size_t i = 0;
         for (i = 0; i < planeCount; ++i)
         {
-            mFrustum.setFace((Frustum::Face)i, plane[i]);
-            mOriginalFrustum.setFace((Frustum::Face)i, plane[i]);
+            mFrustum.setFace((Face)i, plane[i]);
+            mOriginalFrustum.setFace((Face)i, plane[i]);
         }
     }
 

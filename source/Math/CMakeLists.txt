@@ -49,6 +49,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .inl)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
 
 
 # Setup all files for building this project.

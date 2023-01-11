@@ -28,33 +28,45 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrRayPlane
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrRayPlane();
         TIntrRayPlane(const TRay<T> *ray, const TPlane<T> *plane);
         TIntrRayPlane(const TRay<T> &ray, const TPlane<T> &plane);
 
+        TFUNCTION()
         bool test();
+
+        TFUNCTION()
         bool test(TVector3<T> &intersection);
+
+        TFUNCTION()
         bool test(T &distance);
 
+        TPROPERTY(RTTRFuncName="ray", RTTRFuncType="getter")
         const TRay<T> *getRay() const
         {
             return mRay;
         }
 
+        TPROPERTY(RTTRFuncName="plane", RTTRFuncType="getter")
         const TPlane<T> *getPlane() const
         {
             return mPlane;
         }
 
+        TPROPERTY(RTTRFuncName="ray", RTTRFuncType="setter")
         void setRay(const TRay<T> *ray)
         {
             mRay = ray;
         }
 
+        TPROPERTY(RTTRFuncName="plane", RTTRFuncType="setter")
         void setPlane(const TPlane<T> *plane)
         {
             mPlane = plane;

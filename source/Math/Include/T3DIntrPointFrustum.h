@@ -28,31 +28,39 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrPointFrustum
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrPointFrustum();
         TIntrPointFrustum(const TVector3<T> *point, const TFrustum<T> *frustum);
         TIntrPointFrustum(const TVector3<T> &point, const TFrustum<T> &frustum);
 
+        TFUNCTION()
         bool test();
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter")
         const TFrustum<T> *getFrustum() const
         {
             return mFrustum;
         }
 
+        TPROPERTY(RTTRFuncName="point", RTTRFuncType="getter")
         const TVector3<T> *getPoint() const
         {
             return mPoint;
         }
 
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter")
         void setFrustum(const TFrustum<T> *frustum)
         {
             mFrustum = frustum;
         }
 
+        TPROPERTY(RTTRFuncName="point", RTTRFuncType="setter")
         void setPoint(const TVector3<T> *point)
         {
             mPoint = point;

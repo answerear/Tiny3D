@@ -27,39 +27,59 @@
 
 namespace Tiny3D
 {
+    TENUM()
+    enum Face
+    {
+        E_FACE_TOP = 0,
+        E_FACE_BOTTOM,
+        E_FACE_LEFT,
+        E_FACE_RIGHT,
+        E_FACE_NEAR,
+        E_FACE_FAR,
+        E_MAX_FACE
+    };
+    
+    TCLASS()
     template <typename T>
     class TFrustum
     {
-    public:
-        enum Face
-        {
-            E_FACE_TOP = 0,
-            E_FACE_BOTTOM,
-            E_FACE_LEFT,
-            E_FACE_RIGHT,
-            E_FACE_NEAR,
-            E_FACE_FAR,
-            E_MAX_FACE
-        };
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
 
+    public:
         TFrustum()
         {
         }
 
+        TFUNCTION()
         void setFace(Face face, const TPlane<T> &plane)
         {
             T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
-            mFace[face] = plane;
+            mFaces[face] = plane;
         }
 
+        TFUNCTION()
         const TPlane<T> &getFace(Face face) const
         {
             T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
-            return mFace[face];
+            return mFaces[face];
         }
 
     protected:
-        TPlane<T>   mFace[E_MAX_FACE];
+        TPROPERTY(RTTRFuncName="faces", RTTRFuncType="getter", "Desciption"="Six faces in frustum")
+        TArray<TPlane<T>> getFaces() const { return TArray<TPlane<T>>(mFaces, mFaces+E_MAX_FACE); }
+
+        TPROPERTY(RTTRFuncName="faces", RTTRFuncType="setter", "Desciption"="Six faces in frustum")
+        void setFaces(TArray<TPlane<T>> faces)
+        {
+            size_t i = 0;
+            for (const auto &face : faces)
+            {
+                mFaces[i++] = face;
+            }
+        }
+        
+        TPlane<T>   mFaces[E_MAX_FACE];
     };
 }
 

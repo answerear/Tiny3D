@@ -32,9 +32,12 @@ namespace Tiny3D
      * @remarks 这里使用 f(t) = P + t * D 的形式来表示。 其中P表示射线原点，D表示
      *      射线方向向量，|D|是射线长度，而 0 <= t <= 1。
      */
+    TCLASS()
     template <typename T>
     class TRay
     {
+        TRTTI_ENABLE()
+
     public:
         /// 默认构造函数
         TRay()
@@ -51,6 +54,7 @@ namespace Tiny3D
         }
 
         /// 获取射线原点位置
+        TPROPERTY(RTTRFuncName="origin", RTTRFuncType="getter")
         const TVector3<T> &getOrigin() const
         {
             return mOrigin;
@@ -62,6 +66,7 @@ namespace Tiny3D
         }
 
         /// 获取射线方向
+        TPROPERTY(RTTRFuncName="direction", RTTRFuncType="setter")
         const TVector3<T> &getDirection() const
         {
             return mDirection;
@@ -73,12 +78,14 @@ namespace Tiny3D
         }
 
         /// 设置射线原点
+        TPROPERTY(RTTRFuncName="origin", RTTRFuncTYpe="setter")
         void setOrigin(const TVector3<T> &origin)
         {
             mOrigin = origin;
         }
 
         /// 设置射线方向
+        TPROPERTY(RTTRFuncName="direction", RTTRFuncTYpe="setter")
         void setDirection(const TVector3<T> &direction)
         {
             mDirection = direction;

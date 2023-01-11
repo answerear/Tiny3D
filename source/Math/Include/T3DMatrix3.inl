@@ -70,7 +70,14 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline TMatrix3<T>::TMatrix3(bool isZero /* = true */)
+    inline TMatrix3<T>::TMatrix3()
+    {
+        makeZero();
+    }
+
+
+    template <typename T>
+    inline TMatrix3<T>::TMatrix3(bool isZero)
     {
         if (isZero)
         {
@@ -1420,4 +1427,21 @@ namespace Tiny3D
         kU[1] = kR[0][2] * fInvD0;
         kU[2] = kR[1][2] / kD[1];
     }
+
+    template <typename T>
+    TArray<T> TMatrix3<T>::getData() const
+    {
+        return TArray<T>(mTuples, mTuples+9);
+    }
+
+    template <typename T>
+    void TMatrix3<T>::setData(TArray<T> data)
+    {
+        for (size_t i = 0; i < 9; i++)
+        {
+            mTuples[i] = data[i];
+        }
+    }
+
+
 }

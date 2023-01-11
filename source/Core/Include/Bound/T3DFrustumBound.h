@@ -101,7 +101,7 @@ namespace Tiny3D
          * @param   plane   The plane.
          */
         TFUNCTION()
-        void setFrustumFace(Frustum::Face face, const Plane &plane);
+        void setFrustumFace(Face face, const Plane &plane);
 
         /**
          * @fn  void FrustumBound::setFrustumFaces(Plane *plane, 
@@ -139,7 +139,7 @@ namespace Tiny3D
          * @param [in]  node    : 碰撞体所在的结点对象.
          * @param [in]  uID     (Optional) : 碰撞体ID.
          */
-        FrustumBound(ID uID = E_CID_AUTOMATIC);
+        FrustumBound(ID uID = FrustumBound::E_CID_AUTOMATIC);
 
         /**
          * @fn  virtual bool FrustumBound::testSphere(

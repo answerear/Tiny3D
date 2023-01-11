@@ -58,14 +58,14 @@ namespace Tiny3D
 
     template <typename T>
     inline void TObb<T>::build(const TVector3<T> points[], size_t count, 
-        BuildOption option /* = E_BUILD_AABB */)
+        ObbBuildOption option /* = ObbBuildOption::kByAABB */)
     {
         switch (option)
         {
-        case E_BUILD_AABB:
+        case ObbBuildOption::kByAABB:
             buildByAABB(points, count);
             break;
-        case E_BUILD_COVARIANCE:
+        case ObbBuildOption::kByCovariance:
             buildByCovariance(points, count);
             break;
         }
@@ -189,6 +189,36 @@ namespace Tiny3D
     {
         // 暂未实现
         T3D_ASSERT(0);
+    }
+
+    template <typename T>
+    TArray<TVector3<T>> TObb<T>::getAxes() const
+    {
+        return TArray<TVector3<T>>(mAxis, mAxis+3);
+    }
+
+    template <typename T>
+    void TObb<T>::setAxes(TArray<TVector3<T>> axis)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            mAxis[i] = axis[i];
+        }
+    }
+
+    template <typename T>
+    TArray<T> TObb<T>::getExtents() const
+    {
+        return TArray<T>(mExtent, mExtent+3);
+    }
+
+    template <typename T>
+    void TObb<T>::setExtents(TArray<T> extents)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            mExtent[i] = extents[i];
+        }
     }
 }
 

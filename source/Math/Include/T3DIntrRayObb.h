@@ -29,33 +29,45 @@
 
 namespace Tiny3D
 {
+    TCLASS()
     template <typename T>
     class TIntrRayObb
     {
+        TRTTI_ENABLE()
+
     public:
         TIntrRayObb();
         TIntrRayObb(const TRay<T> *ray, const TObb<T> *obb);
         TIntrRayObb(const TRay<T> &ray, const TObb<T> &obb);
 
+        TFUNCTION()
         bool test();
+
+        TFUNCTION()
         bool test(TVector3<T> &intersection);
+
+        TFUNCTION()
         bool test(T &distance);
 
+        TPROPERTY(RTTRFuncName="ray", RTTRFuncType="getter")
         const TRay<T> *getRay() const
         {
             return mRay;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="getter")
         const TAabb<T> *getObb() const
         {
             return mObb;
         }
 
+        TPROPERTY(RTTRFuncName="ray", RTTRFuncType="setter")
         void setRay(const TRay<T> *ray)
         {
             mRay = ray;
         }
 
+        TPROPERTY(RTTRFuncName="obb", RTTRFuncType="setter")
         void setObb(const TObb<T> *obb)
         {
             mObb = obb;

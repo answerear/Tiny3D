@@ -22,17 +22,24 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DReal.h"
 
 
 namespace Tiny3D
 {
     /// 弧度类，用于表示弧度
+    TCLASS()
     template <typename T>
     class TRadian
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+        
     public:
+        /// 默认构造函数
+        explicit TRadian();
         /// 指定实数弧度制的构造函数.
-        explicit TRadian(T radian = TReal<T>::ZERO);
+        explicit TRadian(T radian);
         /// 指定角度对象的构造函数
         TRadian(const TDegree<T> &degree);
         /// 拷贝构造函数
@@ -94,11 +101,17 @@ namespace Tiny3D
         TRadian &operator /=(T scalar);
 
         /// 获取真实的角度值，返回一个实数值
+        TFUNCTION()
         T valueDegrees() const;
+        
         /// 获取真实的弧度制，返回一个实数值
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter", "Description"="A real value")
         T valueRadians() const;
 
     private:
+        TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter", "Description"="A real value")
+        void setValue(T radian) { mRadian = radian; }
+        
         T    mRadian;
     };
 

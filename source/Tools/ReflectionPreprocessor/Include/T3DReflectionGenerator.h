@@ -115,6 +115,8 @@ namespace Tiny3D
 
         TResult processTemplateParameter(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
+        TResult processDefaultArguments(CXCursor cxCursor, CXCursor cxParent, ASTFunction *parent, const String &defaultName);
+
         // TResult processOverloadDeclaration(CXCursor cxCursor, CXCursor cxParent);
 
         /// 处理宏

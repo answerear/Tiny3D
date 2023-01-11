@@ -26,8 +26,12 @@
 
 namespace Tiny3D
 {
+    TCLASS("Description"="A color structure from the three float ARGB components (red, green, and blue) values.")
     class T3D_MATH_API ColorRGB
     {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
     public:
         static const ColorRGB BLACK;
         static const ColorRGB WHITE;
@@ -36,7 +40,15 @@ namespace Tiny3D
         static const ColorRGB BLUE;
         static const ColorRGB YELLOW;
 
-        ColorRGB(float32_t r = 1.0f, float32_t g = 1.0f, float32_t b = 1.0f)
+        ColorRGB()
+            : mBlue(1.0f)
+            , mGreen(1.0f)
+            , mRed(1.0f)
+        {
+            
+        }
+
+        ColorRGB(float32_t r, float32_t g, float32_t b)
             : mBlue(b)
             , mGreen(g)
             , mRed(r)
@@ -65,16 +77,28 @@ namespace Tiny3D
                 && mBlue == other.mBlue);
         }
 
+        TPROPERTY(RTTRFuncName="red", RTTRFuncType="getter", "Description"="The red component")
         float32_t red() const     { return mRed; }
         float32_t &red()          { return mRed; }
 
+        TPROPERTY(RTTRFuncName="green", RTTRFuncType="getter", "Description"="The green component")
         float32_t green() const   { return mGreen; }
         float32_t &green()        { return mGreen; }
 
+        TPROPERTY(RTTRFuncName="blue", RTTRFuncType="getter", "Description"="The blue component")
         float32_t blue() const    { return mBlue; }
         float32_t &blue()         { return mBlue; }
 
     private:
+        TPROPERTY(RTTRFuncName="red", RTTRFuncTYpe="setter", "Description"="red")
+        void setRed(float32_t r) { mRed = r; }
+
+        TPROPERTY(RTTRFuncName="green", RTTRFuncTYpe="setter", "Description"="green")
+        void setGreen(float32_t g) { mGreen = g; }
+        
+        TPROPERTY(RTTRFuncName="blue", RTTRFuncTYpe="setter", "Description"="blue")
+        void setBlue(float32_t b) { mBlue = b; }
+        
         float32_t   mBlue;
         float32_t   mGreen;
         float32_t   mRed;
