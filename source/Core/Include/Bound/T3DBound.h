@@ -68,7 +68,7 @@ namespace Tiny3D
          * @brief   获取碰撞体类型
          * @return  The type.
          */
-        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
+        TFUNCTION("Description"="Bound Type")
         virtual Type getType() const = 0;
 
         /**
@@ -95,7 +95,7 @@ namespace Tiny3D
          * @param   bound   The bound.
          * @return  True if it succeeds, false if it fails.
          */
-        TPROPERTY()
+        TFUNCTION()
         virtual bool test(Bound *bound) const;
 
         /**

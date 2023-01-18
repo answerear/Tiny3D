@@ -31,8 +31,12 @@ namespace Tiny3D
      * @class   SphereBound
      * @brief   球体碰撞体
      */
+    TCLASS()
     class T3D_ENGINE_API SphereBound : public Bound
     {
+        TRTTI_ENABLE(Bound)
+        TRTTI_FRIEND
+
     public:
         /**
          * @fn  static SphereBoundPtr SphereBound::create(SceneNode *node, 
@@ -56,6 +60,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
+        TFUNCTION()
         virtual Type getType() const override;
 
         /**
@@ -71,10 +76,13 @@ namespace Tiny3D
          * @param [in]  center  : 球心.
          * @param [in]  radius  : 球半径.
          */
+        TFUNCTION()
         void setParams(const Vector3 &center, Real radius);
 
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter", "Description"="Sphere")
         const Sphere &getSphere() const { return mSphere; }
 
+        TPROPERTY(RTTRFuncName="originalSphere", RTTRFuncType="getter", "Description"="OriginalSphere")
         const Sphere& getOriginalSphere() const { return mOriginalSphere; }
 
         /**
@@ -99,13 +107,19 @@ namespace Tiny3D
 
         virtual bool testSphere(const Sphere &sphere) const override;
 
-        virtual bool testAabb(const Aabb &aabb) const override;
+        virtual bool testAabb(const Aabb &aabb) const override; 
 
         virtual bool testObb(const Obb &obb) const override;
 
         virtual bool testFrustum(const Frustum &frustum) const override;
 
         virtual TResult cloneProperties(Component *newObj) const override;
+
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter", "Description"="Sphere")
+        void setSphere(const Sphere &sphere) { mSphere = sphere; }
+
+        TPROPERTY(RTTRFuncName="originalSphere", RTTRFuncType="getter", "Description"="OriginalSphere")
+        void setOriginalSphere(const Sphere &sphere) { mOriginalSphere = sphere; }
 
     private:
         Sphere    mOriginalSphere;  /**< 原始球体 */

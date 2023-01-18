@@ -60,7 +60,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
-        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
+        TFUNCTION("Description"="Bound Type")
         virtual Type getType() const override;
 
         /**
@@ -76,7 +76,7 @@ namespace Tiny3D
          * @brief   获取有向包围盒对象
          * @return  The obb.
          */
-        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter", "Description"="Frustum")
+        TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="getter", "Description"="Oriented Bounding Box")
         const Obb &getObb() const
         {
             return mObb;
@@ -87,6 +87,7 @@ namespace Tiny3D
          * @brief   获取未参与变换的原始有向包围盒对象
          * @return  The obb.
          */
+        TPROPERTY(RTTRFuncName="originOBB", RTTRFuncType="getter", "Description"="Original Oriented Bounding Box")
         const Obb& getOriginalObb() const
         {
             return mOriginalObb;
@@ -97,6 +98,7 @@ namespace Tiny3D
          * @brief   设置碰撞体中心
          * @param   center  The center.
          */
+        TFUNCTION()
         void setCenter(const Vector3 &center);
 
         /**
@@ -107,6 +109,7 @@ namespace Tiny3D
          * @param   axis1   The first axis.
          * @param   axis2   The second axis.
          */
+        TFUNCTION()
         void setAxis(const Vector3 &axis0, const Vector3 &axis1,
             const Vector3 &axis2);
 
@@ -118,6 +121,7 @@ namespace Tiny3D
          * @param   extent1 The first extent.
          * @param   extent2 The second extent.
          */
+        TFUNCTION()
         void setExtent(Real extent0, Real extent1, Real extent2);
 
         /**
@@ -150,6 +154,18 @@ namespace Tiny3D
 
         virtual TResult cloneProperties(Component *newObj) const override;
 
+        TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="setter", "Description"="Oriented Bounding Box")
+        void setAlignAxisBox(const Obb &obb)
+        {
+            mObb = obb;
+        }
+
+        TPROPERTY(RTTRFuncName="originalOBB", RTTRFuncType="setter", "Description"="Original Oriented Bounding Box")
+        void setOriginalAlignAxisBox(const Obb &obb)
+        {
+            mOriginalObb = obb;
+        }
+        
     protected:
         Obb         mObb;           /**< 实时变换的OBB */
         Obb         mOriginalObb;   /**< 不参与变换的原始OBB */

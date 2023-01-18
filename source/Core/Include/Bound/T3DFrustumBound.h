@@ -60,7 +60,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
-        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
+        TFUNCTION("Description"="Bound Type")
         virtual Type getType() const override;
 
         /**
@@ -189,6 +189,18 @@ namespace Tiny3D
          * @sa  void Bound::cloneProperties(BoundPtr bound) const
          */
         virtual TResult cloneProperties(Component *newObj) const override;
+
+        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter", "Description"="Frustum")
+        void setFrustum(const Frustum &frustum)
+        {
+            mFrustum = frustum;
+        }
+
+        TPROPERTY(RTTRFuncName="originalFrustum", RTTRFuncType="setter", "Description"="Original Frustum")
+        void setOriginalFrustum(const Frustum &frustum)
+        {
+            mOriginalFrustum = frustum;
+        }
 
     protected:
         Frustum     mFrustum;           /**< 可变换的视锥体对象 */

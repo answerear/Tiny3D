@@ -60,7 +60,7 @@ namespace Tiny3D
          * @return  The type.
          * @sa  Bound::Type Bound::getType() const
          */
-        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter", "Description"="Bound Type")
+        TFUNCTION("Description"="Bound Type")
         virtual Type getType() const override;
 
         /**
@@ -76,7 +76,7 @@ namespace Tiny3D
          * @brief   获取轴对齐包围盒对象
          * @return  The align axis box.
          */
-        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="getter", "Description"="Aligned Axis Box")
+        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="getter", "Description"="Aligned Axis Bounding Box")
         const Aabb &getAlignAxisBox() const 
         { 
             return mAabb; 
@@ -87,7 +87,7 @@ namespace Tiny3D
          * @brief   获取原始的没经过变换的轴对齐包围盒对象
          * @return  The align axis box.
          */
-        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="getter", "Description"="Original Aligned Axis Box")
+        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="getter", "Description"="Original Aligned Axis Bounding Box")
         const Aabb& getOriginalAlignAxisBox() const
         {
             return mOriginalAabb;
@@ -131,13 +131,13 @@ namespace Tiny3D
 
         virtual TResult cloneProperties(Component *newObj) const override;
 
-        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="setter", "Description"="Aligned Axis Box")
+        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="setter", "Description"="Aligned Axis Bounding Box")
         void setAlignAxisBox(const Aabb &aabb)
         {
             mAabb = aabb;
         }
 
-        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="setter", "Description"="Original Aligned Axis Box")
+        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="setter", "Description"="Original Aligned Axis Bounding Box")
         void setOriginalAlignAxisBox(const Aabb &aabb)
         {
             mOriginalAabb = aabb;
