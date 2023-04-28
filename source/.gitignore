@@ -10,3 +10,5 @@
 /xcode-ios
 /codeblocks-linux
 /nmake
+/.vscode
+/.vs

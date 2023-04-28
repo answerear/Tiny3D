@@ -139,8 +139,8 @@ endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID AND NOT TINY3D_BUILD_RTTR_TOOL)
     # In Android, this switch is setted by build.gradle in Android Studio.
-    option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
-endif (NOT TINY3D_OS_ANDROID)
+    option(TINY3D_BUILD_SAMPLES "Build samples" FALSE)
+endif (NOT TINY3D_OS_ANDROID AND NOT TINY3D_BUILD_RTTR_TOOL)
 
 if (TINY3D_OS_DESKTOP)
     option(TINY3D_BUILD_TOOLS "Build tools" TRUE)
@@ -215,8 +215,8 @@ set(RAPIDJSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rapidjson")
 
 if (NOT TINY3D_BUILD_RTTR_TOOL)
 	# Project protobuf
-	option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
-	set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
+	#option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
+	#set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
 
 	# Project rttr
 	set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
@@ -226,16 +226,16 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_subdirectory(External)
 	
 	# Setup project folder
-	set(protobuf_VERBOSE TRUE)
+	#set(protobuf_VERBOSE TRUE)
 	#set(protobuf_HAVE_BUILTIN_ATOMICS TRUE)
-	if (protobuf_BUILD_LITE_LIBRARIES)
-		set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
-		set (PROTOBUF_LIBRARY libprotobuf-lite)
-	else (protobuf_BUILD_LITE_LIBRARIES)
-		set_property(TARGET libprotobuf PROPERTY FOLDER "External/protobuf")
-		set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
-		set (PROTOBUF_LIBRARY libprotobuf)
-	endif (protobuf_BUILD_LITE_LIBRARIES)
+	#if (protobuf_BUILD_LITE_LIBRARIES)
+	#	set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+	#	set (PROTOBUF_LIBRARY libprotobuf-lite)
+	#else (protobuf_BUILD_LITE_LIBRARIES)
+	#	set_property(TARGET libprotobuf PROPERTY FOLDER "External/protobuf")
+	#	set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+	#	set (PROTOBUF_LIBRARY libprotobuf)
+	#endif (protobuf_BUILD_LITE_LIBRARIES)
 
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
@@ -261,7 +261,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_subdirectory(Core)
     
     # Project plugins
-    add_subdirectory(Plugins)
+    #add_subdirectory(Plugins)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 
@@ -292,6 +292,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	add_dependencies(T3DSystem T3DReflect rttr_core T3DPlatform)
     add_dependencies(T3DMath T3DLog T3DPlatform)
     add_dependencies(T3DFramework T3DLog T3DPlatform)
+    #add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
     add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
@@ -299,7 +300,7 @@ if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
     #add_dependencies(ScriptCompiler T3DCore)
     if (NOT TINY3D_BUILD_RTTR_TOOL)
-	    add_dependencies(ShaderCrossCompiler T3DCore)
+	    #add_dependencies(ShaderCrossCompiler T3DCore)
 	endif (NOT TINY3D_BUILD_RTTR_TOOL)
 endif(TINY3D_BUILD_TOOLS)
 

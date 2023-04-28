@@ -18,35 +18,54 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DResource.h"
+#ifndef __T3D_META_H__
+#define __T3D_META_H__
+
+
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    Resource::Resource(const String &strName)
-        : mMeta(nullptr)
-        , mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    /**
+     * @class   Meta
+     * @brief   元信息基类
+     */
+    TCLASS()
+    class T3D_ENGINE_API Meta : public Object, public Noncopyable
     {
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
+        
+    public:
+        TENUM()
+        enum class FileType : uint32_t
+        {
+            kNone = 0,
+            kFile = 1,
+            kDir = 2
+        };
 
-    }
+        static MetaPtr create();
 
-    //--------------------------------------------------------------------------
+        ~Meta() override;
 
-    Resource::~Resource()
-    {
-        T3D_ASSERT(isUnloaded());
-    }
+        virtual MetaPtr clone() const;
 
-    //--------------------------------------------------------------------------
+    protected:
+        Meta();
 
-    TResult Resource::unload()
-    {
-        mState = State::kUnloaded;
-        release();
-        return T3D_OK;
-    }
+        virtual void cloneProperties(Meta* meta) const;
+
+    public:
+        TPROPERTY()
+        UUID        uuid;
+        
+        TPROPERTY()
+        FileType    type;
+    };
 }
+
+
+#endif  /*__T3D_RESOURCE_H__*/

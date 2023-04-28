@@ -28,7 +28,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ResourceManager::ResourceManager()
-        : mCloneID(T3D_INVALID_ID)
     {
 
     }
@@ -37,90 +36,79 @@ namespace Tiny3D
 
     ResourceManager::~ResourceManager()
     {
-        unloadAllResources();
+        // unloadAllResources();
     }
 
     //--------------------------------------------------------------------------
 
-    //ID ResourceManager::toID(const String &name) const
-    //{
-    //    return hash(name.c_str());
-    //}
+    ResourcePtr ResourceManager::lookup(const String &name)
+    {
+        ResourcePtr res;
+        auto it = mResourcesLookup.find(name);
+        
+        if (it != mResourcesLookup.end())
+        {
+            if (!it->second.empty())
+            {
+                // 已经加载过了
+                res = it->second.front();
+            }
+        }
+        return res;
+    }
 
     //--------------------------------------------------------------------------
 
-    //uint32_t ResourceManager::hash(const char *str) const
-    //{
-    //    uint32_t value = 5381;
+    bool ResourceManager::insertCache(const ResourcePtr &resource)
+    {
+        bool ret = true;
 
-    //    while (*str)
-    //    {
-    //        value += (value << 5) + (*str++);
-    //    }
+        do
+        {
+            const String &name = resource->getName();
+            auto rval = mResourcesLookup.insert(ResourcesLookupValue(name, Resources()));
+            if (!rval.second)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Insert resource [%s] to cache failed !", name.c_str());
+                break;
+            }
 
-    //    return (value & 0x7FFFFFFF);
-    //}
+            rval.first->second.push_back(resource.get());
+            
+            auto rt = mResourcesCache.insert(ResourcesCacheValue(resource->getResourceID(), resource.get()));
+            if (!rt.second)
+            {
+                mResourcesLookup.erase(rval.first);
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Insert resource [%s] to cache failed !", name.c_str());
+                break;
+            }
+        } while (false);
 
-    //--------------------------------------------------------------------------
-
-    //ID ResourceManager::toCloneID(const String &name, ID cloneID) const
-    //{
-    //    std::stringstream ss;
-    //    ss.width(4);
-    //    ss.fill('0');
-    //    ss << name << "_clone#" << cloneID;
-    //    return hash(ss.str().c_str());
-    //}
+        return ret;
+    }
 
     //--------------------------------------------------------------------------
 
     ResourcePtr ResourceManager::load(const String &name, int32_t argc, ...)
     {
-        ResourcePtr res = nullptr;
+        ResourcePtr res;
 
-        do 
+        do
         {
-            va_list params;
-
-            // 从 Meta cache 中搜索，避免多次读取文件
-            MetaPtr meta = nullptr;
-            auto it = mMetaCache.find(name);
-            if (it != mMetaCache.end())
+            res = lookup(name);
+            if (res != nullptr)
             {
-                // cache 中存在，直接从缓存中获取
-                meta = it->second;
-            }
-            else
-            {
-                // cache 中不存在，只能去本地存储中获取
-                va_start(params, argc);
-                meta = readMetaInfo(name, argc, params);
-                va_end(params);
-                if (meta == nullptr)
-                {
-                    // 出错了
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                        "Read meta info about file [%s] failed !",
-                        name.c_str());
-                    break;
-                }
-            }
-            
-            // 從 cache 中搜索
-            auto itr = mResourcesCache.find(meta->uuid);
-            if (itr != mResourcesCache.end())
-            {
-                // cache 中存在，直接返回cache中的，並且把引用計數遞增
-                res = itr->second;
-                res->mResReferCount++;
+                // 已经存在了该资源
                 break;
             }
 
-            // cache 中沒有，只能新建對象
-            va_start(params, argc);
-            res = create(name, meta, argc, params);
-            va_end(params);
-
+            // lookup 中没有，创建对象
+            va_list args;
+            va_start(args, argc);
+            res = create(name, argc, args);
+            va_end(args);
             if (res == nullptr)
             {
                 // 創建失敗
@@ -129,7 +117,8 @@ namespace Tiny3D
                 break;
             }
 
-            TResult ret = res->load(meta);
+            // 加载资源
+            TResult ret = res->load();
             if (T3D_FAILED(ret))
             {
                 // 加載失敗
@@ -139,19 +128,45 @@ namespace Tiny3D
                 break;
             }
 
-            auto rval = mResourcesCache.insert(ResourcesValue(meta->uuid, res));
-            if (!rval.second)
+            // 放到缓存中
+            if (!insertCache(res))
             {
-                // 插入緩存失敗
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Insert resource [%s] to cache failed !", name.c_str());
                 res = nullptr;
                 break;
             }
+        } while (false);
 
-            res->mID = meta->uuid;
-            res->mIsLoaded = true;
-        } while (0);
+        return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback, int32_t argc, ...)
+    {
+        ResourcePtr res = nullptr;
+
+        do 
+        {
+            res = lookup(name);
+            if (res != nullptr)
+            {
+                // 已经存在了该资源
+                break;
+            }
+
+            // lookup 中没有，创建对象
+            va_list args;
+            va_start(args, argc);
+            res = create(name, argc, args);
+            va_end(args);
+            if (res == nullptr)
+            {
+                // 創建失敗
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create resource [%s] object failed !", name.c_str());
+                break;
+            }
+        } while (false);
 
         return res;
     }
@@ -164,51 +179,51 @@ namespace Tiny3D
 
         do 
         {
-            if (res == nullptr)
-            {
-                ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid resource object !");
-                break;
-            }
-
-            if (res->mResReferCount == 0)
-            {
-                // 沒有地方引用了，已經卸載了
-                break;
-            }
-
-            // 引用計數遞減，減少一次引用
-            res->mResReferCount--;
-
-            if (res->resReferCount() > 0)
-            {
-                // 資源還有其他地方引用，不卸載
-                break;
-            }
-
-            // 卸載資源
-            UUID resID = (res->isCloned() ? res->getCloneID() : res->getID());
-            auto itr = mResourcesCache.find(resID);
-            if (itr == mResourcesCache.end())
-            {
-                ret = T3D_ERR_NOT_FOUND;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Couldn't find the resource [%s] in the cache !", 
-                    res->getName().c_str());
-                break;
-            }
-
-            // 讓資源自己處理卸載事情
-            ret = res->unload();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            // 最後從緩存中清除掉
-            mResourcesCache.erase(itr);
-        } while (0);
+            // if (res == nullptr)
+            // {
+            //     ret = T3D_ERR_RES_INVALID_OBJECT;
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Invalid resource object !");
+            //     break;
+            // }
+            //
+            // if (res->mResReferCount == 0)
+            // {
+            //     // 沒有地方引用了，已經卸載了
+            //     break;
+            // }
+            //
+            // // 引用計數遞減，減少一次引用
+            // res->mResReferCount--;
+            //
+            // if (res->resReferCount() > 0)
+            // {
+            //     // 資源還有其他地方引用，不卸載
+            //     break;
+            // }
+            //
+            // // 卸載資源
+            // UUID resID = (res->isCloned() ? res->getCloneID() : res->getID());
+            // auto itr = mResourcesCache.find(resID);
+            // if (itr == mResourcesCache.end())
+            // {
+            //     ret = T3D_ERR_NOT_FOUND;
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Couldn't find the resource [%s] in the cache !", 
+            //         res->getName().c_str());
+            //     break;
+            // }
+            //
+            // // 讓資源自己處理卸載事情
+            // ret = res->unload();
+            // if (T3D_FAILED(ret))
+            // {
+            //     break;
+            // }
+            //
+            // // 最後從緩存中清除掉
+            // mResourcesCache.erase(itr);
+        } while (false);
 
         return ret;
     }
@@ -219,20 +234,20 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        // 清理所有资源缓存
-        auto itr = mResourcesCache.begin();
-        while (itr != mResourcesCache.end())
-        {
-            auto res = itr->second;
-            itr++;
-            if (res->isLoaded())
-                unload(res);
-        }
-
-        mResourcesCache.clear();
-
-        // 清理所有资源元信息缓存
-        mMetaCache.clear();
+        // // 清理所有资源缓存
+        // auto itr = mResourcesCache.begin();
+        // while (itr != mResourcesCache.end())
+        // {
+        //     auto res = itr->second;
+        //     itr++;
+        //     if (res->isLoaded())
+        //         unload(res);
+        // }
+        //
+        // mResourcesCache.clear();
+        //
+        // // 清理所有资源元信息缓存
+        // mMetaCache.clear();
 
         return ret;
     }
@@ -245,7 +260,7 @@ namespace Tiny3D
 
         do 
         {
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -258,44 +273,44 @@ namespace Tiny3D
 
         do 
         {
-            if (src == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid source object to clone !");
-                break;
-            }
-
-            auto itr = mMetaCache.find(src->getName());
-            if (itr == mMetaCache.end())
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid source object ! Because it did not be loaded yet. ");
-                break;
-            }
-
-            UUID cloneID = UUID::generate();
-            MetaPtr meta = itr->second->clone();
-            meta->uuid = cloneID;
-            res = src->clone(meta);
-            if (res == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Clone resource [%s] object failed !", 
-                    src->getName().c_str());
-                break;
-            }
-
-            res->mCloneID = cloneID;
-
-            auto rval = mResourcesCache.insert(ResourcesValue(cloneID, res));
-            if (!rval.second)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Add resource [%s] cloned to cache failed !",
-                    res->getName().c_str());
-                res = nullptr;
-            }
-        } while (0);
+            // if (src == nullptr)
+            // {
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Invalid source object to clone !");
+            //     break;
+            // }
+            //
+            // auto itr = mMetaCache.find(src->getName());
+            // if (itr == mMetaCache.end())
+            // {
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Invalid source object ! Because it did not be loaded yet. ");
+            //     break;
+            // }
+            //
+            // UUID cloneID = UUID::generate();
+            // MetaPtr meta = itr->second->clone();
+            // meta->uuid = cloneID;
+            // res = src->clone(meta);
+            // if (res == nullptr)
+            // {
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Clone resource [%s] object failed !", 
+            //         src->getName().c_str());
+            //     break;
+            // }
+            //
+            // res->mCloneID = cloneID;
+            //
+            // auto rval = mResourcesCache.insert(ResourcesValue(cloneID, res));
+            // if (!rval.second)
+            // {
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Add resource [%s] cloned to cache failed !",
+            //         res->getName().c_str());
+            //     res = nullptr;
+            // }
+        } while (false);
 
         return res;
     }
@@ -309,30 +324,30 @@ namespace Tiny3D
 
         do 
         {
-            UUID resID = UUID::INVALID;
-            if (cloneID != UUID::INVALID)
-            {
-                // 克隆對象
-                resID = cloneID;
-            }
-            else
-            {
-                auto it = mMetaCache.find(name);
-                if (it == mMetaCache.end())
-                {
-                    break;
-                }
-
-                resID = it->second->uuid;
-            }
-
-            auto itr = mResourcesCache.find(resID);
-            if (itr == mResourcesCache.end())
-            {
-                break;
-            }
-
-            res = itr->second;
+            // UUID resID = UUID::INVALID;
+            // if (cloneID != UUID::INVALID)
+            // {
+            //     // 克隆對象
+            //     resID = cloneID;
+            // }
+            // else
+            // {
+            //     auto it = mMetaCache.find(name);
+            //     if (it == mMetaCache.end())
+            //     {
+            //         break;
+            //     }
+            //
+            //     resID = it->second->uuid;
+            // }
+            //
+            // auto itr = mResourcesCache.find(resID);
+            // if (itr == mResourcesCache.end())
+            // {
+            //     break;
+            // }
+            //
+            // res = itr->second;
         } while (0);
 
         return res;
@@ -353,7 +368,7 @@ namespace Tiny3D
             }
 
             res = itr->second;
-        } while (0);
+        } while (false);
 
         return res;
     }

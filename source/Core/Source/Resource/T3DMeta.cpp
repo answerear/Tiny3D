@@ -18,35 +18,50 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DResource.h"
+#include "Resource/T3DMeta.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
+    MetaPtr Meta::create()
+    {
+        MetaPtr meta = new Meta();
+        // meta->release();
+        return meta;
+    }
 
-    Resource::Resource(const String &strName)
-        : mMeta(nullptr)
-        , mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    //--------------------------------------------------------------------------
+
+    Meta::Meta()
+        : type(FileType::kNone)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::~Resource()
+    Meta::~Meta()
     {
-        T3D_ASSERT(isUnloaded());
+
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::unload()
+    MetaPtr Meta::clone() const
     {
-        mState = State::kUnloaded;
-        release();
-        return T3D_OK;
+        MetaPtr meta = Meta::create();
+        cloneProperties(meta);
+        return meta;
     }
+
+    //--------------------------------------------------------------------------
+
+    void Meta::cloneProperties(Meta* meta) const
+    {
+        meta->uuid = uuid;
+        meta->type = type;
+    }
+
+    //--------------------------------------------------------------------------
 }

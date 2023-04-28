@@ -97,7 +97,6 @@ namespace Tiny3D
     class Dylib;
     class DylibManager;
     class Archive;
-    class ArchiveCreator;
     class ArchiveManager;
     class Material;
     class MaterialManager;

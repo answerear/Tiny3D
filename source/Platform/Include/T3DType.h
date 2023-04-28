@@ -127,4 +127,7 @@ using TMultimap = std::multimap<K, V>;
 template <typename T1, typename T2>
 using TPair = std::pair<T1, T2>;
 
+template <typename T>
+using TFunction = std::function<T>;
+
 #endif  /*__T3D_TYPE_H__*/

@@ -22,50 +22,15 @@
 #define __T3D_RESOURCE_H__
 
 
+#include "T3DMeta.h"
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @class   Meta
-     * @brief   元信息基类
-     */
-    TCLASS()
-    class T3D_ENGINE_API Meta : public Object
-    {
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-        
-    public:
-        TENUM()
-        enum class FileType : uint32_t
-        {
-            kNone = 0,
-            kFile = 1,
-            kDir = 2
-        };
-
-        static MetaPtr create();
-
-        virtual ~Meta();
-
-        virtual MetaPtr clone() const;
-
-    protected:
-        Meta();
-
-        virtual void cloneProperties(Meta* meta) const;
-
-    public:
-        TPROPERTY()
-        UUID        uuid;
-        
-        TPROPERTY()
-        FileType    type;
-    };
-
+    typedef TFunction<void(TResult result, Resource *resource)> CompletedCallback;
+    
     /**
      * @class   Resource
      * @brief   A 3D engine api.
@@ -79,77 +44,43 @@ namespace Tiny3D
          * @enum    Type
          * @brief   資源類型枚舉
          */
-        enum class Type : size_t
+        enum class Type : uint32_t
         {
-            E_RT_UNKNOWN = 0,   /**< 未知類型資源 */
-            E_RT_DYLIB,         /**< 動態庫 */
-            E_RT_ARCHIVE,       /**< 文件檔案系統 */
-            E_RT_MATERIAL,      /**< 材質 */
-            E_RT_TEXTURE,       /**< 紋理 */
-            E_RT_SHADER,        /**< 著色器 */
-            E_RT_GPUPROGRAM,    /**< GPU程序 */
-            E_RT_GPUCBUFFER,    /**< GPU 常量緩衝區 */
-            E_RT_SAMPLER,       /**< 采样器 */
-            E_RT_MODEL,         /**< 模型数据 */
+            kUnknown = 0,   /**< 未知類型資源 */
+            kDylib,         /**< 動態庫 */
+            kMaterial,      /**< 材質 */
+            kTexture,       /**< 紋理 */
+            kShader,        /**< 著色器 */
+            kModel,         /**< 模型数据 */
         };
 
         /**
-         * @fn  virtual Resource::~Resource();
-         * @brief   構造函數
+         * @brief   析构函数
          */
-        virtual ~Resource();
+        ~Resource() override;
 
         /**
-         * @fn  virtual Type Resource::getType() const = 0;
          * @brief   獲取資源類型
-         * @return  The type.
          */
         virtual Type getType() const = 0;
 
         /**
-         * @fn  ID Resource::getID() const
-         * @brief   獲取資源唯一ID
-         * @return  The identifier.
+         * @brief   获取资源源 UUID
          */
-        UUID getID() const
+        UUID getResourceID() const
         {
-            return mID;
+            if (mMeta != nullptr)
+                return mMeta->uuid;
+            return UUID::INVALID;
         }
-        
-        /**
-         * @fn  ID Resource::getCloneID() const
-         * @brief   獲取克隆資源唯一ID，當該資源是從其他資源克隆出來試，該ID才有效
-         * @return  The clone identifier.
-         */
-        UUID getCloneID() const
+
+        Meta *getMeta() const
         {
-            return mCloneID;
+            return mMeta;
         }
 
         /**
-         * @fn  bool Resource::isCloned() const
-         * @brief   是否克隆資源
-         * @return  True if cloned, false if not.
-         */
-        bool isCloned() const
-        {
-            return (mCloneID != UUID::INVALID);
-        }
-
-        /**
-         * @fn  size_t Resource::getSize() const
-         * @brief   獲取資源大小
-         * @return  The size.
-         */
-        size_t getSize() const
-        {
-            return mSize;
-        }
-
-        /**
-         * @fn  const String Resource::&getName() const
-         * @brief   獲取資源名稱
-         * @return  The name.
+         * @brief   获取资源名称
          */
         const String &getName() const
         {
@@ -157,69 +88,65 @@ namespace Tiny3D
         }
 
         /**
-         * @fn  bool Resource::isLoaded() const
          * @brief   獲取資源是否加載
-         * @return  True if loaded, false if not.
          */
         bool isLoaded() const
         {
-            return mIsLoaded;
+            return mState == State::kLoaded;
         }
 
         /**
-         * @fn  uint32_t Resource::resReferCount() const
-         * @brief   獲取資源引用計數
-         * @return  An uint32_t.
+         * @brief   获取资源是否加载中
          */
-        uint32_t resReferCount() const
+        bool isLoading() const
         {
-            return mResReferCount;
+            return mState == State::kLoading;
+        }
+
+        /**
+         * @brief   获取资源是否未加载
+         */
+        bool isUnloaded() const
+        {
+            return mState == State::kUnloaded;
         }
 
     protected:
         /**
-         * @fn  Resource::Resource(const String &name);
-         * @brief   構造函數
-         * @param   name    The name.
+         * @brief   构造函数
+         * @param [in] name : 资源名称.
          * @remarks 本類不能直接實例化，所以只能隱藏構造函數.
          */
         Resource(const String &name);
 
+        virtual TResult load() = 0;
+        
         /**
-         * @fn  virtual TResult Resource::load() = 0;
-         * @brief   加載資源
-         * @param [in] meta : 资源的相关信息
+         * @brief   加载资源
          * @return  A TResult.
          * @remarks 每種類型資源需要各自實現其加載邏輯，資源只有加載後才能使用.
          */
-        virtual TResult load(Meta *meta) = 0;
+        virtual TResult load(CompletedCallback callback) = 0;
 
         /**
-         * @fn  virtual TResult Resource::unload();
-         * @brief   卸載資源
+         * @brief   卸载资源
          * @return  A TResult.
          * @remarks 每種類型資源需要各自實現其卸載邏輯，資源卸載後就不能再使用了.
          */
         virtual TResult unload();
 
-        /**
-         * @fn  virtual ResourcePtr Resource::clone(Meta *meta) const = 0;
-         * @brief   克隆資源
-         * @param [in] meta : 元信息对象
-         * @return  A copy of this object.
-         * @remarks  每種類型資源需要各自實現其克隆邏輯，克隆出一個新資源對象.
-         */
-        virtual ResourcePtr clone(Meta *meta) const = 0;
-
-    private:
-        uint32_t    mResReferCount; /**< 資源自身的引用計數 */
-
     protected:
-        UUID    mID;        /**< 資源ID */
-        UUID    mCloneID;   /**< 如果資源是從其他資源克隆出來的，該ID才有效 */
-        size_t  mSize;      /**< 資源大小 */
-        bool    mIsLoaded;  /**< 資源是否加載標記 */
-        String  mName;      /**< 資源名稱 */
+        enum class State : uint32_t
+        {
+            kUnloaded = 0,  /**< 未加载 */
+            kLoading,       /**< 加载中 */
+            kLoaded         /**< 已加载 */
+        };
+
+        MetaPtr             mMeta;          /**< 资源的元信息对象 */
+        State               mState;         /**< 资源状态 */
+        String              mName;          /**< 資源名稱 */
+        CompletedCallback   mCompletedCB;   /**< 异步加载回调 */
     };
 }
 
