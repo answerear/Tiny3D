@@ -155,14 +155,14 @@ namespace Tiny3D
     template <typename T>
     inline const T *TMatrix4<T>::operator [](size_t row) const
     {
-        T3D_ASSERT(row < 4);
+        T3D_ASSERT(row < 4, "The row is out of bound !");
         return m4x4[row];
     }
 
     template <typename T>
     inline T *TMatrix4<T>::operator [](size_t row)
     {
-        T3D_ASSERT(row < 4);
+        T3D_ASSERT(row < 4, "The row is out of bound !");
         return m4x4[row];
     }
 
@@ -450,7 +450,7 @@ namespace Tiny3D
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::concatenateAffine(const TMatrix4 &other) const
     {
-        T3D_ASSERT(isAffine() && other.isAffine());
+        T3D_ASSERT(isAffine() && other.isAffine(), "The matrix must be a affine matrix !");
 
         return TMatrix4(
             m4x4[0][0] * other.m4x4[0][0] + m4x4[0][1] * other.m4x4[1][0] + m4x4[0][2] * other.m4x4[2][0],
@@ -502,7 +502,7 @@ namespace Tiny3D
     template <typename T>
     inline void TMatrix4<T>::decomposition(TVector3<T> &position, TVector3<T> &scale, TQuaternion<T> &orientation) const
     {
-        T3D_ASSERT(isAffine());
+        T3D_ASSERT(isAffine(), "The matrix must be a affine matrix !");
 
         TMatrix3<T> m3x3;
         extractMatrix(m3x3);
@@ -552,7 +552,7 @@ namespace Tiny3D
     template <typename T>
     inline TVector3<T> TMatrix4<T>::transformAffine(const TVector3<T> &v) const
     {
-        T3D_ASSERT(isAffine());
+        T3D_ASSERT(isAffine(), "The matrix must be a affine matrix !");
 
         return TVector3<T>(
             m4x4[0][0] * v.x() + m4x4[0][1] * v.y() + m4x4[0][2] * v.z() + m4x4[0][3], 
@@ -563,7 +563,7 @@ namespace Tiny3D
     template <typename T>
     inline TVector4<T> TMatrix4<T>::transformAffine(const TVector4<T> &v) const
     {
-        T3D_ASSERT(isAffine());
+        T3D_ASSERT(isAffine(), "The matrix must be a affine matrix !");
 
         return TVector4<T>(
             m4x4[0][0] * v.x() + m4x4[0][1] * v.y() + m4x4[0][2] * v.z() + m4x4[0][3] * v.w(), 
@@ -685,7 +685,7 @@ namespace Tiny3D
     template <typename T>
     TMatrix4<T> TMatrix4<T>::inverseAffine() const
     {
-        T3D_ASSERT(isAffine());
+        T3D_ASSERT(isAffine(), "The matrix must be a affine matrix !");
 
         T m10 = m4x4[1][0], m11 = m4x4[1][1], m12 = m4x4[1][2];
         T m20 = m4x4[2][0], m21 = m4x4[2][1], m22 = m4x4[2][2];

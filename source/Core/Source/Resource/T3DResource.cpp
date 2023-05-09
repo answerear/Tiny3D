@@ -38,7 +38,7 @@ namespace Tiny3D
 
     Resource::~Resource()
     {
-        T3D_ASSERT(isUnloaded());
+        T3D_ASSERT(isUnloaded(), "Resource has not unloaded !");
     }
 
     //--------------------------------------------------------------------------

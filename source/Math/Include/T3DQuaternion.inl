@@ -151,14 +151,14 @@ namespace Tiny3D
     template <typename T>
     inline T TQuaternion<T>::operator [](int32_t i) const
     {
-        T3D_ASSERT(i >= 0 && i < 4);
+        T3D_ASSERT(i >= 0 && i < 4, "The i is out of bound !");
         return *(&_w + i);
     }
 
     template <typename T>
     inline T &TQuaternion<T>::operator [](int32_t i)
     {
-        T3D_ASSERT(i >= 0 && i < 4);
+        T3D_ASSERT(i >= 0 && i < 4, "The i is out of bound !");
         return *(&_w + i);
     }
 

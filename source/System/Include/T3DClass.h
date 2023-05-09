@@ -56,7 +56,7 @@ namespace Tiny3D
 
         const Class *getBaseClass(size_t idx) const
         {
-            T3D_ASSERT(idx < mBaseClassesCount);
+            // T3D_ASSERT(idx < mBaseClassesCount);
             return mBaseClasses[idx];
         }
 

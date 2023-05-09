@@ -431,7 +431,7 @@ namespace Tiny3D
         String Default;     /// 默认参数
     };
 
-    #define AST_NO_IMPLEMENTATION(x) { T3D_ASSERT(0); return x; }
+    #define AST_NO_IMPLEMENTATION(x) { T3D_ASSERT(0, "No implementation !"); return x; }
     #define AST_NODE_NOT_INSTANTIATE() \
         virtual Type getType() const override   \
         {   \
