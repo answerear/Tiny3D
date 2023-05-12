@@ -99,7 +99,7 @@ namespace Tiny3D
          * @param [in]  stream  : 数据流.
          * @return  读成功返回T3D_OK.
          */
-        virtual TResult read(const String &name, Meta *&meta, MemoryDataStream &stream) = 0;
+        virtual TResult read(const String &name, MemoryDataStream &stream) = 0;
 
         /**
          * @fn  virtual TResult Archive::write(const String &name, 
@@ -109,7 +109,7 @@ namespace Tiny3D
          * @param [in]  stream  : 数据流.
          * @return  写成功返回T3D_OK.
          */
-        virtual TResult write(const String &name, Meta *meta, const MemoryDataStream &stream) = 0;
+        virtual TResult write(const String &name, const MemoryDataStream &stream) = 0;
 
     protected:
         /**

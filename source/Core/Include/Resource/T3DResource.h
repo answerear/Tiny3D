@@ -135,6 +135,8 @@ namespace Tiny3D
          */
         virtual TResult unload();
 
+        virtual ResourcePtr clone() const = 0;
+
     protected:
         enum class State : uint32_t
         {

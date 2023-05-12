@@ -44,7 +44,7 @@ namespace Tiny3D
     ResourcePtr ResourceManager::lookup(const String &name)
     {
         ResourcePtr res;
-        auto it = mResourcesLookup.find(name);
+        const auto it = mResourcesLookup.find(name);
         
         if (it != mResourcesLookup.end())
         {
@@ -54,6 +54,7 @@ namespace Tiny3D
                 res = it->second.front();
             }
         }
+        
         return res;
     }
 
@@ -65,23 +66,27 @@ namespace Tiny3D
 
         do
         {
+            // 插入根据名称查找表
             const String &name = resource->getName();
             auto rval = mResourcesLookup.insert(ResourcesLookupValue(name, Resources()));
             if (!rval.second)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Insert resource [%s] to cache failed !", name.c_str());
+                ret = false;
                 break;
             }
 
             rval.first->second.push_back(resource.get());
-            
+
+            // 插入资源缓存池
             auto rt = mResourcesCache.insert(ResourcesCacheValue(resource->getResourceID(), resource.get()));
             if (!rt.second)
             {
                 mResourcesLookup.erase(rval.first);
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Insert resource [%s] to cache failed !", name.c_str());
+                ret = false;
                 break;
             }
         } while (false);
@@ -91,7 +96,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &name, int32_t argc, ...)
+    ResourcePtr ResourceManager::load(const String &name)
     {
         ResourcePtr res;
 
@@ -105,10 +110,7 @@ namespace Tiny3D
             }
 
             // lookup 中没有，创建对象
-            va_list args;
-            va_start(args, argc);
-            res = create(name, argc, args);
-            va_end(args);
+            res = create(name);
             if (res == nullptr)
             {
                 // 創建失敗
@@ -141,31 +143,31 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback, int32_t argc, ...)
+    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback)
     {
-        ResourcePtr res = nullptr;
+        ResourcePtr res;
 
         do 
         {
-            res = lookup(name);
-            if (res != nullptr)
-            {
-                // 已经存在了该资源
-                break;
-            }
-
-            // lookup 中没有，创建对象
-            va_list args;
-            va_start(args, argc);
-            res = create(name, argc, args);
-            va_end(args);
-            if (res == nullptr)
-            {
-                // 創建失敗
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Create resource [%s] object failed !", name.c_str());
-                break;
-            }
+            // res = lookup(name);
+            // if (res != nullptr)
+            // {
+            //     // 已经存在了该资源
+            //     break;
+            // }
+            //
+            // // lookup 中没有，创建对象
+            // va_list args;
+            // va_start(args, argc);
+            // res = create(name, argc, args);
+            // va_end(args);
+            // if (res == nullptr)
+            // {
+            //     // 創建失敗
+            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+            //         "Create resource [%s] object failed !", name.c_str());
+            //     break;
+            // }
         } while (false);
 
         return res;
@@ -184,21 +186,6 @@ namespace Tiny3D
             //     ret = T3D_ERR_RES_INVALID_OBJECT;
             //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
             //         "Invalid resource object !");
-            //     break;
-            // }
-            //
-            // if (res->mResReferCount == 0)
-            // {
-            //     // 沒有地方引用了，已經卸載了
-            //     break;
-            // }
-            //
-            // // 引用計數遞減，減少一次引用
-            // res->mResReferCount--;
-            //
-            // if (res->resReferCount() > 0)
-            // {
-            //     // 資源還有其他地方引用，不卸載
             //     break;
             // }
             //

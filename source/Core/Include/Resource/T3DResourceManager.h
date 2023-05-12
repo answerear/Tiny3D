@@ -38,6 +38,15 @@ namespace Tiny3D
          */
         ~ResourceManager() override;
 
+        virtual ResourcePtr load(const String &name);
+
+        /**
+         * @brief   從文件加載資源到內存並生成資源對象
+         * @param   name    The name.
+         * @return  A ResourcePtr.
+         */
+        virtual ResourcePtr load(const String &name, CompletedCallback callback);
+        
         /**
          * @brief   從內存中卸載資源
          * @param   res The resource.
@@ -87,25 +96,12 @@ namespace Tiny3D
          */
         ResourceManager();
 
-        virtual ResourcePtr load(const String &name, int32_t argc, ...);
-
-        /**
-         * @brief   從文件加載資源到內存並生成資源對象
-         * @param   name    The name.
-         * @param   argc    The argc.
-         * @param   ...     Variable arguments providing additional information.
-         * @return  A ResourcePtr.
-         */
-        virtual ResourcePtr load(const String &name, CompletedCallback callback, int32_t argc, ...);
-     
         /**
          * @brief   創建具體資源對象，具體子類實現該方法
          * @param [in] name : 資源名稱.
-         * @param [in] argc : 資源創建帶的參數列表大小.
-         * @param [in] args : 參數列表.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr create(const String &name, int32_t argc, va_list args) = 0;
+        virtual ResourcePtr create(const String &name) = 0;
 
         ResourcePtr lookup(const String &name);
 
