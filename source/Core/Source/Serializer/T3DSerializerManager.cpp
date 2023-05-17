@@ -18,38 +18,66 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DResource.h"
-#include "Kernel/T3DArchive.h"
-#include "Kernel/T3DArchiveManager.h"
-
+#include "Serializer/T3DSerializerManager.h"
+#include "Serializer/T3DBinSerializer.h"
+#include "Serializer/T3DJsonSerializer.h"
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Resource::Resource(const String &strName)
-        : mMeta(nullptr)
-        , mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    SerializerManagerPtr SerializerManager::create()
     {
+        SerializerManagerPtr mgr = new SerializerManager();
+        // mgr->release();
+        return mgr;
+    }
+    
+    //--------------------------------------------------------------------------
 
+    SerializerPtr SerializerManager::createSerializer()
+    {
+        SerializerPtr serializer;
+
+        switch (mFileMode)
+        {
+        case FileMode::kBinary:
+            serializer = BinSerializer::create();
+            break;
+        case FileMode::kText:
+            serializer = JsonSerializer::create();
+            break;
+        default:
+            break;
+        }
+
+        return serializer;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult SerializerManager::serializeObject(DataStream &stream, const RTTRObject &obj)
+    {
+        TResult ret = T3D_OK;
+        
+        if (mSerializer != nullptr)
+        {
+            ret = mSerializer->serialize(stream, obj);
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::~Resource()
+    RTTRObject SerializerManager::deserializeObject(DataStream &stream)
     {
-        T3D_ASSERT(isUnloaded(), "Resource has not unloaded !");
-    }
+        if (mSerializer != nullptr)
+        {
+            return mSerializer->deserialize(stream);
+        }
 
-    //--------------------------------------------------------------------------
-
-    TResult Resource::unload()
-    {
-        mState = State::kUnloaded;
-        release();
-        return T3D_OK;
+        return RTTRObject{};
     }
 
     //--------------------------------------------------------------------------

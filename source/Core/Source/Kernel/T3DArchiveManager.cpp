@@ -19,6 +19,7 @@
 
 
 #include "Kernel/T3DArchiveManager.h"
+#include "Kernel/T3DArchive.h"
 
 
 namespace Tiny3D

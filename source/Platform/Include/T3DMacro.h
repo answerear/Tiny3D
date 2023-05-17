@@ -90,7 +90,7 @@
 
 #define T3D_DECLARE_INTERFACE(T)    \
     public:     \
-        virtual ~T()    {}
+        virtual ~T() = default;
 
 //#define T3D_DISABLE_COPY(T) \
 //    private:    \

@@ -22,9 +22,9 @@
 #define __T3D_RESOURCE_H__
 
 
-#include "T3DMeta.h"
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Resource/T3DMeta.h"
 
 
 namespace Tiny3D
@@ -136,7 +136,7 @@ namespace Tiny3D
         virtual TResult unload();
 
         virtual ResourcePtr clone() const = 0;
-
+        
     protected:
         enum class State : uint32_t
         {

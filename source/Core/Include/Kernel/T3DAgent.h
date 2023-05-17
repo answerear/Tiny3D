@@ -22,6 +22,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -49,6 +50,7 @@ namespace Tiny3D
         const String &getPluginsPath() const { return mPluginsPath; }
 
     protected:
+        ArchiveManagerPtr   mArchiveMgr;
         String  mPluginsPath;
     };
 }

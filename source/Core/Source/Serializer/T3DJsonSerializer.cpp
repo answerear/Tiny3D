@@ -1,0 +1,538 @@
+﻿/*******************************************************************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+
+#include "Serializer/T3DJsonSerializer.h"
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <prettywriter.h>
+#include <document.h>
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    class JsonStream
+    {
+    public:
+        typedef signed char Ch;
+
+        JsonStream(DataStream& stream) 
+            : mStream(stream)
+        {
+        }
+
+        Ch Peek() const
+        {
+            Ch c;
+
+            if (mStream.eof())
+            {
+                c = '\0';
+            }
+            else
+            {
+                mStream >> c;
+                long_t len = sizeof(Ch);
+                mStream.seek(-len, true);
+            }
+
+            return c;
+        }
+
+        Ch Take() const
+        {
+            Ch c;
+
+            if (mStream.eof())
+            {
+                c = '\0';
+            }
+            else
+            {
+                mStream >> c;
+            }
+
+            return c;
+        }
+
+        size_t Tell() const
+        {
+            return (size_t)mStream.tell();
+        }
+
+        Ch* PutBegin()
+        {
+            return nullptr;
+        }
+
+        void Put(Ch c)
+        {
+            mStream << c;
+        }
+
+        void Flush()
+        {
+        }
+
+        size_t PutEnd(Ch*)
+        {
+            return 0;
+        }
+
+    private:
+        DataStream& mStream;
+    };
+    
+    //--------------------------------------------------------------------------
+
+    using namespace rapidjson;
+    using namespace rttr;
+
+    #define RTTI_TYPE       "RTTI_Type"
+    #define RTTI_VALUE      "RTTI_Value"
+    #define RTTI_MAP_KEY    "RTTI_Map_Key"
+    #define RTTI_MAP_VALUE  "RTTI_Map_Value"
+    
+    class RTTRObjectJsonWriter
+    {
+    public:
+        static bool WriteAtomicType(PrettyWriter<JsonStream> &writer, const type &t, const variant &var)
+        {
+            if (t.is_arithmetic())
+            {
+                writer.Key(RTTI_TYPE);
+                const auto name = t.get_name();
+                writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+                writer.Key(RTTI_VALUE);
+                
+                if (t == type::get<bool>())
+                    writer.Bool(var.to_bool()); 
+                else if (t == type::get<char>())
+                    writer.Bool(var.to_bool());
+                else if (t == type::get<int8_t>())
+                    writer.Int(var.to_int8());
+                else if (t == type::get<int16_t>())
+                    writer.Int(var.to_int16());
+                else if (t == type::get<int32_t>())
+                    writer.Int(var.to_int32());
+                else if (t == type::get<int64_t>())
+                    writer.Int64(var.to_int64());
+                else if (t == type::get<uint8_t>())
+                    writer.Uint(var.to_uint8());
+                else if (t == type::get<uint16_t>())
+                    writer.Uint(var.to_uint16());
+                else if (t == type::get<uint32_t>())
+                    writer.Uint(var.to_uint32());
+                else if (t == type::get<uint64_t>())
+                    writer.Uint64(var.to_uint64());
+                else if (t == type::get<float>())
+                    writer.Double(var.to_double());
+                else if (t == type::get<double>())
+                    writer.Double(var.to_double());
+
+                return true;
+            }
+            else if (t.is_enumeration())
+            {
+                writer.Key(RTTI_TYPE);
+                const auto name = t.get_name();
+                writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+                writer.Key(RTTI_VALUE);
+                
+                bool ok = false;
+                auto result = var.to_string(&ok);
+                if (ok)
+                {
+                    writer.String(var.to_string());
+                }
+                else
+                {
+                    ok = false;
+                    auto value = var.to_uint64(&ok);
+                    if (ok)
+                        writer.Uint64(value);
+                    else
+                        writer.Null();
+                }
+
+                return true;
+            }
+            else if (t == type::get<std::string>())
+            {
+                writer.Key(RTTI_TYPE);
+                const auto name = t.get_name();
+                writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+                writer.Key(RTTI_VALUE);            
+                writer.String(var.to_string());
+                return true;
+            }
+
+            return false;
+        }
+
+        static void WriteSequentialContainer(PrettyWriter<JsonStream> &writer, const type &t, const variant_sequential_view &view)
+        {
+            writer.Key(RTTI_TYPE);
+            const auto name = t.get_name();
+            writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+            writer.Key(RTTI_VALUE);
+        
+            writer.StartArray();
+            for (const auto& item : view)
+            {
+                if (item.is_sequential_container())
+                {
+                    WriteSequentialContainer(writer, item.get_type(), item.create_sequential_view());
+                }
+                else
+                {
+                    variant wrapped_var = item.extract_wrapped_value();
+                    type value_type = wrapped_var.get_type();
+                    if (value_type.is_arithmetic() || value_type == type::get<std::string>() || value_type.is_enumeration())
+                    {
+                        writer.StartObject();
+                        WriteAtomicType(writer, value_type, wrapped_var);
+                        writer.EndObject();
+                    }
+                    else // object
+                        {
+                        writer.StartObject();
+                        WriteObject(writer, wrapped_var);
+                        writer.EndObject();
+                        }
+                }
+            }
+            writer.EndArray();
+        }
+
+        static void WriteObject(rapidjson::PrettyWriter<JsonStream> &writer, const rttr::instance &obj)
+        {
+            const instance obj2 = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+        
+            const auto className = obj2.get_derived_type().get_name();
+        
+            // Type
+            writer.Key(RTTI_TYPE);
+            writer.String(className.data(), static_cast<rapidjson::SizeType>(className.length()), false);
+        
+            // Properties
+            writer.Key(RTTI_VALUE);
+            writer.StartObject();
+
+            auto prop_list = obj2.get_derived_type().get_properties();
+            for (auto prop : prop_list)
+            {
+                if (prop.get_metadata("NO_SERIALIZE"))
+                    continue;
+
+                variant prop_value = prop.get_value(obj2);
+                if (!prop_value)
+                    continue; // cannot serialize, because we cannot retrieve the value
+
+                WriteProperty(writer, prop, prop_value);
+            }
+            writer.EndObject();
+        }
+
+        static bool WriteProperty(rapidjson::PrettyWriter<JsonStream> &writer, const property &prop, const variant &value)
+        {
+            //const instance obj(prop);
+        
+            // property name
+            const auto name = prop.get_name();
+            writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+
+            // property value
+            writer.StartObject();
+
+            const instance obj2(value);
+            const auto className = obj2.get_derived_type().get_name();
+        
+            // Value
+            bool ret = WriteVariant(writer, value);
+            writer.EndObject();
+            return ret;
+        }
+
+        static bool WriteVariant(PrettyWriter<JsonStream> &writer, const variant &var)
+        {
+            auto value_type = var.get_type();
+            auto wrapped_type = value_type.is_wrapper() ? value_type.get_wrapped_type() : value_type;
+            bool is_wrapper = wrapped_type != value_type;
+
+            if (WriteAtomicType(writer, is_wrapper ? wrapped_type : value_type,
+                                       is_wrapper ? var.extract_wrapped_value() : var))
+            {
+            }
+            else if (var.is_sequential_container())
+            {
+                WriteSequentialContainer(writer, value_type, var.create_sequential_view());
+            }
+            else if (var.is_associative_container())
+            {
+                WriteAssociatvieContainer(writer, value_type, var.create_associative_view());
+            }
+            else
+            {
+                const instance child_obj = var;
+                const instance obj = is_wrapper ? child_obj.get_wrapped_instance() : child_obj;
+                const auto child_props = obj.get_derived_type().get_properties();
+                //auto child_props = is_wrapper ? wrapped_type.get_properties() : value_type.get_properties();
+                if (!child_props.empty())
+                {
+                    WriteObject(writer, var);
+                }
+                else
+                {
+                    bool ok = false;
+                    auto text = var.to_string(&ok);
+                    if (!ok)
+                    {
+                        writer.String(text);
+                        return false;
+                    }
+
+                    writer.String(text);
+                }
+            }
+
+            return true;
+        }
+
+        static void WriteAssociatvieContainer(PrettyWriter<JsonStream> &writer, const type &t, const variant_associative_view &view)
+        {
+            writer.Key(RTTI_TYPE);
+            const auto name = t.get_name();
+            writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
+            writer.Key(RTTI_VALUE);
+        
+            static const string_view key_name(RTTI_MAP_KEY);
+            static const string_view value_name(RTTI_MAP_VALUE);
+
+            writer.StartArray();
+
+            if (view.is_key_only_type())
+            {
+                for (auto& item : view)
+                {
+                    writer.StartObject();
+                    WriteVariant(writer, item.first);
+                    writer.EndObject();
+                }
+            }
+            else
+            {
+                for (auto& item : view)
+                {
+                    writer.StartObject();
+                    writer.Key(key_name.data(), static_cast<rapidjson::SizeType>(key_name.length()), false);
+
+                    writer.StartObject();
+                    WriteVariant(writer, item.first);
+                    writer.EndObject();
+                
+                    writer.Key(value_name.data(), static_cast<rapidjson::SizeType>(value_name.length()), false);
+
+                    writer.StartObject();
+                    WriteVariant(writer, item.second);
+                    writer.EndObject();
+                
+                    writer.EndObject();
+                }
+            }
+
+            writer.EndArray();
+        }
+    };
+    
+    //--------------------------------------------------------------------------
+
+    class RTTRObjectJsonReader
+    {
+    public:
+        static bool ReadAtomicType(const Value &node, const type &klass, variant &obj)
+        {
+            bool ret = false;
+        
+            if (klass.is_arithmetic())
+            {
+                if (klass == type::get<bool>())
+                    obj = node.GetBool();
+                else if (klass == type::get<int32_t>() || klass == type::get<int16_t>() || klass == type::get<int8_t>())
+                    obj = node.GetInt();
+                else if (klass == type::get<uint32_t>() || klass == type::get<uint16_t>() || klass == type::get<uint8_t>())
+                    obj = node.GetUint();
+                else if (klass == type::get<int64_t>())
+                    obj = node.GetInt64();
+                else if (klass == type::get<uint64_t>())
+                    obj = node.GetUint64();
+                else if (klass == type::get<float>())
+                    obj = node.GetFloat();
+                else if (klass == type::get<double>())
+                    obj = node.GetDouble();
+
+                ret = true;
+            }
+            else if (klass.is_enumeration())
+            {
+                const enumeration enumerate = klass.get_enumeration();
+                obj = enumerate.name_to_value(node.GetString());
+                ret = true;
+            }
+            else if (klass ==  type::get<std::string>())
+            {
+                obj = String(node.GetString());
+                ret = true;
+            }
+
+            return ret;
+        }
+
+        static variant ReadObject(const Value &node)
+        {
+            variant obj;
+
+            do
+            {
+                auto itr = node.FindMember(RTTI_TYPE);
+                if (itr == node.MemberEnd())
+                {
+                    break;
+                }
+
+                type klass = type::get_by_name(itr->value.GetString());
+                if (!klass)
+                {
+                    break;
+                }
+
+                constructor ctor = klass.get_constructor();
+                obj = ctor.invoke();
+                // obj = klass.create();
+
+                itr = node.FindMember(RTTI_VALUE);
+                if (itr == node.MemberEnd())
+                {
+                    klass.destroy(obj);
+                    break;
+                }
+
+                obj = obj.get_type().get_raw_type().is_wrapper() ? obj.extract_wrapped_value() : obj;
+                
+                const auto &value = itr->value;
+
+                if (ReadAtomicType(value, klass, obj))
+                {
+                    
+                }
+                else if (klass.is_sequential_container())
+                {
+                    const auto &array = value.GetArray();
+                    auto view = obj.create_sequential_view();
+                    view.set_size(array.Size());
+                    for (size_t i = 0; i < array.Size(); i++)
+                    {
+                        const auto &item = array[i];
+                        variant var = ReadObject(item);
+                        view.set_value(i, var);
+                    }
+                }
+                else if (klass.is_associative_container())
+                {
+                    const auto &array = value.GetArray();
+                    auto view = obj.create_associative_view();
+                    for (size_t i = 0; i < array.Size(); i++)
+                    {
+                        const auto &item = array[i];
+                        const auto &keyNode = item.FindMember(RTTI_MAP_KEY);
+                        variant key = ReadObject(keyNode->value);
+                        const auto &valNode = item.FindMember(RTTI_MAP_VALUE);
+                        variant val = ReadObject(valNode->value);
+                        view.insert(key, val);
+                    }
+                }
+                else
+                {
+                    for (Value::ConstMemberIterator it = value.MemberBegin(); it != value.MemberEnd(); ++it)
+                    {
+                        // property name
+                        const auto &name = it->name;
+
+                        // property type & value
+                        variant prop = ReadObject(it->value);
+                        bool ret = klass.set_property_value(name.GetString(), obj, prop);
+                        T3D_ASSERT(ret, "set property value failed !");
+                    }
+                }
+            } while (false);
+            
+            return obj;
+        }
+    };
+    
+    //--------------------------------------------------------------------------
+
+    JsonSerializerPtr JsonSerializer::create()
+    {
+        return new JsonSerializer();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult JsonSerializer::serialize(DataStream &stream, const RTTRObject &obj)
+    {
+        TResult ret = T3D_OK;
+        JsonStream os(stream);
+        PrettyWriter<JsonStream> writer(os);
+
+        writer.StartObject();
+        RTTRObjectJsonWriter::WriteObject(writer, obj);
+        writer.EndObject();
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RTTRObject JsonSerializer::deserialize(DataStream &stream)
+    {
+        RTTRObject ret;
+
+        do
+        {
+            JsonStream is(stream);
+            
+            Document doc;
+            if (doc.ParseStream(is).HasParseError())
+            {
+                // doc.GetParseError();
+                // doc.GetErrorOffset();
+                break;
+            }
+
+            T3D_ASSERT(doc.IsObject(), "The doc must be an object !");
+            return RTTRObjectJsonReader::ReadObject(doc);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+}
+

@@ -17,40 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#include "Resource/T3DResource.h"
-#include "Kernel/T3DArchive.h"
-#include "Kernel/T3DArchiveManager.h"
+#include "Serializer/T3DBinSerializer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Resource::Resource(const String &strName)
-        : mMeta(nullptr)
-        , mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    BinSerializerPtr BinSerializer::create()
     {
-
+        return new BinSerializer();
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::~Resource()
+    TResult BinSerializer::serialize(DataStream &stream, const RTTRObject &obj)
     {
-        T3D_ASSERT(isUnloaded(), "Resource has not unloaded !");
+        TResult ret = T3D_OK;
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::unload()
+    RTTRObject BinSerializer::deserialize(DataStream &stream)
     {
-        mState = State::kUnloaded;
-        release();
-        return T3D_OK;
+        RTTRObject ret;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 }
+

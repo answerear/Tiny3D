@@ -17,40 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_JSON_SERIALIZER_H__
+#define __T3D_JSON_SERIALIZER_H__
 
-#include "Resource/T3DResource.h"
-#include "Kernel/T3DArchive.h"
-#include "Kernel/T3DArchiveManager.h"
+
+#include "Serializer/T3DSerializer.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    Resource::Resource(const String &strName)
-        : mMeta(nullptr)
-        , mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    class JsonSerializer : public Serializer
     {
+    public:
+        static JsonSerializerPtr create();
 
-    }
+        TResult serialize(DataStream &stream, const RTTRObject &obj) override;
 
-    //--------------------------------------------------------------------------
-
-    Resource::~Resource()
-    {
-        T3D_ASSERT(isUnloaded(), "Resource has not unloaded !");
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Resource::unload()
-    {
-        mState = State::kUnloaded;
-        release();
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
+        RTTRObject deserialize(DataStream &stream) override;
+    };
 }
+
+
+#endif    /*__T3D_JSON_SERIALIZER_H__*/

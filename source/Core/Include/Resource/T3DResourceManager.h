@@ -30,13 +30,19 @@ namespace Tiny3D
      * @class   ResourceManager
      * @brief   A 3D engine api.
      */
-    class T3D_ENGINE_API ResourceManager : public Object
+    class T3D_ENGINE_API ResourceManager
+        : public Object
+        , public Noncopyable
     {
     public:
         /**
          * @brief   析構函數
          */
         ~ResourceManager() override;
+
+        const String &getArchiveType() const { return mArchiveType; }
+
+        void setArchiveType(const String &archiveType) { mArchiveType = archiveType; }
 
         virtual ResourcePtr load(const String &name);
 
@@ -45,8 +51,9 @@ namespace Tiny3D
          * @param   name    The name.
          * @return  A ResourcePtr.
          */
-        virtual ResourcePtr load(const String &name, CompletedCallback callback);
-        
+        virtual ResourcePtr load(const String &name,
+                                 CompletedCallback callback);
+
         /**
          * @brief   從內存中卸載資源
          * @param   res The resource.
@@ -81,7 +88,8 @@ namespace Tiny3D
          * @param [in]  cloneID (Optional) : 傳入該參數直接用該ID查找，默認自動找非克隆對象.
          * @return  返回查詢的資源對象，如果返回 NULL_PTR 則表示沒有該資源.
          */
-        ResourcePtr getResource(const String &name, UUID cloneID = UUID::INVALID) const;
+        ResourcePtr getResource(const String &name,
+                                UUID cloneID = UUID::INVALID) const;
 
         /**
          * @brief   根據資源 UUID 獲取對應資源對象
@@ -106,25 +114,26 @@ namespace Tiny3D
         ResourcePtr lookup(const String &name);
 
         bool insertCache(const ResourcePtr &resource);
-     
+
     protected:
-        typedef TList<Resource*>                Resources;
-        typedef Resources::iterator             ResourcesItr;
-        typedef Resources::const_iterator       ResourcesConstItr;
-        typedef Resources::value_type           ResourcesValue;
-     
-        typedef TMap<String, Resources>         ResourcesLookup;
-        typedef ResourcesLookup::iterator       ResourcesLookupItr;
+        typedef TList<Resource *> Resources;
+        typedef Resources::iterator ResourcesItr;
+        typedef Resources::const_iterator ResourcesConstItr;
+        typedef Resources::value_type ResourcesValue;
+
+        typedef TMap<String, Resources> ResourcesLookup;
+        typedef ResourcesLookup::iterator ResourcesLookupItr;
         typedef ResourcesLookup::const_iterator ResourcesLookupConstItr;
-        typedef ResourcesLookup::value_type     ResourcesLookupValue;
+        typedef ResourcesLookup::value_type ResourcesLookupValue;
 
-        typedef TMap<UUID, ResourcePtr>         ResourcesCache;
-        typedef ResourcesCache::iterator        ResourcesCacheItr;
-        typedef ResourcesCache::const_iterator  ResourcesCacheConstItr;
-        typedef ResourcesCache::value_type      ResourcesCacheValue;
-
-        ResourcesLookup  mResourcesLookup;      /**< 资源查找表 */
-        ResourcesCache   mResourcesCache;       /**< 资源缓存池 */
+        typedef TMap<UUID, ResourcePtr> ResourcesCache;
+        typedef ResourcesCache::iterator ResourcesCacheItr;
+        typedef ResourcesCache::const_iterator ResourcesCacheConstItr;
+        typedef ResourcesCache::value_type ResourcesCacheValue;
+ 
+        String mArchiveType;
+        ResourcesLookup mResourcesLookup; /**< 资源查找表 */
+        ResourcesCache mResourcesCache; /**< 资源缓存池 */
     };
 }
 
