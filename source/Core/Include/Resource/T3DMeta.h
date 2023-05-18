@@ -43,8 +43,12 @@ namespace Tiny3D
         enum class FileType : uint32_t
         {
             kNone = 0,
-            kFile = 1,
-            kDir = 2
+            kDir,
+            kDylib,         /**< 動態庫 */
+            kMaterial,      /**< 材質 */
+            kTexture,       /**< 紋理 */
+            kShader,        /**< 著色器 */
+            kModel,         /**< 模型 */
         };
 
         static MetaPtr create();

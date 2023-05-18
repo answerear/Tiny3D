@@ -81,4 +81,22 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult SerializerManager::serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SerializerManager::deserializeObjectWithoutType(DataStream &stream, RTTRObject &obj)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
 }

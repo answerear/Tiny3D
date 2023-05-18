@@ -45,7 +45,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::unload()
+    TResult Resource::onLoad()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Resource::onUnload()
     {
         mState = State::kUnloaded;
         release();

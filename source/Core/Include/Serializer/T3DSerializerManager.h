@@ -23,6 +23,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Serializer/T3DSerializer.h"
 
 
 namespace Tiny3D
@@ -80,17 +81,33 @@ namespace Tiny3D
             RTTRObject obj = deserializeObject(stream);
             return obj.try_convert<T>();
         }
+
+        template<typename T>
+        TResult serializeWithoutType(DataStream &stream, const T &obj)
+        {
+            return serializeWithoutType(stream, obj);
+        }
+
+        template<typename T>
+        TResult deserializeWithoutType(DataStream &stream, T &obj)
+        {
+            return deserializeWithoutType(stream, obj);
+        }
         
     protected:
         SerializerPtr createSerializer();
-        
+
         TResult serializeObject(DataStream &stream, const RTTRObject &obj);
 
         RTTRObject deserializeObject(DataStream &stream);
 
+        TResult serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj);
+
+        TResult deserializeObjectWithoutType(DataStream &stream, RTTRObject &obj);
+        
     protected:
         FileMode        mFileMode = FileMode::kText;
-        SerializerPtr   mSerializer = nullptr;
+        SerializerPtr   mSerializer;
     };
 
     #define T3D_SERIALIZER_MGR      (SerializerManager::getInstance())

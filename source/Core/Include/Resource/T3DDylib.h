@@ -76,16 +76,14 @@ namespace Tiny3D
          * @brief   重写 Resource::load()
          * @return  A TResult.
          */
-        virtual TResult load() override;
-
-        virtual TResult load(CompletedCallback callback) override;
+        virtual TResult onLoad() override;
      
         /**
          * @fn  virtual TResult Dylib::unload() override;
          * @brief   重写 Resource::unlaod()
          * @return  A TResult.
          */
-        virtual TResult unload() override;
+        virtual TResult onUnload() override;
 
         virtual ResourcePtr clone() const override;
      

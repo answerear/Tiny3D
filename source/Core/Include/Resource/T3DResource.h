@@ -119,21 +119,9 @@ namespace Tiny3D
          */
         Resource(const String &name);
 
-        virtual TResult load() = 0;
-        
-        /**
-         * @brief   加载资源
-         * @return  A TResult.
-         * @remarks 每種類型資源需要各自實現其加載邏輯，資源只有加載後才能使用.
-         */
-        virtual TResult load(CompletedCallback callback) = 0;
+        virtual TResult onLoad();
 
-        /**
-         * @brief   卸载资源
-         * @return  A TResult.
-         * @remarks 每種類型資源需要各自實現其卸載邏輯，資源卸載後就不能再使用了.
-         */
-        virtual TResult unload();
+        virtual TResult onUnload();
 
         virtual ResourcePtr clone() const = 0;
         

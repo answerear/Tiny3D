@@ -86,9 +86,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::load()
+    TResult Dylib::onLoad()
     {
-        TResult ret = T3D_OK;
+        TResult ret = Resource::onLoad();
 
         do 
         {
@@ -111,8 +111,6 @@ namespace Tiny3D
                     DYLIB_ERROR());
                 break;
             }
-
-            mState = State::kLoaded;
         } while (0);
 
         return ret;
@@ -120,24 +118,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::load(CompletedCallback callback)
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Dylib::unload()
+    TResult Dylib::onUnload()
     {
         if (isLoaded())
         {
             DYLIB_UNLOAD(mHandle);
-            mState = State::kUnloaded;
         }
 
-        return T3D_OK;
+        return Resource::onUnload();
     }
 
     //--------------------------------------------------------------------------

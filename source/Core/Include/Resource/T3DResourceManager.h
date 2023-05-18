@@ -26,76 +26,35 @@
 
 namespace Tiny3D
 {
-    /**
-     * @class   ResourceManager
-     * @brief   A 3D engine api.
-     */
     class T3D_ENGINE_API ResourceManager
         : public Object
-        , public Noncopyable
+          , public Noncopyable
     {
     public:
-        /**
-         * @brief   析構函數
-         */
         ~ResourceManager() override;
 
         const String &getArchiveType() const { return mArchiveType; }
 
-        void setArchiveType(const String &archiveType) { mArchiveType = archiveType; }
+        void setArchiveType(const String &archiveType)
+        {
+            mArchiveType = archiveType;
+        }
 
-        virtual ResourcePtr load(const String &name);
+        virtual ResourcePtr load(const String &archiveName, const String &name);
 
-        /**
-         * @brief   從文件加載資源到內存並生成資源對象
-         * @param   name    The name.
-         * @return  A ResourcePtr.
-         */
-        virtual ResourcePtr load(const String &name,
+        virtual ResourcePtr load(const String &archiveName, const String &name,
                                  CompletedCallback callback);
 
-        /**
-         * @brief   從內存中卸載資源
-         * @param   res The resource.
-         * @return  调用成功返回 T3D_OK.
-         */
         virtual TResult unload(ResourcePtr res);
 
-        /**
-         * @brief   卸載所有資源，慎用 ！
-         * @return  调用成功返回 T3D_OK.
-         */
         virtual TResult unloadAllResources();
 
-        /**
-         * @brief   把當前資源管理裡所有不適用資源從內存中卸載掉
-         * @return  调用成功返回 T3D_OK.
-         */
         virtual TResult unloadUnused();
 
-        /**
-         * @brief   從源資源克隆 一份新資源出來
-         * @param [in]  src : 源資源對象.
-         * @return  返回一個新的與源資源對象相同內容的對象.
-         * @remarks  所有的 Resource 派生類都需要實現 Resource::clone() 接口。 
-         *           本接口將會調用 Resource::clone() 接口來實現具體的克隆邏輯.
-         */
         ResourcePtr clone(ResourcePtr src);
 
-        /**
-         * @brief   根據資源名稱獲取對應資源對象
-         * @param [in]  name    : 資源名稱.
-         * @param [in]  cloneID (Optional) : 傳入該參數直接用該ID查找，默認自動找非克隆對象.
-         * @return  返回查詢的資源對象，如果返回 NULL_PTR 則表示沒有該資源.
-         */
-        ResourcePtr getResource(const String &name,
-                                UUID cloneID = UUID::INVALID) const;
+        ResourcePtr getResource(const String &name, UUID uuid = UUID::INVALID) const;
 
-        /**
-         * @brief   根據資源 UUID 獲取對應資源對象
-         * @param [in]  uuid    : 資源 UUID .
-         * @return  返回查詢的資源對象，如果返回 NULL_PTR 則表示沒有該資源.
-         */
         ResourcePtr getResource(UUID uuid) const;
 
     protected:
@@ -115,8 +74,12 @@ namespace Tiny3D
 
         bool insertCache(const ResourcePtr &resource);
 
+        void removeCache(const ResourcePtr &resource);
+
+        ResourcePtr loadFromArchive(const String &name, const ArchivePtr &archive);
+
     protected:
-        typedef TList<Resource *> Resources;
+        typedef TList<Resource*> Resources;
         typedef Resources::iterator ResourcesItr;
         typedef Resources::const_iterator ResourcesConstItr;
         typedef Resources::value_type ResourcesValue;
@@ -130,7 +93,7 @@ namespace Tiny3D
         typedef ResourcesCache::iterator ResourcesCacheItr;
         typedef ResourcesCache::const_iterator ResourcesCacheConstItr;
         typedef ResourcesCache::value_type ResourcesCacheValue;
- 
+
         String mArchiveType;
         ResourcesLookup mResourcesLookup; /**< 资源查找表 */
         ResourcesCache mResourcesCache; /**< 资源缓存池 */
