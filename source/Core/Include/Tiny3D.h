@@ -28,8 +28,11 @@
 #include <T3DConfig.h>
 
 // Kernel
+#include <Kernel/T3DAgent.h>
 #include <Kernel/T3DArchive.h>
 #include <Kernel/T3DArchiveManager.h>
+#include <Kernel/T3DPlugin.h>
+#include <Kernel/T3DSettings.h>
 
 // Kernel
 // #include <Kernel/T3DCommon.h>
@@ -43,16 +46,20 @@
 // #include <Kernel/T3DPass.h>
 // #include <Kernel/T3DTextureUnit.h>
 // #include <Kernel/T3DSampler.h>
-//
-//
-// // Resource
+
+
+// Resource
+#include <Resource/T3DResource.h>
+#include <Resource/T3DResourceManager.h>
+#include <Resource/T3DMeta.h>
+#include <Resource/T3DDylib.h>
+
 // #include <Resource/T3DArchive.h>
 // #include <Resource/T3DArchiveCreator.h>
 // #include <Resource/T3DArchiveManager.h>
-// #include <Resource/T3DDylib.h>
+
 // #include <Resource/T3DDylibManager.h>
-// #include <Resource/T3DResource.h>
-// #include <Resource/T3DResourceManager.h>
+
 // #include <Resource/T3DGPUProgram.h>
 // #include <Resource/T3DGPUProgramCreator.h>
 // #include <Resource/T3DGPUProgramManager.h>
@@ -64,16 +71,13 @@
 // #include <Resource/T3DMaterialManager.h>
 // #include <Resource/T3DModel.h>
 // #include <Resource/T3DModelManager.h>
-//
-// // Serialize
-// #include <Serializer/T3DSerializerManager.h>
-// #include <Serializer/T3DMaterialReader.h>
-// #include <Serializer/T3DMaterialWriter.h>
-// #include <Serializer/T3DModelReader.h>
-// #include <Serializer/T3DModelWriter.h>
-//
-//
-// // ImageCodec
+
+// Serialize
+#include <Serializer/T3DSerializer.h>
+#include <Serializer/T3DSerializerManager.h>
+
+
+// ImageCodec
 // #include <ImageCodec/T3DImageCodec.h>
 // #include <ImageCodec/T3DImageCodecBase.h>
 // #include <ImageCodec/T3DImage.h>

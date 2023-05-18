@@ -23,6 +23,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -84,6 +85,11 @@ namespace Tiny3D
         virtual String getLocation() const = 0;
 
         /**
+         * @brief   克隆出一个新档案对象
+         */
+        virtual ArchivePtr clone() const = 0;
+
+        /**
          * @fn  virtual bool Archive::exists(const String &name) const = 0;
          * @brief   指定文件是否在档案结构里
          * @param [in]  name    : 文件名称.
@@ -109,7 +115,8 @@ namespace Tiny3D
          * @param [in]  stream  : 数据流.
          * @return  写成功返回T3D_OK.
          */
-        virtual TResult write(const String &name, const MemoryDataStream &stream) = 0;
+        virtual TResult write(const String &name,
+                              const MemoryDataStream &stream) = 0;
 
     protected:
         /**

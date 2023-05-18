@@ -19,31 +19,12 @@
 
 
 #include "T3DFSArchivePlugin.h"
-#include "T3DFSArchiveCreator.h"
+
+#include "T3DFSArchive.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    T3D_IMPLEMENT_CLASS_1(FileSystemArchivePlugin, Plugin);
-
-    //--------------------------------------------------------------------------
-
-    FileSystemArchivePlugin::FileSystemArchivePlugin()
-        : mName("FileSystemArchive")
-        , mFSCreator(nullptr)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    FileSystemArchivePlugin::~FileSystemArchivePlugin()
-    {
-
-    }
-
     //--------------------------------------------------------------------------
 
     const String &FileSystemArchivePlugin::getName() const
@@ -57,8 +38,13 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        mFSCreator = new FileSystemArchiveCreator();
-        Agent::getInstance().addArchiveCreator(mFSCreator);
+        ret = T3D_ARCHIVE_MGR.addArchiveCreator(
+            FileSystemArchive::ARCHIVE_TYPE,
+            [](const String &name, Archive::AccessMode mode)
+            {
+                FileSystemArchivePtr archive = FileSystemArchive::create(name);
+                return archive;
+            });
 
         return ret;
     }
@@ -67,18 +53,14 @@ namespace Tiny3D
 
     TResult FileSystemArchivePlugin::startup()
     {
-        TResult ret = T3D_OK;
-
-        return ret;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
     TResult FileSystemArchivePlugin::shutdown()
     {
-        TResult ret = T3D_OK;
-
-        return ret;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -86,10 +68,7 @@ namespace Tiny3D
     TResult FileSystemArchivePlugin::uninstall()
     {
         TResult ret = T3D_OK;
-        Agent::getInstance().removeArchiveCreator(mFSCreator);
-        delete mFSCreator;
-        mFSCreator = nullptr;
-
+        ret = T3D_ARCHIVE_MGR.removeArchiveCreator(FileSystemArchive::ARCHIVE_TYPE);
         return ret;
     }
 }

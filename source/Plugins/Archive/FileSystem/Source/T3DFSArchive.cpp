@@ -25,10 +25,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(FileSystemArchive, Archive);
-
-    //--------------------------------------------------------------------------
-
     const char * const FileSystemArchive::ARCHIVE_TYPE = "FileSystem";
 
     //--------------------------------------------------------------------------
@@ -45,7 +41,7 @@ namespace Tiny3D
     FileSystemArchive::FileSystemArchive(const String &name)
         : Archive(name)
     {
-
+        initFileStreamCache();
     }
 
     //--------------------------------------------------------------------------
@@ -57,23 +53,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FileSystemArchive::load(Meta *meta)
-    {
-        initFileStreamCache();
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult FileSystemArchive::unload()
-    {
-        clearFileStreamCache();
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr FileSystemArchive::clone(Meta *meta) const
+    ArchivePtr FileSystemArchive::clone() const
     {
         ArchivePtr archive = create(mName);
         return archive;
@@ -208,7 +188,7 @@ namespace Tiny3D
             }
             else
             {
-                if (mFileStreamCache.size() >= MAX_FILE_STREAM_CACHE)
+                if (mFileStreamCache.size() >= kMaxFileStreamCache)
                 {
                     // 大于可缓存最大文件流数，需要删掉最老的一个，
                     // 来存放最新打开的文件流
@@ -252,7 +232,7 @@ namespace Tiny3D
     void FileSystemArchive::initFileStreamCache()
     {
         size_t i = 0;
-        for (i = 0; i < MAX_FILE_STREAM_CACHE; ++i)
+        for (i = 0; i < kMaxFileStreamCache; ++i)
         {
             FileDataStream *fs = new FileDataStream();
             mFileStreamPool.push_back(fs);

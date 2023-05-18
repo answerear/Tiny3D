@@ -27,7 +27,7 @@
 
 namespace Tiny3D
 {
-    class Agent : public Singleton<Agent>
+    class T3D_ENGINE_API Agent : public Singleton<Agent>
     {
     public:
         Agent();
@@ -49,8 +49,35 @@ namespace Tiny3D
 
         const String &getPluginsPath() const { return mPluginsPath; }
 
+        TResult installPlugin(Plugin *plugin);
+
+        TResult uninstallPlugin(Plugin *plugin);
+
+        TResult loadPlugin(const String &name);
+
+        TResult unloadPlugin(const String &name);
+        
     protected:
+        typedef TMap<String, Plugin*>       Plugins;
+        typedef Plugins::iterator           PluginsItr;
+        typedef Plugins::const_iterator     PluginsConstItr;
+        typedef Plugins::value_type         PluginsValue;
+
+        typedef TMap<String, DylibPtr>      Dylibs;
+        typedef Dylibs::iterator            DylibsItr;
+        typedef Dylibs::const_iterator      DylibsConstItr;
+        typedef Dylibs::value_type          DylibsValue;
+
+        Logger                  *mLogger;           /**< 日志对象 */
+        EventManager            *mEventMgr;         /**< 事件管理器对象 */
+        ObjectTracer            *mObjTracer;        /**< 对象内存跟踪 */
+        
         ArchiveManagerPtr   mArchiveMgr;
+        ResourceManagerPtr  mResourceMgr;
+        
+        Plugins                 mPlugins;           /**< 安装的插件列表 */
+        Dylibs                  mDylibs;            /**< 加载的动态库列表 */
+        
         String  mPluginsPath;
     };
 }

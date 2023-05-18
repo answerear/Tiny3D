@@ -18,32 +18,17 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FS_ARCHIVE_CREATOR_H__
-#define __T3D_FS_ARCHIVE_CREATOR_H__
-
-
-#include "T3DFSArchivePrerequisites.h"
+#include "Kernel/T3DArchive.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 文件系统档案结构构建器类，用于构建文件系统档案结构对象
-     */
-    class FileSystemArchiveCreator : public ArchiveCreator
+    //--------------------------------------------------------------------------
+
+    Archive::Archive(const String &name)
+        : mName(name)
+        , mAccessMode(AccessMode::kNone)
     {
-    public:
-        /**
-         * @brief 重写 ArchieveCreator::getType() 接口
-         */
-        virtual String getType() const override;
 
-        /**
-         * @brief 重写 ArchieveCreator::createObject() 接口
-         */
-        virtual ArchivePtr createObject(int32_t argc, ...) const override;
-    };
+    }
 }
-
-
-#endif  /*__T3D_FS_ARCHIVE_CREATOR_H__*/

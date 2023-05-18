@@ -32,8 +32,6 @@ namespace Tiny3D
      */
     class FileSystemArchive : public Archive
     {
-        T3D_DECLARE_CLASS();
-
     public:
         static const char * const ARCHIVE_TYPE; /**< 档案类型 */
 
@@ -45,7 +43,7 @@ namespace Tiny3D
         /**
          * @brief 析构函数
          */
-        virtual ~FileSystemArchive();
+        virtual ~FileSystemArchive() override;
 
         /**
          * @brief 获取档案类型
@@ -54,19 +52,9 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 重写 Resource::load() 接口
-         */
-        virtual TResult load(Meta *meta) override;
-
-        /**
-         * @brief 重写 Resource::unload() 接口
-         */
-        virtual TResult unload() override;
-
-        /**
          * @brief 重写 Resource::clone() 接口
          */
-        virtual ResourcePtr clone(Meta *meta) const override;
+        virtual ArchivePtr clone() const override;
 
         /**
          * @brief 重写 Archieve::getLocation() 接口
@@ -111,7 +99,7 @@ namespace Tiny3D
     protected:
         enum
         {
-            MAX_FILE_STREAM_CACHE = 10, /**< 文件流最大的缓存 */
+            kMaxFileStreamCache = 10, /**< 文件流最大的缓存 */
         };
 
         typedef TMap<String, FileDataStream*>       FileStreamCache;

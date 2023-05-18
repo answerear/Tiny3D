@@ -17,29 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#include "T3DFSArchiveCreator.h"
-#include "T3DFSArchive.h"
+#include "Kernel/T3DPlugin.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    String FileSystemArchiveCreator::getType() const
-    {
-        return FileSystemArchive::ARCHIVE_TYPE;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ArchivePtr FileSystemArchiveCreator::createObject(int32_t argc, ...) const
-    {
-        va_list params;
-        va_start(params, argc);
-        String name = va_arg(params, char *);
-        va_end(params);
-        return FileSystemArchive::create(name);
-    }
 }
-

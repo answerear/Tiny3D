@@ -36,10 +36,8 @@ namespace Tiny3D
     #define LOG_TAG_FILESYSTEM      "FileSystemArchive"
 
     class FileSystemArchive;
-    class FileSystemArchiveCreator;
 
     T3D_DECLARE_SMART_PTR(FileSystemArchive);
-    T3D_DECLARE_SMART_PTR(FileSystemArchiveCreator);
 }
 
 

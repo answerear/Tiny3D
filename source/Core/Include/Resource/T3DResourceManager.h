@@ -28,7 +28,7 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API ResourceManager
         : public Object
-          , public Noncopyable
+        , public Singleton<ResourceManager>
     {
     public:
         ~ResourceManager() override;
@@ -98,6 +98,8 @@ namespace Tiny3D
         ResourcesLookup mResourcesLookup; /**< 资源查找表 */
         ResourcesCache mResourcesCache; /**< 资源缓存池 */
     };
+
+    #define T3D_RESOURCE_MGR  (ResourceManager::getInstance())
 }
 
 

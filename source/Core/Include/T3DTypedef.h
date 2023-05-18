@@ -144,7 +144,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SceneSprite);
     T3D_DECLARE_SMART_PTR(SceneText2D);
 
-    typedef VariantMap                      Settings;
+    //typedef VariantMap                      Settings;
 
     typedef TMap<String, RenderContextPtr>       Renderers;
     typedef Renderers::iterator             RenderersItr;

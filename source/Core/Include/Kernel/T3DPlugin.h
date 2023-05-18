@@ -18,51 +18,59 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_FS_ARCHIVE_PLUGIN_H__
-#define __T3D_FS_ARCHIVE_PLUGIN_H__
+#ifndef __T3D_PLUGIN_H__
+#define __T3D_PLUGIN_H__
 
 
-#include "T3DFSArchivePrerequisites.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 文件档案结构插件
+     * @class   Plugin
+     * @brief   插件基类，所有插件均需从此类派生并实现其接口
      */
-    class FileSystemArchivePlugin : public Plugin
+    class T3D_ENGINE_API Plugin : public Object
     {
     public:
         /**
-         * @brief 获取插件名称
+         * @fn  virtual const String Plugin::&getName() const = 0;
+         * @brief   获取插件名称
+         * @return  The name.
          */
-        virtual const String &getName() const override;
+        virtual const String &getName() const = 0;
 
         /**
-         * @brief 安装插件
+         * @fn  virtual TResult Plugin::install() = 0;
+         * @brief   安装插件
+         * @return  A TResult.
          */
-        virtual TResult install() override;
+        virtual TResult install() = 0;
 
         /**
-         * @brief 启动插件
+         * @fn  virtual TResult Plugin::startup() = 0;
+         * @brief   启动插件
+         * @return  A TResult.
          */
-        virtual TResult startup() override;
+        virtual TResult startup() = 0;
 
         /**
-         * @brief 关闭插件
+         * @fn  virtual TResult Plugin::shutdown() = 0;
+         * @brief   关闭插件
+         * @return  A TResult.
          */
-        virtual TResult shutdown() override;
+        virtual TResult shutdown() = 0;
 
         /**
-         * @brief 卸载插件
+         * @fn  virtual TResult Plugin::uninstall() = 0;
+         * @brief   卸载插件
+         * @return  A TResult.
          */
-        virtual TResult uninstall() override;
-
-    protected:
-        String mName = "FileSystemArchive";          /**< 插件名称 */
+        virtual TResult uninstall() = 0;
     };
-
 }
 
 
-#endif  /*__T3D_FS_ARCHIVE_PLUGIN_H__*/
+#endif  /*__T3D_PLUGIN_H__*/
