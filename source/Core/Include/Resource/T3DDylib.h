@@ -31,8 +31,12 @@ namespace Tiny3D
      * @class   Dylib
      * @brief   A 3D engine api.
      */
+    TCLASS()
     class T3D_ENGINE_API Dylib : public Resource
     {
+        TRTTI_ENABLE(Resource)
+        TRTTI_FRIEND
+
     public:
         /**
          * @fn  static DylibPtr Dylib::create(const String &name);
@@ -64,6 +68,8 @@ namespace Tiny3D
         virtual void *getSymbol(const String &name) const;
 
     protected:
+        Dylib() = default;
+
         /**
          * @fn  Dylib::Dylib(const String &name);
          * @brief   构造函数

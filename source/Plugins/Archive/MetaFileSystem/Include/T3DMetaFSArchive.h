@@ -52,19 +52,9 @@ namespace Tiny3D
 
     protected:
         /**
-         * @brief 重写 Resource::load() 接口
+         * @brief 重写 Archive::clone() 接口
          */
-        virtual TResult load(Meta *meta) override;
-
-        /**
-         * @brief 重写 Resource::unload() 接口
-         */
-        virtual TResult unload() override;
-
-        /**
-         * @brief 重写 Resource::clone() 接口
-         */
-        virtual ResourcePtr clone(Meta *meta) const override;
+        virtual ArchivePtr clone() const override;
 
         /**
          * @brief 重写 Archieve::getLocation() 接口

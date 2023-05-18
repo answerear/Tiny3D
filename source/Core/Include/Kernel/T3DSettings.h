@@ -58,6 +58,8 @@ namespace Tiny3D
 
         TPROPERTY()
         String  renderHardware = "Direct3D11";
+
+        TRTTI_ENABLE()
     };
 
     TCLASS()
@@ -80,6 +82,8 @@ namespace Tiny3D
 
         TPROPERTY()
         int32_t cacheTime = 10000;
+
+        TRTTI_ENABLE()
     };
 
     TCLASS()
@@ -90,6 +94,8 @@ namespace Tiny3D
 
         TPROPERTY()
         LogSettings     logSettings;
+
+        TRTTI_ENABLE()
     };
 }
 

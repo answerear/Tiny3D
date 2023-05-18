@@ -19,7 +19,7 @@
 
 
 #include "T3DMetaFSArchivePlugin.h"
-#include "T3DMetaFSArchiveCreator.h"
+#include "T3DMetaFSArchive.h"
 
 
 namespace Tiny3D
@@ -53,8 +53,13 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        mFSCreator = new MetaFileSystemArchiveCreator();
-        Agent::getInstance().addArchiveCreator(mFSCreator);
+        ret = T3D_ARCHIVE_MGR.addArchiveCreator(
+            MetaFileSystemArchive::ARCHIVE_TYPE,
+            [](const String &name, Archive::AccessMode mode)
+            {
+                MetaFileSystemArchivePtr archive = MetaFileSystemArchive::create(name);
+                return archive;
+            });
 
         return ret;
     }
@@ -82,8 +87,7 @@ namespace Tiny3D
     TResult MetaFileSystemArchivePlugin::uninstall()
     {
         TResult ret = T3D_OK;
-        Agent::getInstance().removeArchiveCreator(mFSCreator);
-        delete mFSCreator;
+        ret = T3D_ARCHIVE_MGR.removeArchiveCreator(MetaFileSystemArchive::ARCHIVE_TYPE);
         mFSCreator = nullptr;
 
         return ret;

@@ -19,7 +19,6 @@
 
 
 #include "T3DFSArchivePlugin.h"
-
 #include "T3DFSArchive.h"
 
 

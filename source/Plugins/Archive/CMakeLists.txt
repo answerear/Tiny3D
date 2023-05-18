@@ -23,5 +23,5 @@ add_definitions(-DT3D_ERR_META_FS_ARCHIVE=T3D_ERR_ARCHIVE+0x00000400)
 add_subdirectory(FileSystem)
 #add_subdirectory(Zip)
 #add_subdirectory(Bundle)
-#add_subdirectory(MetaFileSystem)
+add_subdirectory(MetaFileSystem)
 

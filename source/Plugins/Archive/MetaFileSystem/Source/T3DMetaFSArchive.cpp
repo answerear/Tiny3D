@@ -53,23 +53,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFileSystemArchive::load(Meta *meta)
-    {
-        initFileStreamCache();
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult MetaFileSystemArchive::unload()
-    {
-        clearFileStreamCache();
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr MetaFileSystemArchive::clone(Meta *meta) const
+    ArchivePtr MetaFileSystemArchive::clone() const
     {
         ArchivePtr archive = create(mName);
         return archive;

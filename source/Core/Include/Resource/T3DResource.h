@@ -35,9 +35,13 @@ namespace Tiny3D
      * @class   Resource
      * @brief   A 3D engine api.
      */
+    TCLASS()
     class T3D_ENGINE_API Resource : public Object
     {
         friend class ResourceManager;
+
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
 
     public:
         /**
@@ -112,6 +116,8 @@ namespace Tiny3D
         }
 
     protected:
+        Resource() = default;
+
         /**
          * @brief   构造函数
          * @param [in] name : 资源名称.

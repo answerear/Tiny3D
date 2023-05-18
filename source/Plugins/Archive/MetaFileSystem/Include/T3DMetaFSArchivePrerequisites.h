@@ -36,10 +36,8 @@ namespace Tiny3D
     #define LOG_TAG_METAFS      "MetaFileSystemArchive"
 
     class MetaFileSystemArchive;
-    class MetaFileSystemArchiveCreator;
 
     T3D_DECLARE_SMART_PTR(MetaFileSystemArchive);
-    T3D_DECLARE_SMART_PTR(MetaFileSystemArchiveCreator);
 }
 
 
