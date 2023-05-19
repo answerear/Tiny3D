@@ -24,6 +24,8 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 
+#include "Kernel/T3DSettings.h"
+
 
 namespace Tiny3D
 {
@@ -56,7 +58,30 @@ namespace Tiny3D
         TResult loadPlugin(const String &name);
 
         TResult unloadPlugin(const String &name);
-        
+
+    protected:
+        TResult initApplication();
+
+        TResult initLogSystem();
+
+        TResult initEventSystem();
+
+        TResult initObjectTracer();
+
+        TResult initManagers();
+
+        TResult loadConfig(const String &cfgPath);
+
+        TResult loadPlugins();
+
+        TResult unloadPlugins();
+
+        TResult initAssets();
+
+        TResult initRenderer();
+
+        TResult initSceneManager();
+     
     protected:
         typedef TMap<String, Plugin*>       Plugins;
         typedef Plugins::iterator           PluginsItr;
@@ -77,8 +102,12 @@ namespace Tiny3D
         
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */
-        
-        String  mPluginsPath;
+
+        String                  mAppPath;           /**< 程序路径 */
+        String                  mAppName;           /**< 程序名称 */
+        String                  mPluginsPath;
+
+        Settings                mSettings;          /**< 引擎配置项 */
     };
 }
 

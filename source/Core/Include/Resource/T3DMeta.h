@@ -44,11 +44,15 @@ namespace Tiny3D
         {
             kNone = 0,
             kDir,
+            kFile,          /**< 未知文件 */
             kDylib,         /**< 動態庫 */
             kMaterial,      /**< 材質 */
             kTexture,       /**< 紋理 */
             kShader,        /**< 著色器 */
             kModel,         /**< 模型 */
+            kTxt,           /**< 文本文件 */
+            kBin,           /**< 二进制文件 */
+            kConfig,        /**< 配置文件 */
         };
 
         static MetaPtr create();

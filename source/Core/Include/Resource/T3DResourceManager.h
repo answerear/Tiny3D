@@ -31,6 +31,8 @@ namespace Tiny3D
         , public Singleton<ResourceManager>
     {
     public:
+        static ResourceManagerPtr create();
+        
         ~ResourceManager() override;
 
         const String &getArchiveType() const { return mArchiveType; }
@@ -62,13 +64,6 @@ namespace Tiny3D
          * @brief   構造函數
          */
         ResourceManager();
-
-        /**
-         * @brief   創建具體資源對象，具體子類實現該方法
-         * @param [in] name : 資源名稱.
-         * @return  A ResourcePtr.
-         */
-        virtual ResourcePtr create(const String &name) = 0;
 
         ResourcePtr lookup(const String &name);
 

@@ -181,8 +181,25 @@ namespace Tiny3D
             //     ss.str() = "";
             //     meta->uuid.MapItemData.insert(TMap<String, UUID::Data>::value_type(key, data));
             // }
-            meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
+            // meta->type = isDir ? Meta::FileType::kDir : Meta::FileType::kFile;
 
+            if (isDir)
+            {
+                meta->type = Meta::FileType::kDir;
+            }
+            else
+            {
+                // *.t3d
+                    //
+                // *.Shader
+                // *.vs
+                // *.ps
+                // *.gs
+                // *.hs
+                // *.ds
+                // *.cs
+            }
+            
             FileDataStream fs;
 
             if (fs.open(fullpath.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_WRITE_ONLY))

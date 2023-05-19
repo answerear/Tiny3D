@@ -25,6 +25,7 @@
 #include "Resource/T3DResource.h"
 #include "Resource/T3DDylib.h"
 #include "T3DErrorDef.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
@@ -79,6 +80,15 @@ namespace Tiny3D
     TResult Agent::init(const String &appPath, bool autoCreateWindow, const String &config)
     {
         TResult ret = T3D_OK;
+
+        do
+        {
+#if !defined (T3D_OS_ANDROID)
+            // 获取应用程序路径、应用程序名称
+            StringUtil::split(appPath, mAppPath, mAppName);
+#endif
+            
+        } while (false);
 
         return ret;
     }
@@ -269,5 +279,174 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initApplication()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            Application *theApp = Application::getInstancePtr();
+            if (theApp == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = theApp->init();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (0);
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initLogSystem()
+    {
+        TResult ret = T3D_ERR_FAIL;
+
+        mLogger = new Logger();
+
+        if (mLogger != nullptr)
+        {
+            ret = mLogger->startup(1000, "Agent", true, true);
+        }
+
+        T3D_LOG_INFO(LOG_TAG_ENGINE, 
+            "Start Tiny3D - %s(%s) ...... version %s",
+            getVersionName(), getVersionString(),
+            T3D_DEVICE_INFO.getSoftwareVersion().c_str());
+
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "System Information : \n%s",
+            T3D_DEVICE_INFO.getSystemInfo().c_str());
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initEventSystem()
+    {
+        mEventMgr = new EventManager(10);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initObjectTracer()
+    {
+        mObjTracer = new ObjectTracer(true);
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult Agent::initManagers()
+    {
+        mArchiveMgr = ArchiveManager::create();
+        mResourceMgr = ResourceManager::create();
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult Agent::loadConfig(const String &cfgPath)
+    {
+        TResult ret = T3D_OK;
+
+// #if defined (T3D_OS_ANDROID)
+//         // Android，只能读取apk包里面的文件
+//         ret = loadPlugin("ZipArchive");
+//         if (T3D_FAILED(ret))
+//         {
+//             return ret;
+//         }
+//
+//         String apkPath = Dir::getAppPath();
+//         ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+//         ConfigFile cfgFile("assets/" + cfgPath, archive);
+//         ret = cfgFile.loadXML(mSettings);
+// #else
+//         // 其他不需要从 apk 包里面读取文件的
+//         String path = mAppPath + cfgPath;
+//         
+// #endif
+
+        do
+        {
+            ret = loadPlugin("MetaFileSystemArchive");
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            Resource *res = T3D_RESOURCE_MGR.load("MetaFileSystemArchive", cfgPath).get();
+            mSettings = *(static_cast<Settings*>(res));
+            T3D_RESOURCE_MGR.unload(res);
+        } while (false);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::loadPlugins()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+#if !defined (T3D_OS_ANDROID)
+            mPluginsPath = mAppPath + Dir::getNativeSeparator() + mSettings.pluginSettings.pluginPath;
+#endif
+
+            auto itr = mSettings.pluginSettings.plugins.begin();
+            while (itr != mSettings.pluginSettings.plugins.end())
+            {
+                const String &name = *itr;
+                ret = loadPlugin(name);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                ++itr;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::unloadPlugins()
+    {
+        TResult ret = T3D_OK;
+
+        DylibsItr itr = mDylibs.begin();
+        while (itr != mDylibs.end())
+        {
+            DylibPtr dylib = itr->second;
+            DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(dylib->getSymbol("dllStopPlugin"));
+            if (pFunc != nullptr)
+            {
+                ret = pFunc();
+                if (ret == T3D_OK)
+                {
+                    T3D_RESOURCE_MGR.unload(dylib);
+                }
+            }
+            ++itr;
+        }
+
+        mDylibs.clear();
+
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 }

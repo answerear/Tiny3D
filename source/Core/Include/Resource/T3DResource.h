@@ -56,6 +56,7 @@ namespace Tiny3D
             kTexture,       /**< 紋理 */
             kShader,        /**< 著色器 */
             kModel,         /**< 模型数据 */
+            kSettings,      /**< 引擎配置数据 */
         };
 
         /**

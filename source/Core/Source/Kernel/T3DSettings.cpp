@@ -21,3 +21,21 @@
 #include "Kernel/T3DSettings.h"
 
 
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    Resource::Type Settings::getType() const
+    {
+        return Resource::Type::kSettings;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ResourcePtr Settings::clone() const
+    {
+        return new Settings();
+    }
+
+    //--------------------------------------------------------------------------    
+}

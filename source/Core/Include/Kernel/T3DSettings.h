@@ -22,11 +22,12 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Resource/T3DResource.h"
 
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     struct RenderSettings
     {
         TPROPERTY()
@@ -62,7 +63,7 @@ namespace Tiny3D
         TRTTI_ENABLE()
     };
 
-    TCLASS()
+    TSTRUCT()
     struct LogSettings
     {
         TPROPERTY()
@@ -86,16 +87,38 @@ namespace Tiny3D
         TRTTI_ENABLE()
     };
 
-    TCLASS()
-    struct Settings
+    TSTRUCT()
+    struct PluginSettings
     {
+        TPROPERTY()
+        String  pluginPath = ".";
+
+        TPROPERTY()
+        std::list<String> plugins;
+    };
+
+    TCLASS()
+    class T3D_ENGINE_API Settings : public Resource
+    {
+        TRTTI_ENABLE()
+        TRTTI_FRIEND
+
+    public:
+        virtual Type getType() const override;
+
+        virtual ResourcePtr clone() const override;
+
         TPROPERTY()
         RenderSettings  renderSettings;
 
         TPROPERTY()
         LogSettings     logSettings;
 
-        TRTTI_ENABLE()
+        TPROPERTY()
+        PluginSettings  pluginSettings;
+        
+    protected:
+        Settings() = default;
     };
 }
 

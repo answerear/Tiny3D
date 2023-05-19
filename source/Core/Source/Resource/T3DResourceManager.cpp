@@ -29,6 +29,13 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ResourceManagerPtr ResourceManager::create()
+    {
+        return new ResourceManager();
+    }
+
+    //--------------------------------------------------------------------------
+
     ResourceManager::ResourceManager()
     {
 
