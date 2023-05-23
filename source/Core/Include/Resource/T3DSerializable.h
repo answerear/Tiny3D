@@ -32,6 +32,8 @@ namespace Tiny3D
     public:
         static SerializablePtr create(const String &name);
 
+        ~Serializable() override;
+
         Type getType() const override;
         
         template<typename T>

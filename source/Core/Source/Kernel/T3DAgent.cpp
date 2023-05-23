@@ -307,7 +307,7 @@ namespace Tiny3D
                 break;
             }
             
-            DylibPtr dylib = smart_pointer_cast<Dylib>(T3D_DYLIB_MGR.load("FileSystem", name));
+            DylibPtr dylib = smart_pointer_cast<Dylib>(T3D_DYLIB_MGR.loadDylib(name));
             if (dylib == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -457,7 +457,7 @@ namespace Tiny3D
     TResult Agent::initManagers()
     {
         mArchiveMgr = ArchiveManager::create();
-        mDylibMgr = DylibManager::create();
+        mDylibMgr = DylibManager::create();      
         mSerializableMgr = SerializableManager::create();
         return T3D_OK;
     }
@@ -488,14 +488,43 @@ namespace Tiny3D
 
         do
         {
-            ret = loadPlugin("MetaFileSystemArchive");
+            // ret = loadPlugin("FileSystemArchive");
+            // if (T3D_FAILED(ret))
+            // {
+            //     break;
+            // }
+            //
+            // SerializablePtr res = smart_pointer_cast<Serializable>(T3D_SERIALIZABLE_MGR.load("MetaFileSystemArchive", "Tiny3D.cfg"));
+            // mSettings = res->instantiateAsObject<Settings>();
+#if defined (T3D_OS_ANDROID)
+            // Android，只能读取apk包里面的文件
+            ret = loadPlugin("ZipArchive");
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
+            
+            String apkPath = Dir::getAppPath();
+            ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+#else
+            // 其他不需要从 apk 包里读取文件的
+            ret = loadPlugin("FileSystemArchive");
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            ArchivePtr archive = mArchiveMgr->loadArchive(mAppPath, "FileSystem", Archive::AccessMode::kRead);
+#endif
+
+            MemoryDataStream stream;
+            ret = archive->read(cfgPath, stream);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            SerializablePtr res = smart_pointer_cast<Serializable>(T3D_SERIALIZABLE_MGR.load("MetaFileSystemArchive", "Tiny3D.cfg"));
-            mSettings = res->instantiateAsObject<Settings>();
+            mSettings = *T3D_SERIALIZER_MGR.deserialize<Settings>(stream);
         } while (false);
         return ret;
     }

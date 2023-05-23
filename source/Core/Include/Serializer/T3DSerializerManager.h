@@ -82,17 +82,17 @@ namespace Tiny3D
             return obj.try_convert<T>();
         }
 
-        template<typename T>
-        TResult serializeWithoutType(DataStream &stream, const T &obj)
-        {
-            return serializeWithoutType(stream, obj);
-        }
-
-        template<typename T>
-        TResult deserializeWithoutType(DataStream &stream, T &obj)
-        {
-            return deserializeWithoutType(stream, obj);
-        }
+        // template<typename T>
+        // TResult serializeWithoutType(DataStream &stream, const T &obj)
+        // {
+        //     return serializeWithoutType(stream, obj);
+        // }
+        //
+        // template<typename T>
+        // TResult deserializeWithoutType(DataStream &stream, T &obj)
+        // {
+        //     return deserializeWithoutType(stream, obj);
+        // }
 
         TResult serializeObject(DataStream &stream, const RTTRObject &obj);
 
@@ -100,9 +100,7 @@ namespace Tiny3D
         
     protected:
         SerializerPtr createSerializer();
-
         
-
         TResult serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj);
 
         TResult deserializeObjectWithoutType(DataStream &stream, RTTRObject &obj);

@@ -20,7 +20,7 @@
 
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DDylib.h"
-
+#include "Kernel/T3DArchive.h"
 
 namespace Tiny3D
 {
@@ -36,7 +36,8 @@ namespace Tiny3D
 
     DylibPtr DylibManager::loadDylib(const String &name)
     {
-        return smart_pointer_cast<Dylib>(ResourceManager::load(name, 0));
+        ArchivePtr archive;
+        return smart_pointer_cast<Dylib>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -52,4 +53,6 @@ namespace Tiny3D
     {
         return unload(dylib);
     }
+
+    //--------------------------------------------------------------------------
 }

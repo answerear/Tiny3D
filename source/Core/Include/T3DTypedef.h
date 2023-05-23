@@ -32,6 +32,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Component);
     T3D_DECLARE_SMART_PTR(ComponentCreator);
 
+    T3D_DECLARE_SMART_PTR(Settings);
+
     T3D_DECLARE_SMART_PTR(Meta);
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);

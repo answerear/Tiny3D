@@ -21,6 +21,7 @@
 #include "Resource/T3DDylib.h"
 #include "Kernel/T3DAgent.h"
 #include "T3DErrorDef.h"
+#include "Resource/T3DMeta.h"
 
 
 #if defined (T3D_OS_WINDOWS)
@@ -86,12 +87,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::loadData(DataStream &stream)
+    TResult Dylib::load(ArchivePtr archive)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            mState = State::kLoading;
+            
+            mMeta = Meta::create();
+            mMeta->uuid = UUID::generate();
+            mMeta->type = Meta::FileType::kDylib;
+            
 #if defined (T3D_OS_WINDOWS)
             String name = mName + ".dll";
 #elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
@@ -111,9 +118,18 @@ namespace Tiny3D
                     DYLIB_ERROR());
                 break;
             }
+
+            mState = State::kLoaded;
         } while (0);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Dylib::loadData(DataStream &stream)
+    {
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

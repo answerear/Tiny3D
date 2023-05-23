@@ -30,18 +30,12 @@ namespace Tiny3D
     {
     public:        
         ~ResourceManager() override = default;
+        
+        virtual ResourcePtr load(const String &name);
 
-        const String &getArchiveType() const { return mArchiveType; }
+        virtual ResourcePtr load(ArchivePtr archive, const String &name);
 
-        void setArchiveType(const String &archiveType)
-        {
-            mArchiveType = archiveType;
-        }
-
-        virtual ResourcePtr load(const String &archiveName, const String &name);
-
-        virtual ResourcePtr load(const String &archiveName, const String &name,
-                                 CompletedCallback callback);
+        virtual ResourcePtr load(const String &name, CompletedCallback callback);
 
         virtual TResult unload(ResourcePtr res);
 

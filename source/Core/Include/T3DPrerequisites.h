@@ -70,6 +70,8 @@ namespace Tiny3D
     class Plugin;
     class Archive;
     class ArchiveManager;
+
+    class Settings;
     
     class Variant;
 

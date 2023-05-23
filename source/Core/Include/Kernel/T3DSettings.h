@@ -95,13 +95,14 @@ namespace Tiny3D
 
         TPROPERTY()
         std::list<String> plugins;
+
+        TRTTI_ENABLE()
     };
 
     TCLASS()
     class T3D_ENGINE_API Settings
     {
         TRTTI_ENABLE()
-        TRTTI_FRIEND
 
     public:
         TPROPERTY()

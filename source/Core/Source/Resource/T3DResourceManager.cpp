@@ -94,7 +94,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &archiveName, const String &name)
+    ResourcePtr ResourceManager::load(const String &name)
+    {
+        ResourcePtr res;
+
+        return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::load(ArchivePtr archive, const String &name)
     {
         ResourcePtr res;
 
@@ -114,16 +123,6 @@ namespace Tiny3D
                 // 创建失败
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
                     "Create resource [%s] object failed !", name.c_str());
-                break;
-            }
-
-            // 获取读写档案对象
-            ArchivePtr archive;
-            if (!T3D_ARCHIVE_MGR.getArchive(archiveName, Archive::AccessMode::kRead, archive))
-            {
-                // 没有对应的档案系统对象
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Get archive(%s) [%s] failed !",
-                    archiveName.c_str(), name.c_str());
                 break;
             }
 
@@ -153,7 +152,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &archiveName, const String &name, CompletedCallback callback)
+    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback)
     {
         ResourcePtr res;
 

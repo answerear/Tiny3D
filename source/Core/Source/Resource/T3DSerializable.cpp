@@ -31,6 +31,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Serializable::~Serializable()
+    {
+        T3D_SAFE_DELETE(mObject);
+    }
+
+    //--------------------------------------------------------------------------
+
     Serializable::Serializable(const String &name)
         : Resource(name)
     {

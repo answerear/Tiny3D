@@ -128,7 +128,7 @@ namespace Tiny3D
 
         String                  mAppPath;           /**< 程序路径 */
         String                  mAppName;           /**< 程序名称 */
-        String                  mPluginsPath;
+        String                  mPluginsPath = ".";
 
         Settings                mSettings;          /**< 引擎配置项 */
 
