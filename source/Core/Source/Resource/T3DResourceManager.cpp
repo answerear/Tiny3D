@@ -22,32 +22,10 @@
 #include "T3DErrorDef.h"
 #include "Kernel/T3DArchive.h"
 #include "Kernel/T3DArchiveManager.h"
-#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    ResourceManagerPtr ResourceManager::create()
-    {
-        return new ResourceManager();
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourceManager::ResourceManager()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourceManager::~ResourceManager()
-    {
-        // unloadAllResources();
-    }
-
     //--------------------------------------------------------------------------
 
     ResourcePtr ResourceManager::lookup(const String &name)
@@ -130,6 +108,16 @@ namespace Tiny3D
             }
 
             // lookup 中没有，创建对象
+            res = create(name);
+            if (res == nullptr)
+            {
+                // 创建失败
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Create resource [%s] object failed !", name.c_str());
+                break;
+            }
+
+            // 获取读写档案对象
             ArchivePtr archive;
             if (!T3D_ARCHIVE_MGR.getArchive(archiveName, Archive::AccessMode::kRead, archive))
             {
@@ -139,108 +127,27 @@ namespace Tiny3D
                 break;
             }
 
-            res = loadFromArchive(name, archive);
-            if (res == nullptr)
+            // 加载资源
+            TResult ret = res->load(archive);
+            if (T3D_FAILED(ret))
             {
+                // 加載失敗
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Load resource [%s] failed !", name.c_str());
+                res = nullptr;
                 break;
             }
 
             // 放到缓存中
             if (!insertCache(res))
             {
+                // 失败了，先卸载资源
+                res->unload();
                 res = nullptr;
                 break;
             }
-
-            // 回调加载
-            if (T3D_FAILED(res->onLoad()))
-            {
-                removeCache(res);
-                break;
-            }
-
-            res->mState = Resource::State::kLoaded;
         } while (false);
 
-        return res;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr ResourceManager::loadFromArchive(const String &name, const ArchivePtr &archive)
-    {
-        ResourcePtr res;
-
-        do
-        {
-            MemoryDataStream stream;
-            TResult ret = archive->read(name, stream);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read reousrce data [%s] from archive failed !",
-                    name.c_str());
-                break;
-            }
-
-            uint8_t *buffer = nullptr;
-            size_t bufSize = 0;
-            stream.getBuffer(buffer, bufSize);
-            
-            // 读取 meta 信息
-            uint32_t metaSize = 0;
-            if (bufSize < sizeof(metaSize))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid data size for resource [%s] !", name.c_str());
-                break;
-            }
-            // meta 数据大小
-            memcpy(&metaSize, buffer, sizeof(metaSize));
-            if (bufSize < metaSize)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid meta size for resource [%s] !", name.c_str());
-                break;
-            }
-            // meta 数据
-            uint8_t *metaData = buffer + sizeof(metaSize);
-            MemoryDataStream ms(metaData, metaSize, false);
-            // 反序列化出 meta 对象
-            MetaPtr meta = T3D_SERIALIZER_MGR.deserialize<Meta>(ms);
-            if (meta == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Deserialize meta for resource [%s] failed !", name.c_str());
-                break;
-            }
-
-            // 读取资源数据
-            if (bufSize < metaSize + sizeof(uint32_t) * 2)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid data size for resource [%s] !", name.c_str());
-                break;
-            }
-            
-            uint8_t *data = buffer + metaSize;
-            uint32_t dataSize = 0;
-            // 资源数据大小
-            memcpy(&dataSize, data, sizeof(dataSize));
-            // 资源数据
-            data += sizeof(dataSize);
-            MemoryDataStream ds(data, dataSize, false);
-            res = T3D_SERIALIZER_MGR.deserialize<Resource>(ds);
-            if (res == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Deserialize resource [%s] failed !", name.c_str());
-                break;
-            }
-
-            res->mMeta = meta;
-        } while (false);
-        
         return res;
     }
 
@@ -284,13 +191,19 @@ namespace Tiny3D
 
         do 
         {
-            ret = res->onUnload();
+            if (res == nullptr)
+            {
+                ret = T3D_ERR_RES_INVALID_OBJECT;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Invalid resource object !");
+                break;
+            }
+            
+            ret = res->unload();
             if (T3D_FAILED(ret))
             {
                 break;
             }
-
-            res->mState = Resource::State::kUnloaded;
             
             removeCache(res);
         } while (false);

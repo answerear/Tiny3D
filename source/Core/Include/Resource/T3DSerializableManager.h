@@ -17,11 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_SERIALIZABLE_MANAGER_H__
+#define __T3D_SERIALIZABLE_MANAGER_H__
 
-#include "Kernel/T3DSettings.h"
+
+#include "T3DResource.h"
+#include "Resource/T3DResourceManager.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class T3D_ENGINE_API SerializableManager
+        : public Singleton<SerializableManager>
+        , public ResourceManager
+    {
+    public:
+        static SerializableManagerPtr create();
+        
+    protected:
+        ResourcePtr create(const String &name) override;
+    };
+
+    #define T3D_SERIALIZABLE_MGR    (SerializableManager::getInstance()) 
 }
+
+
+#endif    /*__T3D_SERIALIZABLE_MANAGER_H__*/

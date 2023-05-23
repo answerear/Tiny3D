@@ -23,7 +23,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-
 #include "Kernel/T3DSettings.h"
 
 
@@ -49,6 +48,27 @@ namespace Tiny3D
         TResult init(const String &appPath, bool autoCreateWindow,
                      const String &config = "Tiny3D.cfg");
 
+        TResult createDefaultRenderWindow(RenderWindowPtr &window);
+
+        TResult addRenderWindow(RenderWindowPtr window);
+
+        TResult removeRenderWindow(const String &name);
+
+        RenderWindowPtr getRenderWindow(const String &name) const;
+
+        // RenderWindowPtr getDefaultRenderWindow() const 
+        // { 
+        //     return mDefaultWindow; 
+        // }
+
+        bool run();
+
+        void renderOneFrame();
+
+        void appDidEnterBackground();
+
+        void appWillEnterForeground();
+     
         const String &getPluginsPath() const { return mPluginsPath; }
 
         TResult installPlugin(Plugin *plugin);
@@ -96,9 +116,12 @@ namespace Tiny3D
         Logger                  *mLogger;           /**< 日志对象 */
         EventManager            *mEventMgr;         /**< 事件管理器对象 */
         ObjectTracer            *mObjTracer;        /**< 对象内存跟踪 */
+
+        // RenderWindowPtr         mDefaultWindow;     /**< 默认渲染窗口 */
         
-        ArchiveManagerPtr   mArchiveMgr;
-        ResourceManagerPtr  mResourceMgr;
+        ArchiveManagerPtr       mArchiveMgr;
+        DylibManagerPtr         mDylibMgr;
+        SerializableManagerPtr  mSerializableMgr;
         
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */
@@ -108,7 +131,11 @@ namespace Tiny3D
         String                  mPluginsPath;
 
         Settings                mSettings;          /**< 引擎配置项 */
+
+        bool                    mIsRunning = false;         /**< 引擎是否在运行中 */
     };
+
+    #define T3D_AGENT   Agent::getInstance()
 }
 
 

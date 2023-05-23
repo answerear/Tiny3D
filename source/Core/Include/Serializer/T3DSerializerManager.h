@@ -93,13 +93,15 @@ namespace Tiny3D
         {
             return deserializeWithoutType(stream, obj);
         }
-        
-    protected:
-        SerializerPtr createSerializer();
 
         TResult serializeObject(DataStream &stream, const RTTRObject &obj);
 
         RTTRObject deserializeObject(DataStream &stream);
+        
+    protected:
+        SerializerPtr createSerializer();
+
+        
 
         TResult serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj);
 

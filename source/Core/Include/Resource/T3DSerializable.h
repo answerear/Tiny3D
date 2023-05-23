@@ -17,11 +17,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_SERIALIZABLE_H__
+#define __T3D_SERIALIZABLE_H__
 
-#include "Kernel/T3DSettings.h"
+
+#include "Resource/T3DResource.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class T3D_ENGINE_API Serializable : public Resource
+    {
+    public:
+        static SerializablePtr create(const String &name);
+
+        Type getType() const override;
+        
+        template<typename T>
+        T *instantiateAsPointer()
+        {
+            T *src = mObject->try_convert<T>();
+            return src->clone();
+        }
+
+        template<typename T>
+        T instantiateAsObject()
+        {
+            T *src = mObject->try_convert<T>();
+            return *src;
+        }
+        
+    protected:
+        Serializable(const String &name);
+        
+        TResult loadData(DataStream &stream) override;
+
+        ResourcePtr clone() const override;
+        
+        RTTRObject  *mObject;
+    };
 }
+
+
+#endif    /*__T3D_SERIALIZABLE_H__*/

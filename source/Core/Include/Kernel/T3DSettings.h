@@ -98,16 +98,12 @@ namespace Tiny3D
     };
 
     TCLASS()
-    class T3D_ENGINE_API Settings : public Resource
+    class T3D_ENGINE_API Settings
     {
         TRTTI_ENABLE()
         TRTTI_FRIEND
 
     public:
-        virtual Type getType() const override;
-
-        virtual ResourcePtr clone() const override;
-
         TPROPERTY()
         RenderSettings  renderSettings;
 
@@ -116,9 +112,6 @@ namespace Tiny3D
 
         TPROPERTY()
         PluginSettings  pluginSettings;
-        
-    protected:
-        Settings() = default;
     };
 }
 

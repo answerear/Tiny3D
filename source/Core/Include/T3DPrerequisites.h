@@ -68,7 +68,9 @@ namespace Tiny3D
 
     class Agent;
     class Plugin;
-
+    class Archive;
+    class ArchiveManager;
+    
     class Variant;
 
     class Component;
@@ -84,8 +86,8 @@ namespace Tiny3D
     class ResourceManager;
     class Dylib;
     class DylibManager;
-    class Archive;
-    class ArchiveManager;
+    class Serializable;
+    class SerializableManager;
     class Material;
     class MaterialManager;
     class Texture;

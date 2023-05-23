@@ -26,14 +26,10 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API ResourceManager
-        : public Object
-        , public Singleton<ResourceManager>
+    class T3D_ENGINE_API ResourceManager : public Object
     {
-    public:
-        static ResourceManagerPtr create();
-        
-        ~ResourceManager() override;
+    public:        
+        ~ResourceManager() override = default;
 
         const String &getArchiveType() const { return mArchiveType; }
 
@@ -63,15 +59,15 @@ namespace Tiny3D
         /**
          * @brief   構造函數
          */
-        ResourceManager();
+        ResourceManager() = default;
+
+        virtual ResourcePtr create(const String &name) = 0;
 
         ResourcePtr lookup(const String &name);
 
         bool insertCache(const ResourcePtr &resource);
 
         void removeCache(const ResourcePtr &resource);
-
-        ResourcePtr loadFromArchive(const String &name, const ArchivePtr &archive);
 
     protected:
         typedef TList<Resource*> Resources;
@@ -93,8 +89,6 @@ namespace Tiny3D
         ResourcesLookup mResourcesLookup; /**< 资源查找表 */
         ResourcesCache mResourcesCache; /**< 资源缓存池 */
     };
-
-    #define T3D_RESOURCE_MGR  (ResourceManager::getInstance())
 }
 
 

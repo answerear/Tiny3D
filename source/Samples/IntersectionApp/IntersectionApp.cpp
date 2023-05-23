@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -125,40 +125,40 @@ IntersectionApp::~IntersectionApp()
  ******************************************************************************/
 bool IntersectionApp::applicationDidFinishLaunching()
 {
-    // ÉäÏßºÍÈı½ÇĞÎÏà½»¼ì²â
+    // å°„çº¿å’Œä¸‰è§’å½¢ç›¸äº¤æ£€æµ‹
     testRayTriangle();
 
-    // ÉäÏßºÍÆ½ÃæÏà½»¼ì²â
+    // å°„çº¿å’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     testRayPlane();
 
-    // ÉäÏßºÍÇòÌåÏà½»¼ì²â
+    // å°„çº¿å’Œçƒä½“ç›¸äº¤æ£€æµ‹
     testRaySphere();
 
-    // ÉäÏßºÍAABBÏà½»¼ì²â
+    // å°„çº¿å’ŒAABBç›¸äº¤æ£€æµ‹
     testRayAabb();
 
-    // ÉäÏßºÍOBBÏà½»¼ì²â
+    // å°„çº¿å’ŒOBBç›¸äº¤æ£€æµ‹
     testRayObb();
 
-    // Á½¸öÇòÏà½»¼ì²â
+    // ä¸¤ä¸ªçƒç›¸äº¤æ£€æµ‹
     testSphereSphere();
 
-    // ÇòºÍÆ½ÃæÏà½»¼ì²â
+    // çƒå’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     testSpherePlane();
 
-    // AABBºÍÆ½ÃæÏà½»¼ì²â
+    // AABBå’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     testAabbPlane();
 
-    // OBBºÍÆ½ÃæÏà½»¼ì²â
+    // OBBå’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     testObbPlane();
 
-    // ÊÓ×¶ÌåºÍÇòÏà½»¼ì²â
+    // è§†é”¥ä½“å’Œçƒç›¸äº¤æ£€æµ‹
     testFrustumSphere();
 
-    // ÊÓ×¶ÌåºÍAABBÏà½»¼ì²â
+    // è§†é”¥ä½“å’ŒAABBç›¸äº¤æ£€æµ‹
     testFrustumAabb();
 
-    // ÊÓ×¶ÌåºÍOBBÏà½»¼ì²â
+    // è§†é”¥ä½“å’ŒOBBç›¸äº¤æ£€æµ‹
     testFrustumObb();
 
     return true;
@@ -184,7 +184,7 @@ void IntersectionApp::applicationLowMemory()
 
 void IntersectionApp::testRayTriangle()
 {
-    // Î»ÓÚ (0, 0, 5) Î»ÖÃÆğµã£¬³¯Ïò -Z ·½ÏòµÄÉäÏß
+    // ä½äº (0, 0, 5) ä½ç½®èµ·ç‚¹ï¼Œæœå‘ -Z æ–¹å‘çš„å°„çº¿
     Ray ray(
         Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
         Vector3::NEGATIVE_UNIT_Z * Real(1000));
@@ -192,7 +192,7 @@ void IntersectionApp::testRayTriangle()
     // Triangle #0
     Triangle triangle0(TriangleVertices0);
 
-    // Õâ¸öRayºÍTriangleÊÇÏà½»µÄ
+    // è¿™ä¸ªRayå’ŒTriangleæ˜¯ç›¸äº¤çš„
     IntrRayTriangle intr(ray, triangle0);
     bool isIntersection = intr.test();
     printf("Ray and Triangle #0 intersection result is %d\n", isIntersection);
@@ -200,7 +200,7 @@ void IntersectionApp::testRayTriangle()
     // Triangle #1
     Triangle triangle1(TriangleVertices1);
 
-    // Õâ¸öRayºÍTriangleÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªRayå’ŒTriangleæ˜¯ä¸ç›¸äº¤çš„
     intr.setTriangle(&triangle1);
     isIntersection = intr.test();
     printf("Ray and Triangle #1 intersection result is %d\n", isIntersection);
@@ -208,7 +208,7 @@ void IntersectionApp::testRayTriangle()
 
 void IntersectionApp::testRayPlane()
 {
-    // Î»ÓÚ (0, 0, 5) Î»ÖÃÆğµã£¬³¯Ïò -Z ·½ÏòµÄÉäÏß
+    // ä½äº (0, 0, 5) ä½ç½®èµ·ç‚¹ï¼Œæœå‘ -Z æ–¹å‘çš„å°„çº¿
     Ray ray(
         Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
         Vector3::NEGATIVE_UNIT_Z * Real(1000));
@@ -219,7 +219,7 @@ void IntersectionApp::testRayPlane()
         TriangleVertices0[1], 
         TriangleVertices0[2]);
 
-    // Õâ¸öRayºÍPlaneÊÇÏà½»µÄ
+    // è¿™ä¸ªRayå’ŒPlaneæ˜¯ç›¸äº¤çš„
     IntrRayPlane intr(ray, plane0);
     bool isIntersection = intr.test();
     printf("Ray and Plane #0 intersection result is %d\n", isIntersection);
@@ -230,7 +230,7 @@ void IntersectionApp::testRayPlane()
         Vector3(Real(4), -REAL_ONE, REAL_ZERO),
         Vector3(Real(4), REAL_ONE, REAL_ZERO));
 
-    // Õâ¸öRayºÍPlaneÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªRayå’ŒPlaneæ˜¯ä¸ç›¸äº¤çš„
     intr.setPlane(&plane1);
     isIntersection = intr.test();
     printf("Ray and Plane #1 intersection result is %d\n", isIntersection);
@@ -238,7 +238,7 @@ void IntersectionApp::testRayPlane()
 
 void IntersectionApp::testRaySphere()
 {
-    // Î»ÓÚ (0, 0, 5) Î»ÖÃÆğµã£¬³¯Ïò -Z ·½ÏòµÄÉäÏß
+    // ä½äº (0, 0, 5) ä½ç½®èµ·ç‚¹ï¼Œæœå‘ -Z æ–¹å‘çš„å°„çº¿
     Ray ray(
         Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
         Vector3::NEGATIVE_UNIT_Z * Real(1000));
@@ -247,7 +247,7 @@ void IntersectionApp::testRaySphere()
     Sphere sphere0;
     sphere0.build(BoxVertices0, BoxVerticesCount);
 
-    // Õâ¸öRayºÍSphereÊÇÏà½»µÄ
+    // è¿™ä¸ªRayå’ŒSphereæ˜¯ç›¸äº¤çš„
     IntrRaySphere intr(ray, sphere0);
     bool isIntersection = intr.test();
     printf("Ray and Sphere #0 intersection result is %d\n", isIntersection);
@@ -256,7 +256,7 @@ void IntersectionApp::testRaySphere()
     Sphere sphere1;
     sphere1.build(BoxVertices1, BoxVerticesCount);
 
-    // Õâ¸öRayºÍSphereÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªRayå’ŒSphereæ˜¯ä¸ç›¸äº¤çš„
     intr.setSphere(&sphere1);
     isIntersection = intr.test();
     printf("Ray and Sphere #1 intersection result is %d\n", isIntersection);
@@ -265,7 +265,7 @@ void IntersectionApp::testRaySphere()
 
 void IntersectionApp::testRayAabb()
 {
-    // Î»ÓÚ (0, 0, 5) Î»ÖÃÆğµã£¬³¯Ïò -Z ·½ÏòµÄÉäÏß
+    // ä½äº (0, 0, 5) ä½ç½®èµ·ç‚¹ï¼Œæœå‘ -Z æ–¹å‘çš„å°„çº¿
     Ray ray(
         Vector3(REAL_ZERO, REAL_ZERO, Real(5)), 
         Vector3::NEGATIVE_UNIT_Z * Real(1000));
@@ -274,7 +274,7 @@ void IntersectionApp::testRayAabb()
     Aabb box0;
     box0.build(BoxVertices0, BoxVerticesCount);
 
-    // Õâ¸öRayºÍAABBÊÇÏà½»µÄ
+    // è¿™ä¸ªRayå’ŒAABBæ˜¯ç›¸äº¤çš„
     IntrRayAabb intr(ray, box0);
     bool isIntersection = intr.test();
     printf("Ray and AABB #0 intersection result is %d\n", isIntersection);
@@ -283,7 +283,7 @@ void IntersectionApp::testRayAabb()
     Aabb box1;
     box1.build(BoxVertices1, BoxVerticesCount);
 
-    // Õâ¸öRayºÍAABBÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªRayå’ŒAABBæ˜¯ä¸ç›¸äº¤çš„
     intr.setAabb(&box1);
     isIntersection = intr.test();
     printf("Ray and AABB #1 intersection result is %d\n", isIntersection);
@@ -291,12 +291,12 @@ void IntersectionApp::testRayAabb()
 
 void IntersectionApp::testRayObb()
 {
-    // Î»ÓÚ (0, 0, 5) Î»ÖÃÆğµã£¬³¯Ïò -Z ·½ÏòµÄÉäÏß
+    // ä½äº (0, 0, 5) ä½ç½®èµ·ç‚¹ï¼Œæœå‘ -Z æ–¹å‘çš„å°„çº¿
     Ray ray(
         Vector3(REAL_ZERO, REAL_ZERO, Real(5)),
         Vector3::NEGATIVE_UNIT_Z * Real(1000));
 
-    // ¹¹ÔìĞı×ª¾ØÕó
+    // æ„é€ æ—‹è½¬çŸ©é˜µ
     Matrix3 m;
     m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
 
@@ -311,7 +311,7 @@ void IntersectionApp::testRayObb()
     Obb box0;
     box0.build(points, BoxVerticesCount);
     
-    // Õâ¸öRayºÍOBBÊÇÏà½»µÄ
+    // è¿™ä¸ªRayå’ŒOBBæ˜¯ç›¸äº¤çš„
     IntrRayObb intr(ray, box0);
     bool isIntersection = intr.test();
     printf("Ray and OBB #0 intersection result is %d\n", isIntersection);
@@ -325,7 +325,7 @@ void IntersectionApp::testRayObb()
     Obb box1;
     box1.build(points, BoxVerticesCount);
 
-    // Õâ¸öRayºÍOBBÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªRayå’ŒOBBæ˜¯ä¸ç›¸äº¤çš„
     intr.setObb(&box1);
     isIntersection = intr.test();
     printf("Ray and OBB #1 intersection result is %d\n", isIntersection);
@@ -341,7 +341,7 @@ void IntersectionApp::testSphereSphere()
     Sphere sphere1;
     sphere1.build(BoxVertices2, BoxVerticesCount);
 
-    // ÕâÁ½¸ösphereÊÇÏà½»µÄ
+    // è¿™ä¸¤ä¸ªsphereæ˜¯ç›¸äº¤çš„
     IntrSphereSphere intr(sphere0, sphere1);
     bool isIntersection = intr.test();
     printf("Sphere #0 and Sphere #1 intersection result is %d\n", isIntersection);
@@ -350,7 +350,7 @@ void IntersectionApp::testSphereSphere()
     Sphere sphere2;
     sphere2.build(BoxVertices1, BoxVerticesCount);
 
-    // ÕâÁ½¸ösphereÊÇ²»Ïà½»µÄ
+    // è¿™ä¸¤ä¸ªsphereæ˜¯ä¸ç›¸äº¤çš„
     intr.setSphere1(&sphere2);
     isIntersection = intr.test();
     printf("Sphere #0 and Sphere #2 intersection result is %d\n", isIntersection);
@@ -368,7 +368,7 @@ void IntersectionApp::testSpherePlane()
         TriangleVertices0[1],
         TriangleVertices0[2]);
 
-    // Õâ¸öSphereºÍPlaneÊÇÏà½»µÄ
+    // è¿™ä¸ªSphereå’ŒPlaneæ˜¯ç›¸äº¤çš„
     IntrSpherePlane intr(sphere, plane0);
     int32_t isIntersection = intr.test();
     printf("Sphere and Plane #0 intersection result is %d\n", isIntersection);
@@ -379,7 +379,7 @@ void IntersectionApp::testSpherePlane()
         Vector3(Real(4), -REAL_ONE, REAL_ZERO),
         Vector3(Real(4), REAL_ONE, REAL_ZERO));
 
-    // Õâ¸öSphereºÍPlaneÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªSphereå’ŒPlaneæ˜¯ä¸ç›¸äº¤çš„
     intr.setPlane(&plane1);
     isIntersection = intr.test();
     printf("Sphere and Plane #1 intersection result is %d\n", isIntersection);
@@ -397,7 +397,7 @@ void IntersectionApp::testAabbPlane()
         TriangleVertices0[1],
         TriangleVertices0[2]);
 
-    // Õâ¸öAABBºÍPlaneÊÇÏà½»µÄ
+    // è¿™ä¸ªAABBå’ŒPlaneæ˜¯ç›¸äº¤çš„
     IntrAabbPlane intr(box, plane0);
     int32_t isIntersection = intr.test();
     printf("AABB and Plane #0 intersection result is %d\n", isIntersection);
@@ -408,7 +408,7 @@ void IntersectionApp::testAabbPlane()
         Vector3(Real(4), -REAL_ONE, REAL_ZERO),
         Vector3(Real(4), REAL_ONE, REAL_ZERO));
 
-    // Õâ¸öAABBºÍPlaneÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªAABBå’ŒPlaneæ˜¯ä¸ç›¸äº¤çš„
     intr.setPlane(&plane1);
     isIntersection = intr.test();
     printf("AABB and Plane #1 intersection result is %d\n", isIntersection);
@@ -416,7 +416,7 @@ void IntersectionApp::testAabbPlane()
 
 void IntersectionApp::testObbPlane()
 {
-    // ¹¹ÔìĞı×ª¾ØÕó
+    // æ„é€ æ—‹è½¬çŸ©é˜µ
     Matrix3 m;
     m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
 
@@ -437,7 +437,7 @@ void IntersectionApp::testObbPlane()
         TriangleVertices0[1],
         TriangleVertices0[2]);
 
-    // Õâ¸öOBBºÍPlaneÊÇÏà½»µÄ
+    // è¿™ä¸ªOBBå’ŒPlaneæ˜¯ç›¸äº¤çš„
     IntrObbPlane intr(box, plane0);
     int32_t isIntersection = intr.test();
     printf("OBB and Plane #0 intersection result is %d\n", isIntersection);
@@ -448,7 +448,7 @@ void IntersectionApp::testObbPlane()
         Vector3(Real(5), -REAL_ONE, REAL_ZERO),
         Vector3(Real(5), REAL_ONE, REAL_ZERO));
 
-    // Õâ¸öOBBºÍPlaneÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªOBBå’ŒPlaneæ˜¯ä¸ç›¸äº¤çš„
     intr.setPlane(&plane1);
     isIntersection = intr.test();
     printf("OBB and Plane #1 intersection result is %d\n", isIntersection);
@@ -463,7 +463,7 @@ void IntersectionApp::testFrustumSphere()
     Sphere sphere0;
     sphere0.build(BoxVertices0, BoxVerticesCount);
 
-    // Õâ¸öFrustumºÍSphereÊÇÏà½»µÄ
+    // è¿™ä¸ªFrustumå’ŒSphereæ˜¯ç›¸äº¤çš„
     IntrFrustumSphere intr(frustum, sphere0);
     bool isIntersection = intr.test();
     printf("Frustum and Sphere #0 intersection result is %d\n", isIntersection);
@@ -472,7 +472,7 @@ void IntersectionApp::testFrustumSphere()
     Sphere sphere1;
     sphere1.build(BoxVertices3, BoxVerticesCount);
 
-    // Õâ¸öFrustumºÍSphereÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªFrustumå’ŒSphereæ˜¯ä¸ç›¸äº¤çš„
     intr.setSphere(&sphere1);
     isIntersection = intr.test();
     printf("Frustum and Sphere #1 intersection result is %d\n", isIntersection);
@@ -487,7 +487,7 @@ void IntersectionApp::testFrustumAabb()
     Aabb box0;
     box0.build(BoxVertices0, BoxVerticesCount);
 
-    // Õâ¸öFrustumºÍAABBÊÇÏà½»µÄ
+    // è¿™ä¸ªFrustumå’ŒAABBæ˜¯ç›¸äº¤çš„
     IntrFrustumAabb intr(frustum, box0);
     bool isIntersection = intr.test();
     printf("Frustum and AABB #0 intersection result is %d\n", isIntersection);
@@ -496,7 +496,7 @@ void IntersectionApp::testFrustumAabb()
     Aabb box1;
     box1.build(BoxVertices3, BoxVerticesCount);
 
-    // Õâ¸öFrustumºÍSphereÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªFrustumå’ŒSphereæ˜¯ä¸ç›¸äº¤çš„
     intr.setBox(&box1);
     isIntersection = intr.test();
     printf("Frustum and AABB #1 intersection result is %d\n", isIntersection);
@@ -507,7 +507,7 @@ void IntersectionApp::testFrustumObb()
     Frustum frustum;
     buildFrustum(frustum);
 
-    // ¹¹ÔìĞı×ª¾ØÕó
+    // æ„é€ æ—‹è½¬çŸ©é˜µ
     Matrix3 m;
     m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
 
@@ -522,7 +522,7 @@ void IntersectionApp::testFrustumObb()
     Obb box0;
     box0.build(points, BoxVerticesCount);
 
-    // Õâ¸öFrustumºÍAABBÊÇÏà½»µÄ
+    // è¿™ä¸ªFrustumå’ŒAABBæ˜¯ç›¸äº¤çš„
     IntrFrustumObb intr(frustum, box0);
     bool isIntersection = intr.test();
     printf("Frustum and OBB #0 intersection result is %d\n", isIntersection);
@@ -536,7 +536,7 @@ void IntersectionApp::testFrustumObb()
     Obb box1;
     box1.build(points, BoxVerticesCount);
 
-    // Õâ¸öFrustumºÍSphereÊÇ²»Ïà½»µÄ
+    // è¿™ä¸ªFrustumå’ŒSphereæ˜¯ä¸ç›¸äº¤çš„
     intr.setBox(&box1);
     isIntersection = intr.test();
     printf("Frustum and OBB #1 intersection result is %d\n", isIntersection);
@@ -544,39 +544,39 @@ void IntersectionApp::testFrustumObb()
 
 void IntersectionApp::buildFrustum(Frustum &frustum)
 {
-    // ¹¹ÔìFrustumµÄÁù¸öÆ½Ãæ
+    // æ„é€ Frustumçš„å…­ä¸ªå¹³é¢
 
-    // ½üÆ½Ãæ
+    // è¿‘å¹³é¢
     Plane near(Vector3::NEGATIVE_UNIT_Z, Vector3(0, 0, 10));
 
-    // Ô¶Æ½Ãæ
+    // è¿œå¹³é¢
     Plane far(Vector3::UNIT_Z, Vector3(0, 0, -10));
 
-    // ÉÏÆ½Ãæ
+    // ä¸Šå¹³é¢
     Matrix3 m0(Vector3::UNIT_X, Radian(Math::PI / Real(6.0f)));
     Vector3 axis0 = m0 * Vector3::NEGATIVE_UNIT_Y;
     Plane top(axis0, Vector3(0, 10, 0));
 
-    // ÏÂÆ½Ãæ
+    // ä¸‹å¹³é¢
     Matrix3 m1(Vector3::UNIT_X, -Radian(Math::PI / Real(6.0f)));
     Vector3 axis1 = m1 * Vector3::UNIT_Y;
     Plane bottom(axis1, Vector3(0, -10, 0));
 
-    // ×óÆ½Ãæ
+    // å·¦å¹³é¢
     Matrix3 m2(Vector3::UNIT_Y, Radian(Math::PI / Real(6.0f)));
     Vector3 axis2 = m2 * Vector3::UNIT_X;
     Plane left(axis2, Vector3(-10, 0, 0));
 
-    // ÓÒÆ½Ãæ
+    // å³å¹³é¢
     Matrix3 m3(Vector3::UNIT_Y, -Radian(Math::PI / Real(6.0f)));
     Vector3 axis3 = m2 * Vector3::NEGATIVE_UNIT_X;
     Plane right(axis3, Vector3(10, 0, 0));
 
     // Frustum
-    frustum.setFace(Frustum::E_FACE_NEAR, near);
-    frustum.setFace(Frustum::E_FACE_FAR, far);
-    frustum.setFace(Frustum::E_FACE_TOP, top);
-    frustum.setFace(Frustum::E_FACE_BOTTOM, bottom);
-    frustum.setFace(Frustum::E_FACE_LEFT, left);
-    frustum.setFace(Frustum::E_FACE_RIGHT, right);
+    frustum.setFace(E_FACE_NEAR, near);
+    frustum.setFace(E_FACE_FAR, far);
+    frustum.setFace(E_FACE_TOP, top);
+    frustum.setFace(E_FACE_BOTTOM, bottom);
+    frustum.setFace(E_FACE_LEFT, left);
+    frustum.setFace(E_FACE_RIGHT, right);
 }

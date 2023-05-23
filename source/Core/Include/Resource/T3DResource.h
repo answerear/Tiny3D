@@ -35,14 +35,10 @@ namespace Tiny3D
      * @class   Resource
      * @brief   A 3D engine api.
      */
-    TCLASS()
     class T3D_ENGINE_API Resource : public Object
     {
         friend class ResourceManager;
-
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-
+        
     public:
         /**
          * @enum    Type
@@ -56,7 +52,7 @@ namespace Tiny3D
             kTexture,       /**< 紋理 */
             kShader,        /**< 著色器 */
             kModel,         /**< 模型数据 */
-            kSettings,      /**< 引擎配置数据 */
+            kSerializable,  /**< 可直接序列化和反序列化资源 */
         };
 
         /**
@@ -117,8 +113,6 @@ namespace Tiny3D
         }
 
     protected:
-        Resource() = default;
-
         /**
          * @brief   构造函数
          * @param [in] name : 资源名称.
@@ -126,9 +120,11 @@ namespace Tiny3D
          */
         Resource(const String &name);
 
-        virtual TResult onLoad();
+        virtual TResult load(ArchivePtr archive);
 
-        virtual TResult onUnload();
+        virtual TResult loadData(DataStream &stream) = 0;
+
+        virtual TResult unload();
 
         virtual ResourcePtr clone() const = 0;
         

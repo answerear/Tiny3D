@@ -18,10 +18,38 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DSettings.h"
+#include "Resource/T3DDylibManager.h"
+#include "Resource/T3DDylib.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
+
+    DylibManagerPtr DylibManager::create()
+    {
+        DylibManagerPtr mgr = new DylibManager();
+        return mgr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DylibPtr DylibManager::loadDylib(const String &name)
+    {
+        return smart_pointer_cast<Dylib>(ResourceManager::load(name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr DylibManager::create(const String &name)
+    {
+        return Dylib::create(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DylibManager::unloadDylib(DylibPtr dylib)
+    {
+        return unload(dylib);
+    }
 }

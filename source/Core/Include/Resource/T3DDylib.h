@@ -31,12 +31,8 @@ namespace Tiny3D
      * @class   Dylib
      * @brief   A 3D engine api.
      */
-    TCLASS()
     class T3D_ENGINE_API Dylib : public Resource
     {
-        TRTTI_ENABLE(Resource)
-        TRTTI_FRIEND
-
     public:
         /**
          * @fn  static DylibPtr Dylib::create(const String &name);
@@ -82,14 +78,14 @@ namespace Tiny3D
          * @brief   重写 Resource::load()
          * @return  A TResult.
          */
-        virtual TResult onLoad() override;
+        virtual TResult loadData(DataStream &stream) override;
      
         /**
          * @fn  virtual TResult Dylib::unload() override;
          * @brief   重写 Resource::unlaod()
          * @return  A TResult.
          */
-        virtual TResult onUnload() override;
+        virtual TResult unload() override;
 
         virtual ResourcePtr clone() const override;
      

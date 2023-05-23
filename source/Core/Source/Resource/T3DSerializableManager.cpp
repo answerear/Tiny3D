@@ -18,10 +18,27 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DSettings.h"
+#include "Resource/T3DSerializableManager.h"
+#include "Resource/T3DSerializable.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
+
+    SerializableManagerPtr SerializableManager::create()
+    {
+        return new SerializableManager();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ResourcePtr SerializableManager::create(const String &name)
+    {
+        return Serializable::create(name);
+    }
+
+    //--------------------------------------------------------------------------
+    
 }
+

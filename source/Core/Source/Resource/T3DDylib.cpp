@@ -86,9 +86,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::onLoad()
+    TResult Dylib::loadData(DataStream &stream)
     {
-        TResult ret = Resource::onLoad();
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -118,14 +118,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::onUnload()
+    TResult Dylib::unload()
     {
         if (isLoaded())
         {
             DYLIB_UNLOAD(mHandle);
         }
 
-        return Resource::onUnload();
+        return Resource::unload();
     }
 
     //--------------------------------------------------------------------------

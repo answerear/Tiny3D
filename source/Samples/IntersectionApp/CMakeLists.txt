@@ -45,6 +45,7 @@ if (TINY3D_OS_WINDOWS)
         T3DSystem
 		T3DUtils
         T3DMath
+        rttr_core
         )
     
     # Setup install files and path for Windows.
@@ -74,6 +75,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	        T3DSystem
 			T3DUtils
             T3DMath
+            rttr_core
 	        )
 
 	    # Setup all properties for this Mac OS X project.
@@ -114,6 +116,7 @@ elseif (TINY3D_OS_LINUX)
         T3DSystem
 		T3DUtils
         T3DMath
+        rttr_core
         )
 
     # Setup install files and path for Windows.

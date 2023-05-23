@@ -24,15 +24,17 @@
 #include "Resource/T3DResourceManager.h"
 #include "Resource/T3DResource.h"
 #include "Resource/T3DDylib.h"
+#include "Resource/T3DDylibManager.h"
+#include "Resource/T3DSerializable.h"
+#include "Resource/T3DSerializableManager.h"
 #include "T3DErrorDef.h"
-#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
 {
     #define T3D_VERSION_0_0_0_1_STR         "0.0.0.1"
     #define T3D_VERSION_0_0_0_1_VAL         0x00000001
-    #define T3D_VERSION_0_0_0_1_NAME        "Roseta"
+    #define T3D_VERSION_0_0_0_1_NAME        "Rosetta"
 
     #define T3D_VERSION_STR                 T3D_VERSION_0_0_0_1_STR
     #define T3D_VERSION_VAL                 T3D_VERSION_0_0_0_1_VAL
@@ -87,12 +89,118 @@ namespace Tiny3D
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);
 #endif
+
+            // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
+            ret = initApplication();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
             
+            // 初始化日志系统，这个需要放在前面，避免日志无法输出
+            ret = initLogSystem();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+#if defined (T3D_OS_ANDROID)
+            mAppPath = Dir::getAppPath();
+
+            // Android 单独设置插件路径，不使用配置文件里面设置的路径
+            // 因为android的插件在/data/data/appname/lib文件下
+            mPluginsPath = Dir::getLibraryPath();
+#endif
+
+            // 初始化事件系统
+            ret = initEventSystem();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 初始化对象追踪器
+            ret = initObjectTracer();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 初始化各种管理器
+            ret = initManagers();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 加载配置文件
+            ret = loadConfig(config);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 加载配置文件中指定的插件
+            ret = loadPlugins();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
 
         return ret;
     }
 
+    bool Agent::run()
+    {
+        Application *theApp = Application::getInstancePtr();
+        theApp->applicationDidFinishLaunching();
+
+        while (mIsRunning)
+        {
+            // 轮询系统事件
+            mIsRunning = theApp->pollEvents();
+
+            if (!mIsRunning)
+                break;
+
+            // 事件系统派发事件
+            T3D_EVENT_MGR.dispatchEvent();
+
+            // 更新场景树
+            // mSceneMgr->update();
+
+            // 渲染一帧
+            renderOneFrame();
+        }
+
+        theApp->applicationWillTerminate();
+
+        return true;
+    }
+
+    void Agent::renderOneFrame()
+    {
+        // if (mActiveRenderer != nullptr)
+        // {
+        //     mActiveRenderer->renderAllTargets();
+        // }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::appWillEnterForeground()
+    {
+        T3D_LOG_ENTER_FOREGROUND();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::appDidEnterBackground()
+    {
+        T3D_LOG_ENTER_BACKGROUND();
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult Agent::installPlugin(Plugin *plugin)
@@ -199,7 +307,7 @@ namespace Tiny3D
                 break;
             }
             
-            DylibPtr dylib = smart_pointer_cast<Dylib>(T3D_RESOURCE_MGR.load("FileSystem", name));
+            DylibPtr dylib = smart_pointer_cast<Dylib>(T3D_DYLIB_MGR.load("FileSystem", name));
             if (dylib == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -273,7 +381,7 @@ namespace Tiny3D
 
             mDylibs.erase(itr);
 
-            T3D_RESOURCE_MGR.unload(dylib);
+            T3D_DYLIB_MGR.unload(dylib);
         } while (0);
 
         return ret;
@@ -349,7 +457,8 @@ namespace Tiny3D
     TResult Agent::initManagers()
     {
         mArchiveMgr = ArchiveManager::create();
-        mResourceMgr = ResourceManager::create();
+        mDylibMgr = DylibManager::create();
+        mSerializableMgr = SerializableManager::create();
         return T3D_OK;
     }
     
@@ -385,9 +494,8 @@ namespace Tiny3D
                 break;
             }
 
-            Resource *res = T3D_RESOURCE_MGR.load("MetaFileSystemArchive", cfgPath).get();
-            mSettings = *(static_cast<Settings*>(res));
-            T3D_RESOURCE_MGR.unload(res);
+            SerializablePtr res = smart_pointer_cast<Serializable>(T3D_SERIALIZABLE_MGR.load("MetaFileSystemArchive", "Tiny3D.cfg"));
+            mSettings = res->instantiateAsObject<Settings>();
         } while (false);
         return ret;
     }
@@ -437,7 +545,7 @@ namespace Tiny3D
                 ret = pFunc();
                 if (ret == T3D_OK)
                 {
-                    T3D_RESOURCE_MGR.unload(dylib);
+                    T3D_DYLIB_MGR.unload(dylib);
                 }
             }
             ++itr;

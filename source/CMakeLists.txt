@@ -139,7 +139,7 @@ endif (TINY3D_OS_IOS)
 
 if (NOT TINY3D_OS_ANDROID AND NOT TINY3D_BUILD_RTTR_TOOL)
     # In Android, this switch is setted by build.gradle in Android Studio.
-    option(TINY3D_BUILD_SAMPLES "Build samples" FALSE)
+    option(TINY3D_BUILD_SAMPLES "Build samples" TRUE)
 endif (NOT TINY3D_OS_ANDROID AND NOT TINY3D_BUILD_RTTR_TOOL)
 
 if (TINY3D_OS_DESKTOP)
@@ -308,10 +308,10 @@ if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
     add_dependencies(HelloApp T3DCore)
-    add_dependencies(PlatformApp T3DCore)
-    add_dependencies(FrameworkApp T3DCore)
-    add_dependencies(GeometryApp T3DCore)
-    add_dependencies(TextureApp T3DCore)
+    #add_dependencies(PlatformApp T3DCore)
+    #add_dependencies(FrameworkApp T3DCore)
+    #add_dependencies(GeometryApp T3DCore)
+    #add_dependencies(TextureApp T3DCore)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DSystem)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DSystem)

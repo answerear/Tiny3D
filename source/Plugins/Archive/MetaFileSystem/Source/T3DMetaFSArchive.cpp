@@ -32,7 +32,6 @@ namespace Tiny3D
     MetaFileSystemArchivePtr MetaFileSystemArchive::create(const String &name)
     {
         MetaFileSystemArchivePtr archive = new MetaFileSystemArchive(name);
-        // archive->release();
         return archive;
     }
 
