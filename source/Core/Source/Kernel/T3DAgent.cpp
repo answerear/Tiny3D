@@ -54,7 +54,17 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
-        
+        unloadPlugins();
+
+        mDylibMgr->unloadAllResources();
+
+        T3D_SAFE_DELETE(mEventMgr);
+
+        mObjTracer->dumpMemoryInfo();
+        T3D_SAFE_DELETE(mObjTracer);
+
+        mLogger->shutdown();
+        T3D_SAFE_DELETE(mLogger);
     }
 
     //--------------------------------------------------------------------------
@@ -147,6 +157,8 @@ namespace Tiny3D
             {
                 break;
             }
+
+            mIsRunning = true;
         } while (false);
 
         return ret;
@@ -535,7 +547,9 @@ namespace Tiny3D
             }
 
             mSettings = *settings;
+            T3D_SAFE_DELETE(settings);
         } while (false);
+        
         return ret;
     }
 
