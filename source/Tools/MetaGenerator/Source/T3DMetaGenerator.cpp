@@ -189,6 +189,7 @@ namespace Tiny3D
             }
             else
             {
+                meta->type = Meta::FileType::kFile;
                 // *.t3d
                     //
                 // *.Shader

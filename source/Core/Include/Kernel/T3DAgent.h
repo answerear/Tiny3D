@@ -120,6 +120,7 @@ namespace Tiny3D
         // RenderWindowPtr         mDefaultWindow;     /**< 默认渲染窗口 */
         
         ArchiveManagerPtr       mArchiveMgr;
+        SerializerManagerPtr    mSerializerMgr;
         DylibManagerPtr         mDylibMgr;
         SerializableManagerPtr  mSerializableMgr;
         

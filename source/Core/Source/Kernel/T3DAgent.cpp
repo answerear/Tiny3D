@@ -20,6 +20,7 @@
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DArchive.h"
 #include "Kernel/T3DArchiveManager.h"
+#include "Serializer/T3DSerializerManager.h"
 #include "Kernel/T3DPlugin.h"
 #include "Resource/T3DResourceManager.h"
 #include "Resource/T3DResource.h"
@@ -457,8 +458,11 @@ namespace Tiny3D
     TResult Agent::initManagers()
     {
         mArchiveMgr = ArchiveManager::create();
+        mSerializerMgr = SerializerManager::create();
+        mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
         mDylibMgr = DylibManager::create();      
         mSerializableMgr = SerializableManager::create();
+        
         return T3D_OK;
     }
     
@@ -505,7 +509,7 @@ namespace Tiny3D
             }
             
             String apkPath = Dir::getAppPath();
-            ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip");
+            ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip", Archive::AccessMode::kRead);
 #else
             // 其他不需要从 apk 包里读取文件的
             ret = loadPlugin("FileSystemArchive");
@@ -524,7 +528,13 @@ namespace Tiny3D
                 break;
             }
 
-            mSettings = *T3D_SERIALIZER_MGR.deserialize<Settings>(stream);
+            Settings *settings = T3D_SERIALIZER_MGR.deserialize<Settings>(stream);
+            if (settings == nullptr)
+            {
+                break;
+            }
+
+            mSettings = *settings;
         } while (false);
         return ret;
     }
