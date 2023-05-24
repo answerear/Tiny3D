@@ -20,8 +20,6 @@
 
 #include "T3DD3D11Plugin.h"
 #include "T3DD3D11Context.h"
-#include "T3DD3D11GPUProgramCreator.h"
-#include "T3DD3D11Sampler.h"
 
 
 namespace Tiny3D
@@ -34,9 +32,7 @@ namespace Tiny3D
 
     D3D11Plugin::D3D11Plugin()
         : mName("D3D11Renderer")
-        , mRenderer(nullptr)
-        , mShaderCreator(nullptr)
-        , mGPUCreator(nullptr)
+        , mContext(nullptr)
     {
 
     }
@@ -63,21 +59,15 @@ namespace Tiny3D
 
         do
         {
-            mRenderer = D3D11Context::create();
-            if (mRenderer != nullptr)
+            mContext = D3D11Context::create();
+            if (mContext != nullptr)
             {
-                ret = T3D_AGENT.addRenderer(mRenderer);
+                ret = T3D_AGENT.addRHIContext(mContext);
                 if (T3D_FAILED(ret))
                 {
                     break;
                 }
             }
-
-            mShaderCreator = new D3D11ShaderCreator();
-            mGPUCreator = new D3D11GPUProgramCreator();
-
-            T3D_SHADER_MGR.setShaderCreator(mShaderCreator);
-            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(mGPUCreator);
         } while (0);
 
         return ret;
@@ -109,19 +99,13 @@ namespace Tiny3D
 
         do
         {
-            ret = T3D_AGENT.removeRenderer(mRenderer);
+            ret = T3D_AGENT.removeRHIContext(mContext);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            T3D_SHADER_MGR.setShaderCreator(nullptr);
-            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(nullptr);
-
-            delete mShaderCreator;
-            delete mGPUCreator;
-
-            mRenderer = nullptr;
+            mContext = nullptr;
         } while (0);
 
         return ret;

@@ -31,10 +31,8 @@ namespace Tiny3D
      * @class   D3D11RenderWindow
      * @brief   DirectX 11 渲染窗口.
      */
-    class D3D11Window : public RenderWindow
+    class D3D11Window : public RHIRenderWindow
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 创建渲染窗口对象
@@ -55,14 +53,11 @@ namespace Tiny3D
          *      const RenderWindowCreateParamEx &paramEx) override;
          * @brief   创建渲染窗口实体
          * @param [in]  param   : 渲染窗口需要必要参数.
-         * @param [in]  paramEx : 渲染窗口需要的额外参数，不同平台的额外信息可以
          *   通过这里传递.
          * @return  调用成功返回 T3D_OK.
          * @remarks  具体渲染系统子类实现本接口.
          */
-        virtual TResult create(
-            const RenderWindowCreateParam &param,
-            const RenderWindowCreateParamEx &paramEx) override;
+        virtual TResult create( const RenderWindowCreateParam &param) override;
 
         /**
          * @fn  virtual TResult D3D11RenderWindow::destroy() override;
@@ -114,12 +109,9 @@ namespace Tiny3D
          *      const RenderWindowCreateParamEx &paramEx);
          * @brief   建立 D3D11 相关环境
          * @param   param   The parameter.
-         * @param   paramEx The parameter exception.
          * @return  A TResult.
          */
-        TResult setupD3D11Environment(
-            const RenderWindowCreateParam &param,
-            const RenderWindowCreateParamEx &paramEx);
+        TResult setupD3D11Environment(const RenderWindowCreateParam &param);
 
         /**
          * @fn  TResult D3D11RenderWindow::createSwapChain(UINT uWidth, 

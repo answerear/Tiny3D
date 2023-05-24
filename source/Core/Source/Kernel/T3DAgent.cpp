@@ -160,6 +160,26 @@ namespace Tiny3D
                 break;
             }
 
+            // 初始化渲染器
+            ret = initRenderer();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            if (autoCreateWindow)
+            {
+                // 创建渲染窗口
+                RHIRenderWindowPtr window;
+                ret = createDefaultRenderWindow(window);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                addRenderWindow(window);
+            }
+            
             mIsRunning = true;
         } while (false);
 
@@ -176,6 +196,8 @@ namespace Tiny3D
         {
             RenderWindowCreateParam param;
 
+            param.externalHandle = nullptr;
+            
             // 窗口标题
             param.windowTitle = mSettings.renderSettings.title;
             // 窗口位置
@@ -716,6 +738,120 @@ namespace Tiny3D
         }
 
         mDylibs.clear();
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void Agent::enumerateAvailableRenderers(RHIContexts &contexts) const
+    {
+        contexts.clear();
+        contexts = mContexts;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::setActiveRHIContext(RHIContextPtr context)
+    {
+        TResult ret = T3D_OK;
+
+        if (mActiveRHIContext != context)
+        {
+            if (mActiveRHIContext != nullptr)
+            {
+                mActiveRHIContext->destroy();
+            }
+
+            ret = context->init();
+
+            if (ret == T3D_OK)
+            {
+                mActiveRHIContext = context;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIContextPtr Agent::getActiveRHIContext() const
+    {
+        return mActiveRHIContext;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::addRHIContext(RHIContextPtr renderer)
+    {
+        const String &name = renderer->getName();
+        auto r = mContexts.insert(RHIContextsValue(name, renderer));
+        if (r.second)
+        {
+            return T3D_OK;
+        }
+
+        return T3D_ERR_DUPLICATED_ITEM;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::removeRHIContext(RHIContextPtr renderer)
+    {
+        auto itr = mContexts.find(renderer->getName());
+
+        if (itr == mContexts.end())
+        {
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        mContexts.erase(itr);
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIContextPtr Agent::getRHIContext(const String &name) const
+    {
+        RHIContextPtr renderer = nullptr;
+        auto itr = mContexts.find(name);
+
+        if (itr != mContexts.end())
+        {
+            renderer = itr->second;
+        }
+
+        return renderer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initRenderer()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            const String &rendererName = mSettings.renderSettings.renderer;
+
+            // 设置当前要使用的渲染器
+            RHIContextPtr renderer = getRHIContext(rendererName);
+            if (renderer == nullptr)
+            {
+                ret = T3D_ERR_PLG_NOT_LOADED;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Renderer [%s] did not load !",
+                    rendererName.c_str());
+                break;
+            }
+
+            ret = setActiveRHIContext(renderer);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (0);
 
         return ret;
     }

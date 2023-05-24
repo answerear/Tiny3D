@@ -58,7 +58,7 @@ namespace Tiny3D
         bool    vsync = false;
 
         TPROPERTY()
-        String  renderHardware = "Direct3D11";
+        String  renderer = "Direct3D11";
 
         TPROPERTY()
         String  iconPath = "";

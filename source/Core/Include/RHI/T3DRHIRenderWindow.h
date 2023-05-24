@@ -32,6 +32,7 @@ namespace Tiny3D
      */
     struct RenderWindowCreateParam
     {
+        THandle externalHandle; 
         int32_t windowLeft;     /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
         int32_t windowTop;      /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
         int32_t windowWidth;    /**< 窗口宽度 */
