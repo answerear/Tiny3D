@@ -134,12 +134,12 @@ namespace Tiny3D
     class HardwareBufferManagerBase;
     class HardwareBufferManager;
 
-    class RenderTarget;
-    class RenderWindow;
+    class RHIRenderTarget;
+    class RHIRenderWindow;
     
-    class Viewport;
+    class RHIViewport;
 
-    class RenderContext;
+    class RHIContext;
     class RenderCapabilities;
     class RenderGroup;
     class RenderQueue;

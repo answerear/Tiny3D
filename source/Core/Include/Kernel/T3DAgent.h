@@ -48,13 +48,13 @@ namespace Tiny3D
         TResult init(const String &appPath, bool autoCreateWindow,
                      const String &config = "Tiny3D.cfg");
 
-        TResult createDefaultRenderWindow(RenderWindowPtr &window);
+        TResult createDefaultRenderWindow(RHIRenderWindowPtr &window);
 
-        TResult addRenderWindow(RenderWindowPtr window);
+        TResult addRenderWindow(RHIRenderWindowPtr window);
 
         TResult removeRenderWindow(const String &name);
 
-        RenderWindowPtr getRenderWindow(const String &name) const;
+        RHIRenderWindowPtr getRenderWindow(const String &name) const;
 
         // RenderWindowPtr getDefaultRenderWindow() const 
         // { 
@@ -117,7 +117,8 @@ namespace Tiny3D
         EventManager            *mEventMgr;         /**< 事件管理器对象 */
         ObjectTracer            *mObjTracer;        /**< 对象内存跟踪 */
 
-        // RenderWindowPtr         mDefaultWindow;     /**< 默认渲染窗口 */
+        RHIRenderWindowPtr      mDefaultWindow;     /**< 默认渲染窗口 */
+        RHIContextPtr           mActiveRHIContext;  /**< 当前使用的 RHI 渲染上下文 */
         
         ArchiveManagerPtr       mArchiveMgr;
         SerializerManagerPtr    mSerializerMgr;

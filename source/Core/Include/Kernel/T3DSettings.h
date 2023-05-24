@@ -60,6 +60,9 @@ namespace Tiny3D
         TPROPERTY()
         String  renderHardware = "Direct3D11";
 
+        TPROPERTY()
+        String  iconPath = "";
+
         TRTTI_ENABLE()
     };
 

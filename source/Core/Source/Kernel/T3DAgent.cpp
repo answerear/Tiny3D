@@ -29,6 +29,8 @@
 #include "Resource/T3DSerializable.h"
 #include "Resource/T3DSerializableManager.h"
 #include "T3DErrorDef.h"
+#include "RHI/T3DRHIRenderWindow.h"
+#include "RHI/T3DRHIContext.h"
 
 
 namespace Tiny3D
@@ -164,6 +166,115 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult Agent::createDefaultRenderWindow(RHIRenderWindowPtr &window)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            RenderWindowCreateParam param;
+
+            // 窗口标题
+            param.windowTitle = mSettings.renderSettings.title;
+            // 窗口位置
+            param.windowLeft = mSettings.renderSettings.x;
+            param.windowTop = mSettings.renderSettings.y;
+            // 窗口大小
+            param.windowWidth = mSettings.renderSettings.width;
+            param.windowHeight = mSettings.renderSettings.height;
+            // 是否全屏
+            param.fullscreen = mSettings.renderSettings.fullscreen;
+            // 色深，如果是非全屏，自动跟桌面一样
+            param.colorDepth = mSettings.renderSettings.colorDepth;
+            // 图标路径
+            param.iconPath = mSettings.renderSettings.iconPath;
+            // 抗锯齿
+            param.MSAA = mSettings.renderSettings.MSAA;
+            // 垂直同步
+            param.vsync = mSettings.renderSettings.vsync;
+
+            std::stringstream ss;
+            ss << "Tiny3D " << getVersionName() << "(" << getVersionString();
+            ss << ")" << " - " << param.windowTitle;
+            param.windowTitle = ss.str();
+            window = mActiveRHIContext->createRenderWindow(param.windowTitle,  param);
+            if (window == nullptr)
+            {
+                ret = T3D_ERR_RENDER_CREATE_WINDOW;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Create render window failed !");
+                break;
+            }
+
+            mDefaultWindow = window;
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::addRenderWindow(RHIRenderWindowPtr window)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            if (mActiveRHIContext == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
+                break;
+            }
+        
+            ret = mActiveRHIContext->attachRenderTarget(window);
+        } while (0);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::removeRenderWindow(const String &name)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mActiveRHIContext == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
+                break;
+            }
+        
+            ret = mActiveRHIContext->detachRenderTarget(name);
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIRenderWindowPtr Agent::getRenderWindow(const String &name) const
+    {
+        RHIRenderWindowPtr window = nullptr;
+        
+        if (mActiveRHIContext == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
+        }
+        else
+        {
+            window = mActiveRHIContext->getRenderTarget(name);
+        }
+
+        return window;
+    }
+
+    //--------------------------------------------------------------------------
+    
     bool Agent::run()
     {
         Application *theApp = Application::getInstancePtr();
