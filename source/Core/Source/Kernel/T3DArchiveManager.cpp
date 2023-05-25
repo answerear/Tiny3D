@@ -26,10 +26,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(ArchiveManager);
-
-    //--------------------------------------------------------------------------
-
     ArchiveManagerPtr ArchiveManager::create()
     {
         ArchiveManagerPtr mgr = new ArchiveManager();
@@ -37,6 +33,13 @@ namespace Tiny3D
         return mgr;
     }
     
+    //--------------------------------------------------------------------------
+
+    ArchiveManager::~ArchiveManager()
+    {
+        unloadAllArchives();
+    }
+
     //--------------------------------------------------------------------------
 
     ArchivePtr ArchiveManager::loadArchive(const String &name, const String &archiveType, Archive::AccessMode accessMode)
@@ -74,6 +77,14 @@ namespace Tiny3D
         // 清理緩存
         mArchives.erase({archive->getName(), archive->getAccessMode()});
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ArchiveManager::unloadAllArchives()
+    {
+        mArchives.clear();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

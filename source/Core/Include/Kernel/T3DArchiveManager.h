@@ -50,7 +50,7 @@ namespace Tiny3D
          * @fn  virtual ~ArchiveManager();
          * @brief   析構函數
          */
-        ~ArchiveManager() override = default;
+        ~ArchiveManager() override;
 
         /**
          * @fn  virtual ArchivePtr loadArchive(const String &name, 
@@ -69,6 +69,8 @@ namespace Tiny3D
          * @return  A TResult.
          */
         TResult unloadArchive(ArchivePtr archive);
+
+        TResult unloadAllArchives();
 
         /**
          * @fn  TResult addArchiveCreator(ArchiveCreator *creator);

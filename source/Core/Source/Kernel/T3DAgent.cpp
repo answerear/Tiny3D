@@ -56,10 +56,22 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
+        mDefaultWindow = nullptr;
+        mActiveRHIContext = nullptr;
+        
+        mSerializableMgr->unloadAllResources();
+        mSerializableMgr = nullptr;
+
+        mArchiveMgr->unloadAllArchives();
+        
         unloadPlugins();
 
         mDylibMgr->unloadAllResources();
+        mDylibMgr = nullptr;
 
+        mSerializerMgr = nullptr;
+        mArchiveMgr = nullptr;
+        
         T3D_SAFE_DELETE(mEventMgr);
 
         mObjTracer->dumpMemoryInfo();
