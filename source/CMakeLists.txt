@@ -293,7 +293,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_dependencies(T3DMath T3DLog T3DPlatform)
     add_dependencies(T3DFramework T3DLog T3DPlatform)
     #add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
-    add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
+    add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DSystem T3DPlatform)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 if (TINY3D_BUILD_TOOLS)

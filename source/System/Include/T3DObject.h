@@ -36,8 +36,7 @@ namespace Tiny3D
     TCLASS()
     class T3D_SYSTEM_API Object
     {
-        T3D_DECLARE_CLASS();
-        TRTTI_ENABLE();
+        TRTTI_ENABLE()
 
         template<typename T>
         friend class SmartPtr;

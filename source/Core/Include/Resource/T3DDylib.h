@@ -64,8 +64,6 @@ namespace Tiny3D
         virtual void *getSymbol(const String &name) const;
 
     protected:
-        Dylib() = default;
-
         /**
          * @fn  Dylib::Dylib(const String &name);
          * @brief   构造函数
