@@ -20,7 +20,7 @@
 
 #include "T3DD3D11Window.h"
 #include "T3DD3D11Error.h"
-#include "T3DD3D11Context.h"
+#include "T3DD3D11Renderer.h"
 
 
 namespace Tiny3D
@@ -93,7 +93,7 @@ namespace Tiny3D
                 }
 
                 String title = param.windowTitle + " - " 
-                    + D3D11_CONTEXT.getName();
+                    + D3D11_RENDERER.getName();
                 ret = mWindow->create(title.c_str(),
                     param.windowLeft, param.windowTop,
                     param.windowWidth, param.windowHeight, flags);

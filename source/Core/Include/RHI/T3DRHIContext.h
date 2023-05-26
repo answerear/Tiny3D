@@ -24,7 +24,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "RHI/T3DRHIRenderWindow.h"
 
 
 namespace Tiny3D
@@ -36,16 +35,6 @@ namespace Tiny3D
     class T3D_ENGINE_API RHIContext : public Object
     {
     public:
-        static const char * const REFERENCE3D;  /**< The reference 3D */
-        static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
-        static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
-        static const char * const DIRECT3D12;   /**< Direct3D12 渲染器 */
-        static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
-        static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
-        static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
-        static const char * const VULKAN;       /**< Vulkan 渲染器 */
-        static const char * const METAL;        /**< Metal 渲染器 */
-
         /**
          * @enum    TransformState
          * @brief   设置变换矩阵状态
@@ -95,49 +84,14 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~RHIContext();
-
-        /**
-         * @fn  virtual TResult Renderer::init() = 0;
-         * @brief   初始化渲染器
-         * @returns 调用成功返回 T3D_OK.
-         */
-        virtual TResult init() = 0;
-
-        /**
-         * @fn  virtual TResult Renderer::destroy() = 0;
-         * @brief   销毁渲染器
-         * @returns 调用成功返回 T3D_OK.
-         */
-        virtual TResult destroy() = 0;
-
-        /**
-         * @fn  const String Renderer::&getName() const;
-         * @brief   获取渲染器名称
-         * @returns The name.
-         */
-        const String &getName() const;
-
+     
         /**
          * @fn  virtual TResult Renderer::renderAllTargets();
          * @brief   渲染一帧
          * @return  调用成功返回 T3D_OK.
          */
         virtual TResult renderAllTargets();
-
-        /**
-         * @fn  virtual RenderWindowPtr Renderer::createRenderWindow(
-         *      const String &name, const RenderWindowCreateParam &param, 
-         *      const RenderWindowCreateParamEx &paramEx) = 0;
-         * @brief   创建渲染窗口
-         * @param [in]  name    : 用于标识窗口的名称，不需要跟窗口标题栏相同.
-         * @param [in]  param   : 创建渲染窗口必要数据.
-         * @returns 调用成功返回一个渲染窗口对象，失败返回nullptr.
-         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象.
-         */
-        virtual RHIRenderWindowPtr createRenderWindow(
-            const String &name,
-            const RenderWindowCreateParam &param) = 0;
-
+     
         /**
          * @fn  virtual TResult 
          *      Renderer::attachRenderTarget(RenderTargetPtr target);
@@ -173,12 +127,10 @@ namespace Tiny3D
         bool    mIsViewMatrixDirty;     /**< 视图变换矩阵是否更新标识 */
         bool    mIsProjMatrixDirty;     /**< 投影变换矩阵是否更新标识 */
 
-        String                  mName;              /**< 渲染器名称 */
-
         RenderTargetList        mRenderTargets;     /**< 渲染目标列表 */
 
         // RenderCapabilitiesPtr   mCapabilities;      /**< 渲染能力值 */
-        RHIRenderWindowPtr      mPrimaryWindow;     /**< 主窗口 */
+        
         RHIRenderTargetPtr      mRenderTarget;      /**< 当前渲染目标 */
     };
 }

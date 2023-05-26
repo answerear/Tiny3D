@@ -50,6 +50,7 @@ namespace Tiny3D
 {
     #define LOG_TAG_D3D11RENDERER        "D3D11Renderer"
 
+    class D3D11Renderer;
     class D3D11Context;
     class D3D11Capabilities;
     class D3D11BlendState;
@@ -76,6 +77,7 @@ namespace Tiny3D
     class D3D11RasterizerState;
     class D3D11SamplerState;
 
+    T3D_DECLARE_SMART_PTR(D3D11Renderer);
     T3D_DECLARE_SMART_PTR(D3D11Context);
     T3D_DECLARE_SMART_PTR(D3D11Capabilities);
     T3D_DECLARE_SMART_PTR(D3D11BlendState);

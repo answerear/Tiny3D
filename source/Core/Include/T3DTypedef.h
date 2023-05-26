@@ -99,6 +99,7 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(RHIViewport);
 
+    T3D_DECLARE_SMART_PTR(RHIRenderer);
     T3D_DECLARE_SMART_PTR(RHIContext);
     T3D_DECLARE_SMART_PTR(RenderCapabilities);
 
@@ -150,10 +151,10 @@ namespace Tiny3D
 
     //typedef VariantMap                      Settings;
 
-    typedef TMap<String, RHIContextPtr>     RHIContexts;
-    typedef RHIContexts::iterator           RHIContextsItr;
-    typedef RHIContexts::const_iterator     RHIContextsConstItr;
-    typedef RHIContexts::value_type         RHIContextsValue;
+    typedef TMap<String, RHIRendererPtr>    RHIRenderers;
+    typedef RHIRenderers::iterator          RHIRenderersItr;
+    typedef RHIRenderers::const_iterator    RHIRenderersConstItr;
+    typedef RHIRenderers::value_type        RHIRenderersValue;
 
     typedef TList<NodePtr>                  Children;
     typedef Children::iterator              ChildrenItr;

@@ -19,7 +19,7 @@
 
 
 #include "T3DD3D11Plugin.h"
-#include "T3DD3D11Context.h"
+#include "T3DD3D11Renderer.h"
 
 
 namespace Tiny3D
@@ -28,7 +28,7 @@ namespace Tiny3D
 
     D3D11Plugin::D3D11Plugin()
         : mName("D3D11Renderer")
-        , mContext(nullptr)
+        , mRenderer(nullptr)
     {
 
     }
@@ -55,10 +55,10 @@ namespace Tiny3D
 
         do
         {
-            mContext = D3D11Context::create();
-            if (mContext != nullptr)
+            mRenderer = D3D11Renderer::create();
+            if (mRenderer != nullptr)
             {
-                ret = T3D_AGENT.addRHIContext(mContext);
+                ret = T3D_AGENT.addRHIRenderer(mRenderer);
                 if (T3D_FAILED(ret))
                 {
                     break;
@@ -95,13 +95,13 @@ namespace Tiny3D
 
         do
         {
-            ret = T3D_AGENT.removeRHIContext(mContext);
+            ret = T3D_AGENT.removeRHIRenderer(mRenderer);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            mContext = nullptr;
+            mRenderer = nullptr;
         } while (0);
 
         return ret;

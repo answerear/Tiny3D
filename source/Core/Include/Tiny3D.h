@@ -83,6 +83,7 @@
 // #include <ImageCodec/T3DImage.h>
 
 // Render
+#include <RHI/T3DRHIRenderer.h>
 #include <RHI/T3DRHIContext.h>
 #include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>

@@ -67,7 +67,7 @@ namespace Tiny3D
 
     protected:
         String                  mName;
-        RHIContextPtr           mContext;
+        RHIRendererPtr          mRenderer;
     };
 }
 

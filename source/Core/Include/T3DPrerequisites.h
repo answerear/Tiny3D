@@ -139,7 +139,9 @@ namespace Tiny3D
     
     class RHIViewport;
 
+    class RHIRenderer;
     class RHIContext;
+    
     class RenderCapabilities;
     class RenderGroup;
     class RenderQueue;

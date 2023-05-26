@@ -38,43 +38,14 @@ namespace Tiny3D
     D3D11Context::D3D11Context()
         : mInstance(nullptr)
     {
-        mName = RHIContext::DIRECT3D11;
+        
     }
 
     //--------------------------------------------------------------------------
 
     D3D11Context::~D3D11Context()
     {
-        destroy();
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Context::init()
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Context::destroy()
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            mRenderTarget = nullptr;
-            mPrimaryWindow = nullptr;
-        } while (0);
-
-        return ret;
+        
     }
 
     //--------------------------------------------------------------------------
@@ -89,46 +60,6 @@ namespace Tiny3D
         } while (0);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    RHIRenderWindowPtr D3D11Context::createRenderWindow(const String &name,
-        const RenderWindowCreateParam &param)
-    {
-        TResult ret = T3D_OK;
-
-        RHIRenderWindowPtr window = nullptr;
-
-        do
-        {
-            window = D3D11Window::create(name);
-            if (window == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-                    "Create render window failed !");
-                break;
-            }
-
-            ret = window->create(param);
-            if (T3D_FAILED(ret))
-            {
-                // window->release();
-                // window = nullptr;
-                break;
-            }
-
-            if (mPrimaryWindow == nullptr)
-            {
-                mPrimaryWindow = window;
-            }
-            else
-            {
-
-            }
-        } while (0);
-
-        return window;
     }
 
     //--------------------------------------------------------------------------

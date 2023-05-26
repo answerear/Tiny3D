@@ -31,6 +31,7 @@
 #include "T3DErrorDef.h"
 #include "RHI/T3DRHIRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIRenderer.h"
 
 
 namespace Tiny3D
@@ -57,7 +58,7 @@ namespace Tiny3D
     Agent::~Agent()
     {
         mDefaultWindow = nullptr;
-        mActiveRHIContext = nullptr;
+        mActiveRHIRenderer = nullptr;
         
         mSerializableMgr->unloadAllResources();
         mSerializableMgr = nullptr;
@@ -233,7 +234,7 @@ namespace Tiny3D
             ss << "Tiny3D " << getVersionName() << "(" << getVersionString();
             ss << ")" << " - " << param.windowTitle;
             param.windowTitle = ss.str();
-            window = mActiveRHIContext->createRenderWindow(param.windowTitle,  param);
+            window = mActiveRHIRenderer->createRenderWindow(param.windowTitle,  param);
             if (window == nullptr)
             {
                 ret = T3D_ERR_RENDER_CREATE_WINDOW;
@@ -255,14 +256,14 @@ namespace Tiny3D
 
         do 
         {
-            if (mActiveRHIContext == nullptr)
+            if (mActiveRHIRenderer == nullptr)
             {
                 ret = T3D_ERR_SYS_NOT_INIT;
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
                 break;
             }
         
-            ret = mActiveRHIContext->attachRenderTarget(window);
+            ret = mActiveRHIRenderer->getContext()->attachRenderTarget(window);
         } while (0);
         
         return ret;
@@ -276,14 +277,14 @@ namespace Tiny3D
 
         do
         {
-            if (mActiveRHIContext == nullptr)
+            if (mActiveRHIRenderer == nullptr)
             {
                 ret = T3D_ERR_SYS_NOT_INIT;
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
                 break;
             }
         
-            ret = mActiveRHIContext->detachRenderTarget(name);
+            ret = mActiveRHIRenderer->getContext()->detachRenderTarget(name);
         } while (0);
 
         return ret;
@@ -295,13 +296,13 @@ namespace Tiny3D
     {
         RHIRenderWindowPtr window = nullptr;
         
-        if (mActiveRHIContext == nullptr)
+        if (mActiveRHIRenderer == nullptr)
         {
             T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
         }
         else
         {
-            window = mActiveRHIContext->getRenderTarget(name);
+            window = mActiveRHIRenderer->getContext()->getRenderTarget(name);
         }
 
         return window;
@@ -756,30 +757,30 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    void Agent::enumerateAvailableRenderers(RHIContexts &contexts) const
+    void Agent::enumerateAvailableRenderers(RHIRenderers &renderers) const
     {
-        contexts.clear();
-        contexts = mContexts;
+        renderers.clear();
+        renderers = mRenderers;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::setActiveRHIContext(RHIContextPtr context)
+    TResult Agent::setActiveRHIRenderer(RHIRendererPtr renderer)
     {
         TResult ret = T3D_OK;
 
-        if (mActiveRHIContext != context)
+        if (mActiveRHIRenderer != renderer)
         {
-            if (mActiveRHIContext != nullptr)
+            if (mActiveRHIRenderer != nullptr)
             {
-                mActiveRHIContext->destroy();
+                mActiveRHIRenderer->destroy();
             }
 
-            ret = context->init();
+            ret = renderer->init();
 
             if (ret == T3D_OK)
             {
-                mActiveRHIContext = context;
+                mActiveRHIRenderer = renderer;
             }
         }
 
@@ -788,17 +789,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIContextPtr Agent::getActiveRHIContext() const
+    RHIRendererPtr Agent::getActiveRHIRenderer() const
     {
-        return mActiveRHIContext;
+        return mActiveRHIRenderer;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::addRHIContext(RHIContextPtr renderer)
+    TResult Agent::addRHIRenderer(RHIRendererPtr renderer)
     {
         const String &name = renderer->getName();
-        auto r = mContexts.insert(RHIContextsValue(name, renderer));
+        auto r = mRenderers.insert(RHIRenderersValue(name, renderer));
         if (r.second)
         {
             return T3D_OK;
@@ -809,28 +810,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::removeRHIContext(RHIContextPtr renderer)
+    TResult Agent::removeRHIRenderer(RHIRendererPtr renderer)
     {
-        auto itr = mContexts.find(renderer->getName());
+        auto itr = mRenderers.find(renderer->getName());
 
-        if (itr == mContexts.end())
+        if (itr == mRenderers.end())
         {
             return T3D_ERR_NOT_FOUND;
         }
 
-        mContexts.erase(itr);
+        mRenderers.erase(itr);
 
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    RHIContextPtr Agent::getRHIContext(const String &name) const
+    RHIRendererPtr Agent::getRHIRenderer(const String &name) const
     {
-        RHIContextPtr renderer = nullptr;
-        auto itr = mContexts.find(name);
+        RHIRendererPtr renderer = nullptr;
+        auto itr = mRenderers.find(name);
 
-        if (itr != mContexts.end())
+        if (itr != mRenderers.end())
         {
             renderer = itr->second;
         }
@@ -849,7 +850,7 @@ namespace Tiny3D
             const String &rendererName = mSettings.renderSettings.renderer;
 
             // 设置当前要使用的渲染器
-            RHIContextPtr renderer = getRHIContext(rendererName);
+            RHIRendererPtr renderer = getRHIRenderer(rendererName);
             if (renderer == nullptr)
             {
                 ret = T3D_ERR_PLG_NOT_LOADED;
@@ -858,7 +859,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = setActiveRHIContext(renderer);
+            ret = setActiveRHIRenderer(renderer);
             if (T3D_FAILED(ret))
             {
                 break;

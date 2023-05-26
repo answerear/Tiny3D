@@ -79,30 +79,19 @@ namespace Tiny3D
 
         TResult unloadPlugin(const String &name);
 
-        void enumerateAvailableRenderers(RHIContexts &contexts) const;
+        void enumerateAvailableRenderers(RHIRenderers &renderers) const;
 
-        /**
-         * @fn  TResult Agent::setActiveRenderer(RenderContextPtr renderer);
-         * @brief   设置当前可用的渲染器
-         * @param [in]  renderer    : 渲染器对象.
-         * @return  成功返回 T3D_OK.
-         */
-        TResult setActiveRHIContext(RHIContextPtr context);
+        TResult setActiveRHIRenderer(RHIRendererPtr renderer);
 
-        /**
-         * @fn  RenderContextPtr Agent::getActiveRenderer() const;
-         * @brief   获取当前可用的渲染器
-         * @return  成功返回当前渲染器对象.
-         */
-        RHIContextPtr getActiveRHIContext() const;
-
+        RHIRendererPtr getActiveRHIRenderer() const;
+     
         /**
          * @fn  TResult Agent::addRenderer(RenderContextPtr renderer);
          * @brief   添加渲染器
          * @param [in]  renderer    : 要添加的渲染器对象.
          * @return  成功返回 T3D_OK.
          */
-        TResult addRHIContext(RHIContextPtr renderer);
+        TResult addRHIRenderer(RHIRendererPtr renderer);
 
         /**
          * @fn  TResult Agent::removeRenderer(RenderContextPtr renderer);
@@ -110,7 +99,7 @@ namespace Tiny3D
          * @param [in]  renderer    : 要移除的渲染器对象.
          * @return  成功返回 T3D_OK.
          */
-        TResult removeRHIContext(RHIContextPtr renderer);
+        TResult removeRHIRenderer(RHIRendererPtr renderer);
 
         /**
          * @fn  RenderContextPtr Agent::getRenderer(const String &name) const;
@@ -118,7 +107,7 @@ namespace Tiny3D
          * @param [in]  name    : 渲染器名称.
          * @return  成功返回渲染器对象.
          */
-        RHIContextPtr getRHIContext(const String &name) const;
+        RHIRendererPtr getRHIRenderer(const String &name) const;
      
     protected:
         TResult initApplication();
@@ -159,7 +148,7 @@ namespace Tiny3D
         ObjectTracer            *mObjTracer;        /**< 对象内存跟踪 */
 
         RHIRenderWindowPtr      mDefaultWindow;     /**< 默认渲染窗口 */
-        RHIContextPtr           mActiveRHIContext;  /**< 当前使用的 RHI 渲染上下文 */
+        RHIRendererPtr          mActiveRHIRenderer; /**< 当前使用的 RHI 渲染器 */
         
         ArchiveManagerPtr       mArchiveMgr;
         SerializerManagerPtr    mSerializerMgr;
@@ -168,7 +157,7 @@ namespace Tiny3D
         
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */
-        RHIContexts             mContexts;          /**< 渲染器列表 */
+        RHIRenderers            mRenderers;         /**< 渲染器列表 */
      
         String                  mAppPath;           /**< 程序路径 */
         String                  mAppName;           /**< 程序名称 */

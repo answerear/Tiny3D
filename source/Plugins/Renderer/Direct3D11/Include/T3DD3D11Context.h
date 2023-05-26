@@ -31,9 +31,7 @@ namespace Tiny3D
      * @class   D3D11Renderer
      * @brief   DirectX 11 渲染器.
      */
-    class D3D11Context 
-        : public RHIContext
-        , public Singleton<D3D11Context>
+    class D3D11Context : public RHIContext
     {
     public:
         /**
@@ -48,41 +46,13 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~D3D11Context();
-
-        /**
-         * @fn  virtual TResult init() override;
-         * @brief   初始化渲染器
-         * @returns 调用成功返回 T3D_OK.
-         */
-        virtual TResult init() override;
-
-        /**
-         * @fn  virtual TResult destroy() override;
-         * @brief   销毁渲染器
-         * @returns 调用成功返回 T3D_OK.
-         */
-        virtual TResult destroy() override;
-
+     
         /**
          * @fn  virtual TResult renderAllTarget() override;
          * @brief   渲染一帧
          * @return  调用成功返回 T3D_OK.
          */
         virtual TResult renderAllTargets() override;
-
-        /**
-         * @fn  virtual RenderWindowPtr createRenderWindow( const String &name, 
-         *      const RenderWindowCreateParam &param, 
-         *      const RenderWindowCreateParamEx &paramEx) override;
-         * @brief   创建渲染窗口
-         * @param [in]  name    : 用于标识窗口的名称，不需要跟窗口标题栏相同.
-         * @param [in]  param   : 创建渲染窗口必要数据.
-         * @returns 调用成功返回一个渲染窗口对象，失败返回nullptr.
-         * @remarks 具体渲染系统实现本接口以创建渲染系统相关的渲染窗口对象.
-         */
-        virtual RHIRenderWindowPtr createRenderWindow(
-            const String &name,
-            const RenderWindowCreateParam &param) override;
 
     protected:
         /**
@@ -101,8 +71,6 @@ namespace Tiny3D
     protected:
         HINSTANCE                   mInstance;          /**< The instance */
     };
-
-    #define D3D11_CONTEXT      (D3D11Context::getInstance())
 }
 
 
