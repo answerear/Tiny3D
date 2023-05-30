@@ -108,7 +108,11 @@ namespace Tiny3D
          * @return  成功返回渲染器对象.
          */
         RHIRendererPtr getRHIRenderer(const String &name) const;
-     
+
+        ArchivePtr getInternalArchive() const { return mInternalArchive; }
+
+        ArchivePtr getProjectArchive() const { return mProjectArchive; }
+        
     protected:
         TResult initApplication();
 
@@ -149,11 +153,14 @@ namespace Tiny3D
 
         RHIRenderWindowPtr      mDefaultWindow;     /**< 默认渲染窗口 */
         RHIRendererPtr          mActiveRHIRenderer; /**< 当前使用的 RHI 渲染器 */
-        
+
         ArchiveManagerPtr       mArchiveMgr;
         SerializerManagerPtr    mSerializerMgr;
         DylibManagerPtr         mDylibMgr;
         SerializableManagerPtr  mSerializableMgr;
+
+        ArchivePtr              mInternalArchive;
+        ArchivePtr              mProjectArchive;
         
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */

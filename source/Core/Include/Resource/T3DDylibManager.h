@@ -56,7 +56,7 @@ namespace Tiny3D
          * @param   name    The name.
          * @return  The dylib.
          */
-        virtual DylibPtr loadDylib(const String &name);
+        DylibPtr loadDylib(const String &name);
 
         /**
          * @fn  virtual TResult unloadDylib(DylibPtr dylib);
@@ -64,7 +64,7 @@ namespace Tiny3D
          * @param   dylib   The dylib.
          * @return  A TResult.
          */
-        virtual TResult unloadDylib(DylibPtr dylib);
+        TResult unloadDylib(DylibPtr dylib);
 
     protected:
         /**
@@ -77,10 +77,10 @@ namespace Tiny3D
          * @fn  virtual ResourcePtr create( const String &strName, 
          *      int32_t argc, va_list args) override;
          * @brief   重寫基類 Resource::create() 接口
-         * @param   strName The name.
+         * @param   name The name.
          * @return  A ResourcePtr.
          */
-        ResourcePtr create(const String &strName) override;
+        ResourcePtr create(const String &name, int32_t argc, va_list args) override;
     };
 
     #define T3D_DYLIB_MGR   (DylibManager::getInstance())

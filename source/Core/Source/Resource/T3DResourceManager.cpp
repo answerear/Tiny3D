@@ -94,16 +94,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &name)
-    {
-        ResourcePtr res;
-
-        return res;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr ResourceManager::load(ArchivePtr archive, const String &name)
+    ResourcePtr ResourceManager::load(ArchivePtr archive, const String &name, int32_t argc, ...)
     {
         ResourcePtr res;
 
@@ -117,7 +108,11 @@ namespace Tiny3D
             }
 
             // lookup 中没有，创建对象
-            res = create(name);
+            va_list params;
+            va_start(params, argc);
+            res = create(name, argc, params);
+            va_end(params);
+            
             if (res == nullptr)
             {
                 // 创建失败
@@ -152,7 +147,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback)
+    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback, int32_t argc, ...)
     {
         ResourcePtr res;
 

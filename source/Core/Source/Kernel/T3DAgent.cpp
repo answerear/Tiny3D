@@ -57,6 +57,9 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
+        mInternalArchive = nullptr;
+        mProjectArchive = nullptr;
+        
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
         
@@ -517,8 +520,9 @@ namespace Tiny3D
             if (itr == mDylibs.end())
             {
                 ret = T3D_ERR_PLG_NOT_EXISTS;
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Unload plugin [%s] , \
-                    it don't exist !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE,
+                    "Unload plugin [%s] , it don't exist !",
+                    name.c_str());
                 break;
             }
 
@@ -527,8 +531,9 @@ namespace Tiny3D
             if (pFunc == nullptr)
             {
                 ret = T3D_ERR_PLG_NO_FUNCTION;
-                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Unload plugin [%s], \
-                    get function dllStopPlugin failed !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_ENGINE,
+                    "Unload plugin [%s], get function dllStopPlugin failed !",
+                    name.c_str());
                 break;
             }
 
@@ -540,7 +545,7 @@ namespace Tiny3D
 
             mDylibs.erase(itr);
 
-            T3D_DYLIB_MGR.unload(dylib);
+            T3D_DYLIB_MGR.unloadDylib(dylib);
         } while (0);
 
         return ret;
@@ -744,7 +749,7 @@ namespace Tiny3D
                 ret = pFunc();
                 if (ret == T3D_OK)
                 {
-                    T3D_DYLIB_MGR.unload(dylib);
+                    T3D_DYLIB_MGR.unloadDylib(dylib);
                 }
             }
             ++itr;

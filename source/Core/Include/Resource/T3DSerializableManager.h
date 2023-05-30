@@ -33,9 +33,17 @@ namespace Tiny3D
     {
     public:
         static SerializableManagerPtr create();
+
+        SerializablePtr loadObject(const String &name);
+
+        SerializablePtr loadObject(const String &name, CompletedCallback callback);
+
+        SerializablePtr loadInternalObject(const String &name);
+
+        SerializablePtr loadInternalObject(const String &name, CompletedCallback callback);
         
     protected:
-        ResourcePtr create(const String &name) override;
+        ResourcePtr create(const String &name, int32_t argc, va_list args) override;
     };
 
     #define T3D_SERIALIZABLE_MGR    (SerializableManager::getInstance()) 

@@ -37,12 +37,12 @@ namespace Tiny3D
     DylibPtr DylibManager::loadDylib(const String &name)
     {
         ArchivePtr archive;
-        return smart_pointer_cast<Dylib>(load(archive, name));
+        return smart_pointer_cast<Dylib>(load(archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr DylibManager::create(const String &name)
+    ResourcePtr DylibManager::create(const String &name, int32_t argc, va_list args)
     {
         return Dylib::create(name);
     }

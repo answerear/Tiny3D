@@ -31,14 +31,6 @@ namespace Tiny3D
     public:        
         ~ResourceManager() override = default;
         
-        virtual ResourcePtr load(const String &name);
-
-        virtual ResourcePtr load(ArchivePtr archive, const String &name);
-
-        virtual ResourcePtr load(const String &name, CompletedCallback callback);
-
-        virtual TResult unload(ResourcePtr res);
-
         virtual TResult unloadAllResources();
 
         virtual TResult unloadUnused();
@@ -55,7 +47,13 @@ namespace Tiny3D
          */
         ResourceManager() = default;
 
-        virtual ResourcePtr create(const String &name) = 0;
+        virtual ResourcePtr load(ArchivePtr archive, const String &name, int32_t argc, ...);
+
+        virtual ResourcePtr load(const String &name, CompletedCallback callback, int32_t argc, ...);
+
+        virtual TResult unload(ResourcePtr res);
+
+        virtual ResourcePtr create(const String &name, int32_t argc, va_list args) = 0;
 
         ResourcePtr lookup(const String &name);
 

@@ -20,6 +20,7 @@
 
 #include "Resource/T3DSerializableManager.h"
 #include "Resource/T3DSerializable.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
@@ -33,7 +34,37 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    ResourcePtr SerializableManager::create(const String &name)
+    SerializablePtr SerializableManager::loadObject(const String &name)
+    {
+        ArchivePtr archive = T3D_AGENT.getProjectArchive();
+        return smart_pointer_cast<Serializable>(load(archive, name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    SerializablePtr SerializableManager::loadObject(const String &name, CompletedCallback callback)
+    {
+        return smart_pointer_cast<Serializable>(load(name, callback, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    SerializablePtr SerializableManager::loadInternalObject(const String &name)
+    {
+        ArchivePtr archive = T3D_AGENT.getInternalArchive();
+        return smart_pointer_cast<Serializable>(load(archive, name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    SerializablePtr SerializableManager::loadInternalObject(const String &name, CompletedCallback callback)
+    {
+        return smart_pointer_cast<Serializable>(load(name, callback, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr SerializableManager::create(const String &name, int32_t argc, va_list args)
     {
         return Serializable::create(name);
     }
