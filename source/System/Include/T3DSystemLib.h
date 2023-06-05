@@ -22,7 +22,6 @@
 
 
 #include <T3DSystem.h>
-#include <T3DClass.h>
 #include <T3DObject.h>
 #include <T3DSmartPtr.h>
 #include <T3DObjectTracer.h>

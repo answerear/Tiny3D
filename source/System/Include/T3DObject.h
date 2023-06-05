@@ -23,7 +23,6 @@
 
 
 #include "T3DSystemPrerequisites.h"
-#include "T3DClass.h"
 #include "T3DSystem.h"
 
 
