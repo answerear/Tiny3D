@@ -130,6 +130,9 @@ elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
     add_definitions(-DT3D_OS_X86)
 endif ()
 
+set(CMAKE_CXX_STANDARD            17)
+set(CMAKE_CXX_STANDARD_REQUIRED   YES)
+
 if (TINY3D_OS_IOS)
     # Because in iOS, there only support static library.
     option(TINY3D_BUILD_SHARED_LIBS "Build shared libraries" TRUE)

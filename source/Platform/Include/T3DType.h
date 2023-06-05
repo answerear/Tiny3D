@@ -36,6 +36,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+#include <variant>
 
 #include <string.h>
 #include <memory.h>
@@ -129,5 +130,8 @@ using TPair = std::pair<T1, T2>;
 
 template <typename T>
 using TFunction = std::function<T>;
+
+template <typename ...Types>
+using TVariant = std::variant<Types...>;
 
 #endif  /*__T3D_TYPE_H__*/

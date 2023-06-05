@@ -22,12 +22,69 @@
 
 
 #include "T3DUtilsPrerequisites.h"
+#include "../../../dependencies/sdl2/include/SDL2/SDL_syswm.h"
 // #include "T3DFix32.h"
 // #include "T3DFix64.h"
 
 
 namespace Tiny3D
 {
+    enum VariantType
+    {
+        kBool = 0,
+        kInt8,
+        kUInt8,
+        kInt16,
+        kUInt16,
+        kInt32,
+        kUInt32,
+        kInt64, 
+        kUInt64,
+        kLong,
+        kSingle,
+        kDouble,
+        kChar,
+        kWChar,
+        kString,
+        kSequenceContainer,
+        kAssociativeContainer,
+        kMax
+    };
+
+    struct SequenceContainer;
+    struct AssociativeContainer;
+    
+    typedef TVariant
+    < bool
+    , int8_t
+    , uint8_t
+    , int16_t
+    , uint16_t
+    , int32_t
+    , uint32_t
+    , int64_t
+    , uint64_t
+    , long_t
+    , float32_t
+    , float64_t
+    , char
+    , wchar_t
+    , String
+    , SequenceContainer
+    , AssociativeContainer
+    > Variant;
+
+    struct SequenceContainer
+    {
+        std::list<Variant> values;
+    };
+
+    struct AssociativeContainer
+    {
+        std::map<Variant, Variant> values;
+    };
+    
+#if 0
     class T3D_UTILS_API Variant
     {
     public:
@@ -205,6 +262,7 @@ namespace Tiny3D
             VariantMap      *mMapValue;
         };
     };
+#endif
 }
 
 #include "T3DVariant.inl"

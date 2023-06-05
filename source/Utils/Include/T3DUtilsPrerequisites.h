@@ -35,21 +35,6 @@
 
 namespace Tiny3D
 {
-    class Variant;
-
-    typedef TArray<Variant>                 VariantArray;
-    typedef VariantArray::iterator          VariantArrayItr;
-    typedef VariantArray::const_iterator    VariantArrayConstItr;
-
-    typedef TList<Variant>                  VariantList;
-    typedef VariantList::iterator           VariantListItr;
-    typedef VariantList::const_iterator     VariantListConstItr;
-
-    typedef TMap<Variant, Variant>          VariantMap;
-    typedef VariantMap::iterator            VariantMapItr;
-    typedef VariantMap::const_iterator      VariantMapConstItr;
-
-    typedef TPair<Variant, Variant>         VariantMapValue;
 }
 
 

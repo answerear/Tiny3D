@@ -22,6 +22,7 @@
 
 namespace Tiny3D
 {
+#if 0
     VariantArray    Variant::INVALID_ARRAY;
     VariantList     Variant::INVALID_LIST;
     VariantMap      Variant::INVALID_MAP;
@@ -165,4 +166,5 @@ namespace Tiny3D
 
         return ret;
     }
+#endif
 }
