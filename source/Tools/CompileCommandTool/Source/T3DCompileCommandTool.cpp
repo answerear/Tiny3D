@@ -246,7 +246,7 @@ namespace Tiny3D
             writer.StartArray();
             writer.String("-x");
             writer.String("c++");
-            writer.String("-std=c++14");
+            writer.String("-std=c++17");
             writer.String("-fsyntax-only");
             writer.EndArray();
         }

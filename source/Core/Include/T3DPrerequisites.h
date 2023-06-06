@@ -73,8 +73,6 @@ namespace Tiny3D
 
     class Settings;
     
-    class Variant;
-
     class Component;
     class ComponentCreator;
 

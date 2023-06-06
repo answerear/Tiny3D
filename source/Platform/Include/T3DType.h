@@ -20,6 +20,8 @@
 #ifndef __T3D_TYPE_H__
 #define __T3D_TYPE_H__
 
+#define NOMINMAX
+
 #include <typeinfo>
 #include <string>
 #include <sstream>

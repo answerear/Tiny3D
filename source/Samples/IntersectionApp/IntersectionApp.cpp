@@ -547,10 +547,10 @@ void IntersectionApp::buildFrustum(Frustum &frustum)
     // 构造Frustum的六个平面
 
     // 近平面
-    Plane near(Vector3::NEGATIVE_UNIT_Z, Vector3(0, 0, 10));
+    Plane n(Vector3::NEGATIVE_UNIT_Z, Vector3(0, 0, 10));
 
     // 远平面
-    Plane far(Vector3::UNIT_Z, Vector3(0, 0, -10));
+    Plane f(Vector3::UNIT_Z, Vector3(0, 0, -10));
 
     // 上平面
     Matrix3 m0(Vector3::UNIT_X, Radian(Math::PI / Real(6.0f)));
@@ -573,8 +573,8 @@ void IntersectionApp::buildFrustum(Frustum &frustum)
     Plane right(axis3, Vector3(10, 0, 0));
 
     // Frustum
-    frustum.setFace(E_FACE_NEAR, near);
-    frustum.setFace(E_FACE_FAR, far);
+    frustum.setFace(E_FACE_NEAR, n);
+    frustum.setFace(E_FACE_FAR, f);
     frustum.setFace(E_FACE_TOP, top);
     frustum.setFace(E_FACE_BOTTOM, bottom);
     frustum.setFace(E_FACE_LEFT, left);

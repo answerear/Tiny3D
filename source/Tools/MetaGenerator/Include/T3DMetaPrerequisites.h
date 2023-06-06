@@ -26,7 +26,31 @@
 
 namespace Tiny3D
 {
-    #define LOG_TAG                 "Compiler"
+    #define LOG_TAG                 "MetaGenerator"
+
+    #define MG_LOG_ERROR(fmt, ...)   \
+        T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
+
+    #define MG_LOG_WARNING(fmt, ...) \
+        T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
+
+    #define MG_LOG_INFO(fmt, ...)    \
+        T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
+
+    #define MG_LOG_DEBUG(fmt, ...)   \
+        T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);
+        // printf(fmt, ##__VA_ARGS__); \
+        // printf("\n");   \
+        //
 }
 
 #endif  /*__T3D_META_PREREQUISITES_H__*/

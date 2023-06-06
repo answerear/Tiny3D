@@ -31,6 +31,7 @@ namespace Tiny3D
     #define T3D_FILE_VERSION_0_0_1      0x00000100
     #define T3D_FILE_CURRENT_VERSION    T3D_FILE_VERSION_0_0_1
 
+
     MetaGenerator::MetaGenerator()
     {
 
@@ -57,6 +58,8 @@ namespace Tiny3D
                 break;
             }
 
+            MG_LOG_INFO("Execute path : %s", opts.mDir.c_str());
+            
             ret = process(opts.mDir, opts.mRemove);
         } while (0);
 
@@ -71,6 +74,8 @@ namespace Tiny3D
         Dir dir;
         bool working = dir.findFile(fullpath);
 
+        MG_LOG_INFO("Search path : %s", fullpath.c_str());
+        
         while (working)
         {
             working = dir.findNextFile();
@@ -78,10 +83,15 @@ namespace Tiny3D
             if (dir.isDots())
             {
                 // . or ..
+                DateTime dt;
+                MG_LOG_INFO("%s\t<DIR>\t%s", dt.fromSecsSinceEpoch(dir.getLastWriteTime()).toString().c_str(), dir.getFileName().c_str());
                 continue;
             }
             else if (dir.isDirectory())
             {
+                DateTime dt;
+                MG_LOG_INFO("%s\t<DIR>\t%s", dt.fromSecsSinceEpoch(dir.getLastWriteTime()).toString().c_str(), dir.getFileName().c_str());
+                
                 // directory
                 if (!isClear)
                 {
@@ -94,6 +104,9 @@ namespace Tiny3D
             }
             else
             {
+                DateTime dt;
+                MG_LOG_INFO("%s\t\t%u\t%s", dt.fromSecsSinceEpoch(dir.getLastWriteTime()).toString().c_str(), dir.getFileSize(), dir.getFileName().c_str());
+                
                 // file
                 const String &filepath = dir.getFilePath();
                 const String &name = dir.getFileName();
