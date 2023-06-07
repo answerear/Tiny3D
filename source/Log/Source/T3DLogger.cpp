@@ -616,21 +616,18 @@ namespace Tiny3D
         bool working = dir.findFile(path);
         while (working)
         {
-            working = dir.findNextFile();
+            String filename = dir.getFileName();
 
-            if (working)
+            const int32_t oneDay = 24 * 60 * 60;
+            const int32_t maxOutdate = mStrategy.unExpired * oneDay;
+            time_t lastTime = dir.getLastWriteTime();
+            time_t dt = currentTime - lastTime;
+            if (dt >= maxOutdate)
             {
-                String filename = dir.getFileName();
-
-                const int32_t oneDay = 24 * 60 * 60;
-                const int32_t maxOutdate = mStrategy.unExpired * oneDay;
-                time_t lastTime = dir.getLastWriteTime();
-                time_t dt = currentTime - lastTime;
-                if (dt >= maxOutdate)
-                {
-                    Dir::remove(dir.getFilePath().c_str());
-                }
+                Dir::remove(dir.getFilePath().c_str());
             }
+            
+            working = dir.findNextFile();
         }
 
         dir.close();

@@ -78,14 +78,11 @@ namespace Tiny3D
         
         while (working)
         {
-            working = dir.findNextFile();
-
             if (dir.isDots())
             {
                 // . or ..
                 DateTime dt;
                 MG_LOG_INFO("%s\t<DIR>\t%s", dt.fromSecsSinceEpoch(dir.getLastWriteTime()).toString().c_str(), dir.getFileName().c_str());
-                continue;
             }
             else if (dir.isDirectory())
             {
@@ -138,6 +135,8 @@ namespace Tiny3D
                     }
                 }
             }
+
+            working = dir.findNextFile();
         }
 
         dir.close();

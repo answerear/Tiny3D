@@ -26,12 +26,308 @@
 #include <errno.h>
 #include <io.h>
 
+
 #pragma warning(disable:4244)
 #pragma warning(disable:4996)
 
 
 namespace Tiny3D
 {
+#if defined (STD_FILESYSTEM)
+    //--------------------------------------------------------------------------
+
+    Win32Dir::Win32Dir()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    Win32Dir::~Win32Dir()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::findFile(const String &strPath)
+    {
+        if (strPath.empty())
+        {
+            return false;
+        }
+
+        mRoot = strPath;
+        const std::filesystem::path path(strPath);
+        mDirItr = std::filesystem::directory_iterator(path);
+        std::filesystem::directory_iterator end_itr;
+        return (mDirItr != end_itr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::findNextFile()
+    {
+        mEntry = *mDirItr;
+        ++mDirItr;
+        std::filesystem::directory_iterator end_itr;
+        return (mDirItr != end_itr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Win32Dir::close()
+    {
+        std::filesystem::directory_iterator end_itr;
+        mDirItr = end_itr;
+        mEntry = std::filesystem::directory_entry();
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getRoot() const
+    {
+        std::filesystem::directory_iterator end_itr;
+        if (mDirItr == end_itr)
+            return "";
+
+        return mRoot;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getFileName() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return "";
+
+        return mEntry.path().filename().u8string();
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getFilePath() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return "";
+
+        return mEntry.path().u8string();
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getFileTitle() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return "";
+
+        return mEntry.path().stem().u8string();
+    }
+
+    //--------------------------------------------------------------------------
+
+    UINT Win32Dir::getLength() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return 0;
+
+        return (UINT)mEntry.file_size();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::isDots() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return false;
+
+        return ((mEntry.is_directory()) &&
+            (mEntry.path().filename().string() == "."
+            || mEntry.path().filename().string() == ".."));
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::isDirectory() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return false;
+        
+        return mEntry.is_directory();
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t Win32Dir::getCreationTime() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return 0;
+
+        struct _stat buffer;
+        const char *filename = mEntry.path().u8string().c_str();
+#ifdef UNICODE
+        char szFileName[MAX_PATH] = {0};
+        ::WideCharToMultiByte(CP_UTF8, 0, filename, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+        int result = _stat(szFileName, &buffer);
+#else
+        int result = _stat(filename, &buffer);
+#endif
+        if (result == 0)
+        {
+            return buffer.st_ctime;
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t Win32Dir::getLastAccessTime() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return 0;
+
+        struct _stat buffer;
+        const char *filename = mEntry.path().u8string().c_str();
+#ifdef UNICODE
+        char szFileName[MAX_PATH] = {0};
+        ::WideCharToMultiByte(CP_UTF8, 0, filename, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+        int result = _stat(szFileName, &buffer);
+#else
+        int result = _stat(filename, &buffer);
+#endif
+        if (result == 0)
+        {
+            return buffer.st_atime;
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t Win32Dir::getLastWriteTime() const
+    {
+        if (mEntry == std::filesystem::directory_entry())
+            return 0;
+
+        struct _stat buffer;
+        const char *filename = mEntry.path().u8string().c_str();
+#ifdef UNICODE
+        char szFileName[MAX_PATH] = {0};
+        ::WideCharToMultiByte(CP_UTF8, 0, filename, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+        int result = _stat(szFileName, &buffer);
+#else
+        int result = _stat(filename, &buffer);
+#endif
+        if (result == 0)
+        {
+            return buffer.st_mtime;
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::makeDir(const String &strDir)
+    {
+        if (strDir.empty() || strDir == "")
+            return false;
+
+        return (mkdir(strDir.c_str()) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::removeDir(const String &strDir)
+    {
+        if (strDir.empty() || strDir == "")
+            return false;
+
+        return (rmdir(strDir.c_str()) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::remove(const String &strFileName)
+    {
+        if (strFileName.empty() || strFileName == "")
+            return false;
+
+        return (::remove(strFileName.c_str()) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::exists(const String &strPath) const
+    {
+        return (::access(strPath.c_str(), 0) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getCachePath() const
+    {
+        return getAppPath() + "\\Caches";
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getAppPath() const
+    {
+        char szBuf[MAX_PATH];
+#ifdef UNICODE
+        WCHAR wszBuf[MAX_PATH];
+        ::GetModuleFileName(nullptr, wszBuf, sizeof(wszBuf));
+        ::WideCharToMultiByte(CP_UTF8, 0, wszBuf, MAX_PATH, szBuf, sizeof(szBuf), nullptr, nullptr);
+#else
+        ::GetModuleFileName(nullptr, szBuf, sizeof(szBuf));
+#endif
+        char *ptr = szBuf;
+        while (strchr(ptr, '\\'))
+        {
+            ptr = strchr(ptr, '\\');
+            ptr++;
+        }
+        ptr--;
+        *ptr = 0;
+
+        return String(szBuf);
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getCurrentPath() const
+    {
+        char buff[FILENAME_MAX];
+        _getcwd(buff, FILENAME_MAX);
+        return buff;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getWritablePath() const
+    {
+        return getAppPath() + "\\Save";
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getLibraryPath() const
+    {
+        return getAppPath();
+    }
+
+    //--------------------------------------------------------------------------
+
+    char Win32Dir::getNativeSeparator() const
+    {
+        return '\\';
+    }
+
+    //--------------------------------------------------------------------------
+#else
     //--------------------------------------------------------------------------
 
     Win32Dir::Win32Dir()
@@ -432,4 +728,5 @@ namespace Tiny3D
 
         return bResult;
     }
+#endif
 }
