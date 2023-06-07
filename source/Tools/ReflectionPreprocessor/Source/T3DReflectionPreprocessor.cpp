@@ -313,15 +313,9 @@ namespace  Tiny3D
 
         while (working)
         {
-            working = dir.findNextFile();
-
-            if (!working)
-                break;
-            
             if (dir.isDots())
             {
                 // . or ..
-                continue;
             }
             else if (dir.isDirectory())
             {
@@ -339,6 +333,8 @@ namespace  Tiny3D
                     mGenerator->collectProjectHeaders(filePath);
                 }
             }
+
+            working = dir.findNextFile();
         }
 
         dir.close();
@@ -361,15 +357,9 @@ namespace  Tiny3D
 
         while (working)
         {
-            working = dir.findNextFile();
-
-            if (!working)
-                break;
-            
             if (dir.isDots())
             {
                 // . or ..
-                continue;
             }
             else if (dir.isDirectory())
             {
@@ -387,6 +377,8 @@ namespace  Tiny3D
                     mGenerator->generateAST(filePath, args);
                 }
             }
+
+            working = dir.findNextFile();
         }
 
         dir.close();
