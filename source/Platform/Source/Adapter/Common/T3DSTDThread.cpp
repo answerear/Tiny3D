@@ -20,6 +20,7 @@
 #include "Adapter/Common/T3DSTDThread.h"
 
 #include "T3DCommonErrorDef.h"
+#include "Thread/T3DRunnable.h"
 
 
 namespace Tiny3D
@@ -40,7 +41,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult STDThread::start(ThreadProc proc, void *data, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask)
+    TResult STDThread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags)
     {
         return T3D_OK;
     }

@@ -53,7 +53,7 @@ namespace Tiny3D
 
         virtual ~RunnableThread() override;
 
-        TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask);
+        TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags);
 
         TResult suspend();
 
@@ -82,10 +82,6 @@ namespace Tiny3D
         static uint32_t getThreadHardwareConcurrency();
         
     protected:
-        TResult run();
-        
-        static TResult process(void *data);
-
         Runnable    *mRunnable = nullptr;
         IThread     *mThread = nullptr;
     };

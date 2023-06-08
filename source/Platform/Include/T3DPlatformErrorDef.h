@@ -29,6 +29,17 @@ namespace Tiny3D
     enum PlatformErrorCode
     {
         // Platform 模块错误码从 T3D_ERR_PLATFORM 开始
+
+        /// 线程已经创建了
+        T3D_ERR_THREAD_ALREADY_CREATED = T3D_ERR_PLATFORM,
+        /// 创建系统线程失败
+        T3D_ERR_THREAD_CREATED = T3D_ERR_PLATFORM + 1,
+        /// 线程未创建
+        T3D_ERR_THREAD_NOT_CREATED = T3D_ERR_PLATFORM + 2,
+        /// 线程挂起失败
+        T3D_ERR_THREAD_SUSPEND = T3D_ERR_PLATFORM + 3,
+        /// 线程继续失败
+        T3D_ERR_THREAD_RESUME = T3D_ERR_PLATFORM + 4,
     };
 };
 

@@ -39,6 +39,12 @@ namespace Tiny3D
         kInherit,
         kMax
     };
+
+    enum ThreadCreateFlag : uint32_t
+    {
+        kDefault = 0,
+        kSuspend = (1 << 0)
+    };
 }
 
 #endif  /*__T3D_THREAD_CONSTANT_H__*/

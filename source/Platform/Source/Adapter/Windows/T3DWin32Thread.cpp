@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 #include "Adapter/Windows/T3DWin32Thread.h"
-
-#include "T3DCommonErrorDef.h"
+#include "T3DPlatformErrorDef.h"
+#include "Thread/T3DRunnable.h"
 
 
 namespace Tiny3D
@@ -40,44 +40,156 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Thread::start(ThreadProc proc, void *data, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask)
+    DWORD Win32Thread::threadRoutine(LPVOID lpParameter)
     {
-        return T3D_OK;
+        TResult ret = T3D_ERR_THREAD_NOT_CREATED;
+        
+        Runnable *runnable = static_cast<Runnable *>(lpParameter);
+
+        if (runnable->init())
+        {
+            ret = runnable->run();
+            runnable->exit();
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Win32Thread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mThread != nullptr)
+            {
+                ret = T3D_ERR_THREAD_ALREADY_CREATED;
+                break; 
+            }
+
+            mRunnable = runnable;
+            mThread = ::CreateThread(nullptr, stackSize, threadRoutine, this, toWin32CreateFlag(flags), &mThreadID);
+            if (mThread == nullptr)
+            {
+                ret = T3D_ERR_THREAD_CREATED;
+                mRunnable = nullptr;
+                break;
+            }
+            
+            setPriority(priority);
+            setAffinityMask(affinityMask);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Thread::suspend()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mThread == nullptr)
+            {
+                ret = T3D_ERR_THREAD_NOT_CREATED;
+                break;
+            }
+            
+            if (::SuspendThread(mThread) == (DWORD)-1)
+            {
+                ret = T3D_ERR_THREAD_SUSPEND;
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Thread::resume()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mThread == nullptr)
+            {
+                ret = T3D_ERR_THREAD_NOT_CREATED;
+                break;
+            }
+
+            if (::ResumeThread(mThread) == (DWORD)-1)
+            {
+                ret = T3D_ERR_THREAD_RESUME;
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Thread::terminate(bool wait)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mThread == nullptr)
+            {
+                ret = T3D_ERR_THREAD_NOT_CREATED;
+                break;
+            }
+
+            if (mRunnable != nullptr)
+            {
+                mRunnable->stop();
+            }
+
+            if (wait)
+            {
+                ::WaitForSingleObject(mThread, INFINITE);
+            }
+
+            ::CloseHandle(mThread);
+            mThread = nullptr;
+        }
+        while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Thread::wait()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mThread == nullptr)
+            {
+                ret = T3D_ERR_THREAD_NOT_CREATED;
+                break;
+            }
+
+            WaitForSingleObject(mThread, INFINITE);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     ulong_t Win32Thread::getID() const
     {
-        return 0;
+        return mThreadID;
     }
     //--------------------------------------------------------------------------
 
@@ -97,46 +209,121 @@ namespace Tiny3D
 
     uint64_t Win32Thread::getAffinityMask() const
     {
-        return 0;
+        return mAffinityMask;
     }
 
     //--------------------------------------------------------------------------
 
     void Win32Thread::setAffinityMask(uint64_t mask)
     {
-        ::SetThreadAffinityMask(mThread, mask);
+        if (::SetThreadAffinityMask(mThread, mask) != 0)
+        {
+            mAffinityMask = mask;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     ThreadPriority Win32Thread::fromWin32Priority(int priority) const
     {
-        ThreadPriority pri;
+        ThreadPriority ret;
 
-        return pri;
+        switch (priority)
+        {
+        case THREAD_PRIORITY_IDLE:
+            ret = ThreadPriority::kIdle;
+            break;
+        case THREAD_PRIORITY_LOWEST:
+            ret = ThreadPriority::kLowest;
+            break;
+        case THREAD_PRIORITY_BELOW_NORMAL:
+            ret = ThreadPriority::kLow;
+            break;
+        case THREAD_PRIORITY_NORMAL:
+            ret = ThreadPriority::kNormal;
+            break;
+        case THREAD_PRIORITY_ABOVE_NORMAL:
+            ret = ThreadPriority::kHigh;
+            break;
+        case THREAD_PRIORITY_HIGHEST:
+            ret = ThreadPriority::kHighest;
+            break;
+        case THREAD_PRIORITY_TIME_CRITICAL:
+            ret = ThreadPriority::kTimeCritical;
+            break;
+        default:
+            ret = ThreadPriority::kNormal;
+            break;
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     int Win32Thread::toWin32Priority(ThreadPriority priority) const
     {
-        int pri;
+        int ret = THREAD_PRIORITY_NORMAL;
 
-        return pri;
+        switch (priority)
+        {
+        case ThreadPriority::kIdle:
+            ret = THREAD_PRIORITY_IDLE;
+            break;
+        case ThreadPriority::kLowest:
+            ret = THREAD_PRIORITY_LOWEST;
+            break;
+        case ThreadPriority::kLow:
+            ret = THREAD_PRIORITY_BELOW_NORMAL;
+            break;
+        case ThreadPriority::kNormal:
+            ret = THREAD_PRIORITY_NORMAL;
+            break;
+        case ThreadPriority::kHigh:
+            ret = THREAD_PRIORITY_ABOVE_NORMAL;
+            break;
+        case ThreadPriority::kHighest:
+            ret = THREAD_PRIORITY_HIGHEST;
+            break;
+        case ThreadPriority::kTimeCritical:
+            ret = THREAD_PRIORITY_TIME_CRITICAL;
+            break;
+        case ThreadPriority::kInherit:
+        default:
+            ret = THREAD_PRIORITY_NORMAL;
+            break;
+        }
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DWORD Win32Thread::toWin32CreateFlag(uint32_t flags) const
+    {
+        DWORD f = 0;
+        
+        if (flags & ThreadCreateFlag::kSuspend)
+        {
+            f |= CREATE_SUSPENDED;
+        }
+
+        return f;
     }
 
     //--------------------------------------------------------------------------
 
     ulong_t Win32ThreadSingleton::getCurrentThreadID()
     {
-        return 0;
+        return ::GetCurrentThreadId();
     }
 
     //--------------------------------------------------------------------------
 
     ulong_t Win32ThreadSingleton::getMainThreadID()
     {
-        return 0;
+        static ulong_t threadID = ::GetCurrentThreadId();
+        return threadID;
     }
 
     //--------------------------------------------------------------------------

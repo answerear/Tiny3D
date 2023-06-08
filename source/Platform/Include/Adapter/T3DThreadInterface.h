@@ -28,14 +28,14 @@
 
 namespace Tiny3D
 {
-    using ThreadProc = TFunction<TResult(void*)>; 
+    class Runnable;
 
     class IThread
     {
         T3D_DECLARE_INTERFACE(IThread);
 
     public:
-        virtual TResult start(ThreadProc proc, void *data, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask) = 0;
+        virtual TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags) = 0;
 
         virtual TResult suspend() = 0;
 
