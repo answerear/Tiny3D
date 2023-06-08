@@ -22,10 +22,10 @@
 
 
 #include <T3DSystem.h>
-#include <T3DObject.h>
-#include <T3DSmartPtr.h>
-#include <T3DObjectTracer.h>
-#include <T3DUUID.h>
+#include <Object/T3DObject.h>
+#include <Object/T3DSmartPtr.h>
+#include <Object/T3DObjectTracer.h>
+#include <UUID/T3DUUID.h>
 
 
 #endif  /*__T3D_SYSTEM_LIB_H__*/

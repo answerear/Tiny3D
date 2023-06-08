@@ -34,15 +34,21 @@ include_directories(
 	"${RTTR_INCLUDE_DIR}"
 	"${TINY3D_PLATFORM_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Source"
+	#"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	)
 
 
 # Setup header files for this project.
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
+set_project_files(Include\\\\Object ${CMAKE_CURRENT_SOURCE_DIR}/Include/Object/ .h)
+set_project_files(Include\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread/ .h)
+set_project_files(Include\\\\UUID ${CMAKE_CURRENT_SOURCE_DIR}/Include/UUID/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
+set_project_files(Source\\\\Object ${CMAKE_CURRENT_SOURCE_DIR}/Source/Object/ .cpp)
+set_project_files(Source\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Source/Thread/ .cpp)
+set_project_files(Source\\\\UUID ${CMAKE_CURRENT_SOURCE_DIR}/Source/UUID/ .cpp)
 set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
 
 

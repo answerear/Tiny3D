@@ -23,8 +23,8 @@
 
 #include "T3DSystemPrerequisites.h"
 #include "T3DSystem.h"
-#include "T3DObject.h"
-#include "T3DSmartPtr.h"
+#include "Object/T3DObject.h"
+#include "Object/T3DSmartPtr.h"
 
 namespace Tiny3D
 {

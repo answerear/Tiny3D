@@ -23,7 +23,7 @@
 
 
 #include "T3DSystemPrerequisites.h"
-#include "T3DObject.h"
+#include "Object/T3DObject.h"
 
 
 namespace Tiny3D
