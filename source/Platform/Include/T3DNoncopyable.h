@@ -21,6 +21,7 @@
 #define __T3D_NONCOPYABLE_H__
 
 
+#include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
 
 

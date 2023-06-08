@@ -17,45 +17,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_FACTORY_H__
-#define __T3D_WIN32_FACTORY_H__
+#ifndef __T3D_STD_THREAD_H__
+#define __T3D_STD_THREAD_H__
 
 
-#include "Adapter/T3DFactoryInterface.h"
+#include "T3DNoncopyable.h"
+#include "Adapter/T3DThreadInterface.h"
 
 
 namespace Tiny3D
 {
-    class Win32Factory : public IFactory
+    class STDThread : public IThread
     {
     public:
-        Win32Factory() = default;
-        virtual ~Win32Factory() override = default;
+        STDThread();
 
-        virtual IApplication *createPlatformApplication() override;
+        ~STDThread() override;
 
-        virtual IWindow *createPlatformWindow() override;
+        TResult start(ThreadProc proc, void *data, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask) override;
 
-        virtual ITime *createPlatformTime() override;
+        TResult suspend() override;
 
-        virtual ITimerService *createPlatformTimerService() override;
+        TResult resume() override;
 
-        virtual IDir *createPlatformDir() override;
+        TResult terminate(bool wait) override;
 
-        virtual IDeviceInfo *createPlatformDeviceInfo() override;
+        TResult wait() override;
 
-        virtual IConsole *createPlatformConsole() override;
+        ulong_t getID() const override;
+    };
 
-        virtual IThread *createPlatformThread() override;
+    class STDThreadSingleton : public IThreadSingleton, public Noncopyable
+    {
+    public:
+        ~STDThreadSingleton() override = default;
 
-        virtual IThreadSingleton *createPlatformThreadSingleton() override;
-        
-        virtual EPlatform getPlatform() override;
+        ulong_t getCurrentThreadID() override;
 
-    protected:
+        ulong_t getMainThreadID() override;
 
+        void sleepCurrentThread(uint32_t msec) override;
+
+        uint32_t getThreadHardwareConcurrency() override;
     };
 }
 
-
-#endif  /*__T3D_WIN32_FACTORY_H__*/
+#endif  /*__T3D_STD_THREAD_H__*/

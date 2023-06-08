@@ -35,6 +35,8 @@ namespace Tiny3D
     class IDir;
     class IDeviceInfo;
     class IConsole;
+    class IThread;
+    class IThreadSingleton;
 
     enum EPlatform
     {
@@ -98,6 +100,18 @@ namespace Tiny3D
          */
         virtual IConsole *createPlatformConsole() = 0;
 
+        /**
+         * \brief 创建操作系统平台相关的线程对象
+         * \return 返回平台相关的线程对象，需要用户调用 delete 释放对象
+         */
+        virtual IThread *createPlatformThread() = 0;
+
+        /**
+         * \brief 创建操作系统平台相关的线程单例对象，也就是只能调用一次该接口
+         * \return 返回平台相关的线程单例对象，需要用户调用 delete 释放对象
+         */
+        virtual IThreadSingleton *createPlatformThreadSingleton() = 0;
+     
         /**
          * @brief 获取当前平台类型.
          * @return 返回当前平台类型

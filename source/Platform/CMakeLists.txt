@@ -31,6 +31,7 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Window"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include/Time"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include/IO"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread"
 	"${SDL2_INCLUDE_DIR}"
 	)
 
@@ -81,7 +82,7 @@ set_project_files(Include\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Include/Time/ .h)
 set_project_files(Include\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Include/IO/ .h)
 set_project_files(Include\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Include/Device/ .h)
 set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console/ .h)
-set_project_files(Include\\\\Reflection ${CMAKE_CURRENT_SOURCE_DIR}/Include/Reflection/ .h)
+set_project_files(Include\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -124,7 +125,7 @@ set_project_files(Source\\\\Time ${CMAKE_CURRENT_SOURCE_DIR}/Source/Time/ .cpp)
 set_project_files(Source\\\\IO ${CMAKE_CURRENT_SOURCE_DIR}/Source/IO/ .cpp)
 set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .cpp)
 set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ .cpp)
-set_project_files(Source\\\\Reflection ${CMAKE_CURRENT_SOURCE_DIR}/Source/Reflection/ .cpp)
+set_project_files(Source\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Source/Thread/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows

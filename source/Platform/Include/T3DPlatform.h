@@ -28,6 +28,7 @@
 namespace Tiny3D
 {
     class IFactory;
+    class ThreadSingleton;
 
     /**
      * @class System
@@ -72,9 +73,10 @@ namespace Tiny3D
         TimerManager    *mTimerMgr;
         Console         *mConsole;
         DeviceInfo      *mDeviceInfo;
+        ThreadSingleton *mThreadSingleton;
     };
 
-    #define T3D_PLATFORM              (Platform::getInstance())
+    #define T3D_PLATFORM            (Platform::getInstance())
     #define T3D_PLATFORM_FACTORY    (T3D_PLATFORM.getPlatformFactory())
 }
 

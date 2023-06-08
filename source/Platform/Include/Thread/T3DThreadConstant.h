@@ -17,45 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_FACTORY_H__
-#define __T3D_WIN32_FACTORY_H__
+#ifndef __T3D_THREAD_CONSTANT_H__
+#define __T3D_THREAD_CONSTANT_H__
 
 
-#include "Adapter/T3DFactoryInterface.h"
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
 
 
 namespace Tiny3D
 {
-    class Win32Factory : public IFactory
+    enum class ThreadPriority : uint32_t
     {
-    public:
-        Win32Factory() = default;
-        virtual ~Win32Factory() override = default;
-
-        virtual IApplication *createPlatformApplication() override;
-
-        virtual IWindow *createPlatformWindow() override;
-
-        virtual ITime *createPlatformTime() override;
-
-        virtual ITimerService *createPlatformTimerService() override;
-
-        virtual IDir *createPlatformDir() override;
-
-        virtual IDeviceInfo *createPlatformDeviceInfo() override;
-
-        virtual IConsole *createPlatformConsole() override;
-
-        virtual IThread *createPlatformThread() override;
-
-        virtual IThreadSingleton *createPlatformThreadSingleton() override;
-        
-        virtual EPlatform getPlatform() override;
-
-    protected:
-
+        kIdle = 0,
+        kLowest,
+        kLow,
+        kNormal,
+        kHigh,
+        kHighest,
+        kTimeCritical,
+        kInherit,
+        kMax
     };
 }
 
-
-#endif  /*__T3D_WIN32_FACTORY_H__*/
+#endif  /*__T3D_THREAD_CONSTANT_H__*/

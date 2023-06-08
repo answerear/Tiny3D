@@ -17,45 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_FACTORY_H__
-#define __T3D_WIN32_FACTORY_H__
-
-
-#include "Adapter/T3DFactoryInterface.h"
+#include "Thread/T3DRunnable.h"
 
 
 namespace Tiny3D
 {
-    class Win32Factory : public IFactory
+    //--------------------------------------------------------------------------
+    
+    bool Runnable::init()
     {
-    public:
-        Win32Factory() = default;
-        virtual ~Win32Factory() override = default;
+        return false;
+    }
 
-        virtual IApplication *createPlatformApplication() override;
+    //--------------------------------------------------------------------------
 
-        virtual IWindow *createPlatformWindow() override;
-
-        virtual ITime *createPlatformTime() override;
-
-        virtual ITimerService *createPlatformTimerService() override;
-
-        virtual IDir *createPlatformDir() override;
-
-        virtual IDeviceInfo *createPlatformDeviceInfo() override;
-
-        virtual IConsole *createPlatformConsole() override;
-
-        virtual IThread *createPlatformThread() override;
-
-        virtual IThreadSingleton *createPlatformThreadSingleton() override;
+    void Runnable::stop()
+    {
         
-        virtual EPlatform getPlatform() override;
+    }
 
-    protected:
+    //--------------------------------------------------------------------------
 
-    };
+    void Runnable::exit()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_WIN32_FACTORY_H__*/

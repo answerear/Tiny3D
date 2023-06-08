@@ -17,93 +17,96 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "T3DWin32Factory.h"
-#include "Adapter/Common/T3DSDLApplication.h"
-#include "Adapter/Common/T3DTimerService.h"
-#include "Adapter/Desktop/T3DSDLDesktopWindow.h"
-#include "Adapter/Windows/T3DWin32Time.h"
-#include "Adapter/Windows/T3DWin32Dir.h"
-#include "Adapter/Windows/T3DWin32DeviceInfo.h"
-#include "Adapter/Windows/T3DWin32Console.h"
-#include "Adapter/Windows/T3DWin32Thread.h"
+#include "Adapter/Common/T3DSTDThread.h"
+
+#include "T3DCommonErrorDef.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    IApplication *Win32Factory::createPlatformApplication()
+    STDThread::STDThread()
     {
-        return new SDLApplication();
+        
     }
 
     //--------------------------------------------------------------------------
 
-    IWindow *Win32Factory::createPlatformWindow()
+    STDThread::~STDThread()
     {
-        return new SDLDesktopWindow();
+        
     }
 
     //--------------------------------------------------------------------------
 
-    ITime *Win32Factory::createPlatformTime()
+    TResult STDThread::start(ThreadProc proc, void *data, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask)
     {
-        return new Win32Time();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    ITimerService *Win32Factory::createPlatformTimerService()
+    TResult STDThread::suspend()
     {
-        return new TimerService();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    IDir *Win32Factory::createPlatformDir()
+    TResult STDThread::resume()
     {
-        return new Win32Dir();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    IDeviceInfo *Win32Factory::createPlatformDeviceInfo()
+    TResult STDThread::terminate(bool wait)
     {
-        return new Win32DeviceInfo();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    IConsole *Win32Factory::createPlatformConsole()
+    TResult STDThread::wait()
     {
-        return new Win32Console();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    IThread *Win32Factory::createPlatformThread()
+    ulong_t STDThread::getID() const
     {
-        return new Win32Thread();
+        return 0;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ulong_t STDThreadSingleton::getCurrentThreadID()
+    {
+        return 0;
     }
 
     //--------------------------------------------------------------------------
 
-    IThreadSingleton *Win32Factory::createPlatformThreadSingleton()
+    ulong_t STDThreadSingleton::getMainThreadID()
     {
-        return new Win32ThreadSingleton();
+        return 0;
     }
 
     //--------------------------------------------------------------------------
 
-    EPlatform Win32Factory::getPlatform()
+    void STDThreadSingleton::sleepCurrentThread(uint32_t msec)
     {
-        return E_PLATFORM_WIN32;
+        
     }
 
     //--------------------------------------------------------------------------
 
-    IFactory *createPlatformFactory()
+    uint32_t STDThreadSingleton::getThreadHardwareConcurrency()
     {
-        return new Win32Factory();
+        return 0;
     }
+
+    //--------------------------------------------------------------------------
 }

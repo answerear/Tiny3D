@@ -17,45 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_FACTORY_H__
-#define __T3D_WIN32_FACTORY_H__
+#ifndef __T3D_WIN32_STD_THREAD_H__
+#define __T3D_WIN32_STD_THREAD_H__
 
 
-#include "Adapter/T3DFactoryInterface.h"
+#include "T3DNoncopyable.h"
+#include "Adapter/Common/T3DSTDThread.h"
 
 
 namespace Tiny3D
 {
-    class Win32Factory : public IFactory
+    class Win32STDThread : public STDThread, public Noncopyable
     {
     public:
-        Win32Factory() = default;
-        virtual ~Win32Factory() override = default;
+        Win32STDThread() = default;
 
-        virtual IApplication *createPlatformApplication() override;
+        ~Win32STDThread() override = default;
 
-        virtual IWindow *createPlatformWindow() override;
+        ThreadPriority getPriority() const override;
 
-        virtual ITime *createPlatformTime() override;
+        void setPriority(ThreadPriority priority) override;
 
-        virtual ITimerService *createPlatformTimerService() override;
+        uint64_t getAffinityMask() const override;
 
-        virtual IDir *createPlatformDir() override;
-
-        virtual IDeviceInfo *createPlatformDeviceInfo() override;
-
-        virtual IConsole *createPlatformConsole() override;
-
-        virtual IThread *createPlatformThread() override;
-
-        virtual IThreadSingleton *createPlatformThreadSingleton() override;
-        
-        virtual EPlatform getPlatform() override;
-
-    protected:
-
+        void setAffinityMask(uint64_t mask) override;
     };
 }
 
-
-#endif  /*__T3D_WIN32_FACTORY_H__*/
+#endif  /*__T3D_WIN32_STD_THREAD_H__*/
