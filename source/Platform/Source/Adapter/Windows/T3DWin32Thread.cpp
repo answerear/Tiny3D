@@ -35,12 +35,12 @@ namespace Tiny3D
 
     Win32Thread::~Win32Thread()
     {
-        
+        T3D_ASSERT(mThread == nullptr, "Thread must terminate before free object !");
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Thread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags)
+    TResult Win32Thread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask)
     {
         TResult ret = T3D_OK;
 
@@ -71,7 +71,7 @@ namespace Tiny3D
                     return ret;
                 },
                 this,
-                toWin32CreateFlag(flags),
+                STACK_SIZE_PARAM_IS_A_RESERVATION | CREATE_SUSPENDED,
                 &mThreadID);
             if (mThread == nullptr)
             {
@@ -297,20 +297,6 @@ namespace Tiny3D
         }
         
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    DWORD Win32Thread::toWin32CreateFlag(uint32_t flags) const
-    {
-        DWORD f = 0;
-        
-        if (flags & ThreadCreateFlag::kSuspend)
-        {
-            f |= CREATE_SUSPENDED;
-        }
-
-        return f;
     }
 
     //--------------------------------------------------------------------------

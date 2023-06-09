@@ -56,7 +56,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RunnableThread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags)
+    TResult RunnableThread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask)
     {
         TResult ret = T3D_OK;
 
@@ -76,7 +76,7 @@ namespace Tiny3D
             
             mRunnable = runnable;
             
-            ret = mThread->start(mRunnable, name, stackSize, priority, affinityMask, flags);
+            ret = mThread->start(mRunnable, name, stackSize, priority, affinityMask);
         } while (false);
 
         return ret;

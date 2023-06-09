@@ -35,7 +35,7 @@ namespace Tiny3D
 
         virtual ~Win32Thread() override;
 
-        TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags) override;
+        TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask) override;
 
         TResult suspend() override;
 
@@ -59,8 +59,6 @@ namespace Tiny3D
         ThreadPriority fromWin32Priority(int priority) const;
 
         int toWin32Priority(ThreadPriority priority) const;
-
-        DWORD toWin32CreateFlag(uint32_t flags) const;
         
         HANDLE      mThread = nullptr;
         Runnable    *mRunnable = nullptr;
