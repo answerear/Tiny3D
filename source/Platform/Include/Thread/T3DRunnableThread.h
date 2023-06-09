@@ -53,7 +53,7 @@ namespace Tiny3D
 
         virtual ~RunnableThread() override;
 
-        TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask);
+        TResult start(Runnable *runnable, const String &name, uint32_t stackSize = 0, ThreadPriority priority = ThreadPriority::kNormal, uint64_t affinityMask = kNoAffinityMask);
 
         TResult suspend();
 
@@ -73,6 +73,8 @@ namespace Tiny3D
 
         void setAffinityMask(uint64_t mask);
 
+        const String getName() const { return mName; }
+
         static ulong_t getCurrentThreadID();
 
         static ulong_t getMainThreadID();
@@ -82,6 +84,7 @@ namespace Tiny3D
         static uint32_t getThreadHardwareConcurrency();
         
     protected:
+        String      mName;
         Runnable    *mRunnable = nullptr;
         IThread     *mThread = nullptr;
     };

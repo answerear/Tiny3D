@@ -73,10 +73,23 @@ namespace Tiny3D
                 ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
-            
+
+            // 启动线程，不过线程默认挂起状态
+            ret = mThread->start(runnable, stackSize);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
             mRunnable = runnable;
-            
-            ret = mThread->start(mRunnable, name, stackSize, priority, affinityMask);
+            mName = name;
+
+            // 设置线程优先级
+            mThread->setPriority(priority);
+            // 设置线程亲和性
+            mThread->setAffinityMask(affinityMask);
+            // 因线程启动时候挂起，现在开始执行
+            mThread->resume();
         } while (false);
 
         return ret;

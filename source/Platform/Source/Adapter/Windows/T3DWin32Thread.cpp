@@ -40,7 +40,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Thread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask)
+    TResult Win32Thread::start(Runnable *runnable, uint32_t stackSize)
     {
         TResult ret = T3D_OK;
 
@@ -79,9 +79,6 @@ namespace Tiny3D
                 mRunnable = nullptr;
                 break;
             }
-            
-            setPriority(priority);
-            setAffinityMask(affinityMask);
         } while (false);
         
         return ret;
@@ -301,6 +298,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Win32ThreadSingleton::Win32ThreadSingleton()
+    {
+        mMainThreadID = ::GetCurrentThreadId();
+    }
+
+    //--------------------------------------------------------------------------
+
     ulong_t Win32ThreadSingleton::getCurrentThreadID()
     {
         return ::GetCurrentThreadId();
@@ -310,8 +314,7 @@ namespace Tiny3D
 
     ulong_t Win32ThreadSingleton::getMainThreadID()
     {
-        static ulong_t threadID = ::GetCurrentThreadId();
-        return threadID;
+        return mMainThreadID;
     }
 
     //--------------------------------------------------------------------------
@@ -325,7 +328,7 @@ namespace Tiny3D
     
     uint32_t Win32ThreadSingleton::getThreadHardwareConcurrency()
     {
-        return 0;
+        return std::thread::hardware_concurrency();
     }
 
     //--------------------------------------------------------------------------

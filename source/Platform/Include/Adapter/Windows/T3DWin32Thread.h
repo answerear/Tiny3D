@@ -35,7 +35,7 @@ namespace Tiny3D
 
         virtual ~Win32Thread() override;
 
-        TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask) override;
+        TResult start(Runnable *runnable, uint32_t stackSize) override;
 
         TResult suspend() override;
 
@@ -69,6 +69,8 @@ namespace Tiny3D
     class Win32ThreadSingleton : public IThreadSingleton, public Noncopyable
     {
     public:
+        Win32ThreadSingleton();
+        
         ~Win32ThreadSingleton() override = default;
         
         ulong_t getCurrentThreadID() override;
@@ -78,6 +80,9 @@ namespace Tiny3D
         void sleepCurrentThread(uint32_t msec) override;
 
         uint32_t getThreadHardwareConcurrency() override;
+
+    protected:
+        ulong_t mMainThreadID = 0;
     };
 }
 

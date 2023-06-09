@@ -35,7 +35,7 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(IThread);
 
     public:
-        virtual TResult start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask) = 0;
+        virtual TResult start(Runnable *runnable, uint32_t stackSize) = 0;
 
         virtual TResult suspend() = 0;
 

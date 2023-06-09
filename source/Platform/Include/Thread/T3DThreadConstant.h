@@ -40,10 +40,9 @@ namespace Tiny3D
         kMax
     };
 
-    enum ThreadCreateFlag : uint32_t
+    enum ThreadAffinityMask : uint64_t
     {
-        kDefault = 0,
-        kSuspend = (1 << 0)
+        kNoAffinityMask = 0xFFFFFFFFFFFFFFFF,
     };
 }
 
