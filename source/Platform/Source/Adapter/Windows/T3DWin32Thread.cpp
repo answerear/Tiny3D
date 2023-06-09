@@ -40,23 +40,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    DWORD Win32Thread::threadRoutine(LPVOID lpParameter)
-    {
-        TResult ret = T3D_ERR_THREAD_NOT_CREATED;
-        
-        Runnable *runnable = static_cast<Runnable *>(lpParameter);
-
-        if (runnable->init())
-        {
-            ret = runnable->run();
-            runnable->exit();
-        }
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult Win32Thread::start(Runnable *runnable, const String &name, uint32_t stackSize, ThreadPriority priority, uint64_t affinityMask, uint32_t flags)
     {
         TResult ret = T3D_OK;
@@ -70,7 +53,26 @@ namespace Tiny3D
             }
 
             mRunnable = runnable;
-            mThread = ::CreateThread(nullptr, stackSize, threadRoutine, this, toWin32CreateFlag(flags), &mThreadID);
+            mThread = ::CreateThread(
+                nullptr,
+                stackSize,
+                [](void *lpParameter) -> DWORD
+                {
+                    TResult ret = T3D_ERR_THREAD_NOT_CREATED;
+        
+                    Runnable *runnable = static_cast<Runnable *>(lpParameter);
+
+                    if (runnable->init())
+                    {
+                        ret = runnable->run();
+                        runnable->exit();
+                    }
+
+                    return ret;
+                },
+                this,
+                toWin32CreateFlag(flags),
+                &mThreadID);
             if (mThread == nullptr)
             {
                 ret = T3D_ERR_THREAD_CREATED;

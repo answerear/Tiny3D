@@ -61,8 +61,6 @@ namespace Tiny3D
         int toWin32Priority(ThreadPriority priority) const;
 
         DWORD toWin32CreateFlag(uint32_t flags) const;
-
-        static DWORD threadRoutine(LPVOID lpParameter);
         
         HANDLE      mThread = nullptr;
         Runnable    *mRunnable = nullptr;
