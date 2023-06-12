@@ -35,12 +35,12 @@ namespace Tiny3D
 
         virtual ~Win32Thread() override;
 
-        TResult start(Runnable *runnable, uint32_t stackSize) override;
+        TResult start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize) override;
 
         TResult suspend() override;
 
         TResult resume() override;
-
+    
         TResult terminate(bool wait) override;
 
         TResult wait() override;

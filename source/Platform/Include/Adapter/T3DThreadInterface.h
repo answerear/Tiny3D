@@ -29,13 +29,14 @@
 namespace Tiny3D
 {
     class Runnable;
-
+    class RunnableThread;
+    
     class IThread
     {
         T3D_DECLARE_INTERFACE(IThread);
 
     public:
-        virtual TResult start(Runnable *runnable, uint32_t stackSize) = 0;
+        virtual TResult start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize) = 0;
 
         virtual TResult suspend() = 0;
 
@@ -54,6 +55,9 @@ namespace Tiny3D
         virtual uint64_t getAffinityMask() const = 0;
 
         virtual void setAffinityMask(uint64_t mask) = 0;
+
+    protected:
+        RunnableThread *mRunnableThread = nullptr;
     };
 
     class IThreadSingleton

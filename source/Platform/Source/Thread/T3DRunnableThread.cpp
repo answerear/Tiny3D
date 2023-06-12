@@ -23,6 +23,8 @@
 #include "Adapter/T3DThreadInterface.h"
 #include "T3DPlatform.h"
 #include "T3DPlatformErrorDef.h"
+#include "T3DThreadManager.h"
+
 
 namespace Tiny3D
 {
@@ -51,6 +53,7 @@ namespace Tiny3D
 
     RunnableThread::~RunnableThread()
     {
+        T3D_THREAD_MGR.removeThread(this);
         T3D_SAFE_DELETE(mThread);
     }
 
@@ -64,7 +67,7 @@ namespace Tiny3D
         {
             if (mThread == nullptr)
             {
-                ret = T3D_ERR_INVALID_POINTER;
+                ret = T3D_ERR_IMPLEMENT_NOT_CREATED;
                 break;
             }
 
@@ -75,7 +78,7 @@ namespace Tiny3D
             }
 
             // 启动线程，不过线程默认挂起状态
-            ret = mThread->start(runnable, stackSize);
+            ret = mThread->start(this, runnable, stackSize);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -101,7 +104,7 @@ namespace Tiny3D
     {
         if (mThread == nullptr)
         {
-            return T3D_ERR_INVALID_POINTER;
+            return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
         return mThread->suspend();
@@ -113,7 +116,7 @@ namespace Tiny3D
     {
         if (mThread == nullptr)
         {
-            return T3D_ERR_INVALID_POINTER;
+            return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
         return mThread->resume();
@@ -125,7 +128,7 @@ namespace Tiny3D
     {
         if (mThread == nullptr)
         {
-            return T3D_ERR_INVALID_POINTER;
+            return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
         return mThread->terminate(wait);
@@ -137,7 +140,7 @@ namespace Tiny3D
     {
         if (mThread == nullptr)
         {
-            return T3D_ERR_INVALID_POINTER;
+            return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
         return mThread->wait();

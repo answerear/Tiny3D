@@ -41,7 +41,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult STDThread::start(Runnable *runnable, uint32_t stackSize)
+    TResult STDThread::start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize)
     {
         return T3D_OK;
     }

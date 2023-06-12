@@ -34,7 +34,7 @@ namespace Tiny3D
 
         ~STDThread() override;
 
-        TResult start(Runnable *runnable, uint32_t stackSize) override;
+        TResult start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize) override;
 
         TResult suspend() override;
 

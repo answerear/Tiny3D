@@ -20,6 +20,8 @@
 #include "Adapter/Windows/T3DWin32Thread.h"
 #include "T3DPlatformErrorDef.h"
 #include "Thread/T3DRunnable.h"
+#include "Thread/T3DRunnableThread.h"
+#include "Thread/T3DThreadManager.h"
 
 
 namespace Tiny3D
@@ -40,7 +42,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Thread::start(Runnable *runnable, uint32_t stackSize)
+    TResult Win32Thread::start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize)
     {
         TResult ret = T3D_OK;
 
@@ -52,20 +54,34 @@ namespace Tiny3D
                 break; 
             }
 
+            if (runnableThread == nullptr || runnable == nullptr)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+            
+            mRunnableThread = runnableThread;
             mRunnable = runnable;
             mThread = ::CreateThread(
                 nullptr,
                 stackSize,
                 [](void *lpParameter) -> DWORD
                 {
-                    TResult ret = T3D_ERR_THREAD_NOT_CREATED;
+                    TResult ret;
         
-                    Runnable *runnable = static_cast<Runnable *>(lpParameter);
+                    Win32Thread *thread = static_cast<Win32Thread *>(lpParameter);
 
-                    if (runnable->init())
+                    // 加入线程管理器里
+                    T3D_THREAD_MGR.addThread(thread->getID(), thread->mRunnableThread);
+                    
+                    if (thread->mRunnable->init())
                     {
-                        ret = runnable->run();
-                        runnable->exit();
+                        ret = thread->mRunnable->run();
+                        thread->mRunnable->exit();
+                    }
+                    else
+                    {
+                        ret = T3D_ERR_THREAD_INIT;
                     }
 
                     return ret;
