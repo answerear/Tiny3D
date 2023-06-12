@@ -21,6 +21,7 @@
 #define __T3D_SYNC_OBJECT_H__
 
 
+#include "T3DCommonErrorDef.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DNoncopyable.h"
@@ -212,20 +213,29 @@ namespace Tiny3D
         ScopeLock(ISyncObject *syncObj)
             : mSyncObject(syncObj)
         {
-            if (mSyncObject != nullptr)
-            {
-                mSyncObject->lock();
-            }
+            T3D_ASSERT(mSyncObject != nullptr, "Sync object must be nullptr !");
+            mSyncObject->lock();
         }
         
         ~ScopeLock()
         {
-            if (mSyncObject != nullptr)
-            {
-                mSyncObject->unlock();
-            }
+            unlock();
         }
 
+        TResult unlock()
+        {
+            TResult ret = T3D_OK;
+            if (mSyncObject != nullptr)
+            {
+                ret = mSyncObject->unlock();
+                if (ret == T3D_OK)
+                {
+                    mSyncObject = nullptr;
+                }
+            }
+            return ret;
+        }
+        
     private:
         ISyncObject *mSyncObject = nullptr;
     };
