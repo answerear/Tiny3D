@@ -103,6 +103,9 @@ namespace Tiny3D
         TResult tryLock(uint32_t timeout) override;
 
         TResult unlock() override;
+
+    protected:
+        HANDLE  mSemaphore = nullptr;
     };
 
     //--------------------------------------------------------------------------

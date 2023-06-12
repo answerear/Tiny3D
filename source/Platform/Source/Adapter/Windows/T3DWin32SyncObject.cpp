@@ -126,8 +126,15 @@ namespace  Tiny3D
     TResult Win32Mutex::tryLock(uint32_t timeout)
     {
         TResult ret = T3D_ERR_TIMEOUT;
+
+        DWORD t = timeout;
         
-        if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+        if (timeout == (uint32_t)-1)
+        {
+            t = INFINITE;
+        }
+        
+        if (WaitForSingleObject(mMutex, t) == WAIT_OBJECT_0)
         {
             ret = T3D_OK;
         }
@@ -190,14 +197,24 @@ namespace  Tiny3D
         {
             mCount++;
         }
-        else if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
-        {
-            mOwner = threadId;
-            mCount = 1;
-        }
         else
         {
-            ret = T3D_ERR_TIMEOUT;
+            DWORD t = timeout;
+            if (timeout == (uint32_t)-1)
+            {
+                t = INFINITE;
+            }
+
+            if (WaitForSingleObject(mMutex, t) == WAIT_OBJECT_0)
+            {
+                mOwner = threadId;
+                mCount = 1;
+                ret = T3D_OK;
+            }
+            else
+            {
+                ret = T3D_ERR_TIMEOUT;
+            }
         }
         
         return ret;
@@ -227,20 +244,24 @@ namespace  Tiny3D
 
     Win32Semaphore::Win32Semaphore()
     {
-        
+        mSemaphore = ::CreateSemaphore(NULL, 1, MAXLONG, NULL);
     }
     
     //--------------------------------------------------------------------------
 
     Win32Semaphore::~Win32Semaphore()
     {
-        
+        if (mSemaphore != nullptr)
+        {
+            ::CloseHandle(mSemaphore);
+        }
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Semaphore::lock()
     {
+        ::WaitForSingleObject(mSemaphore, INFINITE);
         return T3D_OK;
     }
     
@@ -248,13 +269,27 @@ namespace  Tiny3D
 
     TResult Win32Semaphore::tryLock(uint32_t timeout)
     {
-        return T3D_OK;
+        TResult ret = T3D_ERR_TIMEOUT;
+
+        DWORD t = timeout;
+        if (timeout == (uint32_t)-1)
+        {
+            t = INFINITE;
+        }
+
+        if (WaitForSingleObject(mSemaphore, t) == WAIT_OBJECT_0)
+        {
+            ret = T3D_OK;
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Semaphore::unlock()
     {
+        ReleaseSemaphore(mSemaphore, 1, NULL);
         return T3D_OK;
     }
 
