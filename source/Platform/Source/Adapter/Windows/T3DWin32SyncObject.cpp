@@ -99,20 +99,25 @@ namespace  Tiny3D
 
     Win32Mutex::Win32Mutex()
     {
-        
+        mMutex = ::CreateMutex(nullptr, false, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
     Win32Mutex::~Win32Mutex()
     {
-        
+        if (mMutex != nullptr)
+        {
+            ::CloseHandle(mMutex);
+            mMutex = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Mutex::lock()
     {
+        ::WaitForSingleObject(mMutex, INFINITE);
         return T3D_OK;
     }
     
@@ -120,13 +125,21 @@ namespace  Tiny3D
 
     TResult Win32Mutex::tryLock(uint32_t timeout)
     {
-        return T3D_OK;
+        TResult ret = T3D_ERR_TIMEOUT;
+        
+        if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+        {
+            ret = T3D_OK;
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Mutex::unlock()
     {
+        ::ReleaseMutex(mMutex);
         return T3D_OK;
     }
 
@@ -134,20 +147,35 @@ namespace  Tiny3D
 
     Win32RecursiveMutex::Win32RecursiveMutex()
     {
-        
+        mMutex = ::CreateMutex(nullptr, false, nullptr);
     }
     
     //--------------------------------------------------------------------------
 
     Win32RecursiveMutex::~Win32RecursiveMutex()
     {
-        
+        if (mMutex != nullptr)
+        {
+            ::CloseHandle(mMutex);
+            mMutex = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32RecursiveMutex::lock()
     {
+        DWORD threadId = GetCurrentThreadId();
+        if (mOwner == threadId)
+        {
+            mCount++;
+        }
+        else
+        {
+            WaitForSingleObject(mMutex, INFINITE);
+            mOwner = threadId;
+            mCount = 1;
+        }
         return T3D_OK;
     }
     
@@ -155,13 +183,43 @@ namespace  Tiny3D
 
     TResult Win32RecursiveMutex::tryLock(uint32_t timeout)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+        DWORD threadId = GetCurrentThreadId();
+        
+        if (mOwner == threadId)
+        {
+            mCount++;
+        }
+        else if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+        {
+            mOwner = threadId;
+            mCount = 1;
+        }
+        else
+        {
+            ret = T3D_ERR_TIMEOUT;
+        }
+        
+        return ret;
     }
     
     //--------------------------------------------------------------------------
 
     TResult Win32RecursiveMutex::unlock()
     {
+        if (mOwner != GetCurrentThreadId())
+        {
+            return T3D_ERR_FAIL;
+        }
+        
+        mCount--;
+        
+        if (mCount == 0)
+        {
+            mOwner = 0;
+            ReleaseMutex(mMutex);
+        }
+        
         return T3D_OK;
     }
 

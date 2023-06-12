@@ -63,6 +63,9 @@ namespace Tiny3D
         TResult tryLock(uint32_t timeout) override;
 
         TResult unlock() override;
+
+    protected:
+        HANDLE  mMutex = nullptr;
     };
 
     //--------------------------------------------------------------------------
@@ -79,6 +82,11 @@ namespace Tiny3D
         TResult tryLock(uint32_t timeout) override;
 
         TResult unlock() override;
+
+    protected:
+        HANDLE  mMutex = nullptr;
+        DWORD   mOwner = 0;
+        int32_t mCount = 0;
     };
 
     //--------------------------------------------------------------------------
