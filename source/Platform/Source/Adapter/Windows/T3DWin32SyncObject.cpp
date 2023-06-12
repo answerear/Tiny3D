@@ -244,7 +244,7 @@ namespace  Tiny3D
 
     Win32Semaphore::Win32Semaphore()
     {
-        mSemaphore = ::CreateSemaphore(NULL, 1, MAXLONG, NULL);
+        mSemaphore = ::CreateSemaphore(nullptr, 1, MAXLONG, nullptr);
     }
     
     //--------------------------------------------------------------------------
@@ -289,7 +289,7 @@ namespace  Tiny3D
 
     TResult Win32Semaphore::unlock()
     {
-        ReleaseSemaphore(mSemaphore, 1, NULL);
+        ReleaseSemaphore(mSemaphore, 1, nullptr);
         return T3D_OK;
     }
 
@@ -297,20 +297,37 @@ namespace  Tiny3D
 
     Win32Event::Win32Event()
     {
-        
+        mEvent = CreateEvent(nullptr, false, false, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
     Win32Event::~Win32Event()
     {
-        
+        if (mEvent != nullptr)
+        {
+            ::CloseHandle(mEvent);
+            mEvent = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Event::wait(ICriticalSection *cs, uint32_t timeout)
     {
+        TResult ret = T3D_ERR_TIMEOUT;
+
+        DWORD t = timeout;
+        if (timeout == (uint32_t)-1)
+        {
+            t = INFINITE;
+        }
+
+        if (WaitForSingleObject(mEvent, t) == WAIT_OBJECT_0)
+        {
+            ret = T3D_OK;
+        }
+        
         return T3D_OK;
     }
 
@@ -318,6 +335,7 @@ namespace  Tiny3D
 
     TResult Win32Event::trigger()
     {
+        ::SetEvent(mEvent);
         return T3D_OK;
     }
 
@@ -325,6 +343,7 @@ namespace  Tiny3D
 
     TResult Win32Event::reset()
     {
+        ::ResetEvent(mEvent);
         return T3D_OK;
     }
 

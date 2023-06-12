@@ -122,6 +122,9 @@ namespace Tiny3D
         TResult trigger() override;
 
         TResult reset() override;
+
+    protected:
+        HANDLE  mEvent = nullptr;
     };
 
     //--------------------------------------------------------------------------
