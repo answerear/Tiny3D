@@ -23,10 +23,13 @@
 
 #include "T3DNoncopyable.h"
 #include "Adapter/T3DSyncObjectinterface.h"
+#include <windows.h>
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     class Win32CriticalSection : public ICriticalSection, public Noncopyable
     {
     public:
@@ -39,8 +42,15 @@ namespace Tiny3D
         TResult tryLock(uint32_t timeout) override;
 
         TResult unlock() override;
+
+    protected:
+        bool try_lock();
+        
+        CRITICAL_SECTION    mCS;
     };
 
+    //--------------------------------------------------------------------------
+    
     class Win32Mutex : public IMutex, public Noncopyable
     {
     public:
@@ -55,6 +65,8 @@ namespace Tiny3D
         TResult unlock() override;
     };
 
+    //--------------------------------------------------------------------------
+    
     class Win32RecursiveMutex : public IRecursiveMutex, public Noncopyable
     {
     public:
@@ -69,6 +81,8 @@ namespace Tiny3D
         TResult unlock() override;
     };
 
+    //--------------------------------------------------------------------------
+    
     class Win32Semaphore : public ISemaphore, public Noncopyable
     {
     public:
@@ -83,6 +97,8 @@ namespace Tiny3D
         TResult unlock() override;
     };
 
+    //--------------------------------------------------------------------------
+    
     class Win32Event : public IEvent, public Noncopyable
     {
     public:
@@ -97,6 +113,8 @@ namespace Tiny3D
         TResult reset() override;
     };
 
+    //--------------------------------------------------------------------------
+    
     class Win32WaitCondition : public IWaitCondition, public Noncopyable
     {
     public:

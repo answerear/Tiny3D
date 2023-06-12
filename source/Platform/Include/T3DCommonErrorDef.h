@@ -43,6 +43,7 @@ namespace Tiny3D
         T3D_ERR_INVALID_ID          = 0x0000000A,   /**< 无效ID */
         T3D_ERR_INVALID_PARAM       = 0x0000000B,   /**< 错误参数 */
         T3D_ERR_INVALID_SIZE        = 0x0000000C,   /**< 错误大小 */
+        T3D_ERR_TIMEOUT             = 0x0000000D,   /**< 超时 */
     };
 
     #define T3D_FAILED(ret)         (ret != T3D_OK)

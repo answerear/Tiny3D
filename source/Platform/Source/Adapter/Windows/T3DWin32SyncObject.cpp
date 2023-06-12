@@ -19,8 +19,7 @@
 
 
 #include "Adapter/Windows/T3DWin32SyncObject.h"
-
-#include "T3DCommonErrorDef.h"
+#include "T3DPlatformErrorDef.h"
 
 
 namespace  Tiny3D
@@ -29,34 +28,70 @@ namespace  Tiny3D
 
     Win32CriticalSection::Win32CriticalSection()
     {
-        
+        ::InitializeCriticalSection(&mCS);
     }
 
     //--------------------------------------------------------------------------
 
     Win32CriticalSection::~Win32CriticalSection()
     {
-        
+        ::DeleteCriticalSection(&mCS);
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32CriticalSection::lock()
     {
+        ::EnterCriticalSection(&mCS);
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32CriticalSection::try_lock()
+    {
+        return ::TryEnterCriticalSection(&mCS) != 0;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32CriticalSection::tryLock(uint32_t timeout)
     {
-        return T3D_OK;
+        TResult ret = T3D_ERR_TIMEOUT;
+        
+        if (timeout == (uint32_t)-1)
+        {
+            if (!try_lock())
+            {
+                ret = T3D_ERR_TIMEOUT;
+            }
+        }
+        else
+        {
+            DWORD start = GetTickCount();
+            
+            while (!try_lock())
+            {
+                DWORD elapsed = GetTickCount() - start;
+                
+                if (elapsed >= timeout)
+                {
+                    ret = T3D_ERR_TIMEOUT;
+                    break;
+                }
+
+                ::Sleep(1);
+            }
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32CriticalSection::unlock()
     {
+        ::LeaveCriticalSection(&mCS);
         return T3D_OK;
     }
 
