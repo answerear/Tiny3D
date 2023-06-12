@@ -79,7 +79,7 @@ namespace Tiny3D
 
         static ulong_t getMainThreadID();
 
-        static void sleepCurrentThread(uint32_t msec);
+        static void sleep(uint32_t msec);
 
         static uint32_t getThreadHardwareConcurrency();
         

@@ -31,17 +31,19 @@ namespace Tiny3D
         // Platform 模块错误码从 T3D_ERR_PLATFORM 开始
 
         /// 线程已经创建了
-        T3D_ERR_THREAD_ALREADY_CREATED = T3D_ERR_PLATFORM,
+        T3D_ERR_THREAD_ALREADY_CREATED      = T3D_ERR_PLATFORM,
         /// 创建系统线程失败
-        T3D_ERR_THREAD_CREATED = T3D_ERR_PLATFORM + 1,
+        T3D_ERR_THREAD_CREATED              = T3D_ERR_PLATFORM + 1,
         /// 线程未创建
-        T3D_ERR_THREAD_NOT_CREATED = T3D_ERR_PLATFORM + 2,
+        T3D_ERR_THREAD_NOT_CREATED          = T3D_ERR_PLATFORM + 2,
         /// 线程挂起失败
-        T3D_ERR_THREAD_SUSPEND = T3D_ERR_PLATFORM + 3,
+        T3D_ERR_THREAD_SUSPEND              = T3D_ERR_PLATFORM + 3,
         /// 线程继续失败
-        T3D_ERR_THREAD_RESUME = T3D_ERR_PLATFORM + 4,
+        T3D_ERR_THREAD_RESUME               = T3D_ERR_PLATFORM + 4,
         /// 实现对象没有创建
-        T3D_ERR_IMPLEMENT_NOT_CREATED = T3D_ERR_PLATFORM + 5,
+        T3D_ERR_IMPLEMENT_NOT_CREATED       = T3D_ERR_PLATFORM + 5,
+        /// 原生对象没创建
+        T3D_ERR_NATIVE_OBJECT_NOT_CREATED   = T3D_ERR_PLATFORM + 6,
     };
 };
 

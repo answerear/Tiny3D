@@ -57,7 +57,7 @@ namespace  Tiny3D
 
     TResult Win32CriticalSection::tryLock(uint32_t timeout)
     {
-        TResult ret = T3D_ERR_TIMEOUT;
+        TResult ret = T3D_OK;
         
         if (timeout == (uint32_t)-1)
         {
@@ -117,8 +117,7 @@ namespace  Tiny3D
 
     TResult Win32Mutex::lock()
     {
-        ::WaitForSingleObject(mMutex, INFINITE);
-        return T3D_OK;
+        return tryLock(-1);
     }
     
     //--------------------------------------------------------------------------
@@ -127,11 +126,20 @@ namespace  Tiny3D
     {
         TResult ret = T3D_ERR_TIMEOUT;
         
-        if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+        do
         {
-            ret = T3D_OK;
-        }
-        
+            if (mMutex == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
+
         return ret;
     }
 
@@ -139,8 +147,23 @@ namespace  Tiny3D
 
     TResult Win32Mutex::unlock()
     {
-        ::ReleaseMutex(mMutex);
-        return T3D_OK;
+        TResult ret = T3D_ERR_TIMEOUT;
+
+        do
+        {
+            if (mMutex == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (::ReleaseMutex(mMutex))
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -165,18 +188,7 @@ namespace  Tiny3D
 
     TResult Win32RecursiveMutex::lock()
     {
-        DWORD threadId = GetCurrentThreadId();
-        if (mOwner == threadId)
-        {
-            mCount++;
-        }
-        else
-        {
-            WaitForSingleObject(mMutex, INFINITE);
-            mOwner = threadId;
-            mCount = 1;
-        }
-        return T3D_OK;
+        return tryLock(-1);
     }
     
     //--------------------------------------------------------------------------
@@ -184,25 +196,35 @@ namespace  Tiny3D
     TResult Win32RecursiveMutex::tryLock(uint32_t timeout)
     {
         TResult ret = T3D_OK;
-        DWORD threadId = GetCurrentThreadId();
-        
-        if (mOwner == threadId)
+
+        do
         {
-            mCount++;
-        }
-        else
-        {
-            if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+            if (mMutex == nullptr)
             {
-                mOwner = threadId;
-                mCount = 1;
-                ret = T3D_OK;
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            DWORD threadId = GetCurrentThreadId();
+        
+            if (mOwner == threadId)
+            {
+                mCount++;
             }
             else
             {
-                ret = T3D_ERR_TIMEOUT;
+                if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
+                {
+                    mOwner = threadId;
+                    mCount = 1;
+                    ret = T3D_OK;
+                }
+                else
+                {
+                    ret = T3D_ERR_TIMEOUT;
+                }
             }
-        }
+        } while (false);
         
         return ret;
     }
@@ -211,20 +233,32 @@ namespace  Tiny3D
 
     TResult Win32RecursiveMutex::unlock()
     {
-        if (mOwner != GetCurrentThreadId())
+        TResult ret = T3D_OK;
+
+        do
         {
-            return T3D_ERR_FAIL;
-        }
+            if (mMutex == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (mOwner != GetCurrentThreadId())
+            {
+                ret = T3D_ERR_FAIL;
+                break;
+            }
         
-        mCount--;
+            mCount--;
         
-        if (mCount == 0)
-        {
-            mOwner = 0;
-            ReleaseMutex(mMutex);
-        }
+            if (mCount == 0)
+            {
+                mOwner = 0;
+                ReleaseMutex(mMutex);
+            }
+        } while (false);
         
-        return T3D_OK;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -248,8 +282,7 @@ namespace  Tiny3D
 
     TResult Win32Semaphore::lock()
     {
-        ::WaitForSingleObject(mSemaphore, INFINITE);
-        return T3D_OK;
+        return tryLock(-1);
     }
     
     //--------------------------------------------------------------------------
@@ -258,10 +291,19 @@ namespace  Tiny3D
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
-        if (WaitForSingleObject(mSemaphore, timeout) == WAIT_OBJECT_0)
+        do
         {
-            ret = T3D_OK;
-        }
+            if (mSemaphore == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+
+            if (WaitForSingleObject(mSemaphore, timeout) == WAIT_OBJECT_0)
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
         
         return ret;
     }
@@ -270,8 +312,23 @@ namespace  Tiny3D
 
     TResult Win32Semaphore::unlock()
     {
-        ReleaseSemaphore(mSemaphore, 1, nullptr);
-        return T3D_OK;
+        TResult ret = T3D_ERR_FAIL;
+
+        do
+        {
+            if (mSemaphore == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (ReleaseSemaphore(mSemaphore, 1, nullptr))
+            {
+                ret = T3D_OK;
+            } 
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -298,28 +355,67 @@ namespace  Tiny3D
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
-        if (WaitForSingleObject(mEvent, timeout) == WAIT_OBJECT_0)
+        do
         {
-            ret = T3D_OK;
-        }
+            if (mEvent == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (WaitForSingleObject(mEvent, timeout) == WAIT_OBJECT_0)
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
         
-        return T3D_OK;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Event::trigger()
     {
-        ::SetEvent(mEvent);
-        return T3D_OK;
+        TResult ret = T3D_ERR_FAIL;
+
+        do
+        {
+            if (mEvent == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (::SetEvent(mEvent))
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32Event::reset()
     {
-        ::ResetEvent(mEvent);
-        return T3D_OK;
+        TResult ret = T3D_ERR_FAIL;
+
+        do
+        {
+            if (mEvent == nullptr)
+            {
+                ret = T3D_ERR_NATIVE_OBJECT_NOT_CREATED;
+                break;
+            }
+            
+            if (::ResetEvent(mEvent))
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -342,11 +438,14 @@ namespace  Tiny3D
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
-        Win32CriticalSection *pCS = static_cast<Win32CriticalSection *>(cs);
-        if (SleepConditionVariableCS(&mCV, &pCS->getNativeCS(), timeout))
+        do
         {
-            ret = T3D_OK;
-        }
+            Win32CriticalSection *pCS = static_cast<Win32CriticalSection *>(cs);
+            if (SleepConditionVariableCS(&mCV, &pCS->getNativeCS(), timeout))
+            {
+                ret = T3D_OK;
+            }
+        } while (false);
         
         return ret;
     }

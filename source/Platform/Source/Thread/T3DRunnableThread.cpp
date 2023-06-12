@@ -215,7 +215,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    void RunnableThread::sleepCurrentThread(uint32_t msec)
+    void RunnableThread::sleep(uint32_t msec)
     {
         ThreadSingleton::getInstance().getThreadSingleton()->sleepCurrentThread(msec);
     }
