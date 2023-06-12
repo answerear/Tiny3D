@@ -26,6 +26,7 @@
 #include "Adapter/Windows/T3DWin32DeviceInfo.h"
 #include "Adapter/Windows/T3DWin32Console.h"
 #include "Adapter/Windows/T3DWin32Thread.h"
+#include "Adapter/Windows/T3DWin32SyncObject.h"
 
 
 namespace Tiny3D
@@ -93,6 +94,48 @@ namespace Tiny3D
         return new Win32ThreadSingleton();
     }
 
+    //--------------------------------------------------------------------------
+
+    ICriticalSection *Win32Factory::createPlatformCriticalSection()
+    {
+        return new Win32CriticalSection();
+    }
+
+    //--------------------------------------------------------------------------
+    
+    IMutex *Win32Factory::createPlatformMutex()
+    {
+        return new Win32Mutex();
+    }
+
+    //--------------------------------------------------------------------------
+
+    IRecursiveMutex *Win32Factory::createPlatformRecursiveMutex()
+    {
+        return new Win32RecursiveMutex();
+    }
+
+    //--------------------------------------------------------------------------
+    
+    ISemaphore *Win32Factory::createPlatformSemaphore()
+    {
+        return new Win32Semaphore();
+    }
+
+    //--------------------------------------------------------------------------
+    
+    IEvent *Win32Factory::createPlatformEvent()
+    {
+        return new Win32Event();
+    }
+
+    //--------------------------------------------------------------------------
+    
+    IWaitCondition *Win32Factory::createPlatformWaitCondition()
+    {
+        return new Win32WaitCondition();
+    }
+    
     //--------------------------------------------------------------------------
 
     EPlatform Win32Factory::getPlatform()

@@ -37,6 +37,12 @@ namespace Tiny3D
     class IConsole;
     class IThread;
     class IThreadSingleton;
+    class ICriticalSection;
+    class IMutex;
+    class IRecursiveMutex;
+    class ISemaphore;
+    class IEvent;
+    class IWaitCondition;
 
     enum EPlatform
     {
@@ -111,7 +117,19 @@ namespace Tiny3D
          * \return 返回平台相关的线程单例对象，需要用户调用 delete 释放对象
          */
         virtual IThreadSingleton *createPlatformThreadSingleton() = 0;
-     
+
+        virtual ICriticalSection *createPlatformCriticalSection() = 0;
+
+        virtual IMutex *createPlatformMutex() = 0;
+
+        virtual IRecursiveMutex *createPlatformRecursiveMutex() = 0;
+
+        virtual ISemaphore *createPlatformSemaphore() = 0;
+
+        virtual IEvent *createPlatformEvent() = 0;
+
+        virtual IWaitCondition *createPlatformWaitCondition() = 0;
+
         /**
          * @brief 获取当前平台类型.
          * @return 返回当前平台类型

@@ -40,6 +40,8 @@ namespace Tiny3D
         T3D_ERR_THREAD_SUSPEND = T3D_ERR_PLATFORM + 3,
         /// 线程继续失败
         T3D_ERR_THREAD_RESUME = T3D_ERR_PLATFORM + 4,
+        /// 实现对象没有创建
+        T3D_ERR_IMPLEMENT_NOT_CREATED = T3D_ERR_PLATFORM + 5,
     };
 };
 
