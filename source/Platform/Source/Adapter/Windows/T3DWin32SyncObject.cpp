@@ -126,15 +126,8 @@ namespace  Tiny3D
     TResult Win32Mutex::tryLock(uint32_t timeout)
     {
         TResult ret = T3D_ERR_TIMEOUT;
-
-        DWORD t = timeout;
         
-        if (timeout == (uint32_t)-1)
-        {
-            t = INFINITE;
-        }
-        
-        if (WaitForSingleObject(mMutex, t) == WAIT_OBJECT_0)
+        if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
         {
             ret = T3D_OK;
         }
@@ -199,13 +192,7 @@ namespace  Tiny3D
         }
         else
         {
-            DWORD t = timeout;
-            if (timeout == (uint32_t)-1)
-            {
-                t = INFINITE;
-            }
-
-            if (WaitForSingleObject(mMutex, t) == WAIT_OBJECT_0)
+            if (WaitForSingleObject(mMutex, timeout) == WAIT_OBJECT_0)
             {
                 mOwner = threadId;
                 mCount = 1;
@@ -271,13 +258,7 @@ namespace  Tiny3D
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
-        DWORD t = timeout;
-        if (timeout == (uint32_t)-1)
-        {
-            t = INFINITE;
-        }
-
-        if (WaitForSingleObject(mSemaphore, t) == WAIT_OBJECT_0)
+        if (WaitForSingleObject(mSemaphore, timeout) == WAIT_OBJECT_0)
         {
             ret = T3D_OK;
         }
@@ -317,13 +298,7 @@ namespace  Tiny3D
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
-        DWORD t = timeout;
-        if (timeout == (uint32_t)-1)
-        {
-            t = INFINITE;
-        }
-
-        if (WaitForSingleObject(mEvent, t) == WAIT_OBJECT_0)
+        if (WaitForSingleObject(mEvent, timeout) == WAIT_OBJECT_0)
         {
             ret = T3D_OK;
         }
@@ -351,7 +326,7 @@ namespace  Tiny3D
 
     Win32WaitCondition::Win32WaitCondition()
     {
-        
+        InitializeConditionVariable(&mCV);
     }
 
     //--------------------------------------------------------------------------
@@ -365,13 +340,22 @@ namespace  Tiny3D
 
     TResult Win32WaitCondition::wait(ICriticalSection *cs, uint32_t timeout)
     {
-        return T3D_OK;
+        TResult ret = T3D_ERR_TIMEOUT;
+
+        Win32CriticalSection *pCS = static_cast<Win32CriticalSection *>(cs);
+        if (SleepConditionVariableCS(&mCV, &pCS->getNativeCS(), timeout))
+        {
+            ret = T3D_OK;
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Win32WaitCondition::wakeOne()
     {
+        WakeConditionVariable(&mCV);
         return T3D_OK;
     }
 
@@ -379,6 +363,7 @@ namespace  Tiny3D
 
     TResult Win32WaitCondition::wakeAll()
     {
+        WakeAllConditionVariable(&mCV);
         return T3D_OK;
     }
 

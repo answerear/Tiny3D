@@ -43,6 +43,8 @@ namespace Tiny3D
 
         TResult unlock() override;
 
+        CRITICAL_SECTION &getNativeCS() { return mCS; }
+        
     protected:
         bool try_lock();
         
@@ -141,6 +143,9 @@ namespace Tiny3D
         TResult wakeOne() override;
 
         TResult wakeAll() override;
+
+    protected:
+        CONDITION_VARIABLE mCV {nullptr };
     };
 }
 
