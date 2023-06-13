@@ -42,7 +42,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Thread::start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize)
+    TResult Win32Thread::start(ThreadRoutine routine, void *parameter, uint32_t stackSize)
     {
         TResult ret = T3D_OK;
 
@@ -54,37 +54,21 @@ namespace Tiny3D
                 break; 
             }
 
-            if (runnableThread == nullptr || runnable == nullptr)
+            if (routine == nullptr || parameter == nullptr)
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
             
-            mRunnableThread = runnableThread;
-            mRunnable = runnable;
+            mThreadRoutine = std::move(routine);
+            mParameter = parameter;
             mThread = ::CreateThread(
                 nullptr,
                 stackSize,
                 [](void *lpParameter) -> DWORD
                 {
-                    TResult ret;
-        
                     Win32Thread *thread = static_cast<Win32Thread *>(lpParameter);
-
-                    // 加入线程管理器里
-                    T3D_THREAD_MGR.addThread(thread->getID(), thread->mRunnableThread);
-                    
-                    if (thread->mRunnable->init())
-                    {
-                        ret = thread->mRunnable->run();
-                        thread->mRunnable->exit();
-                    }
-                    else
-                    {
-                        ret = T3D_ERR_THREAD_INIT;
-                    }
-
-                    return ret;
+                    return thread->mThreadRoutine(thread->mParameter);
                 },
                 this,
                 STACK_SIZE_PARAM_IS_A_RESERVATION | CREATE_SUSPENDED,
@@ -92,7 +76,6 @@ namespace Tiny3D
             if (mThread == nullptr)
             {
                 ret = T3D_ERR_THREAD_CREATED;
-                mRunnable = nullptr;
                 break;
             }
         } while (false);
@@ -150,7 +133,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Thread::terminate(bool wait)
+    TResult Win32Thread::terminate(bool wait, Runnable *runnable)
     {
         TResult ret = T3D_OK;
 
@@ -162,9 +145,9 @@ namespace Tiny3D
                 break;
             }
 
-            if (mRunnable != nullptr)
+            if (runnable != nullptr)
             {
-                mRunnable->stop();
+                runnable->stop();
             }
 
             if (wait)

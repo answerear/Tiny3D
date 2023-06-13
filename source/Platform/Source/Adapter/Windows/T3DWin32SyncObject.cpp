@@ -351,7 +351,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32Event::wait(ICriticalSection *cs, uint32_t timeout)
+    TResult Win32Event::wait(uint32_t timeout)
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
@@ -422,6 +422,7 @@ namespace  Tiny3D
 
     Win32WaitCondition::Win32WaitCondition()
     {
+        InitializeCriticalSection(&mCS);
         InitializeConditionVariable(&mCV);
     }
 
@@ -429,22 +430,23 @@ namespace  Tiny3D
 
     Win32WaitCondition::~Win32WaitCondition()
     {
-        
+        DeleteCriticalSection(&mCS);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Win32WaitCondition::wait(ICriticalSection *cs, uint32_t timeout)
+    TResult Win32WaitCondition::wait(uint32_t timeout)
     {
         TResult ret = T3D_ERR_TIMEOUT;
 
         do
         {
-            Win32CriticalSection *pCS = static_cast<Win32CriticalSection *>(cs);
-            if (SleepConditionVariableCS(&mCV, &pCS->getNativeCS(), timeout))
+            EnterCriticalSection(&mCS);
+            if (SleepConditionVariableCS(&mCV, &mCS, timeout))
             {
                 ret = T3D_OK;
             }
+            LeaveCriticalSection(&mCS);
         } while (false);
         
         return ret;
@@ -454,7 +456,9 @@ namespace  Tiny3D
 
     TResult Win32WaitCondition::wakeOne()
     {
+        EnterCriticalSection(&mCS);
         WakeConditionVariable(&mCV);
+        LeaveCriticalSection(&mCS);
         return T3D_OK;
     }
 
@@ -462,7 +466,9 @@ namespace  Tiny3D
 
     TResult Win32WaitCondition::wakeAll()
     {
+        EnterCriticalSection(&mCS);
         WakeAllConditionVariable(&mCV);
+        LeaveCriticalSection(&mCS);
         return T3D_OK;
     }
 

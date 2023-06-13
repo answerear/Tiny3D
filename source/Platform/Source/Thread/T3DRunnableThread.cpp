@@ -19,11 +19,12 @@
 
 #include "Thread/T3DRunnableThread.h"
 #include "Thread/T3DRunnable.h"
+#include "Thread/T3DSyncObject.h"
+#include "Thread/T3DThreadManager.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DThreadInterface.h"
 #include "T3DPlatform.h"
 #include "T3DPlatformErrorDef.h"
-#include "T3DThreadManager.h"
 
 
 namespace Tiny3D
@@ -78,7 +79,16 @@ namespace Tiny3D
             }
 
             // 启动线程，不过线程默认挂起状态
-            ret = mThread->start(this, runnable, stackSize);
+            ret = mThread->start(
+                [](void *paramter) -> TResult
+                {
+                    RunnableThread *thread = static_cast<RunnableThread *>(paramter);
+                    // 加入线程管理器里
+                    T3D_THREAD_MGR.addThread(thread->getID(), thread);
+                    return thread->run();
+                },
+                this,
+                stackSize);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -93,7 +103,35 @@ namespace Tiny3D
             mThread->setAffinityMask(affinityMask);
             // 因线程启动时候挂起，现在开始执行
             mThread->resume();
+
+            // 保证 Runnable::init() 运行后才继续当前线程执行，先在这里等待
+            mInitSyncEvent.wait(-1);
         } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RunnableThread::run()
+    {
+        TResult ret;
+                    
+        if (mRunnable->init())
+        {
+            // 初始化执行完毕，继续执行 start 线程
+            mInitSyncEvent.trigger();
+            
+            ret = mRunnable->run();
+            mRunnable->exit();
+        }
+        else
+        {
+            // 初始化执行完毕，继续执行 start 线程
+            mInitSyncEvent.trigger();
+            
+            ret = T3D_ERR_THREAD_INIT;
+        }
 
         return ret;
     }
@@ -131,7 +169,7 @@ namespace Tiny3D
             return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
-        return mThread->terminate(wait);
+        return mThread->terminate(wait, mRunnable);
     }
 
     //--------------------------------------------------------------------------

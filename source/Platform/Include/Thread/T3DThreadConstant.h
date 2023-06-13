@@ -27,6 +27,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 线程优先级
+     */
     enum class ThreadPriority : uint32_t
     {
         kIdle = 0,
@@ -40,6 +43,9 @@ namespace Tiny3D
         kMax
     };
 
+    /**
+     * \brief 线程亲缘性 mask
+     */
     enum ThreadAffinityMask : uint64_t
     {
         kNoAffinityMask = 0xFFFFFFFFFFFFFFFF,

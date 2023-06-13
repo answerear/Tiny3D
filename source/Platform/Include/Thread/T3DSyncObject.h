@@ -69,8 +69,6 @@ namespace Tiny3D
 
         TResult unlock() override;
 
-        ICriticalSection *GetNativeHandle() const { return mImpl; }
-
     protected:
         ICriticalSection *mImpl = nullptr;
     };
@@ -169,7 +167,7 @@ namespace Tiny3D
         
         virtual ~Event();
 
-        TResult wait(CriticalSection &cs, uint32_t timeout);
+        TResult wait(uint32_t timeout);
 
         TResult trigger();
 
@@ -195,7 +193,7 @@ namespace Tiny3D
         
         virtual ~WaitCondition();
 
-        TResult wait(CriticalSection &cs, uint32_t timeout);
+        TResult wait(uint32_t timeout);
 
         TResult wakeOne();
 

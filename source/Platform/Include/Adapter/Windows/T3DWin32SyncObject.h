@@ -42,8 +42,6 @@ namespace Tiny3D
         TResult tryLock(uint32_t timeout) override;
 
         TResult unlock() override;
-
-        CRITICAL_SECTION &getNativeCS() { return mCS; }
         
     protected:
         bool try_lock();
@@ -119,7 +117,7 @@ namespace Tiny3D
 
         ~Win32Event() override;
 
-        TResult wait(ICriticalSection *cs, uint32_t timeout) override;
+        TResult wait(uint32_t timeout) override;
 
         TResult trigger() override;
 
@@ -138,14 +136,15 @@ namespace Tiny3D
 
         ~Win32WaitCondition() override;
 
-        TResult wait(ICriticalSection *cs, uint32_t timeout) override;
+        TResult wait(uint32_t timeout) override;
 
         TResult wakeOne() override;
 
         TResult wakeAll() override;
 
     protected:
-        CONDITION_VARIABLE mCV {nullptr };
+        CONDITION_VARIABLE  mCV {nullptr };
+        CRITICAL_SECTION    mCS;
     };
 }
 

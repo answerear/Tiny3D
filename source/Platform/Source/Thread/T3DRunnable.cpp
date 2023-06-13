@@ -26,7 +26,7 @@ namespace Tiny3D
     
     bool Runnable::init()
     {
-        return false;
+        return true;
     }
 
     //--------------------------------------------------------------------------

@@ -364,14 +364,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Event::wait(CriticalSection &cs, uint32_t timeout)
+    TResult Event::wait(uint32_t timeout)
     {
         if (mImpl == nullptr)
         {
             return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
-        return mImpl->wait(cs.GetNativeHandle(), timeout);
+        return mImpl->wait(timeout);
     }
 
     //--------------------------------------------------------------------------
@@ -438,14 +438,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult WaitCondition::wait(CriticalSection &cs, uint32_t timeout)
+    TResult WaitCondition::wait(uint32_t timeout)
     {
         if (mImpl == nullptr)
         {
             return T3D_ERR_IMPLEMENT_NOT_CREATED;
         }
 
-        return mImpl->wait(cs.GetNativeHandle(), timeout);
+        return mImpl->wait(timeout);
     }
 
     //--------------------------------------------------------------------------

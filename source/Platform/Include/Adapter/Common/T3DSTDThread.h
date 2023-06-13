@@ -34,13 +34,13 @@ namespace Tiny3D
 
         ~STDThread() override;
 
-        TResult start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize) override;
+        TResult start(ThreadRoutine routine, void *parameter, uint32_t stackSize) override;
 
         TResult suspend() override;
 
         TResult resume() override;
 
-        TResult terminate(bool wait) override;
+        TResult terminate(bool wait, Runnable *runnable) override;
 
         TResult wait() override;
 

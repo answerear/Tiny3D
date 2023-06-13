@@ -41,7 +41,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult STDThread::start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize)
+    TResult STDThread::start(ThreadRoutine routine, void *parameter, uint32_t stackSize)
     {
         return T3D_OK;
     }
@@ -62,7 +62,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult STDThread::terminate(bool wait)
+    TResult STDThread::terminate(bool wait, Runnable *runnable)
     {
         return T3D_OK;
     }

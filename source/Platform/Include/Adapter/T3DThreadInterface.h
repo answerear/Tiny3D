@@ -30,19 +30,21 @@ namespace Tiny3D
 {
     class Runnable;
     class RunnableThread;
+
+    using ThreadRoutine = TFunction<TResult(void*)>;
     
     class IThread
     {
         T3D_DECLARE_INTERFACE(IThread);
 
     public:
-        virtual TResult start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize) = 0;
+        virtual TResult start(ThreadRoutine routine, void *parameter, uint32_t stackSize) = 0;
 
         virtual TResult suspend() = 0;
 
         virtual TResult resume() = 0;
 
-        virtual TResult terminate(bool wait) = 0;
+        virtual TResult terminate(bool wait, Runnable *runnable) = 0;
 
         virtual TResult wait() = 0;
 
@@ -55,9 +57,6 @@ namespace Tiny3D
         virtual uint64_t getAffinityMask() const = 0;
 
         virtual void setAffinityMask(uint64_t mask) = 0;
-
-    protected:
-        RunnableThread *mRunnableThread = nullptr;
     };
 
     class IThreadSingleton

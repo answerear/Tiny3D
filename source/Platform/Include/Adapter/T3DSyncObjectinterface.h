@@ -135,7 +135,7 @@ namespace Tiny3D
          * \param [in] timeout : 超时时间，-1 表示没有超时 
          * \return 调用失败会返回对应的错误码，调用成功后等待 trigger() 调用才返回 T3D_OK
          */
-        virtual TResult wait(ICriticalSection *cs, uint32_t timeout) = 0;
+        virtual TResult wait(uint32_t timeout) = 0;
 
         /**
          * \brief 触发事件
@@ -164,7 +164,7 @@ namespace Tiny3D
          * \param [in] timeout :  超时时间，-1 表示没有超时 
          * \return 调用失败会返回对应的错误码，调用成功后等待 wakeOne() 或 wakeAll() 调用才返回 T3D_OK
          */
-        virtual TResult wait(ICriticalSection *cs, uint32_t timeout) = 0;
+        virtual TResult wait(uint32_t timeout) = 0;
 
         /**
          * \brief 唤醒一个等待条件变量

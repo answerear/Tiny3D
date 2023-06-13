@@ -35,13 +35,13 @@ namespace Tiny3D
 
         virtual ~Win32Thread() override;
 
-        TResult start(RunnableThread *runnableThread, Runnable *runnable, uint32_t stackSize) override;
+        TResult start(ThreadRoutine routine, void *parameter, uint32_t stackSize) override;
 
         TResult suspend() override;
 
         TResult resume() override;
     
-        TResult terminate(bool wait) override;
+        TResult terminate(bool wait, Runnable *runnable) override;
 
         TResult wait() override;
 
@@ -60,10 +60,11 @@ namespace Tiny3D
 
         int toWin32Priority(ThreadPriority priority) const;
         
-        HANDLE      mThread = nullptr;
-        Runnable    *mRunnable = nullptr;
-        uint64_t    mAffinityMask = 0;
-        DWORD       mThreadID = 0;
+        HANDLE          mThread = nullptr;
+        uint64_t        mAffinityMask = 0;
+        DWORD           mThreadID = 0;
+        ThreadRoutine   mThreadRoutine = nullptr;
+        void            *mParameter = nullptr;
     };
 
     class Win32ThreadSingleton : public IThreadSingleton, public Noncopyable
