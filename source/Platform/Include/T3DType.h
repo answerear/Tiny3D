@@ -136,4 +136,7 @@ using TFunction = std::function<T>;
 template <typename ...Types>
 using TVariant = std::variant<Types...>;
 
+template <typename T>
+using TAtomic = std::atomic<T>;
+
 #endif  /*__T3D_TYPE_H__*/
