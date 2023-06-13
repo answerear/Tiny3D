@@ -35,7 +35,7 @@ if (WIN32)
     add_definitions(-DT3D_OS_DESKTOP)
     add_definitions(-D_HAS_EXCEPTIONS=0)
 
-	add_definitions(/MP)
+	#add_definitions(/MP)
 
     set(TINY3D_OS_WINDOWS TRUE CACHE STRING "Windows")
     set(TINY3D_OS_DESKTOP TRUE CACHE STRING "Desktop")
@@ -49,6 +49,7 @@ if (WIN32)
     set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION 10.0.17763.0)
 
     add_compile_options(/wd4996)
+    add_compile_options(/MP)
 #    set(CMAKE_CXX_FLAGS "-std=c++11")
 elseif (ANDROID)
     # Android
