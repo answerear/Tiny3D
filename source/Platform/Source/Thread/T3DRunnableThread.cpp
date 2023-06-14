@@ -105,7 +105,11 @@ namespace Tiny3D
             mThread->resume();
 
             // 保证 Runnable::init() 运行后才继续当前线程执行，先在这里等待
-            mInitSyncEvent.wait(-1);
+            ret = mInitSyncEvent.wait();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
 
         return ret;

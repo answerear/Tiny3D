@@ -18,7 +18,11 @@
  ******************************************************************************/
 
 #include "Thread/T3DQueuedThread.h"
+#include "T3DPlatform.h"
+#include "T3DQueuedJob.h"
+#include "T3DQueuedJobPool.h"
 #include "Thread/T3DRunnableThread.h"
+
 
 namespace Tiny3D
 {
@@ -42,21 +46,26 @@ namespace Tiny3D
 
         mOwner = pool;
         mThread = new RunnableThread();
-        return T3D_OK;
+        return mThread->start(this, threadName, stackSize, priority);
     }
 
     //--------------------------------------------------------------------------
 
     TResult QueuedThread::killThread()
     {
-        return T3D_OK;
+        mTimeToDie = true;
+        mJobEvent.trigger();
+        TResult ret = mThread->wait();
+        delete mThread;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     void QueuedThread::executeJob(IQueuedJob *job)
     {
-        
+        mQueuedJob = job;
+        mJobEvent.trigger();
     }
 
     //--------------------------------------------------------------------------
@@ -64,6 +73,21 @@ namespace Tiny3D
     
     TResult QueuedThread::run()
     {
+        while (!mTimeToDie.load(std::memory_order_relaxed))
+        {
+            mJobEvent.wait();
+
+            IQueuedJob *job = mQueuedJob;
+            mQueuedJob = nullptr;
+            T3D_PLATFORM.memoryBarrier();
+            T3D_ASSERT(job != nullptr || mTimeToDie.load(std::memory_order_relaxed), "Queued job must not be nullptr or time to die !");
+            while (job != nullptr)
+            {
+                job->doThreadedJob();
+                job = mOwner->returnToPoolAndGetNextJob(this);
+            }
+        }
+        
         return T3D_OK;
     }
 

@@ -32,6 +32,8 @@ namespace Tiny3D
         Win32Factory() = default;
         virtual ~Win32Factory() override = default;
 
+        virtual IPlatform *createPlatform() override;
+
         virtual IApplication *createPlatformApplication() override;
 
         virtual IWindow *createPlatformWindow() override;

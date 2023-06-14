@@ -27,6 +27,7 @@
 
 namespace Tiny3D
 {
+    class IPlatform;
     class IFactory;
     class ThreadSingleton;
 
@@ -56,9 +57,13 @@ namespace Tiny3D
 
         /**
          * @brief 每个程序循环调用处理.
-         * @return void
          */
         void poll();
+
+        /**
+         * \brief 内存屏障
+         */
+        void memoryBarrier();
 
         /**
          * @brief 获取操作系统适配层工厂接口对象
@@ -69,11 +74,12 @@ namespace Tiny3D
         }
 
     private:
-        IFactory        *mPlatformFactory;
-        TimerManager    *mTimerMgr;
-        Console         *mConsole;
-        DeviceInfo      *mDeviceInfo;
-        ThreadSingleton *mThreadSingleton;
+        IFactory        *mPlatformFactory = nullptr;
+        IPlatform       *mPlatform = nullptr;
+        TimerManager    *mTimerMgr = nullptr;
+        Console         *mConsole = nullptr;
+        DeviceInfo      *mDeviceInfo = nullptr;
+        ThreadSingleton *mThreadSingleton = nullptr;
     };
 
     #define T3D_PLATFORM            (Platform::getInstance())

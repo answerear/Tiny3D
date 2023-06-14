@@ -27,10 +27,18 @@
 #include "Adapter/Windows/T3DWin32Console.h"
 #include "Adapter/Windows/T3DWin32Thread.h"
 #include "Adapter/Windows/T3DWin32SyncObject.h"
+#include "Adapter/Windows/T3DWin32Platform.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    IPlatform *Win32Factory::createPlatform()
+    {
+        return new Win32Platform();
+    }
+    
     //--------------------------------------------------------------------------
 
     IApplication *Win32Factory::createPlatformApplication()

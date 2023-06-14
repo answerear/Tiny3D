@@ -47,6 +47,7 @@ namespace Tiny3D
     };
 
     #define T3D_FAILED(ret)         (ret != T3D_OK)
+    #define T3D_SUCCEEDED(ret)      (ret == T3D_OK)
 };
 
 #endif  /*__T3D_COMMON_ERROR_DEF_H__*/

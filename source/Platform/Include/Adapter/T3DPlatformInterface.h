@@ -17,50 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_THREAD_MANAGER_H__
-#define __T3D_THREAD_MANAGER_H__
+#ifndef __T3D_PLATFORM_INTERFACE_H__
+#define __T3D_PLATFORM_INTERFACE_H__
 
 
+#include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
-#include "T3DPlatformPrerequisites.h"
-#include "T3DRunnableThread.h"
-#include "T3DSingleton.h"
-#include "Thread/T3DSyncObject.h"
 
 
 namespace Tiny3D
 {
-    class RunnableThread;
-    
-    class T3D_PLATFORM_API ThreadManager : public Singleton<ThreadManager>
+    class T3D_PLATFORM_API IPlatform
     {
+        T3D_DECLARE_INTERFACE(IPlatform);
+
     public:
-        ThreadManager() = default;
-
-        ~ThreadManager() = default;
-
-        void addThread(ulong_t threadID, RunnableThread *thread);
-
-        void removeThread(RunnableThread *thread);
-
-        size_t numOfThreads() const { return mThreads.size(); }
-
-        void update();
-
-        void foreachThread(TFunction<void(ulong_t,RunnableThread*)> func);
-
-    protected:
-        using Threads = TMap<ulong_t, RunnableThread*>;
-        using ThreadsItr = Threads::iterator;
-        using ThreadsConstItr = Threads::const_iterator;
-        using ThreadsValue = Threads::value_type;
-
-        Threads         mThreads;
-        CriticalSection mThreadsCS;
+        virtual void memoryBarrier() = 0;
     };
-
-    #define T3D_THREAD_MGR  (ThreadManager::getInstance())
 }
 
-#endif  /*__T3D_THREAD_MANAGER_H__*/
+
+#endif  /*__T3D_PLATFORM_INTERFACE_H__*/

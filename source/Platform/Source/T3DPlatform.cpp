@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "T3DPlatform.h"
+#include "Adapter/T3DPlatformInterface.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Time/T3DTimerManager.h"
 #include "IO/T3DDir.h"
@@ -36,12 +37,9 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Platform::Platform()
-        : mPlatformFactory(nullptr)
-        , mConsole(nullptr)
-        , mDeviceInfo(nullptr)
-        , mThreadSingleton(nullptr)
     {
         mPlatformFactory = createPlatformFactory();
+        mPlatform = mPlatformFactory->createPlatform();
         Dir::getNativeSeparator();
         mConsole = new Console();
         mDeviceInfo = new DeviceInfo();
@@ -57,6 +55,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mTimerMgr);
         T3D_SAFE_DELETE(mDeviceInfo);
         T3D_SAFE_DELETE(mConsole);
+        T3D_SAFE_DELETE(mPlatform);
         T3D_SAFE_DELETE(mPlatformFactory);
     }
 
@@ -90,4 +89,13 @@ namespace Tiny3D
     {
         mTimerMgr->pollEvents();
     }
+    
+    //--------------------------------------------------------------------------
+
+    void Platform::memoryBarrier()
+    {
+        mPlatform->memoryBarrier();
+    }
+
+    //--------------------------------------------------------------------------
 }

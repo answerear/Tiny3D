@@ -28,6 +28,7 @@
 
 namespace Tiny3D
 {
+    class IPlatform;
     class IWindow;
     class IApplication;
     class ITime;
@@ -64,6 +65,8 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(IFactory);
 
     public:
+        virtual IPlatform *createPlatform() = 0;
+        
         /**
          * @brief 创建操作系统平台相关的应用程序对象
          * @return 返回平台相关的应用程序对象，需要用户调用delete释放对象

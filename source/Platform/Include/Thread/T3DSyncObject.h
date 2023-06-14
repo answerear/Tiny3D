@@ -167,7 +167,7 @@ namespace Tiny3D
         
         virtual ~Event();
 
-        TResult wait(uint32_t timeout);
+        TResult wait(uint32_t timeout = -1);
 
         TResult trigger();
 
@@ -193,7 +193,7 @@ namespace Tiny3D
         
         virtual ~WaitCondition();
 
-        TResult wait(uint32_t timeout);
+        TResult wait(uint32_t timeout = -1);
 
         TResult wakeOne();
 

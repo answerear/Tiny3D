@@ -90,13 +90,13 @@ namespace Tiny3D
         friend class QueuedThread;
         
     public:
-        QueuedJobPoolDefault();
+        QueuedJobPoolDefault() = default;
 
         ~QueuedJobPoolDefault() override;
 
         TResult create(uint32_t numOfQueuedThreads, uint32_t stackSize, ThreadPriority priority, const String &name) override;
 
-        TResult destroy() override;
+        TResult destroy() final;
 
         TResult addQueuedJob(IQueuedJob *job) override;
 
@@ -107,7 +107,7 @@ namespace Tiny3D
         size_t getNumOfThreads() const override { return mAllThreads.size(); }
 
     protected:
-        IQueuedJob *ReturnToPoolAndGetNextJob(QueuedThread *thread);
+        IQueuedJob *returnToPoolAndGetNextJob(QueuedThread *thread);
         
     protected:
         using QueuedJobs = TList<IQueuedJob*>;
