@@ -32,7 +32,7 @@
 #endif
 
 
-#define T3D_INIT_SINGLETON(T) //template<> T::pointer Singleton<T>::m_pInstance = nullptr;
+// #define T3D_INIT_SINGLETON(T) //template<> T::pointer Singleton<T>::m_pInstance = nullptr;
 
 
 namespace Tiny3D

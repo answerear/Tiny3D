@@ -29,10 +29,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(Application);
-
-    //--------------------------------------------------------------------------
-
     Application::Application()
         : mPlatform(new Platform())
     {

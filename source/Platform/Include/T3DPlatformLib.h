@@ -38,5 +38,13 @@
 #include <IO/T3DDir.h>
 #include <Console/T3DConsole.h>
 #include <Device/T3DDeviceInfo.h>
+#include <Thread/T3DQueuedJob.h>
+#include <Thread/T3DQueuedJobPool.h>
+#include <Thread/T3DQueuedThread.h>
+#include <Thread/T3DRunnable.h>
+#include <Thread/T3DRunnableThread.h>
+#include <Thread/T3DSyncObject.h>
+#include <Thread/T3DThreadConstant.h>
+#include <Thread/T3DThreadManager.h>
 
 #endif  /*__T3D_PLATFORM_LIB_H__*/
