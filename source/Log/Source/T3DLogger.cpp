@@ -19,7 +19,6 @@
 
 #include "T3DLogger.h"
 #include "T3DLogItem.h"
-#include "T3DLogTask.h"
 #include <sstream>
 #include <stdarg.h>
 #include <functional>
@@ -30,88 +29,165 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    // class CheckExpiredFileJob : public IQueuedJob
-    // {
-    // public:
-    //     CheckExpiredFileJob() = default;
-    //     ~CheckExpiredFileJob() override = default;
-    //
-    //     void setLogPath(const String &path)
-    //     {
-    //         mLogPath = path;
-    //     }
-    //
-    //     void setExpired(uint32_t expired)
-    //     {
-    //         mExpired = expired;
-    //     }
-    //     
-    // protected:
-    //     void execute() override
-    //     {
-    //         uint64_t currentTime = DateTime::currentSecsSinceEpoch();
-    //
-    //         Dir dir;
-    //
-    //         String path = mLogPath + Dir::getNativeSeparator() + "*.log";
-    //
-    //         bool working = dir.findFile(path);
-    //         while (working)
-    //         {
-    //             String filename = dir.getFileName();
-    //
-    //             const int32_t oneDay = 24 * 60 * 60;
-    //             const int32_t maxOutdate = mExpired * oneDay;
-    //             time_t lastTime = dir.getLastWriteTime();
-    //             time_t dt = currentTime - lastTime;
-    //             if (dt >= maxOutdate)
-    //             {
-    //                 Dir::remove(dir.getFilePath().c_str());
-    //             }
-    //         
-    //             working = dir.findNextFile();
-    //         }
-    //
-    //         dir.close();
-    //     }
-    //     
-    //     void abandon() override
-    //     {
-    //         delete this;
-    //     }
-    //
-    // protected:
-    //     String      mLogPath;
-    //     uint32_t    mExpired;
-    // };
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // class FlushLogCacheJob : public IQueuedJob
-    // {
-    // public:
-    //     FlushLogCacheJob() = default;
-    //     ~FlushLogCacheJob() override = default;
-    //
-    //     void setFileStream(FileDataStream *fs)
-    //     {
-    //         mFileStream = fs;
-    //     }
-    //     
-    // protected:
-    //     void execute() override
-    //     {
-    //         
-    //     }
-    //
-    //     void abandon() override
-    //     {
-    //         
-    //     }
-    //
-    // protected:
-    //     FileDataStream  *mFileStream;
-    // };
+    class CheckExpiredFileJob : public IQueuedJob
+    {
+    public:
+        CheckExpiredFileJob() = default;
+        ~CheckExpiredFileJob() override = default;
+    
+        void setLogPath(const String &path)
+        {
+            mLogPath = path;
+        }
+    
+        void setExpired(uint32_t expired)
+        {
+            mExpired = expired;
+        }
+        
+    protected:
+        void execute() override
+        {
+            uint64_t currentTime = DateTime::currentSecsSinceEpoch();
+    
+            Dir dir;
+    
+            String path = mLogPath + Dir::getNativeSeparator() + "*.log";
+    
+            bool working = dir.findFile(path);
+            while (working)
+            {
+                String filename = dir.getFileName();
+    
+                const int32_t oneDay = 24 * 60 * 60;
+                const int32_t maxOutdate = mExpired * oneDay;
+                time_t lastTime = dir.getLastWriteTime();
+                time_t dt = currentTime - lastTime;
+                if (dt >= maxOutdate)
+                {
+                    Dir::remove(dir.getFilePath().c_str());
+                }
+            
+                working = dir.findNextFile();
+            }
+    
+            dir.close();
+            delete this;
+        }
+        
+        void abandon() override
+        {
+            delete this;
+        }
+    
+    protected:
+        String      mLogPath;
+        uint32_t    mExpired = 0;
+    };
+    
+    //--------------------------------------------------------------------------
+    
+    class FlushLogCacheJob : public IQueuedJob
+    {
+    public:
+        FlushLogCacheJob(Logger *owner, uint32_t appID, const String &tag, const String &path, FileDataStream &fs)
+            : mOwner(owner)
+            , mAppID(appID)
+            , mTag(tag)
+            , mFileStream(fs)
+            , mLogPath(path)
+        {}
+        
+        ~FlushLogCacheJob() override
+        {
+            closeLogFile();
+        }
+        
+        void setCacheItems(LogItem *item)
+        {
+            mItem = item;
+        }
+        
+    protected:
+        void execute() override
+        {
+            writeLogFile();
+        }
+    
+        void abandon() override
+        {
+            
+        }
+
+        String makeLogFileName(uint32_t appID, const String &tag, const DateTime &dt)
+        {
+            String logPath = mLogPath;
+
+            std::stringstream ss;
+            ss << appID << "_" << tag << "_";
+            ss << dt.dateToString(DateTime::DateFormat::YY_MM_DD);
+            ss << "_" << dt.Hour() << ".log";
+
+            String fullPath = logPath + Dir::getNativeSeparator() + ss.str();
+            return fullPath;
+        }
+
+        bool openLogFile()
+        {
+            /// 先创建日志文件夹
+            String logPath = mLogPath;
+            Dir::makeDir(Dir::getCachePath());
+            Dir::makeDir(logPath);
+
+            DateTime dt = DateTime::currentDateTime();
+            String filename = makeLogFileName(mAppID, mTag, dt);
+            bool ret = mFileStream.open(filename.c_str(),
+                FileDataStream::E_MODE_APPEND | FileDataStream::E_MODE_TEXT);
+            if (ret)
+            {
+                mCurLogFileTime = dt;
+            }
+
+            return ret;
+        }
+
+        void writeLogFile()
+        {
+            LogItem *item = mItem;
+            while (item != nullptr)
+            {
+                if (item->getHour() != mCurLogFileTime.Hour())
+                {
+                    // 跨越到下一个小时，重新写一个新文件
+                    closeLogFile();
+                    openLogFile();
+                }
+
+                item->outputFile(mFileStream);
+                LogItem *next = item->Next;
+                delete item;
+                item = next;
+            }
+        }
+
+        void closeLogFile()
+        {
+            if (mFileStream.isOpened())
+            {
+                mFileStream.flush();
+                mFileStream.close();
+            }
+        }
+        
+    protected:
+        Logger          *mOwner = nullptr;
+        uint32_t        mAppID = 0;
+        const String    &mTag;
+        FileDataStream  &mFileStream;
+        LogItem         *mItem = nullptr;
+        String          mLogPath;
+        DateTime        mCurLogFileTime;
+    };
     
     //--------------------------------------------------------------------------
 
@@ -126,26 +202,19 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Logger::Logger()
-        : mFlushCacheTimerID(T3D_INVALID_TIMER_ID)
-        , mAppID(0)
-        , mTag("tag")
-        , mTaskType(LogTask::E_TYPE_NONE)
-        , mIsForced(false)
-        , mIsRunning(false)
-        , mIsTerminated(false)
-        , mIsSuspended(false)
     {
         mStrategy.eLevel = E_LEVEL_WARNING;
         mStrategy.unExpired = 7;
         mStrategy.unMaxCacheSize = 50;
         mStrategy.unMaxCacheTime = 1000 * 5;
+        mQueuedJobPool = new QueuedJobPoolDefault();
     }
 
     //--------------------------------------------------------------------------
 
     Logger::~Logger()
     {
-
+        T3D_SAFE_DELETE(mQueuedJobPool);
     }
 
     //--------------------------------------------------------------------------
@@ -221,15 +290,14 @@ namespace Tiny3D
 
         if (mStrategy.eLevel != E_LEVEL_OFF || force)
         {
-            /// 不是关闭日志输出，需要先打开日志
-            if (openLogFile())
-            {
-                /// 启动定时器，定时提交写回异步任务
-                stopFlushTimer();
-                startFlushTimer();
-            }
+            /// 启动定时器，定时提交写回异步任务
+            startFlushTimer();
         }
 
+        mQueuedJobPool->create(1);
+
+        mIsRunning = true;
+        
         /// 不管是否要输出日志，都提交一个检查过期日志文件的异步任务
         commitCheckExpiredTask();
 
@@ -263,9 +331,22 @@ namespace Tiny3D
             item->outputConsole();
         }
 
-        mItemCache.push_back(item);
+        if (mFrontItem == nullptr)
+        {
+            mFrontItem = item;
+        }
+        else if (mBackItem != nullptr)
+        {
+            mBackItem->Next = item;
+        }
+        else
+        {
+            T3D_ASSERT(0, "Back item has not be set !");
+        }
+        
+        mBackItem = item;
 
-        if (mItemCache.size() >= mStrategy.unMaxCacheSize)
+        if (++mCacheItemCount >= mStrategy.unMaxCacheSize)
         {
             commitFlushCacheTask();
         }
@@ -274,15 +355,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     void Logger::shutdown()
-    {
+    {        
         /// 停止缓存写回文件间隔定时器
         stopFlushTimer();
 
         /// 把所有缓存都同步写回文件中
-        flushCache();
+        commitFlushCacheTask();
 
-        /// 关闭文件
-        closeLogFile();
+        mQueuedJobPool->destroy();
     }
 
     //--------------------------------------------------------------------------
@@ -293,8 +373,7 @@ namespace Tiny3D
         if (mStrategy.eLevel != E_LEVEL_OFF || mIsForced)
         {
             stopFlushTimer();
-            flushCache();
-            closeLogFile();
+            commitFlushCacheTask();
         }
     }
 
@@ -305,7 +384,6 @@ namespace Tiny3D
         // 重启写日志定时器
         if (mStrategy.eLevel != E_LEVEL_OFF || mIsForced)
         {
-            openLogFile();
             startFlushTimer();
         }
     }
@@ -372,109 +450,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String Logger::makeLogFileName(uint32_t appID, const String &tag,
-        const DateTime &dt)
-    {
-        String logPath = getLogPath();
-
-        std::stringstream ss;
-        ss << appID << "_" << tag << "_";
-        ss << dt.dateToString(DateTime::DateFormat::YY_MM_DD);
-        ss << "_" << dt.Hour() << ".log";
-
-        String fullPath = logPath + Dir::getNativeSeparator() + ss.str();
-        return fullPath;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Logger::openLogFile()
-    {
-        /// 先创建日志文件夹
-        String logPath = getLogPath();
-        Dir::makeDir(Dir::getCachePath());
-        Dir::makeDir(logPath);
-
-        DateTime dt = DateTime::currentDateTime();
-        String filename = makeLogFileName(mAppID, mTag, dt);
-        bool ret = mFileStream.open(filename.c_str(),
-            FileDataStream::E_MODE_APPEND | FileDataStream::E_MODE_TEXT);
-        if (ret)
-        {
-            mCurLogFileTime = dt;
-        }
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::writeLogFile(TArray<LogItem*> &cache)
-    {
-        TArray<LogItem*>::iterator itr = cache.begin();
-
-        while (itr != cache.end() && !mIsTerminated)
-        {
-            LogItem *item = *itr;
-
-            if (item->getHour() != mCurLogFileTime.Hour())
-            {
-                // 跨越到下一个小时，重新写一个新文件
-                closeLogFile();
-                openLogFile();
-            }
-
-            item->outputFile(mFileStream);
-            delete item;
-            ++itr;
-        }
-
-        cache.clear();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::closeLogFile()
-    {
-        if (mFileStream.isOpened())
-        {
-            mFileStream.flush();
-            mFileStream.close();
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::flushCache()
-    {
-        /// 先停止后台工作线程，同步写回所有数据
-        stopAsyncTask();
-
-        /// 设置当前日志级别，直接先关闭，避免再写入日志
-        Level eLevel = mStrategy.eLevel;
-        mStrategy.eLevel = E_LEVEL_OFF;
-
-        TArray<LogItem *> cache(mItemCache.size());
-        TArray<LogItem *>::iterator itr = cache.begin();
-        while (itr != cache.end())
-        {
-            *itr = mItemCache.front();
-            mItemCache.pop_front();
-            ++itr;
-        }
-
-        writeLogFile(cache);
-
-        /// 恢复当前日志级别
-        mStrategy.eLevel = eLevel;
-    }
-
-    //--------------------------------------------------------------------------
-
     void Logger::startFlushTimer()
     {
-        mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(mStrategy.unMaxCacheTime,
-            true, this);
+        mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(mStrategy.unMaxCacheTime, true, this);
     }
 
     //--------------------------------------------------------------------------
@@ -518,218 +496,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-//     int32_t Logger::asyncWorkingProcedure(Logger *pThis)
-//     {
-//         return pThis->workingProcedure();
-//     }
-
-    //--------------------------------------------------------------------------
-
-//     int32_t Logger::workingProcedure()
-    void Logger::workingProcedure()
-    {
-//         int32_t ret = 0;
-
-        while (1)
-        {
-            LogTask *task = nullptr;
-
-            mTaskMutex.lock();
-
-            if (!mTaskQueue.empty())
-            {
-                task = mTaskQueue.front();
-                mTaskQueue.pop_front();
-            }
-
-            mTaskMutex.unlock();
-
-            if (task != nullptr)
-            {
-                switch (task->getType())
-                {
-                case LogTask::E_TYPE_CHECK_EXPIRED:
-                    processCheckExpiredTask(task);
-                    break;
-                case LogTask::E_TYPE_FLUSH_CACHE:
-                    processFlushCacheTask(task);
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            if (mIsTerminated)
-            {
-//                 ret = -1;
-                break;
-            }
-
-            mTaskMutex.lock();
-            bool isTaskEmpty = mTaskQueue.empty();
-            mTaskMutex.unlock();
-
-            if (isTaskEmpty)
-            {
-                suspendAsyncTask();
-            }
-            else
-            {
-                // 挂起10ms
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
-        }
-
-//         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::startAsyncTask()
-    {
-        if (!mWorkingThread.joinable())
-        {
-            /// 启动异步线程
-            mWorkingThread = std::thread(std::bind(&Logger::workingProcedure, this));
-            mIsRunning = true;
-            mIsTerminated = false;
-            mTaskType = LogTask::E_TYPE_NONE;
-        }
-        else
-        {
-            // 异步线程已经启动了
-            if (mIsSuspended)
-            {
-                // 异步线程被挂起，则唤醒
-                wakeAsyncTask();
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::stopAsyncTask()
-    {
-        if (mIsRunning && mWorkingThread.joinable())
-        {
-            mIsTerminated = true;
-
-            if (mIsSuspended)
-            {
-                // 异步任务线程挂起中，直接唤醒
-                wakeAsyncTask();
-            }
-
-            // 没挂起，直接停掉
-            mWorkingThread.join();
-            mIsRunning = false;
-            mIsTerminated = false;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::suspendAsyncTask()
-    {
-        TAutoLock<TMutex> lock(mWaitMutex);
-        mIsSuspended = true;
-        while (mIsSuspended)
-        {
-            mWaitCond.wait(lock);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Logger::wakeAsyncTask()
-    {
-        TAutoLock<TMutex> lock(mWaitMutex);
-        mIsSuspended = false;
-        mWaitCond.notify_all();
-    }
-
-    //--------------------------------------------------------------------------
-
     void Logger::commitCheckExpiredTask()
     {
-        LogTaskCheckExpired *task = new LogTaskCheckExpired(mStrategy.unExpired);
-
-        mTaskMutex.lock();
-        mTaskQueue.push_back(task);
-        mTaskMutex.unlock();
-
-        startAsyncTask();
+        mQueuedJobPool->addQueuedJob(new CheckExpiredFileJob());
     }
 
     //--------------------------------------------------------------------------
 
     void Logger::commitFlushCacheTask()
     {
-        LogTaskFlushCache *task = new LogTaskFlushCache(mItemCache.size());
-        LogTaskFlushCache::ItemCacheItr itr = task->mItemCache.begin();
-
-        while (!mItemCache.empty())
-        {
-            *itr = mItemCache.front();
-            ++itr;
-            mItemCache.pop_front();
-        }
-
-        mTaskMutex.lock();
-        mTaskQueue.push_back(task);
-        mTaskMutex.unlock();
-
-        startAsyncTask();
+        FlushLogCacheJob *job = acquireFlushJob();
+        job->setCacheItems(mFrontItem);
+        mFrontItem = mBackItem = nullptr;
+        mQueuedJobPool->addQueuedJob(job);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Logger::processCheckExpiredTask(LogTask *task)
+    FlushLogCacheJob *Logger::acquireFlushJob()
     {
-        mTaskType = LogTask::E_TYPE_CHECK_EXPIRED;
-        uint64_t currentTime = DateTime::currentSecsSinceEpoch();
-
-        Dir dir;
-        String logPath = getLogPath();
-
-        String path = logPath + Dir::getNativeSeparator() + "*.log";
-
-        bool working = dir.findFile(path);
-        while (working)
+        FlushLogCacheJob *job = nullptr;
+        ScopeLock lock(&mCSFlushJobPool);
+        if (mFlushJobPool.empty())
         {
-            String filename = dir.getFileName();
-
-            const int32_t oneDay = 24 * 60 * 60;
-            const int32_t maxOutdate = mStrategy.unExpired * oneDay;
-            time_t lastTime = dir.getLastWriteTime();
-            time_t dt = currentTime - lastTime;
-            if (dt >= maxOutdate)
-            {
-                Dir::remove(dir.getFilePath().c_str());
-            }
-            
-            working = dir.findNextFile();
+            job = new FlushLogCacheJob(this, mAppID, mTag, getLogPath(), mFileStream);
         }
-
-        dir.close();
-
-        delete task;
-        mTaskType = LogTask::E_TYPE_NONE;
-
-        return T3D_OK;
+        else
+        {
+            job = mFlushJobPool.back();
+            mFlushJobPool.pop_back();
+        }
+        return job;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Logger::processFlushCacheTask(LogTask *task)
+    void Logger::releaseFlushJob(FlushLogCacheJob *job)
     {
-        mTaskType = LogTask::E_TYPE_FLUSH_CACHE;
-
-        writeLogFile(((LogTaskFlushCache *)task)->mItemCache);
-
-        delete task;
-        mTaskType = LogTask::E_TYPE_NONE;
-
-        return T3D_OK;
+        ScopeLock lock(&mCSFlushJobPool);
+        mFlushJobPool.push_back(job);
     }
+
+    //--------------------------------------------------------------------------
 }

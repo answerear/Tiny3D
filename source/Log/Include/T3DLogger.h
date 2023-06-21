@@ -27,16 +27,14 @@
 namespace Tiny3D
 {
     class LogItem;
-    class LogTask;
-
-    using ItemCache = TList<LogItem*>;
-    using ItemCacheItr = ItemCache::iterator;
-    using ItemCacheConstItr = ItemCache::const_iterator;
+    class FlushLogCacheJob;
     
     class T3D_LOG_API Logger 
         : public Singleton<Logger>
         , public ITimerListener
     {
+        friend class FlushLogCacheJob;
+        
     public:
         enum Level
         {
@@ -160,18 +158,9 @@ namespace Tiny3D
         /// 获取日志文件存放路径
         String getLogPath() const;
 
-        /// 构造日志文件名
-        String makeLogFileName(ID appID, const String &tag, const DateTime &dt);
+        FlushLogCacheJob *acquireFlushJob();
 
-        /// 打开日志文件
-        bool openLogFile();
-        /// 根据缓存缓冲区索引写文件
-        void writeLogFile(std::vector<LogItem*> &cache);
-        /// 关闭日志文件
-        void closeLogFile();
-
-        /// 把所有缓存都写回文件
-        void flushCache();
+        void releaseFlushJob(FlushLogCacheJob *job);
 
         /// 启动写回缓存时间间隔定时器
         void startFlushTimer();
@@ -183,62 +172,35 @@ namespace Tiny3D
 
         String getFileName(const String &path) const;
 
-        /// 异步线程调用的工作过程
-        //static int32_t asyncWorkingProcedure(Logger *pThis);
-        void workingProcedure();
-
-        /// 启动异步任务，如果异步线程不存在则创建，如果线程被挂起，则唤醒
-        void startAsyncTask();
-        /// 停止异步任务
-        void stopAsyncTask();
-        /// 挂起异步任务线程
-        void suspendAsyncTask();
-        /// 唤醒异步任务线程
-        void wakeAsyncTask();
-
         /// 提交检查过期日志异步任务
         void commitCheckExpiredTask();
         /// 提交把缓存写回文件异步任务
         void commitFlushCacheTask();
 
-        /// 处理检查过期日志异步任务
-        TResult processCheckExpiredTask(LogTask *task);
-        /// 处理把缓存写回文件异步任务
-        TResult processFlushCacheTask(LogTask *task);
-
     private:
-        typedef TList<LogTask*>             TaskQueue;
-        typedef TaskQueue::iterator         TaskQueueItr;
-        typedef TaskQueue::const_iterator   TaskQueueConstItr;
+        using FlushJobsObjectPool = TList<FlushLogCacheJob*>;
 
-        ID                  mFlushCacheTimerID; /// 写回定时器ID
+        CriticalSection     mCSFlushJobPool;
+        FlushJobsObjectPool mFlushJobPool;
+        
+        QueuedJobPool       *mQueuedJobPool = nullptr;
+        
+        LogItem             *mFrontItem = nullptr;  /// 当前输出的日志项队列头 
+        LogItem             *mBackItem = nullptr;   /// 当前输出的日志队列尾，方便新生成的日志项插入到末尾
 
-        ID                  mAppID;             /// 应用程序标识
-        String              mTag;               /// 应用程序额外信息标签
+        uint32_t            mCacheItemCount = 0;    /// 当前缓存日志条数
+        ID                  mFlushCacheTimerID = T3D_INVALID_TIMER_ID; /// 写回定时器ID
+
+        ID                  mAppID = 0;         /// 应用程序标识
+        String              mTag = "tag";       /// 应用程序额外信息标签
 
         Strategy            mStrategy;          /// 日志输出相关策略
 
-        DateTime            mCurLogFileTime;    /// 当前日志文件的时间，用于跨小时切换日志文件
-
-        ItemCache           mItemCache;         /// 缓存日志记录，到达一定数量或者时间时提交异步写回处理
-        TaskQueue           mTaskQueue;         /// 异步任务队列
-
         FileDataStream      mFileStream;        /// 文件输出对象
 
-        TThread             mWorkingThread;     /// 异步工作线程，用于清除过期日志文件、写入日志文件等异步操作
-
-        TMutex              mWaitMutex;     /// 用于挂起线程互斥量
-        TCondVariable       mWaitCond;      /// 异步线程条件变量
-
-        TMutex              mTaskMutex;         /// 异步任务互斥量
-
-        int32_t             mTaskType;          /// 当前处理任务
-
-        bool                mIsForced;          /// 是否强制输出
-        bool                mIsOutputConsole;   /// 是否同步输出到控制台
-        bool                mIsRunning;         /// 日志系统是否运行中
-        bool                mIsTerminated;      /// 异步线程是否被终止
-        bool                mIsSuspended;       /// 是否被挂起
+        bool                mIsForced = false;          /// 是否强制输出
+        bool                mIsOutputConsole = true;   /// 是否同步输出到控制台
+        bool                mIsRunning = false;
     };
 }
 

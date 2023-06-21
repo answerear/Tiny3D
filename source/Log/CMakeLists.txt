@@ -32,6 +32,7 @@ include_directories(
 
 # Setup header files for this project.
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
+set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)

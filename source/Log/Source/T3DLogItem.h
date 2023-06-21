@@ -82,9 +82,12 @@ namespace Tiny3D
         }
 
     private:
-        uint32_t        mContentSize;
-        int32_t         mHour;
-        char            mContent[2048];
+        uint32_t        mContentSize = 0;
+        int32_t         mHour = 0;
+        char            mContent[2048] = {0};
+
+    public:
+        LogItem         *Next = nullptr;
     };
 }
 
