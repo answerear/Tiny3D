@@ -25,6 +25,7 @@
 #include "Console/T3DConsole.h"
 #include "Device/T3DDeviceInfo.h"
 #include "Thread/T3DRunnableThread.h"
+#include "Thread/T3DThreadManager.h"
 #include "T3DCommonErrorDef.h"
 
 
@@ -37,6 +38,7 @@ namespace Tiny3D
         mPlatformFactory = createPlatformFactory();
         mPlatform = mPlatformFactory->createPlatform();
         Dir::getNativeSeparator();
+        mThreadMgr = new ThreadManager();
         mConsole = new Console();
         mDeviceInfo = new DeviceInfo();
         mTimerMgr = new TimerManager();
@@ -51,6 +53,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mTimerMgr);
         T3D_SAFE_DELETE(mDeviceInfo);
         T3D_SAFE_DELETE(mConsole);
+        T3D_SAFE_DELETE(mThreadMgr);
         T3D_SAFE_DELETE(mPlatform);
         T3D_SAFE_DELETE(mPlatformFactory);
     }

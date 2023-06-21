@@ -253,7 +253,7 @@ namespace Tiny3D
         {
             T3D_ASSERT(mQueuedJobs.empty(), "Queued jobs must be empty when thread pool timeout !");
         }
-        else
+        else if (!mQueuedJobs.empty())
         {
             // 从任务队列里面取出一个执行
             job = mQueuedJobs.front();

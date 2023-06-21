@@ -30,7 +30,8 @@ namespace Tiny3D
     class IPlatform;
     class IFactory;
     class ThreadSingleton;
-
+    class ThreadManager;
+    
     /**
      * @class System
      * @brief 系统类.
@@ -76,6 +77,7 @@ namespace Tiny3D
     private:
         IFactory        *mPlatformFactory = nullptr;
         IPlatform       *mPlatform = nullptr;
+        ThreadManager   *mThreadMgr = nullptr;
         TimerManager    *mTimerMgr = nullptr;
         Console         *mConsole = nullptr;
         DeviceInfo      *mDeviceInfo = nullptr;
