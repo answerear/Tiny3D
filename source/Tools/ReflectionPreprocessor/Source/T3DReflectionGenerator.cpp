@@ -143,16 +143,21 @@ namespace Tiny3D
             if (cxNumDiag != 0)
             {
                 bool hasErrors = false;
-                RP_LOG_ERROR("> Diagnostics:");
+                RP_LOG_INFO("> Diagnostics:");
                 for (uint32_t i = 0; i < cxNumDiag; ++i)
                 {
                     const auto cxDiag = clang_getDiagnostic(cxUnit, i);
-                    RP_LOG_ERROR(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
                     CXDiagnosticSeverity cxSeverity = clang_getDiagnosticSeverity(cxDiag);
                     if (cxSeverity == CXDiagnostic_Error || cxSeverity == CXDiagnostic_Fatal)
                     {
                         hasErrors = true;
+                        RP_LOG_ERROR(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
                     }
+                    else
+                    {
+                        RP_LOG_WARNING(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
+                    }
+                    
                     clang_disposeDiagnostic(cxDiag);
                 }
 
@@ -1088,7 +1093,7 @@ namespace Tiny3D
             {
                 // 父结点不存在
                 ret = T3D_ERR_RP_AST_NO_PARENT;
-                RP_LOG_ERROR("The parent of class %s is null [%s:%u] !",
+                RP_LOG_WARNING("The parent of class %s is null [%s:%u] !",
                     name.c_str(), path.c_str(), start);
                 break;
             }
