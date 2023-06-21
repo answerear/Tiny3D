@@ -50,8 +50,6 @@ namespace Tiny3D
 
         virtual IThread *createPlatformThread() override;
 
-        virtual IThreadSingleton *createPlatformThreadSingleton() override;
-
         virtual ICriticalSection *createPlatformCriticalSection() override;
 
         virtual IMutex *createPlatformMutex() override;

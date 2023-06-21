@@ -74,6 +74,11 @@ namespace Tiny3D
             return (*mPlatformFactory);
         }
 
+        IPlatform *getPlatformImpl()
+        {
+            return mPlatform;
+        }
+
     private:
         IFactory        *mPlatformFactory = nullptr;
         IPlatform       *mPlatform = nullptr;

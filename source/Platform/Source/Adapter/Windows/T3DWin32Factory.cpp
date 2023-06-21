@@ -96,14 +96,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    IThreadSingleton *Win32Factory::createPlatformThreadSingleton()
-    {
-        return new Win32ThreadSingleton();
-    }
-
-    //--------------------------------------------------------------------------
-
+    
     ICriticalSection *Win32Factory::createPlatformCriticalSection()
     {
         return new Win32CriticalSection();

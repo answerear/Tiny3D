@@ -115,12 +115,6 @@ namespace Tiny3D
          */
         virtual IThread *createPlatformThread() = 0;
 
-        /**
-         * \brief 创建操作系统平台相关的线程单例对象，也就是只能调用一次该接口
-         * \return 返回平台相关的线程单例对象，需要用户调用 delete 释放对象
-         */
-        virtual IThreadSingleton *createPlatformThreadSingleton() = 0;
-
         virtual ICriticalSection *createPlatformCriticalSection() = 0;
 
         virtual IMutex *createPlatformMutex() = 0;

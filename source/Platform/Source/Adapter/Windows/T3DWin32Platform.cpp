@@ -23,11 +23,47 @@
 
 namespace Tiny3D
 {
+    
+    //--------------------------------------------------------------------------
+
+    Win32Platform::Win32Platform()
+    {
+        mMainThreadID = ::GetCurrentThreadId();
+    }
+    
     //--------------------------------------------------------------------------
 
     void Win32Platform::memoryBarrier()
     {
         _mm_sfence();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ulong_t Win32Platform::getCurrentThreadID()
+    {
+        return ::GetCurrentThreadId();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ulong_t Win32Platform::getMainThreadID()
+    {
+        return mMainThreadID;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Win32Platform::sleepCurrentThread(uint32_t msec)
+    {
+        ::Sleep(msec);
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    uint32_t Win32Platform::getThreadHardwareConcurrency()
+    {
+        return std::thread::hardware_concurrency();
     }
 
     //--------------------------------------------------------------------------

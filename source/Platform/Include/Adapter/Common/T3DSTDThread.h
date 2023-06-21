@@ -46,20 +46,6 @@ namespace Tiny3D
 
         ulong_t getID() const override;
     };
-
-    class STDThreadSingleton : public IThreadSingleton, public Noncopyable
-    {
-    public:
-        ~STDThreadSingleton() override = default;
-
-        ulong_t getCurrentThreadID() override;
-
-        ulong_t getMainThreadID() override;
-
-        void sleepCurrentThread(uint32_t msec) override;
-
-        uint32_t getThreadHardwareConcurrency() override;
-    };
 }
 
 #endif  /*__T3D_STD_THREAD_H__*/

@@ -42,14 +42,12 @@ namespace Tiny3D
         mConsole = new Console();
         mDeviceInfo = new DeviceInfo();
         mTimerMgr = new TimerManager();
-        mThreadSingleton = new ThreadSingleton();
     }
 
     //--------------------------------------------------------------------------
 
     Platform::~Platform()
     {
-        T3D_SAFE_DELETE(mThreadSingleton);
         T3D_SAFE_DELETE(mTimerMgr);
         T3D_SAFE_DELETE(mDeviceInfo);
         T3D_SAFE_DELETE(mConsole);

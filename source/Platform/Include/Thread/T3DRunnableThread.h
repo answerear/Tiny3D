@@ -31,24 +31,7 @@
 namespace Tiny3D
 {
     class IThread;
-    class IThreadSingleton;
     class Runnable;
-
-    /**
-     * \brief 封装的线程单例类，提供给内部使用
-     */
-    class ThreadSingleton : public Singleton<ThreadSingleton>
-    {
-    public:
-        ThreadSingleton();
-
-        ~ThreadSingleton();
-        
-        IThreadSingleton *getThreadSingleton() { return mThreadSingleton; }
-
-    protected:
-        IThreadSingleton *mThreadSingleton = nullptr;
-    };
 
     /**
      * \brief 可运行线程类

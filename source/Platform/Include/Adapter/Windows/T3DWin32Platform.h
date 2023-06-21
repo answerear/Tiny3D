@@ -31,10 +31,20 @@ namespace Tiny3D
     class Win32Platform : public IPlatform, public Noncopyable
     {
     public:
-        Win32Platform() = default;
+        Win32Platform();
 
     protected:
         void memoryBarrier() override;
+
+        ulong_t getCurrentThreadID() override;
+
+        ulong_t getMainThreadID() override;
+
+        void sleepCurrentThread(uint32_t msec) override;
+
+        uint32_t getThreadHardwareConcurrency() override;
+
+        ulong_t mMainThreadID = 0;
     };
 }
 

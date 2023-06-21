@@ -296,39 +296,4 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    Win32ThreadSingleton::Win32ThreadSingleton()
-    {
-        mMainThreadID = ::GetCurrentThreadId();
-    }
-
-    //--------------------------------------------------------------------------
-
-    ulong_t Win32ThreadSingleton::getCurrentThreadID()
-    {
-        return ::GetCurrentThreadId();
-    }
-
-    //--------------------------------------------------------------------------
-
-    ulong_t Win32ThreadSingleton::getMainThreadID()
-    {
-        return mMainThreadID;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Win32ThreadSingleton::sleepCurrentThread(uint32_t msec)
-    {
-        ::Sleep(msec);
-    }
-    
-    //--------------------------------------------------------------------------
-    
-    uint32_t Win32ThreadSingleton::getThreadHardwareConcurrency()
-    {
-        return std::thread::hardware_concurrency();
-    }
-
-    //--------------------------------------------------------------------------
 }

@@ -66,25 +66,6 @@ namespace Tiny3D
         ThreadRoutine   mThreadRoutine = nullptr;
         void            *mParameter = nullptr;
     };
-
-    class Win32ThreadSingleton : public IThreadSingleton, public Noncopyable
-    {
-    public:
-        Win32ThreadSingleton();
-        
-        ~Win32ThreadSingleton() override = default;
-        
-        ulong_t getCurrentThreadID() override;
-
-        ulong_t getMainThreadID() override;
-
-        void sleepCurrentThread(uint32_t msec) override;
-
-        uint32_t getThreadHardwareConcurrency() override;
-
-    protected:
-        ulong_t mMainThreadID = 0;
-    };
 }
 
 #endif  /*__T3D_WIN32_THREAD_H__*/

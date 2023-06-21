@@ -82,32 +82,4 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
-
-    ulong_t STDThreadSingleton::getCurrentThreadID()
-    {
-        return 0;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ulong_t STDThreadSingleton::getMainThreadID()
-    {
-        return 0;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void STDThreadSingleton::sleepCurrentThread(uint32_t msec)
-    {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    uint32_t STDThreadSingleton::getThreadHardwareConcurrency()
-    {
-        return 0;
-    }
-
-    //--------------------------------------------------------------------------
 }

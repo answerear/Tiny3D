@@ -24,6 +24,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "T3DSingleton.h"
 
 
 namespace Tiny3D
@@ -34,6 +35,14 @@ namespace Tiny3D
 
     public:
         virtual void memoryBarrier() = 0;
+
+        virtual ulong_t getCurrentThreadID() = 0;
+
+        virtual ulong_t getMainThreadID() = 0;
+
+        virtual void sleepCurrentThread(uint32_t msec) = 0;
+
+        virtual uint32_t getThreadHardwareConcurrency() = 0;
     };
 }
 

@@ -58,20 +58,6 @@ namespace Tiny3D
 
         virtual void setAffinityMask(uint64_t mask) = 0;
     };
-
-    class IThreadSingleton
-    {
-        T3D_DECLARE_INTERFACE(IThreadSingleton);
-        
-    public:
-        virtual ulong_t getCurrentThreadID() = 0;
-
-        virtual ulong_t getMainThreadID() = 0;
-
-        virtual void sleepCurrentThread(uint32_t msec) = 0;
-
-        virtual uint32_t getThreadHardwareConcurrency() = 0;
-    };
 }
 
 #endif  /*__T3D_THREAD_INTERFACE_H__*/

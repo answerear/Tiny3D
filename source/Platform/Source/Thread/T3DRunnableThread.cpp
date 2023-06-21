@@ -24,25 +24,12 @@
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DThreadInterface.h"
 #include "T3DPlatform.h"
+#include "Adapter/T3DPlatformInterface.h"
 #include "T3DPlatformErrorDef.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    ThreadSingleton::ThreadSingleton()
-    {
-        mThreadSingleton = T3D_PLATFORM_FACTORY.createPlatformThreadSingleton();
-    }
-
-    //--------------------------------------------------------------------------
-
-    ThreadSingleton::~ThreadSingleton()
-    {
-        T3D_SAFE_DELETE(mThreadSingleton);
-    }
-    
     //--------------------------------------------------------------------------
 
     RunnableThread::RunnableThread()
@@ -249,28 +236,28 @@ namespace Tiny3D
 
     ulong_t RunnableThread::getCurrentThreadID()
     {
-        return ThreadSingleton::getInstance().getThreadSingleton()->getCurrentThreadID();
+        return T3D_PLATFORM.getPlatformImpl()->getCurrentThreadID();
     }
     
     //--------------------------------------------------------------------------
 
     ulong_t RunnableThread::getMainThreadID()
     {
-        return ThreadSingleton::getInstance().getThreadSingleton()->getMainThreadID();
+        return T3D_PLATFORM.getPlatformImpl()->getMainThreadID();
     }
     
     //--------------------------------------------------------------------------
 
     void RunnableThread::sleep(uint32_t msec)
     {
-        ThreadSingleton::getInstance().getThreadSingleton()->sleepCurrentThread(msec);
+        T3D_PLATFORM.getPlatformImpl()->sleepCurrentThread(msec);
     }
     
     //--------------------------------------------------------------------------
 
     uint32_t RunnableThread::getThreadHardwareConcurrency()
     {
-        return ThreadSingleton::getInstance().getThreadSingleton()->getThreadHardwareConcurrency();
+        return T3D_PLATFORM.getPlatformImpl()->getThreadHardwareConcurrency();
     }
     
     //--------------------------------------------------------------------------
