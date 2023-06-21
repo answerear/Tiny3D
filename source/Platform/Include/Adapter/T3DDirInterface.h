@@ -117,6 +117,12 @@ namespace Tiny3D
          */
         virtual long_t getLastWriteTime() const = 0;
 
+        virtual long_t getCreationTime(const String &filename) const = 0;
+
+        virtual long_t getLastAccessTime(const String &filename) const = 0;
+
+        virtual long_t getLastWriteTime(const String &filename) const = 0;
+
         /**
          * @brief 创建文件夹.
          * @note 该接口不能创建多级文件夹.

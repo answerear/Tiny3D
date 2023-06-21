@@ -207,6 +207,57 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    long_t Dir::getCreationTime(const String &filename)
+    {
+        if (nullptr == sDir)
+        {
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+        }
+
+        if (sDir != nullptr)
+        {
+            return sDir->getCreationTime(filename);
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    long_t Dir::getLastAccessTime(const String &filename)
+    {
+        if (nullptr == sDir)
+        {
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+        }
+
+        if (sDir != nullptr)
+        {
+            return sDir->getLastAccessTime(filename);
+        }
+
+        return 0;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    long_t Dir::getLastWriteTime(const String &filename)
+    {
+        if (nullptr == sDir)
+        {
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+        }
+
+        if (sDir != nullptr)
+        {
+            return sDir->getLastWriteTime(filename);
+        }
+
+        return 0;
+    }
+    
+    //--------------------------------------------------------------------------
+
     bool Dir::makeDir(const String &strDir)
     {
         if (nullptr == sDir)

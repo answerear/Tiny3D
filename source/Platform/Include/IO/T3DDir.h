@@ -122,6 +122,12 @@ namespace Tiny3D
          */
         long_t getLastWriteTime() const;
 
+        static long_t getCreationTime(const String &filename);
+
+        static long_t getLastAccessTime(const String &filename);
+
+        static long_t getLastWriteTime(const String &filename);
+
         /**
          * @brief 创建文件夹.
          * @note 该接口不能创建多级文件夹.

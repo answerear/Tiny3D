@@ -571,8 +571,67 @@ namespace Tiny3D
         ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
         int result = _stat(szFileName, &buffer);
 #else
-        String strPath = m_strRoot + m_FindFileData.cFileName;
-        int result = _stat(strPath.c_str(), &buffer);
+        int result = _stat(m_FindFileData.cFileName, &buffer);
+#endif
+        if (result == 0)
+        {
+            return buffer.st_mtime;
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t Win32Dir::getCreationTime(const String &filename) const
+    {
+        struct _stat buffer;
+#ifdef UNICODE
+        char szFileName[MAX_PATH] = {0};
+        ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+        int result = _stat(szFileName, &buffer);
+#else
+        int result = _stat(filename.c_str(), &buffer);
+#endif
+        if (result == 0)
+        {
+            return buffer.st_ctime;
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t Win32Dir::getLastAccessTime(const String &filename) const
+    {
+        struct _stat buffer;
+#ifdef UNICODE
+        char szFileName[MAX_PATH] = {0};
+        ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+        int result = _stat(szFileName, &buffer);
+#else
+        int result = _stat(filename.c_str(), &buffer);
+#endif
+        if (result == 0)
+        {
+            return buffer.st_atime;
+        }
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t Win32Dir::getLastWriteTime(const String &filename) const
+    {
+        struct _stat buffer;
+#ifdef UNICODE
+        char szFileName[MAX_PATH] = {0};
+        ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+        int result = _stat(szFileName, &buffer);
+#else
+        int result = _stat(filename.c_str(), &buffer);
 #endif
         if (result == 0)
         {
