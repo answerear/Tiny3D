@@ -116,6 +116,7 @@ namespace Tiny3D
                 ret = T3D_ERR_PLG_LOAD_FAILED;
                 T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s",
                     DYLIB_ERROR());
+                mState = State::kUnloaded;
                 break;
             }
 
