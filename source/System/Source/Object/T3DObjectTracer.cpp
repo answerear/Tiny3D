@@ -24,8 +24,6 @@
 
 namespace Tiny3D
 {
-    T3D_INIT_SINGLETON(ObjectTracer);
-
     ObjectTracer::ObjectTracer(bool enabled /* = false */)
         : mIsEnabled(enabled)
         , mStream(nullptr)

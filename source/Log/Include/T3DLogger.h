@@ -29,6 +29,10 @@ namespace Tiny3D
     class LogItem;
     class LogTask;
 
+    using ItemCache = TList<LogItem*>;
+    using ItemCacheItr = ItemCache::iterator;
+    using ItemCacheConstItr = ItemCache::const_iterator;
+    
     class T3D_LOG_API Logger 
         : public Singleton<Logger>
         , public ITimerListener
@@ -203,10 +207,6 @@ namespace Tiny3D
         TResult processFlushCacheTask(LogTask *task);
 
     private:
-        typedef TList<LogItem*>             ItemCache;
-        typedef ItemCache::iterator         ItemCacheItr;
-        typedef ItemCache::const_iterator   ItemCacheConstItr;
-
         typedef TList<LogTask*>             TaskQueue;
         typedef TaskQueue::iterator         TaskQueueItr;
         typedef TaskQueue::const_iterator   TaskQueueConstItr;

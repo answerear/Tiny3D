@@ -30,8 +30,89 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    // class CheckExpiredFileJob : public IQueuedJob
+    // {
+    // public:
+    //     CheckExpiredFileJob() = default;
+    //     ~CheckExpiredFileJob() override = default;
+    //
+    //     void setLogPath(const String &path)
+    //     {
+    //         mLogPath = path;
+    //     }
+    //
+    //     void setExpired(uint32_t expired)
+    //     {
+    //         mExpired = expired;
+    //     }
+    //     
+    // protected:
+    //     void execute() override
+    //     {
+    //         uint64_t currentTime = DateTime::currentSecsSinceEpoch();
+    //
+    //         Dir dir;
+    //
+    //         String path = mLogPath + Dir::getNativeSeparator() + "*.log";
+    //
+    //         bool working = dir.findFile(path);
+    //         while (working)
+    //         {
+    //             String filename = dir.getFileName();
+    //
+    //             const int32_t oneDay = 24 * 60 * 60;
+    //             const int32_t maxOutdate = mExpired * oneDay;
+    //             time_t lastTime = dir.getLastWriteTime();
+    //             time_t dt = currentTime - lastTime;
+    //             if (dt >= maxOutdate)
+    //             {
+    //                 Dir::remove(dir.getFilePath().c_str());
+    //             }
+    //         
+    //             working = dir.findNextFile();
+    //         }
+    //
+    //         dir.close();
+    //     }
+    //     
+    //     void abandon() override
+    //     {
+    //         delete this;
+    //     }
+    //
+    // protected:
+    //     String      mLogPath;
+    //     uint32_t    mExpired;
+    // };
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // class FlushLogCacheJob : public IQueuedJob
+    // {
+    // public:
+    //     FlushLogCacheJob() = default;
+    //     ~FlushLogCacheJob() override = default;
+    //
+    //     void setFileStream(FileDataStream *fs)
+    //     {
+    //         mFileStream = fs;
+    //     }
+    //     
+    // protected:
+    //     void execute() override
+    //     {
+    //         
+    //     }
+    //
+    //     void abandon() override
+    //     {
+    //         
+    //     }
+    //
+    // protected:
+    //     FileDataStream  *mFileStream;
+    // };
     
-
     //--------------------------------------------------------------------------
 
     const char * const Logger::LEVEL_OFF = "OFF";

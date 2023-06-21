@@ -83,7 +83,7 @@ namespace Tiny3D
             T3D_ASSERT(job != nullptr || mTimeToDie.load(std::memory_order_relaxed), "Queued job must not be nullptr or time to die !");
             while (job != nullptr)
             {
-                job->doThreadedJob();
+                job->execute();
                 job = mOwner->returnToPoolAndGetNextJob(this);
             }
         }

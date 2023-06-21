@@ -29,10 +29,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_INIT_SINGLETON(EventManager);
-
-    //--------------------------------------------------------------------------
-
     const TINSTANCE EventManager::INVALID_INSTANCE = nullptr;
     const TINSTANCE EventManager::BROADCAST_INSTANCE = (const TINSTANCE)-1;
     const TINSTANCE EventManager::MULTICAST_INSTANCE = (const TINSTANCE)1;

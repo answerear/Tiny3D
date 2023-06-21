@@ -39,7 +39,7 @@ namespace Tiny3D
         /**
          * \brief 执行队列化工作
          */
-        virtual void doThreadedJob() = 0;
+        virtual void execute() = 0;
 
         /**
          * \brief 提前放弃执行, 并通知队列里的所有对象清理数据
