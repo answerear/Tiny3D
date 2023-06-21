@@ -215,6 +215,12 @@ namespace Tiny3D
     Logger::~Logger()
     {
         T3D_SAFE_DELETE(mQueuedJobPool);
+
+        while (!mFlushJobPool.empty())
+        {
+            FlushLogCacheJob *job = mFlushJobPool.front();
+            mFlushJobPool.pop_front();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -323,7 +329,7 @@ namespace Tiny3D
         String name = getFileName(filename);
 
         /// 生成一条日志项
-        LogItem *item = new LogItem(level, name.c_str(), line, tag, content);
+        LogItem *item = new LogItem(toLevelString(level), name.c_str(), line, tag, content);
 
         /// 输出到控制台
         if (mIsOutputConsole)

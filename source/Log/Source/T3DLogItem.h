@@ -33,7 +33,7 @@ namespace Tiny3D
         friend class Logger;
 
     public:
-        LogItem(Logger::Level level, const char *filename, int32_t line, 
+        LogItem(const String &level, const char *filename, int32_t line, 
             const char *tag, const char *content)
         {
             DateTime dt = DateTime::currentDateTime();
@@ -59,11 +59,11 @@ namespace Tiny3D
 
     protected:
         uint32_t formatContent(const DateTime &dt, const char *filename, 
-            int32_t line, Logger::Level level, const char *tag, 
+            int32_t line, const String &level, const char *tag, 
             const char *content)
         {
-            std::thread::id threadID = std::this_thread::get_id();
-            String strDateTime = dt.toString();
+            const ulong_t threadID = RunnableThread::getCurrentThreadID();
+            const String strDateTime = dt.toString();
             std::stringstream ss;
             ss << strDateTime
                 << "|" << level 
