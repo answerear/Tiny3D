@@ -35,6 +35,7 @@ namespace Tiny3D
 
         String  SettingsPath;
         String  SourcePath;
+        bool    IsRebuild;
     };
 
     typedef TArray<const char*> ClangArgs;

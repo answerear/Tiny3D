@@ -77,12 +77,23 @@ namespace Tiny3D
                 ret = true;
             }            
         }
-        else if (argc == 3)
+        else if (argc == 4)
         {
             // ReflectionSettings.json
             options.SettingsPath = Dir::formatPath(argv[1]);
             // 源码根目录
             options.SourcePath = Dir::formatPath(argv[2]);
+
+            const char *arg = argv[3];
+            if (arg[0] == '-' && arg[1] == 'r')
+            {
+                options.IsRebuild = true;
+            }
+            else if (arg[0] == '-' && arg[1] == 'b')
+            {
+                options.IsRebuild = false;
+            }
+            
             ret = true;
         }
         else
@@ -114,11 +125,14 @@ namespace Tiny3D
 
     void PreprocessorCommand::printHelp() const
     {
-        printf("Usage: rp <reflection settings directory> <source directory>\n");
+        printf("Usage: rp <reflection settings directory> <source directory> <options>]\n");
         printf("Arguments: \n");
         printf("\t-?                            : Display the help information.\n");
         printf("\treflection settings directory : The directory of 'ReflectionSettings.json' file.\n");
         printf("\tsource directory              : The root directory of source code.\n");
+        printf("\t<options>                     :\n");
+        printf("\t\t-r : Re-generate all reflection source files.");
+        printf("\t\t-b : Check last generated time before generate reflection source files.");
     }
 
     //-------------------------------------------------------------------------

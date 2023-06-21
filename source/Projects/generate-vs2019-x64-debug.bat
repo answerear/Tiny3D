@@ -60,9 +60,9 @@ xcopy compile_commands.json .\Core
 
 
 @rem Generate reflection source by ReflectionPreprocessor.
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Math ..\Math
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Core ..\Core
+..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System -r
+..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Math ..\Math -r
+..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Core ..\Core -r
 
 
 @rem ==================== Generate all projects ===================

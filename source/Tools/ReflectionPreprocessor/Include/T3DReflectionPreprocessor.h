@@ -43,9 +43,9 @@ namespace Tiny3D
 
         TResult collectProjectHeaders(const String &path);
         
-        TResult generateAST(const String &path, const ClangArgs &args);
+        TResult generateAST(const String &path, const ClangArgs &args, const String &generatedPath, bool rebuild);
 
-        TResult generateSource(const String &path);
+        TResult generateSource(const String &path, bool rebuild);
 
     protected:
         static const String kReflectionSettingsFile;

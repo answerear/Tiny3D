@@ -102,16 +102,17 @@ namespace  Tiny3D
                 break;
             }
 
+            String path = opts.SourcePath + Dir::getNativeSeparator() + mGeneratedPath;
+            
             // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
-            ret = generateAST(opts.SourcePath, args);
+            ret = generateAST(opts.SourcePath, args, path, opts.IsRebuild);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
             // 生成源码文件
-            String path = opts.SourcePath + Dir::getNativeSeparator() + mGeneratedPath;
-            ret = generateSource(path);
+            ret = generateSource(path, opts.IsRebuild);
         } while (false);
         
         return ret;
@@ -344,12 +345,12 @@ namespace  Tiny3D
     
     //-------------------------------------------------------------------------
 
-    TResult ReflectionPreprocessor::generateAST(const String& path, const ClangArgs &args)
+    TResult ReflectionPreprocessor::generateAST(const String &path, const ClangArgs &args, const String &generatedPath, bool rebuild)
     {
         TResult ret = T3D_OK;
 
         String searchPath = path + Dir::getNativeSeparator() + "*.*";
-
+        
         Dir dir;
 
         // 分析源码文件，生成 AST
@@ -364,7 +365,7 @@ namespace  Tiny3D
             else if (dir.isDirectory())
             {
                 // directory
-                generateAST(dir.getFilePath(), args);
+                generateAST(dir.getFilePath(), args, generatedPath, rebuild);
             }
             else
             {
@@ -374,7 +375,18 @@ namespace  Tiny3D
                 Dir::parsePath(filePath, fileDir, fileTitle, fileExt);
                 if (fileExt == "cpp" || fileExt == "cxx")
                 {
-                    mGenerator->generateAST(filePath, args);
+                    String generatedFile = generatedPath + Dir::getNativeSeparator() + fileTitle + ".generated.cpp";
+                    long_t srcLastWTime = Dir::getLastWriteTime(filePath);
+                    long_t genLastWTime = Dir::getLastWriteTime(generatedFile);
+                    if (rebuild || genLastWTime < srcLastWTime)
+                    {
+                        // 反射文件文件不存在，或者反射生成文件比源码文件还旧，则重新生成
+                        mGenerator->generateAST(filePath, args);
+                    }
+                    else
+                    {
+                        RP_LOG_INFO(">>> %s updated !", filePath.c_str());
+                    }
                 }
             }
 
@@ -388,11 +400,13 @@ namespace  Tiny3D
 
     //-------------------------------------------------------------------------
 
-    TResult ReflectionPreprocessor::generateSource(const String& path)
+    TResult ReflectionPreprocessor::generateSource(const String& path, bool rebuild)
     {
-        Dir::removeDir(path, true);
-
-        Dir::makeDir(path);
+        if (rebuild)
+        {
+            Dir::removeDir(path, true);
+            Dir::makeDir(path);
+        }
         
         // 输出 AST 到文件，方便 debug
         String dumpPath = path + Dir::getNativeSeparator() + "ast.json";
