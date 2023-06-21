@@ -54,6 +54,7 @@ namespace Tiny3D
 
     RunnableThread::~RunnableThread()
     {
+        terminate(true);
         T3D_THREAD_MGR.removeThread(this);
         T3D_SAFE_DELETE(mThread);
     }
