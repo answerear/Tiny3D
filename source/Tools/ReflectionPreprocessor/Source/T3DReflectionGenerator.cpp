@@ -2747,7 +2747,7 @@ namespace Tiny3D
             //     }
             // }
             
-            if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_WRITE_ONLY))
+            if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE))
             {
                 // 文件打开失败
                 continue;
