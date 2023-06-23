@@ -1081,7 +1081,14 @@ namespace Tiny3D
             SpecifiersItr itrSpec;
             String path;
             uint32_t start, end, column, offset;
-            CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxCursor, classes, path, start, end, column, offset);
+            if (isClass)
+            {
+                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxCursor, classes, path, start, end, column, offset);
+            }
+            else
+            {
+                CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxCursor, structs, path, start, end, column, offset);
+            }
 
             // 获取类名
             CXString cxName = clang_getCursorSpelling(clang_getCanonicalCursor(cxCursor));
