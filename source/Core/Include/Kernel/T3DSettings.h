@@ -27,7 +27,7 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     struct RenderSettings
     {
         TPROPERTY()
@@ -66,7 +66,7 @@ namespace Tiny3D
         TRTTI_ENABLE()
     };
 
-    TCLASS()
+    TSTRUCT()
     struct LogSettings
     {
         TPROPERTY()
@@ -90,7 +90,7 @@ namespace Tiny3D
         TRTTI_ENABLE()
     };
 
-    TCLASS()
+    TSTRUCT()
     struct PluginSettings
     {
         TPROPERTY()
