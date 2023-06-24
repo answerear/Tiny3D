@@ -23,100 +23,121 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DRHIState.h"
 #include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
+    class Viewport;
+    struct BlendState;
+    struct DepthStencilState;
+    struct RasterizerState;
+    struct SamplerState;
+
     /**
-     * @class   Renderer
+     * @enum    TransformState
+     * @brief   设置变换矩阵状态
+     */
+    enum class TransformState : uint32_t
+    {
+        kView = 0,      /**< 视口变换矩阵 */
+        kWorld,         /**< 世界变换矩阵 */
+        kProjection,    /**< 投影变换矩阵 */
+    };
+
+    /**
+     * @enum    PrimitiveType
+     * @brief   渲染图元类型
+     */
+    enum class PrimitiveType : uint32_t
+    {
+        kPointList = 0,     /**< 点列表图元 */
+        kLineList,          /**< 线列表图元 */
+        kLineStrip,         /**< 线带图元 */
+        kTriangleList,      /**< 三角形列表图元 */
+        kTriangleStrip,     /**< 三角形带图元 */
+        kTriangleFan,       /**< 三角形扇形图元 */
+    };
+
+    /**
+     * @enum    ClearFlags
+     * @brief   Values that represent clear flags
+     */
+    enum ClearFlags : uint32_t
+    {
+        kClearStencil = 0,
+        kClearTarget,
+        kClearZBuffer,
+    };
+    
+    /**
+     * @class   RHIContext
      * @brief   渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
      */
     class T3D_ENGINE_API RHIContext : public Object
     {
     public:
         /**
-         * @enum    TransformState
-         * @brief   设置变换矩阵状态
-         */
-        enum class TransformState : uint32_t
-        {
-            VIEW = 0,      /**< 视口变换矩阵 */
-            WORLD,         /**< 世界变换矩阵 */
-            PROJECTION,    /**< 投影变换矩阵 */
-            MAX
-        };
-
-        /**
-         * @enum    PrimitiveType
-         * @brief   渲染图元类型
-         */
-        enum class PrimitiveType : uint32_t
-        {
-            E_PT_POINT_LIST = 0,    /**< 点列表图元 */
-            E_PT_LINE_LIST,         /**< 线列表图元 */
-            E_PT_LINE_STRIP,        /**< 线带图元 */
-            E_PT_TRIANGLE_LIST,     /**< 三角形列表图元 */
-            E_PT_TRIANGLE_STRIP,    /**< 三角形带图元 */
-            E_PT_TRIANGLE_FAN,      /**< 三角形扇形图元 */
-            E_PT_MAX
-        };
-
-        /**
-         * @enum    ClearFlags
-         * @brief   Values that represent clear flags
-         */
-        enum ClearFlags : uint32_t
-        {
-            E_CLEAR_STENCIL = 0,
-            E_CLEAR_TARGET,
-            E_CLEAR_ZBUFFER,
-        };
-
-        /**
-         * @fn  Renderer::Renderer();
          * @brief   构造函数
          */
         RHIContext();
 
         /**
-         * @fn  virtual Renderer::~Renderer();
          * @brief   析构函数
          */
-        virtual ~RHIContext();
+        ~RHIContext() override;
      
-        /**
-         * @fn  virtual TResult Renderer::renderAllTargets();
-         * @brief   渲染一帧
-         * @return  调用成功返回 T3D_OK.
-         */
         virtual TResult renderAllTargets();
      
-        /**
-         * @fn  virtual TResult 
-         *      Renderer::attachRenderTarget(RenderTargetPtr target);
-         * @brief   关联渲染目标到渲染器上
-         * @param [in]  target  : 渲染目标.
-         * @returns 成功返回 T3D_OK.
-         */
         virtual TResult attachRenderTarget(RHIRenderTargetPtr target);
 
-        /**
-         * @fn  virtual TResult Renderer::detachRenderTarget(const String &name);
-         * @brief   从渲染器上分离渲染目标
-         * @param [in]  name    : 渲染目标名称.
-         * @returns 成功返回 T3D_OK.
-         */
         virtual TResult detachRenderTarget(const String &name);
 
-        /**
-         * @fn  RenderTargetPtr Renderer::getRenderTarget(const String &name);
-         * @brief   获取渲染器上绑定的渲染目标
-         * @param [in]  name    : 渲染目标名称.
-         * @returns 成功返回渲染目标对象.
-         */
         RHIRenderTargetPtr getRenderTarget(const String &name);
 
+        virtual TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+
+        virtual TResult setTransform(TransformState state, const Matrix4 &mat);
+
+        TResult setWorldTransform(const Matrix4 &mat);
+        
+        TResult setViewTransform(const Matrix4 &mat);
+
+        TResult setProjectionTransform(const Matrix4 &mat);
+
+        virtual const Matrix4 &getTransform(TransformState state) const;
+
+        virtual Matrix4 makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const = 0;
+
+        virtual Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) = 0;
+
+        virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
+
+        virtual RHIBlendStatePtr createBlendState(const BlendState &state) = 0;
+
+        virtual TResult setBlendState(RHIBlendStatePtr state) = 0;
+
+        virtual RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilState &state) = 0;
+        
+        virtual TResult setDepthStencilState(RHIDepthStencilStatePtr state) = 0;
+
+        virtual RHIRasterizerStatePtr createRasterizerState(const RasterizerState &state) = 0;
+
+        virtual TResult setRasterizerState(RHIRasterizerStatePtr state) = 0;
+
+        virtual RHISamplerStatePtr createSamplerState(const SamplerState &state) = 0;
+        
+        virtual TResult setSamplerState(RHISamplerStatePtr state) = 0;
+
+        virtual TResult setViewport(Viewport *viewport) = 0;
+
+        virtual TResult bindShader() = 0;
+
+        virtual TResult bindTexture() = 0;
+
+        virtual TResult renderObject() = 0;
+        
     protected:
         typedef TMap<String, RHIRenderTargetPtr>    RenderTargetList;
         typedef RenderTargetList::iterator          RenderTargetListItr;

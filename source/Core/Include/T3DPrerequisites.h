@@ -72,9 +72,6 @@ namespace Tiny3D
     class ArchiveManager;
 
     class Settings;
-    
-    class Component;
-    class ComponentCreator;
 
     class Serializer;
     class BinSerializer;
@@ -88,50 +85,7 @@ namespace Tiny3D
     class DylibManager;
     class Serializable;
     class SerializableManager;
-    class Material;
-    class MaterialManager;
-    class Texture;
-    class TextureManager;
-    class Shader;
-    class ShaderManager;
-    class GPUProgram;
-    class GPUProgramManager;
-    class GPUConstBuffer;
-    class GPUConstBufferManager;
-    class Model;
-    class ModelManager;
-
-    class NodeData;
-    class KeyFrameData;
-    class KeyFrameDataT;
-    class KeyFrameDataR;
-    class KeyFrameDataS;
-    class ActionData;
-    class SubMeshData;
-    class VertexData;
-    class MeshData;
-
-    class HardwareBuffer;
-    class HardwareIndexBuffer;
-    class HardwarePixelBuffer;
-    class HardwareVertexBuffer;
-    class HardwareConstantBuffer;
-    class VertexAttribute;
-    class VertexDeclaration;
-
-    class GPUProgramRef;
-    class GPUConstBufferRef;
-
-    class Technique;
-    class Pass;
-    class TextureUnit;
-    class Sampler;
-
-    class VertexArrayObject;
-
-    class HardwareBufferManagerBase;
-    class HardwareBufferManager;
-
+    
     class RHIRenderTarget;
     class RHIRenderWindow;
     
@@ -139,52 +93,10 @@ namespace Tiny3D
 
     class RHIRenderer;
     class RHIContext;
-    
-    class RenderCapabilities;
-    class RenderGroup;
-    class RenderQueue;
-
-    class BlendState;
-    class DepthStencilState;
-    class RasterizerState;
-    class SamplerState;
-
-    class ImageCodecBase;
-    class ImageCodec;
-
-    class Node;
-
-    class Bound;
-    class SphereBound;
-    class AabbBound;
-    class ObbBound;
-    class FrustumBound;
-
-    class SceneManagerBase;
-    class SceneManager;
-    class DefaultSceneMgr;
-
-    class SceneNode;
-
-    class Transform3D;
-    class Bone;
-
-    class Camera;
-    class Light;
-    class SceneModel;
-
-    class Renderable;
-    class Mesh;
-    class SceneTerrain;
-    class Billboard;
-    class Quad;
-    class Cube;
-    class Axis;
-    class Globe;
-
-    class SceneTransform2D;
-    class SceneText2D;
-    class SceneSprite;
+    class RHIBlendState;
+    class RHIDepthStencilState;
+    class RHIRasterizerState;
+    class RHISamplerState;
 }
 
 

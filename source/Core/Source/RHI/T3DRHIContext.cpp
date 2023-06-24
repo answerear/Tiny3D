@@ -35,6 +35,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+    
     RHIContext::~RHIContext()
     {
 
@@ -104,6 +106,30 @@ namespace Tiny3D
         }
 
         return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RHIContext::setTransform(TransformState state, const Matrix4 &mat)
+    {
+        switch (state)
+        {
+        case TransformState::kView:
+            break;
+        case TransformState::kWorld:
+            break;
+        case TransformState::kProjection:
+            break;
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4 &RHIContext::getTransform(TransformState state) const
+    {
+        return Matrix4::IDENTITY;
     }
 
     //--------------------------------------------------------------------------

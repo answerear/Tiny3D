@@ -29,9 +29,6 @@ namespace Tiny3D
 {
     T3D_DECLARE_SMART_PTR(Object);
 
-    T3D_DECLARE_SMART_PTR(Component);
-    T3D_DECLARE_SMART_PTR(ComponentCreator);
-
     T3D_DECLARE_SMART_PTR(Settings);
 
     T3D_DECLARE_SMART_PTR(Meta);
@@ -43,56 +40,11 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(DylibManager);
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
-    T3D_DECLARE_SMART_PTR(Material);
-    T3D_DECLARE_SMART_PTR(MaterialManager);
-    T3D_DECLARE_SMART_PTR(Model);
-    T3D_DECLARE_SMART_PTR(ModelManager);
-    T3D_DECLARE_SMART_PTR(Texture);
-    T3D_DECLARE_SMART_PTR(TextureManager);
-    T3D_DECLARE_SMART_PTR(Shader);
-    T3D_DECLARE_SMART_PTR(ShaderManager);
-    T3D_DECLARE_SMART_PTR(GPUProgram);
-    T3D_DECLARE_SMART_PTR(GPUProgramManager);
-    T3D_DECLARE_SMART_PTR(GPUConstBuffer);
-    T3D_DECLARE_SMART_PTR(GPUConstBufferManager);
-    T3D_DECLARE_SMART_PTR(Model);
-    T3D_DECLARE_SMART_PTR(ModelManager);
-
-    T3D_DECLARE_SMART_PTR(NodeData);
-    T3D_DECLARE_SMART_PTR(KeyFrameData);
-    T3D_DECLARE_SMART_PTR(KeyFrameDataT);
-    T3D_DECLARE_SMART_PTR(KeyFrameDataR);
-    T3D_DECLARE_SMART_PTR(KeyFrameDataS);
-    T3D_DECLARE_SMART_PTR(ActionData);
-    T3D_DECLARE_SMART_PTR(SubMeshData);
-    T3D_DECLARE_SMART_PTR(VertexData);
-    T3D_DECLARE_SMART_PTR(MeshData);
 
     T3D_DECLARE_SMART_PTR(Serializer);
     T3D_DECLARE_SMART_PTR(BinSerializer);
     T3D_DECLARE_SMART_PTR(JsonSerializer);
     T3D_DECLARE_SMART_PTR(SerializerManager);
-
-    T3D_DECLARE_SMART_PTR(HardwareBuffer);
-    T3D_DECLARE_SMART_PTR(HardwareIndexBuffer);
-    T3D_DECLARE_SMART_PTR(HardwarePixelBuffer);
-    T3D_DECLARE_SMART_PTR(HardwareVertexBuffer);
-    T3D_DECLARE_SMART_PTR(HardwareConstantBuffer);
-    T3D_DECLARE_SMART_PTR(VertexAttribute);
-    T3D_DECLARE_SMART_PTR(VertexDeclaration);
-
-    T3D_DECLARE_SMART_PTR(VertexArrayObject);
-
-    T3D_DECLARE_SMART_PTR(GPUProgramRef);
-    T3D_DECLARE_SMART_PTR(GPUConstBufferRef);
-
-    T3D_DECLARE_SMART_PTR(Technique);
-    T3D_DECLARE_SMART_PTR(Pass);
-    T3D_DECLARE_SMART_PTR(TextureUnit);
-    T3D_DECLARE_SMART_PTR(Sampler);
-
-    T3D_DECLARE_SMART_PTR(HardwareBufferManagerBase);
-    T3D_DECLARE_SMART_PTR(HardwareBufferManager);
 
     T3D_DECLARE_SMART_PTR(RHIRenderTarget);
     T3D_DECLARE_SMART_PTR(RHIRenderWindow);
@@ -101,64 +53,15 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(RHIRenderer);
     T3D_DECLARE_SMART_PTR(RHIContext);
-    T3D_DECLARE_SMART_PTR(RenderCapabilities);
-
-    T3D_DECLARE_SMART_PTR(RenderGroup);
-    T3D_DECLARE_SMART_PTR(RenderQueue);
-
-    T3D_DECLARE_SMART_PTR(BlendState);
-    T3D_DECLARE_SMART_PTR(DepthStencilState);
-    T3D_DECLARE_SMART_PTR(RasterizerState);
-    T3D_DECLARE_SMART_PTR(SamplerState);
-
-    T3D_DECLARE_SMART_PTR(ImageCodecBase);
-    T3D_DECLARE_SMART_PTR(ImageCodec);
-
-    T3D_DECLARE_SMART_PTR(Node);
-
-    T3D_DECLARE_SMART_PTR(Bound);
-    T3D_DECLARE_SMART_PTR(SphereBound);
-    T3D_DECLARE_SMART_PTR(AabbBound);
-    T3D_DECLARE_SMART_PTR(ObbBound);
-    T3D_DECLARE_SMART_PTR(FrustumBound);
-
-    T3D_DECLARE_SMART_PTR(SceneManagerBase);
-    T3D_DECLARE_SMART_PTR(SceneManager);
-
-    T3D_DECLARE_SMART_PTR(DefaultSceneMgr);
-
-    T3D_DECLARE_SMART_PTR(SceneNode);
-
-    T3D_DECLARE_SMART_PTR(Transform3D);
-    T3D_DECLARE_SMART_PTR(Bone);
-
-    T3D_DECLARE_SMART_PTR(Camera);
-    T3D_DECLARE_SMART_PTR(Light);
-    T3D_DECLARE_SMART_PTR(SceneModel);
-
-    T3D_DECLARE_SMART_PTR(Renderable);
-    T3D_DECLARE_SMART_PTR(Mesh);
-    T3D_DECLARE_SMART_PTR(SceneTerrain);
-    T3D_DECLARE_SMART_PTR(Billboard);
-    T3D_DECLARE_SMART_PTR(Quad);
-    T3D_DECLARE_SMART_PTR(Cube);
-    T3D_DECLARE_SMART_PTR(Axis);
-    T3D_DECLARE_SMART_PTR(Globe);
-
-    T3D_DECLARE_SMART_PTR(SceneTransform2D);
-    T3D_DECLARE_SMART_PTR(SceneSprite);
-    T3D_DECLARE_SMART_PTR(SceneText2D);
-
-    //typedef VariantMap                      Settings;
+    T3D_DECLARE_SMART_PTR(RHIBlendState);
+    T3D_DECLARE_SMART_PTR(RHIDepthStencilState);
+    T3D_DECLARE_SMART_PTR(RHIRasterizerState);
+    T3D_DECLARE_SMART_PTR(RHISamplerState);
 
     typedef TMap<String, RHIRendererPtr>    RHIRenderers;
     typedef RHIRenderers::iterator          RHIRenderersItr;
     typedef RHIRenderers::const_iterator    RHIRenderersConstItr;
     typedef RHIRenderers::value_type        RHIRenderersValue;
-
-    typedef TList<NodePtr>                  Children;
-    typedef Children::iterator              ChildrenItr;
-    typedef Children::const_iterator        ChildrenConstItr;
 }
 
 

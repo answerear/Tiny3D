@@ -18,27 +18,49 @@
  ******************************************************************************/
 
 
+#include "RHI/T3DRHIState.h"
+
+
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline TResult RHIContext::setViewTransform(const Matrix4 &mat)
+    RHIBlendState::RHIBlendState(const BlendState &state)
+        : mState(state)
     {
-        return setTransform(TransformState::kView, mat);
+        uint32_t dataSize = 0;
+        uint8_t *data = mState.getCRCData(dataSize);
+        mHash = CRC::crc32(data, dataSize);
     }
 
     //--------------------------------------------------------------------------
 
-    inline TResult RHIContext::setWorldTransform(const Matrix4 &mat)
+    RHIDepthStencilState::RHIDepthStencilState(const DepthStencilState &state)
+        : mState(state)
     {
-        return setTransform(TransformState::kProjection, mat);
+        uint32_t dataSize = 0;
+        uint8_t *data = mState.getCRCData(dataSize);
+        mHash = CRC::crc32(data, dataSize);
     }
 
     //--------------------------------------------------------------------------
 
-    inline TResult RHIContext::setProjectionTransform(const Matrix4 &mat)
+    RHIRasterizerState::RHIRasterizerState(const RasterizerState &state)
+        : mState(state)
     {
-        return setTransform(TransformState::kProjection, mat);
+        uint32_t dataSize = 0;
+        uint8_t *data = mState.getCRCData(dataSize);
+        mHash = CRC::crc32(data, dataSize);
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHISamplerState::RHISamplerState(const SamplerState &state)
+        : mState(state)
+    {
+        uint32_t dataSize = 0;
+        uint8_t *data = mState.getCRCData(dataSize);
+        mHash = CRC::crc32(data, dataSize);
     }
 
     //--------------------------------------------------------------------------

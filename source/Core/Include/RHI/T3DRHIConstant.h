@@ -1,0 +1,172 @@
+﻿/*******************************************************************************
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * Copyright (C) 2015-2020  Answer Wong
+ * For latest info, see https://github.com/answerear/Tiny3D
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+
+#ifndef __T3D_RHI_CONSTANT_H__
+#define __T3D_RHI_CONSTANT_H__
+
+
+#include "T3DTypedef.h"
+
+namespace Tiny3D
+{
+    /**
+     * @enum    BlendFactor
+     * @brief   混合因子
+     */
+    TENUM()
+    enum class BlendFactor : uint32_t
+    {
+        kOne = 0,               /// 1.0
+        kZero,                  /// 0.0
+        kDstColor,              /// C_dst
+        kSrcColor,              /// C_src
+        kOneMinusDstColor,      /// 1 - C_dst
+        kOneMinusSrcColor,      /// 1 - C_src
+        kDstAlpha,              /// A_dst
+        kSrcAlpha,              /// A_src
+        kOneMinusDstAlpha,      /// 1 - A_dst
+        kOneMinusSrcAlpha,      /// 1 - A_src
+    };
+
+    /**
+     * @enum    BlendOperation
+     * @brief   混合操作
+     */
+    TENUM()
+    enum class BlendOperation : uint32_t
+    {
+        kAdd,               /// C_result = C_src * F_src + C_dst * F_dst
+        kSubtract,          /// C_result = C_src * F_src - C_dst * F_dst
+        kReverseSubtract,   /// C_result = C_dst * F_dst - C_src * F_src
+        kMin,               /// 
+        kMax
+    };
+
+    /**
+     * \brief 混合颜色写掩码
+     */
+    TENUM()
+    enum BlendColorWriteMask : uint8_t
+    {
+        kWriteMaskNone = 0,
+        kWriteMaskAlpha = 1 << 0,
+        kWriteMaskRed = 1 << 1,
+        kWriteMaskGreen = 1 << 2,
+        kWriteMaskBlue = 1 << 3,
+        kWriteMaskAll = 0x0F
+    };
+
+    /**
+     * @enum    CompareFunction
+     * @brief   比较函数，用于深度缓冲测试和模板缓冲测试
+     */
+    TENUM()
+    enum class CompareFunction : uint32_t
+    {
+        kAlwaysFail = 0,
+        kAlwaysPass,
+        kLess,
+        kLessEqual,
+        kEqual,
+        kNotEqual,
+        kGreaterEqual,
+        kGreater
+    };
+
+    /**
+     * \brief 模板操作
+     */
+    TENUM()
+    enum class StencilOp : uint32_t
+    {
+        kKeep = 0,  /**< 保持现有的模板值 */
+        kZero,      /**< 将模板值置为0 */
+        kReplace,   /**< 将模板值设置为用 HWDepthStencilState::setStencilRef 函数设置的 ref 值*/
+        kInc,       /**< 如果模板值不是最大值就将模板值+1 */
+        kIncWrap,   /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
+        kDec,       /**< 如果模板值不是最小值就将模板值-1 */
+        kDecWrap,   /**< 与 DECR 一样将模板值-1，如果模板值已经是最小值则设为最大值 */
+        kInvert     /**< 把模板值按位取反 */
+    };
+
+    /**
+     * @brief 多边形渲染模式
+     */
+    TENUM()
+    enum class PolygonMode : uint32_t
+    {
+        kNone = 0,
+        /**< 顶点模式 */
+        kPoint,
+        /**< 线框模式 */
+        kWireframe,
+        /**< 着色模式 */
+        kSolid,
+        kMax
+    };
+
+    /**
+     * @enum    CullingMode
+     * @brief   背面剔除模式
+     */
+    TENUM()
+    enum class CullingMode : uint32_t
+    {
+        /**< 不做消隐面剔除 */
+        kNone = 0,
+        /**< 按照顶点顺时针顺序的消隐面剔除 */
+        kClockwise,
+        /**< 按照顶点逆时针顺序的消隐面剔除 */
+        kAnticlockwise,
+        kMax
+    };
+
+    /**
+     * @enum    FilterOptions
+     * @brief   Values that represent filter options
+     */
+    TENUM()
+    enum class FilterOptions : uint32_t
+    {
+        kNone = 0,
+        kPoint,
+        kLinear,
+        kAnisotropic,
+        kMax
+    };
+
+    /**
+     * @enum    TextureAddressMode
+     * @brief   Values that represent texture address modes
+     */
+    TENUM()
+    enum class TextureAddressMode : uint32_t
+    {
+        kNone = 0,
+        kWrap,
+        kMirror,
+        kClamp,
+        kBorder,
+        kMirrorOnce
+    };
+}
+
+
+#endif  /*__T3D_RHI_CONSTANT_H__*/
