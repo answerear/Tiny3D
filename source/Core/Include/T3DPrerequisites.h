@@ -78,6 +78,10 @@ namespace Tiny3D
     class JsonSerializer;
     class SerializerManager;
 
+    class Image;
+    class ImageCodec;
+    class ImageCodecBase;
+
     class Meta;
     class Resource;
     class ResourceManager;
@@ -97,6 +101,15 @@ namespace Tiny3D
     class RHIDepthStencilState;
     class RHIRasterizerState;
     class RHISamplerState;
+    class RHIBuffer;
+    class RHIVertexBuffer;
+    class RHIIndexBuffer;
+    class RHIPixelBuffer;
+    class RHIDataBuffer;
+    class RHIVertexAttribute;
+    class RHIVertexDeclaration;
+    class RHIBufferManager;
+    class RHIBufferManagerBase;
 }
 
 
