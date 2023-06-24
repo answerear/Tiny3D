@@ -18,44 +18,14 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIState.h"
+#include "RHI/T3DRHIDepthStencilState.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIBlendState::RHIBlendState(const BlendState &state)
-        : mState(state)
-    {
-        uint32_t dataSize = 0;
-        uint8_t *data = mState.getCRCData(dataSize);
-        mHash = CRC::crc32(data, dataSize);
-    }
-
-    //--------------------------------------------------------------------------
-
     RHIDepthStencilState::RHIDepthStencilState(const DepthStencilState &state)
-        : mState(state)
-    {
-        uint32_t dataSize = 0;
-        uint8_t *data = mState.getCRCData(dataSize);
-        mHash = CRC::crc32(data, dataSize);
-    }
-
-    //--------------------------------------------------------------------------
-
-    RHIRasterizerState::RHIRasterizerState(const RasterizerState &state)
-        : mState(state)
-    {
-        uint32_t dataSize = 0;
-        uint8_t *data = mState.getCRCData(dataSize);
-        mHash = CRC::crc32(data, dataSize);
-    }
-
-    //--------------------------------------------------------------------------
-
-    RHISamplerState::RHISamplerState(const SamplerState &state)
         : mState(state)
     {
         uint32_t dataSize = 0;
