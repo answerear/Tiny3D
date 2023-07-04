@@ -88,6 +88,10 @@
 #include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>
 #include <RHI/T3DRHIViewport.h>
+#include <RHI/T3DRHIBlendState.h>
+#include <RHI/T3DRHIDepthStencilState.h>
+#include <RHI/T3DRHIRasterizerState.h>
+#include <RHI/T3DRHISamplerState.h>
 // #include <Render/T3DHardwareBufferManagerBase.h>
 // #include <Render/T3DHardwareBufferManager.h>
 // #include <Render/T3DHardwareBuffer.h>
