@@ -17,16 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_UTILS_H__
-#define __T3D_UTILS_H__
+#include "T3DHash.h"
 
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
 
-#include <T3DStringUtil.h>
-#include <T3DStringConverter.h>
-#include <T3DVariant.h>
-#include <T3DMD5.h>
-#include <T3DCRC.h>
-#include <T3DHash.h>
+    uint32_t Hash::hash(const char *str)
+    {
+        uint32_t value = 5381;
 
+        while (*str)
+        {
+            value += (value << 5) + (*str++);
+        }
 
-#endif  /*__T3D_UTILS_H__*/
+        return (value & 0x7FFFFFFF);
+    }
+
+    //--------------------------------------------------------------------------
+}
