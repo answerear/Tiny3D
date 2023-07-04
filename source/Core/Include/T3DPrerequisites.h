@@ -89,6 +89,11 @@ namespace Tiny3D
     class DylibManager;
     class Serializable;
     class SerializableManager;
+    class ShaderConstantData;
+    class ShaderSampler;
+    class Shader;
+    class ShaderVariant;
+    class ShaderManager;
     
     class RHIRenderTarget;
     class RHIRenderWindow;
