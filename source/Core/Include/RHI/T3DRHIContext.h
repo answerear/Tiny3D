@@ -95,8 +95,6 @@ namespace Tiny3D
 
         RHIRenderTargetPtr getRenderTarget(const String &name);
 
-        virtual TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
-
         virtual TResult setTransform(TransformState state, const Matrix4 &mat);
 
         TResult setWorldTransform(const Matrix4 &mat);
@@ -113,27 +111,29 @@ namespace Tiny3D
 
         virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
 
+        virtual TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+
         virtual RHIBlendStatePtr createBlendState(const BlendState &state) = 0;
 
-        virtual TResult setBlendState(RHIBlendStatePtr state) = 0;
-
         virtual RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilState &state) = 0;
-        
-        virtual TResult setDepthStencilState(RHIDepthStencilStatePtr state) = 0;
 
         virtual RHIRasterizerStatePtr createRasterizerState(const RasterizerState &state) = 0;
 
-        virtual TResult setRasterizerState(RHIRasterizerStatePtr state) = 0;
-
         virtual RHISamplerStatePtr createSamplerState(const SamplerState &state) = 0;
+
+        virtual TResult setBlendState(RHIBlendStatePtr state) = 0;
+
+        virtual TResult setDepthStencilState(RHIDepthStencilStatePtr state) = 0;
+
+        virtual TResult setRasterizerState(RHIRasterizerStatePtr state) = 0;
         
         virtual TResult setSamplerState(RHISamplerStatePtr state) = 0;
 
         virtual TResult setViewport(Viewport *viewport) = 0;
 
-        virtual TResult bindShader() = 0;
+        virtual TResult setShader() = 0;
 
-        virtual TResult bindTexture() = 0;
+        virtual TResult setTexture() = 0;
 
         virtual TResult renderObject() = 0;
         

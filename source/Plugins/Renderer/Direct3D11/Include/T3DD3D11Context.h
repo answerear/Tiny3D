@@ -52,8 +52,40 @@ namespace Tiny3D
          * @brief   渲染一帧
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult renderAllTargets() override;
+        TResult renderAllTargets() override;
 
+        Matrix4 makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const override;
+
+        Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) override;
+
+        Matrix4 makeViewportMatrix(Viewport *viewport) override;
+
+        TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) override;
+
+        RHIBlendStatePtr createBlendState(const BlendState &state) override;
+
+        RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilState &state) override;
+
+        RHIRasterizerStatePtr createRasterizerState(const RasterizerState &state) override;
+
+        RHISamplerStatePtr createSamplerState(const SamplerState &state) override;
+
+        TResult setBlendState(RHIBlendStatePtr state) override;
+
+        TResult setDepthStencilState(RHIDepthStencilStatePtr state) override;
+
+        TResult setRasterizerState(RHIRasterizerStatePtr state) override;
+        
+        TResult setSamplerState(RHISamplerStatePtr state) override;
+
+        TResult setViewport(Viewport *viewport) override;
+
+        TResult setShader() override;
+
+        TResult setTexture() override;
+
+        TResult renderObject() override;
+        
     protected:
         /**
          * @fn  D3D11Renderer();

@@ -63,5 +63,87 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    Matrix4 D3D11Context::makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    Matrix4 D3D11Context::makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist)
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    Matrix4 D3D11Context::makeViewportMatrix(Viewport *viewport)
+    {
+        return Matrix4::IDENTITY;
+    }
+
+    TResult D3D11Context::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
+    {
+        return T3D_OK;
+    }
+
+    RHIBlendStatePtr D3D11Context::createBlendState(const BlendState &state)
+    {
+        return nullptr;
+    }
+
+    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(const DepthStencilState &state)
+    {
+        return nullptr;
+    }
+
+    RHIRasterizerStatePtr D3D11Context::createRasterizerState(const RasterizerState &state)
+    {
+        return nullptr;
+    }
+
+    RHISamplerStatePtr D3D11Context::createSamplerState(const SamplerState &state)
+    {
+        return nullptr;
+    }
+
+    TResult D3D11Context::setBlendState(RHIBlendStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    TResult D3D11Context::setDepthStencilState(RHIDepthStencilStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    TResult D3D11Context::setRasterizerState(RHIRasterizerStatePtr state)
+    {
+        return T3D_OK;
+    }
+        
+    TResult D3D11Context::setSamplerState(RHISamplerStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    TResult D3D11Context::setViewport(Viewport *viewport)
+    {
+        return T3D_OK;
+    }
+
+    TResult D3D11Context::setShader()
+    {
+        return T3D_OK;
+    }
+
+    TResult D3D11Context::setTexture()
+    {
+        return T3D_OK;
+    }
+
+    TResult D3D11Context::renderObject()
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
