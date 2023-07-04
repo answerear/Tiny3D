@@ -29,7 +29,7 @@ namespace Tiny3D
     /**
      * \brief 着色器里的常量
      */
-    class T3D_ENGINE_API ShaderConstantData
+    class T3D_ENGINE_API ShaderConstantParam
         : public Object
         , public Noncopyable
     {
@@ -59,9 +59,9 @@ namespace Tiny3D
          * \param registerNum : 占用寄存器数量
          * \param dataType : 数据类型
          */
-        ShaderConstantData(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DataType dataType = DataType::DT_FLOAT);
+        ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DataType dataType = DataType::DT_FLOAT);
         
-        virtual ~ShaderConstantData();
+        virtual ~ShaderConstantParam();
 
         /**
          * \brief 设置数据
@@ -119,13 +119,13 @@ namespace Tiny3D
     /**
      * \brief 着色器里的纹理采样器
      */
-    class T3D_ENGINE_API ShaderSampler
+    class T3D_ENGINE_API ShaderSamplerParam
         : public Object
         , public Noncopyable
     {
     public:
-        ShaderSampler(const String &name, uint32_t texType, uint32_t registerIdx, uint32_t registerNum);
-        virtual ~ShaderSampler();
+        ShaderSamplerParam(const String &name, uint32_t texType, uint32_t registerIdx, uint32_t registerNum);
+        virtual ~ShaderSamplerParam();
 
         
     };
@@ -278,12 +278,12 @@ namespace Tiny3D
             mHasCompiled = false;
         }
 
-        void addConstant(ShaderConstantDataPtr constant)
+        void addConstant(ShaderConstantParamPtr constant)
         {
             mConstants.push_back(constant);
         }
 
-        void addSampler(ShaderSamplerPtr sampler)
+        void addSampler(ShaderSamplerParamPtr sampler)
         {
             mSamplers.push_back(sampler);
         }
@@ -302,9 +302,9 @@ namespace Tiny3D
         }
 
         /// shader 变量
-        TArray<ShaderConstantDataPtr>   mConstants {};
+        TArray<ShaderConstantParamPtr>  mConstants {};
         /// shader 采样器
-        TArray<ShaderSamplerPtr>        mSamplers {};
+        TArray<ShaderSamplerParamPtr>   mSamplers {};
 
         /// shader keyword
         ShaderKeyword   mShaderKeyword {};

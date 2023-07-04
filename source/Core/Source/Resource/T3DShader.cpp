@@ -20,35 +20,33 @@
 
 #include "Resource/T3DShader.h"
 
-#include <d3d10effect.h>
-
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderConstantData::ShaderConstantData(const String &name, const void *data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DataType dataType)
+    ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DataType dataType)
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderConstantData::~ShaderConstantData()
+    ShaderConstantParam::~ShaderConstantParam()
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderSampler::ShaderSampler(const String &name, uint32_t texType, uint32_t registerIdx, uint32_t registerNum)
+    ShaderSamplerParam::ShaderSamplerParam(const String &name, uint32_t texType, uint32_t registerIdx, uint32_t registerNum)
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderSampler::~ShaderSampler()
+    ShaderSamplerParam::~ShaderSamplerParam()
     {
         
     }
