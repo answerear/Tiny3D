@@ -39,13 +39,13 @@ namespace Tiny3D
          */
         enum class DataType : uint32_t
         {
-            /**< 浮点数 */
+            /// 浮点数
             DT_FLOAT = 0,
-            /**< 布尔值 */
+            /// 布尔值
             DT_BOOL,
-            /**< 整型 */
+            /// 整型
             DT_INT,
-            /**< 结构体 */
+            /// 结构体
             DT_STRUCT,
             DT_MAX
         };
@@ -64,11 +64,16 @@ namespace Tiny3D
         virtual ~ShaderConstantParam();
 
         /**
+         * \brief 获取变量名称
+         */
+        const String &getName() const { return mName; }
+
+        /**
          * \brief 设置数据
          * \param [in] data : 数据地址 
          * \return 调用成功返回 T3D_OK
          */
-        TResult setData(void *data)
+        TResult setData(const void *data)
         {
             if (data == nullptr)
                 return T3D_ERR_INVALID_PARAM;
@@ -144,11 +149,6 @@ namespace Tiny3D
     class T3D_ENGINE_API ShaderKeyword
     {
     public:
-        /**
-         * \brief Default constructor
-         */
-        ShaderKeyword();
-        
         /**
          * \brief Constructor with the number of keywords
          */
@@ -239,7 +239,7 @@ namespace Tiny3D
          * \brief 获取变体对应的关键字
          * \return 返回变体对应的关键字对象
          */
-        const ShaderKeyword &getShaderKeyword() const { return mShaderKeyword; }
+        const ShaderKeyword &getShaderKeyword() const { return *mShaderKeyword; }
 
         /**
          * \brief 设置 shader 变量值
@@ -307,7 +307,7 @@ namespace Tiny3D
         TArray<ShaderSamplerParamPtr>   mSamplers {};
 
         /// shader keyword
-        ShaderKeyword   mShaderKeyword {};
+        ShaderKeyword   *mShaderKeyword = nullptr;
         
         /// 编译前是源代码 ，编译后是字节码 
         char        *mBytesCode = nullptr;
@@ -366,7 +366,7 @@ namespace Tiny3D
         ShaderVariants  mVariants {};
 
         /// 当前生效的关键字 
-        ShaderKeyword       mCurrentKeyword {};
+        ShaderKeyword       *mCurrentKeyword = nullptr;
         
         /// 当前生效的变体
         ShaderVariantPtr    mCurrentVariant = nullptr;

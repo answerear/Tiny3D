@@ -32,7 +32,6 @@ namespace Tiny3D
     typedef TFunction<void(TResult result, Resource *resource)> CompletedCallback;
     
     /**
-     * @class   Resource
      * @brief   A 3D engine api.
      */
     class T3D_ENGINE_API Resource : public Object

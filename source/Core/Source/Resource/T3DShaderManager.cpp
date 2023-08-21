@@ -19,6 +19,8 @@
 
 
 #include "Resource/T3DShaderManager.h"
+#include "Resource/T3DShader.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
@@ -32,9 +34,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ShaderPtr ShaderManager::loadShader(ArchivePtr archive, const String &name)
+    {
+        return smart_pointer_cast<Shader>(load(archive, name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderPtr ShaderManager::loadShader(const String &name)
+    {
+        ArchivePtr archive = T3D_AGENT.getProjectArchive();
+        return smart_pointer_cast<Shader>(load(archive, name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderPtr ShaderManager::loadShader(const String &name, CompletedCallback callback)
+    {
+        ShaderPtr shader;
+
+        return shader;
+    }
+
+    //--------------------------------------------------------------------------
+
     ResourcePtr ShaderManager::create(const String &name, int32_t argc, va_list args)
     {
-        return nullptr;
+        return Shader::create(name);
     }
 
     //--------------------------------------------------------------------------

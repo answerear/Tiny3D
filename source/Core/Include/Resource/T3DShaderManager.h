@@ -33,6 +33,12 @@ namespace Tiny3D
     {
     public:
         static ShaderManagerPtr create();
+
+        ShaderPtr loadShader(ArchivePtr archive, const String &name);
+
+        ShaderPtr loadShader(const String &name);
+
+        ShaderPtr loadShader(const String &name, CompletedCallback callback);
         
     protected:
         ResourcePtr create(const String &name, int32_t argc, va_list args) override;

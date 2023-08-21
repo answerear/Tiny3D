@@ -26,15 +26,24 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DataType dataType)
+        : mDataType(dataType)
+        , mRegisterIndex(registerIdx)
+        , mRegisterNum(registerNum)
+        , mName(name)
     {
-        
+        if (data != nullptr && dataSize > 0)
+        {
+            mData = new uint8_t[dataSize];
+            memcpy(mData, data, dataSize);
+            mDataSize = dataSize;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     ShaderConstantParam::~ShaderConstantParam()
     {
-        
+        T3D_SAFE_DELETE_ARRAY(mData);
     }
 
     //--------------------------------------------------------------------------
@@ -51,13 +60,6 @@ namespace Tiny3D
         
     }
 
-    //--------------------------------------------------------------------------
-
-    ShaderKeyword::ShaderKeyword()
-    {
-        
-    }
-    
     //--------------------------------------------------------------------------
 
     ShaderKeyword::ShaderKeyword(uint32_t count)
@@ -84,13 +86,21 @@ namespace Tiny3D
 
     bool ShaderKeyword::hasKey(const String &key) const
     {
-        return false;
+        auto itr = std::find(mKeys.begin(), mKeys.end(), key);
+        return (itr != mKeys.end());
     }
 
     //--------------------------------------------------------------------------
 
     TResult ShaderKeyword::setKeyword(const String &keyword, uint32_t index)
     {
+        if (index >= mKeys.size())
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Set keyword in shader but index is out of bound !");
+            return T3D_ERR_OUT_OF_BOUND;
+        }
+        
+        mKeys[index] = keyword;
         return T3D_OK;
     }
 
@@ -98,6 +108,13 @@ namespace Tiny3D
 
     TResult ShaderKeyword::generate()
     {
+        String name;
+        for (const auto &str : mKeys)
+        {
+            name += "_";
+            name += str;
+        }
+        mHashCode = Hash::hash(name.c_str());
         return T3D_OK;
     }
 
@@ -142,41 +159,65 @@ namespace Tiny3D
 
     void ShaderKeyword::copy(const ShaderKeyword &other)
     {
-        
+        mKeys = other.mKeys;
+        mHashCode = other.mHashCode;
     }
 
     //--------------------------------------------------------------------------
 
     void ShaderKeyword::move(ShaderKeyword &&other)
     {
-        
+        mKeys = std::move(other.mKeys);
+        mHashCode = other.mHashCode;
     }
 
     //--------------------------------------------------------------------------
 
     ShaderVariantPtr ShaderVariant::create(ShaderKeyword &&keyword, const String &code)
     {
-        return new ShaderVariant(std::move(keyword), code.c_str());
+        return new ShaderVariant(std::move(keyword), code);
     }
 
     //--------------------------------------------------------------------------
 
     ShaderVariant::ShaderVariant(ShaderKeyword &&key, const String &code)
     {
-        
+        mShaderKeyword = new ShaderKeyword(std::move(key));
+        setSourceCode(code.c_str(), code.length());
     }
 
     //--------------------------------------------------------------------------
 
     ShaderVariant::~ShaderVariant()
     {
-        
+        T3D_SAFE_DELETE(mShaderKeyword);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ShaderVariant::setParam(const String &name, void *data)
     {
+        if (data == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid parameter when call ShaderVariant::setParam()");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        for (auto param : mConstants)
+        {
+            if (name == param->getName())
+            {
+                void *dst = param->getData();
+                if (data == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid parameter data when call ShaderVariant::setParam()");
+                    return T3D_ERR_INVALID_POINTER;
+                }
+                memcpy(dst, data, param->getSize());
+                break;
+            }
+        }
+        
         return T3D_OK;
     }
 
