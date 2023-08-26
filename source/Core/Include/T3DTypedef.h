@@ -38,8 +38,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Meta);
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);
-    T3D_DECLARE_SMART_PTR(Serializable);
-    T3D_DECLARE_SMART_PTR(SerializableManager);
+    T3D_DECLARE_SMART_PTR(Prefab);
+    T3D_DECLARE_SMART_PTR(PrefabManager);
     T3D_DECLARE_SMART_PTR(Dylib);
     T3D_DECLARE_SMART_PTR(DylibManager);
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);

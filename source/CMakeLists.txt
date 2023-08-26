@@ -268,6 +268,15 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_subdirectory(Plugins)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
+# Post build processing
+set_project_name(T3DPostBuild)
+
+add_custom_target(${BIN_NAME}
+		COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/MetaGenerator ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
+
+# Setup post build processing project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Kernel")
+
 
 #foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 #    string(TOUPPER ${OUTPUTCONFIG} BUILTTYPE)
@@ -305,8 +314,10 @@ if (TINY3D_BUILD_TOOLS)
     #add_dependencies(ScriptCompiler T3DCore)
     if (NOT TINY3D_BUILD_RTTR_TOOL)
 	    #add_dependencies(ShaderCrossCompiler T3DCore)
+        add_dependencies(T3DPostBuild MetaGenerator)
 	endif (NOT TINY3D_BUILD_RTTR_TOOL)
 endif(TINY3D_BUILD_TOOLS)
+
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
@@ -320,4 +331,8 @@ if (TINY3D_BUILD_SAMPLES)
         add_dependencies(TransformationApp T3DMath T3DLog T3DSystem)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DSystem)
     endif (TINY3D_OS_DESKTOP)
+
+    add_dependencies(T3DPostBuild TransformationApp IntersectionApp HelloApp MetaGenerator)
 endif (TINY3D_BUILD_SAMPLES)
+
+

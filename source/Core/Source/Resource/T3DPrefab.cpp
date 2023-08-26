@@ -17,28 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Resource/T3DSerializable.h"
+#include "Resource/T3DPrefab.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SerializablePtr Serializable::create(const String &name)
+    PrefabPtr Prefab::create(const String &name)
     {
-        return new Serializable(name);
+        return new Prefab(name);
     }
 
     //--------------------------------------------------------------------------
 
-    Serializable::~Serializable()
+    Prefab::~Prefab()
     {
         T3D_SAFE_DELETE(mObject);
     }
 
     //--------------------------------------------------------------------------
 
-    Serializable::Serializable(const String &name)
+    Prefab::Prefab(const String &name)
         : Resource(name)
     {
         
@@ -46,29 +46,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Resource::Type Serializable::getType() const
+    Resource::Type Prefab::getType() const
     {
-        return Type::kSerializable;
+        return Type::kPrefab;
     }
 
     //--------------------------------------------------------------------------
-
-    TResult Serializable::loadData(DataStream &stream)
+    
+    ResourcePtr Prefab::clone() const
     {
-        mObject = new RTTRObject(T3D_SERIALIZER_MGR.deserializeObject(stream));
-        if (!mObject->is_valid())
-        {
-            return T3D_ERR_FAIL;
-        }
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr Serializable::clone() const
-    {
-        SerializablePtr serializable = create(getName());
+        PrefabPtr serializable = create(getName());
         serializable->mMeta = mMeta->clone();
         serializable->mObject = new RTTRObject(*mObject);
         return serializable;

@@ -21,14 +21,54 @@
 #include "Resource/T3DResourceManager.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DArchive.h"
-#include "Kernel/T3DArchiveManager.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::lookup(const String &name)
+    TResult ResourceManager::addResource(ResourcePtr res)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            const auto it = mResourcesCache.find(res->getResourceID());
+
+            if (it != mResourcesCache.end())
+            {
+                // 已经加过了
+                ret = T3D_ERR_DUPLICATED_ITEM;
+                break;
+            }
+
+            // 存到缓存池
+            mResourcesCache.insert(ResourcesCacheValue(res->getResourceID(), res));
+            
+            const auto itr = mResourcesLookup.find(res->getName());
+            if (itr != mResourcesLookup.end())
+            {
+                // 已经有相同名字的资源，加入到链表
+                itr->second.push_back(res);
+            }
+            else
+            {
+                // 没有对应名字资源，创建个链表存放第一个资源
+                auto i = mResourcesLookup.insert(ResourcesLookupValue(res->getName(), Resources()));
+                if (i.second)
+                {
+                    i.first->second.push_back(res);
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Resource *ResourceManager::lookup(const String &name)
     {
         ResourcePtr res;
         const auto it = mResourcesLookup.find(name);
@@ -87,19 +127,35 @@ namespace Tiny3D
     {
         do
         {
-            mResourcesLookup.erase(resource->getName());
+            // 从 lookup 移除
+            const auto itr = mResourcesLookup.find(resource->getName());
+            if (itr != mResourcesLookup.end())
+            {
+                for (auto it = itr->second.begin(); it != itr->second.end(); ++it)
+                {
+                    if (resource->getResourceID() == (*it)->getResourceID())
+                    {
+                        itr->second.erase(it);
+                        break;
+                    }
+                }
+            }
+
+            // 从 cache 移除
             mResourcesCache.erase(resource->getResourceID());
         } while (false);
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(ArchivePtr archive, const String &name, int32_t argc, ...)
+    ResourcePtr ResourceManager::load(Archive *metaArchive, Archive *resArchive, const String &name, int32_t argc, ...)
     {
-        ResourcePtr res;
-
+        Meta *meta = nullptr;
+        Resource *res = nullptr;
+        
         do
         {
+            // 查找是否有缓存
             res = lookup(name);
             if (res != nullptr)
             {
@@ -107,28 +163,43 @@ namespace Tiny3D
                 break;
             }
 
-            // lookup 中没有，创建对象
-            va_list params;
-            va_start(params, argc);
-            res = create(name, argc, params);
-            va_end(params);
-            
-            if (res == nullptr)
+            // 从 meta 档案系统获取数据
+            MemoryDataStream ms;
+            String metaName = name + ".meta";
+            TResult ret = metaArchive->read(metaName, ms);
+            if (T3D_FAILED(ret))
             {
-                // 创建失败
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Create resource [%s] object failed !", name.c_str());
+                    "Read reousrce meta [%s] from archive failed !",
+                    metaName.c_str());
+                break;
+            }
+            
+            // 加载 meta 对象
+            meta = loadMeta(ms);
+            if (meta == nullptr)
+            {
                 break;
             }
 
-            // 加载资源
-            TResult ret = res->load(archive);
+            // 从资源档案系统获取数据
+            MemoryDataStream rs;
+            ret = resArchive->read(name, rs);
             if (T3D_FAILED(ret))
             {
-                // 加載失敗
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Load resource [%s] failed !", name.c_str());
-                res = nullptr;
+                    "Read resource content [%s] from archive failed !",
+                    name.c_str());
+                break;
+            }
+
+            // 加载 resource 对象
+            va_list params;
+            va_start(params, argc);
+            res = loadResource(rs, argc, params);
+            va_end(params);
+            if (res == nullptr)
+            {
                 break;
             }
 
@@ -136,45 +207,34 @@ namespace Tiny3D
             if (!insertCache(res))
             {
                 // 失败了，先卸载资源
-                res->unload();
                 res = nullptr;
                 break;
             }
+            
+            res->mMeta = meta;
+            res->onLoad();
         } while (false);
+
+        if (res == nullptr)
+        {
+            T3D_SAFE_DELETE(meta);
+        }
 
         return res;
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(const String &name, CompletedCallback callback, int32_t argc, ...)
+    Meta *ResourceManager::loadMeta(DataStream &stream)
     {
-        ResourcePtr res;
+        return T3D_SERIALIZER_MGR.deserialize<Meta>(stream);
+    }
 
-        do 
-        {
-            // res = lookup(name);
-            // if (res != nullptr)
-            // {
-            //     // 已经存在了该资源
-            //     break;
-            // }
-            //
-            // // lookup 中没有，创建对象
-            // va_list args;
-            // va_start(args, argc);
-            // res = create(name, argc, args);
-            // va_end(args);
-            // if (res == nullptr)
-            // {
-            //     // 創建失敗
-            //     T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-            //         "Create resource [%s] object failed !", name.c_str());
-            //     break;
-            // }
-        } while (false);
+    //--------------------------------------------------------------------------
 
-        return res;
+    Resource *ResourceManager::loadResource(DataStream &stream, int32_t argc, va_list args)
+    {
+        return T3D_SERIALIZER_MGR.deserialize<Resource>(stream);
     }
 
     //--------------------------------------------------------------------------
@@ -193,7 +253,7 @@ namespace Tiny3D
                 break;
             }
             
-            ret = res->unload();
+            ret = res->onUnload();
             if (T3D_FAILED(ret))
             {
                 break;
@@ -207,6 +267,49 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ResourceManager::save(Resource *res, Archive *metaArchive, Archive *resArchive)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 保存 meta 对象
+            MemoryDataStream ms;
+            ret = saveMeta(ms, res->getMeta());
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 写到 meta 档案系统里 
+            String metaName = res->getName() + ".meta";
+            ret = metaArchive->write(metaName, ms);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 保存资源对象
+            MemoryDataStream rs;
+            ret = saveResource(rs, res);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 写到 资源 档案系统里
+            ret = resArchive->write(res->getName(), rs);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
     TResult ResourceManager::unloadAllResources()
     {
         TResult ret = T3D_OK;
@@ -216,7 +319,7 @@ namespace Tiny3D
         {
             auto itr = mResourcesCache.begin();
             auto res = itr->second;
-            if (res->isLoaded())
+            if (res->getState() == Resource::State::kLoaded)
                 unload(res);
         }
 
@@ -265,7 +368,7 @@ namespace Tiny3D
 
         return res;
     }
-
+    
     //--------------------------------------------------------------------------
 
     ResourcePtr ResourceManager::getResource(

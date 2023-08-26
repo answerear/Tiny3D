@@ -87,7 +87,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::load(ArchivePtr archive)
+    TResult Dylib::onLoad()
     {
         TResult ret = T3D_OK;
 
@@ -120,29 +120,22 @@ namespace Tiny3D
                 break;
             }
 
-            mState = State::kLoaded;
-        } while (0);
+            ret = Resource::onLoad();
+        } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::loadData(DataStream &stream)
+    TResult Dylib::onUnload()
     {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Dylib::unload()
-    {
-        if (isLoaded())
+        if (getState() == State::kLoaded)
         {
             DYLIB_UNLOAD(mHandle);
         }
 
-        return Resource::unload();
+        return Resource::onUnload();
     }
 
     //--------------------------------------------------------------------------

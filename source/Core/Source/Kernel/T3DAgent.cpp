@@ -26,8 +26,8 @@
 #include "Resource/T3DResource.h"
 #include "Resource/T3DDylib.h"
 #include "Resource/T3DDylibManager.h"
-#include "Resource/T3DSerializable.h"
-#include "Resource/T3DSerializableManager.h"
+#include "Resource/T3DPrefab.h"
+#include "Resource/T3DPrefabManager.h"
 #include "T3DErrorDef.h"
 #include "RHI/T3DRHIRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
@@ -63,8 +63,8 @@ namespace Tiny3D
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
         
-        mSerializableMgr->unloadAllResources();
-        mSerializableMgr = nullptr;
+        mPrefabMgr->unloadAllResources();
+        mPrefabMgr = nullptr;
 
         mArchiveMgr->unloadAllArchives();
         
@@ -624,7 +624,7 @@ namespace Tiny3D
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
         mDylibMgr = DylibManager::create();      
-        mSerializableMgr = SerializableManager::create();
+        mPrefabMgr = PrefabManager::create();
         
         return T3D_OK;
     }

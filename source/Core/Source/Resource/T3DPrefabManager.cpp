@@ -18,58 +18,48 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DSerializableManager.h"
-#include "Resource/T3DSerializable.h"
+#include "Resource/T3DPrefabManager.h"
+#include "Resource/T3DPrefab.h"
 #include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
-{
+{   
     //--------------------------------------------------------------------------
 
-    SerializableManagerPtr SerializableManager::create()
+    PrefabManagerPtr PrefabManager::create()
     {
-        return new SerializableManager();
+        return new PrefabManager();
     }
     
     //--------------------------------------------------------------------------
 
-    SerializablePtr SerializableManager::loadObject(const String &name)
+    PrefabPtr PrefabManager::loadPrefab(Archive *metaArchive, Archive *resArchive, const String &name)
     {
-        ArchivePtr archive = T3D_AGENT.getProjectArchive();
-        return smart_pointer_cast<Serializable>(load(archive, name, 0));
+        return smart_pointer_cast<Prefab>(load(metaArchive, resArchive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    SerializablePtr SerializableManager::loadObject(const String &name, CompletedCallback callback)
+    TResult PrefabManager::savePrefab(Archive *metaArchive, Archive *resArchive, Prefab *prefab)
     {
-        return smart_pointer_cast<Serializable>(load(name, callback, 0));
+        return save(prefab, metaArchive, resArchive);
     }
 
     //--------------------------------------------------------------------------
 
-    SerializablePtr SerializableManager::loadInternalObject(const String &name)
+    TResult PrefabManager::saveMeta(DataStream &stream, Meta *meta)
     {
-        ArchivePtr archive = T3D_AGENT.getInternalArchive();
-        return smart_pointer_cast<Serializable>(load(archive, name, 0));
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    SerializablePtr SerializableManager::loadInternalObject(const String &name, CompletedCallback callback)
+    TResult PrefabManager::saveResource(DataStream &stream, Resource *res)
     {
-        return smart_pointer_cast<Serializable>(load(name, callback, 0));
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
-
-    ResourcePtr SerializableManager::create(const String &name, int32_t argc, va_list args)
-    {
-        return Serializable::create(name);
-    }
-
-    //--------------------------------------------------------------------------
-    
 }
 

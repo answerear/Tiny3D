@@ -21,6 +21,7 @@
 #include "Resource/T3DShaderManager.h"
 #include "Resource/T3DShader.h"
 #include "Kernel/T3DAgent.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
@@ -34,33 +35,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ShaderPtr ShaderManager::loadShader(ArchivePtr archive, const String &name)
+    ShaderPtr ShaderManager::loadShader(Archive *metaArchive, Archive *resArchive, const String &name)
     {
-        return smart_pointer_cast<Shader>(load(archive, name, 0));
+        return smart_pointer_cast<Shader>(load(metaArchive, resArchive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderPtr ShaderManager::loadShader(const String &name)
+    TResult ShaderManager::saveShader(Shader *shader, Archive *metaArchive, Archive *resArchive)
     {
-        ArchivePtr archive = T3D_AGENT.getProjectArchive();
-        return smart_pointer_cast<Shader>(load(archive, name, 0));
+        return save(shader, metaArchive, resArchive); 
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderPtr ShaderManager::loadShader(const String &name, CompletedCallback callback)
+    TResult ShaderManager::saveMeta(DataStream &stream, Meta *meta)
     {
-        ShaderPtr shader;
-
-        return shader;
+        T3D_SERIALIZER_MGR.serialize(stream, meta);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ShaderManager::create(const String &name, int32_t argc, va_list args)
+    TResult ShaderManager::saveResource(DataStream &stream, Resource *res)
     {
-        return Shader::create(name);
+        T3D_ASSERT(res->getType() == Resource::Type::kShader, "Save resource must be shader !");
+        Shader *shader = static_cast<Shader*>(res);
+        return T3D_SERIALIZER_MGR.serialize(stream, shader);
     }
 
     //--------------------------------------------------------------------------

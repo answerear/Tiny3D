@@ -353,8 +353,6 @@ namespace Tiny3D
     protected:
         Shader(const String &name);
         
-        TResult loadData(DataStream &stream) override;
-
         ResourcePtr clone() const override;
         
         using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;

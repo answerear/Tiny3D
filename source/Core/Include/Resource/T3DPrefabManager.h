@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SERIALIZABLE_MANAGER_H__
-#define __T3D_SERIALIZABLE_MANAGER_H__
+#ifndef __T3D_PREFAB_MANAGER_H__
+#define __T3D_PREFAB_MANAGER_H__
 
 
 #include "T3DResource.h"
@@ -27,27 +27,25 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API SerializableManager
-        : public Singleton<SerializableManager>
+    class T3D_ENGINE_API PrefabManager
+        : public Singleton<PrefabManager>
         , public ResourceManager
     {
     public:
-        static SerializableManagerPtr create();
+        static PrefabManagerPtr create();
 
-        SerializablePtr loadObject(const String &name);
+        PrefabPtr loadPrefab(Archive *metaArchive, Archive *resArchive, const String &name);
 
-        SerializablePtr loadObject(const String &name, CompletedCallback callback);
+        TResult savePrefab(Archive *metaArchive, Archive *resArchive, Prefab *prefab);
 
-        SerializablePtr loadInternalObject(const String &name);
-
-        SerializablePtr loadInternalObject(const String &name, CompletedCallback callback);
-        
     protected:
-        ResourcePtr create(const String &name, int32_t argc, va_list args) override;
+        TResult saveMeta(DataStream &stream, Meta *meta) override;
+
+        TResult saveResource(DataStream &stream, Resource *res) override;
     };
 
-    #define T3D_SERIALIZABLE_MGR    (SerializableManager::getInstance()) 
+    #define T3D_PREFAB_MGR    (PrefabManager::getInstance()) 
 }
 
 
-#endif    /*__T3D_SERIALIZABLE_MANAGER_H__*/
+#endif    /*__T3D_PREFAB_MANAGER_H__*/

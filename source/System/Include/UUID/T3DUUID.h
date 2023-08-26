@@ -92,7 +92,7 @@ namespace Tiny3D
     //     BuildOption BO;
     // };
     
-    TCLASS()
+    TSTRUCT()
     struct T3D_SYSTEM_API UUID
     {
         TRTTI_ENABLE()

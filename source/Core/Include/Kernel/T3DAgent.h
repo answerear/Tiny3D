@@ -157,7 +157,7 @@ namespace Tiny3D
         ArchiveManagerPtr       mArchiveMgr;
         SerializerManagerPtr    mSerializerMgr;
         DylibManagerPtr         mDylibMgr;
-        SerializableManagerPtr  mSerializableMgr;
+        PrefabManagerPtr        mPrefabMgr;
 
         ArchivePtr              mInternalArchive;
         ArchivePtr              mProjectArchive;

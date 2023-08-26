@@ -273,13 +273,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Shader::loadData(DataStream &stream)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     ResourcePtr Shader::clone() const
     {
         return nullptr;

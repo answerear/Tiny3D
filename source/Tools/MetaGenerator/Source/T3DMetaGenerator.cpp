@@ -70,7 +70,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        String fullpath = path + Dir::getNativeSeparator() + "*.*";
+        String fullpath = Dir::formatPath(path) + Dir::getNativeSeparator() + "*.*";
         Dir dir;
         bool working = dir.findFile(fullpath);
 

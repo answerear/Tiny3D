@@ -73,14 +73,9 @@ namespace Tiny3D
          */
         DylibManager() = default;
 
-        /**
-         * @fn  virtual ResourcePtr create( const String &strName, 
-         *      int32_t argc, va_list args) override;
-         * @brief   重寫基類 Resource::create() 接口
-         * @param   name The name.
-         * @return  A ResourcePtr.
-         */
-        ResourcePtr create(const String &name, int32_t argc, va_list args) override;
+        TResult saveMeta(DataStream &stream, Meta *meta) override;
+
+        TResult saveResource(DataStream &stream, Resource *res) override;
     };
 
     #define T3D_DYLIB_MGR   (DylibManager::getInstance())

@@ -19,6 +19,10 @@
 
 
 #include "Resource/T3DDylibManager.h"
+
+#include <stdbool.h>
+#include <stdbool.h>
+
 #include "Resource/T3DDylib.h"
 #include "Kernel/T3DArchive.h"
 
@@ -36,15 +40,8 @@ namespace Tiny3D
 
     DylibPtr DylibManager::loadDylib(const String &name)
     {
-        ArchivePtr archive;
-        return smart_pointer_cast<Dylib>(load(archive, name, 0));
-    }
-
-    //--------------------------------------------------------------------------
-
-    ResourcePtr DylibManager::create(const String &name, int32_t argc, va_list args)
-    {
-        return Dylib::create(name);
+        Archive *archive = nullptr;
+        return smart_pointer_cast<Dylib>(load(archive, archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
@@ -52,6 +49,22 @@ namespace Tiny3D
     TResult DylibManager::unloadDylib(DylibPtr dylib)
     {
         return unload(dylib);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DylibManager::saveMeta(DataStream &stream, Meta *meta)
+    {
+        T3D_ASSERT(false, "Dylib resource could not save meta !");
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult DylibManager::saveResource(DataStream &stream, Resource *res)
+    {
+        T3D_ASSERT(false, "Dylib resource could not save resource !");
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

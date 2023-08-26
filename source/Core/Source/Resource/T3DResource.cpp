@@ -20,7 +20,6 @@
 
 #include "Resource/T3DResource.h"
 #include "Kernel/T3DArchive.h"
-#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
@@ -40,94 +39,20 @@ namespace Tiny3D
 
     Resource::~Resource()
     {
-        T3D_ASSERT(isUnloaded(), "Resource has not unloaded !");
+        T3D_ASSERT(getState() == State::kUnloaded, "Resource has not unloaded !");
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::load(ArchivePtr archive)
+    TResult Resource::onLoad()
     {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            mState = State::kLoading;
-            
-            MemoryDataStream stream;
-            TResult ret = archive->read(getName(), stream);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read reousrce data [%s] from archive failed !",
-                    getName().c_str());
-                break;
-            }
-
-            uint8_t *buffer = nullptr;
-            size_t bufSize = 0;
-            stream.getBuffer(buffer, bufSize);
-            
-            // 读取 meta 信息
-            uint32_t metaSize = 0;
-            if (bufSize < sizeof(metaSize))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid data size for resource [%s] !", getName().c_str());
-                break;
-            }
-            // meta 数据大小
-            memcpy(&metaSize, buffer, sizeof(metaSize));
-            if (bufSize < metaSize)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid meta size for resource [%s] !", getName().c_str());
-                break;
-            }
-            // meta 数据
-            uint8_t *metaData = buffer + sizeof(metaSize);
-            MemoryDataStream ms(metaData, metaSize, false);
-            // 反序列化出 meta 对象
-            mMeta = T3D_SERIALIZER_MGR.deserialize<Meta>(ms);
-            if (mMeta == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Deserialize meta for resource [%s] failed !", getName().c_str());
-                break;
-            }
-
-            // 读取资源数据
-            if (bufSize < metaSize + sizeof(uint32_t) * 2)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid data size for resource [%s] !", getName().c_str());
-                break;
-            }
-            
-            uint8_t *data = buffer + metaSize;
-            uint32_t dataSize = 0;
-            // 资源数据大小
-            memcpy(&dataSize, data, sizeof(dataSize));
-            
-            // 资源数据
-            data += sizeof(dataSize);
-            MemoryDataStream ds(data, dataSize, false);
-            ret = loadData(ds);
-            
-            if (T3D_FAILED(ret))
-            {
-                mMeta = nullptr;
-                break;
-            }
-
-            mState = State::kLoaded;
-        } while (false);
-
-        return ret;
+        mState = State::kLoaded;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::unload()
+    TResult Resource::onUnload()
     {
         mState = State::kUnloaded;
         return T3D_OK;

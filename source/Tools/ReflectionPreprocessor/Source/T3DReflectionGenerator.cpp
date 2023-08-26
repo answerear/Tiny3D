@@ -1093,7 +1093,7 @@ namespace Tiny3D
             // 获取类名
             CXString cxName = clang_getCursorSpelling(clang_getCanonicalCursor(cxCursor));
             String name = toString(cxName);
-
+            
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
             if (parent == nullptr)

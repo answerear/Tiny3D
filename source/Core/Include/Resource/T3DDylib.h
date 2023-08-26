@@ -71,23 +71,11 @@ namespace Tiny3D
          */
         Dylib(const String &name);
 
-        TResult load(ArchivePtr archive) override;
-
-        /**
-         * @fn  virtual TResult Dylib::load(Meta *meta) override;
-         * @brief   重写 Resource::load()
-         * @return  A TResult.
-         */
-        TResult loadData(DataStream &stream) override;
-     
-        /**
-         * @fn  virtual TResult Dylib::unload() override;
-         * @brief   重写 Resource::unlaod()
-         * @return  A TResult.
-         */
-        TResult unload() override;
-
         ResourcePtr clone() const override;
+
+        TResult onLoad() override;
+
+        TResult onUnload() override;
      
     protected:
         THandle mHandle;    /**< The handle */

@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SERIALIZABLE_H__
-#define __T3D_SERIALIZABLE_H__
+#ifndef __T3D_PREFAB_H__
+#define __T3D_PREFAB_H__
 
 
 #include "Resource/T3DResource.h"
@@ -27,12 +27,12 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API Serializable : public Resource
+    class T3D_ENGINE_API Prefab : public Resource
     {
     public:
-        static SerializablePtr create(const String &name);
+        static PrefabPtr create(const String &name);
 
-        ~Serializable() override;
+        ~Prefab() override;
 
         Type getType() const override;
         
@@ -51,10 +51,8 @@ namespace Tiny3D
         }
         
     protected:
-        Serializable(const String &name);
+        Prefab(const String &name);
         
-        TResult loadData(DataStream &stream) override;
-
         ResourcePtr clone() const override;
         
         RTTRObject  *mObject;
@@ -62,4 +60,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_SERIALIZABLE_H__*/
+#endif    /*__T3D_PREFAB_H__*/
