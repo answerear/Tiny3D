@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             break;
         }
         
-    } while (0);
+    } while (false);
     
     delete generator;
 
