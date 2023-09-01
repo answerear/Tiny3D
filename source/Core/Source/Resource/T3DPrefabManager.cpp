@@ -34,29 +34,38 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    PrefabPtr PrefabManager::loadPrefab(Archive *metaArchive, Archive *resArchive, const String &name)
+    PrefabPtr PrefabManager::loadPrefab(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Prefab>(load(metaArchive, resArchive, name, 0));
+        return smart_pointer_cast<Prefab>(load(archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult PrefabManager::savePrefab(Archive *metaArchive, Archive *resArchive, Prefab *prefab)
+    TResult PrefabManager::savePrefab(Archive *archive, Prefab *prefab)
     {
-        return save(prefab, metaArchive, resArchive);
+        return save(prefab, archive);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult PrefabManager::saveMeta(DataStream &stream, Meta *meta)
+    ResourcePtr PrefabManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        return T3D_OK;
+        return Prefab::create(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr PrefabManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    {
+        return T3D_SERIALIZER_MGR.deserialize<Prefab>(stream);
     }
 
     //--------------------------------------------------------------------------
 
     TResult PrefabManager::saveResource(DataStream &stream, Resource *res)
     {
+        Prefab *prefab = static_cast<Prefab*>(res);
+        T3D_SERIALIZER_MGR.serialize(stream, prefab);
         return T3D_OK;
     }
 

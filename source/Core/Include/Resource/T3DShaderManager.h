@@ -34,13 +34,15 @@ namespace Tiny3D
     public:
         static ShaderManagerPtr create();
 
-        ShaderPtr loadShader(Archive *metaArchive, Archive *resArchive, const String &name);
+        ShaderPtr loadShader(Archive *archive, const String &name);
 
-        TResult saveShader(Shader *shader, Archive *metaArchive, Archive *resArchive);
+        TResult saveShader(Shader *shader, Archive *archive);
 
     protected:
-        TResult saveMeta(DataStream &stream, Meta *meta) override;
+        ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
+        ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) override;
+        
         TResult saveResource(DataStream &stream, Resource *res) override;
     };
 

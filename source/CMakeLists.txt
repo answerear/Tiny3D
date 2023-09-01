@@ -268,14 +268,6 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_subdirectory(Plugins)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
-# Post build processing
-set_project_name(POST_BUILD)
-
-add_custom_target(${BIN_NAME}
-		COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/MetaGenerator ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
-
-# Setup post build processing project folder
-set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "CMakeTargets")
 
 
 #foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -331,8 +323,6 @@ if (TINY3D_BUILD_SAMPLES)
         add_dependencies(TransformationApp T3DMath T3DLog T3DSystem)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DSystem)
     endif (TINY3D_OS_DESKTOP)
-
-    add_dependencies(POST_BUILD ALL_BUILD)
 endif (TINY3D_BUILD_SAMPLES)
 
 

@@ -46,14 +46,14 @@ namespace Tiny3D
          * @fn  virtual Dylib::~Dylib();
          * @brief   析构函数
          */
-        virtual ~Dylib() override;
+        ~Dylib() override;
 
         /**
          * @fn  virtual Type Dylib::getType() const override;
          * @brief   重写 Resource::getType()o
          * @return  The type.
          */
-        virtual Type getType() const override;
+        Type getType() const override;
 
         /**
          * @fn  virtual void Dylib::*getSymbol(const String &name) const;

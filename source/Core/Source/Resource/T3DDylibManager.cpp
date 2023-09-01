@@ -41,7 +41,7 @@ namespace Tiny3D
     DylibPtr DylibManager::loadDylib(const String &name)
     {
         Archive *archive = nullptr;
-        return smart_pointer_cast<Dylib>(load(archive, archive, name, 0));
+        return smart_pointer_cast<Dylib>(load(archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
@@ -53,10 +53,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DylibManager::saveMeta(DataStream &stream, Meta *meta)
+    ResourcePtr DylibManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(false, "Dylib resource could not save meta !");
-        return T3D_OK;
+        return Dylib::create(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr DylibManager::loadResource(const String &name, Archive *archive, int32_t argc, va_list args)
+    {
+        MemoryDataStream stream;
+        return loadResource(name, stream, argc, args);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr DylibManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    {
+        return Dylib::create(name);
     }
 
     //--------------------------------------------------------------------------

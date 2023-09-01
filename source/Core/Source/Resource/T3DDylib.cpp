@@ -61,7 +61,7 @@ namespace Tiny3D
         : Resource(name)
         , mHandle(nullptr)
     {
-
+        mUUID = UUID::generate();
     }
 
     //--------------------------------------------------------------------------
@@ -94,10 +94,6 @@ namespace Tiny3D
         do 
         {
             mState = State::kLoading;
-            
-            mMeta = Meta::create();
-            mMeta->uuid = UUID::generate();
-            mMeta->type = Meta::FileType::kDylib;
             
 #if defined (T3D_OS_WINDOWS)
             String name = mName + ".dll";
@@ -142,7 +138,9 @@ namespace Tiny3D
 
     ResourcePtr Dylib::clone() const
     {
-        return create(getName());
+        DylibPtr dylib = create(getName());
+        dylib->cloneProperties(this);
+        return dylib;
     }
 }
 

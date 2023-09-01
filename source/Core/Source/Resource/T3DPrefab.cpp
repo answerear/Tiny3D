@@ -40,6 +40,7 @@ namespace Tiny3D
 
     Prefab::Prefab(const String &name)
         : Resource(name)
+        , mObject(nullptr)
     {
         
     }
@@ -55,11 +56,18 @@ namespace Tiny3D
     
     ResourcePtr Prefab::clone() const
     {
-        PrefabPtr serializable = create(getName());
-        serializable->mMeta = mMeta->clone();
-        serializable->mObject = new RTTRObject(*mObject);
-        return serializable;
+        PrefabPtr prefab = create(getName());
+        prefab->cloneProperties(this);
+        return prefab;
     }
     
+    //--------------------------------------------------------------------------
+
+    void Prefab::cloneProperties(const Resource *const src)
+    {
+        const Prefab *prefab = static_cast<const Prefab*>(src);
+        mObject = new RTTRObject(*prefab->mObject);
+    }
+
     //--------------------------------------------------------------------------
 }

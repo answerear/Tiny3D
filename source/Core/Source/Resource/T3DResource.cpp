@@ -27,8 +27,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Resource::Resource(const String &strName)
-        : mMeta(nullptr)
-        , mState(State::kUnloaded)
+        : mState(State::kUnloaded)
         , mName(strName)
         , mCompletedCB(nullptr)
     {
@@ -56,6 +55,14 @@ namespace Tiny3D
     {
         mState = State::kUnloaded;
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Resource::cloneProperties(const Resource *const src)
+    {
+        // 克隆就新生成 UUID
+        mUUID = UUID::generate();
     }
 
     //--------------------------------------------------------------------------

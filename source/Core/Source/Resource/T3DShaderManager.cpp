@@ -35,26 +35,32 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ShaderPtr ShaderManager::loadShader(Archive *metaArchive, Archive *resArchive, const String &name)
+    ShaderPtr ShaderManager::loadShader(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Shader>(load(metaArchive, resArchive, name, 0));
+        return smart_pointer_cast<Shader>(load(archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ShaderManager::saveShader(Shader *shader, Archive *metaArchive, Archive *resArchive)
+    TResult ShaderManager::saveShader(Shader *shader, Archive *archive)
     {
-        return save(shader, metaArchive, resArchive); 
+        return save(shader, archive); 
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ShaderManager::saveMeta(DataStream &stream, Meta *meta)
+    ResourcePtr ShaderManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_SERIALIZER_MGR.serialize(stream, meta);
-        return T3D_OK;
+        return Shader::create(name);
     }
 
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ShaderManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    {
+        return T3D_SERIALIZER_MGR.deserialize<Shader>(stream);
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult ShaderManager::saveResource(DataStream &stream, Resource *res)

@@ -34,13 +34,16 @@ namespace Tiny3D
     public:
         static PrefabManagerPtr create();
 
-        PrefabPtr loadPrefab(Archive *metaArchive, Archive *resArchive, const String &name);
+        PrefabPtr loadPrefab(Archive *archive, const String &name);
 
-        TResult savePrefab(Archive *metaArchive, Archive *resArchive, Prefab *prefab);
+        TResult savePrefab(Archive *archive, Prefab *prefab);
 
     protected:
-        TResult saveMeta(DataStream &stream, Meta *meta) override;
 
+        ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
+
+        ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) override;
+        
         TResult saveResource(DataStream &stream, Resource *res) override;
     };
 

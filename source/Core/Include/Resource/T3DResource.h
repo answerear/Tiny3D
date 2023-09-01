@@ -91,20 +91,10 @@ namespace Tiny3D
          * \brief 获取资源 GUID
          * \return 返回资源 GUID
          */
-        UUID getResourceID() const
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
+        const UUID &getUUID() const
         {
-            if (mMeta != nullptr)
-                return mMeta->uuid;
-            return UUID::INVALID;
-        }
-
-        /**
-         * \brief 获取 meta 信息对象
-         * \return 返回 meta 信息对象
-         */
-        Meta *getMeta() const
-        {
-            return mMeta;
+            return mUUID;
         }
 
         /**
@@ -127,6 +117,8 @@ namespace Tiny3D
         }
 
     protected:
+        Resource() = default;
+
         /**
          * \brief 构造函数
          * \param [in] name : 资源名称
@@ -140,6 +132,12 @@ namespace Tiny3D
         virtual ResourcePtr clone() const = 0;
 
         /**
+         * \brief 克隆属性
+         * \param [in] src : 源资源对象 
+         */
+        virtual void cloneProperties(const Resource * const src);
+
+        /**
          * \brief 加载回调
          * \return 返回 T3D_OK 以示成功，否则加载会失败
          */
@@ -150,16 +148,29 @@ namespace Tiny3D
          * \return 返回 T3D_OK 以示成功，否则卸载会失败
          */
         virtual TResult onUnload();
+
+    private:
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
+        void setName(const String &name)
+        {
+            mName = name;
+        }
+
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
+        void setUUID(const UUID &uuid)
+        {
+            mUUID = uuid;
+        }
         
     protected:
-        /// 资源的元信息对象
-        MetaPtr             mMeta;
+        /// 资源的 UUID
+        UUID                mUUID {};
         /// 资源状态
-        State               mState;
+        State               mState = State::kUnloaded;
         /// 资源名称
-        String              mName;
+        String              mName {};
         /// 异步加载回调
-        CompletedCallback   mCompletedCB;
+        CompletedCallback   mCompletedCB = nullptr;
     };
 }
 

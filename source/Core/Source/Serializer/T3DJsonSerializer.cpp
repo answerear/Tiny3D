@@ -496,6 +496,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    #define T3D_FILE_MAGIC_KEY      "Magic"
+    #define T3D_FILE_MAGIC_VAL      "T3D"
+    #define T3D_FILE_VERSION_KEY    "Version"
+    #define T3D_FILE_VERSION_STR    "0.0.1"
+    #define T3D_FILE_OBJECT_KEY     "Object"
+
+
     TResult JsonSerializer::serialize(DataStream &stream, const RTTRObject &obj)
     {
         TResult ret = T3D_OK;
@@ -503,8 +510,23 @@ namespace Tiny3D
         PrettyWriter<JsonStream> writer(os);
 
         writer.StartObject();
-        RTTRObjectJsonWriter::WriteObject(writer, obj);
+        {
+            // Magic
+            writer.Key(T3D_FILE_MAGIC_KEY);
+            writer.String(T3D_FILE_MAGIC_VAL);
+            // Version
+            writer.Key(T3D_FILE_VERSION_KEY);
+            writer.String(T3D_FILE_VERSION_STR);
+            // Object
+            writer.Key(T3D_FILE_OBJECT_KEY);
+            writer.StartObject();
+            {
+                RTTRObjectJsonWriter::WriteObject(writer, obj);
+            }
+            writer.EndObject();
+        }        
         writer.EndObject();
+        
         return ret;
     }
 
@@ -527,7 +549,28 @@ namespace Tiny3D
             }
 
             T3D_ASSERT(doc.IsObject(), "The doc must be an object !");
-            return RTTRObjectJsonReader::ReadObject(doc);
+
+            // Magic
+            auto itr = doc.FindMember(T3D_FILE_MAGIC_KEY);
+            if (itr == doc.MemberEnd())
+            {
+                break;
+            }
+            String magic = itr->value.GetString();
+            // Version
+            itr = doc.FindMember(T3D_FILE_VERSION_KEY);
+            if (itr == doc.MemberEnd())
+            {
+                break;
+            }
+            String version = itr->value.GetString();
+            // Object
+            itr = doc.FindMember(T3D_FILE_OBJECT_KEY);
+            if (itr == doc.MemberEnd())
+            {
+                break;
+            }
+            return RTTRObjectJsonReader::ReadObject(itr->value);
         } while (false);
         
         return ret;

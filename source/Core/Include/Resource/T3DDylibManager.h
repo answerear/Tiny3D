@@ -73,8 +73,21 @@ namespace Tiny3D
          */
         DylibManager() = default;
 
-        TResult saveMeta(DataStream &stream, Meta *meta) override;
+        /**
+         * \brief 实现基类函数
+         */
+        ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
+        ResourcePtr loadResource(const String &name, Archive *archive, int32_t argc, va_list args) override;
+        
+        /**
+         * \brief 实现基类函数
+         */
+        ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) override;
+
+        /**
+         * \brief 实现基类函数
+         */
         TResult saveResource(DataStream &stream, Resource *res) override;
     };
 

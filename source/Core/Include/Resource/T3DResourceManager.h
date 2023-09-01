@@ -85,31 +85,35 @@ namespace Tiny3D
         ResourceManager() = default;
 
         /**
+         * \brief 新生成一个资源对象，具体子类资源实现
+         * \param [in] name : 资源名称
+         * \param [in] argc : 生成资源参数数量 
+         * \param [in] args : 资源参数列表
+         * \return 返回一个新建资源对象
+         */
+        virtual ResourcePtr newResource(const String &name, int32_t argc, va_list args) = 0;
+        
+        /**
          * \brief 同步加载资源
-         * \param [in] metaArchive : Meta 对象的档案系统 
-         * \param [in] resArchive : 资源对象档案系统
+         * \param [in] archive : 档案系统对象，用于读取数据
          * \param [in] name : 资源文件名
          * \param [in] argc : 资源参数数量 
          * \param [in,out] ... : 参数列表
-         * \return 
+         * \return 返回加载出来的资源对象
          */
-        ResourcePtr load(Archive *metaArchive, Archive *resArchive, const String &name, int32_t argc, ...);
+        ResourcePtr load(Archive *archive, const String &name, int32_t argc, ...);
 
-        /**
-         * \brief 从数据流加载元信息对象
-         * \param [in,out] stream : 数据流对象
-         * \return 返回加载的元信息对象
-         */
-        virtual Meta *loadMeta(DataStream &stream);
+        virtual ResourcePtr loadResource(const String &name, Archive *archive, int32_t argc, va_list args);
 
         /**
          * \brief 从数据流加载资源对象
+         * \param [in] name : 资源名称
          * \param [in,out] stream : 数据流对象
          * \param [in] argc : 参数列表的参数数量
          * \param [in,out] args : 参数列表 
          * \return 返回资源对象
          */
-        virtual Resource *loadResource(DataStream &stream, int32_t argc, va_list args);
+        virtual ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) = 0;
         
         /**
          * \brief 卸载对应资源
@@ -121,18 +125,10 @@ namespace Tiny3D
         /**
          * \brief 同步保存资源
          * \param [in] res : 要保存的资源对象 
-         * \param [in] metaArchive : Meta 对象的档案系统
-         * \param [in] resArchive : 资源对象档案系统
+         * \param [in] archive : Meta 档案系统对象，用于保存数据
          * \return 调用成功返回 T3D_OK
          */
-        TResult save(Resource *res, Archive *metaArchive, Archive *resArchive);
-
-        /**
-         * \brief 保存元对象到数据流中
-         * \param [in,out] stream : 数据流对象 
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult saveMeta(DataStream &stream, Meta *meta) = 0;
+        TResult save(Resource *res, Archive *archive);
 
         /**
          * \brief 保存资源对象到数据流中
@@ -178,8 +174,6 @@ namespace Tiny3D
         using ResourcesCacheConstItr = ResourcesCache::const_iterator;
         using ResourcesCacheValue = ResourcesCache::value_type;
 
-        /// 
-        String mArchiveType;
         /// 资源查找表
         ResourcesLookup mResourcesLookup;
         /// 资源缓存池

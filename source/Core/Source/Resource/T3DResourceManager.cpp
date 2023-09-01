@@ -21,7 +21,6 @@
 #include "Resource/T3DResourceManager.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DArchive.h"
-#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
@@ -34,7 +33,7 @@ namespace Tiny3D
 
         do
         {
-            const auto it = mResourcesCache.find(res->getResourceID());
+            const auto it = mResourcesCache.find(res->getUUID());
 
             if (it != mResourcesCache.end())
             {
@@ -44,7 +43,7 @@ namespace Tiny3D
             }
 
             // 存到缓存池
-            mResourcesCache.insert(ResourcesCacheValue(res->getResourceID(), res));
+            mResourcesCache.insert(ResourcesCacheValue(res->getUUID(), res));
             
             const auto itr = mResourcesLookup.find(res->getName());
             if (itr != mResourcesLookup.end())
@@ -107,7 +106,7 @@ namespace Tiny3D
             rval.first->second.push_back(resource.get());
 
             // 插入资源缓存池
-            auto rt = mResourcesCache.insert(ResourcesCacheValue(resource->getResourceID(), resource.get()));
+            auto rt = mResourcesCache.insert(ResourcesCacheValue(resource->getUUID(), resource.get()));
             if (!rt.second)
             {
                 mResourcesLookup.erase(rval.first);
@@ -133,7 +132,7 @@ namespace Tiny3D
             {
                 for (auto it = itr->second.begin(); it != itr->second.end(); ++it)
                 {
-                    if (resource->getResourceID() == (*it)->getResourceID())
+                    if (resource->getUUID() == (*it)->getUUID())
                     {
                         itr->second.erase(it);
                         break;
@@ -142,16 +141,15 @@ namespace Tiny3D
             }
 
             // 从 cache 移除
-            mResourcesCache.erase(resource->getResourceID());
+            mResourcesCache.erase(resource->getUUID());
         } while (false);
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(Archive *metaArchive, Archive *resArchive, const String &name, int32_t argc, ...)
+    ResourcePtr ResourceManager::load(Archive *archive, const String &name, int32_t argc, ...)
     {
-        Meta *meta = nullptr;
-        Resource *res = nullptr;
+        ResourcePtr res = nullptr;
         
         do
         {
@@ -163,46 +161,15 @@ namespace Tiny3D
                 break;
             }
 
-            // 从 meta 档案系统获取数据
-            MemoryDataStream ms;
-            String metaName = name + ".meta";
-            TResult ret = metaArchive->read(metaName, ms);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read reousrce meta [%s] from archive failed !",
-                    metaName.c_str());
-                break;
-            }
-            
-            // 加载 meta 对象
-            meta = loadMeta(ms);
-            if (meta == nullptr)
-            {
-                break;
-            }
-
-            // 从资源档案系统获取数据
-            MemoryDataStream rs;
-            ret = resArchive->read(name, rs);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read resource content [%s] from archive failed !",
-                    name.c_str());
-                break;
-            }
-
-            // 加载 resource 对象
-            va_list params;
-            va_start(params, argc);
-            res = loadResource(rs, argc, params);
-            va_end(params);
+            va_list args;
+            va_start(args, argc);
+            res = loadResource(name, archive, argc, args);
+            va_end(args);
             if (res == nullptr)
             {
                 break;
             }
-
+            
             // 放到缓存中
             if (!insertCache(res))
             {
@@ -211,30 +178,40 @@ namespace Tiny3D
                 break;
             }
             
-            res->mMeta = meta;
             res->onLoad();
         } while (false);
-
-        if (res == nullptr)
-        {
-            T3D_SAFE_DELETE(meta);
-        }
 
         return res;
     }
 
     //--------------------------------------------------------------------------
 
-    Meta *ResourceManager::loadMeta(DataStream &stream)
+    ResourcePtr ResourceManager::loadResource(const String &name, Archive *archive, int32_t argc, va_list args)
     {
-        return T3D_SERIALIZER_MGR.deserialize<Meta>(stream);
-    }
+        ResourcePtr res = nullptr;
 
-    //--------------------------------------------------------------------------
+        do
+        {
+            // 从档案系统获取数据
+            MemoryDataStream stream;
+            TResult ret = archive->read(name, stream);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Read reousrce [%s] from archive failed !",
+                    name.c_str());
+                break;
+            }
 
-    Resource *ResourceManager::loadResource(DataStream &stream, int32_t argc, va_list args)
-    {
-        return T3D_SERIALIZER_MGR.deserialize<Resource>(stream);
+            // 加载 resource 对象
+            res = loadResource(name, stream, argc, args);
+            if (res == nullptr)
+            {
+                break;
+            }
+        } while (false);
+
+        return res;
     }
 
     //--------------------------------------------------------------------------
@@ -267,38 +244,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ResourceManager::save(Resource *res, Archive *metaArchive, Archive *resArchive)
+    TResult ResourceManager::save(Resource *res, Archive *archive)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            // 保存 meta 对象
-            MemoryDataStream ms;
-            ret = saveMeta(ms, res->getMeta());
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            // 写到 meta 档案系统里 
-            String metaName = res->getName() + ".meta";
-            ret = metaArchive->write(metaName, ms);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
             // 保存资源对象
-            MemoryDataStream rs;
-            ret = saveResource(rs, res);
+            MemoryDataStream stream;
+            ret = saveResource(stream, res);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
             // 写到 资源 档案系统里
-            ret = resArchive->write(res->getName(), rs);
+            ret = archive->write(res->getName(), stream);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -356,8 +317,6 @@ namespace Tiny3D
 
             // 克隆对象
             ResourcePtr dst = src->clone();
-            // 重新生成 UUID
-            dst->mMeta->uuid = UUID::generate();
             if (!insertCache(dst))
             {
                 break;
@@ -394,7 +353,7 @@ namespace Tiny3D
                     break;
                 }
                 
-                res = getResource(itr->second.front()->getResourceID());
+                res = getResource(itr->second.front()->getUUID());
             }
             else
             {

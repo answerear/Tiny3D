@@ -337,8 +337,12 @@ namespace Tiny3D
     /**
      * \brief 着色器资源
      */
+    TCLASS()
     class T3D_ENGINE_API Shader : public Resource
     {
+        TRTTI_ENABLE(Resource);
+        TRTTI_FRIEND
+
     public:
         static ShaderPtr create(const String &name);
 
@@ -350,6 +354,9 @@ namespace Tiny3D
 
         TResult disableKeyword(const String &keyword);
         
+    private:
+        Shader() = default;
+
     protected:
         Shader(const String &name);
         

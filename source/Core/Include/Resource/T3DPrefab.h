@@ -54,6 +54,8 @@ namespace Tiny3D
         Prefab(const String &name);
         
         ResourcePtr clone() const override;
+
+        void cloneProperties(const Resource * const src) override;
         
         RTTRObject  *mObject;
     };
