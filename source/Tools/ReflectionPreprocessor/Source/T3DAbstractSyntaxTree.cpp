@@ -365,6 +365,7 @@ namespace Tiny3D
         String name = getHierarchyName();
             
         // 写类名
+        fs << std::endl << "\t// ---- register class " << name;
         fs << std::endl << "\tregistration::class_<" << name << ">(\"" << name << "\")";
 
         // 交给子结点写
@@ -403,7 +404,8 @@ namespace Tiny3D
         if (isDerivedOf("Tiny3D::Object"))
         {
             // Tiny3D::Object 子类，自动注册 转换函数，实现与 SmartPtr 之间的互相转换
-            fs << std::endl << "\t" << "type::register_wrapper_converter_for_base_classes<SmartPtr<" << getName() << ">>();" << std::endl;
+            fs << std::endl << "\t" << "// register convert() between class " << name << " and SmartPtr<" << name << ">";
+            fs << std::endl << "\t" << "type::register_wrapper_converter_for_base_classes<SmartPtr<" << name << ">>();" << std::endl;
         }
         
         return T3D_OK;
