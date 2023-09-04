@@ -147,6 +147,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ResourcePtr ResourceManager::createResource(const String &name, int32_t argc, ...)
+    {
+        va_list args;
+        va_start(args, argc);
+        ResourcePtr res = newResource(name, argc, args);
+        va_end(args);
+        return res;
+    }
+
+    //--------------------------------------------------------------------------
+
     ResourcePtr ResourceManager::load(Archive *archive, const String &name, int32_t argc, ...)
     {
         ResourcePtr res = nullptr;

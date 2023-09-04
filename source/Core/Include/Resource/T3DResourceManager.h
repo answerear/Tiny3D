@@ -84,6 +84,8 @@ namespace Tiny3D
          */
         ResourceManager() = default;
 
+        ResourcePtr createResource(const String &name, int32_t argc, ...);
+
         /**
          * \brief 新生成一个资源对象，具体子类资源实现
          * \param [in] name : 资源名称

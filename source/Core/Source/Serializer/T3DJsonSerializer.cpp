@@ -273,8 +273,8 @@ namespace Tiny3D
 
         static bool WriteVariant(PrettyWriter<JsonStream> &writer, const variant &var)
         {
-            auto value_type = var.get_type();
-            auto wrapped_type = value_type.is_wrapper() ? value_type.get_wrapped_type() : value_type;
+            type value_type = var.get_type();
+            type wrapped_type = value_type.is_wrapper() ? value_type.get_wrapped_type() : value_type;
             bool is_wrapper = wrapped_type != value_type;
 
             if (WriteAtomicType(writer, is_wrapper ? wrapped_type : value_type,
@@ -291,13 +291,24 @@ namespace Tiny3D
             }
             else
             {
+                //const instance obj = var;
                 const instance child_obj = var;
-                const instance obj = is_wrapper ? child_obj.get_wrapped_instance() : child_obj;
-                const auto child_props = obj.get_derived_type().get_properties();
-                //auto child_props = is_wrapper ? wrapped_type.get_properties() : value_type.get_properties();
+                instance obj = is_wrapper ? child_obj.get_wrapped_instance() : child_obj;
+                type t = obj.get_derived_type();
+                variant v = var;
+                if (t.is_wrapper())
+                {
+                    v.convert(obj.get_type().get_wrapped_type());
+                    t = v.get_type();
+                }
+                const auto child_props = t.get_properties();
+                //const variant v = var;
+                //if (is_wrapper)
+                //    v.convert(wrapped_type);
+                //auto child_props = is_wrapper ? v.get_type().get_properties() : value_type.get_properties();
                 if (!child_props.empty())
                 {
-                    WriteObject(writer, var);
+                    WriteObject(writer, v);
                 }
                 else
                 {
@@ -458,14 +469,35 @@ namespace Tiny3D
                 {
                     const auto &array = value.GetArray();
                     auto view = obj.create_associative_view();
-                    for (size_t i = 0; i < array.Size(); i++)
+                    if (view.is_key_only_type())
                     {
-                        const auto &item = array[i];
-                        const auto &keyNode = item.FindMember(RTTI_MAP_KEY);
-                        variant key = ReadObject(keyNode->value);
-                        const auto &valNode = item.FindMember(RTTI_MAP_VALUE);
-                        variant val = ReadObject(valNode->value);
-                        view.insert(key, val);
+                        // set
+                        for (size_t i = 0; i < array.Size(); i++)
+                        {
+                            const auto &item = array[i];
+                            variant var = ReadObject(item);
+                            view.insert(var);
+                        }
+                    }
+                    else
+                    {
+                        // map
+                        type keyType = view.get_key_type();
+                        const type valueType = view.get_value_type();
+                        for (size_t i = 0; i < array.Size(); i++)
+                        {
+                            const auto &item = array[i];
+                            const auto &keyNode = item.FindMember(RTTI_MAP_KEY);
+                            variant key = ReadObject(keyNode->value);
+                            const auto &valNode = item.FindMember(RTTI_MAP_VALUE);
+                            variant val = ReadObject(valNode->value);
+                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == val.get_type())
+                            {
+                                val.convert(valueType);
+                            }
+                            
+                            view.insert(key, val);
+                        }
                     }
                 }
                 else
@@ -543,8 +575,8 @@ namespace Tiny3D
             Document doc;
             if (doc.ParseStream(is).HasParseError())
             {
-                // doc.GetParseError();
-                // doc.GetErrorOffset();
+                ParseErrorCode errorCode = doc.GetParseError();
+                size_t errorPos = doc.GetErrorOffset();
                 break;
             }
 

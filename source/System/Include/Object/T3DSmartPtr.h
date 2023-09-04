@@ -49,12 +49,9 @@ namespace Tiny3D
      * @brief   智能指针类
      * @tparam  T   Generic type parameter.
      */
-    // TCLASS()
     template <typename T>
     class SmartPtr
     {
-        // TRTTI_ENABLE()
-        
     public:
         typedef T element_type;
         
@@ -272,7 +269,8 @@ namespace Tiny3D
     const SmartPtr<T> SmartPtr<T>::NULL_PTR(nullptr);
 
     #define T3D_DECLARE_SMART_PTR(classname)    \
-            typedef SmartPtr<classname> classname##Ptr
+        using classname##Ptr = SmartPtr<classname>;
+
 }
 
 namespace rttr
@@ -301,7 +299,7 @@ namespace rttr
             if (auto p = rttr_cast<typename Tiny3D::SmartPtr<U>::element_type*>(source.get()))
             {
                 ok = true;
-                return Tiny3D::SmartPtr<U>(source, p);
+                return Tiny3D::SmartPtr<U>(p);
             }
             else
             {

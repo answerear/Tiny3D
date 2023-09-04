@@ -25,7 +25,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DataType dataType)
+    ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType)
         : mDataType(dataType)
         , mRegisterIndex(registerIdx)
         , mRegisterNum(registerNum)
@@ -62,8 +62,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ShaderKeyword::ShaderKeyword(uint32_t count)
-        : mKeys(count)
+    ShaderKeyword::ShaderKeyword()
     {
         
     }
@@ -86,21 +85,23 @@ namespace Tiny3D
 
     bool ShaderKeyword::hasKey(const String &key) const
     {
-        auto itr = std::find(mKeys.begin(), mKeys.end(), key);
+        auto itr = mKeys.find(key); // std::find(mKeys.begin(), mKeys.end(), key);
         return (itr != mKeys.end());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ShaderKeyword::setKeyword(const String &keyword, uint32_t index)
+    TResult ShaderKeyword::addKeyword(const String &keyword)
     {
-        if (index >= mKeys.size())
-        {
-            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Set keyword in shader but index is out of bound !");
-            return T3D_ERR_OUT_OF_BOUND;
-        }
-        
-        mKeys[index] = keyword;
+        mKeys.insert(keyword);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ShaderKeyword::removeKeyword(const String &keyword)
+    {
+        mKeys.erase(keyword);
         return T3D_OK;
     }
 
@@ -258,10 +259,72 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    TResult Shader::enableKeyword(const String &keyword)
+    
+    TResult Shader::addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
+        if (itr != mKeywords.end())
+        {
+            T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword duplicated !");
+            return T3D_ERR_DUPLICATED_ITEM;
+        }
+
+        mKeywords.push_back(keyword);
+        auto rval = mVariants.insert(ShaderVariantsValue(keyword, variant));
+
+        if (mCurrentKeyword == nullptr)
+        {
+            mCurrentKeyword = &(rval.first->first);
+            mCurrentVariant = variant;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Shader::enableKeyword(const String &key)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            bool found = false;
+            for (const auto &keyword : mKeywords)
+            {
+                if (keyword.hasKey(key))
+                {
+                    found = true;
+                    mCurrentKeyword = &keyword;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                T3D_LOG_WARNING(LOG_TAG_RESOURCE,
+                                "Enable keyword (%s) failed !", key.c_str());
+                ret = T3D_ERR_NOT_FOUND;
+                break;
+            }
+
+            auto itr = mVariants.find(*mCurrentKeyword);
+            if (itr == mVariants.end())
+            {
+                T3D_LOG_WARNING(
+                    LOG_TAG_RESOURCE,
+                    "Could not find shader variant for keyword (%s) !",
+                    key.c_str());
+                ret = T3D_ERR_NOT_FOUND;
+                break;
+            }
+
+            mCurrentVariant = itr->second;
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

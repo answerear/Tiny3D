@@ -574,7 +574,7 @@ namespace Tiny3D
             break;
         case CXCursor_VarDecl:
             {
-                ret = instantiateClassTemplate(cxCursor);
+                ret = instantiateClassTemplate(cxCursor, parent->FileInfo.Path);
             }
             break;
         case CXCursor_DeclRefExpr:
@@ -592,7 +592,7 @@ namespace Tiny3D
                     CXType cxType = clang_getCursorType(cxCursor);
                     cxType = clang_getCanonicalType(cxType);
                     CXCursor cxParam = clang_getTypeDeclaration(cxType);
-                    instantiateClassTemplate(cxParam);
+                    instantiateClassTemplate(cxParam, parent->FileInfo.Path);
                     // RP_LOG_INFO("FunctionChildren -- %s(%s) : %s (parent %s : %s)", type.c_str(), toString(clang_getCursorSpelling(cxParam)).c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
                 }
             }
@@ -1045,6 +1045,10 @@ namespace Tiny3D
                 itrFile = rval.first;
             }
 
+            if (itrFile->first == "map" || itrFile->first == "T3DShader")
+            {
+                int a = 0;
+            }
             itrFile->second.push_back(name);
         } while (false);
         
@@ -1091,7 +1095,8 @@ namespace Tiny3D
             }
 
             // 获取类名
-            CXString cxName = clang_getCursorSpelling(clang_getCanonicalCursor(cxCursor));
+            //CXString cxName = clang_getCursorSpelling(clang_getCanonicalCursor(cxCursor));
+            CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
             
             // 获取父结点
@@ -1352,9 +1357,9 @@ namespace Tiny3D
             {
                 // 父类没有在使用 RTTR_ENABLE 打开反射功能
                 ret = T3D_ERR_RP_BASE_CLASS_NO_RTTI;
-                RP_LOG_ERROR("Base class has not enabled RTTI feature [%s:%u] ! "
+                RP_LOG_ERROR("Base class of class %s has not enabled RTTI feature [%s:%u] ! "
                     "Please use TRTTI_ENABLE() in class declaration to enable this feature.",
-                    baseNode->FileInfo.Path.c_str(), baseNode->FileInfo.StartLine);
+                    derivedNode->getName().c_str(), baseNode->FileInfo.Path.c_str(), baseNode->FileInfo.StartLine);
                 break;
             }
 
@@ -2264,7 +2269,7 @@ namespace Tiny3D
                 insertSourceFiles(path, property, false);       
             }
 
-            instantiateClassTemplate(cxCursor);
+            instantiateClassTemplate(cxCursor, path);
             
             // RP_LOG_INFO("Variable -> Name : %s, Type : %s, CXXMember : %d (Parent Name : %s, Type : %s)",
             //     toString(clang_getCursorSpelling(cxCursor)).c_str(),
@@ -2703,6 +2708,58 @@ namespace Tiny3D
                     break;
                 }
             }
+            else if (isTemplate && !pathes.empty())
+            {
+                // 打个 patch 补已经加过源码文件，但没有头文件的问题
+
+                // 提取头文件作为 cpp 文件中包含的头文件
+                String dir, title, ext;
+                Dir::parsePath(path, dir, title, ext);
+
+                auto itr = mHeaderFiles.find(title);
+
+                // 根据包含路径，搜索到对应路径，并提取头文件
+                for (const auto &includePath : mIncludePathes)
+                {
+                    String pattern = includePath + "*";
+                    String headerPath = path;
+                    if (StringUtil::match(headerPath, pattern, false))
+                    {
+                        StringUtil::replaceAll(headerPath, includePath, "");
+                        if (headerPath[0] == Dir::getNativeSeparator())
+                        {
+                            headerPath.erase(0, 1);
+                            auto it = std::find(itr->second.begin(), 
+                                itr->second.end(), 
+                                headerPath);
+                            if (it == itr->second.end())
+                            {
+                                itr->second.push_back(headerPath);
+                            }
+                        }
+                    }
+
+                    for (const auto &str : pathes)
+                    {
+                        headerPath = str;
+                        if (StringUtil::match(headerPath, pattern, false))
+                        {
+                            StringUtil::replaceAll(headerPath, includePath, "");
+                            if (headerPath[0] == Dir::getNativeSeparator())
+                            {
+                                headerPath.erase(0, 1);
+                                auto it = std::find(itr->second.begin(),
+                                                    itr->second.end(),
+                                                    headerPath);
+                                if (it == itr->second.end())
+                                {
+                                    itr->second.push_back(headerPath);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             String hierarchyName = node->getHierarchyName();
             auto it = itr->second.find(hierarchyName);
@@ -2856,7 +2913,7 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
-    TResult ReflectionGenerator::instantiateClassTemplate(CXCursor cxCursor)
+    TResult ReflectionGenerator::instantiateClassTemplate(CXCursor cxCursor, const String &headerPath)
     {
         TResult ret = T3D_OK;
 
@@ -2876,6 +2933,7 @@ namespace Tiny3D
             }
             
             String varType = toString(clang_getTypeSpelling(clang_getCanonicalType(cxVarType)));
+            //String varType = toString(clang_getTypeSpelling(cxVarType));
             // CXType cxCanonicalType = clang_getCanonicalType(cxVarType);
             // String canonicalType = toString(clang_getTypeSpelling(cxCanonicalType));
             CXCursor cxCursorDecl = clang_getTypeDeclaration(cxVarType);
@@ -2964,6 +3022,7 @@ namespace Tiny3D
             StringUtil::replaceAll(decl, " ", "");
             StringList pathes;
             pathes.push_back(path);
+            pathes.push_back(headerPath);
             insertSourceFiles(templateInstance->FileInfo.Path, templateInstance, true, pathes);
         } while (false);
         

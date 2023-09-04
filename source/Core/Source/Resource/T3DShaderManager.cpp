@@ -34,6 +34,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+    
+    ShaderPtr ShaderManager::createShader(const String &name)
+    {
+        return smart_pointer_cast<Shader>(createResource(name, 0));
+    }
+
+    //--------------------------------------------------------------------------
 
     ShaderPtr ShaderManager::loadShader(Archive *archive, const String &name)
     {

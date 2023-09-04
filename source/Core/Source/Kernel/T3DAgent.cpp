@@ -28,6 +28,8 @@
 #include "Resource/T3DDylibManager.h"
 #include "Resource/T3DPrefab.h"
 #include "Resource/T3DPrefabManager.h"
+#include "Resource/T3DShader.h"
+#include "Resource/T3DShaderManager.h"
 #include "T3DErrorDef.h"
 #include "RHI/T3DRHIRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
@@ -51,6 +53,11 @@ namespace Tiny3D
     
     Agent::Agent()
     {
+        using namespace rttr;
+        type::register_wrapper_converter_for_base_classes<SmartPtr<ShaderConstantParam>>();
+        type::register_wrapper_converter_for_base_classes<SmartPtr<ShaderSamplerParam>>();
+        type::register_wrapper_converter_for_base_classes<SmartPtr<ShaderVariant>>();
+        type::register_wrapper_converter_for_base_classes<SmartPtr<Shader>>();
     }
 
     //--------------------------------------------------------------------------
@@ -195,7 +202,42 @@ namespace Tiny3D
 
                 addRenderWindow(window);
             }
-            
+
+            ShaderPtr shader = mShaderMgr->createShader("test.shader");
+            ShaderKeyword keyword;
+            keyword.addKeyword("TEST1");
+            keyword.generate();
+            String code = 
+                "static float4 gl_Position;\n"
+                "struct SPIRV_Cross_Output\n"
+                "{\n"
+                "    float4 gl_Position : SV_Position;\n"
+                "};\n"
+                "\n"
+                "void vert_main()\n"
+                "{\n"
+                "    gl_Position = float4(1.0f, 2.0f, 3.0f, 4.0f);\n"
+                "}\n"
+                "\n"
+                "SPIRV_Cross_Output main()\n"
+                "{\n"
+                "    vert_main();\n"
+                "    SPIRV_Cross_Output stage_output;\n"
+                "    stage_output.gl_Position = gl_Position;\n"
+                "    return stage_output;\n"
+                "}\n";
+            ShaderVariantPtr variant = ShaderVariant::create(std::forward<ShaderKeyword>(keyword), code);
+            shader->addShaderVariant(variant->getShaderKeyword(), variant);
+            shader->enableKeyword("TEST1");
+            MemoryDataStream os(1024*1024);
+            T3D_SERIALIZER_MGR.serialize(os, shader);
+            size_t pos = os.tell();
+            uint8_t *data = nullptr;
+            size_t dataSize = 0;
+            os.getBuffer(data, dataSize);
+            MemoryDataStream is(data, pos, false);
+            ShaderPtr shader1 = T3D_SERIALIZER_MGR.deserialize<Shader>(is);
+
             mIsRunning = true;
         } while (false);
 
@@ -625,7 +667,8 @@ namespace Tiny3D
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
         mDylibMgr = DylibManager::create();      
         mPrefabMgr = PrefabManager::create();
-        
+        mShaderMgr = ShaderManager::create();
+
         return T3D_OK;
     }
     

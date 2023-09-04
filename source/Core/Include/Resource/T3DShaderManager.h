@@ -34,6 +34,8 @@ namespace Tiny3D
     public:
         static ShaderManagerPtr create();
 
+        ShaderPtr createShader(const String &name);
+
         ShaderPtr loadShader(Archive *archive, const String &name);
 
         TResult saveShader(Shader *shader, Archive *archive);

@@ -146,7 +146,7 @@ namespace Tiny3D
 
         void insertFunctionTemplate(const String &name, ASTOverloadFunction *function);
 
-        TResult instantiateClassTemplate(CXCursor cxCursor);
+        TResult instantiateClassTemplate(CXCursor cxCursor, const String &headerPath);
 
         TResult instantiateFunctionTemplate(CXCursor cxCursor);
 

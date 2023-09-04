@@ -97,7 +97,7 @@ namespace Tiny3D
         String  pluginPath = ".";
 
         TPROPERTY()
-        std::list<String> plugins;
+        TList<String> plugins;
 
         TRTTI_ENABLE()
     };
