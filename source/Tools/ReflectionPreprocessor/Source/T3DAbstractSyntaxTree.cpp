@@ -399,6 +399,12 @@ namespace Tiny3D
             
             fs << ";" << std::endl;
         }
+
+        if (isDerivedOf("Tiny3D::Object"))
+        {
+            // Tiny3D::Object 子类，自动注册 转换函数，实现与 SmartPtr 之间的互相转换
+            fs << std::endl << "\t" << "type::register_wrapper_converter_for_base_classes<SmartPtr<" << getName() << ">>();" << std::endl;
+        }
         
         return T3D_OK;
     }
@@ -429,35 +435,58 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    ASTStruct* searchStartNode(const ASTStruct* node, const String& name)
+    {
+        ASTStruct* ret = nullptr;
+        for (auto base : node->BaseClasses)
+        {
+            if (ret != nullptr)
+            {
+                break;
+            }
+
+            if (base.first == name)
+            {
+                ret = base.second;
+                break;
+            }
+            else
+            {
+                ret = searchStartNode(base.second, name);
+            }
+        }
+        return ret;
+    }
+
     bool ASTStruct::isDerivedOf(const String &name) const
     {
         bool ret = false;
         
         StringList names = StringUtil::split2(name, "::");
         auto itr = names.rbegin();
-        
-        ASTNode *parent = getParent();
-        while (parent != nullptr)
-        {
-            if (parent->getName() == *itr)
-            {
-                ret = true;
-                break;
-            }
-            parent = parent->getParent();
-        }
 
-        for (itr = names.rbegin(); itr != names.rend() && parent != nullptr; ++itr, parent = parent->getParent())
+        // 搜索起始结点
+        ASTStruct *node = searchStartNode(this, *itr);
+        if (node == nullptr)
+            return ret;
+
+        // 基类已经跑完了，如果都匹配，再匹配命名空间
+        ret = true;
+        ASTNode* parent = node->getParent();
+        ++itr;
+        while (itr != names.rend() && parent != nullptr)
         {
             if (parent->getName() == *itr)
             {
                 ret = true;
+                parent = parent->getParent();
             }
             else
             {
                 ret = false;
                 break;
             }
+            ++itr;
         }
         
         return ret;

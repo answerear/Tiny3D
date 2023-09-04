@@ -53,11 +53,6 @@ namespace Tiny3D
     
     Agent::Agent()
     {
-        using namespace rttr;
-        type::register_wrapper_converter_for_base_classes<SmartPtr<ShaderConstantParam>>();
-        type::register_wrapper_converter_for_base_classes<SmartPtr<ShaderSamplerParam>>();
-        type::register_wrapper_converter_for_base_classes<SmartPtr<ShaderVariant>>();
-        type::register_wrapper_converter_for_base_classes<SmartPtr<Shader>>();
     }
 
     //--------------------------------------------------------------------------
@@ -72,6 +67,9 @@ namespace Tiny3D
         
         mPrefabMgr->unloadAllResources();
         mPrefabMgr = nullptr;
+
+        mShaderMgr->unloadAllResources();
+        mShaderMgr = nullptr;
 
         mArchiveMgr->unloadAllArchives();
         

@@ -274,6 +274,13 @@ namespace Tiny3D
                 // RP_LOG_INFO("CXCursor_ClassTemplatePartialSpecialization %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
             }
             break;
+        case CXCursor_CXXBaseSpecifier:
+            {
+                RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
+                //ret = processClassBaseSpecifier(cxCursor, cxParent, parent);
+                cxResult = CXChildVisit_Continue;
+            }
+            break;
         case CXCursor_TemplateRef:
             {
                 RP_LOG_INFO("CXCursor_TemplateRef %s : %s (parent %s : %s)", type.c_str(), name.c_str(), toString(clang_getCursorKindSpelling(cxParent.kind)).c_str(), toString(clang_getCursorSpelling(cxParent)).c_str());
@@ -1197,6 +1204,27 @@ namespace Tiny3D
             // 把自己加到父结点上
             parent->addChild(name, klass);
 
+            // 放到源码文件缓存中
+            if (isTemplate)
+            {
+                String USR = toString(clang_getCursorUSR(cxCursor));
+                insertClassTemplate(USR, static_cast<ASTClassTemplate*>(klass));
+            }
+            else
+            {
+                insertSourceFiles(path, klass, false);
+            }
+
+            ClientData data = {klass, this};
+            clang_visitChildren(cxCursor,
+                [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
+                {
+                    auto *data = static_cast<ClientData*>(cxData);
+                    auto *klass = static_cast<ASTStruct*>(data->parent);
+                    return data->generator->visitClassChildren(cxCursor, cxParent, klass);
+                },
+                &data);
+
             // 如果是 Tiny3D::Object 派生类，默认就是构造出指针对象，否则看 specifiers 指定的标记来定
             bool isDerivedOfbject = klass->isDerivedOf("Tiny3D::Object");
             if (isDerivedOfbject)
@@ -1223,7 +1251,7 @@ namespace Tiny3D
 
                 if (!inWhitelist)
                 {
-                    for (const auto &spec : itrSpec->second)
+                    for (const auto& spec : itrSpec->second)
                     {
                         // 如果有设置指示符构造返回类型，那就用指定的
                         if (spec.name == kSpecConstructAsPointer)
@@ -1243,27 +1271,6 @@ namespace Tiny3D
 
                 klass->ConstructAsPointer = constructAsPointer;
             }
-
-            // 放到源码文件缓存中
-            if (isTemplate)
-            {
-                String USR = toString(clang_getCursorUSR(cxCursor));
-                insertClassTemplate(USR, static_cast<ASTClassTemplate*>(klass));
-            }
-            else
-            {
-                insertSourceFiles(path, klass, false);
-            }
-
-            ClientData data = {klass, this};
-            clang_visitChildren(cxCursor,
-                [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
-                {
-                    auto *data = static_cast<ClientData*>(cxData);
-                    auto *klass = static_cast<ASTStruct*>(data->parent);
-                    return data->generator->visitClassChildren(cxCursor, cxParent, klass);
-                },
-                &data);
 
             if (klass->HasConstructor && !klass->HasDefaultConstructor)
             {
@@ -1352,7 +1359,7 @@ namespace Tiny3D
             // 检测反射继承链是否跟实际父子类继承链相一致
             T3D_ASSERT(baseNode->RTTIEnabled,
                 "The reflection hierarchy is not correspondent with the class derived hierarchy !");
-            auto itr = std::find(derivedNode->RTTIBaseClasses->begin(), derivedNode->RTTIBaseClasses->end(), baseNode->getHierarchyName());
+            auto itr = std::find(derivedNode->RTTIBaseClasses->begin(), derivedNode->RTTIBaseClasses->end(), baseNode->getName());
             if (itr == derivedNode->RTTIBaseClasses->end())
             {
                 // 父类没有在使用 RTTR_ENABLE 打开反射功能
@@ -1364,7 +1371,7 @@ namespace Tiny3D
             }
 
             // 都合法，放到基类列表中
-            derivedNode->BaseClasses.insert(ASTBaseClassesValue(baseNode->getHierarchyName(), baseNode));
+            derivedNode->BaseClasses.insert(ASTBaseClassesValue(baseNode->getName(), baseNode));
         } while (false);
         
         return ret;
@@ -2861,7 +2868,7 @@ namespace Tiny3D
                     {
                         fs << ";" << std::endl;
                     }
-                    
+
                     value.second->generateSourceFile(fs);
                 }
             }
