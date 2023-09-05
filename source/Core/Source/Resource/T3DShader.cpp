@@ -25,6 +25,13 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ShaderConstantParamPtr ShaderConstantParam::create(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType)
+    {
+        return new ShaderConstantParam(name, data, dataSize, registerIdx, registerNum, dataType);
+    }
+    
+    //--------------------------------------------------------------------------
+
     ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType)
         : mDataType(dataType)
         , mRegisterIndex(registerIdx)

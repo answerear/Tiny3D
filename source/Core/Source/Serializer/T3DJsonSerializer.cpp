@@ -458,10 +458,15 @@ namespace Tiny3D
                     const auto &array = value.GetArray();
                     auto view = obj.create_sequential_view();
                     view.set_size(array.Size());
+                    const type itemType = view.get_value_type();
                     for (size_t i = 0; i < array.Size(); i++)
                     {
                         const auto &item = array[i];
                         variant var = ReadObject(item);
+                        if (itemType.is_wrapper() && itemType.get_wrapped_type() == var.get_type())
+                        {
+                            var.convert(itemType);
+                        }
                         view.set_value(i, var);
                     }
                 }
@@ -471,11 +476,16 @@ namespace Tiny3D
                     auto view = obj.create_associative_view();
                     if (view.is_key_only_type())
                     {
+                        const type valueType = view.get_value_type();
                         // set
                         for (size_t i = 0; i < array.Size(); i++)
                         {
                             const auto &item = array[i];
                             variant var = ReadObject(item);
+                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == var.get_type())
+                            {
+                                var.convert(valueType);
+                            }
                             view.insert(var);
                         }
                     }

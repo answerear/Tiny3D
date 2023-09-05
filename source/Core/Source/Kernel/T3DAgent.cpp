@@ -224,15 +224,36 @@ namespace Tiny3D
                 "    stage_output.gl_Position = gl_Position;\n"
                 "    return stage_output;\n"
                 "}\n";
+            Matrix4 mat;
+            ShaderConstantParamPtr constParam = ShaderConstantParam::create("WorldMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
             ShaderVariantPtr variant = ShaderVariant::create(std::forward<ShaderKeyword>(keyword), code);
+            variant->addConstant(constParam);
+
+            ShaderKeyword keyword1;
+            keyword1.addKeyword("TEST2");
+            keyword1.generate();
+            ShaderConstantParamPtr constParam1 = ShaderConstantParam::create("ViewMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+            ShaderVariantPtr variant1 = ShaderVariant::create(std::forward<ShaderKeyword>(keyword1), code);
+            variant1->addConstant(constParam1);
+
             shader->addShaderVariant(variant->getShaderKeyword(), variant);
+            shader->addShaderVariant(variant1->getShaderKeyword(), variant1);
             shader->enableKeyword("TEST1");
+            
             MemoryDataStream os(1024*1024);
             T3D_SERIALIZER_MGR.serialize(os, shader);
             size_t pos = os.tell();
             uint8_t *data = nullptr;
             size_t dataSize = 0;
             os.getBuffer(data, dataSize);
+
+            FileDataStream fs;
+            if (fs.open("1.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
+            {
+                fs.write(data, dataSize);
+                fs.close();
+            }
+
             MemoryDataStream is(data, pos, false);
             ShaderPtr shader1 = T3D_SERIALIZER_MGR.deserialize<Shader>(is);
 

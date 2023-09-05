@@ -56,7 +56,7 @@ namespace Tiny3D
         };
 
         /**
-         * \brief 构造函数
+         * \brief 创建对象函数
          * \param [in] name : 变量名称
          * \param [in] data : 数据地址
          * \param [in] dataSize : 数据大小
@@ -64,7 +64,7 @@ namespace Tiny3D
          * \param registerNum : 占用寄存器数量
          * \param dataType : 数据类型
          */
-        ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
+        static ShaderConstantParamPtr create(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
 
         /**
          * \brief Destructor
@@ -163,6 +163,17 @@ namespace Tiny3D
         }
         
     protected:
+        /**
+         * \brief 构造函数
+         * \param [in] name : 变量名称
+         * \param [in] data : 数据地址
+         * \param [in] dataSize : 数据大小
+         * \param [in] registerIdx : 数据地址索引，不同 Render API 不一样定义 
+         * \param registerNum : 占用寄存器数量
+         * \param dataType : 数据类型
+         */
+        ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
+        
         /// 数据地址
         uint8_t     *mData = nullptr;
         /// 数据大小
