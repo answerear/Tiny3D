@@ -86,25 +86,25 @@ namespace Tiny3D
         {
             if (data == nullptr)
                 return T3D_ERR_INVALID_PARAM;
-            memcpy(mData, data, mDataSize);
+            memcpy(mData.Data, data, mData.DataSize);
             return T3D_OK;
         }
 
         /**
          * \brief 获取变量数据
          */
-        void *getData() const { return mData; }
+        void *getData() const { return mData.Data; }
 
         /**
          * \brief 获取数据类型
          */
         TPROPERTY(RTTRFuncName="DataType", RTTRFuncType="getter")
         DATA_TYPE getDataType() const { return mDataType; }
-
+        
         /**
          * \brief 获取数据大小
          */
-        uint32_t getSize() const { return mDataSize; }
+        uint32_t getSize() const { return mData.DataSize; }
 
         /**
          * \brief 获取占用寄存器数量
@@ -122,20 +122,15 @@ namespace Tiny3D
         ShaderConstantParam() = default;
 
         TPROPERTY(RTTRFuncName="Data", RTTRFuncType="getter")
-        TArray<uint8_t> getDataArray() const
+        const Buffer &getBuffer() const
         {
-            TArray<uint8_t> data(mDataSize);
-            data.assign(mData, mData+mDataSize);
-            return data;
+            return mData;
         }
 
         TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setDataArray(TArray<uint8_t> data)
+        void setBuffer(const Buffer &buffer)
         {
-            T3D_SAFE_DELETE_ARRAY(mData);
-            mData = new uint8_t[data.size()];
-            memcpy(mData,  &data[0], data.size());
-            mDataSize = data.size();
+            mData = buffer;
         }
 
         TPROPERTY(RTTRFuncName="DataType", RTTRFuncType="setter")
@@ -174,12 +169,15 @@ namespace Tiny3D
          */
         ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
         
-        /// 数据地址
-        uint8_t     *mData = nullptr;
-        /// 数据大小
-        uint32_t    mDataSize = 0;
+        // /// 数据地址
+        // uint8_t     *mData = nullptr;
+        // /// 数据大小
+        // uint32_t    mDataSize = 0;
+
+        /// 数据
+        Buffer      mData;
         /// 数据类型
-        DATA_TYPE    mDataType = DATA_TYPE::DT_FLOAT;
+        DATA_TYPE   mDataType = DATA_TYPE::DT_FLOAT;
         /// 数据地址索引
         uint32_t    mRegisterIndex = 0;
         /// 占用寄存器数量

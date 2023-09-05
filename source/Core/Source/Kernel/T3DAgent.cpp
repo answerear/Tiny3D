@@ -232,6 +232,7 @@ namespace Tiny3D
             ShaderKeyword keyword1;
             keyword1.addKeyword("TEST2");
             keyword1.generate();
+            mat[0][0] = mat[1][1] = mat[2][2] = mat[3][3] = 2.0f;
             ShaderConstantParamPtr constParam1 = ShaderConstantParam::create("ViewMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
             ShaderVariantPtr variant1 = ShaderVariant::create(std::forward<ShaderKeyword>(keyword1), code);
             variant1->addConstant(constParam1);

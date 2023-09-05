@@ -40,9 +40,9 @@ namespace Tiny3D
     {
         if (data != nullptr && dataSize > 0)
         {
-            mData = new uint8_t[dataSize];
-            memcpy(mData, data, dataSize);
-            mDataSize = dataSize;
+            mData.Data = new uint8_t[dataSize];
+            memcpy(mData.Data, data, dataSize);
+            mData.DataSize = dataSize;
         }
     }
 
@@ -50,7 +50,7 @@ namespace Tiny3D
 
     ShaderConstantParam::~ShaderConstantParam()
     {
-        T3D_SAFE_DELETE_ARRAY(mData);
+        T3D_SAFE_DELETE_ARRAY(mData.Data);
     }
 
     //--------------------------------------------------------------------------

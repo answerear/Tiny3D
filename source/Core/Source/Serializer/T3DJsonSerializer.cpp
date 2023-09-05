@@ -193,7 +193,7 @@ namespace Tiny3D
             const auto name = t.get_name();
             writer.String(name.data(), static_cast<rapidjson::SizeType>(name.length()), false);
             writer.Key(RTTI_VALUE);
-        
+
             writer.StartArray();
             for (const auto& item : view)
             {
@@ -212,11 +212,11 @@ namespace Tiny3D
                         writer.EndObject();
                     }
                     else // object
-                        {
+                    {
                         writer.StartObject();
                         WriteObject(writer, wrapped_var);
                         writer.EndObject();
-                        }
+                    }
                 }
             }
             writer.EndArray();
@@ -227,27 +227,38 @@ namespace Tiny3D
             const instance obj2 = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
         
             const auto className = obj2.get_derived_type().get_name();
-        
+            
             // Type
             writer.Key(RTTI_TYPE);
             writer.String(className.data(), static_cast<rapidjson::SizeType>(className.length()), false);
-        
+
             // Properties
             writer.Key(RTTI_VALUE);
             writer.StartObject();
-
-            auto prop_list = obj2.get_derived_type().get_properties();
-            for (auto prop : prop_list)
+            
+            if (className == "Tiny3D::Buffer")
             {
-                if (prop.get_metadata("NO_SERIALIZE"))
-                    continue;
-
-                variant prop_value = prop.get_value(obj2);
-                if (!prop_value)
-                    continue; // cannot serialize, because we cannot retrieve the value
-
-                WriteProperty(writer, prop, prop_value);
+                // Buffer 特殊处理，先转成 base64 再保存
+                Buffer *buffer = obj2.try_convert<Buffer>();
+                String base64 = base64_encode(buffer->Data, buffer->DataSize);
+                WriteAtomicType(writer, type::get<String>(), base64);
             }
+            else
+            {
+                auto prop_list = obj2.get_derived_type().get_properties();
+                for (auto prop : prop_list)
+                {
+                    if (prop.get_metadata("NO_SERIALIZE"))
+                        continue;
+
+                    variant prop_value = prop.get_value(obj2);
+                    if (!prop_value)
+                        continue; // cannot serialize, because we cannot retrieve the value
+
+                    WriteProperty(writer, prop, prop_value);
+                }
+            }
+            
             writer.EndObject();
         }
 
@@ -509,6 +520,17 @@ namespace Tiny3D
                             view.insert(key, val);
                         }
                     }
+                }
+                else if (klass == type::get<Tiny3D::Buffer>())
+                {
+                    variant var = ReadObject(value);
+                    String &str = var.get_value<String>();
+                    Buffer& buffer = obj.get_value<Buffer>();
+                    String dst = base64_decode(str);
+                    T3D_SAFE_DELETE_ARRAY(buffer.Data);
+                    buffer.Data = new uint8_t[dst.size()];
+                    buffer.DataSize = dst.size();
+                    memcpy(buffer.Data, &dst[0], dst.size());
                 }
                 else
                 {

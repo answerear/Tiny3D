@@ -17,16 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SYSTEM_LIB_H__
-#define __T3D_SYSTEM_LIB_H__
+
+#ifndef __T3D_BUFFER_H__
+#define __T3D_BUFFER_H__
 
 
-#include <T3DSystem.h>
-#include <Object/T3DObject.h>
-#include <Object/T3DSmartPtr.h>
-#include <Object/T3DObjectTracer.h>
-#include <Object/T3DBuffer.h>
-#include <UUID/T3DUUID.h>
+#include "T3DSystemPrerequisites.h"
+#include "T3DSystem.h"
 
 
-#endif  /*__T3D_SYSTEM_LIB_H__*/
+namespace Tiny3D
+{
+    TSTRUCT()
+    struct T3D_SYSTEM_API Buffer
+    {
+        virtual ~Buffer() = default;
+        
+        TPROPERTY()
+        uint8_t *Data = nullptr;
+
+        TPROPERTY()
+        size_t  DataSize = 0;
+        
+        TRTTI_ENABLE()
+    };
+}
+
+
+#endif  /*__T3D_BUFFER_H__*/

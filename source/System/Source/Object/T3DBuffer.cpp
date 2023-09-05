@@ -17,16 +17,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_SYSTEM_LIB_H__
-#define __T3D_SYSTEM_LIB_H__
 
-
-#include <T3DSystem.h>
-#include <Object/T3DObject.h>
-#include <Object/T3DSmartPtr.h>
-#include <Object/T3DObjectTracer.h>
-#include <Object/T3DBuffer.h>
-#include <UUID/T3DUUID.h>
-
-
-#endif  /*__T3D_SYSTEM_LIB_H__*/
+#include "Object/T3DBuffer.h"
