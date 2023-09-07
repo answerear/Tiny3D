@@ -427,6 +427,140 @@ namespace Tiny3D
             return ret;
         }
 
+        static TResult ReadValue(const Value &value, const type &klass, variant &obj)
+        {
+            TResult ret = T3D_OK;
+
+            do 
+            {
+                if (ReadAtomicType(value, klass, obj))
+                {
+
+                }
+                else if (klass.is_sequential_container())
+                {
+                    const auto& array = value.GetArray();
+                    auto view = obj.create_sequential_view();
+                    view.set_size(array.Size());
+                    const type itemType = view.get_value_type();
+                    for (size_t i = 0; i < array.Size(); i++)
+                    {
+                        const auto& item = array[i];
+                        variant var = ReadObject(item);
+                        if (itemType.is_wrapper() && itemType.get_wrapped_type() == var.get_type())
+                        {
+                            var.convert(itemType);
+                        }
+                        view.set_value(i, var);
+                    }
+                }
+                else if (klass.is_associative_container())
+                {
+                    const auto& array = value.GetArray();
+                    auto view = obj.create_associative_view();
+                    if (view.is_key_only_type())
+                    {
+                        const type valueType = view.get_value_type();
+                        // set
+                        for (size_t i = 0; i < array.Size(); i++)
+                        {
+                            const auto& item = array[i];
+                            variant var = ReadObject(item);
+                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == var.get_type())
+                            {
+                                var.convert(valueType);
+                            }
+                            view.insert(var);
+                        }
+                    }
+                    else
+                    {
+                        // map
+                        type keyType = view.get_key_type();
+                        const type valueType = view.get_value_type();
+                        for (size_t i = 0; i < array.Size(); i++)
+                        {
+                            const auto& item = array[i];
+                            const auto& keyNode = item.FindMember(RTTI_MAP_KEY);
+                            variant key = ReadObject(keyNode->value);
+                            const auto& valNode = item.FindMember(RTTI_MAP_VALUE);
+                            variant val = ReadObject(valNode->value);
+                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == val.get_type())
+                            {
+                                val.convert(valueType);
+                            }
+
+                            view.insert(key, val);
+                        }
+                    }
+                }
+                else if (klass == type::get<Tiny3D::Buffer>())
+                {
+                    variant var = ReadObject(value);
+                    String& str = var.get_value<String>();
+                    Buffer& buffer = obj.get_value<Buffer>();
+                    String dst = base64_decode(str);
+                    T3D_SAFE_DELETE_ARRAY(buffer.Data);
+                    buffer.Data = new uint8_t[dst.size()];
+                    buffer.DataSize = dst.size();
+                    memcpy(buffer.Data, &dst[0], dst.size());
+                }
+                else
+                {
+                    for (Value::ConstMemberIterator it = value.MemberBegin(); it != value.MemberEnd(); ++it)
+                    {
+                        // property name
+                        const auto& name = it->name;
+
+                        // property type & value
+                        variant prop = ReadObject(it->value);
+                        bool ret = klass.set_property_value(name.GetString(), obj, prop);
+                        T3D_ASSERT(ret, "set property value failed !");
+                    }
+                }
+            } while (false);
+
+            return ret;
+        }
+
+        static TResult ReadObject(const Value& node, RTTRVariant &obj)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                auto itr = node.FindMember(RTTI_TYPE);
+                if (itr == node.MemberEnd())
+                {
+                    break;
+                }
+
+                type klass = type::get_by_name(itr->value.GetString());
+                if (!klass)
+                {
+                    break;
+                }
+
+                constructor ctor = klass.get_constructor();
+                obj = ctor.invoke();
+                // obj = klass.create();
+
+                itr = node.FindMember(RTTI_VALUE);
+                if (itr == node.MemberEnd())
+                {
+                    klass.destroy(obj);
+                    break;
+                }
+
+                //obj = obj.get_type().get_raw_type().is_wrapper() ? obj.extract_wrapped_value() : obj;
+
+                const auto& value = itr->value;
+                ReadValue(value, klass, obj);
+            } while (false);
+
+            return ret;
+        }
+
         static variant ReadObject(const Value &node)
         {
             variant obj;
@@ -457,94 +591,9 @@ namespace Tiny3D
                 }
 
                 obj = obj.get_type().get_raw_type().is_wrapper() ? obj.extract_wrapped_value() : obj;
-                
-                const auto &value = itr->value;
 
-                if (ReadAtomicType(value, klass, obj))
-                {
-                    
-                }
-                else if (klass.is_sequential_container())
-                {
-                    const auto &array = value.GetArray();
-                    auto view = obj.create_sequential_view();
-                    view.set_size(array.Size());
-                    const type itemType = view.get_value_type();
-                    for (size_t i = 0; i < array.Size(); i++)
-                    {
-                        const auto &item = array[i];
-                        variant var = ReadObject(item);
-                        if (itemType.is_wrapper() && itemType.get_wrapped_type() == var.get_type())
-                        {
-                            var.convert(itemType);
-                        }
-                        view.set_value(i, var);
-                    }
-                }
-                else if (klass.is_associative_container())
-                {
-                    const auto &array = value.GetArray();
-                    auto view = obj.create_associative_view();
-                    if (view.is_key_only_type())
-                    {
-                        const type valueType = view.get_value_type();
-                        // set
-                        for (size_t i = 0; i < array.Size(); i++)
-                        {
-                            const auto &item = array[i];
-                            variant var = ReadObject(item);
-                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == var.get_type())
-                            {
-                                var.convert(valueType);
-                            }
-                            view.insert(var);
-                        }
-                    }
-                    else
-                    {
-                        // map
-                        type keyType = view.get_key_type();
-                        const type valueType = view.get_value_type();
-                        for (size_t i = 0; i < array.Size(); i++)
-                        {
-                            const auto &item = array[i];
-                            const auto &keyNode = item.FindMember(RTTI_MAP_KEY);
-                            variant key = ReadObject(keyNode->value);
-                            const auto &valNode = item.FindMember(RTTI_MAP_VALUE);
-                            variant val = ReadObject(valNode->value);
-                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == val.get_type())
-                            {
-                                val.convert(valueType);
-                            }
-                            
-                            view.insert(key, val);
-                        }
-                    }
-                }
-                else if (klass == type::get<Tiny3D::Buffer>())
-                {
-                    variant var = ReadObject(value);
-                    String &str = var.get_value<String>();
-                    Buffer& buffer = obj.get_value<Buffer>();
-                    String dst = base64_decode(str);
-                    T3D_SAFE_DELETE_ARRAY(buffer.Data);
-                    buffer.Data = new uint8_t[dst.size()];
-                    buffer.DataSize = dst.size();
-                    memcpy(buffer.Data, &dst[0], dst.size());
-                }
-                else
-                {
-                    for (Value::ConstMemberIterator it = value.MemberBegin(); it != value.MemberEnd(); ++it)
-                    {
-                        // property name
-                        const auto &name = it->name;
-
-                        // property type & value
-                        variant prop = ReadObject(it->value);
-                        bool ret = klass.set_property_value(name.GetString(), obj, prop);
-                        T3D_ASSERT(ret, "set property value failed !");
-                    }
-                }
+                const auto& value = itr->value;
+                ReadValue(value, klass, obj);
             } while (false);
             
             return obj;
@@ -595,16 +644,15 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    RTTRObject JsonSerializer::deserialize(DataStream &stream)
+    
+    TResult ReadJsonHeader(DataStream &stream, Document &doc, Value &value)
     {
-        RTTRObject ret;
+        TResult ret = T3D_OK;
 
         do
         {
             JsonStream is(stream);
-            
-            Document doc;
+
             if (doc.ParseStream(is).HasParseError())
             {
                 ParseErrorCode errorCode = doc.GetParseError();
@@ -634,10 +682,30 @@ namespace Tiny3D
             {
                 break;
             }
-            return RTTRObjectJsonReader::ReadObject(itr->value);
+            value = itr->value;
         } while (false);
-        
+
         return ret;
+    }
+    //--------------------------------------------------------------------------
+
+    RTTRObject JsonSerializer::deserialize(DataStream &stream)
+    {
+        Document doc;
+        Value value;
+        ReadJsonHeader(stream, doc, value);
+        return RTTRObjectJsonReader::ReadObject(value);
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult JsonSerializer::deserialize(DataStream &stream, RTTRVariant&obj)
+    {
+        Document doc;
+        Value value;
+        ReadJsonHeader(stream, doc, value);
+        RTTRObjectJsonReader::ReadObject(value, obj);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

@@ -34,6 +34,8 @@ namespace Tiny3D
         virtual TResult serialize(DataStream &stream, const RTTRObject &obj) = 0;
 
         virtual RTTRObject deserialize(DataStream &stream) = 0;
+
+        virtual TResult deserialize(DataStream &stream, RTTRVariant &obj) = 0;
     };
 }
 

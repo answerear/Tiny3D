@@ -36,6 +36,8 @@ namespace Tiny3D
 
         RTTRObject deserialize(DataStream &stream) override;
 
+        TResult deserialize(DataStream& stream, RTTRVariant& obj) override;
+
     protected:
         BinSerializer() = default;
     };

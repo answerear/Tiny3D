@@ -47,5 +47,12 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult BinSerializer::deserialize(DataStream& stream, RTTRVariant& obj)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
 }
 
