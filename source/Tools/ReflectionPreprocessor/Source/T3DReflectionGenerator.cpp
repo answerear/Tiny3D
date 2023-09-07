@@ -1138,30 +1138,38 @@ namespace Tiny3D
                     break;
                 }
 
-                // 检测反射开关是否打开
-                FileReflectionInfoPtr info = itrFile->second;
-                
-                for (const auto &pair : info->switches)
+                if (isClass)
                 {
-                    if (pair.first >= start && pair.first <= end)
+                    // 检测反射开关是否打开
+                    FileReflectionInfoPtr info = itrFile->second;
+                
+                    for (const auto &pair : info->switches)
                     {
-                        // 开关在类内部
-                        RTTIEnabled = pair.second->enabled;
-                        baseClasses = &pair.second->baseClasses;
+                        if (pair.first >= start && pair.first <= end)
+                        {
+                            // 开关在类内部
+                            RTTIEnabled = pair.second->enabled;
+                            baseClasses = &pair.second->baseClasses;
+                            break;
+                        }
+                    }
+
+                    if (!RTTIEnabled)
+                    {
+                        // 没有打开反射功能
+                        ret = T3D_ERR_RP_RTTI_DISABLED;
+                        RP_LOG_ERROR("RTTI has not enable [%s:%u] !", path.c_str(), start);
                         break;
                     }
                 }
-
-                if (!RTTIEnabled)
+                else
                 {
-                    // 没有打开反射功能
-                    ret = T3D_ERR_RP_RTTI_DISABLED;
-                    RP_LOG_ERROR("RTTI has not enable [%s:%u] !", path.c_str(), start);
-                    break;
+                    RTTIEnabled = true;
                 }
             }
             else
             {
+                // 结构体自动打开
                 RTTIEnabled = true;
             }
 
