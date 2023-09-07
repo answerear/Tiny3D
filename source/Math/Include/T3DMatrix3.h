@@ -29,10 +29,10 @@
 namespace Tiny3D
 {
     /// 行优先存储构成的3x3方阵.
+    TSTRUCT()
     template <typename T>
-    class TMatrix3
+    struct TMatrix3
     {
-    public:
         /// 构造一个零矩阵
         TMatrix3();
         /// 构造一个零矩阵或者单位矩阵.
@@ -57,21 +57,27 @@ namespace Tiny3D
         TMatrix3(const TVector3<T> &rkU, const TVector3<T> &rkV);
 
         /// 构造零矩阵.
+        TFUNCTION()
         void makeZero();
         
         /// 构造单位矩阵.
+        TFUNCTION()
         void makeIdentity();
         
         /// 构造对角矩阵.
+        TFUNCTION()
         void makeDiagonal(T m00, T m11, T m22);
         
         /// 通过两个向量张量积构造矩阵 M = U * (V ^ T).
+        TFUNCTION()
         void makeTensorProduct(const TVector3<T> &rkU, const TVector3<T> &rkV);
 
         /// 通过指定旋转轴和弧度值构造一个旋转矩阵.
-        void fromAxisAngle(const TVector3<T>& rkAxis, const TRadian<T>& radians);
+        TFUNCTION()
+        void fromAxisAngle(const TVector3<T> &rkAxis, const TRadian<T> &radians);
         
         /// 从矩阵中提取出旋转轴和旋转角弧度.
+        TFUNCTION()
         void toAxisAngle(TVector3<T> &rAxis, TRadian<T> &rRadians) const;
 
         /// 获取矩阵元素数组首地址.
@@ -87,18 +93,23 @@ namespace Tiny3D
         T &operator ()(size_t row, size_t col);
 
         /// 设置矩阵指定行向量.
+        TFUNCTION()
         void setRow(size_t row, const TVector3<T> &rkV);
 
         /// 获取矩阵指定行向量.
+        TFUNCTION()
         TVector3<T> getRow(size_t row) const;
 
         /// 设置矩阵指定列向量.
+        TFUNCTION()
         void setColumn(size_t col, const TVector3<T> &rkV);
 
         /// 获取矩阵指定列向量.
+        TFUNCTION()
         TVector3<T> getColumn(size_t col) const;
 
         /// 按照列向量优先获取矩阵数据.
+        TFUNCTION()
         void getColumnMajor(T *columns) const;
 
         /// 重载赋值运算符.
@@ -146,33 +157,43 @@ namespace Tiny3D
         TVector3<T> operator *(const TVector3<T> &rkV) const;
 
         /// 矩阵转置 M = (M ^ T).
+        TFUNCTION()
         TMatrix3 transpose() const;
 
         /// 矩阵转置后乘以另外一个矩阵 M2 = (M ^ T) * M1.
+        TFUNCTION()
         TMatrix3 transposeTimes(const TMatrix3 &other) const;
 
         /// 矩阵乘以另一个矩阵的转置矩阵 M2 = M * (M1 ^ T).
+        TFUNCTION()
         TMatrix3 timesTranspose(const TMatrix3 &other) const;
 
         /// 计算矩阵的逆.
+        TFUNCTION()
         TMatrix3 inverse() const;
 
         /// 计算矩阵的伴随矩阵.
+        TFUNCTION()
         TMatrix3 adjoint() const;
 
         /// 计算矩阵行列式.
+        TFUNCTION()
         T determinant() const;
 
         /// 二次型 ret = (U ^ T) * M * V.
+        TFUNCTION()
         T qform(const TVector3<T> &rkU, const TVector3<T> &rkV) const;
 
         /// 计算本矩阵跟对角矩阵相乘 M1 = M * D
+        TFUNCTION()
         TMatrix3 timesDiagonal(const TVector3<T> &rkDiag) const;
 
         /// 计算对角矩阵跟本矩阵相乘 M1 = D * M
+        TFUNCTION()
         TMatrix3 diagonalTimes(const TVector3<T> &rkDiag) const;
 
         /// 矩阵标准正交化，使用 Gram-Schmidt 算法
+        TFUNCTION()
         void orthonormalize();
 
         /// 这个矩阵必须是正交矩阵. 它分解为 Yaw * Pitch * Roll 
@@ -198,52 +219,64 @@ namespace Tiny3D
         ///        +-                       -+
 
         /// 先绕X轴旋转，再绕Y轴旋转，最后绕Z轴旋转获得一个欧拉角旋转矩阵
+        TFUNCTION()
         void fromEulerAnglesXYZ(
             const TRadian<T> &rkPitch, 
             const TRadian<T> &rkYaw, 
             const TRadian<T> &rkRoll);
 
         /// 先绕X轴旋转，再绕Z轴旋转，最后绕Z轴旋转获得一个欧拉角旋转矩阵
+        TFUNCTION()
         void fromEulerAnglesXZY(
             const TRadian<T> &rkPitch, 
             const TRadian<T> &rkRoll, 
             const TRadian<T> &rkYaw);
 
         /// 先绕Y轴旋转，再绕X轴旋转，最后绕Z轴旋转获得一个欧拉角旋转矩阵
+        TFUNCTION()
         void fromEulerAnglesYXZ(
             const TRadian<T> &rkYaw, 
             const TRadian<T> &rkPitch, 
             const TRadian<T> &rkRoll);
 
         /// 先绕Y轴旋转，再绕Z轴旋转，最后绕X轴旋转获得一个欧拉角旋转矩阵
+        TFUNCTION()
         void fromEulerAnglesYZX(
             const TRadian<T> &rkYaw, 
             const TRadian<T> &rkRoll, 
             const TRadian<T> &rkPitch);
 
         /// 先绕Z轴旋转，再绕X轴旋转，最后绕Y轴旋转获得一个欧拉角旋转矩阵
+        TFUNCTION()
         void fromEulerAnglesZXY(
             const TRadian<T> &rkRoll, 
             const TRadian<T> &rkPitch, 
             const TRadian<T> &rkYaw);
 
         /// 先绕Z轴旋转，再绕Y轴旋转，最后绕X轴旋转获得一个欧拉角旋转矩阵
+        TFUNCTION()
         void fromEulerAnglesZYX(
             const TRadian<T> &krRoll, 
             const TRadian<T> &rkYaw, 
             const TRadian<T> &rkPitch);
 
         /// 从一个欧拉角旋转矩阵获取出三个轴的旋转弧度
+        TFUNCTION()
         bool toEulerAnglesXYZ(TRadian<T> &rPitch, TRadian<T> &rYaw, TRadian<T> &rRoll) const;
 
+        TFUNCTION()
         bool toEulerAnglesXZY(TRadian<T> &rPitch, TRadian<T> &rRoll, TRadian<T> &rYaw) const;
 
+        TFUNCTION()
         bool toEulerAnglesYXZ(TRadian<T> &rYaw, TRadian<T> &rPitch, TRadian<T> &rRoll) const;
 
+        TFUNCTION()
         bool toEulerAnglesYZX(TRadian<T> &rYaw, TRadian<T> &rRoll, TRadian<T> &rPitch) const;
 
+        TFUNCTION()
         bool toEulerAnglesZXY(TRadian<T> &rRoll, TRadian<T> &rPitch, TRadian<T> &rYaw) const;
 
+        TFUNCTION()
         bool toEulerAnglesZYX(TRadian<T> &rRoll, TRadian<T> &rYaw, TRadian<T> &rPitch) const;
 
         /// 矩阵分解成一个旋转矩阵、一个缩放矩阵、一个切变矩阵
@@ -251,6 +284,7 @@ namespace Tiny3D
         ///   rQ 表示分解出来的旋转矩阵
         ///   rD 表示分解出来的缩放对角矩阵中对角线上元素构成的向量
         ///   rU 表示分解出来的切变矩阵中上三角矩阵的元素构成的向量
+        TFUNCTION()
         void QDUDecomposition(TMatrix3 &rQ, TVector3<T> &rD, TVector3<T> &rU) const;
 
     public:
@@ -260,7 +294,13 @@ namespace Tiny3D
     private:
         int32_t compareArrays(const TMatrix3 &other) const;
 
-    private:        
+    private:
+        TPROPERTY(RTTRFuncName="data", RTTRFuncType="getter")
+        TArray<T> getData() const;
+
+        TPROPERTY(RTTRFuncName="data", RTTRFuncType="setter")
+        void setData(TArray<T> data);
+        
         union
         {
             T    mTuples[9];

@@ -34,9 +34,6 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_ENGINE_API RasterizerState
     {
-        TRTTI_ENABLE()
-
-    public:
         uint8_t *getCRCData(uint32_t &dataSize) const
         {
             dataSize = sizeof(RasterizerState) - sizeof(void*);

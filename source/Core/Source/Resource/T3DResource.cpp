@@ -26,12 +26,19 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    Resource::Resource()
+        : Resource("")
+    {
+    }
+    
+    //--------------------------------------------------------------------------
+
     Resource::Resource(const String &strName)
         : mState(State::kUnloaded)
         , mName(strName)
         , mCompletedCB(nullptr)
     {
-
+        mUUID = UUID::generate();
     }
 
     //--------------------------------------------------------------------------

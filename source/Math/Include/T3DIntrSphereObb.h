@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrSphereObb
+    struct TIntrSphereObb
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrSphereObb();
         TIntrSphereObb(const TSphere<T> *sphere, const TObb<T> *box);
         TIntrSphereObb(const TSphere<T> &sphere, const TObb<T> &box);

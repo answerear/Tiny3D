@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrRayPlane
+    struct TIntrRayPlane
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrRayPlane();
         TIntrRayPlane(const TRay<T> *ray, const TPlane<T> *plane);
         TIntrRayPlane(const TRay<T> &ray, const TPlane<T> &plane);

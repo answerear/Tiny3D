@@ -38,15 +38,11 @@ namespace Tiny3D
         E_FACE_FAR,
         E_MAX_FACE
     };
-    
-    TCLASS()
-    template <typename T>
-    class TFrustum
-    {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
 
-    public:
+    TSTRUCT()
+    template <typename T>
+    struct TFrustum
+    {
         TFrustum()
         {
         }

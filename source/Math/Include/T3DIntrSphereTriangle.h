@@ -29,13 +29,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrSphereTriangle
+    struct TIntrSphereTriangle
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrSphereTriangle();
         TIntrSphereTriangle(const TSphere<T> *sphere, const TTriangle<T> *triangle);
         TIntrSphereTriangle(const TSphere<T> &sphere, const TTriangle<T> &triangle);

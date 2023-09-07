@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrFrustumAabb
+    struct TIntrFrustumAabb
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrFrustumAabb();
         TIntrFrustumAabb(const TFrustum<T> *frustum, const TAabb<T> *box);
         TIntrFrustumAabb(const TFrustum<T> &frustum, const TAabb<T> &box);

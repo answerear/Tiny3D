@@ -29,14 +29,10 @@
 namespace Tiny3D
 {
     /// 3D向量类
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TVector3
+    struct TVector3
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
         /// 默认构造函数
         TVector3();
         /// 通过传入 X, Y, Z 构造对象

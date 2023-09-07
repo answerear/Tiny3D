@@ -62,8 +62,6 @@ namespace Tiny3D
 
         TPROPERTY()
         String  iconPath = "";
-
-        TRTTI_ENABLE()
     };
 
     TSTRUCT()
@@ -86,8 +84,6 @@ namespace Tiny3D
 
         TPROPERTY()
         int32_t cacheTime = 10000;
-
-        TRTTI_ENABLE()
     };
 
     TSTRUCT()
@@ -98,24 +94,44 @@ namespace Tiny3D
 
         TPROPERTY()
         TList<String> plugins;
-
-        TRTTI_ENABLE()
     };
 
-    TCLASS()
-    class T3D_ENGINE_API Settings
+    TSTRUCT()
+    struct T3D_ENGINE_API Settings
     {
-        TRTTI_ENABLE()
-
-    public:
         TPROPERTY()
-        RenderSettings  renderSettings;
+        RenderSettings  renderSettings {};
 
         TPROPERTY()
-        LogSettings     logSettings;
+        LogSettings     logSettings {};
 
         TPROPERTY()
-        PluginSettings  pluginSettings;
+        PluginSettings  pluginSettings {};
+
+//         void setPluginSettings(const PluginSettings& settings)
+//         {
+//             pluginSettings = settings;
+//         }
+// 
+//         const PluginSettings& getPluginSettings() const
+//         {
+//             return pluginSettings;
+//         }
+// 
+//         Settings()
+//         {
+//             int a = 0;
+//         }
+// 
+//         Settings(const Settings& other)
+//         {
+//             *this = other;
+//         }
+// 
+//         ~Settings()
+//         {
+//             int a = 0;
+//         }
     };
 }
 

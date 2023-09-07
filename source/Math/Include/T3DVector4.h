@@ -28,14 +28,10 @@
 namespace Tiny3D
 {
     /// 4D向量类
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TVector4
+    struct TVector4
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
-    public:
         /// 默认构造函数
         TVector4();
         /// 通过 X, Y, Z, W 构造对象

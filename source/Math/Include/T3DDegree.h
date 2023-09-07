@@ -26,15 +26,11 @@
 
 namespace Tiny3D
 {
-    TCLASS()
     /// 角度类，用于表示角度
+    TSTRUCT()
     template <typename T>
-    class TDegree
+    struct TDegree
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
-    public:
         explicit TDegree();
 
         /// 指定实数角度值的构造函数

@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrPointFrustum
+    struct TIntrPointFrustum
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrPointFrustum();
         TIntrPointFrustum(const TVector3<T> *point, const TFrustum<T> *frustum);
         TIntrPointFrustum(const TVector3<T> &point, const TFrustum<T> &frustum);

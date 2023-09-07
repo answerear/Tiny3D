@@ -29,13 +29,9 @@ namespace Tiny3D
      * @brief 64位定点数类
      * @remarks 64位定点数构成是用高40位作为整数部分，低24位用来做小数部分
      */
-    TCLASS()
-    class T3D_MATH_API fix64
+    TSTRUCT()
+    struct T3D_MATH_API fix64
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
-    public:
         static const int32_t INTEGER_BITS;      // 整数位数
         static const int32_t DECIMAL_BITS;      // 小数位数
 

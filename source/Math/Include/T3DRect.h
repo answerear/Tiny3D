@@ -29,13 +29,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TCLASS()
+    TSTRUCT()
     template <typename T>
     struct TSize
     {
-        TRTTI_ENABLE()
-
-    public:
         TPROPERTY()
         T width;
         TPROPERTY()
@@ -149,13 +146,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TCLASS()
+    TSTRUCT()
     template <typename T>
     struct TPoint
     {
-        TRTTI_ENABLE()
-
-    public:
         TPROPERTY()
         T x;
         
@@ -267,13 +261,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TCLASS()
+    TSTRUCT()
     template <typename T>
     struct TRect
     {
-        TRTTI_ENABLE()
-
-    public:
         TPROPERTY()
         T left;
 

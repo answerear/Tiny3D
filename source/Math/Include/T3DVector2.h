@@ -28,14 +28,10 @@
 namespace Tiny3D
 {
     /// 2D向量类
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TVector2
+    struct TVector2
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
         /// 默认构造函数
         TVector2();
         /// 通过x, y构造对象.

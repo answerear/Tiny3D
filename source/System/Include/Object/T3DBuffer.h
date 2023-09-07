@@ -31,15 +31,11 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_SYSTEM_API Buffer
     {
-        virtual ~Buffer() = default;
-        
         TPROPERTY()
         uint8_t *Data = nullptr;
 
         TPROPERTY()
         size_t  DataSize = 0;
-        
-        TRTTI_ENABLE()
     };
 }
 

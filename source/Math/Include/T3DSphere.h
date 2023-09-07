@@ -38,13 +38,10 @@ namespace Tiny3D
     };
 
     /// 球类
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TSphere
+    struct TSphere
     {
-        TRTTI_ENABLE()
-        
-    public:
         /// 默认构造函数
         TSphere();
         /// 通过空间一个点构造包围球

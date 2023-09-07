@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrPointObb
+    struct TIntrPointObb
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrPointObb();
         TIntrPointObb(const TVector3<T> *point, const TObb<T> *box);
         TIntrPointObb(const TVector3<T> &point, const TObb<T> &box);

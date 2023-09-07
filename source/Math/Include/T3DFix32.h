@@ -30,13 +30,9 @@ namespace Tiny3D
      * @brief 32位定点数类
      * @remarks 32位定点数构成是用高20位作为整数部分，低12位用来做小数部分
      */
-    TCLASS()
-    class T3D_MATH_API fix32
+    TSTRUCT()
+    struct T3D_MATH_API fix32
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
-    public:
         static const int32_t INTEGER_BITS;      // 整数位数
         static const int32_t DECIMAL_BITS;      // 小数位数
 

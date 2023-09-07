@@ -27,13 +27,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TTriangle
+    struct TTriangle
     {
-        TRTTI_ENABLE()
-        
-    public:
         TTriangle();
         TTriangle(const TVector3<T> *vertices);
         TTriangle(const T *vertices);

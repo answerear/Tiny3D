@@ -31,13 +31,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TMath
+    struct TMath
     {
-        TRTTI_ENABLE()
-
-    public:
         /// 求平方.
         TFUNCTION()
         static T sqr(T value);
@@ -117,7 +114,6 @@ namespace Tiny3D
         TFUNCTION()
         static T min(T a, T b);
 
-    public:
         static const T POS_INFINITY;
         static const T NEG_INFINITY;
         static const T PI;

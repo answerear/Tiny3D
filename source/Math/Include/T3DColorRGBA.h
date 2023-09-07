@@ -28,12 +28,9 @@
 
 namespace Tiny3D
 {
-    TCLASS("Description"="A color structure from the four float RGBA components (red, green, blue, and alpha) values.")
-    class T3D_MATH_API ColorRGBA
+    TSTRUCT("Description"="A color structure from the four float RGBA components (red, green, blue, and alpha) values.")
+    struct T3D_MATH_API ColorRGBA
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
     public:
         static const ColorRGBA BLACK;
         static const ColorRGBA WHITE;

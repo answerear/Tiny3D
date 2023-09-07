@@ -117,7 +117,7 @@ namespace Tiny3D
         }
 
     protected:
-        Resource() = default;
+        Resource();
 
         /**
          * \brief 构造函数

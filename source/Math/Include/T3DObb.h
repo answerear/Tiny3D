@@ -37,14 +37,10 @@ namespace Tiny3D
     /**
      * @brief 有向包围盒类（Oriented Bounding Box）
      */
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TObb
+    struct TObb
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
         /// 默认构造函数
         TObb();
         TObb(const TVector3<T> &rkCenter, const TVector3<T> *akAxis,

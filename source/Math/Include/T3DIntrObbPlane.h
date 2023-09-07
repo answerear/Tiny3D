@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrObbPlane
+    struct TIntrObbPlane
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrObbPlane();
         TIntrObbPlane(const TObb<T> *box, const TPlane<T> *plane);
         TIntrObbPlane(const TObb<T> &box, const TPlane<T> &plane);

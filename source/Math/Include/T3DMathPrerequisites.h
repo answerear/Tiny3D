@@ -38,8 +38,8 @@
 
 namespace Tiny3D
 {
-    template <typename T> class TDegree;
-    template <typename T> class TRadian;
+    template <typename T> struct TDegree;
+    template <typename T> struct TRadian;
 }
 
 

@@ -28,14 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TQuaternion
+    struct TQuaternion
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
-    public:
         /// 默认构造函数，构造一个单位四元数(1,0,0,0)对象.
         TQuaternion();
         /// 拷贝构造函数.

@@ -28,14 +28,10 @@
 namespace Tiny3D
 {
     /// 弧度类，用于表示弧度
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TRadian
+    struct TRadian
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
         /// 默认构造函数
         explicit TRadian();
         /// 指定实数弧度制的构造函数.

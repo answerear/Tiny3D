@@ -28,13 +28,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrRaySphere
+    struct TIntrRaySphere
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrRaySphere();
         TIntrRaySphere(const TRay<T> &ray, const TSphere<T> &sphere);
         TIntrRaySphere(const TRay<T> *ray, const TSphere<T> *sphere);

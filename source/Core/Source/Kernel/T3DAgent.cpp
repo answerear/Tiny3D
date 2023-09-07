@@ -252,12 +252,21 @@ namespace Tiny3D
             if (fs.open("1.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
             {
                 fs.write(data, dataSize);
+                char c = 0;
+                fs.write(&c, sizeof(char));
                 fs.close();
             }
 
             MemoryDataStream is(data, pos, false);
             ShaderPtr shader1 = T3D_SERIALIZER_MGR.deserialize<Shader>(is);
 
+            if (fs.open("2.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
+            {
+                fs.write(data, dataSize);
+                char c = 0;
+                fs.write(&c, sizeof(char));
+                fs.close();
+            }
             mIsRunning = true;
         } while (false);
 
@@ -754,6 +763,11 @@ namespace Tiny3D
                 break;
             }
 
+#if 1
+            //RTTRVariant var(mSettings);
+            //T3D_SERIALIZER_MGR.deserializeObject(stream, var);
+            T3D_SERIALIZER_MGR.deserialize(stream, mSettings);
+#else
             Settings *settings = T3D_SERIALIZER_MGR.deserialize<Settings>(stream);
             if (settings == nullptr)
             {
@@ -762,6 +776,7 @@ namespace Tiny3D
 
             mSettings = *settings;
             T3D_SAFE_DELETE(settings);
+#endif
         } while (false);
         
         return ret;

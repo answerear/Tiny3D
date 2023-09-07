@@ -32,13 +32,10 @@ namespace Tiny3D
      * @remarks 这里使用 f(t) = P + t * D 的形式来表示。 其中P表示射线原点，D表示
      *      射线方向向量，|D|是射线长度，而 0 <= t <= 1。
      */
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TRay
+    struct TRay
     {
-        TRTTI_ENABLE()
-
-    public:
         /// 默认构造函数
         TRay()
             : mOrigin(T(0), T(0), T(0))

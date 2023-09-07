@@ -34,9 +34,6 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_ENGINE_API BlendState
     {
-        TRTTI_ENABLE()
-        
-    public:
         enum
         {
             kMaxRenderTarget = 8
@@ -51,9 +48,6 @@ namespace Tiny3D
         TSTRUCT()
         struct T3D_ENGINE_API RTBlendState
         {
-            TRTTI_ENABLE()
-            
-        public:
             TPROPERTY()
             bool            BlendEnable = false;
             TPROPERTY()

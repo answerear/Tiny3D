@@ -34,9 +34,6 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_ENGINE_API DepthStencilState
     {
-        TRTTI_ENABLE()
-
-    public:
         uint8_t *getCRCData(uint32_t &dataSize) const
         {
             dataSize = sizeof(DepthStencilState) - sizeof(void*);
@@ -46,9 +43,6 @@ namespace Tiny3D
         TSTRUCT()
         struct T3D_ENGINE_API StencilOpDesc
         {
-            TRTTI_ENABLE()
-
-        public:
             CompareFunction StencilFunc;
             StencilOp       StencilFailOp;
             StencilOp       StencilDepthFailOp;

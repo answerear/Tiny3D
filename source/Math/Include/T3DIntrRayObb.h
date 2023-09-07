@@ -29,13 +29,10 @@
 
 namespace Tiny3D
 {
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TIntrRayObb
+    struct TIntrRayObb
     {
-        TRTTI_ENABLE()
-
-    public:
         TIntrRayObb();
         TIntrRayObb(const TRay<T> *ray, const TObb<T> *obb);
         TIntrRayObb(const TRay<T> &ray, const TObb<T> &obb);

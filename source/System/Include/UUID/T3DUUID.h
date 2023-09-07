@@ -95,9 +95,6 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_SYSTEM_API UUID
     {
-        TRTTI_ENABLE()
-        
-    public:
         enum
         {
             kDefaultLength = 16

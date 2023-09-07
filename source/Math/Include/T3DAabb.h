@@ -29,14 +29,10 @@
 namespace Tiny3D
 {
     /// 轴对齐包围盒类（Axis Aligned Bounding Box）
-    TCLASS("Description"="Class represents an axis aligned bonding box.")
+    TSTRUCT("Description"="Class represents an axis aligned bonding box.")
     template <typename T>
-    class TAabb
+    struct TAabb
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
         /// 默认构造函数
         TAabb();
         TAabb(T fXMin, T fXMax, T fYMin, T fYMax, T fZMin, T fZMax);

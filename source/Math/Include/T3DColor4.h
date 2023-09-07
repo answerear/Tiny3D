@@ -28,13 +28,9 @@
 
 namespace Tiny3D
 {
-    TCLASS("Description"="A color structure from the four 8-bit ARGB components (alpha, red, green, and blue) values.")
-    class T3D_MATH_API Color4
+    TSTRUCT("Description"="A color structure from the four 8-bit ARGB components (alpha, red, green, and blue) values.")
+    struct T3D_MATH_API Color4
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
         static const Color4 BLACK;
         static const Color4 WHITE;
         static const Color4 RED;

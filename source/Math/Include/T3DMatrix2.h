@@ -29,14 +29,10 @@
 namespace Tiny3D
 {
     /// 行优先存储构成的2x2方阵.
-    TCLASS()
+    TSTRUCT()
     template <typename T>
-    class TMatrix2
+    struct TMatrix2
     {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-
-    public:
         /// 构造一个零矩阵
         TMatrix2();
         /// 构造一个零矩阵或者单位矩阵.
@@ -194,7 +190,6 @@ namespace Tiny3D
         TFUNCTION()
         void eigendecomposition(TMatrix2 &rRot, TMatrix2 &rDiag) const;
 
-    public:
         static const TMatrix2 ZERO;      /// 零矩阵
         static const TMatrix2 IDENTITY;  /// 单位矩阵
 
