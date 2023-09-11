@@ -18,69 +18,52 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Plugin.h"
-#include "T3DD3D11Renderer.h"
-#include "T3DD3D11GPUProgramCreator.h"
-#include "T3DD3D11Sampler.h"
+#include "T3DNullPlugin.h"
+#include "T3DNullRenderer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11Plugin, Plugin);
-
-    //--------------------------------------------------------------------------
-
-    D3D11Plugin::D3D11Plugin()
-        : mName("D3D11Renderer")
+    NullPlugin::NullPlugin()
+        : mName("NullRenderer")
         , mRenderer(nullptr)
-        , mShaderCreator(nullptr)
-        , mGPUCreator(nullptr)
-        , mSamplerCreator(nullptr)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11Plugin::~D3D11Plugin()
+    NullPlugin::~NullPlugin()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    const String &D3D11Plugin::getName() const
+    const String &NullPlugin::getName() const
     {
         return mName;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::install()
+    TResult NullPlugin::install()
     {
         TResult ret = T3D_OK;
 
         do
         {
-            mRenderer = D3D11Renderer::create();
+            mRenderer = NullRenderer::create();
             if (mRenderer != nullptr)
             {
-                ret = T3D_AGENT.addRenderer(mRenderer);
+                ret = T3D_AGENT.addRHIRenderer(mRenderer);
                 if (T3D_FAILED(ret))
                 {
                     break;
                 }
             }
-
-            mShaderCreator = new D3D11ShaderCreator();
-            mGPUCreator = new D3D11GPUProgramCreator();
-            mSamplerCreator = new D3D11SamplerCreator();
-
-            T3D_SHADER_MGR.setShaderCreator(mShaderCreator);
-            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(mGPUCreator);
-            T3D_SAMPLER_MGR.setSamplerCreator(mSamplerCreator);
         } while (0);
 
         return ret;
@@ -88,7 +71,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::startup()
+    TResult NullPlugin::startup()
     {
         TResult ret = T3D_OK;
 
@@ -97,7 +80,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::shutdown()
+    TResult NullPlugin::shutdown()
     {
         TResult ret = T3D_OK;
 
@@ -106,25 +89,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Plugin::uninstall()
+    TResult NullPlugin::uninstall()
     {
         TResult ret = T3D_OK;
 
         do
         {
-            ret = T3D_AGENT.removeRenderer(mRenderer);
+            ret = T3D_AGENT.removeRHIRenderer(mRenderer);
             if (T3D_FAILED(ret))
             {
                 break;
             }
-
-            T3D_SHADER_MGR.setShaderCreator(nullptr);
-            T3D_GPU_PROGRAM_MGR.setGPUProgramCreator(nullptr);
-            T3D_SAMPLER_MGR.setSamplerCreator(nullptr);
-
-            delete mShaderCreator;
-            delete mGPUCreator;
-            delete mSamplerCreator;
 
             mRenderer = nullptr;
         } while (0);

@@ -49,21 +49,21 @@ include_directories(
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${SHADERCONDUCTOR_INCLUDE_DIR}"
-    "${PROTOBUF_INCLUDE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
+    #"${PROTOBUF_INCLUDE_DIR}"
+    #"${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Include\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser/ .h)
 set_project_files(Include\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Include/Parser/ .hpp)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.h)
+#set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.h)
 
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 set_project_files(Source\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Source/Parser/ .cpp)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.cc)
+#set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.cc)
 
 
 if (TINY3D_OS_WINDOWS)
@@ -91,7 +91,7 @@ if (TINY3D_OS_WINDOWS)
         rttr_core
         ${SHADERCONDUCTOR_LIBRARY}
         #${PROTOBUF_LITE_LIBRARY_D}
-        ${PROTOBUF_LIBRARY}
+        #${PROTOBUF_LIBRARY}
         )
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
@@ -130,7 +130,7 @@ elseif (TINY3D_OS_MACOSX)
         T3DFramework
         T3DCore
         rttr_core
-        ${PROTOBUF_LIBRARY}
+        #${PROTOBUF_LIBRARY}
         ${SHADERCONDUCTOR_LIBRARY}
         )
 

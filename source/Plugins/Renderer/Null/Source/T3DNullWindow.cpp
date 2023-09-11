@@ -18,80 +18,74 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11GPUProgramCreator.h"
-#include "T3DD3D11VertexShader.h"
-#include "T3DD3D11PixelShader.h"
-#include "T3DD3D11GPUProgram.h"
+#include "T3DNullWindow.h"
+#include "T3DNullError.h"
+#include "T3DNullRenderer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(D3D11ShaderCreator, ShaderCreator);
-
-    //--------------------------------------------------------------------------
-
-    const char * const D3D11ShaderCreator::SHADER_TYPE = "D3D11Shader";
-
-    //--------------------------------------------------------------------------
-
-    String D3D11ShaderCreator::getType() const
+    NullWindowPtr NullWindow::create(const String &name)
     {
-        return SHADER_TYPE;
+        NullWindowPtr window = new NullWindow(name);
+        // window->release();
+        return window;
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderPtr D3D11ShaderCreator::createObject(int32_t argc, ...) const
+    NullWindow::NullWindow(const String &name)
+        : RHIRenderWindow(name)
     {
-        va_list params;
-        va_start(params, argc);
-        Shader::ShaderType shaderType = va_arg(params, Shader::ShaderType);
-        String name = va_arg(params, char *);
-        String content;
-        
-        if (argc == 3)
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullWindow::~NullWindow()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullWindow::create(const RenderWindowCreateParam &param)
+    {
+        TResult ret = T3D_OK;
+
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullWindow::destroy()
+    {
+        TResult ret = T3D_OK;
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullWindow::swapBuffers()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NullWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+        Real depth, uint32_t stencil)
+    {
+        do 
         {
-            content = va_arg(params, char *);
-        }
-
-        va_end(params);
-
-        ShaderPtr shader;
-
-        if (shaderType == Shader::ShaderType::VERTEX_SHADER)
-        {
-            shader = D3D11VertexShader::create(name, content);
-        }
-        else if (shaderType == Shader::ShaderType::PIXEL_SHADER)
-        {
-            shader = D3D11PixelShader::create(name, content);
-        }
-
-        return shader;
+        } while (0);
     }
 
     //--------------------------------------------------------------------------
-
-    const char * const D3D11GPUProgramCreator::GPUPROGRAM_TYPE = "D3D11GPUProgram";
-
-    //--------------------------------------------------------------------------
-
-    String D3D11GPUProgramCreator::getType() const
-    {
-        return GPUPROGRAM_TYPE;
-    }
-
-    //--------------------------------------------------------------------------
-
-    GPUProgramPtr D3D11GPUProgramCreator::createObject(int32_t argc, ...) const
-    {
-        va_list params;
-        va_start(params, argc);
-        String name = va_arg(params, char *);
-        va_end(params);
-        return D3D11GPUProgram::create(name);
-    }
-
 }
+
+

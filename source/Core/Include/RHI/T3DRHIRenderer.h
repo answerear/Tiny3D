@@ -32,6 +32,7 @@ namespace Tiny3D
     class T3D_ENGINE_API RHIRenderer : public Object
     {
     public:
+        static const char * const NULLRENDERER;/**< 空渲染器 */
         static const char * const REFERENCE3D;  /**< The reference 3D */
         static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
         static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */

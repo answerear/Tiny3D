@@ -18,20 +18,20 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Plugin.h"
+#include "T3DNullPlugin.h"
 
 
-Tiny3D::D3D11Plugin *gPlugin = nullptr;
+Tiny3D::NullPlugin *gPlugin = nullptr;
 
 extern "C"
 {
-    T3D_D3D11RENDERER_API TResult dllStartPlugin()
+    T3D_NULLRENDERER_API TResult dllStartPlugin()
     {
-        gPlugin = new Tiny3D::D3D11Plugin();
+        gPlugin = new Tiny3D::NullPlugin();
         return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 
-    T3D_D3D11RENDERER_API TResult dllStopPlugin()
+    T3D_NULLRENDERER_API TResult dllStopPlugin()
     {
         TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 

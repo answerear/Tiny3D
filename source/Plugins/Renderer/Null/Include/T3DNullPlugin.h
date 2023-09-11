@@ -18,29 +18,27 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_PLUGIN_H__
-#define __T3D_D3D11_PLUGIN_H__
+#ifndef __T3D_NULL_PLUGIN_H__
+#define __T3D_NULL_PLUGIN_H__
 
 
-#include "T3DD3D11Prerequisites.h"
+#include "T3DNULLPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class D3D11Plugin : public Plugin
+    class NullPlugin : public Plugin
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 默认构造函数
          */
-        D3D11Plugin();
+        NullPlugin();
 
         /**
          * @brief 析构函数
          */
-        virtual ~D3D11Plugin();
+        virtual ~NullPlugin();
 
         /**
          * @brief 获取插件名称
@@ -69,12 +67,9 @@ namespace Tiny3D
 
     protected:
         String                  mName;
-        RendererPtr             mRenderer;
-        D3D11ShaderCreator      *mShaderCreator;
-        D3D11GPUProgramCreator  *mGPUCreator;
-        D3D11SamplerCreator     *mSamplerCreator;
+        RHIRendererPtr          mRenderer;
     };
 }
 
 
-#endif  /*__T3D_D3D11_PLUGIN_H__*/
+#endif  /*__T3D_NULL_PLUGIN_H__*/
