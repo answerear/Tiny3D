@@ -87,6 +87,10 @@ namespace Tiny3D
     class ResourceManager;
     class Dylib;
     class DylibManager;
+    class Material;
+    class MaterialManager;
+    class Texture;
+    class TextureManager;
     class Prefab;
     class PrefabManager;
     class ShaderConstantParam;
@@ -94,6 +98,9 @@ namespace Tiny3D
     class Shader;
     class ShaderVariant;
     class ShaderManager;
+
+    class Technique;
+    class Pass;
     
     class RHIRenderTarget;
     class RHIRenderWindow;

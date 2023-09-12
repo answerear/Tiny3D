@@ -61,7 +61,7 @@ namespace Tiny3D
             kShader,
             /// 模型数据
             kModel,
-            /// 可直接序列化和反序列化资源
+            /// 预制件
             kPrefab,
         };
 

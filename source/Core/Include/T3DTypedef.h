@@ -42,12 +42,18 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(PrefabManager);
     T3D_DECLARE_SMART_PTR(Dylib);
     T3D_DECLARE_SMART_PTR(DylibManager);
+    T3D_DECLARE_SMART_PTR(Material);
+    T3D_DECLARE_SMART_PTR(MaterialManager);
+    T3D_DECLARE_SMART_PTR(Texture);
+    T3D_DECLARE_SMART_PTR(TextureManager);
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
     T3D_DECLARE_SMART_PTR(Shader);
     T3D_DECLARE_SMART_PTR(ShaderVariant);
     T3D_DECLARE_SMART_PTR(ShaderManager);
 
+    T3D_DECLARE_SMART_PTR(Technique);
+    T3D_DECLARE_SMART_PTR(Pass);
     
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
