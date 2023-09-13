@@ -28,9 +28,7 @@ namespace Tiny3D
     RHISamplerState::RHISamplerState(const SamplerState &state)
         : mState(state)
     {
-        uint32_t dataSize = 0;
-        uint8_t *data = mState.getCRCData(dataSize);
-        mHash = CRC::crc32(data, dataSize);
+        mHash = calcCRC(state);
     }
 
     //--------------------------------------------------------------------------

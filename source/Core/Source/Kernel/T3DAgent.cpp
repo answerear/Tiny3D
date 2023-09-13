@@ -34,6 +34,7 @@
 #include "RHI/T3DRHIRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIRenderer.h"
+#include "RHI/T3DRHIStateManager.h"
 
 
 namespace Tiny3D
@@ -78,6 +79,7 @@ namespace Tiny3D
         mDylibMgr->unloadAllResources();
         mDylibMgr = nullptr;
 
+        mRHIStateMgr = nullptr;
         mSerializerMgr = nullptr;
         mArchiveMgr = nullptr;
         
@@ -697,7 +699,8 @@ namespace Tiny3D
         mDylibMgr = DylibManager::create();      
         mPrefabMgr = PrefabManager::create();
         mShaderMgr = ShaderManager::create();
-
+        mRHIStateMgr = RHIStateManager::create();
+        
         return T3D_OK;
     }
     

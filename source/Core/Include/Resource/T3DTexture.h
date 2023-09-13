@@ -22,6 +22,7 @@
 
 
 #include "Resource/T3DResource.h"
+#include "RHI/T3DRHISamplerState.h"
 
 
 namespace Tiny3D
@@ -36,6 +37,16 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        TENUM()
+        enum TEXTURE_TYPE : uint32_t
+        {
+            TT_1D = 0,
+            TT_2D,
+            TT_3D,
+            TT_CUBE,
+            TT_MAX
+        };
+        
         static TexturePtr create(const String &name);
 
         ~Texture() override = default;
@@ -51,6 +62,26 @@ namespace Tiny3D
         ResourcePtr clone() const override;
 
         void cloneProperties(const Resource * const src) override;
+    };
+
+    TSTRUCT()
+    struct T3D_ENGINE_API TextureState
+    {
+        TPROPERTY(RTTRFuncName="SamplerState", RTTRFuncType="getter")
+        const SamplerState &getSamplerState() const;
+
+        TPROPERTY(RTTRFuncName="SamplerState", RTTRFuncType="setter")
+        void setSamplerState(const SamplerState &state);
+
+        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="getter")
+        const String &getTextureName() const;
+
+        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="setter")
+        void setTextureName(const String &name);
+
+        String              mTextureName {};
+        RHISamplerStatePtr  mRHISamplerState {nullptr};
+        TexturePtr          mTexture {nullptr};
     };
 }
 

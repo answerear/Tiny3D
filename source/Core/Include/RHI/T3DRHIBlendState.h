@@ -22,8 +22,7 @@
 #define __T3D_RHI_BLEND_STATE_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DRHIConstant.h"
+#include "RHI/T3DRHIState.h"
 
 
 namespace Tiny3D
@@ -38,12 +37,6 @@ namespace Tiny3D
         {
             kMaxRenderTarget = 8
         };
-
-        uint8_t *getCRCData(uint32_t &dataSize) const
-        {
-            dataSize = sizeof(BlendState) - sizeof(void*);
-            return (uint8_t*)(&AlphaToCoverageEnable);
-        }
 
         TSTRUCT()
         struct T3D_ENGINE_API RTBlendState
@@ -77,14 +70,9 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件层的颜色混合状态
      */
-    class T3D_ENGINE_API RHIBlendState : public Object
+    class T3D_ENGINE_API RHIBlendState : public RHIState
     {
     public:
-        uint32_t hash() const
-        {
-            return mHash;
-        }
-        
         const BlendState &getState() const
         {
             return mState;
@@ -93,7 +81,6 @@ namespace Tiny3D
     protected:
         RHIBlendState(const BlendState &state);
 
-        uint32_t    mHash = 0;
         BlendState  mState {};
     };
 }

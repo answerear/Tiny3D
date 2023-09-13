@@ -109,6 +109,7 @@ namespace Tiny3D
 
     class RHIRenderer;
     class RHIContext;
+    class RHIState;
     class RHIBlendState;
     class RHIDepthStencilState;
     class RHIRasterizerState;
@@ -122,6 +123,8 @@ namespace Tiny3D
     class RHIVertexDeclaration;
     class RHIBufferManager;
     class RHIBufferManagerBase;
+    class RHIStateManager;
+    class RHIStateManagerImpl;
 }
 
 

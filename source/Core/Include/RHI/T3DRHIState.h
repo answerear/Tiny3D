@@ -18,58 +18,46 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RASTERIZER_STATE_H__
-#define __T3D_RHI_RASTERIZER_STATE_H__
+#ifndef __T3D_RHI_STATE_H__
+#define __T3D_RHI_STATE_H__
 
 
-#include "RHI/T3DRHIState.h"
+#include "T3DPrerequisites.h"
+#include "T3DRHIConstant.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 光栅化状态
-     */
-    TSTRUCT()
-    struct T3D_ENGINE_API RasterizerState
+    template <typename T>
+    uint8_t *getCRCData(const T &state, uint32_t &dataSize)
     {
-        TPROPERTY()
-        PolygonMode FillMode;
-        TPROPERTY()
-        CullingMode CullMode;
-        TPROPERTY()
-        Real        DepthBias;
-        TPROPERTY()
-        Real        DepthBiasClamp;
-        TPROPERTY()
-        Real        SlopeScaledDepthBias;
-        TPROPERTY()
-        bool        DepthClipEnable;
-        TPROPERTY()
-        bool        ScissorEnable;
-        TPROPERTY()
-        bool        MultisampleEnable;
-        TPROPERTY()
-        bool        AntialiasedLineEnable;
-    };
+        dataSize = sizeof(T);
+        return (uint8_t*)(&state);
+    }
 
+    template <typename T>
+    uint32_t calcCRC(const T &state)
+    {
+        uint32_t dataSize = 0;
+        uint8_t *data = getCRCData(state, dataSize);
+        return CRC::crc32(data, dataSize);
+    }
+    
     /**
-     * \brief 渲染硬件层的光栅化状态
+     * \brief 渲染硬件层的状态
      */
-    class T3D_ENGINE_API RHIRasterizerState : public RHIState
+    class T3D_ENGINE_API RHIState : public Object
     {
     public:
-        const RasterizerState &getState() const
+        uint32_t hash() const
         {
-            return mState;
+            return mHash;
         }
-
-    protected:
-        RHIRasterizerState(const RasterizerState &state);
         
-        RasterizerState mState {};
+    protected:
+        uint32_t    mHash = 0;
     };
 }
 
 
-#endif  /*__T3D_RHI_RASTERIZER_STATE_H__*/
+#endif  /*__T3D_RHI_STATE_H__*/

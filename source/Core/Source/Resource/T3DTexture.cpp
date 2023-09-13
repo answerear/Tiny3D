@@ -18,10 +18,39 @@
  ******************************************************************************/
 
 #include "Resource/T3DTexture.h"
+#include "RHI/T3DRHIStateManager.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    const SamplerState &TextureState::getSamplerState() const
+    {
+        return mRHISamplerState->getState();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void TextureState::setSamplerState(const SamplerState &state)
+    {
+        mRHISamplerState = T3D_RHI_STATE_MGR.loadSamplerState(state);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    const String &TextureState::getTextureName() const
+    {
+        return mTextureName;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void TextureState::setTextureName(const String &name)
+    {
+        mTextureName = name;
+    }
+    
     //--------------------------------------------------------------------------
     
     TexturePtr Texture::create(const String &name)
@@ -58,7 +87,7 @@ namespace Tiny3D
     void Texture::cloneProperties(const Resource *const src)
     {
         Resource::cloneProperties(src);
-        const Texture *material = static_cast<const Texture*>(src);
+        const Texture *texture = static_cast<const Texture*>(src);
     }
 
     //--------------------------------------------------------------------------

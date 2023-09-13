@@ -22,6 +22,7 @@
 
 
 #include "Resource/T3DResource.h"
+#include "Resource/T3DTexture.h"
 
 
 namespace Tiny3D
@@ -175,16 +176,18 @@ namespace Tiny3D
         // uint32_t    mDataSize = 0;
 
         /// 数据
-        Buffer      mData;
+        Buffer      mData {};
         /// 数据类型
-        DATA_TYPE   mDataType = DATA_TYPE::DT_FLOAT;
+        DATA_TYPE   mDataType {DATA_TYPE::DT_FLOAT};
         /// 数据地址索引
-        uint32_t    mRegisterIndex = 0;
+        uint32_t    mRegisterIndex {0};
         /// 占用寄存器数量
-        uint32_t    mRegisterNum = 0;
+        uint32_t    mRegisterNum {0};
         /// 变量名 
         String      mName {};
     };
+
+    using Textures = TArray<TextureState>;
 
     /**
      * \brief 着色器里的纹理采样器
@@ -198,6 +201,77 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        static ShaderSamplerParamPtr create(const String &name, Texture::TEXTURE_TYPE texType, uint32_t registerIdx, uint32_t registerNum);
+
+        /**
+         * \brief Destructor
+         */
+        ~ShaderSamplerParam() override;
+
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
+        const String &getName() const
+        {
+            return mName;
+        }
+
+        TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="getter")
+        Texture::TEXTURE_TYPE getTextureType() const
+        {
+            return mTexType;
+        }
+        
+        TPROPERTY(RTTRFuncName="RegisterIndex", RTTRFuncType="getter")
+        uint32_t getRegisterIndex() const
+        {
+            return mRegisterIndex;
+        }
+
+        TPROPERTY(RTTRFuncName="RegisterNum", RTTRFuncType="getter")
+        uint32_t getRegisterNum() const
+        {
+            return mRegisterNum;
+        }
+
+        TPROPERTY(RTTRFuncName="Textures", RTTRFuncType="getter")
+        const Textures &getTextures() const
+        {
+            return mTextures;
+        }
+        
+    private:
+        ShaderSamplerParam() = default;
+
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
+        void setName(const String &name)
+        {
+            mName = name;
+        }
+
+        TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="setter")
+        void setTextureType(Texture::TEXTURE_TYPE texType)
+        {
+            mTexType = texType;
+        }
+        
+        TPROPERTY(RTTRFuncName="RegisterIndex", RTTRFuncType="setter")
+        void setRegisterIndex(uint32_t index)
+        {
+            mRegisterIndex = index;
+        }
+
+        TPROPERTY(RTTRFuncName="RegisterNum", RTTRFuncType="setter")
+        void setRegisterNum(uint32_t num)
+        {
+            mRegisterNum = num;
+        }
+
+        TPROPERTY(RTTRFuncName="Textures", RTTRFuncType="setter")
+        void setTextures(const Textures &textures)
+        {
+            mTextures = textures;
+        }
+        
+    protected:
         /**
          * \brief Constructor
          * \param [in] name : 
@@ -205,15 +279,13 @@ namespace Tiny3D
          * \param [in] registerIdx :
          * \param [in] registerNum :
          */
-        ShaderSamplerParam(const String &name, uint32_t texType, uint32_t registerIdx, uint32_t registerNum);
-
-        /**
-         * \brief Destructor
-         */
-        ~ShaderSamplerParam() override;
-
-    private:
-        ShaderSamplerParam() = default;
+        ShaderSamplerParam(const String &name, Texture::TEXTURE_TYPE texType, uint32_t registerIdx, uint32_t registerNum);
+        
+        Texture::TEXTURE_TYPE   mTexType {Texture::TT_1D};
+        uint32_t                mRegisterIndex {0};
+        uint32_t                mRegisterNum {0};
+        String                  mName {};
+        Textures                mTextures {};
     };
 
     using Keys = TSet<String>;
@@ -318,7 +390,7 @@ namespace Tiny3D
         
         void move(ShaderKeyword &&other);
         
-        uint32_t    mHashCode = 0;
+        uint32_t    mHashCode {0};
         Keys        mKeys {};
     };
 
@@ -476,16 +548,16 @@ namespace Tiny3D
         ShaderSamplerParams   mSamplers {};
 
         /// shader keyword
-        ShaderKeyword   *mShaderKeyword = nullptr;
+        ShaderKeyword   *mShaderKeyword {nullptr};
         
         /// 编译前是源代码 ，编译后是字节码 
-        char        *mBytesCode = nullptr;
+        char        *mBytesCode {nullptr};
         /// mBytesCode 的长度
-        size_t      mBytesCodeSize = 0;
+        size_t      mBytesCodeSize {0};
         /// mBytesCode 的空间容量
-        size_t      mBytesCodeCapacity = 0;
+        size_t      mBytesCodeCapacity {0};
         /// 是否编译
-        bool        mHasCompiled = false;
+        bool        mHasCompiled {false};
     };
 
     using ShaderKeywords = TList<ShaderKeyword>;
@@ -557,19 +629,19 @@ namespace Tiny3D
         ResourcePtr clone() const override;
 
         /// 本着色器用到的所有关键字
-        ShaderKeywords  mKeywords {};
+        ShaderKeywords      mKeywords {};
         
         /// 本着色器的所有变体
-        ShaderVariants  mVariants {};
+        ShaderVariants      mVariants {};
 
         /// 当前生效的关键字 
-        const ShaderKeyword *mCurrentKeyword = nullptr;
+        const ShaderKeyword *mCurrentKeyword {nullptr};
         
         /// 当前生效的变体
-        ShaderVariantPtr    mCurrentVariant = nullptr;
+        ShaderVariantPtr    mCurrentVariant {nullptr};
 
         /// 关键字是否需要重新生成
-        bool            mIsKeywordDirty = false;
+        bool                mIsKeywordDirty {false};
     };
 }
 

@@ -248,7 +248,9 @@ namespace Tiny3D
      * \brief 渲染 pass
      */
     TCLASS()
-    class T3D_ENGINE_API Pass : public Object
+    class T3D_ENGINE_API Pass
+        : public Object
+        , public Noncopyable
     {
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND
@@ -348,7 +350,9 @@ namespace Tiny3D
      * \brief 渲染技术
      */
     TCLASS()
-    class T3D_ENGINE_API Technique : public Object
+    class T3D_ENGINE_API Technique
+        : public Object
+        , public Noncopyable
     {
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND

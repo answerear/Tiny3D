@@ -22,8 +22,7 @@
 #define __T3D_RHI_DEPTH_STENCIL_STATE_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DRHIConstant.h"
+#include "RHI/T3DRHIState.h"
 
 
 namespace Tiny3D
@@ -34,12 +33,6 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_ENGINE_API DepthStencilState
     {
-        uint8_t *getCRCData(uint32_t &dataSize) const
-        {
-            dataSize = sizeof(DepthStencilState) - sizeof(void*);
-            return (uint8_t*)(&DepthTestEnable);
-        }
-        
         TSTRUCT()
         struct T3D_ENGINE_API StencilOpDesc
         {
@@ -77,14 +70,9 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件的深度缓冲和模板缓冲状态
      */
-    class T3D_ENGINE_API RHIDepthStencilState : public Object
+    class T3D_ENGINE_API RHIDepthStencilState : public RHIState
     {
     public:
-        uint32_t hash() const
-        {
-            return mHash;
-        }
-
         const DepthStencilState &getState() const
         {
             return mState;
@@ -93,7 +81,6 @@ namespace Tiny3D
     protected:
         RHIDepthStencilState(const DepthStencilState &state);
         
-        uint32_t            mHash = 0;
         DepthStencilState   mState {};
     };
 }

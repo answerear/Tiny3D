@@ -22,8 +22,7 @@
 #define __T3D_RHI_SAMPLER_STATE_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DRHIConstant.h"
+#include "RHI/T3DRHIState.h"
 
 
 namespace Tiny3D
@@ -34,12 +33,6 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_ENGINE_API SamplerState
     {
-        uint8_t *getCRCData(uint32_t &dataSize) const
-        {
-            dataSize = sizeof(SamplerState) - sizeof(void*);
-            return (uint8_t*)(&MinFilter);
-        }
-
         TPROPERTY()
         FilterOptions       MinFilter;
         TPROPERTY()
@@ -69,14 +62,9 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件层的纹理采样状态
      */
-    class T3D_ENGINE_API RHISamplerState : public Object
+    class T3D_ENGINE_API RHISamplerState : public RHIState
     {
     public:
-        uint32_t hash() const
-        {
-            return mHash;
-        }
-
         const SamplerState &getState() const
         {
             return mState;
@@ -85,7 +73,6 @@ namespace Tiny3D
     protected:
         RHISamplerState(const SamplerState &state);
 
-        uint32_t        mHash = 0;
         SamplerState    mState {};
     };
 }

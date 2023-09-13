@@ -32,10 +32,10 @@ namespace Tiny3D
     struct T3D_SYSTEM_API Buffer
     {
         TPROPERTY()
-        uint8_t *Data = nullptr;
+        uint8_t *Data {nullptr};
 
         TPROPERTY()
-        size_t  DataSize = 0;
+        size_t  DataSize {0};
     };
 }
 
