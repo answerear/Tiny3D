@@ -43,26 +43,35 @@ namespace Tiny3D
         {
             TPROPERTY()
             bool            BlendEnable = false;
+            
             TPROPERTY()
             BlendFactor     SrcBlend = BlendFactor::kOne;
+            
             TPROPERTY()
             BlendFactor     DestBlend = BlendFactor::kZero;
+            
             TPROPERTY()
             BlendOperation  BlendOp = BlendOperation::kAdd;
+            
             TPROPERTY()
             BlendFactor     SrcBlendAlpha = BlendFactor::kOne;
+            
             TPROPERTY()
             BlendFactor     DstBlendAlpha = BlendFactor::kZero;
+            
             TPROPERTY()
             BlendOperation  BlendOpAlpha = BlendOperation::kAdd;
+            
             TPROPERTY()
             uint8_t         ColorMask = kWriteMaskAll;
         };
 
         TPROPERTY()
         bool    AlphaToCoverageEnable = false;
+        
         TPROPERTY()
         bool    IndependentBlendEnable = false;
+        
         TPROPERTY()
         RTBlendState    RenderTargetStates[kMaxRenderTarget]{};
     };

@@ -23,7 +23,9 @@
 
 #include "Resource/T3DResource.h"
 #include "RHI/T3DRHIBlendState.h"
+#include "RHI/T3DRHIDepthStencilState.h"
 #include "RHI/T3DRHIRasterizerState.h"
+#include "Resource/T3DTexture.h"
 
 /**
  * Shader "Name"
@@ -216,32 +218,14 @@ namespace Tiny3D
     TSTRUCT()
     struct RenderState
     {
-        TPROPERTY(RTTRFuncName="BlendState", RTTRFuncType="getter")
-        const BlendState &getBlendState() const
-        {
-            return mBlendState;
-        }
-
-        TPROPERTY(RTTRFuncName="BlendState", RTTRFuncType="setter")
-        void setBlendState(const BlendState &state)
-        {
-            mBlendState = state;
-        }
-
-        TPROPERTY(RTTRFuncName="RasterizerState", RTTRFuncType="getter")
-        const RasterizerState &getRasterizeState() const
-        {
-            return mRasterizerState;
-        }
-
-        TPROPERTY(RTTRFuncName="RasterizerState", RTTRFuncType="setter")
-        void setRasterizerState(const RasterizerState &state)
-        {
-            mRasterizerState = state;
-        }
+        TPROPERTY()
+        BlendState          Blend {};
         
-        BlendState      mBlendState {};
-        RasterizerState mRasterizerState {};
+        TPROPERTY()
+        DepthStencilState   DepthStencil {};
+        
+        TPROPERTY()
+        RasterizerState     Rasterizer {};
     };
 
     /**
@@ -262,7 +246,7 @@ namespace Tiny3D
 
         PassPtr clone() const;
 
-        void addTag(const String &key, const String &value);
+        bool addTag(const String &key, const String &value);
 
         void removeTag(const String &key);
         
@@ -364,17 +348,17 @@ namespace Tiny3D
 
         TechniquePtr clone() const;
 
-        void addTag(const String &key, const String &value);
+        bool addTag(const String &key, const String &value);
 
         void removeTag(const String &key);
         
         bool getTag(const String &key, String &value) const;
 
-        void addPass(PassPtr pass);
+        bool addPass(PassPtr pass);
 
-        void removePass(PassPtr pass);
+        void removePass(const String &name);
 
-        bool getPass(const String &name) const;
+        bool getPass(const String &name, PassPtr &pass) const;
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const
@@ -437,7 +421,11 @@ namespace Tiny3D
     };
 
     using Techniques = TList<TechniquePtr>;
-
+    using ColorArray = TArray<ColorRGBA>;
+    using FloatArray = TArray<float32_t>;
+    using Vector4Array = TArray<Vector4>;
+    using Matrix4Array = TArray<Matrix4>;
+    
     /**
      * \brief 材质
      */
@@ -450,9 +438,93 @@ namespace Tiny3D
     public:
         static MaterialPtr create(const String &name);
 
-        ~Material() override = default;
+        ~Material() override;
 
         Type getType() const override;
+
+        /**
+         * \brief 添加一个渲染技术
+         * \param [in] tech : 渲染技术
+         * \return 成功返回 true
+         */
+        bool addTechnique(TechniquePtr tech);
+
+        /**
+         * \brief 删除一个渲染技术
+         * \param [in] name : 渲染技术名称 
+         */
+        void removeTechnique(const String &name);
+
+        /**
+         * \brief 获取指定名称的渲染技术
+         * \param [in] name : 要获取的渲染技术名称
+         * \param [in] tech : 获取到的渲染技术对象 
+         * \return 如果能获取到对象，返回 true
+         */
+        bool getTechnique(const String &name, TechniquePtr &tech) const;
+
+        TResult enableKeyword(const String &keyword);
+
+        TResult disableKeyword(const String &keyword);
+
+        bool isKeywordEnable(const String &keyword) const;
+
+        /**
+         * \brief 设置整型数据
+         * \param name 
+         * \param value 
+         */
+        void setInteger(const String &name, int32_t value);
+
+        int32_t getInteger(const String &name) const;
+
+        bool hasInteger(const String &name) const;
+
+        void setFloat(const String &name, float32_t value);
+
+        float32_t getFloat(const String &name) const;
+
+        bool hasFloat(const String &name) const;
+
+        void setFloatArray(const String &name, const FloatArray &values);
+
+        FloatArray getFloatArray(const String &name) const;
+
+        void setColor(const String &name, const ColorRGBA &value);
+
+        ColorRGBA getColor(const String &name) const;
+
+        bool hasColor(const String &name) const;
+
+        void setColorArray(const String &name, const ColorArray &values);
+
+        ColorArray getColorArray(const String &name) const;
+
+        void setVector(const String &name, const Vector4 &value);
+
+        Vector4 getVector(const String &name) const;
+
+        bool hasVector(const String &name) const;
+
+        void setVectorArray(const String &name, const Vector4Array &values);
+
+        Vector4Array getVectorArray(const String &name) const;
+
+        void setMatrix(const String &name, const Matrix4 &value);
+
+        Matrix4 getMatrix(const String &name) const;
+
+        bool hasMatrix(const String &name) const;
+
+        void setMatrixArray(const String &name, const Matrix4Array &values);
+
+        Matrix4Array getMatrixArray(const String &name) const;
+
+        void setTexture(const String &name, const TextureState &value);
+
+        TextureState getTexture(const String &name) const;
+
+        bool hasTexture(const String &name) const;
 
         TPROPERTY(RTTRFuncName="Techniques", RTTRFuncType="getter")
         const Techniques &getTechniques() const
@@ -476,7 +548,63 @@ namespace Tiny3D
 
         void cloneProperties(const Resource * const src) override;
 
-        Techniques  mTechniques;
+        void clearConstantData();
+
+        template <typename T>
+        void setValue(const String &name, const void *data)
+        {
+            auto itr = mConstantData.find(name);
+            if (itr == mConstantData.end())
+            {
+                Buffer buffer;
+                buffer.setData(&data, sizeof(T));
+                mConstantData.emplace(name, buffer);
+            }
+        }
+
+        template <typename T>
+        T getValue(const String &name) const
+        {
+            T value {};
+            auto itr = mConstantData.find(name);
+            if (itr != mConstantData.end() && itr->second.DataSize == sizeof(int32_t))
+            {
+                memcpy(&value, itr->second.Data, itr->second.DataSize);
+            }
+            return value;
+        }
+
+        template <typename T>
+        TArray<T> getValues(const String &name) const
+        {
+            auto itr = mConstantData.find(name);
+            if (itr != mConstantData.end())
+            {
+                return TArray<T>((T*)itr->second.Data, (T*)(itr->second.Data + itr->second.DataSize));
+            }
+
+            return TArray<T>();
+        }
+
+        template <typename T>
+        bool hasValue(const String &name) const
+        {
+            auto itr = mConstantData.find(name);
+            return (itr != mConstantData.end() && itr->second.DataSize == sizeof(T));
+        }
+
+        using ConstantData = TMap<String, Buffer>;
+        using TextureData = TMap<String, TextureState>;
+
+        /// 材质用到的渲染技术列表
+        Techniques      mTechniques;
+        /// 传入 shader 的常量数据
+        ConstantData    mConstantData;
+        /// 传入 shader 的纹理数据
+        TextureData     mTextureData;
+
+        /// 当前使用的渲染技术
+        TechniquePtr    mActiveTechnique;
     };
 }
 

@@ -585,6 +585,8 @@ namespace Tiny3D
         TResult enableKeyword(const String &keyword);
 
         TResult disableKeyword(const String &keyword);
+
+        bool isKeywordEnable(const String &keyword) const;
         
         TPROPERTY(RTTRFuncName = "Keywords", RTTRFuncType = "getter")
         const ShaderKeywords &getKeywords() const

@@ -35,20 +35,28 @@ namespace Tiny3D
     {
         TPROPERTY()
         PolygonMode FillMode;
+        
         TPROPERTY()
         CullingMode CullMode;
+        
         TPROPERTY()
         Real        DepthBias;
+        
         TPROPERTY()
         Real        DepthBiasClamp;
+        
         TPROPERTY()
         Real        SlopeScaledDepthBias;
+        
         TPROPERTY()
         bool        DepthClipEnable;
+        
         TPROPERTY()
         bool        ScissorEnable;
+        
         TPROPERTY()
         bool        MultisampleEnable;
+        
         TPROPERTY()
         bool        AntialiasedLineEnable;
     };

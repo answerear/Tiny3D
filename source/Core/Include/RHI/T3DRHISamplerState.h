@@ -35,26 +35,37 @@ namespace Tiny3D
     {
         TPROPERTY()
         FilterOptions       MinFilter;
+        
         TPROPERTY()
         FilterOptions       MagFilter;
+        
         TPROPERTY()
         FilterOptions       MipFilter;
+        
         TPROPERTY()
         TextureAddressMode  AddressU;
+        
         TPROPERTY()
         TextureAddressMode  AddressV;
+        
         TPROPERTY()
         TextureAddressMode  AddressW;
+        
         TPROPERTY()
         Real                MipLODBias;
+        
         TPROPERTY()
         uint32_t            MaxAnisotropy;
+        
         TPROPERTY()
         CompareFunction     CompareFunc;
+        
         TPROPERTY()
         ColorRGBA           BorderColor;
+        
         TPROPERTY()
         Real                MinLOD;
+        
         TPROPERTY()
         Real                MaxLOD;
     };

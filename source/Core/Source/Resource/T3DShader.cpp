@@ -350,6 +350,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool Shader::isKeywordEnable(const String &keyword) const
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
     ResourcePtr Shader::clone() const
     {
         return nullptr;

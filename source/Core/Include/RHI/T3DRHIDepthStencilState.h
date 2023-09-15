@@ -36,25 +36,37 @@ namespace Tiny3D
         TSTRUCT()
         struct T3D_ENGINE_API StencilOpDesc
         {
+            TPROPERTY()
             CompareFunction StencilFunc;
+
+            TPROPERTY()
             StencilOp       StencilFailOp;
+
+            TPROPERTY()
             StencilOp       StencilDepthFailOp;
+
+            TPROPERTY()
             StencilOp       StencilPassOp;
         };
 
         TPROPERTY()
-        bool            DepthTestEnable;
+        bool            DepthTestEnable = true;
+        
         TPROPERTY()
-        bool            DepthWriteEnable;
+        bool            DepthWriteEnable = true;
+        
         TPROPERTY()
         CompareFunction DepthFunc;
 
         TPROPERTY()
         bool            StencilEnable;
+        
         TPROPERTY()
         uint32_t        StencilRef;
+        
         TPROPERTY()
         uint8_t         StencilReadMask;
+        
         TPROPERTY()
         uint8_t         StencilWriteMask;
 
