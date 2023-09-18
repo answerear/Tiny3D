@@ -18,131 +18,124 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DMaterial.h"
-#include "Resource/T3DShader.h"
+#include "Material/T3DShaderKeyword.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    MaterialPtr Material::create(const String &name)
-    {
-        return new Material(name);
-    }
-
-    //--------------------------------------------------------------------------
-
-    Material::Material(const String &name)
-        : Resource(name)
+    ShaderKeyword::ShaderKeyword()
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    Material::~Material()
+    ShaderKeyword::ShaderKeyword(const ShaderKeyword &other)
     {
-        
+        copy(other);
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::Type Material::getType() const
+    ShaderKeyword::ShaderKeyword(ShaderKeyword &&other) noexcept
     {
-        return Type::kMaterial;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    ResourcePtr Material::clone() const
-    {
-        MaterialPtr material = create(getName());
-        material->cloneProperties(this);
-        return material;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void Material::cloneProperties(const Resource *const src)
-    {
-        Resource::cloneProperties(src);
-        const Material *material = static_cast<const Material*>(src);
+        move(std::move(other));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Material::enableKeyword(const String &keyword)
+    bool ShaderKeyword::hasKey(const String &key) const
     {
+        auto itr = mKeys.find(key); // std::find(mKeys.begin(), mKeys.end(), key);
+        return (itr != mKeys.end());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ShaderKeyword::addKeyword(const String &keyword)
+    {
+        mKeys.insert(keyword);
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Material::disableKeyword(const String &keyword)
+    TResult ShaderKeyword::removeKeyword(const String &keyword)
     {
+        mKeys.erase(keyword);
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    bool Material::isKeywordEnable(const String &keyword) const
+    TResult ShaderKeyword::generate()
     {
-        return false;
+        String name;
+        for (const auto &str : mKeys)
+        {
+            name += "_";
+            name += str;
+        }
+        mHashCode = Hash::hash(name.c_str());
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    void Material::setTexture(const String &name, const TextureState &value)
+    bool ShaderKeyword::operator==(const ShaderKeyword &other) const
     {
-        auto itr = mSamplers.find(name);
-        if (itr != mSamplers.end())
-        {
-            itr->second->setTexture(value);
-        }
+        return mHashCode == other.mHashCode;
     }
 
     //--------------------------------------------------------------------------
 
-    TextureState Material::getTexture(const String &name) const
+    bool ShaderKeyword::operator<(const ShaderKeyword &other) const
     {
-        TextureState tex;
-        auto itr = mSamplers.find(name);
-        if (itr != mSamplers.end())
-        {
-            tex = itr->second->getTexture();
-        }
-        return tex;
+        return mHashCode < other.mHashCode;
     }
 
     //--------------------------------------------------------------------------
 
-    bool Material::hasTexture(const String &name) const
+    bool ShaderKeyword::operator>(const ShaderKeyword &other) const
     {
-        const auto itr = mSamplers.find(name);
-        return (itr != mSamplers.end());
+        return mHashCode > other.mHashCode;
     }
 
     //--------------------------------------------------------------------------
 
-    void Material::setShader(ShaderPtr shader)
+    ShaderKeyword &ShaderKeyword::operator=(const ShaderKeyword &other)
     {
-        mShader = shader;
+        copy(other);
+        return *this;
+    }
 
-        // 复制一份 constant 数据
-        for (auto value : mShader->getConstantParams())
-        {
-            ShaderConstantParamPtr param = value.second->clone();
-            mConstants.emplace(value.first, param);
-        }
+    //--------------------------------------------------------------------------
 
-        // 复制一份 sampler 数据
-        for (auto value : mShader->getSamplerParams())
-        {
-            ShaderSamplerParamPtr param = value.second->clone();
-            mSamplers.emplace(value.first, param);
-        }
+    ShaderKeyword &ShaderKeyword::operator=(ShaderKeyword &&other) noexcept
+    {
+        move(std::move(other));
+        return *this;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ShaderKeyword::copy(const ShaderKeyword &other)
+    {
+        mKeys = other.mKeys;
+        mHashCode = other.mHashCode;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ShaderKeyword::move(ShaderKeyword &&other)
+    {
+        mKeys = std::move(other.mKeys);
+        mHashCode = other.mHashCode;
     }
 
     //--------------------------------------------------------------------------
 }
+
+

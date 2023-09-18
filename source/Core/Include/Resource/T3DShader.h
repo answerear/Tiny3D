@@ -22,547 +22,14 @@
 
 
 #include "Resource/T3DResource.h"
-#include "Resource/T3DTexture.h"
+#include "Material/T3DTechnique.h"
+#include "Material/T3DShaderConstantParam.h"
+#include "Material/T3DShaderSamplerParam.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 着色器里的常量
-     */
-    TCLASS()
-    class T3D_ENGINE_API ShaderConstantParam
-        : public Object
-        , public Noncopyable
-    {
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-        
-    public:
-        /**
-         * \brief 数据类型
-         */
-        TENUM()
-        enum class DATA_TYPE : uint32_t
-        {
-            /// 浮点数
-            DT_FLOAT = 0,
-            /// 布尔值
-            DT_BOOL,
-            /// 整型
-            DT_INT,
-            /// 结构体
-            DT_STRUCT,
-            DT_MAX
-        };
-
-        /**
-         * \brief 创建对象函数
-         * \param [in] name : 变量名称
-         * \param [in] data : 数据地址
-         * \param [in] dataSize : 数据大小
-         * \param [in] registerIdx : 数据地址索引，不同 Render API 不一样定义 
-         * \param registerNum : 占用寄存器数量
-         * \param dataType : 数据类型
-         */
-        static ShaderConstantParamPtr create(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
-
-        /**
-         * \brief Destructor
-         */
-        ~ShaderConstantParam() override;
-
-        /**
-         * \brief 获取变量名称
-         */
-        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
-        const String &getName() const { return mName; }
-
-        /**
-         * \brief 设置数据
-         * \param [in] data : 数据地址 
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setData(const void *data)
-        {
-            if (data == nullptr)
-                return T3D_ERR_INVALID_PARAM;
-            memcpy(mData.Data, data, mData.DataSize);
-            return T3D_OK;
-        }
-
-        /**
-         * \brief 获取变量数据
-         */
-        void *getData() const { return mData.Data; }
-
-        /**
-         * \brief 获取数据类型
-         */
-        TPROPERTY(RTTRFuncName="DataType", RTTRFuncType="getter")
-        DATA_TYPE getDataType() const { return mDataType; }
-        
-        /**
-         * \brief 获取数据大小
-         */
-        uint32_t getSize() const { return mData.DataSize; }
-
-        /**
-         * \brief 获取占用寄存器数量
-         */
-        TPROPERTY(RTTRFuncName="RegisterNum", RTTRFuncType="getter")
-        uint32_t getRegisterNum() const { return mRegisterNum; }
-
-        /**
-         * \brief 获取寄存器数据地址索引
-         */
-        TPROPERTY(RTTRFuncName="RegisterIndex", RTTRFuncType="getter")
-        uint32_t getRegisterIndex() const { return mRegisterIndex; }
-
-    private:
-        ShaderConstantParam() = default;
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="getter")
-        const Buffer &getBuffer() const
-        {
-            return mData;
-        }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &buffer)
-        {
-            mData = buffer;
-        }
-
-        TPROPERTY(RTTRFuncName="DataType", RTTRFuncType="setter")
-        void setDataType(DATA_TYPE type)
-        {
-            mDataType = type;
-        }
-
-        TPROPERTY(RTTRFuncName="RegisterIndex", RTTRFuncType="setter")
-        void setRegisterIndex(uint32_t registerIdx)
-        {
-            mRegisterIndex = registerIdx;
-        }
-
-        TPROPERTY(RTTRFuncName="RegisterNum", RTTRFuncType="setter")
-        void setRegisterNum(uint32_t registerNum)
-        {
-            mRegisterNum = registerNum;
-        }
-
-        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
-        void setName(const String &name)
-        {
-            mName = name;
-        }
-        
-    protected:
-        /**
-         * \brief 构造函数
-         * \param [in] name : 变量名称
-         * \param [in] data : 数据地址
-         * \param [in] dataSize : 数据大小
-         * \param [in] registerIdx : 数据地址索引，不同 Render API 不一样定义 
-         * \param registerNum : 占用寄存器数量
-         * \param dataType : 数据类型
-         */
-        ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, uint32_t registerIdx, uint32_t registerNum, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
-        
-        // /// 数据地址
-        // uint8_t     *mData = nullptr;
-        // /// 数据大小
-        // uint32_t    mDataSize = 0;
-
-        /// 数据
-        Buffer      mData {};
-        /// 数据类型
-        DATA_TYPE   mDataType {DATA_TYPE::DT_FLOAT};
-        /// 数据地址索引
-        uint32_t    mRegisterIndex {0};
-        /// 占用寄存器数量
-        uint32_t    mRegisterNum {0};
-        /// 变量名 
-        String      mName {};
-    };
-
-    using Textures = TArray<TextureState>;
-
-    /**
-     * \brief 着色器里的纹理采样器
-     */
-    TCLASS()
-    class T3D_ENGINE_API ShaderSamplerParam
-        : public Object
-        , public Noncopyable
-    {
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-        
-    public:
-        static ShaderSamplerParamPtr create(const String &name, Texture::TEXTURE_TYPE texType, uint32_t registerIdx, uint32_t registerNum);
-
-        /**
-         * \brief Destructor
-         */
-        ~ShaderSamplerParam() override;
-
-        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
-        const String &getName() const
-        {
-            return mName;
-        }
-
-        TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="getter")
-        Texture::TEXTURE_TYPE getTextureType() const
-        {
-            return mTexType;
-        }
-        
-        TPROPERTY(RTTRFuncName="RegisterIndex", RTTRFuncType="getter")
-        uint32_t getRegisterIndex() const
-        {
-            return mRegisterIndex;
-        }
-
-        TPROPERTY(RTTRFuncName="RegisterNum", RTTRFuncType="getter")
-        uint32_t getRegisterNum() const
-        {
-            return mRegisterNum;
-        }
-
-        TPROPERTY(RTTRFuncName="Textures", RTTRFuncType="getter")
-        const Textures &getTextures() const
-        {
-            return mTextures;
-        }
-        
-    private:
-        ShaderSamplerParam() = default;
-
-        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
-        void setName(const String &name)
-        {
-            mName = name;
-        }
-
-        TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="setter")
-        void setTextureType(Texture::TEXTURE_TYPE texType)
-        {
-            mTexType = texType;
-        }
-        
-        TPROPERTY(RTTRFuncName="RegisterIndex", RTTRFuncType="setter")
-        void setRegisterIndex(uint32_t index)
-        {
-            mRegisterIndex = index;
-        }
-
-        TPROPERTY(RTTRFuncName="RegisterNum", RTTRFuncType="setter")
-        void setRegisterNum(uint32_t num)
-        {
-            mRegisterNum = num;
-        }
-
-        TPROPERTY(RTTRFuncName="Textures", RTTRFuncType="setter")
-        void setTextures(const Textures &textures)
-        {
-            mTextures = textures;
-        }
-        
-    protected:
-        /**
-         * \brief Constructor
-         * \param [in] name : 
-         * \param [in] texType : 
-         * \param [in] registerIdx :
-         * \param [in] registerNum :
-         */
-        ShaderSamplerParam(const String &name, Texture::TEXTURE_TYPE texType, uint32_t registerIdx, uint32_t registerNum);
-        
-        Texture::TEXTURE_TYPE   mTexType {Texture::TT_1D};
-        uint32_t                mRegisterIndex {0};
-        uint32_t                mRegisterNum {0};
-        String                  mName {};
-        Textures                mTextures {};
-    };
-
-    using Keys = TSet<String>;
-    
-    /**
-     * \brief 着色器宏
-     * \remarks
-     *      Example :
-     *      Shader 中代码有如下宏定义
-     *          #multi_compile A1 B1 C1
-     *          #multi_compile A2 B2
-     *      则产生的 ShaderKey 有：
-     *          A1_A2、A1_B2、B1_A2、B1_B2、C1_A2、C1_B2
-     *      一共六个 ShaderKey 对象
-     */
-    TCLASS(RTTRConstructAsObject)
-    class T3D_ENGINE_API ShaderKeyword
-    {
-        TRTTI_ENABLE()
-        TRTTI_FRIEND
-        
-    public:
-        /**
-         * \brief Constructor
-         */
-        ShaderKeyword();
-
-        /**
-         * \brief Copy constructor
-         */
-        ShaderKeyword(const ShaderKeyword &other);
-
-        /**
-         * \brief Move constructor
-         */
-        ShaderKeyword(ShaderKeyword &&other) noexcept;
-
-        /**
-         * \brief Destructor
-         */
-        virtual ~ShaderKeyword() = default;
-
-        /**
-         * \brief 是否有对应的宏
-         * \param [in] keyword : 宏定义名称
-         * \return 如果有对应的宏定义，则返回 true
-         */
-        bool hasKey(const String &keyword) const;
-
-        TPROPERTY(RTTRFuncName = "HashCode", RTTRFuncType = "getter")
-        uint32_t getHashCode() const { return mHashCode; }
-
-        TPROPERTY(RTTRFuncName = "Keys", RTTRFuncType = "getter")
-        const Keys &getKeys() const { return mKeys; }
-
-        /**
-         * \brief 设置宏
-         * \param [in] keyword : 宏定义名称
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult addKeyword(const String &keyword);
-
-        TResult removeKeyword(const String &keyword);
-
-        /**
-         * \brief 当宏集合有变化时，要调用本接口，生成唯一 hash 值，方便后续快速比较
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult generate();
-
-        bool operator ==(const ShaderKeyword &other) const;
-        
-        bool operator <(const ShaderKeyword &other) const;
-        
-        bool operator >(const ShaderKeyword &other) const;
-
-        /**
-         * \brief Copy assignment
-         */
-        ShaderKeyword &operator =(const ShaderKeyword &other);
-
-        /**
-         * \brief Move assignment
-         */
-        ShaderKeyword &operator =(ShaderKeyword &&other) noexcept;
-
-    private:
-        TPROPERTY(RTTRFuncName="HashCode", RTTRFuncType="setter")
-        void setHashCode(uint32_t hash)
-        {
-            mHashCode = hash;
-        }
-
-        TPROPERTY(RTTRFuncName="Keys", RTTRFuncType="setter")
-        void setKeys(const Keys &keys)
-        {
-            mKeys = keys;
-        }
-        
-    protected:
-        void copy(const ShaderKeyword &other);
-        
-        void move(ShaderKeyword &&other);
-        
-        uint32_t    mHashCode {0};
-        Keys        mKeys {};
-    };
-
-    using ShaderConstantParams = TArray<ShaderConstantParamPtr>;
-    using ShaderSamplerParams = TArray<ShaderSamplerParamPtr>;
-    
-    /**
-     * \brief Shader 变体，也是实际 shader 代码和编译后的字节码
-     */
-    TCLASS()
-    class T3D_ENGINE_API ShaderVariant
-        : public Object
-        , public Noncopyable
-    {
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-        
-    public:
-        /**
-         * \brief 创建 shader 变体对象
-         * \param [in] keyword : 变体对应的关键字
-         * \param [in] code : 变体对应的源码
-         * \return 返回 shader 变体对象
-         */
-        static ShaderVariantPtr create(ShaderKeyword &&keyword, const String &code);
-
-        /**
-         * \brief Destructor
-         */
-        ~ShaderVariant() override;
-
-        /**
-         * \brief 获取变体对应的关键字
-         * \return 返回变体对应的关键字对象
-         */
-        TPROPERTY(RTTRFuncName="ShaderKeyword", RTTRFuncType="getter")
-        const ShaderKeyword &getShaderKeyword() const { return *mShaderKeyword; }
-
-        /**
-         * \brief 设置 shader 变量值
-         * \param [in] name : 变量名
-         * \param [in] data : 变量对应的数据 
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setParam(const String &name, void *data);
-
-        /**
-         * \brief 设置 shader 采样器
-         * \param [in] name : 采样器名称
-         * \param [in] index : 采样器索引
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setParam(const String &name, int32_t index);
-        
-        bool hasCompiled() const { return mHasCompiled; }
-
-        char *getBytesCode(size_t &bytesLength) const
-        {
-            bytesLength = mBytesCodeSize;
-            return mBytesCode;
-        }
-
-        void setBytesCode(const char *bytes, size_t bytesLength)
-        {
-            copyCode(bytes, bytesLength);
-            mHasCompiled = true;
-        }
-
-        void setSourceCode(const char *code, size_t codeLength)
-        {
-            copyCode(code, codeLength);
-            mHasCompiled = false;
-        }
-
-        void addConstant(ShaderConstantParamPtr constant)
-        {
-            mConstants.push_back(constant);
-        }
-
-        void addSampler(ShaderSamplerParamPtr sampler)
-        {
-            mSamplers.push_back(sampler);
-        }
-
-    private:
-        ShaderVariant() = default;
-
-        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="getter")
-        const ShaderConstantParams &getConstantParams() const
-        {
-            return mConstants;
-        }
-
-        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="setter")
-        void setConstantParams(const ShaderConstantParams &constants)
-        {
-            mConstants = constants;
-        }
-
-        TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="getter")
-        const ShaderSamplerParams &getSamplerParams() const
-        {
-            return mSamplers;
-        }
-
-        TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="setter")
-        void setSamplerParams(const ShaderSamplerParams &samplers)
-        {
-            mSamplers = samplers;
-        }
-
-        TPROPERTY(RTTRFuncName="ShaderKeyword", RTTRFuncType="setter")
-        void setShaderKeyword(const ShaderKeyword &keyword)
-        {
-            if (mShaderKeyword == nullptr)
-            {
-                mShaderKeyword = new ShaderKeyword(keyword);
-            }
-            else
-            {
-                *mShaderKeyword = keyword;
-            }
-        }
-
-        TPROPERTY(RTTRFuncName="Code", RTTRFuncType="getter")
-        String getSourceCode() const
-        {
-            return String(mBytesCode, mBytesCodeSize);
-        }
-
-        TPROPERTY(RTTRFuncName="Code", RTTRFuncType="setter")
-        void setSourceCode(String code)
-        {
-            setSourceCode(&code[0], code.length());
-        }
-        
-    protected:
-        ShaderVariant(ShaderKeyword &&key, const String &code);
-
-        void copyCode(const char *code, size_t codeSize)
-        {
-            if (mBytesCodeCapacity < codeSize || mBytesCodeCapacity == 0)
-            {
-                T3D_SAFE_DELETE_ARRAY(mBytesCode);
-                mBytesCode = new char[codeSize];
-                mBytesCodeCapacity = codeSize;
-            }
-            memcpy(mBytesCode, code, codeSize);
-            mBytesCodeSize = codeSize;
-        }
-
-        /// shader 变量
-        ShaderConstantParams  mConstants {};
-        /// shader 采样器
-        ShaderSamplerParams   mSamplers {};
-
-        /// shader keyword
-        ShaderKeyword   *mShaderKeyword {nullptr};
-        
-        /// 编译前是源代码 ，编译后是字节码 
-        char        *mBytesCode {nullptr};
-        /// mBytesCode 的长度
-        size_t      mBytesCodeSize {0};
-        /// mBytesCode 的空间容量
-        size_t      mBytesCodeCapacity {0};
-        /// 是否编译
-        bool        mHasCompiled {false};
-    };
-
-    using ShaderKeywords = TList<ShaderKeyword>;
-    using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;
-    using ShaderVariantsValue = ShaderVariants::value_type;
+    using Techniques = TList<TechniquePtr>;
     
     /**
      * \brief 着色器资源
@@ -580,49 +47,72 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TResult addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant);
-
         TResult enableKeyword(const String &keyword);
 
         TResult disableKeyword(const String &keyword);
 
         bool isKeywordEnable(const String &keyword) const;
-        
-        TPROPERTY(RTTRFuncName = "Keywords", RTTRFuncType = "getter")
-        const ShaderKeywords &getKeywords() const
+
+        /**
+         * \brief 添加一个渲染技术
+         * \param [in] tech : 渲染技术
+         * \return 成功返回 true
+         */
+        bool addTechnique(TechniquePtr tech);
+
+        /**
+         * \brief 删除一个渲染技术
+         * \param [in] name : 渲染技术名称 
+         */
+        void removeTechnique(const String &name);
+
+        /**
+         * \brief 获取指定名称的渲染技术
+         * \param [in] name : 要获取的渲染技术名称
+         * \param [in] tech : 获取到的渲染技术对象 
+         * \return 如果能获取到对象，返回 true
+         */
+        bool getTechnique(const String &name, TechniquePtr &tech) const;
+
+        TechniquePtr getCurrentTechnique() const { return mCurTechnique; }
+
+        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="getter")
+        const ShaderConstantParams &getConstantParams() const
         {
-            return mKeywords;
+            return mConstants;
         }
 
-        TPROPERTY(RTTRFuncName = "Variants", RTTRFuncType = "getter")
-        const ShaderVariants &getShaderVariants() const
+        TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="getter")
+        const ShaderSamplerParams &getSamplerParams() const
         {
-            return mVariants;
+            return mSamplers;
         }
 
-        const ShaderKeyword &getCurrentKeyword() const
+        TPROPERTY(RTTRFuncName="Techniques", RTTRFuncType="getter")
+        const Techniques &getTechniques() const
         {
-            return *mCurrentKeyword;
-        }
-
-        ShaderVariantPtr getCurrentVariant() const
-        {
-            return mCurrentVariant;
+            return mTechniques;
         }
 
     private:
         Shader() = default;
 
-        TPROPERTY(RTTRFuncName = "Keywords", RTTRFuncType = "setter")
-        void setKeywords(const ShaderKeywords &keywords)
+        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="setter")
+        void setConstantParams(const ShaderConstantParams &params)
         {
-            mKeywords = keywords;
+            mConstants = params;
         }
 
-        TPROPERTY(RTTRFuncName = "Variants", RTTRFuncType = "setter")
-        void setShaderVariants(const ShaderVariants &variants)
+        TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="setter")
+        void setSamplerParams(const ShaderSamplerParams &params)
         {
-            mVariants = variants;
+            mSamplers = params;
+        }
+
+        TPROPERTY(RTTRFuncName="Techniques", RTTRFuncType="setter")
+        void setTechniques(const Techniques &techniques)
+        {
+            mTechniques = techniques;
         }
 
     protected:
@@ -630,20 +120,14 @@ namespace Tiny3D
         
         ResourcePtr clone() const override;
 
-        /// 本着色器用到的所有关键字
-        ShaderKeywords      mKeywords {};
-        
-        /// 本着色器的所有变体
-        ShaderVariants      mVariants {};
-
-        /// 当前生效的关键字 
-        const ShaderKeyword *mCurrentKeyword {nullptr};
-        
-        /// 当前生效的变体
-        ShaderVariantPtr    mCurrentVariant {nullptr};
-
-        /// 关键字是否需要重新生成
-        bool                mIsKeywordDirty {false};
+        /// shader 常量
+        ShaderConstantParams    mConstants {};
+        /// shader 采样器
+        ShaderSamplerParams     mSamplers {};
+        /// 所有可用的技术对象
+        Techniques              mTechniques {};
+        /// 当前可用的技术对象
+        TechniquePtr            mCurTechnique {nullptr};
     };
 }
 

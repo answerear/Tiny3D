@@ -86,10 +86,13 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIStateManager);
     T3D_DECLARE_SMART_PTR(RHIStateManagerImpl);
 
-    typedef TMap<String, RHIRendererPtr>    RHIRenderers;
-    typedef RHIRenderers::iterator          RHIRenderersItr;
-    typedef RHIRenderers::const_iterator    RHIRenderersConstItr;
-    typedef RHIRenderers::value_type        RHIRenderersValue;
+    using RHIRenderers = TMap<String, RHIRendererPtr>;
+    using RHIRenderersItr = RHIRenderers::iterator;
+    using RHIRenderersConstItr = RHIRenderers::const_iterator;
+    using RHIRenderersValue = RHIRenderers::value_type;
+
+    using ShaderLabTags = TMap<String, String>;
+    using ShaderLabTagsValue = ShaderLabTags::value_type;
 }
 
 

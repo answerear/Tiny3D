@@ -17,50 +17,70 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Resource/T3DTexture.h"
-#include "RHI/T3DRHIStateManager.h"
+
+#include "Material/T3DShaderVariant.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-    
-    TexturePtr Texture::create(const String &name)
+
+    ShaderVariantPtr ShaderVariant::create(ShaderKeyword &&keyword, const String &code)
     {
-        return new Texture(name);
+        return new ShaderVariant(std::move(keyword), code);
     }
 
     //--------------------------------------------------------------------------
 
-    Texture::Texture(const String &name)
-        : Resource(name)
+    ShaderVariant::ShaderVariant(ShaderKeyword &&key, const String &code)
     {
+        mShaderKeyword = new ShaderKeyword(std::move(key));
+        setSourceCode(code.c_str(), code.length());
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderVariant::~ShaderVariant()
+    {
+        T3D_SAFE_DELETE(mShaderKeyword);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ShaderVariant::setParam(const String &name, void *data)
+    {
+        // if (data == nullptr)
+        // {
+        //     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid parameter when call ShaderVariant::setParam()");
+        //     return T3D_ERR_INVALID_PARAM;
+        // }
+        //
+        // for (auto param : mConstants)
+        // {
+        //     if (name == param->getName())
+        //     {
+        //         void *dst = param->getData();
+        //         if (data == nullptr)
+        //         {
+        //             T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid parameter data when call ShaderVariant::setParam()");
+        //             return T3D_ERR_INVALID_POINTER;
+        //         }
+        //         memcpy(dst, data, param->getSize());
+        //         break;
+        //     }
+        // }
         
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::Type Texture::getType() const
+    TResult ShaderVariant::setParam(const String &name, int32_t index)
     {
-        return Type::kTexture;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    ResourcePtr Texture::clone() const
-    {
-        TexturePtr texture = create(getName());
-        texture->cloneProperties(this);
-        return texture;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void Texture::cloneProperties(const Resource *const src)
-    {
-        Resource::cloneProperties(src);
-        const Texture *texture = static_cast<const Texture*>(src);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 }
+
+

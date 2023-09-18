@@ -39,12 +39,12 @@ namespace Tiny3D
 
         void setData(const void *data, size_t dataSize)
         {
-            if (DataSize != dataSize)
+            if (DataSize < dataSize)
             {
                 T3D_SAFE_DELETE_ARRAY(Data);
-                DataSize = dataSize;
-                Data = new uint8_t[DataSize];
+                Data = new uint8_t[dataSize];
             }
+            DataSize = dataSize;
             memcpy(Data, data, DataSize);
         }
         

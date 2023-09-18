@@ -22,54 +22,12 @@
 #define __T3D_RHI_SAMPLER_STATE_H__
 
 
+#include "Render/T3DSamplerState.h"
 #include "RHI/T3DRHIState.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 纹理采样状态
-     */
-    TSTRUCT()
-    struct T3D_ENGINE_API SamplerState
-    {
-        TPROPERTY()
-        FilterOptions       MinFilter;
-        
-        TPROPERTY()
-        FilterOptions       MagFilter;
-        
-        TPROPERTY()
-        FilterOptions       MipFilter;
-        
-        TPROPERTY()
-        TextureAddressMode  AddressU;
-        
-        TPROPERTY()
-        TextureAddressMode  AddressV;
-        
-        TPROPERTY()
-        TextureAddressMode  AddressW;
-        
-        TPROPERTY()
-        Real                MipLODBias;
-        
-        TPROPERTY()
-        uint32_t            MaxAnisotropy;
-        
-        TPROPERTY()
-        CompareFunction     CompareFunc;
-        
-        TPROPERTY()
-        ColorRGBA           BorderColor;
-        
-        TPROPERTY()
-        Real                MinLOD;
-        
-        TPROPERTY()
-        Real                MaxLOD;
-    };
-
     /**
      * \brief 渲染硬件层的纹理采样状态
      */

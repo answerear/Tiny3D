@@ -18,33 +18,4 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_BLEND_STATE_H__
-#define __T3D_RHI_BLEND_STATE_H__
-
-
-#include "Render/T3DBlendState.h"
-#include "RHI/T3DRHIState.h"
-
-
-namespace Tiny3D
-{
-    /**
-     * \brief 渲染硬件层的颜色混合状态
-     */
-    class T3D_ENGINE_API RHIBlendState : public RHIState
-    {
-    public:
-        const BlendState &getState() const
-        {
-            return mState;
-        }
-        
-    protected:
-        RHIBlendState(const BlendState &state);
-
-        BlendState  mState {};
-    };
-}
-
-
-#endif  /*__T3D_RHI_BLEND_STATE_H__*/
+#include "Render/T3DDepthStencilState.h"

@@ -22,45 +22,12 @@
 #define __T3D_RHI_RASTERIZER_STATE_H__
 
 
+#include "Render/T3DRasterizerState.h"
 #include "RHI/T3DRHIState.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 光栅化状态
-     */
-    TSTRUCT()
-    struct T3D_ENGINE_API RasterizerState
-    {
-        TPROPERTY()
-        PolygonMode FillMode;
-        
-        TPROPERTY()
-        CullingMode CullMode;
-        
-        TPROPERTY()
-        Real        DepthBias;
-        
-        TPROPERTY()
-        Real        DepthBiasClamp;
-        
-        TPROPERTY()
-        Real        SlopeScaledDepthBias;
-        
-        TPROPERTY()
-        bool        DepthClipEnable;
-        
-        TPROPERTY()
-        bool        ScissorEnable;
-        
-        TPROPERTY()
-        bool        MultisampleEnable;
-        
-        TPROPERTY()
-        bool        AntialiasedLineEnable;
-    };
-
     /**
      * \brief 渲染硬件层的光栅化状态
      */

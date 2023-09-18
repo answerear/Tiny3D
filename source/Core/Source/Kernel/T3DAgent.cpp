@@ -35,6 +35,7 @@
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIRenderer.h"
 #include "RHI/T3DRHIStateManager.h"
+#include "Material/T3DShaderVariant.h"
 
 
 namespace Tiny3D
@@ -203,72 +204,73 @@ namespace Tiny3D
                 addRenderWindow(window);
             }
 
-            ShaderPtr shader = mShaderMgr->createShader("test.shader");
-            ShaderKeyword keyword;
-            keyword.addKeyword("TEST1");
-            keyword.generate();
-            String code = 
-                "static float4 gl_Position;\n"
-                "struct SPIRV_Cross_Output\n"
-                "{\n"
-                "    float4 gl_Position : SV_Position;\n"
-                "};\n"
-                "\n"
-                "void vert_main()\n"
-                "{\n"
-                "    gl_Position = float4(1.0f, 2.0f, 3.0f, 4.0f);\n"
-                "}\n"
-                "\n"
-                "SPIRV_Cross_Output main()\n"
-                "{\n"
-                "    vert_main();\n"
-                "    SPIRV_Cross_Output stage_output;\n"
-                "    stage_output.gl_Position = gl_Position;\n"
-                "    return stage_output;\n"
-                "}\n";
-            Matrix4 mat;
-            ShaderConstantParamPtr constParam = ShaderConstantParam::create("WorldMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
-            ShaderVariantPtr variant = ShaderVariant::create(std::forward<ShaderKeyword>(keyword), code);
-            variant->addConstant(constParam);
+            //ShaderPtr shader = mShaderMgr->createShader("test.shader");
+            //ShaderKeyword keyword;
+            //keyword.addKeyword("TEST1");
+            //keyword.generate();
+            //String code = 
+            //    "static float4 gl_Position;\n"
+            //    "struct SPIRV_Cross_Output\n"
+            //    "{\n"
+            //    "    float4 gl_Position : SV_Position;\n"
+            //    "};\n"
+            //    "\n"
+            //    "void vert_main()\n"
+            //    "{\n"
+            //    "    gl_Position = float4(1.0f, 2.0f, 3.0f, 4.0f);\n"
+            //    "}\n"
+            //    "\n"
+            //    "SPIRV_Cross_Output main()\n"
+            //    "{\n"
+            //    "    vert_main();\n"
+            //    "    SPIRV_Cross_Output stage_output;\n"
+            //    "    stage_output.gl_Position = gl_Position;\n"
+            //    "    return stage_output;\n"
+            //    "}\n";
+            //Matrix4 mat;
+            //ShaderConstantParamPtr constParam = ShaderConstantParam::create("WorldMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+            //ShaderVariantPtr variant = ShaderVariant::create(std::forward<ShaderKeyword>(keyword), code);
+            //variant->addConstant(constParam);
 
-            ShaderKeyword keyword1;
-            keyword1.addKeyword("TEST2");
-            keyword1.generate();
-            mat[0][0] = mat[1][1] = mat[2][2] = mat[3][3] = 2.0f;
-            ShaderConstantParamPtr constParam1 = ShaderConstantParam::create("ViewMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
-            ShaderVariantPtr variant1 = ShaderVariant::create(std::forward<ShaderKeyword>(keyword1), code);
-            variant1->addConstant(constParam1);
+            //ShaderKeyword keyword1;
+            //keyword1.addKeyword("TEST2");
+            //keyword1.generate();
+            //mat[0][0] = mat[1][1] = mat[2][2] = mat[3][3] = 2.0f;
+            //ShaderConstantParamPtr constParam1 = ShaderConstantParam::create("ViewMatrix", &mat, sizeof(mat), 0, 0, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+            //ShaderVariantPtr variant1 = ShaderVariant::create(std::forward<ShaderKeyword>(keyword1), code);
+            //variant1->addConstant(constParam1);
 
-            shader->addShaderVariant(variant->getShaderKeyword(), variant);
-            shader->addShaderVariant(variant1->getShaderKeyword(), variant1);
-            shader->enableKeyword("TEST1");
-            
-            MemoryDataStream os(1024*1024);
-            T3D_SERIALIZER_MGR.serialize(os, shader);
-            size_t pos = os.tell();
-            uint8_t *data = nullptr;
-            size_t dataSize = 0;
-            os.getBuffer(data, dataSize);
+            //shader->addShaderVariant(variant->getShaderKeyword(), variant);
+            //shader->addShaderVariant(variant1->getShaderKeyword(), variant1);
+            //shader->enableKeyword("TEST1");
+            //
+            //MemoryDataStream os(1024*1024);
+            //T3D_SERIALIZER_MGR.serialize(os, shader);
+            //size_t pos = os.tell();
+            //uint8_t *data = nullptr;
+            //size_t dataSize = 0;
+            //os.getBuffer(data, dataSize);
 
-            FileDataStream fs;
-            if (fs.open("1.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
-            {
-                fs.write(data, dataSize);
-                char c = 0;
-                fs.write(&c, sizeof(char));
-                fs.close();
-            }
+            //FileDataStream fs;
+            //if (fs.open("1.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
+            //{
+            //    fs.write(data, dataSize);
+            //    char c = 0;
+            //    fs.write(&c, sizeof(char));
+            //    fs.close();
+            //}
 
-            MemoryDataStream is(data, pos, false);
-            ShaderPtr shader1 = T3D_SERIALIZER_MGR.deserialize<Shader>(is);
+            //MemoryDataStream is(data, pos, false);
+            //ShaderPtr shader1 = T3D_SERIALIZER_MGR.deserialize<Shader>(is);
 
-            if (fs.open("2.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
-            {
-                fs.write(data, dataSize);
-                char c = 0;
-                fs.write(&c, sizeof(char));
-                fs.close();
-            }
+            //if (fs.open("2.json", FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE | FileDataStream::E_MODE_TEXT))
+            //{
+            //    fs.write(data, dataSize);
+            //    char c = 0;
+            //    fs.write(&c, sizeof(char));
+            //    fs.close();
+            //}
+
             mIsRunning = true;
         } while (false);
 

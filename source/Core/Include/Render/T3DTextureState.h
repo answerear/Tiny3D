@@ -18,33 +18,36 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_BLEND_STATE_H__
-#define __T3D_RHI_BLEND_STATE_H__
+#ifndef __T3D_TEXTURE_STATE_H__
+#define __T3D_TEXTURE_STATE_H__
 
 
-#include "Render/T3DBlendState.h"
-#include "RHI/T3DRHIState.h"
+#include "RHI/T3DRHISamplerState.h"
+#include "Resource/T3DTexture.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 渲染硬件层的颜色混合状态
-     */
-    class T3D_ENGINE_API RHIBlendState : public RHIState
+    TSTRUCT()
+    struct T3D_ENGINE_API TextureState
     {
-    public:
-        const BlendState &getState() const
-        {
-            return mState;
-        }
-        
-    protected:
-        RHIBlendState(const BlendState &state);
+        TPROPERTY(RTTRFuncName="SamplerState", RTTRFuncType="getter")
+        const SamplerState &getSamplerState() const { return Sampler; }
 
-        BlendState  mState {};
+        TPROPERTY(RTTRFuncName="SamplerState", RTTRFuncType="setter")
+        void setSamplerState(const SamplerState &state) { Sampler = state; }
+
+        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="getter")
+        const String &getTextureName() const { return TexName; }
+
+        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="setter")
+        void setTextureName(const String &name) { TexName = name; }
+
+        SamplerState        Sampler {};
+        String              TexName {};
+        TexturePtr          Tex {nullptr};
     };
 }
 
 
-#endif  /*__T3D_RHI_BLEND_STATE_H__*/
+#endif  /*__T3D_TEXTURE_STATE_H__*/

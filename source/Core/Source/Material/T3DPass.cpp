@@ -17,50 +17,71 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Resource/T3DTexture.h"
-#include "RHI/T3DRHIStateManager.h"
+
+#include "Material/T3DPass.h"
+#include "Resource/T3DShader.h"
+#include "Material/T3DTechnique.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-    
-    TexturePtr Texture::create(const String &name)
+
+    PassPtr Pass::create(const String &name)
     {
-        return new Texture(name);
+        return new Pass(name);
     }
 
     //--------------------------------------------------------------------------
 
-    Texture::Texture(const String &name)
-        : Resource(name)
+    Pass::Pass(const String &name)
+        : mName(name)
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::Type Texture::getType() const
+    PassPtr Pass::clone() const
     {
-        return Type::kTexture;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    ResourcePtr Texture::clone() const
-    {
-        TexturePtr texture = create(getName());
-        texture->cloneProperties(this);
-        return texture;
+        PassPtr pass = create(getName());
+        pass->mShaderName = mShaderName;
+        pass->mTags = mTags;
+        pass->mRenderState = mRenderState;
+        pass->mShader = mShader;
+        return pass;
     }
     
     //--------------------------------------------------------------------------
-
-    void Texture::cloneProperties(const Resource *const src)
+    
+    bool Pass::addTag(const String &key, const String &value)
     {
-        Resource::cloneProperties(src);
-        const Texture *texture = static_cast<const Texture*>(src);
+        auto rval = mTags.emplace(key, value);
+        return rval.second;
     }
+    
+    //--------------------------------------------------------------------------
 
+    void Pass::removeTag(const String &key)
+    {
+        mTags.erase(key);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool Pass::getTag(const String &key, String &value) const
+    {
+        bool ret = false;
+        const auto itr = mTags.find(key);
+        if (itr != mTags.end())
+        {
+            value = itr->second;
+            ret = true;
+        }
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 }
+
+

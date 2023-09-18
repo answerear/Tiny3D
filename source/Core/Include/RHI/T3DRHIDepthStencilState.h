@@ -22,63 +22,12 @@
 #define __T3D_RHI_DEPTH_STENCIL_STATE_H__
 
 
+#include "Render/T3DDepthStencilState.h"
 #include "RHI/T3DRHIState.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 深度缓冲和模板缓冲状态
-     */
-    TSTRUCT()
-    struct T3D_ENGINE_API DepthStencilState
-    {
-        TSTRUCT()
-        struct T3D_ENGINE_API StencilOpDesc
-        {
-            TPROPERTY()
-            CompareFunction StencilFunc;
-
-            TPROPERTY()
-            StencilOp       StencilFailOp;
-
-            TPROPERTY()
-            StencilOp       StencilDepthFailOp;
-
-            TPROPERTY()
-            StencilOp       StencilPassOp;
-        };
-
-        TPROPERTY()
-        bool            DepthTestEnable = true;
-        
-        TPROPERTY()
-        bool            DepthWriteEnable = true;
-        
-        TPROPERTY()
-        CompareFunction DepthFunc;
-
-        TPROPERTY()
-        bool            StencilEnable;
-        
-        TPROPERTY()
-        uint32_t        StencilRef;
-        
-        TPROPERTY()
-        uint8_t         StencilReadMask;
-        
-        TPROPERTY()
-        uint8_t         StencilWriteMask;
-
-        // Front face
-        TPROPERTY()
-        StencilOpDesc   FrontFace;
-        
-        // Back face
-        TPROPERTY()
-        StencilOpDesc   BackFace;
-    };
-
     /**
      * \brief 渲染硬件的深度缓冲和模板缓冲状态
      */

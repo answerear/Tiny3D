@@ -17,50 +17,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Resource/T3DTexture.h"
-#include "RHI/T3DRHIStateManager.h"
+
+#include "Material/T3DShaderConstantParam.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-    
-    TexturePtr Texture::create(const String &name)
+
+    ShaderConstantParamPtr ShaderConstantParam::create(const String &name, const void* data, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType)
     {
-        return new Texture(name);
+        return new ShaderConstantParam(name, data, dataSize, dataOffset, dataType);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType)
+        : mDataType(dataType)
+        , mDataOffset(dataOffset)
+        , mName(name)
+    {
+        if (data != nullptr)
+        {
+            mData.setData(data, dataSize);
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    Texture::Texture(const String &name)
-        : Resource(name)
+    ShaderConstantParam::~ShaderConstantParam()
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::Type Texture::getType() const
+    ShaderConstantParamPtr ShaderConstantParam::clone() const
     {
-        return Type::kTexture;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    ResourcePtr Texture::clone() const
-    {
-        TexturePtr texture = create(getName());
-        texture->cloneProperties(this);
-        return texture;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void Texture::cloneProperties(const Resource *const src)
-    {
-        Resource::cloneProperties(src);
-        const Texture *texture = static_cast<const Texture*>(src);
+        return ShaderConstantParam::create(mName, mData.Data, mData.DataSize, mDataOffset, mDataType);
     }
 
     //--------------------------------------------------------------------------
 }
+
+
