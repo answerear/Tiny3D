@@ -129,6 +129,9 @@ namespace Tiny3D
     {
         mShader = shader;
 
+        // 清除 constant 数据
+        mConstants.clear();
+
         // 复制一份 constant 数据
         for (auto value : mShader->getConstantParams())
         {
@@ -136,6 +139,9 @@ namespace Tiny3D
             mConstants.emplace(value.first, param);
         }
 
+        // 清除 sampler 数据
+        mSamplers.clear();
+        
         // 复制一份 sampler 数据
         for (auto value : mShader->getSamplerParams())
         {
