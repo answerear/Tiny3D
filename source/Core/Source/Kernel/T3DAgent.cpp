@@ -116,7 +116,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(const String &appPath, bool autoCreateWindow, const String &config)
+    TResult Agent::initSystem(const String &appPath)
     {
         TResult ret = T3D_OK;
 
@@ -165,6 +165,25 @@ namespace Tiny3D
 
             // 初始化各种管理器
             ret = initManagers();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::init(const String &appPath, bool autoCreateWindow, const String &config)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 初始化系统必须的
+            ret = initSystem(appPath);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -270,6 +289,56 @@ namespace Tiny3D
             //    fs.write(&c, sizeof(char));
             //    fs.close();
             //}
+
+            mIsRunning = true;
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::init(const String &appPath, bool autoCreateWindow, const Settings &settings)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 初始化系统必须的
+            ret = initSystem(appPath);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mSettings = settings;
+
+            // 加载配置文件中指定的插件
+            ret = loadPlugins();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 初始化渲染器
+            ret = initRenderer();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            if (autoCreateWindow)
+            {
+                // 创建渲染窗口
+                RHIRenderWindowPtr window;
+                ret = createDefaultRenderWindow(window);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                addRenderWindow(window);
+            }
 
             mIsRunning = true;
         } while (false);
