@@ -24,10 +24,15 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Render/T3DRenderState.h"
+#include "Material/T3DShaderVariant.h"
 
 
 namespace Tiny3D
 {
+    using ShaderKeywords = TList<ShaderKeyword>;
+    using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;
+    using ShaderVariantsValue = ShaderVariants::value_type;
+    
     /**
      * \brief 渲染 pass
      */
@@ -52,15 +57,7 @@ namespace Tiny3D
         
         bool getTag(const String &key, String &value) const;
 
-        ShaderPtr getShader() const
-        {
-            return mShader;
-        }
-
-        void setShader(ShaderPtr shader)
-        {
-            mShader = shader;
-        }
+        TResult addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const
@@ -73,13 +70,7 @@ namespace Tiny3D
         {
             return mTags;
         }
-
-        TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="getter")
-        const String &getShaderName() const
-        {
-            return mShaderName;
-        }
-
+        
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="getter")
         const RenderState &getRenderState() const
         {
@@ -90,6 +81,18 @@ namespace Tiny3D
         void setRenderState(const RenderState &state)
         {
             mRenderState = state;
+        }
+
+        TPROPERTY(RTTRFuncName="Keywords", RTTRFuncType="getter")
+        const ShaderKeywords &getShaderKeywords() const
+        {
+            return mKeywords;
+        }
+
+        TPROPERTY(RTTRFuncName="Variants", RTTRFuncType="getter")
+        const ShaderVariants &getShaderVariants() const
+        {
+            return mVariants;
         }
         
     private:
@@ -107,25 +110,39 @@ namespace Tiny3D
             mTags = tags;
         }
 
-        TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="setter")
-        void setShaderName(const String &name) 
+        TPROPERTY(RTTRFuncName="Keywords", RTTRFuncType="setter")
+        void getShaderKeywords(const ShaderKeywords &keywords)
         {
-            mShaderName = name;
+            mKeywords = keywords;
+        }
+
+        TPROPERTY(RTTRFuncName="Variants", RTTRFuncType="setter")
+        void getShaderVariants(const ShaderVariants &variants)
+        {
+            mVariants = variants;
         }
         
     protected:
         Pass(const String &name);
 
         /// Pass 名称
-        String          mName {};
+        String              mName {};
         /// Shader 名称
-        String          mShaderName {};
+        String              mShaderName {};
         /// Tags
-        ShaderLabTags   mTags {};
+        ShaderLabTags       mTags {};
         /// 渲染状态
-        RenderState     mRenderState {};
-        /// 着色器对象
-        ShaderPtr       mShader {nullptr};
+        RenderState         mRenderState {};
+        /// 本 pass 着色器用到的所有宏
+        ShaderKeywords      mKeywords {};
+        /// 本 pass 所有着色器变体
+        ShaderVariants      mVariants {};
+        /// 当前生效的关键字 
+        const ShaderKeyword *mCurrentKeyword {nullptr};
+        /// 当前生效的变体
+        ShaderVariantPtr    mCurrentVariant {nullptr};
+        /// 关键字是否需要重新生成
+        bool                mIsKeywordDirty {false};
     };
 }
 

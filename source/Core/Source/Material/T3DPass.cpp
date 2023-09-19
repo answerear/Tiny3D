@@ -19,8 +19,6 @@
 
 
 #include "Material/T3DPass.h"
-#include "Resource/T3DShader.h"
-#include "Material/T3DTechnique.h"
 
 
 namespace Tiny3D
@@ -48,7 +46,6 @@ namespace Tiny3D
         pass->mShaderName = mShaderName;
         pass->mTags = mTags;
         pass->mRenderState = mRenderState;
-        pass->mShader = mShader;
         return pass;
     }
     
@@ -78,6 +75,31 @@ namespace Tiny3D
             value = itr->second;
             ret = true;
         }
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult Pass::addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant)
+    {
+        TResult ret = T3D_OK;
+
+        auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
+        if (itr != mKeywords.end())
+        {
+            T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword duplicated !");
+            return T3D_ERR_DUPLICATED_ITEM;
+        }
+
+        mKeywords.push_back(keyword);
+        auto rval = mVariants.insert(ShaderVariantsValue(keyword, variant));
+
+        if (mCurrentKeyword == nullptr)
+        {
+            mCurrentKeyword = &(rval.first->first);
+            mCurrentVariant = variant;
+        }
+
         return ret;
     }
     
