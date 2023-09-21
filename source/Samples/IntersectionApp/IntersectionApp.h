@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -20,61 +20,62 @@
 #ifndef __INTERSECTION_APP_H__
 #define __INTERSECTION_APP_H__
 
-#include <T3DPlatformLib.h>
-#include <T3DMathLib.h>
+
+#include <Tiny3D.h>
+#include "../Common/SampleApp.h"
 
 
-class IntersectionApp : public Tiny3D::Application
+class IntersectionApp : public SampleConsoleApp
 {
 public:
     IntersectionApp();
-    virtual ~IntersectionApp();
+    ~IntersectionApp() override;
 
 protected:  // from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
+    bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
-    virtual void applicationDidEnterBackground() override;
+    void applicationDidEnterBackground() override;
 
-    virtual void applicationWillEnterForeground() override;
+    void applicationWillEnterForeground() override;
 
-    virtual void applicationWillTerminate() override;
+    void applicationWillTerminate() override;
 
-    virtual void applicationLowMemory() override;
+    void applicationLowMemory() override;
 
-    // ÉäÏßºÍÈı½ÇĞÎÏà½»¼ì²â
+    // å°„çº¿å’Œä¸‰è§’å½¢ç›¸äº¤æ£€æµ‹
     void testRayTriangle();
 
-    // ÉäÏßºÍÆ½ÃæÏà½»¼ì²â
+    // å°„çº¿å’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     void testRayPlane();
 
-    // ÉäÏßºÍÇòÌåÏà½»¼ì²â
+    // å°„çº¿å’Œçƒä½“ç›¸äº¤æ£€æµ‹
     void testRaySphere();
 
-    // ÉäÏßºÍAABBÏà½»¼ì²â
+    // å°„çº¿å’ŒAABBç›¸äº¤æ£€æµ‹
     void testRayAabb();
 
-    // ÉäÏßºÍOBBÏà½»¼ì²â
+    // å°„çº¿å’ŒOBBç›¸äº¤æ£€æµ‹
     void testRayObb();
 
-    // Á½¸öÇòÏà½»¼ì²â
+    // ä¸¤ä¸ªçƒç›¸äº¤æ£€æµ‹
     void testSphereSphere();
 
-    // ÇòºÍÆ½ÃæÏà½»¼ì²â
+    // çƒå’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     void testSpherePlane();
 
-    // AABBºÍÆ½ÃæÏà½»¼ì²â
+    // AABBå’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     void testAabbPlane();
 
-    // OBBºÍÆ½ÃæÏà½»¼ì²â
+    // OBBå’Œå¹³é¢ç›¸äº¤æ£€æµ‹
     void testObbPlane();
 
-    // ÊÓ×¶ÌåºÍÇòÏà½»¼ì²â
+    // è§†é”¥ä½“å’Œçƒç›¸äº¤æ£€æµ‹
     void testFrustumSphere();
 
-    // ÊÓ×¶ÌåºÍAABBÏà½»¼ì²â
+    // è§†é”¥ä½“å’ŒAABBç›¸äº¤æ£€æµ‹
     void testFrustumAabb();
 
-    // ÊÓ×¶ÌåºÍOBBÏà½»¼ì²â
+    // è§†é”¥ä½“å’ŒOBBç›¸äº¤æ£€æµ‹
     void testFrustumObb();
 
     void buildFrustum(Tiny3D::Frustum &frustum);

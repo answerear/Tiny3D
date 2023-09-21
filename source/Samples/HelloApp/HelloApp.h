@@ -24,14 +24,14 @@
 #include "../Common/SampleApp.h"
 
 
-class HelloApp : public SampleApp
+class HelloApp : public SampleWindowApp
 {
 public:
     HelloApp();
-    virtual ~HelloApp();
+    ~HelloApp() override;
 
 protected:  /// from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
+    virtual bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 	
 protected:
 };

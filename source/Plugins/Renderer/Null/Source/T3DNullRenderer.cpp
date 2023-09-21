@@ -80,14 +80,45 @@ namespace Tiny3D
     RHIRenderWindowPtr NullRenderer::createRenderWindow(const String &name,
         const RenderWindowCreateParam &param)
     {
+        RHIRenderWindowPtr window = nullptr;
 
-        return nullptr;
+        do
+        {
+            window = NullWindow::create(name);
+            if (window == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_NULLRENDERER, 
+                    "Create render window failed !");
+                break;
+            }
+
+            TResult ret = window->create(param);
+            if (T3D_FAILED(ret))
+            {
+                // window->release();
+                // window = nullptr;
+                break;
+            }
+
+            if (mPrimaryWindow == nullptr)
+            {
+                mPrimaryWindow = window;
+            }
+            else
+            {
+
+            }
+        } while (false);
+
+        return window;
     }
     
     //--------------------------------------------------------------------------
 
     void NullRenderer::cleanup()
     {
+        mContext = nullptr;
+        mPrimaryWindow = nullptr;
     }
 
     //--------------------------------------------------------------------------

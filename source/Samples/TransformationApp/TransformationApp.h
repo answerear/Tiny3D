@@ -20,18 +20,18 @@
 #ifndef __TRANSFORMATION_APP_H__
 #define __TRANSFORMATION_APP_H__
 
-#include <T3DPlatformLib.h>
-#include <T3DMathLib.h>
+#include <Tiny3D.h>
+#include "../Common/SampleApp.h"
 
 
-class TransformationApp : public Tiny3D::Application
+class TransformationApp : public SampleConsoleApp
 {
 public:
     TransformationApp();
-    virtual ~TransformationApp();
+    ~TransformationApp() override;
 
 protected:  // from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
+    virtual bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
     virtual void applicationDidEnterBackground() override;
 

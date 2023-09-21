@@ -22,6 +22,8 @@
 
 using namespace Tiny3D;
 
+IntersectionApp theApp;
+
 const size_t TriVerticesCount = 3;
 
 const Vector3 TriangleVertices0[TriVerticesCount] =
@@ -90,7 +92,6 @@ const Vector3 BoxVertices3[BoxVerticesCount] =
 
 
 IntersectionApp::IntersectionApp()
-    : Application()
 {
 }
 
@@ -123,7 +124,7 @@ IntersectionApp::~IntersectionApp()
                            Z
 
  ******************************************************************************/
-bool IntersectionApp::applicationDidFinishLaunching()
+bool IntersectionApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // 射线和三角形相交检测
     testRayTriangle();

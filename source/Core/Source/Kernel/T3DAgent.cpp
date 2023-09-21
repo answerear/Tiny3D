@@ -176,12 +176,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(const String &appPath, bool autoCreateWindow, const String &config)
+    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, const String &config)
     {
         TResult ret = T3D_OK;
 
         do
         {
+            if (argc == 0)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid the number of arguments [%d] !", argc);
+                break;
+            }
+            
+            String appPath = argv[0];
+            
             // 初始化系统必须的
             ret = initSystem(appPath);
             if (T3D_FAILED(ret))
@@ -291,6 +300,9 @@ namespace Tiny3D
             //}
 
             mIsRunning = true;
+
+            Application *theApp = Application::getInstancePtr();
+            theApp->applicationDidFinishLaunching(argc, argv);
         } while (false);
 
         return ret;
@@ -298,12 +310,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(const String &appPath, bool autoCreateWindow, const Settings &settings)
+    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, const Settings &settings)
     {
         TResult ret = T3D_OK;
 
         do
         {
+            if (argc == 0)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid the number of arguments [%d] !", argc);
+                break;
+            }
+            
+            String appPath = argv[0];
+            
             // 初始化系统必须的
             ret = initSystem(appPath);
             if (T3D_FAILED(ret))
@@ -341,6 +362,9 @@ namespace Tiny3D
             }
 
             mIsRunning = true;
+
+            Application *theApp = Application::getInstancePtr();
+            theApp->applicationDidFinishLaunching(argc, argv);
         } while (false);
 
         return ret;
@@ -460,7 +484,6 @@ namespace Tiny3D
     bool Agent::run()
     {
         Application *theApp = Application::getInstancePtr();
-        theApp->applicationDidFinishLaunching();
 
         while (mIsRunning)
         {

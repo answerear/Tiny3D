@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -18,13 +18,32 @@
  ******************************************************************************/
 
 
-#include "TransformationApp.h"
+#ifndef __T3D_CONSOLE_APPLICATION_H__
+#define __T3D_CONSOLE_APPLICATION_H__
 
-int main(int argc, char *argv[])
+
+#include "T3DApplication.h"
+
+
+namespace Tiny3D
 {
-    Tiny3D::Application *theApp = new TransformationApp();
-    theApp->init();
-    theApp->applicationDidFinishLaunching();
-    delete theApp;
-    return 0;
+    class T3D_PLATFORM_API ConsoleApplication : public Application
+    {
+    public:
+        /**
+         * Constructor
+         */
+        ConsoleApplication() = default;
+
+        /**
+         * Destructor
+         */
+        ~ConsoleApplication() override = default;
+    };
+
+    #define T3D_CONSOLE_APPLICATION     (ConsoleApplication::getInstance())
 }
+
+
+
+#endif  /*__T3D_CONSOLE_APPLICATION_H__*/

@@ -45,9 +45,9 @@ namespace Tiny3D
 
         const char *getVersionName() const;
 
-        TResult init(const String &appPath, bool autoCreateWindow, const String &config = "Tiny3D.cfg");
+        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, const String &config = "Tiny3D.cfg");
 
-        TResult init(const String &appPath, bool autoCreateWindow, const Settings &settings);
+        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, const Settings &settings);
 
         TResult createDefaultRenderWindow(RHIRenderWindowPtr &window);
 

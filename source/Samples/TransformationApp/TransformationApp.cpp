@@ -22,9 +22,9 @@
 
 using namespace Tiny3D;
 
+TransformationApp theApp;
 
 TransformationApp::TransformationApp()
-    : Application()
 {
 }
 
@@ -32,7 +32,7 @@ TransformationApp::~TransformationApp()
 {
 }
 
-bool TransformationApp::applicationDidFinishLaunching()
+bool TransformationApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     Degree degree;
     Radian radian;

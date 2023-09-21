@@ -25,27 +25,56 @@
 
 #define LOG_TAG_APP     "APP"
 
-class SampleApp : public Tiny3D::Application
+
+class SampleApp
 {
 public:
-    SampleApp();
-    virtual ~SampleApp();
+    virtual ~SampleApp() = default;
+    
+    virtual TResult go(int32_t argc, char *argv[]) = 0;
+};
 
-    virtual TResult go(const String &appPath);
+class SampleWindowApp : public Tiny3D::WindowApplication, public SampleApp
+{
+public:
+    SampleWindowApp();
+    ~SampleWindowApp() override;
+
+    TResult go(int32_t argc, char *argv[]) override;
 
 protected:  /// from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching() override;
+    bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
-    virtual void applicationDidEnterBackground() override;
+    void applicationDidEnterBackground() override;
 
-    virtual void applicationWillEnterForeground() override;
+    void applicationWillEnterForeground() override;
 
-    virtual void applicationWillTerminate() override;
+    void applicationWillTerminate() override;
 
-    virtual void applicationLowMemory() override;
+    void applicationLowMemory() override;
 
 protected:
+};
 
+
+class SampleConsoleApp : public Tiny3D::ConsoleApplication, public SampleApp
+{
+public:
+    SampleConsoleApp();
+    ~SampleConsoleApp() override;
+
+    TResult go(int32_t argc, char *argv[]) override;
+
+protected:
+    bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+
+    void applicationDidEnterBackground() override;
+
+    void applicationWillEnterForeground() override;
+
+    void applicationWillTerminate() override;
+
+    void applicationLowMemory() override;
 };
 
 

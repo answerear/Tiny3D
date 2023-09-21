@@ -18,9 +18,10 @@
  ******************************************************************************/
 
 
-#include "Application/T3DApplication.h"
+#include "Application/T3DWindowApplication.h"
 #include "T3DPlatform.h"
 #include "Adapter/T3DFactoryInterface.h"
+#include "Adapter/T3DApplicationInterface.h"
 #include "T3DPlatformErrorDef.h"
 
 
@@ -28,35 +29,37 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Application::Application()
-        : mPlatform(new Platform())
+    WindowApplication::WindowApplication()
     {
+        mApp = T3D_PLATFORM_FACTORY.createPlatformApplication();
     }
 
     //--------------------------------------------------------------------------
 
-    Application::~Application()
+    WindowApplication::~WindowApplication()
     {
-        T3D_SAFE_DELETE(mPlatform);
+        T3D_SAFE_DELETE(mApp);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Application::init()
+    TResult WindowApplication::init()
     {
         TResult ret = T3D_ERR_FAIL;
 
         do 
         {
-            if (mPlatform == nullptr)
+            if (mApp == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
 
-            ret = mPlatform->init();
+            ret = mApp->init();
             if (T3D_FAILED(ret))
                 break;
+
+            ret = Application::init();
         } while (false);
 
         return ret;
@@ -64,23 +67,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Application::pollEvents()
+    bool WindowApplication::pollEvents()
     {
-        // 系统平台层轮询
-        T3D_PLATFORM.poll();
-        return T3D_OK;
+        bool ret = false;
+
+        if (mApp != nullptr)
+        {
+            ret = mApp->pollEvents();
+        }
+
+        if (ret)
+        {
+            // 系统平台层轮询
+            T3D_PLATFORM.poll();
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    void Application::release()
+    void WindowApplication::release()
     {
+        if (mApp != nullptr)
+        {
+            mApp->release();
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    void *Application::getNativeAppObject() const
+    void *WindowApplication::getNativeAppObject() const
     {
+        if (mApp != nullptr)
+        {
+            return mApp->getNativeAppObject();
+        }
+
         return nullptr;
     }
+
+    //--------------------------------------------------------------------------
 }

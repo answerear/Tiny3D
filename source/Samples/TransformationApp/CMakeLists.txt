@@ -14,10 +14,13 @@ endif (MSVC)
 
 # Setup project include files path
 include_directories(
-    "${TINY3D_PLATFORM_INC_DIR}"
+	"${TINY3D_PLATFORM_INC_DIR}"
     "${TINY3D_SYSTEM_INC_DIR}"
     "${TINY3D_MATH_INC_DIR}"
-    "${TINY3D_UTILS_INC_DIR}"
+    "${TINY3D_FRAMEWORK_INC_DIR}"
+    "${TINY3D_LOG_INC_DIR}"
+    "${TINY3D_CORE_INC_DIR}"
+	"${TINY3D_UTILS_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
@@ -25,10 +28,12 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .cpp)
 
 
 
@@ -43,8 +48,11 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         T3DPlatform
         T3DSystem
-        T3DUtils
+        T3DLog
+		T3DUtils
         T3DMath
+        T3DFramework
+        T3DCore
         rttr_core
         )
     

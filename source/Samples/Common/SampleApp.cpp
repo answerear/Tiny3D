@@ -25,24 +25,23 @@ using namespace Tiny3D;
 SampleApp *app = nullptr;
 
 
-SampleApp::SampleApp()
-    : Application()
+SampleWindowApp::SampleWindowApp()
 {
     app = this;
 }
 
-SampleApp::~SampleApp()
+SampleWindowApp::~SampleWindowApp()
 {
     app = nullptr;
 }
 
-TResult SampleApp::go(const String &appPath)
+TResult SampleWindowApp::go(int32_t argc, char *argv[])
 {
     TResult ret;
 
     Tiny3D::Agent *theEngine = new Tiny3D::Agent();
 
-    ret = theEngine->init(appPath, true);
+    ret = theEngine->init(argc, argv, true);
     if (ret == T3D_OK)
         theEngine->run();
 
@@ -51,28 +50,84 @@ TResult SampleApp::go(const String &appPath)
     return ret;
 }
 
-bool SampleApp::applicationDidFinishLaunching()
+bool SampleWindowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     return true;
 }
 
-void SampleApp::applicationDidEnterBackground()
+void SampleWindowApp::applicationDidEnterBackground()
 {
     T3D_AGENT.appDidEnterBackground();
 }
 
-void SampleApp::applicationWillEnterForeground()
+void SampleWindowApp::applicationWillEnterForeground()
 {
     T3D_AGENT.appWillEnterForeground();
 }
 
-void SampleApp::applicationWillTerminate()
+void SampleWindowApp::applicationWillTerminate()
 {
 
 }
 
-void SampleApp::applicationLowMemory()
+void SampleWindowApp::applicationLowMemory()
 {
 
 }
 
+//------------------------------------------------------------------------------
+
+SampleConsoleApp::SampleConsoleApp()
+{
+    app = this;
+}
+
+SampleConsoleApp::~SampleConsoleApp()
+{
+    app = nullptr;
+}
+
+TResult SampleConsoleApp::go(int32_t argc, char *argv[])
+{
+    TResult ret;
+
+    Tiny3D::Agent *theEngine = new Tiny3D::Agent();
+
+    Settings settings;
+    settings.pluginSettings.pluginPath = ".";
+    settings.pluginSettings.plugins.push_back("FileSystemArchive");
+    settings.pluginSettings.plugins.push_back("NullRenderer");
+    settings.renderSettings.renderer = "NullRenderer";
+    ret = theEngine->init(argc, argv, true, settings);
+    if (ret == T3D_OK)
+        theEngine->run();
+
+    delete theEngine;
+
+    return ret;
+}
+
+bool SampleConsoleApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+{
+    return true;
+}
+
+void SampleConsoleApp::applicationDidEnterBackground()
+{
+    T3D_AGENT.appDidEnterBackground();
+}
+
+void SampleConsoleApp::applicationWillEnterForeground()
+{
+    T3D_AGENT.appWillEnterForeground();
+}
+
+void SampleConsoleApp::applicationWillTerminate()
+{
+
+}
+
+void SampleConsoleApp::applicationLowMemory()
+{
+
+}

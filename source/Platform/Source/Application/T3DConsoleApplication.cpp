@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -18,13 +18,12 @@
  ******************************************************************************/
 
 
-#include "IntersectionApp.h"
+#include "Application/T3DConsoleApplication.h"
 
-int main(int argc, char *argv[])
+
+namespace Tiny3D
 {
-    Tiny3D::Application *theApp = new IntersectionApp();
-    theApp->init();
-    theApp->applicationDidFinishLaunching();
-    delete theApp;
-    return 0;
+    //--------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------
 }

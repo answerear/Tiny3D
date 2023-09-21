@@ -18,56 +18,51 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_APPLICATION_H__
-#define __T3D_APPLICATION_H__
+#ifndef __T3D_WINDOW_APPLICATION_H__
+#define __T3D_WINDOW_APPLICATION_H__
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DSingleton.h"
+#include "Application/T3DApplication.h"
 
 
 namespace Tiny3D
 {
-    class Platform;
+    class IApplication;
 
-    class T3D_PLATFORM_API Application : public Singleton<Application>
+    class T3D_PLATFORM_API WindowApplication : public Application
     {
     public:
-        Application();
-     
-        ~Application();
+        /**
+         * Constructor
+         */
+        WindowApplication();
+
+        /**
+         * Destructor
+         */
+        ~WindowApplication() override;
 
         /**
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
          * @return 调用成功返回T3D_OK
          */
-        virtual TResult init();
+        TResult init() override;
 
         /**
          * @brief 应用事件处理
          */
-        virtual bool pollEvents();
+        bool pollEvents() override;
 
         /**
          * @brief 应用程序退出释放资源
          * @return void
          */
-        virtual void release();
+        void release() override;
 
-        virtual void *getNativeAppObject() const;
+        void *getNativeAppObject() const override;
      
-        virtual bool applicationDidFinishLaunching(int32_t argc, char* argv[]) = 0;
-
-        virtual void applicationDidEnterBackground() = 0;
-
-        virtual void applicationWillEnterForeground() = 0;
-
-        virtual void applicationWillTerminate() = 0;
-
-        virtual void applicationLowMemory() = 0;
-
     private:
-        Platform    *mPlatform;     /// 具体平台系统对象
+        IApplication    *mApp;          /// 具体平台应用程序对象
     };
 
     #define T3D_APPLICATION     (Application::getInstance())
@@ -75,4 +70,4 @@ namespace Tiny3D
 
 
 
-#endif  /*__T3D_APPLICATION_H__*/
+#endif  /*__T3D_WINDOW_APPLICATION_H__*/

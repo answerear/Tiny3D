@@ -26,6 +26,5 @@ extern SampleApp *app;
 
 int main(int argc, char *argv[])
 {
-    String appPath = argv[0];
-    return app->go(appPath);
+    return app->go(argc, argv);
 }

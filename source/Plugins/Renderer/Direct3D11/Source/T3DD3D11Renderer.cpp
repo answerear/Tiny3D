@@ -80,8 +80,6 @@ namespace Tiny3D
     RHIRenderWindowPtr D3D11Renderer::createRenderWindow(const String &name,
         const RenderWindowCreateParam &param)
     {
-        TResult ret = T3D_OK;
-
         RHIRenderWindowPtr window = nullptr;
 
         do
@@ -94,7 +92,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = window->create(param);
+            TResult ret = window->create(param);
             if (T3D_FAILED(ret))
             {
                 // window->release();
@@ -110,7 +108,7 @@ namespace Tiny3D
             {
 
             }
-        } while (0);
+        } while (false);
 
         return window;
     }
