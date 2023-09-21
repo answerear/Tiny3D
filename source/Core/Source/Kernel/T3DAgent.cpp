@@ -490,8 +490,8 @@ namespace Tiny3D
             // 轮询系统事件
             mIsRunning = theApp->pollEvents();
 
-            if (!mIsRunning)
-                break;
+            // if (!mIsRunning)
+            //     break;
 
             // 事件系统派发事件
             T3D_EVENT_MGR.dispatchEvent();
