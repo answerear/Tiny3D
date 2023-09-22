@@ -84,6 +84,18 @@ namespace Tiny3D
             return mTags;
         }
 
+        TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="getter")
+        const RenderState &getRenderState() const
+        {
+            return mRenderState;
+        }
+
+        TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="setter")
+        void setRenderState(const RenderState &state)
+        {
+            mRenderState = state;
+        }
+
         TPROPERTY(RTTRFuncName="Passes", RTTRFuncType="getter")
         const Passes &getPasses() const
         {
@@ -117,6 +129,8 @@ namespace Tiny3D
         String          mName {};
         uint32_t        mLOD {0};
         ShaderLabTags   mTags {};
+        /// 渲染状态
+        RenderState     mRenderState {};
         Passes          mPasses {};
     };
 }

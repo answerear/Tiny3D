@@ -119,6 +119,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Shader::addConstantParam(ShaderConstantParamPtr param)
+    {
+        TResult ret = T3D_OK;
+
+        auto rval = mConstants.emplace(param->getName(), param);
+        if (!rval.second)
+        {
+            ret = T3D_ERR_DUPLICATED_ITEM;
+        }
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Shader::addSamplerParam(ShaderSamplerParamPtr param)
+    {
+        TResult ret = T3D_OK;
+
+        auto rval = mSamplers.emplace(param->getName(), param);
+        if (!rval.second)
+        {
+            ret = T3D_ERR_DUPLICATED_ITEM;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Shader::addTechnique(TechniquePtr tech)
     {
         bool found = false;

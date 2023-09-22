@@ -28,6 +28,19 @@
 
 namespace Tiny3D
 {
+    TENUM()
+    enum class SHADER_STAGE : uint32_t
+    {
+        kUnknown = 0,
+        kVertex,
+        kPixel,
+        kCompute,
+        kGeometry,
+        kHull,
+        kDomain,
+        kMax
+    };
+    
     /**
      * \brief Shader 变体，也是实际 shader 代码和编译后的字节码
      */
@@ -53,6 +66,12 @@ namespace Tiny3D
          */
         ~ShaderVariant() override;
 
+        TPROPERTY(RTTRFuncName="Stage", RTTRFuncType="getter")
+        SHADER_STAGE getShaderStage() const { return mShaderStage; }
+
+        TPROPERTY(RTTRFuncName="Stage", RTTRFuncType="setter")
+        void setShaderStage(SHADER_STAGE stage) { mShaderStage = stage; }
+        
         /**
          * \brief 获取变体对应的关键字
          * \return 返回变体对应的关键字对象
@@ -141,15 +160,17 @@ namespace Tiny3D
 
         /// shader keyword
         ShaderKeyword   *mShaderKeyword {nullptr};
-        
+
+        /// shader 类型
+        SHADER_STAGE    mShaderStage {SHADER_STAGE::kUnknown};
         /// 编译前是源代码 ，编译后是字节码 
-        char        *mBytesCode {nullptr};
+        char            *mBytesCode {nullptr};
         /// mBytesCode 的长度
-        size_t      mBytesCodeSize {0};
+        size_t          mBytesCodeSize {0};
         /// mBytesCode 的空间容量
-        size_t      mBytesCodeCapacity {0};
+        size_t          mBytesCodeCapacity {0};
         /// 是否编译
-        bool        mHasCompiled {false};
+        bool            mHasCompiled {false};
     };
 }
 

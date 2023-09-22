@@ -150,22 +150,22 @@ namespace Tiny3D
         typedef Dylibs::const_iterator      DylibsConstItr;
         typedef Dylibs::value_type          DylibsValue;
 
-        Logger                  *mLogger;           /**< 日志对象 */
-        EventManager            *mEventMgr;         /**< 事件管理器对象 */
-        ObjectTracer            *mObjTracer;        /**< 对象内存跟踪 */
+        Logger                  *mLogger {nullptr};           /**< 日志对象 */
+        EventManager            *mEventMgr {nullptr};         /**< 事件管理器对象 */
+        ObjectTracer            *mObjTracer {nullptr};        /**< 对象内存跟踪 */
 
-        RHIRenderWindowPtr      mDefaultWindow;     /**< 默认渲染窗口 */
-        RHIRendererPtr          mActiveRHIRenderer; /**< 当前使用的 RHI 渲染器 */
+        RHIRenderWindowPtr      mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
+        RHIRendererPtr          mActiveRHIRenderer {nullptr}; /**< 当前使用的 RHI 渲染器 */
 
-        ArchiveManagerPtr       mArchiveMgr;
-        SerializerManagerPtr    mSerializerMgr;
-        DylibManagerPtr         mDylibMgr;
-        PrefabManagerPtr        mPrefabMgr;
-        ShaderManagerPtr        mShaderMgr;
-        RHIStateManagerPtr      mRHIStateMgr;
+        ArchiveManagerPtr       mArchiveMgr {nullptr};
+        SerializerManagerPtr    mSerializerMgr {nullptr};
+        DylibManagerPtr         mDylibMgr {nullptr};
+        PrefabManagerPtr        mPrefabMgr {nullptr};
+        ShaderManagerPtr        mShaderMgr {nullptr};
+        RHIStateManagerPtr      mRHIStateMgr {nullptr};
 
-        ArchivePtr              mInternalArchive;
-        ArchivePtr              mProjectArchive;
+        ArchivePtr              mInternalArchive {nullptr};
+        ArchivePtr              mProjectArchive {nullptr};
         
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */
@@ -177,7 +177,7 @@ namespace Tiny3D
 
         Settings                mSettings;          /**< 引擎配置项 */
 
-        bool                    mIsRunning = false;         /**< 引擎是否在运行中 */
+        bool                    mIsRunning {false}; /**< 引擎是否在运行中 */
     };
 
     #define T3D_AGENT   Agent::getInstance()

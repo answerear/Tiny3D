@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ShaderKeyword ShaderKeyword::INVALID;
+    
+    //--------------------------------------------------------------------------
+
     ShaderKeyword::ShaderKeyword()
     {
         
@@ -80,6 +84,13 @@ namespace Tiny3D
         }
         mHashCode = Hash::hash(name.c_str());
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderKeyword::operator!=(const ShaderKeyword &other) const
+    {
+        return mHashCode != other.mHashCode;
     }
 
     //--------------------------------------------------------------------------

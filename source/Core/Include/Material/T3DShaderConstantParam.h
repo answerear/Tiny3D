@@ -51,6 +51,8 @@ namespace Tiny3D
             DT_BOOL,
             /// 整型
             DT_INTEGER,
+            /// 颜色
+            DT_COLOR,
             /// 4D 向量
             DT_VECTOR4,
             /// 4D 方阵

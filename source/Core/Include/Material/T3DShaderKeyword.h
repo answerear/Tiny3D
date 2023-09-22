@@ -43,6 +43,8 @@ namespace Tiny3D
     struct T3D_ENGINE_API ShaderKeyword
     {
         TRTTI_FRIEND
+
+        static ShaderKeyword INVALID;
      
         /**
          * \brief Constructor
@@ -92,6 +94,8 @@ namespace Tiny3D
          */
         TResult generate();
 
+        bool operator !=(const ShaderKeyword &other) const;
+     
         bool operator ==(const ShaderKeyword &other) const;
         
         bool operator <(const ShaderKeyword &other) const;

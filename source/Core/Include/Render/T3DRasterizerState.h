@@ -60,6 +60,9 @@ namespace Tiny3D
         
         TPROPERTY()
         bool        AntialiasedLineEnable;
+
+        TPROPERTY()
+        bool        Conservative;
     };
 }
 

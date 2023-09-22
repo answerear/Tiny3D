@@ -92,12 +92,91 @@ namespace Tiny3D
         }
 
         mKeywords.push_back(keyword);
-        auto rval = mVariants.insert(ShaderVariantsValue(keyword, variant));
 
-        if (mCurrentKeyword == nullptr)
+        switch (variant->getShaderStage())
         {
-            mCurrentKeyword = &(rval.first->first);
-            mCurrentVariant = variant;
+        case SHADER_STAGE::kVertex:
+            {
+                auto rval = mVertexShaders.insert(ShaderVariantsValue(keyword, variant));
+
+                if (mCurrentKeyword == ShaderKeyword::INVALID
+                    || mCurrentKeyword == keyword)
+                {
+                    if (mCurrentKeyword != keyword)
+                    {
+                        mCurrentKeyword = keyword;
+                    }
+                    mCurrentVS = variant;
+                }
+            }
+            break;
+        case SHADER_STAGE::kPixel:
+            {
+                auto rval = mPixelShaders.insert(ShaderVariantsValue(keyword, variant));
+
+                if (mCurrentKeyword == ShaderKeyword::INVALID
+                    || mCurrentKeyword == keyword)
+                {
+                    if (mCurrentKeyword != keyword)
+                    {
+                        mCurrentKeyword = keyword;
+                    }
+                    mCurrentPS = variant;
+                }
+            }
+            break;
+        case SHADER_STAGE::kCompute:
+            {
+                
+            }
+            break;
+        case SHADER_STAGE::kGeometry:
+            {
+                auto rval = mGeometryShaders.insert(ShaderVariantsValue(keyword, variant));
+                
+                if (mCurrentKeyword == ShaderKeyword::INVALID
+                    || mCurrentKeyword == keyword)
+                {
+                    if (mCurrentKeyword != keyword)
+                    {
+                        mCurrentKeyword = keyword;
+                    }
+                    mCurrentGS = variant;
+                }
+            }
+            break;
+        case SHADER_STAGE::kHull:
+            {
+                auto rval = mHullShaders.insert(ShaderVariantsValue(keyword, variant));
+                
+                if (mCurrentKeyword == ShaderKeyword::INVALID
+                    || mCurrentKeyword == keyword)
+                {
+                    if (mCurrentKeyword != keyword)
+                    {
+                        mCurrentKeyword = keyword;
+                    }
+                    mCurrentHS = variant;
+                }
+            }
+            break;
+        case SHADER_STAGE::kDomain:
+            {
+                auto rval = mDomainShaders.insert(ShaderVariantsValue(keyword, variant));
+                
+                if (mCurrentKeyword == ShaderKeyword::INVALID
+                    || mCurrentKeyword == keyword)
+                {
+                    if (mCurrentKeyword != keyword)
+                    {
+                        mCurrentKeyword = keyword;
+                    }
+                    mCurrentDS = variant;
+                }
+            }
+            break;
+        default:
+            break;
         }
 
         return ret;

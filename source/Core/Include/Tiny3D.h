@@ -34,64 +34,68 @@
 #include <Kernel/T3DPlugin.h>
 #include <Kernel/T3DSettings.h>
 
-// Kernel
-// #include <Kernel/T3DCommon.h>
-// #include <Kernel/T3DAgent.h>
-// #include <Kernel/T3DConfigFile.h>
-// #include <Kernel/T3DCreator.h>
-// #include <Kernel/T3DPlugin.h>
-// #include <Kernel/T3DNode.h>
-// #include <Kernel/T3DBlendMode.h>
-// #include <Kernel/T3DTechnique.h>
-// #include <Kernel/T3DPass.h>
-// #include <Kernel/T3DTextureUnit.h>
-// #include <Kernel/T3DSampler.h>
-
-
 // Resource
 #include <Resource/T3DResource.h>
 #include <Resource/T3DResourceManager.h>
 #include <Resource/T3DMeta.h>
 #include <Resource/T3DDylib.h>
+#include <Resource/T3DMaterial.h>
+#include <Resource/T3DMaterialManager.h>
+#include <Resource/T3DShader.h>
+#include <Resource/T3DShaderManager.h>
+#include <Resource/T3DTexture.h>
+#include <Resource/T3DTextureManager.h>
+#include <Resource/T3DPrefab.h>
+#include <Resource/T3DPrefabManager.h>
 
-// #include <Resource/T3DArchive.h>
-// #include <Resource/T3DArchiveCreator.h>
-// #include <Resource/T3DArchiveManager.h>
-
-// #include <Resource/T3DDylibManager.h>
-
-// #include <Resource/T3DGPUProgram.h>
-// #include <Resource/T3DGPUProgramCreator.h>
-// #include <Resource/T3DGPUProgramManager.h>
-// #include <Resource/T3DGPUConstBuffer.h>
-// #include <Resource/T3DGPUConstBufferManager.h>
-// #include <Resource/T3DTexture.h>
-// #include <Resource/T3DTextureManager.h>
-// #include <Resource/T3DMaterial.h>
-// #include <Resource/T3DMaterialManager.h>
-// #include <Resource/T3DModel.h>
-// #include <Resource/T3DModelManager.h>
+// Material
+#include <Material/T3DPass.h>
+#include <Material/T3DTechnique.h>
+#include <Material/T3DShaderConstantParam.h>
+#include <Material/T3DShaderSamplerParam.h>
+#include <Material/T3DShaderKeyword.h>
+#include <Material/T3DShaderVariant.h>
 
 // Serialize
 #include <Serializer/T3DSerializer.h>
 #include <Serializer/T3DSerializerManager.h>
 
-
 // ImageCodec
-// #include <ImageCodec/T3DImageCodec.h>
-// #include <ImageCodec/T3DImageCodecBase.h>
-// #include <ImageCodec/T3DImage.h>
+#include <ImageCodec/T3DImageCodec.h>
+#include <ImageCodec/T3DImageCodecBase.h>
+#include <ImageCodec/T3DImage.h>
 
 // Render
+#include <Render/T3DBlendState.h>
+#include <Render/T3DDepthStencilState.h>
+#include <Render/T3DRasterizerState.h>
+#include <Render/T3DSamplerState.h>
+#include <Render/T3DRenderState.h>
+#include <Render/T3DTextureState.h>
+
+// RHI
+#include <RHI/T3DRHIConstant.h>
 #include <RHI/T3DRHIRenderer.h>
 #include <RHI/T3DRHIContext.h>
 #include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>
 #include <RHI/T3DRHIViewport.h>
+#include <RHI/T3DRHIState.h>
 #include <RHI/T3DRHIBlendState.h>
 #include <RHI/T3DRHIDepthStencilState.h>
 #include <RHI/T3DRHIRasterizerState.h>
 #include <RHI/T3DRHISamplerState.h>
+#include <RHI/T3DRHIStateManager.h>
+#include <RHI/T3DRHIVertexAttribute.h>
+#include <RHI/T3DRHIVertexDeclaration.h>
+#include <RHI/T3DRHIBuffer.h>
+#include <RHI/T3DRHIDataBuffer.h>
+#include <RHI/T3DRHIVertexBuffer.h>
+#include <RHI/T3DRHIIndexBuffer.h>
+#include <RHI/T3DRHIPixelBuffer.h>
+#include <RHI/T3DRHIBufferManager.h>
+#include <RHI/T3DRHIBufferManagerBase.h>
+
 // #include <Render/T3DHardwareBufferManagerBase.h>
 // #include <Render/T3DHardwareBufferManager.h>
 // #include <Render/T3DHardwareBuffer.h>

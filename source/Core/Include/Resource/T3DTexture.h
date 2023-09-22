@@ -41,8 +41,10 @@ namespace Tiny3D
         {
             TT_1D = 0,
             TT_2D,
+            TT_2D_ARRAY,
             TT_3D,
             TT_CUBE,
+            TT_CUBE_ARRAY,
             TT_MAX
         };
         

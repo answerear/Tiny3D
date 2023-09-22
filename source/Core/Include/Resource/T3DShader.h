@@ -53,6 +53,10 @@ namespace Tiny3D
 
         bool isKeywordEnable(const String &keyword) const;
 
+        TResult addConstantParam(ShaderConstantParamPtr param);
+
+        TResult addSamplerParam(ShaderSamplerParamPtr param);
+
         /**
          * \brief 添加一个渲染技术
          * \param [in] tech : 渲染技术

@@ -67,18 +67,30 @@ namespace Tiny3D
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
         
-        mPrefabMgr->unloadAllResources();
-        mPrefabMgr = nullptr;
+        if (mPrefabMgr != nullptr)
+        {
+            mPrefabMgr->unloadAllResources();
+            mPrefabMgr = nullptr;
+        }
 
-        mShaderMgr->unloadAllResources();
-        mShaderMgr = nullptr;
+        if (mShaderMgr != nullptr)
+        {
+            mShaderMgr->unloadAllResources();
+            mShaderMgr = nullptr;
+        }
 
-        mArchiveMgr->unloadAllArchives();
+        if (mArchiveMgr != nullptr)
+        {
+            mArchiveMgr->unloadAllArchives();
+        }
         
         unloadPlugins();
 
-        mDylibMgr->unloadAllResources();
-        mDylibMgr = nullptr;
+        if (mDylibMgr != nullptr)
+        {
+            mDylibMgr->unloadAllResources();
+            mDylibMgr = nullptr;
+        }
 
         mRHIStateMgr = nullptr;
         mSerializerMgr = nullptr;
@@ -86,10 +98,13 @@ namespace Tiny3D
         
         T3D_SAFE_DELETE(mEventMgr);
 
-        mObjTracer->dumpMemoryInfo();
+        if (mObjTracer != nullptr)
+        {
+            mObjTracer->dumpMemoryInfo();
+        }
         T3D_SAFE_DELETE(mObjTracer);
 
-        mLogger->shutdown();
+        T3D_LOG_SHUTDOWN();
         T3D_SAFE_DELETE(mLogger);
     }
 
