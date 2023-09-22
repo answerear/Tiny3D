@@ -24,7 +24,7 @@ if (TINY3D_OS_DESKTOP)
 	if (NOT TINY3D_BUILD_RTTR_TOOL)
 		#add_subdirectory(MeshConverter)
 		#add_subdirectory(MetaGenerator)
-		#add_subdirectory(ShaderCrossCompiler)
+		add_subdirectory(ShaderCrossCompiler)
 	endif (NOT TINY3D_BUILD_RTTR_TOOL)
 endif (TINY3D_OS_DESKTOP)
 

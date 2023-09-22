@@ -119,6 +119,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+#if 0
     bool ShaderCompiler::compile(Script::ShaderSystem::Shader* source, 
         const String &inputPath, const String &outputDir, const Args args)
     {
@@ -141,9 +142,42 @@ namespace Tiny3D
 
         return ret;
     }
+#else
+    bool ShaderCompiler::compile(const String &code, PassPtr pass)
+    {
+        bool ret = true;
+
+        // shader code
+        const String &source = code;
+
+        // parse pragma
+        TArray<PragmaParam> pragmaParams;
+        parsePragmaArgs(source, "#pragma ", pragmaParams);
+
+        // program params
+        ProgramParameters programParams;
+        programParams.setPragmaParams(pragmaParams);
+
+        // generate snippet
+        ShaderSnippets snippets;
+        generateShaderSnippets(source, programParams, snippets);
+
+        // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
+
+        for (size_t i = 0; i < snippets.size(); i++)
+        {
+            ShaderSnippet snippet = snippets[i];
+            ret = ret && compileShaderSnippet(snippet, pass);
+        }
+        
+        return ret;
+    }
+
+#endif
 
     //--------------------------------------------------------------------------
 
+#if 0
     bool ShaderCompiler::compilePass(const Script::ShaderSystem::Pass& pass)
     {
         bool ret = true;
@@ -177,6 +211,7 @@ namespace Tiny3D
 
         return ret;
     }
+#endif
 
     //--------------------------------------------------------------------------
 
@@ -296,9 +331,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCompiler::compileShaderSnippet(
-        const ShaderSnippet &snippet, 
-        const String &outPath)
+    bool ShaderCompiler::compileShaderSnippet(const ShaderSnippet &snippet, PassPtr pass)
     {
         bool ret = true;
 
@@ -309,69 +342,70 @@ namespace Tiny3D
             Compiler::SourceDesc sourceDesc{};
             Compiler::TargetDesc targetDesc{};
 
-            String ext;
-
-            auto getShaderStage = [&ext](const String &stage) -> ShaderStage
+            auto getShaderStage = [](const String &stage, SHADER_STAGE &type) -> ShaderStage
             {
                 if (stage == kVertex)
                 {
-                    ext = ".vs";
+                    type = SHADER_STAGE::kVertex;
                     return ShaderStage::VertexShader;
                 }
                 else if (stage == kFragment)
                 {
-                    ext = ".ps";
+                    type = SHADER_STAGE::kPixel;
                     return ShaderStage::PixelShader;
                 }
                 else if (stage == kGeometry)
                 {
-                    ext = ".gs";
+                    type = SHADER_STAGE::kGeometry;
                     return ShaderStage::GeometryShader;
                 }
                 else if (stage == kHull)
                 {
-                    ext = ".hs";
+                    type = SHADER_STAGE::kHull;
                     return ShaderStage::HullShader;
                 }
                 else if (stage == kDomain)
                 {
-                    ext = ".ds";
+                    type = SHADER_STAGE::kDomain;
                     return ShaderStage::DomainShader;
                 }
                 else if (stage == kCompute)
                 {
-                    ext = ".cs";
+                    type = SHADER_STAGE::kCompute;
                     return ShaderStage::ComputeShader;
                 } 
                 else
                 {
-                    ext = ".vs";
+                    type = SHADER_STAGE::kVertex;
                     return ShaderStage::VertexShader;
                 }
             };
 
-            ShaderConductor::MacroDefine* defines = new ShaderConductor::MacroDefine[snippet.defines.size()];
+            // String path;
 
-            String path;
-
-            auto generateDefinesAndPath = [defines, &path](const ShaderSnippet& snippet, const String &outPath)
+            auto generateDefinesAndPath = [](const ShaderSnippet& snippet, ShaderConductor::MacroDefine* defines, ShaderKeyword &keyword)
             {
-                String name;
+                // String name;
                 for (size_t i = 0; i < snippet.defines.size(); i++)
                 {
                     const MacroDefine& define = snippet.defines[i];
                     defines[i].name = define.name.c_str();
                     defines[i].value = define.value.c_str();
-                    name = name + "_" + define.name;
+                    keyword.addKeyword(defines[i].name);
+                    // name = name + "_" + define.name;
                 }
 
-                path = outPath + name;
+                // path = outPath + name;
             };
 
-            generateDefinesAndPath(snippet, outPath);
+            ShaderConductor::MacroDefine* defines = new ShaderConductor::MacroDefine[snippet.defines.size()];
+            ShaderKeyword keyword;
+            generateDefinesAndPath(snippet, defines, keyword);
+            keyword.generate();
 
+            SHADER_STAGE shaderType;
             sourceDesc.source = snippet.source.c_str();
-            sourceDesc.stage = getShaderStage(snippet.stage);;
+            sourceDesc.stage = getShaderStage(snippet.stage, shaderType);
             sourceDesc.entryPoint = snippet.entry.c_str();
             sourceDesc.fileName = mInputPath.c_str();
             sourceDesc.defines = defines;
@@ -421,34 +455,16 @@ namespace Tiny3D
 
             if (result.target != nullptr)
             {
-                path = path + ext;
-
-                FileDataStream outfile;
-
-                if (!outfile.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_WRITE_ONLY))
-                {
-                    SCC_LOG_ERROR("[%s] Create output file failed !", path.c_str());
-                    DestroyBlob(result.errorWarningMsg);
-                    DestroyBlob(result.target);
-                    T3D_SAFE_DELETE_ARRAY(defines);
-                    ret = false;
-                    break;
-                }
-
+                String content((const char*)result.target->Data(), result.target->Size());
                 if (targetDesc.language == ShadingLanguage::Hlsl)
                 {
                     // ShaderConductor 有 bug，没有把 hlsl 的 Semantic 记录下来 写回去，
                     // 所以这里做一次替换，以修复转出来的 hlsl 错误的 Semantic 修饰
-                    String content((const char*)result.target->Data(), result.target->Size());
                     fixSpirVCrossForHLSLSemantics(content);
-                    outfile.write((void*)content.c_str(), content.length());
                 }
-                else
-                {
-                    outfile.write((void*)result.target->Data(), result.target->Size());
-                }
-
-                outfile.close();
+                ShaderVariantPtr shaderVariant = ShaderVariant::create(std::move(keyword), content);
+                shaderVariant->setShaderStage(shaderType);
+                pass->addShaderVariant(shaderVariant->getShaderKeyword(), shaderVariant);
             }
 
             DestroyBlob(result.errorWarningMsg);

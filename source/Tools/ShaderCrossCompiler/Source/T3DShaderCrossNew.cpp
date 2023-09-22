@@ -17,12 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#if 0
-#include "T3DShaderCross.h"
+
+#include "T3DShaderCrossNew.h"
 #include "SLParser.h"
 #include "T3DShaderCompiler.h"
-#include "FileScriptObject.pb.h"
-#include <google/protobuf/util/json_util.h>
 
 
 namespace Tiny3D
@@ -42,21 +40,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    ShaderCross::ShaderCross()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    ShaderCross::~ShaderCross()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
+    
     bool ShaderCross::compile(int32_t argc, const char *argv[])
     {
         bool ret = false;
@@ -206,113 +190,17 @@ namespace Tiny3D
 
         do 
         {
-            MemoryDataStream stream(10 * 1024 * 1024);
+            String shaderName = mArgs.baseName;
+            ShaderPtr shader = T3D_SHADER_MGR.createShader(shaderName);
 
-            uint8_t* buffer = nullptr;
-            size_t bufSize = 0;
-            stream.getBuffer(buffer, bufSize);
-
-            uint8_t* data = nullptr;
-            size_t dataLen = 0;
-
-            Script::FileFormat::FileShader file;
-
-            Script::ShaderSystem::Shader* shader = nullptr;
-
-            // 写文件头
-            T3DFileHeader header;
-
-            bool isBinary = mArgs.hasOptions(Args::OPT_BINARY_FILE);
-
-            if (isBinary)
-            {
-                // 二进制文件
-                memcpy(header.magic, T3D_FILE_MAGIC, 3);
-                header.magic[3] = 0;
-                header.subtype = T3D_FILE_SUBTYPE_SCC;
-                header.version = SCC_CURRENT_VERSION;
-                header.filesize = sizeof(header);
-
-                data = buffer + sizeof(header);
-                dataLen = bufSize - sizeof(header);
-
-                shader = new Script::ShaderSystem::Shader();
-            }
-            else
-            {
-                // 文本文件
-                Script::FileFormat::FileHeader* fileHeader = file.mutable_header();
-                fileHeader->set_magic(T3D_FILE_MAGIC);
-                fileHeader->set_type(Script::FileFormat::FileHeader::FileType::FileHeader_FileType_Shader);
-                fileHeader->set_version(SCC_CURRENT_VERSION);
-
-                shader = file.mutable_shader();
-            }
-
-            // 解析成对应的 pb 格式
             ret = translate(*source, shader);
             if (!ret)
             {
                 break;
             }
 
-            // 编译 shader 到对应平台
-            ShaderCompilerPtr compiler = ShaderCompiler::create();
-            ret = compiler->compile(shader, mInputFile, mOutputDir, mArgs);
-            if (!ret)
-            {
-                break;
-            }
-
-            if (isBinary)
-            {
-                // 二进制文件
-                ret = shader->SerializeToArray(data, dataLen);
-                if (!ret)
-                {
-                    SCC_LOG_ERROR("Serialize to array failed !");
-                    break;
-                }
-
-                uint32_t len = (uint32_t)shader->ByteSizeLong();
-                header.filesize += len;
-                data += len;
-                dataLen -= len;
-            }
-
-            String output = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName + ".t3d";
-
-            FileDataStream fs;
-            if (!fs.open(output.c_str(), FileDataStream::E_MODE_WRITE_ONLY))
-            {
-                SCC_LOG_ERROR("Open file %s failed !", output.c_str());
-                ret = false;
-                break;
-            }
-
-            if (isBinary)
-            {
-                // 写二进制文件
-                stream.seek(0, false);
-                stream.write(&header, sizeof(header));
-
-                fs.write(buffer, header.filesize);
-            }
-            else
-            {
-                // 转成 json 格式
-                String str;
-                google::protobuf::util::JsonOptions opts;
-                opts.add_whitespace = true;
-                opts.always_print_enums_as_ints = false;
-                opts.always_print_primitive_fields = true;
-                google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(file, &str, opts);
-
-                // 写 json 文件
-                fs.write((void*)str.c_str(), str.length());
-            }
-
-            fs.close();
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, "FileSystemArchive", Archive::AccessMode::kReadTruncate);
+            T3D_SHADER_MGR.saveShader(shader, archive);
         } while (false);
 
         return ret;
@@ -320,29 +208,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLShader& src, Script::ShaderSystem::Shader* dst)
+    bool ShaderCross::translate(const shaderlab::SLShader& src, ShaderPtr dst)
     {
         bool ret = true;
 
         do 
         {
-            // shader name
-            dst->set_name(src.shaderName);
-
             // properties
+            uint32_t offset = 0;
             for (auto itr = src.properties.props.begin(); itr != src.properties.props.end(); ++itr)
             {
-                auto dstProp = dst->add_properties();
                 auto srcProp = *itr;
-                ret = ret && translate(srcProp, dstProp);
+                ret = ret && translate(srcProp, dst, offset);
             }
 
             // Sub Shader
             for (auto itr = src.subShaders.begin(); itr != src.subShaders.end(); ++itr)
             {
-                auto dstSubShader = dst->add_subshaders();
                 auto srcSubShader = *itr;
-                ret = ret && translate(*srcSubShader, dstSubShader);
+                ret = ret && translate(*srcSubShader, dst);
             }
 
             if (!ret)
@@ -351,16 +235,16 @@ namespace Tiny3D
             }
 
             // Fallback
-            if (src.fallbackName.empty())
-            {
-                auto fallback = dst->mutable_fallback();
-                fallback->mutable_enable()->set_value(false);
-            }
-            else
-            {
-                auto fallback = dst->mutable_fallback();
-                fallback->mutable_name()->set_value(src.fallbackName);
-            }
+            // if (src.fallbackName.empty())
+            // {
+            //     auto fallback = dst->mutable_fallback();
+            //     fallback->mutable_enable()->set_value(false);
+            // }
+            // else
+            // {
+            //     auto fallback = dst->mutable_fallback();
+            //     fallback->mutable_name()->set_value(src.fallbackName);
+            // }
 
         } while (false);
 
@@ -369,85 +253,103 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const SLPropValue& src, Script::ShaderSystem::Property* dst)
-    {
+    bool ShaderCross::translate(const SLPropValue& src, ShaderPtr dst, uint32_t &offset)
+    {        
         // property name
-        dst->set_name(src.name);
 
         // property display name
-        dst->set_display_name(src.description);
 
         // property value
-        auto value = dst->mutable_values();
         switch (src.type)
         {
         case SLPropValue::kColor:
             {
-                auto val = value->mutable_color();
-                val->set_r(src.value[0]);
-                val->set_g(src.value[1]);
-                val->set_b(src.value[2]);
-                val->set_a(src.value[3]);
+                Buffer buffer;
+                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_COLOR;
+                buffer.setData(src.value, sizeof(ColorRGBA));
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                dst->addConstantParam(param);
+                offset += sizeof(ColorRGBA);
             }
             break;
         case SLPropValue::kVector:
             {
-                auto val = value->mutable_vector();
-                val->set_x(src.value[0]);
-                val->set_y(src.value[1]);
-                val->set_z(src.value[2]);
-                val->set_w(src.value[3]);
+                Buffer buffer;
+                buffer.setData(src.value, sizeof(Vector4));
+                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                dst->addConstantParam(param);
+                offset += sizeof(Vector4);
             }
             break;
         case SLPropValue::kFloat:
             {
-                auto val = value->mutable_fval();
-                val->set_value(src.value[0]);
+                Buffer buffer;
+                buffer.setData(&src.value[0], sizeof(float32_t));
+                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                dst->addConstantParam(param);
+                offset += sizeof(float32_t);
             }
             break;
         case SLPropValue::kRange:
             {
-                auto val = value->mutable_rval();
-                val->set_value(src.value[0]);
-                val->set_lower(src.value[1]);
-                val->set_upper(src.value[2]);
+                // val->set_value(src.value[0]);
+                // val->set_lower(src.value[1]);
+                // val->set_upper(src.value[2]);
+                Buffer buffer;
+                buffer.setData(&src.value[0], sizeof(float32_t));
+                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                dst->addConstantParam(param);
+                offset += sizeof(float32_t);
             }
             break;
         case SLPropValue::kTexture:
             {
+                Texture::TEXTURE_TYPE texType = Texture::TEXTURE_TYPE::TT_2D;
+                
                 switch (src.texture.dimension)
                 {
                 case TextureDimension::kTexDim2D:
                     {
-                        auto val = value->mutable_tex2d();
-                        val->set_value(src.texture.name);
+                        // auto val = value->mutable_tex2d();
+                        // val->set_value(src.texture.name);
+                        texType = Texture::TEXTURE_TYPE::TT_2D;
                     }
                     break;
                 case TextureDimension::kTexDim2DArray:
                     {
-                        auto val = value->mutable_tex2d_array();
-                        val->set_value(src.texture.name);
+                        // auto val = value->mutable_tex2d_array();
+                        // val->set_value(src.texture.name);
+                        texType = Texture::TEXTURE_TYPE::TT_2D_ARRAY;
                     }
                     break;
                 case TextureDimension::kTexDim3D:
                     {
-                        auto val = value->mutable_tex3d();
-                        val->set_value(src.texture.name);
+                        // auto val = value->mutable_tex3d();
+                        // val->set_value(src.texture.name);
+                        texType = Texture::TEXTURE_TYPE::TT_3D;
                     }
                     break;
                 case TextureDimension::kTexDimCUBE:
                     {
-                        auto val = value->mutable_cubemap();
-                        val->set_value(src.texture.name);
+                        // auto val = value->mutable_cubemap();
+                        // val->set_value(src.texture.name);
+                        texType = Texture::TEXTURE_TYPE::TT_CUBE;
                     }
                     break;
                 case TextureDimension::kTexDimCUBEArray:
                     {
-                        auto val = value->mutable_cubemap_array();
-                        val->set_value(src.texture.name);
+                        // auto val = value->mutable_cubemap_array();
+                        // val->set_value(src.texture.name);
+                        texType = Texture::TEXTURE_TYPE::TT_CUBE_ARRAY;
                     }
                     break;
                 }
+
+                ShaderSamplerParamPtr param = ShaderSamplerParam::create(src.texture.name, texType);
+                dst->addSamplerParam(param);
             }
             break;
         }
@@ -457,29 +359,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLSubShader& src, Script::ShaderSystem::SubShader* dst)
+    bool ShaderCross::translate(const shaderlab::SLSubShader& src, ShaderPtr dst)
     {
         bool ret = true;
 
+        std::stringstream ss;
+        ss << dst->getTechniques().size();
+        TechniquePtr tech = Technique::create(ss.str());
+        dst->addTechnique(tech);
+
         // LOD
-        dst->set_lod(src.lod);
+        // dst->set_lod(src.lod);
+        tech->setLOD(src.lod);
 
         // tags
-        for (auto itr = src.tags.begin(); itr != src.tags.end(); ++itr)
+        for (auto val : src.tags)
         {
-            auto key = itr->first;
-            auto value = itr->second;
-            dst->mutable_tags()->insert({ key, value });
+            const auto &key = val.first;
+            const auto &value = val.second;
+            // dst->mutable_tags()->insert({ key, value });
+            tech->addTag(key, value);
         }
 
         // render states
-        
+
         // passes
-        for (auto itr = src.passes.begin(); itr != src.passes.end(); ++itr)
+        for (auto val : src.passes)
         {
-            auto srcPass = *itr;
-            auto dstPass = dst->add_passes();
-            ret = ret && translate(*srcPass, dstPass);
+            // auto dstPass = dst->add_passes();
+            ret = ret && translate(*val, tech);
         }
 
         return ret;
@@ -487,7 +395,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLPassBase& src, Script::ShaderSystem::Pass* dst)
+    bool ShaderCross::translate(const shaderlab::SLPassBase& src, TechniquePtr tech)
     {
         bool ret = true;
 
@@ -496,13 +404,13 @@ namespace Tiny3D
         case SLPassBase::kPassNormal:
             {
                 const SLNormalPass& normalPass = dynamic_cast<const SLNormalPass&>(src);
-                ret = translate(normalPass, dst);
+                ret = translate(normalPass, tech);
             }
             break;
         case SLPassBase::kPassUse:
             {
-                const SLUsePass& usePass = dynamic_cast<const SLUsePass&>(src);
-                ret = translate(usePass, dst);
+                // const SLUsePass& usePass = dynamic_cast<const SLUsePass&>(src);
+                // ret = translate(usePass, tech);
             }
             break;
         case SLPassBase::kPassCompiled:
@@ -514,152 +422,188 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLUsePass& src, Script::ShaderSystem::Pass* dst)
-    {
-        auto pass = dst->mutable_use_pass();
-        pass->set_value(src.useName);
-
-        return true;
-    }
+    // bool ShaderCross::translate(const shaderlab::SLUsePass& src, Script::ShaderSystem::Pass* dst)
+    // {
+    //     auto pass = dst->mutable_use_pass();
+    //     pass->set_value(src.useName);
+    //
+    //     return true;
+    // }
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLNormalPass& src, Script::ShaderSystem::Pass* dst)
+    bool ShaderCross::translate(const shaderlab::SLNormalPass& src, TechniquePtr tech)
     {
         bool ret = true;
 
         // name
-        dst->set_name(src.state.name);
+        // dst->set_name(src.state.name);
+        PassPtr pass = Pass::create(src.state.name);
 
         // tags
         for (auto itr = src.state.tags.begin(); itr != src.state.tags.end(); ++itr)
         {
             auto key = itr->first;
             auto value = itr->second;
-            dst->mutable_tags()->insert({ key, value });
+            // dst->mutable_tags()->insert({ key, value });
+            pass->addTag(key, value);
         }
 
         // render states
-        ret = ret && translate(src.state, dst->mutable_state());
+        RenderState state;
+        ret = ret && translate(src.state, state);
 
         // program
-        ret = ret && translate(src.program, dst->mutable_program());
+        ret = ret && translate(src.program, pass);
+
+        if (ret)
+        {
+            tech->addPass(pass);
+        }
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLShaderState& src, Script::ShaderSystem::State* dst)
+    bool ShaderCross::translate(const shaderlab::SLShaderState& src, RenderState &state)
     {
         bool ret = true;
 
         // alpha to mask
-        dst->set_alpha2mask((bool)src.alphaToMask.val);
+        // dst->set_alpha2mask((bool)src.alphaToMask.val);
+        state.Blend.AlphaToCoverageEnable = src.alphaToMask.val;
 
         // blend
-        auto blend = dst->mutable_blend();
-        auto blend_state = blend->mutable_state();
-        blend_state->set_src_rgb(getBlendFactor(src.srcBlend));
-        blend_state->set_dst_rgb(getBlendFactor(src.destBlend));
-        blend_state->set_src_alpha(getBlendFactor(src.srcBlendAlpha));
-        blend_state->set_dst_alpha(getBlendFactor(src.destBlendAlpha));
+        // auto blend = dst->mutable_blend();
+        // auto blend_state = blend->mutable_state();
+        // blend_state->set_src_rgb(getBlendFactor(src.srcBlend));
+        // blend_state->set_dst_rgb(getBlendFactor(src.destBlend));
+        // blend_state->set_src_alpha(getBlendFactor(src.srcBlendAlpha));
+        // blend_state->set_dst_alpha(getBlendFactor(src.destBlendAlpha));
+        state.Blend.RenderTargetStates[0].SrcBlend = getBlendFactor(src.srcBlend);
+        state.Blend.RenderTargetStates[0].DestBlend = getBlendFactor(src.destBlend);
+        state.Blend.RenderTargetStates[0].SrcBlendAlpha = getBlendFactor(src.srcBlendAlpha);
+        state.Blend.RenderTargetStates[0].DstBlendAlpha = getBlendFactor(src.destBlendAlpha);
 
         // blend op
-        dst->set_blend_op(getBlendOp(src.blendOp));
+        // dst->set_blend_op(getBlendOp(src.blendOp));
+        state.Blend.RenderTargetStates[0].BlendOp = getBlendOp(src.blendOp);
 
         // color mask
-        auto colorMask = dst->mutable_color_mask();
-        auto color_mask_state = colorMask->mutable_state1();
-        color_mask_state->set_channels(src.colMask.val);
+        // auto colorMask = dst->mutable_color_mask();
+        // auto color_mask_state = colorMask->mutable_state1();
+        // color_mask_state->set_channels(src.colMask.val);
+        state.Blend.RenderTargetStates[0].ColorMask = src.colMask.val;
 
         // conservative
-        dst->set_conservative(false);
+        // dst->set_conservative(false);
+        state.Rasterizer.Conservative = false;
         
         // culling
-        dst->set_cull(getCulling(src.culling));
+        // dst->set_cull(getCulling(src.culling));
+        state.Rasterizer.CullMode = getCulling(src.culling);
 
         // depth bias
-        auto depth_bias = dst->mutable_depth_bias();
-        depth_bias->set_factor(src.offsetFactor.val);
-        depth_bias->set_units(src.offsetUnits.val);
+        // auto depth_bias = dst->mutable_depth_bias();
+        // depth_bias->set_factor(src.offsetFactor.val);
+        // depth_bias->set_units(src.offsetUnits.val);
+        state.Rasterizer.DepthBias = 0;//src.offsetUnits.val;
+        state.Rasterizer.SlopeScaledDepthBias = 0;//src.offsetFactor.val;
         
         // stencil
-        auto stencil = dst->mutable_stencil();
-        stencil->set_ref(src.stencilRef.val);
-        stencil->set_read_mask(src.stencilReadMask.val);
-        stencil->set_write_mask(src.stencilWriteMask.val);
-        auto stencil_op = stencil->mutable_op();
-        ret = ret && translate(src.stencilOp, stencil_op);
-        auto stencil_op_back = stencil->mutable_op_back();
-        ret = ret && translate(src.stencilOpBack, stencil_op_back);
-        auto stencil_op_front = stencil->mutable_op_front();
-        ret = ret && translate(src.stencilOpFront, stencil_op_front);
+        // auto stencil = dst->mutable_stencil();
+        // stencil->set_ref(src.stencilRef.val);
+        // stencil->set_read_mask(src.stencilReadMask.val);
+        // stencil->set_write_mask(src.stencilWriteMask.val);
+        // auto stencil_op = stencil->mutable_op();
+        // ret = ret && translate(src.stencilOp, stencil_op);
+        // auto stencil_op_back = stencil->mutable_op_back();
+        // ret = ret && translate(src.stencilOpBack, stencil_op_back);
+        // auto stencil_op_front = stencil->mutable_op_front();
+        // ret = ret && translate(src.stencilOpFront, stencil_op_front);
+        state.DepthStencil.StencilRef = src.stencilRef.val;
+        state.DepthStencil.StencilReadMask = src.stencilReadMask.val;
+        state.DepthStencil.StencilWriteMask = src.stencilWriteMask.val;
+        translate(src.stencilOpFront, state.DepthStencil.FrontFace);
 
         // z clip
-        dst->set_z_clip(true);
+        // dst->set_z_clip(true);
+        shaderlab::CompareFunction c = (shaderlab::CompareFunction)src.zTest.val;
+        if (c != shaderlab::CompareFunction::kFuncDisabled)
+        {
+            state.DepthStencil.DepthTestEnable = true;
+        }
         
         // z test
-        dst->set_z_test(getCompare(src.zTest));
+        // dst->set_z_test(getCompare(src.zTest));
+        state.DepthStencil.DepthFunc = getCompare(src.zTest);
 
         // z write
-        dst->set_z_write((bool)src.zWrite.val);
+        // dst->set_z_write((bool)src.zWrite.val);
+        state.DepthStencil.DepthWriteEnable = src.zWrite.val;
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLStencilOperation& src, Script::ShaderSystem::StencilOp* dst)
+    bool ShaderCross::translate(const shaderlab::SLStencilOperation& src, DepthStencilState::StencilOpDesc &dst)
     {
-        dst->set_comp(getCompare(src.comp));
-        dst->set_pass(getStencilOp(src.pass));
-        dst->set_fail(getStencilOp(src.fail));
-        dst->set_z_fail(getStencilOp(src.zFail));
+        // dst->set_comp(getCompare(src.comp));
+        // dst->set_pass(getStencilOp(src.pass));
+        // dst->set_fail(getStencilOp(src.fail));
+        // dst->set_z_fail(getStencilOp(src.zFail));
+        dst.StencilFunc = getCompare(src.comp);
+        dst.StencilPassOp = getStencilOp(src.pass);
+        dst.StencilFailOp = getStencilOp(src.fail);
+        dst.StencilDepthFailOp = getStencilOp(src.zFail);
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    Script::ShaderSystem::BlendFactor ShaderCross::getBlendFactor(shaderlab::SLFloat src) const
+    BlendFactor ShaderCross::getBlendFactor(shaderlab::SLFloat src) const
     {
-        Script::ShaderSystem::BlendFactor factor = Script::ShaderSystem::BlendFactor::ZERO;
+        BlendFactor factor = BlendFactor::kZero;
 
         shaderlab::BlendMode m = (shaderlab::BlendMode)src.val;
 
         switch (m)
         {
         case shaderlab::BlendMode::kBlendZero:
-            factor = Script::ShaderSystem::BlendFactor::ZERO;
+            factor = BlendFactor::kZero;
             break;
         case shaderlab::BlendMode::kBlendOne:
-            factor = Script::ShaderSystem::BlendFactor::ONE;
+            factor = BlendFactor::kOne;
             break;
         case shaderlab::BlendMode::kBlendDstColor:
-            factor = Script::ShaderSystem::BlendFactor::DST_COLOR;
+            factor = BlendFactor::kDstColor;
             break;
         case shaderlab::BlendMode::kBlendSrcColor:
-            factor = Script::ShaderSystem::BlendFactor::SRC_COLOR;
+            factor = BlendFactor::kSrcColor;
             break;
         case shaderlab::BlendMode::kBlendOneMinusDstColor:
-            factor = Script::ShaderSystem::BlendFactor::ONE_MINUS_DST_COLOR;
+            factor = BlendFactor::kOneMinusDstColor;
             break;
         case shaderlab::BlendMode::kBlendSrcAlpha:
-            factor = Script::ShaderSystem::BlendFactor::SRC_ALPHA;
+            factor = BlendFactor::kSrcAlpha;
             break;
         case shaderlab::BlendMode::kBlendOneMinusSrcColor:
-            factor = Script::ShaderSystem::BlendFactor::ONE_MINUS_SRC_COLOR;
+            factor = BlendFactor::kOneMinusSrcColor;
             break;
         case shaderlab::BlendMode::kBlendDstAlpha:
-            factor = Script::ShaderSystem::BlendFactor::DST_ALPHA;
+            factor = BlendFactor::kDstAlpha;
             break;
         case shaderlab::BlendMode::kBlendOneMinusDstAlpha:
-            factor = Script::ShaderSystem::BlendFactor::ONE_MINUS_DST_ALPHA;
+            factor = BlendFactor::kOneMinusDstAlpha;
             break;
         case shaderlab::BlendMode::kBlendSrcAlphaSaturate:
             break;
         case shaderlab::BlendMode::kBlendOneMinusSrcAlpha:
-            factor = Script::ShaderSystem::BlendFactor::ONE_MINUS_SRC_ALPHA;
+            factor = BlendFactor::kOneMinusSrcAlpha;
+            break;
+        default:
             break;
         }
 
@@ -668,76 +612,78 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Script::ShaderSystem::BlendOp ShaderCross::getBlendOp(shaderlab::SLFloat src) const
+    BlendOperation ShaderCross::getBlendOp(shaderlab::SLFloat src) const
     {
-        Script::ShaderSystem::BlendOp op = Script::ShaderSystem::BlendOp::ADD;
+        BlendOperation op = BlendOperation::kAdd;
 
         shaderlab::BlendOp o = (shaderlab::BlendOp)src.val;
 
         switch (o)
         {
         case shaderlab::BlendOp::kBlendOpAdd:
-            op = Script::ShaderSystem::BlendOp::ADD;
+            op = BlendOperation::kAdd;
             break;
         case shaderlab::BlendOp::kBlendOpSub:
-            op = Script::ShaderSystem::BlendOp::SUB;
+            op = BlendOperation::kSubtract;
             break;
         case shaderlab::BlendOp::kBlendOpRevSub:
-            op = Script::ShaderSystem::BlendOp::REV_SUB;
+            op = BlendOperation::kReverseSubtract;
             break;
         case shaderlab::BlendOp::kBlendOpMin:
-            op = Script::ShaderSystem::BlendOp::MIN;
+            op = BlendOperation::kMin;
             break;
         case shaderlab::BlendOp::kBlendOpMax:
-            op = Script::ShaderSystem::BlendOp::MAX;
+            op = BlendOperation::kMax;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalClear:
-            op = Script::ShaderSystem::BlendOp::CLEAR;
+            // op = BlendOperation::kClear;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalSet:
-            op = Script::ShaderSystem::BlendOp::SET;
+            // op = BlendOperation::SET;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalCopy:
-            op = Script::ShaderSystem::BlendOp::COPY;
+            // op = BlendOperation::COPY;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalCopyInverted:
-            op = Script::ShaderSystem::BlendOp::COPY_INVERTED;
+            // op = BlendOperation::COPY_INVERTED;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalNoop:
-            op = Script::ShaderSystem::BlendOp::NOOP;
+            // op = BlendOperation::NOOP;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalInvert:
-            op = Script::ShaderSystem::BlendOp::INVERT;
+            // op = BlendOperation::INVERT;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalAnd:
-            op = Script::ShaderSystem::BlendOp::AND;
+            // op = BlendOperation::AND;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalNand:
-            op = Script::ShaderSystem::BlendOp::NAND;
+            // op = BlendOperation::NAND;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalOr:
-            op = Script::ShaderSystem::BlendOp::OR;
+            // op = BlendOperation::OR;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalNor:
-            op = Script::ShaderSystem::BlendOp::NOR;
+            // op = BlendOperation::NOR;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalXor:
-            op = Script::ShaderSystem::BlendOp::XOR;
+            // op = BlendOperation::XOR;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalEquiv:
-            op = Script::ShaderSystem::BlendOp::EQUIV;
+            // op = BlendOperation::EQUIV;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalAndReverse:
-            op = Script::ShaderSystem::BlendOp::AND_REVERSE;
+            // op = BlendOperation::AND_REVERSE;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalAndInverted:
-            op = Script::ShaderSystem::BlendOp::AND_INVERTED;
+            // op = BlendOperation::AND_INVERTED;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalOrReverse:
-            op = Script::ShaderSystem::BlendOp::OR_REVERSE;
+            // op = BlendOperation::OR_REVERSE;
             break;
         case shaderlab::BlendOp::kBlendOpLogicalOrInverted:
-            op = Script::ShaderSystem::BlendOp::OR_INVERTED;
+            // op = BlendOperation::OR_INVERTED;
+            break;
+        default:
             break;
         }
 
@@ -746,22 +692,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Script::ShaderSystem::Cull ShaderCross::getCulling(shaderlab::SLFloat src) const
+    CullingMode ShaderCross::getCulling(shaderlab::SLFloat src) const
     {
-        Script::ShaderSystem::Cull culling = Script::ShaderSystem::Cull::BACK;
+        CullingMode culling = CullingMode::kAnticlockwise;
 
         shaderlab::CullMode mode = (shaderlab::CullMode)src.val;
 
         switch (mode)
         {
         case shaderlab::CullMode::kCullOff:
-            culling = Script::ShaderSystem::Cull::OFF;
+            culling = CullingMode::kNone;
             break;
         case shaderlab::CullMode::kCullFront:
-            culling = Script::ShaderSystem::Cull::FRONT;
+            culling = CullingMode::kClockwise;
             break;
         case shaderlab::CullMode::kCullBack:
-            culling = Script::ShaderSystem::Cull::BACK;
+            culling = CullingMode::kAnticlockwise;
             break;
         case shaderlab::CullMode::kCullFrontAndBack:
             break;
@@ -772,9 +718,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Script::ShaderSystem::Comp ShaderCross::getCompare(shaderlab::SLFloat src) const
+    CompareFunction ShaderCross::getCompare(shaderlab::SLFloat src) const
     {
-        Script::ShaderSystem::Comp comp = Script::ShaderSystem::Comp::ALWAYS;
+        CompareFunction comp = CompareFunction::kAlwaysPass;
 
         shaderlab::CompareFunction c = (shaderlab::CompareFunction)src.val;
 
@@ -783,28 +729,30 @@ namespace Tiny3D
         case shaderlab::CompareFunction::kFuncDisabled:
             break;
         case shaderlab::CompareFunction::kFuncNever:
-            comp = Script::ShaderSystem::Comp::NEVER;
+            comp = CompareFunction::kAlwaysFail;
             break;
         case shaderlab::CompareFunction::kFuncLess:
-            comp = Script::ShaderSystem::Comp::LESS;
+            comp = CompareFunction::kLess;
             break;
         case shaderlab::CompareFunction::kFuncEqual:
-            comp = Script::ShaderSystem::Comp::EQUAL;
+            comp = CompareFunction::kEqual;
             break;
         case shaderlab::CompareFunction::kFuncLEqual:
-            comp = Script::ShaderSystem::Comp::L_EQUAL;
+            comp = CompareFunction::kLessEqual;
             break;
         case shaderlab::CompareFunction::kFuncGreater:
-            comp = Script::ShaderSystem::Comp::GREATER;
+            comp = CompareFunction::kGreater;
             break;
         case shaderlab::CompareFunction::kFuncNotEqual:
-            comp = Script::ShaderSystem::Comp::NOT_EQUALT;
+            comp = CompareFunction::kNotEqual;
             break;
         case shaderlab::CompareFunction::kFuncGEqual:
-            comp = Script::ShaderSystem::Comp::G_EQUAL;
+            comp = CompareFunction::kGreaterEqual;
             break;
         case shaderlab::CompareFunction::kFuncAlways:
-            comp = Script::ShaderSystem::Comp::ALWAYS;
+            comp = CompareFunction::kAlwaysPass;
+            break;
+        default:
             break;
         }
 
@@ -813,37 +761,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Script::ShaderSystem::StencilOp_Op ShaderCross::getStencilOp(shaderlab::SLFloat src) const
+    StencilOp ShaderCross::getStencilOp(shaderlab::SLFloat src) const
     {
-        Script::ShaderSystem::StencilOp_Op op = Script::ShaderSystem::StencilOp_Op::StencilOp_Op_KEEP;
+        StencilOp op = StencilOp::kKeep;
 
         shaderlab::StencilOp o = (shaderlab::StencilOp)src.val;
 
         switch (o)
         {
         case shaderlab::StencilOp::kStencilOpKeep:
-            op = Script::ShaderSystem::StencilOp_Op_KEEP;
+            op = StencilOp::kKeep;
             break;
         case shaderlab::StencilOp::kStencilOpZero:
-            op = Script::ShaderSystem::StencilOp_Op_ZERO;
+            op = StencilOp::kZero;
             break;
         case shaderlab::StencilOp::kStencilOpReplace:
-            op = Script::ShaderSystem::StencilOp_Op_REPLACE;
+            op = StencilOp::kReplace;
             break;
         case shaderlab::StencilOp::kStencilOpIncrSat:
-            op = Script::ShaderSystem::StencilOp_Op_INCR_SAT;
+            op = StencilOp::kInc;
             break;
         case shaderlab::StencilOp::kStencilOpDecrSat:
-            op = Script::ShaderSystem::StencilOp_Op_DECR_SAT;
+            op = StencilOp::kDec;
             break;
         case shaderlab::StencilOp::kStencilOpInvert:
-            op = Script::ShaderSystem::StencilOp_Op_INVERT;
+            op = StencilOp::kInvert;
             break;
         case shaderlab::StencilOp::kStencilOpIncrWrap:
-            op = Script::ShaderSystem::StencilOp_Op_INCR_WRAP;
+            op = StencilOp::kIncWrap;
             break;
         case shaderlab::StencilOp::kStencilOpDecrWrap:
-            op = Script::ShaderSystem::StencilOp_Op_DECR_WRAP;
+            op = StencilOp::kDecWrap;
             break;
         }
 
@@ -852,34 +800,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Script::ShaderSystem::ProgramType ShaderCross::getProgramType(shaderlab::ProgramType src) const
-    {
-        Script::ShaderSystem::ProgramType type = Script::ShaderSystem::ProgramType::HLSL;
-
-        switch (src)
-        {
-        case shaderlab::ProgramType::kCG:
-            type = Script::ShaderSystem::ProgramType::CG;
-            break;
-        case shaderlab::ProgramType::kHLSL:
-            type = Script::ShaderSystem::ProgramType::HLSL;
-            break;
-        case shaderlab::ProgramType::kGLSL:
-            type = Script::ShaderSystem::ProgramType::GLSL;
-            break;
-        }
-
-        return type;
-    }
+    // Script::ShaderSystem::ProgramType ShaderCross::getProgramType(shaderlab::ProgramType src) const
+    // {
+    //     Script::ShaderSystem::ProgramType type = Script::ShaderSystem::ProgramType::HLSL;
+    //
+    //     switch (src)
+    //     {
+    //     case shaderlab::ProgramType::kCG:
+    //         type = Script::ShaderSystem::ProgramType::CG;
+    //         break;
+    //     case shaderlab::ProgramType::kHLSL:
+    //         type = Script::ShaderSystem::ProgramType::HLSL;
+    //         break;
+    //     case shaderlab::ProgramType::kGLSL:
+    //         type = Script::ShaderSystem::ProgramType::GLSL;
+    //         break;
+    //     }
+    //
+    //     return type;
+    // }
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLProgram& src, Script::ShaderSystem::Program* dst)
+    bool ShaderCross::translate(const shaderlab::SLProgram& src, PassPtr pass)
     {
-        dst->mutable_source()->set_type(getProgramType(src.type));
-        dst->mutable_source()->set_code(src.source);
+        // dst->mutable_source()->set_type(getProgramType(src.type));
+        // dst->mutable_source()->set_code(src.source);
 
-        return true;
+        ShaderCompilerPtr compiler = ShaderCompiler::create();
+        return compiler->compile(src.source, pass);
     }
 
     //--------------------------------------------------------------------------
@@ -1017,4 +966,3 @@ namespace Tiny3D
         return ret;
     }
 }
-#endif

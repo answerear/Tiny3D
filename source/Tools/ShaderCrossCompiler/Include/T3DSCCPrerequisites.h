@@ -62,24 +62,16 @@ namespace Tiny3D
             OPT_BINARY_FILE = (1 << 3),         /// 是否输出二进制文件，还是 json 文件
         };
 
-        Args()
-            : options(0)
-            , optimizeLevel(3)
-            , include("")
-            , target("")
-            , baseName("")
-        {}
-
         bool hasOptions(uint32_t flags) const
         {
             return (flags & options) == flags;
         }
 
-        uint32_t    options;        /// 选项
-        uint32_t    optimizeLevel;  /// 优化级别，0 to 3
-        String      include;        /// 包含的头文件目录路径
-        String      target;         /// 输出目标平台
-        String      baseName;       /// 输出文件的基本名称
+        uint32_t    options {0};        /// 选项
+        uint32_t    optimizeLevel {3};  /// 优化级别，0 to 3
+        String      include {};        /// 包含的头文件目录路径
+        String      target {};         /// 输出目标平台
+        String      baseName {};       /// 输出文件的基本名称
     };
 
 

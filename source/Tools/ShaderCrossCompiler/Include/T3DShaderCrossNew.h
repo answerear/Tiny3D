@@ -18,14 +18,12 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_SCC_SHADER_CROSS_H__
-#define __T3D_SCC_SHADER_CROSS_H__
+#ifndef __T3D_SCC_SHADER_CROSS_NEW_H__
+#define __T3D_SCC_SHADER_CROSS_NEW_H__
 
 
-#if 0
 #include "T3DSCCPrerequisites.h"
 #include "SLParserTypes.h"
-#include "ShaderScriptObject.pb.h"
 
 
 namespace shaderlab
@@ -53,8 +51,6 @@ namespace Tiny3D
     public:
         static ShaderCrossPtr create();
 
-        virtual ~ShaderCross();
-
         bool compile(int32_t argc, const char *argv[]);
 
         bool compile(const String &input, const Args &args);
@@ -62,8 +58,6 @@ namespace Tiny3D
         bool compile(const String &input, const String &output, const Args &args);
 
     protected:
-        ShaderCross();
-
         void printUsage();
 
         void printVersion();
@@ -74,43 +68,38 @@ namespace Tiny3D
 
         bool compile(shaderlab::SLShader *source);
 
-        bool translate(const shaderlab::SLShader& src, Script::ShaderSystem::Shader* dst);
+        bool translate(const shaderlab::SLShader& src, ShaderPtr dst);
 
-        bool translate(const shaderlab::SLPropValue& src, Script::ShaderSystem::Property* dst);
+        bool translate(const shaderlab::SLPropValue& src, ShaderPtr dst, uint32_t &offset);
 
-        bool translate(const shaderlab::SLSubShader& src, Script::ShaderSystem::SubShader* dst);
+        bool translate(const shaderlab::SLSubShader& src, ShaderPtr dst);
 
-        bool translate(const shaderlab::SLPassBase& src, Script::ShaderSystem::Pass* dst);
+        bool translate(const shaderlab::SLPassBase& src, TechniquePtr tech);
 
-        bool translate(const shaderlab::SLUsePass& src, Script::ShaderSystem::Pass* dst);
+        bool translate(const shaderlab::SLNormalPass& src, TechniquePtr tech);
 
-        bool translate(const shaderlab::SLNormalPass& src, Script::ShaderSystem::Pass* dst);
+        bool translate(const shaderlab::SLShaderState& src, RenderState &state);
 
-        bool translate(const shaderlab::SLShaderState& src, Script::ShaderSystem::State* dst);
+        bool translate(const shaderlab::SLStencilOperation& src, DepthStencilState::StencilOpDesc &dst);
 
-        bool translate(const shaderlab::SLStencilOperation& src, Script::ShaderSystem::StencilOp* dst);
+        bool translate(const shaderlab::SLProgram& src, PassPtr pass);
+        
+        BlendFactor getBlendFactor(shaderlab::SLFloat src) const;
 
-        bool translate(const shaderlab::SLProgram& src, Script::ShaderSystem::Program* dst);
+        BlendOperation getBlendOp(shaderlab::SLFloat src) const;
 
-        Script::ShaderSystem::BlendFactor getBlendFactor(shaderlab::SLFloat src) const;
+        CullingMode getCulling(shaderlab::SLFloat src) const;
 
-        Script::ShaderSystem::BlendOp getBlendOp(shaderlab::SLFloat src) const;
-
-        Script::ShaderSystem::Cull getCulling(shaderlab::SLFloat src) const;
-
-        Script::ShaderSystem::Comp getCompare(shaderlab::SLFloat src) const;
-
-        Script::ShaderSystem::StencilOp_Op getStencilOp(shaderlab::SLFloat src) const;
-
-        Script::ShaderSystem::ProgramType getProgramType(shaderlab::ProgramType src) const;
-
+        CompareFunction getCompare(shaderlab::SLFloat src) const;
+        
+        StencilOp getStencilOp(shaderlab::SLFloat src) const;
     private:
-        String  mInputFile;
-        String  mOutputDir;
-        Args    mArgs;
+        String  mInputFile {};
+        String  mOutputDir {};
+        Args    mArgs {};
     };
 }
 
-#endif
-#endif  /*__T3D_SCC_SHADER_CROSS_H__*/
+
+#endif  /*__T3D_SCC_SHADER_CROSS_NEW_H__*/
 

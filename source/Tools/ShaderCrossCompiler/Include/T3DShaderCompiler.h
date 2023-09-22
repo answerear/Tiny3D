@@ -22,7 +22,7 @@
 
 
 #include "T3DSCCPrerequisites.h"
-#include "ShaderScriptObject.pb.h"
+// #include "ShaderScriptObject.pb.h"
 
 
 namespace Tiny3D
@@ -38,8 +38,10 @@ namespace Tiny3D
 
         virtual ~ShaderCompiler();
 
-        bool compile(Script::ShaderSystem::Shader *source, const String &inputPath, const String &outputDir, const Args args);
+        // bool compile(Script::ShaderSystem::Shader *source, const String &inputPath, const String &outputDir, const Args args);
 
+        bool compile(const String &code, PassPtr pass);
+        
     protected:
         static const String kVertex;
         static const String kFragment;
@@ -132,7 +134,7 @@ namespace Tiny3D
 
         ShaderCompiler();
 
-        bool compilePass(const Script::ShaderSystem::Pass& pass);
+        // bool compilePass(const Script::ShaderSystem::Pass& pass);
 
         bool parsePragmaArgs(const String& str, const String& pragma, TArray<PragmaParam>& outParams);
 
@@ -140,7 +142,7 @@ namespace Tiny3D
 
         void generateShaderSnippets(const String& source, const ProgramParameters& params, ShaderSnippets& snippets);
 
-        bool compileShaderSnippet(const ShaderSnippet &snippet, const String &outPath);
+        bool compileShaderSnippet(const ShaderSnippet &snippet, PassPtr pass);
 
         void fixSpirVCrossForHLSLSemantics(String& content);
 
