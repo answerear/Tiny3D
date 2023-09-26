@@ -262,7 +262,7 @@ namespace Tiny3D
         do
         {
             // 保存资源对象
-            MemoryDataStream stream;
+            MemoryDataStream stream(10*1024*1024);
             ret = saveResource(stream, res);
             if (T3D_FAILED(ret))
             {
@@ -270,7 +270,8 @@ namespace Tiny3D
             }
 
             // 写到 资源 档案系统里
-            ret = archive->write(res->getName(), stream);
+            const String &name = res->getName();
+            ret = archive->write(name, stream);
             if (T3D_FAILED(ret))
             {
                 break;
