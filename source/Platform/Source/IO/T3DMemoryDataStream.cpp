@@ -30,10 +30,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     MemoryDataStream::MemoryDataStream()
-        : m_pBuffer(nullptr)
-        , m_lSize(0)
-        , m_lCurPos(0)
-        , m_bCreated(false)
+        : MemoryDataStream(0)
     {
 
     }
@@ -53,17 +50,23 @@ namespace Tiny3D
             memcpy(m_pBuffer, pBuffer, m_lSize);
             m_bCreated = true;
         }
+
+        m_lCapacity = unSize;
     }
 
     //--------------------------------------------------------------------------
 
-    MemoryDataStream::MemoryDataStream(size_t unSize)
+    MemoryDataStream::MemoryDataStream(size_t unCapacity)
         : m_pBuffer(nullptr)
-        , m_lSize(unSize)
+        , m_lSize(0)
         , m_lCurPos(0)
+        , m_lCapacity(unCapacity)
         , m_bCreated(true)
     {
-        m_pBuffer = new uchar_t[unSize];
+        if (unCapacity > 0)
+        {
+            m_pBuffer = new uchar_t[unCapacity];
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -95,7 +98,7 @@ namespace Tiny3D
 
     size_t MemoryDataStream::read(void *pBuffer, size_t nSize)
     {
-        long_t lLeft = m_lSize - m_lCurPos;
+        long_t lLeft = m_lCapacity - m_lCurPos;
         long_t lBytesOfRead = (long_t)nSize > lLeft ? lLeft : (long_t)nSize;
         if (lBytesOfRead == 1)
         {
@@ -113,7 +116,7 @@ namespace Tiny3D
 
     size_t MemoryDataStream::write(void *pBuffer, size_t nSize)
     {
-        long_t lSpace = m_lSize - m_lCurPos - 1;
+        long_t lSpace = m_lCapacity - m_lCurPos - 1;
         long_t lBytesOfWritten =
             (long_t)nSize > lSpace ? lSpace : (long_t)nSize;
         if (lBytesOfWritten == 1)
@@ -125,6 +128,7 @@ namespace Tiny3D
             memcpy(m_pBuffer + m_lCurPos, pBuffer, lBytesOfWritten);
         }
         m_lCurPos += lBytesOfWritten;
+        m_lSize += lBytesOfWritten;
         return lBytesOfWritten;
     }
 
@@ -136,7 +140,7 @@ namespace Tiny3D
 
         if (relative)
         {
-            if (lPos + m_lCurPos < m_lSize)
+            if (lPos + m_lCurPos < m_lCapacity)
             {
                 m_lCurPos += lPos;
                 ret = true;
@@ -144,7 +148,7 @@ namespace Tiny3D
         }
         else
         {
-            if (lPos < m_lSize)
+            if (lPos < m_lCapacity)
             {
                 m_lCurPos = lPos;
                 ret = true;
@@ -172,7 +176,7 @@ namespace Tiny3D
 
     bool MemoryDataStream::eof() const
     {
-        return (m_lCurPos == m_lSize);
+        return (m_lCurPos == m_lCapacity);
     }
 
     //--------------------------------------------------------------------------
@@ -194,9 +198,11 @@ namespace Tiny3D
             m_lSize = bufSize;
             m_pBuffer = new uint8_t[m_lSize];
             memcpy(m_pBuffer, buffer, m_lSize);
+            m_lCapacity = bufSize;
         }
         else
         {
+            m_lCapacity = bufSize;
             m_lSize = bufSize;
             m_pBuffer = buffer;
         }
@@ -219,8 +225,8 @@ namespace Tiny3D
         if (m_bCreated)
         {
             T3D_SAFE_DELETE_ARRAY(m_pBuffer);
-            m_pBuffer = new uchar_t[other.m_lSize];
-            memcpy(m_pBuffer, other.m_pBuffer, other.m_lSize);
+            m_pBuffer = new uchar_t[other.m_lCapacity];
+            memcpy(m_pBuffer, other.m_pBuffer, other.m_lCapacity);
         }
         else
         {
@@ -230,5 +236,6 @@ namespace Tiny3D
         m_lSize = other.m_lSize;
         m_lCurPos = other.m_lCurPos;
         m_bCreated = other.m_bCreated;
+        m_lCapacity = other.m_lCapacity;
     }
 }

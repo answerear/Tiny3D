@@ -51,11 +51,11 @@ namespace Tiny3D
         /**
          * @brief Constructor for T3DMemoryDataStream.
          * @note 内部自动分配空间.
-         * @param [in] unSize : 分配空间大小，
+         * @param [in] unCapacity : 分配空间大小，
          *                      默认为V_MEMORY_DATA_STREAM_BUFFER_SIZE.
          * @see V_MEMORY_DATA_STREAM_BUFFER_SIZE
          */
-        MemoryDataStream(size_t unSize);
+        MemoryDataStream(size_t unCapacity);
 
         /**
          * @brief Constructor for T3DMemoryDataStream.
@@ -134,6 +134,7 @@ namespace Tiny3D
         uchar_t     *m_pBuffer;     /**< 数据缓冲区 */
         long_t      m_lSize;        /**< 数据缓冲区大小 */
         long_t      m_lCurPos;      /**< 当前读写位置 */
+        long_t      m_lCapacity;    /**< 缓冲区容量 */
 
         bool        m_bCreated;     /**< 是否内存创建标记 */
     };
