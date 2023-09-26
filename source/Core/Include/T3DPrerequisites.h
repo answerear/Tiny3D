@@ -101,6 +101,10 @@ namespace Tiny3D
 
     class Technique;
     class Pass;
+
+    class RenderQueue;
+    class RenderPipeline;
+    class ForwardRenderPipeline;
     
     class RHIRenderTarget;
     class RHIRenderWindow;

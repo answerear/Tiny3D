@@ -55,6 +55,10 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
     
+    T3D_DECLARE_SMART_PTR(RenderQueue);
+    T3D_DECLARE_SMART_PTR(RenderPipeline);
+    T3D_DECLARE_SMART_PTR(ForwardRenderPipeline);
+    
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
 
