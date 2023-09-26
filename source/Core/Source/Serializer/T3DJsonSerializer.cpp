@@ -160,7 +160,7 @@ namespace Tiny3D
                 auto result = var.to_string(&ok);
                 if (ok)
                 {
-                    writer.String(var.to_string());
+                    writer.String(result);
                 }
                 else
                 {
@@ -397,10 +397,18 @@ namespace Tiny3D
             {
                 if (klass == type::get<bool>())
                     obj = node.GetBool();
-                else if (klass == type::get<int32_t>() || klass == type::get<int16_t>() || klass == type::get<int8_t>())
+                else if (klass == type::get<int32_t>())
                     obj = node.GetInt();
-                else if (klass == type::get<uint32_t>() || klass == type::get<uint16_t>() || klass == type::get<uint8_t>())
+                else if (klass == type::get<int16_t>())
+                    obj = (int16_t)node.GetInt();
+                else if (klass == type::get<int8_t>())
+                    obj = (int8_t)node.GetInt();
+                else if (klass == type::get<uint32_t>())
                     obj = node.GetUint();
+                else if (klass == type::get<uint16_t>())
+                    obj = (uint16_t)node.GetUint();
+                else if (klass == type::get<uint8_t>())
+                    obj = (uint8_t)node.GetUint();
                 else if (klass == type::get<int64_t>())
                     obj = node.GetInt64();
                 else if (klass == type::get<uint64_t>())
@@ -513,9 +521,19 @@ namespace Tiny3D
                         const auto& name = it->name;
 
                         // property type & value
-                        variant prop = ReadObject(it->value);
-                        bool ret = klass.set_property_value(name.GetString(), obj, prop);
-                        T3D_ASSERT(ret, "set property value failed !");
+                        bool isArray = false;
+                        variant prop = ReadObject(it->value, isArray);
+                        if (!prop.is_valid() && isArray)
+                        {
+                            // 原生数组
+                            prop = klass.get_property_value(name.GetString(), obj);
+                            ReadNativeArray(it->value, prop);
+                        }
+                        else
+                        {
+                            bool ret = klass.set_property_value(name.GetString(), obj, prop);
+                            T3D_ASSERT(ret, "set property value failed !");
+                        }
                     }
                 }
             } while (false);
@@ -561,7 +579,7 @@ namespace Tiny3D
             return ret;
         }
 
-        static variant ReadObject(const Value &node)
+        static variant ReadObject(const Value &node, bool &isArray)
         {
             variant obj;
 
@@ -576,6 +594,13 @@ namespace Tiny3D
                 type klass = type::get_by_name(itr->value.GetString());
                 if (!klass)
                 {
+                    break;
+                }
+
+                if (klass.is_array())
+                {
+                    // 原生数组，单独处理
+                    isArray = true;
                     break;
                 }
 
@@ -597,6 +622,43 @@ namespace Tiny3D
             } while (false);
             
             return obj;
+        }
+
+        static variant ReadObject(const Value& node)
+        {
+            bool isArray = false;
+            return ReadObject(node, isArray);
+        }
+
+        static TResult ReadNativeArray(const Value& node, variant &obj)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                auto itr = node.FindMember(RTTI_TYPE);
+                if (itr == node.MemberEnd())
+                {
+                    break;
+                }
+
+                type klass = type::get_by_name(itr->value.GetString());
+                if (!klass)
+                {
+                    break;
+                }
+
+                itr = node.FindMember(RTTI_VALUE);
+                if (itr == node.MemberEnd())
+                {
+                    break;
+                }
+
+                const auto& value = itr->value;
+                ReadValue(value, klass, obj);
+            } while (false);
+
+            return ret;
         }
     };
     
