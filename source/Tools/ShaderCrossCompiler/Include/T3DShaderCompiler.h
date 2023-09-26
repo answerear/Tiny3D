@@ -40,7 +40,7 @@ namespace Tiny3D
 
         // bool compile(Script::ShaderSystem::Shader *source, const String &inputPath, const String &outputDir, const Args args);
 
-        bool compile(const String &code, PassPtr pass);
+        bool compile(const String &code, PassPtr pass, const String& inputPath, const String& outputDir, const Args& args);
         
     protected:
         static const String kVertex;

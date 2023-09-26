@@ -143,9 +143,13 @@ namespace Tiny3D
         return ret;
     }
 #else
-    bool ShaderCompiler::compile(const String &code, PassPtr pass)
+    bool ShaderCompiler::compile(const String &code, PassPtr pass, const String &inputPath, const String &outputDir, const Args &args)
     {
         bool ret = true;
+
+        mArgs = args;
+        mInputPath = inputPath;
+        mOutputDir = outputDir;
 
         // shader code
         const String &source = code;
