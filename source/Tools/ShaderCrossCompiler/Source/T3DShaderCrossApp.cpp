@@ -20,7 +20,7 @@
 #include "T3DShaderCrossApp.h"
 
 #include "T3DSCCPrerequisites.h"
-#include "T3DShaderCrossNew.h"
+#include "T3DShaderCross.h"
 
 
 // For debug
