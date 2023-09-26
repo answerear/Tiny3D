@@ -40,10 +40,12 @@ namespace Tiny3D
      *          A1_A2、A1_B2、B1_A2、B1_B2、C1_A2、C1_B2
      *      一共六个 ShaderKey 对象
      */
+    TSTRUCT()
     struct T3D_ENGINE_API ShaderKeyword
     {
         TRTTI_FRIEND
 
+    public:
         static ShaderKeyword INVALID;
      
         /**
