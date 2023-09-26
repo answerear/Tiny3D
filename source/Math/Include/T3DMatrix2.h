@@ -33,6 +33,9 @@ namespace Tiny3D
     template <typename T>
     struct TMatrix2
     {
+        TRTTI_FRIEND
+
+    public:
         /// 构造一个零矩阵
         TMatrix2();
         /// 构造一个零矩阵或者单位矩阵.

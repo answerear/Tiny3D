@@ -43,6 +43,9 @@ namespace Tiny3D
     template <typename T>
     struct TFrustum
     {
+        TRTTI_FRIEND
+
+    public:
         TFrustum()
         {
         }

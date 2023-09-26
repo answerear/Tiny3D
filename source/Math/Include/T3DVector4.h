@@ -32,6 +32,9 @@ namespace Tiny3D
     template <typename T>
     struct TVector4
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         TVector4();
         /// 通过 X, Y, Z, W 构造对象

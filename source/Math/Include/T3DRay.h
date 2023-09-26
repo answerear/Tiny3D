@@ -36,6 +36,9 @@ namespace Tiny3D
     template <typename T>
     struct TRay
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         TRay()
             : mOrigin(T(0), T(0), T(0))

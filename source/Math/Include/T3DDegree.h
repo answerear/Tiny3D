@@ -31,6 +31,9 @@ namespace Tiny3D
     template <typename T>
     struct TDegree
     {
+        TRTTI_FRIEND
+
+    public:
         explicit TDegree();
 
         /// 指定实数角度值的构造函数

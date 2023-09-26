@@ -32,6 +32,9 @@ namespace Tiny3D
     template <typename T>
     struct TQuaternion
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数，构造一个单位四元数(1,0,0,0)对象.
         TQuaternion();
         /// 拷贝构造函数.

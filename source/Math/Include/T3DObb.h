@@ -41,6 +41,9 @@ namespace Tiny3D
     template <typename T>
     struct TObb
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         TObb();
         TObb(const TVector3<T> &rkCenter, const TVector3<T> *akAxis,

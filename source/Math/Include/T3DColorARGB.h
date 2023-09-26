@@ -30,6 +30,9 @@ namespace Tiny3D
     TSTRUCT("Description"="A color structure from the four float ARGB components (alpha, red, green, and blue) values.")
     struct T3D_MATH_API ColorARGB
     {
+        TRTTI_FRIEND
+
+    public:
         static const ColorARGB BLACK;
         static const ColorARGB WHITE;
         static const ColorARGB RED;

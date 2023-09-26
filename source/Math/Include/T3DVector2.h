@@ -32,6 +32,9 @@ namespace Tiny3D
     template <typename T>
     struct TVector2
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         TVector2();
         /// 通过x, y构造对象.

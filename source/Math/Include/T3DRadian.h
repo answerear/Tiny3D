@@ -32,6 +32,9 @@ namespace Tiny3D
     template <typename T>
     struct TRadian
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         explicit TRadian();
         /// 指定实数弧度制的构造函数.

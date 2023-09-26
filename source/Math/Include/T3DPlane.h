@@ -43,6 +43,9 @@ namespace Tiny3D
     template <typename T>
     struct TPlane
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         TPlane();
         TPlane(const TVector3<T> &rkNormal, T fDistance);

@@ -33,6 +33,9 @@ namespace Tiny3D
     TSTRUCT()
     struct T3D_MATH_API fix32
     {
+        TRTTI_FRIEND
+
+    public:
         static const int32_t INTEGER_BITS;      // 整数位数
         static const int32_t DECIMAL_BITS;      // 小数位数
 

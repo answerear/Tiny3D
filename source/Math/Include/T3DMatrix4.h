@@ -34,6 +34,9 @@ namespace Tiny3D
     template <typename T>
     struct TMatrix4
     {
+        TRTTI_FRIEND
+
+    public:
         /// 构造一个零矩阵
         TMatrix4();
         /// 默认构造函数.

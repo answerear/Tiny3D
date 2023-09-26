@@ -31,6 +31,9 @@ namespace Tiny3D
     template <typename T>
     struct TTriangle
     {
+        TRTTI_FRIEND
+
+    public:
         TTriangle();
         TTriangle(const TVector3<T> *vertices);
         TTriangle(const T *vertices);

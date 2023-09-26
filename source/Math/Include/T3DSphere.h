@@ -42,6 +42,9 @@ namespace Tiny3D
     template <typename T>
     struct TSphere
     {
+        TRTTI_FRIEND
+
+    public:
         /// 默认构造函数
         TSphere();
         /// 通过空间一个点构造包围球

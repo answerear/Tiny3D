@@ -31,6 +31,8 @@ namespace Tiny3D
     TSTRUCT("Description"="A color structure from the four float RGBA components (red, green, blue, and alpha) values.")
     struct T3D_MATH_API ColorRGBA
     {
+        TRTTI_FRIEND
+
     public:
         static const ColorRGBA BLACK;
         static const ColorRGBA WHITE;
@@ -128,16 +130,16 @@ namespace Tiny3D
         float32_t &blue()         { return mBlue; }
 
     private:
-        TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="setter", "Description"="alpha")
+        TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="setter", "Description"="The alpha component")
         void setAlpha(float32_t a) { mAlpha = a; }
 
-        TPROPERTY(RTTRFuncName="red", RTTRFuncTYpe="setter", "Description"="red")
+        TPROPERTY(RTTRFuncName="red", RTTRFuncTYpe="setter", "Description"="The red component")
         void setRed(float32_t r) { mRed = r; }
 
-        TPROPERTY(RTTRFuncName="green", RTTRFuncTYpe="setter", "Description"="green")
+        TPROPERTY(RTTRFuncName="green", RTTRFuncTYpe="setter", "Description"="The green component")
         void setGreen(float32_t g) { mGreen = g; }
         
-        TPROPERTY(RTTRFuncName="blue", RTTRFuncTYpe="setter", "Description"="blue")
+        TPROPERTY(RTTRFuncName="blue", RTTRFuncTYpe="setter", "Description"="The blue component")
         void setBlue(float32_t b) { mBlue = b; }
         
         float32_t   mRed;
