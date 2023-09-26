@@ -85,98 +85,70 @@ namespace Tiny3D
         TResult ret = T3D_OK;
 
         auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
-        if (itr != mKeywords.end())
+        if (itr == mKeywords.end())
+        {
+            mKeywords.push_back(keyword);
+        }
+        else
         {
             T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword duplicated !");
-            return T3D_ERR_DUPLICATED_ITEM;
         }
 
-        mKeywords.push_back(keyword);
+
+        ShaderVariants *vars = nullptr;
+        ShaderVariantPtr *current = nullptr;
 
         switch (variant->getShaderStage())
         {
         case SHADER_STAGE::kVertex:
             {
-                auto rval = mVertexShaders.insert(ShaderVariantsValue(keyword, variant));
-
-                if (mCurrentKeyword == ShaderKeyword::INVALID
-                    || mCurrentKeyword == keyword)
-                {
-                    if (mCurrentKeyword != keyword)
-                    {
-                        mCurrentKeyword = keyword;
-                    }
-                    mCurrentVS = variant;
-                }
+                vars = &mVertexShaders;
+                current = &mCurrentVS;
             }
             break;
         case SHADER_STAGE::kPixel:
             {
-                auto rval = mPixelShaders.insert(ShaderVariantsValue(keyword, variant));
-
-                if (mCurrentKeyword == ShaderKeyword::INVALID
-                    || mCurrentKeyword == keyword)
-                {
-                    if (mCurrentKeyword != keyword)
-                    {
-                        mCurrentKeyword = keyword;
-                    }
-                    mCurrentPS = variant;
-                }
+                vars = &mPixelShaders;
+                current = &mCurrentPS;
             }
             break;
         case SHADER_STAGE::kCompute:
             {
-                
+                return T3D_ERR_NOT_IMPLEMENT;
             }
             break;
         case SHADER_STAGE::kGeometry:
             {
-                auto rval = mGeometryShaders.insert(ShaderVariantsValue(keyword, variant));
-                
-                if (mCurrentKeyword == ShaderKeyword::INVALID
-                    || mCurrentKeyword == keyword)
-                {
-                    if (mCurrentKeyword != keyword)
-                    {
-                        mCurrentKeyword = keyword;
-                    }
-                    mCurrentGS = variant;
-                }
+                vars = &mGeometryShaders;
+                current = &mCurrentGS;
             }
             break;
         case SHADER_STAGE::kHull:
             {
-                auto rval = mHullShaders.insert(ShaderVariantsValue(keyword, variant));
-                
-                if (mCurrentKeyword == ShaderKeyword::INVALID
-                    || mCurrentKeyword == keyword)
-                {
-                    if (mCurrentKeyword != keyword)
-                    {
-                        mCurrentKeyword = keyword;
-                    }
-                    mCurrentHS = variant;
-                }
+                vars = &mHullShaders;
+                current = &mCurrentHS;
             }
             break;
         case SHADER_STAGE::kDomain:
             {
-                auto rval = mDomainShaders.insert(ShaderVariantsValue(keyword, variant));
-                
-                if (mCurrentKeyword == ShaderKeyword::INVALID
-                    || mCurrentKeyword == keyword)
-                {
-                    if (mCurrentKeyword != keyword)
-                    {
-                        mCurrentKeyword = keyword;
-                    }
-                    mCurrentDS = variant;
-                }
+                vars = &mDomainShaders;
+                current = &mCurrentDS;
             }
             break;
         default:
             break;
+        }
+
+        auto rval = vars->insert(ShaderVariantsValue(keyword, variant));
+
+        if (mCurrentKeyword == ShaderKeyword::INVALID
+            || mCurrentKeyword == keyword)
+        {
+            if (mCurrentKeyword != keyword)
+            {
+                mCurrentKeyword = keyword;
+            }
+            *current = variant;
         }
 
         return ret;
