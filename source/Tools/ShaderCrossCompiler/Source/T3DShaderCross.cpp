@@ -202,11 +202,11 @@ namespace Tiny3D
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, "FileSystem", Archive::AccessMode::kReadTruncate);
             T3D_SHADER_MGR.saveShader(shader, archive);
 
-            ArchivePtr arch = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, "FileSystem", Archive::AccessMode::kReadOnly);
-            ShaderPtr shader1 = T3D_SHADER_MGR.loadShader(arch, shaderName);
-
-            T3D_SHADER_MGR.saveShader(shader1, archive);
-            int a = 0;
+            // ArchivePtr arch = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, "FileSystem", Archive::AccessMode::kReadOnly);
+            // ShaderPtr shader1 = T3D_SHADER_MGR.loadShader(arch, shaderName);
+            //
+            // T3D_SHADER_MGR.saveShader(shader1, archive);
+            // int a = 0;
         } while (false);
 
         return ret;
