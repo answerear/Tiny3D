@@ -25,9 +25,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Archive::Archive(const String &name)
+    Archive::Archive(const String &name, AccessMode mode)
         : mName(name)
-        , mAccessMode(AccessMode::kNone)
+        , mAccessMode(mode)
     {
 
     }

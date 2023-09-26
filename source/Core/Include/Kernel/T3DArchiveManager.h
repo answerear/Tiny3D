@@ -122,7 +122,7 @@ namespace Tiny3D
 
             bool operator <(const Key& other) const
             {
-                return (name < other.name && access < other.access);
+                return (name < other.name || access < other.access);
             }
         };
 

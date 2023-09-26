@@ -37,17 +37,28 @@ namespace Tiny3D
     public:
         enum class AccessMode : uint32_t
         {
-            kNone = 0x0,
             /**< None */
-            kRead = 0x1,
+            kNone = 0x0,
             /**< 只读 */
-            kTruncate = 0x2,
+            kRead = 0x1,
             /**< 忽略原档案内容，直接覆盖 */
-            kAppend = 0x4,
+            kTruncate = 0x2,
             /**< 追加到原档案末尾 */
+            kAppend = 0x4,
+            /**< 读并覆盖写 */
             kReadTruncate = kRead | kTruncate,
-            /**< */
-            kReadAppend = kRead | kAppend
+            /**< 读并追加写 */
+            kReadAppend = kRead | kAppend,
+            /**< 文本文件 */
+            kText = 0x8,
+            /**< 读并覆盖写文本文件 */
+            kReadTxtTruncate = kRead | kTruncate | kText,
+            /**< 读并追加写文本文件 */
+            kReadTxtAppend = kRead | kAppend | kText,
+            /**< 只读二进制文件 */
+            kReadOnly = kRead,
+            /**< 只读文本文件 */
+            kReadTxtOnly = kRead | kText,
         };
 
         /**
@@ -115,8 +126,7 @@ namespace Tiny3D
          * @param [in]  stream  : 数据流.
          * @return  写成功返回T3D_OK.
          */
-        virtual TResult write(const String &name,
-                              const MemoryDataStream &stream) = 0;
+        virtual TResult write(const String &name, const MemoryDataStream &stream) = 0;
 
     protected:
         /**
@@ -124,7 +134,7 @@ namespace Tiny3D
          * @brief   构造函数
          * @param [in]  name    : 资源名称，一般使用档案路径作为名称.
          */
-        Archive(const String &name);
+        Archive(const String &name, AccessMode mode);
 
         String mName; /**< 档案名称 */
         AccessMode mAccessMode; /**< 访问模式 */

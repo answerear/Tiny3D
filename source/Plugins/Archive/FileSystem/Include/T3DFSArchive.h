@@ -38,7 +38,7 @@ namespace Tiny3D
         /**
          * @brief 创建对象
          */
-        static FileSystemArchivePtr create(const String &name);
+        static FileSystemArchivePtr create(const String &name, AccessMode mode);
 
         /**
          * @brief 析构函数
@@ -79,7 +79,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        FileSystemArchive(const String &name);
+        FileSystemArchive(const String &name, AccessMode mode);
 
         /**
          * @brief 从文件流对象缓存中获取文件流对象
@@ -95,6 +95,10 @@ namespace Tiny3D
          * @brief 清除文件流对象缓存
          */
         void clearFileStreamCache();
+
+        bool canWrite() const;
+
+        FileDataStream::EOpenMode getFileOpenMode(AccessMode accMode) const;
 
     protected:
         enum
