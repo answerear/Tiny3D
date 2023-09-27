@@ -129,6 +129,8 @@ namespace Tiny3D
     class RHIBufferManagerBase;
     class RHIStateManager;
     class RHIStateManagerImpl;
+    class RHIThread;
+    class RHICommand;
 }
 
 

@@ -30,6 +30,8 @@ namespace Tiny3D
 {
     class T3D_PLATFORM_API Runnable
     {
+        friend class RunnableThread;
+
     public:
         virtual bool init();
         virtual TResult run() = 0;

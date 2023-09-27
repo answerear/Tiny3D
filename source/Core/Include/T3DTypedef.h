@@ -89,6 +89,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIBufferManagerBase);
     T3D_DECLARE_SMART_PTR(RHIStateManager);
     T3D_DECLARE_SMART_PTR(RHIStateManagerImpl);
+    T3D_DECLARE_SMART_PTR(RHIThread);
+    T3D_DECLARE_SMART_PTR(RHICommand);
 
     using RHIRenderers = TMap<String, RHIRendererPtr>;
     using RHIRenderersItr = RHIRenderers::iterator;

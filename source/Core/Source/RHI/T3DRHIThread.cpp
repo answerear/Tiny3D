@@ -19,14 +19,31 @@
 
 
 #include "RHI/T3DRHIThread.h"
+#include "RHI/T3DRHICommand.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    RHIThread::RHIThread()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIThread::~RHIThread()
+    {
+        stop();
+    }
+
+    //--------------------------------------------------------------------------
+
     bool RHIThread::init()
     {
+        mCurrentCommandList = 0;
+        mIsRunning = true;
         return true;
     }
 
@@ -34,6 +51,19 @@ namespace Tiny3D
 
     TResult RHIThread::run()
     {
+        while (mIsRunning)
+        {
+            // 循环执行 RHI 命令
+            int32_t current = (mCurrentCommandList + 1) % kMaxCommandLists;
+
+            for (auto command : mCommandLists[current])
+            {
+                command->execute();
+            }
+
+            mCommandLists[current].clear();
+        }
+
         return T3D_OK;
     }
 
@@ -41,7 +71,7 @@ namespace Tiny3D
 
     void RHIThread::stop()
     {
-        
+        mIsRunning = false;
     }
     
     //--------------------------------------------------------------------------
@@ -51,5 +81,12 @@ namespace Tiny3D
         
     }
     
+    //--------------------------------------------------------------------------
+
+    void RHIThread::addCommand(RHICommand *command)
+    {
+        mCommandLists[mCurrentCommandList].push_back(command);
+    }
+
     //--------------------------------------------------------------------------
 }

@@ -24,18 +24,55 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-
+#include "RHI/T3DRHICommand.h"
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RHIThread : public Runnable, public Object
+    class T3D_ENGINE_API RHIThread : public Runnable, public Object, public Singleton<RHIThread>
     {
     public:
+        RHIThread();
+        ~RHIThread() override;
+        
         bool init() override;
         TResult run() override;
-        void stop() override;
+        void stop() final;
         void exit() override;
+
+        bool isRunning() const { return mIsRunning; }
+
+        void addCommand(RHICommand * command);
+
+    protected:
+        enum
+        {
+            kMaxCommandLists = 2,
+        };
+
+        /// 双缓冲命令队列
+        TArray<TList<RHICommandPtr>>    mCommandLists {};
+        /// 当前线程执行队列序号
+        int32_t                         mCurrentCommandList {0};
+        /// 线程是否在运行
+        bool                            mIsRunning {false};
     };
+
+    #define T3D_RHI_THREAD      (RHIThread::getInstance())
+    
+    #define T3D_ENQUEUE_RHI_COMMAND(CLASS, CALLBACK, PARAMS) \
+        if (T3D_RHI_THREAD.isRunning()) \
+        { \
+            RHICommand##CLASS *command = new RHICommand##CLASS(PARAMS,  CALLBACK); \
+            T3D_RHI_THREAD.addCommand(command); \
+        } \
+        else \
+        { \
+            std:;apply(CALLBACK, PARAMS); \
+        }
+
+    #define T3D_ENQUEUE_UNIQUE_RHI_COMMAND(CLASS, CALLBACK, PARAMS) \
+        T3D_DECLARE_UNIQUE_RHI_COMMAND(CLASS)   \
+        T3D_ENQUEUE_RHI_COMMAND(CLASS, CALLBACK, PARAMS)
 }
 
 

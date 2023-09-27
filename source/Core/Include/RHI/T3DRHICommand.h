@@ -28,13 +28,38 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RHICommand
+    class T3D_ENGINE_API RHICommand : public Object
     {
     public:
         virtual ~RHICommand() = default;
         virtual TResult execute() = 0;
     };
 
+    template<typename... Args>
+    class RHICommandT : RHICommand
+    {
+        using TCallback = TFunction<TResult(Args...)>;
+
+    public:
+        RHICommandT(Args... args, TCallback &&callback)
+            : mArgs(std::make_tuple(args...))
+            , mCallback(std::move(callback))
+        {
+        }
+
+        TResult execute() override
+        {
+            return std::apply(mCallback, mArgs);
+        }
+        
+    private:
+        TTuple<Args...> mArgs;
+        TCallback       mCallback;
+    };
+
+    #define T3D_DECLARE_UNIQUE_RHI_COMMAND(CLASS) \
+        using RHICommand##CLASS = RHICommandT<RHICommand##CLASS>;   \
+        using RHICommand##CLASS##Ptr = SmartPtr<RHICommand##CLASS>;
 }
 
 

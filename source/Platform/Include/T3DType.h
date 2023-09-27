@@ -139,4 +139,7 @@ using TVariant = std::variant<Types...>;
 template <typename T>
 using TAtomic = std::atomic<T>;
 
+template <typename ...Types>
+using TTuple = std::tuple<Types...>;
+
 #endif  /*__T3D_TYPE_H__*/
