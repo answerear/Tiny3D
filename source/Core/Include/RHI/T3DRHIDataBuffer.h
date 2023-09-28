@@ -40,6 +40,8 @@ namespace Tiny3D
          * @param [in]  mode    缓冲区访问方式.
          */
         RHIDataBuffer(size_t bufSize, Usage usage, uint32_t mode);
+
+        ResourceType getResourceType() const override { return ResourceType::kDataBuffer; }
     };
 }
 

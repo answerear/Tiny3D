@@ -38,6 +38,11 @@ namespace Tiny3D
         {
             return mState;
         }
+
+        ResourceType getResourceType() const override
+        {
+            return ResourceType::kBlendState;
+        }
         
     protected:
         RHIBlendState(const BlendState &state);

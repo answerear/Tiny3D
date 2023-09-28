@@ -131,6 +131,8 @@ namespace Tiny3D
     class RHIStateManagerImpl;
     class RHIThread;
     class RHICommand;
+    class RHIBinding;
+    class RHIResource;
 }
 
 

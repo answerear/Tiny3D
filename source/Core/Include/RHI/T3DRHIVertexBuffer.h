@@ -54,6 +54,8 @@ namespace Tiny3D
          */
         size_t getVertexCount() const { return mVertexCount; }
 
+        ResourceType getResourceType() const override { return ResourceType::kVertexBuffer; }
+        
     protected:
         /**
          * @fn  HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize, 

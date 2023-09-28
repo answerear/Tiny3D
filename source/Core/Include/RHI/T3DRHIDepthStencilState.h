@@ -39,6 +39,11 @@ namespace Tiny3D
             return mState;
         }
 
+        ResourceType getResourceType() const override
+        {
+            return ResourceType::kDepthStencilState;
+        }
+        
     protected:
         RHIDepthStencilState(const DepthStencilState &state);
         

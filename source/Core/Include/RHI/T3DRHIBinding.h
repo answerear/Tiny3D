@@ -18,38 +18,32 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_SAMPLER_STATE_H__
-#define __T3D_RHI_SAMPLER_STATE_H__
+#ifndef __T3D_RHI_BINDING_H__
+#define __T3D_RHI_BINDING_H__
 
 
-#include "Render/T3DSamplerState.h"
-#include "RHI/T3DRHIState.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 渲染硬件层的纹理采样状态
-     */
-    class T3D_ENGINE_API RHISamplerState : public RHIState
+    class T3D_ENGINE_API RHIBinding
     {
     public:
-        const SamplerState &getState() const
+        RHIResourcePtr getRHIResource() const
         {
-            return mState;
+            return mResource;
         }
-
-        ResourceType getResourceType() const override
+        
+        void setRHIResource(RHIResourcePtr resource)
         {
-            return ResourceType::kSamplerState;
+            mResource = resource;
         }
         
     protected:
-        RHISamplerState(const SamplerState &state);
-
-        SamplerState    mState {};
+        RHIResourcePtr  mResource;
     };
 }
 
 
-#endif  /*__T3D_RHI_SAMPLER_STATE_H__*/
+#endif  /*__T3D_RHI_BINDING_H__*/

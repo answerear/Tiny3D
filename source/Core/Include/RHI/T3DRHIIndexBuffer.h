@@ -66,6 +66,8 @@ namespace Tiny3D
          */
         size_t getIndexCount() const { return mIndexCount; }
 
+        ResourceType getResourceType() const override { return ResourceType::kIndexBuffer; }
+
     protected:
         /**
          * @brief   构造函数

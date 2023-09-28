@@ -75,6 +75,10 @@ namespace Tiny3D
          * @brief   释放对象，让对象引用计数减一
          */
         void release();
+
+        virtual void _lock();
+
+        virtual void _unlock();
         
     private:
         uint32_t    mReferCount;

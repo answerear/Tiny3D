@@ -18,38 +18,41 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_SAMPLER_STATE_H__
-#define __T3D_RHI_SAMPLER_STATE_H__
+#ifndef __T3D_RHI_RESOURCE_H__
+#define __T3D_RHI_RESOURCE_H__
 
 
-#include "Render/T3DSamplerState.h"
-#include "RHI/T3DRHIState.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的纹理采样状态
+     * \brief 渲染硬件层的颜色混合状态
      */
-    class T3D_ENGINE_API RHISamplerState : public RHIState
+    class T3D_ENGINE_API RHIResource : public Object
     {
     public:
-        const SamplerState &getState() const
-        {
-            return mState;
-        }
+        RHIResource() = default;
+        ~RHIResource() override = default;
 
-        ResourceType getResourceType() const override
+        enum class ResourceType : uint32_t
         {
-            return ResourceType::kSamplerState;
-        }
+            kNone = 0,
+            kBlendState,
+            kDepthStencilState,
+            kRasterizerState,
+            kSamplerState,
+            kVertexBuffer,
+            kIndexBuffer,
+            kPixelBuffer,
+            kDataBuffer
+        };
         
-    protected:
-        RHISamplerState(const SamplerState &state);
-
-        SamplerState    mState {};
+        virtual ResourceType getResourceType() const = 0; 
     };
 }
 
 
-#endif  /*__T3D_RHI_SAMPLER_STATE_H__*/
+#endif  /*__T3D_RHI_RESOURCE_H__*/

@@ -22,8 +22,7 @@
 #define __T3D_RHI_BUFFER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
@@ -32,7 +31,7 @@ namespace Tiny3D
      * @class   RHIBuffer
      * @brief   GPU 硬件缓冲区，用于 CPU 和 GPU 之间数据传递
      */
-    class T3D_ENGINE_API RHIBuffer : public Object
+    class T3D_ENGINE_API RHIBuffer : public RHIResource
     {
     public:
         /**

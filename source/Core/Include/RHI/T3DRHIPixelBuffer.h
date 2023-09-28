@@ -131,6 +131,8 @@ namespace Tiny3D
          */
         PixelFormat getFormat() const { return mFormat; }
 
+        ResourceType getResourceType() const override { return ResourceType::kPixelBuffer; }
+
     protected:
         /**
          * @brief   构造函数
@@ -192,11 +194,11 @@ namespace Tiny3D
         void *lockImpl(size_t offset, size_t size, LockOptions options) override;
 
     protected:
-        size_t      mWidth;     /**< 像素缓冲区的宽度 */
-        size_t      mHeight;    /**< 像素缓冲区的高度 */
-        size_t      mPitch;     /**< 像素缓冲区的行跨度 */
-        size_t      mMipmaps;   /**< mipmaps level */
-        PixelFormat mFormat;    /**< 像素缓冲区的格式 */
+        size_t mWidth;       /**< 像素缓冲区的宽度 */
+        size_t mHeight;      /**< 像素缓冲区的高度 */
+        size_t mPitch;       /**< 像素缓冲区的行跨度 */
+        size_t mMipmaps;     /**< mipmaps level */
+        PixelFormat mFormat; /**< 像素缓冲区的格式 */
     };
 }
 

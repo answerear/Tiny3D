@@ -22,8 +22,7 @@
 #define __T3D_RHI_STATE_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DRHIConstant.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
@@ -46,7 +45,7 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件层的状态
      */
-    class T3D_ENGINE_API RHIState : public Object
+    class T3D_ENGINE_API RHIState : public RHIResource
     {
     public:
         uint32_t hash() const

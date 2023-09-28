@@ -256,7 +256,8 @@ namespace Tiny3D
             return (T*)mReferObject;
         }
     protected:
-        Object  *mReferObject;  /**< The refer object */
+        /**< The refer object */
+        Object      *mReferObject {nullptr};
     };
 
     template <typename T1, typename T2>
