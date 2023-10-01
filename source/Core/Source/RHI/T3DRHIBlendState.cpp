@@ -25,10 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIBlendState::RHIBlendState(const BlendState &state)
-        : mState(state)
+    RHIBlendState::RHIBlendState() 
     {
-        mHash = calcCRC(state);
     }
 
     //--------------------------------------------------------------------------

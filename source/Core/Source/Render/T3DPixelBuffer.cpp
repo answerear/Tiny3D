@@ -18,45 +18,45 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_STATE_H__
-#define __T3D_RHI_STATE_H__
-
-
-#include "RHI/T3DRHIResource.h"
+#include "Render/T3DPixelBuffer.h"
 
 
 namespace Tiny3D
 {
-    template <typename T>
-    uint8_t *getCRCData(const T &state, uint32_t &dataSize)
+    //--------------------------------------------------------------------------
+
+    PixelBufferPtr PixelBuffer::create(const Buffer &buffer)
     {
-        dataSize = sizeof(T);
-        return (uint8_t*)(&state);
+        return new PixelBuffer(buffer);
     }
 
-    template <typename T>
-    uint32_t calcCRC(const T &state)
+    //--------------------------------------------------------------------------
+
+    PixelBuffer::PixelBuffer(const Buffer &buffer)
     {
-        uint32_t dataSize = 0;
-        uint8_t *data = getCRCData(state, dataSize);
-        return CRC::crc32(data, dataSize);
-    }
-    
-    /**
-     * \brief 渲染硬件层的状态
-     */
-    class T3D_ENGINE_API RHIState : public RHIResource
-    {
-    public:
-        uint32_t hash() const
-        {
-            return mHash;
-        }
         
-    protected:
-        uint32_t    mHash = 0;
-    };
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type PixelBuffer::getType() const
+    {
+        return Type::kPixelBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBuffer::onLoad()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBuffer::onUnload()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_RHI_STATE_H__*/

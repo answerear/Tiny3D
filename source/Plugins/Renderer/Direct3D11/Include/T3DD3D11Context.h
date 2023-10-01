@@ -62,13 +62,13 @@ namespace Tiny3D
 
         TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
-        RHIBlendStatePtr createBlendState(const BlendState &state) override;
+        RHIBlendStatePtr createBlendState(const BlendDesc &desc) override;
 
-        RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilState &state) override;
+        RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilDesc &desc) override;
 
-        RHIRasterizerStatePtr createRasterizerState(const RasterizerState &state) override;
+        RHIRasterizerStatePtr createRasterizerState(const RasterizerDesc &desc) override;
 
-        RHISamplerStatePtr createSamplerState(const SamplerState &state) override;
+        RHISamplerStatePtr createSamplerState(const SamplerDesc &desc) override;
 
         TResult setBlendState(RHIBlendStatePtr state) override;
 

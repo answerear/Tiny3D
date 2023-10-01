@@ -19,3 +19,34 @@
 
 
 #include "Render/T3DTextureState.h"
+#include "Render/T3DRenderResourceManager.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    TextureStatePtr TextureState::create()
+    {
+        return new TextureState();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void TextureState::setSamplerDesc(const SamplerDesc &desc)
+    {
+        uint32_t hashSrc = CRC::crc32((uint8_t*)&mSamplerDesc, sizeof(mSamplerDesc));
+        uint32_t hashDst = CRC::crc32((uint8_t*)&desc, sizeof(desc));
+
+        if (hashSrc != hashDst || mSamplerState == nullptr)
+        {
+            mSamplerDesc = desc;
+
+            // 新生成一个 sampler state 对象
+            mSamplerState = T3D_RENDER_STATE_MGR.loadSamplerState(mSamplerDesc, hashDst);
+        }
+        
+    }
+    
+    //--------------------------------------------------------------------------
+}

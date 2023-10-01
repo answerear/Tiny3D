@@ -18,7 +18,6 @@
  ******************************************************************************/
 
 #include "Resource/T3DTexture.h"
-#include "RHI/T3DRHIStateManager.h"
 
 
 namespace Tiny3D

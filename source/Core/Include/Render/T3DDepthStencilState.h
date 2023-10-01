@@ -22,8 +22,9 @@
 #define __T3D_DEPTH_STENCIL_STATE_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Render/T3DRenderResource.h"
 #include "RHI/T3DRHIConstant.h"
+#include "RHI/T3DRHIDepthStencilState.h"
 
 
 namespace Tiny3D
@@ -32,7 +33,7 @@ namespace Tiny3D
      * \brief 深度缓冲和模板缓冲状态
      */
     TSTRUCT()
-    struct T3D_ENGINE_API DepthStencilState
+    struct T3D_ENGINE_API DepthStencilDesc
     {
         TSTRUCT()
         struct T3D_ENGINE_API StencilOpDesc
@@ -78,6 +79,25 @@ namespace Tiny3D
         // Back face
         TPROPERTY()
         StencilOpDesc   BackFace;
+    };
+
+    class T3D_ENGINE_API DepthStencilState : public RenderStateResource<DepthStencilDesc, RHIDepthStencilState>
+    {
+    public:
+        static DepthStencilStatePtr create(const DepthStencilDesc &desc, uint32_t hash = 0);
+        
+        Type getType() const override;
+
+    protected:
+        DepthStencilState(uint32_t hash, const DepthStencilDesc &desc);
+        
+        ~DepthStencilState() override = default;
+
+        bool onLoad() override;
+
+        bool onUnload() override;
+
+        RHIDepthStencilStatePtr mRHIState {nullptr};
     };
 }
 

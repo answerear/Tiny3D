@@ -19,3 +19,49 @@
 
 
 #include "Render/T3DRasterizerState.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+
+
+namespace  Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    RasterizerStatePtr RasterizerState::create(const RasterizerDesc &desc, uint32_t hash)
+    {
+        return new RasterizerState(hash, desc);
+    }
+
+    //--------------------------------------------------------------------------
+
+    RasterizerState::RasterizerState(uint32_t hash, const RasterizerDesc &desc)
+        : RenderStateResource(hash, desc)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type RasterizerState::getType() const
+    {
+        return Type::kBlendState;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RasterizerState::onLoad()
+    {
+        mRHIState = T3D_AGENT.getActiveRHIContext()->createRasterizerState(mDesc);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RasterizerState::onUnload()
+    {
+        mRHIState = nullptr;
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+}

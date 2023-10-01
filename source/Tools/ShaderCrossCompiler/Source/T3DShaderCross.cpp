@@ -456,7 +456,7 @@ namespace Tiny3D
         }
 
         // render states
-        RenderState state;
+        RenderStatePtr state = RenderState::create();
         ret = ret && translate(src.state, state);
 
         // program
@@ -472,13 +472,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLShaderState& src, RenderState &state)
+    bool ShaderCross::translate(const shaderlab::SLShaderState& src, RenderStatePtr state)
     {
         bool ret = true;
 
+        BlendDesc blend;
         // alpha to mask
         // dst->set_alpha2mask((bool)src.alphaToMask.val);
-        state.Blend.AlphaToCoverageEnable = src.alphaToMask.val;
+        blend.AlphaToCoverageEnable = src.alphaToMask.val;
 
         // blend
         // auto blend = dst->mutable_blend();
@@ -487,36 +488,43 @@ namespace Tiny3D
         // blend_state->set_dst_rgb(getBlendFactor(src.destBlend));
         // blend_state->set_src_alpha(getBlendFactor(src.srcBlendAlpha));
         // blend_state->set_dst_alpha(getBlendFactor(src.destBlendAlpha));
-        state.Blend.RenderTargetStates[0].SrcBlend = getBlendFactor(src.srcBlend);
-        state.Blend.RenderTargetStates[0].DestBlend = getBlendFactor(src.destBlend);
-        state.Blend.RenderTargetStates[0].SrcBlendAlpha = getBlendFactor(src.srcBlendAlpha);
-        state.Blend.RenderTargetStates[0].DstBlendAlpha = getBlendFactor(src.destBlendAlpha);
+        blend.RenderTargetStates[0].SrcBlend = getBlendFactor(src.srcBlend);
+        blend.RenderTargetStates[0].DestBlend = getBlendFactor(src.destBlend);
+        blend.RenderTargetStates[0].SrcBlendAlpha = getBlendFactor(src.srcBlendAlpha);
+        blend.RenderTargetStates[0].DstBlendAlpha = getBlendFactor(src.destBlendAlpha);
 
         // blend op
         // dst->set_blend_op(getBlendOp(src.blendOp));
-        state.Blend.RenderTargetStates[0].BlendOp = getBlendOp(src.blendOp);
+        blend.RenderTargetStates[0].BlendOp = getBlendOp(src.blendOp);
 
         // color mask
         // auto colorMask = dst->mutable_color_mask();
         // auto color_mask_state = colorMask->mutable_state1();
         // color_mask_state->set_channels(src.colMask.val);
-        state.Blend.RenderTargetStates[0].ColorMask = src.colMask.val;
+        blend.RenderTargetStates[0].ColorMask = src.colMask.val;
 
+        state->setBlendDesc(blend);
+
+        RasterizerDesc rasterizer;
         // conservative
         // dst->set_conservative(false);
-        state.Rasterizer.Conservative = false;
+        rasterizer.Conservative = false;
         
         // culling
         // dst->set_cull(getCulling(src.culling));
-        state.Rasterizer.CullMode = getCulling(src.culling);
+        rasterizer.CullMode = getCulling(src.culling);
 
         // depth bias
         // auto depth_bias = dst->mutable_depth_bias();
         // depth_bias->set_factor(src.offsetFactor.val);
         // depth_bias->set_units(src.offsetUnits.val);
-        state.Rasterizer.DepthBias = 0;//src.offsetUnits.val;
-        state.Rasterizer.SlopeScaledDepthBias = 0;//src.offsetFactor.val;
+        rasterizer.DepthBias = 0;                  // src.offsetUnits.val;
+        rasterizer.SlopeScaledDepthBias = 0; // src.offsetFactor.val;
         
+        state->setRasterizerDesc(rasterizer);
+
+        DepthStencilDesc depthStencil;
+
         // stencil
         // auto stencil = dst->mutable_stencil();
         // stencil->set_ref(src.stencilRef.val);
@@ -528,33 +536,35 @@ namespace Tiny3D
         // ret = ret && translate(src.stencilOpBack, stencil_op_back);
         // auto stencil_op_front = stencil->mutable_op_front();
         // ret = ret && translate(src.stencilOpFront, stencil_op_front);
-        state.DepthStencil.StencilRef = src.stencilRef.val;
-        state.DepthStencil.StencilReadMask = src.stencilReadMask.val;
-        state.DepthStencil.StencilWriteMask = src.stencilWriteMask.val;
-        translate(src.stencilOpFront, state.DepthStencil.FrontFace);
+        depthStencil.StencilRef = src.stencilRef.val;
+        depthStencil.StencilReadMask = src.stencilReadMask.val;
+        depthStencil.StencilWriteMask = src.stencilWriteMask.val;
+        translate(src.stencilOpFront, depthStencil.FrontFace);
 
         // z clip
         // dst->set_z_clip(true);
         shaderlab::CompareFunction c = (shaderlab::CompareFunction)src.zTest.val;
         if (c != shaderlab::CompareFunction::kFuncDisabled)
         {
-            state.DepthStencil.DepthTestEnable = true;
+            depthStencil.DepthTestEnable = true;
         }
         
         // z test
         // dst->set_z_test(getCompare(src.zTest));
-        state.DepthStencil.DepthFunc = getCompare(src.zTest);
+        depthStencil.DepthFunc = getCompare(src.zTest);
 
         // z write
         // dst->set_z_write((bool)src.zWrite.val);
-        state.DepthStencil.DepthWriteEnable = src.zWrite.val;
+        depthStencil.DepthWriteEnable = src.zWrite.val;
+
+        state->setDepthStencilDesc(depthStencil);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLStencilOperation& src, DepthStencilState::StencilOpDesc &dst)
+    bool ShaderCross::translate(const shaderlab::SLStencilOperation& src, DepthStencilDesc::StencilOpDesc &dst)
     {
         // dst->set_comp(getCompare(src.comp));
         // dst->set_pass(getStencilOp(src.pass));

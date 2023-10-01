@@ -25,10 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIRasterizerState::RHIRasterizerState(const RasterizerState &state)
-        : mState(state)
+    RHIRasterizerState::RHIRasterizerState()
     {
-        mHash = calcCRC(state);
     }
 
     //--------------------------------------------------------------------------

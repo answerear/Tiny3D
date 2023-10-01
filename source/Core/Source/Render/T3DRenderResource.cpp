@@ -17,66 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Object/T3DObject.h"
-#include "Object/T3DObjectTracer.h"
+
+#include "Render/T3DRenderResource.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Object::Object()
-        : mReferCount(0)
-    {
-        ObjectTracer::getInstance().addObject(this);
-    }
 
-    //--------------------------------------------------------------------------
-
-    Object::~Object()
-    {
-        ObjectTracer::getInstance().removeObject(this);
-    }
-
-    //--------------------------------------------------------------------------
-
-    Object *Object::acquire()
-    {
-        ++mReferCount;
-        return this;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Object::release()
-    {
-        if (--mReferCount == 0)
-        {
-            delete this;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Object::onPreSave()
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Object::onPostSave()
-    {
-        return true;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    bool Object::onPostLoad()
-    {
-        return true;
-    }
-    
     //--------------------------------------------------------------------------
 }
-

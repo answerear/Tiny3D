@@ -22,8 +22,9 @@
 #define __T3D_SAMPLER_STATE_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Render/T3DRenderResource.h"
 #include "RHI/T3DRHIConstant.h"
+#include "RHI/T3DRHISamplerState.h"
 
 
 namespace Tiny3D
@@ -32,7 +33,7 @@ namespace Tiny3D
      * \brief 纹理采样状态
      */
     TSTRUCT()
-    struct T3D_ENGINE_API SamplerState
+    struct T3D_ENGINE_API SamplerDesc
     {
         TPROPERTY()
         FilterOptions       MinFilter;
@@ -69,6 +70,25 @@ namespace Tiny3D
         
         TPROPERTY()
         Real                MaxLOD;
+    };
+
+    class T3D_ENGINE_API SamplerState : public RenderStateResource<SamplerDesc, RHISamplerState>
+    {
+    public:
+        static SamplerStatePtr create(const SamplerDesc &desc, uint32_t hash = 0);
+        
+        Type getType() const override;
+        
+    protected:
+        SamplerState(uint32_t hash, const SamplerDesc &desc);
+
+        ~SamplerState() override = default;
+        
+        bool onLoad() override;
+
+        bool onUnload() override;
+
+        RHISamplerStatePtr  mRHIState {nullptr};
     };
 }
 

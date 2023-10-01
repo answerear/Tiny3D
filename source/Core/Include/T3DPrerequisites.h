@@ -105,6 +105,27 @@ namespace Tiny3D
     class RenderQueue;
     class RenderPipeline;
     class ForwardRenderPipeline;
+
+    class RenderResource;
+    
+    class BlendState;
+    class DepthStencilState;
+    class RasterizerState;
+    class SamplerState;
+    class RenderState;
+    class TextureState;
+    class RenderBuffer;
+    class VertexBuffer;
+    class IndexBuffer;
+    class PixelBuffer;
+    class DataBuffer;
+
+    class RenderStateManager;
+    class RenderBufferManager;
+    class VertexBufferManager;
+    class IndexBufferManager;
+    class PixelBufferManager;
+    class DataBufferManager;
     
     class RHIRenderTarget;
     class RHIRenderWindow;

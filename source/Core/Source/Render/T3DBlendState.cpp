@@ -19,3 +19,49 @@
 
 
 #include "Render/T3DBlendState.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+
+
+namespace  Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    BlendStatePtr BlendState::create(const BlendDesc &desc, uint32_t hash)
+    {
+        return new BlendState(hash, desc);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    BlendState::BlendState(uint32_t hash, const BlendDesc &desc)
+        : RenderStateResource(hash, desc)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type BlendState::getType() const
+    {
+        return Type::kBlendState;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BlendState::onLoad()
+    {
+        mRHIState = T3D_AGENT.getActiveRHIContext()->createBlendState(mDesc);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BlendState::onUnload()
+    {
+        mRHIState = nullptr;
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+}

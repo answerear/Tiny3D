@@ -23,7 +23,7 @@
 
 
 #include "Render/T3DDepthStencilState.h"
-#include "RHI/T3DRHIState.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
@@ -31,23 +31,16 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件的深度缓冲和模板缓冲状态
      */
-    class T3D_ENGINE_API RHIDepthStencilState : public RHIState
+    class T3D_ENGINE_API RHIDepthStencilState : public RHIResource
     {
     public:
-        const DepthStencilState &getState() const
-        {
-            return mState;
-        }
-
         ResourceType getResourceType() const override
         {
             return ResourceType::kDepthStencilState;
         }
         
     protected:
-        RHIDepthStencilState(const DepthStencilState &state);
-        
-        DepthStencilState   mState {};
+        RHIDepthStencilState();
     };
 }
 

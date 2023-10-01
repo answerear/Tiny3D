@@ -72,13 +72,13 @@ namespace Tiny3D
         }
         
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="getter")
-        const RenderState &getRenderState() const
+        RenderStatePtr getRenderState() const
         {
             return mRenderState;
         }
 
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="setter")
-        void setRenderState(const RenderState &state)
+        void setRenderState(RenderStatePtr state)
         {
             mRenderState = state;
         }
@@ -178,7 +178,7 @@ namespace Tiny3D
         /// Tags
         ShaderLabTags       mTags {};
         /// 渲染状态
-        RenderState         mRenderState {};
+        RenderStatePtr      mRenderState {nullptr};
         /// 本 pass 着色器用到的所有宏
         ShaderKeywords      mKeywords {};
         /// 本 pass 所有 Vertex Shader 变体

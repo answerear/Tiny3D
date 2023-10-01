@@ -25,10 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIDepthStencilState::RHIDepthStencilState(const DepthStencilState &state)
-        : mState(state)
+    RHIDepthStencilState::RHIDepthStencilState()
     {
-        mHash = calcCRC(state);
     }
 
     //--------------------------------------------------------------------------

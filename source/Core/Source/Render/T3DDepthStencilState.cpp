@@ -19,3 +19,48 @@
 
 
 #include "Render/T3DDepthStencilState.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+
+
+namespace  Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    DepthStencilStatePtr DepthStencilState::create(const DepthStencilDesc &desc, uint32_t hash)
+    {
+        return new DepthStencilState(hash, desc);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    DepthStencilState::DepthStencilState(uint32_t hash, const DepthStencilDesc &desc)
+        : RenderStateResource(hash, desc)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type DepthStencilState::getType() const
+    {
+        return Type::kBlendState;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool DepthStencilState::onLoad()
+    {
+        mRHIState = T3D_AGENT.getActiveRHIContext()->createDepthStencilState(mDesc);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool DepthStencilState::onUnload()
+    {
+        mRHIState = nullptr;
+        return true;
+    }
+    //--------------------------------------------------------------------------
+}

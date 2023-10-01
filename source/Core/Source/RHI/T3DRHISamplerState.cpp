@@ -25,10 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHISamplerState::RHISamplerState(const SamplerState &state)
-        : mState(state)
+    RHISamplerState::RHISamplerState()
     {
-        mHash = calcCRC(state);
     }
 
     //--------------------------------------------------------------------------

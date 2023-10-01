@@ -536,6 +536,12 @@ namespace Tiny3D
                         }
                     }
                 }
+
+                if (klass.is_derived_from<Tiny3D::Object>())
+                {
+                    auto postLoad = klass.get_method("onPostLoad");
+                    postLoad.invoke(obj);
+                }
             } while (false);
 
             return ret;

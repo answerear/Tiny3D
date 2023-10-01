@@ -23,7 +23,7 @@
 
 
 #include "Render/T3DSamplerState.h"
-#include "RHI/T3DRHIState.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
@@ -31,23 +31,16 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件层的纹理采样状态
      */
-    class T3D_ENGINE_API RHISamplerState : public RHIState
+    class T3D_ENGINE_API RHISamplerState : public RHIResource
     {
     public:
-        const SamplerState &getState() const
-        {
-            return mState;
-        }
-
         ResourceType getResourceType() const override
         {
             return ResourceType::kSamplerState;
         }
         
     protected:
-        RHISamplerState(const SamplerState &state);
-
-        SamplerState    mState {};
+        RHISamplerState();
     };
 }
 

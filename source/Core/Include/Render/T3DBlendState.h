@@ -22,8 +22,9 @@
 #define __T3D_BLEND_STATE_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Render/T3DRenderResource.h"
 #include "RHI/T3DRHIConstant.h"
+#include "RHI/T3DRHIBlendState.h"
 
 
 namespace Tiny3D
@@ -32,7 +33,7 @@ namespace Tiny3D
      * \brief 颜色混合状态
      */
     TSTRUCT()
-    struct T3D_ENGINE_API BlendState
+    struct T3D_ENGINE_API BlendDesc
     {
         enum
         {
@@ -40,7 +41,7 @@ namespace Tiny3D
         };
 
         TSTRUCT()
-        struct T3D_ENGINE_API RTBlendState
+        struct T3D_ENGINE_API RTBlendDesc
         {
             TPROPERTY()
             bool            BlendEnable = false;
@@ -74,7 +75,26 @@ namespace Tiny3D
         bool    IndependentBlendEnable = false;
         
         TPROPERTY()
-        RTBlendState    RenderTargetStates[kMaxRenderTarget]{};
+        RTBlendDesc    RenderTargetStates[kMaxRenderTarget]{};
+    };
+
+    class T3D_ENGINE_API BlendState : public RenderStateResource<BlendDesc, RHIBlendState>
+    {
+    public:
+        static BlendStatePtr create(const BlendDesc &desc, uint32_t hash = 0);
+
+        Type getType() const override;
+        
+    protected:
+        BlendState(uint32_t hash, const BlendDesc &desc);
+
+        ~BlendState() override = default;
+        
+        bool onLoad() override;
+
+        bool onUnload() override;
+
+        RHIBlendStatePtr    mRHIState {nullptr};
     };
 }
 

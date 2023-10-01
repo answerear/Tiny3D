@@ -22,8 +22,9 @@
 #define __T3D_RASTERIZER_STATE_H__
 
 
-#include "T3DPrerequisites.h"
+#include "Render/T3DRenderResource.h"
 #include "RHI/T3DRHIConstant.h"
+#include "RHI/T3DRHIRasterizerState.h"
 
 
 namespace Tiny3D
@@ -32,7 +33,7 @@ namespace Tiny3D
      * \brief 光栅化状态
      */
     TSTRUCT()
-    struct T3D_ENGINE_API RasterizerState
+    struct T3D_ENGINE_API RasterizerDesc
     {
         TPROPERTY()
         PolygonMode FillMode;
@@ -63,6 +64,25 @@ namespace Tiny3D
 
         TPROPERTY()
         bool        Conservative;
+    };
+
+    class T3D_ENGINE_API RasterizerState : public RenderStateResource<RasterizerDesc, RHIRasterizerState>
+    {
+    public:
+        static RasterizerStatePtr create(const RasterizerDesc &desc, uint32_t hash = 0);
+        
+        Type getType() const override;
+
+    protected:
+        RasterizerState(uint32_t hash, const RasterizerDesc &desc);
+
+        ~RasterizerState() override = default;
+        
+        bool onLoad() override;
+
+        bool onUnload() override;
+
+        RHIRasterizerStatePtr   mRHIState {nullptr};
     };
 }
 

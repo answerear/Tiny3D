@@ -84,22 +84,22 @@ namespace Tiny3D
         return T3D_OK;
     }
 
-    RHIBlendStatePtr D3D11Context::createBlendState(const BlendState &state)
+    RHIBlendStatePtr D3D11Context::createBlendState(const BlendDesc &desc)
     {
         return nullptr;
     }
 
-    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(const DepthStencilState &state)
+    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(const DepthStencilDesc &desc)
     {
         return nullptr;
     }
 
-    RHIRasterizerStatePtr D3D11Context::createRasterizerState(const RasterizerState &state)
+    RHIRasterizerStatePtr D3D11Context::createRasterizerState(const RasterizerDesc &desc)
     {
         return nullptr;
     }
 
-    RHISamplerStatePtr D3D11Context::createSamplerState(const SamplerState &state)
+    RHISamplerStatePtr D3D11Context::createSamplerState(const SamplerDesc &desc)
     {
         return nullptr;
     }

@@ -24,6 +24,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DSettings.h"
+#include "Render/T3DRenderResourceManager.h"
 
 
 namespace Tiny3D
@@ -85,6 +86,8 @@ namespace Tiny3D
         TResult setActiveRHIRenderer(RHIRendererPtr renderer);
 
         RHIRendererPtr getActiveRHIRenderer() const;
+
+        RHIContextPtr getActiveRHIContext() const;
      
         /**
          * @fn  TResult Agent::addRenderer(RenderContextPtr renderer);
@@ -162,8 +165,9 @@ namespace Tiny3D
         DylibManagerPtr         mDylibMgr {nullptr};
         PrefabManagerPtr        mPrefabMgr {nullptr};
         ShaderManagerPtr        mShaderMgr {nullptr};
-        RHIStateManagerPtr      mRHIStateMgr {nullptr};
 
+        RenderStateManagerPtr   mRenderStateMgr {nullptr};
+        
         ArchivePtr              mInternalArchive {nullptr};
         ArchivePtr              mProjectArchive {nullptr};
         

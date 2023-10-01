@@ -17,66 +17,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Object/T3DObject.h"
-#include "Object/T3DObjectTracer.h"
+
+#include "Render/T3DVertexBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Object::Object()
-        : mReferCount(0)
+    VertexBufferPtr VertexBuffer::create(const Buffer &buffer)
     {
-        ObjectTracer::getInstance().addObject(this);
+        return new VertexBuffer(buffer);
     }
 
     //--------------------------------------------------------------------------
 
-    Object::~Object()
+    VertexBuffer::VertexBuffer(const Buffer &buffer)
     {
-        ObjectTracer::getInstance().removeObject(this);
+        
     }
 
     //--------------------------------------------------------------------------
 
-    Object *Object::acquire()
+    RenderResource::Type VertexBuffer::getType() const
     {
-        ++mReferCount;
-        return this;
+        return Type::kVertexBuffer;
     }
 
     //--------------------------------------------------------------------------
 
-    void Object::release()
-    {
-        if (--mReferCount == 0)
-        {
-            delete this;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Object::onPreSave()
+    bool VertexBuffer::onLoad()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool Object::onPostSave()
+    bool VertexBuffer::onUnload()
     {
         return true;
     }
-    
-    //--------------------------------------------------------------------------
 
-    bool Object::onPostLoad()
-    {
-        return true;
-    }
-    
     //--------------------------------------------------------------------------
 }
-

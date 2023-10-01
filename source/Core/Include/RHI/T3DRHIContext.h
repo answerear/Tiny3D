@@ -24,15 +24,19 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "RHI/T3DRHIBlendState.h"
+#include "RHI/T3DRHIDepthStencilState.h"
+#include "RHI/T3DRHIRasterizerState.h"
+#include "RHI/T3DRHISamplerState.h"
 
 
 namespace Tiny3D
 {
     class Viewport;
-    struct BlendState;
-    struct DepthStencilState;
-    struct RasterizerState;
-    struct SamplerState;
+    // struct BlendState;
+    // struct DepthStencilState;
+    // struct RasterizerState;
+    // struct SamplerState;
 
     /**
      * @enum    TransformState
@@ -113,13 +117,13 @@ namespace Tiny3D
 
         virtual TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
 
-        virtual RHIBlendStatePtr createBlendState(const BlendState &state) = 0;
+        virtual RHIBlendStatePtr createBlendState(const BlendDesc &desc) = 0;
 
-        virtual RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilState &state) = 0;
+        virtual RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilDesc &desc) = 0;
 
-        virtual RHIRasterizerStatePtr createRasterizerState(const RasterizerState &state) = 0;
+        virtual RHIRasterizerStatePtr createRasterizerState(const RasterizerDesc &desc) = 0;
 
-        virtual RHISamplerStatePtr createSamplerState(const SamplerState &state) = 0;
+        virtual RHISamplerStatePtr createSamplerState(const SamplerDesc &desc) = 0;
 
         virtual TResult setBlendState(RHIBlendStatePtr state) = 0;
 

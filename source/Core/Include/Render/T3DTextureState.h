@@ -28,24 +28,33 @@
 
 namespace Tiny3D
 {
-    TSTRUCT()
-    struct T3D_ENGINE_API TextureState
+    TCLASS()
+    class T3D_ENGINE_API TextureState : public Object
     {
-        TPROPERTY(RTTRFuncName="SamplerState", RTTRFuncType="getter")
-        const SamplerState &getSamplerState() const { return Sampler; }
+    public:
+        static TextureStatePtr create();
 
-        TPROPERTY(RTTRFuncName="SamplerState", RTTRFuncType="setter")
-        void setSamplerState(const SamplerState &state) { Sampler = state; }
+        SamplerStatePtr getSamplerSTate() const { return mSamplerState; }
 
-        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="getter")
+        TexturePtr getTexture() const { return mTexture; }
+        
+        TPROPERTY(RTTRFuncName="SamplerDesc", RTTRFuncType="getter")
+        const SamplerDesc &getSamplerDesc() const { return mSamplerDesc; }
+
+        TPROPERTY(RTTRFuncName="SamplerDesc", RTTRFuncType="setter")
+        void setSamplerDesc(const SamplerDesc &desc);
+
+        TPROPERTY(RTTRFuncName="TextureName", RTTRFuncType="getter")
         const String &getTextureName() const { return TexName; }
 
-        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="TextureName", RTTRFuncType="setter")
         void setTextureName(const String &name) { TexName = name; }
 
-        SamplerState        Sampler {};
+    protected:
         String              TexName {};
-        TexturePtr          Tex {nullptr};
+        SamplerDesc         mSamplerDesc {};
+        SamplerStatePtr     mSamplerState {nullptr};
+        TexturePtr          mTexture {nullptr};
     };
 }
 

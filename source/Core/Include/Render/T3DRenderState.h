@@ -29,30 +29,47 @@
 
 namespace Tiny3D
 {
-    TSTRUCT()
-    struct T3D_ENGINE_API RenderState
+    TCLASS()
+    class T3D_ENGINE_API RenderState : public Object
     {
-        TPROPERTY(RTTRFuncName="BlendState", RTTRFuncType="getter")
-        const BlendState &getBlendState() const { return Blend; }
-
-        TPROPERTY(RTTRFuncName="BlendState", RTTRFuncType="setter")
-        void setBlendState(const BlendState &state) { Blend = state; }
-
-        TPROPERTY(RTTRFuncName="DepthStencilState", RTTRFuncType="getter")
-        const DepthStencilState &getDepthStencil() const { return DepthStencil; }
-
-        TPROPERTY(RTTRFuncName="DepthStencilState", RTTRFuncType="setter")
-        void setDepthStencilState(const DepthStencilState &state) { DepthStencil = state; }
-
-        TPROPERTY(RTTRFuncName="RasterizerState", RTTRFuncType="getter")
-        const RasterizerState &getRasterizerState() const { return Rasterizer; }
-
-        TPROPERTY(RTTRFuncName="RasterizerState", RTTRFuncType="setter")
-        void setRasterizerState(const RasterizerState &state) { Rasterizer = state; }
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
         
-        BlendState        Blend {};
-        DepthStencilState DepthStencil {};
-        RasterizerState   Rasterizer{};
+    public:
+        static RenderStatePtr create();
+        
+        BlendStatePtr getBlendState() const { return mBlendState; }
+
+        DepthStencilStatePtr getDepthStencilState() const { return mDepthStencilState; }
+
+        RasterizerStatePtr getRasterizerState() const { return mRasterizerState; }
+        
+        TPROPERTY(RTTRFuncName="BlendDesc", RTTRFuncType="getter")
+        const BlendDesc &getBlendDesc() const { return mBlendDesc; }
+
+        TPROPERTY(RTTRFuncName="BlendDesc", RTTRFuncType="setter")
+        void setBlendDesc(const BlendDesc &desc);
+
+        TPROPERTY(RTTRFuncName="DepthStencilDesc", RTTRFuncType="getter")
+        const DepthStencilDesc &getDepthStencilDesc() const { return mDepthStencilDesc; }
+
+        TPROPERTY(RTTRFuncName="DepthStencilDesc", RTTRFuncType="setter")
+        void setDepthStencilDesc(const DepthStencilDesc &desc);
+
+        TPROPERTY(RTTRFuncName="RasterizerDesc", RTTRFuncType="getter")
+        const RasterizerDesc &getRasterizerDesc() const { return mRasterizerDesc; }
+
+        TPROPERTY(RTTRFuncName="RasterizerDesc", RTTRFuncType="setter")
+        void setRasterizerDesc(const RasterizerDesc &desc);
+
+    protected:
+        BlendDesc           mBlendDesc {};
+        DepthStencilDesc    mDepthStencilDesc {};
+        RasterizerDesc      mRasterizerDesc{};
+
+        BlendStatePtr           mBlendState {nullptr};
+        DepthStencilStatePtr    mDepthStencilState {nullptr};
+        RasterizerStatePtr      mRasterizerState {nullptr};
     };
 }
 

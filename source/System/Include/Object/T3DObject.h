@@ -76,10 +76,12 @@ namespace Tiny3D
          */
         void release();
 
-        virtual void _lock();
+        virtual bool onPreSave();
 
-        virtual void _unlock();
+        virtual bool onPostSave();
         
+        virtual bool onPostLoad();
+
     private:
         uint32_t    mReferCount;
     };

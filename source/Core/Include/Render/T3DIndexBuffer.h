@@ -18,11 +18,32 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIBinding.h"
+#ifndef __T3D_INDEX_BUFFER_H__
+#define __T3D_INDEX_BUFFER_H__
+
+
+#include "Render/T3DRenderBuffer.h"
 
 
 namespace Tiny3D
 {
+    class T3D_ENGINE_API IndexBuffer : public RenderBuffer
+    {
+    public:
+        static IndexBufferPtr create(const Buffer &buffer);
+        
+        ~IndexBuffer() override = default;
 
+        Type getType() const override;
+        
+    protected:
+        IndexBuffer(const Buffer &buffer);
+
+        bool onLoad() override;
+
+        bool onUnload() override;
+    };
 }
 
+
+#endif  /*__T3D_INDEX_BUFFER_H__*/

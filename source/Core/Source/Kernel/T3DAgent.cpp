@@ -34,7 +34,6 @@
 #include "RHI/T3DRHIRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIStateManager.h"
 #include "Material/T3DShaderVariant.h"
 
 
@@ -63,6 +62,8 @@ namespace Tiny3D
     {
         mInternalArchive = nullptr;
         mProjectArchive = nullptr;
+
+        mRenderStateMgr = nullptr;
         
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
@@ -92,7 +93,6 @@ namespace Tiny3D
             mDylibMgr = nullptr;
         }
 
-        mRHIStateMgr = nullptr;
         mSerializerMgr = nullptr;
         mArchiveMgr = nullptr;
         
@@ -805,10 +805,10 @@ namespace Tiny3D
         mArchiveMgr = ArchiveManager::create();
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
+        mRenderStateMgr = RenderStateManager::create();
         mDylibMgr = DylibManager::create();      
         mPrefabMgr = PrefabManager::create();
         mShaderMgr = ShaderManager::create();
-        mRHIStateMgr = RHIStateManager::create();
         
         return T3D_OK;
     }
@@ -987,6 +987,13 @@ namespace Tiny3D
     RHIRendererPtr Agent::getActiveRHIRenderer() const
     {
         return mActiveRHIRenderer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIContextPtr Agent::getActiveRHIContext() const 
+    { 
+        return mActiveRHIRenderer->getContext();
     }
 
     //--------------------------------------------------------------------------

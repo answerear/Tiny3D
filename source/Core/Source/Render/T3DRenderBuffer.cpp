@@ -18,31 +18,4 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RASTERIZER_STATE_H__
-#define __T3D_RHI_RASTERIZER_STATE_H__
-
-
-#include "Render/T3DRasterizerState.h"
-#include "RHI/T3DRHIResource.h"
-
-
-namespace Tiny3D
-{
-    /**
-     * \brief 渲染硬件层的光栅化状态
-     */
-    class T3D_ENGINE_API RHIRasterizerState : public RHIResource
-    {
-    public:
-        ResourceType getResourceType() const override
-        {
-            return ResourceType::kRasterizerState;
-        }
-        
-    protected:
-        RHIRasterizerState();
-    };
-}
-
-
-#endif  /*__T3D_RHI_RASTERIZER_STATE_H__*/
+#include "Render/T3DRenderBuffer.h"

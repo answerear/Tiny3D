@@ -18,31 +18,32 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RASTERIZER_STATE_H__
-#define __T3D_RHI_RASTERIZER_STATE_H__
+#ifndef __T3D_DATA_BUFFER_H__
+#define __T3D_DATA_BUFFER_H__
 
 
-#include "Render/T3DRasterizerState.h"
-#include "RHI/T3DRHIResource.h"
+#include "Render/T3DRenderBuffer.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 渲染硬件层的光栅化状态
-     */
-    class T3D_ENGINE_API RHIRasterizerState : public RHIResource
+    class T3D_ENGINE_API DataBuffer : public RenderBuffer
     {
     public:
-        ResourceType getResourceType() const override
-        {
-            return ResourceType::kRasterizerState;
-        }
+        static DataBufferPtr create(const Buffer &buffer);
+        
+        ~DataBuffer() override = default;
+
+        Type getType() const override;
         
     protected:
-        RHIRasterizerState();
+        DataBuffer(const Buffer &buffer);
+
+        bool onLoad() override;
+
+        bool onUnload() override;
     };
 }
 
 
-#endif  /*__T3D_RHI_RASTERIZER_STATE_H__*/
+#endif  /*__T3D_DATA_BUFFER_H__*/

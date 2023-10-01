@@ -17,66 +17,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Object/T3DObject.h"
-#include "Object/T3DObjectTracer.h"
+
+#include "Render/T3DDataBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Object::Object()
-        : mReferCount(0)
+    DataBufferPtr DataBuffer::create(const Buffer &buffer)
     {
-        ObjectTracer::getInstance().addObject(this);
+        return new DataBuffer(buffer);
     }
 
     //--------------------------------------------------------------------------
 
-    Object::~Object()
+    DataBuffer::DataBuffer(const Buffer &buffer)
     {
-        ObjectTracer::getInstance().removeObject(this);
+        
     }
 
     //--------------------------------------------------------------------------
 
-    Object *Object::acquire()
+    RenderResource::Type DataBuffer::getType() const
     {
-        ++mReferCount;
-        return this;
+        return Type::kDataBuffer;
     }
 
     //--------------------------------------------------------------------------
 
-    void Object::release()
-    {
-        if (--mReferCount == 0)
-        {
-            delete this;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Object::onPreSave()
+    bool DataBuffer::onLoad()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool Object::onPostSave()
+    bool DataBuffer::onUnload()
     {
         return true;
     }
-    
-    //--------------------------------------------------------------------------
 
-    bool Object::onPostLoad()
-    {
-        return true;
-    }
-    
     //--------------------------------------------------------------------------
 }
-

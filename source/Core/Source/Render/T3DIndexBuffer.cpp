@@ -17,66 +17,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "Object/T3DObject.h"
-#include "Object/T3DObjectTracer.h"
+
+#include "Render/T3DIndexBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Object::Object()
-        : mReferCount(0)
+    IndexBufferPtr IndexBuffer::create(const Buffer &buffer)
     {
-        ObjectTracer::getInstance().addObject(this);
+        return new IndexBuffer(buffer);
     }
 
     //--------------------------------------------------------------------------
 
-    Object::~Object()
+    IndexBuffer::IndexBuffer(const Buffer &buffer)
     {
-        ObjectTracer::getInstance().removeObject(this);
+        
     }
 
     //--------------------------------------------------------------------------
 
-    Object *Object::acquire()
+    RenderResource::Type IndexBuffer::getType() const
     {
-        ++mReferCount;
-        return this;
+        return Type::kIndexBuffer;
     }
 
     //--------------------------------------------------------------------------
 
-    void Object::release()
-    {
-        if (--mReferCount == 0)
-        {
-            delete this;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool Object::onPreSave()
+    bool IndexBuffer::onLoad()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool Object::onPostSave()
+    bool IndexBuffer::onUnload()
     {
         return true;
     }
-    
-    //--------------------------------------------------------------------------
 
-    bool Object::onPostLoad()
-    {
-        return true;
-    }
-    
     //--------------------------------------------------------------------------
 }
-

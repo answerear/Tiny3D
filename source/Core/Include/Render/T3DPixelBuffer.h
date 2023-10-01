@@ -18,32 +18,32 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_BINDING_H__
-#define __T3D_RHI_BINDING_H__
+#ifndef __T3D_PIXEL_BUFFER_H__
+#define __T3D_PIXEL_BUFFER_H__
 
 
-#include "RHI/T3DRHIResource.h"
+#include "Render/T3DRenderBuffer.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RHIBinding
+    class T3D_ENGINE_API PixelBuffer : public RenderBuffer
     {
     public:
-        RHIResourcePtr getRHIResource() const
-        {
-            return mResource;
-        }
+        static PixelBufferPtr create(const Buffer &buffer);
         
-        void setRHIResource(RHIResourcePtr resource)
-        {
-            mResource = resource;
-        }
+        ~PixelBuffer() override = default;
+
+        Type getType() const override;
         
     protected:
-        RHIResourcePtr  mResource;
+        PixelBuffer(const Buffer &buffer);
+
+        bool onLoad() override;
+
+        bool onUnload() override;
     };
 }
 
 
-#endif  /*__T3D_RHI_BINDING_H__*/
+#endif  /*__T3D_PIXEL_BUFFER_H__*/

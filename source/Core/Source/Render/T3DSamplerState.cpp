@@ -19,3 +19,49 @@
 
 
 #include "Render/T3DSamplerState.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+
+
+namespace  Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    SamplerStatePtr SamplerState::create(const SamplerDesc &desc, uint32_t hash)
+    {
+        return new SamplerState(hash, desc);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SamplerState::SamplerState(uint32_t hash, const SamplerDesc &desc)
+        : RenderStateResource(hash, desc)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type SamplerState::getType() const
+    {
+        return Type::kBlendState;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SamplerState::onLoad()
+    {
+        mRHIState = T3D_AGENT.getActiveRHIContext()->createSamplerState(mDesc);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SamplerState::onUnload()
+    {
+        mRHIState = nullptr;
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+}
