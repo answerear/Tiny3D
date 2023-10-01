@@ -80,7 +80,7 @@
 #include <Render/T3DRenderResourceManager.h>
 
 // RHI
-#include <RHI/T3DRHIConstant.h>
+#include <Render/T3DRenderConstant.h>
 #include <RHI/T3DRHIRenderer.h>
 #include <RHI/T3DRHIContext.h>
 #include <RHI/T3DRHIRenderTarget.h>

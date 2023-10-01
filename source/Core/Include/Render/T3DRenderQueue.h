@@ -23,7 +23,7 @@
 
 
 #include "T3DPrerequisites.h"
-#include "RHI/T3DRHIConstant.h"
+#include "Render/T3DRenderConstant.h"
 
 
 namespace Tiny3D
