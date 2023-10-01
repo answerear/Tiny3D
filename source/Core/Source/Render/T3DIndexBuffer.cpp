@@ -25,14 +25,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    IndexBufferPtr IndexBuffer::create(const Buffer &buffer)
+    IndexBufferPtr IndexBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new IndexBuffer(buffer);
+        return new IndexBuffer(buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    IndexBuffer::IndexBuffer(const Buffer &buffer)
+    IndexBuffer::IndexBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(buffer, memType, usage, accMode)
     {
         
     }

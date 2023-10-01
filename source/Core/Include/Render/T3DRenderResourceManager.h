@@ -127,9 +127,9 @@ namespace Tiny3D
     protected:
         RenderBufferManager() = default;
 
-        RenderBufferPtr loadBuffer(const UUID &uuid, const Buffer &buffer, int32_t argc, ...);
+        RenderBufferPtr loadBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, ...);
 
-        virtual RenderBufferPtr createBuffer(const Buffer &buffer, int32_t argc, va_list args) = 0;
+        virtual RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) = 0;
 
         using BufferCache = TMap<UUID, RenderBufferPtr>;
 
@@ -145,12 +145,12 @@ namespace Tiny3D
         
         ~VertexBufferManager() override = default;
 
-        VertexBufferPtr loadVertexBuffer(const UUID &uuid, const Buffer &buffer);
+        VertexBufferPtr loadVertexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
 
     protected:
         VertexBufferManager() = default;
 
-        RenderBufferPtr createBuffer(const Buffer &buffer, int32_t argc, va_list args) override;
+        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
     };
 
     class T3D_ENGINE_API IndexBufferManager
@@ -162,12 +162,12 @@ namespace Tiny3D
         
         ~IndexBufferManager() override = default;
 
-        IndexBufferPtr loadIndexBuffer(const UUID &uuid, const Buffer &buffer);
+        IndexBufferPtr loadIndexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
 
     protected:
         IndexBufferManager() = default;
 
-        RenderBufferPtr createBuffer(const Buffer &buffer, int32_t argc, va_list args) override;
+        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
     };
 
     class T3D_ENGINE_API PixelBufferManager
@@ -179,12 +179,12 @@ namespace Tiny3D
         
         ~PixelBufferManager() override = default;
 
-        PixelBufferPtr loadPixelBuffer(const UUID &uuid, const Buffer &buffer);
+        PixelBufferPtr loadPixelBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
 
     protected:
         PixelBufferManager() = default;
 
-        RenderBufferPtr createBuffer(const Buffer &buffer, int32_t argc, va_list args) override;
+        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
     };
 
     class T3D_ENGINE_API DataBufferManager
@@ -196,12 +196,12 @@ namespace Tiny3D
         
         ~DataBufferManager() override = default;
 
-        DataBufferPtr loadDataBuffer(const UUID &uuid, const Buffer &buffer);
+        DataBufferPtr loadDataBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
 
     protected:
         DataBufferManager() = default;
 
-        RenderBufferPtr createBuffer(const Buffer &buffer, int32_t argc, va_list args) override;
+        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
     };
 }
 

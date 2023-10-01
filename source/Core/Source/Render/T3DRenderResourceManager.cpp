@@ -139,11 +139,11 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RenderBufferPtr RenderBufferManager::loadBuffer(const UUID &uuid, const Buffer &buffer, int32_t argc, ...)
+    RenderBufferPtr RenderBufferManager::loadBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, ...)
     {
         va_list args;
         va_start(args, argc);
-        RenderBufferPtr rb = createBuffer(buffer, argc, args);
+        RenderBufferPtr rb = createBuffer(buffer, memType, usage, accMode, argc, args);
         va_end(args);
         if (!PostLoad(rb))
         {
@@ -154,58 +154,58 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexBufferPtr VertexBufferManager::loadVertexBuffer(const UUID &uuid, const Buffer &buffer)
+    VertexBufferPtr VertexBufferManager::loadVertexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
     {
-        return smart_pointer_cast<VertexBuffer>(loadBuffer(uuid, buffer, 0));
+        return smart_pointer_cast<VertexBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    RenderBufferPtr VertexBufferManager::createBuffer(const Buffer &buffer, int32_t argc, va_list args)
+    RenderBufferPtr VertexBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
     {
-        return VertexBuffer::create(buffer);
+        return VertexBuffer::create(buffer,memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    IndexBufferPtr IndexBufferManager::loadIndexBuffer(const UUID &uuid, const Buffer &buffer)
+    IndexBufferPtr IndexBufferManager::loadIndexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
     {
-        return smart_pointer_cast<IndexBuffer>(loadBuffer(uuid, buffer, 0));
+        return smart_pointer_cast<IndexBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    RenderBufferPtr IndexBufferManager::createBuffer(const Buffer &buffer, int32_t argc, va_list args)
+    RenderBufferPtr IndexBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
     {
-        return IndexBuffer::create(buffer);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    PixelBufferPtr PixelBufferManager::loadPixelBuffer(const UUID &uuid, const Buffer &buffer)
-    {
-        return smart_pointer_cast<PixelBuffer>(loadBuffer(uuid, buffer, 0));
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderBufferPtr PixelBufferManager::createBuffer(const Buffer &buffer, int32_t argc, va_list args)
-    {
-        return PixelBuffer::create(buffer);
+        return IndexBuffer::create(buffer, memType, usage, accMode);
     }
     
     //--------------------------------------------------------------------------
 
-    DataBufferPtr DataBufferManager::loadDataBuffer(const UUID &uuid, const Buffer &buffer)
+    PixelBufferPtr PixelBufferManager::loadPixelBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
     {
-        return smart_pointer_cast<DataBuffer>(loadBuffer(uuid, buffer, 0));
+        return smart_pointer_cast<PixelBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    RenderBufferPtr DataBufferManager::createBuffer(const Buffer &buffer, int32_t argc, va_list args)
+    RenderBufferPtr PixelBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
     {
-        return DataBuffer::create(buffer);
+        return PixelBuffer::create(buffer, memType, usage, accMode);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    DataBufferPtr DataBufferManager::loadDataBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+    {
+        return smart_pointer_cast<DataBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderBufferPtr DataBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
+    {
+        return DataBuffer::create(buffer, memType, usage, accMode);
     }
     
     //--------------------------------------------------------------------------

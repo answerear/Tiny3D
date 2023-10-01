@@ -30,14 +30,14 @@ namespace Tiny3D
     class T3D_ENGINE_API PixelBuffer : public RenderBuffer
     {
     public:
-        static PixelBufferPtr create(const Buffer &buffer);
+        static PixelBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
         
         ~PixelBuffer() override = default;
 
         Type getType() const override;
         
     protected:
-        PixelBuffer(const Buffer &buffer);
+        PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         bool onLoad() override;
 

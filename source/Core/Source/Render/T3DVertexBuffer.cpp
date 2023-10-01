@@ -25,14 +25,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    VertexBufferPtr VertexBuffer::create(const Buffer &buffer)
+    VertexBufferPtr VertexBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new VertexBuffer(buffer);
+        return new VertexBuffer(buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    VertexBuffer::VertexBuffer(const Buffer &buffer)
+    VertexBuffer::VertexBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(buffer, memType, usage, accMode)
     {
         
     }

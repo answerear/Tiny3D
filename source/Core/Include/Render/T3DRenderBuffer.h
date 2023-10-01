@@ -27,13 +27,78 @@
 
 namespace Tiny3D
 {
+    using RenderBuffeReadCallback = TFunction<void(size_t size, void *dst)>;
+    
     class T3D_ENGINE_API RenderBuffer : public RenderResource
     {
     public:
-        ~RenderBuffer() override = default;
+        enum class LockOptions : uint32_t
+        {
+            /**< 映射到内存的资源用于读取 */
+            kRead = 0,
+            /**< 映射到内存的资源用于写入 */
+            kWrite,
+            /**< 映射到内存的资源用于读写 */
+            kReadWrite,
+            /**< 映射到内存的资源用于写入，之前的资源数据将会被抛弃 */
+            kWriteDiscard,
+            /**< 映射到内存的资源用于写入，但不能复写已经存在的资源 */
+            kWriteNoOverwrite
+        };
 
+        enum class MemoryType : uint32_t
+        {
+            /**< 数据分别存储在 RAM 和 VRAM */
+            kBoth = 0,
+            /**< 数据仅存储在 RAM */
+            kRAM,
+            /**< 数据仅存储在 VRAM */
+            kVRAM
+        };
+
+        enum class Usage : uint32_t
+        {
+            /**< 數據在初始化设置后不能被修改 */
+            kStatic = 0,
+            /**< 數據會被頻繁修改 */
+            kDynamic,
+        };
+
+        enum AccessMode : uint32_t
+        {
+            /**< CPU 不访问 */
+            kCPUNone = 0,
+            /**< CPU寫數據，GPU讀數據 */
+            kCPUWrite = (1 << 0),
+            /**< CPU讀數據，GPU寫數據 */
+            kCPURead = (1 << 1),
+            /**< 從GPU讀數據，作為另一个GPU操作數據源 */
+            kGPUCopy = (1 << 2)
+        };
+        
+        ~RenderBuffer() override;
+
+        virtual size_t readData(size_t offset, size_t size, void *dst);
+
+        virtual TResult readData(size_t offset, size_t size, RenderBuffeReadCallback callback);
+
+        virtual size_t writeData(size_t offset, size_t size, const void *src, bool discardWholeBuffer = false);
+
+        virtual size_t copyData(RenderBufferPtr srcBuffer, size_t srcOffset, size_t dstOffset, size_t size, bool discardWholeBuffer = false);
+
+        virtual size_t copyData(RenderBufferPtr srcBuffer);
+
+        size_t getBufferSize() const { return mBuffer.DataSize; }
+
+        uint32_t getAccessMode() const { return mAccessMode; }
+        
     protected:
-        Buffer  mBuffer {};
+        RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        
+        Buffer      mBuffer {};
+        MemoryType  mMemoryType {MemoryType::kVRAM};
+        Usage       mUsage {Usage::kStatic};
+        uint32_t    mAccessMode {kCPUNone};
     };
 }
 

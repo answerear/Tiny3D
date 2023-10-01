@@ -30,14 +30,14 @@ namespace Tiny3D
     class T3D_ENGINE_API DataBuffer : public RenderBuffer
     {
     public:
-        static DataBufferPtr create(const Buffer &buffer);
+        static DataBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
         
         ~DataBuffer() override = default;
 
         Type getType() const override;
         
     protected:
-        DataBuffer(const Buffer &buffer);
+        DataBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         bool onLoad() override;
 

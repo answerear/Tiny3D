@@ -25,14 +25,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    PixelBufferPtr PixelBuffer::create(const Buffer &buffer)
+    PixelBufferPtr PixelBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new PixelBuffer(buffer);
+        return new PixelBuffer(buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer::PixelBuffer(const Buffer &buffer)
+    PixelBuffer::PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(buffer, memType, usage, accMode)
     {
         
     }

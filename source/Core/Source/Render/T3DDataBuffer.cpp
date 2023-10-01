@@ -25,14 +25,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    DataBufferPtr DataBuffer::create(const Buffer &buffer)
+    DataBufferPtr DataBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new DataBuffer(buffer);
+        return new DataBuffer(buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    DataBuffer::DataBuffer(const Buffer &buffer)
+    DataBuffer::DataBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(buffer, memType, usage, accMode)
     {
         
     }

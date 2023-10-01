@@ -30,14 +30,14 @@ namespace Tiny3D
     class T3D_ENGINE_API IndexBuffer : public RenderBuffer
     {
     public:
-        static IndexBufferPtr create(const Buffer &buffer);
+        static IndexBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
         
         ~IndexBuffer() override = default;
 
         Type getType() const override;
         
     protected:
-        IndexBuffer(const Buffer &buffer);
+        IndexBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         bool onLoad() override;
 
