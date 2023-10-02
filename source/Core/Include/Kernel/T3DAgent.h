@@ -141,6 +141,8 @@ namespace Tiny3D
         TResult initRenderer();
 
         TResult initSceneManager();
+
+        TResult initRenderThread();
      
     protected:
         typedef TMap<String, Plugin*>       Plugins;
@@ -182,6 +184,9 @@ namespace Tiny3D
 
         Settings                mSettings;          /**< 引擎配置项 */
 
+        RunnableThread          mRHIThread {};
+        RHIThreadPtr            mRHIRunnable {nullptr};
+        
         bool                    mIsRunning {false}; /**< 引擎是否在运行中 */
     };
 

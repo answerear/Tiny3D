@@ -31,7 +31,8 @@ namespace Tiny3D
     class T3D_ENGINE_API RHIThread : public Runnable, public Object, public Singleton<RHIThread>
     {
     public:
-        RHIThread();
+        static RHIThreadPtr create();
+        
         ~RHIThread() override;
         
         bool init() override;
@@ -39,20 +40,30 @@ namespace Tiny3D
         void stop() final;
         void exit() override;
 
+        void start();
+        
         bool isRunning() const { return mIsRunning; }
 
         void addCommand(RHICommand * command);
 
     protected:
+        RHIThread();
+        
+        void exchange();
+        
         enum
         {
             kMaxCommandLists = 2,
         };
 
+        Event                           mEvent;
+
         /// 双缓冲命令队列
         TArray<TList<RHICommandPtr>>    mCommandLists {};
         /// 当前线程执行队列序号
-        int32_t                         mCurrentCommandList {0};
+        int32_t                         mHanldeCommandListIdx {0};
+        /// 当前入队列序号
+        int32_t                         mEnqueueCommandListIdx {0};
         /// 线程是否在运行
         bool                            mIsRunning {false};
     };

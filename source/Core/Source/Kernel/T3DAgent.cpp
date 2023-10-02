@@ -35,6 +35,7 @@
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIRenderer.h"
 #include "Material/T3DShaderVariant.h"
+#include "RHI/T3DRHIThread.h"
 
 
 namespace Tiny3D
@@ -60,6 +61,10 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
+        mRHIRunnable->stop();
+        mRHIThread.wait();
+        mRHIRunnable = nullptr;
+        
         mInternalArchive = nullptr;
         mProjectArchive = nullptr;
 
@@ -248,6 +253,12 @@ namespace Tiny3D
                 addRenderWindow(window);
             }
 
+            ret = initRenderThread();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
             //ShaderPtr shader = mShaderMgr->createShader("test.shader");
             //ShaderKeyword keyword;
             //keyword.addKeyword("TEST1");
@@ -511,6 +522,8 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
+            T3D_RHI_THREAD.start();
+            
             // 轮询系统事件
             mIsRunning = theApp->pollEvents();
 
@@ -1081,5 +1094,20 @@ namespace Tiny3D
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    TResult Agent::initRenderThread()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mRHIRunnable = RHIThread::create();
+            ret = mRHIThread.start(mRHIRunnable, "RenderThread");
+        } while (false);
+        
+        return ret;
+    }
+
     //--------------------------------------------------------------------------
 }

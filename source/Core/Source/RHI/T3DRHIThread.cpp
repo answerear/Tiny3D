@@ -26,6 +26,13 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    RHIThreadPtr RHIThread::create()
+    {
+        return new RHIThread();
+    }
+    
+    //--------------------------------------------------------------------------
+
     RHIThread::RHIThread()
     {
         
@@ -42,9 +49,28 @@ namespace Tiny3D
 
     bool RHIThread::init()
     {
-        mCurrentCommandList = 0;
+        mHanldeCommandListIdx = 0;
+        mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
+        mCommandLists.emplace_back();
+        mCommandLists.emplace_back();
         mIsRunning = true;
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RHIThread::exchange()
+    {
+        mHanldeCommandListIdx = mEnqueueCommandListIdx;
+        mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RHIThread::start()
+    {
+        exchange();
+        mEvent.trigger();
     }
 
     //--------------------------------------------------------------------------
@@ -53,15 +79,16 @@ namespace Tiny3D
     {
         while (mIsRunning)
         {
+            // 线程等待
+            mEvent.wait();
+            
             // 循环执行 RHI 命令
-            int32_t current = (mCurrentCommandList + 1) % kMaxCommandLists;
-
-            for (auto command : mCommandLists[current])
+            for (auto command : mCommandLists[mHanldeCommandListIdx])
             {
                 command->execute();
             }
 
-            mCommandLists[current].clear();
+            mCommandLists[mHanldeCommandListIdx].clear();
         }
 
         return T3D_OK;
@@ -72,6 +99,7 @@ namespace Tiny3D
     void RHIThread::stop()
     {
         mIsRunning = false;
+        mEvent.trigger();
     }
     
     //--------------------------------------------------------------------------
@@ -85,7 +113,7 @@ namespace Tiny3D
 
     void RHIThread::addCommand(RHICommand *command)
     {
-        mCommandLists[mCurrentCommandList].push_back(command);
+        mCommandLists[mEnqueueCommandListIdx].push_back(command);
     }
 
     //--------------------------------------------------------------------------
