@@ -26,7 +26,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     RHIRenderWindow::RHIRenderWindow(const String &name)
-        : RHIRenderTarget(name)
+        : RenderTarget(name)
     {
 
     }
@@ -56,7 +56,7 @@ namespace Tiny3D
 
     void RHIRenderWindow::render()
     {
-        RHIRenderTarget::render();
+        RenderTarget::render();
         swapBuffers();
     }
 }

@@ -18,14 +18,14 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIRenderTarget.h"
+#include "Render//T3DRenderTarget.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
     
-    RHIRenderTarget::RHIRenderTarget(const String &name)
+    RenderTarget::RenderTarget(const String &name)
         : mWidth(0)
         , mHeight(0)
         , mColorDepth(0)
@@ -35,14 +35,14 @@ namespace Tiny3D
 
     }
 
-    RHIRenderTarget::~RHIRenderTarget()
+    RenderTarget::~RenderTarget()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    void RHIRenderTarget::render()
+    void RenderTarget::render()
     {
         // auto itr = mViewportList.begin();
         //
@@ -55,7 +55,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    // ViewportPtr RHIRenderTarget::addViewport(CameraPtr camera, long_t zOrder,
+    // ViewportPtr RenderTarget::addViewport(CameraPtr camera, long_t zOrder,
     //     Real left, Real top, Real width, Real height)
     // {
     //     ViewportPtr viewport;
@@ -74,7 +74,7 @@ namespace Tiny3D
     //
     // //--------------------------------------------------------------------------
     //
-    // TResult RHIRenderTarget::removeViewport(long_t nZOrder)
+    // TResult RenderTarget::removeViewport(long_t nZOrder)
     // {
     //     TResult ret = T3D_OK;
     //
@@ -98,7 +98,7 @@ namespace Tiny3D
     //
     // //--------------------------------------------------------------------------
     //
-    // TResult RHIRenderTarget::removeAllViewports()
+    // TResult RenderTarget::removeAllViewports()
     // {
     //     mViewportList.clear();
     //     return T3D_OK;

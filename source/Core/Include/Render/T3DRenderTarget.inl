@@ -20,12 +20,12 @@
 
 namespace Tiny3D
 {
-    inline const String &RHIRenderTarget::getName() const
+    inline const String &RenderTarget::getName() const
     {
         return mName;
     }
 
-    inline void RHIRenderTarget::getMetrics(size_t &width, size_t &height, 
+    inline void RenderTarget::getMetrics(size_t &width, size_t &height, 
         size_t &clrDepth) const
     {
         width = mWidth;
@@ -33,42 +33,42 @@ namespace Tiny3D
         clrDepth = mColorDepth;
     }
 
-    inline size_t RHIRenderTarget::getWidth() const
+    inline size_t RenderTarget::getWidth() const
     {
         return mWidth;
     }
 
-    inline size_t RHIRenderTarget::getHeight() const
+    inline size_t RenderTarget::getHeight() const
     {
         return mHeight;
     }
 
-    inline size_t RHIRenderTarget::getColorDepth() const
+    inline size_t RenderTarget::getColorDepth() const
     {
         return mColorDepth;
     }
 
-    inline size_t RHIRenderTarget::getPitch() const
+    inline size_t RenderTarget::getPitch() const
     {
         return mPitch;
     }
 
-    inline bool RHIRenderTarget::isActive() const
+    inline bool RenderTarget::isActive() const
     {
         return mIsActive;
     }
 
-    inline void RHIRenderTarget::setActive(bool active)
+    inline void RenderTarget::setActive(bool active)
     {
         mIsActive = active;
     }
 
-    // inline size_t RHIRenderTarget::getNumViewports() const
+    // inline size_t RenderTarget::getNumViewports() const
     // {
     //     return mViewportList.size();
     // }
     //
-    // inline ViewportPtr RHIRenderTarget::getViewport(long_t zOrder) const
+    // inline ViewportPtr RenderTarget::getViewport(long_t zOrder) const
     // {
     //     auto itr = mViewportList.find(zOrder);
     //

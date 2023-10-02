@@ -124,7 +124,8 @@ namespace Tiny3D
     class RenderStateManager;
     class RenderBufferManager;
     
-    class RHIRenderTarget;
+    class RenderTarget;
+
     class RHIRenderWindow;
     
     class RHIViewport;

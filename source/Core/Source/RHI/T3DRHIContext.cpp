@@ -19,7 +19,7 @@
 
 
 #include "RHI/T3DRHIContext.h"
-#include "RHI/T3DRHIRenderTarget.h"
+#include "Render/T3DRenderTarget.h"
 
 
 namespace Tiny3D
@@ -65,7 +65,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RHIContext::attachRenderTarget(RHIRenderTargetPtr target)
+    TResult RHIContext::attachRenderTarget(RenderTargetPtr target)
     {
         TPair<RenderTargetListItr, bool> ret =
             mRenderTargets.insert(RenderTargetListValue(target->getName(),
@@ -96,7 +96,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIRenderTargetPtr RHIContext::getRenderTarget(const String &name)
+    RenderTargetPtr RHIContext::getRenderTarget(const String &name)
     {
         RenderTargetListItr itr = mRenderTargets.find(name);
 

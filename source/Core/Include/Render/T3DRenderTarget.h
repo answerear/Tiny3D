@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RENDER_TARGET_H__
-#define __T3D_RHI_RENDER_TARGET_H__
+#ifndef __T3D_RENDER_TARGET_H__
+#define __T3D_RENDER_TARGET_H__
 
 
 #include "T3DPrerequisites.h"
@@ -31,7 +31,7 @@ namespace Tiny3D
     /**
      * @brief 渲染目标
      */
-    class T3D_ENGINE_API RHIRenderTarget : public Object
+    class T3D_ENGINE_API RenderTarget : public Object
     {
     public:
         /**
@@ -49,7 +49,7 @@ namespace Tiny3D
         /**
          * @brief 析构函数
          */
-        virtual ~RHIRenderTarget();
+        virtual ~RenderTarget();
 
         /**
          * @brief 获取渲染目标名称
@@ -157,7 +157,7 @@ namespace Tiny3D
         /**
          * @brief 构造函数
          */
-        RHIRenderTarget(const String &name);
+        RenderTarget(const String &name);
 
     protected:
         // typedef TMap<long_t, ViewportPtr> ViewportList;
@@ -179,7 +179,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DRHIRenderTarget.inl"
+#include "T3DRenderTarget.inl"
 
 
-#endif  /*__T3D_RHI_RENDER_TARGET_H__*/
+#endif  /*__T3D_RENDER_TARGET_H__*/

@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_VIEWPORT_H__
-#define __T3D_RHI_VIEWPORT_H__
+#ifndef __T3D_VIEWPORT_H__
+#define __T3D_VIEWPORT_H__
 
 
 #include "T3DPrerequisites.h"
@@ -209,4 +209,4 @@ namespace Tiny3D
 #include "T3DRHIViewport.inl"
 #endif
 
-#endif  /*__T3D_RHI_VIEWPORT_H__*/
+#endif  /*__T3D_VIEWPORT_H__*/

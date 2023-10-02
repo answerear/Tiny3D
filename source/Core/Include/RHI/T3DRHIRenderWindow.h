@@ -22,7 +22,7 @@
 #define __T3D_RHI_RENDER_WINDOW_H__
 
 
-#include "RHI/T3DRHIRenderTarget.h"
+#include "Render/T3DRenderTarget.h"
 
 
 namespace Tiny3D
@@ -48,7 +48,7 @@ namespace Tiny3D
     /**
      * @brief 渲染窗口
      */
-    class T3D_ENGINE_API RHIRenderWindow : public RHIRenderTarget
+    class T3D_ENGINE_API RHIRenderWindow : public RenderTarget
     {
     public:
         /**

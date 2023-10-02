@@ -81,13 +81,13 @@
 #include <Render/T3DPixelBuffer.h>
 #include <Render/T3DDataBuffer.h>
 #include <Render/T3DRenderResourceManager.h>
+#include <Render/T3DRenderTarget.h>
+#include <Render/T3DViewport.h>
 
 // RHI
 #include <RHI/T3DRHIRenderer.h>
 #include <RHI/T3DRHIContext.h>
-#include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>
-#include <RHI/T3DRHIViewport.h>
 #include <RHI/T3DRHIBlendState.h>
 #include <RHI/T3DRHIDepthStencilState.h>
 #include <RHI/T3DRHIRasterizerState.h>

@@ -76,7 +76,9 @@ namespace Tiny3D
     
     T3D_DECLARE_SMART_PTR(RenderStateManager);
     T3D_DECLARE_SMART_PTR(RenderBufferManager);
-    
+
+    T3D_DECLARE_SMART_PTR(RenderTarget);
+
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
 
@@ -85,7 +87,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(JsonSerializer);
     T3D_DECLARE_SMART_PTR(SerializerManager);
 
-    T3D_DECLARE_SMART_PTR(RHIRenderTarget);
+    
     T3D_DECLARE_SMART_PTR(RHIRenderWindow);
 
     T3D_DECLARE_SMART_PTR(RHIViewport);

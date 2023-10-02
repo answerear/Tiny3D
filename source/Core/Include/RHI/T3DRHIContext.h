@@ -95,11 +95,11 @@ namespace Tiny3D
      
         virtual TResult renderAllTargets();
      
-        virtual TResult attachRenderTarget(RHIRenderTargetPtr target);
+        virtual TResult attachRenderTarget(RenderTargetPtr target);
 
         virtual TResult detachRenderTarget(const String &name);
 
-        RHIRenderTargetPtr getRenderTarget(const String &name);
+        RenderTargetPtr getRenderTarget(const String &name);
 
         virtual TResult setTransform(TransformState state, const Matrix4 &mat);
 
@@ -144,7 +144,7 @@ namespace Tiny3D
         virtual TResult renderObject() = 0;
         
     protected:
-        typedef TMap<String, RHIRenderTargetPtr>    RenderTargetList;
+        typedef TMap<String, RenderTargetPtr>      RenderTargetList;
         typedef RenderTargetList::iterator          RenderTargetListItr;
         typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
         typedef RenderTargetList::value_type        RenderTargetListValue;
@@ -157,7 +157,7 @@ namespace Tiny3D
 
         // RenderCapabilitiesPtr   mCapabilities;      /**< 渲染能力值 */
         
-        RHIRenderTargetPtr      mRenderTarget;      /**< 当前渲染目标 */
+        RenderTargetPtr         mRenderTarget;      /**< 当前渲染目标 */
     };
 }
 
