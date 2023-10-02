@@ -81,8 +81,6 @@ namespace Tiny3D
         bool onLoad() override;
 
         bool onUnload() override;
-
-        RHIRasterizerStatePtr   mRHIState {nullptr};
     };
 }
 

@@ -33,6 +33,8 @@ namespace Tiny3D
         static NullContextPtr create();
 
         virtual ~NullContext();
+
+        TResult init() override;
      
         TResult renderAllTargets() override;
 

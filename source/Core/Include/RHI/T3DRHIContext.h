@@ -37,10 +37,6 @@
 namespace Tiny3D
 {
     class Viewport;
-    // struct BlendState;
-    // struct DepthStencilState;
-    // struct RasterizerState;
-    // struct SamplerState;
 
     /**
      * @enum    TransformState
@@ -94,6 +90,8 @@ namespace Tiny3D
          * @brief   析构函数
          */
         ~RHIContext() override;
+
+        virtual TResult init() = 0;
      
         virtual TResult renderAllTargets();
      

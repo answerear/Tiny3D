@@ -19,7 +19,6 @@
 
 
 #include "T3DD3D11Renderer.h"
-
 #include "T3DD3D11Context.h"
 #include "T3DD3D11Window.h"
 
@@ -56,6 +55,7 @@ namespace Tiny3D
         do 
         {
             mContext = D3D11Context::create();
+            ret = mContext->init();
         } while (false);
 
         return ret;

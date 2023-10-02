@@ -51,7 +51,7 @@ namespace  Tiny3D
 
     bool RasterizerState::onLoad()
     {
-        mRHIState = T3D_AGENT.getActiveRHIContext()->createRasterizerState(mDesc);
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createRasterizerState(mDesc);
         return true;
     }
 
@@ -59,7 +59,7 @@ namespace  Tiny3D
 
     bool RasterizerState::onUnload()
     {
-        mRHIState = nullptr;
+        mRHIResource = nullptr;
         return true;
     }
 

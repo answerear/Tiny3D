@@ -87,7 +87,7 @@ namespace Tiny3D
         
         const desc_t &getStateDesc() const { return mDesc; }
 
-        SmartPtr<rhi_state_t> getRHIState() const { return mRHIState; }
+        SmartPtr<rhi_state_t> getRHIState() const { return smart_pointer_cast<rhi_state_t>(mRHIResource); }
         
     protected:
         RenderStateResource(uint32_t hash, const desc_t &desc)
@@ -104,7 +104,6 @@ namespace Tiny3D
 
         uint32_t                mHash {0};
         desc_t                  mDesc {};
-        SmartPtr<rhi_state_t>   mRHIState {nullptr};
     };
 }
 

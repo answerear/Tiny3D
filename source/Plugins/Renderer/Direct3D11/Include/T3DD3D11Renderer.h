@@ -39,8 +39,7 @@ namespace Tiny3D
         
         virtual TResult destroy() override;
         
-        virtual RHIRenderWindowPtr createRenderWindow(
-           const String &name, const RenderWindowCreateParam &param) override;
+        virtual RHIRenderWindowPtr createRenderWindow(const String &name, const RenderWindowCreateParam &param) override;
 
     protected:
         D3D11Renderer();

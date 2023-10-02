@@ -46,6 +46,8 @@ namespace Tiny3D
          * @brief   析构函数
          */
         virtual ~D3D11Context();
+
+        TResult init() override;
      
         /**
          * @fn  virtual TResult renderAllTarget() override;
@@ -101,7 +103,15 @@ namespace Tiny3D
         TResult collectInformation();
 
     protected:
-        HINSTANCE                   mInstance;          /**< The instance */
+        /**< The instance */
+        HINSTANCE                   mInstance;
+
+        /**< D3D11 设备对象 */
+        ID3D11Device        *mD3DDevice;
+        /**< D3D11 上下文对象 */
+        ID3D11DeviceContext *mD3DDeviceContext;
+        /**< D3D 特性级别 */
+        D3D_FEATURE_LEVEL   mFeatureLevel;
     };
 }
 

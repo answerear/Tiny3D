@@ -49,6 +49,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult NullContext::init()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult NullContext::renderAllTargets()
     {
         TResult ret = T3D_OK;
