@@ -64,6 +64,7 @@ namespace Tiny3D
         mProjectArchive = nullptr;
 
         mRenderStateMgr = nullptr;
+        mRenderBufferMgr = nullptr;
         
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
@@ -806,6 +807,7 @@ namespace Tiny3D
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
         mRenderStateMgr = RenderStateManager::create();
+        mRenderBufferMgr = RenderBufferManager::create();
         mDylibMgr = DylibManager::create();      
         mPrefabMgr = PrefabManager::create();
         mShaderMgr = ShaderManager::create();

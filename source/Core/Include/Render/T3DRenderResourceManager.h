@@ -84,10 +84,7 @@ namespace Tiny3D
         , public Singleton<RenderStateManager>
     {
     public:
-        static RenderStateManagerPtr create()
-        {
-            return new RenderStateManager();
-        }
+        static RenderStateManagerPtr create();
 
         ~RenderStateManager() override = default;
 
@@ -117,92 +114,46 @@ namespace Tiny3D
 
     #define T3D_RENDER_STATE_MGR (RenderStateManager::getInstance())
 
-    class T3D_ENGINE_API RenderBufferManager : public RenderResourceManager
+    
+    class T3D_ENGINE_API RenderBufferManager
+        : public RenderResourceManager
+        , public Singleton<RenderBufferManager>
     {
     public:
+        static RenderBufferManagerPtr create();
+        
         ~RenderBufferManager() override = default;
 
+        VertexBufferPtr loadVertexBuffer(const Buffer &buffer, size_t vertexSize, size_t vertexCount, 
+            RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+
+        IndexBufferPtr loadIndexBuffer(const Buffer &buffer, IndexBuffer::IndexType indexType, size_t indexCount,
+            RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+
+        PixelBufferPtr loadPixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps,
+            RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+        
         TResult GC() override;
         
     protected:
         RenderBufferManager() = default;
 
-        RenderBufferPtr loadBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, ...);
-
-        virtual RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) = 0;
+        // RenderBufferPtr loadBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, ...);
+        //
+        // virtual RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) = 0;
 
         using BufferCache = TMap<UUID, RenderBufferPtr>;
-
-        BufferCache mBufferCache {};
-    };
-
-    class T3D_ENGINE_API VertexBufferManager
-        : public RenderBufferManager
-        , public Singleton<VertexBufferManager>
-    {
-    public:
-        static VertexBufferManagerPtr create();
         
-        ~VertexBufferManager() override = default;
-
-        VertexBufferPtr loadVertexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
-
-    protected:
-        VertexBufferManager() = default;
-
-        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
-    };
-
-    class T3D_ENGINE_API IndexBufferManager
-        : public RenderBufferManager
-        , public Singleton<IndexBufferManager>
-    {
-    public:
-        static IndexBufferManagerPtr create();
+        template<typename BUFFER_TYPE, typename CREATOR, typename ...ARGS>
+        SmartPtr<BUFFER_TYPE> loadBuffer(BufferCache &buffers, const UUID &uuid, CREATOR creator, ARGS ...args);
         
-        ~IndexBufferManager() override = default;
-
-        IndexBufferPtr loadIndexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
-
-    protected:
-        IndexBufferManager() = default;
-
-        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
+        BufferCache mVBufferCache {};
+        BufferCache mIBufferCache {};
+        BufferCache mPBufferCache {};
+        BufferCache mDBufferCache {};
     };
 
-    class T3D_ENGINE_API PixelBufferManager
-        : public RenderBufferManager
-        , public Singleton<PixelBufferManager>
-    {
-    public:
-        static PixelBufferManagerPtr create();
-        
-        ~PixelBufferManager() override = default;
-
-        PixelBufferPtr loadPixelBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
-
-    protected:
-        PixelBufferManager() = default;
-
-        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
-    };
-
-    class T3D_ENGINE_API DataBufferManager
-        : public RenderBufferManager
-        , public Singleton<DataBufferManager>
-    {
-    public:
-        static DataBufferManagerPtr create();
-        
-        ~DataBufferManager() override = default;
-
-        DataBufferPtr loadDataBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode);
-
-    protected:
-        DataBufferManager() = default;
-
-        RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) override;
-    };
+    #define T3D_RENDER_BUFFER_mgr   (RenderBufferManager::getInstance())
 }
 
 

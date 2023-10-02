@@ -30,18 +30,21 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexBuffer : public RenderBuffer
     {
     public:
-        static VertexBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static VertexBufferPtr create(const Buffer &buffer, size_t vertexSize, size_t vertexCount, MemoryType memType, Usage usage, uint32_t accMode);
         
         ~VertexBuffer() override = default;
 
         Type getType() const override;
         
     protected:
-        VertexBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        VertexBuffer(const Buffer &buffer, size_t vertexSize, size_t vertexCount, MemoryType memType, Usage usage, uint32_t accMode);
 
         bool onLoad() override;
 
         bool onUnload() override;
+
+        size_t  mVertexSize {0};
+        size_t  mVertexCount {0};
     };
 }
 

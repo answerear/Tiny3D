@@ -23,6 +23,7 @@
 
 
 #include "Render/T3DRenderBuffer.h"
+#include "Kernel/T3DConstant.h"
 
 
 namespace Tiny3D
@@ -30,18 +31,29 @@ namespace Tiny3D
     class T3D_ENGINE_API PixelBuffer : public RenderBuffer
     {
     public:
-        static PixelBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static PixelBufferPtr create(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode);
         
         ~PixelBuffer() override = default;
 
         Type getType() const override;
         
     protected:
-        PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        PixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode);
 
         bool onLoad() override;
 
         bool onUnload() override;
+
+        /**< 像素缓冲区的宽度 */
+        size_t mWidth {0};
+        /**< 像素缓冲区的高度 */
+        size_t mHeight {0};
+        /**< 像素缓冲区的行跨度 */
+        size_t mPitch {0};
+        /**< mipmaps level */
+        size_t mMipmaps {0};
+        /**< 像素缓冲区的格式 */
+        PixelFormat mFormat {PixelFormat::E_PF_UNKNOWN};
     };
 }
 

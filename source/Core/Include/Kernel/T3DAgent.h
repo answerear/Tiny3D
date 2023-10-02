@@ -167,6 +167,7 @@ namespace Tiny3D
         ShaderManagerPtr        mShaderMgr {nullptr};
 
         RenderStateManagerPtr   mRenderStateMgr {nullptr};
+        RenderBufferManagerPtr  mRenderBufferMgr {nullptr};
         
         ArchivePtr              mInternalArchive {nullptr};
         ArchivePtr              mProjectArchive {nullptr};

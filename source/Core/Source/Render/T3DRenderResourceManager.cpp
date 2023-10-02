@@ -49,6 +49,13 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
+    RenderStateManagerPtr RenderStateManager::create()
+    {
+        return new RenderStateManager();
+    }
+    
+    //--------------------------------------------------------------------------
+
     template<typename STATE_TYPE, typename DESC_TYPE>
     SmartPtr<STATE_TYPE> RenderStateManager::loadState(StateCache &states, const DESC_TYPE &desc, uint32_t hash /* = 0 */)
     {
@@ -102,7 +109,7 @@ namespace  Tiny3D
 
         do
         {
-            ret = _GC<StateCache>(mBlendStates);
+            ret = _GC(mBlendStates);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -132,81 +139,118 @@ namespace  Tiny3D
     
     //--------------------------------------------------------------------------
 
+    RenderBufferManagerPtr RenderBufferManager::create()
+    {
+        return new RenderBufferManager();
+    }
+    
+    //--------------------------------------------------------------------------
+
     TResult RenderBufferManager::GC()
     {
-        return _GC(mBufferCache);
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ret = _GC(mVBufferCache);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = _GC(mIBufferCache);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = _GC(mPBufferCache);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    RenderBufferPtr RenderBufferManager::loadBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, ...)
+    template<typename BUFFER_TYPE, typename CREATOR, typename... ARGS>
+    SmartPtr<BUFFER_TYPE> RenderBufferManager::loadBuffer(BufferCache &buffers, const UUID &uuid, CREATOR creator, ARGS... args)
     {
-        va_list args;
-        va_start(args, argc);
-        RenderBufferPtr rb = createBuffer(buffer, memType, usage, accMode, argc, args);
-        va_end(args);
-        if (!PostLoad(rb))
+        SmartPtr<BUFFER_TYPE> rb;
+        auto itr = buffers.find(uuid);
+        if (itr != buffers.end())
         {
-            rb = nullptr;
+            // 已经存在，返回已有的
+            rb = itr->second;
         }
+        else
+        {
+            // 没有，新建一个
+            rb = creator(args...);
+        }
+
         return rb;
     }
 
     //--------------------------------------------------------------------------
-
-    VertexBufferPtr VertexBufferManager::loadVertexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
-    {
-        return smart_pointer_cast<VertexBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderBufferPtr VertexBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
-    {
-        return VertexBuffer::create(buffer,memType, usage, accMode);
-    }
-
-    //--------------------------------------------------------------------------
-
-    IndexBufferPtr IndexBufferManager::loadIndexBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
-    {
-        return smart_pointer_cast<IndexBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderBufferPtr IndexBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
-    {
-        return IndexBuffer::create(buffer, memType, usage, accMode);
-    }
     
-    //--------------------------------------------------------------------------
-
-    PixelBufferPtr PixelBufferManager::loadPixelBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+    VertexBufferPtr RenderBufferManager::loadVertexBuffer(const Buffer &buffer, size_t vertexSize, size_t vertexCount,
+        RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid)
     {
-        return smart_pointer_cast<PixelBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<VertexBuffer>(mVBufferCache, uid,
+            [](const Buffer &buffer, size_t vertexSize, size_t vertexCount, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode) -> RenderBufferPtr
+            {
+                return VertexBuffer::create(buffer, vertexSize, vertexCount, memType, usage, accMode);
+            },
+            buffer, vertexSize, vertexCount, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    RenderBufferPtr PixelBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
+    IndexBufferPtr RenderBufferManager::loadIndexBuffer(const Buffer &buffer, IndexBuffer::IndexType indexType, size_t indexCount,
+        RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid)
     {
-        return PixelBuffer::create(buffer, memType, usage, accMode);
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<IndexBuffer>(mIBufferCache, uid,
+            [](const Buffer &buffer, IndexBuffer::IndexType indexType, size_t indexCount, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+            {
+                return IndexBuffer::create(buffer, indexType, indexCount, memType, usage, accMode);
+            },
+            buffer, indexType, indexCount, memType, usage, accMode);
     }
-    
+
     //--------------------------------------------------------------------------
 
-    DataBufferPtr DataBufferManager::loadDataBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+    PixelBufferPtr RenderBufferManager::loadPixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps,
+        RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid)
     {
-        return smart_pointer_cast<DataBuffer>(loadBuffer(uuid, buffer, memType, usage, accMode, 0));
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<PixelBuffer>(mPBufferCache, uid,
+            [](const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps,RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+            {
+                return PixelBuffer::create(buffer, width, height, format, mipmaps, memType, usage, accMode);
+            },
+            buffer, width, height, format, mipmaps, memType, usage, accMode);
     }
 
-    //--------------------------------------------------------------------------
-
-    RenderBufferPtr DataBufferManager::createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args)
-    {
-        return DataBuffer::create(buffer, memType, usage, accMode);
-    }
-    
     //--------------------------------------------------------------------------
 }

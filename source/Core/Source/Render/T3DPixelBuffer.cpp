@@ -19,23 +19,29 @@
 
 
 #include "Render/T3DPixelBuffer.h"
+#include "ImageCodec/T3DImage.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    PixelBufferPtr PixelBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+    PixelBufferPtr PixelBuffer::create(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new PixelBuffer(buffer, memType, usage, accMode);
+        return new PixelBuffer(buffer, width, height, format, mipmaps, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer::PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+    PixelBuffer::PixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode)
         : RenderBuffer(buffer, memType, usage, accMode)
+        , mWidth(width)
+        , mHeight(height)
+        , mMipmaps(mipmaps)
+        , mFormat(format)
     {
-        
+        size_t bpp = Image::getBPP(mFormat);
+        mPitch = Image::calcPitch(mWidth, bpp);
     }
 
     //--------------------------------------------------------------------------

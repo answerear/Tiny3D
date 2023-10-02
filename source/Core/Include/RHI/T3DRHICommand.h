@@ -36,7 +36,7 @@ namespace Tiny3D
     };
 
     template<typename... Args>
-    class RHICommandT : RHICommand
+    class RHICommandT : public RHICommand
     {
         using TCallback = TFunction<TResult(Args...)>;
 
