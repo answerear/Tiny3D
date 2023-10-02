@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_VERTEX_ATTRIBUTE_H__
-#define __T3D_RHI_VERTEX_ATTRIBUTE_H__
+#ifndef __T3D_VERTEX_ATTRIBUTE_H__
+#define __T3D_VERTEX_ATTRIBUTE_H__
 
 
 #include "T3DPrerequisites.h"
@@ -31,7 +31,7 @@ namespace Tiny3D
     /**
      * @brief   顶点属性
      */
-    class T3D_ENGINE_API RHIVertexAttribute
+    class T3D_ENGINE_API VertexAttribute
     {
     public:
         /**
@@ -94,7 +94,7 @@ namespace Tiny3D
          * @fn  VertexAttribute::VertexAttribute();
          * @brief   默认构造函数
          */
-        RHIVertexAttribute();
+        VertexAttribute();
 
         /**
          * @brief   构造函数
@@ -104,12 +104,12 @@ namespace Tiny3D
          * @param [in]  semantic        顶点语义解释.
          * @param [in]  semanticIndex   语义索引.
          */
-        RHIVertexAttribute(size_t stream, size_t offset, Type type, Semantic semantic, size_t semanticIndex);
+        VertexAttribute(size_t stream, size_t offset, Type type, Semantic semantic, size_t semanticIndex);
 
         /**
          * @brief   析构函数
          */
-        virtual ~RHIVertexAttribute();
+        virtual ~VertexAttribute();
 
         /**
          * @brief   获取数据流索引
@@ -157,4 +157,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_RHI_VERTEX_ATTRIBUTE_H__*/
+#endif  /*__T3D_ERTEX_ATTRIBUTE_H__*/

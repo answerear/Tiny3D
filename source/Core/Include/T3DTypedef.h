@@ -67,6 +67,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SamplerState);
     T3D_DECLARE_SMART_PTR(RenderState);
     T3D_DECLARE_SMART_PTR(TextureState);
+    T3D_DECLARE_SMART_PTR(VertexDeclaration);
     T3D_DECLARE_SMART_PTR(RenderBuffer);
     T3D_DECLARE_SMART_PTR(VertexBuffer);
     T3D_DECLARE_SMART_PTR(IndexBuffer);
@@ -75,10 +76,6 @@ namespace Tiny3D
     
     T3D_DECLARE_SMART_PTR(RenderStateManager);
     T3D_DECLARE_SMART_PTR(RenderBufferManager);
-    T3D_DECLARE_SMART_PTR(VertexBufferManager);
-    T3D_DECLARE_SMART_PTR(IndexBufferManager);
-    T3D_DECLARE_SMART_PTR(PixelBufferManager);
-    T3D_DECLARE_SMART_PTR(DataBufferManager);
     
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);

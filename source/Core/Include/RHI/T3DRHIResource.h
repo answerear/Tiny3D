@@ -47,7 +47,8 @@ namespace Tiny3D
             kVertexBuffer,
             kIndexBuffer,
             kPixelBuffer,
-            kDataBuffer
+            kDataBuffer,
+            kVertexDeclaration,
         };
         
         virtual ResourceType getResourceType() const = 0; 

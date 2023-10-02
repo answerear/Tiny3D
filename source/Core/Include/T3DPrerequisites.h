@@ -114,6 +114,7 @@ namespace Tiny3D
     class SamplerState;
     class RenderState;
     class TextureState;
+    class VertexDeclaration;
     class RenderBuffer;
     class VertexBuffer;
     class IndexBuffer;
@@ -122,10 +123,6 @@ namespace Tiny3D
 
     class RenderStateManager;
     class RenderBufferManager;
-    class VertexBufferManager;
-    class IndexBufferManager;
-    class PixelBufferManager;
-    class DataBufferManager;
     
     class RHIRenderTarget;
     class RHIRenderWindow;
@@ -144,7 +141,6 @@ namespace Tiny3D
     class RHIIndexBuffer;
     class RHIPixelBuffer;
     class RHIDataBuffer;
-    class RHIVertexAttribute;
     class RHIVertexDeclaration;
     class RHIBufferManager;
     class RHIBufferManagerBase;

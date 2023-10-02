@@ -58,6 +58,8 @@ namespace Tiny3D
             kPixelBuffer,
             /// 数据缓冲
             kDataBuffer,
+            /// 顶点声明
+            kVertexDeclaration,
         };
         
         ~RenderResource() override = default;

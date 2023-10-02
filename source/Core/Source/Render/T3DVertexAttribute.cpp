@@ -18,14 +18,14 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIVertexAttribute.h"
+#include "Render/T3DVertexAttribute.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIVertexAttribute::RHIVertexAttribute(size_t stream, size_t offset, Type type, Semantic semantic, size_t semanticIndex /* = 0 */)
+    VertexAttribute::VertexAttribute(size_t stream, size_t offset, Type type, Semantic semantic, size_t semanticIndex /* = 0 */)
         : mType(type)
         , mSemantic(semantic)
         , mOffset(offset)
@@ -37,14 +37,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIVertexAttribute::~RHIVertexAttribute()
+    VertexAttribute::~VertexAttribute()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    size_t RHIVertexAttribute::getSize() const
+    size_t VertexAttribute::getSize() const
     {
         size_t s = 0;
         switch (mType)
