@@ -116,6 +116,7 @@ namespace Tiny3D
             
             ret = mRunnable->run();
             mRunnable->exit();
+            mRunnable = nullptr;
         }
         else
         {
