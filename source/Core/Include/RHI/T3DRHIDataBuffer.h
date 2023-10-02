@@ -22,7 +22,7 @@
 #define __T3D_RHI_DATA_BUFFER_H__
 
 
-#include "RHI/T3DRHIBuffer.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
@@ -30,18 +30,12 @@ namespace Tiny3D
     /**
      * @brief 常量缓冲区
      */
-    class T3D_ENGINE_API RHIDataBuffer : public RHIBuffer
+    class T3D_ENGINE_API RHIDataBuffer : public RHIResource
     {
-    protected:
-        /**
-         * @brief   构造函数
-         * @param [in]  bufSize 缓冲区大小.
-         * @param [in]  usage   缓冲区使用方式.
-         * @param [in]  mode    缓冲区访问方式.
-         */
-        RHIDataBuffer(size_t bufSize, Usage usage, uint32_t mode);
-
         ResourceType getResourceType() const override { return ResourceType::kDataBuffer; }
+        
+    protected:
+        RHIDataBuffer();
     };
 }
 

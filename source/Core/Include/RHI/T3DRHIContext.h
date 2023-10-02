@@ -24,6 +24,10 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Render/T3DBlendState.h"
+#include "Render/T3DDepthStencilState.h"
+#include "Render/T3DRasterizerState.h"
+#include "Render/T3DSamplerState.h"
 #include "RHI/T3DRHIBlendState.h"
 #include "RHI/T3DRHIDepthStencilState.h"
 #include "RHI/T3DRHIRasterizerState.h"

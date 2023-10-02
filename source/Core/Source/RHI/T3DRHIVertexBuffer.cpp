@@ -25,22 +25,11 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIVertexBuffer::RHIVertexBuffer(size_t vertexSize,
-        size_t vertexCount, Usage usage, uint32_t mode)
-        : RHIBuffer(usage, mode)
-        , mVertexCount(vertexCount)
-        , mVertexSize(vertexSize)
-    {
-        mBufferSize = mVertexSize * mVertexCount;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    RHIVertexBuffer::~RHIVertexBuffer()
+    RHIVertexBuffer::RHIVertexBuffer()
     {
 
     }
-    
+
     //--------------------------------------------------------------------------
 }
 

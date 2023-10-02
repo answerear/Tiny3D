@@ -25,20 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIIndexBuffer::RHIIndexBuffer(Type indexType, size_t indexCount, Usage usage, uint32_t mode)
-        : RHIBuffer(usage, mode)
-        , mType(indexType)
-        , mIndexCount(indexCount)
+    RHIIndexBuffer::RHIIndexBuffer()
     {
-        mIndexSize = (indexType == Type::E_IT_16BITS ? sizeof(uint16_t) : sizeof(uint32_t));
-        mBufferSize = mIndexSize * mIndexCount;
-    }
-
-    //--------------------------------------------------------------------------
-
-    RHIIndexBuffer::~RHIIndexBuffer()
-    {
-
     }
 
     //--------------------------------------------------------------------------

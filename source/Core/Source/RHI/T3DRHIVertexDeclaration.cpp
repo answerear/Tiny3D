@@ -19,7 +19,6 @@
 
 
 #include "RHI/T3DRHIVertexDeclaration.h"
-#include "RHI/T3DRHIBufferManager.h"
 
 
 namespace Tiny3D
@@ -249,7 +248,7 @@ namespace Tiny3D
 
     RHIVertexDeclarationPtr RHIVertexDeclaration::clone() const
     {
-        RHIVertexDeclarationPtr decl = T3D_RHI_BUFFER_MGR.createVertexDeclaration();
+        RHIVertexDeclarationPtr decl;
         VertexAttriListConstItr itr = mVertexAttributes.begin();
 
         while (itr != mVertexAttributes.end())

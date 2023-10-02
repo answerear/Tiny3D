@@ -22,7 +22,6 @@
 #define __T3D_RHI_DEPTH_STENCIL_STATE_H__
 
 
-#include "Render/T3DDepthStencilState.h"
 #include "RHI/T3DRHIResource.h"
 
 

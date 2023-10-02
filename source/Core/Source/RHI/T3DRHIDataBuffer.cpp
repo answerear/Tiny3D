@@ -25,10 +25,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIDataBuffer::RHIDataBuffer(size_t bufSize, Usage usage, uint32_t mode)
-        : RHIBuffer(usage, mode)
+    RHIDataBuffer::RHIDataBuffer()
     {
-        mBufferSize = bufSize;
     }
 
     //--------------------------------------------------------------------------

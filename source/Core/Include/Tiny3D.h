@@ -66,6 +66,7 @@
 #include <ImageCodec/T3DImage.h>
 
 // Render
+#include <Render/T3DRenderConstant.h>
 #include <Render/T3DRenderResource.h>
 #include <Render/T3DBlendState.h>
 #include <Render/T3DDepthStencilState.h>
@@ -80,7 +81,6 @@
 #include <Render/T3DRenderResourceManager.h>
 
 // RHI
-#include <Render/T3DRenderConstant.h>
 #include <RHI/T3DRHIRenderer.h>
 #include <RHI/T3DRHIContext.h>
 #include <RHI/T3DRHIRenderTarget.h>
@@ -92,13 +92,10 @@
 #include <RHI/T3DRHISamplerState.h>
 #include <RHI/T3DRHIVertexAttribute.h>
 #include <RHI/T3DRHIVertexDeclaration.h>
-#include <RHI/T3DRHIBuffer.h>
 #include <RHI/T3DRHIDataBuffer.h>
 #include <RHI/T3DRHIVertexBuffer.h>
 #include <RHI/T3DRHIIndexBuffer.h>
 #include <RHI/T3DRHIPixelBuffer.h>
-#include <RHI/T3DRHIBufferManager.h>
-#include <RHI/T3DRHIBufferManagerBase.h>
 
 // #include <Render/T3DHardwareBufferManagerBase.h>
 // #include <Render/T3DHardwareBufferManager.h>

@@ -112,7 +112,7 @@ namespace Tiny3D
         /**
          * \brief 获取数据大小
          */
-        uint32_t getSize() const { return mData.DataSize; }
+        uint32_t getSize() const { return (uint32_t)mData.DataSize; }
 
         /**
          * \brief 获取数据在 cbuffer 中的偏移

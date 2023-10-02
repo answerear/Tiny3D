@@ -22,7 +22,6 @@
 #define __T3D_RHI_BLEND_STATE_H__
 
 
-#include "Render/T3DBlendState.h"
 #include "RHI/T3DRHIResource.h"
 
 
