@@ -77,48 +77,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIRenderWindowPtr D3D11Renderer::createRenderWindow(const String &name,
-        const RenderWindowCreateParam &param)
-    {
-        RHIRenderWindowPtr window = nullptr;
-
-        do
-        {
-            window = D3D11Window::create(name);
-            if (window == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-                    "Create render window failed !");
-                break;
-            }
-
-            TResult ret = window->create(param);
-            if (T3D_FAILED(ret))
-            {
-                // window->release();
-                // window = nullptr;
-                break;
-            }
-
-            if (mPrimaryWindow == nullptr)
-            {
-                mPrimaryWindow = window;
-            }
-            else
-            {
-
-            }
-        } while (false);
-
-        return window;
-    }
-    
-    //--------------------------------------------------------------------------
-
     void D3D11Renderer::cleanup()
     {
         mContext = nullptr;
-        mPrimaryWindow = nullptr;
     }
 
     //--------------------------------------------------------------------------

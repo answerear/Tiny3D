@@ -28,27 +28,9 @@
 namespace Tiny3D
 {
     /**
-     * @brief 创建窗口需要的必要数据
-     */
-    struct RenderWindowCreateParam
-    {
-        THandle externalHandle; 
-        int32_t windowLeft;     /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
-        int32_t windowTop;      /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
-        int32_t windowWidth;    /**< 窗口宽度 */
-        int32_t windowHeight;   /**< 窗口高度 */
-        int32_t colorDepth;     /**< 窗口色深 */
-        int32_t MSAA;           /**< 抗锯齿质量 */
-        String  windowTitle;    /**< 窗口标题 */
-        String  iconPath;       /**< 图标文件路径 */
-        bool    fullscreen;     /**< 是否全屏，终端平台忽略该参数 */
-        bool    vsync;          /**< 是否开启垂直同步 */
-    };
-
-    /**
      * @brief 渲染窗口
      */
-    class T3D_ENGINE_API RHIRenderWindow : public RenderTarget
+    class T3D_ENGINE_API RHIRenderWindow : public Object
     {
     public:
         /**
@@ -57,50 +39,29 @@ namespace Tiny3D
         virtual ~RHIRenderWindow();
 
         /**
-         * @brief 获取渲染目标类型
-         * @remarks 实现基类接口
-         */
-        virtual Type getType() const override;
-
-        /**
-         * @brief 渲染
-         * @remarks 重写RenderTarget::update()
-         * @see RenderTarget::update()
-         */
-        virtual void render() override;
-
-        /**
-         * @brief 创建渲染窗口实体
-         * @param [in] param : 渲染窗口需要必要参数
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
-         */
-        virtual TResult create(const RenderWindowCreateParam &param) = 0;
-
-        /**
-         * @brief 销毁窗口
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
-         */
-        virtual TResult destroy() = 0;
-
-        /**
-         * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
+         * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
+         * @brief   双缓冲中交换离屏缓存到显示缓存，显示出图像
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  具体渲染系统子类实现本接口.
          */
         virtual TResult swapBuffers() = 0;
 
         /**
-         * @brief 获取是否全屏窗口
+         * @fn  virtual void D3D11RenderWindow::clear(const ColorRGB &clrFill, 
+         *      uint32_t clearFlags, Real depth, uint32_t stencil) override;
+         * @brief   Clears this object to its blank/initial state
+         * @param   clrFill     The color fill.
+         * @param   clearFlags  The clear flags.
+         * @param   depth       The depth.
+         * @param   stencil     The stencil.
          */
-        virtual bool isFullscreen() const;
-
+        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+        
     protected:
         /**
          * @brief 构造函数
          */
-        RHIRenderWindow(const String &name);
+        RHIRenderWindow();
     };
 }
 

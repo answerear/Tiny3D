@@ -31,7 +31,7 @@
 #include "Resource/T3DShader.h"
 #include "Resource/T3DShaderManager.h"
 #include "T3DErrorDef.h"
-#include "RHI/T3DRHIRenderWindow.h"
+#include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIRenderer.h"
 #include "Material/T3DShaderVariant.h"
@@ -192,7 +192,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, const String &config)
+    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config)
     {
         TResult ret = T3D_OK;
 
@@ -238,8 +238,8 @@ namespace Tiny3D
             if (autoCreateWindow)
             {
                 // 创建渲染窗口
-                RHIRenderWindowPtr window;
-                ret = createDefaultRenderWindow(window);
+                RenderWindowPtr window;
+                ret = createDefaultRenderWindow(window, isWindowApp);
                 if (T3D_FAILED(ret))
                 {
                     break;
@@ -326,7 +326,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, const Settings &settings)
+    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings)
     {
         TResult ret = T3D_OK;
 
@@ -367,8 +367,8 @@ namespace Tiny3D
             if (autoCreateWindow)
             {
                 // 创建渲染窗口
-                RHIRenderWindowPtr window;
-                ret = createDefaultRenderWindow(window);
+                RenderWindowPtr window;
+                ret = createDefaultRenderWindow(window, isWindowApp);
                 if (T3D_FAILED(ret))
                 {
                     break;
@@ -388,7 +388,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::createDefaultRenderWindow(RHIRenderWindowPtr &window)
+    TResult Agent::createDefaultRenderWindow(RenderWindowPtr &window, bool isWindowApp)
     {
         TResult ret = T3D_OK;
 
@@ -421,7 +421,15 @@ namespace Tiny3D
             ss << "Tiny3D " << getVersionName() << "(" << getVersionString();
             ss << ")" << " - " << param.windowTitle;
             param.windowTitle = ss.str();
-            window = mActiveRHIRenderer->createRenderWindow(param.windowTitle,  param);
+            if (isWindowApp)
+            {
+                window = RenderWindow::create(param.windowTitle);
+            }
+            else
+            {
+                window = NullRenderWindow::create(param.windowTitle);
+            }
+            window->create(param);
             if (window == nullptr)
             {
                 ret = T3D_ERR_RENDER_CREATE_WINDOW;
@@ -437,7 +445,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::addRenderWindow(RHIRenderWindowPtr window)
+    TResult Agent::addRenderWindow(RenderWindowPtr window)
     {
         TResult ret = T3D_OK;
 
@@ -479,9 +487,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIRenderWindowPtr Agent::getRenderWindow(const String &name) const
+    RenderWindowPtr Agent::getRenderWindow(const String &name) const
     {
-        RHIRenderWindowPtr window = nullptr;
+        RenderWindowPtr window = nullptr;
         
         if (mActiveRHIRenderer == nullptr)
         {

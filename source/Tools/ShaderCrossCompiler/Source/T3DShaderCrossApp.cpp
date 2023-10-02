@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     settings.pluginSettings.plugins.push_back("FileSystemArchive");
     settings.pluginSettings.plugins.push_back("NullRenderer");
     settings.renderSettings.renderer = "NullRenderer";
-    TResult ret = theEngine->init(argc, argv, true, settings);
+    TResult ret = theEngine->init(argc, argv, true, false, settings);
     if (ret == T3D_OK)
         theEngine->run();
 

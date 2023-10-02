@@ -59,10 +59,10 @@ namespace Tiny3D
 
     #define T3D_RHI_THREAD      (RHIThread::getInstance())
     
-    #define T3D_ENQUEUE_RHI_COMMAND(CLASS, CALLBACK, PARAMS) \
+    #define T3D_ENQUEUE_RHI_COMMAND(CLASS, FUNC, PARAMS) \
         if (T3D_RHI_THREAD.isRunning()) \
         { \
-            RHICommand##CLASS *command = new RHICommand##CLASS(PARAMS,  CALLBACK); \
+            RHICommand##CLASS *command = new RHICommand##CLASS(PARAMS,  FUNC); \
             T3D_RHI_THREAD.addCommand(command); \
         } \
         else \
@@ -70,9 +70,9 @@ namespace Tiny3D
             std:;apply(CALLBACK, PARAMS); \
         }
 
-    #define T3D_ENQUEUE_UNIQUE_RHI_COMMAND(CLASS, CALLBACK, PARAMS) \
+    #define T3D_ENQUEUE_UNIQUE_RHI_COMMAND(CLASS, FUNC, PARAMS) \
         T3D_DECLARE_UNIQUE_RHI_COMMAND(CLASS)   \
-        T3D_ENQUEUE_RHI_COMMAND(CLASS, CALLBACK, PARAMS)
+        T3D_ENQUEUE_RHI_COMMAND(CLASS, FUNC, PARAMS)
 }
 
 

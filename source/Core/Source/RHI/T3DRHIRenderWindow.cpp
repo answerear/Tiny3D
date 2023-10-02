@@ -25,8 +25,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIRenderWindow::RHIRenderWindow(const String &name)
-        : RenderTarget(name)
+    RHIRenderWindow::RHIRenderWindow()
     {
 
     }
@@ -39,25 +38,5 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    RHIRenderWindow::Type RHIRenderWindow::getType() const
-    {
-        return E_RT_WINDOW;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool RHIRenderWindow::isFullscreen() const
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIRenderWindow::render()
-    {
-        RenderTarget::render();
-        swapBuffers();
-    }
 }
 

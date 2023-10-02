@@ -41,7 +41,7 @@ TResult SampleWindowApp::go(int32_t argc, char *argv[])
 
     Tiny3D::Agent *theEngine = new Tiny3D::Agent();
 
-    ret = theEngine->init(argc, argv, true);
+    ret = theEngine->init(argc, argv, true, true);
     if (ret == T3D_OK)
         theEngine->run();
 
@@ -98,7 +98,7 @@ TResult SampleConsoleApp::go(int32_t argc, char *argv[])
     settings.pluginSettings.plugins.push_back("FileSystemArchive");
     settings.pluginSettings.plugins.push_back("NullRenderer");
     settings.renderSettings.renderer = "NullRenderer";
-    ret = theEngine->init(argc, argv, true, settings);
+    ret = theEngine->init(argc, argv, true, false, settings);
     if (ret == T3D_OK)
         theEngine->run();
 

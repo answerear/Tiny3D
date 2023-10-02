@@ -35,33 +35,13 @@ namespace Tiny3D
          * @param [in] name : 渲染窗口名字
          * @return 返回一个渲染窗口对象
          */
-        static NullWindowPtr create(const String &name);
+        static NullWindowPtr create();
 
         /**
          * @fn  virtual NullRenderWindow::~NullRenderWindow();
          * @brief   析构函数
          */
         virtual ~NullWindow();
-
-        /**
-         * @fn  virtual TResult NullRenderWindow::create(
-         *      const RenderWindowCreateParam &param, 
-         *      const RenderWindowCreateParamEx &paramEx) override;
-         * @brief   创建渲染窗口实体
-         * @param [in]  param   : 渲染窗口需要必要参数.
-         *   通过这里传递.
-         * @return  调用成功返回 T3D_OK.
-         * @remarks  具体渲染系统子类实现本接口.
-         */
-        virtual TResult create( const RenderWindowCreateParam &param) override;
-
-        /**
-         * @fn  virtual TResult NullRenderWindow::destroy() override;
-         * @brief   销毁窗口
-         * @return  调用成功返回 T3D_OK.
-         * @remarks  具体渲染系统子类实现本接口.
-         */
-        virtual TResult destroy() override;
 
         /**
          * @fn  virtual TResult NullRenderWindow::swapBuffers() override;
@@ -80,8 +60,7 @@ namespace Tiny3D
          * @param   depth       The depth.
          * @param   stencil     The stencil.
          */
-        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, 
-            Real depth, uint32_t stencil) override;
+        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
     protected:
         /**
@@ -89,7 +68,7 @@ namespace Tiny3D
          * @brief   Constructor
          * @param   name    The name.
          */
-        NullWindow(const String &name);
+        NullWindow();
     };
 }
 

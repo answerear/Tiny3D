@@ -27,94 +27,42 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11WindowPtr D3D11Window::create(const String &name)
+    D3D11WindowPtr D3D11Window::create()
     {
-        D3D11WindowPtr window = new D3D11Window(name);
-        // window->release();
+        D3D11WindowPtr window = new D3D11Window();
+        if (!window->init())
+        {
+            window = nullptr;
+        }
         return window;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11Window::D3D11Window(const String &name)
-        : RHIRenderWindow(name)
-        , mWindow(nullptr)
-        , mD3DSwapChain(nullptr)
+    D3D11Window::D3D11Window()
+        : mD3DSwapChain(nullptr)
         , mD3DRTView(nullptr)
         , mD3DDSView(nullptr)
     {
-
     }
 
     //--------------------------------------------------------------------------
 
     D3D11Window::~D3D11Window()
     {
-        D3D_SAFE_RELEASE(mD3DSwapChain);
-        D3D_SAFE_RELEASE(mD3DRTView);
         D3D_SAFE_RELEASE(mD3DDSView);
-
-        T3D_SAFE_DELETE(mWindow);
+        D3D_SAFE_RELEASE(mD3DRTView);
+        D3D_SAFE_RELEASE(mD3DSwapChain);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Window::create(const RenderWindowCreateParam &param)
+    bool D3D11Window::init()
     {
-        TResult ret = T3D_OK;
+        bool ret = true;
 
         do
         {
-            if (mWindow != nullptr)
-            {
-                // 窗口已经创建
-                ret = T3D_ERR_D3D11_WINDOW_ALREADY;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-                    "Render window already created !");
-                break;
-            }
-
-            mWindow = new Window();
-
-            // 创建窗口
-            void *externalWnd = param.externalHandle;
-            if (externalWnd != nullptr)
-            {
-                // 外部创建的窗口，这里关联上
-                ret = mWindow->createFrom(externalWnd);
-            }
-            else
-            {
-                // 自己创建窗口对象
-                uint32_t flags = Window::WINDOW_SHOWN;
-                if (param.fullscreen)
-                {
-                    flags |= Window::WINDOW_FULLSCREEN;
-                }
-
-                String title = param.windowTitle + " - " 
-                    + D3D11_RENDERER.getName();
-                ret = mWindow->create(title.c_str(),
-                    param.windowLeft, param.windowTop,
-                    param.windowWidth, param.windowHeight, flags);
-                if (T3D_FAILED(ret))
-                {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-                        "Create native window failed !");
-                    break;
-                }
-            }
-
-            // 加载图标
-            ret = loadIcon(param.iconPath);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            mWidth = param.windowWidth;
-            mHeight = param.windowHeight;
-            mColorDepth = mWindow->getColorDepth();
             // mPitch = Image::calcPitch(mWidth, mColorDepth);
 
             // ret = setupD3D11Environment(param, paramEx);
@@ -124,36 +72,7 @@ namespace Tiny3D
             // }
 
             ret = T3D_OK;
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Window::destroy()
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            if (mWindow == nullptr)
-            {
-                ret = T3D_ERR_INVALID_POINTER;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid window pointer !");
-                break;
-            }
-
-            D3D_SAFE_RELEASE(mD3DDSView);
-            D3D_SAFE_RELEASE(mD3DRTView);
-            D3D_SAFE_RELEASE(mD3DSwapChain);
-
-            mWindow->destroy();
-
-            T3D_SAFE_DELETE(mWindow);
-
-            ret = T3D_OK;
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -175,7 +94,7 @@ namespace Tiny3D
                     "Present failed ! DX ERROR [%d]", hr);
                 break;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -204,77 +123,12 @@ namespace Tiny3D
             // pD3DContext->ClearRenderTargetView(mD3DRTView, clr);
             // pD3DContext->ClearDepthStencilView(mD3DDSView, 
             //     D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
-        } while (0);
+        } while (false);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Window::loadIcon(const String &iconPath)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            // // 加载图标资源
-            // Image image;
-            // ret = image.load(iconPath);
-            // if (T3D_FAILED(ret))
-            // {
-            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-            //         "Load icon image [%s] failed !", iconPath.c_str());
-            //     break;
-            // }
-            //
-            // // 设置窗口图标
-            // Window::WindowIcon icon;
-            // icon.pixels = image.getData();
-            // icon.width = image.getWidth();
-            // icon.height = image.getHeight();
-            // icon.depth = image.getBPP();
-            // icon.pitch = image.getPitch();
-            //
-            // switch (image.getFormat())
-            // {
-            // case PixelFormat::E_PF_PALETTE8:
-            //     icon.format = Window::PIXEL_FORMAT_INDEX8;
-            //     break;
-            // case PixelFormat::E_PF_A1R5G5B5:
-            //     icon.format = Window::PIXEL_FORMAT_ARGB1555;
-            //     break;
-            // case PixelFormat::E_PF_A4R4G4B4:
-            //     icon.format = Window::PIXEL_FORMAT_ARGB4444;
-            //     break;
-            // case PixelFormat::E_PF_R5G6B5:
-            //     icon.format = Window::PIXEL_FORMAT_RGB565;
-            //     break;
-            // case PixelFormat::E_PF_R8G8B8:
-            //     icon.format = Window::PIXEL_FORMAT_RGB24;
-            //     break;
-            // case PixelFormat::E_PF_A8R8G8B8:
-            //     icon.format = Window::PIXEL_FORMAT_ARGB8888;
-            //     break;
-            // default:
-            //     break;
-            // }
-            //
-            // if (T3D_FAILED(ret))
-            // {
-            //     ret = T3D_ERR_D3D11_UNSUPPORT_FORMAT_ICON;
-            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, 
-            //         "Do not support icon [%s] format !", iconPath.c_str());
-            //     break;
-            // }
-            //
-            // mWindow->setWindowIcon(icon);
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Window::setupD3D11Environment(
-        const RenderWindowCreateParam &param)
+    TResult D3D11Window::setupD3D11Environment()
     {
         TResult ret = T3D_OK;
 
@@ -344,7 +198,7 @@ namespace Tiny3D
             //     = D3D11_CONTEXT.getD3DDeviceContext();
             // pD3DContext->OMSetRenderTargets(1, &mD3DRTView, mD3DDSView);
 
-        } while (0);
+        } while (false);
 
         return ret;
     }

@@ -76,6 +76,7 @@ namespace Tiny3D
         T3D_ERR_RENDER_BUFFER_READ_SYNC = T3D_ERR_CORE + 0x0200,
         /**< CPU 无法读取数据 */
         T3D_ERR_RENDER_BUFFER_CPY_READ  = T3D_ERR_CORE + 0x0201,
+        T3D_ERR_RENDER_WINDOW_ALREADY   = T3D_ERR_CORE + 0x0202,
     };
 }
 

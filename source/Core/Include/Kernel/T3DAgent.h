@@ -46,17 +46,17 @@ namespace Tiny3D
 
         const char *getVersionName() const;
 
-        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, const String &config = "Tiny3D.cfg");
+        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config = "Tiny3D.cfg");
 
-        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, const Settings &settings);
+        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings);
 
-        TResult createDefaultRenderWindow(RHIRenderWindowPtr &window);
+        TResult createDefaultRenderWindow(RenderWindowPtr &window, bool isWindowApp);
 
-        TResult addRenderWindow(RHIRenderWindowPtr window);
+        TResult addRenderWindow(RenderWindowPtr window);
 
         TResult removeRenderWindow(const String &name);
 
-        RHIRenderWindowPtr getRenderWindow(const String &name) const;
+        RenderWindowPtr getRenderWindow(const String &name) const;
 
         // RenderWindowPtr getDefaultRenderWindow() const 
         // { 
@@ -157,7 +157,7 @@ namespace Tiny3D
         EventManager            *mEventMgr {nullptr};         /**< 事件管理器对象 */
         ObjectTracer            *mObjTracer {nullptr};        /**< 对象内存跟踪 */
 
-        RHIRenderWindowPtr      mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
+        RenderWindowPtr      mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
         RHIRendererPtr          mActiveRHIRenderer {nullptr}; /**< 当前使用的 RHI 渲染器 */
 
         ArchiveManagerPtr       mArchiveMgr {nullptr};

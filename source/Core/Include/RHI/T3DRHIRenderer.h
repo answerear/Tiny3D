@@ -63,9 +63,6 @@ namespace Tiny3D
          * @returns The name.
          */
         const String &getName() const { return mName; }
-        
-        virtual RHIRenderWindowPtr createRenderWindow(
-           const String &name, const RenderWindowCreateParam &param) = 0;
 
         RHIContextPtr getContext() { return mContext; }
         
@@ -73,7 +70,6 @@ namespace Tiny3D
         String                  mName;              /**< 渲染器名称 */
 
         RHIContextPtr           mContext;           /**< RHI 渲染上下文 */
-        RHIRenderWindowPtr      mPrimaryWindow;     /**< 主窗口 */
     };
 }
 

@@ -27,17 +27,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    NullWindowPtr NullWindow::create(const String &name)
+    NullWindowPtr NullWindow::create()
     {
-        NullWindowPtr window = new NullWindow(name);
-        // window->release();
+        NullWindowPtr window = new NullWindow();
         return window;
     }
 
     //--------------------------------------------------------------------------
 
-    NullWindow::NullWindow(const String &name)
-        : RHIRenderWindow(name)
+    NullWindow::NullWindow()
     {
 
     }
@@ -46,24 +44,6 @@ namespace Tiny3D
 
     NullWindow::~NullWindow()
     {
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NullWindow::create(const RenderWindowCreateParam &param)
-    {
-        TResult ret = T3D_OK;
-
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NullWindow::destroy()
-    {
-        TResult ret = T3D_OK;
-        return ret;
     }
 
     //--------------------------------------------------------------------------
