@@ -528,7 +528,7 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
-            T3D_RHI_THREAD.start();
+            T3D_RHI_THREAD.resume();
             
             // 轮询系统事件
             mIsRunning = theApp->pollEvents();
@@ -544,6 +544,8 @@ namespace Tiny3D
 
             // 渲染一帧
             renderOneFrame();
+
+            mRHIEvent.wait();
         }
 
         theApp->applicationWillTerminate();
@@ -557,7 +559,7 @@ namespace Tiny3D
         // {
         //     mActiveRenderer->renderAllTargets();
         // }
-
+        getActiveRHIContext()->renderAllTargets();
     }
 
     //--------------------------------------------------------------------------
@@ -1114,6 +1116,13 @@ namespace Tiny3D
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::resumeEngineThread()
+    {
+        mRHIEvent.trigger();
     }
 
     //--------------------------------------------------------------------------

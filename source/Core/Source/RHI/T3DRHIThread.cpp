@@ -19,6 +19,8 @@
 
 
 #include "RHI/T3DRHIThread.h"
+
+#include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHICommand.h"
 
 
@@ -67,7 +69,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void RHIThread::start()
+    void RHIThread::resume()
     {
         exchange();
         mEvent.trigger();
@@ -89,6 +91,8 @@ namespace Tiny3D
             }
 
             mCommandLists[mHanldeCommandListIdx].clear();
+            
+            T3D_AGENT.resumeEngineThread();
         }
 
         return T3D_OK;

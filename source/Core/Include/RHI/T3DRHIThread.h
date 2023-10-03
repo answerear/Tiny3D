@@ -40,7 +40,7 @@ namespace Tiny3D
         void stop() final;
         void exit() override;
 
-        void start();
+        void resume();
         
         bool isRunning() const { return mIsRunning; }
 

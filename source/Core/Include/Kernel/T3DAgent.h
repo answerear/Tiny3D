@@ -116,6 +116,8 @@ namespace Tiny3D
         ArchivePtr getInternalArchive() const { return mInternalArchive; }
 
         ArchivePtr getProjectArchive() const { return mProjectArchive; }
+
+        void resumeEngineThread();
         
     protected:
         TResult initSystem(const String &appPath);
@@ -159,7 +161,7 @@ namespace Tiny3D
         EventManager            *mEventMgr {nullptr};         /**< 事件管理器对象 */
         ObjectTracer            *mObjTracer {nullptr};        /**< 对象内存跟踪 */
 
-        RenderWindowPtr      mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
+        RenderWindowPtr         mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
         RHIRendererPtr          mActiveRHIRenderer {nullptr}; /**< 当前使用的 RHI 渲染器 */
 
         ArchiveManagerPtr       mArchiveMgr {nullptr};
@@ -186,6 +188,7 @@ namespace Tiny3D
 
         RunnableThread          mRHIThread {};
         RHIThreadPtr            mRHIRunnable {nullptr};
+        Event                   mRHIEvent {};
         
         bool                    mIsRunning {false}; /**< 引擎是否在运行中 */
     };
