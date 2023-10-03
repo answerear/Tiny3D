@@ -85,6 +85,7 @@ namespace Tiny3D
          */
         void addObject(Object *object)
         {
+            ScopeLock lock(&mMutex);
             if (mIsEnabled)
                 mObjects.insert(object);
         }
@@ -96,6 +97,7 @@ namespace Tiny3D
          */
         void removeObject(Object *object)
         {
+            ScopeLock lock(&mMutex);
             if (mIsEnabled)
                 mObjects.erase(object);
         }
@@ -112,8 +114,9 @@ namespace Tiny3D
         typedef Objects::const_iterator ObjectsConstItr;
         typedef Objects::value_type     ObjectsValue;
 
-        bool                    mIsEnabled;     /**< 是否开启了内存跟踪 */
-        Objects                 mObjects;       /**< 对象集合 */
+        Mutex   mMutex {};
+        bool    mIsEnabled {true}; /**< 是否开启了内存跟踪 */
+        Objects mObjects {};    /**< 对象集合 */
 
         mutable FileDataStream  *mStream;       /**< 临时输出对象，用于dumpMemoryInfo的时候 */
     };
