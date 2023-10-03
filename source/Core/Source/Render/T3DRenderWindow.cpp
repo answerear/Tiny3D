@@ -123,6 +123,8 @@ namespace Tiny3D
             // }
 
             mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this, param);
+
+            ViewportPtr viewport = addViewport(0, 0, 0, mWidth * 0.5f, mHeight * 0.5f);
         } while (false);
         
         return ret;

@@ -69,6 +69,7 @@ namespace Tiny3D
     void Viewport::render()
     {
         // T3D_SCENE_MGR.render(this);
+        T3D_AGENT.getActiveRHIContext()->setViewport(this);
     }
 
     //--------------------------------------------------------------------------

@@ -264,6 +264,8 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     RHIBlendStatePtr D3D11Context::createBlendState(const BlendDesc &desc)
     {
         return nullptr;
@@ -304,10 +306,27 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::setViewport(Viewport *viewport)
     {
-        return T3D_OK;
+        D3D11_VIEWPORT vp;
+        vp.TopLeftX = float(viewport->getActualLeft());
+        vp.TopLeftY = float(viewport->getActualTop());
+        vp.Width = float(viewport->getActualWidth());
+        vp.Height = float(viewport->getActualHeight());
+        vp.MinDepth = 0.0f;
+        vp.MaxDepth = 1.0f;
+
+        return ENQUEUE_UNIQUE_COMMAND([this](D3D11_VIEWPORT vp)
+            {
+                mD3DDeviceContext->RSSetViewports(1, &vp);
+                return T3D_OK;
+            },
+            vp);
     }
+
+    //--------------------------------------------------------------------------
 
     TResult D3D11Context::setShader()
     {
