@@ -17,13 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#if 0
+
 namespace Tiny3D
 {
-    inline CameraPtr Viewport::getCamera() const
-    {
-        return mCamera;
-    }
+    // inline CameraPtr Viewport::getCamera() const
+    // {
+    //     return mCamera;
+    // }
 
     inline RenderTargetPtr Viewport::getRenderTarget() const
     {
@@ -105,5 +105,4 @@ namespace Tiny3D
         return mBkgndColor;
     }
 }
-#endif
 

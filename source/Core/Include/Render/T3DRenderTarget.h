@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Render/T3DViewport.h"
 
 
 namespace Tiny3D
@@ -125,32 +126,31 @@ namespace Tiny3D
          * @param [in] width : 视口宽度占渲染目标区域的比例值
          * @param [in] height : 视口高度占渲染目标区域的比例值
          */
-        // ViewportPtr addViewport(CameraPtr camera, long_t zOrder,
-        //                         Real left, Real top, Real width, Real height);
-        //
-        // /**
-        //  * @brief 移除指定深度值的视口对象
-        //  * @param [in] zOrder : 深度值
-        //  * @return 调用成功返回 T3D_OK
-        //  */
-        // TResult removeViewport(long_t zOrder);
-        //
-        // /**
-        //  * @brief 移除所有当前渲染目标关联的视口对象
-        //  */
-        // TResult removeAllViewports();
-        //
-        // /**
-        //  * @brief 获取当前渲染目标关联的视口对象的数量
-        //  */
-        // size_t getNumViewports() const;
-        //
-        // /**
-        //  * @brief 根据指定索引获取对应的视口对象
-        //  * @param [in] zOrder : 深度值
-        //  * @return 调用成功返回视口对象，否则返回nullptr
-        //  */
-        // ViewportPtr getViewport(long_t zOrder) const;
+        ViewportPtr addViewport(long_t zOrder, Real left, Real top, Real width, Real height);
+        
+        /**
+         * @brief 移除指定深度值的视口对象
+         * @param [in] zOrder : 深度值
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult removeViewport(long_t zOrder);
+        
+        /**
+         * @brief 移除所有当前渲染目标关联的视口对象
+         */
+        TResult removeAllViewports();
+        
+        /**
+         * @brief 获取当前渲染目标关联的视口对象的数量
+         */
+        size_t getNumViewports() const;
+        
+        /**
+         * @brief 根据指定索引获取对应的视口对象
+         * @param [in] zOrder : 深度值
+         * @return 调用成功返回视口对象，否则返回nullptr
+         */
+        ViewportPtr getViewport(long_t zOrder) const;
 
     protected:
         /**
@@ -159,10 +159,7 @@ namespace Tiny3D
         RenderTarget(const String &name);
 
     protected:
-        // typedef TMap<long_t, ViewportPtr> ViewportList;
-        // typedef ViewportList::iterator ViewportListItr;
-        // typedef ViewportList::const_iterator ViewportListConstItr;
-        // typedef ViewportList::value_type ViewportValue;
+        using ViewportList = TMap<long_t, ViewportPtr>;
 
         size_t mWidth; /**< 渲染目标宽度 */
         size_t mHeight; /**< 渲染目标高度 */
@@ -173,7 +170,7 @@ namespace Tiny3D
 
         String mName; /**< 渲染目标名称 */
 
-        // ViewportList mViewportList; /**< 视口列表 */
+        ViewportList mViewportList; /**< 视口列表 */
     };
 }
 

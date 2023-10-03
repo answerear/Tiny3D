@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Render//T3DRenderTarget.h"
+#include "Render/T3DRenderTarget.h"
 
 
 namespace Tiny3D
@@ -44,64 +44,63 @@ namespace Tiny3D
 
     void RenderTarget::render()
     {
-        // auto itr = mViewportList.begin();
-        //
-        // while (itr != mViewportList.end())
-        // {
-        //     itr->second->render();
-        //     ++itr;
-        // }
+        clear(ColorRGB::BLUE, 0, 0.0f, 0);
+        
+        auto itr = mViewportList.begin();
+        
+        while (itr != mViewportList.end())
+        {
+            itr->second->render();
+            ++itr;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    // ViewportPtr RenderTarget::addViewport(CameraPtr camera, long_t zOrder,
-    //     Real left, Real top, Real width, Real height)
-    // {
-    //     ViewportPtr viewport;
-    //
-    //     auto itr = mViewportList.find(zOrder);
-    //
-    //     if (itr == mViewportList.end())
-    //     {
-    //         viewport = Viewport::create(camera, this, left, top, 
-    //             width, height, zOrder);
-    //         mViewportList.insert(ViewportValue(zOrder, viewport));
-    //     }
-    //
-    //     return viewport;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult RenderTarget::removeViewport(long_t nZOrder)
-    // {
-    //     TResult ret = T3D_OK;
-    //
-    //     do 
-    //     {
-    //         auto itr = mViewportList.find(nZOrder);
-    //
-    //         if (itr == mViewportList.end())
-    //         {
-    //             ret = T3D_ERR_NOT_FOUND;
-    //             T3D_LOG_ERROR(LOG_TAG_RENDER,
-    //                 "RenderTarget remove viewport but not found !!!");
-    //             break;
-    //         }
-    //
-    //         mViewportList.erase(itr);
-    //     } while (0);
-    //
-    //     return ret;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult RenderTarget::removeAllViewports()
-    // {
-    //     mViewportList.clear();
-    //     return T3D_OK;
-    // }
+    ViewportPtr RenderTarget::addViewport(long_t zOrder, Real left, Real top, Real width, Real height)
+    {
+        ViewportPtr viewport;
+    
+        auto itr = mViewportList.find(zOrder);
+    
+        if (itr == mViewportList.end())
+        {
+            viewport = Viewport::create(this, left, top, width, height, zOrder);
+            mViewportList.emplace(zOrder, viewport);
+        }
+    
+        return viewport;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult RenderTarget::removeViewport(long_t nZOrder)
+    {
+        TResult ret = T3D_OK;
+    
+        do 
+        {
+            auto itr = mViewportList.find(nZOrder);
+    
+            if (itr == mViewportList.end())
+            {
+                ret = T3D_ERR_NOT_FOUND;
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "RenderTarget remove viewport but not found !!!");
+                break;
+            }
+    
+            mViewportList.erase(itr);
+        } while (0);
+    
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult RenderTarget::removeAllViewports()
+    {
+        mViewportList.clear();
+        return T3D_OK;
+    }
 }
 

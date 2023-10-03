@@ -17,37 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#if 0
+
 #include "Render/T3DViewport.h"
 #include "Render/T3DRenderTarget.h"
-#include "Component/T3DCamera.h"
-#include "Scene/T3DSceneManager.h"
+// #include "Component/T3DCamera.h"
+// #include "Scene/T3DSceneManager.h"
 #include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(Viewport, Object);
-
-    //--------------------------------------------------------------------------
-
-    ViewportPtr Viewport::create(CameraPtr camera, RenderTargetPtr target,
-        Real left, Real top, Real width, Real height, long_t nZOrder)
+    ViewportPtr Viewport::create(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t nZOrder)
     {
-        ViewportPtr viewport = new Viewport(camera, target, left, top, 
-            width, height, nZOrder);
+        ViewportPtr viewport = new Viewport(target, left, top, width, height, nZOrder);
         // viewport->release();
         return viewport;
     }
 
     //--------------------------------------------------------------------------
 
-    Viewport::Viewport(CameraPtr camera, RenderTargetPtr target,
-        Real left, Real top, Real width, Real height, long_t zOrder)
-        : mCamera(camera)
-        , mRenderTarget(target)
+    Viewport::Viewport(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t zOrder)
+        : mRenderTarget(target)
         , mLeft(left)
         , mTop(top)
         , mWidth(width)
@@ -75,7 +68,7 @@ namespace Tiny3D
 
     void Viewport::render()
     {
-        T3D_SCENE_MGR.render(this);
+        // T3D_SCENE_MGR.render(this);
     }
 
     //--------------------------------------------------------------------------
@@ -102,8 +95,8 @@ namespace Tiny3D
         mActualWidth = size_t(nWidth * mWidth);
         mActualHeight = size_t(nHeight * mHeight);
 
-        RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
-        mMatrix = renderer->makeViewportMatrix(this);
+        // RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
+        mMatrix = T3D_AGENT.getActiveRHIContext()->makeViewportMatrix(this);
     }
 }
-#endif
+

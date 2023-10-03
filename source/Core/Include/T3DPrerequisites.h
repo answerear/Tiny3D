@@ -127,10 +127,9 @@ namespace Tiny3D
     class RenderTarget;
     class RenderWindow;
     class NullRenderWindow;
+    class Viewport;
     
     class RHIRenderWindow;
-    
-    class RHIViewport;
 
     class RHIRenderer;
     class RHIContext;

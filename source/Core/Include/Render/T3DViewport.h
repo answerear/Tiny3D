@@ -25,21 +25,18 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 
-#if 0
+
 namespace Tiny3D
 {
 
     /**
      * @brief 渲染视口
      */
-    class T3D_ENGINE_API RHIViewport : public Object
+    class T3D_ENGINE_API Viewport : public Object
     {
-        T3D_DECLARE_CLASS();
-
     public:
         /**
          * @brief 创建视口对象
-         * @param [in] camera : 跟本视口关联的相机对象
          * @param [in] target : 跟本视口关联的渲染目标对象
          * @param [in] left : 视口左边在渲染目标区域的比例值
          * @param [in] top : 视口上边在渲染目标区域的比例值
@@ -47,18 +44,17 @@ namespace Tiny3D
          * @param [in] height : 视口高度占渲染目标区域的比例值
          * @param [in] zOrder : 视口深度序列值
          */
-        static ViewportPtr create(CameraPtr camera, RenderTargetPtr target, 
-            Real left, Real top, Real width, Real height, long_t zOrder);
+        static ViewportPtr create(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t zOrder);
 
         /**
          * @brief 析构函数
          */
-        virtual ~RHIViewport();
+        virtual ~Viewport();
 
         /**
          * @brief 获取观察视口对应的相机
          */
-        CameraPtr getCamera() const;
+        // CameraPtr getCamera() const;
 
         /**
          * @brief 渲染
@@ -166,7 +162,6 @@ namespace Tiny3D
     protected:
         /**
          * @brief 构造函数
-         * @param [in] camera : 跟本视口关联的相机对象
          * @param [in] target : 跟本视口关联的渲染目标对象
          * @param [in] left : 视口左边在渲染目标区域的比例值
          * @param [in] top : 视口上边在渲染目标区域的比例值
@@ -174,8 +169,7 @@ namespace Tiny3D
          * @param [in] height : 视口高度占渲染目标区域的比例值
          * @param [in] zOrder : 视口深度序列值
          */
-        RHIViewport(CameraPtr camera, RenderTargetPtr target, Real left, 
-            Real top, Real width, Real height, long_t zOrder);
+        Viewport(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t zOrder);
 
         /**
          * @brief 更新视口位置和大小
@@ -183,7 +177,7 @@ namespace Tiny3D
         void updateDimensions();
 
     protected:
-        CameraPtr         mCamera;        /**< 关联本视口对应的相机 */
+        // CameraPtr         mCamera;        /**< 关联本视口对应的相机 */
         RenderTarget        *mRenderTarget; /**< 关联本视口对应的渲染目标 */
 
         Real        mLeft;          /**< 视口左边在渲染目标区域的相对位置 */
@@ -206,7 +200,7 @@ namespace Tiny3D
 }
 
 
-#include "T3DRHIViewport.inl"
-#endif
+#include "T3DViewport.inl"
+
 
 #endif  /*__T3D_VIEWPORT_H__*/
