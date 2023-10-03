@@ -71,43 +71,8 @@ namespace Tiny3D
         /**
          * @fn  D3D11RenderWindow::D3D11RenderWindow(const String &name);
          * @brief   Constructor
-         * @param   name    The name.
          */
         D3D11Window();
-
-        /**
-         * @fn  TResult D3D11RenderWindow::createSwapChain(UINT uWidth, 
-         *      UINT uHeight, bool bFullscreen, UINT uMSAACount, 
-         *      UINT uMSAAQuality, DXGI_FORMAT format);
-         * @brief   创建 D3D11 交换链
-         * @param   uWidth          The width.
-         * @param   uHeight         The height.
-         * @param   bFullscreen     True to fullscreen.
-         * @param   uMSAACount      Number of msaas.
-         * @param   uMSAAQuality    The msaa quality.
-         * @param   format          Describes the format to use.
-         * @return  The new swap chain.
-         */
-        TResult createSwapChain(UINT uWidth, UINT uHeight, bool bFullscreen, UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format);
-
-        /**
-         * @fn  TResult D3D11RenderWindow::createRenderTargetView();
-         * @brief   创建渲染目标视图
-         * @return  The new render target view.
-         */
-        TResult createRenderTargetView();
-
-        /**
-         * @fn  TResult D3D11RenderWindow::createDepthStencilView(UINT uWidth, 
-         *      UINT uHeight, UINT uMSAACount, UINT uMSAAQuality);
-         * @brief   创建深度和模板缓冲区视图
-         * @param   uWidth          The width.
-         * @param   uHeight         The height.
-         * @param   uMSAACount      Number of msaas.
-         * @param   uMSAAQuality    The msaa quality.
-         * @return  The new depth stencil view.
-         */
-        TResult createDepthStencilView(UINT uWidth, UINT uHeight, UINT uMSAACount, UINT uMSAAQuality);
 
         IDXGISwapChain          *mD3DSwapChain; /**< The d 3D swap chain */
         ID3D11RenderTargetView  *mD3DRTView;    /**< The d 3D right view */

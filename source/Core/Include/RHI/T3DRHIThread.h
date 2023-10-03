@@ -88,21 +88,20 @@ namespace Tiny3D
         TResult enqueue_unique_command(Action action, Args... args)
         {
             TResult ret = T3D_OK;
+
             using arg_types = typename function_traits<Action>::arg_types;
-            using class_type = typename tuple_to_template<Action, arg_types, RHICommandT>::type;
-            //using arg_types = typename function_traits<Action>::arg_types;
-            using RHICommandCheckMultiSampleQuality = class_type;
-            using RHICommandCheckMultiSampleQualityPtr = SmartPtr<RHICommandCheckMultiSampleQuality>;
+            using command_type = typename tuple_to_template<Action, arg_types, RHICommandT>::type;
 
             if (isRunning())
             {
-                RHICommandCheckMultiSampleQuality *cmd = new RHICommandCheckMultiSampleQuality(args..., action);
+                command_type *cmd = new command_type(args..., action);
                 ret = addCommand(cmd);
             }
             else
             {
                 ret = action(args...);
             }
+
             return ret;
         }
         

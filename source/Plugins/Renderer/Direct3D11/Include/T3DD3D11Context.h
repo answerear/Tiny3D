@@ -95,6 +95,18 @@ namespace Tiny3D
         ID3D11DeviceContext *getD3DDeviceContext() const { return mD3DDeviceContext; }
 
         TResult checkMultiSampleQuality(UINT width, UINT height, UINT uMSAAQuality, UINT uMSAACount, DXGI_FORMAT format);
+
+        TResult createSwapChain(HWND hwnd, UINT width, UINT height, DXGI_FORMAT format, bool fullscreen, IDXGISwapChain **ppD3DSwapChain);
+
+        TResult createRenderTargetView(IDXGISwapChain **pD3DSwapChain, ID3D11RenderTargetView **ppD3DRTView);
+
+        TResult createDepthStencilView(UINT width, UINT height, ID3D11DepthStencilView **ppD3DDSView);
+
+        TResult setRenderTargets(UINT numOfViews, ID3D11RenderTargetView **ppD3DRTView, ID3D11DepthStencilView **pD3DDSView);
+
+        TResult clearRenderTargetView(ID3D11RenderTargetView **pD3DRTView, const ColorRGB &clrFill);
+
+        TResult clearDepthStencilView(ID3D11DepthStencilView **pD3DDSView, Real depth, uint8_t stencil);
         
     protected:
         /**
@@ -112,14 +124,16 @@ namespace Tiny3D
 
     protected:
         /**< The instance */
-        HINSTANCE                   mInstance;
+        HINSTANCE           mInstance {nullptr};
 
         /**< D3D11 设备对象 */
-        ID3D11Device        *mD3DDevice;
+        ID3D11Device        *mD3DDevice {nullptr};
         /**< D3D11 上下文对象 */
-        ID3D11DeviceContext *mD3DDeviceContext;
+        ID3D11DeviceContext *mD3DDeviceContext {nullptr};
         /**< D3D 特性级别 */
-        D3D_FEATURE_LEVEL   mFeatureLevel;
+        D3D_FEATURE_LEVEL   mFeatureLevel {D3D_FEATURE_LEVEL_11_0};
+        UINT                mMSAAQuality {0};
+        UINT                mMSAACount {0};
     };
 }
 
