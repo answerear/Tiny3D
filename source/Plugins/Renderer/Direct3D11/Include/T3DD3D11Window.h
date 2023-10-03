@@ -38,7 +38,7 @@ namespace Tiny3D
          * @brief 创建渲染窗口对象
          * @return 返回一个渲染窗口对象
          */
-        static D3D11WindowPtr create();
+        static D3D11WindowPtr create(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
 
         /**
          * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
@@ -46,7 +46,7 @@ namespace Tiny3D
          */
         virtual ~D3D11Window();
 
-        bool init();
+        bool init(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
 
         /**
          * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
@@ -65,7 +65,7 @@ namespace Tiny3D
          * @param   depth       The depth.
          * @param   stencil     The stencil.
          */
-        void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
+        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
     protected:
         /**
@@ -74,16 +74,6 @@ namespace Tiny3D
          * @param   name    The name.
          */
         D3D11Window();
-
-        /**
-         * @fn  TResult D3D11RenderWindow::setupD3D11Environment(
-         *      const RenderWindowCreateParam &param, 
-         *      const RenderWindowCreateParamEx &paramEx);
-         * @brief   建立 D3D11 相关环境
-         * @param   param   The parameter.
-         * @return  A TResult.
-         */
-        TResult setupD3D11Environment();
 
         /**
          * @fn  TResult D3D11RenderWindow::createSwapChain(UINT uWidth, 
@@ -119,7 +109,6 @@ namespace Tiny3D
          */
         TResult createDepthStencilView(UINT uWidth, UINT uHeight, UINT uMSAACount, UINT uMSAAQuality);
 
-    protected:
         IDXGISwapChain          *mD3DSwapChain; /**< The d 3D swap chain */
         ID3D11RenderTargetView  *mD3DRTView;    /**< The d 3D right view */
         ID3D11DepthStencilView  *mD3DDSView;    /**< The d 3D ds view */

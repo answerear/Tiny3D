@@ -111,9 +111,10 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    void RHIThread::addCommand(RHICommand *command)
+    TResult RHIThread::addCommand(RHICommand *command)
     {
         mCommandLists[mEnqueueCommandListIdx].push_back(command);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

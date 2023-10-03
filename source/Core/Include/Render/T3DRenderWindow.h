@@ -23,6 +23,7 @@
 
 
 #include "Render/T3DRenderTarget.h"
+#include "RHI/T3DRHIRenderWindow.h"
 
 
 namespace Tiny3D
@@ -62,16 +63,16 @@ namespace Tiny3D
          * @brief 获取渲染目标类型
          * @remarks 实现基类接口
          */
-        virtual Type getType() const override;
+        Type getType() const override;
 
         /**
          * @brief 渲染
          * @remarks 重写RenderTarget::update()
          * @see RenderTarget::update()
          */
-        virtual void render() override;
+        void render() override;
 
-        void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
+        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
         /**
          * @brief 创建渲染窗口实体
@@ -98,8 +99,10 @@ namespace Tiny3D
         /**
          * @brief 获取是否全屏窗口
          */
-        virtual bool isFullscreen() const;
+        bool isFullscreen() const;
 
+        bool getSystemInfo(SysWMInfo &info) const;
+        
     protected:
         /**
          * @brief 构造函数
@@ -108,8 +111,11 @@ namespace Tiny3D
 
         TResult loadIcon(const String &iconPath);
         
-        /**< The window */
-        Window  *mWindow {nullptr};
+        /**< OS 相关的窗口对象 */
+        Window              *mWindow {nullptr};
+        /**< RHI 相关渲染窗口对象 */
+        RHIRenderWindowPtr  mRHIRenderWindow {nullptr};
+        bool                mIsFullscreen {false};
     };
 
     class T3D_ENGINE_API NullRenderWindow : public RenderWindow
@@ -124,7 +130,7 @@ namespace Tiny3D
          */
         virtual void render() override {}
 
-        void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override {}
+        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override { return T3D_OK; }
 
         /**
          * @brief 创建渲染窗口实体

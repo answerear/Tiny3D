@@ -253,6 +253,12 @@ namespace Tiny3D
         return Matrix4::IDENTITY;
     }
 
+    RHIRenderWindowPtr D3D11Context::createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param)
+    {
+        return D3D11Window::create(window, param);
+    }
+
+
     TResult D3D11Context::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
     {
         return T3D_OK;
@@ -316,6 +322,73 @@ namespace Tiny3D
     TResult D3D11Context::renderObject()
     {
         return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    
+    
+    TResult D3D11Context::checkMultiSampleQuality(UINT width, UINT height, UINT uMSAAQuality, UINT uMSAACount, DXGI_FORMAT format)
+    {
+        return ENQUEUE_UNIQUE_COMMAND([this](UINT width, UINT height, UINT uMSAAQuality, UINT uMSAACount, DXGI_FORMAT format)
+            {
+                T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "begin checkMultiSampleQuality ");
+                HRESULT hr = S_OK;
+
+                do
+                {
+                    if (uMSAAQuality == 0)
+                    {
+                        uMSAACount = 1;
+                    }
+                    else
+                    {
+                        UINT uNumQuality = 0;
+                        hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
+                        if (FAILED(hr))
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
+                            break;
+                        }
+                
+                        uMSAAQuality = uNumQuality - 1;
+                    }
+                } while (false);
+                
+                return T3D_OK;
+            },
+            width, height, uMSAAQuality, uMSAACount, format);
+        // using Action = TFunction<TResult(UINT, UINT, UINT, UINT, DXGI_FORMAT)>;
+        // Action lambda = [](UINT width, UINT height, UINT uMASSQuality, UINT uMSAACount, DXGI_FORMAT format)
+        // {
+        //     return T3D_OK;
+        // };
+        //
+        // using arg_types = typename function_traits<Action>::arg_types;
+        // using class_type = typename tuple_to_template<Action, arg_types, RHICommandT>::type;
+        // //using arg_types = typename function_traits<Action>::arg_types;
+        // using RHICommandCheckMultiSampleQuality = class_type;
+        // using RHICommandCheckMultiSampleQualityPtr = SmartPtr<RHICommandCheckMultiSampleQuality>;
+        //
+        // if (T3D_RHI_THREAD.isRunning())
+        // {
+        //     RHICommandCheckMultiSampleQuality *cmd = new RHICommandCheckMultiSampleQuality(width, height, uMSAAQuality, uMSAACount, format, lambda);
+        //     T3D_RHI_THREAD.addCommand(cmd);
+        // }
+        // else
+        // {
+        //     return lambda(width, height, uMSAAQuality, uMSAACount, format);
+        // }
+
+        
+        // T3D_ENQUEUE_RHI_COMMAND(CheckMultiSampleQuality, lambda, width, height, uMSAAQuality, uMSAACount, format);
+        
+        // T3D_ENQUEUE_UNIQUE_RHI_COMMAND(CheckMultiSampleQuality,
+        //     [](UINT width, UINT height, UINT uMASSQuality, UINT uMSAACount, DXGI_FORMAT format)
+        //     {
+        //         return T3D_OK;
+        //     },
+        //     width, height, uMSAAQuality, uMSAACount, format);
     }
     
     //--------------------------------------------------------------------------

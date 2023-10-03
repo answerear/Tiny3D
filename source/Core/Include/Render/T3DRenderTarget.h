@@ -109,7 +109,7 @@ namespace Tiny3D
          * @param   depth       The depth.
          * @param   stencil     The stencil.
          */
-        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
 
         /**
          * @brief 渲染

@@ -49,7 +49,7 @@ namespace Tiny3D
          * @return  调用成功返回 T3D_OK.
          * @remarks  具体渲染系统子类实现本接口.
          */
-        virtual TResult swapBuffers() override;
+        TResult swapBuffers() override;
 
         /**
          * @fn  virtual void NullRenderWindow::clear(const ColorRGB &clrFill, 
@@ -60,7 +60,7 @@ namespace Tiny3D
          * @param   depth       The depth.
          * @param   stencil     The stencil.
          */
-        virtual void clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
+        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
     protected:
         /**

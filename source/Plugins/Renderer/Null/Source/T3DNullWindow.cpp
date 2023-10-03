@@ -50,19 +50,15 @@ namespace Tiny3D
 
     TResult NullWindow::swapBuffers()
     {
-        TResult ret = T3D_OK;
-
-        return ret;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    void NullWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+    TResult NullWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
         Real depth, uint32_t stencil)
     {
-        do 
-        {
-        } while (0);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

@@ -240,6 +240,12 @@ namespace Tiny3D
                 break;
             }
 
+            ret = initRenderThread();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
             if (autoCreateWindow)
             {
                 // 创建渲染窗口
@@ -251,12 +257,6 @@ namespace Tiny3D
                 }
 
                 addRenderWindow(window);
-            }
-
-            ret = initRenderThread();
-            if (T3D_FAILED(ret))
-            {
-                break;
             }
             
             //ShaderPtr shader = mShaderMgr->createShader("test.shader");
@@ -370,6 +370,12 @@ namespace Tiny3D
 
             // 初始化渲染器
             ret = initRenderer();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = initRenderThread();
             if (T3D_FAILED(ret))
             {
                 break;
@@ -1103,7 +1109,7 @@ namespace Tiny3D
         do
         {
             mRHIRunnable = RHIThread::create();
-            ret = mRHIThread.start(mRHIRunnable, "RenderThread");
+            ret = mRHIThread.start(mRHIRunnable, "RHIThread");
         } while (false);
         
         return ret;

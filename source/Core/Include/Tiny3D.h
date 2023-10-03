@@ -97,6 +97,8 @@
 #include <RHI/T3DRHIVertexBuffer.h>
 #include <RHI/T3DRHIIndexBuffer.h>
 #include <RHI/T3DRHIPixelBuffer.h>
+#include <RHI/T3DRHIThread.h>
+#include <RHI/T3DRHICommand.h>
 
 // #include <Render/T3DHardwareBufferManagerBase.h>
 // #include <Render/T3DHardwareBufferManager.h>

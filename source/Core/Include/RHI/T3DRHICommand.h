@@ -35,31 +35,27 @@ namespace Tiny3D
         virtual TResult execute() = 0;
     };
 
-    template<typename... Args>
+    template<typename ACTION, typename... Args>
     class RHICommandT : public RHICommand
     {
-        using TCallback = TFunction<TResult(Args...)>;
+        using TAction = ACTION;
 
     public:
-        RHICommandT(Args... args, TCallback &&callback)
+        RHICommandT(Args... args, TAction action)
             : mArgs(std::make_tuple(args...))
-            , mCallback(std::move(callback))
+            , mAction(action)
         {
         }
 
         TResult execute() override
-        {
-            return std::apply(mCallback, mArgs);
+        { 
+            return std::apply(mAction, mArgs);
         }
         
     private:
         TTuple<Args...> mArgs;
-        TCallback       mCallback;
+        TAction         mAction;
     };
-
-    #define T3D_DECLARE_UNIQUE_RHI_COMMAND(CLASS) \
-        using RHICommand##CLASS = RHICommandT<RHICommand##CLASS>;   \
-        using RHICommand##CLASS##Ptr = SmartPtr<RHICommand##CLASS>;
 }
 
 

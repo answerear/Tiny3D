@@ -113,6 +113,7 @@ namespace Tiny3D
             mWidth = param.windowWidth;
             mHeight = param.windowHeight;
             mColorDepth = mWindow->getColorDepth();
+            mIsFullscreen = param.fullscreen;
             // mPitch = Image::calcPitch(mWidth, mColorDepth);
 
             // ret = setupD3D11Environment(param, paramEx);
@@ -121,6 +122,7 @@ namespace Tiny3D
             //     break;
             // }
 
+            mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this, param);
         } while (false);
         
         return ret;
@@ -155,7 +157,21 @@ namespace Tiny3D
 
     TResult RenderWindow::swapBuffers()
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mRHIRenderWindow == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = mRHIRenderWindow->swapBuffers();
+        } while (false);
+       
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -239,10 +255,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    void RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) 
+    TResult RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) 
     {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mRHIRenderWindow == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = mRHIRenderWindow->clear(clrFill, clearFlags, depth, stencil);
+        } while (false);
+
+        return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    bool RenderWindow::getSystemInfo(SysWMInfo &info) const
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getSystemInfo(info);
+        }
+        return false;
+    }
+
     //--------------------------------------------------------------------------
 }
 

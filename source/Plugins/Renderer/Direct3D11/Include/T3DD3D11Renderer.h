@@ -22,7 +22,7 @@
 
 
 #include "T3DD3D11Prerequisites.h"
-
+#include "T3DD3D11Context.h"
 
 namespace Tiny3D
 {
@@ -38,7 +38,7 @@ namespace Tiny3D
         virtual TResult init() override;
         
         virtual TResult destroy() override;
-
+        
     protected:
         D3D11Renderer();
         
@@ -46,6 +46,7 @@ namespace Tiny3D
     };
 
     #define D3D11_RENDERER      (D3D11Renderer::getInstance())
+    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
 }
 
 

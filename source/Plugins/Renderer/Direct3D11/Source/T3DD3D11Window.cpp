@@ -21,16 +21,17 @@
 #include "T3DD3D11Window.h"
 #include "T3DD3D11Error.h"
 #include "T3DD3D11Renderer.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11WindowPtr D3D11Window::create()
+    D3D11WindowPtr D3D11Window::create(RenderWindow *renderWindow, const RenderWindowCreateParam &param)
     {
         D3D11WindowPtr window = new D3D11Window();
-        if (!window->init())
+        if (!window->init(renderWindow, param))
         {
             window = nullptr;
         }
@@ -57,21 +58,71 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool D3D11Window::init()
+    bool D3D11Window::init(RenderWindow *renderWindow, const RenderWindowCreateParam &param)
     {
         bool ret = true;
 
         do
         {
-            // mPitch = Image::calcPitch(mWidth, mColorDepth);
+            UINT uMSAAQuality = param.MSAA;
+            UINT uMSAACount = 4;
+            
+            if (uMSAAQuality < 2)
+                uMSAAQuality = 0;
+            else if (uMSAAQuality > 16)
+                uMSAAQuality = 16;
+            
+            ID3D11Device *pD3DDevice = D3D11_CONTEXT->getD3DDevice();
+            ID3D11DeviceContext *pD3DContext = D3D11_CONTEXT->getD3DDeviceContext();
+            
+            DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-            // ret = setupD3D11Environment(param, paramEx);
-            // if (T3D_FAILED(ret))
-            // {
-            //     break;
-            // }
+            D3D11_CONTEXT->checkMultiSampleQuality(param.windowWidth, param.windowHeight, uMSAAQuality, uMSAACount, format);
 
-            ret = T3D_OK;
+            break;
+            HRESULT hr = S_OK;
+            
+            if (uMSAAQuality == 0)
+            {
+                uMSAACount = 1;
+            }
+            else
+            {
+                UINT uNumQuality = 0;
+                hr = pD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
+                if (FAILED(hr))
+                {
+                    ret = false;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                        "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            
+                uMSAAQuality = uNumQuality - 1;
+            }
+            
+            ret = createSwapChain((UINT)param.windowWidth, (UINT)param.windowHeight, param.fullscreen, uMSAACount, uMSAAQuality, format);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create swap chain failed !");
+                break;
+            }
+            
+            ret = createRenderTargetView();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create render target view failed !");
+                break;
+            }
+            
+            ret = createDepthStencilView((UINT)param.windowWidth, (UINT)param.windowHeight, uMSAACount, uMSAAQuality);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth and stencil view failed !");
+                break;
+            }
+
+            pD3DContext->OMSetRenderTargets(1, &mD3DRTView, mD3DDSView);
         } while (false);
 
         return ret;
@@ -90,8 +141,7 @@ namespace Tiny3D
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_PRESENT;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Present failed ! DX ERROR [%d]", hr);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Present failed ! DX ERROR [%d]", hr);
                 break;
             }
         } while (false);
@@ -101,110 +151,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void D3D11Window::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+    TResult D3D11Window::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
         Real depth, uint32_t stencil)
     {
-        do 
-        {
-            // if (mD3DRTView == nullptr)
-            // {
-            //     break;
-            // }
-            //
-            // if (mD3DDSView == nullptr)
-            // {
-            //     break;
-            // }
-            //
-            // ID3D11DeviceContext *pD3DContext 
-            //     = D3D11_CONTEXT.getD3DDeviceContext();
-            // const float clr[4] = 
-            // { clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f };
-            // pD3DContext->ClearRenderTargetView(mD3DRTView, clr);
-            // pD3DContext->ClearDepthStencilView(mD3DDSView, 
-            //     D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
-        } while (false);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Window::setupD3D11Environment()
-    {
         TResult ret = T3D_OK;
-
+        
         do 
         {
-            // UINT uMSAAQuality
-            //     = (DWORD)paramEx.at("MultiSampleQuality").longValue();
-            // UINT uMSAACount = 4;
-            //
-            // if (uMSAAQuality < 2)
-            //     uMSAAQuality = 0;
-            // else if (uMSAAQuality > 16)
-            //     uMSAAQuality = 16;
-            //
-            // ID3D11Device *pD3DDevice = D3D11_CONTEXT.getD3DDevice();
-            // DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            // HRESULT hr = S_OK;
-            //
-            // if (uMSAAQuality == 0)
-            // {
-            //     uMSAACount = 1;
-            // }
-            // else
-            // {
-            //     UINT uNumQuality = 0;
-            //     hr = pD3DDevice->CheckMultisampleQualityLevels(format,
-            //         uMSAACount, &uNumQuality);
-            //     if (FAILED(hr))
-            //     {
-            //         ret = T3D_ERR_D3D11_CHECK_MULTISAMPLE;
-            //         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-            //             "Check multiple sample quality levels failed ! "
-            //             "DX ERROR [%d]", hr);
-            //         break;
-            //     }
-            //
-            //     uMSAAQuality = uNumQuality - 1;
-            // }
-            //
-            // ret = createSwapChain((UINT)mWidth, (UINT)mHeight, param.fullscreen, 
-            //     uMSAACount, uMSAAQuality, format);
-            // if (T3D_FAILED(ret))
-            // {
-            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-            //         "Create swap chain failed !");
-            //     break;
-            // }
-            //
-            // ret = createRenderTargetView();
-            // if (T3D_FAILED(ret))
-            // {
-            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-            //         "Create render target view failed !");
-            //     break;
-            // }
-            //
-            // ret = createDepthStencilView((UINT)mWidth, (UINT)mHeight, 
-            //     uMSAACount, uMSAAQuality);
-            // if (T3D_FAILED(ret))
-            // {
-            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-            //         "Create depth and stencil view failed !");
-            //     break;
-            // }
-            //
-            // ID3D11DeviceContext *pD3DContext 
-            //     = D3D11_CONTEXT.getD3DDeviceContext();
-            // pD3DContext->OMSetRenderTargets(1, &mD3DRTView, mD3DDSView);
-
+            if (mD3DRTView == nullptr)
+            {
+                break;
+            }
+            
+            if (mD3DDSView == nullptr)
+            {
+                break;
+            }
+            
+            ID3D11DeviceContext *pD3DContext = D3D11_CONTEXT->getD3DDeviceContext();
+            const float clr[4] = { clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f };
+            pD3DContext->ClearRenderTargetView(mD3DRTView, clr);
+            pD3DContext->ClearDepthStencilView(mD3DDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
         } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
-
+    
     TResult D3D11Window::createSwapChain(UINT uWidth, UINT uHeight, 
         bool bFullscreen, UINT uMSAACount, UINT uMSAAQuality, DXGI_FORMAT format)
     {

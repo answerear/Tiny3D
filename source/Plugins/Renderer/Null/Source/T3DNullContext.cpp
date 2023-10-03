@@ -85,6 +85,11 @@ namespace Tiny3D
         return Matrix4::IDENTITY;
     }
 
+    RHIRenderWindowPtr NullContext::createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param)
+    {
+        return NullWindow::create();
+    }
+    
     TResult NullContext::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
     {
         return T3D_OK;

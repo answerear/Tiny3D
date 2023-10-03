@@ -32,6 +32,7 @@
 #include "RHI/T3DRHIDepthStencilState.h"
 #include "RHI/T3DRHIRasterizerState.h"
 #include "RHI/T3DRHISamplerState.h"
+#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D
@@ -116,6 +117,8 @@ namespace Tiny3D
         virtual Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) = 0;
 
         virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
+
+        virtual RHIRenderWindowPtr createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param) = 0;
 
         virtual TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
 

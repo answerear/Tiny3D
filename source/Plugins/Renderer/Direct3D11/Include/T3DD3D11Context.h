@@ -62,6 +62,8 @@ namespace Tiny3D
 
         Matrix4 makeViewportMatrix(Viewport *viewport) override;
 
+        RHIRenderWindowPtr createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param) override;
+
         TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
         RHIBlendStatePtr createBlendState(const BlendDesc &desc) override;
@@ -87,6 +89,12 @@ namespace Tiny3D
         TResult setTexture() override;
 
         TResult renderObject() override;
+
+        ID3D11Device *getD3DDevice() const { return mD3DDevice; }
+
+        ID3D11DeviceContext *getD3DDeviceContext() const { return mD3DDeviceContext; }
+
+        TResult checkMultiSampleQuality(UINT width, UINT height, UINT uMSAAQuality, UINT uMSAACount, DXGI_FORMAT format);
         
     protected:
         /**

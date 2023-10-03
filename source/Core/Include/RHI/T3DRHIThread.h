@@ -44,8 +44,68 @@ namespace Tiny3D
         
         bool isRunning() const { return mIsRunning; }
 
-        void addCommand(RHICommand * command);
+        TResult addCommand(RHICommand * command);
 
+        template <typename T>
+        struct function_traits;
+
+        template <typename R, typename... Args>
+        struct function_traits<R(Args...)>
+        {
+            using arg_types = std::tuple<Args...>;
+        };
+
+        template <typename R, typename... Args>
+        struct function_traits<R(*)(Args...)> : public function_traits<R(Args...)>
+        {};
+
+        template <typename R, typename... Args>
+        struct function_traits<R(&)(Args...)> : public function_traits<R(Args...)>
+        {};
+
+        template <typename R, typename C, typename... Args>
+        struct function_traits<R(C::*)(Args...)> : public function_traits<R(Args...)>
+        {};
+
+        template <typename R, typename C, typename... Args>
+        struct function_traits<R(C::*)(Args...) const> : public function_traits<R(Args...)>
+        {};
+
+        template <typename Lambda>
+        struct function_traits : public function_traits<decltype(&Lambda::operator())>
+        {};
+
+        template <typename Action, typename Tuple, template <typename...> class Template>
+        struct tuple_to_template;
+
+        template <typename Action, typename... Args, template <typename...> class Template>
+        struct tuple_to_template<Action, std::tuple<Args...>, Template>
+        {
+            using type = Template<Action, Args...>;
+        };
+
+        template<typename Action, typename... Args>
+        TResult enqueue_unique_command(Action action, Args... args)
+        {
+            TResult ret = T3D_OK;
+            using arg_types = typename function_traits<Action>::arg_types;
+            using class_type = typename tuple_to_template<Action, arg_types, RHICommandT>::type;
+            //using arg_types = typename function_traits<Action>::arg_types;
+            using RHICommandCheckMultiSampleQuality = class_type;
+            using RHICommandCheckMultiSampleQualityPtr = SmartPtr<RHICommandCheckMultiSampleQuality>;
+
+            if (isRunning())
+            {
+                RHICommandCheckMultiSampleQuality *cmd = new RHICommandCheckMultiSampleQuality(args..., action);
+                ret = addCommand(cmd);
+            }
+            else
+            {
+                ret = action(args...);
+            }
+            return ret;
+        }
+        
     protected:
         RHIThread();
         
@@ -69,21 +129,8 @@ namespace Tiny3D
     };
 
     #define T3D_RHI_THREAD      (RHIThread::getInstance())
-    
-    #define T3D_ENQUEUE_RHI_COMMAND(CLASS, FUNC, PARAMS) \
-        if (T3D_RHI_THREAD.isRunning()) \
-        { \
-            RHICommand##CLASS *command = new RHICommand##CLASS(PARAMS,  FUNC); \
-            T3D_RHI_THREAD.addCommand(command); \
-        } \
-        else \
-        { \
-            std:;apply(CALLBACK, PARAMS); \
-        }
 
-    #define T3D_ENQUEUE_UNIQUE_RHI_COMMAND(CLASS, FUNC, PARAMS) \
-        T3D_DECLARE_UNIQUE_RHI_COMMAND(CLASS)   \
-        T3D_ENQUEUE_RHI_COMMAND(CLASS, FUNC, PARAMS)
+    #define ENQUEUE_UNIQUE_COMMAND(ACTION, ...)     RHIThread::getInstance().enqueue_unique_command(ACTION, ##__VA_ARGS__)
 }
 
 
