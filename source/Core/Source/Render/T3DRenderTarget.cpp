@@ -44,7 +44,7 @@ namespace Tiny3D
 
     void RenderTarget::render()
     {
-        clear(ColorRGB::BLUE, 0, 0.0f, 0);
+        clear(ColorRGB::BLACK, 0, 0.0f, 0);
         
         auto itr = mViewportList.begin();
         

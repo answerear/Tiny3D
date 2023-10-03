@@ -105,7 +105,7 @@ namespace Tiny3D
         do 
         {
             ret = RHIContext::renderAllTargets();
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -539,7 +539,7 @@ namespace Tiny3D
 
     TResult D3D11Context::clearRenderTargetView(ID3D11RenderTargetView **pD3DRTView, const ColorRGB &clrFill)
     {
-        return ENQUEUE_UNIQUE_COMMAND([this](ID3D11RenderTargetView **pD3DRTView, const ColorRGB &clrFill)
+        return ENQUEUE_UNIQUE_COMMAND([this](ID3D11RenderTargetView **pD3DRTView, ColorRGB clrFill)
             {
                 const float clr[4] = { clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f };
                 mD3DDeviceContext->ClearRenderTargetView(*pD3DRTView, clr);
