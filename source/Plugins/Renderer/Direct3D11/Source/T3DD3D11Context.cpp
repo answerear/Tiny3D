@@ -562,11 +562,7 @@ namespace Tiny3D
     {
         auto lambda = [this](ID3D11RenderTargetView **pD3DRTView, ColorRGB clrFill)
         {
-            float clr[4];
-            clr[0] = clrFill.red();
-            clr[1] = clrFill.green();
-            clr[2] = clrFill.blue();
-            clr[3] = 1.0f;
+            float clr[4] = {clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f};
             mD3DDeviceContext->ClearRenderTargetView(*pD3DRTView, clr);
             T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "Clear render target view with color {%f, %f, %f, %f}", clr[0], clr[1], clr[2], clr[3]);
             return T3D_OK;
