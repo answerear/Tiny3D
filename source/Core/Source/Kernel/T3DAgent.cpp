@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "T3DConfig.h"
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DArchive.h"
 #include "Kernel/T3DArchiveManager.h"
@@ -528,7 +529,9 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
+#if (T3D_ENABLE_RHI_THREAD)
             T3D_RHI_THREAD.resume();
+#endif
             
             // 轮询系统事件
             mIsRunning = theApp->pollEvents();
@@ -545,7 +548,9 @@ namespace Tiny3D
             // 渲染一帧
             renderOneFrame();
 
+#if (T3D_ENABLE_RHI_THREAD)
             mRHIEvent.wait();
+#endif
         }
 
         theApp->applicationWillTerminate();
@@ -1112,7 +1117,9 @@ namespace Tiny3D
         do
         {
             mRHIRunnable = RHIThread::create();
+#if (T3D_ENABLE_RHI_THREAD)
             ret = mRHIThread.start(mRHIRunnable, "RHIThread");
+#endif
         } while (false);
         
         return ret;
@@ -1122,7 +1129,9 @@ namespace Tiny3D
 
     void Agent::resumeEngineThread()
     {
+#if (T3D_ENABLE_RHI_THREAD)
         mRHIEvent.trigger();
+#endif
     }
 
     //--------------------------------------------------------------------------
