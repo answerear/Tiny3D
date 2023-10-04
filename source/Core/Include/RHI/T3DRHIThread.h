@@ -100,6 +100,7 @@ namespace Tiny3D
             else
             {
                 ret = action(args...);
+                //ret = std::apply(action, std::make_tuple(args...));
             }
 
             return ret;
@@ -129,7 +130,18 @@ namespace Tiny3D
 
     #define T3D_RHI_THREAD      (RHIThread::getInstance())
 
-    #define ENQUEUE_UNIQUE_COMMAND(ACTION, ...)     RHIThread::getInstance().enqueue_unique_command(ACTION, ##__VA_ARGS__)
+    #define ENQUEUE_UNIQUE_COMMAND(ACTION, ...) RHIThread::getInstance().enqueue_unique_command(ACTION, ##__VA_ARGS__)
+
+    // #define ENQUEUE_UNIQUE_COMMAND_RET(RET, ACTION, ...) \
+    //     { \
+    //         auto lambda = ACTION; \
+    //         RET = RHIThread::getInstance().enqueue_unique_command(lambda, ##__VA_ARGS__); \
+    //     }
+    //
+    // #define ENQUEUE_UNIQUE_COMMAND_RETURN(ACTION, ...) \
+    //     auto lambda = ACTION; \
+    //     return RHIThread::getInstance().enqueue_unique_command(lambda, ##__VA_ARGS__)
+    
 }
 
 

@@ -44,15 +44,19 @@ namespace Tiny3D
 
     void RenderTarget::render()
     {
-        // clear(ColorRGB::BLACK, 0, 0.0f, 0);
+        clear(ColorRGB::BLACK, 0, 0.0f, 0);
         
         auto itr = mViewportList.begin();
+
+        ColorRGB colors[] = {ColorRGB::BLUE, ColorRGB::GREEN};
+        int i = 0;
         
         while (itr != mViewportList.end())
         {
             itr->second->render();
-            clear(ColorRGB::BLUE, 0, 0.0f, 0);
+            clear(colors[i], 0, 0.0f, 0);
             ++itr;
+            ++i;
         }
     }
 

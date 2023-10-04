@@ -124,7 +124,8 @@ namespace Tiny3D
 
             mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this, param);
 
-            ViewportPtr viewport = addViewport(0, 0, 0, mWidth * 0.5f, mHeight * 0.5f);
+            ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
+            viewport = addViewport(1, 0.5f, 0, 0.5f, 1.0f);
         } while (false);
         
         return ret;
