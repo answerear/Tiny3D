@@ -37,6 +37,7 @@
 #include "RHI/T3DRHIRenderer.h"
 #include "Material/T3DShaderVariant.h"
 #include "RHI/T3DRHIThread.h"
+#include "RHI/T3DRHIRenderWindow.h"
 
 
 namespace Tiny3D

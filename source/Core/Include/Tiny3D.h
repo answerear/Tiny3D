@@ -87,7 +87,7 @@
 // RHI
 #include <RHI/T3DRHIRenderer.h>
 #include <RHI/T3DRHIContext.h>
-#include <RHI/T3DRHIRenderWindow.h>
+#include <RHI/T3DRHIResource.h>
 #include <RHI/T3DRHIBlendState.h>
 #include <RHI/T3DRHIDepthStencilState.h>
 #include <RHI/T3DRHIRasterizerState.h>
@@ -97,6 +97,8 @@
 #include <RHI/T3DRHIVertexBuffer.h>
 #include <RHI/T3DRHIIndexBuffer.h>
 #include <RHI/T3DRHIPixelBuffer.h>
+#include <RHI/T3DRHIRenderTarget.h>
+#include <RHI/T3DRHIRenderWindow.h>
 #include <RHI/T3DRHIThread.h>
 #include <RHI/T3DRHICommand.h>
 

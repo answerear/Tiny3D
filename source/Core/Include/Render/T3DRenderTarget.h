@@ -24,7 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Render/T3DViewport.h"
+//#include "RHI/T3DRHIRenderer.h"
 
 
 namespace Tiny3D
@@ -158,19 +158,24 @@ namespace Tiny3D
          */
         RenderTarget(const String &name);
 
-    protected:
         using ViewportList = TMap<long_t, ViewportPtr>;
 
-        size_t mWidth; /**< 渲染目标宽度 */
-        size_t mHeight; /**< 渲染目标高度 */
-        size_t mColorDepth; /**< 渲染目标色深 */
-        size_t mPitch; /**< 渲染目标行间距 */
+        /**< 渲染目标宽度 */
+        size_t mWidth {0};
+        /**< 渲染目标高度 */
+        size_t mHeight {0};
+        /**< 渲染目标色深 */
+        size_t mColorDepth {0};
+        /**< 渲染目标行间距 */
+        size_t mPitch {0};
+        /**< 是否活跃状态 */
+        bool mIsActive {false};
+        /**< 渲染目标名称 */
+        String mName {};
+        /**< 视口列表 */
+        ViewportList mViewportList {};
 
-        bool mIsActive; /**< 是否活跃状态 */
-
-        String mName; /**< 渲染目标名称 */
-
-        ViewportList mViewportList; /**< 视口列表 */
+        RHIRenderTargetPtr  mRHIRenderTarget {nullptr};
     };
 }
 

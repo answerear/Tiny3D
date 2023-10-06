@@ -19,6 +19,8 @@
 
 
 #include "Render/T3DRenderTarget.h"
+#include "Render/T3DViewport.h"
+#include "RHI/T3DRHIRenderTarget.h"
 
 
 namespace Tiny3D
@@ -44,6 +46,8 @@ namespace Tiny3D
 
     void RenderTarget::render()
     {
+        mRHIRenderTarget->beginRender();
+        
         clear(ColorRGB::BLACK, 0, 0.0f, 0);
         
         auto itr = mViewportList.begin();
@@ -58,6 +62,8 @@ namespace Tiny3D
             ++itr;
             ++i;
         }
+
+        mRHIRenderTarget->endRender();
     }
 
     //--------------------------------------------------------------------------

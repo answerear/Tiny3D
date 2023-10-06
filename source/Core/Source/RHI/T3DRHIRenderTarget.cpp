@@ -17,23 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#include "RHI/T3DRHIRenderTarget.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
-
-    //--------------------------------------------------------------------------
 }
+

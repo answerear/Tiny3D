@@ -22,6 +22,8 @@
 #include "T3DErrorDef.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIRenderer.h"
+#include "RHI/T3DRHIRenderWindow.h"
+#include "RHI/T3DRHIContext.h"
 
 
 namespace Tiny3D
@@ -122,7 +124,7 @@ namespace Tiny3D
             //     break;
             // }
 
-            mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this, param);
+            mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this, param);
 
             ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
             viewport = addViewport(1, 0.5f, 0, 0.5f, 1.0f);
@@ -164,14 +166,15 @@ namespace Tiny3D
 
         do
         {
-            if (mRHIRenderWindow == nullptr)
+            if (mRHIRenderTarget == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
                 ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
 
-            ret = mRHIRenderWindow->swapBuffers();
+            RHIRenderWindowPtr rw = smart_pointer_cast<RHIRenderWindow>(mRHIRenderTarget);
+            ret = rw->swapBuffers();
         } while (false);
        
         return ret;
@@ -243,13 +246,6 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool RenderWindow::isFullscreen() const
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
     void RenderWindow::render()
     {
         RenderTarget::render();
@@ -264,14 +260,14 @@ namespace Tiny3D
 
         do
         {
-            if (mRHIRenderWindow == nullptr)
+            if (mRHIRenderTarget == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
                 ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
 
-            ret = mRHIRenderWindow->clear(clrFill, clearFlags, depth, stencil);
+            ret = mRHIRenderTarget->clear(clrFill, clearFlags, depth, stencil);
         } while (false);
 
         return ret;

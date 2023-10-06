@@ -105,12 +105,12 @@ namespace Tiny3D
                 break;
             }
             
-            result = D3D11_CONTEXT->setRenderTargets(1, &mD3DRTView, &mD3DDSView);
-            if (T3D_FAILED(result))
-            {
-                ret = false;
-                break;
-            }
+            // result = D3D11_CONTEXT->setRenderTargets(1, &mD3DRTView, &mD3DDSView);
+            // if (T3D_FAILED(result))
+            // {
+            //     ret = false;
+            //     break;
+            // }
         } while (false);
 
         return ret;
@@ -135,6 +135,37 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Window::beginRender()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mD3DRTView == nullptr)
+            {
+                break;
+            }
+
+            if (mD3DDSView == nullptr)
+            {
+                break;
+            }
+
+            ret = D3D11_CONTEXT->setRenderTargets(1, &mD3DRTView, &mD3DDSView);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Window::endRender()
+    {
+        return D3D11_CONTEXT->setRenderTargets(0, nullptr, nullptr);
     }
 
     //--------------------------------------------------------------------------

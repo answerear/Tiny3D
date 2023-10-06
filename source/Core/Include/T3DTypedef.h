@@ -95,10 +95,9 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIRenderWindow);
 
 
-
     T3D_DECLARE_SMART_PTR(RHIRenderer);
     T3D_DECLARE_SMART_PTR(RHIContext);
-    T3D_DECLARE_SMART_PTR(RHIState);
+    T3D_DECLARE_SMART_PTR(RHIResource);
     T3D_DECLARE_SMART_PTR(RHIBlendState);
     T3D_DECLARE_SMART_PTR(RHIDepthStencilState);
     T3D_DECLARE_SMART_PTR(RHIRasterizerState);
@@ -109,13 +108,10 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIPixelBuffer);
     T3D_DECLARE_SMART_PTR(RHIDataBuffer);
     T3D_DECLARE_SMART_PTR(RHIVertexDeclaration);
-    T3D_DECLARE_SMART_PTR(RHIBufferManager);
-    T3D_DECLARE_SMART_PTR(RHIBufferManagerBase);
-    T3D_DECLARE_SMART_PTR(RHIStateManager);
-    T3D_DECLARE_SMART_PTR(RHIStateManagerImpl);
+    T3D_DECLARE_SMART_PTR(RHIRenderTarget);
     T3D_DECLARE_SMART_PTR(RHIThread);
     T3D_DECLARE_SMART_PTR(RHICommand);
-    T3D_DECLARE_SMART_PTR(RHIResource);
+    
 
     using RHIRenderers = TMap<String, RHIRendererPtr>;
     using RHIRenderersItr = RHIRenderers::iterator;

@@ -23,8 +23,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "RHI/T3DRHIRenderWindow.h"
-#include "RHI/T3DRHIContext.h"
 
 
 namespace Tiny3D

@@ -56,6 +56,10 @@ namespace Tiny3D
          */
         TResult swapBuffers() override;
 
+        TResult beginRender() override;
+
+        TResult endRender() override;
+
         /**
          * @fn  virtual void D3D11RenderWindow::clear(const ColorRGB &clrFill, 
          *      uint32_t clearFlags, Real depth, uint32_t stencil) override;

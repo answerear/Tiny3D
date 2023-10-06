@@ -258,7 +258,6 @@ namespace Tiny3D
         return D3D11Window::create(window, param);
     }
 
-
     TResult D3D11Context::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
     {
         return T3D_OK;
@@ -546,14 +545,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setRenderTargets(UINT numOfViews, ID3D11RenderTargetView **ppD3DRTView, ID3D11DepthStencilView **pD3DDSView)
+    TResult D3D11Context::setRenderTargets(UINT numOfViews, ID3D11RenderTargetView **ppD3DRTView, ID3D11DepthStencilView **ppD3DDSView)
     {
-        auto lambda = [this](UINT numOfViews, ID3D11RenderTargetView **ppD3DRTView, ID3D11DepthStencilView **pD3DDSView)
+        auto lambda = [this](UINT numOfViews, ID3D11RenderTargetView **ppD3DRTView, ID3D11DepthStencilView **ppD3DDSView)
         {
-            mD3DDeviceContext->OMSetRenderTargets(numOfViews, ppD3DRTView, *pD3DDSView);
+            if (ppD3DDSView != nullptr)
+            {
+                mD3DDeviceContext->OMSetRenderTargets(numOfViews, ppD3DRTView, *ppD3DDSView);
+            }
+            else
+            {
+                mD3DDeviceContext->OMSetRenderTargets(numOfViews, ppD3DRTView, nullptr);
+            }
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, numOfViews, ppD3DRTView, pD3DDSView);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, numOfViews, ppD3DRTView, ppD3DDSView);
     }
 
     //--------------------------------------------------------------------------

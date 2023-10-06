@@ -23,7 +23,7 @@
 
 
 #include "Render/T3DRenderTarget.h"
-#include "RHI/T3DRHIRenderWindow.h"
+//#include "RHI/T3DRHIRenderWindow.h"
 
 
 namespace Tiny3D
@@ -31,7 +31,7 @@ namespace Tiny3D
     /**
      * @brief 创建窗口需要的必要数据
      */
-    struct RenderWindowCreateParam
+    struct T3D_ENGINE_API RenderWindowCreateParam
     {
         THandle externalHandle; 
         int32_t windowLeft;     /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
@@ -99,7 +99,7 @@ namespace Tiny3D
         /**
          * @brief 获取是否全屏窗口
          */
-        bool isFullscreen() const;
+        bool isFullscreen() const { return mIsFullscreen; }
 
         bool getSystemInfo(SysWMInfo &info) const;
         
@@ -112,10 +112,8 @@ namespace Tiny3D
         TResult loadIcon(const String &iconPath);
         
         /**< OS 相关的窗口对象 */
-        Window              *mWindow {nullptr};
-        /**< RHI 相关渲染窗口对象 */
-        RHIRenderWindowPtr  mRHIRenderWindow {nullptr};
-        bool                mIsFullscreen {false};
+        Window  *mWindow {nullptr};
+        bool    mIsFullscreen {false};
     };
 
     class T3D_ENGINE_API NullRenderWindow : public RenderWindow

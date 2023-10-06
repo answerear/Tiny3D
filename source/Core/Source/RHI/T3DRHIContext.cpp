@@ -20,6 +20,15 @@
 
 #include "RHI/T3DRHIContext.h"
 #include "Render/T3DRenderTarget.h"
+#include "Render/T3DRenderWindow.h"
+#include "Render/T3DBlendState.h"
+#include "Render/T3DDepthStencilState.h"
+#include "Render/T3DRasterizerState.h"
+#include "Render/T3DSamplerState.h"
+#include "RHI/T3DRHIBlendState.h"
+#include "RHI/T3DRHIDepthStencilState.h"
+#include "RHI/T3DRHIRasterizerState.h"
+#include "RHI/T3DRHISamplerState.h"
 
 
 namespace Tiny3D

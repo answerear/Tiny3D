@@ -24,20 +24,15 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Render/T3DBlendState.h"
-#include "Render/T3DDepthStencilState.h"
-#include "Render/T3DRasterizerState.h"
-#include "Render/T3DSamplerState.h"
-#include "RHI/T3DRHIBlendState.h"
-#include "RHI/T3DRHIDepthStencilState.h"
-#include "RHI/T3DRHIRasterizerState.h"
-#include "RHI/T3DRHISamplerState.h"
-#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D
 {
-    class Viewport;
+    struct RenderWindowCreateParam;
+    struct BlendDesc;
+    struct DepthStencilDesc;
+    struct RasterizerDesc;
+    struct SamplerDesc;
 
     /**
      * @enum    TransformState

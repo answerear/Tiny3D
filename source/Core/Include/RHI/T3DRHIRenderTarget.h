@@ -17,23 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#ifndef __T3D_RHI_RENDER_TARGET_H__
+#define __T3D_RHI_RENDER_TARGET_H__
+
+
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    /**
+     * \brief 渲染硬件层的颜色混合状态
+     */
+    class T3D_ENGINE_API RHIRenderTarget : public RHIResource
+    {
+    public:
+        ~RHIRenderTarget() override = default;
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+        virtual TResult beginRender() = 0;
 
-    //--------------------------------------------------------------------------
+        virtual TResult endRender() = 0;
+
+        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+        
+    protected:
+        RHIRenderTarget() = default;
+    };
 }
+
+
+#endif  /*__T3D_RHI_RENDER_TARGET_H__*/

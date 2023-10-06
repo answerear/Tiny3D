@@ -22,7 +22,6 @@
 #define __T3D_RHI_INDEX_BUFFER_H__
 
 
-#include "T3DRHIRenderer.h"
 #include "RHI/T3DRHIResource.h"
 
 

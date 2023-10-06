@@ -22,7 +22,8 @@
 #define __T3D_RHI_RENDER_WINDOW_H__
 
 
-#include "Render/T3DRenderTarget.h"
+#include "RHI/T3DRHIRenderTarget.h"
+#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D
@@ -30,13 +31,15 @@ namespace Tiny3D
     /**
      * @brief 渲染窗口
      */
-    class T3D_ENGINE_API RHIRenderWindow : public Object
+    class T3D_ENGINE_API RHIRenderWindow : public RHIRenderTarget
     {
     public:
         /**
          * @brief 析构函数
          */
         virtual ~RHIRenderWindow();
+
+        ResourceType getResourceType() const override { return ResourceType::kRenderWindow; }
 
         /**
          * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
@@ -46,17 +49,6 @@ namespace Tiny3D
          */
         virtual TResult swapBuffers() = 0;
 
-        /**
-         * @fn  virtual void D3D11RenderWindow::clear(const ColorRGB &clrFill, 
-         *      uint32_t clearFlags, Real depth, uint32_t stencil) override;
-         * @brief   Clears this object to its blank/initial state
-         * @param   clrFill     The color fill.
-         * @param   clearFlags  The clear flags.
-         * @param   depth       The depth.
-         * @param   stencil     The stencil.
-         */
-        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
-        
     protected:
         /**
          * @brief 构造函数
