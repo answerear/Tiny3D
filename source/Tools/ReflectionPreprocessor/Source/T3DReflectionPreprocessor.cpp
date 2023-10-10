@@ -84,9 +84,9 @@ namespace  Tiny3D
             whitelist.push_back("std::map");
             whitelist.push_back("std::multimap");
             whitelist.push_back("std::unordered_set");
-            whitelist.push_back("std::std::unordered_map");
-            whitelist.push_back("std::std::unordered_multiset");
-            whitelist.push_back("std::std::unordered_multimap");
+            whitelist.push_back("std::unordered_multiset");
+            whitelist.push_back("std::unordered_map");
+            whitelist.push_back("std::unordered_multimap");
             mGenerator->setBuiltinClass(whitelist);
 
             // 设置工程路径
@@ -256,7 +256,7 @@ namespace  Tiny3D
     const std::string JsonHandler::kTagOtherFlags = "OtherFlags";
     const std::string JsonHandler::kTagGeneratedPath = "GeneratedPath";
 
-    ClangArgs ReflectionPreprocessor::parseSettingsFile(const String& path)
+    ClangArgs ReflectionPreprocessor:: parseSettingsFile(const String& path)
     {
         ClangArgs args;
         
