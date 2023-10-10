@@ -19,7 +19,7 @@
 
 
 #include "T3DD3D11Context.h"
-#include "T3DD3D11Window.h"
+#include "T3DD3D11RenderWindow.h"
 #include "T3DD3D11Error.h"
 
 
@@ -320,7 +320,6 @@ namespace Tiny3D
         auto lambda = [this](D3D11_VIEWPORT vp)
         {
             mD3DDeviceContext->RSSetViewports(1, &vp);
-            T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "Set viewport {%f, %f, %f, %f}", vp.TopLeftX, vp.TopLeftY, vp.Width, vp.Height);
             return T3D_OK;
         };
         return ENQUEUE_UNIQUE_COMMAND(lambda, vp);
@@ -355,7 +354,7 @@ namespace Tiny3D
             {
                 if (uMSAAQuality == 0)
                 {
-                    uMSAACount = 1;
+                    mMSAACount = 1;
                 }
                 else
                 {
@@ -483,7 +482,7 @@ namespace Tiny3D
                     break;
                 }
             } while (false);
-                
+
             D3D_SAFE_RELEASE(pD3DBackBuffer);
 
             return ret;

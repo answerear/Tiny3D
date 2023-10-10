@@ -20,7 +20,7 @@
 
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11Context.h"
-#include "T3DD3D11Window.h"
+#include "T3DD3D11RenderWindow.h"
 
 
 namespace Tiny3D

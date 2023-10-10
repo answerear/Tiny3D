@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Window.h"
+#include "T3DD3D11RenderWindow.h"
 #include "T3DD3D11Error.h"
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11Context.h"

@@ -18,8 +18,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_WINDOW_H__
-#define __T3D_D3D11_WINDOW_H__
+#ifndef __T3D_D3D11_RENDER_WINDOW_H__
+#define __T3D_D3D11_RENDER_WINDOW_H__
 
 
 #include "T3DD3D11Prerequisites.h"
@@ -86,4 +86,4 @@ namespace Tiny3D
 
 
 
-#endif  /*__T3D_D3D11_WINDOW_H__*/
+#endif  /*__T3D_D3D11_RENDER_WINDOW_H__*/
