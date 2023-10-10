@@ -142,17 +142,51 @@ namespace Tiny3D
         virtual TResult renderObject() = 0;
         
     protected:
-        typedef TMap<String, RenderTargetPtr>      RenderTargetList;
+        typedef TMap<String, RenderTargetPtr>       RenderTargetList;
         typedef RenderTargetList::iterator          RenderTargetListItr;
         typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
         typedef RenderTargetList::value_type        RenderTargetListValue;
+
+        using RenderTargets = TUnorderedMap<String, RenderTargetPtr>;
+
+        /// 渲染纹理
+        using RenderTextures = TUnorderedMap<uint32_t, RenderTargetPtr>;
+
+        /**
+         * \brief 渲染目标分组
+         */
+        struct RenderTargetGroup
+        {
+            /// 所有的渲染纹理
+            RenderTextures  renderTextures {};
+            /// 渲染窗口
+            RenderTargetPtr renderWindow {nullptr};
+        };
+
+        /// 渲染分组
+        using RenderTargetGroups = TUnorderedMap<uint32_t, RenderTargetGroup>;
+
+        /**
+         * \brief 渲染目标绑定，用于根据渲染名称查找渲染分组和渲染分组里的顺序
+         */
+        struct RenderTargetBind
+        {
+            /// 渲染目标分组
+            uint32_t    group;
+            /// 渲染目标在分组里面的渲染顺序
+            uint32_t    order;
+        };
+
+        using RenderTargetBinds = TList<RenderTargetBind>;
+        
+        using RenderTargetCombindss = TUnorderedMap<String, RenderTargetBinds>;
 
         bool    mIsWorldMatrixDirty;    /**< 世界变换矩阵是否更新标识 */
         bool    mIsViewMatrixDirty;     /**< 视图变换矩阵是否更新标识 */
         bool    mIsProjMatrixDirty;     /**< 投影变换矩阵是否更新标识 */
 
-        RenderTargetList        mRenderTargets;     /**< 渲染目标列表 */
-
+        /**< 渲染目标列表 */
+        RenderTargets        mRenderTargets;
         // RenderCapabilitiesPtr   mCapabilities;      /**< 渲染能力值 */
         
         RenderTargetPtr         mRenderTarget;      /**< 当前渲染目标 */

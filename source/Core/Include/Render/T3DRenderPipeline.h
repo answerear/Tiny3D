@@ -31,6 +31,41 @@ namespace Tiny3D
     class T3D_ENGINE_API RenderPipeline : public Object
     {
     public:
+        enum : uint32_t
+        {
+            DEFAULT_GROUP = 0,
+            DEFAULT_ORDER = 0xFFFFFFFF,
+        };
+
+        /**
+         * \brief 执行渲染
+         * \param [in] ctx : RHI 渲染上下文
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult render(RHIContextPtr ctx) = 0;
+
+        /**
+         * \brief 附加渲染目标到渲染管线，渲染管线执行渲染
+         * \param [in] target : 渲染目标 
+         * \param [in] group : 渲染目标分组，默认是 DEFAULT_GROUP 分组，内部都分到一组
+         * \param [in] order : 渲染目标的渲染顺序，默认是 DEFAULT_ORDER，就是按照 attach 的顺序 
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult attachRenderTarget(RenderTargetPtr target, uint32_t group = DEFAULT_GROUP, uint32_t order = DEFAULT_ORDER) = 0;
+
+        /**
+         * \brief 从渲染管线上解除出来，不再渲染
+         * \param [in] name : 渲染目标名称 
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult detachRenderTarget(const String &name) = 0;
+
+        /**
+         * \brief 根据名称获取渲染目标对象
+         * \param [in] name : 想要获取的渲染目标名称
+         * \return 调用成功返回渲染目标对象，否则返回 nullptr
+         */
+        virtual RenderTargetPtr getRenderTarget(const String &name) const = 0;
     };
 }
 

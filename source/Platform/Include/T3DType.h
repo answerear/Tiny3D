@@ -33,6 +33,8 @@
 #include <stack>
 #include <set>
 #include <map>
+#include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #include <thread>
 #include <mutex>
@@ -121,11 +123,26 @@ using TStack = std::stack<T>;
 template <typename T>
 using TSet = std::set<T>;
 
+template <typename T>
+using TMultiset = std::multiset<T>;
+
 template <typename K, typename V>
 using TMap = std::map<K, V>;
 
 template <typename K, typename V>
 using TMultimap = std::multimap<K, V>;
+
+template <typename T>
+using TUnorderedSet = std::unordered_set<T>;
+
+template <typename T>
+using UUnorderedMultiset = std::unordered_multiset<T>;
+
+template <typename K, typename V>
+using TUnorderedMap = std::unordered_map<K, V>;
+
+template <typename K, typename V>
+using TUnorderedMultimap = std::unordered_multimap<K, V>;
 
 template <typename T1, typename T2>
 using TPair = std::pair<T1, T2>;

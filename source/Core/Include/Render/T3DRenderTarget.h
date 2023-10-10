@@ -116,7 +116,7 @@ namespace Tiny3D
          * @brief 渲染
          */
         virtual void render();
-
+        
         /**
          * @brief 新增一个视口对象，并且关联到本渲染目标上
          * @param [in] camera : 观察新增视口对应的相机对象

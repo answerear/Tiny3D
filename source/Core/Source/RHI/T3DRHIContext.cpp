@@ -76,9 +76,7 @@ namespace Tiny3D
 
     TResult RHIContext::attachRenderTarget(RenderTargetPtr target)
     {
-        TPair<RenderTargetListItr, bool> ret =
-            mRenderTargets.insert(RenderTargetListValue(target->getName(),
-                target));
+        auto ret = mRenderTargets.emplace(target->getName(), target);
 
         if (ret.second)
         {
@@ -107,7 +105,7 @@ namespace Tiny3D
 
     RenderTargetPtr RHIContext::getRenderTarget(const String &name)
     {
-        RenderTargetListItr itr = mRenderTargets.find(name);
+        auto itr = mRenderTargets.find(name);
 
         if (itr != mRenderTargets.end())
         {
