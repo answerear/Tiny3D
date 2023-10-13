@@ -157,9 +157,15 @@ namespace Tiny3D
         typedef Dylibs::const_iterator      DylibsConstItr;
         typedef Dylibs::value_type          DylibsValue;
 
-        Logger                  *mLogger {nullptr};           /**< 日志对象 */
-        EventManager            *mEventMgr {nullptr};         /**< 事件管理器对象 */
-        ObjectTracer            *mObjTracer {nullptr};        /**< 对象内存跟踪 */
+        /// 异步赋值对象管理器
+        AssignableObjectManagerPtr  mAssignableObjMgr;
+
+        /**< 日志对象 */
+        Logger                  *mLogger {nullptr};
+        /**< 事件管理器对象 */
+        EventManager            *mEventMgr {nullptr};
+        /**< 对象内存跟踪 */
+        ObjectTracer            *mObjTracer {nullptr};
 
         RenderWindowPtr         mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
         RHIRendererPtr          mActiveRHIRenderer {nullptr}; /**< 当前使用的 RHI 渲染器 */

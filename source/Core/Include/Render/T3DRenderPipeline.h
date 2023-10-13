@@ -28,7 +28,9 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderPipeline : public Object
+    class T3D_ENGINE_API RenderPipeline
+        : public Object
+        , public Singleton<RenderPipeline>
     {
     public:
         enum : uint32_t
@@ -67,6 +69,8 @@ namespace Tiny3D
          */
         virtual RenderTargetPtr getRenderTarget(const String &name) const = 0;
     };
+
+    #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 
 }
 
 

@@ -55,7 +55,7 @@ namespace Tiny3D
         do 
         {
             mContext = D3D11Context::create();
-            ret = mContext->init();
+            // ret = mContext->init();
         } while (false);
 
         return ret;

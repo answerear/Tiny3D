@@ -51,7 +51,7 @@ namespace  Tiny3D
 
     bool DepthStencilState::onLoad()
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createDepthStencilState(mDesc);
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createDepthStencilState(this);
         return true;
     }
 

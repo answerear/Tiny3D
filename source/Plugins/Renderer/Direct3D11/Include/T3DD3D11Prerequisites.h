@@ -57,7 +57,7 @@ namespace Tiny3D
     class D3D11DepthStencilState;
     class D3D11RasterizerState;
     class D3D11SamplerState;
-    class D3D11Window;
+    class D3D11RenderWindow;
     class D3D11BufferManager;
     class D3D11Buffer;
     class D3D11VertexBuffer;
@@ -84,7 +84,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(D3D11DepthStencilState);
     T3D_DECLARE_SMART_PTR(D3D11RasterizerState);
     T3D_DECLARE_SMART_PTR(D3D11SamplerState);
-    T3D_DECLARE_SMART_PTR(D3D11Window);
+    T3D_DECLARE_SMART_PTR(D3D11RenderWindow);
     T3D_DECLARE_SMART_PTR(D3D11BufferManager);
     T3D_DECLARE_SMART_PTR(D3D11Buffer);
     T3D_DECLARE_SMART_PTR(D3D11VertexBuffer);

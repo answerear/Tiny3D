@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-* This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
@@ -18,17 +18,46 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIDataBuffer.h"
+#include "Render/T3DConstantBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIDataBuffer::RHIDataBuffer()
+    ConstantBufferPtr ConstantBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
+        return new ConstantBuffer(buffer, memType, usage, accMode);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ConstantBuffer::ConstantBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(buffer, memType, usage, accMode)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type ConstantBuffer::getType() const
+    {
+        return Type::kConstantBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ConstantBuffer::onLoad()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ConstantBuffer::onUnload()
+    {
+        return true;
     }
 
     //--------------------------------------------------------------------------
 }
-

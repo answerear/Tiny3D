@@ -52,6 +52,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+#if 0
     TResult D3D11Context::init()
     {
         TResult ret = T3D_OK;
@@ -255,7 +256,7 @@ namespace Tiny3D
 
     RHIRenderWindowPtr D3D11Context::createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param)
     {
-        return D3D11Window::create(window, param);
+        return D3D11RenderWindow::create(window, param);
     }
 
     TResult D3D11Context::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
@@ -456,6 +457,94 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::createRenderTargetView(D3D11RenderWindow *renderWindow)
+    {
+        auto lambda = [this](D3D11RenderWindow *renderWindow)
+        {
+            TResult ret = T3D_OK;
+            ID3D11Texture2D *pD3DBackBuffer = nullptr;
+                
+            do 
+            {
+                HRESULT hr = S_OK;
+                hr = renderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DBackBuffer));
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_GET_INTERFACE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+                
+                hr = mD3DDevice->CreateRenderTargetView(pD3DBackBuffer, nullptr, &renderWindow->D3DRTView);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create render target view failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            } while (false);
+
+            D3D_SAFE_RELEASE(pD3DBackBuffer);
+
+            return ret;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, renderWindow);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::createDepthStencilView(D3D11RenderWindow *renderWindow)
+    {
+        auto lambda = [this](D3D11RenderWindow *renderWindow)
+        {
+            TResult ret = T3D_OK;
+
+            ID3D11Texture2D *pD3DTexture = nullptr;
+                
+            do 
+            {
+                D3D11_TEXTURE2D_DESC desc;
+                desc.Width = width;
+                desc.Height = height;
+                desc.MipLevels = 1;
+                desc.ArraySize = 1;
+                desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+                
+                desc.SampleDesc.Count = mMSAACount;
+                desc.SampleDesc.Quality = mMSAAQuality;
+                
+                desc.Usage = D3D11_USAGE_DEFAULT;
+                desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+                desc.CPUAccessFlags = 0;
+                desc.MiscFlags = 0;
+                
+                HRESULT hr = S_OK;
+                hr = mD3DDevice->CreateTexture2D(&desc, nullptr, &pD3DTexture);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+                
+                hr = mD3DDevice->CreateDepthStencilView(pD3DTexture, nullptr, ppD3DDSView);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth stencil view failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            } while (false);
+                
+            D3D_SAFE_RELEASE(pD3DTexture);
+
+            return ret;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, width, height,  ppD3DDSView);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::createRenderTargetView(IDXGISwapChain **pD3DSwapChain, ID3D11RenderTargetView **ppD3DRTView)
     {
         auto lambda = [this](IDXGISwapChain **pD3DSwapChain, ID3D11RenderTargetView **ppD3DRTView)
@@ -586,7 +675,296 @@ namespace Tiny3D
         };
         return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DDSView, depth, stencil);
     }
+#else
 
+    //--------------------------------------------------------------------------
+    
+    RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindowPtr renderWindow)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIRenderTargetPtr D3D11Context::createRenderTexture(RenderTexturePtr renderTexture)
+    {
+        return nullptr;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setRenderTarget(RenderTargetPtr renderTarget)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setViewport(ViewportPtr viewport)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::clearColor(const ColorRGB &color)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::clearDepthStencil(Real depth, uint32_t stencil)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIBlendStatePtr D3D11Context::createBlendState(BlendStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(DepthStencilStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIRasterizerStatePtr D3D11Context::createRasterizerState(RasterizerStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHISamplerStatePtr D3D11Context::createSamplerState(SamplerStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setBlendState(BlendStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setDepthStencilState(DepthStencilStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setRasterizerState(RasterizerStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setSamplerState(SamplerStatePtr state)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    RHIVertexBufferPtr D3D11Context::createVertexBuffer(VertexBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setVertexBuffer(VertexBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIIndexBufferPtr D3D11Context::createIndexBuffer(IndexBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setIndexBuffer(IndexBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIConstantBufferPtr D3D11Context::createConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIPixelBufferPtr D3D11Context::createPixelBuffer(PixelBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr D3D11Context::createVertexShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setVertexShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr D3D11Context::createPixelShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setPixelShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr D3D11Context::createHullShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setHullShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr D3D11Context::createDomainShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setDomainShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr D3D11Context::createGeometryShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setGeometryShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr D3D11Context::createComputeShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setComputeShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::render()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::reset()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::blit(RenderTargetPtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::blit(RenderTargetPtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::blit(TexturePtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset, size_t size, size_t dstOffset)
+    {
+        return T3D_OK;
+    }
+    
+#endif
     //--------------------------------------------------------------------------
 }
 

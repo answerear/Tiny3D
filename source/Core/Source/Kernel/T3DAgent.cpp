@@ -106,6 +106,8 @@ namespace Tiny3D
         
         T3D_SAFE_DELETE(mEventMgr);
 
+        mAssignableObjMgr = nullptr;
+        
         if (mObjTracer != nullptr)
         {
             mObjTracer->dumpMemoryInfo();
@@ -477,7 +479,7 @@ namespace Tiny3D
                 break;
             }
         
-            ret = mActiveRHIRenderer->getContext()->attachRenderTarget(window);
+            // ret = mActiveRHIRenderer->getContext()->attachRenderTarget(window);
         } while (0);
         
         return ret;
@@ -498,7 +500,7 @@ namespace Tiny3D
                 break;
             }
         
-            ret = mActiveRHIRenderer->getContext()->detachRenderTarget(name);
+            // ret = mActiveRHIRenderer->getContext()->detachRenderTarget(name);
         } while (0);
 
         return ret;
@@ -516,7 +518,7 @@ namespace Tiny3D
         }
         else
         {
-            window = mActiveRHIRenderer->getContext()->getRenderTarget(name);
+            // window = mActiveRHIRenderer->getContext()->getRenderTarget(name);
         }
 
         return window;
@@ -552,6 +554,9 @@ namespace Tiny3D
 #if (T3D_ENABLE_RHI_THREAD)
             mRHIEvent.wait();
 #endif
+
+            // 异步赋值
+            mAssignableObjMgr->assign();
         }
 
         theApp->applicationWillTerminate();
@@ -565,7 +570,7 @@ namespace Tiny3D
         // {
         //     mActiveRenderer->renderAllTargets();
         // }
-        getActiveRHIContext()->renderAllTargets();
+        // getActiveRHIContext()->renderAllTargets();
     }
 
     //--------------------------------------------------------------------------
@@ -839,6 +844,7 @@ namespace Tiny3D
     
     TResult Agent::initManagers()
     {
+        mAssignableObjMgr = AssignableObjectManager::create();
         mArchiveMgr = ArchiveManager::create();
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);

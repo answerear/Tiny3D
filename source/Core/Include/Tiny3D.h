@@ -79,7 +79,7 @@
 #include <Render/T3DVertexBuffer.h>
 #include <Render/T3DIndexBuffer.h>
 #include <Render/T3DPixelBuffer.h>
-#include <Render/T3DDataBuffer.h>
+#include <Render/T3DConstantBuffer.h>
 #include <Render/T3DRenderResourceManager.h>
 #include <Render/T3DRenderTarget.h>
 #include <Render/T3DViewport.h>
@@ -93,12 +93,14 @@
 #include <RHI/T3DRHIRasterizerState.h>
 #include <RHI/T3DRHISamplerState.h>
 #include <RHI/T3DRHIVertexDeclaration.h>
-#include <RHI/T3DRHIDataBuffer.h>
 #include <RHI/T3DRHIVertexBuffer.h>
 #include <RHI/T3DRHIIndexBuffer.h>
 #include <RHI/T3DRHIPixelBuffer.h>
+#include <RHI/T3DRHIConstantBuffer.h>
 #include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>
+#include <RHI/T3DRHIRenderTexture.h>
+#include <RHI/T3DRHIShader.h>
 #include <RHI/T3DRHIThread.h>
 #include <RHI/T3DRHICommand.h>
 

@@ -54,7 +54,7 @@ namespace Tiny3D
 
     RenderWindow::Type RenderWindow::getType() const
     {
-        return E_RT_WINDOW;
+        return Type::E_RT_WINDOW;
     }
 
     //--------------------------------------------------------------------------
@@ -124,7 +124,7 @@ namespace Tiny3D
             //     break;
             // }
 
-            mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this, param);
+            mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
 
             ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
             viewport = addViewport(1, 0.5f, 0, 0.5f, 1.0f);
@@ -254,24 +254,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) 
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            if (mRHIRenderTarget == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
-
-            ret = mRHIRenderTarget->clear(clrFill, clearFlags, depth, stencil);
-        } while (false);
-
-        return ret;
-    }
+    // TResult RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) 
+    // {
+    //     TResult ret = T3D_OK;
+    //
+    //     do
+    //     {
+    //         if (mRHIRenderTarget == nullptr)
+    //         {
+    //             T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+    //             ret = T3D_ERR_INVALID_POINTER;
+    //             break;
+    //         }
+    //
+    //         ret = mRHIRenderTarget->clear(clrFill, clearFlags, depth, stencil);
+    //     } while (false);
+    //
+    //     return ret;
+    // }
     
     //--------------------------------------------------------------------------
 

@@ -30,15 +30,15 @@
 namespace Tiny3D
 {
     /**
-     * @brief 渲染目标
+     * /brief 渲染目标
      */
     class T3D_ENGINE_API RenderTarget : public Object
     {
     public:
         /**
-         * @brief 渲染目标类型
+         * /brief 渲染目标类型
          */
-        enum Type
+        enum class Type : uint32_t
         {
             E_RT_WINDOW = 0,
             /**< 渲染到窗口 */
@@ -110,7 +110,7 @@ namespace Tiny3D
          * @param   depth       The depth.
          * @param   stencil     The stencil.
          */
-        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
+        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil);
 
         /**
          * @brief 渲染

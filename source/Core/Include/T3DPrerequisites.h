@@ -119,18 +119,17 @@ namespace Tiny3D
     class VertexBuffer;
     class IndexBuffer;
     class PixelBuffer;
-    class DataBuffer;
+    class ConstantBuffer;
 
     class RenderStateManager;
     class RenderBufferManager;
     
     class RenderTarget;
+    class RenderTexture;
     class RenderWindow;
     class NullRenderWindow;
     class Viewport;
     
-    class RHIRenderWindow;
-
     class RHIRenderer;
     class RHIContext;
     class RHIResource;
@@ -142,9 +141,12 @@ namespace Tiny3D
     class RHIVertexBuffer;
     class RHIIndexBuffer;
     class RHIPixelBuffer;
-    class RHIDataBuffer;
+    class RHIConstantBuffer;
     class RHIVertexDeclaration;
     class RHIRenderTarget;
+    class RHIRenderWindow;
+    class RHIRenderTexture;
+    class RHIShader;
     class RHIThread;
     class RHICommand;
 } // namespace Tiny3D

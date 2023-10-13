@@ -51,7 +51,7 @@ namespace  Tiny3D
 
     bool SamplerState::onLoad()
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createSamplerState(mDesc);
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createSamplerState(this);
         return true;
     }
 

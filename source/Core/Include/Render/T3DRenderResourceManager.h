@@ -29,7 +29,7 @@
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DPixelBuffer.h"
-#include "Render/T3DDataBuffer.h"
+#include "Render/T3DConstantBuffer.h"
 
 
 namespace Tiny3D

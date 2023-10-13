@@ -51,7 +51,7 @@ namespace  Tiny3D
 
     bool BlendState::onLoad()
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createBlendState(mDesc);
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createBlendState(this);
         return true;
     }
 

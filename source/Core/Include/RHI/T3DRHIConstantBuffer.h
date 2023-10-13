@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+* This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
@@ -18,45 +18,26 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RESOURCE_H__
-#define __T3D_RHI_RESOURCE_H__
+#ifndef __T3D_RHI_DATA_BUFFER_H__
+#define __T3D_RHI_DATA_BUFFER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的颜色混合状态
+     * @brief 常量缓冲区
      */
-    class T3D_ENGINE_API RHIResource : public Object
+    class T3D_ENGINE_API RHIConstantBuffer : public RHIResource
     {
-    public:
-        RHIResource() = default;
-        ~RHIResource() override = default;
-
-        enum class ResourceType : uint32_t
-        {
-            kNone = 0,
-            kBlendState,
-            kDepthStencilState,
-            kRasterizerState,
-            kSamplerState,
-            kVertexBuffer,
-            kIndexBuffer,
-            kPixelBuffer,
-            kConstantBuffer,
-            kVertexDeclaration,
-            kRenderWindow,
-            kRenderTexture,
-            kShader,
-        };
+        ResourceType getResourceType() const override { return ResourceType::kConstantBuffer; }
         
-        virtual ResourceType getResourceType() const = 0; 
+    protected:
+        RHIConstantBuffer();
     };
 }
 
 
-#endif  /*__T3D_RHI_RESOURCE_H__*/
+#endif  /*__T3D_RHI_DATA_BUFFER_H__*/

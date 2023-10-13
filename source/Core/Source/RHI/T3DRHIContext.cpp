@@ -36,10 +36,10 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     RHIContext::RHIContext()
-        : mIsWorldMatrixDirty(false)
-        , mIsViewMatrixDirty(false)
-        , mIsProjMatrixDirty(false)
-        , mRenderTarget(nullptr)
+        // : mIsWorldMatrixDirty(false)
+        // , mIsViewMatrixDirty(false)
+        // , mIsProjMatrixDirty(false)
+        // , mRenderTarget(nullptr)
     {
 
     }
@@ -53,67 +53,67 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RHIContext::renderAllTargets()
-    {
-        auto itr = mRenderTargets.begin();
-
-        while (itr != mRenderTargets.end())
-        {
-            // 设置当前渲染目标
-            mRenderTarget = itr->second;
-            // 渲染
-            itr->second->render();
-            // 清空当前渲染目标
-            mRenderTarget = nullptr;
-
-            ++itr;
-        }
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult RHIContext::attachRenderTarget(RenderTargetPtr target)
-    {
-        auto ret = mRenderTargets.emplace(target->getName(), target);
-
-        if (ret.second)
-        {
-            return T3D_OK;
-        }
-
-        return T3D_ERR_DUPLICATED_ITEM;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult RHIContext::detachRenderTarget(const String &name)
-    {
-        auto itr = mRenderTargets.find(name);
-        if (itr == mRenderTargets.end())
-        {
-            return T3D_ERR_NOT_FOUND;
-        }
-
-        mRenderTargets.erase(itr);
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderTargetPtr RHIContext::getRenderTarget(const String &name)
-    {
-        auto itr = mRenderTargets.find(name);
-
-        if (itr != mRenderTargets.end())
-        {
-            return itr->second;
-        }
-
-        return nullptr;
-    }
+    // TResult RHIContext::renderAllTargets()
+    // {
+    //     auto itr = mRenderTargets.begin();
+    //
+    //     while (itr != mRenderTargets.end())
+    //     {
+    //         // 设置当前渲染目标
+    //         mRenderTarget = itr->second;
+    //         // 渲染
+    //         itr->second->render();
+    //         // 清空当前渲染目标
+    //         mRenderTarget = nullptr;
+    //
+    //         ++itr;
+    //     }
+    //
+    //     return T3D_OK;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult RHIContext::attachRenderTarget(RenderTargetPtr target)
+    // {
+    //     auto ret = mRenderTargets.emplace(target->getName(), target);
+    //
+    //     if (ret.second)
+    //     {
+    //         return T3D_OK;
+    //     }
+    //
+    //     return T3D_ERR_DUPLICATED_ITEM;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult RHIContext::detachRenderTarget(const String &name)
+    // {
+    //     auto itr = mRenderTargets.find(name);
+    //     if (itr == mRenderTargets.end())
+    //     {
+    //         return T3D_ERR_NOT_FOUND;
+    //     }
+    //
+    //     mRenderTargets.erase(itr);
+    //
+    //     return T3D_OK;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // RenderTargetPtr RHIContext::getRenderTarget(const String &name)
+    // {
+    //     auto itr = mRenderTargets.find(name);
+    //
+    //     if (itr != mRenderTargets.end())
+    //     {
+    //         return itr->second;
+    //     }
+    //
+    //     return nullptr;
+    // }
 
     //--------------------------------------------------------------------------
 

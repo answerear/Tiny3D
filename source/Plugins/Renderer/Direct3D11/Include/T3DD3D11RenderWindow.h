@@ -31,20 +31,20 @@ namespace Tiny3D
      * @class   D3D11RenderWindow
      * @brief   DirectX 11 渲染窗口.
      */
-    class D3D11Window : public RHIRenderWindow
+    class D3D11RenderWindow : public RHIRenderWindow
     {
     public:
         /**
          * @brief 创建渲染窗口对象
          * @return 返回一个渲染窗口对象
          */
-        static D3D11WindowPtr create(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
+        static D3D11RenderWindowPtr create(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
 
         /**
          * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
          * @brief   析构函数
          */
-        virtual ~D3D11Window();
+        virtual ~D3D11RenderWindow();
 
         bool init(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
 
@@ -71,16 +71,19 @@ namespace Tiny3D
          */
         TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
+        /**< The d 3D swap chain */
+        IDXGISwapChain          *D3DSwapChain {nullptr};
+        /**< The d 3D right view */
+        ID3D11RenderTargetView  *D3DRTView {nullptr};
+        /**< The d 3D ds view */
+        ID3D11DepthStencilView  *D3DDSView {nullptr};
+        
     protected:
         /**
          * @fn  D3D11RenderWindow::D3D11RenderWindow(const String &name);
          * @brief   Constructor
          */
-        D3D11Window();
-
-        IDXGISwapChain          *mD3DSwapChain; /**< The d 3D swap chain */
-        ID3D11RenderTargetView  *mD3DRTView;    /**< The d 3D right view */
-        ID3D11DepthStencilView  *mD3DDSView;    /**< The d 3D ds view */
+        D3D11RenderWindow();
     };
 }
 

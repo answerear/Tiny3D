@@ -49,108 +49,287 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::init()
+    RHIRenderTargetPtr NullContext::createRenderWindow(RenderWindowPtr renderWindow)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIRenderTargetPtr NullContext::createRenderTexture(RenderTexturePtr renderTexture)
+    {
+        return nullptr;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setRenderTarget(RenderTargetPtr renderTarget)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setViewport(ViewportPtr viewport)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::clearColor(const ColorRGB &color)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::clearDepthStencil(Real depth, uint32_t stencil)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIBlendStatePtr NullContext::createBlendState(BlendStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIDepthStencilStatePtr NullContext::createDepthStencilState(DepthStencilStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIRasterizerStatePtr NullContext::createRasterizerState(RasterizerStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHISamplerStatePtr NullContext::createSamplerState(SamplerStatePtr state)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setBlendState(BlendStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setDepthStencilState(DepthStencilStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setRasterizerState(RasterizerStatePtr state)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setSamplerState(SamplerStatePtr state)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    RHIVertexBufferPtr NullContext::createVertexBuffer(VertexBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setVertexBuffer(VertexBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIIndexBufferPtr NullContext::createIndexBuffer(IndexBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setIndexBuffer(IndexBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIConstantBufferPtr NullContext::createConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIPixelBufferPtr NullContext::createPixelBuffer(PixelBufferPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr NullContext::createVertexShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setVertexShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr NullContext::createPixelShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setPixelShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr NullContext::createHullShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setHullShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr NullContext::createDomainShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setDomainShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr NullContext::createGeometryShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setGeometryShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIShaderPtr NullContext::createComputeShader(ShaderVariantPtr shader)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setComputeShader(ShaderVariantPtr shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::renderAllTargets()
+    TResult NullContext::render()
     {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            ret = RHIContext::renderAllTargets();
-        } while (0);
-
-        return ret;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    Matrix4 NullContext::makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const
-    {
-        return Matrix4::IDENTITY;
-    }
-
-    Matrix4 NullContext::makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist)
-    {
-        return Matrix4::IDENTITY;
-    }
-
-    Matrix4 NullContext::makeViewportMatrix(Viewport *viewport)
-    {
-        return Matrix4::IDENTITY;
-    }
-
-    RHIRenderWindowPtr NullContext::createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param)
-    {
-        return NullWindow::create();
-    }
-
-    TResult NullContext::clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil)
+    TResult NullContext::reset()
     {
         return T3D_OK;
     }
 
-    RHIBlendStatePtr NullContext::createBlendState(const BlendDesc &desc)
-    {
-        return nullptr;
-    }
+    //--------------------------------------------------------------------------
 
-    RHIDepthStencilStatePtr NullContext::createDepthStencilState(const DepthStencilDesc &desc)
-    {
-        return nullptr;
-    }
-
-    RHIRasterizerStatePtr NullContext::createRasterizerState(const RasterizerDesc &desc)
-    {
-        return nullptr;
-    }
-
-    RHISamplerStatePtr NullContext::createSamplerState(const SamplerDesc &desc)
-    {
-        return nullptr;
-    }
-
-    TResult NullContext::setBlendState(RHIBlendStatePtr state)
+    TResult NullContext::blit(RenderTargetPtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
-    TResult NullContext::setDepthStencilState(RHIDepthStencilStatePtr state)
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
-    TResult NullContext::setRasterizerState(RHIRasterizerStatePtr state)
-    {
-        return T3D_OK;
-    }
-        
-    TResult NullContext::setSamplerState(RHISamplerStatePtr state)
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::blit(RenderTargetPtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
-    TResult NullContext::setViewport(Viewport *viewport)
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::blit(TexturePtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
-    TResult NullContext::setShader()
-    {
-        return T3D_OK;
-    }
+    //--------------------------------------------------------------------------
 
-    TResult NullContext::setTexture()
-    {
-        return T3D_OK;
-    }
-
-    TResult NullContext::renderObject()
+    TResult NullContext::copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset, size_t size, size_t dstOffset)
     {
         return T3D_OK;
     }

@@ -18,46 +18,33 @@
  ******************************************************************************/
 
 
-#include "Render/T3DDataBuffer.h"
+#include "Render/T3DRenderTexture.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-
-    DataBufferPtr DataBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+    
+    RenderTexture::RenderTexture(const String &name)
+        : RenderTarget(name)
     {
-        return new DataBuffer(buffer, memType, usage, accMode);
+
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RenderTexture::~RenderTexture()
+    {
+
     }
 
     //--------------------------------------------------------------------------
 
-    DataBuffer::DataBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
-        : RenderBuffer(buffer, memType, usage, accMode)
+    RenderTarget::Type RenderTexture::getType() const
     {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderResource::Type DataBuffer::getType() const
-    {
-        return Type::kDataBuffer;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool DataBuffer::onLoad()
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool DataBuffer::onUnload()
-    {
-        return true;
+        return Type::E_RT_TEXTURE;
     }
 
     //--------------------------------------------------------------------------
 }
+

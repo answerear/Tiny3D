@@ -18,12 +18,11 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RESOURCE_H__
-#define __T3D_RHI_RESOURCE_H__
+#ifndef __T3D_RHI_SHADER_H__
+#define __T3D_RHI_SHADER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
@@ -31,32 +30,18 @@ namespace Tiny3D
     /**
      * \brief 渲染硬件层的颜色混合状态
      */
-    class T3D_ENGINE_API RHIResource : public Object
+    class T3D_ENGINE_API RHIShader : public RHIResource
     {
     public:
-        RHIResource() = default;
-        ~RHIResource() override = default;
-
-        enum class ResourceType : uint32_t
+        ResourceType getResourceType() const override
         {
-            kNone = 0,
-            kBlendState,
-            kDepthStencilState,
-            kRasterizerState,
-            kSamplerState,
-            kVertexBuffer,
-            kIndexBuffer,
-            kPixelBuffer,
-            kConstantBuffer,
-            kVertexDeclaration,
-            kRenderWindow,
-            kRenderTexture,
-            kShader,
-        };
-        
-        virtual ResourceType getResourceType() const = 0; 
+            return ResourceType::kShader;
+        }
+
+    protected:
+        RHIShader();
     };
 }
 
 
-#endif  /*__T3D_RHI_RESOURCE_H__*/
+#endif  /*__T3D_RHI_SHADER_H__*/

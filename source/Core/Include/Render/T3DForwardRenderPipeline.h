@@ -27,9 +27,7 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API ForwardRenderPipeline
-        : public RenderPipeline
-        , public Singleton<ForwardRenderPipeline>
+    class T3D_ENGINE_API ForwardRenderPipeline : public RenderPipeline
     {
     public:
         static ForwardRenderPipelinePtr create();

@@ -44,6 +44,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult RenderTarget::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mRHIRenderTarget == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = mRHIRenderTarget->clear(clrFill, clearFlags, depth, stencil);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     void RenderTarget::render()
     {
         mRHIRenderTarget->beginRender();

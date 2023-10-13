@@ -78,24 +78,19 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief   构造函数
-         */
-        RHIContext();
-
-        /**
          * @brief   析构函数
          */
         ~RHIContext() override;
 
-        virtual TResult init() = 0;
-     
-        virtual TResult renderAllTargets();
-     
-        virtual TResult attachRenderTarget(RenderTargetPtr target);
-
-        virtual TResult detachRenderTarget(const String &name);
-
-        RenderTargetPtr getRenderTarget(const String &name);
+        // virtual TResult init() = 0;
+        //
+        // virtual TResult renderAllTargets();
+        //
+        // virtual TResult attachRenderTarget(RenderTargetPtr target);
+        //
+        // virtual TResult detachRenderTarget(const String &name);
+        //
+        // RenderTargetPtr getRenderTarget(const String &name);
 
         virtual TResult setTransform(TransformState state, const Matrix4 &mat);
 
@@ -107,89 +102,322 @@ namespace Tiny3D
 
         virtual const Matrix4 &getTransform(TransformState state) const;
 
-        virtual Matrix4 makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const = 0;
+        // virtual Matrix4 makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const = 0;
+        //
+        // virtual Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) = 0;
+        //
+        // virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
+        //
+        // virtual RHIRenderWindowPtr createRenderWindow(RenderWindowPtr renderWindow, const RenderWindowCreateParam &param) = 0;
 
-        virtual Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) = 0;
+        /**
+         * \brief 创建 RHI 渲染窗口
+         * \param [in] renderWindow : 引擎渲染窗口
+         * \return 调用成功返回新建的 RHI 对象
+         */
+        virtual RHIRenderTargetPtr createRenderWindow(RenderWindowPtr renderWindow) = 0;
 
-        virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
-
-        virtual RHIRenderWindowPtr createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param) = 0;
-
-        virtual TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
-
-        virtual RHIBlendStatePtr createBlendState(const BlendDesc &desc) = 0;
-
-        virtual RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilDesc &desc) = 0;
-
-        virtual RHIRasterizerStatePtr createRasterizerState(const RasterizerDesc &desc) = 0;
-
-        virtual RHISamplerStatePtr createSamplerState(const SamplerDesc &desc) = 0;
-
-        virtual TResult setBlendState(RHIBlendStatePtr state) = 0;
-
-        virtual TResult setDepthStencilState(RHIDepthStencilStatePtr state) = 0;
-
-        virtual TResult setRasterizerState(RHIRasterizerStatePtr state) = 0;
+        /**
+         * \brief 创建 RHI 渲染纹理
+         * \param [in] renderTexture : 引擎渲染纹理
+         * \return 调用成功返回新建的 RHI 对象
+         */
+        virtual RHIRenderTargetPtr createRenderTexture(RenderTexturePtr renderTexture) = 0;
         
-        virtual TResult setSamplerState(RHISamplerStatePtr state) = 0;
+        /**
+         * \brief 设置当前渲染目标
+         * \param [in] renderTarget : 渲染目标
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setRenderTarget(RenderTargetPtr renderTarget) = 0;
 
-        virtual TResult setViewport(Viewport *viewport) = 0;
-
-        virtual TResult setShader() = 0;
-
-        virtual TResult setTexture() = 0;
-
-        virtual TResult renderObject() = 0;
+        /**
+         * \brief 设置视口
+         * \param [in] viewport : 视口 
+         * \return 
+         */
+        virtual TResult setViewport(ViewportPtr viewport) = 0;
         
+        /**
+         * \brief 用指定颜色填充渲染目标的 framebuffer
+         * \param [in] color : 渲染颜色 
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult clearColor(const ColorRGB &color) = 0;
+
+        /**
+         * \brief 用指定深度值和模板值填充渲染目标的 depth buffer 和 stencil buffer
+         * \param [in] depth : 深度值
+         * \param [in] stencil : 模板值
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult clearDepthStencil(Real depth, uint32_t stencil) = 0;
+
+        /**
+         * \brief 创建 RHI 颜色混合状态对象
+         * \param [in] state : 引擎颜色混合状态对象
+         * \return 调用成功返回新建的 RHI 对象
+         */
+        virtual RHIBlendStatePtr createBlendState(BlendStatePtr state) = 0;
+
+        /**
+         * \brief 创建 RHI 深度模板状态对象
+         * \param [in] state : 引擎深度模板状态对象
+         * \return 调用成功返回新建的 RHI 对象
+         */
+        virtual RHIDepthStencilStatePtr createDepthStencilState(DepthStencilStatePtr state) = 0;
+
+        /**
+         * \brief 创建 RHI 光栅化状态对象
+         * \param [in] state : 引擎光栅化状态对象
+         * \return 调用成功返回新建的 RHI 对象
+         */
+        virtual RHIRasterizerStatePtr createRasterizerState(RasterizerStatePtr state) = 0;
+
+        /**
+         * \brief 创建 RHI 纹理采样状态对象
+         * \param [in] state : 引擎纹理采样状态对象
+         * \return 调用成功返回新建的 RHI 对象
+         */
+        virtual RHISamplerStatePtr createSamplerState(SamplerStatePtr state) = 0;
+
+        /**
+         * \brief 设置颜色混合状态
+         * \param [in] state : 混合状态 
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setBlendState(BlendStatePtr state) = 0;
+
+        /**
+         * \brief 设置深度模板状态
+         * \param [in] state : 深度模板状态
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setDepthStencilState(DepthStencilStatePtr state) = 0;
+
+        /**
+         * \brief 设置光栅化状态
+         * \param [in] state : 光栅化状态
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setRasterizerState(RasterizerStatePtr state) = 0;
+
+        /**
+         * \brief 设置纹理采样状态
+         * \param [in] state : 纹理采样状态
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setSamplerState(SamplerStatePtr state) = 0;
+        
+        /**
+         * \brief 创建 RHI 顶点缓冲区对象
+         * \param [in] buffer : 引擎的顶点缓冲区对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIVertexBufferPtr createVertexBuffer(VertexBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置渲染用的顶点缓冲对象
+         * \param [in] buffer : 顶点缓冲对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setVertexBuffer(VertexBufferPtr buffer) = 0;
+
+        /**
+         * \brief 创建 RHI 索引缓冲对象
+         * \param [in] buffer : 引擎的索引缓冲对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIIndexBufferPtr createIndexBuffer(IndexBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置渲染用的索引缓冲对象
+         * \param [in] buffer : 索引缓冲对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setIndexBuffer(IndexBufferPtr buffer) = 0;
+
+        /**
+         * \brief 创建 RHI 常量缓冲对象
+         * \param [in] buffer : 引擎的常量缓冲区对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIConstantBufferPtr createConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置渲染用的常量缓冲区对象
+         * \param buffer : 引擎的常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 创建 RHI 像素缓冲区对象
+         * \param [in] buffer : 引擎像素缓冲区对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIPixelBufferPtr createPixelBuffer(PixelBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置渲染用的像素缓冲区对象
+         * \param [in] buffer : 引擎的像素缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setPixelBuffer(PixelBufferPtr buffer) = 0;
+
+        /**
+         * \brief 创建 RHI 顶点着色器对象
+         * \param [in] shader : 引擎使用的顶点着色器对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIShaderPtr createVertexShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 设置渲染使用的顶点着色器
+         * \param [in] shader : 引擎使用的顶点着色器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setVertexShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 创建 RHI 像素着色器对象
+         * \param [in] shader : 引擎使用的像素着色器对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIShaderPtr createPixelShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 设置渲染使用的像素着色器
+         * \param [in] shader : 引擎使用的像素着色器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setPixelShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 创建 RHI 曲面细分着色器
+         * \param [in] shader : 引擎使用的曲面细分着色器对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIShaderPtr createHullShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 设置渲染使用的曲面细分着色器
+         * \param [in] shader : 引擎使用的曲面细分着色器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setHullShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 创建 RHI 域着色器
+         * \param [in] shader : 引擎使用的域着色器对象 
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIShaderPtr createDomainShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 设置渲染使用的域着色器
+         * \param [in] shader : 引擎使用的域着色器
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setDomainShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 创建 RHI 几何着色器
+         * \param [in] shader : 引擎使用的几何着色器对象 
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIShaderPtr createGeometryShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 设置渲染使用的几何着色器
+         * \param [in] shader : 引擎使用的几何着色器
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setGeometryShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 创建 RHI 计算着色器
+         * \param [in] shader : 引擎使用的计算着色器对象 
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIShaderPtr createComputeShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 设置渲染使用的计算着色器
+         * \param [in] shader : 引擎使用的计算着色器
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setComputeShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 根据上下文设置好的资源、状态来渲染
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult render() = 0;
+
+        /**
+         * \brief 清除所有状态、渲染资源，包括 RenderTarget
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult reset() = 0;
+
+        /**
+         * \brief 从源渲染目标传输图像数据到目标渲染目标，其中 src 和 dst 维度要相同
+         * \param [in] src : 源渲染目标
+         * \param [in] dst : 目标渲染目标
+         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
+         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
+         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult blit(RenderTargetPtr src, RenderTargetPtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
+
+        /**
+         * \brief 从源纹理传输图像数据到目标渲染目标，其中 src 和 dst 维度要相同
+         * \param [in] src : 源纹理
+         * \param [in] dst : 目标渲染目标
+         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
+         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
+         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
+
+        /**
+         * \brief 从源渲染目标传输图像数据到目标纹理
+         * \param [in] src : 源渲染目标
+         * \param [in] dst : 目标纹理
+         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
+         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
+         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult blit(RenderTargetPtr src, TexturePtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
+
+        /**
+         * \brief 从源纹理传输图像数据到目标纹理
+         * \param [in] src : 源纹理
+         * \param [in] dst : 目标纹理
+         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
+         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
+         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult blit(TexturePtr src, TexturePtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
+
+        /**
+         * \brief 从源缓冲区复制整个缓冲区数据到目标缓冲区
+         * \param [in] src : 源渲染缓冲区
+         * \param [in] dst : 目标渲染缓冲区
+         * \param [in] srcOffset : 源缓冲区起始偏移
+         * \param [in] size : 复制数据的大小
+         * \param [in] dstOffset : 目标缓冲区起始偏移
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) = 0;
+
     protected:
-        typedef TMap<String, RenderTargetPtr>       RenderTargetList;
-        typedef RenderTargetList::iterator          RenderTargetListItr;
-        typedef RenderTargetList::const_iterator    RenderTargetListConstItr;
-        typedef RenderTargetList::value_type        RenderTargetListValue;
-
-        using RenderTargets = TUnorderedMap<String, RenderTargetPtr>;
-
-        /// 渲染纹理
-        using RenderTextures = TUnorderedMap<uint32_t, RenderTargetPtr>;
-
-        /**
-         * \brief 渲染目标分组
-         */
-        struct RenderTargetGroup
-        {
-            /// 所有的渲染纹理
-            RenderTextures  renderTextures {};
-            /// 渲染窗口
-            RenderTargetPtr renderWindow {nullptr};
-        };
-
-        /// 渲染分组
-        using RenderTargetGroups = TUnorderedMap<uint32_t, RenderTargetGroup>;
-
-        /**
-         * \brief 渲染目标绑定，用于根据渲染名称查找渲染分组和渲染分组里的顺序
-         */
-        struct RenderTargetBind
-        {
-            /// 渲染目标分组
-            uint32_t    group;
-            /// 渲染目标在分组里面的渲染顺序
-            uint32_t    order;
-        };
-
-        using RenderTargetBinds = TList<RenderTargetBind>;
-        
-        using RenderTargetCombindss = TUnorderedMap<String, RenderTargetBinds>;
-
-        bool    mIsWorldMatrixDirty;    /**< 世界变换矩阵是否更新标识 */
-        bool    mIsViewMatrixDirty;     /**< 视图变换矩阵是否更新标识 */
-        bool    mIsProjMatrixDirty;     /**< 投影变换矩阵是否更新标识 */
-
-        /**< 渲染目标列表 */
-        RenderTargets        mRenderTargets;
-        // RenderCapabilitiesPtr   mCapabilities;      /**< 渲染能力值 */
-        
-        RenderTargetPtr         mRenderTarget;      /**< 当前渲染目标 */
+        RHIContext();
     };
 }
 

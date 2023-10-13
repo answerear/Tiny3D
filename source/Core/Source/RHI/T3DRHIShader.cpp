@@ -18,32 +18,17 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_DATA_BUFFER_H__
-#define __T3D_DATA_BUFFER_H__
-
-
-#include "Render/T3DRenderBuffer.h"
+#include "RHI/T3DRHIShader.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API DataBuffer : public RenderBuffer
+    //--------------------------------------------------------------------------
+
+    RHIShader::RHIShader()
     {
-    public:
-        static DataBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
         
-        ~DataBuffer() override = default;
+    }
 
-        Type getType() const override;
-        
-    protected:
-        DataBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
-
-        bool onLoad() override;
-
-        bool onUnload() override;
-    };
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_DATA_BUFFER_H__*/

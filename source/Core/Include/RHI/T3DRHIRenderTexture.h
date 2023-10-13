@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-* This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
+ * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
  *
@@ -18,26 +18,31 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_DATA_BUFFER_H__
-#define __T3D_RHI_DATA_BUFFER_H__
+#ifndef __T3D_RHI_RENDER_TEXTURE_H__
+#define __T3D_RHI_RENDER_TEXTURE_H__
 
 
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 #include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
 {
     /**
-     * @brief 常量缓冲区
+     * \brief 渲染硬件层的颜色混合状态
      */
-    class T3D_ENGINE_API RHIDataBuffer : public RHIResource
+    class T3D_ENGINE_API RHIRenderTexture : public RHIResource
     {
-        ResourceType getResourceType() const override { return ResourceType::kDataBuffer; }
+    public:
+        ~RHIRenderTexture() override = default;
+
+        ResourceType getResourceType() const override { return ResourceType::kRenderTexture; }
         
     protected:
-        RHIDataBuffer();
+        RHIRenderTexture() = default;
     };
 }
 
 
-#endif  /*__T3D_RHI_DATA_BUFFER_H__*/
+#endif  /*__T3D_RHI_RENDER_TEXTURE_H__*/

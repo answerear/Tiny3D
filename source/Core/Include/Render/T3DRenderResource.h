@@ -56,8 +56,8 @@ namespace Tiny3D
             kIndexBuffer,
             /// 像素缓冲
             kPixelBuffer,
-            /// 数据缓冲
-            kDataBuffer,
+            /// 常量缓冲
+            kConstantBuffer,
             /// 顶点声明
             kVertexDeclaration,
         };

@@ -72,7 +72,7 @@ namespace Tiny3D
          */
         void render() override;
 
-        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
+        // TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
         /**
          * @brief 创建渲染窗口实体
