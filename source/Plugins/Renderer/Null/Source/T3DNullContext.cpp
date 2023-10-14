@@ -51,7 +51,7 @@ namespace Tiny3D
 
     RHIRenderTargetPtr NullContext::createRenderWindow(RenderWindowPtr renderWindow)
     {
-        return nullptr;
+        return NullWindow::create();
     }
 
     //--------------------------------------------------------------------------

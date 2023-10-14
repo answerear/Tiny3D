@@ -36,6 +36,8 @@ namespace Tiny3D
 
         TResult attachRenderTarget(RenderTargetPtr target, uint32_t group = DEFAULT_GROUP, uint32_t order = DEFAULT_ORDER) override;
 
+        TResult attachRenderTexture(RenderTexturePtr texture) override;
+        
         TResult detachRenderTarget(const String &name) override;
 
         RenderTargetPtr getRenderTarget(const String &name) const override;
@@ -44,12 +46,20 @@ namespace Tiny3D
         ForwardRenderPipeline() = default;
 
         ~ForwardRenderPipeline() override = default;
+
+        TResult attachRenderTexture(RenderTexturePtr texture, uint32_t group, uint32_t order);
+
+        TResult attachRenderWindow(RenderWindowPtr window, uint32_t group, uint32_t order);
+
+        void addRenderTarget(RenderTargetPtr target);
+
+        void addBindingMap(const String &name, uint32_t group, uint32_t order);
         
         /// 所有的渲染目标集合
         using RenderTargets = TUnorderedMap<String, RenderTargetPtr>;
 
-        /// 渲染纹理集合
-        using RenderTextures = TUnorderedMap<uint32_t, RenderTargetPtr>;
+        /// 渲染纹理集合，uint32_t 是 order 既渲染顺序
+        using RenderTextures = TMap<uint32_t, RenderTexturePtr>;
 
         /**
          * \brief 渲染目标分组，每个分组对应一个渲染窗口，以及渲染到该渲染窗口的渲染纹理
@@ -59,33 +69,26 @@ namespace Tiny3D
             /// 所有的渲染纹理集合
             RenderTextures  renderTextures {};
             /// 渲染窗口
-            RenderTargetPtr renderWindow {nullptr};
+            RenderWindowPtr renderWindow {nullptr};
         };
 
         /// 渲染分组集合
-        using RenderTargetGroups = TUnorderedMap<uint32_t, RenderTargetGroup>;
-
-        /**
-         * \brief 渲染目标绑定，用于根据渲染名称查找渲染分组和渲染分组里的顺序
-         */
-        struct RenderTargetBinding
-        {
-            /// 渲染目标分组
-            uint32_t    group;
-            /// 渲染目标在分组里面的渲染顺序
-            uint32_t    order;
-        };
+        using RenderTargetGroups = TMap<uint32_t, RenderTargetGroup>;
 
         /// 渲染目标绑定关系集合，一个渲染目标可以绑定到多个不同的 group 里
-        using RenderTargetBindings = TList<RenderTargetBinding>;
+        using RenderTargetBindings = TUnorderedMap<uint32_t, uint32_t>;
 
         /// 渲染目标名称和分组的绑定映射
         using RenderTargetBindingMap = TUnorderedMap<String, RenderTargetBindings>;
 
-        /// 渲染目标列表
-        RenderTargets       mRenderTargets;
+        /// 所有渲染目标集合
+        RenderTargets           mRenderTargets {};
+        /// 渲染顺序用的渲染目标分组的集合
+        RenderTargetGroups      mRenderTargetGroups {};
+        /// 渲染目标和渲染分组之间的映射关系
+        RenderTargetBindingMap  mRenderTargetBindings {};
         /// 当前渲染目标
-        RenderTargetPtr     mCurrentRenderTarget;
+        RenderTargetPtr         mCurrentRenderTarget {nullptr};
     };
 }
 

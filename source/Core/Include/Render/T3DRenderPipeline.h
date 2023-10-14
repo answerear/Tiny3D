@@ -36,6 +36,7 @@ namespace Tiny3D
         enum : uint32_t
         {
             DEFAULT_GROUP = 0,
+            NONE_GROUP = 0xFFFFFFFF,
             DEFAULT_ORDER = 0xFFFFFFFF,
         };
 
@@ -54,6 +55,13 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult attachRenderTarget(RenderTargetPtr target, uint32_t group = DEFAULT_GROUP, uint32_t order = DEFAULT_ORDER) = 0;
+
+        /**
+         * \brief 附加渲染纹理到渲染管线，渲染管线执行渲染。 调用该接口不会渲染到窗口上
+         * \param [in] texture : 渲染纹理
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult attachRenderTexture(RenderTexturePtr texture) = 0;
 
         /**
          * \brief 从渲染管线上解除出来，不再渲染

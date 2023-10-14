@@ -92,11 +92,8 @@ namespace Tiny3D
                     flags |= Window::WINDOW_FULLSCREEN;
                 }
 
-                String title = param.windowTitle + " - " 
-                    + T3D_AGENT.getActiveRHIRenderer()->getName();
-                ret = mWindow->create(title.c_str(),
-                    param.windowLeft, param.windowTop,
-                    param.windowWidth, param.windowHeight, flags);
+                String title = param.windowTitle + " - " + T3D_AGENT.getActiveRHIRenderer()->getName();
+                ret = mWindow->create(title.c_str(), param.windowLeft, param.windowTop, param.windowWidth, param.windowHeight, flags);
                 if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_ENGINE, 

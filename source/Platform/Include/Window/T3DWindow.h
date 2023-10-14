@@ -101,8 +101,7 @@ namespace Tiny3D
          * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
          * @return 成功返回 T3D_OK.
          */
-        TResult create(const char *title, int32_t x, int32_t y,
-            int32_t w, int32_t h, uint32_t flags);
+        TResult create(const char *title, int32_t x, int32_t y, int32_t w, int32_t h, uint32_t flags);
 
         /**
          * @brief 根据传入的数据创建窗口

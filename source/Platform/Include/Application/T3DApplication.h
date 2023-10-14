@@ -33,9 +33,22 @@ namespace Tiny3D
     class T3D_PLATFORM_API Application : public Singleton<Application>
     {
     public:
+        /**
+         * \brief 应用类型
+         */
+        enum class Type : uint32_t
+        {
+            /// 控制台应用
+            kConsoleApp = 0,
+            /// 窗口应用
+            kWindowApp = 1,
+        };
+        
         Application();
      
         ~Application();
+
+        virtual Type getType() const = 0;
 
         /**
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用

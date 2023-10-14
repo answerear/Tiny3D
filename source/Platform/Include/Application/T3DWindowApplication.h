@@ -42,6 +42,8 @@ namespace Tiny3D
          */
         ~WindowApplication() override;
 
+        Type getType() const override { return Type::kWindowApp; }
+
         /**
          * @brief 应用初始化，这个由具体平台来调用，用户不需要调用
          * @return 调用成功返回T3D_OK

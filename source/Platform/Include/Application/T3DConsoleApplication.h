@@ -39,6 +39,8 @@ namespace Tiny3D
          * Destructor
          */
         ~ConsoleApplication() override = default;
+
+        Type getType() const override { return Type::kConsoleApp; }
     };
 
     #define T3D_CONSOLE_APPLICATION     (ConsoleApplication::getInstance())
