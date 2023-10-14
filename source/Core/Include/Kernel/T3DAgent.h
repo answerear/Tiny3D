@@ -167,6 +167,7 @@ namespace Tiny3D
         /**< 对象内存跟踪 */
         ObjectTracer            *mObjTracer {nullptr};
 
+        RenderPipelinePtr       mRenderPipeline {nullptr};
         RenderWindowPtr         mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
         RHIRendererPtr          mActiveRHIRenderer {nullptr}; /**< 当前使用的 RHI 渲染器 */
 

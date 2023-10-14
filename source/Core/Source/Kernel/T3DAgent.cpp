@@ -38,6 +38,7 @@
 #include "Material/T3DShaderVariant.h"
 #include "RHI/T3DRHIThread.h"
 #include "RHI/T3DRHIRenderWindow.h"
+#include "Render/T3DForwardRenderPipeline.h"
 
 
 namespace Tiny3D
@@ -106,6 +107,7 @@ namespace Tiny3D
         
         T3D_SAFE_DELETE(mEventMgr);
 
+        mRenderPipeline = nullptr;
         mAssignableObjMgr = nullptr;
         
         if (mObjTracer != nullptr)
@@ -845,6 +847,7 @@ namespace Tiny3D
     TResult Agent::initManagers()
     {
         mAssignableObjMgr = AssignableObjectManager::create();
+        mRenderPipeline = ForwardRenderPipeline::create();
         mArchiveMgr = ArchiveManager::create();
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);

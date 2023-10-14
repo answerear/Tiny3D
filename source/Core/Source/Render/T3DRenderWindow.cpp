@@ -124,10 +124,10 @@ namespace Tiny3D
             //     break;
             // }
 
-            mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
-
-            ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
-            viewport = addViewport(1, 0.5f, 0, 0.5f, 1.0f);
+            // mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
+            //
+            // ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
+            // viewport = addViewport(1, 0.5f, 0, 0.5f, 1.0f);
         } while (false);
         
         return ret;
@@ -166,15 +166,15 @@ namespace Tiny3D
 
         do
         {
-            if (mRHIRenderTarget == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
-
-            RHIRenderWindowPtr rw = smart_pointer_cast<RHIRenderWindow>(mRHIRenderTarget);
-            ret = rw->swapBuffers();
+            // if (mRHIRenderTarget == nullptr)
+            // {
+            //     T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+            //     ret = T3D_ERR_INVALID_POINTER;
+            //     break;
+            // }
+            //
+            // RHIRenderWindowPtr rw = smart_pointer_cast<RHIRenderWindow>(mRHIRenderTarget);
+            // ret = rw->swapBuffers();
         } while (false);
        
         return ret;
