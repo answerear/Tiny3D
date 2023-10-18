@@ -337,6 +337,8 @@ namespace Tiny3D
             item->outputConsole();
         }
 
+        ScopeLock lock(&mCSItemCache);
+        
         if (mFrontItem == nullptr)
         {
             mFrontItem = item;
@@ -515,6 +517,7 @@ namespace Tiny3D
         job->setCacheItems(mFrontItem);
         mFrontItem = mBackItem = nullptr;
         mQueuedJobPool->addQueuedJob(job);
+        mCacheItemCount = 0;
     }
 
     //--------------------------------------------------------------------------

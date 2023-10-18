@@ -180,27 +180,28 @@ namespace Tiny3D
     private:
         using FlushJobsObjectPool = TList<FlushLogCacheJob*>;
 
-        CriticalSection     mCSFlushJobPool;
-        FlushJobsObjectPool mFlushJobPool;
+        CriticalSection     mCSItemCache {};
+        CriticalSection     mCSFlushJobPool {};
+        FlushJobsObjectPool mFlushJobPool {};
         
-        QueuedJobPool       *mQueuedJobPool = nullptr;
+        QueuedJobPool       *mQueuedJobPool {nullptr};
         
-        LogItem             *mFrontItem = nullptr;  /// 当前输出的日志项队列头 
-        LogItem             *mBackItem = nullptr;   /// 当前输出的日志队列尾，方便新生成的日志项插入到末尾
+        LogItem             *mFrontItem {nullptr};  /// 当前输出的日志项队列头 
+        LogItem             *mBackItem {nullptr};   /// 当前输出的日志队列尾，方便新生成的日志项插入到末尾
 
-        uint32_t            mCacheItemCount = 0;    /// 当前缓存日志条数
-        ID                  mFlushCacheTimerID = T3D_INVALID_TIMER_ID; /// 写回定时器ID
+        uint32_t            mCacheItemCount {0};    /// 当前缓存日志条数
+        ID                  mFlushCacheTimerID {T3D_INVALID_TIMER_ID}; /// 写回定时器ID
 
-        ID                  mAppID = 0;         /// 应用程序标识
-        String              mTag = "tag";       /// 应用程序额外信息标签
+        ID                  mAppID {0};         /// 应用程序标识
+        String              mTag {"tag"};       /// 应用程序额外信息标签
 
-        Strategy            mStrategy;          /// 日志输出相关策略
+        Strategy            mStrategy {};          /// 日志输出相关策略
 
-        FileDataStream      mFileStream;        /// 文件输出对象
+        FileDataStream      mFileStream {};        /// 文件输出对象
 
-        bool                mIsForced = false;          /// 是否强制输出
-        bool                mIsOutputConsole = true;   /// 是否同步输出到控制台
-        bool                mIsRunning = false;
+        bool                mIsForced {false};          /// 是否强制输出
+        bool                mIsOutputConsole {true};   /// 是否同步输出到控制台
+        bool                mIsRunning {false};
     };
 }
 
