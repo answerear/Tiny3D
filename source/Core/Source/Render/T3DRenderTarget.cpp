@@ -28,11 +28,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     RenderTarget::RenderTarget(const String &name)
-        : mWidth(0)
-        , mHeight(0)
-        , mColorDepth(0)
-        , mIsActive(true)
-        , mName(name)
+        : mName(name)
     {
 
     }
@@ -44,64 +40,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RenderTarget::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            if (mRHIRenderTarget == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
-                ret = T3D_ERR_INVALID_POINTER;
-                break;
-            }
-
-            ret = mRHIRenderTarget->clear(clrFill, clearFlags, depth, stencil);
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RenderTarget::render()
-    {
-        mRHIRenderTarget->beginRender();
-        
-        clear(ColorRGB::BLACK, 0, 0.0f, 0);
-        
-        auto itr = mViewportList.begin();
-
-        ColorRGB colors[] = {ColorRGB::BLUE, ColorRGB::GREEN};
-        int i = 0;
-        
-        while (itr != mViewportList.end())
-        {
-            itr->second->render();
-            clear(colors[i], 0, 0.0f, 0);
-            ++itr;
-            ++i;
-        }
-
-        mRHIRenderTarget->endRender();
-    }
-
-    //--------------------------------------------------------------------------
-
     ViewportPtr RenderTarget::addViewport(long_t zOrder, Real left, Real top, Real width, Real height)
     {
-        ViewportPtr viewport;
+        ViewportPtr vp;
     
-        auto itr = mViewportList.find(zOrder);
+        const auto itr = mViewports.find(zOrder);
     
-        if (itr == mViewportList.end())
+        if (itr == mViewports.end())
         {
-            viewport = Viewport::create(this, left, top, width, height, zOrder);
-            mViewportList.emplace(zOrder, viewport);
+            vp = Viewport::create(this, left, top, width, height, zOrder);
+            mViewports.emplace(zOrder, vp);
         }
     
-        return viewport;
+        return vp;
     }
     
     //--------------------------------------------------------------------------
@@ -112,17 +63,17 @@ namespace Tiny3D
     
         do 
         {
-            auto itr = mViewportList.find(nZOrder);
+            auto itr = mViewports.find(nZOrder);
     
-            if (itr == mViewportList.end())
+            if (itr == mViewports.end())
             {
                 ret = T3D_ERR_NOT_FOUND;
                 T3D_LOG_ERROR(LOG_TAG_RENDER, "RenderTarget remove viewport but not found !!!");
                 break;
             }
     
-            mViewportList.erase(itr);
-        } while (0);
+            mViewports.erase(itr);
+        } while (false);
     
         return ret;
     }
@@ -131,8 +82,10 @@ namespace Tiny3D
     
     TResult RenderTarget::removeAllViewports()
     {
-        mViewportList.clear();
+        mViewports.clear();
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
 }
 

@@ -38,7 +38,7 @@ namespace Tiny3D
          * @brief 创建渲染窗口对象
          * @return 返回一个渲染窗口对象
          */
-        static D3D11RenderWindowPtr create(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
+        static D3D11RenderWindowPtr create(RenderWindow *renderWindow, const RenderWindowDesc &param);
 
         /**
          * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
@@ -46,7 +46,7 @@ namespace Tiny3D
          */
         virtual ~D3D11RenderWindow();
 
-        bool init(RenderWindow *renderWindow, const RenderWindowCreateParam &param);
+        bool init(RenderWindow *renderWindow, const RenderWindowDesc &param);
 
         /**
          * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
@@ -55,10 +55,6 @@ namespace Tiny3D
          * @remarks  具体渲染系统子类实现本接口.
          */
         TResult swapBuffers() override;
-
-        TResult beginRender() override;
-
-        TResult endRender() override;
 
         /**
          * @fn  virtual void D3D11RenderWindow::clear(const ColorRGB &clrFill, 

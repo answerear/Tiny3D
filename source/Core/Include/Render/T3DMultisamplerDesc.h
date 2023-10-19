@@ -18,31 +18,27 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RENDER_TARGET_H__
-#define __T3D_RHI_RENDER_TARGET_H__
+#ifndef __T3D_MULTISAMPLER_DESC_H__
+#define __T3D_MULTISAMPLER_DESC_H__
 
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "RHI/T3DRHIResource.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 渲染硬件层的颜色混合状态
-     */
-    class T3D_ENGINE_API RHIRenderTarget : public RHIResource
+    TSTRUCT()
+    struct T3D_ENGINE_API MultisamplerDesc
     {
-    public:
-        ~RHIRenderTarget() override = default;
-
-        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
-        
-    protected:
-        RHIRenderTarget() = default;
+        /// MSAA 采样数量
+        TPROPERTY()
+        uint32_t    Count {0};
+        /// MSAA 采样质量
+        TPROPERTY()
+        uint32_t    Quality {0};
     };
 }
 
 
-#endif  /*__T3D_RHI_RENDER_TARGET_H__*/
+#endif  /*__T3D_MULTISAMPLER_DESC_H__*/

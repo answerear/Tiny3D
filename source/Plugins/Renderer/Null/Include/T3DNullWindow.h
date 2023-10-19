@@ -51,10 +51,6 @@ namespace Tiny3D
          */
         TResult swapBuffers() override;
 
-        TResult beginRender() override { return T3D_OK; }
-
-        TResult endRender() override { return T3D_OK; }
-
         /**
          * @fn  virtual void NullRenderWindow::clear(const ColorRGB &clrFill, 
          *      uint32_t clearFlags, Real depth, uint32_t stencil) override;

@@ -150,7 +150,7 @@ namespace Tiny3D
         BufferCache mVBufferCache {};
         BufferCache mIBufferCache {};
         BufferCache mPBufferCache {};
-        BufferCache mDBufferCache {};
+        BufferCache mCBufferCache {};
     };
 
     #define T3D_RENDER_BUFFER_mgr   (RenderBufferManager::getInstance())

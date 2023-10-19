@@ -18,31 +18,46 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RHI_RENDER_TARGET_H__
-#define __T3D_RHI_RENDER_TARGET_H__
+#ifndef __T3D_TEXTURE_DESC_H__
+#define __T3D_TEXTURE_DESC_H__
 
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "RHI/T3DRHIResource.h"
+#include "Kernel/T3DConstant.h"
+#include "Render/T3DMultisamplerDesc.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * \brief 渲染硬件层的颜色混合状态
-     */
-    class T3D_ENGINE_API RHIRenderTarget : public RHIResource
-    {
-    public:
-        ~RHIRenderTarget() override = default;
 
-        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
-        
-    protected:
-        RHIRenderTarget() = default;
+    
+    TSTRUCT()
+    struct T3D_ENGINE_API TextureDesc
+    {
+        /// 纹理宽度
+        TPROPERTY()
+        int32_t             Width {0};
+        /// 纹理高度
+        TPROPERTY()
+        int32_t             Height {0};
+        /// 纹理色深
+        TPROPERTY()
+        int32_t             ColorDepth {0};
+        /// 抗锯齿采样参数
+        TPROPERTY()
+        MultisamplerDesc    MSAA {};
+        /// Mipmap
+        TPROPERTY()
+        int32_t             Mipmap {0};
+        /// 纹理名称
+        TPROPERTY()
+        String              Name {};
+        /// 纹理格式
+        TPROPERTY()
+        PixelFormat         Format {PixelFormat::E_PF_UNKNOWN};
     };
 }
 
 
-#endif  /*__T3D_RHI_RENDER_TARGET_H__*/
+#endif  /*__T3D_TEXTURE_DESC_H__*/

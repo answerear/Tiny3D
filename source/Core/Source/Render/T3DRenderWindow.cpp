@@ -30,9 +30,18 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
     
-    RenderWindowPtr RenderWindow::create(const String &name) 
+    RenderWindowPtr RenderWindow::create(const String &name, const RenderWindowDesc &desc) 
     {
-        return new RenderWindow(name);
+        RenderWindowPtr window = new RenderWindow(name);
+        if (window != nullptr)
+        {
+            TResult ret = window->init(desc);
+            if (T3D_FAILED(ret))
+            {
+                window = nullptr;
+            }
+        }
+        return window;
     }
 
     //--------------------------------------------------------------------------
@@ -47,7 +56,7 @@ namespace Tiny3D
 
     RenderWindow::~RenderWindow()
     {
-
+        destroy();
     }
 
     //--------------------------------------------------------------------------
@@ -59,7 +68,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult RenderWindow::create(const RenderWindowCreateParam &param)
+    TResult RenderWindow::init(const RenderWindowDesc &desc)
     {
         TResult ret = T3D_OK;
 
@@ -77,7 +86,7 @@ namespace Tiny3D
             mWindow = new Window();
 
             // 创建窗口
-            void *externalWnd = param.externalHandle;
+            void *externalWnd = desc.externalHandle;
             if (externalWnd != nullptr)
             {
                 // 外部创建的窗口，这里关联上
@@ -87,13 +96,13 @@ namespace Tiny3D
             {
                 // 自己创建窗口对象
                 uint32_t flags = Window::WINDOW_SHOWN;
-                if (param.fullscreen)
+                if (desc.IsFullscreen)
                 {
                     flags |= Window::WINDOW_FULLSCREEN;
                 }
 
-                String title = param.windowTitle + " - " + T3D_AGENT.getActiveRHIRenderer()->getName();
-                ret = mWindow->create(title.c_str(), param.windowLeft, param.windowTop, param.windowWidth, param.windowHeight, flags);
+                String title = desc.Title + " - " + T3D_AGENT.getActiveRHIRenderer()->getName();
+                ret = mWindow->create(title.c_str(), desc.Left, desc.Top, desc.Width, desc.Height, flags);
                 if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_ENGINE, 
@@ -103,16 +112,16 @@ namespace Tiny3D
             }
 
             // 加载图标
-            ret = loadIcon(param.iconPath);
+            ret = loadIcon(desc.IconPath);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            mWidth = param.windowWidth;
-            mHeight = param.windowHeight;
+            mWidth = desc.Width;
+            mHeight = desc.Height;
             mColorDepth = mWindow->getColorDepth();
-            mIsFullscreen = param.fullscreen;
+            mIsFullscreen = desc.IsFullscreen;
             // mPitch = Image::calcPitch(mWidth, mColorDepth);
 
             // ret = setupD3D11Environment(param, paramEx);
@@ -241,14 +250,6 @@ namespace Tiny3D
         return ret;
     }
     
-    //--------------------------------------------------------------------------
-
-    void RenderWindow::render()
-    {
-        RenderTarget::render();
-        swapBuffers();
-    }
-
     //--------------------------------------------------------------------------
     
     // TResult RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) 

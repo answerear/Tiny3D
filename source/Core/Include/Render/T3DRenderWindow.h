@@ -23,41 +23,18 @@
 
 
 #include "Render/T3DRenderTarget.h"
-//#include "RHI/T3DRHIRenderWindow.h"
+#include "Render/T3DRenderWindowDesc.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @brief 创建窗口需要的必要数据
-     */
-    struct T3D_ENGINE_API RenderWindowCreateParam
-    {
-        THandle externalHandle; 
-        int32_t windowLeft;     /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
-        int32_t windowTop;      /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
-        int32_t windowWidth;    /**< 窗口宽度 */
-        int32_t windowHeight;   /**< 窗口高度 */
-        int32_t colorDepth;     /**< 窗口色深 */
-        int32_t MSAA;           /**< 抗锯齿质量 */
-        String  windowTitle;    /**< 窗口标题 */
-        String  iconPath;       /**< 图标文件路径 */
-        bool    fullscreen;     /**< 是否全屏，终端平台忽略该参数 */
-        bool    vsync;          /**< 是否开启垂直同步 */
-    };
-
     /**
      * @brief 渲染窗口
      */
     class T3D_ENGINE_API RenderWindow : public RenderTarget
     {
     public:
-        static RenderWindowPtr create(const String &name);
-
-        /**
-         * @brief 析构函数
-         */
-        virtual ~RenderWindow();
+        static RenderWindowPtr create(const String &name, const RenderWindowDesc &desc);
 
         /**
          * @brief 获取渲染目标类型
@@ -66,28 +43,12 @@ namespace Tiny3D
         Type getType() const override;
 
         /**
-         * @brief 渲染
-         * @remarks 重写RenderTarget::update()
-         * @see RenderTarget::update()
-         */
-        void render() override;
-
-        // TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
-
-        /**
          * @brief 创建渲染窗口实体
          * @param [in] param : 渲染窗口需要必要参数
          * @return 调用成功返回 T3D_OK
          * @remarks 具体渲染系统子类实现本接口
          */
-        virtual TResult create(const RenderWindowCreateParam &param);
-
-        /**
-         * @brief 销毁窗口
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
-         */
-        virtual TResult destroy();
+        TResult init(const RenderWindowDesc &param);
 
         /**
          * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像
@@ -104,14 +65,15 @@ namespace Tiny3D
         bool getSystemInfo(SysWMInfo &info) const;
         
     protected:
-        /**
-         * @brief 构造函数
-         */
         RenderWindow(const String &name);
 
+        ~RenderWindow() override;
+
         TResult loadIcon(const String &iconPath);
+
+        TResult destroy();
         
-        /**< OS 相关的窗口对象 */
+        /// OS 相关的窗口对象
         Window  *mWindow {nullptr};
         bool    mIsFullscreen {false};
     };
@@ -120,30 +82,6 @@ namespace Tiny3D
     {
     public:
         static NullRenderWindowPtr create(const String &name) { return new NullRenderWindow(name); }
-        
-        /**
-         * @brief 渲染
-         * @remarks 重写RenderTarget::update()
-         * @see RenderTarget::update()
-         */
-        virtual void render() override {}
-
-        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override { return T3D_OK; }
-
-        /**
-         * @brief 创建渲染窗口实体
-         * @param [in] param : 渲染窗口需要必要参数
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
-         */
-        TResult create(const RenderWindowCreateParam &param) override {  return T3D_OK; }
-
-        /**
-         * @brief 销毁窗口
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
-         */
-        TResult destroy() override {  return T3D_OK; }
 
         /**
          * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像

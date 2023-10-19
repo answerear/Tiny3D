@@ -254,7 +254,7 @@ namespace Tiny3D
         return Matrix4::IDENTITY;
     }
 
-    RHIRenderWindowPtr D3D11Context::createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param)
+    RHIRenderWindowPtr D3D11Context::createRenderWindow(RenderWindow *window, const RenderWindowDesc &param)
     {
         return D3D11RenderWindow::create(window, param);
     }

@@ -20,64 +20,72 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     inline const String &RenderTarget::getName() const
     {
         return mName;
     }
 
-    inline void RenderTarget::getMetrics(size_t &width, size_t &height, 
-        size_t &clrDepth) const
+    //--------------------------------------------------------------------------
+    
+    inline void RenderTarget::getMetrics(size_t &width, size_t &height, size_t &clrDepth) const
     {
         width = mWidth;
         height = mHeight;
         clrDepth = mColorDepth;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline size_t RenderTarget::getWidth() const
     {
         return mWidth;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline size_t RenderTarget::getHeight() const
     {
         return mHeight;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline size_t RenderTarget::getColorDepth() const
     {
         return mColorDepth;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline size_t RenderTarget::getPitch() const
     {
         return mPitch;
     }
 
-    inline bool RenderTarget::isActive() const
+    //--------------------------------------------------------------------------
+    
+    inline const ViewportList &RenderTarget::getViewports() const
     {
-        return mIsActive;
+        return mViewports;
     }
 
-    inline void RenderTarget::setActive(bool active)
+    //--------------------------------------------------------------------------
+    
+    inline ViewportPtr RenderTarget::getViewport(long_t zOrder) const
     {
-        mIsActive = active;
+        ViewportPtr vp;
+        auto itr = mViewports.find(zOrder);
+        
+        if (itr != mViewports.end())
+        {
+            vp = itr->second;
+        }
+        
+        return vp;
     }
 
-    // inline size_t RenderTarget::getNumViewports() const
-    // {
-    //     return mViewportList.size();
-    // }
-    //
-    // inline ViewportPtr RenderTarget::getViewport(long_t zOrder) const
-    // {
-    //     auto itr = mViewportList.find(zOrder);
-    //
-    //     if (itr != mViewportList.end())
-    //     {
-    //         return itr->second;
-    //     }
-    //
-    //     return nullptr;
-    // }
+    //--------------------------------------------------------------------------
 }
 

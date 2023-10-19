@@ -28,7 +28,7 @@
 
 namespace Tiny3D
 {
-    struct RenderWindowCreateParam;
+    struct RenderWindowDesc;
     struct BlendDesc;
     struct DepthStencilDesc;
     struct RasterizerDesc;
@@ -108,7 +108,7 @@ namespace Tiny3D
         //
         // virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
         //
-        // virtual RHIRenderWindowPtr createRenderWindow(RenderWindowPtr renderWindow, const RenderWindowCreateParam &param) = 0;
+        // virtual RHIRenderWindowPtr createRenderWindow(RenderWindowPtr renderWindow, const RenderWindowDesc &param) = 0;
 
         /**
          * \brief 创建 RHI 渲染窗口

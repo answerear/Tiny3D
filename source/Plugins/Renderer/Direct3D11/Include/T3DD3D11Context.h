@@ -63,7 +63,7 @@ namespace Tiny3D
 
         Matrix4 makeViewportMatrix(Viewport *viewport) override;
 
-        RHIRenderWindowPtr createRenderWindow(RenderWindow *window, const RenderWindowCreateParam &param) override;
+        RHIRenderWindowPtr createRenderWindow(RenderWindow *window, const RenderWindowDesc &param) override;
 
         TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 

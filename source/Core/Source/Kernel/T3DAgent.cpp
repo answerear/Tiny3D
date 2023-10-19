@@ -417,42 +417,43 @@ namespace Tiny3D
 
         do
         {
-            RenderWindowCreateParam param;
+            RenderWindowDesc param;
 
             param.externalHandle = nullptr;
             
             // 窗口标题
-            param.windowTitle = mSettings.renderSettings.title;
+            param.Title = mSettings.renderSettings.title;
             // 窗口位置
-            param.windowLeft = mSettings.renderSettings.x;
-            param.windowTop = mSettings.renderSettings.y;
+            param.Left = mSettings.renderSettings.x;
+            param.Top = mSettings.renderSettings.y;
             // 窗口大小
-            param.windowWidth = mSettings.renderSettings.width;
-            param.windowHeight = mSettings.renderSettings.height;
+            param.Width = mSettings.renderSettings.width;
+            param.Height = mSettings.renderSettings.height;
             // 是否全屏
-            param.fullscreen = mSettings.renderSettings.fullscreen;
+            param.IsFullscreen = mSettings.renderSettings.fullscreen;
             // 色深，如果是非全屏，自动跟桌面一样
-            param.colorDepth = mSettings.renderSettings.colorDepth;
+            param.ColorDepth = mSettings.renderSettings.colorDepth;
             // 图标路径
-            param.iconPath = mSettings.renderSettings.iconPath;
+            param.IconPath = mSettings.renderSettings.iconPath;
             // 抗锯齿
-            param.MSAA = mSettings.renderSettings.MSAA;
+            //param.MSAA = mSettings.renderSettings.MSAA;
+            param.MSAA.Count = 4;
+            param.MSAA.Quality = 16;
             // 垂直同步
-            param.vsync = mSettings.renderSettings.vsync;
+            param.IsVsync = mSettings.renderSettings.vsync;
 
             std::stringstream ss;
             ss << "Tiny3D " << getVersionName() << "(" << getVersionString();
-            ss << ")" << " - " << param.windowTitle;
-            param.windowTitle = ss.str();
+            ss << ")" << " - " << param.Title;
+            param.Title = ss.str();
             if (isWindowApp)
             {
-                window = RenderWindow::create(param.windowTitle);
+                window = RenderWindow::create(param.Title, param);
             }
             else
             {
-                window = NullRenderWindow::create(param.windowTitle);
+                window = NullRenderWindow::create(param.Title);
             }
-            window->create(param);
             if (window == nullptr)
             {
                 ret = T3D_ERR_RENDER_CREATE_WINDOW;

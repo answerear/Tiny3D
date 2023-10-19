@@ -28,7 +28,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11RenderWindowPtr D3D11RenderWindow::create(RenderWindow *renderWindow, const RenderWindowCreateParam &param)
+    D3D11RenderWindowPtr D3D11RenderWindow::create(RenderWindow *renderWindow, const RenderWindowDesc &param)
     {
         D3D11RenderWindowPtr window = new D3D11RenderWindow();
         if (window || !window->init(renderWindow, param))
@@ -58,7 +58,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool D3D11RenderWindow::init(RenderWindow *renderWindow, const RenderWindowCreateParam &param)
+    bool D3D11RenderWindow::init(RenderWindow *renderWindow, const RenderWindowDesc &param)
     {
         bool ret = true;
 
@@ -135,38 +135,6 @@ namespace Tiny3D
         } while (false);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11RenderWindow::beginRender()
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            // if (D3DRTView == nullptr)
-            // {
-            //     break;
-            // }
-            //
-            // if (D3DDSView == nullptr)
-            // {
-            //     break;
-            // }
-            //
-            // ret = D3D11_CONTEXT->setRenderTargets(1, &D3DRTView, &D3DDSView);
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11RenderWindow::endRender()
-    {
-        // return D3D11_CONTEXT->setRenderTargets(0, nullptr, nullptr);
-        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
