@@ -40,6 +40,8 @@ namespace Tiny3D
         
         TResult detachRenderTarget(const String &name) override;
 
+        TResult detachAllRenderTargets() override;
+
         RenderTargetPtr getRenderTarget(const String &name) const override;
 
     protected:

@@ -43,9 +43,15 @@ namespace Tiny3D
 
         for (auto &group : mRenderTargetGroups)
         {
+            // 渲染窗口
+            ctx->setRenderTarget(group.second.renderWindow);
+
+            ctx->clearColor(ColorRGB::BLACK);
+            
             for (auto &texture : group.second.renderTextures)
             {
                 // TODO : 渲染每一个渲染纹理
+                ctx->setRenderTarget(texture.second);
 
                 // 把渲染纹理渲染到渲染窗口上
                 if (group.second.renderWindow != nullptr)
@@ -53,7 +59,12 @@ namespace Tiny3D
                     ctx->blit(texture.second, group.second.renderWindow);
                 }
             }
+
+            // 刷新屏幕，把 back buffer 交换到 front buffer 上显示
+            group.second.renderWindow->swapBuffers();
         }
+
+        ctx->setRenderTarget(nullptr);
         
         return T3D_OK;
     }
@@ -109,6 +120,17 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::detachRenderTarget(const String &name)
     {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::detachAllRenderTargets()
+    {
+        mRenderTargets.clear();
+        mRenderTargetGroups.clear();
+        mRenderTargetBindings.clear();
+        mCurrentRenderTarget = nullptr;
         return T3D_OK;
     }
 

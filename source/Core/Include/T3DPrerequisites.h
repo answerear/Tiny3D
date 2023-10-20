@@ -123,6 +123,7 @@ namespace Tiny3D
 
     class RenderStateManager;
     class RenderBufferManager;
+    class RenderTargetManager;
     
     class RenderTarget;
     class RenderTexture;

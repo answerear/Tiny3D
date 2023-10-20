@@ -70,6 +70,8 @@ namespace Tiny3D
          */
         virtual TResult detachRenderTarget(const String &name) = 0;
 
+        virtual TResult detachAllRenderTargets() = 0;
+
         /**
          * \brief 根据名称获取渲染目标对象
          * \param [in] name : 想要获取的渲染目标名称

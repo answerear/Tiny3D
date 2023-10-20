@@ -29,9 +29,12 @@ namespace Tiny3D
 
     D3D11ContextPtr D3D11Context::create()
     {
-        D3D11ContextPtr renderer = new D3D11Context();
-        // renderer->release();
-        return renderer;
+        D3D11ContextPtr ctx = new D3D11Context();
+        if (ctx && T3D_FAILED(ctx->init()))
+        {
+            ctx = nullptr;
+        }
+        return ctx;
     }
 
     //--------------------------------------------------------------------------
@@ -678,10 +681,239 @@ namespace Tiny3D
 #else
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::init()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            HRESULT hr = S_OK;
+
+            // device flags
+            UINT flags = 0;
+            // #ifdef T3D_DEBUG
+            //             flags |= D3D11_CREATE_DEVICE_DEBUG;
+            // #endif
+
+            // features level
+            const UINT numLevels = 4;
+            D3D_FEATURE_LEVEL featureLevels[numLevels] =
+            {
+                D3D_FEATURE_LEVEL_11_1,
+                D3D_FEATURE_LEVEL_11_0,
+                D3D_FEATURE_LEVEL_10_1,
+                D3D_FEATURE_LEVEL_10_0,
+            };
+
+            D3D_FEATURE_LEVEL level;
+
+            hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, 
+                featureLevels, numLevels, D3D11_SDK_VERSION, 
+                &mD3DDevice, &level, &mD3DDeviceContext);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create ID3D11Device object failed ! DX ERROR : %d", hr);
+                break;
+            }
+
+            mFeatureLevel = level;
+
+        } while (false);
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::swapBackBuffer(D3D11RenderWindow *renderWindow)
+    {
+        auto lambda = [this](D3D11RenderWindow *renderWindow)
+        {
+            TResult ret = T3D_OK;
+            do
+            {
+                HRESULT hr = S_OK;
+                hr = renderWindow->D3DSwapChain->Present(0, 0);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_PRESENT;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Present failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            } while (false);
+            
+            return ret;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, renderWindow);
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindowPtr renderWindow)
     {
-        return nullptr;
+        D3D11RenderWindowPtr d3dRenderWindow = D3D11RenderWindow::create(renderWindow);
+
+        auto lambda = [this](RenderWindow *pRenderWindow, D3D11RenderWindow *pD3DRenderWindow)
+        {
+            TResult ret = T3D_OK;
+            IDXGIDevice *pDXGIDevice = nullptr;
+            IDXGIAdapter *pDXGIAdapter = nullptr;
+            IDXGIFactory *pDXGIFactory = nullptr;
+            
+            do
+            {
+                HRESULT hr = S_OK;
+                
+                const RenderWindowDesc &desc = pRenderWindow->getDescriptor();
+
+                // 获取支持的 MSAA
+                UINT uMSAACount = desc.MSAA.Count;
+                UINT uMSAAQuality = desc.MSAA.Quality;
+
+                DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+                
+                if (desc.MSAA.Count == 0)
+                {
+                    uMSAACount = 1;
+                }
+                else
+                {
+                    UINT uNumQuality = 0;
+                    hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
+                        break;
+                    }
+                    
+                    uMSAAQuality = uNumQuality - 1;
+                    // uMSAACount = uNumQuality;
+                }
+
+                // 创建 Swap Chain
+                SysWMInfo info;
+                pRenderWindow->getSystemInfo(info);
+
+                DXGI_SWAP_CHAIN_DESC d3dSwapChainDesc;
+            
+                d3dSwapChainDesc.BufferDesc.Width = desc.Width;
+                d3dSwapChainDesc.BufferDesc.Height = desc.Height;
+                d3dSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+                d3dSwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+                d3dSwapChainDesc.BufferDesc.Format = format;
+                d3dSwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+                d3dSwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+                d3dSwapChainDesc.SampleDesc.Count = uMSAACount;
+                d3dSwapChainDesc.SampleDesc.Quality = uMSAAQuality;
+                d3dSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+                d3dSwapChainDesc.BufferCount = 1;
+                d3dSwapChainDesc.OutputWindow = (HWND)info.hWnd;
+                d3dSwapChainDesc.Windowed = !desc.IsFullscreen;
+                d3dSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+                d3dSwapChainDesc.Flags = 0;
+            
+                hr = mD3DDevice->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Query interface for IDXGIDevice failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            
+                hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&pDXGIAdapter);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_GET_INTERFACE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for IDXGIAdapter failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            
+                hr = pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), (void **)&pDXGIFactory);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_GET_INTERFACE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for IDXGIFactory failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            
+                hr = pDXGIFactory->CreateSwapChain(mD3DDevice, &d3dSwapChainDesc, &pD3DRenderWindow->D3DSwapChain);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create swap chain failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                // 创建 RenderTargetView
+                ID3D11Texture2D *pD3DBackBuffer = nullptr;
+                hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DBackBuffer));
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_GET_INTERFACE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+                
+                hr = mD3DDevice->CreateRenderTargetView(pD3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create render target view failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                // 创建 DepthStencilView
+                D3D11_TEXTURE2D_DESC d3dTexDesc;
+                d3dTexDesc.Width = desc.Width;
+                d3dTexDesc.Height = desc.Height;
+                d3dTexDesc.MipLevels = 1;
+                d3dTexDesc.ArraySize = 1;
+                d3dTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+                
+                d3dTexDesc.SampleDesc.Count = uMSAACount;
+                d3dTexDesc.SampleDesc.Quality = uMSAAQuality;
+                
+                d3dTexDesc.Usage = D3D11_USAGE_DEFAULT;
+                d3dTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+                d3dTexDesc.CPUAccessFlags = 0;
+                d3dTexDesc.MiscFlags = 0;
+
+                ID3D11Texture2D *pD3DDSBuffer = nullptr;
+                hr = mD3DDevice->CreateTexture2D(&d3dTexDesc, nullptr, &pD3DDSBuffer);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+                
+                hr = mD3DDevice->CreateDepthStencilView(pD3DDSBuffer, nullptr, &pD3DRenderWindow->D3DDSView);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth stencil view failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+            } while (false);
+
+            D3D_SAFE_RELEASE(pDXGIFactory);
+            D3D_SAFE_RELEASE(pDXGIAdapter);
+            D3D_SAFE_RELEASE(pDXGIDevice);
+            
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, renderWindow.get(), d3dRenderWindow.get());
+        
+        if (T3D_FAILED(ret))
+        {
+            d3dRenderWindow = nullptr;
+        }
+
+        return d3dRenderWindow;
     }
 
     //--------------------------------------------------------------------------
@@ -695,7 +927,41 @@ namespace Tiny3D
     
     TResult D3D11Context::setRenderTarget(RenderTargetPtr renderTarget)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+        if (renderTarget == nullptr)
+        {
+            mCurrentRenderTarget = renderTarget;
+        }
+        else
+        {
+            switch (renderTarget->getType())
+            {
+            case RenderTarget::Type::E_RT_WINDOW:
+            {
+                D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderTarget->getRHIRenderTarget().get());
+                auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow)
+                {
+                    mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
+                    return T3D_OK;
+                };
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow);
+                if (T3D_SUCCEEDED(ret))
+                {
+                    mCurrentRenderTarget = renderTarget;
+                }
+            }
+                break;
+            case RenderTarget::Type::E_RT_TEXTURE:
+            {
+                
+            }
+                break;
+            default:
+                break;
+            }
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -709,7 +975,36 @@ namespace Tiny3D
     
     TResult D3D11Context::clearColor(const ColorRGB &color)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        if (mCurrentRenderTarget == nullptr)
+            return ret;
+        
+        switch (mCurrentRenderTarget->getType())
+        {
+        case RenderTarget::Type::E_RT_WINDOW:
+            {
+                D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(mCurrentRenderTarget->getRHIRenderTarget().get());
+                auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow, ColorRGB color)
+                {
+                    float clr[4];
+                    clr[0] = color.red();
+                    clr[1] = color.green();
+                    clr[2] = color.blue();
+                    clr[3] = 1.0f;
+                    mD3DDeviceContext->ClearRenderTargetView(pD3DRenderWindow->D3DRTView, clr);
+                    return T3D_OK;
+                };
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow, color);
+            }
+            break;
+        case RenderTarget::Type::E_RT_TEXTURE:
+            break;
+        default:
+            break;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

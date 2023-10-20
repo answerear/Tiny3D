@@ -76,6 +76,7 @@ namespace Tiny3D
     
     T3D_DECLARE_SMART_PTR(RenderStateManager);
     T3D_DECLARE_SMART_PTR(RenderBufferManager);
+    T3D_DECLARE_SMART_PTR(RenderTargetManager);
 
     T3D_DECLARE_SMART_PTR(RenderTarget);
     T3D_DECLARE_SMART_PTR(RenderTexture);

@@ -50,19 +50,11 @@ namespace Tiny3D
          */
         TResult init(const RenderWindowDesc &param);
 
-        /**
-         * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像
-         * @return 调用成功返回 T3D_OK
-         * @remarks 具体渲染系统子类实现本接口
-         */
         virtual TResult swapBuffers();
 
-        /**
-         * @brief 获取是否全屏窗口
-         */
-        bool isFullscreen() const { return mIsFullscreen; }
-
         bool getSystemInfo(SysWMInfo &info) const;
+
+        const RenderWindowDesc &getDescriptor() const { return mDesc; }
         
     protected:
         RenderWindow(const String &name);
@@ -74,8 +66,8 @@ namespace Tiny3D
         TResult destroy();
         
         /// OS 相关的窗口对象
-        Window  *mWindow {nullptr};
-        bool    mIsFullscreen {false};
+        Window              *mWindow {nullptr};
+        RenderWindowDesc    mDesc {};
     };
 
     class T3D_ENGINE_API NullRenderWindow : public RenderWindow

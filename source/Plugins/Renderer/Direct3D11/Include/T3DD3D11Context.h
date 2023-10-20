@@ -153,6 +153,10 @@ namespace Tiny3D
     {
     public:
         static D3D11ContextPtr create();
+
+        TResult init();
+
+        TResult swapBackBuffer(D3D11RenderWindow *renderWindow);
         
         /**
          * \brief 创建 RHI 渲染窗口
@@ -473,8 +477,8 @@ namespace Tiny3D
         ID3D11DeviceContext *mD3DDeviceContext {nullptr};
         /**< D3D 特性级别 */
         D3D_FEATURE_LEVEL   mFeatureLevel {D3D_FEATURE_LEVEL_11_0};
-        UINT                mMSAAQuality {0};
-        UINT                mMSAACount {0};
+
+        RenderTargetPtr     mCurrentRenderTarget {nullptr};
     };
 #endif
 }

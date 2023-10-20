@@ -38,7 +38,7 @@ namespace Tiny3D
          * @brief 创建渲染窗口对象
          * @return 返回一个渲染窗口对象
          */
-        static D3D11RenderWindowPtr create(RenderWindow *renderWindow, const RenderWindowDesc &param);
+        static D3D11RenderWindowPtr create(RenderWindow *renderWindow);
 
         /**
          * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
@@ -46,7 +46,7 @@ namespace Tiny3D
          */
         virtual ~D3D11RenderWindow();
 
-        bool init(RenderWindow *renderWindow, const RenderWindowDesc &param);
+        bool init(RenderWindow *renderWindow);
 
         /**
          * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;

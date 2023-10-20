@@ -87,5 +87,12 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    inline RHIRenderTargetPtr RenderTarget::getRHIRenderTarget() const
+    {
+        return mRHIRenderTarget;
+    }
+
+    //--------------------------------------------------------------------------
 }
 

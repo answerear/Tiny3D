@@ -74,6 +74,8 @@ namespace Tiny3D
         
         ViewportPtr getViewport(long_t zOrder) const;
 
+        RHIRenderTargetPtr getRHIRenderTarget() const;
+
     protected:
         RenderTarget(const String &name);
 

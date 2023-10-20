@@ -253,4 +253,18 @@ namespace  Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RenderTargetManagerPtr RenderTargetManager::create()
+    {
+        return new RenderTargetManager();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderTargetManager::GC()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
 }

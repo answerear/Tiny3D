@@ -121,7 +121,6 @@ namespace Tiny3D
             mWidth = desc.Width;
             mHeight = desc.Height;
             mColorDepth = mWindow->getColorDepth();
-            mIsFullscreen = desc.IsFullscreen;
             // mPitch = Image::calcPitch(mWidth, mColorDepth);
 
             // ret = setupD3D11Environment(param, paramEx);
@@ -130,6 +129,9 @@ namespace Tiny3D
             //     break;
             // }
 
+            mDesc = desc;
+
+            mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
             // mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
             //
             // ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
@@ -153,9 +155,9 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid window pointer !");
                 break;
             }
-            
-            mWindow->destroy();
 
+            mRHIRenderTarget = nullptr;
+            mWindow->destroy();
             T3D_SAFE_DELETE(mWindow);
 
             ret = T3D_OK;
@@ -172,15 +174,15 @@ namespace Tiny3D
 
         do
         {
-            // if (mRHIRenderTarget == nullptr)
-            // {
-            //     T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
-            //     ret = T3D_ERR_INVALID_POINTER;
-            //     break;
-            // }
-            //
-            // RHIRenderWindowPtr rw = smart_pointer_cast<RHIRenderWindow>(mRHIRenderTarget);
-            // ret = rw->swapBuffers();
+            if (mRHIRenderTarget == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+            
+            RHIRenderWindowPtr rw = smart_pointer_cast<RHIRenderWindow>(mRHIRenderTarget);
+            ret = rw->swapBuffers();
         } while (false);
        
         return ret;

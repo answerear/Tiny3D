@@ -28,10 +28,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11RenderWindowPtr D3D11RenderWindow::create(RenderWindow *renderWindow, const RenderWindowDesc &param)
+    D3D11RenderWindowPtr D3D11RenderWindow::create(RenderWindow *renderWindow)
     {
         D3D11RenderWindowPtr window = new D3D11RenderWindow();
-        if (window || !window->init(renderWindow, param))
+        if (window && !window->init(renderWindow))
         {
             window = nullptr;
         }
@@ -58,7 +58,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool D3D11RenderWindow::init(RenderWindow *renderWindow, const RenderWindowDesc &param)
+    bool D3D11RenderWindow::init(RenderWindow *renderWindow)
     {
         bool ret = true;
 
@@ -120,21 +120,7 @@ namespace Tiny3D
 
     TResult D3D11RenderWindow::swapBuffers()
     {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            HRESULT hr = S_OK;
-            hr = D3DSwapChain->Present(0, 0);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_PRESENT;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Present failed ! DX ERROR [%d]", hr);
-                break;
-            }
-        } while (false);
-
-        return ret;
+        return  D3D11_CONTEXT->swapBackBuffer(this);
     }
 
     //--------------------------------------------------------------------------

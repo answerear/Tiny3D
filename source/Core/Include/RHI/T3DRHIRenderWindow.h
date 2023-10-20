@@ -33,12 +33,7 @@ namespace Tiny3D
      */
     class T3D_ENGINE_API RHIRenderWindow : public RHIRenderTarget
     {
-    public:
-        /**
-         * @brief 析构函数
-         */
-        virtual ~RHIRenderWindow();
-
+    public:        
         ResourceType getResourceType() const override { return ResourceType::kRenderWindow; }
 
         /**
@@ -50,10 +45,9 @@ namespace Tiny3D
         virtual TResult swapBuffers() = 0;
 
     protected:
-        /**
-         * @brief 构造函数
-         */
         RHIRenderWindow();
+
+        ~RHIRenderWindow() override;
     };
 }
 

@@ -67,6 +67,8 @@ namespace Tiny3D
         mRHIRunnable->stop();
         mRHIThread.wait();
         mRHIRunnable = nullptr;
+
+        mRenderPipeline->detachAllRenderTargets();
         
         mInternalArchive = nullptr;
         mProjectArchive = nullptr;
@@ -438,7 +440,7 @@ namespace Tiny3D
             // 抗锯齿
             //param.MSAA = mSettings.renderSettings.MSAA;
             param.MSAA.Count = 4;
-            param.MSAA.Quality = 16;
+            param.MSAA.Quality = 0;
             // 垂直同步
             param.IsVsync = mSettings.renderSettings.vsync;
 
@@ -462,7 +464,8 @@ namespace Tiny3D
             }
 
             mDefaultWindow = window;
-        } while (0);
+            T3D_RENDER_PIPELINE.attachRenderTarget(mDefaultWindow);
+        } while (false);
 
         return ret;
     }
@@ -569,6 +572,10 @@ namespace Tiny3D
 
     void Agent::renderOneFrame()
     {
+        if (mRenderPipeline != nullptr)
+        {
+            mRenderPipeline->render(mActiveRHIRenderer->getContext());
+        }
         // if (mActiveRenderer != nullptr)
         // {
         //     mActiveRenderer->renderAllTargets();

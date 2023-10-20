@@ -86,8 +86,6 @@ namespace Tiny3D
     public:
         static RenderStateManagerPtr create();
 
-        ~RenderStateManager() override = default;
-
         BlendStatePtr loadBlendState(const BlendDesc &desc, uint32_t hash = 0);
 
         DepthStencilStatePtr loadDepthStencilState(const DepthStencilDesc &desc, uint32_t hash = 0);
@@ -101,6 +99,8 @@ namespace Tiny3D
     protected:
         RenderStateManager() = default;
 
+        ~RenderStateManager() override = default;
+        
         using StateCache = TMap<uint32_t, RenderResourcePtr>;
 
         template<typename STATE_TYPE, typename DESC_TYPE> 
@@ -122,8 +122,6 @@ namespace Tiny3D
     public:
         static RenderBufferManagerPtr create();
         
-        ~RenderBufferManager() override = default;
-
         VertexBufferPtr loadVertexBuffer(const Buffer &buffer, size_t vertexSize, size_t vertexCount, 
             RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
@@ -138,9 +136,7 @@ namespace Tiny3D
     protected:
         RenderBufferManager() = default;
 
-        // RenderBufferPtr loadBuffer(const UUID &uuid, const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, ...);
-        //
-        // virtual RenderBufferPtr createBuffer(const Buffer &buffer, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, int32_t argc, va_list args) = 0;
+        ~RenderBufferManager() override = default;
 
         using BufferCache = TMap<UUID, RenderBufferPtr>;
         
@@ -151,6 +147,21 @@ namespace Tiny3D
         BufferCache mIBufferCache {};
         BufferCache mPBufferCache {};
         BufferCache mCBufferCache {};
+    };
+
+    class T3D_ENGINE_API RenderTargetManager
+        : public RenderResourceManager
+        , public Singleton<RenderTargetManager>
+    {
+    public:
+        static RenderTargetManagerPtr create();
+
+        TResult GC() override;
+        
+    protected:
+        RenderTargetManager() = default;
+
+        ~RenderTargetManager() override = default;
     };
 
     #define T3D_RENDER_BUFFER_mgr   (RenderBufferManager::getInstance())
