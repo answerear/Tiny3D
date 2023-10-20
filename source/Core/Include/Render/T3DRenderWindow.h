@@ -55,6 +55,14 @@ namespace Tiny3D
         bool getSystemInfo(SysWMInfo &info) const;
 
         const RenderWindowDesc &getDescriptor() const { return mDesc; }
+
+        void getMetrics(int32_t &width, int32_t &height, int32_t &clrDepth) const override;
+
+        int32_t getWidth() const override;
+
+        int32_t getHeight() const override;
+
+        int32_t getColorDepth() const override;
         
     protected:
         RenderWindow(const String &name);

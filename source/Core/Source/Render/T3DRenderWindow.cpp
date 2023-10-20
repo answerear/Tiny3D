@@ -118,9 +118,6 @@ namespace Tiny3D
                 break;
             }
 
-            mWidth = desc.Width;
-            mHeight = desc.Height;
-            mColorDepth = mWindow->getColorDepth();
             // mPitch = Image::calcPitch(mWidth, mColorDepth);
 
             // ret = setupD3D11Environment(param, paramEx);
@@ -253,27 +250,6 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
-    
-    // TResult RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) 
-    // {
-    //     TResult ret = T3D_OK;
-    //
-    //     do
-    //     {
-    //         if (mRHIRenderTarget == nullptr)
-    //         {
-    //             T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
-    //             ret = T3D_ERR_INVALID_POINTER;
-    //             break;
-    //         }
-    //
-    //         ret = mRHIRenderTarget->clear(clrFill, clearFlags, depth, stencil);
-    //     } while (false);
-    //
-    //     return ret;
-    // }
-    
-    //--------------------------------------------------------------------------
 
     bool RenderWindow::getSystemInfo(SysWMInfo &info) const
     {
@@ -282,6 +258,36 @@ namespace Tiny3D
             return mWindow->getSystemInfo(info);
         }
         return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RenderWindow::getMetrics(int32_t &width, int32_t &height, int32_t &clrDepth) const
+    {
+        width = mDesc.Width;
+        height = mDesc.Height;
+        clrDepth = mDesc.ColorDepth;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int32_t RenderWindow::getWidth() const
+    {
+        return mDesc.Width;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int32_t RenderWindow::getHeight() const
+    {
+        return mDesc.Height;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int32_t RenderWindow::getColorDepth() const
+    {
+        return mDesc.ColorDepth;
     }
 
     //--------------------------------------------------------------------------

@@ -54,13 +54,13 @@ namespace Tiny3D
 
         virtual Type getType() const = 0;
         
-        void getMetrics(size_t &width, size_t &height, size_t &clrDepth) const;
+        virtual void getMetrics(int32_t &width, int32_t &height, int32_t &clrDepth) const = 0;
 
-        size_t getWidth() const;
+        virtual int32_t getWidth() const = 0;
 
-        size_t getHeight() const;
+        virtual int32_t getHeight() const = 0;
 
-        size_t getColorDepth() const;
+        virtual int32_t getColorDepth() const = 0;
 
         size_t getPitch() const;
 
@@ -80,13 +80,7 @@ namespace Tiny3D
         RenderTarget(const String &name);
 
         ~RenderTarget() override;
-
-        /**< 渲染目标宽度 */
-        size_t mWidth {0};
-        /**< 渲染目标高度 */
-        size_t mHeight {0};
-        /**< 渲染目标色深 */
-        size_t mColorDepth {0};
+        
         /**< 渲染目标行间距 */
         size_t mPitch {0};
         /**< 渲染目标名称 */

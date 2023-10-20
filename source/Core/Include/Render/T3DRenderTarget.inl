@@ -29,36 +29,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    inline void RenderTarget::getMetrics(size_t &width, size_t &height, size_t &clrDepth) const
-    {
-        width = mWidth;
-        height = mHeight;
-        clrDepth = mColorDepth;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    inline size_t RenderTarget::getWidth() const
-    {
-        return mWidth;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    inline size_t RenderTarget::getHeight() const
-    {
-        return mHeight;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    inline size_t RenderTarget::getColorDepth() const
-    {
-        return mColorDepth;
-    }
-
-    //--------------------------------------------------------------------------
-    
     inline size_t RenderTarget::getPitch() const
     {
         return mPitch;
