@@ -17,47 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#ifndef __T3D_RENDER_WINDOW_DESC_H__
-#define __T3D_RENDER_WINDOW_DESC_H__
+#ifndef __T3D_CAMERA_H__
+#define __T3D_CAMERA_H__
 
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Render/T3DMultisamplerDesc.h"
+#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D
 {
-    TSTRUCT()
-    struct T3D_ENGINE_API RenderWindowDesc
+    class T3D_ENGINE_API Camera : public Object
     {
-        THandle externalHandle {nullptr};
-        /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
-        TPROPERTY()
-        int32_t Left;
-        /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
-        TPROPERTY()
-        int32_t Top;
-        /**< 窗口宽度 */
-        TPROPERTY()
-        int32_t Width;
-        /**< 窗口高度 */
-        TPROPERTY()
-        int32_t Height;
-        /**< 窗口色深 */
-        TPROPERTY()
-        int32_t ColorDepth;
-        /**< 抗锯齿质量 */
-        TPROPERTY()
-        MultisamplerDesc    MSAA;
-        /**< 窗口标题 */
-        String  Title;
-        String  IconPath;       /**< 图标文件路径 */
-        bool    IsFullscreen;     /**< 是否全屏，终端平台忽略该参数 */
-        bool    IsVsync;          /**< 是否开启垂直同步 */
+    public:
+        static CameraPtr create();
+
+        RenderWindowPtr getRenderWindow() const { return mRenderWindow; }
+        
+    protected:
+        Camera() = default;
+
+        ~Camera() override = default;
+
+        /// 相机所属的渲染窗口
+        RenderWindowPtr mRenderWindow {nullptr};
     };
 }
 
 
-#endif  /*__T3D_RENDER_WINDOW_DESC_H__*/
+#endif    /*__T3D_CAMERA_H__*/

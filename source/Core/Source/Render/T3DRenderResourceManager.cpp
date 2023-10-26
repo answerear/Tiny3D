@@ -260,7 +260,7 @@ namespace  Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
+    
     TResult RenderTargetManager::GC()
     {
         return T3D_OK;

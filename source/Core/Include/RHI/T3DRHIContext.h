@@ -125,11 +125,24 @@ namespace Tiny3D
         virtual RHIRenderTargetPtr createRenderTexture(RenderTexturePtr renderTexture) = 0;
         
         /**
-         * \brief 设置当前渲染目标
-         * \param [in] renderTarget : 渲染目标
+         * \brief 设置当前渲染窗口
+         * \param [in] renderWindow : 渲染窗口
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setRenderTarget(RenderTargetPtr renderTarget) = 0;
+        virtual TResult setRenderTarget(RenderWindowPtr renderWindow) = 0;
+
+        /**
+         * \brief 设置当前渲染紋理
+         * \param [in] renderTexture : 渲染紋理
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setRenderTarget(RenderTexturePtr renderTexture) = 0;
+
+        /**
+         * \brief 清除渲染目标
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult resetRenderTarget() = 0;
 
         /**
          * \brief 设置视口

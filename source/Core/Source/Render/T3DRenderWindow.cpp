@@ -47,7 +47,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     RenderWindow::RenderWindow(const String &name)
-        : RenderTarget(name)
+        : mName(name)
     {
 
     }
@@ -57,13 +57,6 @@ namespace Tiny3D
     RenderWindow::~RenderWindow()
     {
         destroy();
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderWindow::Type RenderWindow::getType() const
-    {
-        return Type::E_RT_WINDOW;
     }
 
     //--------------------------------------------------------------------------
@@ -128,7 +121,7 @@ namespace Tiny3D
 
             mDesc = desc;
 
-            mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
+            mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
             // mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
             //
             // ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
@@ -153,7 +146,7 @@ namespace Tiny3D
                 break;
             }
 
-            mRHIRenderTarget = nullptr;
+            mRHIRenderWindow = nullptr;
             mWindow->destroy();
             T3D_SAFE_DELETE(mWindow);
 
@@ -171,15 +164,14 @@ namespace Tiny3D
 
         do
         {
-            if (mRHIRenderTarget == nullptr)
+            if (mRHIRenderWindow == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
                 ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
             
-            RHIRenderWindowPtr rw = smart_pointer_cast<RHIRenderWindow>(mRHIRenderTarget);
-            ret = rw->swapBuffers();
+            ret = mRHIRenderWindow->swapBuffers();
         } while (false);
        
         return ret;
@@ -258,36 +250,6 @@ namespace Tiny3D
             return mWindow->getSystemInfo(info);
         }
         return false;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RenderWindow::getMetrics(int32_t &width, int32_t &height, int32_t &clrDepth) const
-    {
-        width = mDesc.Width;
-        height = mDesc.Height;
-        clrDepth = mDesc.ColorDepth;
-    }
-
-    //--------------------------------------------------------------------------
-
-    int32_t RenderWindow::getWidth() const
-    {
-        return mDesc.Width;
-    }
-
-    //--------------------------------------------------------------------------
-
-    int32_t RenderWindow::getHeight() const
-    {
-        return mDesc.Height;
-    }
-
-    //--------------------------------------------------------------------------
-
-    int32_t RenderWindow::getColorDepth() const
-    {
-        return mDesc.ColorDepth;
     }
 
     //--------------------------------------------------------------------------

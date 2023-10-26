@@ -30,6 +30,7 @@
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DPixelBuffer.h"
 #include "Render/T3DConstantBuffer.h"
+#include "Render/T3DTextureDesc.h"
 
 
 namespace Tiny3D
@@ -149,6 +150,9 @@ namespace Tiny3D
         BufferCache mCBufferCache {};
     };
 
+    #define T3D_RENDER_BUFFER_mgr   (RenderBufferManager::getInstance())
+
+
     class T3D_ENGINE_API RenderTargetManager
         : public RenderResourceManager
         , public Singleton<RenderTargetManager>
@@ -163,8 +167,6 @@ namespace Tiny3D
 
         ~RenderTargetManager() override = default;
     };
-
-    #define T3D_RENDER_BUFFER_mgr   (RenderBufferManager::getInstance())
 }
 
 

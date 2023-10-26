@@ -23,7 +23,7 @@
 
 
 #include "Render/T3DRenderTarget.h"
-#include "Render/T3DRenderWindowDesc.h"
+#include "T3DRenderTargetDesc.h"
 
 
 namespace Tiny3D
@@ -31,16 +31,10 @@ namespace Tiny3D
     /**
      * @brief 渲染窗口
      */
-    class T3D_ENGINE_API RenderWindow : public RenderTarget
+    class T3D_ENGINE_API RenderWindow : public Object
     {
     public:
         static RenderWindowPtr create(const String &name, const RenderWindowDesc &desc);
-
-        /**
-         * @brief 获取渲染目标类型
-         * @remarks 实现基类接口
-         */
-        Type getType() const override;
 
         /**
          * @brief 创建渲染窗口实体
@@ -56,13 +50,9 @@ namespace Tiny3D
 
         const RenderWindowDesc &getDescriptor() const { return mDesc; }
 
-        void getMetrics(int32_t &width, int32_t &height, int32_t &clrDepth) const override;
+        RHIRenderWindowPtr getRHIRenderWindow() const { return mRHIRenderWindow; }
 
-        int32_t getWidth() const override;
-
-        int32_t getHeight() const override;
-
-        int32_t getColorDepth() const override;
+        const String &getName() const { return mName; }
         
     protected:
         RenderWindow(const String &name);
@@ -76,6 +66,8 @@ namespace Tiny3D
         /// OS 相关的窗口对象
         Window              *mWindow {nullptr};
         RenderWindowDesc    mDesc {};
+        String              mName {};
+        RHIRenderWindowPtr  mRHIRenderWindow {nullptr};
     };
 
     class T3D_ENGINE_API NullRenderWindow : public RenderWindow

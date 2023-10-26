@@ -102,6 +102,8 @@ namespace Tiny3D
     class Technique;
     class Pass;
 
+    class Camera;
+
     class RenderQueue;
     class RenderPipeline;
     class ForwardRenderPipeline;

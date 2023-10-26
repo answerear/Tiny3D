@@ -925,43 +925,45 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setRenderTarget(RenderTargetPtr renderTarget)
+    TResult D3D11Context::setRenderTarget(RenderWindowPtr renderWindow)
     {
         TResult ret = T3D_OK;
-        if (renderTarget == nullptr)
+        if (renderWindow == nullptr)
         {
-            mCurrentRenderTarget = renderTarget;
+            mCurrentRenderWindow = renderWindow;
         }
         else
         {
-            switch (renderTarget->getType())
+            D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
+            auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow)
             {
-            case RenderTarget::Type::E_RT_WINDOW:
+                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
+                return T3D_OK;
+            };
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow);
+            if (T3D_SUCCEEDED(ret))
             {
-                D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderTarget->getRHIRenderTarget().get());
-                auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow)
-                {
-                    mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
-                    return T3D_OK;
-                };
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow);
-                if (T3D_SUCCEEDED(ret))
-                {
-                    mCurrentRenderTarget = renderTarget;
-                }
-            }
-                break;
-            case RenderTarget::Type::E_RT_TEXTURE:
-            {
-                
-            }
-                break;
-            default:
-                break;
+                mCurrentRenderWindow = renderWindow;
             }
         }
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setRenderTarget(RenderTexturePtr renderTexture)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::resetRenderTarget()
+    {
+        mCurrentRenderWindow = nullptr;
+        mCurrentRenderTexture = nullptr;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -977,34 +979,44 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        if (mCurrentRenderTarget == nullptr)
+        if (mCurrentRenderWindow == nullptr && mCurrentRenderTexture == nullptr)
             return ret;
-        
-        switch (mCurrentRenderTarget->getType())
+
+        if (mCurrentRenderTexture != nullptr)
         {
-        case RenderTarget::Type::E_RT_WINDOW:
-            {
-                D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(mCurrentRenderTarget->getRHIRenderTarget().get());
-                auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow, ColorRGB color)
-                {
-                    float clr[4];
-                    clr[0] = color.red();
-                    clr[1] = color.green();
-                    clr[2] = color.blue();
-                    clr[3] = 1.0f;
-                    mD3DDeviceContext->ClearRenderTargetView(pD3DRenderWindow->D3DRTView, clr);
-                    return T3D_OK;
-                };
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow, color);
-            }
-            break;
-        case RenderTarget::Type::E_RT_TEXTURE:
-            break;
-        default:
-            break;
+            ret = clearColor(mCurrentRenderTexture, color);
+        }
+        else if (mCurrentRenderWindow != nullptr)
+        {
+            ret = clearColor(mCurrentRenderWindow, color);
         }
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::clearColor(RenderWindowPtr window, const ColorRGB &color)
+    {
+        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
+        auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow, ColorRGB color)
+        {
+            float clr[4];
+            clr[0] = color.red();
+            clr[1] = color.green();
+            clr[2] = color.blue();
+            clr[3] = 1.0f;
+            mD3DDeviceContext->ClearRenderTargetView(pD3DRenderWindow->D3DRTView, clr);
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow, color);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::clearColor(RenderTexturePtr texture, const ColorRGB &color)
+    {
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

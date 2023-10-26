@@ -47,14 +47,27 @@ namespace Tiny3D
          * \return 调用成功返回新建的 RHI 对象
          */
         RHIRenderTargetPtr createRenderTexture(RenderTexturePtr renderTexture) override;
-        
+
         /**
-         * \brief 设置当前渲染目标
-         * \param [in] renderTarget : 渲染目标
+         * \brief 设置当前渲染窗口
+         * \param [in] renderWindow : 渲染窗口
          * \return 调用成功返回 T3D_OK
          */
-        TResult setRenderTarget(RenderTargetPtr renderTarget) override;
+        TResult setRenderTarget(RenderWindowPtr renderWindow) override;
 
+        /**
+         * \brief 设置当前渲染紋理
+         * \param [in] renderTexture : 渲染紋理
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setRenderTarget(RenderTexturePtr renderTexture) override;
+
+        /**
+         * \brief 清除渲染目标
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult resetRenderTarget() override;
+        
         /**
          * \brief 设置视口
          * \param [in] viewport : 视口 

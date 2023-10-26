@@ -174,10 +174,23 @@ namespace Tiny3D
         
         /**
          * \brief 设置当前渲染目标
-         * \param [in] renderTarget : 渲染目标
+         * \param [in] renderWindow : 渲染窗口
          * \return 调用成功返回 T3D_OK
          */
-        TResult setRenderTarget(RenderTargetPtr renderTarget) override;
+        TResult setRenderTarget(RenderWindowPtr renderWindow) override;
+
+        /**
+         * \brief 设置当前渲染紋理
+         * \param [in] renderTexture : 渲染紋理
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setRenderTarget(RenderTexturePtr renderTexture) override;
+
+        /**
+         * \brief 清除渲染目标
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult resetRenderTarget() override;
 
         /**
          * \brief 设置视口
@@ -469,6 +482,10 @@ namespace Tiny3D
 
         ~D3D11Context() override;
 
+        TResult clearColor(RenderWindowPtr window, const ColorRGB &color);
+
+        TResult clearColor(RenderTexturePtr texture, const ColorRGB &color);
+
         /**< The instance */
         HINSTANCE           mInstance {nullptr};
         /**< D3D11 设备对象 */
@@ -478,7 +495,8 @@ namespace Tiny3D
         /**< D3D 特性级别 */
         D3D_FEATURE_LEVEL   mFeatureLevel {D3D_FEATURE_LEVEL_11_0};
 
-        RenderTargetPtr     mCurrentRenderTarget {nullptr};
+        RenderWindowPtr     mCurrentRenderWindow {nullptr};
+        RenderTexturePtr    mCurrentRenderTexture {nullptr};
     };
 #endif
 }

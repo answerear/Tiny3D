@@ -18,38 +18,17 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDER_PIPELINE_H__
-#define __T3D_RENDER_PIPELINE_H__
-
-
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "Component/T3DCamera.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderPipeline
-        : public Object
-        , public Singleton<RenderPipeline>
+    //--------------------------------------------------------------------------
+
+    CameraPtr Camera::create()
     {
-    public:
-        enum : uint32_t
-        {
-            DEFAULT_GROUP = 0,
-            NONE_GROUP = 0xFFFFFFFF,
-            DEFAULT_ORDER = 0xFFFFFFFF,
-        };
+        return new Camera();
+    }
 
-        /**
-         * \brief 执行渲染
-         * \param [in] ctx : RHI 渲染上下文
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult render(RHIContextPtr ctx) = 0;
-    };
-
-    #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_RENDER_PIPELINE_H__*/

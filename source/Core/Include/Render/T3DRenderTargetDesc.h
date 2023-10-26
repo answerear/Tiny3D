@@ -18,44 +18,53 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_TEXTURE_DESC_H__
-#define __T3D_TEXTURE_DESC_H__
+#ifndef __T3D_RENDER_TARGET_DESC_H__
+#define __T3D_RENDER_TARGET_DESC_H__
 
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Kernel/T3DConstant.h"
 #include "Render/T3DMultisamplerDesc.h"
 
 
 namespace Tiny3D
 {
     TSTRUCT()
-    struct T3D_ENGINE_API TextureDesc
+    struct T3D_ENGINE_API RenderWindowDesc
     {
-        /// 纹理宽度
+        THandle externalHandle {nullptr};
+        /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
         TPROPERTY()
-        int32_t             Width {0};
-        /// 纹理高度
+        int32_t Left;
+        /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
         TPROPERTY()
-        int32_t             Height {0};
-        /// 纹理色深
+        int32_t Top;
+        /**< 窗口宽度 */
         TPROPERTY()
-        int32_t             ColorDepth {0};
-        /// 抗锯齿采样参数
+        int32_t Width;
+        /**< 窗口高度 */
         TPROPERTY()
-        MultisamplerDesc    MSAA {};
-        /// Mipmap
+        int32_t Height;
+        /**< 窗口色深 */
         TPROPERTY()
-        int32_t             Mipmap {0};
-        /// 纹理名称
+        int32_t ColorDepth;
+        /**< 抗锯齿质量 */
         TPROPERTY()
-        String              Name {};
-        /// 纹理格式
+        MultisamplerDesc    MSAA;
         TPROPERTY()
-        PixelFormat         Format {PixelFormat::E_PF_UNKNOWN};
+        /**< 窗口标题 */
+        String  Title;
+        /**< 图标文件路径 */
+        TPROPERTY()
+        String  IconPath;
+        /**< 是否全屏，终端平台忽略该参数 */
+        TPROPERTY()
+        bool    IsFullscreen;
+        /**< 是否开启垂直同步 */
+        TPROPERTY()
+        bool    IsVsync;
     };
 }
 
 
-#endif  /*__T3D_TEXTURE_DESC_H__*/
+#endif  /*__T3D_RENDER_TARGET_DESC_H__*/

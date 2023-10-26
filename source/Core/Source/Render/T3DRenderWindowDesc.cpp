@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 
-#include "Render/T3DRenderWindowDesc.h"
+#include "Render/T3DRenderTargetDesc.h"
 
 
 namespace Tiny3D

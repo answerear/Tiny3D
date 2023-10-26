@@ -56,6 +56,9 @@
 #include <Material/T3DShaderKeyword.h>
 #include <Material/T3DShaderVariant.h>
 
+// Component
+#include <Component/T3DCamera.h>
+
 // Serialize
 #include <Serializer/T3DSerializer.h>
 #include <Serializer/T3DSerializerManager.h>
@@ -82,6 +85,7 @@
 #include <Render/T3DConstantBuffer.h>
 #include <Render/T3DRenderResourceManager.h>
 #include <Render/T3DRenderTarget.h>
+#include <Render/T3DRenderTexture.h>
 #include <Render/T3DViewport.h>
 
 // RHI

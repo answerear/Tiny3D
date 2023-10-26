@@ -68,7 +68,7 @@ namespace Tiny3D
         mRHIThread.wait();
         mRHIRunnable = nullptr;
 
-        mRenderPipeline->detachAllRenderTargets();
+        // mRenderPipeline->detachAllRenderTargets();
         
         mInternalArchive = nullptr;
         mProjectArchive = nullptr;
@@ -464,7 +464,7 @@ namespace Tiny3D
             }
 
             mDefaultWindow = window;
-            T3D_RENDER_PIPELINE.attachRenderTarget(mDefaultWindow);
+            // T3D_RENDER_PIPELINE.attachRenderTarget(mDefaultWindow);
         } while (false);
 
         return ret;
