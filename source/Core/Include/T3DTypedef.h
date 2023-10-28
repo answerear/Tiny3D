@@ -34,6 +34,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Image);
     T3D_DECLARE_SMART_PTR(ImageCodec);
     T3D_DECLARE_SMART_PTR(ImageCodecBase);
+    
+    T3D_DECLARE_SMART_PTR(Node);
 
     T3D_DECLARE_SMART_PTR(Meta);
     T3D_DECLARE_SMART_PTR(Resource);
@@ -54,10 +56,18 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
-
-    T3D_DECLARE_SMART_PTR(Camera);
     
-    T3D_DECLARE_SMART_PTR(RenderQueue);
+    T3D_DECLARE_SMART_PTR(SceneNode);
+    T3D_DECLARE_SMART_PTR(SceneManagerBase);
+    T3D_DECLARE_SMART_PTR(SceneManager);
+    T3D_DECLARE_SMART_PTR(DefaultSceneMgr);
+    
+    T3D_DECLARE_SMART_PTR(Component);
+    T3D_DECLARE_SMART_PTR(Camera);
+    T3D_DECLARE_SMART_PTR(Transform3D);
+    T3D_DECLARE_SMART_PTR(Renderable);
+    
+    T3D_DECLARE_SMART_PTR(RenderContext);
     T3D_DECLARE_SMART_PTR(RenderPipeline);
     T3D_DECLARE_SMART_PTR(ForwardRenderPipeline);
 

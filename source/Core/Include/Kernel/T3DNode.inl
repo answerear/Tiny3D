@@ -18,5 +18,50 @@
  ******************************************************************************/
 
 
-#include "Render/T3DRenderQueue.h"
+namespace Tiny3D
+{
+    inline uint32_t Node::getNodeID() const
+    {
+        return mID;
+    }
 
+    inline void Node::setName(const String &name)
+    {
+        mName = name;
+    }
+
+    inline const String &Node::getName() const
+    {
+        return mName;
+    }
+
+    inline NodePtr Node::getFirstChild() const
+    {
+        return mFirstChild;
+    }
+
+    inline NodePtr Node::getLastChild() const
+    {
+        return mLastChild;
+    }
+
+    inline NodePtr Node::getPrevSibling() const
+    {
+        return mPrevSibling;
+    }
+
+    inline NodePtr Node::getNextSibling() const
+    {
+        return mNextSibling;
+    }
+
+    inline size_t Node::getChildrenCount() const
+    {
+        return mChildrenCount;
+    }
+
+    inline NodePtr Node::getParent() const
+    {
+        return mParent;
+    }
+}

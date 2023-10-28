@@ -17,38 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_CAMERA_H__
-#define __T3D_CAMERA_H__
+#ifndef __T3D_TRANSFORM3D_H__
+#define __T3D_TRANSFORM3D_H__
 
 
 #include "Component/T3DComponent.h"
-#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API Camera : public Component
+    class T3D_ENGINE_API Transform3D : public Component
     {
         TRTTI_ENABLE(Component)
         TRTTI_FRIEND
         
     public:
-        static CameraPtr create();
+        static Transform3DPtr create();
 
         ComponentPtr clone() const override;
         
-        RenderWindowPtr getRenderWindow() const { return mRenderWindow; }
-        
     protected:
-        Camera() = default;
+        Transform3D() = default;
 
-        ~Camera() override = default;
-
-        /// 相机所属的渲染窗口
-        RenderWindowPtr mRenderWindow {nullptr};
+        ~Transform3D() override = default;
     };
 }
 
 
-#endif    /*__T3D_CAMERA_H__*/
+#endif    /*__T3D_TRANSFORM3D_H__*/

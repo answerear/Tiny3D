@@ -70,7 +70,8 @@ namespace Tiny3D
     class Plugin;
     class Archive;
     class ArchiveManager;
-
+    class Node;
+    
     struct Settings;
 
     class Serializer;
@@ -102,9 +103,17 @@ namespace Tiny3D
     class Technique;
     class Pass;
 
-    class Camera;
+    class SceneNode;
+    class SceneManager;
+    class SceneManagerBase;
+    class DefaultSceneMgr;
 
-    class RenderQueue;
+    class Component;
+    class Camera;
+    class Transform3D;
+    class Renderable;
+
+    class RenderContext;
     class RenderPipeline;
     class ForwardRenderPipeline;
 

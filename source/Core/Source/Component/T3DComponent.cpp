@@ -18,30 +18,58 @@
  ******************************************************************************/
 
 
-#include "Component/T3DCamera.h"
+#include "Component/T3DComponent.h"
+#include "Scene/T3DSceneNode.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    CameraPtr Camera::create()
+    Component::Component(const UUID &uuid /* = UUID::INVALID */)
     {
-        return new Camera();
-    }
-
-    //--------------------------------------------------------------------------
-
-    ComponentPtr Camera::clone() const
-    {
-        CameraPtr camera = new Camera();
-        TResult ret = camera->cloneProperties(this);
-        if (T3D_FAILED(ret))
+        if (uuid != UUID::INVALID)
         {
-            camera = nullptr;
+            mUUID = uuid;
         }
-        return camera;
+        else
+        {
+            mUUID = UUID::generate();
+        }
     }
 
     //--------------------------------------------------------------------------
+
+    Component::~Component()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Component::cloneProperties(const Component * const src)
+    {
+        mSceneNode = src->mSceneNode;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Component::onAttachSceneNode(SceneNode *node)
+    {
+        mSceneNode = node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Component::onDetachSceneNode(SceneNode *node)
+    {
+        mSceneNode = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Component::update()
+    {
+
+    }
 }

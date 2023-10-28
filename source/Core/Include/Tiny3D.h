@@ -57,7 +57,10 @@
 #include <Material/T3DShaderVariant.h>
 
 // Component
+#include <Component/T3DComponent.h>
 #include <Component/T3DCamera.h>
+#include <Component/T3DTransform3D.h>
+#include <Component/T3DRenderable.h>
 
 // Serialize
 #include <Serializer/T3DSerializer.h>

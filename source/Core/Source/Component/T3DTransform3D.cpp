@@ -18,21 +18,30 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDER_QUEUE_H__
-#define __T3D_RENDER_QUEUE_H__
-
-
-#include "T3DPrerequisites.h"
-#include "Render/T3DRenderConstant.h"
+#include "Component/T3DTransform3D.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderQueue : public Object
+    //--------------------------------------------------------------------------
+
+    Transform3DPtr Transform3D::create()
     {
-        
-    };
+        return new Transform3D();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ComponentPtr Transform3D::clone() const
+    {
+        Transform3DPtr xform = new Transform3D();
+        if (T3D_FAILED(xform->cloneProperties(this)))
+        {
+            xform = nullptr;
+        }
+        return xform;
+    }
+
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_RENDER_QUEUE_H__*/

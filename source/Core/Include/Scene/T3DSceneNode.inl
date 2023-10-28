@@ -17,38 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_CAMERA_H__
-#define __T3D_CAMERA_H__
-
-
-#include "Component/T3DComponent.h"
-#include "Render/T3DRenderWindow.h"
-
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API Camera : public Component
+    //--------------------------------------------------------------------------
+
+    inline bool SceneNode::isVisible() const
     {
-        TRTTI_ENABLE(Component)
-        TRTTI_FRIEND
-        
-    public:
-        static CameraPtr create();
+        return mIsVisible;
+    }
 
-        ComponentPtr clone() const override;
-        
-        RenderWindowPtr getRenderWindow() const { return mRenderWindow; }
-        
-    protected:
-        Camera() = default;
+    //--------------------------------------------------------------------------
 
-        ~Camera() override = default;
+    inline bool SceneNode::isEnabled() const
+    {
+        return mIsEnabled;
+    }
 
-        /// 相机所属的渲染窗口
-        RenderWindowPtr mRenderWindow {nullptr};
-    };
+    //--------------------------------------------------------------------------
+
+    inline uint32_t SceneNode::getCameraMask() const
+    {
+        return mCameraMask;
+    }
 }
-
-
-#endif    /*__T3D_CAMERA_H__*/
