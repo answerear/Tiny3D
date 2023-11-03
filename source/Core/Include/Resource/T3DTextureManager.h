@@ -23,6 +23,7 @@
 
 #include "T3DResource.h"
 #include "Resource/T3DResourceManager.h"
+#include "Kernel/T3DConstant.h"
 
 
 namespace Tiny3D
@@ -33,6 +34,18 @@ namespace Tiny3D
     {
     public:
         static TextureManagerPtr create();
+
+        Texture1DPtr createTexture1D(const String &name, uint32_t width, PixelFormat format, const Buffer &data, uint32_t mipmaps = 0);
+
+        Texture2DPtr createTexture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, const Buffer &data, uint32_t mipmaps = 0, uint32_t MSAACount = 0, uint32_t MSAAQuality = 0);
+
+        Texture2DArrayPtr createTexture2DArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps = 0, uint32_t MSAACount = 0, uint32_t MSAAQuality = 0);
+        
+        Texture3DPtr createTexture3D(const String &name, uint32_t width, uint32_t height, uint32_t depth, PixelFormat format, const Buffer &data, uint32_t mipmaps = 0);
+
+        CubemapPtr createCubemap(const String &name, uint32_t width, uint32_t height, PixelFormat format, const Buffer &data, uint32_t mipmaps = 0, uint32_t MSAACount = 0, uint32_t MSAAQuality = 0);
+
+        CubemapArrayPtr createCubemapArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps = 0, uint32_t MSAACount = 0, uint32_t MSAAQuality = 0);
 
         TexturePtr loadTexture(Archive *archive, const String &name);
 

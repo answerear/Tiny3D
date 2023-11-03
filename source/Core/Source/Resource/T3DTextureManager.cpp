@@ -20,6 +20,7 @@
 
 #include "Resource/T3DTextureManager.h"
 #include "Resource/T3DTexture.h"
+#include "Render/T3DPixelBuffer.h"
 #include "Serializer/T3DSerializerManager.h"
 
 
@@ -32,6 +33,66 @@ namespace Tiny3D
         return new TextureManager();
     }
     
+    //--------------------------------------------------------------------------
+
+    Texture1DPtr TextureManager::createTexture1D(const String &name, uint32_t width,
+        PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/)
+    {
+        return smart_pointer_cast<Texture1D>(createResource(name, 6,
+            TEXTURE_TYPE::TT_1D, width, format,
+            data.Data, data.DataSize, mipmaps));
+    }
+
+    //--------------------------------------------------------------------------
+    
+    Texture2DPtr TextureManager::createTexture2D(const String &name, uint32_t width, uint32_t height,
+        PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/)
+    {
+        return smart_pointer_cast<Texture2D>(createResource(name, 9,
+            TEXTURE_TYPE::TT_2D, width, height, format,
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality));
+    }
+
+    //--------------------------------------------------------------------------
+    
+    Texture2DArrayPtr TextureManager::createTexture2DArray(const String &name, uint32_t width, uint32_t height,
+        PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/)
+    {
+        return smart_pointer_cast<Texture2DArray>(createResource(name, 10,
+            TEXTURE_TYPE::TT_2D_ARRAY, width, height, format, arraySize,
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality));
+    }
+
+    //--------------------------------------------------------------------------
+    
+    Texture3DPtr TextureManager::createTexture3D(const String &name, uint32_t width, uint32_t height, uint32_t depth,
+        PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/)
+    {
+        return smart_pointer_cast<Texture3D>(createResource(name, 8,
+            TEXTURE_TYPE::TT_3D, width, height, depth, format,
+            data.Data, data.DataSize, mipmaps));
+    }
+
+    //--------------------------------------------------------------------------
+    
+    CubemapPtr TextureManager::createCubemap(const String &name, uint32_t width, uint32_t height,
+        PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/)
+    {
+        return smart_pointer_cast<Cubemap>(createResource(name, 9,
+            TEXTURE_TYPE::TT_CUBE, width, height, format,
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality));
+    }
+
+    //--------------------------------------------------------------------------
+    
+    CubemapArrayPtr TextureManager::createCubemapArray(const String &name, uint32_t width, uint32_t height,
+        PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/)
+    {
+        return smart_pointer_cast<CubemapArray>(createResource(name, 10,
+            TEXTURE_TYPE::TT_CUBE_ARRAY, width, height, format, arraySize,
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality));
+    }
+
     //--------------------------------------------------------------------------
 
     TexturePtr TextureManager::loadTexture(Archive *archive, const String &name)
@@ -50,7 +111,102 @@ namespace Tiny3D
 
     ResourcePtr TextureManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        return Texture::create(name);
+        TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
+
+        TexturePtr texture;
+        
+        switch (texType)
+        {
+        case TEXTURE_TYPE::TT_1D:
+            {
+                uint32_t width = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                Buffer data;
+                data.Data = va_arg(args, uint8_t*);
+                data.DataSize = va_arg(args, size_t);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                texture = Texture1D::create(name, width, format, mipmaps, data);
+            }
+            break;
+        case TEXTURE_TYPE::TT_2D:
+            {
+                uint32_t width = va_arg(args, uint32_t);
+                uint32_t height = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                Buffer data;
+                data.Data = va_arg(args, uint8_t*);
+                data.DataSize = va_arg(args, size_t);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                uint32_t MSAACount = va_arg(args, uint32_t);
+                uint32_t MSAAQuality = va_arg(args, uint32_t);
+                texture = Texture2D::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+            }
+            break;
+        case TEXTURE_TYPE::TT_2D_ARRAY:
+            {
+                uint32_t width = va_arg(args, uint32_t);
+                uint32_t height = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                uint32_t arraySize = va_arg(args, uint32_t);
+                Buffer data;
+                data.Data = va_arg(args, uint8_t*);
+                data.DataSize = va_arg(args, size_t);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                uint32_t MSAACount = va_arg(args, uint32_t);
+                uint32_t MSAAQuality = va_arg(args, uint32_t);
+                texture = Texture2DArray::create(name, width, height, format, arraySize, mipmaps, MSAACount, MSAAQuality, data);
+            }
+            break;
+        case TEXTURE_TYPE::TT_3D:
+            {
+                uint32_t width = va_arg(args, uint32_t);
+                uint32_t height = va_arg(args, uint32_t);
+                uint32_t depth = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                Buffer data;
+                data.Data = va_arg(args, uint8_t*);
+                data.DataSize = va_arg(args, size_t);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                texture = Texture3D::create(name, width, height, depth, format, mipmaps, data);
+            }
+            break;
+        case TEXTURE_TYPE::TT_CUBE:
+            {
+                uint32_t width = va_arg(args, uint32_t);
+                uint32_t height = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                Buffer data;
+                data.Data = va_arg(args, uint8_t*);
+                data.DataSize = va_arg(args, size_t);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                uint32_t MSAACount = va_arg(args, uint32_t);
+                uint32_t MSAAQuality = va_arg(args, uint32_t);
+                texture = Cubemap::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+            }
+            break;
+        case TEXTURE_TYPE::TT_CUBE_ARRAY:
+            {
+                uint32_t width = va_arg(args, uint32_t);
+                uint32_t height = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                uint32_t arraySize = va_arg(args, uint32_t);
+                Buffer data;
+                data.Data = va_arg(args, uint8_t*);
+                data.DataSize = va_arg(args, size_t);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                uint32_t MSAACount = va_arg(args, uint32_t);
+                uint32_t MSAAQuality = va_arg(args, uint32_t);
+                texture = CubemapArray::create(name, width, height, format, arraySize, mipmaps, MSAACount, MSAAQuality, data);
+            }
+            break;
+        case TEXTURE_TYPE::TT_RENDER_TEXTURE:
+            {
+                
+            }
+            break;
+        }
+        
+        return texture;
     }
 
     //--------------------------------------------------------------------------

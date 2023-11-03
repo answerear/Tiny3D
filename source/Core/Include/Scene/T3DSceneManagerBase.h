@@ -63,7 +63,7 @@ namespace Tiny3D
          * @return  调用成功返回 T3D_OK.
          * @remarks 场景插件实现本接口，实现自己的渲染逻辑.
          */
-        virtual TResult render(ViewportPtr viewport) = 0;
+        // virtual TResult render(ViewportPtr viewport) = 0;
 
         /**
          * @fn  virtual SceneNodePtr SceneManagerBase::getRoot() const = 0;

@@ -197,8 +197,8 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
     
-    VertexBufferPtr RenderBufferManager::loadVertexBuffer(const Buffer &buffer, size_t vertexSize, size_t vertexCount,
-        RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid)
+    VertexBufferPtr RenderBufferManager::loadVertexBuffer(size_t vertexSize, size_t vertexCount,
+        const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -207,17 +207,17 @@ namespace  Tiny3D
         }
 
         return loadBuffer<VertexBuffer>(mVBufferCache, uid,
-            [](const Buffer &buffer, size_t vertexSize, size_t vertexCount, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode) -> RenderBufferPtr
+            [](const Buffer &buffer, size_t vertexSize, size_t vertexCount, MemoryType memType, Usage usage, CPUAccessMode accMode) -> RenderBufferPtr
             {
-                return VertexBuffer::create(buffer, vertexSize, vertexCount, memType, usage, accMode);
+                return VertexBuffer::create(vertexSize, vertexCount, buffer, memType, usage, accMode);
             },
             buffer, vertexSize, vertexCount, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    IndexBufferPtr RenderBufferManager::loadIndexBuffer(const Buffer &buffer, IndexBuffer::IndexType indexType, size_t indexCount,
-        RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid)
+    IndexBufferPtr RenderBufferManager::loadIndexBuffer(IndexType indexType, size_t indexCount,
+        const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -226,17 +226,16 @@ namespace  Tiny3D
         }
 
         return loadBuffer<IndexBuffer>(mIBufferCache, uid,
-            [](const Buffer &buffer, IndexBuffer::IndexType indexType, size_t indexCount, RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+            [](IndexType indexType, size_t indexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
             {
-                return IndexBuffer::create(buffer, indexType, indexCount, memType, usage, accMode);
+                return IndexBuffer::create(indexType, indexCount, buffer, memType, usage, accMode);
             },
-            buffer, indexType, indexCount, memType, usage, accMode);
+            indexType, indexCount, buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    PixelBufferPtr RenderBufferManager::loadPixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps,
-        RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid)
+    PixelBuffer1DPtr RenderBufferManager::loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -244,14 +243,50 @@ namespace  Tiny3D
             uid = UUID::generate();
         }
 
-        return loadBuffer<PixelBuffer>(mPBufferCache, uid,
-            [](const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps,RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode)
+        return loadBuffer<PixelBuffer1D>(mPBufferCache, uid,
+            [](PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
             {
-                return PixelBuffer::create(buffer, width, height, format, mipmaps, memType, usage, accMode);
+                return PixelBuffer1D::create(desc, memType, usage, accMode);
             },
-            buffer, width, height, format, mipmaps, memType, usage, accMode);
+            desc, memType, usage, accMode);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    PixelBuffer2DPtr RenderBufferManager::loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    {
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<PixelBuffer2D>(mPBufferCache, uid,
+            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            {
+                return PixelBuffer2D::create(desc, memType, usage, accMode);
+            },
+            desc, memType, usage, accMode);
     }
 
+    //--------------------------------------------------------------------------
+
+    PixelBuffer3DPtr RenderBufferManager::loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    {
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<PixelBuffer3D>(mPBufferCache, uid,
+            [](PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            {
+                return PixelBuffer3D::create(desc, memType, usage, accMode);
+            },
+            desc, memType, usage, accMode);
+    }
+    
     //--------------------------------------------------------------------------
 
     RenderTargetManagerPtr RenderTargetManager::create()

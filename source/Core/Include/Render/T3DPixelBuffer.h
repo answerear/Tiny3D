@@ -24,36 +24,72 @@
 
 #include "Render/T3DRenderBuffer.h"
 #include "Kernel/T3DConstant.h"
+#include "Render/T3DRenderBufferDesc.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API PixelBuffer : public RenderBuffer
+    class T3D_ENGINE_API PixelBuffer1D : public RenderBuffer
     {
     public:
-        static PixelBufferPtr create(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode);
-        
-        ~PixelBuffer() override = default;
+        static PixelBuffer1DPtr create(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
         
     protected:
-        PixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode);
+        PixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+
+        ~PixelBuffer1D() override = default;
 
         bool onLoad() override;
 
         bool onUnload() override;
 
-        /**< 像素缓冲区的宽度 */
-        size_t mWidth {0};
-        /**< 像素缓冲区的高度 */
-        size_t mHeight {0};
-        /**< 像素缓冲区的行跨度 */
-        size_t mPitch {0};
-        /**< mipmaps level */
-        size_t mMipmaps {0};
-        /**< 像素缓冲区的格式 */
-        PixelFormat mFormat {PixelFormat::E_PF_UNKNOWN};
+    protected:
+        /// 缓冲区描述
+        PixelBuffer1DDesc   *mDesc {nullptr};
+    };
+    
+    class T3D_ENGINE_API PixelBuffer2D : public RenderBuffer
+    {
+    public:
+        static PixelBuffer2DPtr create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+
+        Type getType() const override;
+        
+    protected:
+        PixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+
+        ~PixelBuffer2D() override = default;
+        
+        bool onLoad() override;
+
+        bool onUnload() override;
+
+    protected:
+        /// 缓冲区描述
+        PixelBuffer2DDesc   *mDesc {nullptr};
+    };
+
+    class T3D_ENGINE_API PixelBuffer3D : public RenderBuffer
+    {
+    public:
+        static PixelBuffer3DPtr create(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+
+        Type getType() const override;
+        
+    protected:
+        PixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+
+        ~PixelBuffer3D() override = default;
+
+        bool onLoad() override;
+
+        bool onUnload() override;
+
+    protected:
+        /// 缓冲区描述
+        PixelBuffer3DDesc   *mDesc {nullptr};
     };
 }
 

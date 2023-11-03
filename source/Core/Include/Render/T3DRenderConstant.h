@@ -166,6 +166,63 @@ namespace Tiny3D
         kBorder,
         kMirrorOnce
     };
+
+    TENUM()
+    enum class LockOptions : uint32_t
+    {
+        /**< 映射到内存的资源用于读取 */
+        kRead = 0,
+        /**< 映射到内存的资源用于写入 */
+        kWrite,
+        /**< 映射到内存的资源用于读写 */
+        kReadWrite,
+        /**< 映射到内存的资源用于写入，之前的资源数据将会被抛弃 */
+        kWriteDiscard,
+        /**< 映射到内存的资源用于写入，但不能复写已经存在的资源 */
+        kWriteNoOverwrite
+    };
+
+    TENUM()
+    enum class MemoryType : uint32_t
+    {
+        /**< 数据分别存储在 RAM 和 VRAM */
+        kBoth = 0,
+        /**< 数据仅存储在 RAM */
+        kRAM,
+        /**< 数据仅存储在 VRAM */
+        kVRAM
+    };
+
+    TENUM()
+    enum class Usage : uint32_t
+    {
+        /// 数据在初始化后，GPU 能读写，CPU 不能访问
+        kStatic = 0,
+        /// 资源创建后不会被 GPU 写，GPU 只进行读
+        kImmutable,
+        /// 数据会频繁修改
+        kDynamic,
+    };
+
+    TENUM()
+    enum CPUAccessMode : uint32_t
+    {
+        /// CPU 不访问
+        kCPUNone = 0,
+        /// CPU 可写
+        kCPUWrite = (1 << 0),
+        /// CPU 可读
+        kCPURead = (1 << 1),
+        /// CPU 读写
+        kCPUReadWrite = kCPURead | kCPUWrite,
+    };
+
+    TENUM()
+    enum class IndexType : uint32_t
+    {
+        E_IT_16BITS = 0,    /**< 16位索引 */
+        E_IT_32BITS,        /**< 32位索引 */
+    };
 }
 
 

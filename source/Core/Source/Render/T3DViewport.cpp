@@ -28,76 +28,76 @@
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    ViewportPtr Viewport::create(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t nZOrder)
-    {
-        ViewportPtr viewport = new Viewport(target, left, top, width, height, nZOrder);
-        // viewport->release();
-        return viewport;
-    }
-
-    //--------------------------------------------------------------------------
-
-    Viewport::Viewport(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t zOrder)
-        : mRenderTarget(target)
-        , mLeft(left)
-        , mTop(top)
-        , mWidth(width)
-        , mHeight(height)
-        , mActualLeft(0)
-        , mActualTop(0)
-        , mActualWidth(0)
-        , mActualHeight(0)
-        , mClearFlags(0)
-        , mClearZ(1.0f)
-        , mBkgndColor(0, 0, 0)
-        , mMatrix(false)
-    {
-        updateDimensions();
-    }
-
-    //--------------------------------------------------------------------------
-
-    Viewport::~Viewport()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Viewport::render()
-    {
-        // T3D_SCENE_MGR.render(this);
-        T3D_AGENT.getActiveRHIContext()->setViewport(this);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Viewport::setDimensions(Real left, Real top, Real width, Real height)
-    {
-        mLeft = left;
-        mTop = top;
-        mWidth = width;
-        mHeight = height;
-
-        updateDimensions();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Viewport::updateDimensions()
-    {
-        size_t nWidth = mRenderTarget->getWidth();
-        size_t nHeight = mRenderTarget->getHeight();
-
-        mActualLeft = size_t(nWidth * mLeft);
-        mActualTop = size_t(nHeight * mTop);
-        mActualWidth = size_t(nWidth * mWidth);
-        mActualHeight = size_t(nHeight * mHeight);
-
-        // RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
-        // mMatrix = T3D_AGENT.getActiveRHIContext()->makeViewportMatrix(this);
-    }
+    // //--------------------------------------------------------------------------
+    //
+    // ViewportPtr Viewport::create(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t nZOrder)
+    // {
+    //     ViewportPtr viewport = new Viewport(target, left, top, width, height, nZOrder);
+    //     // viewport->release();
+    //     return viewport;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // Viewport::Viewport(RenderTargetPtr target, Real left, Real top, Real width, Real height, long_t zOrder)
+    //     : mRenderTarget(target)
+    //     , mLeft(left)
+    //     , mTop(top)
+    //     , mWidth(width)
+    //     , mHeight(height)
+    //     , mActualLeft(0)
+    //     , mActualTop(0)
+    //     , mActualWidth(0)
+    //     , mActualHeight(0)
+    //     , mClearFlags(0)
+    //     , mClearZ(1.0f)
+    //     , mBkgndColor(0, 0, 0)
+    //     , mMatrix(false)
+    // {
+    //     updateDimensions();
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // Viewport::~Viewport()
+    // {
+    //
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Viewport::render()
+    // {
+    //     // T3D_SCENE_MGR.render(this);
+    //     T3D_AGENT.getActiveRHIContext()->setViewport(this);
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Viewport::setDimensions(Real left, Real top, Real width, Real height)
+    // {
+    //     mLeft = left;
+    //     mTop = top;
+    //     mWidth = width;
+    //     mHeight = height;
+    //
+    //     updateDimensions();
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Viewport::updateDimensions()
+    // {
+    //     // size_t nWidth = mRenderTarget->getWidth();
+    //     // size_t nHeight = mRenderTarget->getHeight();
+    //
+    //     // mActualLeft = size_t(nWidth * mLeft);
+    //     // mActualTop = size_t(nHeight * mTop);
+    //     // mActualWidth = size_t(nWidth * mWidth);
+    //     // mActualHeight = size_t(nHeight * mHeight);
+    //
+    //     // RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
+    //     // mMatrix = T3D_AGENT.getActiveRHIContext()->makeViewportMatrix(this);
+    // }
 }
 

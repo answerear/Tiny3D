@@ -19,14 +19,15 @@
 
 
 #include "Render/T3DRenderTexture.h"
+#include "Render/T3DPixelBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
     
-    RenderTexture::RenderTexture(const String &name)
-        : RenderTarget(name)
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, Buffer{})
     {
 
     }
@@ -36,13 +37,6 @@ namespace Tiny3D
     RenderTexture::~RenderTexture()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderTarget::Type RenderTexture::getType() const
-    {
-        return Type::E_RT_TEXTURE;
     }
 
     //--------------------------------------------------------------------------

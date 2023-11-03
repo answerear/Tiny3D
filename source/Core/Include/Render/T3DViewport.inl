@@ -25,84 +25,84 @@ namespace Tiny3D
     //     return mCamera;
     // }
 
-    inline RenderTargetPtr Viewport::getRenderTarget() const
-    {
-        return mRenderTarget;
-    }
-
-    inline Real Viewport::getLeft() const
-    {
-        return mLeft;
-    }
-
-    inline Real Viewport::getTop() const
-    {
-        return mTop;
-    }
-
-    inline Real Viewport::getWidth() const
-    {
-        return mWidth;
-    }
-
-    inline Real Viewport::getHeight() const
-    {
-        return mHeight;
-    }
-
-    inline size_t Viewport::getActualLeft() const
-    {
-        return mActualLeft;
-    }
-
-    inline size_t Viewport::getActualTop() const
-    {
-        return mActualTop;
-    }
-
-    inline size_t Viewport::getActualWidth() const
-    {
-        return mActualWidth;
-    }
-
-    inline size_t Viewport::getActualHeight() const
-    {
-        return mActualHeight;
-    }
-
-    inline const Matrix4 &Viewport::getViewportMatrix() const
-    {
-        return mMatrix;
-    }
-
-    inline void Viewport::setClearFlags(uint32_t flags)
-    {
-        mClearFlags = flags;
-    }
-
-    inline uint32_t Viewport::getClearFlags() const
-    {
-        return mClearFlags;
-    }
-
-    inline void Viewport::setClearZ(Real z)
-    {
-        mClearZ = z;
-    }
-
-    inline Real Viewport::getClearZ() const
-    {
-        return mClearZ;
-    }
-
-    inline void Viewport::setBkgndColor(const ColorRGB &color)
-    {
-        mBkgndColor = color;
-    }
-
-    inline const ColorRGB &Viewport::getBkgndColor() const
-    {
-        return mBkgndColor;
-    }
+    // inline RenderTargetPtr Viewport::getRenderTarget() const
+    // {
+    //     return mRenderTarget;
+    // }
+    //
+    // inline Real Viewport::getLeft() const
+    // {
+    //     return mLeft;
+    // }
+    //
+    // inline Real Viewport::getTop() const
+    // {
+    //     return mTop;
+    // }
+    //
+    // inline Real Viewport::getWidth() const
+    // {
+    //     return mWidth;
+    // }
+    //
+    // inline Real Viewport::getHeight() const
+    // {
+    //     return mHeight;
+    // }
+    //
+    // inline size_t Viewport::getActualLeft() const
+    // {
+    //     return mActualLeft;
+    // }
+    //
+    // inline size_t Viewport::getActualTop() const
+    // {
+    //     return mActualTop;
+    // }
+    //
+    // inline size_t Viewport::getActualWidth() const
+    // {
+    //     return mActualWidth;
+    // }
+    //
+    // inline size_t Viewport::getActualHeight() const
+    // {
+    //     return mActualHeight;
+    // }
+    //
+    // inline const Matrix4 &Viewport::getViewportMatrix() const
+    // {
+    //     return mMatrix;
+    // }
+    //
+    // inline void Viewport::setClearFlags(uint32_t flags)
+    // {
+    //     mClearFlags = flags;
+    // }
+    //
+    // inline uint32_t Viewport::getClearFlags() const
+    // {
+    //     return mClearFlags;
+    // }
+    //
+    // inline void Viewport::setClearZ(Real z)
+    // {
+    //     mClearZ = z;
+    // }
+    //
+    // inline Real Viewport::getClearZ() const
+    // {
+    //     return mClearZ;
+    // }
+    //
+    // inline void Viewport::setBkgndColor(const ColorRGB &color)
+    // {
+    //     mBkgndColor = color;
+    // }
+    //
+    // inline const ColorRGB &Viewport::getBkgndColor() const
+    // {
+    //     return mBkgndColor;
+    // }
 }
 

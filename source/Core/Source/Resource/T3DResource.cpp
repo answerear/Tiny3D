@@ -50,6 +50,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Resource::onCreate()
+    {
+        mState = State::kLoaded;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Resource::onLoad()
     {
         mState = State::kLoaded;

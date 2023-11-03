@@ -313,7 +313,7 @@ namespace Tiny3D
             break;
         case SLPropValue::kTexture:
             {
-                Texture::TEXTURE_TYPE texType = Texture::TEXTURE_TYPE::TT_2D;
+                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
                 
                 switch (src.texture.dimension)
                 {
@@ -321,35 +321,35 @@ namespace Tiny3D
                     {
                         // auto val = value->mutable_tex2d();
                         // val->set_value(src.texture.name);
-                        texType = Texture::TEXTURE_TYPE::TT_2D;
+                        texType = TEXTURE_TYPE::TT_2D;
                     }
                     break;
                 case TextureDimension::kTexDim2DArray:
                     {
                         // auto val = value->mutable_tex2d_array();
                         // val->set_value(src.texture.name);
-                        texType = Texture::TEXTURE_TYPE::TT_2D_ARRAY;
+                        texType = TEXTURE_TYPE::TT_2D_ARRAY;
                     }
                     break;
                 case TextureDimension::kTexDim3D:
                     {
                         // auto val = value->mutable_tex3d();
                         // val->set_value(src.texture.name);
-                        texType = Texture::TEXTURE_TYPE::TT_3D;
+                        texType = TEXTURE_TYPE::TT_3D;
                     }
                     break;
                 case TextureDimension::kTexDimCUBE:
                     {
                         // auto val = value->mutable_cubemap();
                         // val->set_value(src.texture.name);
-                        texType = Texture::TEXTURE_TYPE::TT_CUBE;
+                        texType = TEXTURE_TYPE::TT_CUBE;
                     }
                     break;
                 case TextureDimension::kTexDimCUBEArray:
                     {
                         // auto val = value->mutable_cubemap_array();
                         // val->set_value(src.texture.name);
-                        texType = Texture::TEXTURE_TYPE::TT_CUBE_ARRAY;
+                        texType = TEXTURE_TYPE::TT_CUBE_ARRAY;
                     }
                     break;
                 }

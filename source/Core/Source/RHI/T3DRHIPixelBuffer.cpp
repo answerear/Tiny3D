@@ -26,7 +26,25 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIPixelBuffer::RHIPixelBuffer()
+    RHIPixelBuffer1D::RHIPixelBuffer1D()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIPixelBuffer2D::RHIPixelBuffer2D()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIPixelBuffer3D::RHIPixelBuffer3D()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIPixelBufferCubemap::RHIPixelBufferCubemap()
     {
     }
 

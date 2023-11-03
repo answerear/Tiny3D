@@ -84,7 +84,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setViewport(ViewportPtr viewport)
+    TResult NullContext::setViewport(const Viewport &viewport)
     {
         return T3D_OK;
     }
@@ -203,18 +203,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBufferPtr NullContext::createPixelBuffer(PixelBufferPtr buffer)
+    RHIPixelBuffer1DPtr NullContext::createPixelBuffer(PixelBuffer1DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setPixelBuffer(PixelBuffer1DPtr buffer)
     {
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+    
+    RHIPixelBuffer2DPtr NullContext::createPixelBuffer(PixelBuffer2DPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setPixelBuffer(PixelBuffer2DPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    RHIPixelBuffer3DPtr NullContext::createPixelBuffer(PixelBuffer3DPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setPixelBuffer(PixelBuffer3DPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
     
     RHIShaderPtr NullContext::createVertexShader(ShaderVariantPtr shader)

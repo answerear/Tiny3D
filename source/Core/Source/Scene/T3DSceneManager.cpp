@@ -64,17 +64,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::render(ViewportPtr viewport)
-    {
-        TResult ret = T3D_ERR_SYS_NOT_INIT;
-
-        if (mImpl != nullptr)
-        {
-            ret = mImpl->render(viewport);
-        }
-
-        return ret;
-    }
+    // TResult SceneManager::render(ViewportPtr viewport)
+    // {
+    //     TResult ret = T3D_ERR_SYS_NOT_INIT;
+    //
+    //     if (mImpl != nullptr)
+    //     {
+    //         ret = mImpl->render(viewport);
+    //     }
+    //
+    //     return ret;
+    // }
 
     //--------------------------------------------------------------------------
 

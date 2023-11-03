@@ -123,14 +123,17 @@ namespace Tiny3D
     public:
         static RenderBufferManagerPtr create();
         
-        VertexBufferPtr loadVertexBuffer(const Buffer &buffer, size_t vertexSize, size_t vertexCount, 
-            RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+        VertexBufferPtr loadVertexBuffer(size_t vertexSize, size_t vertexCount, 
+            const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
 
-        IndexBufferPtr loadIndexBuffer(const Buffer &buffer, IndexBuffer::IndexType indexType, size_t indexCount,
-            RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+        IndexBufferPtr loadIndexBuffer(IndexType indexType, size_t indexCount,
+            const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
 
-        PixelBufferPtr loadPixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps,
-            RenderBuffer::MemoryType memType, RenderBuffer::Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+        PixelBuffer1DPtr loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        
+        PixelBuffer2DPtr loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        
+        PixelBuffer3DPtr loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
         
         TResult GC() override;
         
@@ -150,7 +153,7 @@ namespace Tiny3D
         BufferCache mCBufferCache {};
     };
 
-    #define T3D_RENDER_BUFFER_mgr   (RenderBufferManager::getInstance())
+    #define T3D_RENDER_BUFFER_MGR   (RenderBufferManager::getInstance())
 
 
     class T3D_ENGINE_API RenderTargetManager

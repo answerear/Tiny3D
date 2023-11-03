@@ -38,7 +38,7 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static ShaderSamplerParamPtr create(const String &name, Texture::TEXTURE_TYPE texType);
+        static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType);
 
         /**
          * \brief Destructor
@@ -54,7 +54,7 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="getter")
-        Texture::TEXTURE_TYPE getTextureType() const
+        TEXTURE_TYPE getTextureType() const
         {
             return mTexType;
         }
@@ -81,7 +81,7 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="setter")
-        void setTextureType(Texture::TEXTURE_TYPE texType)
+        void setTextureType(TEXTURE_TYPE texType)
         {
             mTexType = texType;
         }
@@ -92,9 +92,9 @@ namespace Tiny3D
          * \param [in] name : 
          * \param [in] texType : 
          */
-        ShaderSamplerParam(const String &name, Texture::TEXTURE_TYPE texType);
+        ShaderSamplerParam(const String &name, TEXTURE_TYPE texType);
         
-        Texture::TEXTURE_TYPE   mTexType {Texture::TT_1D};
+        TEXTURE_TYPE   mTexType {TEXTURE_TYPE::TT_1D};
         String                  mName {};
         TextureState            mTexture {};
     };

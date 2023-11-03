@@ -968,7 +968,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setViewport(ViewportPtr viewport)
+    TResult D3D11Context::setViewport(const Viewport &viewport)
     {
         return T3D_OK;
     }
@@ -1126,18 +1126,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBufferPtr D3D11Context::createPixelBuffer(PixelBufferPtr buffer)
+    RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer(PixelBuffer1DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setPixelBuffer(PixelBuffer1DPtr buffer)
     {
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+    
+    RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer(PixelBuffer2DPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setPixelBuffer(PixelBuffer2DPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    RHIPixelBuffer3DPtr D3D11Context::createPixelBuffer(PixelBuffer3DPtr buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setPixelBuffer(PixelBuffer3DPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
     
     RHIShaderPtr D3D11Context::createVertexShader(ShaderVariantPtr shader)

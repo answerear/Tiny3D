@@ -23,6 +23,7 @@
 
 
 #include "RHI/T3DRHISamplerState.h"
+#include "Kernel/T3DConstant.h"
 #include "Resource/T3DTexture.h"
 
 

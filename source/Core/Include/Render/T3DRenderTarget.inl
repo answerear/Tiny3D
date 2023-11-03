@@ -21,46 +21,10 @@
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-    
-    inline const String &RenderTarget::getName() const
-    {
-        return mName;
-    }
 
-    //--------------------------------------------------------------------------
-    
-    inline size_t RenderTarget::getPitch() const
+    inline RenderTarget::Type RenderTarget::getType() const
     {
-        return mPitch;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    inline const ViewportList &RenderTarget::getViewports() const
-    {
-        return mViewports;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    inline ViewportPtr RenderTarget::getViewport(long_t zOrder) const
-    {
-        ViewportPtr vp;
-        auto itr = mViewports.find(zOrder);
-        
-        if (itr != mViewports.end())
-        {
-            vp = itr->second;
-        }
-        
-        return vp;
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline RHIRenderTargetPtr RenderTarget::getRHIRenderTarget() const
-    {
-        return mRHIRenderTarget;
+        return mRenderTexture != nullptr ? Type::E_RT_TEXTURE: Type::E_RT_WINDOW;
     }
 
     //--------------------------------------------------------------------------

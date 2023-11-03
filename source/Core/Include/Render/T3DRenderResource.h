@@ -55,7 +55,10 @@ namespace Tiny3D
             /// 索引缓冲
             kIndexBuffer,
             /// 像素缓冲
-            kPixelBuffer,
+            kPixelBuffer1D,
+            kPixelBuffer2D,
+            kPixelBuffer3D,
+            kPixelBufferCubemap,
             /// 常量缓冲
             kConstantBuffer,
             /// 顶点声明

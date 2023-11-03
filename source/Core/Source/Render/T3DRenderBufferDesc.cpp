@@ -18,27 +18,13 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_RENDER_TEXTURE_H__
-#define __T3D_RENDER_TEXTURE_H__
-
-
-#include "Resource/T3DTexture.h"
+#include "Render/T3DRenderBufferDesc.h"
 
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API RenderTexture : public Texture2D
-    {
-    public:
-        
-    protected:
-        RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality);
-
-        ~RenderTexture() override;
-    };
+    //--------------------------------------------------------------------------
+    
+    //--------------------------------------------------------------------------
 }
 
-
-
-
-#endif  /*__T3D_RENDER_TEXTURE_H__*/

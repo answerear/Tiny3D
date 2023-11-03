@@ -30,8 +30,6 @@
 
 namespace Tiny3D
 {
-    using ViewportList = TMap<long_t, ViewportPtr>;
-    
     /**
      * /brief 渲染目标
      */
@@ -43,52 +41,30 @@ namespace Tiny3D
          */
         enum class Type : uint32_t
         {
-            /**< 渲染到窗口 */
+            /// 渲染到窗口
             E_RT_WINDOW = 0,
-            /**< 渲染到纹理 */
+            /// 渲染到纹理
             E_RT_TEXTURE,
             E_RT_MAX
         };
+
+        static RenderTargetPtr create(RenderWindowPtr renderWindow);
+
+        static RenderTargetPtr create(RenderTexturePtr renderTexture);
         
-        const String &getName() const;
-
-        virtual Type getType() const = 0;
-        
-        virtual void getMetrics(int32_t &width, int32_t &height, int32_t &clrDepth) const = 0;
-
-        virtual int32_t getWidth() const = 0;
-
-        virtual int32_t getHeight() const = 0;
-
-        virtual int32_t getColorDepth() const = 0;
-
-        size_t getPitch() const;
-
-        ViewportPtr addViewport(long_t zOrder, Real left, Real top, Real width, Real height);
-        
-        TResult removeViewport(long_t zOrder);
-        
-        TResult removeAllViewports();
-        
-        const ViewportList &getViewports() const;
-        
-        ViewportPtr getViewport(long_t zOrder) const;
-
-        RHIRenderTargetPtr getRHIRenderTarget() const;
+        Type getType() const;
 
     protected:
-        RenderTarget(const String &name);
+        RenderTarget(RenderWindowPtr renderWindow);
+
+        RenderTarget(RenderTexturePtr renderTexture);
 
         ~RenderTarget() override;
-        
-        /**< 渲染目标行间距 */
-        size_t mPitch {0};
-        /**< 渲染目标名称 */
-        String mName {};
-        /**< 视口列表 */
-        ViewportList mViewports {};
 
-        RHIRenderTargetPtr  mRHIRenderTarget {nullptr};
+        /// 渲染窗口，渲染窗口和渲染纹理只能二选一
+        RenderWindowPtr     mRenderWindow {nullptr};
+        /// 渲染纹理，渲染纹理和渲染窗口只能二选一
+        RenderTexturePtr    mRenderTexture {nullptr};
     };
 }
 

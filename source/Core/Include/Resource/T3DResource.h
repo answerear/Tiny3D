@@ -138,6 +138,12 @@ namespace Tiny3D
         virtual void cloneProperties(const Resource * const src);
 
         /**
+         * \brief 创建回调
+         * \return 返回 T3D_OK 以示成功，否则加载会创建
+         */
+        virtual TResult onCreate();
+
+        /**
          * \brief 加载回调
          * \return 返回 T3D_OK 以示成功，否则加载会失败
          */

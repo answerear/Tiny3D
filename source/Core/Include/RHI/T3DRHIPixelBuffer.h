@@ -27,17 +27,40 @@
 
 namespace Tiny3D
 {
-    /**
-     * @brief   像素缓冲区
-     * @sa  class HardwareBuffer
-     */
-    class T3D_ENGINE_API RHIPixelBuffer : public RHIResource
+    class T3D_ENGINE_API RHIPixelBuffer1D : public RHIResource
     {
     public:
-        ResourceType getResourceType() const override { return ResourceType::kPixelBuffer; }
+        ResourceType getResourceType() const override { return ResourceType::kPixelBuffer1D; }
         
     protected:
-        RHIPixelBuffer();
+        RHIPixelBuffer1D();
+    };
+
+    class T3D_ENGINE_API RHIPixelBuffer2D : public RHIResource
+    {
+    public:
+        ResourceType getResourceType() const override { return ResourceType::kPixelBuffer2D; }
+        
+    protected:
+        RHIPixelBuffer2D();
+    };
+
+    class T3D_ENGINE_API RHIPixelBuffer3D : public RHIResource
+    {
+    public:
+        ResourceType getResourceType() const override { return ResourceType::kPixelBuffer3D; }
+        
+    protected:
+        RHIPixelBuffer3D();
+    };
+
+    class T3D_ENGINE_API RHIPixelBufferCubemap : public RHIResource
+    {
+    public:
+        ResourceType getResourceType() const override { return ResourceType::kPixelBufferCubemap; }
+        
+    protected:
+        RHIPixelBufferCubemap();
     };
 }
 

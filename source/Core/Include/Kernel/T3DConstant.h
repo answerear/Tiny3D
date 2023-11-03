@@ -45,6 +45,19 @@ namespace Tiny3D
         E_PF_X8R8G8B8,
         E_PF_B8G8R8X8,
     };
+
+    TENUM()
+    enum class TEXTURE_TYPE : uint32_t
+    {
+        TT_1D = 0,
+        TT_2D,
+        TT_2D_ARRAY,
+        TT_3D,
+        TT_CUBE,
+        TT_CUBE_ARRAY,
+        TT_RENDER_TEXTURE,
+        TT_MAX
+    };
 }
 
 

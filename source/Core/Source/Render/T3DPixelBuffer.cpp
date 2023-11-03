@@ -26,44 +26,113 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    PixelBufferPtr PixelBuffer::create(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode)
+    PixelBuffer1DPtr PixelBuffer1D::create(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new PixelBuffer(buffer, width, height, format, mipmaps, memType, usage, accMode);
+        return new PixelBuffer1D(desc, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer::PixelBuffer(const Buffer &buffer, size_t width, size_t height, PixelFormat format, size_t mipmaps, MemoryType memType, Usage usage, uint32_t accMode)
-        : RenderBuffer(buffer, memType, usage, accMode)
-        , mWidth(width)
-        , mHeight(height)
-        , mMipmaps(mipmaps)
-        , mFormat(format)
+    PixelBuffer1D::PixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(desc->buffer, memType, usage, accMode)
     {
-        size_t bpp = Image::getBPP(mFormat);
-        mPitch = Image::calcPitch(mWidth, bpp);
+        
     }
 
     //--------------------------------------------------------------------------
 
-    RenderResource::Type PixelBuffer::getType() const
+    RenderResource::Type PixelBuffer1D::getType() const
     {
-        return Type::kPixelBuffer;
+        return Type::kPixelBuffer1D;
     }
 
     //--------------------------------------------------------------------------
 
-    bool PixelBuffer::onLoad()
+    bool PixelBuffer1D::onLoad()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool PixelBuffer::onUnload()
+    bool PixelBuffer1D::onUnload()
+    {
+        return true;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    PixelBuffer2DPtr PixelBuffer2D::create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+    {
+        return new PixelBuffer2D(desc, memType, usage, accMode);
+    }
+
+    //--------------------------------------------------------------------------
+
+    PixelBuffer2D::PixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(desc->buffer, memType, usage, accMode)
+        , mDesc(desc)
+    {
+        // size_t bpp = Image::getBPP(mFormat);
+        // mPitch = Image::calcPitch(mWidth, bpp);
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type PixelBuffer2D::getType() const
+    {
+        return Type::kPixelBuffer2D;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBuffer2D::onLoad()
     {
         return true;
     }
 
+    //--------------------------------------------------------------------------
+
+    bool PixelBuffer2D::onUnload()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    PixelBuffer3DPtr PixelBuffer3D::create(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+    {
+        return new PixelBuffer3D(desc, memType, usage, accMode);
+    }
+
+    //--------------------------------------------------------------------------
+
+    PixelBuffer3D::PixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(desc->buffer, memType, usage, accMode)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type PixelBuffer3D::getType() const
+    {
+        return Type::kPixelBuffer3D;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBuffer3D::onLoad()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBuffer3D::onUnload()
+    {
+        return true;
+    }
+    
     //--------------------------------------------------------------------------
 }

@@ -149,7 +149,7 @@ namespace Tiny3D
          * \param [in] viewport : 视口 
          * \return 
          */
-        virtual TResult setViewport(ViewportPtr viewport) = 0;
+        virtual TResult setViewport(const Viewport &viewport) = 0;
         
         /**
          * \brief 用指定颜色填充渲染目标的 framebuffer
@@ -269,14 +269,42 @@ namespace Tiny3D
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIPixelBufferPtr createPixelBuffer(PixelBufferPtr buffer) = 0;
+        virtual RHIPixelBuffer1DPtr createPixelBuffer(PixelBuffer1DPtr buffer) = 0;
 
         /**
          * \brief 设置渲染用的像素缓冲区对象
          * \param [in] buffer : 引擎的像素缓冲区对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPixelBuffer(PixelBufferPtr buffer) = 0;
+        virtual TResult setPixelBuffer(PixelBuffer1DPtr buffer) = 0;
+
+        /**
+         * \brief 创建 RHI 像素缓冲区对象
+         * \param [in] buffer : 引擎像素缓冲区对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIPixelBuffer2DPtr createPixelBuffer(PixelBuffer2DPtr buffer) = 0;
+
+        /**
+         * \brief 设置渲染用的像素缓冲区对象
+         * \param [in] buffer : 引擎的像素缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setPixelBuffer(PixelBuffer2DPtr buffer) = 0;
+
+        /**
+         * \brief 创建 RHI 像素缓冲区对象
+         * \param [in] buffer : 引擎像素缓冲区对象
+         * \return 调用成功返回 RHI 对象
+         */
+        virtual RHIPixelBuffer3DPtr createPixelBuffer(PixelBuffer3DPtr buffer) = 0;
+
+        /**
+         * \brief 设置渲染用的像素缓冲区对象
+         * \param [in] buffer : 引擎的像素缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setPixelBuffer(PixelBuffer3DPtr buffer) = 0; 
 
         /**
          * \brief 创建 RHI 顶点着色器对象

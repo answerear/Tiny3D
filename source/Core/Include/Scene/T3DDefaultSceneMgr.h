@@ -73,7 +73,7 @@ namespace Tiny3D
          * @return  A TResult.
          * @sa  TResult SceneManagerBase::render(ViewportPtr viewport)
          */
-        TResult render(ViewportPtr viewport) override;
+        // TResult render(ViewportPtr viewport) override;
 
         /**
          * @fn  virtual SceneNodePtr getRoot() const override;

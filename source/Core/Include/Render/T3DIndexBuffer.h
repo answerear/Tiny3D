@@ -23,6 +23,7 @@
 
 
 #include "Render/T3DRenderBuffer.h"
+#include "Render/T3DRenderConstant.h"
 
 
 namespace Tiny3D
@@ -30,21 +31,15 @@ namespace Tiny3D
     class T3D_ENGINE_API IndexBuffer : public RenderBuffer
     {
     public:
-        enum class IndexType : uint32_t
-        {
-            E_IT_16BITS = 0,    /**< 16位索引 */
-            E_IT_32BITS,        /**< 32位索引 */
-        };
-        
-        static IndexBufferPtr create(const Buffer &buffer, IndexType idxType, size_t idxCount, MemoryType memType, Usage usage, uint32_t accMode);
-        
-        ~IndexBuffer() override = default;
+        static IndexBufferPtr create(IndexType idxType, size_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
         
     protected:
-        IndexBuffer(const Buffer &buffer, IndexType idxType, size_t idxCount, MemoryType memType, Usage usage, uint32_t accMode);
+        IndexBuffer(IndexType idxType, size_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
+        ~IndexBuffer() override = default;
+        
         bool onLoad() override;
 
         bool onUnload() override;

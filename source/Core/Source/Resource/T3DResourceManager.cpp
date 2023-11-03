@@ -149,10 +149,38 @@ namespace Tiny3D
 
     ResourcePtr ResourceManager::createResource(const String &name, int32_t argc, ...)
     {
-        va_list args;
-        va_start(args, argc);
-        ResourcePtr res = newResource(name, argc, args);
-        va_end(args);
+        ResourcePtr res = nullptr;
+
+        do
+        {
+            // 查找是否有缓存，如果有，则报错
+            res = lookup(name);
+            if (res != nullptr)
+            {
+                // 已经存在了该资源
+                break;
+            }
+            
+            va_list args;
+            va_start(args, argc);
+            res = newResource(name, argc, args);
+            va_end(args);
+            if (res == nullptr)
+            {
+                break;
+            }
+
+            // 放到缓存中
+            if (!insertCache(res))
+            {
+                // 失败了，先卸载资源
+                res = nullptr;
+                break;
+            }
+
+            res->onCreate();
+        } while (false);
+        
         return res;
     }
 

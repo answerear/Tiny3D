@@ -19,71 +19,48 @@
 
 
 #include "Render/T3DRenderTarget.h"
-#include "Render/T3DViewport.h"
+#include "Render/T3DRenderTexture.h"
+#include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderTarget.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
+
+    RenderTargetPtr RenderTarget::create(RenderWindowPtr renderWindow)
+    {
+        return new RenderTarget(renderWindow);
+    }
     
-    RenderTarget::RenderTarget(const String &name)
-        : mName(name)
+    //--------------------------------------------------------------------------
+
+    RenderTargetPtr RenderTarget::create(RenderTexturePtr renderTexture)
+    {
+        return new RenderTarget(renderTexture);
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    RenderTarget::RenderTarget(RenderWindowPtr renderWindow)
+        : mRenderWindow(renderWindow)
     {
 
     }
+    
+    //--------------------------------------------------------------------------
+
+    RenderTarget::RenderTarget(RenderTexturePtr renderTexture)
+        : mRenderTexture(renderTexture)
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
 
     RenderTarget::~RenderTarget()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-
-    ViewportPtr RenderTarget::addViewport(long_t zOrder, Real left, Real top, Real width, Real height)
-    {
-        ViewportPtr vp;
-    
-        const auto itr = mViewports.find(zOrder);
-    
-        if (itr == mViewports.end())
-        {
-            vp = Viewport::create(this, left, top, width, height, zOrder);
-            mViewports.emplace(zOrder, vp);
-        }
-    
-        return vp;
-    }
-    
-    //--------------------------------------------------------------------------
-    
-    TResult RenderTarget::removeViewport(long_t nZOrder)
-    {
-        TResult ret = T3D_OK;
-    
-        do 
-        {
-            auto itr = mViewports.find(nZOrder);
-    
-            if (itr == mViewports.end())
-            {
-                ret = T3D_ERR_NOT_FOUND;
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "RenderTarget remove viewport but not found !!!");
-                break;
-            }
-    
-            mViewports.erase(itr);
-        } while (false);
-    
-        return ret;
-    }
-    
-    //--------------------------------------------------------------------------
-    
-    TResult RenderTarget::removeAllViewports()
-    {
-        mViewports.clear();
-        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

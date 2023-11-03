@@ -119,37 +119,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult DefaultSceneMgr::render(ViewportPtr viewport)
-    {
-        TResult ret = T3D_OK;
-
-        // RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
-        //
-        // // 设置当前视口
-        // if (renderer->getViewport() != viewport)
-        // {
-        //     renderer->setViewport(viewport);
-        // }
-        //
-        // // 清空渲染队列
-        // mRenderQueue->clear();
-        //
-        // CameraPtr camera = viewport->getCamera();
-        //
-        // // 做视锥体裁剪
-        // frustumCulling(camera);
-        //
-        // // 直接对渲染队列的对象渲染
-        // Point pos(viewport->getActualLeft(), viewport->getActualTop());
-        // Size size(viewport->getActualWidth(), viewport->getActualHeight());
-        // Rect rect(pos, size);
-        //
-        // renderer->clear(viewport->getBkgndColor(), viewport->getClearFlags(),
-        //     viewport->getClearZ(), 0);
-        // mRenderQueue->render(renderer);
-
-        return ret;
-    }
+    // TResult DefaultSceneMgr::render(ViewportPtr viewport)
+    // {
+    //     TResult ret = T3D_OK;
+    //
+    //     // RenderContextPtr renderer = T3D_AGENT.getActiveRenderer();
+    //     //
+    //     // // 设置当前视口
+    //     // if (renderer->getViewport() != viewport)
+    //     // {
+    //     //     renderer->setViewport(viewport);
+    //     // }
+    //     //
+    //     // // 清空渲染队列
+    //     // mRenderQueue->clear();
+    //     //
+    //     // CameraPtr camera = viewport->getCamera();
+    //     //
+    //     // // 做视锥体裁剪
+    //     // frustumCulling(camera);
+    //     //
+    //     // // 直接对渲染队列的对象渲染
+    //     // Point pos(viewport->getActualLeft(), viewport->getActualTop());
+    //     // Size size(viewport->getActualWidth(), viewport->getActualHeight());
+    //     // Rect rect(pos, size);
+    //     //
+    //     // renderer->clear(viewport->getBkgndColor(), viewport->getClearFlags(),
+    //     //     viewport->getClearZ(), 0);
+    //     // mRenderQueue->render(renderer);
+    //
+    //     return ret;
+    // }
 
     //--------------------------------------------------------------------------
 

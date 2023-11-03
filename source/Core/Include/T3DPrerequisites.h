@@ -91,6 +91,13 @@ namespace Tiny3D
     class Material;
     class MaterialManager;
     class Texture;
+    class Texture1D;
+    class Texture1DArray;
+    class Texture2D;
+    class Texture2DArray;
+    class Texture3D;
+    class Cubemap;
+    class CubemapArray;
     class TextureManager;
     class Prefab;
     class PrefabManager;
@@ -129,7 +136,10 @@ namespace Tiny3D
     class RenderBuffer;
     class VertexBuffer;
     class IndexBuffer;
-    class PixelBuffer;
+    class PixelBuffer1D;
+    class PixelBuffer2D;
+    class PixelBuffer3D;
+    class PixelBufferCubemap;
     class ConstantBuffer;
 
     class RenderStateManager;
@@ -140,7 +150,8 @@ namespace Tiny3D
     class RenderTexture;
     class RenderWindow;
     class NullRenderWindow;
-    class Viewport;
+    
+    struct Viewport;
     
     class RHIRenderer;
     class RHIContext;
@@ -152,7 +163,9 @@ namespace Tiny3D
     class RHIBuffer;
     class RHIVertexBuffer;
     class RHIIndexBuffer;
-    class RHIPixelBuffer;
+    class RHIPixelBuffer1D;
+    class RHIPixelBuffer2D;
+    class RHIPixelBuffer3D;
     class RHIConstantBuffer;
     class RHIVertexDeclaration;
     class RHIRenderTarget;

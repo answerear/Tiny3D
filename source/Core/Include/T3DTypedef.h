@@ -47,6 +47,13 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Material);
     T3D_DECLARE_SMART_PTR(MaterialManager);
     T3D_DECLARE_SMART_PTR(Texture);
+    T3D_DECLARE_SMART_PTR(Texture1D);
+    T3D_DECLARE_SMART_PTR(Texture1DArray);
+    T3D_DECLARE_SMART_PTR(Texture2D);
+    T3D_DECLARE_SMART_PTR(Texture2DArray);
+    T3D_DECLARE_SMART_PTR(Texture3D);
+    T3D_DECLARE_SMART_PTR(Cubemap);
+    T3D_DECLARE_SMART_PTR(CubemapArray);
     T3D_DECLARE_SMART_PTR(TextureManager);
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
@@ -83,7 +90,10 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderBuffer);
     T3D_DECLARE_SMART_PTR(VertexBuffer);
     T3D_DECLARE_SMART_PTR(IndexBuffer);
-    T3D_DECLARE_SMART_PTR(PixelBuffer);
+    T3D_DECLARE_SMART_PTR(PixelBuffer1D);
+    T3D_DECLARE_SMART_PTR(PixelBuffer2D);
+    T3D_DECLARE_SMART_PTR(PixelBuffer3D);
+    T3D_DECLARE_SMART_PTR(PixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(ConstantBuffer);
     
     T3D_DECLARE_SMART_PTR(RenderStateManager);
@@ -95,7 +105,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderWindow);
     T3D_DECLARE_SMART_PTR(NullRenderWindow);
 
-    T3D_DECLARE_SMART_PTR(Viewport);
+    // T3D_DECLARE_SMART_PTR(Viewport);
     
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
@@ -115,7 +125,9 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIBuffer);
     T3D_DECLARE_SMART_PTR(RHIVertexBuffer);
     T3D_DECLARE_SMART_PTR(RHIIndexBuffer);
-    T3D_DECLARE_SMART_PTR(RHIPixelBuffer);
+    T3D_DECLARE_SMART_PTR(RHIPixelBuffer1D);
+    T3D_DECLARE_SMART_PTR(RHIPixelBuffer2D);
+    T3D_DECLARE_SMART_PTR(RHIPixelBuffer3D);
     T3D_DECLARE_SMART_PTR(RHIConstantBuffer);
     T3D_DECLARE_SMART_PTR(RHIVertexDeclaration);
     T3D_DECLARE_SMART_PTR(RHIRenderTarget);
