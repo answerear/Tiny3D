@@ -35,12 +35,12 @@ namespace Tiny3D
     public:
         static Transform3DPtr create();
 
+        ~Transform3D() override = default;
+
         ComponentPtr clone() const override;
         
     protected:
         Transform3D() = default;
-
-        ~Transform3D() override = default;
     };
 }
 
