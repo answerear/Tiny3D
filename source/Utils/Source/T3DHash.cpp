@@ -22,14 +22,14 @@
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-
-    uint32_t Hash::hash(const char *str)
+    
+    uint32_t Hash::hash(const String &str)
     {
         uint32_t value = 5381;
 
-        while (*str)
+        for (size_t i = 0; i < str.length(); i++)
         {
-            value += (value << 5) + (*str++);
+            value += (value << 5) + (str[i]);
         }
 
         return (value & 0x7FFFFFFF);

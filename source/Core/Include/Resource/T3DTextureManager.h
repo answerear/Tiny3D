@@ -47,7 +47,17 @@ namespace Tiny3D
 
         CubemapArrayPtr createCubemapArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps = 0, uint32_t MSAACount = 0, uint32_t MSAAQuality = 0);
 
-        TexturePtr loadTexture(Archive *archive, const String &name);
+        Texture1DPtr loadTexture1D(Archive *archive, const String &name);
+        
+        Texture2DPtr loadTexture2D(Archive *archive, const String &name);
+
+        Texture2DArrayPtr loadTexture2DArray(Archive *archive, const String &name);
+
+        Texture3DPtr loadTexture3D(Archive *archive, const String &name);
+
+        CubemapPtr loadCubemap(Archive *archive, const String &name);
+
+        CubemapArrayPtr loadCubemapArray(Archive *archive, const String &name);
 
         TResult saveTexture(Archive *archive, Texture *texture);
 

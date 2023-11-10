@@ -21,7 +21,7 @@
 #define __T3D_TRANSFORM3D_H__
 
 
-#include "Component/T3DComponent.h"
+#include "Component/T3DTransformNode.h"
 
 
 namespace Tiny3D

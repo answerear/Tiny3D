@@ -19,7 +19,7 @@
 
 
 #include "Component/T3DComponent.h"
-#include "Scene/T3DSceneNode.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D
@@ -48,28 +48,9 @@ namespace Tiny3D
 
     TResult Component::cloneProperties(const Component * const src)
     {
-        mSceneNode = src->mSceneNode;
+        // mSceneNode = src->mSceneNode;
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
-
-    void Component::onAttachSceneNode(SceneNode *node)
-    {
-        mSceneNode = node;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Component::onDetachSceneNode(SceneNode *node)
-    {
-        mSceneNode = nullptr;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Component::update()
-    {
-
-    }
 }

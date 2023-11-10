@@ -29,7 +29,7 @@ namespace Tiny3D
     class T3D_UTILS_API Hash
     {
     public:
-        static uint32_t hash(const char *str);
+        static uint32_t hash(const String &str);
     };
 }
 

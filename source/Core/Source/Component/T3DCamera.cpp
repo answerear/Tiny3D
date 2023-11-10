@@ -19,6 +19,7 @@
 
 
 #include "Component/T3DCamera.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D

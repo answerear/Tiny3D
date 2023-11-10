@@ -31,8 +31,6 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API Component : public Object, public Noncopyable
     {
-        friend class SceneNode;
-
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND
      
@@ -42,7 +40,9 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter", "Description"="UUID value")
         const UUID &getUUID() const { return mUUID; }
 
-        SceneNode *getSceneNode() const { return mSceneNode; }
+        GameObjectPtr getGameObject() const { return mGameObject; }
+
+        void setGameObject(GameObject *gameObject) { mGameObject = gameObject; }
 
     protected:
         Component(const UUID &uuid = UUID::INVALID);
@@ -54,17 +54,11 @@ namespace Tiny3D
 
         virtual TResult cloneProperties(const Component * const src);
 
-        virtual void onAttachSceneNode(SceneNode *node);
-
-        virtual void onDetachSceneNode(SceneNode *node);
-
-        virtual void update();
-
     protected:
-        /**< The identifier */
-        UUID        mUUID {};
-        /**< The scene node */
-        SceneNode   *mSceneNode {nullptr};
+        /// 唯一 ID
+        UUID    mUUID {};
+        /// 绑定的 game object
+        GameObjectPtr   mGameObject {nullptr};
     };
 }
 

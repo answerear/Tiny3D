@@ -33,6 +33,7 @@
 #include <Kernel/T3DArchiveManager.h>
 #include <Kernel/T3DPlugin.h>
 #include <Kernel/T3DSettings.h>
+#include <Kernel/T3DGameObject.h>
 
 // Resource
 #include <Resource/T3DResource.h>
@@ -59,6 +60,7 @@
 // Component
 #include <Component/T3DComponent.h>
 #include <Component/T3DCamera.h>
+#include <Component/T3DTransformNode.h>
 #include <Component/T3DTransform3D.h>
 #include <Component/T3DRenderable.h>
 

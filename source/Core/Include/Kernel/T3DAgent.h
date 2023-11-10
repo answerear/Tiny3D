@@ -157,6 +157,8 @@ namespace Tiny3D
         typedef Dylibs::const_iterator      DylibsConstItr;
         typedef Dylibs::value_type          DylibsValue;
 
+        using RenderWindows = TMap<String, RenderWindowPtr>;
+
         /// 异步赋值对象管理器
         AssignableObjectManagerPtr  mAssignableObjMgr;
 
@@ -186,7 +188,10 @@ namespace Tiny3D
         Plugins                 mPlugins;           /**< 安装的插件列表 */
         Dylibs                  mDylibs;            /**< 加载的动态库列表 */
         RHIRenderers            mRenderers;         /**< 渲染器列表 */
-     
+
+        /// 所有的渲染窗口
+        RenderWindows           mRenderWindows {};
+        
         String                  mAppPath;           /**< 程序路径 */
         String                  mAppName;           /**< 程序名称 */
         String                  mPluginsPath = ".";

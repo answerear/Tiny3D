@@ -22,7 +22,8 @@
 
 
 #include "Component/T3DComponent.h"
-#include "Render/T3DRenderWindow.h"
+#include "Render/T3DRenderTarget.h"
+#include "Render/T3DRenderTexture.h"
 
 
 namespace Tiny3D
@@ -36,17 +37,22 @@ namespace Tiny3D
     public:
         static CameraPtr create();
 
-        ComponentPtr clone() const override;
+        ~Camera() override = default;
         
-        RenderWindowPtr getRenderWindow() const { return mRenderWindow; }
+        ComponentPtr clone() const override;
+
+        RenderTargetPtr getRenderTarget() const { return mRenderarget; }
+
+        void setRenderTarget(RenderTargetPtr target) { mRenderarget = target; }
         
     protected:
         Camera() = default;
 
-        ~Camera() override = default;
+        /// 相机对应的渲染纹理，如果渲染目标是渲染纹理，则直接渲染到渲染目标上，不经过纹理
+        RenderTexturePtr    mRenderTexture {nullptr};
 
-        /// 相机所属的渲染窗口
-        RenderWindowPtr mRenderWindow {nullptr};
+        /// 相机对应的渲染目标
+        RenderTargetPtr     mRenderarget {nullptr};
     };
 }
 

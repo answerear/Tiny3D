@@ -20,6 +20,7 @@
 
 #include "Component/T3DTransform3D.h"
 #include "T3DTypedef.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D

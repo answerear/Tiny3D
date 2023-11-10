@@ -20,47 +20,32 @@
 
 namespace Tiny3D
 {
-    inline uint32_t Node::getNodeID() const
-    {
-        return mID;
-    }
-
-    inline void Node::setName(const String &name)
-    {
-        mName = name;
-    }
-
-    inline const String &Node::getName() const
-    {
-        return mName;
-    }
-
-    inline NodePtr Node::getFirstChild() const
+    inline TransformNodePtr TransformNode::getFirstChild() const
     {
         return mFirstChild;
     }
 
-    inline NodePtr Node::getLastChild() const
+    inline TransformNodePtr TransformNode::getLastChild() const
     {
         return mLastChild;
     }
 
-    inline NodePtr Node::getPrevSibling() const
+    inline TransformNodePtr TransformNode::getPrevSibling() const
     {
         return mPrevSibling;
     }
 
-    inline NodePtr Node::getNextSibling() const
+    inline TransformNodePtr TransformNode::getNextSibling() const
     {
         return mNextSibling;
     }
 
-    inline size_t Node::getChildrenCount() const
+    inline size_t TransformNode::getChildrenCount() const
     {
         return mChildrenCount;
     }
 
-    inline NodePtr Node::getParent() const
+    inline TransformNodePtr TransformNode::getParent() const
     {
         return mParent;
     }

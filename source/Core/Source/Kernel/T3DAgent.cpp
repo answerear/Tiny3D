@@ -69,6 +69,7 @@ namespace Tiny3D
         mRHIRunnable = nullptr;
 
         // mRenderPipeline->detachAllRenderTargets();
+        mRenderWindows.clear();
         
         mInternalArchive = nullptr;
         mProjectArchive = nullptr;
@@ -484,7 +485,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
                 break;
             }
-        
+
+            mRenderWindows.emplace(window->getName(), window);
             // ret = mActiveRHIRenderer->getContext()->attachRenderTarget(window);
         } while (0);
         
@@ -505,7 +507,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
                 break;
             }
-        
+
+            mRenderWindows.erase(name);
             // ret = mActiveRHIRenderer->getContext()->detachRenderTarget(name);
         } while (0);
 
@@ -581,6 +584,11 @@ namespace Tiny3D
         //     mActiveRenderer->renderAllTargets();
         // }
         // getActiveRHIContext()->renderAllTargets();
+
+        for (auto win : mRenderWindows)
+        {
+            win.second->swapBuffers();
+        }
     }
 
     //--------------------------------------------------------------------------

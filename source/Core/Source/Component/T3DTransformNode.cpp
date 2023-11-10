@@ -18,41 +18,27 @@
  ******************************************************************************/
 
 
-#include "Kernel/T3DNode.h"
+#include "Component/T3DTransformNode.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Node::Node(ID uID /* = E_NID_AUTOMATIC */)
-        : mID(E_NID_INVALID)
-        , mName()
-        , mChildrenCount(0)
-        , mParent(nullptr)
-        , mFirstChild(nullptr)
-        , mLastChild(nullptr)
-        , mPrevSibling(nullptr)
-        , mNextSibling(nullptr)
+    TransformNode::TransformNode(const UUID& uuid /* = UUID::INVALID */)
+        : Component(uuid)
     {
-        if (E_NID_AUTOMATIC == uID)
-        {
-            mID = makeGlobalID();
-        }
-        else
-        {
-            mID = uID;
-        }
     }
 
-    Node::~Node()
+    TransformNode::~TransformNode()
     {
-        removeAllChildren();
+        // removeAllChildren();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Node::addChild(NodePtr node)
+    TResult TransformNode::addChild(TransformNodePtr node)
     {
         T3D_ASSERT(node->getParent() == nullptr, "parent node is nullptr !");
         
@@ -78,7 +64,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeChild(NodePtr node)
+    TResult TransformNode::removeChild(TransformNodePtr node)
     {
         TResult ret = T3D_OK;
 
@@ -91,7 +77,7 @@ namespace Tiny3D
                 break;
             }
 
-            Node *child = mFirstChild;
+            TransformNode *child = mFirstChild;
 
             while (child != nullptr)
             {
@@ -118,31 +104,31 @@ namespace Tiny3D
                 mFirstChild = nullptr;
                 mLastChild = nullptr;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeChild(uint32_t nodeID)
+    TResult TransformNode::removeChild(const UUID &nodeID)
     {
         TResult ret = T3D_OK;
 
         do 
         {
-            if (nodeID == E_NID_INVALID)
+            if (nodeID == UUID::INVALID)
             {
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid node ID !");
                 ret = T3D_ERR_INVALID_ID;
                 break;
             }
 
-            Node *child = mFirstChild;
+            TransformNode *child = mFirstChild;
 
             while (child != nullptr)
             {
-                if (child->getNodeID() == nodeID)
+                if (child->getUUID() == nodeID)
                 {
                     // 找到要删除的，先断开链表前后关系
                     child->onDetachParent(this);
@@ -172,11 +158,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeAllChildren()
+    TResult TransformNode::removeAllChildren()
     {
         TResult ret = T3D_OK;
 
-        Node *child = mFirstChild;
+        TransformNode *child = mFirstChild;
 
         while (child != nullptr)
         {
@@ -198,7 +184,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Node::removeFromParent()
+    TResult TransformNode::removeFromParent()
     {
         TResult ret = T3D_OK;
 
@@ -212,14 +198,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr Node::getChild(ID nodeID) const
+    TransformNodePtr TransformNode::getChild(const UUID &nodeID) const
     {
-        Node *child = nullptr;
-        Node *temp = mFirstChild;
+        TransformNode *child = nullptr;
+        TransformNode *temp = mFirstChild;
 
         while (temp != nullptr)
         {
-            if (temp->getNodeID() == nodeID)
+            if (temp->getUUID() == nodeID)
             {
                 child = temp;
                 break;
@@ -233,14 +219,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    NodePtr Node::getChild(const String &name) const
+    TransformNodePtr TransformNode::getChild(const String &name) const
     {
-        Node *child = nullptr;
-        Node *temp = mFirstChild;
+        TransformNode *child = nullptr;
+        TransformNode *temp = mFirstChild;
 
         while (temp != nullptr)
         {
-            if (temp->getName() == name)
+            if (temp->getGameObject()->getName() == name)
             {
                 child = temp;
                 break;
@@ -250,18 +236,17 @@ namespace Tiny3D
         }
 
         return child;
-
-        return child;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Node::cloneProperties(NodePtr node) const
+    TResult TransformNode::cloneProperties(const Component * const src)
     {
         TResult ret = T3D_OK;
 
         do 
         {
+            const TransformNode * const node = static_cast<const TransformNode* const>(src);
             if (node == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid pointer !");
@@ -269,45 +254,36 @@ namespace Tiny3D
                 break;
             }
 
-            // 克隆结点名称
-            node->mName = mName;
-
             // 克隆子结点属性
-            Node *child = mFirstChild;
+            TransformNode *child = mFirstChild;
 
             while (child != nullptr)
             {
-                NodePtr newChild = child->clone();
+                TransformNodePtr newChild = smart_pointer_cast<TransformNode>(child->clone());
                 child->cloneProperties(newChild);
-                node->addChild(newChild);
+                addChild(newChild);
                 child = child->mNextSibling;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    void Node::onAttachParent(NodePtr parent)
+    void TransformNode::onAttachParent(TransformNodePtr parent)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    void Node::onDetachParent(NodePtr parent)
+    void TransformNode::onDetachParent(TransformNodePtr parent)
     {
 
     }
 
     //--------------------------------------------------------------------------
-
-    ID Node::makeGlobalID() const
-    {
-        static ID uID = 0;
-        return ++uID;
-    }
 }
 
 

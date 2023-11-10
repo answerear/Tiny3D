@@ -95,20 +95,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TexturePtr TextureManager::loadTexture(Archive *archive, const String &name)
-    {
-        return smart_pointer_cast<Texture>(load(archive, name, 0));
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult TextureManager::saveTexture(Archive *archive, Texture *texture)
-    {
-        return save(texture, archive);
-    }
-
-    //--------------------------------------------------------------------------
-
     ResourcePtr TextureManager::newResource(const String &name, int32_t argc, va_list args)
     {
         TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
@@ -211,11 +197,103 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr TextureManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    Texture1DPtr TextureManager::loadTexture1D(Archive *archive, const String &name)
     {
-        return T3D_SERIALIZER_MGR.deserialize<Texture>(stream);
+        return smart_pointer_cast<Texture1D>(load(archive, name, 1, TEXTURE_TYPE::TT_1D));
     }
 
+    //--------------------------------------------------------------------------
+
+    Texture2DPtr TextureManager::loadTexture2D(Archive *archive, const String &name)
+    {
+        return smart_pointer_cast<Texture2D>(load(archive, name, 1, TEXTURE_TYPE::TT_2D));
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture2DArrayPtr TextureManager::loadTexture2DArray(Archive *archive, const String &name)
+    {
+        return smart_pointer_cast<Texture2DArray>(load(archive, name, 1, TEXTURE_TYPE::TT_2D_ARRAY));
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture3DPtr TextureManager::loadTexture3D(Archive *archive, const String &name)
+    {
+        return smart_pointer_cast<Texture3D>(load(archive, name, 1, TEXTURE_TYPE::TT_3D));
+    }
+
+    //--------------------------------------------------------------------------
+
+    CubemapPtr TextureManager::loadCubemap(Archive *archive, const String &name)
+    {
+        return smart_pointer_cast<Cubemap>(load(archive, name, 1, TEXTURE_TYPE::TT_CUBE));
+    }
+
+    //--------------------------------------------------------------------------
+
+    CubemapArrayPtr TextureManager::loadCubemapArray(Archive *archive, const String &name)
+    {
+        return smart_pointer_cast<CubemapArray>(load(archive, name, 1, TEXTURE_TYPE::TT_CUBE_ARRAY));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr TextureManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    {
+        TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
+
+        TexturePtr texture;
+
+        switch (texType)
+        {
+        case TEXTURE_TYPE::TT_1D:
+            {
+                texture = T3D_SERIALIZER_MGR.deserialize<Texture1D>(stream);
+            }
+            break;
+        case TEXTURE_TYPE::TT_2D:
+            {
+                texture = T3D_SERIALIZER_MGR.deserialize<Texture2D>(stream);
+            }
+            break;
+        case TEXTURE_TYPE::TT_2D_ARRAY:
+            {
+                texture = T3D_SERIALIZER_MGR.deserialize<Texture2DArray>(stream);
+            }
+            break;
+        case TEXTURE_TYPE::TT_3D:
+            {
+                texture = T3D_SERIALIZER_MGR.deserialize<Texture3D>(stream);
+            }
+            break;
+        case TEXTURE_TYPE::TT_CUBE:
+            {
+                texture = T3D_SERIALIZER_MGR.deserialize<Cubemap>(stream);
+            }
+            break;
+        case TEXTURE_TYPE::TT_CUBE_ARRAY:
+            {
+                texture = T3D_SERIALIZER_MGR.deserialize<CubemapArray>(stream);
+            }
+            break;
+        case TEXTURE_TYPE::TT_RENDER_TEXTURE:
+            {
+                
+            }
+            break;
+        }
+        
+        return texture;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult TextureManager::saveTexture(Archive *archive, Texture *texture)
+    {
+        return save(texture, archive);
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult TextureManager::saveResource(DataStream &stream, Resource *res)

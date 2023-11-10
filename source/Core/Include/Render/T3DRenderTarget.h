@@ -51,6 +51,8 @@ namespace Tiny3D
         static RenderTargetPtr create(RenderWindowPtr renderWindow);
 
         static RenderTargetPtr create(RenderTexturePtr renderTexture);
+
+        ~RenderTarget() override;
         
         Type getType() const;
 
@@ -58,8 +60,6 @@ namespace Tiny3D
         RenderTarget(RenderWindowPtr renderWindow);
 
         RenderTarget(RenderTexturePtr renderTexture);
-
-        ~RenderTarget() override;
 
         /// 渲染窗口，渲染窗口和渲染纹理只能二选一
         RenderWindowPtr     mRenderWindow {nullptr};

@@ -70,7 +70,6 @@ namespace Tiny3D
     class Plugin;
     class Archive;
     class ArchiveManager;
-    class Node;
     
     struct Settings;
 
@@ -115,8 +114,11 @@ namespace Tiny3D
     class SceneManagerBase;
     class DefaultSceneMgr;
 
+    class GameObject;
+
     class Component;
     class Camera;
+    class TransformNode;
     class Transform3D;
     class Renderable;
 
