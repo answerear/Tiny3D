@@ -63,6 +63,8 @@ namespace Tiny3D
             kModel,
             /// 预制件
             kPrefab,
+            /// 场景
+            kScene,
         };
 
         TENUM()

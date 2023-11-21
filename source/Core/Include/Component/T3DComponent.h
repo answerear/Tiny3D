@@ -44,6 +44,8 @@ namespace Tiny3D
 
         void setGameObject(GameObject *gameObject) { mGameObject = gameObject; }
 
+        virtual void update();
+
     protected:
         Component(const UUID &uuid = UUID::INVALID);
 

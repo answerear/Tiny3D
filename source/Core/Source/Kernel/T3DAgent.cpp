@@ -39,6 +39,9 @@
 #include "RHI/T3DRHIThread.h"
 #include "RHI/T3DRHIRenderWindow.h"
 #include "Render/T3DForwardRenderPipeline.h"
+#include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DSceneManager.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -86,10 +89,24 @@ namespace Tiny3D
             mPrefabMgr = nullptr;
         }
 
+        mSceneMgr = nullptr;
+
+        if (mMaterialMgr != nullptr)
+        {
+            mMaterialMgr->unloadAllResources();
+            mMaterialMgr = nullptr;
+        }
+        
         if (mShaderMgr != nullptr)
         {
             mShaderMgr->unloadAllResources();
             mShaderMgr = nullptr;
+        }
+
+        if (mTextureMgr != nullptr)
+        {
+            mTextureMgr->unloadAllResources();
+            mTextureMgr = nullptr;
         }
 
         if (mArchiveMgr != nullptr)
@@ -555,7 +572,7 @@ namespace Tiny3D
             T3D_EVENT_MGR.dispatchEvent();
 
             // 更新场景树
-            // mSceneMgr->update();
+            mSceneMgr->getCurrentScene()->update();
 
             // 渲染一帧
             renderOneFrame();
@@ -577,13 +594,12 @@ namespace Tiny3D
     {
         if (mRenderPipeline != nullptr)
         {
+            // 剔除
+            mRenderPipeline->cull(mSceneMgr->getCurrentScene());
+            
+            // 渲染
             mRenderPipeline->render(mActiveRHIRenderer->getContext());
         }
-        // if (mActiveRenderer != nullptr)
-        // {
-        //     mActiveRenderer->renderAllTargets();
-        // }
-        // getActiveRHIContext()->renderAllTargets();
 
         for (auto win : mRenderWindows)
         {
@@ -872,6 +888,10 @@ namespace Tiny3D
         mDylibMgr = DylibManager::create();      
         mPrefabMgr = PrefabManager::create();
         mShaderMgr = ShaderManager::create();
+        mTextureMgr = TextureManager::create();
+        mMaterialMgr = MaterialManager::create();
+        mSceneMgr = SceneManager::create();
+        mSceneMgr->setSceneManagerImpl(BuiltinSceneManager::create());
         
         return T3D_OK;
     }

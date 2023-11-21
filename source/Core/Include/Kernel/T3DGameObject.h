@@ -33,9 +33,11 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static GameObjectPtr create();
+        static GameObjectPtr create(const String &name);
         
         ~GameObject() override = default;
+
+        virtual bool frustumCulling(Camera *camera) const;
 
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
         const UUID &getUUID() const { return mUUID; }
@@ -84,7 +86,7 @@ namespace Tiny3D
         SmartPtr<T> getComponent() const
         {
             RTTRType type = RTTRType::get<T>();
-            return getComponent(type);
+            return smart_pointer_cast<T>(getComponent(type));
         }
 
         TArray<ComponentPtr> getComponents(const String &name) const
@@ -101,10 +103,9 @@ namespace Tiny3D
         }
 
     protected:
-        GameObject() = default;
-
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
-        void setUUID(const UUID &uuid) { mUUID = uuid; }
+        GameObject() : GameObject("") {}
+        
+        GameObject(const String &name);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name) { mName = name; }
@@ -114,6 +115,10 @@ namespace Tiny3D
         ComponentPtr getComponent(const RTTRType &type) const;
 
         TArray<ComponentPtr> getComponents(const RTTRType &type) const;
+
+    private:
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
+        void setUUID(const UUID &uuid) { mUUID = uuid; }
 
     protected:
         /// 游戏对象 UUID

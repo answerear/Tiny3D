@@ -25,9 +25,25 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    GameObjectPtr GameObject::create()
+    GameObjectPtr GameObject::create(const String &name)
     {
-        return new GameObject();
+        return new GameObject(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObject::GameObject(const String &name)
+        : mName(name)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GameObject::frustumCulling(Camera *camera) const
+    {
+        // TODO: 暂时都不剔除
+        return false;
     }
 
     //--------------------------------------------------------------------------

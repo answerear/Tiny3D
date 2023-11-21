@@ -306,6 +306,8 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="getter")
         const ShaderSamplerParams &getSamplerParams() const { return mSamplers; }
+
+        ShaderPtr getShader() const { return mShader; }
         
     private:
         Material() : Material("") {}

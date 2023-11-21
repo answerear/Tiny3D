@@ -58,6 +58,10 @@ namespace Tiny3D
     bool Technique::addTag(const String &key, const String &value)
     {
         auto rval = mTags.emplace(key, value);
+        if (key == SHADER_TAG_QUEUE)
+        {
+            mRenderQueue = toRenderQueue(value);
+        }
         return rval.second;
     }
     
@@ -66,6 +70,10 @@ namespace Tiny3D
     void Technique::removeTag(const String &key)
     {
         mTags.erase(key);
+        if (key == SHADER_TAG_QUEUE)
+        {
+            mRenderQueue = -1;
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -82,6 +90,24 @@ namespace Tiny3D
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    bool Technique::setTag(const String &key, const String &value)
+    {
+        bool ret = false;
+        const auto itr = mTags.find(key);
+        if (itr != mTags.end())
+        {
+            itr->second = value;
+            ret = true;
+            if (key == SHADER_TAG_QUEUE)
+            {
+                mRenderQueue = toRenderQueue(value);
+            }
+        }
+        return ret;
+    }
+
     //--------------------------------------------------------------------------
 
     bool Technique::addPass(PassPtr pass)
@@ -135,6 +161,44 @@ namespace Tiny3D
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    uint32_t Technique::toRenderQueue(const String &tag)
+    {
+        uint32_t queue = -1;
+
+        if (tag == "Background")
+        {
+            queue = 1000;
+        }
+        else if (tag == "Geometry")
+        {
+            queue = 2000;
+        }
+        else if (tag == "GeometryLast")
+        {
+            queue = 2449;
+        }
+        else if (tag == "AlphaTest")
+        {
+            queue = 2450;
+        }
+        else if (tag == "Transparent")
+        {
+            queue = 3000;
+        }
+        else if (tag == "Overlay")
+        {
+            queue = 4000;
+        }
+        else
+        {
+            queue = std::stoul(tag);
+        }
+
+        return queue;
+    }
+
     //--------------------------------------------------------------------------
 }
 

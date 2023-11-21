@@ -33,11 +33,18 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        ~Renderable() override = default;
+        
+        virtual Material *getMaterial() = 0;
+
+        virtual VertexDeclaration *getVertexDeclaration() const = 0;
+
+        virtual VertexBuffer *getVertexBuffer() const = 0;
+
+        virtual IndexBuffer *getIndexBuffer() const = 0;
         
     protected:
         Renderable() = default;
-
-        ~Renderable() override = default;
     };
 }
 

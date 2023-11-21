@@ -61,12 +61,12 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
-    
-    T3D_DECLARE_SMART_PTR(SceneNode);
-    T3D_DECLARE_SMART_PTR(SceneManagerBase);
-    T3D_DECLARE_SMART_PTR(SceneManager);
-    T3D_DECLARE_SMART_PTR(DefaultSceneMgr);
 
+    T3D_DECLARE_SMART_PTR(Scene);
+    T3D_DECLARE_SMART_PTR(SceneManager);
+    T3D_DECLARE_SMART_PTR(SceneManagerImpl);
+    T3D_DECLARE_SMART_PTR(BuiltinSceneManager);
+    
     T3D_DECLARE_SMART_PTR(GameObject);
     
     T3D_DECLARE_SMART_PTR(Component);

@@ -41,11 +41,18 @@ namespace Tiny3D
         };
 
         /**
+         * \brief 场景物体遍历和剔除
+         * \param [in] scene : 场景对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult cull(Scene *scene) = 0;
+
+        /**
          * \brief 执行渲染
          * \param [in] ctx : RHI 渲染上下文
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult render(RHIContextPtr ctx) = 0;
+        virtual TResult render(RHIContext *ctx) = 0;
     };
 
     #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 

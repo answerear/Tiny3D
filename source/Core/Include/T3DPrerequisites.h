@@ -109,10 +109,10 @@ namespace Tiny3D
     class Technique;
     class Pass;
 
-    class SceneNode;
+    class Scene;
     class SceneManager;
-    class SceneManagerBase;
-    class DefaultSceneMgr;
+    class SceneManagerImpl;
+    class BuiltinSceneManager;
 
     class GameObject;
 

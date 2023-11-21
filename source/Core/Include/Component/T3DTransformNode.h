@@ -36,6 +36,8 @@ namespace Tiny3D
     public:
         ~TransformNode() override;
 
+        virtual void visit();
+
         virtual TResult addChild(TransformNodePtr node);
 
         virtual TResult removeChild(TransformNodePtr node);

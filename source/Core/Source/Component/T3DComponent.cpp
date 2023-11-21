@@ -46,6 +46,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Component::update()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Component::cloneProperties(const Component * const src)
     {
         // mSceneNode = src->mSceneNode;

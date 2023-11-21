@@ -178,6 +178,9 @@ namespace Tiny3D
         DylibManagerPtr         mDylibMgr {nullptr};
         PrefabManagerPtr        mPrefabMgr {nullptr};
         ShaderManagerPtr        mShaderMgr {nullptr};
+        MaterialManagerPtr      mMaterialMgr {nullptr};
+        TextureManagerPtr       mTextureMgr {nullptr};
+        SceneManagerPtr         mSceneMgr {nullptr};
 
         RenderStateManagerPtr   mRenderStateMgr {nullptr};
         RenderBufferManagerPtr  mRenderBufferMgr {nullptr};

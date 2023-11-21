@@ -114,7 +114,7 @@ namespace Tiny3D
 
     ResourcePtr Shader::clone() const
     {
-        return nullptr;
+        return create(getName());
     }
 
     //--------------------------------------------------------------------------

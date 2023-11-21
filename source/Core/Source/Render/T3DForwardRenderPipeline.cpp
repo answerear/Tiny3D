@@ -19,10 +19,17 @@
 
 
 #include "Render/T3DForwardRenderPipeline.h"
+#include "Component/T3DRenderable.h"
+#include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderWindow.h"
 #include "Render/T3DRenderTexture.h"
 #include "RHI/T3DRHIContext.h"
+#include "Resource/T3DScene.h"
+#include "Component/T3DTransformNode.h"
+#include "Component/T3DRenderable.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DShader.h"
 
 
 namespace Tiny3D
@@ -36,206 +43,84 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::render(RHIContextPtr ctx)
+    TResult ForwardRenderPipeline::cull(Scene *scene)
     {
-        // 先逐个渲染到纹理，然后最后按照顺序把渲染到纹理 blit 到渲染窗口
+        for (auto item : scene->getCameras())
+        {
+            mCameras.emplace_back(item.second);
+            
+            for (auto go : scene->getRootGameObjects())
+            {
+                if (!go->frustumCulling(item.second))
+                {
+                    auto itCamera = mRenderQueue.find(item.second);
+                    if (itCamera == mRenderQueue.end())
+                    {
+                        RenderQueue q;
+                        const auto rval = mRenderQueue.emplace(item.second, q);
+                        itCamera = rval.first;
+                    }
+                    
+                    RenderablePtr renderable = go->getComponent<Renderable>();
 
-        // for (auto &group : mRenderTargetGroups)
-        // {
-        //     // 渲染窗口
-        //     ctx->setRenderTarget(group.second.renderWindow);
-        //
-        //     ctx->clearColor(ColorRGB::BLACK);
-        //     
-        //     for (auto &texture : group.second.renderTextures)
-        //     {
-        //         // TODO : 渲染每一个渲染纹理
-        //         ctx->setRenderTarget(texture.second);
-        //
-        //         // 把渲染纹理渲染到渲染窗口上
-        //         if (group.second.renderWindow != nullptr)
-        //         {
-        //             // ctx->blit(texture.second, group.second.renderWindow);
-        //         }
-        //     }
-        //
-        //     // 刷新屏幕，把 back buffer 交换到 front buffer 上显示
-        //     group.second.renderWindow->swapBuffers();
-        // }
-        //
-        // ctx->resetRenderTarget();
+                    Material *material = renderable->getMaterial();
+                    uint32_t queue = material->getShader()->getCurrentTechnique()->getRenderQueue();
+                    
+                    auto itr = itCamera->second.find(queue);
+                    
+                    if (itr == itCamera->second.end())
+                    {
+                        // 没有对应的渲染队列
+                        RenderGroup group;
+                        Renderables renderables;
+                        renderables.emplace_back(renderable);
+                        group.emplace(material, renderables);
+                        itCamera->second.emplace(queue, group);
+                    }
+                    else
+                    {
+                        // 已经存在对应的渲染队列
+                        auto it = itr->second.find(material);
+                        
+                        if (it == itr->second.end())
+                        {
+                            // 没有对应的材质
+                            Renderables renderables;
+                            renderables.emplace_back(renderable);
+                            itr->second.emplace(material, renderables);
+                        }
+                        else
+                        {
+                            // 已有材质，合并 draw call
+                            it->second.emplace_back(renderable);
+                        }
+                    }
+                }
+            }
+        }
         
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    // TResult ForwardRenderPipeline::attachRenderTarget(RenderTargetPtr target, uint32_t group, uint32_t order)
-    // {
-    //     TResult ret = T3D_OK;
-    //
-    //     do
-    //     {
-    //         
-    //         if (target == nullptr)
-    //         {
-    //             ret = T3D_ERR_INVALID_PARAM;
-    //             T3D_LOG_ERROR(LOG_TAG_RENDER, "Render target is nullptr !");
-    //             break;
-    //         }
-    //         
-    //         switch (target->getType())
-    //         {
-    //         case RenderTarget::Type::E_RT_WINDOW:
-    //             {
-    //                 ret = attachRenderWindow(smart_pointer_cast<RenderWindow>(target), group, order);
-    //             }
-    //             break;
-    //         case RenderTarget::Type::E_RT_TEXTURE:
-    //             {
-    //                 ret = attachRenderTexture(smart_pointer_cast<RenderTexture>(target), group, order);
-    //             }
-    //             break;
-    //         default:
-    //             {
-    //                 ret = T3D_ERR_INVALID_PARAM;
-    //                 T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid render target type ! It must be one of RenderWindow or RenderTexture !");
-    //             }
-    //             break;
-    //         }
-    //     } while (false);
-    //
-    //     return ret;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult ForwardRenderPipeline::attachRenderTexture(RenderTexturePtr texture)
-    // {
-    //     return attachRenderTexture(texture, NONE_GROUP, DEFAULT_ORDER);
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult ForwardRenderPipeline::detachRenderTarget(const String &name)
-    // {
-    //     return T3D_OK;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult ForwardRenderPipeline::detachAllRenderTargets()
-    // {
-    //     mRenderTargets.clear();
-    //     mRenderTargetGroups.clear();
-    //     mRenderTargetBindings.clear();
-    //     mCurrentRenderTarget = nullptr;
-    //     return T3D_OK;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // RenderTargetPtr ForwardRenderPipeline::getRenderTarget(const String &name) const
-    // {
-    //     return nullptr;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult ForwardRenderPipeline::attachRenderWindow(RenderWindowPtr window, uint32_t group, uint32_t order)
-    // {
-    //     TResult ret = T3D_OK;
-    //
-    //     do
-    //     {
-    //         // 没缓存加缓存，有缓存直接跳过
-    //         addRenderTarget(window);
-    //
-    //         // 设置渲染顺序
-    //         auto itrGroup = mRenderTargetGroups.find(group);
-    //         if (itrGroup == mRenderTargetGroups.end())
-    //         {
-    //             // 没有渲染分组
-    //             auto rval = mRenderTargetGroups.emplace(group, RenderTargetGroup());
-    //             T3D_ASSERT(rval.second, "mRenderTargetGroups.emplace() failed !");
-    //             itrGroup = rval.first;
-    //         }
-    //         
-    //         // 不管有没有，都直接覆盖
-    //         itrGroup->second.renderWindow = window;
-    //         
-    //         // 设置绑定关系
-    //         addBindingMap(window->getName(), group, DEFAULT_ORDER);
-    //     } while (false);
-    //     
-    //     return ret;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // TResult ForwardRenderPipeline::attachRenderTexture(RenderTexturePtr texture, uint32_t group, uint32_t order)
-    // {
-    //     TResult ret = T3D_OK;
-    //
-    //     do
-    //     {
-    //         // 没缓存加缓存，有缓存直接跳过
-    //         addRenderTarget(texture);
-    //
-    //         auto itrGroup = mRenderTargetGroups.find(group);
-    //         if (itrGroup == mRenderTargetGroups.end())
-    //         {
-    //             // 没有渲染分组
-    //             auto rval = mRenderTargetGroups.emplace(group, RenderTargetGroup());
-    //             T3D_ASSERT(rval.second, "attach render window !");
-    //             itrGroup = rval.first;
-    //         }
-    //
-    //         if (order == DEFAULT_ORDER)
-    //         {
-    //             // 直接加到末尾，则从最后一个元素的 key(order) 值加一，作为新的 order
-    //             order = itrGroup->second.renderTextures.rbegin()->first + 1;
-    //         }
-    //
-    //         // 加到对应顺序位置
-    //         itrGroup->second.renderTextures[order] = texture;
-    //
-    //         // 添加绑定关系
-    //         addBindingMap(texture->getName(), group, order);
-    //     } while (false);
-    //
-    //     return ret;
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // void ForwardRenderPipeline::addRenderTarget(RenderTargetPtr target)
-    // {
-    //     auto itrTarget = mRenderTargets.find(target->getName());
-    //     if (itrTarget == mRenderTargets.end())
-    //     {
-    //         // 没有缓存
-    //         auto rval = mRenderTargets.emplace(target->getName(), target);
-    //         T3D_ASSERT(rval.second, "attach render window !");
-    //         itrTarget = rval.first;
-    //     }
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // void ForwardRenderPipeline::addBindingMap(const String &name, uint32_t group, uint32_t order)
-    // {
-    //     auto itrBinding = mRenderTargetBindings.find(name);
-    //     if (itrBinding == mRenderTargetBindings.end())
-    //     {
-    //         // 新建绑定关系
-    //         auto rval = mRenderTargetBindings.emplace(name, RenderTargetBindings());
-    //         T3D_ASSERT(rval.second, "mRenderTargetBindings.emplace() !");
-    //         itrBinding = rval.first;
-    //     }
-    //
-    //     itrBinding->second[group] = order;
-    // }
+    TResult ForwardRenderPipeline::render(RHIContext *ctx)
+    {
+        // 先逐个渲染到纹理，然后最后按照顺序把渲染到纹理 blit 到渲染窗口
+        for (auto camera : mCameras)
+        {
+            const auto itr = mRenderQueue.find(camera);
+            
+            if (itr != mRenderQueue.end())
+            {
+                
+            }
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------
 }

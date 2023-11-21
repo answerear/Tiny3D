@@ -23,6 +23,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Kernel/T3DConstant.h"
 #include "Material/T3DPass.h"
 
 
@@ -40,7 +41,7 @@ namespace Tiny3D
     {
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND
-
+        
     public:
         static TechniquePtr create(const String &name);
 
@@ -53,6 +54,8 @@ namespace Tiny3D
         void removeTag(const String &key);
         
         bool getTag(const String &key, String &value) const;
+
+        bool setTag(const String &key, const String &value);
 
         bool addPass(PassPtr pass);
 
@@ -77,6 +80,8 @@ namespace Tiny3D
         {
             mLOD = LOD;
         }
+
+        uint32_t getRenderQueue() const { return mRenderQueue; }
 
         TPROPERTY(RTTRFuncName="Tags", RTTRFuncType="getter")
         const ShaderLabTags &getTags() const
@@ -115,6 +120,15 @@ namespace Tiny3D
         void setTags(const ShaderLabTags &tags)
         {
             mTags = tags;
+            const auto itr = mTags.find(SHADER_TAG_QUEUE);
+            if (itr != mTags.end())
+            {
+                mRenderQueue = toRenderQueue(itr->second);
+            }
+            else
+            {
+                mRenderQueue = -1;
+            }
         }
 
         TPROPERTY(RTTRFuncName="Passes", RTTRFuncType="setter")
@@ -126,8 +140,12 @@ namespace Tiny3D
     protected:
         Technique(const String &name);
 
+        uint32_t toRenderQueue(const String &tag);
+        
+    protected:
         String          mName {};
         uint32_t        mLOD {0};
+        uint32_t        mRenderQueue {0};
         ShaderLabTags   mTags {};
         /// 渲染状态
         RenderState     mRenderState {};

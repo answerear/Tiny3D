@@ -38,6 +38,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void TransformNode::visit()
+    {
+        if (getGameObject()->isActive())
+        {
+            // 先更新自己
+            update();
+
+            // 再遍历子结点
+            TransformNodePtr node = getFirstChild();
+
+            while (node != nullptr)
+            {
+                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+                child->visit();
+                node = node->getNextSibling();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    
     TResult TransformNode::addChild(TransformNodePtr node)
     {
         T3D_ASSERT(node->getParent() == nullptr, "parent node is nullptr !");

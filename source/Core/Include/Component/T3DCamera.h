@@ -44,15 +44,23 @@ namespace Tiny3D
         RenderTargetPtr getRenderTarget() const { return mRenderarget; }
 
         void setRenderTarget(RenderTargetPtr target) { mRenderarget = target; }
+
+        uint32_t getOrder() const { return mOrder; }
+
+        void setOrder(uint32_t order) { mOrder = order; }
         
     protected:
         Camera() = default;
 
+    protected:
         /// 相机对应的渲染纹理，如果渲染目标是渲染纹理，则直接渲染到渲染目标上，不经过纹理
         RenderTexturePtr    mRenderTexture {nullptr};
-
         /// 相机对应的渲染目标
         RenderTargetPtr     mRenderarget {nullptr};
+        /// 渲染顺序
+        uint32_t    mOrder {0};
+        /// 剔除掩码，位为 1 的会去判断是否剔除，为 0 的本相机直接不渲染
+        uint32_t    mCullingMask {0xFFFFFFFF};
     };
 }
 

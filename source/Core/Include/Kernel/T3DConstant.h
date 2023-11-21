@@ -58,6 +58,8 @@ namespace Tiny3D
         TT_RENDER_TEXTURE,
         TT_MAX
     };
+
+    #define SHADER_TAG_QUEUE        "Queue"
 }
 
 
