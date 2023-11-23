@@ -19,6 +19,8 @@
 
 
 #include "Kernel/T3DGameObject.h"
+#include "Component/T3DRenderable.h"
+#include "Component/T3DTransformNode.h"
 
 
 namespace Tiny3D
@@ -40,10 +42,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool GameObject::frustumCulling(Camera *camera) const
+    void GameObject::update()
     {
-        // TODO: 暂时都不剔除
-        return false;
+        TransformNodePtr node = getComponent<TransformNode>();
+        if (node != nullptr)
+        {
+            node->visitActive([](TransformNode *node)
+            {
+                node->update();
+
+                GameObject *go = node->getGameObject();
+                for (auto component : go->getComponents<Component>())
+                {
+                    if (component != node)
+                    {
+                        component->update();
+                    }
+                }
+            });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::frustumCulling(Camera *camera, RenderPipeline *pipeline) const
+    {
+        TransformNodePtr node = getComponent<TransformNode>();
+        if (node != nullptr)
+        {
+            node->visitVisible([](TransformNode *node, Camera *camera, RenderPipeline *pipeline)
+            {
+                GameObject *go = node->getGameObject();
+                RenderablePtr renderable = go->getComponent<Renderable>();
+                if (renderable != nullptr)
+                {
+                    // TODO : 暂时不剔除
+                    pipeline->addRenderable(camera, renderable);
+                }
+            },
+            camera, pipeline);
+        }
     }
 
     //--------------------------------------------------------------------------

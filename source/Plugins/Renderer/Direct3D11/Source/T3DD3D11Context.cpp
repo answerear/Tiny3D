@@ -959,6 +959,29 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::setRenderTarget(RenderTargetPtr renderTarget)
+    {
+        TResult ret = T3D_OK;
+
+        switch (renderTarget->getType())
+        {
+        case RenderTarget::Type::E_RT_WINDOW:
+            {
+                ret = setRenderTarget(renderTarget->getRenderWindow());
+            }
+            break;
+        case RenderTarget::Type::E_RT_TEXTURE:
+            {
+                ret = setRenderTarget(renderTarget->getRenderTexture());
+            }
+            break;
+        }
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::resetRenderTarget()
     {
         mCurrentRenderWindow = nullptr;

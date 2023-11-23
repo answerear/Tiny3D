@@ -19,6 +19,8 @@
 
 
 #include "Component/T3DTransformNode.h"
+
+#include "Component/T3DRenderable.h"
 #include "Kernel/T3DGameObject.h"
 
 
@@ -34,27 +36,6 @@ namespace Tiny3D
     TransformNode::~TransformNode()
     {
         // removeAllChildren();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void TransformNode::visit()
-    {
-        if (getGameObject()->isActive())
-        {
-            // 先更新自己
-            update();
-
-            // 再遍历子结点
-            TransformNodePtr node = getFirstChild();
-
-            while (node != nullptr)
-            {
-                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
-                child->visit();
-                node = node->getNextSibling();
-            }
-        }
     }
 
     //--------------------------------------------------------------------------

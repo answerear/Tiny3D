@@ -187,6 +187,13 @@ namespace Tiny3D
         TResult setRenderTarget(RenderTexturePtr renderTexture) override;
 
         /**
+         * \brief 设置当前渲染目标
+         * \param [in] renderTarget : 渲染目标
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setRenderTarget(RenderTargetPtr renderTarget) override;
+
+        /**
          * \brief 清除渲染目标
          * \return 调用成功返回 T3D_OK
          */

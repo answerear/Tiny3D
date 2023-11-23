@@ -36,6 +36,10 @@ namespace Tiny3D
         
         TResult render(RHIContext *ctx) override;
 
+        TResult addRenderable(Camera *camera, Renderable *renderable) override;
+
+        TResult removeRenderable(Renderable *renderable) override;
+
     protected:
         
 

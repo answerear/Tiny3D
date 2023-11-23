@@ -45,6 +45,8 @@ namespace Tiny3D
 
         void setRenderTarget(RenderTargetPtr target) { mRenderarget = target; }
 
+        RenderTexturePtr getRenderTexture() const { return mRenderTexture; }
+
         uint32_t getOrder() const { return mOrder; }
 
         void setOrder(uint32_t order) { mOrder = order; }

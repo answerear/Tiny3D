@@ -56,6 +56,10 @@ namespace Tiny3D
         
         Type getType() const;
 
+        RenderWindowPtr getRenderWindow() const { return mRenderWindow; }
+
+        RenderTexturePtr getRenderTexture() const { return mRenderTexture; }
+
     protected:
         RenderTarget(RenderWindowPtr renderWindow);
 

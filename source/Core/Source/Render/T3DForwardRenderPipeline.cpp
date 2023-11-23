@@ -19,6 +19,8 @@
 
 
 #include "Render/T3DForwardRenderPipeline.h"
+
+#include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
@@ -43,59 +45,73 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ForwardRenderPipeline::addRenderable(Camera *camera, Renderable *renderable)
+    {
+        auto itCamera = mRenderQueue.find(camera);
+        if (itCamera == mRenderQueue.end())
+        {
+            RenderQueue q;
+            const auto rval = mRenderQueue.emplace(camera, q);
+            itCamera = rval.first;
+        }
+
+        Material *material = renderable->getMaterial();
+        uint32_t queue = material->getShader()->getCurrentTechnique()->getRenderQueue();
+
+        auto itr = itCamera->second.find(queue);
+
+        if (itr == itCamera->second.end())
+        {
+            // 没有对应的渲染队列
+            RenderGroup group;
+            Renderables renderables;
+            renderables.emplace_back(renderable);
+            group.emplace(material, renderables);
+            itCamera->second.emplace(queue, group);
+        }
+        else
+        {
+            // 已经存在对应的渲染队列
+            auto it = itr->second.find(material);
+                        
+            if (it == itr->second.end())
+            {
+                // 没有对应的材质
+                Renderables renderables;
+                renderables.emplace_back(renderable);
+                itr->second.emplace(material, renderables);
+            }
+            else
+            {
+                // 已有材质，合并 draw call
+                it->second.emplace_back(renderable);
+            }
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::removeRenderable(Renderable *renderable)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ForwardRenderPipeline::cull(Scene *scene)
     {
+        mCameras.clear();
+        mRenderQueue.clear();
+        
         for (auto item : scene->getCameras())
         {
             mCameras.emplace_back(item.second);
             
             for (auto go : scene->getRootGameObjects())
             {
-                if (!go->frustumCulling(item.second))
-                {
-                    auto itCamera = mRenderQueue.find(item.second);
-                    if (itCamera == mRenderQueue.end())
-                    {
-                        RenderQueue q;
-                        const auto rval = mRenderQueue.emplace(item.second, q);
-                        itCamera = rval.first;
-                    }
-                    
-                    RenderablePtr renderable = go->getComponent<Renderable>();
-
-                    Material *material = renderable->getMaterial();
-                    uint32_t queue = material->getShader()->getCurrentTechnique()->getRenderQueue();
-                    
-                    auto itr = itCamera->second.find(queue);
-                    
-                    if (itr == itCamera->second.end())
-                    {
-                        // 没有对应的渲染队列
-                        RenderGroup group;
-                        Renderables renderables;
-                        renderables.emplace_back(renderable);
-                        group.emplace(material, renderables);
-                        itCamera->second.emplace(queue, group);
-                    }
-                    else
-                    {
-                        // 已经存在对应的渲染队列
-                        auto it = itr->second.find(material);
-                        
-                        if (it == itr->second.end())
-                        {
-                            // 没有对应的材质
-                            Renderables renderables;
-                            renderables.emplace_back(renderable);
-                            itr->second.emplace(material, renderables);
-                        }
-                        else
-                        {
-                            // 已有材质，合并 draw call
-                            it->second.emplace_back(renderable);
-                        }
-                    }
-                }
+                go->frustumCulling(item.second, this);
             }
         }
         
@@ -111,10 +127,53 @@ namespace Tiny3D
         {
             const auto itr = mRenderQueue.find(camera);
             
-            if (itr != mRenderQueue.end())
+            if (itr == mRenderQueue.end())
             {
-                
+                continue;
             }
+
+            // 设置渲染目标为相机对应纹理
+            RenderTexturePtr rt = camera->getRenderTexture();
+            if (rt != nullptr)
+            {
+                ctx->setRenderTarget(rt);
+            }
+            else
+            {
+                ctx->setRenderTarget(camera->getRenderTarget());
+            }
+
+            for (auto itemQueue : itr->second)
+            {
+                const RenderGroup &group = itemQueue.second;
+                
+                for (auto itemGroup : group)
+                {
+                    Material *material = itemGroup.first;
+                    const Renderables &renderables = itemGroup.second;
+
+                    // TODO : 设置 shader
+
+                    for (auto renderable : renderables)
+                    {
+                        // TODO : 设置 vertex declaration
+                    
+                        // TODO : 设置 vertex buffer
+
+                        // TODO : 设置 index buffer
+
+                        // TODO : render
+                    }
+                }
+            }
+
+            // 把相机渲染纹理渲染到相机对应的渲染目标上
+            if (rt != nullptr)
+            {
+                ctx->blit(rt, camera->getRenderTarget());
+            }
+
+            ctx->resetRenderTarget();
         }
         
         return T3D_OK;

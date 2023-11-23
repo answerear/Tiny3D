@@ -53,6 +53,10 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult render(RHIContext *ctx) = 0;
+
+        virtual TResult addRenderable(Camera *camera, Renderable *renderable) = 0;
+
+        virtual TResult removeRenderable(Renderable *renderable) = 0;
     };
 
     #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 

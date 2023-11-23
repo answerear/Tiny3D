@@ -139,6 +139,13 @@ namespace Tiny3D
         virtual TResult setRenderTarget(RenderTexturePtr renderTexture) = 0;
 
         /**
+         * \brief 设置当前渲染目标
+         * \param [in] renderTarget : 渲染目标
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setRenderTarget(RenderTargetPtr renderTarget) = 0;
+
+        /**
          * \brief 清除渲染目标
          * \return 调用成功返回 T3D_OK
          */

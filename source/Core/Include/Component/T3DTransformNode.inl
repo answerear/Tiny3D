@@ -20,6 +20,63 @@
 
 namespace Tiny3D
 {
+    template <typename VisitAction, typename ...Args>
+    void TransformNode::visitActive(VisitAction &&action, Args &&...args)
+    {
+        if (getGameObject()->isActive())
+        {
+            // 先更新自己
+            action(this, std::forward<Args>(args)...);
+
+            // 再遍历子结点
+            TransformNodePtr node = getFirstChild();
+
+            while (node != nullptr)
+            {
+                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+                child->visitActive(action, std::forward<Args>(args)...);
+                node = node->getNextSibling();
+            }
+        }
+    }
+
+    template <typename VisitAction, typename  ...Args>
+    void TransformNode::visitVisible(VisitAction &&action, Args &&...args)
+    {
+        if (getGameObject()->isVisible())
+        {
+            // 先更新自己
+            action(this, std::forward<Args>(args)...);
+
+            // 再遍历子结点
+            TransformNodePtr node = getFirstChild();
+
+            while (node != nullptr)
+            {
+                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+                child->visitVisible(action, std::forward<Args>(args)...);
+                node = node->getNextSibling();
+            }
+        }
+    }
+
+    template <typename VisitAction, typename ...Args>
+    void TransformNode::visitAll(VisitAction &&action, Args &&...args)
+    {
+        // 先更新自己
+        action(this, std::forward<Args>(args)...);
+
+        // 再遍历子结点
+        TransformNodePtr node = getFirstChild();
+
+        while (node != nullptr)
+        {
+            TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+            child->visitAll(action, std::forward<Args>(args)...);
+            node = node->getNextSibling();
+        }
+    }
+    
     inline TransformNodePtr TransformNode::getFirstChild() const
     {
         return mFirstChild;

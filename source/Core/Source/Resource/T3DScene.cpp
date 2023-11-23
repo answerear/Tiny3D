@@ -124,10 +124,7 @@ namespace Tiny3D
     {
         for (auto go : mRootGameObjects)
         {
-            TransformNodePtr root = go->getComponent<TransformNode>();
-
-            // 遍历更新
-            root->visit();
+            go->update();
         }
     }
 

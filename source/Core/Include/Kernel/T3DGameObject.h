@@ -22,6 +22,7 @@
 
 
 #include "Component/T3DComponent.h"
+#include "Render/T3DRenderPipeline.h"
 
 
 namespace Tiny3D
@@ -37,7 +38,9 @@ namespace Tiny3D
         
         ~GameObject() override = default;
 
-        virtual bool frustumCulling(Camera *camera) const;
+        virtual void update();
+
+        virtual void frustumCulling(Camera *camera, RenderPipeline *pipeline) const;
 
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
         const UUID &getUUID() const { return mUUID; }

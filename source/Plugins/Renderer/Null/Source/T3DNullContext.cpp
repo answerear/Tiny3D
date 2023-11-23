@@ -77,6 +77,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult NullContext::setRenderTarget(RenderTargetPtr renderTarget)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult NullContext::resetRenderTarget()
     {
         return T3D_OK;

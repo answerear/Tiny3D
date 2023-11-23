@@ -23,6 +23,8 @@
 
 
 #include "Component/T3DComponent.h"
+#include "Kernel/T3DGameObject.h"
+#include "Render/T3DRenderPipeline.h"
 
 
 namespace Tiny3D
@@ -36,7 +38,14 @@ namespace Tiny3D
     public:
         ~TransformNode() override;
 
-        virtual void visit();
+        template <typename VisitAction, typename ...Args>
+        void visitActive(VisitAction &&action, Args &&...args);
+        
+        template <typename VisitAction, typename  ...Args>
+        void visitVisible(VisitAction &&action, Args &&...args);
+
+        template <typename VisitAction, typename ...Args>
+        void visitAll(VisitAction &&action, Args &&...args);
 
         virtual TResult addChild(TransformNodePtr node);
 
@@ -72,6 +81,9 @@ namespace Tiny3D
         virtual void onAttachParent(TransformNodePtr parent);
 
         virtual void onDetachParent(TransformNodePtr parent);
+
+        // template <typename ...Args>
+        // using VisitAction = TFunction<void(TransformNode *, Args...)>;
 
     private:
         /// 子结点数量
