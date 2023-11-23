@@ -27,128 +27,6 @@
 
 namespace Tiny3D
 {
-#if 0
-    /**
-     * @class   D3D11Renderer
-     * @brief   DirectX 11 渲染器.
-     */
-    class D3D11Context : public RHIContext
-    {
-    public:
-        /**
-         * @fn  static D3D11ContextPtr create();
-         * @brief   创建一个D3D11Renderer对象
-         * @returns 返回一个新建对象.
-         */
-        static D3D11ContextPtr create();
-
-        /**
-         * @fn  virtual ~D3D11Renderer();
-         * @brief   析构函数
-         */
-        virtual ~D3D11Context();
-
-        TResult init() override;
-     
-        /**
-         * @fn  virtual TResult renderAllTarget() override;
-         * @brief   渲染一帧
-         * @return  调用成功返回 T3D_OK.
-         */
-        TResult renderAllTargets() override;
-
-        Matrix4 makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const override;
-
-        Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) override;
-
-        Matrix4 makeViewportMatrix(Viewport *viewport) override;
-
-        RHIRenderWindowPtr createRenderWindow(RenderWindow *window, const RenderWindowDesc &param) override;
-
-        TResult clear(const ColorRGB &color, uint32_t clearFlags, Real depth, uint32_t stencil) override;
-
-        RHIBlendStatePtr createBlendState(const BlendDesc &desc) override;
-
-        RHIDepthStencilStatePtr createDepthStencilState(const DepthStencilDesc &desc) override;
-
-        RHIRasterizerStatePtr createRasterizerState(const RasterizerDesc &desc) override;
-
-        RHISamplerStatePtr createSamplerState(const SamplerDesc &desc) override;
-
-        TResult setBlendState(RHIBlendStatePtr state) override;
-
-        TResult setDepthStencilState(RHIDepthStencilStatePtr state) override;
-
-        TResult setRasterizerState(RHIRasterizerStatePtr state) override;
-        
-        TResult setSamplerState(RHISamplerStatePtr state) override;
-
-        TResult setViewport(Viewport *viewport) override;
-
-        TResult setShader() override;
-
-        TResult setTexture() override;
-
-        TResult renderObject() override;
-
-        ID3D11Device *getD3DDevice() const { return mD3DDevice; }
-
-        ID3D11DeviceContext *getD3DDeviceContext() const { return mD3DDeviceContext; }
-
-        TResult checkMultiSampleQuality(UINT width, UINT height, UINT uMSAAQuality, UINT uMSAACount, DXGI_FORMAT format);
-
-        TResult createSwapChain(HWND hwnd, UINT width, UINT height, DXGI_FORMAT format, bool fullscreen, IDXGISwapChain **ppD3DSwapChain);
-
-        TResult createRenderTargetView(IDXGISwapChain **pD3DSwapChain, ID3D11RenderTargetView **ppD3DRTView);
-
-        TResult getBackBufferTexture2D(D3D11RenderWindow *renderWindow);
-
-        TResult createTexture2D(const D3D11_TEXTURE2D_DESC &d3dDesc);
-        
-        TResult createRenderTargetView(ID3D11Texture2D **pD3DTexture, D3D11RenderWindow *renderWindow);
-
-        TResult createDepthStencilView(UINT width, UINT height, D3D11RenderWindow *renderWindow);
-        
-        TResult createRenderTargetView(const D3D11_TEXTURE2D_DESC &d3dDesc, RHIRenderTarget *renderTarget);
-
-        TResult createDepthStencilView(const D3D11_TEXTURE2D_DESC &d3dDesc, RHIRenderTarget *renderTarget);
-        
-        TResult createDepthStencilView(UINT width, UINT height, ID3D11DepthStencilView **ppD3DDSView);
-
-        TResult setRenderTargets(UINT numOfViews, ID3D11RenderTargetView **ppD3DRTView, ID3D11DepthStencilView **pD3DDSView);
-
-        TResult clearRenderTargetView(ID3D11RenderTargetView **pD3DRTView, const ColorRGB &clrFill);
-
-        TResult clearDepthStencilView(ID3D11DepthStencilView **pD3DDSView, Real depth, uint8_t stencil);
-        
-    protected:
-        /**
-         * @fn  D3D11Renderer();
-         * @brief   构造函数
-         */
-        D3D11Context();
-
-        /**
-         * @fn  TResult collectInformation();
-         * @brief   收集驱动、开发商等信息
-         * @return  调用成功返回 T3D_OK.
-         */
-        TResult collectInformation();
-
-    protected:
-        /**< The instance */
-        HINSTANCE           mInstance {nullptr};
-
-        /**< D3D11 设备对象 */
-        ID3D11Device        *mD3DDevice {nullptr};
-        /**< D3D11 上下文对象 */
-        ID3D11DeviceContext *mD3DDeviceContext {nullptr};
-        /**< D3D 特性级别 */
-        D3D_FEATURE_LEVEL   mFeatureLevel {D3D_FEATURE_LEVEL_11_0};
-        UINT                mMSAAQuality {0};
-        UINT                mMSAACount {0};
-    };
-#else
     class D3D11Context : public RHIContext
     {
     public:
@@ -276,6 +154,20 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setSamplerState(SamplerStatePtr state) override;
+
+        /**
+         * \brief 创建 RHI 顶点格式对象
+         * \param [in] decl : 顶点格式对象
+         * \return 调用成功返回 T3D_OK
+         */
+        RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclarationPtr decl) override;
+
+        /**
+         * \brief 设置顶点格式
+         * \param [in] decl : 顶点格式
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setVertexDeclaration(VertexDeclarationPtr decl) override;
         
         /**
          * \brief 创建 RHI 顶点缓冲区对象
@@ -533,7 +425,6 @@ namespace Tiny3D
         RenderWindowPtr     mCurrentRenderWindow {nullptr};
         RenderTexturePtr    mCurrentRenderTexture {nullptr};
     };
-#endif
 }
 
 

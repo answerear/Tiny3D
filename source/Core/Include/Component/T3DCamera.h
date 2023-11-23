@@ -50,6 +50,22 @@ namespace Tiny3D
         uint32_t getOrder() const { return mOrder; }
 
         void setOrder(uint32_t order) { mOrder = order; }
+
+        const Viewport &getViewport() const { return mViewport; }
+
+        void setViewport(const Viewport &vp) { mViewport = vp; }
+
+        const ColorRGB &getClearColor() const { return mClearColor; }
+
+        void setClearColor(const ColorRGB &color) { mClearColor = color; }
+
+        Real getClearDepth() const { return mClearDepth; }
+
+        void setClearDepth(Real depth) { mClearDepth = depth; }
+
+        uint8_t getClearStencil() const { return mClearStencil; }
+
+        void setClearStencil(uint8_t stencil) { mClearStencil = stencil; }
         
     protected:
         Camera() = default;
@@ -63,6 +79,14 @@ namespace Tiny3D
         uint32_t    mOrder {0};
         /// 剔除掩码，位为 1 的会去判断是否剔除，为 0 的本相机直接不渲染
         uint32_t    mCullingMask {0xFFFFFFFF};
+        /// 相机视口
+        Viewport    mViewport {};
+        /// 背景填充颜色
+        ColorRGB    mClearColor {ColorRGB::BLACK};
+        /// 深度缓冲填充值
+        Real    mClearDepth {0.0f};
+        /// 模板缓冲填充值
+        uint_t  mClearStencil {0};
     };
 }
 

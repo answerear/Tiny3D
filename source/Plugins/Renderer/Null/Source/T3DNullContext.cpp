@@ -165,6 +165,20 @@ namespace Tiny3D
     {
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
+
+    RHIVertexDeclarationPtr NullContext::createVertexDeclaration(VertexDeclarationPtr decl)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setVertexDeclaration(VertexDeclarationPtr decl)
+    {
+        return T3D_OK;
+    }
     
     //--------------------------------------------------------------------------
     

@@ -33,22 +33,22 @@ namespace Tiny3D
     {
         /// 左上角 X 坐标比例，取值范围 [0,1]
         TPROPERTY()
-        Real    Left;
+        Real    Left {0.0f};
         /// 左上角 Y 坐标比例，取值范围 [0,1]
         TPROPERTY()
-        Real    Top;
+        Real    Top {0.0f};
         /// 宽度比例，取值范围 [0,1]
         TPROPERTY()
-        Real    Width;
+        Real    Width {1.0f};
         /// 高度比例，取值范围 [0,1]
         TPROPERTY()
-        Real    Height;
+        Real    Height {1.0f};
         /// 最小深度值
         TPROPERTY()
-        Real    MinDepth;
+        Real    MinDepth {0.0f};
         /// 最大深度值
         TPROPERTY()
-        Real    MaxDepth;
+        Real    MaxDepth {1.0f};
     };
     
     // /**

@@ -1106,6 +1106,20 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    RHIVertexDeclarationPtr D3D11Context::createVertexDeclaration(VertexDeclarationPtr decl)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setVertexDeclaration(VertexDeclarationPtr decl)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIVertexBufferPtr D3D11Context::createVertexBuffer(VertexBufferPtr buffer)
     {

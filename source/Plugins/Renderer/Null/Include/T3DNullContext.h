@@ -152,6 +152,20 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setSamplerState(SamplerStatePtr state) override;
+
+        /**
+         * \brief 创建 RHI 顶点格式对象
+         * \param [in] decl : 顶点格式对象
+         * \return 调用成功返回 T3D_OK
+         */
+        RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclarationPtr decl) override;
+
+        /**
+         * \brief 设置顶点格式
+         * \param [in] decl : 顶点格式
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setVertexDeclaration(VertexDeclarationPtr decl) override;
         
         /**
          * \brief 创建 RHI 顶点缓冲区对象

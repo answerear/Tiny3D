@@ -32,6 +32,9 @@
 #include "Component/T3DRenderable.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DShader.h"
+#include "Render/T3DVertexDeclaration.h"
+#include "Render/T3DVertexBuffer.h"
+#include "Render/T3DIndexBuffer.h"
 
 
 namespace Tiny3D
@@ -143,6 +146,15 @@ namespace Tiny3D
                 ctx->setRenderTarget(camera->getRenderTarget());
             }
 
+            // 设置 viewport
+            ctx->setViewport(camera->getViewport());
+
+            // 清除 color
+            ctx->clearColor(camera->getClearColor());
+            
+            // 清除 depth buffer、stencil buffer
+            ctx->clearDepthStencil(camera->getClearDepth(), camera->getClearStencil());
+
             for (auto itemQueue : itr->second)
             {
                 const RenderGroup &group = itemQueue.second;
@@ -156,13 +168,17 @@ namespace Tiny3D
 
                     for (auto renderable : renderables)
                     {
-                        // TODO : 设置 vertex declaration
+                        // 设置 vertex declaration
+                        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
                     
-                        // TODO : 设置 vertex buffer
+                        // 设置 vertex buffer
+                        ctx->setVertexBuffer(renderable->getVertexBuffer());
 
-                        // TODO : 设置 index buffer
+                        // 设置 index buffer
+                        ctx->setIndexBuffer(renderable->getIndexBuffer());
 
-                        // TODO : render
+                        // render
+                        ctx->render();
                     }
                 }
             }
@@ -173,6 +189,7 @@ namespace Tiny3D
                 ctx->blit(rt, camera->getRenderTarget());
             }
 
+            // 重置 render target 为空
             ctx->resetRenderTarget();
         }
         
