@@ -572,7 +572,10 @@ namespace Tiny3D
             T3D_EVENT_MGR.dispatchEvent();
 
             // 更新场景树
-            mSceneMgr->getCurrentScene()->update();
+            if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
+            {
+                mSceneMgr->getCurrentScene()->update();
+            }
 
             // 渲染一帧
             renderOneFrame();

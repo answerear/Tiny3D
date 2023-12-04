@@ -1156,13 +1156,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setConstantBuffer(ConstantBufferPtr buffer)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-    
     RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer(PixelBuffer1DPtr buffer)
     {
         return nullptr;
@@ -1218,6 +1211,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setVSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setVSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr D3D11Context::createPixelShader(ShaderVariantPtr shader)
     {
@@ -1232,7 +1239,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setPSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
+    TResult D3D11Context::setPSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     RHIShaderPtr D3D11Context::createHullShader(ShaderVariantPtr shader)
     {
         return nullptr;
@@ -1241,6 +1261,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setHullShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setHSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setHSSampler(SamplerStatePtr sampler)
     {
         return T3D_OK;
     }
@@ -1260,6 +1294,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setDSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setDSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr D3D11Context::createGeometryShader(ShaderVariantPtr shader)
     {
@@ -1269,6 +1317,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setGeometryShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setGSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setGSSampler(SamplerStatePtr sampler)
     {
         return T3D_OK;
     }
@@ -1289,6 +1351,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::setCSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setCSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
     TResult D3D11Context::render()
     {
         return T3D_OK;

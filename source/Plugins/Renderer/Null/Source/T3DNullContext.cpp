@@ -217,13 +217,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setConstantBuffer(ConstantBufferPtr buffer)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-    
     RHIPixelBuffer1DPtr NullContext::createPixelBuffer(PixelBuffer1DPtr buffer)
     {
         return nullptr;
@@ -279,6 +272,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullContext::setVSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setVSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr NullContext::createPixelShader(ShaderVariantPtr shader)
     {
@@ -288,6 +295,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     TResult NullContext::setPixelShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setPSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setPSSampler(SamplerStatePtr sampler)
     {
         return T3D_OK;
     }
@@ -307,6 +328,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullContext::setHSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setHSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr NullContext::createDomainShader(ShaderVariantPtr shader)
     {
@@ -321,6 +356,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullContext::setDSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setDSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr NullContext::createGeometryShader(ShaderVariantPtr shader)
     {
@@ -330,6 +379,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     TResult NullContext::setGeometryShader(ShaderVariantPtr shader)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setGSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setGSSampler(SamplerStatePtr sampler)
     {
         return T3D_OK;
     }
@@ -350,6 +413,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult NullContext::setCSConstantBuffer(ConstantBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult NullContext::setCSSampler(SamplerStatePtr sampler)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
     TResult NullContext::render()
     {
         return T3D_OK;

@@ -279,13 +279,6 @@ namespace Tiny3D
         virtual RHIConstantBufferPtr createConstantBuffer(ConstantBufferPtr buffer) = 0;
 
         /**
-         * \brief 设置渲染用的常量缓冲区对象
-         * \param buffer : 引擎的常量缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult setConstantBuffer(ConstantBufferPtr buffer) = 0;
-
-        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
@@ -342,6 +335,20 @@ namespace Tiny3D
         virtual TResult setVertexShader(ShaderVariantPtr shader) = 0;
 
         /**
+         * \brief 设置 vs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setVSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 vs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setVSSampler(SamplerStatePtr sampler) = 0;
+
+        /**
          * \brief 创建 RHI 像素着色器对象
          * \param [in] shader : 引擎使用的像素着色器对象
          * \return 调用成功返回 RHI 对象
@@ -355,6 +362,20 @@ namespace Tiny3D
          */
         virtual TResult setPixelShader(ShaderVariantPtr shader) = 0;
 
+        /**
+         * \brief 设置 ps 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setPSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 ps 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setPSSampler(SamplerStatePtr sampler) = 0;
+        
         /**
          * \brief 创建 RHI 曲面细分着色器
          * \param [in] shader : 引擎使用的曲面细分着色器对象
@@ -370,6 +391,20 @@ namespace Tiny3D
         virtual TResult setHullShader(ShaderVariantPtr shader) = 0;
 
         /**
+         * \brief 设置 hs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setHSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 hs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setHSSampler(SamplerStatePtr sampler) = 0;
+        
+        /**
          * \brief 创建 RHI 域着色器
          * \param [in] shader : 引擎使用的域着色器对象 
          * \return 调用成功返回 RHI 对象
@@ -383,6 +418,20 @@ namespace Tiny3D
          */
         virtual TResult setDomainShader(ShaderVariantPtr shader) = 0;
 
+        /**
+         * \brief 设置 ds 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setDSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 ds 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setDSSampler(SamplerStatePtr sampler) = 0;
+        
         /**
          * \brief 创建 RHI 几何着色器
          * \param [in] shader : 引擎使用的几何着色器对象 
@@ -398,6 +447,20 @@ namespace Tiny3D
         virtual TResult setGeometryShader(ShaderVariantPtr shader) = 0;
 
         /**
+         * \brief 设置 gs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setGSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 gs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setGSSampler(SamplerStatePtr sampler) = 0;
+        
+        /**
          * \brief 创建 RHI 计算着色器
          * \param [in] shader : 引擎使用的计算着色器对象 
          * \return 调用成功返回 RHI 对象
@@ -411,6 +474,20 @@ namespace Tiny3D
          */
         virtual TResult setComputeShader(ShaderVariantPtr shader) = 0;
 
+        /**
+         * \brief 设置 cs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setCSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 cs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setCSSampler(SamplerStatePtr sampler) = 0;
+        
         /**
          * \brief 根据上下文设置好的资源、状态来渲染
          * \return 调用成功返回 T3D_OK

@@ -105,6 +105,11 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::cull(Scene *scene)
     {
+        if (scene == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+        
         mCameras.clear();
         mRenderQueue.clear();
         
@@ -164,7 +169,14 @@ namespace Tiny3D
                     Material *material = itemGroup.first;
                     const Renderables &renderables = itemGroup.second;
 
-                    // TODO : 设置 shader
+                    // TODO : 设置 shader 参数
+                    ShaderPtr shader = material->getShader();
+                    TechniquePtr tech = shader->getCurrentTechnique();
+                    
+                    for (auto params : material->getConstantParams())
+                    {
+                        
+                    }
 
                     for (auto renderable : renderables)
                     {

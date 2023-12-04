@@ -203,13 +203,6 @@ namespace Tiny3D
         RHIConstantBufferPtr createConstantBuffer(ConstantBufferPtr buffer) override;
 
         /**
-         * \brief 设置渲染用的常量缓冲区对象
-         * \param buffer : 引擎的常量缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setConstantBuffer(ConstantBufferPtr buffer) override;
-
-        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
@@ -266,6 +259,20 @@ namespace Tiny3D
         TResult setVertexShader(ShaderVariantPtr shader) override;
 
         /**
+         * \brief 设置 vs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setVSConstantBuffer(ConstantBufferPtr buffer) override;
+
+        /**
+         * \brief 设置 vs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setVSSampler(SamplerStatePtr sampler) override;
+        
+        /**
          * \brief 创建 RHI 像素着色器对象
          * \param [in] shader : 引擎使用的像素着色器对象
          * \return 调用成功返回 RHI 对象
@@ -280,6 +287,20 @@ namespace Tiny3D
         TResult setPixelShader(ShaderVariantPtr shader) override;
 
         /**
+         * \brief 设置 ps 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setPSConstantBuffer(ConstantBufferPtr buffer) override;
+
+        /**
+         * \brief 设置 ps 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setPSSampler(SamplerStatePtr sampler) override;
+        
+        /**
          * \brief 创建 RHI 曲面细分着色器
          * \param [in] shader : 引擎使用的曲面细分着色器对象
          * \return 调用成功返回 RHI 对象
@@ -292,6 +313,20 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setHullShader(ShaderVariantPtr shader) override;
+
+        /**
+         * \brief 设置 hs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setHSConstantBuffer(ConstantBufferPtr buffer) override;
+
+        /**
+         * \brief 设置 hs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setHSSampler(SamplerStatePtr sampler) override;
 
         /**
          * \brief 创建 RHI 域着色器
@@ -308,6 +343,20 @@ namespace Tiny3D
         TResult setDomainShader(ShaderVariantPtr shader) override;
 
         /**
+         * \brief 设置 ds 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setDSConstantBuffer(ConstantBufferPtr buffer) override;
+
+        /**
+         * \brief 设置 ds 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setDSSampler(SamplerStatePtr sampler) override;
+        
+        /**
          * \brief 创建 RHI 几何着色器
          * \param [in] shader : 引擎使用的几何着色器对象 
          * \return 调用成功返回 RHI 对象
@@ -322,6 +371,20 @@ namespace Tiny3D
         TResult setGeometryShader(ShaderVariantPtr shader) override;
 
         /**
+         * \brief 设置 gs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setGSConstantBuffer(ConstantBufferPtr buffer) override;
+
+        /**
+         * \brief 设置 gs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setGSSampler(SamplerStatePtr sampler) override;
+        
+        /**
          * \brief 创建 RHI 计算着色器
          * \param [in] shader : 引擎使用的计算着色器对象 
          * \return 调用成功返回 RHI 对象
@@ -334,6 +397,20 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setComputeShader(ShaderVariantPtr shader) override;
+
+        /**
+         * \brief 设置 cs 的常量缓冲区
+         * \param [in] buffer : 常量缓冲区对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setCSConstantBuffer(ConstantBufferPtr buffer) override;
+
+        /**
+         * \brief 设置 cs 纹理采样器
+         * \param [in] sampler : 纹理采样器对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setCSSampler(SamplerStatePtr sampler) override;
 
         /**
          * \brief 根据上下文设置好的资源、状态来渲染
