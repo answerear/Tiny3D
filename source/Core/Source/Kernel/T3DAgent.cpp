@@ -89,7 +89,11 @@ namespace Tiny3D
             mPrefabMgr = nullptr;
         }
 
-        mSceneMgr = nullptr;
+        if (mSceneMgr != nullptr)
+        {
+            mSceneMgr->unloadAllResources();
+            mSceneMgr = nullptr;
+        }
 
         if (mMaterialMgr != nullptr)
         {

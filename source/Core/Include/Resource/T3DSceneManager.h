@@ -55,6 +55,10 @@ namespace Tiny3D
         TResult saveScene(Scene *scene, Archive *archive);
 
         ScenePtr getCurrentScene() const { return mCurrentScene; }
+
+        TResult unloadAllResources();
+
+        TResult unloadUnused();
         
     protected:
         SceneManager() = default;
