@@ -27,7 +27,7 @@
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API Transform3D : public Component
+    class T3D_ENGINE_API Transform3D : public TransformNode
     {
         TRTTI_ENABLE(Component)
         TRTTI_FRIEND
