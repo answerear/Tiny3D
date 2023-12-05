@@ -108,6 +108,8 @@ namespace Tiny3D
 
             component = comp;
             component->setGameObject(this);
+
+            mComponents.emplace(type, component);
         } while (false);
 
         return component;
