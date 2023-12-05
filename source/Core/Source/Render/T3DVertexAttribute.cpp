@@ -25,7 +25,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    VertexAttribute::VertexAttribute(size_t stream, size_t offset, Type type, Semantic semantic, size_t semanticIndex /* = 0 */)
+    VertexAttribute::VertexAttribute(uint32_t stream, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex /* = 0 */)
         : mType(type)
         , mSemantic(semantic)
         , mOffset(offset)
@@ -37,16 +37,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexAttribute::~VertexAttribute()
+    uint32_t VertexAttribute::getSize() const
     {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    size_t VertexAttribute::getSize() const
-    {
-        size_t s = 0;
+        uint32_t s = 0;
         switch (mType)
         {
         case Type::E_VAT_FLOAT1:

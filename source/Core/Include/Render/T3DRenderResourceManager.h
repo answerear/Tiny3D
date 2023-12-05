@@ -26,6 +26,7 @@
 #include "Render/T3DDepthStencilState.h"
 #include "Render/T3DRasterizerState.h"
 #include "Render/T3DSamplerState.h"
+#include "Render/T3DVertexDeclaration.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DPixelBuffer.h"
@@ -122,6 +123,8 @@ namespace Tiny3D
     {
     public:
         static RenderBufferManagerPtr create();
+
+        VertexDeclarationPtr addVertexDeclaration(VertexDeclarationPtr decl);
         
         VertexBufferPtr loadVertexBuffer(size_t vertexSize, size_t vertexCount, 
             const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
@@ -146,11 +149,19 @@ namespace Tiny3D
         
         template<typename BUFFER_TYPE, typename CREATOR, typename ...ARGS>
         SmartPtr<BUFFER_TYPE> loadBuffer(BufferCache &buffers, const UUID &uuid, CREATOR creator, ARGS ...args);
-        
+
+        using VertexDeclarations = TMap<uint32_t, VertexDeclarationPtr>;
+
+        /// 顶点缓冲区对象池
         BufferCache mVBufferCache {};
+        /// 索引缓冲区对象池
         BufferCache mIBufferCache {};
+        /// 像素缓冲区对象池
         BufferCache mPBufferCache {};
+        /// 常量缓冲区对象池
         BufferCache mCBufferCache {};
+        /// 顶点声明对象池
+        VertexDeclarations  mVertexDeclarations {};
     };
 
     #define T3D_RENDER_BUFFER_MGR   (RenderBufferManager::getInstance())

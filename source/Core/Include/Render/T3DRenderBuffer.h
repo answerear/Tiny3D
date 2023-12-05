@@ -33,8 +33,6 @@ namespace Tiny3D
     class T3D_ENGINE_API RenderBuffer : public RenderResource
     {
     public:
-        ~RenderBuffer() override;
-
         virtual size_t readData(size_t offset, size_t size, void *dst);
 
         virtual TResult readData(size_t offset, size_t size, RenderBuffeReadCallback callback);
@@ -51,6 +49,8 @@ namespace Tiny3D
         
     protected:
         RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+
+        ~RenderBuffer() override;
         
         Buffer      mBuffer {};
         MemoryType  mMemoryType {MemoryType::kVRAM};

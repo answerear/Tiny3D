@@ -19,6 +19,9 @@
 
 
 #include "Render/T3DConstantBuffer.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIConstantBuffer.h"
 
 
 namespace Tiny3D
@@ -49,6 +52,7 @@ namespace Tiny3D
 
     bool ConstantBuffer::onLoad()
     {
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createConstantBuffer(this);
         return true;
     }
 
@@ -56,6 +60,7 @@ namespace Tiny3D
 
     bool ConstantBuffer::onUnload()
     {
+        mRHIResource = nullptr;
         return true;
     }
 

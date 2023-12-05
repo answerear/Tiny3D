@@ -28,23 +28,20 @@
 
 namespace Tiny3D
 {
-    /**
-     * @brief   顶点属性
-     */
-    class T3D_ENGINE_API VertexAttribute
+    TSTRUCT()
+    struct T3D_ENGINE_API VertexAttribute
     {
+        TRTTI_FRIEND
+        
     public:
-        /**
-         * @enum    Type
-         * @brief   顶点属性类型
-         */
+        TENUM()
         enum class Type : uint32_t
         {
-            E_VAT_FLOAT1 = 0,   /**< 1 float */
-            E_VAT_FLOAT2 = 1,   /**< 2 float tuple */
-            E_VAT_FLOAT3 = 2,   /**< 3 float tuple */
-            E_VAT_FLOAT4 = 3,   /**< 4 float tuple */
-            E_VAT_COLOR = 4,    /**< color type */
+            E_VAT_FLOAT1 = 0,
+            E_VAT_FLOAT2 = 1,
+            E_VAT_FLOAT3 = 2,
+            E_VAT_FLOAT4 = 3,
+            E_VAT_COLOR = 4,
             E_VAT_BYTE4 = 5,
             E_VAT_BYTE4_NORM = 6,
             E_VAT_UBYTE4 = 7,
@@ -73,10 +70,7 @@ namespace Tiny3D
             E_VAT_FLOAT16_4 = 30,
         };
 
-        /**
-         * @enum    Semantic
-         * @brief   顶点语义解释
-         */
+        TENUM()
         enum class Semantic : uint32_t
         {
             E_VAS_POSITION = 0,     /**< 位置 */
@@ -90,69 +84,54 @@ namespace Tiny3D
             E_VAS_BINORMAL = 8,     /**< 副法线 */
         };
 
-        /**
-         * @fn  VertexAttribute::VertexAttribute();
-         * @brief   默认构造函数
-         */
-        VertexAttribute();
+        VertexAttribute() : VertexAttribute(0, 0, Type::E_VAT_FLOAT1, Semantic::E_VAS_POSITION, 0) {}
 
-        /**
-         * @brief   构造函数
-         * @param [in]  stream          数据流索引.
-         * @param [in]  offset          相对当前顶点起始位置的偏移.
-         * @param [in]  type            顶点数据类型.
-         * @param [in]  semantic        顶点语义解释.
-         * @param [in]  semanticIndex   语义索引.
-         */
-        VertexAttribute(size_t stream, size_t offset, Type type, Semantic semantic, size_t semanticIndex);
+        VertexAttribute(uint32_t stream, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex);
 
-        /**
-         * @brief   析构函数
-         */
-        virtual ~VertexAttribute();
+        TPROPERTY(RTTRFuncName="Stream", RTTRFuncType="getter")
+        uint32_t getStream() const { return mStream; }
 
-        /**
-         * @brief   获取数据流索引
-         * @returns 返回数据流索引.
-         */
-        size_t getStream() const { return mStream; }
+        TPROPERTY(RTTRFuncName="Offset", RTTRFuncType="getter")
+        uint32_t getOffset() const { return mOffset; }
 
-        /**
-         * @brief   获取顶点相对一个顶点数据起点的偏移位置
-         * @returns 返回偏移值.
-         */
-        size_t getOffset() const { return mOffset; }
-
-        /**
-         * @brief   获取顶点数据类型
-         * @returns 返回顶点数据类型.
-         */
+        TPROPERTY(RTTRFuncName="Type", RTTRFuncType="getter")
         Type getType() const { return mType; }
 
-        /**
-         * @brief   获取顶点语义解释
-         * @returns 返回顶点语义解释.
-         */
+        TPROPERTY(RTTRFuncName="Semantic", RTTRFuncType="getter")
         Semantic getSemantic() const { return mSemantic; }
 
-        /**
-         * @brief   获取顶点语义索引
-         * @returns 返回顶点语义索引.
-         */
-        size_t getSemanticIndex() const { return mSemanticIndex; }
+        TPROPERTY(RTTRFuncName="SemanticIndex", RTTRFuncType="getter")
+        uint32_t getSemanticIndex() const { return mSemanticIndex; }
 
-        /**
-         * @brief   获取顶点数据字节大小
-         * @returns 返回顶点数据字节大小.
-         */
-        size_t getSize() const;
+        uint32_t getSize() const;
 
     protected:
-        Type        mType;          /**< 顶点属性数据类型 */
-        Semantic    mSemantic;      /**< 顶点属性语义 */
-        size_t      mOffset;        /**< 顶点属性定义的在顶点缓存中的偏移值 */
-        size_t      mStream;        /**< 对应定义的顶点缓存索引 */
-        size_t      mSemanticIndex; /**< 顶点语义索引 */
+        TPROPERTY(RTTRFuncName="Stream", RTTRFuncType="setter")
+        void setStream(uint32_t stream) { mStream = stream; }
+
+        TPROPERTY(RTTRFuncName="Offset", RTTRFuncType="setter")
+        void setOffset(uint32_t offset) { mOffset = offset; }
+
+        TPROPERTY(RTTRFuncName="Type", RTTRFuncType="setter")
+        void setType(Type type) { mType = type; }
+
+        TPROPERTY(RTTRFuncName="Semantic", RTTRFuncType="setter")
+        void setSemantic(Semantic semantic) { mSemantic = semantic; }
+
+        TPROPERTY(RTTRFuncName="SemanticIndex", RTTRFuncType="setter")
+        void setSemanticIndex(uint32_t index) { mSemanticIndex = index; }
+        
+    protected:
+        /// 顶点属性数据类型
+        Type        mType {Type::E_VAT_FLOAT4};
+        /// 顶点属性语义
+        Semantic    mSemantic {Semantic::E_VAS_POSITION};
+        /// 顶点属性定义的在顶点缓存中的偏移值
+        uint32_t    mOffset {0};
+        /// 对应定义的顶点缓存索引
+        uint32_t    mStream {0};
+        /// 顶点语义索引
+        uint32_t    mSemanticIndex {0};
     };
 }
 

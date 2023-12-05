@@ -59,16 +59,39 @@ namespace  Tiny3D
     template<typename STATE_TYPE, typename DESC_TYPE>
     SmartPtr<STATE_TYPE> RenderStateManager::loadState(StateCache &states, const DESC_TYPE &desc, uint32_t hash /* = 0 */)
     {
-        SmartPtr<STATE_TYPE> state = STATE_TYPE::create(desc, hash);
-        auto rval = states.emplace(state->hash(), state);
-        if (rval.second)
+        uint32_t code = hash;
+        
+        if (hash == 0)
         {
-            if (!PostLoad(state))
+            code = CRC::crc32((uint8_t*)&desc, sizeof(desc));
+        }
+
+        SmartPtr<STATE_TYPE> state;
+        auto itr = states.find(code);
+        
+        if (itr == states.end())
+        {
+            state = STATE_TYPE::create(desc, code);
+            auto rval = states.emplace(code, state);
+            
+            if (rval.second)
             {
-                states.erase(state->hash());
-                state = nullptr;
+                if (!PostLoad(state))
+                {
+                    states.erase(code);
+                    state = nullptr;
+                }
+            }
+            else
+            {
+                T3D_ASSERT(rval.second, "insert state must succeed !");
             }
         }
+        else
+        {
+            state = itr->second;
+        }
+        
 
         return state;
     }
@@ -152,6 +175,12 @@ namespace  Tiny3D
 
         do
         {
+            ret = _GC(mVertexDeclarations);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
             ret = _GC(mVBufferCache);
             if (T3D_FAILED(ret))
             {
@@ -169,9 +198,40 @@ namespace  Tiny3D
             {
                 break;
             }
+
+            ret = _GC(mCBufferCache);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VertexDeclarationPtr RenderBufferManager::addVertexDeclaration(VertexDeclarationPtr decl)
+    {
+        auto itr = mVertexDeclarations.find(decl->hash());
+        if (itr != mVertexDeclarations.end())
+        {
+            // 已经存在，返回一个已有的
+            decl = itr->second;
+        }
+        else
+        {
+            // 不存在，那就放到缓存中
+            mVertexDeclarations.emplace(decl->hash(), decl);
+
+            if (!PostLoad(decl))
+            {
+                mVertexDeclarations.erase(decl->hash());
+                decl = nullptr;
+            }
+        }
+
+        return decl;
     }
 
     //--------------------------------------------------------------------------
@@ -190,6 +250,19 @@ namespace  Tiny3D
         {
             // 没有，新建一个
             rb = creator(args...);
+            auto rval = buffers.emplace(uuid, rb);
+            if (rval.second)
+            {
+                if (!PostLoad(rb))
+                {
+                    buffers.erase(uuid);
+                    rb = nullptr;
+                }
+            }
+            else
+            {
+                T3D_ASSERT(rval.second, "insert buffers must succeed !");
+            }
         }
 
         return rb;

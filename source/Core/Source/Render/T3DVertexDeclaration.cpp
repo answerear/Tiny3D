@@ -19,6 +19,9 @@
 
 
 #include "Render/T3DVertexDeclaration.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIVertexDeclaration.h"
 
 
 namespace Tiny3D
@@ -73,21 +76,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const VertexAttribute &VertexDeclaration::addAttribute(size_t stream, 
-        size_t offset, VertexAttribute::Type type, 
-        VertexAttribute::Semantic semantic, size_t semanticIndex)
+    const VertexAttribute &VertexDeclaration::addAttribute(uint32_t stream, uint32_t offset, VertexAttribute::Type type, VertexAttribute::Semantic semantic, uint32_t semanticIndex)
     {
-        VertexAttribute element(stream, offset, type, semantic, semanticIndex);
-
-        mVertexAttributes.push_back(element);
-        return mVertexAttributes.back();
+        mIsDirty = true;
+        return mVertexAttributes.emplace_back(stream, offset, type, semantic, semanticIndex);
     }
 
     //--------------------------------------------------------------------------
 
-    const VertexAttribute &VertexDeclaration::insertAttribute(size_t pos, 
-        size_t stream, size_t offset, VertexAttribute::Type type, 
-        VertexAttribute::Semantic semantic, size_t semanticIndex)
+    const VertexAttribute &VertexDeclaration::insertAttribute(uint32_t pos, uint32_t stream, uint32_t offset, VertexAttribute::Type type, VertexAttribute::Semantic semantic, uint32_t semanticIndex)
     {
         if (pos >= mVertexAttributes.size())
         {
@@ -101,23 +98,24 @@ namespace Tiny3D
             ++itr;
         }
 
-        itr = mVertexAttributes.insert(itr, VertexAttribute(stream, offset, type, semantic, semanticIndex));
+        itr = mVertexAttributes.emplace(itr, stream, offset, type, semantic, semanticIndex);
+        mIsDirty = true;
+        
         return *itr;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult VertexDeclaration::addAttribute(
-        const VertexAttribute &vertexAttribute)
+    TResult VertexDeclaration::addAttribute(const VertexAttribute &vertexAttribute)
     {
-        mVertexAttributes.push_back(vertexAttribute);
+        mVertexAttributes.emplace_back(vertexAttribute);
+        mIsDirty = true;
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult VertexDeclaration::insertAttribute(size_t pos, 
-        const VertexAttribute &vertexAttribute)
+    TResult VertexDeclaration::insertAttribute(uint32_t pos, const VertexAttribute &vertexAttribute)
     {
         if (pos >= mVertexAttributes.size())
         {
@@ -132,13 +130,14 @@ namespace Tiny3D
         }
 
         itr = mVertexAttributes.insert(itr, vertexAttribute);
-
+        mIsDirty = true;
+        
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult VertexDeclaration::removeAttribute(size_t pos)
+    TResult VertexDeclaration::removeAttribute(uint32_t pos)
     {
         if (pos >= mVertexAttributes.size())
         {
@@ -155,12 +154,14 @@ namespace Tiny3D
         }
 
         mVertexAttributes.erase(itr);
+        mIsDirty = true;
+        
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult VertexDeclaration::removeAttribute(VertexAttribute::Semantic semantic, size_t sematicIndex)
+    TResult VertexDeclaration::removeAttribute(VertexAttribute::Semantic semantic, uint32_t sematicIndex)
     {
         TResult ret = T3D_ERR_NOT_FOUND;
         VertexAttriListItr itr = mVertexAttributes.begin();
@@ -170,6 +171,7 @@ namespace Tiny3D
                 && itr->getSemanticIndex() == sematicIndex)
             {
                 mVertexAttributes.erase(itr);
+                mIsDirty = true;
                 ret = T3D_OK;
                 break;
             }
@@ -189,14 +191,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult VertexDeclaration::updateAttribute(size_t pos, size_t stream, 
-        size_t offset, VertexAttribute::Type type, 
-        VertexAttribute::Semantic semantic, size_t semanticIndex)
+    TResult VertexDeclaration::updateAttribute(uint32_t pos, uint32_t stream, uint32_t offset, VertexAttribute::Type type, VertexAttribute::Semantic semantic, uint32_t semanticIndex)
     {
         if (pos >= mVertexAttributes.size())
         {
-            T3D_LOG_ERROR(LOG_TAG_RENDER,
-                "Update attribute but pos is out of bound !!!");
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Update attribute but pos is out of bound !!!");
             return T3D_ERR_OUT_OF_BOUND;
         }
 
@@ -208,13 +207,14 @@ namespace Tiny3D
         }
 
         *itr = VertexAttribute(stream, offset, type, semantic, semanticIndex);
-
+        mIsDirty = true;
+        
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    const VertexAttribute *VertexDeclaration::findAttributeBySemantic(VertexAttribute::Semantic semantic, size_t semanticIndex) const
+    const VertexAttribute *VertexDeclaration::findAttributeBySemantic(VertexAttribute::Semantic semantic, uint32_t semanticIndex) const
     {
         VertexAttriListConstItr itr = mVertexAttributes.begin();
         while (itr != mVertexAttributes.end())
@@ -233,7 +233,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t VertexDeclaration::getVertexSize(size_t source) const
+    uint32_t VertexDeclaration::getVertexSize(uint32_t source) const
     {
         size_t s = 0;
         VertexAttriListConstItr itr = mVertexAttributes.begin();
@@ -251,16 +251,32 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    uint32_t VertexDeclaration::hash()
+    {
+        if (mIsDirty)
+        {
+            // 数据更新了，重新计算 hash 值
+            mHash = CRC::crc32((uint8_t*)mVertexAttributes.data(), (uint32_t)mVertexAttributes.size() * sizeof(VertexAttribute));
+            mIsDirty = false;
+        }
+        
+        return mHash;
+    }
+
+    //--------------------------------------------------------------------------
     
     bool VertexDeclaration::onLoad() 
     {
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createVertexDeclaration(this);
         return true;
     }
 
     //--------------------------------------------------------------------------
     
     bool VertexDeclaration::onUnload() 
-    { 
+    {
+        mRHIResource = nullptr;
         return true;
     }
 

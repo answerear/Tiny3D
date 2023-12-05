@@ -19,6 +19,9 @@
 
 
 #include "Render/T3DVertexBuffer.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIVertexBuffer.h"
 
 
 namespace Tiny3D
@@ -51,6 +54,7 @@ namespace Tiny3D
 
     bool VertexBuffer::onLoad()
     {
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createVertexBuffer(this);
         return true;
     }
 
@@ -58,6 +62,7 @@ namespace Tiny3D
 
     bool VertexBuffer::onUnload()
     {
+        mRHIResource = nullptr;
         return true;
     }
 

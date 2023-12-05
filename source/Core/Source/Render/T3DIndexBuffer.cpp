@@ -19,6 +19,9 @@
 
 
 #include "Render/T3DIndexBuffer.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIIndexBuffer.h"
 
 
 namespace Tiny3D
@@ -49,6 +52,7 @@ namespace Tiny3D
 
     bool IndexBuffer::onLoad()
     {
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createIndexBuffer(this);
         return true;
     }
 
@@ -56,6 +60,7 @@ namespace Tiny3D
 
     bool IndexBuffer::onUnload()
     {
+        mRHIResource = nullptr;
         return true;
     }
 
