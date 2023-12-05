@@ -69,8 +69,8 @@ namespace Tiny3D
                 << "|" << level 
                 << "|" << threadID
                 << "|" << filename
-                << "|" << line
-                << "|" << tag
+                << "(" << line
+                << ")|" << tag
                 << "|" << content
                 <<"\n";
             mContentSize = (uint32_t)ss.str().length();
