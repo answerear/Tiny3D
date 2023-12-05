@@ -20,6 +20,8 @@
 
 #include "Component/T3DCamera.h"
 #include "Kernel/T3DGameObject.h"
+#include "RHI/T3DRHIRenderWindow.h"
+#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D

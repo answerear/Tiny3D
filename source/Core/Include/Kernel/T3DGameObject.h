@@ -60,10 +60,10 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Active", RTTRFuncType="setter")
         void setActive(bool active) { mIsActive = active; }
 
-        TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="setter")
         void setCameraMask(uint32_t mask) { mCameraMask = mask; }
 
-        TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="getter")
         uint32_t getCameraMask() const { return mCameraMask; }
 
         ComponentPtr addComponent(const String &name)
@@ -76,7 +76,7 @@ namespace Tiny3D
         SmartPtr<T> addComponent()
         {
             RTTRType type = RTTRType::get<T>();
-            return addComponent(type);
+            return smart_pointer_cast<T>(addComponent(type));
         }
 
         ComponentPtr getComponent(const String &name) const
