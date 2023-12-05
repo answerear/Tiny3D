@@ -100,13 +100,13 @@ namespace Tiny3D
 
             rttr::variant var = type.create();
             bool ok = false;
-            component = var.convert<Component*>(&ok);
+            Component *comp = var.convert<Component*>(&ok);
             if (!ok)
             {
-                component = nullptr;
                 break;
             }
 
+            component = comp;
             component->setGameObject(this);
         } while (false);
 
