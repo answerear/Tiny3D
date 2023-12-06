@@ -46,6 +46,8 @@ namespace Tiny3D
 
         virtual void update();
 
+        void destroy();
+
     protected:
         Component(const UUID &uuid = UUID::INVALID);
 
@@ -55,6 +57,8 @@ namespace Tiny3D
         void setUUID(const UUID &uuid) { mUUID = uuid; }
 
         virtual TResult cloneProperties(const Component * const src);
+
+        virtual void onDestroy();
 
     protected:
         /// 唯一 ID

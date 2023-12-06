@@ -37,7 +37,7 @@ namespace Tiny3D
     public:
         static CameraPtr create();
 
-        ~Camera() override = default;
+        ~Camera() override;
         
         ComponentPtr clone() const override;
 

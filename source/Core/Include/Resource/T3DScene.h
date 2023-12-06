@@ -72,6 +72,10 @@ namespace Tiny3D
         ResourcePtr clone() const override;
 
         void cloneProperties(const Resource * const src) override;
+
+        TResult onLoad() override;
+        
+        TResult onUnload() override;
         
     private:
         Scene() : Scene("") {}

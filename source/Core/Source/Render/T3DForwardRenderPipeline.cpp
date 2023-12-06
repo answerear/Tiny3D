@@ -133,13 +133,6 @@ namespace Tiny3D
         // 先逐个渲染到纹理，然后最后按照顺序把渲染到纹理 blit 到渲染窗口
         for (auto camera : mCameras)
         {
-            const auto itr = mRenderQueue.find(camera);
-            
-            if (itr == mRenderQueue.end())
-            {
-                continue;
-            }
-
             // 设置渲染目标为相机对应纹理
             RenderTexturePtr rt = camera->getRenderTexture();
             if (rt != nullptr)
@@ -160,37 +153,41 @@ namespace Tiny3D
             // 清除 depth buffer、stencil buffer
             ctx->clearDepthStencil(camera->getClearDepth(), camera->getClearStencil());
 
-            for (auto itemQueue : itr->second)
+            const auto itr = mRenderQueue.find(camera);
+
+            if (itr != mRenderQueue.end())
             {
-                const RenderGroup &group = itemQueue.second;
-                
-                for (auto itemGroup : group)
+                for (auto itemQueue : itr->second)
                 {
-                    Material *material = itemGroup.first;
-                    const Renderables &renderables = itemGroup.second;
+                    const RenderGroup &group = itemQueue.second;
 
-                    // TODO : 设置 shader 参数
-                    ShaderPtr shader = material->getShader();
-                    TechniquePtr tech = shader->getCurrentTechnique();
-                    
-                    for (auto params : material->getConstantParams())
+                    for (auto itemGroup : group)
                     {
-                        
-                    }
+                        Material *material = itemGroup.first;
+                        const Renderables &renderables = itemGroup.second;
 
-                    for (auto renderable : renderables)
-                    {
-                        // 设置 vertex declaration
-                        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
-                    
-                        // 设置 vertex buffer
-                        ctx->setVertexBuffer(renderable->getVertexBuffer());
+                        // TODO : 设置 shader 参数
+                        ShaderPtr shader = material->getShader();
+                        TechniquePtr tech = shader->getCurrentTechnique();
 
-                        // 设置 index buffer
-                        ctx->setIndexBuffer(renderable->getIndexBuffer());
+                        for (auto params : material->getConstantParams())
+                        {
+                        }
 
-                        // render
-                        ctx->render();
+                        for (auto renderable : renderables)
+                        {
+                            // 设置 vertex declaration
+                            ctx->setVertexDeclaration(renderable->getVertexDeclaration());
+
+                            // 设置 vertex buffer
+                            ctx->setVertexBuffer(renderable->getVertexBuffer());
+
+                            // 设置 index buffer
+                            ctx->setIndexBuffer(renderable->getIndexBuffer());
+
+                            // render
+                            ctx->render();
+                        }
                     }
                 }
             }

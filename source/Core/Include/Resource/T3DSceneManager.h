@@ -35,11 +35,11 @@ namespace Tiny3D
         virtual ScenePtr loadScene(Archive *archive, const String &name) = 0;
 
         virtual TResult saveScene(Scene *scene, Archive *archive) = 0;
+
+        virtual TResult unloadScene(ScenePtr &scene);
     };
 
-    class T3D_ENGINE_API SceneManager
-        : public Object
-        , public Singleton<SceneManager>
+    class T3D_ENGINE_API SceneManager : public Object, public Singleton<SceneManager>
     {
     public:
         static SceneManagerPtr create();
@@ -56,9 +56,9 @@ namespace Tiny3D
 
         ScenePtr getCurrentScene() const { return mCurrentScene; }
 
-        TResult unloadAllResources();
+        void setCurrentScene(Scene *scene) { mCurrentScene = scene; }
 
-        TResult unloadUnused();
+        TResult unloadScene();
         
     protected:
         SceneManager() = default;

@@ -20,15 +20,17 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     template <typename VisitAction, typename ...Args>
     void TransformNode::visitActive(VisitAction &&action, Args &&...args)
     {
         if (getGameObject()->isActive())
         {
-            // 先更新自己
+            // 更新自己
             action(this, std::forward<Args>(args)...);
 
-            // 再遍历子结点
+            // 遍历子结点
             TransformNodePtr node = getFirstChild();
 
             while (node != nullptr)
@@ -40,15 +42,17 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename VisitAction, typename  ...Args>
     void TransformNode::visitVisible(VisitAction &&action, Args &&...args)
     {
         if (getGameObject()->isVisible())
         {
-            // 先更新自己
+            // 更新自己
             action(this, std::forward<Args>(args)...);
 
-            // 再遍历子结点
+            // 遍历子结点
             TransformNodePtr node = getFirstChild();
 
             while (node != nullptr)
@@ -60,13 +64,15 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename VisitAction, typename ...Args>
     void TransformNode::visitAll(VisitAction &&action, Args &&...args)
     {
-        // 先更新自己
+        // 更新自己
         action(this, std::forward<Args>(args)...);
 
-        // 再遍历子结点
+        // 遍历子结点
         TransformNodePtr node = getFirstChild();
 
         while (node != nullptr)
@@ -76,34 +82,107 @@ namespace Tiny3D
             node = node->getNextSibling();
         }
     }
+
+    //--------------------------------------------------------------------------
+
+    template <typename VisitAction, typename ...Args>
+    void TransformNode::reverseVisitActive(VisitAction &&action, Args &&...args)
+    {
+        if (getGameObject()->isActive())
+        {
+            // 遍历子结点
+            TransformNodePtr node = getLastChild();
+
+            while (node != nullptr)
+            {
+                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+                child->visitActive(action, std::forward<Args>(args)...);
+                node = node->getPrevSibling();
+            }
+
+            // 更新自己
+            action(this, std::forward<Args>(args)...);
+        }
+    }
+
+    template <typename VisitAction, typename ...Args>
+    void TransformNode::reverseVisitVisible(VisitAction &&action, Args &&...args)
+    {
+        if (getGameObject()->isVisible())
+        {
+            // 遍历子结点
+            TransformNodePtr node = getLastChild();
+
+            while (node != nullptr)
+            {
+                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+                child->visitVisible(action, std::forward<Args>(args)...);
+                node = node->getPrevSibling();
+            }
+
+            // 更新自己
+            action(this, std::forward<Args>(args)...);
+        }
+    }
+
+    template <typename VisitAction, typename ...Args>
+    void TransformNode::reverseVisitAll(VisitAction &&action, Args &&...args)
+    {
+        // 遍历子结点
+        TransformNodePtr node = getLastChild();
+
+        while (node != nullptr)
+        {
+            TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
+            child->visitAll(action, std::forward<Args>(args)...);
+            node = node->getPrevSibling();
+        }
+
+        // 更新自己
+        action(this, std::forward<Args>(args)...);
+    }
+    
+    //--------------------------------------------------------------------------
     
     inline TransformNodePtr TransformNode::getFirstChild() const
     {
         return mFirstChild;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline TransformNodePtr TransformNode::getLastChild() const
     {
         return mLastChild;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline TransformNodePtr TransformNode::getPrevSibling() const
     {
         return mPrevSibling;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline TransformNodePtr TransformNode::getNextSibling() const
     {
         return mNextSibling;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline size_t TransformNode::getChildrenCount() const
     {
         return mChildrenCount;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline TransformNodePtr TransformNode::getParent() const
     {
         return mParent;
     }
+
+    //--------------------------------------------------------------------------
 }

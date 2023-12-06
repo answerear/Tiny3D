@@ -66,12 +66,24 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="getter")
         uint32_t getCameraMask() const { return mCameraMask; }
 
+        void destroy();
+
+        /**
+         * \brief 添加指定类名的组件
+         * \param [in] name : 组件类名
+         * \return 返回新增的组件对象
+         */
         ComponentPtr addComponent(const String &name)
         {
             RTTRType type = RTTRType::get_by_name(name);
             return addComponent(type);
         }
 
+        /**
+         * \brief 添加指定类型的组件
+         * \tparam [in] T : 组件类型，必须是 Component 子类
+         * \return 返回新增的组件对象
+         */
         template <typename T>
         SmartPtr<T> addComponent()
         {
@@ -79,12 +91,70 @@ namespace Tiny3D
             return smart_pointer_cast<T>(addComponent(type));
         }
 
+        /**
+         * \brief 移除指定类名的组件对象，仅移除第一个符合类名的组件
+         * \param [in] name : 组件类名
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult removeComponent(const String &name)
+        {
+            RTTRType type = RTTRType::get_by_name(name);
+            return removeComponent(type);
+        }
+
+        /**
+         * \brief 移除指定类型组件对象，仅移除第一个符合类名的组件
+         * \tparam [in] T : 组件类型
+         * \return 调用成功返回 T3D_OK
+         */
+        template <typename T>
+        TResult removeComponent()
+        {
+            RTTRType type = RTTRType::get<T>();
+            return removeComponent(type);
+        }
+
+        /**
+         * \brief 移除所有对应类型的组件对象
+         * \param [in] name : 组件类名 
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult removeComponents(const String &name)
+        {
+            RTTRType type = RTTRType::get_by_name(name);
+            return removeComponents(type);
+        }
+
+        /**
+         * \brief 移除所有对应类型的组件对象
+         * \tparam [in] T : 组件类型
+         * \return 调用成功返回 T3D_OK
+         */
+        template <typename T>
+        TResult removeComponents()
+        {
+            RTTRType type = RTTRType::get<T>();
+            return removeComponents(type);
+        }
+
+        void removeAllComponents();
+
+        /**
+         * \brief 获取指定类型名的组件对象，仅获取到第一个匹配类名的
+         * \param [in] name : 组件类名
+         * \return 调用成功返回组件对象，否则返回 nullptr
+         */
         ComponentPtr getComponent(const String &name) const
         {
             RTTRType type = RTTRType::get_by_name(name);
             return getComponent(type);
         }
 
+        /**
+         * \brief 获取指定类型名的组件对象，仅获取到第一个匹配类名的
+         * \tparam [in] T : 组件类型
+         * \return 调用成功返回组件对象，否则返回 nullptr
+         */
         template <typename T>
         SmartPtr<T> getComponent() const
         {
@@ -92,12 +162,22 @@ namespace Tiny3D
             return smart_pointer_cast<T>(getComponent(type));
         }
 
+        /**
+         * \brief 获取指定类型名的所有组件对象
+         * \param [in] name : 组件类名
+         * \return 返回对应类型所有组件对象
+         */
         TArray<ComponentPtr> getComponents(const String &name) const
         {
             RTTRType type = RTTRType::get_by_name(name);
             return getComponents(type);
         }
 
+        /**
+         * \brief 获取指定类型名的所有组件对象
+         * \tparam [in] T : 组件类型
+         * \return 返回对应类型所有组件对象
+         */
         template <typename T>
         TArray<SmartPtr<T>> getComponents() const
         {
@@ -115,10 +195,16 @@ namespace Tiny3D
 
         ComponentPtr addComponent(const RTTRType &type);
 
+        TResult removeComponent(const RTTRType &type);
+
+        TResult removeComponents(const RTTRType &type);
+
         ComponentPtr getComponent(const RTTRType &type) const;
 
         TArray<ComponentPtr> getComponents(const RTTRType &type) const;
 
+        virtual void onDestroy();
+        
     private:
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         void setUUID(const UUID &uuid) { mUUID = uuid; }

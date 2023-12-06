@@ -207,4 +207,30 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult Scene::onLoad()
+    {
+        return Resource::onLoad();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Scene::onUnload()
+    {
+        TResult ret = T3D_OK;
+
+        for (auto itr = mRootGameObjects.rbegin(); itr != mRootGameObjects.rend(); ++itr)
+        {
+            (*itr)->destroy();
+        }
+
+        mRootGameObjects.clear();        
+        mCameras.clear();
+        
+        ret = Resource::onUnload();
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
 }

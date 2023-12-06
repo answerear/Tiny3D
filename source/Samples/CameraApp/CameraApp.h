@@ -36,7 +36,6 @@ protected:  /// from Tiny3D::Application
     void applicationWillTerminate() override;
 
 protected:
-    Tiny3D::ScenePtr    mScene {nullptr};
 };
 
 

@@ -286,6 +286,19 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void TransformNode::onDestroy()
+    {
+        TransformNode *parent = getParent();
+        if (parent != nullptr)
+        {
+            parent->removeChild(this);
+        }
+        
+        Component::onDestroy();
+    }
+
+    //--------------------------------------------------------------------------
 }
 
 

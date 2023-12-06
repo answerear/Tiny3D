@@ -29,7 +29,7 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API Transform3D : public TransformNode
     {
-        TRTTI_ENABLE(Component)
+        TRTTI_ENABLE(TransformNode)
         TRTTI_FRIEND
         
     public:
@@ -38,6 +38,8 @@ namespace Tiny3D
         ~Transform3D() override = default;
 
         ComponentPtr clone() const override;
+
+        void onDestroy() override;
         
     protected:
         Transform3D() = default;

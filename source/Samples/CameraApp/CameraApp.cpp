@@ -39,21 +39,26 @@ CameraApp::~CameraApp()
 bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // create scene
-    mScene = T3D_SCENE_MGR.createScene("TestScene");
-
+    ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
+    T3D_SCENE_MGR.setCurrentScene(scene);
+    
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
-    mScene->addRootGameObject(go);
+    scene->addRootGameObject(go);
     Transform3DPtr root = go->addComponent<Transform3D>();
 
     // left camera
     go = GameObject::create("LeftCamera");
     Transform3DPtr left = go->addComponent<Transform3D>();
-    root->addChild(left);    
+    root->addChild(left);
     CameraPtr camera = go->addComponent<Camera>();
     Viewport vpLeft {0.0f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f};
     camera->setViewport(vpLeft);
     camera->setClearColor(ColorRGB::GREEN);
+    RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
+    RenderTargetPtr rt = RenderTarget::create(rw);
+    camera->setRenderTarget(rt);
+    scene->addCamera(camera);
 
     // right camera
     go = GameObject::create("RightCamera");
@@ -63,12 +68,14 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Viewport vpRight {0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f};    
     camera->setViewport(vpRight);
     camera->setClearColor(ColorRGB::BLUE);
-    
+    camera->setRenderTarget(rt);
+    scene->addCamera(camera);
+
     return true;
 }
 
 void CameraApp::applicationWillTerminate() 
 {
-    mScene = nullptr;
+    
 }
 

@@ -58,10 +58,10 @@ namespace Tiny3D
 
         RenderWindowPtr getRenderWindow(const String &name) const;
 
-        // RenderWindowPtr getDefaultRenderWindow() const 
-        // { 
-        //     return mDefaultWindow; 
-        // }
+        RenderWindowPtr getDefaultRenderWindow() const 
+        { 
+            return mDefaultWindow; 
+        }
 
         bool run();
 

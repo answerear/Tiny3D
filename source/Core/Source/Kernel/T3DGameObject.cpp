@@ -85,6 +85,27 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void GameObject::destroy()
+    {
+        TransformNodePtr node = getComponent<TransformNode>();
+        if (node != nullptr)
+        {
+            node->reverseVisitAll([](TransformNode *node)
+            {
+                node->getGameObject()->onDestroy();
+            });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::onDestroy()
+    {
+        removeAllComponents();
+    }
+
+    //--------------------------------------------------------------------------
     
     ComponentPtr GameObject::addComponent(const RTTRType &type)
     {
@@ -117,9 +138,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr GameObject::getComponent(const RTTRType &type) const
+    void GameObject::removeAllComponents()
     {
-        ComponentPtr component;
+        for (auto itr = mComponents.begin(); itr != mComponents.end(); ++itr)
+        {
+            itr->second->destroy();
+        }
+
+        mComponents.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GameObject::removeComponent(const RTTRType &type)
+    {
+        TResult ret = T3D_OK;
 
         do
         {
@@ -127,9 +160,72 @@ namespace Tiny3D
             if (itr == mComponents.end())
             {
                 // 没找到
+                ret = T3D_ERR_NOT_FOUND;
                 break;
             }
 
+            itr->second->destroy();
+            mComponents.erase(itr);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GameObject::removeComponents(const RTTRType &type)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto range = mComponents.equal_range(type);
+            if (range.first == range.second)
+            {
+                ret = T3D_ERR_NOT_FOUND;
+                break;
+            }
+            
+            for (auto itr = range.first; itr != range.second; ++itr)
+            {
+                itr->second->destroy();
+                mComponents.erase(itr);
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ComponentPtr GameObject::getComponent(const RTTRType &type) const
+    {
+        ComponentPtr component;
+
+        do
+        {
+            bool found = false;
+            auto itr = mComponents.find(type);
+            if (itr == mComponents.end())
+            {
+                // 没找到，找所有子类
+                for (auto t : type.get_derived_classes())
+                {
+                    auto it = mComponents.find(t);
+                    if (it != mComponents.end())
+                    {
+                        itr = it;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                break;
+            }
+            
             component = itr->second;
         } while (false);
 

@@ -27,6 +27,13 @@ namespace  Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    TResult SceneManagerImpl::unloadScene(ScenePtr &scene)
+    {
+        return unload(scene);
+    }
+
+    //--------------------------------------------------------------------------
+
     SceneManagerPtr SceneManager::create()
     {
         return new SceneManager();
@@ -70,23 +77,11 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SceneManager::unloadAllResources()
+    TResult SceneManager::unloadScene()
     {
         if (mImpl != nullptr)
         {
-            return mImpl->unloadAllResources();
-        }
-
-        return T3D_ERR_NOT_IMPLEMENT;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult SceneManager::unloadUnused()
-    {
-        if (mImpl != nullptr)
-        {
-            return mImpl->unloadUnused();
+            return mImpl->unloadScene(mCurrentScene);
         }
 
         return T3D_ERR_NOT_IMPLEMENT;

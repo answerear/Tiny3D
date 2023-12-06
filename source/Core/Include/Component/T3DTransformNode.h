@@ -47,6 +47,15 @@ namespace Tiny3D
         template <typename VisitAction, typename ...Args>
         void visitAll(VisitAction &&action, Args &&...args);
 
+        template <typename VisitAction, typename ...Args>
+        void reverseVisitActive(VisitAction &&action, Args &&...args);
+
+        template <typename VisitAction, typename ...Args>
+        void reverseVisitVisible(VisitAction &&action, Args &&...args);
+
+        template <typename VisitAction, typename ...Args>
+        void reverseVisitAll(VisitAction &&action, Args &&...args);
+
         virtual TResult addChild(TransformNodePtr node);
 
         virtual TResult removeChild(TransformNodePtr node);
@@ -82,8 +91,7 @@ namespace Tiny3D
 
         virtual void onDetachParent(TransformNodePtr parent);
 
-        // template <typename ...Args>
-        // using VisitAction = TFunction<void(TransformNode *, Args...)>;
+        void onDestroy() override;
 
     private:
         /// 子结点数量
