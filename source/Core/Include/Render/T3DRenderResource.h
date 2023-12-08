@@ -87,8 +87,8 @@ namespace Tiny3D
         using rhi_state_t = RHI_STATE_TYPE;
 
         uint32_t hash() const { return mHash; }
-        
-        const desc_t &getStateDesc() const { return mDesc; }
+
+        const DESC_TYPE &getStateDesc() const { return mDesc; }
 
         SmartPtr<rhi_state_t> getRHIState() const { return smart_pointer_cast<rhi_state_t>(mRHIResource); }
         

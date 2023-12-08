@@ -22,6 +22,7 @@
 #include "Kernel/T3DGameObject.h"
 #include "RHI/T3DRHIRenderWindow.h"
 #include "Render/T3DRenderWindow.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -37,6 +38,67 @@ namespace Tiny3D
     
     Camera::~Camera() 
     {
+        if (mRenderTexture != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(mRenderTexture);
+            mRenderTexture = nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Camera::setRenderTarget(RenderTargetPtr target)
+    {
+        if (target != mRenderarget)
+        {
+            if (mRenderTexture != nullptr)
+            {
+                T3D_TEXTURE_MGR.unload(mRenderTexture);
+                mRenderTexture = nullptr;
+            }
+
+            if (target != nullptr)
+            {
+                switch (target->getType())
+                {
+                case RenderTarget::Type::E_RT_WINDOW:
+                    {
+                        // 新建个 render texture ，相机先渲染到 render texture 上，然后再画到屏幕上
+                        String name = getGameObject()->getName() + "##RT";
+                        RenderWindowPtr renderWindow = target->getRenderWindow();
+                        const RenderWindowDesc &desc = renderWindow->getDescriptor();
+                        PixelFormat format;
+                        switch (desc.ColorDepth)
+                        {
+                        case 8:
+                            format = PixelFormat::E_PF_PALETTE8;
+                            break;
+                        case 16:
+                            format = PixelFormat::E_PF_B5G6R5;
+                            break;
+                        case 24:
+                            format = PixelFormat::E_PF_B8G8R8;
+                            break;
+                        case 32:
+                            format = PixelFormat::E_PF_B8G8R8X8;
+                            break;
+                        default:
+                            format = PixelFormat::E_PF_B8G8R8;
+                            break;
+                        }
+                        mRenderTexture = T3D_TEXTURE_MGR.createRenderTexture(name, desc.Width, desc.Height, format, 1, desc.MSAA.Count, desc.MSAA.Quality);
+                    }
+                    break;
+                case RenderTarget::Type::E_RT_TEXTURE:
+                    {
+                        // 渲染目标本来就是渲染纹理，则不创建了渲染纹理，直接绘制到渲染纹理上
+                    }
+                    break;
+                }
+            }
+        }
+        
+        mRenderarget = target;
     }
 
     //--------------------------------------------------------------------------

@@ -337,7 +337,7 @@ namespace  Tiny3D
         return loadBuffer<PixelBuffer2D>(mPBufferCache, uid,
             [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
             {
-                return PixelBuffer2D::create(desc, memType, usage, accMode);
+                return PixelBuffer2D::create(desc, memType, usage, accMode, false);
             },
             desc, memType, usage, accMode);
     }
@@ -360,6 +360,24 @@ namespace  Tiny3D
             desc, memType, usage, accMode);
     }
     
+    //--------------------------------------------------------------------------
+
+    PixelBuffer2DPtr RenderBufferManager::loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    {
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<PixelBuffer2D>(mPBufferCache, uid,
+            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            {
+                return PixelBuffer2D::create(desc, memType, usage, accMode, true);
+            },
+            desc, memType, usage, accMode);
+    }
+
     //--------------------------------------------------------------------------
 
     RenderTargetManagerPtr RenderTargetManager::create()

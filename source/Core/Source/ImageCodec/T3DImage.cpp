@@ -55,18 +55,18 @@ namespace Tiny3D
         case PixelFormat::E_PF_PALETTE8:
             bpp = 8;
             break;
-        case PixelFormat::E_PF_R5G6B5:
-        case PixelFormat::E_PF_A1R5G5B5:
-        case PixelFormat::E_PF_A4R4G4B4:
+        case PixelFormat::E_PF_B5G6R5:
+        case PixelFormat::E_PF_B5G5R5A1:
+        case PixelFormat::E_PF_B4R4G4A4:
             bpp = 16;
             break;
         case PixelFormat::E_PF_R8G8B8:
         case PixelFormat::E_PF_B8G8R8:
             bpp = 24;
             break;
-        case PixelFormat::E_PF_A8R8G8B8:
+        case PixelFormat::E_PF_R8G8B8A8:
         case PixelFormat::E_PF_B8G8R8A8:
-        case PixelFormat::E_PF_X8R8G8B8:
+        case PixelFormat::E_PF_R8G8B8X8:
         case PixelFormat::E_PF_B8G8R8X8:
             bpp = 32;
             break;
@@ -84,8 +84,7 @@ namespace Tiny3D
         : mWidth(0)
         , mHeight(0)
         , mBPP(0)
-        , mPitch(0)
-        , mFormat(PixelFormat::E_PF_A8R8G8B8)
+        , mPitch(0), mFormat(PixelFormat::E_PF_B8G8R8A8)
         , mHasAlpha(false)
         , mIsPreMulti(false)
         , mIsDataExternal(false)
@@ -369,39 +368,39 @@ namespace Tiny3D
     {
         switch (mFormat)
         {
-        case PixelFormat::E_PF_A1R5G5B5:
-        {
-            redMask = Color4::RGB555_RED_MASK;
-            greenMask = Color4::RGB555_GREEN_MASK;
-            blueMask = Color4::RGB555_BLUE_MASK;
-            alphaMask = Color4::RGB555_ALPHA_MASK;
-        }
-        break;
-        case PixelFormat::E_PF_R5G6B5:
-        {
-            redMask = Color4::RGB565_RED_MASK;
-            greenMask = Color4::RGB565_GREEN_MASK;
-            blueMask = Color4::RGB565_BLUE_MASK;
-            alphaMask = 0;
-        }
-        break;
-        case PixelFormat::E_PF_A4R4G4B4:
-        {
-            redMask = Color4::RGB444_RED_MASK;
-            greenMask = Color4::RGB444_GREEN_MASK;
-            blueMask = Color4::RGB444_BLUE_MASK;
-            alphaMask = Color4::RGB444_ALPHA_MASK;
-        }
-        break;
+        case PixelFormat::E_PF_B5G5R5A1:
+            {
+                redMask = Color4::RGB555_RED_MASK;
+                greenMask = Color4::RGB555_GREEN_MASK;
+                blueMask = Color4::RGB555_BLUE_MASK;
+                alphaMask = Color4::RGB555_ALPHA_MASK;
+            }
+            break;
+        case PixelFormat::E_PF_B5G6R5:
+            {
+                redMask = Color4::RGB565_RED_MASK;
+                greenMask = Color4::RGB565_GREEN_MASK;
+                blueMask = Color4::RGB565_BLUE_MASK;
+                alphaMask = 0;
+            }
+            break;
+        case PixelFormat::E_PF_B4R4G4A4:
+            {
+                redMask = Color4::RGB444_RED_MASK;
+                greenMask = Color4::RGB444_GREEN_MASK;
+                blueMask = Color4::RGB444_BLUE_MASK;
+                alphaMask = Color4::RGB444_ALPHA_MASK;
+            }
+            break;
         case PixelFormat::E_PF_R8G8B8:
             break;
         case PixelFormat::E_PF_B8G8R8:
             break;
-        case PixelFormat::E_PF_A8R8G8B8:
+        case PixelFormat::E_PF_R8G8B8A8:
             break;
         case PixelFormat::E_PF_B8G8R8A8:
             break;
-        case PixelFormat::E_PF_X8R8G8B8:
+        case PixelFormat::E_PF_R8G8B8X8:
             break;
         case PixelFormat::E_PF_B8G8R8X8:
             break;

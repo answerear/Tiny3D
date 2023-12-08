@@ -264,8 +264,7 @@ namespace Tiny3D
             if (res == nullptr)
             {
                 ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid resource object !");
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid resource object !");
                 break;
             }
             

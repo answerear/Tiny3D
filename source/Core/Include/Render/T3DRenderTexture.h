@@ -30,11 +30,22 @@ namespace Tiny3D
     class T3D_ENGINE_API RenderTexture : public Texture2D
     {
     public:
+        static RenderTexturePtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality);
+
+        TEXTURE_TYPE getTextureType() const override;
         
     protected:
         RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality);
 
         ~RenderTexture() override;
+
+        ResourcePtr clone() const override;
+
+        void cloneProperties(const Resource * const src) override;
+
+        TResult onCreate() override;
+
+        TResult onLoad() override;
     };
 }
 

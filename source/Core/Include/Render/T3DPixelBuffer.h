@@ -29,37 +29,58 @@
 
 namespace Tiny3D
 {
-    class T3D_ENGINE_API PixelBuffer1D : public RenderBuffer
+    template<typename Object_t, typename Descriptor_t>
+    class T3D_ENGINE_API PixelBufferT : public RenderBuffer
     {
     public:
-        static PixelBuffer1DPtr create(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+        static SmartPtr<Object_t> create(Descriptor_t *desc, MemoryType memType, Usage usage, uint32_t accMode)
+        {
+            return new Object_t(desc, memType, usage, accMode);
+        }
+
+        const Descriptor_t &getDescriptor() const { return *mDesc; }
+
+    protected:
+        PixelBufferT(Descriptor_t *desc, MemoryType memType, Usage usage, uint32_t accMode)
+            : RenderBuffer(desc->buffer, memType, usage, accMode)
+            , mDesc(desc)
+        {
+            
+        }
+        
+    protected:
+        Descriptor_t *mDesc {nullptr};
+    };
+
+    template class T3D_ENGINE_API PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>;
+    
+    class T3D_ENGINE_API PixelBuffer1D : public PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>
+    {
+    public:
+        PixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
         
-    protected:
-        PixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
-
+    protected:        
         ~PixelBuffer1D() override = default;
 
         bool onLoad() override;
 
         bool onUnload() override;
-
-    protected:
-        /// 缓冲区描述
-        PixelBuffer1DDesc   *mDesc {nullptr};
     };
+
+    template class T3D_ENGINE_API PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>;
     
-    class T3D_ENGINE_API PixelBuffer2D : public RenderBuffer
+    class T3D_ENGINE_API PixelBuffer2D : public PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>
     {
     public:
-        static PixelBuffer2DPtr create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+        static PixelBuffer2DPtr create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, bool isRenderTexture);
+
+        PixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, bool isRenderTexture = false);
 
         Type getType() const override;
         
     protected:
-        PixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
-
         ~PixelBuffer2D() override = default;
         
         bool onLoad() override;
@@ -67,29 +88,25 @@ namespace Tiny3D
         bool onUnload() override;
 
     protected:
-        /// 缓冲区描述
-        PixelBuffer2DDesc   *mDesc {nullptr};
+        /// 是否 render texture
+        bool    mIsRenderTexture {false};
     };
 
-    class T3D_ENGINE_API PixelBuffer3D : public RenderBuffer
+    template class T3D_ENGINE_API PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>;
+    
+    class T3D_ENGINE_API PixelBuffer3D : public PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>
     {
     public:
-        static PixelBuffer3DPtr create(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+        PixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
         
     protected:
-        PixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
-
         ~PixelBuffer3D() override = default;
 
         bool onLoad() override;
 
         bool onUnload() override;
-
-    protected:
-        /// 缓冲区描述
-        PixelBuffer3DDesc   *mDesc {nullptr};
     };
 }
 

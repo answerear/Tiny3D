@@ -62,7 +62,9 @@ namespace Tiny3D
     class D3D11Buffer;
     class D3D11VertexBuffer;
     class D3D11IndexBuffer;
-    class D3D11PixelBuffer;
+    class D3D11PixelBuffer1D;
+    class D3D11PixelBuffer2D;
+    class D3D11PixelBuffer3D;
     class D3D11ConstantBuffer;
     class D3D11VertexDeclaration;
     class D3D11VertexArrayObject;
@@ -89,7 +91,9 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(D3D11Buffer);
     T3D_DECLARE_SMART_PTR(D3D11VertexBuffer);
     T3D_DECLARE_SMART_PTR(D3D11IndexBuffer);
-    T3D_DECLARE_SMART_PTR(D3D11PixelBuffer);
+    T3D_DECLARE_SMART_PTR(D3D11PixelBuffer1D);
+    T3D_DECLARE_SMART_PTR(D3D11PixelBuffer2D);
+    T3D_DECLARE_SMART_PTR(D3D11PixelBuffer3D);
     T3D_DECLARE_SMART_PTR(D3D11ConstantBuffer);
     T3D_DECLARE_SMART_PTR(D3D11VertexDeclaration);
     T3D_DECLARE_SMART_PTR(D3D11VertexArrayObject);

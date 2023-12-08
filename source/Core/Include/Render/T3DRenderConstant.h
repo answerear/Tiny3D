@@ -200,8 +200,10 @@ namespace Tiny3D
         kStatic = 0,
         /// 资源创建后不会被 GPU 写，GPU 只进行读
         kImmutable,
-        /// 数据会频繁修改
+        /// 资源 CPU 写，GPU 读
         kDynamic,
+        /// 资源可以从 GPU 复制到 CPU 读
+        kCopy,
     };
 
     TENUM()

@@ -56,7 +56,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIRenderTargetPtr NullContext::createRenderTexture(RenderTexturePtr renderTexture)
+    RHIPixelBuffer2DPtr NullContext::createRenderTexture(PixelBuffer2DPtr buffer)
     {
         return nullptr;
     }

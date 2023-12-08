@@ -45,7 +45,11 @@ namespace Tiny3D
 
         size_t getBufferSize() const { return mBuffer.DataSize; }
 
-        uint32_t getAccessMode() const { return mAccessMode; }
+        MemoryType getMemoryType() const { return mMemoryType; }
+        
+        Usage getUsage() const { return mUsage; }
+        
+        uint32_t getCPUAccessMode() const { return mAccessMode; }
         
     protected:
         RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);

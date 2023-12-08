@@ -27,17 +27,14 @@
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    PixelBuffer1DPtr PixelBuffer1D::create(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
-    {
-        return new PixelBuffer1D(desc, memType, usage, accMode);
-    }
-
+    template class PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>;
+    template class PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>;
+    template class PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>;
+    
     //--------------------------------------------------------------------------
 
     PixelBuffer1D::PixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
-        : RenderBuffer(desc->buffer, memType, usage, accMode)
+        : PixelBufferT(desc, memType, usage, accMode)
     {
         
     }
@@ -67,16 +64,16 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    PixelBuffer2DPtr PixelBuffer2D::create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+    PixelBuffer2DPtr PixelBuffer2D::create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, bool isRenderTexture)
     {
-        return new PixelBuffer2D(desc, memType, usage, accMode);
+        return new PixelBuffer2D(desc, memType, usage, accMode, isRenderTexture);
     }
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer2D::PixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
-        : RenderBuffer(desc->buffer, memType, usage, accMode)
-        , mDesc(desc)
+    PixelBuffer2D::PixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, bool isRenderTexture)
+        : PixelBufferT(desc, memType, usage, accMode)
+        , mIsRenderTexture(isRenderTexture)
     {
         // size_t bpp = Image::getBPP(mFormat);
         // mPitch = Image::calcPitch(mWidth, bpp);
@@ -93,7 +90,15 @@ namespace Tiny3D
 
     bool PixelBuffer2D::onLoad()
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer(this);
+        if (mIsRenderTexture)
+        {
+            mRHIResource = T3D_AGENT.getActiveRHIContext()->createRenderTexture(this);
+        }
+        else
+        {
+            mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer(this);
+        }
+        
         return true;
     }
 
@@ -107,15 +112,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer3DPtr PixelBuffer3D::create(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
-    {
-        return new PixelBuffer3D(desc, memType, usage, accMode);
-    }
-
-    //--------------------------------------------------------------------------
-
     PixelBuffer3D::PixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
-        : RenderBuffer(desc->buffer, memType, usage, accMode)
+        : PixelBufferT(desc, memType, usage, accMode)
     {
         
     }

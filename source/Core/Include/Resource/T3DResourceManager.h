@@ -38,6 +38,13 @@ namespace Tiny3D
         ~ResourceManager() override = default;
 
         /**
+         * \brief 卸载对应资源
+         * \param [in] res : 要卸载的资源对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult unload(ResourcePtr res);
+        
+        /**
          * \brief 卸载所有资源
          * \return 调用成功返回 T3D_OK
          */
@@ -116,13 +123,6 @@ namespace Tiny3D
          * \return 返回资源对象
          */
         virtual ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) = 0;
-        
-        /**
-         * \brief 卸载对应资源
-         * \param [in] res : 要卸载的资源对象
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult unload(ResourcePtr res);
 
         /**
          * \brief 同步保存资源

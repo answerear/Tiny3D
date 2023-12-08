@@ -43,7 +43,7 @@ namespace Tiny3D
 
         RenderTargetPtr getRenderTarget() const { return mRenderarget; }
 
-        void setRenderTarget(RenderTargetPtr target) { mRenderarget = target; }
+        void setRenderTarget(RenderTargetPtr target);
 
         RenderTexturePtr getRenderTexture() const { return mRenderTexture; }
 
@@ -86,7 +86,7 @@ namespace Tiny3D
         /// 深度缓冲填充值
         Real    mClearDepth {0.0f};
         /// 模板缓冲填充值
-        uint_t  mClearStencil {0};
+        uint8_t mClearStencil {0};
     };
 }
 

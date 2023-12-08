@@ -21,6 +21,7 @@
 #include "Resource/T3DTextureManager.h"
 #include "Resource/T3DTexture.h"
 #include "Render/T3DPixelBuffer.h"
+#include "Render/T3DRenderTexture.h"
 #include "Serializer/T3DSerializerManager.h"
 
 
@@ -33,6 +34,14 @@ namespace Tiny3D
         return new TextureManager();
     }
     
+    //--------------------------------------------------------------------------
+
+    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    {
+        return smart_pointer_cast<RenderTexture>(createResource(name, 7,
+            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality));
+    }
+
     //--------------------------------------------------------------------------
 
     Texture1DPtr TextureManager::createTexture1D(const String &name, uint32_t width,
@@ -187,7 +196,13 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
-                
+                uint32_t width = va_arg(args, uint32_t);
+                uint32_t height = va_arg(args, uint32_t);
+                PixelFormat format = va_arg(args, PixelFormat);
+                uint32_t mipmaps = va_arg(args, uint32_t);
+                uint32_t MSAACount = va_arg(args, uint32_t);
+                uint32_t MSAAQuality = va_arg(args, uint32_t);
+                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality);
             }
             break;
         }

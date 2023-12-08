@@ -21,6 +21,8 @@
 #include "T3DD3D11Context.h"
 #include "T3DD3D11RenderWindow.h"
 #include "T3DD3D11Error.h"
+#include "T3DD3D11RenderBuffer.h"
+#include "T3DD3D11Mapping.h"
 
 
 namespace Tiny3D
@@ -773,7 +775,7 @@ namespace Tiny3D
                 UINT uMSAACount = desc.MSAA.Count;
                 UINT uMSAAQuality = desc.MSAA.Quality;
 
-                DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+                DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM;
                 
                 if (desc.MSAA.Count == 0)
                 {
@@ -918,9 +920,118 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIRenderTargetPtr D3D11Context::createRenderTexture(RenderTexturePtr renderTexture)
+    RHIPixelBuffer2DPtr D3D11Context::createRenderTexture(PixelBuffer2DPtr buffer)
     {
-        return nullptr;
+        D3D11PixelBuffer2DPtr d3dPixelBuffer = D3D11PixelBuffer2D::create();
+
+        auto lambda = [this](PixelBuffer2D *buffer, D3D11PixelBuffer2D *d3dPixelBuffer)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                // 获取支持的 MSAA
+                UINT uMSAACount = buffer->getDescriptor().sampleDesc.Count;
+                UINT uMSAAQuality = buffer->getDescriptor().sampleDesc.Quality;
+
+                DXGI_FORMAT format = D3D11Mapping::get(buffer->getDescriptor().format);
+
+                if (uMSAACount == 0)
+                {
+                    uMSAACount = 1;
+                }
+                else
+                {
+                    UINT uNumQuality = 0;
+                    HRESULT hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
+                        break;
+                    }
+
+                    uMSAAQuality = uNumQuality - 1;
+                    // uMSAACount = uNumQuality;
+                }
+
+                // 创建颜色纹理资源
+                D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
+                texDesc.SampleDesc.Count = uMSAACount;
+                texDesc.SampleDesc.Quality = uMSAAQuality;
+                texDesc.Usage = D3D11Mapping::get(buffer->getUsage()); // 设置纹理用途
+                texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
+                texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
+                texDesc.MiscFlags = 0; // 设置其他标志
+
+                HRESULT hr = mD3DDevice->CreateTexture2D(&texDesc, nullptr, &d3dPixelBuffer->D3DTexture);
+                if (FAILED(hr))
+                {
+                    // 错误
+                    ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create color texture failed when create render texture ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                // 创建渲染目标视图
+                hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, nullptr, &d3dPixelBuffer->D3DRTView);
+                if (FAILED(hr))
+                {
+                    // 错误
+                    ret = T3D_ERR_D3D11_CREATE_RENDER_TARGET_VIEW;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateRenderTargetView failed when create render texture ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                // 创建 depth & stencil 纹理
+                D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(buffer->getDescriptor());
+                depthStencilDesc.SampleDesc.Count = uMSAACount;
+                depthStencilDesc.SampleDesc.Quality = uMSAAQuality;
+                depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+                depthStencilDesc.Usage = D3D11Mapping::get(buffer->getUsage());
+                depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+                depthStencilDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode());
+                depthStencilDesc.MiscFlags = 0;
+
+                hr = mD3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &d3dPixelBuffer->D3DDSTexture);
+                if (FAILED(hr))
+                {
+                    // 错误
+                    ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth & stencil texture failed when create render texture ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                // 创建 depth & stencil 视图
+                hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DDSTexture, nullptr, &d3dPixelBuffer->D3DDSView);
+                if (FAILED(hr))
+                {
+                    // 错误
+                    ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_VIEW;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilView failed when create render texture ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                // 创建着色器资源视图
+                hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, nullptr, &d3dPixelBuffer->D3DSRView);
+                if (FAILED(hr))
+                {
+                    // 错误
+                    ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateShaderResourceView failed when create render texture ! DX ERROR [%d]", hr);
+                    break;
+                }
+            } while (false);
+            
+            return ret;
+        };
+        
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, buffer.get(), d3dPixelBuffer.get());
+        if (T3D_FAILED(ret))
+        {
+            d3dPixelBuffer = nullptr;
+        }
+        
+        return d3dPixelBuffer;
     }
     
     //--------------------------------------------------------------------------
@@ -928,6 +1039,7 @@ namespace Tiny3D
     TResult D3D11Context::setRenderTarget(RenderWindowPtr renderWindow)
     {
         TResult ret = T3D_OK;
+        
         if (renderWindow == nullptr)
         {
             mCurrentRenderWindow = renderWindow;

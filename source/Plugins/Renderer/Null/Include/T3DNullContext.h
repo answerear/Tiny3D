@@ -43,10 +43,10 @@ namespace Tiny3D
 
         /**
          * \brief 创建 RHI 渲染纹理
-         * \param [in] renderTexture : 引擎渲染纹理
+         * \param [in] buffer : 引擎渲染纹理
          * \return 调用成功返回新建的 RHI 对象
          */
-        RHIRenderTargetPtr createRenderTexture(RenderTexturePtr renderTexture) override;
+        RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2DPtr buffer) override;
 
         /**
          * \brief 设置当前渲染窗口

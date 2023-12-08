@@ -20,10 +20,18 @@
 
 #include "Render/T3DRenderTexture.h"
 #include "Render/T3DPixelBuffer.h"
+#include "Render/T3DRenderResourceManager.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    {
+        return new RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality);
+    }
+    
     //--------------------------------------------------------------------------
     
     RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
@@ -37,6 +45,45 @@ namespace Tiny3D
     RenderTexture::~RenderTexture()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    TEXTURE_TYPE RenderTexture::getTextureType() const
+    {
+        return TEXTURE_TYPE::TT_RENDER_TEXTURE;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr RenderTexture::clone() const
+    {
+        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality);
+        texture->cloneProperties(this);
+        return texture;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RenderTexture::cloneProperties(const Resource *const src)
+    {
+        const RenderTexture * const other = static_cast<const RenderTexture * const>(src);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderTexture::onCreate()
+    {
+        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUNone);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderTexture::onLoad()
+    {
+        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUNone);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

@@ -17,50 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_CONSTANT_H__
-#define __T3D_CONSTANT_H__
 
-
-#include "T3DPrerequisites.h"
+#include "T3DD3D11RenderState.h"
+#include "T3DD3D11Context.h"
 
 
 namespace Tiny3D
 {
-    /**
-     * @enum    PixelFormat
-     * @brief   Values that represent pixel formats
-     */
-    TENUM()
-    enum class PixelFormat : uint32_t
-    {
-        E_PF_UNKNOWN = 0,
-        E_PF_PALETTE8,
-        E_PF_B5G6R5,
-        E_PF_B5G5R5A1,
-        E_PF_B4R4G4A4,
-        E_PF_R8G8B8,
-        E_PF_B8G8R8,
-        E_PF_R8G8B8A8,
-        E_PF_B8G8R8A8,
-        E_PF_R8G8B8X8,
-        E_PF_B8G8R8X8,
-    };
+    //--------------------------------------------------------------------------
 
-    TENUM()
-    enum class TEXTURE_TYPE : uint32_t
-    {
-        TT_1D = 0,
-        TT_2D,
-        TT_2D_ARRAY,
-        TT_3D,
-        TT_CUBE,
-        TT_CUBE_ARRAY,
-        TT_RENDER_TEXTURE,
-        TT_MAX
-    };
-
-    #define SHADER_TAG_QUEUE        "Queue"
+    //--------------------------------------------------------------------------
 }
 
 
-#endif    /*__T3D_CONFIG_H__*/

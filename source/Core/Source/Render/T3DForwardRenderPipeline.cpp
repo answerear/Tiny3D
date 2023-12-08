@@ -195,7 +195,14 @@ namespace Tiny3D
             // 把相机渲染纹理渲染到相机对应的渲染目标上
             if (rt != nullptr)
             {
-                ctx->blit(rt, camera->getRenderTarget());
+                const Viewport &vp = camera->getViewport();
+                Real left = rt->getWidth() * vp.Left;
+                Real top = rt->getHeight() * vp.Top;
+                Real width = rt->getWidth() * vp.Width;
+                Real height = rt->getHeight() * vp.Height;
+                Vector3 offset(left, top, 0.0f);
+                Vector3 box(width, height, 0.0f);
+                ctx->blit(rt, camera->getRenderTarget(), offset, box, offset);
             }
 
             // 重置 render target 为空
