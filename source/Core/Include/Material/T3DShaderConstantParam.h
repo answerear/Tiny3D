@@ -173,8 +173,6 @@ namespace Tiny3D
         /// 变量名 
         String      mName {};
     };
-
-    using ShaderConstantParams = TMap<String, ShaderConstantParamPtr>;
 }
 
 

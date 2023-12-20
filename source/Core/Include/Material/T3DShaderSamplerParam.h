@@ -81,8 +81,6 @@ namespace Tiny3D
         TEXTURE_TYPE    mTexType {TEXTURE_TYPE::TT_2D};
         TexturePtr      mTexture {nullptr};
     };
-
-    using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;
 }
 
 

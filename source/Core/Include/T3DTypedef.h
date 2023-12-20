@@ -147,6 +147,9 @@ namespace Tiny3D
     using ShaderLabTags = TMap<String, String>;
     using ShaderLabTagsValue = ShaderLabTags::value_type;
 
+    using ShaderConstantParams = TMap<String, ShaderConstantParamPtr>;
+    using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;
+
     using GameObjectList = TList<GameObjectPtr>;
     using CameraList = TMap<uint32_t, Camera *>;
 }
