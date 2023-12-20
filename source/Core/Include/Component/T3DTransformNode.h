@@ -23,8 +23,6 @@
 
 
 #include "Component/T3DComponent.h"
-#include "Kernel/T3DGameObject.h"
-#include "Render/T3DRenderPipeline.h"
 
 
 namespace Tiny3D

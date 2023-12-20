@@ -22,8 +22,7 @@
 
 
 #include "Component/T3DComponent.h"
-#include "Render/T3DRenderTarget.h"
-#include "Render/T3DRenderTexture.h"
+#include "Render/T3DViewport.h"
 
 
 namespace Tiny3D
@@ -71,6 +70,12 @@ namespace Tiny3D
         Camera() = default;
 
     protected:
+        /// 顶点声明
+        VertexDeclarationPtr    mVertexDecl {nullptr};
+        /// 顶点缓冲区
+        VertexBufferPtr     mVB {nullptr};
+        /// 索引缓冲区
+        IndexBufferPtr      mIB {nullptr};
         /// 相机对应的渲染纹理，如果渲染目标是渲染纹理，则直接渲染到渲染目标上，不经过纹理
         RenderTexturePtr    mRenderTexture {nullptr};
         /// 相机对应的渲染目标
