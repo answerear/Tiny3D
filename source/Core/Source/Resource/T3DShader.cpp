@@ -19,6 +19,9 @@
 
 
 #include "Resource/T3DShader.h"
+#include "Material/T3DTechnique.h"
+#include "Material/T3DShaderConstantParam.h"
+#include "Material/T3DShaderSamplerParam.h"
 
 
 namespace Tiny3D

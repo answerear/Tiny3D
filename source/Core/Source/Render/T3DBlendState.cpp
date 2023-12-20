@@ -21,6 +21,7 @@
 #include "Render/T3DBlendState.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIBlendState.h"
 
 
 namespace  Tiny3D

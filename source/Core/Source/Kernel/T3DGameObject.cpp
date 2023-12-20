@@ -21,6 +21,8 @@
 #include "Kernel/T3DGameObject.h"
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransformNode.h"
+#include "Component/T3DComponent.h"
+#include "Render/T3DRenderPipeline.h"
 
 
 namespace Tiny3D

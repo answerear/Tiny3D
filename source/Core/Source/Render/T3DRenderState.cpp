@@ -20,6 +20,7 @@
 
 #include "Render/T3DRenderState.h"
 #include "Render/T3DRenderResourceManager.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace  Tiny3D

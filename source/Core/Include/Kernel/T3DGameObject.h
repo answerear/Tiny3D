@@ -21,8 +21,7 @@
 #define __T3D_GAME_OBJECT_H__
 
 
-#include "Component/T3DComponent.h"
-#include "Render/T3DRenderPipeline.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D

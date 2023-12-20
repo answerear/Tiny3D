@@ -17,36 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_IMAGE_MANAGER_H__
+#define __T3D_IMAGE_MANAGER_H__
 
-#include "Render/T3DTextureState.h"
-#include "Render/T3DRenderResourceManager.h"
+
+#include "Kernel/T3DConstant.h"
+#include "Resource/T3DResourceManager.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    TextureStatePtr TextureState::create()
+    class T3D_ENGINE_API ImageManager
+        : public Singleton<ImageManager>
+        , public ResourceManager
     {
-        return new TextureState();
-    }
-    
-    //--------------------------------------------------------------------------
+    public:
+        static ImageManagerPtr create();
 
-    void TextureState::setSamplerDesc(const SamplerDesc &desc)
-    {
-        uint32_t hashSrc = CRC::crc32((uint8_t*)&mSamplerDesc, sizeof(mSamplerDesc));
-        uint32_t hashDst = CRC::crc32((uint8_t*)&desc, sizeof(desc));
-
-        if (hashSrc != hashDst || mSamplerState == nullptr)
-        {
-            mSamplerDesc = desc;
-
-            // 新生成一个 sampler state 对象
-            mSamplerState = T3D_RENDER_STATE_MGR.loadSamplerState(mSamplerDesc, hashDst);
-        }
+        ImagePtr createImage(const String &name, uint32_t width, uint32_t height, PixelFormat format);
         
-    }
-    
-    //--------------------------------------------------------------------------
+        ImagePtr loadImage(Archive *archive, const String &name);
+
+        TResult saveImage(Archive *archive, Image *image);
+
+    protected:
+        ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
+
+        ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) override;
+        
+        TResult saveResource(DataStream &stream, Resource *res) override;
+    };
+
+    #define T3D_IMAGE_MGR    (ImageManager::getInstance()) 
 }
+
+
+#endif    /*__T3D_IMAGE_MANAGER_H__*/

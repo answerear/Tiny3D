@@ -23,7 +23,6 @@
 
 
 #include "RHI/T3DRHIRenderTarget.h"
-#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D

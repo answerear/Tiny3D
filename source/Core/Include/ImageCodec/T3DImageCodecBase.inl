@@ -20,6 +20,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     inline void ImageCodecBase::setImageData(Image &image, uint8_t *data, 
         size_t size)
     {
@@ -27,6 +29,8 @@ namespace Tiny3D
         image.mDataSize = size;
     }
 
+    //--------------------------------------------------------------------------
+    
     inline void ImageCodecBase::setImageDimension(Image &image, int32_t width, 
         int32_t height, int32_t pitch)
     {
@@ -35,13 +39,17 @@ namespace Tiny3D
         image.mPitch = pitch;
     }
 
-    inline void ImageCodecBase::setImageInfo(Image &image, uint32_t sourceType,
-        int32_t bpp, bool hasAlpha, bool isPreMulti, PixelFormat eFormat)
+    //--------------------------------------------------------------------------
+    
+    inline void ImageCodecBase::setImageInfo(Image &image, Image::FileFormat fileFormat,
+        int32_t bpp, bool hasAlpha, bool isPreMulti, PixelFormat ePixelFormat)
     {
         image.mBPP = bpp;
-        image.mSourceType = sourceType;
+        image.mFileFormat = fileFormat;
         image.mHasAlpha = hasAlpha;
         image.mIsPreMulti = isPreMulti;
-        image.mFormat = eFormat;
+        image.mPixelFormat = ePixelFormat;
     }
+
+    //--------------------------------------------------------------------------
 }

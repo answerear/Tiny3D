@@ -106,6 +106,8 @@ namespace Tiny3D
 
     ResourcePtr TextureManager::newResource(const String &name, int32_t argc, va_list args)
     {
+        T3D_ASSERT(argc > 1, "The number of arguments must be more than one !");
+        
         TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
 
         TexturePtr texture;
@@ -114,6 +116,7 @@ namespace Tiny3D
         {
         case TEXTURE_TYPE::TT_1D:
             {
+                T3D_ASSERT(argc == 6, "The number of arguments when create Texture1D does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
                 Buffer data;
@@ -125,6 +128,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_2D:
             {
+                T3D_ASSERT(argc == 9, "The number of arguments when create Texture2D does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -139,6 +143,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_2D_ARRAY:
             {
+                T3D_ASSERT(argc == 10, "The number of arguments when create Texture2DArray does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -154,6 +159,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_3D:
             {
+                T3D_ASSERT(argc == 8, "The number of arguments when create Texture2D does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 uint32_t depth = va_arg(args, uint32_t);
@@ -167,6 +173,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_CUBE:
             {
+                T3D_ASSERT(argc == 9, "The number of arguments when create Cubemap does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -181,6 +188,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_CUBE_ARRAY:
             {
+                T3D_ASSERT(argc == 10, "The number of arguments when create CubemapArray does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -196,6 +204,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
+                T3D_ASSERT(argc == 7, "The number of arguments when create RenderTexture does not match !");
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -212,94 +221,100 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Texture1DPtr TextureManager::loadTexture1D(Archive *archive, const String &name)
+    // Texture1DPtr TextureManager::loadTexture1D(Archive *archive, const String &name)
+    // {
+    //     return smart_pointer_cast<Texture1D>(load(archive, name, 1, TEXTURE_TYPE::TT_1D));
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // Texture2DPtr TextureManager::loadTexture2D(Archive *archive, const String &name)
+    // {
+    //     return smart_pointer_cast<Texture2D>(load(archive, name, 1, TEXTURE_TYPE::TT_2D));
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // Texture2DArrayPtr TextureManager::loadTexture2DArray(Archive *archive, const String &name)
+    // {
+    //     return smart_pointer_cast<Texture2DArray>(load(archive, name, 1, TEXTURE_TYPE::TT_2D_ARRAY));
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // Texture3DPtr TextureManager::loadTexture3D(Archive *archive, const String &name)
+    // {
+    //     return smart_pointer_cast<Texture3D>(load(archive, name, 1, TEXTURE_TYPE::TT_3D));
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // CubemapPtr TextureManager::loadCubemap(Archive *archive, const String &name)
+    // {
+    //     return smart_pointer_cast<Cubemap>(load(archive, name, 1, TEXTURE_TYPE::TT_CUBE));
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // CubemapArrayPtr TextureManager::loadCubemapArray(Archive *archive, const String &name)
+    // {
+    //     return smart_pointer_cast<CubemapArray>(load(archive, name, 1, TEXTURE_TYPE::TT_CUBE_ARRAY));
+    // }
+
+    TexturePtr TextureManager::loadTexture(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Texture1D>(load(archive, name, 1, TEXTURE_TYPE::TT_1D));
-    }
-
-    //--------------------------------------------------------------------------
-
-    Texture2DPtr TextureManager::loadTexture2D(Archive *archive, const String &name)
-    {
-        return smart_pointer_cast<Texture2D>(load(archive, name, 1, TEXTURE_TYPE::TT_2D));
-    }
-
-    //--------------------------------------------------------------------------
-
-    Texture2DArrayPtr TextureManager::loadTexture2DArray(Archive *archive, const String &name)
-    {
-        return smart_pointer_cast<Texture2DArray>(load(archive, name, 1, TEXTURE_TYPE::TT_2D_ARRAY));
-    }
-
-    //--------------------------------------------------------------------------
-
-    Texture3DPtr TextureManager::loadTexture3D(Archive *archive, const String &name)
-    {
-        return smart_pointer_cast<Texture3D>(load(archive, name, 1, TEXTURE_TYPE::TT_3D));
-    }
-
-    //--------------------------------------------------------------------------
-
-    CubemapPtr TextureManager::loadCubemap(Archive *archive, const String &name)
-    {
-        return smart_pointer_cast<Cubemap>(load(archive, name, 1, TEXTURE_TYPE::TT_CUBE));
-    }
-
-    //--------------------------------------------------------------------------
-
-    CubemapArrayPtr TextureManager::loadCubemapArray(Archive *archive, const String &name)
-    {
-        return smart_pointer_cast<CubemapArray>(load(archive, name, 1, TEXTURE_TYPE::TT_CUBE_ARRAY));
+        return smart_pointer_cast<Texture>(load(archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
     ResourcePtr TextureManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
     {
-        TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
-
-        TexturePtr texture;
-
-        switch (texType)
-        {
-        case TEXTURE_TYPE::TT_1D:
-            {
-                texture = T3D_SERIALIZER_MGR.deserialize<Texture1D>(stream);
-            }
-            break;
-        case TEXTURE_TYPE::TT_2D:
-            {
-                texture = T3D_SERIALIZER_MGR.deserialize<Texture2D>(stream);
-            }
-            break;
-        case TEXTURE_TYPE::TT_2D_ARRAY:
-            {
-                texture = T3D_SERIALIZER_MGR.deserialize<Texture2DArray>(stream);
-            }
-            break;
-        case TEXTURE_TYPE::TT_3D:
-            {
-                texture = T3D_SERIALIZER_MGR.deserialize<Texture3D>(stream);
-            }
-            break;
-        case TEXTURE_TYPE::TT_CUBE:
-            {
-                texture = T3D_SERIALIZER_MGR.deserialize<Cubemap>(stream);
-            }
-            break;
-        case TEXTURE_TYPE::TT_CUBE_ARRAY:
-            {
-                texture = T3D_SERIALIZER_MGR.deserialize<CubemapArray>(stream);
-            }
-            break;
-        case TEXTURE_TYPE::TT_RENDER_TEXTURE:
-            {
-                
-            }
-            break;
-        }
-        
-        return texture;
+        return T3D_SERIALIZER_MGR.deserialize<Texture>(stream);
+        // TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
+        //
+        // TexturePtr texture;
+        //
+        // switch (texType)
+        // {
+        // case TEXTURE_TYPE::TT_1D:
+        //     {
+        //         texture = T3D_SERIALIZER_MGR.deserialize<Texture1D>(stream);
+        //     }
+        //     break;
+        // case TEXTURE_TYPE::TT_2D:
+        //     {
+        //         texture = T3D_SERIALIZER_MGR.deserialize<Texture2D>(stream);
+        //     }
+        //     break;
+        // case TEXTURE_TYPE::TT_2D_ARRAY:
+        //     {
+        //         texture = T3D_SERIALIZER_MGR.deserialize<Texture2DArray>(stream);
+        //     }
+        //     break;
+        // case TEXTURE_TYPE::TT_3D:
+        //     {
+        //         texture = T3D_SERIALIZER_MGR.deserialize<Texture3D>(stream);
+        //     }
+        //     break;
+        // case TEXTURE_TYPE::TT_CUBE:
+        //     {
+        //         texture = T3D_SERIALIZER_MGR.deserialize<Cubemap>(stream);
+        //     }
+        //     break;
+        // case TEXTURE_TYPE::TT_CUBE_ARRAY:
+        //     {
+        //         texture = T3D_SERIALIZER_MGR.deserialize<CubemapArray>(stream);
+        //     }
+        //     break;
+        // case TEXTURE_TYPE::TT_RENDER_TEXTURE:
+        //     {
+        //         
+        //     }
+        //     break;
+        // }
+        //
+        // return texture;
     }
 
     //--------------------------------------------------------------------------

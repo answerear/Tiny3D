@@ -24,7 +24,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Resource/T3DMeta.h"
 
 
 namespace Tiny3D
@@ -57,6 +56,8 @@ namespace Tiny3D
             kMaterial,
             /// 紋理
             kTexture,
+            /// 图片
+            kImage,
             /// 著色器
             kShader,
             /// 模型数据

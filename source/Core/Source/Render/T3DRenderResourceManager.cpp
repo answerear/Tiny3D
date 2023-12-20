@@ -19,6 +19,17 @@
 
 
 #include "Render/T3DRenderResourceManager.h"
+#include "Render/T3DBlendState.h"
+#include "Render/T3DDepthStencilState.h"
+#include "Render/T3DRasterizerState.h"
+#include "Render/T3DSamplerState.h"
+#include "Render/T3DVertexDeclaration.h"
+#include "Render/T3DVertexBuffer.h"
+#include "Render/T3DIndexBuffer.h"
+#include "Render/T3DPixelBuffer.h"
+#include "Render/T3DConstantBuffer.h"
+#include "Render/T3DTextureDesc.h"
+#include "RHI/T3DRHIResource.h"
 
 
 namespace  Tiny3D

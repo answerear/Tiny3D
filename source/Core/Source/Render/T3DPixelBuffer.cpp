@@ -19,7 +19,7 @@
 
 
 #include "Render/T3DPixelBuffer.h"
-#include "ImageCodec/T3DImage.h"
+#include "Resource/T3DImage.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIPixelBuffer.h"
@@ -50,7 +50,7 @@ namespace Tiny3D
 
     bool PixelBuffer1D::onLoad()
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer(this);
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer1D(this);
         return true;
     }
 
@@ -96,7 +96,7 @@ namespace Tiny3D
         }
         else
         {
-            mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer(this);
+            mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer2D(this);
         }
         
         return true;
@@ -129,7 +129,7 @@ namespace Tiny3D
 
     bool PixelBuffer3D::onLoad()
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer(this);
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBuffer3D(this);
         return true;
     }
 

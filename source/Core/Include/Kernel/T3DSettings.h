@@ -22,7 +22,6 @@
 
 
 #include "T3DPrerequisites.h"
-#include "Resource/T3DResource.h"
 
 
 namespace Tiny3D

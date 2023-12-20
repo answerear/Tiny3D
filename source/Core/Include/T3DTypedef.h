@@ -31,7 +31,6 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(Settings);
     
-    T3D_DECLARE_SMART_PTR(Image);
     T3D_DECLARE_SMART_PTR(ImageCodec);
     T3D_DECLARE_SMART_PTR(ImageCodecBase);
 
@@ -53,6 +52,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Cubemap);
     T3D_DECLARE_SMART_PTR(CubemapArray);
     T3D_DECLARE_SMART_PTR(TextureManager);
+    T3D_DECLARE_SMART_PTR(Image);
+    T3D_DECLARE_SMART_PTR(ImageManager);
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
     T3D_DECLARE_SMART_PTR(Shader);
@@ -86,7 +87,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RasterizerState);
     T3D_DECLARE_SMART_PTR(SamplerState);
     T3D_DECLARE_SMART_PTR(RenderState);
-    T3D_DECLARE_SMART_PTR(TextureState);
     T3D_DECLARE_SMART_PTR(VertexDeclaration);
     T3D_DECLARE_SMART_PTR(RenderBuffer);
     T3D_DECLARE_SMART_PTR(VertexBuffer);
@@ -146,6 +146,9 @@ namespace Tiny3D
 
     using ShaderLabTags = TMap<String, String>;
     using ShaderLabTagsValue = ShaderLabTags::value_type;
+
+    using GameObjectList = TList<GameObjectPtr>;
+    using CameraList = TMap<uint32_t, Camera *>;
 }
 
 

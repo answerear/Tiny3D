@@ -21,6 +21,7 @@
 #include "Render/T3DDepthStencilState.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHIDepthStencilState.h"
 
 
 namespace  Tiny3D

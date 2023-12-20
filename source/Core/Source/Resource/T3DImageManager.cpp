@@ -18,107 +18,91 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIThread.h"
+#include "Resource/T3DImageManager.h"
+#include "Resource/T3DImage.h"
 #include "Kernel/T3DAgent.h"
-#include "RHI/T3DRHICommand.h"
+#include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIThreadPtr RHIThread::create()
+    ImageManagerPtr ImageManager::create()
     {
-        return new RHIThread();
+        return new ImageManager();
     }
+
+    //--------------------------------------------------------------------------
     
+    ImagePtr ImageManager::createImage(const String &name, uint32_t width, uint32_t height, PixelFormat format)
+    {
+        return smart_pointer_cast<Image>(createResource(name, 3, width, height, format));
+    }
+
     //--------------------------------------------------------------------------
 
-    RHIThread::RHIThread()
+    ImagePtr ImageManager::loadImage(Archive *archive, const String &name)
     {
+        return smart_pointer_cast<Image>(load(archive, name, 0));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageManager::saveImage(Archive *archive, Image *image)
+    {
+        return save(image, archive); 
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ImageManager::newResource(const String &name, int32_t argc, va_list args)
+    {
+        T3D_ASSERT(argc == 3, "The number of arguments when create Image does not match !");
         
+        ImagePtr image = nullptr;
+        
+        uint32_t width = va_arg(args, uint32_t);
+        uint32_t height = va_arg(args, uint32_t);
+        PixelFormat format = va_arg(args, PixelFormat);
+        
+        return Image::create(name, width, height, format);
     }
 
     //--------------------------------------------------------------------------
 
-    RHIThread::~RHIThread()
+    ResourcePtr ImageManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
     {
-        stop();
-    }
+        ImagePtr image;
 
-    //--------------------------------------------------------------------------
-
-    bool RHIThread::init()
-    {
-        mHanldeCommandListIdx = 0;
-        mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
-        mCommandLists.emplace_back();
-        mCommandLists.emplace_back();
-        mIsRunning = true;
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIThread::exchange()
-    {
-        mHanldeCommandListIdx = mEnqueueCommandListIdx;
-        mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIThread::resume()
-    {
-        exchange();
-        mEvent.trigger();
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult RHIThread::run()
-    {
-        while (mIsRunning)
+        do
         {
-            // 线程等待
-            mEvent.wait();
-            
-            // 循环执行 RHI 命令
-            for (auto command : mCommandLists[mHanldeCommandListIdx])
+            image = Image::create(name);
+            if (image == nullptr)
             {
-                command->execute();
+                break;
             }
-
-            mCommandLists[mHanldeCommandListIdx].clear();
             
-            T3D_AGENT.resumeEngineThread();
-        }
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIThread::stop()
-    {
-        mIsRunning = false;
-        mEvent.trigger();
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void RHIThread::exit()
-    {
+            TResult ret = T3D_IMAGE_CODEC.decode(stream, *image);
+            if (T3D_FAILED(ret))
+            {
+                image = nullptr;
+                break;
+            }
+        } while (false);
         
+        return image;
     }
     
     //--------------------------------------------------------------------------
 
-    TResult RHIThread::addCommand(RHICommand *command)
+    TResult ImageManager::saveResource(DataStream &stream, Resource *res)
     {
-        mCommandLists[mEnqueueCommandListIdx].push_back(command);
+        T3D_ASSERT(res->getType() == Resource::Type::kImage, "Save resource must be shader !");
+        Image *image = static_cast<Image*>(res);
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 }
+

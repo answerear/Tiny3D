@@ -20,6 +20,7 @@
 
 #include "Material/T3DTechnique.h"
 #include "Material/T3DPass.h"
+#include "Render/T3DRenderState.h"
 
 
 namespace Tiny3D

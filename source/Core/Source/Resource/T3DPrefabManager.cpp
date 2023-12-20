@@ -21,6 +21,7 @@
 #include "Resource/T3DPrefabManager.h"
 #include "Resource/T3DPrefab.h"
 #include "Kernel/T3DAgent.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D

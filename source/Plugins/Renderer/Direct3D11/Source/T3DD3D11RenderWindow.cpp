@@ -53,6 +53,7 @@ namespace Tiny3D
     {
         D3D_SAFE_RELEASE(D3DDSView);
         D3D_SAFE_RELEASE(D3DRTView);
+        D3D_SAFE_RELEASE(D3DBackBuffer);
         D3D_SAFE_RELEASE(D3DSwapChain);
     }
 

@@ -19,10 +19,15 @@
 
 
 #include "Component/T3DCamera.h"
+#include "Render/T3DRenderTarget.h"
+#include "Render/T3DRenderTexture.h"
 #include "Kernel/T3DGameObject.h"
-#include "RHI/T3DRHIRenderWindow.h"
+// #include "RHI/T3DRHIRenderWindow.h"
 #include "Render/T3DRenderWindow.h"
 #include "Resource/T3DTextureManager.h"
+// #include "Render/T3DVertexDeclaration.h"
+// #include "Render/T3DVertexBuffer.h"
+// #include "Render/T3DIndexBuffer.h"
 
 
 namespace Tiny3D
@@ -80,7 +85,7 @@ namespace Tiny3D
                             format = PixelFormat::E_PF_B8G8R8;
                             break;
                         case 32:
-                            format = PixelFormat::E_PF_B8G8R8X8;
+                            format = PixelFormat::E_PF_B8G8R8A8;
                             break;
                         default:
                             format = PixelFormat::E_PF_B8G8R8;

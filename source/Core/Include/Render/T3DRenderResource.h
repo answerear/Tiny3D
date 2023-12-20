@@ -69,6 +69,8 @@ namespace Tiny3D
 
         virtual Type getType() const = 0;
 
+        RHIResourcePtr getRHIResource() const { return mRHIResource; }
+
     protected:
         RenderResource() = default;
 

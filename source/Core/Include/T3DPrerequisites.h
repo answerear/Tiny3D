@@ -78,7 +78,6 @@ namespace Tiny3D
     class JsonSerializer;
     class SerializerManager;
 
-    class Image;
     class ImageCodec;
     class ImageCodecBase;
 
@@ -98,6 +97,8 @@ namespace Tiny3D
     class Cubemap;
     class CubemapArray;
     class TextureManager;
+    class Image;
+    class ImageManager;
     class Prefab;
     class PrefabManager;
     class ShaderConstantParam;
@@ -128,12 +129,22 @@ namespace Tiny3D
 
     class RenderResource;
     
+    struct BlendDesc;
+    struct DepthStencilDesc;
+    struct RasterizerDesc;
+    struct SamplerDesc;
+
+    struct VertexBufferDesc;
+    struct IndexBufferDesc;
+    struct PixelBuffer1DDesc;
+    struct PixelBuffer2DDesc;
+    struct PixelBuffer3DDesc;
+
     class BlendState;
     class DepthStencilState;
     class RasterizerState;
     class SamplerState;
     class RenderState;
-    class TextureState;
     class VertexDeclaration;
     class RenderBuffer;
     class VertexBuffer;

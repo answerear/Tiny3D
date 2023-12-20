@@ -24,7 +24,6 @@
 
 #include "Render/T3DRenderResource.h"
 #include "Render/T3DRenderConstant.h"
-#include "RHI/T3DRHISamplerState.h"
 
 
 namespace Tiny3D

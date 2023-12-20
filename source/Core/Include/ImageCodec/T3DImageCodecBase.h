@@ -25,7 +25,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DConstant.h"
-#include "ImageCodec/T3DImage.h"
+#include "Resource/T3DImage.h"
 
 
 namespace Tiny3D
@@ -105,8 +105,7 @@ namespace Tiny3D
          * @return  支持的返回true，否则返回false.
          * @remarks 具体图像类型编解码器实现本接口.
          */
-        virtual bool isSupportedType(uint8_t *data, size_t size,
-            FileType &type) const = 0;
+        virtual bool isSupportedType(uint8_t *data, size_t size, FileType &type) const = 0;
 
         /**
          * @fn  virtual FileType ImageCodecBase::getFileType() const = 0;
@@ -127,8 +126,7 @@ namespace Tiny3D
          * @return  调用成功返回 T3D_OK.
          * @remarks 具体图像类型编解码器实现本接口.
          */
-        virtual TResult encode(uint8_t *&data, size_t &size, const Image &image,
-            FileType type) = 0;
+        virtual TResult encode(uint8_t *&data, size_t &size, const Image &image, FileType type) = 0;
 
         /**
          * @fn  virtual TResult ImageCodecBase::decode(uint8_t *data, 
@@ -141,8 +139,7 @@ namespace Tiny3D
          * @return  调用成功返回 T3D_OK.
          * @remarks  具体图像类型编解码器实现本接口.
          */
-        virtual TResult decode(uint8_t *data, size_t size, Image &image,
-            FileType type) = 0;
+        virtual TResult decode(uint8_t *data, size_t size, Image &image, FileType type) = 0;
 
         /**
          * @fn  virtual TResult ImageCodecBase::flip(Image &image) = 0;
@@ -182,8 +179,7 @@ namespace Tiny3D
          * @param [in]  filter      : 缩放时候使用的算法.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult copy(const Image &srcImage, const Rect *srcRect,
-            Image &dstImage, const Rect *dstRect, uint32_t filter) = 0;
+        virtual TResult copy(const Image &srcImage, const Rect *srcRect, Image &dstImage, const Rect *dstRect, uint32_t filter) = 0;
 
         /**
          * @fn  virtual TResult ImageCodecBase::convert(Image &image, 
@@ -204,8 +200,7 @@ namespace Tiny3D
          * @param [in]  format      : 目标像素格式.
          * @return  调用成功返回 T3D_OK.
          */
-        virtual TResult convert(const Image &srcImage, Image &dstImage,
-            PixelFormat format) = 0;
+        virtual TResult convert(const Image &srcImage, Image &dstImage, PixelFormat format) = 0;
 
     protected:
         /**
@@ -227,8 +222,7 @@ namespace Tiny3D
          * @param [in]  height  : 图像高度.
          * @param [in]  pitch   : 图像跨度.
          */
-        void setImageDimension(Image &image, int32_t width, int32_t height,
-            int32_t pitch);
+        void setImageDimension(Image &image, int32_t width, int32_t height, int32_t pitch);
 
         /**
          * @fn  void ImageCodecBase::setImageInfo(Image &image, 
@@ -242,8 +236,7 @@ namespace Tiny3D
          * @param [in]  isPreMulti  : 是否预乘.
          * @param [in]  format      : 像素格式.
          */
-        void setImageInfo(Image &image, uint32_t sourceType, int32_t bpp,
-            bool hasAlpha, bool isPreMulti, PixelFormat format);
+        void setImageInfo(Image &image, Image::FileFormat fileFormat, int32_t bpp, bool hasAlpha, bool isPreMulti, PixelFormat pixelFormat);
     };
 }
 

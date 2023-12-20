@@ -22,7 +22,6 @@
 
 
 #include "Resource/T3DResourceManager.h"
-#include "Resource/T3DScene.h"
 
 
 namespace Tiny3D

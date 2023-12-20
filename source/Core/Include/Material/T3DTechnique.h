@@ -24,7 +24,6 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Kernel/T3DConstant.h"
-#include "Material/T3DPass.h"
 
 
 namespace Tiny3D
@@ -90,13 +89,13 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="getter")
-        const RenderState &getRenderState() const
+        RenderStatePtr getRenderState() const
         {
             return mRenderState;
         }
 
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="setter")
-        void setRenderState(const RenderState &state)
+        void setRenderState(RenderStatePtr state)
         {
             mRenderState = state;
         }
@@ -148,7 +147,7 @@ namespace Tiny3D
         uint32_t        mRenderQueue {0};
         ShaderLabTags   mTags {};
         /// 渲染状态
-        RenderState     mRenderState {};
+        RenderStatePtr  mRenderState {nullptr};
         Passes          mPasses {};
     };
 }

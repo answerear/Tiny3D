@@ -22,7 +22,6 @@
 
 
 #include "Resource/T3DResource.h"
-#include "Render/T3DTextureState.h"
 #include "Material/T3DShaderConstantParam.h"
 #include "Material/T3DShaderSamplerParam.h"
 
@@ -292,9 +291,9 @@ namespace Tiny3D
 
         Matrix4Array getMatrixArray(const String &name) const;
 
-        void setTexture(const String &name, const TextureState &value);
+        void setTexture(const String &name, Texture *value);
 
-        TextureState getTexture(const String &name) const;
+        Texture *getTexture(const String &name) const;
 
         bool hasTexture(const String &name) const;
 

@@ -18,106 +18,111 @@
  ******************************************************************************/
 
 
-#include "RHI/T3DRHIThread.h"
-#include "Kernel/T3DAgent.h"
-#include "RHI/T3DRHICommand.h"
-
-
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RHIThreadPtr RHIThread::create()
+    inline uint32_t Image::getBytesPerPixel() const
     {
-        return new RHIThread();
+        return (mBPP >> 3);
     }
     
     //--------------------------------------------------------------------------
 
-    RHIThread::RHIThread()
+    inline uint32_t Image::calcPitch(uint32_t width, uint32_t bpp)
     {
-        
+        return (width * (bpp / 8) + 3) & ~3;
     }
 
     //--------------------------------------------------------------------------
-
-    RHIThread::~RHIThread()
+    
+    inline uint32_t Image::calcPitch() const
     {
-        stop();
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool RHIThread::init()
-    {
-        mHanldeCommandListIdx = 0;
-        mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
-        mCommandLists.emplace_back();
-        mCommandLists.emplace_back();
-        mIsRunning = true;
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIThread::exchange()
-    {
-        mHanldeCommandListIdx = mEnqueueCommandListIdx;
-        mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIThread::resume()
-    {
-        exchange();
-        mEvent.trigger();
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult RHIThread::run()
-    {
-        while (mIsRunning)
-        {
-            // 线程等待
-            mEvent.wait();
-            
-            // 循环执行 RHI 命令
-            for (auto command : mCommandLists[mHanldeCommandListIdx])
-            {
-                command->execute();
-            }
-
-            mCommandLists[mHanldeCommandListIdx].clear();
-            
-            T3D_AGENT.resumeEngineThread();
-        }
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void RHIThread::stop()
-    {
-        mIsRunning = false;
-        mEvent.trigger();
+        return calcPitch(mWidth, mBPP);//(mWidth * (mBPP / 8) + 3) & ~3;
     }
     
     //--------------------------------------------------------------------------
 
-    void RHIThread::exit()
+    inline Image::FileFormat Image::getFileFormat() const
     {
-        
+        return mFileFormat;
     }
-    
-    //--------------------------------------------------------------------------
 
-    TResult RHIThread::addCommand(RHICommand *command)
+    //--------------------------------------------------------------------------
+    
+    inline uint8_t *Image::getData()
     {
-        mCommandLists[mEnqueueCommandListIdx].push_back(command);
-        return T3D_OK;
+        return mData;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline const uint8_t * const Image::getData() const
+    {
+        return mData;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline size_t Image::getSize() const
+    {
+        return mHeight * mPitch;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline uint32_t Image::getWidth() const
+    {
+        return mWidth;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline uint32_t Image::getHeight() const
+    {
+        return mHeight;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline uint32_t Image::getPitch() const
+    {
+        return mPitch;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline uint32_t Image::getBPP() const
+    {
+        return mBPP;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline PixelFormat Image::getFormat() const
+    {
+        return mPixelFormat;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline bool Image::hasAlpha() const
+    {
+        return mHasAlpha;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline bool Image::isPremultipliedAlpha() const
+    {
+        return mIsPreMulti;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    inline bool Image::isEmpty() const
+    {
+        return mIsEmpty;
     }
 
     //--------------------------------------------------------------------------

@@ -19,6 +19,8 @@
 
 
 #include "Material/T3DShaderSamplerParam.h"
+#include "Kernel/T3DAgent.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -33,8 +35,11 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ShaderSamplerParam::ShaderSamplerParam(const String &name, TEXTURE_TYPE texType)
+        : mName(name)
+        , mTexType(texType)
     {
-        
+        ArchivePtr archive = T3D_AGENT.getProjectArchive();
+        mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
     }
 
     //--------------------------------------------------------------------------
@@ -49,6 +54,15 @@ namespace Tiny3D
     ShaderSamplerParamPtr ShaderSamplerParam::clone() const
     {
         return create(mName, mTexType);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderSamplerParam::onPostLoad()
+    {
+        ArchivePtr archive = T3D_AGENT.getProjectArchive();
+        mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
+        return true;
     }
 
     //--------------------------------------------------------------------------

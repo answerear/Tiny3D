@@ -69,6 +69,7 @@ namespace Tiny3D
 
         /**< The d 3D swap chain */
         IDXGISwapChain          *D3DSwapChain {nullptr};
+        ID3D11Texture2D         *D3DBackBuffer {nullptr};
         /**< The d 3D right view */
         ID3D11RenderTargetView  *D3DRTView {nullptr};
         /**< The d 3D ds view */

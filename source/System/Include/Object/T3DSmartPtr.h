@@ -62,7 +62,7 @@ namespace Tiny3D
          * @brief   构造函数
          * @param [in,out]  obj (Optional) If non-null, the object.
          */
-        SmartPtr(T *obj = nullptr)
+        SmartPtr(Object *obj = nullptr)
         {
             mReferObject = obj;
 
@@ -257,7 +257,7 @@ namespace Tiny3D
         }
     protected:
         /**< The refer object */
-        Object      *mReferObject {nullptr};
+        Object  *mReferObject {nullptr};
     };
 
     template <typename T1, typename T2>

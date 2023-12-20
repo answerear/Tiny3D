@@ -19,6 +19,8 @@
 
 
 #include "Material/T3DPass.h"
+#include "Material/T3DShaderVariant.h"
+#include "Render/T3DRenderState.h"
 
 
 namespace Tiny3D

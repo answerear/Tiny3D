@@ -250,7 +250,7 @@ namespace Tiny3D
         do 
         {
             ImageCodecBasePtr codec = getImageCodec(
-                (ImageCodecBase::FileType)image.getSourceType());
+                (ImageCodecBase::FileType)image.getFileFormat());
             if (codec == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;
@@ -274,7 +274,7 @@ namespace Tiny3D
         do 
         {
             ImageCodecBasePtr codec = getImageCodec(
-                (ImageCodecBase::FileType)image.getSourceType());
+                (ImageCodecBase::FileType)image.getFileFormat());
             if (codec == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;
@@ -298,7 +298,7 @@ namespace Tiny3D
         do 
         {
             ImageCodecBasePtr codec = getImageCodec(
-                (ImageCodecBase::FileType)image.getSourceType());
+                (ImageCodecBase::FileType)image.getFileFormat());
             if (codec == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;
@@ -323,7 +323,7 @@ namespace Tiny3D
         do 
         {
             ImageCodecBasePtr codec = getImageCodec(
-                (ImageCodecBase::FileType)srcImage.getSourceType());
+                (ImageCodecBase::FileType)srcImage.getFileFormat());
             if (codec == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;
@@ -347,7 +347,7 @@ namespace Tiny3D
         do
         {
             ImageCodecBasePtr codec = getImageCodec(
-                (ImageCodecBase::FileType)image.getSourceType());
+                (ImageCodecBase::FileType)image.getFileFormat());
             if (codec == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;
@@ -371,7 +371,7 @@ namespace Tiny3D
         do
         {
             ImageCodecBasePtr codec = getImageCodec(
-                (ImageCodecBase::FileType)srcImage.getSourceType());
+                (ImageCodecBase::FileType)srcImage.getFileFormat());
             if (codec == nullptr)
             {
                 ret = T3D_ERR_IMG_NOT_FOUND;

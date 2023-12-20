@@ -19,7 +19,7 @@
 
 
 #include "RHI/T3DRHIPixelBuffer.h"
-#include "ImageCodec/T3DImage.h"
+#include "Resource/T3DImage.h"
 
 
 namespace Tiny3D

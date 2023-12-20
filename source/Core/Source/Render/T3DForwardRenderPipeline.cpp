@@ -19,17 +19,14 @@
 
 
 #include "Render/T3DForwardRenderPipeline.h"
-
+#include "Material/T3DTechnique.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
-#include "Render/T3DRenderWindow.h"
 #include "Render/T3DRenderTexture.h"
 #include "RHI/T3DRHIContext.h"
 #include "Resource/T3DScene.h"
-#include "Component/T3DTransformNode.h"
-#include "Component/T3DRenderable.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DShader.h"
 #include "Render/T3DVertexDeclaration.h"

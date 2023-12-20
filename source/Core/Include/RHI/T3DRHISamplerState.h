@@ -22,7 +22,6 @@
 #define __T3D_RHI_SAMPLER_STATE_H__
 
 
-#include "Render/T3DSamplerState.h"
 #include "RHI/T3DRHIResource.h"
 
 

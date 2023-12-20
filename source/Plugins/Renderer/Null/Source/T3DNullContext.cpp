@@ -217,42 +217,42 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer1DPtr NullContext::createPixelBuffer(PixelBuffer1DPtr buffer)
+    RHIPixelBuffer1DPtr NullContext::createPixelBuffer1D(PixelBuffer1DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPixelBuffer(PixelBuffer1DPtr buffer)
+    TResult NullContext::setPixelBuffer1D(PixelBuffer1DPtr buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer2DPtr NullContext::createPixelBuffer(PixelBuffer2DPtr buffer)
+    RHIPixelBuffer2DPtr NullContext::createPixelBuffer2D(PixelBuffer2DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPixelBuffer(PixelBuffer2DPtr buffer)
+    TResult NullContext::setPixelBuffer2D(PixelBuffer2DPtr buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer3DPtr NullContext::createPixelBuffer(PixelBuffer3DPtr buffer)
+    RHIPixelBuffer3DPtr NullContext::createPixelBuffer3D(PixelBuffer3DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPixelBuffer(PixelBuffer3DPtr buffer)
+    TResult NullContext::setPixelBuffer3D(PixelBuffer3DPtr buffer)
     {
         return T3D_OK;
     }

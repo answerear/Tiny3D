@@ -21,7 +21,6 @@
 #include "Resource/T3DScene.h"
 #include "Kernel/T3DGameObject.h"
 #include "Component/T3DCamera.h"
-#include "Component/T3DTransformNode.h"
 
 
 namespace Tiny3D

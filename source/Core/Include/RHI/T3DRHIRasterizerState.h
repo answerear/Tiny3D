@@ -22,7 +22,6 @@
 #define __T3D_RHI_RASTERIZER_STATE_H__
 
 
-#include "Render/T3DRasterizerState.h"
 #include "RHI/T3DRHIResource.h"
 
 

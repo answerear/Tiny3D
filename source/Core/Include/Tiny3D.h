@@ -48,6 +48,10 @@
 #include <Resource/T3DTextureManager.h>
 #include <Resource/T3DPrefab.h>
 #include <Resource/T3DPrefabManager.h>
+#include <Resource/T3DImage.h>
+#include <Resource/T3DImageManager.h>
+#include <Resource/T3DScene.h>
+#include <Resource/T3DSceneManager.h>
 
 // Material
 #include <Material/T3DPass.h>
@@ -71,7 +75,6 @@
 // ImageCodec
 #include <ImageCodec/T3DImageCodec.h>
 #include <ImageCodec/T3DImageCodecBase.h>
-#include <ImageCodec/T3DImage.h>
 
 // Render
 #include <Render/T3DRenderConstant.h>
@@ -82,7 +85,6 @@
 #include <Render/T3DRasterizerState.h>
 #include <Render/T3DSamplerState.h>
 #include <Render/T3DRenderState.h>
-#include <Render/T3DTextureState.h>
 #include <Render/T3DVertexDeclaration.h>
 #include <Render/T3DVertexBuffer.h>
 #include <Render/T3DIndexBuffer.h>
@@ -91,6 +93,7 @@
 #include <Render/T3DRenderResourceManager.h>
 #include <Render/T3DRenderTarget.h>
 #include <Render/T3DRenderTexture.h>
+#include <Render/T3DRenderWindow.h>
 #include <Render/T3DViewport.h>
 
 // RHI

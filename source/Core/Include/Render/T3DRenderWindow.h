@@ -22,7 +22,6 @@
 #define __T3D_RENDER_WINDOW_H__
 
 
-#include "Render/T3DRenderTarget.h"
 #include "T3DRenderTargetDesc.h"
 
 

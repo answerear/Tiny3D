@@ -694,9 +694,9 @@ namespace Tiny3D
 
             // device flags
             UINT flags = 0;
-            // #ifdef T3D_DEBUG
-            //             flags |= D3D11_CREATE_DEVICE_DEBUG;
-            // #endif
+#ifdef T3D_DEBUG
+            flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
             // features level
             const UINT numLevels = 4;
@@ -850,8 +850,7 @@ namespace Tiny3D
                 }
 
                 // 创建 RenderTargetView
-                ID3D11Texture2D *pD3DBackBuffer = nullptr;
-                hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DBackBuffer));
+                hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DRenderWindow->D3DBackBuffer));
                 if (FAILED(hr))
                 {
                     ret = T3D_ERR_D3D11_GET_INTERFACE;
@@ -859,7 +858,7 @@ namespace Tiny3D
                     break;
                 }
                 
-                hr = mD3DDevice->CreateRenderTargetView(pD3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
+                hr = mD3DDevice->CreateRenderTargetView(pD3DRenderWindow->D3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
                 if (FAILED(hr))
                 {
                     ret = T3D_ERR_D3D11_CREATE_FAILED;
@@ -1038,25 +1037,18 @@ namespace Tiny3D
     
     TResult D3D11Context::setRenderTarget(RenderWindowPtr renderWindow)
     {
-        TResult ret = T3D_OK;
+        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
+        auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow)
+        {
+            mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
+            return T3D_OK;
+        };
         
-        if (renderWindow == nullptr)
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow);
+        
+        if (T3D_SUCCEEDED(ret))
         {
             mCurrentRenderWindow = renderWindow;
-        }
-        else
-        {
-            D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
-            auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow)
-            {
-                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
-                return T3D_OK;
-            };
-            ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow);
-            if (T3D_SUCCEEDED(ret))
-            {
-                mCurrentRenderWindow = renderWindow;
-            }
         }
         
         return ret;
@@ -1066,7 +1058,22 @@ namespace Tiny3D
 
     TResult D3D11Context::setRenderTarget(RenderTexturePtr renderTexture)
     {
-        return T3D_OK;
+        D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(renderTexture->getPixelBuffer()->getRHIResource().get());
+        
+        auto lambda = [this](D3D11PixelBuffer2D *pD3DPixelBuffer)
+        {
+            mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DPixelBuffer->D3DDSView);
+            return T3D_OK;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DPixelBuffer);
+        
+        if (T3D_SUCCEEDED(ret))
+        {
+            mCurrentRenderTexture = renderTexture;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -1151,7 +1158,18 @@ namespace Tiny3D
 
     TResult D3D11Context::clearColor(RenderTexturePtr texture, const ColorRGB &color)
     {
-        return T3D_OK;
+        D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
+        auto lambda = [this](D3D11PixelBuffer2D *pD3DPixelBuffer, ColorRGB color)
+        {
+            float clr[4];
+            clr[0] = color.red();
+            clr[1] = color.green();
+            clr[2] = color.blue();
+            clr[3] = 1.0f;
+            mD3DDeviceContext->ClearRenderTargetView(pD3DPixelBuffer->D3DRTView, clr);
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DPixelBuffer, color);
     }
 
     //--------------------------------------------------------------------------
@@ -1268,42 +1286,42 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer(PixelBuffer1DPtr buffer)
+    RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer1D(PixelBuffer1DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelBuffer(PixelBuffer1DPtr buffer)
+    TResult D3D11Context::setPixelBuffer1D(PixelBuffer1DPtr buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer(PixelBuffer2DPtr buffer)
+    RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer2D(PixelBuffer2DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelBuffer(PixelBuffer2DPtr buffer)
+    TResult D3D11Context::setPixelBuffer2D(PixelBuffer2DPtr buffer)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer3DPtr D3D11Context::createPixelBuffer(PixelBuffer3DPtr buffer)
+    RHIPixelBuffer3DPtr D3D11Context::createPixelBuffer3D(PixelBuffer3DPtr buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelBuffer(PixelBuffer3DPtr buffer)
+    TResult D3D11Context::setPixelBuffer3D(PixelBuffer3DPtr buffer)
     {
         return T3D_OK;
     }
@@ -1500,7 +1518,91 @@ namespace Tiny3D
 
     TResult D3D11Context::blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        switch (dst->getType())
+        {
+        case RenderTarget::Type::E_RT_WINDOW:
+            {
+                D3D11RenderWindow *pDst = static_cast<D3D11RenderWindow*>(dst->getRenderWindow()->getRHIRenderWindow().get());
+                auto lambda = [this](Texture *pSrc, D3D11RenderWindow *pDst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+                {
+                    TResult ret = T3D_OK;
+
+                    ID3D11Resource *pD3DSrc = nullptr;
+
+                    UINT width = 0, height = 0, depth = 0;
+                    
+                    switch (pSrc->getTextureType())
+                    {
+                    case TEXTURE_TYPE::TT_1D:
+                        break;
+                    case TEXTURE_TYPE::TT_2D:
+                        {
+                            Texture2D *pTex2D = static_cast<Texture2D *>(pSrc);
+                            D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
+                            pD3DSrc = pD3DPixelBuffer->D3DTexture;
+                            width = pTex2D->getWidth();
+                            height = pTex2D->getHeight();
+                        }
+                        break;
+                    case TEXTURE_TYPE::TT_2D_ARRAY:
+                        break;
+                    case TEXTURE_TYPE::TT_3D:
+                        break;
+                    case TEXTURE_TYPE::TT_CUBE:
+                        break;
+                    case TEXTURE_TYPE::TT_CUBE_ARRAY:
+                        break;
+                    case TEXTURE_TYPE::TT_RENDER_TEXTURE:
+                        {
+                            RenderTexture *pTex2D = static_cast<RenderTexture *>(pSrc);
+                            D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
+                            D3D11_TEXTURE2D_DESC srcTexDesc;
+                            pD3DPixelBuffer->D3DTexture->GetDesc(&srcTexDesc);
+                            D3D11_TEXTURE2D_DESC dstTexDesc;
+                            pDst->D3DBackBuffer->GetDesc(&dstTexDesc);
+                            pD3DSrc = pD3DPixelBuffer->D3DTexture;
+                            width = pTex2D->getWidth();
+                            height = pTex2D->getHeight();
+                        }
+                        break;
+                    }
+
+                    D3D11_BOX srcBox;
+                    srcBox.left = (UINT)(srcOffset.x());
+                    srcBox.top = (UINT)(srcOffset.y());
+                    srcBox.right = (UINT)(srcBox.left + size.x());
+                    srcBox.bottom = (UINT)(srcBox.top + size.y());
+                    srcBox.front = 0;
+                    srcBox.back = 1;
+                    
+                    mD3DDeviceContext->CopySubresourceRegion(pDst->D3DBackBuffer, 0, (UINT)dstOffset.x(), (UINT)dstOffset.y(), 0, pD3DSrc, 0, &srcBox);
+                    //mD3DDeviceContext->CopyResource(pDst->D3DBackBuffer, pD3DSrc);
+
+                    return ret;
+                };
+
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, src.get(), pDst, srcOffset, size, dstOffset);
+            }
+            break;
+        case RenderTarget::Type::E_RT_TEXTURE:
+            {
+                D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(dst->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
+
+                auto lambda = [this]()
+                {
+                    TResult ret = T3D_OK;
+
+                    return ret;
+                };
+
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda);
+            }
+            break;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

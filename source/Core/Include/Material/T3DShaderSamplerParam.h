@@ -21,7 +21,8 @@
 #define __T3D_SHADER_SAMPLER_PARAM_H__
 
 
-#include "Render/T3DTextureState.h"
+#include "T3DTypedef.h"
+#include "Kernel/T3DConstant.h"
 
 
 namespace Tiny3D
@@ -40,9 +41,6 @@ namespace Tiny3D
     public:
         static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType);
 
-        /**
-         * \brief Destructor
-         */
         ~ShaderSamplerParam() override;
 
         ShaderSamplerParamPtr clone() const;
@@ -52,23 +50,11 @@ namespace Tiny3D
         {
             return mName;
         }
-
-        TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="getter")
+        
+        TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="getter")
         TEXTURE_TYPE getTextureType() const
         {
             return mTexType;
-        }
-        
-        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="getter")
-        const TextureState &getTexture() const
-        {
-            return mTexture;
-        }
-
-        TPROPERTY(RTTRFuncName="Texture", RTTRFuncType="setter")
-        void setTexture(const TextureState &texture)
-        {
-            mTexture = texture;
         }
         
     private:
@@ -80,23 +66,20 @@ namespace Tiny3D
             mName = name;
         }
 
-        TPROPERTY(RTTRFuncName="TextureType", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="setter")
         void setTextureType(TEXTURE_TYPE texType)
         {
             mTexType = texType;
         }
         
     protected:
-        /**
-         * \brief Constructor
-         * \param [in] name : 
-         * \param [in] texType : 
-         */
         ShaderSamplerParam(const String &name, TEXTURE_TYPE texType);
+
+        bool onPostLoad() override;
         
-        TEXTURE_TYPE   mTexType {TEXTURE_TYPE::TT_1D};
-        String                  mName {};
-        TextureState            mTexture {};
+        String          mName {};
+        TEXTURE_TYPE    mTexType {TEXTURE_TYPE::TT_2D};
+        TexturePtr      mTexture {nullptr};
     };
 
     using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;

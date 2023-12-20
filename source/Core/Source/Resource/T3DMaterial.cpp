@@ -93,26 +93,29 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Material::setTexture(const String &name, const TextureState &value)
+    void Material::setTexture(const String &name, Texture *value)
     {
         auto itr = mSamplers.find(name);
         if (itr != mSamplers.end())
         {
-            itr->second->setTexture(value);
+            // TODO
+            // itr->second->setTextureType(value);
         }
     }
 
     //--------------------------------------------------------------------------
 
-    TextureState Material::getTexture(const String &name) const
+    Texture *Material::getTexture(const String &name) const
     {
-        TextureState tex;
+        // TextureState *texState;
+        Texture *texture = nullptr;
         auto itr = mSamplers.find(name);
         if (itr != mSamplers.end())
         {
-            tex = itr->second->getTexture();
+            // TODO
+            // texState = itr->second->getTextureState();
         }
-        return tex;
+        return texture;
     }
 
     //--------------------------------------------------------------------------

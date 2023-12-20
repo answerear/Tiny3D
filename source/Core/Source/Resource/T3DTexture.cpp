@@ -20,7 +20,7 @@
 
 #include "Resource/T3DTexture.h"
 #include "Render/T3DRenderResourceManager.h" 
-
+#include "Render/T3DPixelBuffer.h"
 
 namespace Tiny3D
 {
@@ -47,6 +47,25 @@ namespace Tiny3D
         const Texture *texture = static_cast<const Texture*>(src);
     }
     
+    //--------------------------------------------------------------------------
+
+    void Texture::setSamplerDesc(const SamplerDesc &desc)
+    {
+        uint32_t hashSrc = 0;
+        if (mSamplerState != nullptr)
+        {
+            CRC::crc32((uint8_t*)&mSamplerState->getStateDesc(), sizeof(SamplerDesc));
+        }
+        
+        uint32_t hashDst = CRC::crc32((uint8_t*)&desc, sizeof(SamplerDesc));
+
+        if (hashSrc != hashDst)
+        {
+            // 新生成一个 sampler state 对象
+            mSamplerState = T3D_RENDER_STATE_MGR.loadSamplerState(desc, hashDst);
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     Texture1DPtr Texture1D::create(const String &name, uint32_t width, PixelFormat format, uint32_t mipmaps, const Buffer &data)

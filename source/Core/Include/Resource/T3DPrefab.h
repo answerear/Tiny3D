@@ -22,7 +22,6 @@
 
 
 #include "Resource/T3DResource.h"
-#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D

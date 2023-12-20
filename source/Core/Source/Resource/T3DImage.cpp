@@ -18,37 +18,17 @@
  ******************************************************************************/
 
 
-#include "ImageCodec/T3DImage.h"
+#include "Resource/T3DImage.h"
 #include "ImageCodec/T3DImageCodec.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
-
-    const uint32_t Image::FILETYPE_RAW = (uint32_t)ImageCodecBase::FileType::RAW;
-    const uint32_t Image::FILETYPE_BMP = (uint32_t)ImageCodecBase::FileType::BMP;
-    const uint32_t Image::FILETYPE_PNG = (uint32_t)ImageCodecBase::FileType::PNG;
-    const uint32_t Image::FILETYPE_TGA = (uint32_t)ImageCodecBase::FileType::TARGA;
-    const uint32_t Image::FILETYPE_JPG = (uint32_t)ImageCodecBase::FileType::JPEG;
-    const uint32_t Image::FILETYPE_DDS = (uint32_t)ImageCodecBase::FileType::DDS;
-    const uint32_t Image::FILETYPE_PVRTC = (uint32_t)ImageCodecBase::FileType::PVRTC;
-    const uint32_t Image::FILETYPE_ASTC = (uint32_t)ImageCodecBase::FileType::ASTC;
-    const uint32_t Image::FILETYPE_ETC1 = (uint32_t)ImageCodecBase::FileType::ETC1;
-    const uint32_t Image::FILETYPE_ETC2 = (uint32_t)ImageCodecBase::FileType::ETC2;
-
-    //--------------------------------------------------------------------------
-
-    size_t Image::calcPitch(size_t width, size_t bpp)
-    {
-        return (width * (bpp / 8) + 3) & ~3;
-    }
-
-    //--------------------------------------------------------------------------
     
-    size_t Image::getBPP(PixelFormat format)
+    uint32_t Image::getBPP(PixelFormat format)
     {
-        size_t bpp = 0;
+        uint32_t bpp = 0;
 
         switch (format)
         {
@@ -80,37 +60,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Image::Image()
-        : mWidth(0)
-        , mHeight(0)
-        , mBPP(0)
-        , mPitch(0), mFormat(PixelFormat::E_PF_B8G8R8A8)
-        , mHasAlpha(false)
-        , mIsPreMulti(false)
-        , mIsDataExternal(false)
-        , mIsEmpty(true)
-        , mData(nullptr)
-        , mDataSize(0)
+    ImagePtr Image::create(const String &name)
+    {
+        return new Image(name);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ImagePtr Image::create(const String &name, uint32_t width, uint32_t height, PixelFormat format)
+    {
+        return new Image(name, width, height,format);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    Image::Image(const String &name)
+        : Resource(name)
     {
 
     }
 
     //--------------------------------------------------------------------------
     
-    Image::Image(int32_t width, int32_t height, int32_t bpp, PixelFormat format)
-        : mSourceType(0)
+    Image::Image(const String &name, uint32_t width, uint32_t height, PixelFormat format)
+        : Resource(name)
         , mWidth(width)
         , mHeight(height)
-        , mBPP(bpp)
-        , mPitch(0)
-        , mFormat(format)
-        , mHasAlpha(false)
-        , mIsPreMulti(false)
-        , mIsDataExternal(false)
-        , mIsEmpty(false)
-        , mData(nullptr)
-        , mDataSize(0)
+        , mPixelFormat(format)
     {
+        mBPP = getBPP(format);
         mPitch = calcPitch();
         mDataSize = mHeight * mPitch;
         mData = new uint8_t[mDataSize];
@@ -121,10 +99,14 @@ namespace Tiny3D
     
     Image::~Image()
     {
-        if (!mIsDataExternal)
-        {
-            T3D_SAFE_DELETE_ARRAY(mData);
-        }
+        T3D_SAFE_DELETE_ARRAY(mData);
+    }
+
+    //--------------------------------------------------------------------------
+
+    Resource::Type Image::getType() const
+    {
+        return Type::kImage;
     }
 
     //--------------------------------------------------------------------------
@@ -133,11 +115,7 @@ namespace Tiny3D
     {
         if (!mIsEmpty)
         {
-            if (!mIsDataExternal)
-            {
-                T3D_SAFE_DELETE_ARRAY(mData);
-            }
-
+            T3D_SAFE_DELETE_ARRAY(mData);
             mIsEmpty = true;
         }
 
@@ -148,121 +126,121 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult Image::load(const String &path)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            ret = destroy();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            ret = T3D_IMAGE_CODEC.decode(path, *this);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            mIsEmpty = false;
-            mIsDataExternal = false;
-        }while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    TResult Image::load(DataStream &stream)
-    {
-        TResult ret = T3D_OK;
-        
-        do 
-        {
-            ret = destroy();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            ret = T3D_IMAGE_CODEC.decode(stream, *this);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            mIsEmpty = false;
-            mIsDataExternal = false;
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    TResult Image::load(uint8_t *data, size_t width, size_t height,
-        size_t bpp, size_t pitch, PixelFormat format,
-        bool copySource /* = false */)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            ret = destroy();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            mWidth = width;
-            mHeight = height;
-            mBPP = bpp;
-            mPitch = calcPitch();
-
-            if (pitch != mPitch)
-                break;
-
-            mFormat = format;
-            mDataSize = mPitch * mHeight;
-            mSourceType = FILETYPE_RAW;
-
-            if (copySource)
-            {
-                mData = new uint8_t[mDataSize];
-                memcpy(mData, data, mDataSize);
-                mIsDataExternal = false;
-            }
-            else
-            {
-                mData = data;
-                mIsDataExternal = true;
-            }
-
-            mIsEmpty = false;
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    TResult Image::save(const String &path, 
-        uint32_t ft /* = FILETYPE_PNG */) const
-    {
-        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)ft;
-        return T3D_IMAGE_CODEC.encode(path, *this, eType);
-    }
-
-    //--------------------------------------------------------------------------
-    
-    TResult Image::save(DataStream &stream, 
-        uint32_t ft /* = FILETYPE_PNG */) const
-    {
-        ImageCodecBase::FileType eType = (ImageCodecBase::FileType)ft;
-        return T3D_IMAGE_CODEC.encode(stream, *this, eType);
-    }
+    // TResult Image::load(const String &path)
+    // {
+    //     TResult ret = T3D_OK;
+    //
+    //     do
+    //     {
+    //         ret = destroy();
+    //         if (T3D_FAILED(ret))
+    //         {
+    //             break;
+    //         }
+    //
+    //         ret = T3D_IMAGE_CODEC.decode(path, *this);
+    //         if (T3D_FAILED(ret))
+    //         {
+    //             break;
+    //         }
+    //
+    //         mIsEmpty = false;
+    //         mIsDataExternal = false;
+    //     }while (0);
+    //
+    //     return ret;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult Image::load(DataStream &stream)
+    // {
+    //     TResult ret = T3D_OK;
+    //     
+    //     do 
+    //     {
+    //         ret = destroy();
+    //         if (T3D_FAILED(ret))
+    //         {
+    //             break;
+    //         }
+    //
+    //         ret = T3D_IMAGE_CODEC.decode(stream, *this);
+    //         if (T3D_FAILED(ret))
+    //         {
+    //             break;
+    //         }
+    //
+    //         mIsEmpty = false;
+    //         mIsDataExternal = false;
+    //     } while (0);
+    //
+    //     return ret;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult Image::load(uint8_t *data, size_t width, size_t height,
+    //     size_t bpp, size_t pitch, PixelFormat format,
+    //     bool copySource /* = false */)
+    // {
+    //     TResult ret = T3D_OK;
+    //
+    //     do 
+    //     {
+    //         ret = destroy();
+    //         if (T3D_FAILED(ret))
+    //         {
+    //             break;
+    //         }
+    //
+    //         mWidth = width;
+    //         mHeight = height;
+    //         mBPP = bpp;
+    //         mPitch = calcPitch();
+    //
+    //         if (pitch != mPitch)
+    //             break;
+    //
+    //         mFormat = format;
+    //         mDataSize = mPitch * mHeight;
+    //         mSourceType = FILETYPE_RAW;
+    //
+    //         if (copySource)
+    //         {
+    //             mData = new uint8_t[mDataSize];
+    //             memcpy(mData, data, mDataSize);
+    //             mIsDataExternal = false;
+    //         }
+    //         else
+    //         {
+    //             mData = data;
+    //             mIsDataExternal = true;
+    //         }
+    //
+    //         mIsEmpty = false;
+    //     } while (0);
+    //
+    //     return ret;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult Image::save(const String &path, 
+    //     uint32_t ft /* = FILETYPE_PNG */) const
+    // {
+    //     ImageCodecBase::FileType eType = (ImageCodecBase::FileType)ft;
+    //     return T3D_IMAGE_CODEC.encode(path, *this, eType);
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult Image::save(DataStream &stream, 
+    //     uint32_t ft /* = FILETYPE_PNG */) const
+    // {
+    //     ImageCodecBase::FileType eType = (ImageCodecBase::FileType)ft;
+    //     return T3D_IMAGE_CODEC.encode(stream, *this, eType);
+    // }
 
     //--------------------------------------------------------------------------
     
@@ -303,11 +281,10 @@ namespace Tiny3D
             mWidth = image.mWidth;
             mHeight = image.mHeight;
             mBPP = image.mBPP;
-            mFormat = image.mFormat;
+            mPixelFormat = image.mPixelFormat;
             mPitch = image.mPitch;
             mHasAlpha = image.mHasAlpha;
             mIsPreMulti = image.mIsPreMulti;
-            mIsDataExternal = false;
             mIsEmpty = false;
         }
         else
@@ -330,7 +307,7 @@ namespace Tiny3D
             {
 
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -343,7 +320,7 @@ namespace Tiny3D
 
         do
         {
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -357,16 +334,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    size_t Image::calcPitch() const
-    {
-        return Image::calcPitch(mWidth, mBPP);//(mWidth * (mBPP / 8) + 3) & ~3;
-    }
-
-    //--------------------------------------------------------------------------
-    
     void Image::getColorMask(uint32_t &redMask, uint32_t &greenMask, uint32_t &blueMask, uint32_t &alphaMask) const
     {
-        switch (mFormat)
+        switch (mPixelFormat)
         {
         case PixelFormat::E_PF_B5G5R5A1:
             {
@@ -410,9 +380,41 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    
-    size_t Image::getBytesPerPixel() const
+
+    ResourcePtr Image::clone() const
     {
-        return (mBPP >> 3);
+        ImagePtr image = Image::create(getName());
+        image->cloneProperties(this);
+        return image;
     }
+
+    //--------------------------------------------------------------------------
+
+    void Image::cloneProperties(const Resource *const src)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Image::onCreate()
+    {
+        return Resource::onCreate();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Image::onLoad()
+    {
+        return Resource::onLoad();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Image::onUnload()
+    {
+        return Resource::onUnload();
+    }
+
+    //--------------------------------------------------------------------------
 }

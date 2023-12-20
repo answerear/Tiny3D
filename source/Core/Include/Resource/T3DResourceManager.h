@@ -21,7 +21,7 @@
 #define __T3D_RESOURCE_MANAGER_H__
 
 
-#include "Resource/T3DResource.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D

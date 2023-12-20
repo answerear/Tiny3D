@@ -19,6 +19,7 @@
 
 
 #include "RHI/T3DRHIRenderWindow.h"
+#include "Render/T3DRenderWindow.h"
 
 
 namespace Tiny3D

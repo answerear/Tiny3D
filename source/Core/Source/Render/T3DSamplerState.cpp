@@ -21,6 +21,7 @@
 #include "Render/T3DSamplerState.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIContext.h"
+#include "RHI/T3DRHISamplerState.h"
 
 
 namespace  Tiny3D

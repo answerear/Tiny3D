@@ -19,6 +19,7 @@
 
 
 #include "Render/T3DRenderWindow.h"
+#include "Render/T3DRenderTarget.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIRenderer.h"

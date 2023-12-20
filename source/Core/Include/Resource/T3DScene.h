@@ -26,9 +26,6 @@
 
 namespace Tiny3D
 {
-    using GameObjectList = TList<GameObjectPtr>;
-    using CameraList = TMap<uint32_t, Camera*>;
-    
     TCLASS()
     class T3D_ENGINE_API Scene : public Resource
     {

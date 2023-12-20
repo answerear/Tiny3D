@@ -23,7 +23,6 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Render/T3DRenderState.h"
 #include "Material/T3DShaderVariant.h"
 
 

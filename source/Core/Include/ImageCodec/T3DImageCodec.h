@@ -27,26 +27,13 @@
 
 namespace Tiny3D
 {
-    /**
-     * @class   ImageCodec
-     * @brief   A 3D engine api.
-     */
     class T3D_ENGINE_API ImageCodec
         : public Singleton<ImageCodec>
         , public Object
     {
     public:
-        /**
-         * @fn  static ImageCodecPtr create();
-         * @brief   创建对象
-         * @return  An ImageCodecPtr.
-         */
         static ImageCodecPtr create();
 
-        /**
-         * @fn  virtual ~ImageCodec();
-         * @brief   析构函数
-         */
         virtual ~ImageCodec();
 
         /**
@@ -57,8 +44,7 @@ namespace Tiny3D
          * @param [in]  codec   : 编解码器对象.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult addImageCodec(ImageCodecBase::FileType type,
-            ImageCodecBasePtr codec);
+        TResult addImageCodec(ImageCodecBase::FileType type, ImageCodecBasePtr codec);
 
         /**
          * @fn  TResult removeImageCodec(ImageCodecBase::FileType type);
@@ -77,8 +63,7 @@ namespace Tiny3D
          * @param [in]  type    (Optional) : 图像文件格式类型，默认PNG格式.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult encode(const String &name, const Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
+        TResult encode(const String &name, const Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
          * @fn  TResult encode(DataStream &stream, const Image &image, 
@@ -89,8 +74,7 @@ namespace Tiny3D
          * @param [in]  type    (Optional) : 图像文件格式类型，默认PNG格式.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult encode(DataStream &stream, const Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
+        TResult encode(DataStream &stream, const Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
          * @fn  TResult encode(uint8_t *&data, size_t &size, const Image &image, 
@@ -102,8 +86,7 @@ namespace Tiny3D
          * @param [in]  type    (Optional) : 图像文件格式类型，默认PNG格式.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult encode(uint8_t *&data, size_t &size, const Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
+        TResult encode(uint8_t *&data, size_t &size, const Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
          * @fn  TResult decode(const String &name, Image &image, 
@@ -114,8 +97,7 @@ namespace Tiny3D
          * @param [in]  type    (Optional) : 图像文件格式类型，默认是根据文件内容自动判断.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult decode(const String &name, Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
+        TResult decode(const String &name, Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
          * @fn  TResult decode(DataStream &stream, Image &image, 
@@ -126,8 +108,7 @@ namespace Tiny3D
          * @param [in]  type    (Optional) : 图像文件格式类型，默认是根据数据流内容自动判断.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult decode(DataStream &stream, Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
+        TResult decode(DataStream &stream, Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
          * @fn  TResult decode(uint8_t *data, size_t size, Image &image, 
@@ -139,8 +120,7 @@ namespace Tiny3D
          * @param [in]      type    (Optional) : 图像文件格式类型，默认是根据数据流内容自动判断.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult decode(uint8_t *data, size_t size, Image &image, 
-            ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
+        TResult decode(uint8_t *data, size_t size, Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
          * @fn  TResult flip(Image &image);
@@ -178,8 +158,7 @@ namespace Tiny3D
          * @param [in]  filter      : 缩放时候使用的算法.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult copy(const Image &srcImage, const Rect *srcRect,
-            Image &dstImage, const Rect *dstRect, uint32_t filter);
+        TResult copy(const Image &srcImage, const Rect *srcRect, Image &dstImage, const Rect *dstRect, uint32_t filter);
 
         /**
          * @fn  TResult convert(Image &image, PixelFormat format);
@@ -199,8 +178,7 @@ namespace Tiny3D
          * @param [in]  format      : 目标像素格式.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult convert(const Image &srcImage, Image &dstImage,
-            PixelFormat format);
+        TResult convert(const Image &srcImage, Image &dstImage, PixelFormat format);
 
     protected:
         /**
@@ -218,8 +196,7 @@ namespace Tiny3D
          * @param [in]  type    : 数据缓冲区对应的文件类型.
          * @return  调用成功返回对应的图像编解码器对象，否则返回 nullptr.
          */
-        ImageCodecBasePtr getImageCodec(uint8_t *data, size_t size, 
-            ImageCodecBase::FileType &type) const;
+        ImageCodecBasePtr getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType &type) const;
 
         /**
          * @fn  ImageCodecBasePtr getImageCodec(
@@ -230,12 +207,13 @@ namespace Tiny3D
          */
         ImageCodecBasePtr getImageCodec(ImageCodecBase::FileType type) const;
 
-        typedef TMap<ImageCodecBase::FileType, ImageCodecBasePtr> ImageCodecMap;
-        typedef ImageCodecMap::iterator             ImageCodecMapItr;
-        typedef ImageCodecMap::const_iterator       ImageCodecMapConstItr;
-        typedef ImageCodecMap::value_type           ImageCodecMapValue;
+        using ImageCodecMap = TMap<ImageCodecBase::FileType, ImageCodecBasePtr>;
+        using ImageCodecMapItr = ImageCodecMap::iterator;
+        using ImageCodecMapConstItr = ImageCodecMap::const_iterator;
+        using ImageCodecMapValue = ImageCodecMap::value_type;
 
-        ImageCodecMap   mCodecMap;  /**< The codec map */
+        /// The codec map
+        ImageCodecMap   mCodecMap;
     };
 
     #define T3D_IMAGE_CODEC     ImageCodec::getInstance()

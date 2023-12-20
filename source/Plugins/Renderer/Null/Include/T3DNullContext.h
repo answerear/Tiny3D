@@ -207,42 +207,42 @@ namespace Tiny3D
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        RHIPixelBuffer1DPtr createPixelBuffer(PixelBuffer1DPtr buffer) override;
+        RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1DPtr buffer) override;
 
         /**
          * \brief 设置渲染用的像素缓冲区对象
          * \param [in] buffer : 引擎的像素缓冲区对象
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPixelBuffer(PixelBuffer1DPtr buffer) override;
+        TResult setPixelBuffer1D(PixelBuffer1DPtr buffer) override;
 
         /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        RHIPixelBuffer2DPtr createPixelBuffer(PixelBuffer2DPtr buffer) override;
+        RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2DPtr buffer) override;
 
         /**
          * \brief 设置渲染用的像素缓冲区对象
          * \param [in] buffer : 引擎的像素缓冲区对象
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPixelBuffer(PixelBuffer2DPtr buffer) override;
+        TResult setPixelBuffer2D(PixelBuffer2DPtr buffer) override;
 
         /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        RHIPixelBuffer3DPtr createPixelBuffer(PixelBuffer3DPtr buffer) override;
+        RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3DPtr buffer) override;
 
         /**
          * \brief 设置渲染用的像素缓冲区对象
          * \param [in] buffer : 引擎的像素缓冲区对象
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPixelBuffer(PixelBuffer3DPtr buffer) override;
+        TResult setPixelBuffer3D(PixelBuffer3DPtr buffer) override;
 
         /**
          * \brief 创建 RHI 顶点着色器对象

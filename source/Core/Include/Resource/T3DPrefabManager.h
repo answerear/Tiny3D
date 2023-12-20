@@ -21,7 +21,6 @@
 #define __T3D_PREFAB_MANAGER_H__
 
 
-#include "T3DResource.h"
 #include "Resource/T3DResourceManager.h"
 
 

@@ -19,6 +19,7 @@
 
 
 #include "Resource/T3DResourceManager.h"
+#include "Resource/T3DResource.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DArchive.h"
 
