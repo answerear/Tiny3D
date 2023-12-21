@@ -157,11 +157,10 @@ namespace Tiny3D
         const MultisamplerDesc &getMSAADesc() const { return mDesc.sampleDesc; }
 
         PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
-        
-    private:
+                
+    protected:
         Texture2D() : Texture("") {}
         
-    protected:
         Texture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
         
         ResourcePtr clone() const override;
@@ -199,9 +198,9 @@ namespace Tiny3D
     };
 
     TCLASS()
-    class T3D_ENGINE_API Texture2DArray : public Texture
+    class T3D_ENGINE_API Texture2DArray : public Texture2D
     {
-        TRTTI_ENABLE(Texture)
+        TRTTI_ENABLE(Texture2D)
         TRTTI_FRIEND
 
     public:
@@ -209,32 +208,11 @@ namespace Tiny3D
 
         TEXTURE_TYPE getTextureType() const override;
 
-        const uint8_t * const getData() const { return mDesc.buffer.Data; }
-
-        size_t getDataSize() const { return mDesc.buffer.DataSize; }
-
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="getter")
-        uint32_t getWidth() const { return mDesc.width; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="getter")
-        uint32_t getHeight() const { return mDesc.height; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="getter")
-        PixelFormat getPixelFormat() const { return mDesc.format; }
-
-        TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="getter")
-        uint32_t getMipmaps() const { return mDesc.mipmaps; }
-
         TPROPERTY(RTTRFuncName="ArraySize", RTTRFuncType="getter")
         uint32_t getArraySize() const { return mDesc.arraySize; }
-
-        TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="getter")
-        const MultisamplerDesc &getMSAADesc() const { return mDesc.sampleDesc; }
-
-        PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
         
     private:
-        Texture2DArray() : Texture("") {}
+        Texture2DArray() {};
         
     protected:
         Texture2DArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
@@ -245,35 +223,8 @@ namespace Tiny3D
 
         TResult onLoad() override;
 
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
-        void setWidth(uint32_t width) { mDesc.width = width; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="setter")
-        void setHeight(uint32_t height) { mDesc.height = height; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="setter")
-        void setPixelFormat(PixelFormat format) { mDesc.format = format; }
-
-        TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="setter")
-        void setMipmaps(uint32_t mipmaps) { mDesc.mipmaps = mipmaps; }
-
         TPROPERTY(RTTRFuncName="ArraySize", RTTRFuncType="setter")
         void setArraySize(uint32_t arraySize) { mDesc.arraySize = arraySize; }
-
-        TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="setter")
-        void setMSAADesc(const MultisamplerDesc &desc) { mDesc.sampleDesc = desc; }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="getter")
-        const Buffer &getBuffer() const { return mDesc.buffer; }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &data) { mDesc.buffer = data; }
-        
-    protected:
-        /// 像素缓冲区描述
-        PixelBuffer2DDesc   mDesc {};
-        /// 像素缓冲区对象
-        PixelBuffer2DPtr    mPixelBuffer {nullptr};
     };
 
     TCLASS()
@@ -326,7 +277,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Height", RTTRFuncType="setter")
         void setHeight(uint32_t height) { mDesc.height = height; }
 
-        TPROPERTY(RTTRFuncName="Depth", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="Depth", RTTRFuncType="setter")
         void setDepth(uint32_t depth) { mDesc.depth = depth; }
         
         TPROPERTY(RTTRFuncName="Format", RTTRFuncType="setter")
@@ -349,9 +300,9 @@ namespace Tiny3D
     };
 
     TCLASS()
-    class T3D_ENGINE_API Cubemap : public Texture
+    class T3D_ENGINE_API Cubemap : public Texture2D
     {
-        TRTTI_ENABLE(Texture)
+        TRTTI_ENABLE(Texture2D)
         TRTTI_FRIEND
 
     public:
@@ -359,31 +310,9 @@ namespace Tiny3D
 
         TEXTURE_TYPE getTextureType() const override;
 
-        const uint8_t * const getData() const { return mDesc.buffer.Data; }
-
-        size_t getDataSize() const { return mDesc.buffer.DataSize; }
-
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="getter")
-        uint32_t getWidth() const { return mDesc.width; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="getter")
-        uint32_t getHeight() const { return mDesc.height; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="getter")
-        PixelFormat getPixelFormat() const { return mDesc.format; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="getter")
-        uint32_t getMipmaps() const { return mDesc.mipmaps; }
-
-        TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="getter")
-        const MultisamplerDesc &getMSAADesc() const { return mDesc.sampleDesc; }
-
-        PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
-        
-    private:
-        Cubemap() : Texture("") {}
-        
     protected:
+        Cubemap() {}
+        
         Cubemap(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
         
         ResourcePtr clone() const override;
@@ -391,39 +320,12 @@ namespace Tiny3D
         TResult onCreate() override;
 
         TResult onLoad() override;
-
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
-        void setWidth(uint32_t width) { mDesc.width = width; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="setter")
-        void setHeight(uint32_t height) { mDesc.height = height; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="setter")
-        void setPixelFormat(PixelFormat format) { mDesc.format = format; }
-
-        TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="setter")
-        void setMipmaps(uint32_t mipmaps) { mDesc.mipmaps = mipmaps; }
-        
-        TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="setter")
-        void setMSAADesc(const MultisamplerDesc &desc) { mDesc.sampleDesc = desc; }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="getter")
-        const Buffer &getBuffer() const { return mDesc.buffer; }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &data) { mDesc.buffer = data; }
-        
-    protected:
-        /// 像素缓冲区描述
-        PixelBuffer2DDesc   mDesc {};
-        /// 像素缓冲区对象
-        PixelBuffer2DPtr    mPixelBuffer {nullptr};
     };
 
     TCLASS()
-    class T3D_ENGINE_API CubemapArray : public Texture
+    class T3D_ENGINE_API CubemapArray : public Cubemap
     {
-        TRTTI_ENABLE(Texture)
+        TRTTI_ENABLE(Cubemap)
         TRTTI_FRIEND
 
     public:
@@ -431,34 +333,12 @@ namespace Tiny3D
 
         TEXTURE_TYPE getTextureType() const override;
 
-        const uint8_t * const getData() const { return mDesc.buffer.Data; }
-
-        size_t getDataSize() const { return mDesc.buffer.DataSize; }
-        
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="getter")
-        uint32_t getWidth() const { return mDesc.width; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="getter")
-        uint32_t getHeight() const { return mDesc.height; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="getter")
-        PixelFormat getPixelFormat() const { return mDesc.format; }
-
-        TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="getter")
-        uint32_t getMipmaps() const { return mDesc.mipmaps; }
-
         TPROPERTY(RTTRFuncName="ArraySize", RTTRFuncType="getter")
         uint32_t getArraySize() const { return mDesc.arraySize / 6; }
-
-        TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="getter")
-        const MultisamplerDesc &getMSAADesc() const { return mDesc.sampleDesc; }
-
-        PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
-        
-    private:
-        CubemapArray() : Texture("") {}
         
     protected:
+        CubemapArray() {}
+        
         CubemapArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
         
         ResourcePtr clone() const override;
@@ -466,36 +346,9 @@ namespace Tiny3D
         TResult onCreate() override;
 
         TResult onLoad() override;
-
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
-        void setWidth(uint32_t width) { mDesc.width = width; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="setter")
-        void setHeight(uint32_t height) { mDesc.height = height; }
-
-        TPROPERTY(RTTRFuncName="Format", RTTRFuncType="setter")
-        void setPixelFormat(PixelFormat format) { mDesc.format = format; }
-
-        TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="setter")
-        void setMipmaps(uint32_t mipmaps) { mDesc.mipmaps = mipmaps; }
-
+        
         TPROPERTY(RTTRFuncName="ArraySize", RTTRFuncType="setter")
         void setArraySize(uint32_t arraySize) { mDesc.arraySize = arraySize * 6; }
-
-        TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="setter")
-        void setMSAADesc(const MultisamplerDesc &desc) { mDesc.sampleDesc = desc; }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="getter")
-        const Buffer &getBuffer() const { return mDesc.buffer; }
-
-        TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &data) { mDesc.buffer = data; }
-        
-    protected:
-        /// 像素缓冲区描述
-        PixelBuffer2DDesc   mDesc {};
-        /// 像素缓冲区对象
-        PixelBuffer2DPtr    mPixelBuffer {nullptr};
     };
 }
 

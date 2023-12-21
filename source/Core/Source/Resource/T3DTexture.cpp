@@ -181,15 +181,9 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Texture2DArray::Texture2DArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
-        : Texture(name)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data)
     {
-        mDesc.width = width;
-        mDesc.height = height;
-        mDesc.format = format;
         mDesc.arraySize = arraySize;
-        mDesc.sampleDesc.Count = MSAACount;
-        mDesc.sampleDesc.Quality = MSAAQuality;
-        mDesc.buffer = data;
     }
 
     //--------------------------------------------------------------------------
@@ -282,16 +276,9 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Cubemap::Cubemap(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
-        : Texture(name)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data)
     {
-        mDesc.width = width;
-        mDesc.height = height;
-        mDesc.format = format;
-        mDesc.mipmaps = mipmaps;
-        mDesc.sampleDesc.Count = MSAACount;
-        mDesc.sampleDesc.Quality = MSAAQuality;
         mDesc.arraySize = 6;
-        mDesc.buffer = data;
     }
 
     //--------------------------------------------------------------------------
@@ -334,16 +321,9 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     CubemapArray::CubemapArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
-        : Texture(name)
+        : Cubemap(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data)
     {
-        mDesc.width = width;
-        mDesc.height = height;
-        mDesc.format = format;
-        mDesc.mipmaps = mipmaps;
         mDesc.arraySize = arraySize;
-        mDesc.sampleDesc.Count = MSAACount;
-        mDesc.sampleDesc.Quality = MSAAQuality;
-        mDesc.buffer = data;
     }
 
     //--------------------------------------------------------------------------
