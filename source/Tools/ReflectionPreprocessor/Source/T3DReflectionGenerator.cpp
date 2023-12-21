@@ -2798,6 +2798,7 @@ namespace Tiny3D
         {
             if (val.second.empty())
             {
+                RP_LOG_WARNING("The AST of source file [%s] has not be generated !", val.first.c_str());
                 continue;
             }
             
@@ -2809,6 +2810,7 @@ namespace Tiny3D
             auto itr = mHeaderFiles.find(title);
             if (itr == mHeaderFiles.end())
             {
+                RP_LOG_WARNING("Thire is not the header file title [%s] corresponeding the source file [%s] !", title.c_str(), val.first.c_str());
                 continue;
             }
 
@@ -2829,6 +2831,7 @@ namespace Tiny3D
             if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE))
             {
                 // 文件打开失败
+                RP_LOG_ERROR("Open file [%s] failed !", path.c_str());
                 continue;
             }
             
