@@ -490,14 +490,36 @@ namespace Tiny3D
 
         TResult clearColor(RenderTexturePtr texture, const ColorRGB &color);
 
-        /**< The instance */
+        void setupBlitQuad();
+
+        TResult blitAll(ID3D11Resource *pD3DSrc, D3D11RenderWindow *pDst);
+        
+        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst);
+
+    protected:
+        struct BlitVertex
+        {
+            Vector3 position;
+            Vector2 uv;
+        };
+        
+        /// The instance
         HINSTANCE           mInstance {nullptr};
-        /**< D3D11 设备对象 */
+        /// D3D11 设备对象
         ID3D11Device        *mD3DDevice {nullptr};
-        /**< D3D11 上下文对象 */
+        /// D3D11 上下文对象
         ID3D11DeviceContext *mD3DDeviceContext {nullptr};
-        /**< D3D 特性级别 */
+        /// D3D 特性级别
         D3D_FEATURE_LEVEL   mFeatureLevel {D3D_FEATURE_LEVEL_11_0};
+
+        /// 用于 blit 的 vertex buffer
+        ID3D11Buffer        *mBlitVB {nullptr};
+        /// 用于 blit 的 input layout
+        ID3D11InputLayout   *mBlitLayout {nullptr};
+        /// 用于 blit 的 vertex shader
+        ID3D11VertexShader  *mBlitVS {nullptr};
+        /// 用于 blit 的 pixel shader
+        ID3D11PixelShader   *mBlitPS {nullptr};
 
         RenderWindowPtr     mCurrentRenderWindow {nullptr};
         RenderTexturePtr    mCurrentRenderTexture {nullptr};

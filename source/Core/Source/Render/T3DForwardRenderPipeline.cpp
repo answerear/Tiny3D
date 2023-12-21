@@ -193,10 +193,10 @@ namespace Tiny3D
             if (rt != nullptr)
             {
                 const Viewport &vp = camera->getViewport();
-                Real left = rt->getWidth() * vp.Left;
-                Real top = rt->getHeight() * vp.Top;
-                Real width = rt->getWidth() * vp.Width;
-                Real height = rt->getHeight() * vp.Height;
+                Real left = Real(rt->getWidth()) * vp.Left;
+                Real top = Real(rt->getHeight()) * vp.Top;
+                Real width = Real(rt->getWidth()) * vp.Width;
+                Real height = Real(rt->getHeight()) * vp.Height;
                 Vector3 offset(left, top, 0.0f);
                 Vector3 box(width, height, 0.0f);
                 ctx->blit(rt, camera->getRenderTarget(), offset, box, offset);
