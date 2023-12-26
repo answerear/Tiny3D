@@ -51,6 +51,18 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     RenderTargetPtr rt = RenderTarget::create(rw);
     
     CameraPtr camera;
+
+    // center camera
+    go = GameObject::create("CenterCamera");
+    Transform3DPtr center = go->addComponent<Transform3D>();
+    root->addChild(center);
+    camera = go->addComponent<Camera>();
+    camera->setOrder(1);
+    Viewport vpCenter {0.25f, 0.25f, 0.5f, 0.5f, 0.0f, 1.0f};
+    camera->setViewport(vpCenter);
+    camera->setClearColor(ColorRGB::RED);
+    camera->setRenderTarget(rt);
+    scene->addCamera(camera);
     
     // left camera
     go = GameObject::create("LeftCamera");
@@ -69,7 +81,7 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Transform3DPtr right = go->addComponent<Transform3D>();
     root->addChild(right);    
     camera = go->addComponent<Camera>();
-    camera->setOrder(1);
+    camera->setOrder(0);
     Viewport vpRight {0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f};    
     camera->setViewport(vpRight);
     camera->setClearColor(ColorRGB::BLUE);
