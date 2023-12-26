@@ -199,7 +199,9 @@ namespace Tiny3D
                 Real height = Real(rt->getHeight()) * vp.Height;
                 Vector3 offset(left, top, 0.0f);
                 Vector3 box(width, height, 0.0f);
+                
                 ctx->blit(rt, camera->getRenderTarget(), offset, box, offset);
+                // ctx->blit(rt, camera->getRenderTarget());
             }
 
             // 重置 render target 为空

@@ -490,11 +490,15 @@ namespace Tiny3D
 
         TResult clearColor(RenderTexturePtr texture, const ColorRGB &color);
 
+        TResult clearDepthStencil(RenderWindowPtr window, Real depth, uint8_t stencil);
+        
+        TResult clearDepthStencil(RenderTexturePtr texture, Real depth, uint8_t stencil);
+
         void setupBlitQuad();
 
         TResult blitAll(ID3D11Resource *pD3DSrc, D3D11RenderWindow *pDst);
         
-        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst);
+        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 &dstOffset = Vector3::ZERO);
 
     protected:
         struct BlitVertex
@@ -520,6 +524,12 @@ namespace Tiny3D
         ID3D11VertexShader  *mBlitVS {nullptr};
         /// 用于 blit 的 pixel shader
         ID3D11PixelShader   *mBlitPS {nullptr};
+        /// 用于 blit 的 sampler state
+        ID3D11SamplerState  *mBlitSamplerState {nullptr};
+        /// 用于 blit 的 rasterizer state
+        ID3D11RasterizerState   *mBlitRasterState {nullptr};
+        /// 用于 blit 的 depth stencil state
+        ID3D11DepthStencilState *mBlitDSState {nullptr};
 
         RenderWindowPtr     mCurrentRenderWindow {nullptr};
         RenderTexturePtr    mCurrentRenderTexture {nullptr};

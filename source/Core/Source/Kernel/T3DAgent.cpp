@@ -458,7 +458,7 @@ namespace Tiny3D
             param.IconPath = mSettings.renderSettings.iconPath;
             // 抗锯齿
             //param.MSAA = mSettings.renderSettings.MSAA;
-            param.MSAA.Count = 4;
+            param.MSAA.Count = 1;
             param.MSAA.Quality = 0;
             // 垂直同步
             param.IsVsync = mSettings.renderSettings.vsync;

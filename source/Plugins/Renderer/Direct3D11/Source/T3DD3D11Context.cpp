@@ -736,74 +736,124 @@ namespace Tiny3D
         BlitVertex vertices[4] =
         {
             { Vector3(-1.0f, 1.0f, 0.5f), Vector2(0.0f, 0.0f) },
-            { Vector3(-1.0f, -1.0f, 0.5f), Vector2(0.0f, 1.0f) },
             { Vector3(1.0f, 1.0f, 0.5f), Vector2(1.0f, 0.0f) },
+            { Vector3(-1.0f, -1.0f, 0.5f), Vector2(0.0f, 1.0f) },
             { Vector3(1.0f, -1.0f, 0.5f), Vector2(1.0f, 1.0f) }
         };
 
         // 创建顶点缓冲区
         D3D11_BUFFER_DESC bd = {};
-        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.Usage = D3D11_USAGE_IMMUTABLE;
         bd.ByteWidth = sizeof(BlitVertex) * 4;
         bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         bd.CPUAccessFlags = 0;
         D3D11_SUBRESOURCE_DATA initData = {};
         initData.pSysMem = vertices;
-        ID3D11Buffer* vertexBuffer = nullptr;
-        mD3DDevice->CreateBuffer(&bd, &initData, &vertexBuffer);
+        mD3DDevice->CreateBuffer(&bd, &initData, &mBlitVB);
 
         // 编译顶点着色器
         const String vs =
-            "struct VS_INPUT\
-            {\
-                float3 Pos : POSITION;\
-                float2 Tex : TEXCOORD0;\
-            };\
-            struct PS_INPUT\
-            {\
-                float4 Pos : SV_POSITION;\
-                float2 Tex : TEXCOORD0;\
-            };\
-            PS_INPUT VS(VS_INPUT input)\
-            {\
-                PS_INPUT output;\
-                output.Pos = float4(input.Pos, 1.0f);\
-                output.Tex = input.Tex;\
-                return output;\
-            }";
+            "struct VS_INPUT\n"
+            "{\n"
+            "    float3 Pos : POSITION;\n"
+            "    float2 Tex : TEXCOORD0;\n"
+            "};\n"
+            "struct PS_INPUT\n"
+            "{\n"
+            "    float4 Pos : SV_POSITION;\n"
+            "    float2 Tex : TEXCOORD0;\n"
+            "};\n"
+            "PS_INPUT VS(VS_INPUT input)\n"
+            "{\n"
+            "    PS_INPUT output;\n"
+            "    output.Pos = float4(input.Pos, 1.0f);\n"
+            "    output.Tex = input.Tex;\n"
+            "    return output;\n"
+            "}";
 
+        UINT shaderCompileFlags = D3DCOMPILE_DEBUG;
         ID3DBlob *vertexShaderBlob = nullptr;
         ID3DBlob *errorMsgBlob = nullptr;
-        HRESULT hr = D3DCompile(vs.c_str(), vs.length(), "BlitVertexShader.hlsl", nullptr, nullptr, "VS", "vs_4_0", 0, 0, &vertexShaderBlob, &errorMsgBlob);
+        HRESULT hr = D3DCompile(vs.c_str(), vs.length(), "BlitVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_4_0", shaderCompileFlags, 0, &vertexShaderBlob, &errorMsgBlob);
         T3D_ASSERT(SUCCEEDED(hr), "Compile blit vertex shader !");        
         mD3DDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &mBlitVS);
-
+        D3D_SAFE_RELEASE(errorMsgBlob);
+        
         // 编译像素着色器
         const String ps =
-            "Texture2D gSrcTexture : register(t0);\
-            SamplerState gSampler : register(s0);\
-            struct PS_INPUT\
-            {\
-                float4 Pos : SV_POSITION;\
-                float2 Tex : TEXCOORD0;\
-            };\
-            float4 PS(PS_INPUT input) : SV_Target\
-            {\
-                return gSrcTexture.Sample(gSampler, input.Tex);\
-            }";
+            "Texture2D gSrcTexture : register(t0);\n"
+            "SamplerState gSampler : register(s0);\n"
+            "struct PS_INPUT\n"
+            "{\n"
+            "    float4 Pos : SV_POSITION;\n"
+            "    float2 Tex : TEXCOORD0;\n"
+            "};\n"
+            "float4 PS(PS_INPUT input) : SV_Target\n"
+            "{\n"
+            "    float4 color = gSrcTexture.Sample(gSampler, input.Tex);\n"
+            "    return color;\n"
+            "}";
         
         ID3DBlob* pixelShaderBlob = nullptr;
-        hr = D3DCompile(ps.c_str(), ps.length(), "BlitPixelShader.hlsl", nullptr, nullptr, "PS", "ps_4_0", 0, 0, &pixelShaderBlob, &errorMsgBlob);
+        hr = D3DCompile(ps.c_str(), ps.length(), "BlitPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_4_0", shaderCompileFlags, 0, &pixelShaderBlob, &errorMsgBlob);
+        String strError;
+        if (errorMsgBlob != nullptr)
+        {
+            strError.assign((const char *)errorMsgBlob->GetBufferPointer(), errorMsgBlob->GetBufferSize());
+        }
         T3D_ASSERT(SUCCEEDED(hr), "Compile blit vertex shader !");        
         mD3DDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &mBlitPS);
-
+        D3D_SAFE_RELEASE(errorMsgBlob);
+        
         // 创建输入布局
         D3D11_INPUT_ELEMENT_DESC layout[] =
         {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
         mD3DDevice->CreateInputLayout(layout, ARRAYSIZE(layout), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &mBlitLayout);
+
+        // 创建 sampler state
+        D3D11_SAMPLER_DESC sampDesc = {};
+        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sampDesc.MinLOD = 0;
+        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        mD3DDevice->CreateSamplerState(&sampDesc, &mBlitSamplerState);
+
+        // 创建 depth stencil state
+        D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+        dsDesc.DepthEnable             = FALSE;
+        dsDesc.StencilEnable           = FALSE;
+        dsDesc.DepthFunc               = D3D11_COMPARISON_ALWAYS;
+        dsDesc.DepthWriteMask          = D3D11_DEPTH_WRITE_MASK_ALL;
+        dsDesc.BackFace.StencilFailOp  = D3D11_STENCIL_OP_KEEP;
+        dsDesc.BackFace.StencilPassOp  = D3D11_STENCIL_OP_KEEP;
+        dsDesc.BackFace.StencilFunc    = D3D11_COMPARISON_ALWAYS;
+        dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+        dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+        dsDesc.FrontFace.StencilFunc   = D3D11_COMPARISON_ALWAYS;
+        mD3DDevice->CreateDepthStencilState(&dsDesc, &mBlitDSState);
+
+        // 创建 rasterizer state
+        // D3D11_RASTERIZER_DESC rasterDesc = {};
+        // rasterDesc.AntialiasedLineEnable = FALSE;
+        // rasterDesc.CullMode              = D3D11_CULL_BACK;
+        // rasterDesc.DepthBias             = 0;
+        // rasterDesc.DepthBiasClamp        = 0.0f;
+        // rasterDesc.DepthClipEnable       = FALSE;
+        // rasterDesc.FillMode              = D3D11_FILL_SOLID;
+        // rasterDesc.FrontCounterClockwise = FALSE;
+        // rasterDesc.MultisampleEnable     = FALSE;
+        // rasterDesc.ScissorEnable         = FALSE;
+        // rasterDesc.SlopeScaledDepthBias  = 0.0f;
+        // mD3DDevice->CreateRasterizerState(&rasterDesc, &mBlitRasterState);
+        
+        D3D_SAFE_RELEASE(vertexShaderBlob);
+        D3D_SAFE_RELEASE(pixelShaderBlob);
     }
 
     //--------------------------------------------------------------------------
@@ -1008,8 +1058,8 @@ namespace Tiny3D
             do
             {
                 // 获取支持的 MSAA
-                UINT uMSAACount = buffer->getDescriptor().sampleDesc.Count;
-                UINT uMSAAQuality = buffer->getDescriptor().sampleDesc.Quality;
+                UINT uMSAACount = 1;//buffer->getDescriptor().sampleDesc.Count;
+                UINT uMSAAQuality = 0;//buffer->getDescriptor().sampleDesc.Quality;
 
                 DXGI_FORMAT format = D3D11Mapping::get(buffer->getDescriptor().format);
 
@@ -1026,15 +1076,15 @@ namespace Tiny3D
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
                         break;
                     }
-
+                
                     uMSAAQuality = uNumQuality - 1;
                     // uMSAACount = uNumQuality;
                 }
 
                 // 创建颜色纹理资源
                 D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
-                texDesc.SampleDesc.Count = uMSAACount;
-                texDesc.SampleDesc.Quality = uMSAAQuality;
+                texDesc.SampleDesc.Count = 1;
+                texDesc.SampleDesc.Quality = 0;
                 texDesc.Usage = D3D11Mapping::get(buffer->getUsage()); // 设置纹理用途
                 texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
                 texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
@@ -1050,7 +1100,10 @@ namespace Tiny3D
                 }
 
                 // 创建渲染目标视图
-                hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, nullptr, &d3dPixelBuffer->D3DRTView);
+                D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+                rtvDesc.Format = texDesc.Format;
+                rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+                hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, &rtvDesc, &d3dPixelBuffer->D3DRTView);
                 if (FAILED(hr))
                 {
                     // 错误
@@ -1079,7 +1132,11 @@ namespace Tiny3D
                 }
 
                 // 创建 depth & stencil 视图
-                hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DDSTexture, nullptr, &d3dPixelBuffer->D3DDSView);
+                D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+                dsvDesc.Format = depthStencilDesc.Format;
+                dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+                dsvDesc.Texture2D.MipSlice = 0;
+                hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DDSTexture, &dsvDesc, &d3dPixelBuffer->D3DDSView);
                 if (FAILED(hr))
                 {
                     // 错误
@@ -1089,7 +1146,12 @@ namespace Tiny3D
                 }
 
                 // 创建着色器资源视图
-                hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, nullptr, &d3dPixelBuffer->D3DSRView);
+                D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+                srvDesc.Format = texDesc.Format;
+                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                srvDesc.Texture2D.MostDetailedMip = 0;
+                srvDesc.Texture2D.MipLevels = 1;
+                hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
                 if (FAILED(hr))
                 {
                     // 错误
@@ -1197,7 +1259,37 @@ namespace Tiny3D
     
     TResult D3D11Context::setViewport(const Viewport &viewport)
     {
-        return T3D_OK;
+        Real width, height;
+        
+        if (mCurrentRenderTexture != nullptr)
+        {
+            width = Real(mCurrentRenderTexture->getWidth());
+            height = Real(mCurrentRenderTexture->getHeight());
+        }
+        else if (mCurrentRenderWindow != nullptr)
+        {
+            width = Real(mCurrentRenderWindow->getDescriptor().Width);
+            height = Real(mCurrentRenderWindow->getDescriptor().Height);
+        }
+        else
+        {
+            return T3D_OK;
+        }
+        
+        auto lambda = [this](Viewport vp, Real width, Real height)
+        {
+            D3D11_VIEWPORT d3dViewport = {};
+            d3dViewport.TopLeftX = vp.Left * width;
+            d3dViewport.TopLeftY = vp.Top * height;
+            d3dViewport.Width = width;
+            d3dViewport.Height = height;
+            d3dViewport.MinDepth = 0.0f;
+            d3dViewport.MaxDepth = 1.0f;
+            mD3DDeviceContext->RSSetViewports(1, &d3dViewport);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, viewport, width, height);
     }
     
     //--------------------------------------------------------------------------
@@ -1261,7 +1353,47 @@ namespace Tiny3D
     
     TResult D3D11Context::clearDepthStencil(Real depth, uint32_t stencil)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        if (mCurrentRenderWindow == nullptr && mCurrentRenderTexture == nullptr)
+            return ret;
+
+        if (mCurrentRenderTexture != nullptr)
+        {
+            ret = clearDepthStencil(mCurrentRenderTexture, depth, stencil);
+        }
+        else if (mCurrentRenderWindow != nullptr)
+        {
+            ret = clearDepthStencil(mCurrentRenderWindow, depth, stencil);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::clearDepthStencil(RenderWindowPtr window, Real depth, uint8_t stencil)
+    {
+        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
+        auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow, Real depth, uint8_t stencil)
+        {
+            mD3DDeviceContext->ClearDepthStencilView(pD3DRenderWindow->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow, depth, stencil);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::clearDepthStencil(RenderTexturePtr texture, Real depth, uint8_t stencil)
+    {
+        D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
+        auto lambda = [this](D3D11PixelBuffer2D *pD3DPixelBuffer, Real depth, uint8_t stencil)
+        {
+            mD3DDeviceContext->ClearDepthStencilView(pD3DPixelBuffer->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DPixelBuffer, depth, stencil);
     }
 
     //--------------------------------------------------------------------------
@@ -1644,7 +1776,7 @@ namespace Tiny3D
                             RenderTexture *pTex2D = static_cast<RenderTexture *>(pSrc);
                             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
                             pD3DSRV = pD3DPixelBuffer->D3DSRView;
-                            // pD3DSrc = pD3DPixelBuffer->D3DTexture;
+                            pD3DSrc = pD3DPixelBuffer->D3DTexture;
                             // D3D11_TEXTURE2D_DESC srcTexDesc;
                             // pD3DPixelBuffer->D3DTexture->GetDesc(&srcTexDesc);
                             // D3D11_TEXTURE2D_DESC dstTexDesc;
@@ -1662,7 +1794,7 @@ namespace Tiny3D
                     else
                     {
                         // 按区域复制
-                        ret = blitRegion(pD3DSRV, pDst);
+                        ret = blitRegion(pD3DSRV, pDst, srcOffset, size, dstOffset);
                     }
 
                     return ret;
@@ -1714,8 +1846,43 @@ namespace Tiny3D
 #endif
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst)
+    TResult D3D11Context::blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
     {
+        ID3D11RenderTargetView *pCurRTV = nullptr;
+        ID3D11DepthStencilView *pCurDSV = nullptr;
+        mD3DDeviceContext->OMGetRenderTargets(1, &pCurRTV, &pCurDSV);
+
+        // ID3D11RasterizerState *pCurRState = nullptr;
+        // mD3DDeviceContext->RSGetState(&pCurRState);
+
+        ID3D11DepthStencilState *pCurDSState = nullptr;
+        UINT curStencilRef = 0;
+        mD3DDeviceContext->OMGetDepthStencilState(&pCurDSState, &curStencilRef);
+
+        UINT numOfViewports = 1;
+        D3D11_VIEWPORT originalVP;
+        mD3DDeviceContext->RSGetViewports(&numOfViewports, &originalVP);
+
+        mD3DDeviceContext->OMSetRenderTargets(1, &pDst->D3DRTView, pDst->D3DDSView);
+
+        // rasterizer state
+        // mD3DDeviceContext->RSSetState(mBlitRasterState);
+
+        // depth stencil state
+        mD3DDeviceContext->OMSetDepthStencilState(mBlitDSState, 0);
+
+        D3D11_TEXTURE2D_DESC d3dTexDesc;
+        pDst->D3DBackBuffer->GetDesc(&d3dTexDesc);
+                    
+        D3D11_VIEWPORT viewport = {};
+        viewport.TopLeftX = dstOffset.x();
+        viewport.TopLeftY = dstOffset.y();
+        viewport.Width = size.x();
+        viewport.Height = size.y();
+        viewport.MinDepth = 0.0f;
+        viewport.MaxDepth = 1.0f;
+        mD3DDeviceContext->RSSetViewports(1, &viewport);
+
         // 设置顶点缓冲区
         UINT stride = sizeof(BlitVertex);
         UINT offset = 0;
@@ -1727,22 +1894,33 @@ namespace Tiny3D
         // 设置输入布局
         mD3DDeviceContext->IASetInputLayout(mBlitLayout);
 
+        // 设置源纹理为像素着色器的输入
+        mD3DDeviceContext->PSSetShaderResources(0, 1, &pD3DSRV);
+        
+        // 设置纹理采样
+        mD3DDeviceContext->PSSetSamplers(0, 1, &mBlitSamplerState);
+
+        // 设置混合状态
+        // mD3DDeviceContext->OMSetBlendState(mBlitBlendState, );
+        
         // 设置顶点和像素着色器
         mD3DDeviceContext->VSSetShader(mBlitVS, nullptr, 0);
         mD3DDeviceContext->PSSetShader(mBlitPS, nullptr, 0);
 
-        // 设置源纹理为像素着色器的输入        
-        mD3DDeviceContext->PSSetShaderResources(0, 1, &pD3DSRV);
-
         // 设置目标纹理为渲染目标
-        mD3DDeviceContext->OMSetRenderTargets(1, &pDst->D3DRTView, nullptr);
+        // mD3DDeviceContext->OMSetRenderTargets(1, &pDst->D3DRTView, nullptr);
 
         // 绘制全屏四边形
         mD3DDeviceContext->Draw(4, 0);
 
         ID3D11ShaderResourceView *pNullRSV = nullptr;
         mD3DDeviceContext->PSSetShaderResources(0, 1, &pNullRSV);
-
+        
+        mD3DDeviceContext->OMSetRenderTargets(1, &pCurRTV, pCurDSV);
+        mD3DDeviceContext->RSSetViewports(1, &originalVP);
+        mD3DDeviceContext->OMSetDepthStencilState(pCurDSState, curStencilRef);
+        // mD3DDeviceContext->RSSetState(pCurRState);
+        
         return T3D_OK;
     }
 

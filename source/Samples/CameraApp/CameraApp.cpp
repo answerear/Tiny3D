@@ -47,18 +47,21 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     scene->addRootGameObject(go);
     Transform3DPtr root = go->addComponent<Transform3D>();
 
-    // left camera
-    go = GameObject::create("LeftCamera");
-    Transform3DPtr left = go->addComponent<Transform3D>();
-    root->addChild(left);
-    CameraPtr camera = go->addComponent<Camera>();
-    Viewport vpLeft {0.0f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f};
-    camera->setViewport(vpLeft);
-    camera->setClearColor(ColorRGB::GREEN);
     RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
     RenderTargetPtr rt = RenderTarget::create(rw);
-    camera->setRenderTarget(rt);
-    scene->addCamera(camera);
+    
+    CameraPtr camera;
+    
+    // left camera
+    // go = GameObject::create("LeftCamera");
+    // Transform3DPtr left = go->addComponent<Transform3D>();
+    // root->addChild(left);
+    // camera = go->addComponent<Camera>();
+    // Viewport vpLeft {0.0f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f};
+    // camera->setViewport(vpLeft);
+    // camera->setClearColor(ColorRGB::GREEN);
+    // camera->setRenderTarget(rt);
+    // scene->addCamera(camera);
 
     // right camera
     go = GameObject::create("RightCamera");
