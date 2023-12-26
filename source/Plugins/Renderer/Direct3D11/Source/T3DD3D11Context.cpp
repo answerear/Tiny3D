@@ -51,8 +51,14 @@ namespace Tiny3D
 
     D3D11Context::~D3D11Context()
     {
-        D3D_SAFE_RELEASE(mD3DDeviceContext);
-        D3D_SAFE_RELEASE(mD3DDevice);
+        D3D_SAFE_RELEASE(mBlitVB)
+        D3D_SAFE_RELEASE(mBlitLayout)
+        D3D_SAFE_RELEASE(mBlitVS)        
+        D3D_SAFE_RELEASE(mBlitPS)        
+        D3D_SAFE_RELEASE(mBlitSamplerState)        
+        D3D_SAFE_RELEASE(mBlitDSState)        
+        D3D_SAFE_RELEASE(mD3DDeviceContext)
+        D3D_SAFE_RELEASE(mD3DDevice)
     }
 
     //--------------------------------------------------------------------------
@@ -749,7 +755,8 @@ namespace Tiny3D
         bd.CPUAccessFlags = 0;
         D3D11_SUBRESOURCE_DATA initData = {};
         initData.pSysMem = vertices;
-        mD3DDevice->CreateBuffer(&bd, &initData, &mBlitVB);
+        HRESULT hr = mD3DDevice->CreateBuffer(&bd, &initData, &mBlitVB);
+        T3D_ASSERT(SUCCEEDED(hr), "Create blit vertex buffer !");
 
         // 编译顶点着色器
         const String vs =
@@ -774,7 +781,7 @@ namespace Tiny3D
         UINT shaderCompileFlags = D3DCOMPILE_DEBUG;
         ID3DBlob *vertexShaderBlob = nullptr;
         ID3DBlob *errorMsgBlob = nullptr;
-        HRESULT hr = D3DCompile(vs.c_str(), vs.length(), "BlitVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_4_0", shaderCompileFlags, 0, &vertexShaderBlob, &errorMsgBlob);
+        hr = D3DCompile(vs.c_str(), vs.length(), "BlitVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_4_0", shaderCompileFlags, 0, &vertexShaderBlob, &errorMsgBlob);
         T3D_ASSERT(SUCCEEDED(hr), "Compile blit vertex shader !");        
         mD3DDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &mBlitVS);
         D3D_SAFE_RELEASE(errorMsgBlob);
@@ -837,20 +844,6 @@ namespace Tiny3D
         dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
         dsDesc.FrontFace.StencilFunc   = D3D11_COMPARISON_ALWAYS;
         mD3DDevice->CreateDepthStencilState(&dsDesc, &mBlitDSState);
-
-        // 创建 rasterizer state
-        // D3D11_RASTERIZER_DESC rasterDesc = {};
-        // rasterDesc.AntialiasedLineEnable = FALSE;
-        // rasterDesc.CullMode              = D3D11_CULL_BACK;
-        // rasterDesc.DepthBias             = 0;
-        // rasterDesc.DepthBiasClamp        = 0.0f;
-        // rasterDesc.DepthClipEnable       = FALSE;
-        // rasterDesc.FillMode              = D3D11_FILL_SOLID;
-        // rasterDesc.FrontCounterClockwise = FALSE;
-        // rasterDesc.MultisampleEnable     = FALSE;
-        // rasterDesc.ScissorEnable         = FALSE;
-        // rasterDesc.SlopeScaledDepthBias  = 0.0f;
-        // mD3DDevice->CreateRasterizerState(&rasterDesc, &mBlitRasterState);
         
         D3D_SAFE_RELEASE(vertexShaderBlob);
         D3D_SAFE_RELEASE(pixelShaderBlob);

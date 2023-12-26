@@ -151,7 +151,7 @@ namespace Tiny3D
     using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;
 
     using GameObjectList = TList<GameObjectPtr>;
-    using CameraList = TMap<uint32_t, Camera *>;
+    using CameraList = TMultimap<uint32_t, Camera *>;
 }
 
 
