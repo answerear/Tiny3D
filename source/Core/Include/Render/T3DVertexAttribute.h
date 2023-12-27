@@ -88,37 +88,37 @@ namespace Tiny3D
 
         VertexAttribute(uint32_t stream, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex);
 
-        TPROPERTY(RTTRFuncName="Stream", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="stream", RTTRFuncType="getter")
         uint32_t getStream() const { return mStream; }
 
-        TPROPERTY(RTTRFuncName="Offset", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="offset", RTTRFuncType="getter")
         uint32_t getOffset() const { return mOffset; }
 
-        TPROPERTY(RTTRFuncName="Type", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter")
         Type getType() const { return mType; }
 
-        TPROPERTY(RTTRFuncName="Semantic", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="semantic", RTTRFuncType="getter")
         Semantic getSemantic() const { return mSemantic; }
 
-        TPROPERTY(RTTRFuncName="SemanticIndex", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="semanticIndex", RTTRFuncType="getter")
         uint32_t getSemanticIndex() const { return mSemanticIndex; }
 
         uint32_t getSize() const;
 
     protected:
-        TPROPERTY(RTTRFuncName="Stream", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="stream", RTTRFuncType="setter")
         void setStream(uint32_t stream) { mStream = stream; }
 
-        TPROPERTY(RTTRFuncName="Offset", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="offset", RTTRFuncType="setter")
         void setOffset(uint32_t offset) { mOffset = offset; }
 
-        TPROPERTY(RTTRFuncName="Type", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="type", RTTRFuncType="setter")
         void setType(Type type) { mType = type; }
 
-        TPROPERTY(RTTRFuncName="Semantic", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="semantic", RTTRFuncType="setter")
         void setSemantic(Semantic semantic) { mSemantic = semantic; }
 
-        TPROPERTY(RTTRFuncName="SemanticIndex", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="semanticIndex", RTTRFuncType="setter")
         void setSemanticIndex(uint32_t index) { mSemanticIndex = index; }
         
     protected:
