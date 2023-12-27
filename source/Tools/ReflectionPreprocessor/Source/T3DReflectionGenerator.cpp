@@ -2801,6 +2801,8 @@ namespace Tiny3D
                 RP_LOG_WARNING("The AST of source file [%s] has not be generated !", val.first.c_str());
                 continue;
             }
+
+            RP_LOG_INFO("Begin generating reflection source file [%s] ...", val.first.c_str());
             
             String dir, title, ext;
             Dir::parsePath(val.first, dir, title, ext);
@@ -2889,6 +2891,8 @@ namespace Tiny3D
                 
             // 是在这里打开的文件，就在这里关闭
             fs.close();
+
+            RP_LOG_INFO("End generating reflection source file [%s] ...", val.first.c_str());
         }
 
         if (fs.isOpened())

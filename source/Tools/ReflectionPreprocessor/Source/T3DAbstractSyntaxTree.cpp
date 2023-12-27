@@ -798,7 +798,13 @@ namespace Tiny3D
                 fs << "\t\t.";
             }
 
-            if (getter != nullptr && setter == nullptr)
+            if (getter == nullptr && setter == nullptr)
+            {
+                ret = T3D_ERR_RP_INVALID_SPECFIER;
+                RP_LOG_ERROR("Getter and Setter is both nullptr !!!");
+                break;
+            }
+            else if (getter != nullptr && setter == nullptr)
             {
                 // 构造参数列表
                 String params;
