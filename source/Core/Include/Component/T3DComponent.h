@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D

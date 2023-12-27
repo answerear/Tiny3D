@@ -34,6 +34,7 @@
 #include <Kernel/T3DPlugin.h>
 #include <Kernel/T3DSettings.h>
 #include <Kernel/T3DGameObject.h>
+#include <Kernel/T3DTransform.h>
 
 // Resource
 #include <Resource/T3DResource.h>

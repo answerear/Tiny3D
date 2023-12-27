@@ -71,6 +71,7 @@ namespace Tiny3D
     class Archive;
     class ArchiveManager;
     
+    struct Transform;    
     struct Settings;
 
     class Serializer;
