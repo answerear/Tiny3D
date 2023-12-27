@@ -52,6 +52,7 @@ namespace Tiny3D
     D3D11RenderWindow::~D3D11RenderWindow()
     {
         D3D_SAFE_RELEASE(D3DDSView);
+        D3D_SAFE_RELEASE(D3DDSBuffer);
         D3D_SAFE_RELEASE(D3DRTView);
         D3D_SAFE_RELEASE(D3DBackBuffer);
         D3D_SAFE_RELEASE(D3DSwapChain);

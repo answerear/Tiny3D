@@ -72,6 +72,7 @@ namespace Tiny3D
         ID3D11Texture2D         *D3DBackBuffer {nullptr};
         /**< The d 3D right view */
         ID3D11RenderTargetView  *D3DRTView {nullptr};
+        ID3D11Texture2D         *D3DDSBuffer {nullptr};
         /**< The d 3D ds view */
         ID3D11DepthStencilView  *D3DDSView {nullptr};
         
