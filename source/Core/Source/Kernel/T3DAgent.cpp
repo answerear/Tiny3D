@@ -114,7 +114,11 @@ namespace Tiny3D
         {
             mArchiveMgr->unloadAllArchives();
         }
-        
+
+        mRenderPipeline = nullptr;
+        mAssignableObjMgr = nullptr;
+
+        // 卸载所有拆件
         unloadPlugins();
 
         if (mDylibMgr != nullptr)
@@ -128,9 +132,6 @@ namespace Tiny3D
         
         T3D_SAFE_DELETE(mEventMgr);
 
-        mRenderPipeline = nullptr;
-        mAssignableObjMgr = nullptr;
-        
         if (mObjTracer != nullptr)
         {
             mObjTracer->dumpMemoryInfo();
