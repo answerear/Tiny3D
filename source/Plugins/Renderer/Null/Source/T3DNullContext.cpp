@@ -434,7 +434,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    
+    TResult NullContext::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings texSamplerBindings)
+    {
+        return T3D_OK;
+    }
+
     //--------------------------------------------------------------------------
     
     TResult NullContext::render()

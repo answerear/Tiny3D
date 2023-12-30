@@ -1105,6 +1105,12 @@ namespace Tiny3D
         
         do
         {
+            if (shader->hasCompiled())
+            {
+                // 已经编译过了，不用编译了
+                break;
+            }
+            
             String profile;
         
             switch (shader->getShaderStage())
@@ -1169,6 +1175,159 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings texSamplerBindings)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 创建 shader 字节码 D3D11 对象
+            size_t bytesLength = 0;
+            const char *bytes = shader->getBytesCode(bytesLength);
+            ID3DBlob *pShaderBlob = nullptr;
+            HRESULT hr = D3DCreateBlob(bytesLength, &pShaderBlob);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_BLOB;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create blob with shader code failed ! DX ERROR : %d", hr);
+                break;
+            }
+
+            // 反射 shader
+            void *pData = pShaderBlob->GetBufferPointer();
+            memcpy(pData, bytes, bytesLength);
+            ID3D11ShaderReflection *pReflection = nullptr;
+            hr = D3DReflect(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflection);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_SHADER_REFLECTION;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Reflect shadef failed ! DX ERROR : %d", hr);
+                D3D_SAFE_RELEASE(pShaderBlob);
+                break;
+            }
+
+            // 获取 shader 信息
+            D3D11_SHADER_DESC shaderDesc = {};
+            hr = pReflection->GetDesc(&shaderDesc);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_GET_SHADER_DESC;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get shader description failed ! DX ERROR : %d", hr);
+                break;
+            }
+
+            for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
+            {
+                D3D11_SHADER_INPUT_BIND_DESC bindDesc;
+                pReflection->GetResourceBindingDesc(i, &bindDesc);
+
+                switch (bindDesc.Type)
+                {
+                case D3D_SIT_CBUFFER:   // 常量缓冲区
+                    {
+                        ShaderConstantBinding constBinding;
+                        constBinding.name = bindDesc.Name;
+                        constBinding.binding = bindDesc.BindPoint;
+
+                        uint32_t size = 0;
+                    
+                        // 获取常量缓冲区反射对象
+                        ID3D11ShaderReflectionConstantBuffer *pConstBufferReflection = pReflection->GetConstantBufferByName(bindDesc.Name);
+                        D3D11_SHADER_BUFFER_DESC bufferDesc;
+                        pConstBufferReflection->GetDesc(&bufferDesc);
+                    
+                        // 遍历常量缓冲区中的所有常量
+                        for (UINT j = 0; j < bufferDesc.Variables; ++j)
+                        {
+                            // 获取常量反射对象
+                            ID3D11ShaderReflectionVariable* pVariableReflection = pConstBufferReflection->GetVariableByIndex(j);
+
+                            // 获取常量描述
+                            D3D11_SHADER_VARIABLE_DESC variableDesc;
+                            pVariableReflection->GetDesc(&variableDesc);
+
+                            ShaderVariableBinding varBinding;
+                            varBinding.name = variableDesc.Name;
+                            varBinding.offset = variableDesc.StartOffset;
+                            varBinding.size = variableDesc.Size;
+                            size += varBinding.size;
+                            constBinding.variables.emplace(varBinding.name, varBinding);
+                        }
+
+                        constBinding.size = size;
+                        constantBindings.emplace(constBinding.name, constBinding);
+                    }
+                    break;
+                case D3D_SIT_TEXTURE:   // 纹理
+                    {
+                        String name = bindDesc.Name;
+
+                        auto itr = texSamplerBindings.find(name);
+                        if (itr == texSamplerBindings.end())
+                        {
+                            // 没有，则新建一个
+                            ShaderTexSamplerBinding texSamplerBinding;
+                            texSamplerBinding.texBinding.name = name;
+                            texSamplerBinding.texBinding.binding = bindDesc.BindPoint;
+                            texSamplerBinding.texBinding.bindingCount = bindDesc.BindCount;
+                            texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
+
+                            texSamplerBindings.emplace(name, texSamplerBinding);
+                        }
+                        else
+                        {
+                            // 已有，用已有的
+                            ShaderTexSamplerBinding &texSamplerBinding = itr->second;
+                            texSamplerBinding.texBinding.name = name;
+                            texSamplerBinding.texBinding.binding = bindDesc.BindPoint;
+                            texSamplerBinding.texBinding.bindingCount = bindDesc.BindCount;
+                            texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
+                        }
+                    }
+                    break;
+                case D3D_SIT_SAMPLER:   // 纹理采样器
+                    {
+                        String name = bindDesc.Name;
+
+                        if (!StringUtil::startsWith(name, "sampler_"))
+                        {
+                            // sampler 一定要以 sampler_ 开头
+                            ret = T3D_ERR_D3D11_INVALID_SHADER_SAMPLER_NAME;
+                            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid shader sampler name (%s) ! It must start with 'sampler_' !", name.c_str());
+                            break;
+                        }
+
+                        String key = name.substr(8);
+                        auto itr = texSamplerBindings.find(key);
+                        if (itr == texSamplerBindings.end())
+                        {
+                            // 没有，则新建一个
+                            ShaderTexSamplerBinding texSamplerBinding;
+                            texSamplerBinding.samplerBinding.name = name;
+                            texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
+
+                            texSamplerBindings.emplace(key, texSamplerBinding);
+                        }
+                        else
+                        {
+                            // 已有，用已有的
+                            ShaderTexSamplerBinding &texSamplerBinding = itr->second;
+                            texSamplerBinding.samplerBinding.name = name;
+                            texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
+                        }
+                    }
+                    break;
+                }
+
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
 
     //--------------------------------------------------------------------------
     

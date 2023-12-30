@@ -418,6 +418,15 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult compileShader(ShaderVariantPtr shader) override;
+
+        /**
+         * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
+         * \param [in] shader : 要反射的着色器
+         * \param [out] constantBindings : 绑定的常量缓冲区信息
+         * \param [out] texSamplerBindings : 绑定的纹理采样信息
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings texSamplerBindings) override;
         
         /**
          * \brief 根据上下文设置好的资源、状态来渲染

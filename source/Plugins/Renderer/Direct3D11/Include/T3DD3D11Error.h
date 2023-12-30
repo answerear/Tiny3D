@@ -75,6 +75,14 @@ namespace Tiny3D
         T3D_ERR_D3D11_GET_DRIVER_DESC,
         /// 编译 shader 失败
         T3D_ERR_D3D11_COMPILE_SHADER,
+        /// 创建 blob 失败
+        T3D_ERR_D3D11_CREATE_BLOB,
+        /// 反射 shader 失败
+        T3D_ERR_D3D11_SHADER_REFLECTION,
+        /// 获取 shader 描述失败
+        T3D_ERR_D3D11_GET_SHADER_DESC,
+        /// shader sampler 命名错误
+        T3D_ERR_D3D11_INVALID_SHADER_SAMPLER_NAME,
     };
 }
 

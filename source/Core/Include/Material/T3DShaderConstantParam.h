@@ -83,6 +83,10 @@ namespace Tiny3D
 
         void setConstantBuffer(ConstantBufferPtr buffer) { mConstantBuffer = buffer; }
 
+        uint32_t getConstBufferOffset() const { return mConstBufferOffset; }
+
+        void setConstBufferOffset(uint32_t offset) { mConstBufferOffset = offset; }
+        
         /**
          * \brief 获取变量名称
          */
@@ -182,6 +186,8 @@ namespace Tiny3D
         
         /// 常量缓冲区
         ConstantBufferPtr   mConstantBuffer {nullptr};
+        /// 在常量缓冲区的偏移
+        uint32_t    mConstBufferOffset {0};
     };
 }
 

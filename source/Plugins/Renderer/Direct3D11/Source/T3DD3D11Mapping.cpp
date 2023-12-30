@@ -157,6 +157,74 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    D3D_SRV_DIMENSION D3D11Mapping::get(TEXTURE_TYPE texType)
+    {
+        D3D_SRV_DIMENSION dim = D3D_SRV_DIMENSION_UNKNOWN;
+
+        switch (texType)
+        {
+        case TEXTURE_TYPE::TT_1D:
+            dim = D3D11_SRV_DIMENSION_TEXTURE1D;
+            break;
+        case TEXTURE_TYPE::TT_2D:
+            dim = D3D11_SRV_DIMENSION_TEXTURE2D;
+            break;
+        case TEXTURE_TYPE::TT_2D_ARRAY:
+            dim = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+            break;
+        case TEXTURE_TYPE::TT_3D:
+            dim = D3D11_SRV_DIMENSION_TEXTURE3D;
+            break;
+        case TEXTURE_TYPE::TT_CUBE:
+            dim = D3D11_SRV_DIMENSION_TEXTURECUBE;
+            break;
+        case TEXTURE_TYPE::TT_CUBE_ARRAY:
+            dim = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
+            break;
+        }
+
+        return dim;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TEXTURE_TYPE D3D11Mapping::get(D3D_SRV_DIMENSION srvDim)
+    {
+        TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+
+        switch (srvDim)
+        {
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            texType = TEXTURE_TYPE::TT_1D;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            texType = TEXTURE_TYPE::TT_2D;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            texType = TEXTURE_TYPE::TT_2D_ARRAY;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            texType = TEXTURE_TYPE::TT_3D;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            texType = TEXTURE_TYPE::TT_CUBE;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            texType = TEXTURE_TYPE::TT_CUBE_ARRAY;
+            break;
+        }
+
+        return texType;
+    }
+
+    //--------------------------------------------------------------------------
 }
 
 

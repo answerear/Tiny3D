@@ -24,6 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "Kernel/T3DConstant.h"
 
 
 namespace Tiny3D
@@ -69,6 +70,71 @@ namespace Tiny3D
         kClearTarget,
         kClearZBuffer,
     };
+
+    /**
+     * \brief 着色器变量绑定信息
+     */
+    struct ShaderVariableBinding
+    {
+        /// 名称
+        String      name;
+        /// 变量在缓冲区中的偏移
+        uint32_t    offset;
+        /// 变量大小
+        uint32_t    size;
+    };
+
+    using ShaderVariableBindings = TMap<String, ShaderVariableBinding>;
+
+    /**
+     * \brief 着色器常量绑定信息
+     */
+    struct ShaderConstantBinding
+    {
+        /// 名称
+        String      name {};
+        /// 绑定点
+        uint32_t    binding {0};
+        /// 缓冲区大小
+        uint32_t    size {0};
+        /// 常量缓冲区包含的变量列表
+        ShaderVariableBindings  variables;
+    };
+
+    /**
+     * \brief 着色器纹理绑定信息
+     */
+    struct ShaderTextureBinding
+    {
+        /// 名称
+        String          name {};
+        /// 绑定点
+        uint32_t        binding {0};
+        /// 绑定数量，用于纹理数组
+        uint32_t        bindingCount {0};
+        /// 纹理类型
+        TEXTURE_TYPE    texType {TEXTURE_TYPE::TT_2D};
+    };
+
+    /**
+     * \brief 着色器纹理采样器绑定信息
+     */
+    struct ShaderSamplerBinding
+    {
+        /// 名称
+        String      name {};
+        /// 绑定点
+        uint32_t    binding {0};
+    };
+
+    struct ShaderTexSamplerBinding
+    {
+        ShaderTextureBinding    texBinding {};
+        ShaderSamplerBinding    samplerBinding {};
+    };
+
+    using ShaderConstantBindings = TMap<String, ShaderConstantBinding>;
+    using ShaderTexSamplerBindings = TMap<String, ShaderTexSamplerBinding>;
     
     /**
      * @class   RHIContext
@@ -494,6 +560,15 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult compileShader(ShaderVariantPtr shader) = 0;
+
+        /**
+         * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
+         * \param [in] shader : 要反射的着色器
+         * \param [out] constantBindings : 绑定的常量缓冲区信息
+         * \param [out] texSamplerBindings : 绑定的纹理采样信息
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings texSamplerBindings) = 0;
 
         /**
          * \brief 根据上下文设置好的资源、状态来渲染

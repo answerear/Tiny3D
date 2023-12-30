@@ -40,6 +40,10 @@ namespace Tiny3D
         static D3D11_TEXTURE2D_DESC get(const PixelBuffer2DDesc &src);
 
         static D3D11_TEXTURE3D_DESC get(const PixelBuffer3DDesc &src);
+
+        static D3D_SRV_DIMENSION get(TEXTURE_TYPE texType);
+
+        static TEXTURE_TYPE get(D3D_SRV_DIMENSION srvDim);
     };
 }
 
