@@ -79,6 +79,10 @@ namespace Tiny3D
 
         ShaderConstantParamPtr clone() const;
 
+        ConstantBufferPtr getConstantBuffer() const { return mConstantBuffer; }
+
+        void setConstantBuffer(ConstantBufferPtr buffer) { mConstantBuffer = buffer; }
+
         /**
          * \brief 获取变量名称
          */
@@ -172,6 +176,12 @@ namespace Tiny3D
         uint32_t    mDataOffset {0};
         /// 变量名 
         String      mName {};
+
+        /// 是否需要更新 GPU 缓冲区数据
+        bool        mIsDirty {false};
+        
+        /// 常量缓冲区
+        ConstantBufferPtr   mConstantBuffer {nullptr};
     };
 }
 

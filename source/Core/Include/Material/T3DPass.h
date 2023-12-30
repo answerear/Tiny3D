@@ -58,6 +58,16 @@ namespace Tiny3D
 
         TResult addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant);
 
+        ShaderVariant *getCurrentVertexShader() const { return mCurrentVS; }
+
+        ShaderVariant *getCurrentHullShader() const { return mCurrentHS; }
+
+        ShaderVariant *getCurrentDomainShader() const { return mCurrentDS; }
+
+        ShaderVariant *getCurrentGeometryShader() const { return mCurrentGS; }
+
+        ShaderVariant *getCurrentPixelShader() const { return mCurrentPS; }
+
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const
         {
@@ -178,6 +188,7 @@ namespace Tiny3D
         ShaderLabTags       mTags {};
         /// 渲染状态
         RenderStatePtr      mRenderState {nullptr};
+        
         /// 本 pass 着色器用到的所有宏
         ShaderKeywords      mKeywords {};
         /// 本 pass 所有 Vertex Shader 变体
@@ -190,8 +201,10 @@ namespace Tiny3D
         ShaderVariants      mHullShaders {};
         /// 本 pass 所有 Domain Shader 变体
         ShaderVariants      mDomainShaders {};
+        
         /// 当前生效的关键字 
         ShaderKeyword       mCurrentKeyword {};
+        
         /// 当前生效的 Vertex Shader 变体
         ShaderVariantPtr    mCurrentVS {nullptr};
         /// 当前生效的 Pixel Shader 变体
@@ -202,6 +215,7 @@ namespace Tiny3D
         ShaderVariantPtr    mCurrentHS {nullptr};
         /// 当前生效的 Domain Shader 变体
         ShaderVariantPtr    mCurrentDS {nullptr};
+        
         /// 关键字是否需要重新生成
         bool                mIsKeywordDirty {false};
     };

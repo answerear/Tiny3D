@@ -56,6 +56,8 @@ namespace Tiny3D
         {
             return mTexType;
         }
+
+        TexturePtr getTexture() const { return mTexture; }
         
     private:
         ShaderSamplerParam() = default;

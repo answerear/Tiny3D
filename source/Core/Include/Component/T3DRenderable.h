@@ -49,4 +49,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_RENDERABLE_H__*/
+#endif  /*__T3D_RENDERABLE_H__*/

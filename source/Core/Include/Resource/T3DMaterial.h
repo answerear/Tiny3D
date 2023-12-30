@@ -367,7 +367,8 @@ namespace Tiny3D
         ResourcePtr clone() const override;
 
         void cloneProperties(const Resource * const src) override;
-        
+
+    protected:
         /// shader 常量
         ShaderConstantParams    mConstants {};
         /// shader 纹理采样器
