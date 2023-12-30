@@ -23,6 +23,7 @@
 
 
 #include "T3DRenderPipeline.h"
+#include "Material/T3DShaderConstantParam.h"
 
 
 namespace Tiny3D
@@ -41,8 +42,10 @@ namespace Tiny3D
         TResult removeRenderable(Renderable *renderable) override;
 
     protected:
+        TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
         
-
+        TResult setupShaderConstants(Material *material, ShaderVariant *vshader, ShaderVariant *hshader, ShaderVariant *dshader, ShaderVariant *gshader, ShaderVariant *pshade);
+        
     protected:
         using Renderables = TList<Renderable*>;
         using RenderGroup = TMap<Material*, Renderables>;        

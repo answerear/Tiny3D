@@ -46,41 +46,6 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    TResult ShaderVariant::setParam(const String &name, void *data)
-    {
-        // if (data == nullptr)
-        // {
-        //     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid parameter when call ShaderVariant::setParam()");
-        //     return T3D_ERR_INVALID_PARAM;
-        // }
-        //
-        // for (auto param : mConstants)
-        // {
-        //     if (name == param->getName())
-        //     {
-        //         void *dst = param->getData();
-        //         if (data == nullptr)
-        //         {
-        //             T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid parameter data when call ShaderVariant::setParam()");
-        //             return T3D_ERR_INVALID_POINTER;
-        //         }
-        //         memcpy(dst, data, param->getSize());
-        //         break;
-        //     }
-        // }
-        
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ShaderVariant::setParam(const String &name, int32_t index)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
 }
 
 

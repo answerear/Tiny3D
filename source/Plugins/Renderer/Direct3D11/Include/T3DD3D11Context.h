@@ -413,6 +413,13 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setCSSampler(SamplerStatePtr sampler) override;
+
+        /**
+         * \brief 编译着色器
+         * \param [in,out] shader : 着色器变体对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult compileShader(ShaderVariantPtr shader) override;
         
         /**
          * \brief 根据上下文设置好的资源、状态来渲染

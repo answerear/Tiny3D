@@ -78,22 +78,6 @@ namespace Tiny3D
          */
         TPROPERTY(RTTRFuncName="ShaderKeyword", RTTRFuncType="getter")
         const ShaderKeyword &getShaderKeyword() const { return *mShaderKeyword; }
-
-        /**
-         * \brief 设置 shader 变量值
-         * \param [in] name : 变量名
-         * \param [in] data : 变量对应的数据 
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setParam(const String &name, void *data);
-
-        /**
-         * \brief 设置 shader 采样器
-         * \param [in] name : 采样器名称
-         * \param [in] index : 采样器索引
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setParam(const String &name, int32_t index);
         
         bool hasCompiled() const { return mHasCompiled; }
 

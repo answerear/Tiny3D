@@ -1098,6 +1098,79 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::compileShader(ShaderVariantPtr shader)
+    {
+        TResult ret = T3D_OK;
+        
+        do
+        {
+            String profile;
+        
+            switch (shader->getShaderStage())
+            {
+            case SHADER_STAGE::kVertex:
+                profile = "vs_5_0";
+                break;
+            case SHADER_STAGE::kPixel:
+                profile = "ps_5_0";
+                break;
+            case SHADER_STAGE::kCompute:
+                profile = "cs_5_0";
+                break;
+            case SHADER_STAGE::kGeometry:
+                profile = "gs_5_0";
+                break;
+            case SHADER_STAGE::kHull:
+                profile = "hs_5_0";
+                break;
+            case SHADER_STAGE::kDomain:
+                profile = "ds_5_0";
+                break;
+            case SHADER_STAGE::kUnknown:
+            default:
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid shader stage [%d] !", shader->getShaderStage());
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            size_t bytesLength = 0;
+            const char *bytes = shader->getBytesCode(bytesLength);
+
+            ID3DBlob *shaderBlob = nullptr;
+            ID3DBlob *errorBlob = nullptr;
+            HRESULT hr = D3DCompile(bytes, bytesLength, nullptr, nullptr, nullptr, "main", profile.c_str(), 0, 0, &shaderBlob, &errorBlob);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_COMPILE_SHADER;
+                String error;
+                if (errorBlob != nullptr)
+                {
+                    error.assign(static_cast<const char *>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
+                }
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader failed ! DX ERROR : %d (%s)", hr, error.c_str());
+                D3D_SAFE_RELEASE(shaderBlob);
+                D3D_SAFE_RELEASE(errorBlob);
+                break;
+            }
+
+            // 把编译后的设置到 shader 里面
+            shader->setBytesCode(static_cast<const char*>(shaderBlob->GetBufferPointer()), shaderBlob->GetBufferSize());
+            D3D_SAFE_RELEASE(shaderBlob);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+
+    //--------------------------------------------------------------------------
     
     TResult D3D11Context::render()
     {

@@ -487,7 +487,14 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setCSSampler(SamplerStatePtr sampler) = 0;
-        
+
+        /**
+         * \brief 编译着色器
+         * \param [in,out] shader : 着色器变体对象
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult compileShader(ShaderVariantPtr shader) = 0;
+
         /**
          * \brief 根据上下文设置好的资源、状态来渲染
          * \return 调用成功返回 T3D_OK

@@ -73,6 +73,8 @@ namespace Tiny3D
         T3D_ERR_D3D11_CHECK_INTERFACE_SUPPORT,
         /**< 获取驱动描述失败 */
         T3D_ERR_D3D11_GET_DRIVER_DESC,
+        /// 编译 shader 失败
+        T3D_ERR_D3D11_COMPILE_SHADER,
     };
 }
 

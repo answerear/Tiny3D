@@ -23,6 +23,7 @@
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Kernel/T3DGameObject.h"
+#include "Material/T3DPass.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
 #include "RHI/T3DRHIContext.h"
@@ -32,6 +33,7 @@
 #include "Render/T3DVertexDeclaration.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
+#include "Render/T3DRenderState.h"
 
 
 namespace Tiny3D
@@ -163,27 +165,52 @@ namespace Tiny3D
                         Material *material = itemGroup.first;
                         const Renderables &renderables = itemGroup.second;
 
-                        // TODO : 设置 shader 参数
                         ShaderPtr shader = material->getShader();
                         TechniquePtr tech = shader->getCurrentTechnique();
 
-                        for (auto params : material->getConstantParams())
+                        // 设置 technique 对应的渲染状态
+                        RenderState *renderState = tech->getRenderState();
+                        setupRenderState(ctx, renderState);
+
+                        // 遍历渲染每个 Pass
+                        for (auto pass : tech->getPasses())
                         {
-                        }
+                            // 设置 pass 对应的渲染状态
+                            renderState = pass->getRenderState();
+                            setupRenderState(ctx, renderState);
 
-                        for (auto renderable : renderables)
-                        {
-                            // 设置 vertex declaration
-                            ctx->setVertexDeclaration(renderable->getVertexDeclaration());
+                            ShaderVariant *vertexShader = pass->getCurrentVertexShader();
+                            ShaderVariant *hullShader = pass->getCurrentHullShader();
+                            ShaderVariant *domainShader = pass->getCurrentDomainShader();
+                            ShaderVariant *geometryShader = pass->getCurrentGeometryShader();
+                            ShaderVariant *pixelShader = pass->getCurrentPixelShader();
+                            
+                            // 设置 shader 常量
+                            setupShaderConstants(material, vertexShader, hullShader, domainShader, geometryShader, pixelShader);
 
-                            // 设置 vertex buffer
-                            ctx->setVertexBuffer(renderable->getVertexBuffer());
+                            // 设置各 pipeline stage 的 shader
+                            ctx->setVertexShader(vertexShader);
+                            ctx->setHullShader(hullShader);
+                            ctx->setDomainShader(domainShader);
+                            ctx->setGeometryShader(geometryShader);
+                            ctx->setPixelShader(pixelShader);
 
-                            // 设置 index buffer
-                            ctx->setIndexBuffer(renderable->getIndexBuffer());
+                            // 设置使用的纹理
 
-                            // render
-                            ctx->render();
+                            for (auto renderable : renderables)
+                            {
+                                // 设置 vertex declaration
+                                ctx->setVertexDeclaration(renderable->getVertexDeclaration());
+
+                                // 设置 vertex buffer
+                                ctx->setVertexBuffer(renderable->getVertexBuffer());
+
+                                // 设置 index buffer
+                                ctx->setIndexBuffer(renderable->getIndexBuffer());
+
+                                // render
+                                ctx->render();
+                            }
                         }
                     }
                 }
@@ -212,6 +239,75 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupRenderState(RHIContext *ctx, RenderState *renderState)
+    {
+        if (renderState != nullptr)
+        {
+            // 混合状态
+            BlendState *blendState = renderState->getBlendState();
+            if (blendState != nullptr)
+            {
+                ctx->setBlendState(blendState);
+            }
+
+            // 光栅化状态
+            RasterizerState *rasterState = renderState->getRasterizerState();
+            if (rasterState != nullptr)
+            {
+                ctx->setRasterizerState(rasterState);
+            }
+
+            // 深度/模板缓存状态
+            DepthStencilState *depthStencilState = renderState->getDepthStencilState();
+            if (depthStencilState != nullptr)
+            {
+                ctx->setDepthStencilState(depthStencilState);
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupShaderConstants(Material *material, ShaderVariant *vshader, ShaderVariant *hshader, ShaderVariant *dshader, ShaderVariant *gshader, ShaderVariant *pshader)
+    {
+        // for (auto param : material->getConstantParams())
+        // {
+        //     // vertex shader
+        //     if (vshader != nullptr)
+        //     {
+        //         vshader->setParam(param.first, param.second->getData());
+        //     }
+        //
+        //     // hull shader
+        //     if (hshader != nullptr)
+        //     {
+        //         hshader->setParam(param.first, param.second->getData());
+        //     }
+        //
+        //     // domain shader
+        //     if (dshader != nullptr)
+        //     {
+        //         dshader->setParam(param.first, param.second->getData());
+        //     }
+        //
+        //     // geometry shader
+        //     if (gshader != nullptr)
+        //     {
+        //         gshader->setParam(param.first, param.second->getData());
+        //     }
+        //     
+        //     // pixel shader
+        //     if (pshader != nullptr)
+        //     {
+        //         pshader->setParam(param.first, param.second->getData());
+        //     }
+        // }
+
+        return T3D_OK;
+    }
 
     //--------------------------------------------------------------------------
 }
