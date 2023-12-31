@@ -39,7 +39,6 @@
 // Resource
 #include <Resource/T3DResource.h>
 #include <Resource/T3DResourceManager.h>
-#include <Resource/T3DMeta.h>
 #include <Resource/T3DDylib.h>
 #include <Resource/T3DMaterial.h>
 #include <Resource/T3DMaterialManager.h>

@@ -70,7 +70,7 @@ namespace Tiny3D
 
         bool translate(const shaderlab::SLShader& src, ShaderPtr dst);
 
-        bool translate(const shaderlab::SLPropValue& src, ShaderPtr dst, uint32_t &offset);
+        bool translate(const shaderlab::SLPropValue& src, ShaderPtr dst);
 
         bool translate(const shaderlab::SLSubShader& src, ShaderPtr dst);
 

@@ -28,10 +28,6 @@
 
 namespace Tiny3D
 {
-    using ShaderKeywords = TList<ShaderKeyword>;
-    using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;
-    using ShaderVariantsValue = ShaderVariants::value_type;
-    
     /**
      * \brief 渲染 pass
      */
@@ -50,6 +46,8 @@ namespace Tiny3D
 
         PassPtr clone() const;
 
+        TResult compile();
+
         bool addTag(const String &key, const String &value);
 
         void removeTag(const String &key);
@@ -57,16 +55,6 @@ namespace Tiny3D
         bool getTag(const String &key, String &value) const;
 
         TResult addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant);
-
-        ShaderVariant *getCurrentVertexShader() const { return mCurrentVS; }
-
-        ShaderVariant *getCurrentHullShader() const { return mCurrentHS; }
-
-        ShaderVariant *getCurrentDomainShader() const { return mCurrentDS; }
-
-        ShaderVariant *getCurrentGeometryShader() const { return mCurrentGS; }
-
-        ShaderVariant *getCurrentPixelShader() const { return mCurrentPS; }
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const
@@ -179,7 +167,8 @@ namespace Tiny3D
         }
     protected:
         Pass(const String &name);
-
+        
+    protected:
         /// Pass 名称
         String              mName {};
         /// Shader 名称
@@ -201,20 +190,6 @@ namespace Tiny3D
         ShaderVariants      mHullShaders {};
         /// 本 pass 所有 Domain Shader 变体
         ShaderVariants      mDomainShaders {};
-        
-        /// 当前生效的关键字 
-        ShaderKeyword       mCurrentKeyword {};
-        
-        /// 当前生效的 Vertex Shader 变体
-        ShaderVariantPtr    mCurrentVS {nullptr};
-        /// 当前生效的 Pixel Shader 变体
-        ShaderVariantPtr    mCurrentPS {nullptr};
-        /// 当前生效的 Geometry Shader 变体
-        ShaderVariantPtr    mCurrentGS {nullptr};
-        /// 当前生效的 Hull Shader 变体
-        ShaderVariantPtr    mCurrentHS {nullptr};
-        /// 当前生效的 Domain Shader 变体
-        ShaderVariantPtr    mCurrentDS {nullptr};
         
         /// 关键字是否需要重新生成
         bool                mIsKeywordDirty {false};

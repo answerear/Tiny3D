@@ -1105,12 +1105,6 @@ namespace Tiny3D
         
         do
         {
-            if (shader->hasCompiled())
-            {
-                // 已经编译过了，不用编译了
-                break;
-            }
-            
             String profile;
         
             switch (shader->getShaderStage())

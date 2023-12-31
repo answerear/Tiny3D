@@ -125,6 +125,8 @@ namespace Tiny3D
         IndexBufferPtr loadIndexBuffer(IndexType indexType, size_t indexCount,
             const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
 
+        ConstantBufferPtr loadConstantBuffer(const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+
         PixelBuffer1DPtr loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
         
         PixelBuffer2DPtr loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);

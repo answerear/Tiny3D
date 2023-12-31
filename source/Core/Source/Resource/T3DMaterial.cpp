@@ -20,6 +20,8 @@
 
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DShader.h"
+#include "Resource/T3DShaderManager.h"
+#include "Material/T3DTechniqueInstance.h"
 
 
 namespace Tiny3D
@@ -72,16 +74,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Material::enableKeyword(const String &keyword)
+    TResult Material::switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys)
     {
-        return T3D_OK;
-    }
+        TResult ret = T3D_OK;
 
-    //--------------------------------------------------------------------------
+        do
+        {
+            if (mCurTechnique == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Switch keyword failed ! Because current technique is null !");
+                break;
+            }
 
-    TResult Material::disableKeyword(const String &keyword)
-    {
-        return T3D_OK;
+            ret = mCurTechnique->switchKeywords(enableKeys, disableKeys);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -128,29 +137,50 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Material::setShader(ShaderPtr shader)
+    bool Material::onPostLoad()
     {
-        mShader = shader;
+        TResult ret = T3D_OK;
 
-        // 清除 constant 数据
-        mConstants.clear();
-
-        // 复制一份 constant 数据
-        for (auto value : mShader->getConstantParams())
+        do
         {
-            ShaderConstantParamPtr param = value.second->clone();
-            mConstants.emplace(value.first, param);
-        }
+            ArchivePtr archive;
+            mShader = T3D_SHADER_MGR.loadShader(archive, mShaderName);
+            if (mShader == nullptr)
+            {
+                // 加载 shader 失败
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader failed !");
+                break;
+            }
+            
+            if (T3D_FAILED(mShader->compile()))
+            {
+                // 编译 shader 失败
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Compile shader failed !");
+                break;
+            }
 
-        // 清除 sampler 数据
-        mSamplers.clear();
+            mCurTechnique = TechniqueInstance::create(mShader->getSupportTechnique());
+
+            // 清除 constant 、sampler数据
+            mConstants.clear();
+            mSamplers.clear();
+
+            // 复制一份 constant 数据
+            for (auto value : mShader->getConstantParams())
+            {
+                ShaderConstantParamPtr param = value.second->clone();
+                mConstants.emplace(value.first, param);
+            }
+
+            // 复制一份 sampler 数据
+            for (auto value : mShader->getSamplerParams())
+            {
+                ShaderSamplerParamPtr param = value.second->clone();
+                mSamplers.emplace(value.first, param);
+            }
+        } while (false);
         
-        // 复制一份 sampler 数据
-        for (auto value : mShader->getSamplerParams())
-        {
-            ShaderSamplerParamPtr param = value.second->clone();
-            mSamplers.emplace(value.first, param);
-        }
+        return true;
     }
 
     //--------------------------------------------------------------------------

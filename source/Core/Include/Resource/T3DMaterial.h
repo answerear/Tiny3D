@@ -211,11 +211,6 @@
 
 namespace Tiny3D
 {
-    using FloatArray = TArray<float>;
-    using ColorArray = TArray<ColorRGBA>;
-    using Vector4Array = TArray<Vector4>;
-    using Matrix4Array = TArray<Matrix4>;
-    
     /**
      * \brief 材质
      */
@@ -232,11 +227,7 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        void setShader(ShaderPtr shader);
-
-        TResult enableKeyword(const String &keyword);
-
-        TResult disableKeyword(const String &keyword);
+        TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKey);
 
         bool isKeywordEnable(const String &keyword) const;
 
@@ -307,6 +298,8 @@ namespace Tiny3D
         const ShaderSamplerParams &getSamplerParams() const { return mSamplers; }
 
         ShaderPtr getShader() const { return mShader; }
+
+        TechniqueInstancePtr getCurrentTechnique() const { return mCurTechnique; }
         
     private:
         Material() : Material("") {}
@@ -368,6 +361,8 @@ namespace Tiny3D
 
         void cloneProperties(const Resource * const src) override;
 
+        bool onPostLoad() override;
+
     protected:
         /// shader 常量
         ShaderConstantParams    mConstants {};
@@ -377,6 +372,8 @@ namespace Tiny3D
         String                  mShaderName {};
         /// 材质对应的着色器对象
         ShaderPtr               mShader {nullptr};
+        /// 当前可用的技术对象
+        TechniqueInstancePtr    mCurTechnique {nullptr};
     };
 }
 

@@ -221,11 +221,10 @@ namespace Tiny3D
         do 
         {
             // properties
-            uint32_t offset = 0;
             for (auto itr = src.properties.props.begin(); itr != src.properties.props.end(); ++itr)
             {
                 auto srcProp = *itr;
-                ret = ret && translate(srcProp, dst, offset);
+                ret = ret && translate(srcProp, dst);
             }
 
             // Sub Shader
@@ -259,7 +258,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const SLPropValue& src, ShaderPtr dst, uint32_t &offset)
+    bool ShaderCross::translate(const SLPropValue& src, ShaderPtr dst)
     {        
         // property name
 
@@ -273,9 +272,8 @@ namespace Tiny3D
                 Buffer buffer;
                 ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_COLOR;
                 buffer.setData(src.value, sizeof(ColorRGBA));
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 dst->addConstantParam(param);
-                offset += sizeof(ColorRGBA);
             }
             break;
         case SLPropValue::kVector:
@@ -283,9 +281,8 @@ namespace Tiny3D
                 Buffer buffer;
                 buffer.setData(src.value, sizeof(Vector4));
                 ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 dst->addConstantParam(param);
-                offset += sizeof(Vector4);
             }
             break;
         case SLPropValue::kFloat:
@@ -293,9 +290,8 @@ namespace Tiny3D
                 Buffer buffer;
                 buffer.setData(&src.value[0], sizeof(float32_t));
                 ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 dst->addConstantParam(param);
-                offset += sizeof(float32_t);
             }
             break;
         case SLPropValue::kRange:
@@ -306,9 +302,8 @@ namespace Tiny3D
                 Buffer buffer;
                 buffer.setData(&src.value[0], sizeof(float32_t));
                 ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, offset, dataType);
+                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 dst->addConstantParam(param);
-                offset += sizeof(float32_t);
             }
             break;
         case SLPropValue::kTexture:

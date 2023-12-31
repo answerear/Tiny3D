@@ -19,11 +19,15 @@
 
 
 #include "Render/T3DForwardRenderPipeline.h"
+#include "Material/T3DTechniqueInstance.h"
 #include "Material/T3DTechnique.h"
+#include "Material/T3DPass.h"
+#include "Material/T3DPassInstance.h"
+#include "Material/T3DShaderVariant.h"
+#include "Material/T3DShaderVariantInstance.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Kernel/T3DGameObject.h"
-#include "Material/T3DPass.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
 #include "RHI/T3DRHIContext.h"
@@ -58,7 +62,7 @@ namespace Tiny3D
         }
 
         Material *material = renderable->getMaterial();
-        uint32_t queue = material->getShader()->getCurrentTechnique()->getRenderQueue();
+        uint32_t queue = material->getCurrentTechnique()->getTechnique()->getRenderQueue();
 
         auto itr = itCamera->second.find(queue);
 
@@ -165,25 +169,24 @@ namespace Tiny3D
                         Material *material = itemGroup.first;
                         const Renderables &renderables = itemGroup.second;
 
-                        ShaderPtr shader = material->getShader();
-                        TechniquePtr tech = shader->getCurrentTechnique();
+                        TechniqueInstancePtr tech = material->getCurrentTechnique();
 
                         // 设置 technique 对应的渲染状态
-                        RenderState *renderState = tech->getRenderState();
+                        RenderState *renderState = tech->getTechnique()->getRenderState();
                         setupRenderState(ctx, renderState);
 
                         // 遍历渲染每个 Pass
-                        for (auto pass : tech->getPasses())
+                        for (auto pass : tech->getPassInstances())
                         {
                             // 设置 pass 对应的渲染状态
-                            renderState = pass->getRenderState();
+                            renderState = pass->getPass()->getRenderState();
                             setupRenderState(ctx, renderState);
 
-                            ShaderVariant *vertexShader = pass->getCurrentVertexShader();
-                            ShaderVariant *hullShader = pass->getCurrentHullShader();
-                            ShaderVariant *domainShader = pass->getCurrentDomainShader();
-                            ShaderVariant *geometryShader = pass->getCurrentGeometryShader();
-                            ShaderVariant *pixelShader = pass->getCurrentPixelShader();
+                            ShaderVariantInstance *vertexShader = pass->getCurrentVertexShader();
+                            ShaderVariantInstance *hullShader = pass->getCurrentHullShader();
+                            ShaderVariantInstance *domainShader = pass->getCurrentDomainShader();
+                            ShaderVariantInstance *geometryShader = pass->getCurrentGeometryShader();
+                            ShaderVariantInstance *pixelShader = pass->getCurrentPixelShader();
                             
                             // 设置 shader 常量
                             setupShaderConstants(material, vertexShader, hullShader, domainShader, geometryShader, pixelShader);
@@ -271,7 +274,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupShaderConstants(Material *material, ShaderVariant *vshader, ShaderVariant *hshader, ShaderVariant *dshader, ShaderVariant *gshader, ShaderVariant *pshader)
+    TResult ForwardRenderPipeline::setupShaderConstants(Material *material, ShaderVariantInstance *vshader, ShaderVariantInstance *hshader, ShaderVariantInstance *dshader, ShaderVariantInstance *gshader, ShaderVariantInstance *pshader)
     {
         // for (auto param : material->getConstantParams())
         // {

@@ -57,53 +57,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Shader::enableKeyword(const String &key)
+    TResult Shader::compile()
     {
         TResult ret = T3D_OK;
 
-        // do 
-        // {
-        //     bool found = false;
-        //     for (const auto &keyword : mKeywords)
-        //     {
-        //         if (keyword.hasKey(key))
-        //         {
-        //             found = true;
-        //             mCurrentKeyword = &keyword;
-        //             break;
-        //         }
-        //     }
-        //
-        //     if (!found)
-        //     {
-        //         T3D_LOG_WARNING(LOG_TAG_RESOURCE,
-        //                         "Enable keyword (%s) failed !", key.c_str());
-        //         ret = T3D_ERR_NOT_FOUND;
-        //         break;
-        //     }
-        //
-        //     auto itr = mVariants.find(*mCurrentKeyword);
-        //     if (itr == mVariants.end())
-        //     {
-        //         T3D_LOG_WARNING(
-        //             LOG_TAG_RESOURCE,
-        //             "Could not find shader variant for keyword (%s) !",
-        //             key.c_str());
-        //         ret = T3D_ERR_NOT_FOUND;
-        //         break;
-        //     }
-        //
-        //     mCurrentVariant = itr->second;
-        // } while (false);
+        do
+        {
+            for (auto tech : mTechniques)
+            {
+                ret = tech->compile();
+                if (mSupportTechnique == nullptr && T3D_SUCCEEDED(ret))
+                {
+                    mSupportTechnique = tech;
+                    break;
+                }
+            }
+        } while (false);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Shader::disableKeyword(const String &keyword)
-    {
-        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -118,6 +89,14 @@ namespace Tiny3D
     ResourcePtr Shader::clone() const
     {
         return create(getName());
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Shader::onPostLoad()
+    {
+        compile();
+        return true;
     }
 
     //--------------------------------------------------------------------------

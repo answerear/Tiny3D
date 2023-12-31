@@ -18,68 +18,48 @@
  ******************************************************************************/
 
 
-#include "Material/T3DShaderVariant.h"
-#include "RHI/T3DRHIContext.h"
-#include "Kernel/T3DAgent.h"
+#include "Material/T3DTechniqueInstance.h"
+#include "Material/T3DPassInstance.h"
+#include "Material/T3DTechnique.h"
+#include "Material/T3DPass.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderVariantPtr ShaderVariant::create(ShaderKeyword &&keyword, const String &code)
+    TechniqueInstancePtr TechniqueInstance::create(TechniquePtr tech)
     {
-        return new ShaderVariant(std::move(keyword), code);
+        return new TechniqueInstance(tech);
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderVariant::ShaderVariant(ShaderKeyword &&key, const String &code)
+    TechniqueInstance::TechniqueInstance(TechniquePtr tech)
+        : mTechnique(tech)
     {
-        mShaderKeyword = new ShaderKeyword(std::move(key));
-        setSourceCode(code.c_str(), code.length());
+        for (const auto &pass : tech->getPasses())
+        {
+            PassInstancePtr instance = PassInstance::create(pass);
+            mPassInstances.emplace_back(instance);
+        }
     }
 
     //--------------------------------------------------------------------------
-
-    ShaderVariant::~ShaderVariant()
-    {
-        T3D_SAFE_DELETE(mShaderKeyword);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ShaderVariant::compile()
+    
+    TResult TechniqueInstance::switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys)
     {
         TResult ret = T3D_OK;
 
-        do
+        for (auto instance : mPassInstances)
         {
-            if (mHasCompiled)
-            {
-                // 已经编译过，不编译了，也不反射常量、纹理、纹理采样
-                break;
-            }
-            
-            RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
-
-            // 编译 shader
-            ret = ctx->compileShader(this);
+            ret = instance->switchKeywords(enableKeys, disableKeys);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Compile shader failed !");
                 break;
             }
-
-            // 反射获取对应的绑定关系
-            ret = ctx->reflectShaderAllBindings(this, mConstantBindings, mTexSamplerBindings);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Reflect shader all bindings failed !");
-                break;
-            }
-        } while (false);
-
+        }
+        
         return ret;
     }
 

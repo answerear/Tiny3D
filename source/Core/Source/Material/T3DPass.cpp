@@ -52,6 +52,69 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    TResult Pass::compile()
+    {
+        TResult ret = T3D_OK;
+
+        auto compileShader = [this](const ShaderVariants &shaders)
+        {
+            TResult ret = T3D_OK;
+            
+            for (auto shader : shaders)
+            {
+                ret = shader.second->compile();
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            return ret;
+        };
+
+        do
+        {
+            // 编译 vertex shader
+            ret = compileShader(mVertexShaders);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 编译 hull shader
+            ret = compileShader(mHullShaders);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 编译 domain shader
+            ret = compileShader(mDomainShaders);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 编译 gemometry shader
+            ret = compileShader(mGeometryShaders);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 编译 pixel shader
+            ret = compileShader(mPixelShaders);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
     
     bool Pass::addTag(const String &key, const String &value)
     {
@@ -98,20 +161,17 @@ namespace Tiny3D
 
 
         ShaderVariants *vars = nullptr;
-        ShaderVariantPtr *current = nullptr;
 
         switch (variant->getShaderStage())
         {
         case SHADER_STAGE::kVertex:
             {
                 vars = &mVertexShaders;
-                current = &mCurrentVS;
             }
             break;
         case SHADER_STAGE::kPixel:
             {
                 vars = &mPixelShaders;
-                current = &mCurrentPS;
             }
             break;
         case SHADER_STAGE::kCompute:
@@ -122,19 +182,16 @@ namespace Tiny3D
         case SHADER_STAGE::kGeometry:
             {
                 vars = &mGeometryShaders;
-                current = &mCurrentGS;
             }
             break;
         case SHADER_STAGE::kHull:
             {
                 vars = &mHullShaders;
-                current = &mCurrentHS;
             }
             break;
         case SHADER_STAGE::kDomain:
             {
                 vars = &mDomainShaders;
-                current = &mCurrentDS;
             }
             break;
         default:
@@ -143,15 +200,6 @@ namespace Tiny3D
 
         auto rval = vars->insert(ShaderVariantsValue(keyword, variant));
 
-        if (mCurrentKeyword == ShaderKeyword::INVALID
-            || mCurrentKeyword == keyword)
-        {
-            if (mCurrentKeyword != keyword)
-            {
-                mCurrentKeyword = keyword;
-            }
-            *current = variant;
-        }
 
         return ret;
     }

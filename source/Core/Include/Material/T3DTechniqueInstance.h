@@ -17,51 +17,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#ifndef __T3D_TECHNIQUE_INSTANCE_H__
+#define __T3D_TECHNIQUE_INSTANCE_H__
 
-#include "Resource/T3DMeta.h"
+
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-    MetaPtr Meta::create()
+    class T3D_ENGINE_API TechniqueInstance : public Object
     {
-        MetaPtr meta = new Meta();
-        // meta->release();
-        return meta;
-    }
+    public:
+        static TechniqueInstancePtr create(TechniquePtr tech);
 
-    //--------------------------------------------------------------------------
+        virtual ~TechniqueInstance() = default;
 
-    Meta::Meta()
-        : type(FileType::kNone)
-    {
+        TechniquePtr getTechnique() const { return mTechnique; }
 
-    }
+        const PassInstances getPassInstances() const { return mPassInstances; }
 
-    //--------------------------------------------------------------------------
+        TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys);
 
-    Meta::~Meta()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    MetaPtr Meta::clone() const
-    {
-        MetaPtr meta = Meta::create();
-        cloneProperties(meta);
-        return meta;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Meta::cloneProperties(Meta* meta) const
-    {
-        meta->uuid = uuid;
-        meta->type = type;
-    }
-
-    //--------------------------------------------------------------------------
+    protected:
+        TechniqueInstance(TechniquePtr tech);
+        
+    protected:
+        /// Technique 实例对应的 Technique
+        TechniquePtr    mTechnique {nullptr};
+        /// pass instance
+        PassInstances   mPassInstances {};
+    };
 }
+
+
+#endif  /*__T3D_TECHNIQUE_INSTANCE_H__*/

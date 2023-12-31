@@ -28,8 +28,6 @@
 
 namespace Tiny3D
 {
-    using Passes = TList<PassPtr>;
-    
     /**
      * \brief 渲染技术
      */
@@ -47,6 +45,8 @@ namespace Tiny3D
         ~Technique() override = default;
 
         TechniquePtr clone() const;
+
+        TResult compile();
 
         bool addTag(const String &key, const String &value);
 

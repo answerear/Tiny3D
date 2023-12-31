@@ -21,7 +21,6 @@
 #include "Resource/T3DDylib.h"
 #include "Kernel/T3DAgent.h"
 #include "T3DErrorDef.h"
-#include "Resource/T3DMeta.h"
 
 
 #if defined (T3D_OS_WINDOWS)

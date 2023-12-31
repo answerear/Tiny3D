@@ -18,42 +18,47 @@
  ******************************************************************************/
 
 
-#include "Material/T3DShaderConstantParam.h"
+#include "Material/T3DShaderVariantInstance.h"
+#include "Material/T3DShaderVariant.h"
+#include "Render/T3DRenderResourceManager.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderConstantParamPtr ShaderConstantParam::create(const String &name, const void* data, uint32_t dataSize, DATA_TYPE dataType)
+    ShaderVariantInstancePtr ShaderVariantInstance::create(ShaderVariantPtr shaderVariant)
     {
-        return new ShaderConstantParam(name, data, dataSize, dataType);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, DATA_TYPE dataType)
-        : mDataType(dataType)
-        , mName(name)
-    {
-        if (data != nullptr)
-        {
-            mData.setData(data, dataSize);
-        }
+        return new ShaderVariantInstance(shaderVariant);
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderConstantParam::~ShaderConstantParam()
+    ShaderVariantInstance::ShaderVariantInstance(ShaderVariantPtr shaderVariant)
+        : mShaderVariant(shaderVariant)
     {
+        static Buffer buffer;
         
-    }
-
-    //--------------------------------------------------------------------------
-
-    ShaderConstantParamPtr ShaderConstantParam::clone() const
-    {
-        return ShaderConstantParam::create(mName, mData.Data, mData.DataSize, mDataType);
+        auto reallocate = [](uint8_t *&data, uint32_t &dataSize, uint32_t newSize)
+        {
+            if (dataSize < newSize)
+            {
+                T3D_SAFE_DELETE_ARRAY(data);
+                dataSize = newSize;
+                data = new uint8_t[dataSize];
+            }
+            else
+            {
+                dataSize = newSize;
+            }
+        };
+        
+        for (const auto &binding : mShaderVariant->getShaderConstantBindings())
+        {
+            reallocate(buffer.Data, (uint32_t &)buffer.DataSize, binding.second.size);
+            ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(buffer, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUNone);
+            mConstantBuffers.emplace(binding.first, cbuffer);
+        }
     }
 
     //--------------------------------------------------------------------------

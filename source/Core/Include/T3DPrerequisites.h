@@ -66,7 +66,9 @@ namespace Tiny3D
     class Object;
     class ObjectTracer;
 
+    // Kernel
     class Agent;
+    class GameObject;
     class Plugin;
     class Archive;
     class ArchiveManager;
@@ -74,15 +76,17 @@ namespace Tiny3D
     struct Transform;    
     struct Settings;
 
+    // Serializer
     class Serializer;
     class BinSerializer;
     class JsonSerializer;
     class SerializerManager;
 
+    // Image
     class ImageCodec;
     class ImageCodecBase;
 
-    class Meta;
+    // Resource
     class Resource;
     class ResourceManager;
     class Dylib;
@@ -102,28 +106,34 @@ namespace Tiny3D
     class ImageManager;
     class Prefab;
     class PrefabManager;
+    class Shader;
+    class ShaderManager;
+    
+    // Material
     class ShaderConstantParam;
     class ShaderSamplerParam;
-    class Shader;
     class ShaderVariant;
-    class ShaderManager;
-
     class Technique;
     class Pass;
+    class ShaderVariantInstance;
+    class PassInstance;
+    class TechniqueInstance;
+    struct ShaderKeyword;
 
+    // Scene
     class Scene;
     class SceneManager;
     class SceneManagerImpl;
     class BuiltinSceneManager;
 
-    class GameObject;
-
+    // Component
     class Component;
     class Camera;
     class TransformNode;
     class Transform3D;
     class Renderable;
 
+    // Render
     class RenderContext;
     class RenderPipeline;
     class ForwardRenderPipeline;
@@ -166,7 +176,8 @@ namespace Tiny3D
     class NullRenderWindow;
     
     struct Viewport;
-    
+
+    // RHI
     class RHIRenderer;
     class RHIContext;
     class RHIResource;

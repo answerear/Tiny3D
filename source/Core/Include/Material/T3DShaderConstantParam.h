@@ -67,10 +67,9 @@ namespace Tiny3D
          * \param [in] name : 变量名称
          * \param [in] data : 数据地址
          * \param [in] dataSize : 数据大小
-         * \param [in] dataOffset : 数据在 cbuffer 中的偏移
          * \param [in] dataType : 数据类型
          */
-        static ShaderConstantParamPtr create(const String &name, const void* data, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
+        static ShaderConstantParamPtr create(const String &name, const void* data, uint32_t dataSize, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
 
         /**
          * \brief Destructor
@@ -79,13 +78,12 @@ namespace Tiny3D
 
         ShaderConstantParamPtr clone() const;
 
-        ConstantBufferPtr getConstantBuffer() const { return mConstantBuffer; }
+        /**
+         * \brief 获取数据在 cbuffer 中的偏移
+         */
+        uint32_t getDataOffset() const { return mDataOffset; }
 
-        void setConstantBuffer(ConstantBufferPtr buffer) { mConstantBuffer = buffer; }
-
-        uint32_t getConstBufferOffset() const { return mConstBufferOffset; }
-
-        void setConstBufferOffset(uint32_t offset) { mConstBufferOffset = offset; }
+        void setDataOffset(uint32_t offset) { mDataOffset = offset; }
         
         /**
          * \brief 获取变量名称
@@ -121,13 +119,7 @@ namespace Tiny3D
          * \brief 获取数据大小
          */
         uint32_t getSize() const { return (uint32_t)mData.DataSize; }
-
-        /**
-         * \brief 获取数据在 cbuffer 中的偏移
-         */
-        TPROPERTY(RTTRFuncName="DataOffset", RTTRFuncType="getter")
-        uint32_t getDataOffset() const { return mDataOffset; }
-
+    
     private:
         ShaderConstantParam() = default;
 
@@ -149,12 +141,6 @@ namespace Tiny3D
             mDataType = type;
         }
 
-        TPROPERTY(RTTRFuncName="DataOffset", RTTRFuncType="setter")
-        void setDataOffset(uint32_t offset)
-        {
-            mDataOffset = offset;
-        }
-
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name)
         {
@@ -167,10 +153,9 @@ namespace Tiny3D
          * \param [in] name : 变量名称
          * \param [in] data : 数据地址
          * \param [in] dataSize : 数据大小
-         * \param [in] dataOffset : 数据在 cbuffer 中的偏移
          * \param [in] dataType : 数据类型
          */
-        ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
+        ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
         
         /// 数据
         Buffer      mData {};
@@ -183,11 +168,6 @@ namespace Tiny3D
 
         /// 是否需要更新 GPU 缓冲区数据
         bool        mIsDirty {false};
-        
-        /// 常量缓冲区
-        ConstantBufferPtr   mConstantBuffer {nullptr};
-        /// 在常量缓冲区的偏移
-        uint32_t    mConstBufferOffset {0};
     };
 }
 

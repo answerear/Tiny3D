@@ -33,8 +33,7 @@ namespace Tiny3D
     
     T3D_DECLARE_SMART_PTR(ImageCodec);
     T3D_DECLARE_SMART_PTR(ImageCodecBase);
-
-    T3D_DECLARE_SMART_PTR(Meta);
+    
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);
     T3D_DECLARE_SMART_PTR(Prefab);
@@ -54,14 +53,17 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(TextureManager);
     T3D_DECLARE_SMART_PTR(Image);
     T3D_DECLARE_SMART_PTR(ImageManager);
-    T3D_DECLARE_SMART_PTR(ShaderConstantParam);
-    T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
     T3D_DECLARE_SMART_PTR(Shader);
-    T3D_DECLARE_SMART_PTR(ShaderVariant);
     T3D_DECLARE_SMART_PTR(ShaderManager);
 
+    T3D_DECLARE_SMART_PTR(ShaderConstantParam);
+    T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
+    T3D_DECLARE_SMART_PTR(ShaderVariant);
+    T3D_DECLARE_SMART_PTR(ShaderVariantInstance);
+    T3D_DECLARE_SMART_PTR(PassInstance);
+    T3D_DECLARE_SMART_PTR(TechniqueInstance);
 
     T3D_DECLARE_SMART_PTR(Scene);
     T3D_DECLARE_SMART_PTR(SceneManager);
@@ -144,12 +146,26 @@ namespace Tiny3D
     using RHIRenderersConstItr = RHIRenderers::const_iterator;
     using RHIRenderersValue = RHIRenderers::value_type;
 
+    using FloatArray = TArray<float>;
+    using ColorArray = TArray<ColorRGBA>;
+    using Vector4Array = TArray<Vector4>;
+    using Matrix4Array = TArray<Matrix4>;
+    
+    using Passes = TList<PassPtr>;
+    using PassInstances = TList<PassInstancePtr>;
+
+    using ShaderKeywords = TList<ShaderKeyword>;
+    using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;
+    using ShaderVariantsValue = ShaderVariants::value_type;
+    
     using ShaderLabTags = TMap<String, String>;
     using ShaderLabTagsValue = ShaderLabTags::value_type;
 
     using ShaderConstantParams = TMap<String, ShaderConstantParamPtr>;
     using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;
 
+    using ConstantBuffers = TMap<String, ConstantBufferPtr>;
+    
     using GameObjectList = TList<GameObjectPtr>;
     using CameraList = TMultimap<uint32_t, Camera *>;
 }

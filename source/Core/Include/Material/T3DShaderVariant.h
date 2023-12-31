@@ -24,6 +24,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Material/T3DShaderKeyword.h"
+#include "Material/T3DShaderBinding.h"
 
 
 namespace Tiny3D
@@ -66,6 +67,8 @@ namespace Tiny3D
          */
         ~ShaderVariant() override;
 
+        TResult compile();
+
         TPROPERTY(RTTRFuncName="Stage", RTTRFuncType="getter")
         SHADER_STAGE getShaderStage() const { return mShaderStage; }
 
@@ -99,6 +102,10 @@ namespace Tiny3D
             mHasCompiled = false;
         }
 
+        const ShaderConstantBindings &getShaderConstantBindings() const { return mConstantBindings; }
+
+        const ShaderTexSamplerBindings &getShaderTexSamplerBindings() const { return mTexSamplerBindings; }
+        
     private:
         ShaderVariant() = default;
 
@@ -142,6 +149,7 @@ namespace Tiny3D
             mBytesCodeSize = codeSize;
         }
 
+    protected:
         /// shader keyword
         ShaderKeyword   *mShaderKeyword {nullptr};
 
@@ -155,6 +163,11 @@ namespace Tiny3D
         size_t          mBytesCodeCapacity {0};
         /// 是否编译
         bool            mHasCompiled {false};
+        
+        /// 常量绑定关系
+        ShaderConstantBindings      mConstantBindings {};
+        /// 纹理和纹理采样绑定关系
+        ShaderTexSamplerBindings    mTexSamplerBindings {};
     };
 }
 

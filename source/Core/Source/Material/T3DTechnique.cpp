@@ -56,6 +56,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Technique::compile()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            for (auto pass : mPasses)
+            {
+                ret = pass->compile();
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Technique::addTag(const String &key, const String &value)
     {
         auto rval = mTags.emplace(key, value);

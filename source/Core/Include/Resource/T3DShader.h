@@ -46,10 +46,8 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TResult enableKeyword(const String &keyword);
-
-        TResult disableKeyword(const String &keyword);
-
+        TResult compile();
+        
         bool isKeywordEnable(const String &keyword) const;
 
         TResult addConstantParam(ShaderConstantParamPtr param);
@@ -77,7 +75,7 @@ namespace Tiny3D
          */
         bool getTechnique(const String &name, TechniquePtr &tech) const;
 
-        TechniquePtr getCurrentTechnique() const { return mCurTechnique; }
+        TechniquePtr getSupportTechnique() const { return mSupportTechnique; }
 
         TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="getter")
         const ShaderConstantParams &getConstantParams() const
@@ -123,14 +121,17 @@ namespace Tiny3D
         
         ResourcePtr clone() const override;
 
+        bool onPostLoad() override;
+        
+    protected:
         /// shader 常量
         ShaderConstantParams    mConstants {};
         /// shader 采样器
         ShaderSamplerParams     mSamplers {};
         /// 所有可用的技术对象
         Techniques              mTechniques {};
-        /// 当前可用的技术对象
-        TechniquePtr            mCurTechnique {nullptr};
+        /// 当前硬件支持的 technique
+        TechniquePtr            mSupportTechnique {nullptr};
     };
 }
 
