@@ -24,7 +24,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Kernel/T3DConstant.h"
+#include "Material/T3DShaderBinding.h"
 
 
 namespace Tiny3D
@@ -71,71 +71,6 @@ namespace Tiny3D
         kClearZBuffer,
     };
 
-    /**
-     * \brief 着色器变量绑定信息
-     */
-    struct ShaderVariableBinding
-    {
-        /// 名称
-        String      name;
-        /// 变量在缓冲区中的偏移
-        uint32_t    offset;
-        /// 变量大小
-        uint32_t    size;
-    };
-
-    using ShaderVariableBindings = TMap<String, ShaderVariableBinding>;
-
-    /**
-     * \brief 着色器常量绑定信息
-     */
-    struct ShaderConstantBinding
-    {
-        /// 名称
-        String      name {};
-        /// 绑定点
-        uint32_t    binding {0};
-        /// 缓冲区大小
-        uint32_t    size {0};
-        /// 常量缓冲区包含的变量列表
-        ShaderVariableBindings  variables;
-    };
-
-    /**
-     * \brief 着色器纹理绑定信息
-     */
-    struct ShaderTextureBinding
-    {
-        /// 名称
-        String          name {};
-        /// 绑定点
-        uint32_t        binding {0};
-        /// 绑定数量，用于纹理数组
-        uint32_t        bindingCount {0};
-        /// 纹理类型
-        TEXTURE_TYPE    texType {TEXTURE_TYPE::TT_2D};
-    };
-
-    /**
-     * \brief 着色器纹理采样器绑定信息
-     */
-    struct ShaderSamplerBinding
-    {
-        /// 名称
-        String      name {};
-        /// 绑定点
-        uint32_t    binding {0};
-    };
-
-    struct ShaderTexSamplerBinding
-    {
-        ShaderTextureBinding    texBinding {};
-        ShaderSamplerBinding    samplerBinding {};
-    };
-
-    using ShaderConstantBindings = TMap<String, ShaderConstantBinding>;
-    using ShaderTexSamplerBindings = TMap<String, ShaderTexSamplerBinding>;
-    
     /**
      * @class   RHIContext
      * @brief   渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口

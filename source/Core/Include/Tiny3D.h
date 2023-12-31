@@ -61,6 +61,7 @@
 #include <Material/T3DShaderSamplerParam.h>
 #include <Material/T3DShaderKeyword.h>
 #include <Material/T3DShaderVariant.h>
+#include <Material/T3DShaderBinding.h>
 
 // Component
 #include <Component/T3DComponent.h>
