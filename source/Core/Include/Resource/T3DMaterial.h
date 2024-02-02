@@ -328,9 +328,9 @@ namespace Tiny3D
         {
             T value {};
             auto itr = mConstants.find(name);
-            if (itr != mConstants.end() && itr->second->getSize() == sizeof(int32_t))
+            if (itr != mConstants.end() && itr->second->getDataSize() == sizeof(int32_t))
             {
-                memcpy(&value, itr->second->getData(), itr->second->getSize());
+                memcpy(&value, itr->second->getData(), itr->second->getDataSize());
             }
             return value;
         }
@@ -341,7 +341,7 @@ namespace Tiny3D
             auto itr = mConstants.find(name);
             if (itr != mConstants.end())
             {
-                return TArray<T>((T*)itr->second->getData(), (T*)(itr->second->getData()) + itr->second->getSize());
+                return TArray<T>((T*)itr->second->getData(), (T*)(itr->second->getData()) + itr->second->getDataSize());
             }
 
             return TArray<T>();
@@ -351,7 +351,7 @@ namespace Tiny3D
         bool hasValue(const String &name) const
         {
             auto itr = mConstants.find(name);
-            return (itr != mConstants.end() && itr->second->getSize() == sizeof(T));
+            return (itr != mConstants.end() && itr->second->getDataSize() == sizeof(T));
         }
         
     protected:

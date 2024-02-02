@@ -35,7 +35,7 @@ namespace Tiny3D
 
         TechniquePtr getTechnique() const { return mTechnique; }
 
-        const PassInstances getPassInstances() const { return mPassInstances; }
+        const PassInstances &getPassInstances() const { return mPassInstances; }
 
         TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys);
 

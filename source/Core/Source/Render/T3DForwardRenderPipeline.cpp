@@ -31,6 +31,7 @@
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
 #include "RHI/T3DRHIContext.h"
+#include "Render/T3DConstantBuffer.h"
 #include "Resource/T3DScene.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DShader.h"
@@ -189,16 +190,20 @@ namespace Tiny3D
                             ShaderVariantInstance *pixelShader = pass->getCurrentPixelShader();
                             
                             // 设置 shader 常量
-                            setupShaderConstants(material, vertexShader, hullShader, domainShader, geometryShader, pixelShader);
+                            setupShaderConstants(ctx, &RHIContext::setVSConstantBuffer, material, vertexShader);
+                            setupShaderConstants(ctx, &RHIContext::setHSConstantBuffer, material, hullShader);
+                            setupShaderConstants(ctx, &RHIContext::setDSConstantBuffer, material, domainShader);
+                            setupShaderConstants(ctx, &RHIContext::setGSConstantBuffer, material, geometryShader);
+                            setupShaderConstants(ctx, &RHIContext::setPSConstantBuffer, material, pixelShader);
 
+                            // 设置使用的纹理和纹理采样
+                            
                             // 设置各 pipeline stage 的 shader
                             ctx->setVertexShader(vertexShader);
                             ctx->setHullShader(hullShader);
                             ctx->setDomainShader(domainShader);
                             ctx->setGeometryShader(geometryShader);
                             ctx->setPixelShader(pixelShader);
-
-                            // 设置使用的纹理
 
                             for (auto renderable : renderables)
                             {
@@ -274,40 +279,42 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupShaderConstants(Material *material, ShaderVariantInstance *vshader, ShaderVariantInstance *hshader, ShaderVariantInstance *dshader, ShaderVariantInstance *gshader, ShaderVariantInstance *pshader)
+    TResult ForwardRenderPipeline::setupShaderConstants(RHIContext *ctx, TResult (RHIContext::*setCBuffer)(ConstantBufferPtr buffer), Material *material, ShaderVariantInstance *shader)
     {
-        // for (auto param : material->getConstantParams())
-        // {
-        //     // vertex shader
-        //     if (vshader != nullptr)
-        //     {
-        //         vshader->setParam(param.first, param.second->getData());
-        //     }
-        //
-        //     // hull shader
-        //     if (hshader != nullptr)
-        //     {
-        //         hshader->setParam(param.first, param.second->getData());
-        //     }
-        //
-        //     // domain shader
-        //     if (dshader != nullptr)
-        //     {
-        //         dshader->setParam(param.first, param.second->getData());
-        //     }
-        //
-        //     // geometry shader
-        //     if (gshader != nullptr)
-        //     {
-        //         gshader->setParam(param.first, param.second->getData());
-        //     }
-        //     
-        //     // pixel shader
-        //     if (pshader != nullptr)
-        //     {
-        //         pshader->setParam(param.first, param.second->getData());
-        //     }
-        // }
+        if (shader != nullptr)
+        {
+            for (const auto &binding : shader->getShaderVariant()->getShaderConstantBindings())
+            {
+                auto itCB = shader->getConstantBuffers().find(binding.second.name);
+                if (itCB == shader->getConstantBuffers().end())
+                {
+                    // 没有对应名字的常量缓冲区
+                    continue;
+                }
+
+                Buffer buffer;
+                buffer.Data = new uint8_t[binding.second.size];
+                buffer.DataSize = binding.second.size;
+                
+                for (const auto &param : material->getConstantParams())
+                {
+                    auto itVar = binding.second.variables.find(param.second->getName());
+                    if (itVar == binding.second.variables.end())
+                    {
+                        // 没有对应名字的变量
+                        continue;
+                    }
+
+                    memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
+                }
+
+                itCB->second->writeData(0, buffer.DataSize, buffer.Data);
+                
+                buffer.release();
+
+                (ctx->*setCBuffer)(itCB->second);
+            }
+        }
 
         return T3D_OK;
     }

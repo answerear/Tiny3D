@@ -84,6 +84,10 @@ namespace Tiny3D
         uint32_t getDataOffset() const { return mDataOffset; }
 
         void setDataOffset(uint32_t offset) { mDataOffset = offset; }
+
+        ConstantBufferPtr getConstantBuffer() const { return mConstantBuffer; }
+
+        void setConstantBuffer(ConstantBufferPtr cbuffer) { mConstantBuffer = cbuffer; }
         
         /**
          * \brief 获取变量名称
@@ -118,7 +122,7 @@ namespace Tiny3D
         /**
          * \brief 获取数据大小
          */
-        uint32_t getSize() const { return (uint32_t)mData.DataSize; }
+        uint32_t getDataSize() const { return (uint32_t)mData.DataSize; }
     
     private:
         ShaderConstantParam() = default;
@@ -166,6 +170,9 @@ namespace Tiny3D
         /// 变量名 
         String      mName {};
 
+        /// 对应的常量缓冲区
+        ConstantBufferPtr   mConstantBuffer {nullptr};
+        
         /// 是否需要更新 GPU 缓冲区数据
         bool        mIsDirty {false};
     };

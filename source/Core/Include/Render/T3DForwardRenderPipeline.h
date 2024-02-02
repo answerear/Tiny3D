@@ -44,7 +44,7 @@ namespace Tiny3D
     protected:
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
         
-        TResult setupShaderConstants(Material *material, ShaderVariantInstance *vshader, ShaderVariantInstance *hshader, ShaderVariantInstance *dshader, ShaderVariantInstance *gshader, ShaderVariantInstance *pshade);
+        TResult setupShaderConstants(RHIContext *ctx, TResult (RHIContext::*setCBuffer)(ConstantBufferPtr buffer), Material *material, ShaderVariantInstance *shader);
         
     protected:
         using Renderables = TList<Renderable*>;
