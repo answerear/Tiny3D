@@ -93,6 +93,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderBuffer);
     T3D_DECLARE_SMART_PTR(VertexBuffer);
     T3D_DECLARE_SMART_PTR(IndexBuffer);
+    T3D_DECLARE_SMART_PTR(PixelBuffer);
     T3D_DECLARE_SMART_PTR(PixelBuffer1D);
     T3D_DECLARE_SMART_PTR(PixelBuffer2D);
     T3D_DECLARE_SMART_PTR(PixelBuffer3D);

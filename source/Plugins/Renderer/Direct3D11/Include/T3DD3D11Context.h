@@ -212,13 +212,6 @@ namespace Tiny3D
         RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1DPtr buffer) override;
 
         /**
-         * \brief 设置渲染用的像素缓冲区对象
-         * \param [in] buffer : 引擎的像素缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setPixelBuffer1D(PixelBuffer1DPtr buffer) override;
-
-        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
@@ -226,25 +219,11 @@ namespace Tiny3D
         RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2DPtr buffer) override;
 
         /**
-         * \brief 设置渲染用的像素缓冲区对象
-         * \param [in] buffer : 引擎的像素缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setPixelBuffer2D(PixelBuffer2DPtr buffer) override;
-
-        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
         RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3DPtr buffer) override;
-
-        /**
-         * \brief 设置渲染用的像素缓冲区对象
-         * \param [in] buffer : 引擎的像素缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setPixelBuffer3D(PixelBuffer3DPtr buffer) override;
         
         /**
          * \brief 创建 RHI 顶点着色器对象
@@ -267,6 +246,13 @@ namespace Tiny3D
          */
         TResult setVSConstantBuffer(ConstantBufferPtr buffer) override;
 
+        /**
+         * \brief 设置 vs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        TResult setVSPixelBuffer(PixelBufferPtr buffer) override;
+        
         /**
          * \brief 设置 vs 纹理采样器
          * \param [in] sampler : 纹理采样器对象
@@ -296,6 +282,13 @@ namespace Tiny3D
         TResult setPSConstantBuffer(ConstantBufferPtr buffer) override;
 
         /**
+         * \brief 设置 ps 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        TResult setPSPixelBuffer(PixelBufferPtr buffer) override;
+        
+        /**
          * \brief 设置 ps 纹理采样器
          * \param [in] sampler : 纹理采样器对象
          * \return 调用成功返回 T3D_OK
@@ -323,6 +316,13 @@ namespace Tiny3D
          */
         TResult setHSConstantBuffer(ConstantBufferPtr buffer) override;
 
+        /**
+         * \brief 设置 hs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        TResult setHSPixelBuffer(PixelBufferPtr buffer) override;
+        
         /**
          * \brief 设置 hs 纹理采样器
          * \param [in] sampler : 纹理采样器对象
@@ -352,6 +352,13 @@ namespace Tiny3D
         TResult setDSConstantBuffer(ConstantBufferPtr buffer) override;
 
         /**
+         * \brief 设置 ds 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        TResult setDSPixelBuffer(PixelBufferPtr buffer) override;
+        
+        /**
          * \brief 设置 ds 纹理采样器
          * \param [in] sampler : 纹理采样器对象
          * \return 调用成功返回 T3D_OK
@@ -380,6 +387,13 @@ namespace Tiny3D
         TResult setGSConstantBuffer(ConstantBufferPtr buffer) override;
 
         /**
+         * \brief 设置 gs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        TResult setGSPixelBuffer(PixelBufferPtr buffer) override;
+        
+        /**
          * \brief 设置 gs 纹理采样器
          * \param [in] sampler : 纹理采样器对象
          * \return 调用成功返回 T3D_OK
@@ -407,6 +421,13 @@ namespace Tiny3D
          */
         TResult setCSConstantBuffer(ConstantBufferPtr buffer) override;
 
+        /**
+         * \brief 设置 cs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        TResult setCSPixelBuffer(PixelBufferPtr buffer) override;
+        
         /**
          * \brief 设置 cs 纹理采样器
          * \param [in] sampler : 纹理采样器对象

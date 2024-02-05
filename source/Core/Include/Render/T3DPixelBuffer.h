@@ -29,8 +29,17 @@
 
 namespace Tiny3D
 {
+    class T3D_ENGINE_API PixelBuffer : public RenderBuffer
+    {
+    public:
+        PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+
+    protected:
+        ~PixelBuffer() override = default;
+    };
+    
     template<typename Object_t, typename Descriptor_t>
-    class T3D_ENGINE_API PixelBufferT : public RenderBuffer
+    class T3D_ENGINE_API PixelBufferT : public PixelBuffer
     {
     public:
         static SmartPtr<Object_t> create(Descriptor_t *desc, MemoryType memType, Usage usage, uint32_t accMode)
@@ -42,7 +51,7 @@ namespace Tiny3D
 
     protected:
         PixelBufferT(Descriptor_t *desc, MemoryType memType, Usage usage, uint32_t accMode)
-            : RenderBuffer(desc->buffer, memType, usage, accMode)
+            : PixelBuffer(desc->buffer, memType, usage, accMode)
             , mDesc(desc)
         {
             

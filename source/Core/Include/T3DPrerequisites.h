@@ -147,6 +147,7 @@ namespace Tiny3D
 
     struct VertexBufferDesc;
     struct IndexBufferDesc;
+    struct PixelBufferDesc;
     struct PixelBuffer1DDesc;
     struct PixelBuffer2DDesc;
     struct PixelBuffer3DDesc;
@@ -160,6 +161,7 @@ namespace Tiny3D
     class RenderBuffer;
     class VertexBuffer;
     class IndexBuffer;
+    class PixelBuffer;
     class PixelBuffer1D;
     class PixelBuffer2D;
     class PixelBuffer3D;

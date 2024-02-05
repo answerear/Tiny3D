@@ -897,13 +897,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelBuffer1D(PixelBuffer1DPtr buffer)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-    
     RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer2D(PixelBuffer2DPtr buffer)
     {
         return nullptr;
@@ -911,25 +904,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelBuffer2D(PixelBuffer2DPtr buffer)
-    {
-        return T3D_OK;
-    }
-    
-    //--------------------------------------------------------------------------
-    
     RHIPixelBuffer3DPtr D3D11Context::createPixelBuffer3D(PixelBuffer3DPtr buffer)
     {
         return nullptr;
     }
 
-    //--------------------------------------------------------------------------
-    
-    TResult D3D11Context::setPixelBuffer3D(PixelBuffer3DPtr buffer)
-    {
-        return T3D_OK;
-    }
-    
     //--------------------------------------------------------------------------
     
     RHIShaderPtr D3D11Context::createVertexShader(ShaderVariantPtr shader)
@@ -951,6 +930,13 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setVSPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setVSSampler(SamplerStatePtr sampler)
@@ -980,6 +966,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setPSPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
     
     TResult D3D11Context::setPSSampler(SamplerStatePtr sampler)
     {
@@ -1006,6 +999,13 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setHSPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setHSSampler(SamplerStatePtr sampler)
@@ -1034,6 +1034,13 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------d
+
+    TResult D3D11Context::setDSPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setDSSampler(SamplerStatePtr sampler)
@@ -1063,6 +1070,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setGSPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
     
     TResult D3D11Context::setGSSampler(SamplerStatePtr sampler)
     {
@@ -1090,6 +1104,13 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setCSPixelBuffer(PixelBufferPtr buffer)
+    {
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setCSSampler(SamplerStatePtr sampler)

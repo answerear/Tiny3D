@@ -33,6 +33,14 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    PixelBuffer::PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+        : RenderBuffer(buffer, memType, usage, accMode)
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
     PixelBuffer1D::PixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
         : PixelBufferT(desc, memType, usage, accMode)
     {

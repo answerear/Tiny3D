@@ -287,13 +287,6 @@ namespace Tiny3D
         virtual RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1DPtr buffer) = 0;
 
         /**
-         * \brief 设置渲染用的像素缓冲区对象
-         * \param [in] buffer : 引擎的像素缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult setPixelBuffer1D(PixelBuffer1DPtr buffer) = 0;
-
-        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
@@ -301,25 +294,11 @@ namespace Tiny3D
         virtual RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2DPtr buffer) = 0;
 
         /**
-         * \brief 设置渲染用的像素缓冲区对象
-         * \param [in] buffer : 引擎的像素缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult setPixelBuffer2D(PixelBuffer2DPtr buffer) = 0;
-
-        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
         virtual RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3DPtr buffer) = 0;
-
-        /**
-         * \brief 设置渲染用的像素缓冲区对象
-         * \param [in] buffer : 引擎的像素缓冲区对象
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult setPixelBuffer3D(PixelBuffer3DPtr buffer) = 0; 
 
         /**
          * \brief 创建 RHI 顶点着色器对象
@@ -341,6 +320,13 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setVSConstantBuffer(ConstantBufferPtr buffer) = 0;
+
+        /**
+         * \brief 设置 vs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        virtual TResult setVSPixelBuffer(PixelBufferPtr buffer) = 0;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -371,6 +357,13 @@ namespace Tiny3D
         virtual TResult setPSConstantBuffer(ConstantBufferPtr buffer) = 0;
 
         /**
+         * \brief 设置 ps 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        virtual TResult setPSPixelBuffer(PixelBufferPtr buffer) = 0;
+        
+        /**
          * \brief 设置 ps 纹理采样器
          * \param [in] sampler : 纹理采样器对象
          * \return 调用成功返回 T3D_OK
@@ -398,6 +391,13 @@ namespace Tiny3D
          */
         virtual TResult setHSConstantBuffer(ConstantBufferPtr buffer) = 0;
 
+        /**
+         * \brief 设置 hs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        virtual TResult setHSPixelBuffer(PixelBufferPtr buffer) = 0;
+        
         /**
          * \brief 设置 hs 纹理采样器
          * \param [in] sampler : 纹理采样器对象
@@ -427,6 +427,13 @@ namespace Tiny3D
         virtual TResult setDSConstantBuffer(ConstantBufferPtr buffer) = 0;
 
         /**
+         * \brief 设置 ds 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        virtual TResult setDSPixelBuffer(PixelBufferPtr buffer) = 0;
+        
+        /**
          * \brief 设置 ds 纹理采样器
          * \param [in] sampler : 纹理采样器对象
          * \return 调用成功返回 T3D_OK
@@ -455,6 +462,13 @@ namespace Tiny3D
         virtual TResult setGSConstantBuffer(ConstantBufferPtr buffer) = 0;
 
         /**
+         * \brief 设置 gs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        virtual TResult setGSPixelBuffer(PixelBufferPtr buffer) = 0;
+        
+        /**
          * \brief 设置 gs 纹理采样器
          * \param [in] sampler : 纹理采样器对象
          * \return 调用成功返回 T3D_OK
@@ -482,6 +496,13 @@ namespace Tiny3D
          */
         virtual TResult setCSConstantBuffer(ConstantBufferPtr buffer) = 0;
 
+        /**
+         * \brief 设置 cs 的像素缓冲区
+         * \param [in] buffer : 像素缓冲区对象
+         * \return 调用成功返回 3D_OK
+         */
+        virtual TResult setCSPixelBuffer(PixelBufferPtr buffer) = 0;
+        
         /**
          * \brief 设置 cs 纹理采样器
          * \param [in] sampler : 纹理采样器对象
