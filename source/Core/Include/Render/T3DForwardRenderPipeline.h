@@ -24,6 +24,7 @@
 
 #include "T3DRenderPipeline.h"
 #include "Material/T3DShaderConstantParam.h"
+#include "Material/T3DShaderVariantInstance.h"
 
 
 namespace Tiny3D
@@ -45,6 +46,8 @@ namespace Tiny3D
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
         
         TResult setupShaderConstants(RHIContext *ctx, TResult (RHIContext::*setCBuffer)(ConstantBufferPtr buffer), Material *material, ShaderVariantInstance *shader);
+
+        TResult setupShaderTexSamplers(RHIContext *ctx, Material *material, ShaderVariantInstance *shader);
         
     protected:
         using Renderables = TList<Renderable*>;

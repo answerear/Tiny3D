@@ -281,41 +281,60 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::setupShaderConstants(RHIContext *ctx, TResult (RHIContext::*setCBuffer)(ConstantBufferPtr buffer), Material *material, ShaderVariantInstance *shader)
     {
-        if (shader != nullptr)
+        if (material == nullptr || shader == nullptr)
         {
-            for (const auto &binding : shader->getShaderVariant()->getShaderConstantBindings())
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        for (const auto &binding : shader->getShaderVariant()->getShaderConstantBindings())
+        {
+            auto itCB = shader->getConstantBuffers().find(binding.second.name);
+            if (itCB == shader->getConstantBuffers().end())
             {
-                auto itCB = shader->getConstantBuffers().find(binding.second.name);
-                if (itCB == shader->getConstantBuffers().end())
+                // 没有对应名字的常量缓冲区
+                continue;
+            }
+
+            Buffer buffer;
+            buffer.Data = new uint8_t[binding.second.size];
+            buffer.DataSize = binding.second.size;
+                
+            for (const auto &param : material->getConstantParams())
+            {
+                auto itVar = binding.second.variables.find(param.second->getName());
+                if (itVar == binding.second.variables.end())
                 {
-                    // 没有对应名字的常量缓冲区
+                    // 没有对应名字的变量
                     continue;
                 }
 
-                Buffer buffer;
-                buffer.Data = new uint8_t[binding.second.size];
-                buffer.DataSize = binding.second.size;
-                
-                for (const auto &param : material->getConstantParams())
-                {
-                    auto itVar = binding.second.variables.find(param.second->getName());
-                    if (itVar == binding.second.variables.end())
-                    {
-                        // 没有对应名字的变量
-                        continue;
-                    }
-
-                    memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
-                }
-
-                itCB->second->writeData(0, buffer.DataSize, buffer.Data);
-                
-                buffer.release();
-
-                (ctx->*setCBuffer)(itCB->second);
+                memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
             }
+
+            itCB->second->writeData(0, buffer.DataSize, buffer.Data);
+                
+            buffer.release();
+
+            (ctx->*setCBuffer)(itCB->second);
         }
 
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupShaderTexSamplers(RHIContext *ctx, Material *material, ShaderVariantInstance *shader)
+    {
+        if (material == nullptr || shader == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        for (const auto &binding : shader->getShaderVariant()->getShaderTexSamplerBindings())
+        {
+            
+        }
+        
         return T3D_OK;
     }
 
