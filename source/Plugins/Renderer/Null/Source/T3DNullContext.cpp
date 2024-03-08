@@ -257,21 +257,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSConstantBuffer(ConstantBufferPtr buffer)
+    TResult NullContext::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVSSampler(SamplerStatePtr sampler)
+    TResult NullContext::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -292,27 +292,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSConstantBuffer(ConstantBufferPtr buffer)
+    TResult NullContext::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPSSampler(SamplerStatePtr sampler)
+    TResult NullContext::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
-    
     RHIShaderPtr NullContext::createHullShader(ShaderVariantPtr shader)
     {
         return nullptr;
@@ -327,21 +326,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSConstantBuffer(ConstantBufferPtr buffer)
+    TResult NullContext::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setHSSampler(SamplerStatePtr sampler)
+    TResult NullContext::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -362,21 +361,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setDSConstantBuffer(ConstantBufferPtr buffer)
+    TResult NullContext::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
-    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------d
 
-    TResult NullContext::setDSPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setDSSampler(SamplerStatePtr sampler)
+    TResult NullContext::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -397,21 +396,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSConstantBuffer(ConstantBufferPtr buffer)
+    TResult NullContext::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setGSSampler(SamplerStatePtr sampler)
+    TResult NullContext::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -432,21 +431,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSConstantBuffer(ConstantBufferPtr buffer)
+    TResult NullContext::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSPixelBuffer(PixelBufferPtr buffer)
+    TResult NullContext::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setCSSampler(SamplerStatePtr sampler)
+    TResult NullContext::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }

@@ -43,6 +43,7 @@
 #include "Render/T3DVertexDeclaration.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
+#include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DRenderState.h"
 
 
@@ -201,7 +202,12 @@ namespace Tiny3D
                             setupShaderConstants(ctx, &RHIContext::setGSConstantBuffer, material, geometryShader);
                             setupShaderConstants(ctx, &RHIContext::setPSConstantBuffer, material, pixelShader);
 
-                            // 设置使用的纹理和纹理采样
+                            // 设置 shader 使用的纹理和纹理采样
+                            setupShaderTexSamplers(ctx, &RHIContext::setVSSampler, &RHIContext::setVSPixelBuffer, material, vertexShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setHSSampler, &RHIContext::setHSPixelBuffer, material, hullShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setDSSampler, &RHIContext::setDSPixelBuffer, material, domainShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setGSSampler, &RHIContext::setGSPixelBuffer, material, geometryShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setPSSampler, &RHIContext::setPSPixelBuffer, material, pixelShader);
                             
                             // 设置各 pipeline stage 的 shader
                             ctx->setVertexShader(vertexShader);
@@ -212,6 +218,9 @@ namespace Tiny3D
 
                             for (auto renderable : renderables)
                             {
+                                // 设置渲染对象的世界变换
+                                
+                                
                                 // 设置 vertex declaration
                                 ctx->setVertexDeclaration(renderable->getVertexDeclaration());
 
@@ -284,7 +293,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupShaderConstants(RHIContext *ctx, TResult (RHIContext::*setCBuffer)(ConstantBufferPtr buffer), Material *material, ShaderVariantInstance *shader)
+    TResult ForwardRenderPipeline::setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader)
     {
         if (material == nullptr || shader == nullptr)
         {
@@ -320,7 +329,8 @@ namespace Tiny3D
                 
             buffer.release();
 
-            (ctx->*setCBuffer)(itCB->second);
+            const ConstantBufferPtr &cbuffer = itCB->second;
+            (ctx->*setCBuffer)(0, 1, &cbuffer);
         }
 
         return T3D_OK;
@@ -328,7 +338,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupShaderTexSamplers(RHIContext *ctx, Material *material, ShaderVariantInstance *shader)
+    TResult ForwardRenderPipeline::setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader)
     {
         if (material == nullptr || shader == nullptr)
         {
@@ -337,7 +347,24 @@ namespace Tiny3D
 
         for (const auto &binding : shader->getShaderVariant()->getShaderTexSamplerBindings())
         {
+            auto itParam = material->getSamplerParams().find(binding.second.texBinding.name);
+
+            TexturePtr texture = itParam->second->getTexture();
+            const SamplerStatePtr &sampler = texture->getSamplerState();
+
+            (ctx->*setSamplerState)(binding.second.samplerBinding.binding, 1, &sampler);
+            (ctx->*setPixelBuffer)(binding.second.texBinding.binding, 1, &texture->getPixelBuffer());
             
+            // for (const auto &param : material->getSamplerParams())
+            // {
+            //     binding.second.samplerBinding.name;
+            //     binding.second.samplerBinding.binding;
+            //
+            //     binding.second.texBinding.name;
+            //     binding.second.texBinding.binding;
+            //     binding.second.texBinding.bindingCount;
+            //     binding.second.texBinding.texType;
+            // }
         }
         
         return T3D_OK;

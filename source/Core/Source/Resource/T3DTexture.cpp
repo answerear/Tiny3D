@@ -99,6 +99,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    const PixelBufferPtr &Texture1D::getPixelBuffer() const
+    {
+        return mPixelBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Texture1D::onCreate()
     {
         mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
@@ -149,6 +156,13 @@ namespace Tiny3D
     TEXTURE_TYPE Texture2D::getTextureType() const
     {
         return TEXTURE_TYPE::TT_2D;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const PixelBufferPtr &Texture2D::getPixelBuffer() const
+    {
+        return mPixelBuffer;
     }
 
     //--------------------------------------------------------------------------
@@ -246,6 +260,13 @@ namespace Tiny3D
     TEXTURE_TYPE Texture3D::getTextureType() const
     {
         return TEXTURE_TYPE::TT_3D;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const PixelBufferPtr &Texture3D::getPixelBuffer() const
+    {
+        return mPixelBuffer;
     }
 
     //--------------------------------------------------------------------------

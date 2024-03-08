@@ -930,21 +930,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSConstantBuffer(ConstantBufferPtr buffer)
+    TResult D3D11Context::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVSSampler(SamplerStatePtr sampler)
+    TResult D3D11Context::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -965,21 +965,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSConstantBuffer(ConstantBufferPtr buffer)
+    TResult D3D11Context::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPSSampler(SamplerStatePtr sampler)
+    TResult D3D11Context::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -999,21 +999,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSConstantBuffer(ConstantBufferPtr buffer)
+    TResult D3D11Context::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setHSSampler(SamplerStatePtr sampler)
+    TResult D3D11Context::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -1034,21 +1034,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setDSConstantBuffer(ConstantBufferPtr buffer)
+    TResult D3D11Context::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------d
 
-    TResult D3D11Context::setDSPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setDSSampler(SamplerStatePtr sampler)
+    TResult D3D11Context::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -1069,21 +1069,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSConstantBuffer(ConstantBufferPtr buffer)
+    TResult D3D11Context::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setGSSampler(SamplerStatePtr sampler)
+    TResult D3D11Context::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }
@@ -1104,21 +1104,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSConstantBuffer(ConstantBufferPtr buffer)
+    TResult D3D11Context::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSPixelBuffer(PixelBufferPtr buffer)
+    TResult D3D11Context::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setCSSampler(SamplerStatePtr sampler)
+    TResult D3D11Context::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
     {
         return T3D_OK;
     }

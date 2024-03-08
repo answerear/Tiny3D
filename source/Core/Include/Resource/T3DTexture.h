@@ -50,7 +50,9 @@ namespace Tiny3D
 
         virtual TEXTURE_TYPE getTextureType() const = 0;
 
-        SamplerStatePtr getSamplerState() const { return mSamplerState; }
+        virtual const PixelBufferPtr &getPixelBuffer() const = 0;
+
+        const SamplerStatePtr &getSamplerState() const { return mSamplerState; }
 
         TPROPERTY(RTTRFuncName="SamplerDesc", RTTRFuncType="getter")
         const SamplerDesc &getSamplerDesc() const { return mSamplerState->getStateDesc(); }
@@ -95,7 +97,9 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="getter")
         uint32_t getMipmaps() const { return mDesc.mipmaps; }
 
-        PixelBuffer1DPtr getPixelBuffer() const { return mPixelBuffer; }
+        // PixelBuffer1DPtr getPixelBuffer() const { return mPixelBuffer; }
+
+        const PixelBufferPtr &getPixelBuffer() const override;
 
     private:
         Texture1D() : Texture("") {}
@@ -161,8 +165,10 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="MSAA", RTTRFuncType="getter")
         const MultisamplerDesc &getMSAADesc() const { return mDesc.sampleDesc; }
 
-        PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
-                
+        // PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
+
+        const PixelBufferPtr &getPixelBuffer() const override;
+        
     protected:
         Texture2D() : Texture("") {}
         
@@ -262,7 +268,9 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Mipmaps", RTTRFuncType="getter")
         uint32_t getMipmaps() const { return mDesc.mipmaps; }
 
-        PixelBuffer3DPtr getPixelBuffer() const { return mPixelBuffer; }
+        // PixelBuffer3DPtr getPixelBuffer() const { return mPixelBuffer; }
+
+        const PixelBufferPtr &getPixelBuffer() const override;
         
     private:
         Texture3D() : Texture("") {}

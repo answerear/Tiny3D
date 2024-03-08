@@ -244,24 +244,30 @@ namespace Tiny3D
 
         /**
          * \brief 设置 vs 的常量缓冲区
-         * \param [in] buffer : 常量缓冲区对象
+         * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
+         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
+         * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setVSConstantBuffer(ConstantBufferPtr buffer) override;
+        TResult setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) override;
 
         /**
          * \brief 设置 vs 的像素缓冲区
-         * \param [in] buffer : 像素缓冲区对象
+         * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
+         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
+         * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setVSPixelBuffer(PixelBufferPtr buffer) override;
-        
+        TResult setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) override;
+
         /**
          * \brief 设置 vs 纹理采样器
-         * \param [in] sampler : 纹理采样器对象
+         * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
+         * \param [in] numOfSamplers : 第三个参数像采样器的数量
+         * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setVSSampler(SamplerStatePtr sampler) override;
+        TResult setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) override;
         
         /**
          * \brief 创建 RHI 像素着色器对象
@@ -279,24 +285,30 @@ namespace Tiny3D
 
         /**
          * \brief 设置 ps 的常量缓冲区
-         * \param [in] buffer : 常量缓冲区对象
+         * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
+         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
+         * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPSConstantBuffer(ConstantBufferPtr buffer) override;
+        TResult setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) override;
 
         /**
          * \brief 设置 ps 的像素缓冲区
-         * \param [in] buffer : 像素缓冲区对象
+         * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
+         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
+         * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setPSPixelBuffer(PixelBufferPtr buffer) override;
+        TResult setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) override;
         
         /**
          * \brief 设置 ps 纹理采样器
-         * \param [in] sampler : 纹理采样器对象
+         * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
+         * \param [in] numOfSamplers : 第三个参数像采样器的数量
+         * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPSSampler(SamplerStatePtr sampler) override;
+        TResult setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) override;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
@@ -314,25 +326,31 @@ namespace Tiny3D
 
         /**
          * \brief 设置 hs 的常量缓冲区
-         * \param [in] buffer : 常量缓冲区对象
+         * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
+         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
+         * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setHSConstantBuffer(ConstantBufferPtr buffer) override;
+        TResult setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) override;
 
         /**
-         * \brief 设置 vs 的像素缓冲区
-         * \param [in] buffer : 像素缓冲区对象
+         * \brief 设置 hs 的像素缓冲区
+         * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
+         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
+         * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setHSPixelBuffer(PixelBufferPtr buffer) override;
+        TResult setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) override;
         
         /**
          * \brief 设置 hs 纹理采样器
-         * \param [in] sampler : 纹理采样器对象
+         * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
+         * \param [in] numOfSamplers : 第三个参数像采样器的数量
+         * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setHSSampler(SamplerStatePtr sampler) override;
-
+        TResult setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) override;
+        
         /**
          * \brief 创建 RHI 域着色器
          * \param [in] shader : 引擎使用的域着色器对象 
@@ -349,24 +367,30 @@ namespace Tiny3D
 
         /**
          * \brief 设置 ds 的常量缓冲区
-         * \param [in] buffer : 常量缓冲区对象
+         * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
+         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
+         * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setDSConstantBuffer(ConstantBufferPtr buffer) override;
+        TResult setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) override;
 
         /**
          * \brief 设置 ds 的像素缓冲区
-         * \param [in] buffer : 像素缓冲区对象
+         * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
+         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
+         * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setDSPixelBuffer(PixelBufferPtr buffer) override;
+        TResult setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) override;
         
         /**
          * \brief 设置 ds 纹理采样器
-         * \param [in] sampler : 纹理采样器对象
+         * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
+         * \param [in] numOfSamplers : 第三个参数像采样器的数量
+         * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setDSSampler(SamplerStatePtr sampler) override;
+        TResult setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) override;
         
         /**
          * \brief 创建 RHI 几何着色器
@@ -384,24 +408,30 @@ namespace Tiny3D
 
         /**
          * \brief 设置 gs 的常量缓冲区
-         * \param [in] buffer : 常量缓冲区对象
+         * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
+         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
+         * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setGSConstantBuffer(ConstantBufferPtr buffer) override;
+        TResult setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) override;
 
         /**
          * \brief 设置 gs 的像素缓冲区
-         * \param [in] buffer : 像素缓冲区对象
+         * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
+         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
+         * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setGSPixelBuffer(PixelBufferPtr buffer) override;
+        TResult setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) override;
         
         /**
          * \brief 设置 gs 纹理采样器
-         * \param [in] sampler : 纹理采样器对象
+         * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
+         * \param [in] numOfSamplers : 第三个参数像采样器的数量
+         * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setGSSampler(SamplerStatePtr sampler) override;
+        TResult setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) override;
         
         /**
          * \brief 创建 RHI 计算着色器
@@ -419,24 +449,30 @@ namespace Tiny3D
 
         /**
          * \brief 设置 cs 的常量缓冲区
-         * \param [in] buffer : 常量缓冲区对象
+         * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
+         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
+         * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setCSConstantBuffer(ConstantBufferPtr buffer) override;
+        TResult setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) override;
 
         /**
          * \brief 设置 cs 的像素缓冲区
-         * \param [in] buffer : 像素缓冲区对象
+         * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
+         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
+         * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setCSPixelBuffer(PixelBufferPtr buffer) override;
+        TResult setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) override;
         
         /**
          * \brief 设置 cs 纹理采样器
-         * \param [in] sampler : 纹理采样器对象
+         * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
+         * \param [in] numOfSamplers : 第三个参数像采样器的数量
+         * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setCSSampler(SamplerStatePtr sampler) override;
+        TResult setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) override;
 
         /**
          * \brief 编译着色器

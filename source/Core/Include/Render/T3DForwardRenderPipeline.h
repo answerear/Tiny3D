@@ -49,14 +49,19 @@ namespace Tiny3D
 
     protected:
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
-        
-        TResult setupShaderConstants(RHIContext *ctx, TResult (RHIContext::*setCBuffer)(ConstantBufferPtr buffer), Material *material, ShaderVariantInstance *shader);
 
-        TResult setupShaderTexSamplers(RHIContext *ctx, Material *material, ShaderVariantInstance *shader);
+        using SetCBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, const ConstantBufferPtr *);
+        
+        TResult setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader);
+
+        using SetSamplerState = TResult (RHIContext::*)(uint32_t, uint32_t, const SamplerStatePtr *);
+        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, const PixelBufferPtr *);
+        
+        TResult setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader);
         
     protected:
         using Renderables = TList<Renderable*>;
-        using RenderGroup = TMap<Material*, Renderables>;        
+        using RenderGroup = TMap<Material*, Renderables>;
         using RenderQueue = TMap<uint32_t, RenderGroup>;
         using CameraRenderQueue = TMap<Camera*, RenderQueue>;
         using Cameras = TList<Camera*>;
