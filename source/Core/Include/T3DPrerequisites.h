@@ -74,6 +74,7 @@ namespace Tiny3D
     // Kernel
     class Agent;
     class GameObject;
+    class SceneObject;
     class Plugin;
     class Archive;
     class ArchiveManager;

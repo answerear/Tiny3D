@@ -55,6 +55,32 @@ namespace Tiny3D
     }
 
     template <typename T>
+    inline void TMatrix4<T>::make(
+        T m00, T m01, T m02, T m03,
+        T m10, T m11, T m12, T m13,
+        T m20, T m21, T m22, T m23,
+        T m30, T m31, T m32, T m33)
+    {
+        m4x4[0][0] = m00;
+        m4x4[0][1] = m01;
+        m4x4[0][2] = m02;
+        m4x4[0][3] = m03;
+        m4x4[1][0] = m10;
+        m4x4[1][1] = m11;
+        m4x4[1][2] = m12;
+        m4x4[1][3] = m13;
+        m4x4[2][0] = m20;
+        m4x4[2][1] = m21;
+        m4x4[2][2] = m22;
+        m4x4[2][3] = m23;
+        m4x4[3][0] = m30;
+        m4x4[3][1] = m31;
+        m4x4[3][2] = m32;
+        m4x4[3][3] = m33;
+    }
+
+
+    template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator =(const TMatrix4 &other)
     {
         memcpy(mTuples, other.mTuples, sizeof(mTuples));
@@ -62,11 +88,12 @@ namespace Tiny3D
     }
 
     template <typename T>
-    inline void TMatrix4<T>::operator =(const TMatrix3<T> &rkMat)
+    inline TMatrix4<T> &TMatrix4<T>::operator =(const TMatrix3<T> &rkMat)
     {
         m4x4[0][0] = rkMat[0][0], m4x4[0][1] = rkMat[0][1], m4x4[0][2] = rkMat[0][2];
         m4x4[1][0] = rkMat[1][0], m4x4[1][1] = rkMat[1][1], m4x4[1][2] = rkMat[1][2];
         m4x4[2][0] = rkMat[2][0], m4x4[2][1] = rkMat[2][1], m4x4[2][2] = rkMat[2][2];
+        return *this;
     }
 
     template <typename T>
@@ -94,25 +121,13 @@ namespace Tiny3D
     inline TMatrix4<T>::TMatrix4(
         T m00, T m01, T m02, T m03, 
         T m10, T m11, T m12, T m13, 
-        T other0, T other1, T other2, T other3, 
+        T m20, T m21, T m22, T m23, 
         T m30, T m31, T m32, T m33)
     {
-        m4x4[0][0] = m00;
-        m4x4[0][1] = m01;
-        m4x4[0][2] = m02;
-        m4x4[0][3] = m03;
-        m4x4[1][0] = m10;
-        m4x4[1][1] = m11;
-        m4x4[1][2] = m12;
-        m4x4[1][3] = m13;
-        m4x4[2][0] = other0;
-        m4x4[2][1] = other1;
-        m4x4[2][2] = other2;
-        m4x4[2][3] = other3;
-        m4x4[3][0] = m30;
-        m4x4[3][1] = m31;
-        m4x4[3][2] = m32;
-        m4x4[3][3] = m33;
+        make(m00, m01, m02, m03,
+            m10, m11, m12, m13,
+            m20, m21, m22, m23,
+            m30, m31, m32, m33);
     }
 
     template <typename T>

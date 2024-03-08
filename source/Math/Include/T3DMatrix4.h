@@ -66,11 +66,17 @@ namespace Tiny3D
 
         /// 构造零矩阵.
         TFUNCTION()
-            void makeZero();
+        void makeZero();
 
         /// 构造单位矩阵.
         TFUNCTION()
-            void makeIdentity();
+        void makeIdentity();
+
+        TFUNCTION()
+        void make(T m00, T m01, T m02, T m03,
+            T m10, T m11, T m12, T m13,
+            T m20, T m21, T m22, T m23,
+            T m30, T m31, T m32, T m33);
 
         /// 返回成员变量的数组首地址.
         //operator const T *() const;
@@ -87,7 +93,7 @@ namespace Tiny3D
         /// 重载赋值运算符，相同类型对象赋值.
         TMatrix4& operator =(const TMatrix4& other);
         /// 重载赋值运算符，从一个3x3方针赋值.
-        void operator =(const TMatrix3<T>& rkMat);
+        TMatrix4& operator =(const TMatrix3<T>& rkMat);
 
         /// 重载相等运算符.
         bool operator ==(const TMatrix4& other) const;
@@ -133,87 +139,87 @@ namespace Tiny3D
 
         /// 矩阵转置 M = (M ^ T).
         TFUNCTION()
-            TMatrix4 transpose() const;
+        TMatrix4 transpose() const;
 
         /// 计算矩阵的逆.
         TFUNCTION()
-            TMatrix4 inverse() const;
+        TMatrix4 inverse() const;
 
         /// 计算仿射变换矩阵的逆.
         TFUNCTION()
-            TMatrix4 inverseAffine() const;
+        TMatrix4 inverseAffine() const;
 
         /// 返回是否仿射变换矩阵判断.
         TFUNCTION()
-            bool isAffine() const;
+        bool isAffine() const;
 
         ///  返回是否缩放变换判断.
         TFUNCTION()
-            bool hasScale() const;
+        bool hasScale() const;
 
         /// 计算矩阵的伴随矩阵.
         TFUNCTION()
-            TMatrix4 adjoint() const;
+        TMatrix4 adjoint() const;
 
         /// 计算矩阵行列式.
         TFUNCTION()
-            T determinant() const;
+        T determinant() const;
 
         /// 连接两个仿射变换矩阵.
         TFUNCTION()
-            TMatrix4 concatenateAffine(const TMatrix4& other) const;
+        TMatrix4 concatenateAffine(const TMatrix4& other) const;
 
         /// 分解成一个3-D向量表示的位移、一个3-D向量表示的缩放、
         /// 一个四元数表示的旋转.
         TFUNCTION()
-            void decomposition(TVector3<T>& position, TVector3<T>& scale,
+        void decomposition(TVector3<T>& position, TVector3<T>& scale,
                 TQuaternion<T>& orientation) const;
 
         /// 提取出一个表示其旋转或者缩放的3x3矩阵.
         TFUNCTION()
-            void extractMatrix(TMatrix3<T>& rkMat) const;
+        void extractMatrix(TMatrix3<T>& rkMat) const;
 
         /// 提取出一个表示其旋转或者缩放的四元数.
         TFUNCTION()
-            TQuaternion<T> extractQuaternion() const;
+        TQuaternion<T> extractQuaternion() const;
 
         /// 提取出一个3-D位移向量.
         TFUNCTION()
-            TVector3<T> extractTranslation() const;
+        TVector3<T> extractTranslation() const;
 
         /// 通过一个3-D位移向量、一个3-D缩放向量和一个旋转四元数构造矩阵.
         TFUNCTION()
-            void makeTransform(const TVector3<T>& position,
+        void makeTransform(const TVector3<T>& position,
                 const TVector3<T>& scale, const TQuaternion<T>& orientation);
 
         /// 通过一个3-D位移向量、一个3-D缩放向量和一个旋转四元数构造逆矩阵.
         TFUNCTION()
-            void makeInverseTransform(const TVector3<T>& position,
+        void makeInverseTransform(const TVector3<T>& position,
                 const TVector3<T>& scale, const TQuaternion<T>& orientation);
 
         /// 通过指定的一个3-D向量构造位移矩阵.
         TFUNCTION()
-            void makeTranslate(const TVector3<T>& position);
+        void makeTranslate(const TVector3<T>& position);
 
         /// 通过指定的3-D位移值构造位移矩阵.
         TFUNCTION()
-            void makeTranslate(T tx, T ty, T tz);
+        void makeTranslate(T tx, T ty, T tz);
 
         /// 设置矩阵缩放值.
         TFUNCTION()
-            void setScale(const TVector3<T>& scale);
+        void setScale(const TVector3<T>& scale);
 
         /// 设置矩阵位移部分.
         TFUNCTION()
-            void setTranslate(const TVector3<T>& position);
+        void setTranslate(const TVector3<T>& position);
 
         /// 变换一个3-D向量.
         TFUNCTION()
-            TVector3<T> transformAffine(const TVector3<T>& v) const;
+        TVector3<T> transformAffine(const TVector3<T>& v) const;
 
         /// 变换一个4-D向量.
         TFUNCTION()
-            TVector4<T> transformAffine(const TVector4<T>& v) const;
+        TVector4<T> transformAffine(const TVector4<T>& v) const;
 
         static const TMatrix4 ZERO;      /// 零矩阵
         static const TMatrix4 IDENTITY;  /// 单位矩阵
@@ -223,10 +229,10 @@ namespace Tiny3D
 
     private:
         TPROPERTY(RTTRFuncName = "data", RTTRFuncType = "getter")
-            TArray<T> getData() const;
+        TArray<T> getData() const;
 
         TPROPERTY(RTTRFuncName = "data", RTTRFuncType = "setter")
-            void setData(TArray<T> data);
+        void setData(TArray<T> data);
 
         union
         {

@@ -32,6 +32,7 @@
 #include "Material/T3DShaderVariantInstance.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
+#include "Component/T3DTransform3D.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
@@ -43,8 +44,8 @@
 #include "Render/T3DVertexDeclaration.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
-#include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DRenderState.h"
+#include "Component/T3DTransform3D.h" 
 
 
 namespace Tiny3D
@@ -157,6 +158,12 @@ namespace Tiny3D
             // 设置 viewport
             ctx->setViewport(camera->getViewport());
 
+            // 设置 view matrix
+            ctx->setViewTransform(camera->getViewMatrix());
+
+            // 设置 project matrix
+            ctx->setProjectionTransform(camera->getProjectMatrix());
+
             // 清除 color
             ctx->clearColor(camera->getClearColor());
             
@@ -178,16 +185,21 @@ namespace Tiny3D
 
                         TechniqueInstancePtr tech = material->getCurrentTechnique();
 
-                        // 设置 technique 对应的渲染状态
-                        RenderState *renderState = tech->getTechnique()->getRenderState();
-                        setupRenderState(ctx, renderState);
-
                         // 遍历渲染每个 Pass
                         for (auto pass : tech->getPassInstances())
                         {
-                            // 设置 pass 对应的渲染状态
-                            renderState = pass->getPass()->getRenderState();
-                            setupRenderState(ctx, renderState);
+                            RenderState *renderState = pass->getPass()->getRenderState();
+                            if (renderState != nullptr)
+                            {
+                                // 设置 pass 对应的渲染状态
+                                setupRenderState(ctx, renderState);
+                            }
+                            else
+                            {
+                                // 设置 technique 对应的渲染状态
+                                renderState = tech->getTechnique()->getRenderState();
+                                setupRenderState(ctx, renderState);
+                            }
 
                             ShaderVariantInstance *vertexShader = pass->getCurrentVertexShader();
                             ShaderVariantInstance *hullShader = pass->getCurrentHullShader();
@@ -219,7 +231,12 @@ namespace Tiny3D
                             for (auto renderable : renderables)
                             {
                                 // 设置渲染对象的世界变换
-                                
+                                Transform3DPtr xformNode = renderable->getGameObject()->getComponent<Transform3D>();
+                                if (xformNode != nullptr)
+                                {
+                                    const Transform &xform = xformNode->getLocalToWorldTransform();
+                                    ctx->setWorldTransform(xform.getAffineMatrix());
+                                }
                                 
                                 // 设置 vertex declaration
                                 ctx->setVertexDeclaration(renderable->getVertexDeclaration());

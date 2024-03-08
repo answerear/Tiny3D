@@ -76,6 +76,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(BuiltinSceneManager);
     
     T3D_DECLARE_SMART_PTR(GameObject);
+    T3D_DECLARE_SMART_PTR(SceneObject);
     
     T3D_DECLARE_SMART_PTR(Component);
     T3D_DECLARE_SMART_PTR(Camera);
