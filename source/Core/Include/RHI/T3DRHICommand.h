@@ -46,8 +46,8 @@ namespace Tiny3D
         using TAction = ACTION;
 
     public:
-        RHICommandT(Args... args, TAction action)
-            : mArgs(std::make_tuple(args...))
+        RHICommandT(Args&&... args, TAction action)
+            : mArgs(std::forward<typename std::remove_reference<Args>::type>(args)...)
             , mAction(action)
         {
         }
@@ -58,7 +58,7 @@ namespace Tiny3D
         }
         
     private:
-        TTuple<Args...> mArgs;
+        TTuple<typename std::remove_reference<Args>::type...> mArgs;
         TAction         mAction;
     };
 }
