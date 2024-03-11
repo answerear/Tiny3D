@@ -47,7 +47,16 @@ namespace Tiny3D
 
     Object *Object::acquire()
     {
-        ++mReferCount;
+        if (mIsThreadSafe)
+        {
+            ScopeLock lock(mSyncObject);
+            ++mReferCount;
+        }
+        else
+        {
+            ++mReferCount;
+        }
+        
         return this;
     }
 
@@ -55,12 +64,47 @@ namespace Tiny3D
 
     void Object::release()
     {
-        if (--mReferCount == 0)
+        if (mIsThreadSafe)
+        {
+            ScopeLock lock(mSyncObject);
+            --mReferCount;
+        }
+        else
+        {
+            --mReferCount;
+        }
+
+        if (mReferCount == 0)
         {
             delete this;
         }
     }
 
+    //--------------------------------------------------------------------------
+
+    void Object::enableThreadSafe(bool enable)
+    {
+        if (enable)
+        {
+            if (mSyncObject == nullptr)
+            {
+                mSyncObject = new CriticalSection();
+            }
+            ScopeLock lock(mSyncObject);
+            mIsThreadSafe = true;
+            ++mThreadSafeRefCount;
+        }
+        else
+        {
+            ScopeLock lock(mSyncObject);
+            if (--mThreadSafeRefCount == 0)
+            {
+                // 如果开启过一次线程安全，再开启的概率比较大，所以这里不释放锁
+                mIsThreadSafe = false;
+            }
+        }
+    }
+    
     //--------------------------------------------------------------------------
 
     bool Object::onPreSave()

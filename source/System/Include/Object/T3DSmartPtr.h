@@ -261,7 +261,7 @@ namespace Tiny3D
             return (T*)mReferObject;
         }
     protected:
-        /**< The refer object */
+        /// The refer object
         Object  *mReferObject {nullptr};
     };
 
@@ -274,9 +274,67 @@ namespace Tiny3D
     template <typename T>
     const SmartPtr<T> SmartPtr<T>::NULL_PTR(nullptr);
 
-    #define T3D_DECLARE_SMART_PTR(classname)    \
-        using classname##Ptr = SmartPtr<classname>;
+    template <typename T>
+    class ThreadSafePtr : public SmartPtr<T>
+    {
+    public:
+        ThreadSafePtr(Object *obj = nullptr) : SmartPtr<T>(obj)
+        {
+            if (mReferObject != nullptr)
+            {
+                mReferObject->enableThreadSafe(true);
+            }
+        }
 
+        ThreadSafePtr(const ThreadSafePtr &other) : SmartPtr<T>(other)
+        {
+            if (mReferObject != nullptr)
+            {
+                mReferObject->enableThreadSafe(true);
+            }
+        }
+
+        ThreadSafePtr(const SmartPtr<T> &other) : SmartPtr<T>(other)
+        {
+            if (mReferObject != nullptr)
+            {
+                mReferObject->enableThreadSafe(true);
+            }
+        }
+
+        ThreadSafePtr &operator=(const ThreadSafePtr &other)
+        {
+            SmartPtr<T>::operator=(other);
+            if (mReferObject != nullptr)
+            {
+                mReferObject->enableThreadSafe(true);
+            }
+            return *this;
+        }
+
+        // 从 SmartPtr 赋值
+        ThreadSafePtr &operator=(const SmartPtr<T> &other)
+        {
+            SmartPtr<T>::operator=(other);
+            if (mReferObject != nullptr)
+            {
+                mReferObject->enableThreadSafe(true);
+            }
+            return *this;
+        }
+
+        ~ThreadSafePtr() override
+        {
+            if (mReferObject != nullptr)
+            {
+                mReferObject->enableThreadSafe(false);
+            }
+        }
+    };
+    
+    #define T3D_DECLARE_SMART_PTR(classname)    \
+        using classname##Ptr = SmartPtr<classname>; \
+        using classname##SafePtr = ThreadSafePtr<classname>;
 }
 
 namespace rttr

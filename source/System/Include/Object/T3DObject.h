@@ -44,6 +44,10 @@ namespace Tiny3D
 
         template<typename T>
         friend class SmartPtr;
+
+        template<typename T>
+        friend class ThreadSafePtr;
+        
     public:
         /**
          * @fn  Object::Object();
@@ -81,6 +85,8 @@ namespace Tiny3D
          */
         void release();
 
+        void enableThreadSafe(bool enable);
+
         virtual bool onPreSave();
 
         virtual bool onPostSave();
@@ -88,7 +94,14 @@ namespace Tiny3D
         virtual bool onPostLoad();
 
     private:
-        uint32_t    mReferCount;
+        /// 引用计数
+        uint32_t    mReferCount {0};
+        /// 线程安全对象引用计数
+        uint32_t    mThreadSafeRefCount {0};
+        /// 用于多线程的同步锁
+        ISyncObject *mSyncObject {nullptr};
+        /// 是否开启线程安全
+        bool    mIsThreadSafe {false};
     };
 }
 
