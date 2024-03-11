@@ -25,7 +25,7 @@ endif (MSVC)
 
 # Setup all cmake variables for this project.
 set(TINY3D_PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Platform")
-
+set(TINY3D_LOG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Log")
 
 message(STATUS "System Generated Dir : ${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -33,6 +33,7 @@ message(STATUS "System Generated Dir : ${CMAKE_CURRENT_BINARY_DIR}")
 include_directories(
 	"${RTTR_INCLUDE_DIR}"
 	"${TINY3D_PLATFORM_DIR}/Include"
+	"${TINY3D_LOG_DIR}/Include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Include"
 	#"${CMAKE_CURRENT_SOURCE_DIR}/Source"
 	)
@@ -71,6 +72,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DLog
 			LINK_PRIVATE rttr_core
 			LINK_PRIVATE legacy_stdio_definitions
 			)
@@ -79,6 +81,7 @@ if (TINY3D_OS_WINDOWS)
 		target_link_libraries(
 			${LIB_NAME}
 			LINK_PRIVATE T3DPlatform
+			LINK_PRIVATE T3DLog
 			LINK_PRIVATE rttr_core
 			)
 	endif ()
@@ -121,6 +124,7 @@ elseif (TINY3D_OS_MACOSX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
 		LINK_PRIVATE rttr_core
 		)
 elseif (TINY3D_OS_LINUX)
@@ -128,6 +132,7 @@ elseif (TINY3D_OS_LINUX)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
 		LINK_PRIVATE rttr_core
 		)
 
@@ -148,6 +153,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
 		LINK_PRIVATE rttr_core
         )
 elseif (TINY3D_OS_ANDROID)
@@ -155,6 +161,7 @@ elseif (TINY3D_OS_ANDROID)
 	target_link_libraries(
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DLog
 		LINK_PRIVATE rttr_core
         )
 endif (TINY3D_OS_WINDOWS)
