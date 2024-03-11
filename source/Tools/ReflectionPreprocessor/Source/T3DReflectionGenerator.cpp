@@ -2843,7 +2843,7 @@ namespace Tiny3D
             }
             
             // 文件头注释
-            fs << "// Copyright (C) 2015-2020  Answer Wong" << std::endl;
+            fs << "// Copyright (C) 2024  Answer Wong" << std::endl;
             fs << "// Generated code exported from ReflectionPreprocessor." << std::endl;
             fs << "// DO NOT modify this manually! Edit the corresponding .h files instead!" << std::endl;
                 
