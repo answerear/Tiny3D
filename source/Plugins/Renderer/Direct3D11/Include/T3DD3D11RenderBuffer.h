@@ -61,9 +61,9 @@ namespace Tiny3D
     public:
         static D3D11PixelBuffer2DPtr create();
 
-        D3D11PixelBuffer2D() = default;
+        D3D11PixelBuffer2D();
 
-        virtual ~D3D11PixelBuffer2D();
+        ~D3D11PixelBuffer2D() override;
         
         ID3D11Texture2D             *D3DTexture {nullptr};
         ID3D11RenderTargetView      *D3DRTView {nullptr};

@@ -50,7 +50,7 @@ namespace Tiny3D
 
         virtual TEXTURE_TYPE getTextureType() const = 0;
 
-        virtual const PixelBufferPtr &getPixelBuffer() const = 0;
+        virtual PixelBuffer *getPixelBuffer() const = 0;
 
         const SamplerStatePtr &getSamplerState() const { return mSamplerState; }
 
@@ -99,7 +99,7 @@ namespace Tiny3D
 
         // PixelBuffer1DPtr getPixelBuffer() const { return mPixelBuffer; }
 
-        const PixelBufferPtr &getPixelBuffer() const override;
+        PixelBuffer *getPixelBuffer() const override;
 
     private:
         Texture1D() : Texture("") {}
@@ -167,7 +167,7 @@ namespace Tiny3D
 
         // PixelBuffer2DPtr getPixelBuffer() const { return mPixelBuffer; }
 
-        const PixelBufferPtr &getPixelBuffer() const override;
+        PixelBuffer *getPixelBuffer() const override;
         
     protected:
         Texture2D() : Texture("") {}
@@ -270,7 +270,7 @@ namespace Tiny3D
 
         // PixelBuffer3DPtr getPixelBuffer() const { return mPixelBuffer; }
 
-        const PixelBufferPtr &getPixelBuffer() const override;
+        PixelBuffer *getPixelBuffer() const override;
         
     private:
         Texture3D() : Texture("") {}

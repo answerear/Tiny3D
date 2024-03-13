@@ -74,13 +74,9 @@ namespace Tiny3D
         mRHIRunnable = nullptr;
 
         // mRenderPipeline->detachAllRenderTargets();
-        mRenderWindows.clear();
         
         mInternalArchive = nullptr;
         mProjectArchive = nullptr;
-
-        mRenderStateMgr = nullptr;
-        mRenderBufferMgr = nullptr;
         
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
@@ -122,8 +118,11 @@ namespace Tiny3D
 
         mRenderPipeline = nullptr;
         mAssignableObjMgr = nullptr;
+        mRenderStateMgr = nullptr;
+        mRenderBufferMgr = nullptr;
+        mRenderWindows.clear();
 
-        // 卸载所有拆件
+        // 卸载所有插件
         unloadPlugins();
 
         if (mDylibMgr != nullptr)
@@ -615,6 +614,9 @@ namespace Tiny3D
         {
             win.second->swapBuffers();
         }
+
+        mRenderStateMgr->GC();
+        mRenderBufferMgr->GC();
     }
 
     //--------------------------------------------------------------------------

@@ -222,11 +222,26 @@ namespace Tiny3D
                             setupShaderTexSamplers(ctx, &RHIContext::setPSSampler, &RHIContext::setPSPixelBuffer, material, pixelShader);
                             
                             // 设置各 pipeline stage 的 shader
-                            ctx->setVertexShader(vertexShader);
-                            ctx->setHullShader(hullShader);
-                            ctx->setDomainShader(domainShader);
-                            ctx->setGeometryShader(geometryShader);
-                            ctx->setPixelShader(pixelShader);
+                            if (vertexShader != nullptr)
+                            {
+                                ctx->setVertexShader(vertexShader->getShaderVariant());
+                            }
+                            if (hullShader != nullptr)
+                            {
+                                ctx->setHullShader(hullShader->getShaderVariant());
+                            }
+                            if (domainShader != nullptr)
+                            {
+                                ctx->setDomainShader(domainShader->getShaderVariant());
+                            }
+                            if (geometryShader != nullptr)
+                            {
+                                ctx->setGeometryShader(geometryShader->getShaderVariant());
+                            }
+                            if (pixelShader != nullptr)
+                            {
+                                ctx->setPixelShader(pixelShader->getShaderVariant());
+                            }
 
                             for (auto renderable : renderables)
                             {
@@ -346,7 +361,7 @@ namespace Tiny3D
                 
             buffer.release();
 
-            const ConstantBufferPtr &cbuffer = itCB->second;
+            ConstantBuffer *cbuffer = itCB->second;
             (ctx->*setCBuffer)(0, 1, &cbuffer);
         }
 
@@ -367,10 +382,11 @@ namespace Tiny3D
             auto itParam = material->getSamplerParams().find(binding.second.texBinding.name);
 
             TexturePtr texture = itParam->second->getTexture();
-            const SamplerStatePtr &sampler = texture->getSamplerState();
+            SamplerState *sampler = texture->getSamplerState();
+            PixelBuffer *pb = texture->getPixelBuffer();
 
             (ctx->*setSamplerState)(binding.second.samplerBinding.binding, 1, &sampler);
-            (ctx->*setPixelBuffer)(binding.second.texBinding.binding, 1, &texture->getPixelBuffer());
+            (ctx->*setPixelBuffer)(binding.second.texBinding.binding, 1, &pb);
             
             // for (const auto &param : material->getSamplerParams())
             // {

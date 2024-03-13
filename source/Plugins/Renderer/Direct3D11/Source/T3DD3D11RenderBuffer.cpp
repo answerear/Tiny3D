@@ -38,6 +38,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    D3D11PixelBuffer2D::D3D11PixelBuffer2D()
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
     D3D11PixelBuffer2D::~D3D11PixelBuffer2D()
     {
         D3D_SAFE_RELEASE(D3DTexture);

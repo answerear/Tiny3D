@@ -23,6 +23,8 @@
  ******************************************************************************/
 
 #include "Object/T3DObject.h"
+
+#include "../../../Log/Include/T3DLog.h"
 #include "Object/T3DObjectTracer.h"
 
 
@@ -40,6 +42,9 @@ namespace Tiny3D
 
     Object::~Object()
     {
+#if T3D_TRACE_OBJECT
+        T3D_LOG_INFO("System", "%s - Class : %s, Pointer : 0x%016p", __FUNCTION__, mClsName.c_str(), this);
+#endif
         ObjectTracer::getInstance().removeObject(this);
     }
 
@@ -105,6 +110,20 @@ namespace Tiny3D
         }
     }
     
+    //--------------------------------------------------------------------------
+
+    void Object::printDebugInfo()
+    {
+#if T3D_TRACE_OBJECT
+        if (!mHasOutputDebug)
+        {
+            mClsName = typeid(*this).name();
+            T3D_LOG_INFO("System", "Class : %s, Pointer : %p", mClsName.c_str(), this);
+            mHasOutputDebug = true;
+        }
+#endif
+    }
+
     //--------------------------------------------------------------------------
 
     bool Object::onPreSave()

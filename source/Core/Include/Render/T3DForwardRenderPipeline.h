@@ -50,12 +50,12 @@ namespace Tiny3D
     protected:
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
 
-        using SetCBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, const ConstantBufferPtr *);
+        using SetCBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, ConstantBuffer * const *);
         
         TResult setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader);
 
-        using SetSamplerState = TResult (RHIContext::*)(uint32_t, uint32_t, const SamplerStatePtr *);
-        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, const PixelBufferPtr *);
+        using SetSamplerState = TResult (RHIContext::*)(uint32_t, uint32_t, SamplerState * const *);
+        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, PixelBuffer * const *);
         
         TResult setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader);
         

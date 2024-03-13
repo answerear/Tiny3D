@@ -56,6 +56,9 @@ namespace Tiny3D
 
     D3D11Context::~D3D11Context()
     {
+        mCurrentRenderWindow = nullptr;
+        mCurrentRenderTexture = nullptr;
+        
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
         D3D_SAFE_RELEASE(mBlitVS)
@@ -63,21 +66,13 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(mBlitSamplerState)
         D3D_SAFE_RELEASE(mBlitDSState)
         D3D_SAFE_RELEASE(mD3DDeviceContext)
-
-#if defined (T3D_DEBUG)
-        ID3D11Debug* DebugDevice = nullptr;
-        HRESULT hr = mD3DDevice->QueryInterface(__uuidof(ID3D11Debug), (void **)(&DebugDevice));
-
-        D3D_SAFE_RELEASE(mD3DDevice);
-        
-        hr = DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-
-        D3D_SAFE_RELEASE(DebugDevice);
-#else
         D3D_SAFE_RELEASE(mD3DDevice)
-#endif
 
+        traceDebugInfo();
         
+#if defined (T3D_DEBUG)
+        D3D_SAFE_RELEASE(mDebugDevice);
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -121,12 +116,53 @@ namespace Tiny3D
 
             mFeatureLevel = level;
 
+            D3D_REF_COUNT("D3D11 #1", mD3DDevice);
+            D3D_REF_COUNT("D3D11 #2", mD3DDeviceContext);
+
+#if defined (T3D_DEBUG)
+            hr = mD3DDevice->QueryInterface(__uuidof(ID3D11Debug), (void **)(&mDebugDevice));
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
+                    "Create ID3D11Debug object failed ! DX ERROR : %d", hr);
+                break;
+            }
+#endif
+
+            D3D_REF_COUNT("D3D11 #1", mD3DDevice);
+            
+            // traceDebugInfo("D3D11 D3DObjects trace - After ", __FUNCTION__);
             setupBlitQuad();
         } while (false);
 
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::traceDebugInfo(const String &tag, const String &func)
+    {
+#if defined (T3D_DEBUG)
+        if (!tag.empty() || !func.empty())
+        {
+            String prefix;
+            if (!tag.empty())
+            {
+                prefix = tag;
+            }
+            if (!func.empty())
+            {
+                prefix += func;
+            }
+            
+            T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, prefix.c_str())
+        }
+        
+        mDebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
+#endif
+    }
+
     //--------------------------------------------------------------------------
 
     void D3D11Context::setupBlitQuad()
@@ -253,7 +289,7 @@ namespace Tiny3D
 
     TResult D3D11Context::swapBackBuffer(D3D11RenderWindow *renderWindow)
     {
-        auto lambda = [this](D3D11RenderWindow *renderWindow)
+        auto lambda = [this](const D3D11RenderWindowSafePtr &renderWindow)
         {
             TResult ret = T3D_OK;
             do
@@ -270,21 +306,23 @@ namespace Tiny3D
             
             return ret;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, renderWindow);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(renderWindow));
     }
 
     //--------------------------------------------------------------------------
     
-    RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindowPtr renderWindow)
+    RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindow *renderWindow)
     {
         D3D11RenderWindowPtr d3dRenderWindow = D3D11RenderWindow::create(renderWindow);
 
-        auto lambda = [this](RenderWindow *pRenderWindow, D3D11RenderWindow *pD3DRenderWindow)
+        auto lambda = [this](const RenderWindowSafePtr &pRenderWindow, const D3D11RenderWindowSafePtr &pD3DRenderWindow)
         {
             TResult ret = T3D_OK;
             IDXGIDevice *pDXGIDevice = nullptr;
             IDXGIAdapter *pDXGIAdapter = nullptr;
             IDXGIFactory *pDXGIFactory = nullptr;
+
+            // traceDebugInfo("D3D11 D3DObjects trace - #1 ", __FUNCTION__);
             
             do
             {
@@ -311,6 +349,8 @@ namespace Tiny3D
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
                         break;
                     }
+
+                    // traceDebugInfo("D3D11 D3DObjects trace - #2 ", __FUNCTION__);
                     
                     uMSAAQuality = uNumQuality - 1;
                     // uMSAACount = uNumQuality;
@@ -345,7 +385,9 @@ namespace Tiny3D
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Query interface for IDXGIDevice failed ! DX ERROR [%d]", hr);
                     break;
                 }
-            
+
+                // traceDebugInfo("D3D11 D3DObjects trace - #3 ", __FUNCTION__);
+                
                 hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&pDXGIAdapter);
                 if (FAILED(hr))
                 {
@@ -353,7 +395,9 @@ namespace Tiny3D
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for IDXGIAdapter failed ! DX ERROR [%d]", hr);
                     break;
                 }
-            
+
+                // traceDebugInfo("D3D11 D3DObjects trace - #4 ", __FUNCTION__);
+                
                 hr = pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), (void **)&pDXGIFactory);
                 if (FAILED(hr))
                 {
@@ -361,7 +405,9 @@ namespace Tiny3D
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for IDXGIFactory failed ! DX ERROR [%d]", hr);
                     break;
                 }
-            
+
+                // traceDebugInfo("D3D11 D3DObjects trace - #5 ", __FUNCTION__);
+                
                 hr = pDXGIFactory->CreateSwapChain(mD3DDevice, &d3dSwapChainDesc, &pD3DRenderWindow->D3DSwapChain);
                 if (FAILED(hr))
                 {
@@ -370,6 +416,8 @@ namespace Tiny3D
                     break;
                 }
 
+                // traceDebugInfo("D3D11 D3DObjects trace - #6 ", __FUNCTION__);
+                
                 // 创建 RenderTargetView
                 hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DRenderWindow->D3DBackBuffer));
                 if (FAILED(hr))
@@ -378,6 +426,8 @@ namespace Tiny3D
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
                     break;
                 }
+
+                // traceDebugInfo("D3D11 D3DObjects trace - #7 ", __FUNCTION__);
                 
                 hr = mD3DDevice->CreateRenderTargetView(pD3DRenderWindow->D3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
                 if (FAILED(hr))
@@ -387,6 +437,8 @@ namespace Tiny3D
                     break;
                 }
 
+                // traceDebugInfo("D3D11 D3DObjects trace - #8 ", __FUNCTION__);
+                
                 // 创建 DepthStencilView
                 D3D11_TEXTURE2D_DESC d3dTexDesc;
                 d3dTexDesc.Width = desc.Width;
@@ -410,6 +462,8 @@ namespace Tiny3D
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
                     break;
                 }
+
+                // traceDebugInfo("D3D11 D3DObjects trace - #9 ", __FUNCTION__);
                 
                 hr = mD3DDevice->CreateDepthStencilView(pD3DRenderWindow->D3DDSBuffer, nullptr, &pD3DRenderWindow->D3DDSView);
                 if (FAILED(hr))
@@ -423,11 +477,13 @@ namespace Tiny3D
             D3D_SAFE_RELEASE(pDXGIFactory);
             D3D_SAFE_RELEASE(pDXGIAdapter);
             D3D_SAFE_RELEASE(pDXGIDevice);
+
+            // traceDebugInfo("D3D11 D3DObjects trace - #10 ", __FUNCTION__);
             
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, renderWindow.get(), d3dRenderWindow.get());
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderWindowSafePtr(renderWindow), D3D11RenderWindowSafePtr(d3dRenderWindow));
         
         if (T3D_FAILED(ret))
         {
@@ -439,11 +495,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer2DPtr D3D11Context::createRenderTexture(PixelBuffer2DPtr buffer)
+    RHIPixelBuffer2DPtr D3D11Context::createRenderTexture(PixelBuffer2D *buffer)
     {
         D3D11PixelBuffer2DPtr d3dPixelBuffer = D3D11PixelBuffer2D::create();
 
-        auto lambda = [this](PixelBuffer2D *buffer, D3D11PixelBuffer2D *d3dPixelBuffer)
+        auto lambda = [this](const PixelBuffer2DSafePtr &buffer, const D3D11PixelBuffer2DSafePtr &d3dPixelBuffer)
         {
             TResult ret = T3D_OK;
 
@@ -556,7 +612,7 @@ namespace Tiny3D
             return ret;
         };
         
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, buffer.get(), d3dPixelBuffer.get());
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DSafePtr(buffer), D3D11PixelBuffer2DSafePtr(d3dPixelBuffer));
         if (T3D_FAILED(ret))
         {
             d3dPixelBuffer = nullptr;
@@ -567,16 +623,16 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setRenderTarget(RenderWindowPtr renderWindow)
+    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
-        auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow)
+        auto lambda = [this](const D3D11RenderWindowSafePtr &pD3DRenderWindow)
         {
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
             return T3D_OK;
         };
         
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow);
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow));
         
         if (T3D_SUCCEEDED(ret))
         {
@@ -588,17 +644,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setRenderTarget(RenderTexturePtr renderTexture)
+    TResult D3D11Context::setRenderTarget(RenderTexture *renderTexture)
     {
         D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(renderTexture->getPixelBuffer()->getRHIResource().get());
         
-        auto lambda = [this](D3D11PixelBuffer2D *pD3DPixelBuffer)
+        auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer)
         {
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DPixelBuffer->D3DDSView);
             return T3D_OK;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, pD3DPixelBuffer);
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer));
         
         if (T3D_SUCCEEDED(ret))
         {
@@ -610,7 +666,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setRenderTarget(RenderTargetPtr renderTarget)
+    TResult D3D11Context::setRenderTarget(RenderTarget *renderTarget)
     {
         TResult ret = T3D_OK;
 
@@ -668,7 +724,7 @@ namespace Tiny3D
             return T3D_OK;
         }
         
-        auto lambda = [this](Viewport vp, Real width, Real height)
+        auto lambda = [this](const Viewport &vp, Real width, Real height)
         {
             D3D11_VIEWPORT d3dViewport = {};
             d3dViewport.TopLeftX = vp.Left * width;
@@ -707,10 +763,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearColor(RenderWindowPtr window, const ColorRGB &color)
+    TResult D3D11Context::clearColor(RenderWindow *window, const ColorRGB &color)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
-        auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow, ColorRGB color)
+        auto lambda = [this](const D3D11RenderWindowSafePtr &pD3DRenderWindow, const ColorRGB &color)
         {
             float clr[4];
             clr[0] = color.red();
@@ -720,15 +776,15 @@ namespace Tiny3D
             mD3DDeviceContext->ClearRenderTargetView(pD3DRenderWindow->D3DRTView, clr);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow, color);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow), color);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearColor(RenderTexturePtr texture, const ColorRGB &color)
+    TResult D3D11Context::clearColor(RenderTexture *texture, const ColorRGB &color)
     {
         D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
-        auto lambda = [this](D3D11PixelBuffer2D *pD3DPixelBuffer, ColorRGB color)
+        auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer, const ColorRGB &color)
         {
             float clr[4];
             clr[0] = color.red();
@@ -738,7 +794,7 @@ namespace Tiny3D
             mD3DDeviceContext->ClearRenderTargetView(pD3DPixelBuffer->D3DRTView, clr);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DPixelBuffer, color);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), color);
     }
 
     //--------------------------------------------------------------------------
@@ -764,368 +820,361 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearDepthStencil(RenderWindowPtr window, Real depth, uint8_t stencil)
+    TResult D3D11Context::clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
-        auto lambda = [this](D3D11RenderWindow *pD3DRenderWindow, Real depth, uint8_t stencil)
+        auto lambda = [this](const D3D11RenderWindowSafePtr &pD3DRenderWindow, const Real &depth, uint8_t stencil)
         {
             mD3DDeviceContext->ClearDepthStencilView(pD3DRenderWindow->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DRenderWindow, depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow), depth, stencil);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearDepthStencil(RenderTexturePtr texture, Real depth, uint8_t stencil)
+    TResult D3D11Context::clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil)
     {
         D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
-        auto lambda = [this](D3D11PixelBuffer2D *pD3DPixelBuffer, Real depth, uint8_t stencil)
+        auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer, const Real &depth, uint8_t stencil)
         {
             mD3DDeviceContext->ClearDepthStencilView(pD3DPixelBuffer->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, pD3DPixelBuffer, depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), depth, stencil);
     }
 
     //--------------------------------------------------------------------------
     
-    RHIBlendStatePtr D3D11Context::createBlendState(BlendStatePtr state)
+    RHIBlendStatePtr D3D11Context::createBlendState(BlendState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(DepthStencilStatePtr state)
+    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(DepthStencilState*state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIRasterizerStatePtr D3D11Context::createRasterizerState(RasterizerStatePtr state)
+    RHIRasterizerStatePtr D3D11Context::createRasterizerState(RasterizerState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHISamplerStatePtr D3D11Context::createSamplerState(SamplerStatePtr state)
+    RHISamplerStatePtr D3D11Context::createSamplerState(SamplerState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setBlendState(BlendStatePtr state)
+    TResult D3D11Context::setBlendState(BlendState *state)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setDepthStencilState(DepthStencilStatePtr state)
+    TResult D3D11Context::setDepthStencilState(DepthStencilState *state)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setRasterizerState(RasterizerStatePtr state)
+    TResult D3D11Context::setRasterizerState(RasterizerState *state)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
-    
-    TResult D3D11Context::setSamplerState(SamplerStatePtr state)
-    {
-        return T3D_OK;
-    }
-    
-    //--------------------------------------------------------------------------
 
-    RHIVertexDeclarationPtr D3D11Context::createVertexDeclaration(VertexDeclarationPtr decl)
+    RHIVertexDeclarationPtr D3D11Context::createVertexDeclaration(VertexDeclaration *decl)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVertexDeclaration(VertexDeclarationPtr decl)
+    TResult D3D11Context::setVertexDeclaration(VertexDeclaration *decl)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIVertexBufferPtr D3D11Context::createVertexBuffer(VertexBufferPtr buffer)
+    RHIVertexBufferPtr D3D11Context::createVertexBuffer(VertexBuffer *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVertexBuffer(VertexBufferPtr buffer)
+    TResult D3D11Context::setVertexBuffer(VertexBuffer *buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIIndexBufferPtr D3D11Context::createIndexBuffer(IndexBufferPtr buffer)
+    RHIIndexBufferPtr D3D11Context::createIndexBuffer(IndexBuffer *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setIndexBuffer(IndexBufferPtr buffer)
+    TResult D3D11Context::setIndexBuffer(IndexBuffer *buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIConstantBufferPtr D3D11Context::createConstantBuffer(ConstantBufferPtr buffer)
+    RHIConstantBufferPtr D3D11Context::createConstantBuffer(ConstantBuffer *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer1D(PixelBuffer1DPtr buffer)
+    RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer1D(PixelBuffer1D *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer2D(PixelBuffer2DPtr buffer)
+    RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer3DPtr D3D11Context::createPixelBuffer3D(PixelBuffer3DPtr buffer)
+    RHIPixelBuffer3DPtr D3D11Context::createPixelBuffer3D(PixelBuffer3D *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr D3D11Context::createVertexShader(ShaderVariantPtr shader)
+    RHIShaderPtr D3D11Context::createVertexShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVertexShader(ShaderVariantPtr shader)
+    TResult D3D11Context::setVertexShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult D3D11Context::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult D3D11Context::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult D3D11Context::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr D3D11Context::createPixelShader(ShaderVariantPtr shader)
+    RHIShaderPtr D3D11Context::createPixelShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPixelShader(ShaderVariantPtr shader)
+    TResult D3D11Context::setPixelShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult D3D11Context::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult D3D11Context::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult D3D11Context::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
-    RHIShaderPtr D3D11Context::createHullShader(ShaderVariantPtr shader)
+    RHIShaderPtr D3D11Context::createHullShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setHullShader(ShaderVariantPtr shader)
+    TResult D3D11Context::setHullShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult D3D11Context::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult D3D11Context::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult D3D11Context::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr D3D11Context::createDomainShader(ShaderVariantPtr shader)
+    RHIShaderPtr D3D11Context::createDomainShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setDomainShader(ShaderVariantPtr shader)
+    TResult D3D11Context::setDomainShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult D3D11Context::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
-    //--------------------------------------------------------------------------d
+    //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult D3D11Context::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult D3D11Context::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr D3D11Context::createGeometryShader(ShaderVariantPtr shader)
+    RHIShaderPtr D3D11Context::createGeometryShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setGeometryShader(ShaderVariantPtr shader)
+    TResult D3D11Context::setGeometryShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult D3D11Context::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult D3D11Context::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult D3D11Context::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr D3D11Context::createComputeShader(ShaderVariantPtr shader)
+    RHIShaderPtr D3D11Context::createComputeShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setComputeShader(ShaderVariantPtr shader)
+    TResult D3D11Context::setComputeShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult D3D11Context::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult D3D11Context::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult D3D11Context::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::compileShader(ShaderVariantPtr shader)
+    TResult D3D11Context::compileShader(ShaderVariant *shader)
     {
         TResult ret = T3D_OK;
         
@@ -1381,7 +1430,7 @@ namespace Tiny3D
         case RenderTarget::Type::E_RT_WINDOW:
             {
                 D3D11RenderWindow *pDst = static_cast<D3D11RenderWindow*>(dst->getRenderWindow()->getRHIRenderWindow().get());
-                auto lambda = [this](Texture *pSrc, D3D11RenderWindow *pDst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+                auto lambda = [this](Texture *pSrc, D3D11RenderWindow *pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
                 {
                     TResult ret = T3D_OK;
 

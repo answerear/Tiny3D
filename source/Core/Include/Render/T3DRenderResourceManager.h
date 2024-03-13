@@ -44,38 +44,15 @@ namespace Tiny3D
     protected:
         RenderResourceManager() = default;
 
-        bool PostLoad(RenderResourcePtr res);
+        bool postLoad(RenderResourcePtr res);
 
-        bool PreUnload(RenderResourcePtr res);
+        bool preUnload(RenderResourcePtr res);
 
-        template<typename MAP_TYPE>
-        TResult _GC(MAP_TYPE &container)
-        {
-            auto itr = container.begin();
-            
-            while (itr != container.end())
-            {
-                RenderResourcePtr res = itr->second;
-                if (res->referCount() == 1)
-                {
-                    // 没有外部引用，删掉
-                    if (PreUnload(res))
-                    {
-                        itr = container.erase(itr);
-                    }
-                    else
-                    {
-                        ++itr;
-                    }
-                }
-                else
-                {
-                    ++itr;
-                }
-            }
-            
-            return T3D_OK;
-        }
+        template<typename CONTAINER_T>
+        TResult _GC(CONTAINER_T &container);
+
+        template<typename CONTAINER_T>
+        void clear(CONTAINER_T &container);
     };
 
     
@@ -99,7 +76,7 @@ namespace Tiny3D
     protected:
         RenderStateManager() = default;
 
-        ~RenderStateManager() override = default;
+        ~RenderStateManager() override;
         
         using StateCache = TMap<uint32_t, RenderResourcePtr>;
 
@@ -145,7 +122,7 @@ namespace Tiny3D
     protected:
         RenderBufferManager() = default;
 
-        ~RenderBufferManager() override = default;
+        ~RenderBufferManager() override;
 
         using BufferCache = TMap<UUID, RenderBufferPtr>;
         

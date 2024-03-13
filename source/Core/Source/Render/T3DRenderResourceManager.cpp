@@ -41,7 +41,7 @@ namespace  Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    bool RenderResourceManager::PostLoad(RenderResourcePtr res)
+    bool RenderResourceManager::postLoad(RenderResourcePtr res)
     {
         bool ret = false;
         if (res != nullptr)
@@ -53,7 +53,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool RenderResourceManager::PreUnload(RenderResourcePtr res)
+    bool RenderResourceManager::preUnload(RenderResourcePtr res)
     {
         bool ret = false;
         if (res != nullptr)
@@ -62,7 +62,52 @@ namespace  Tiny3D
         }
         return ret;
     }
+    
+    //--------------------------------------------------------------------------
 
+    template<typename CONTAINER_T>
+    TResult RenderResourceManager::_GC(CONTAINER_T &container)
+    {
+        auto itr = container.begin();
+            
+        while (itr != container.end())
+        {
+            RenderResourcePtr res = itr->second;
+            if (res->referCount() == 1)
+            {
+                // 没有外部引用，删掉
+                if (preUnload(res))
+                {
+                    itr = container.erase(itr);
+                }
+                else
+                {
+                    ++itr;
+                }
+            }
+            else
+            {
+                ++itr;
+            }
+        }
+        
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    template <typename CONTAINER_T>
+    void RenderResourceManager::clear(CONTAINER_T &container)
+    {
+        for (auto itr = container.begin(); itr != container.end(); ++itr)
+        {
+            RenderResourcePtr res = itr->second;
+            preUnload(res);
+        }
+
+        container.clear();
+    }
+    
     //--------------------------------------------------------------------------
 
     RenderStateManagerPtr RenderStateManager::create()
@@ -70,6 +115,16 @@ namespace  Tiny3D
         return new RenderStateManager();
     }
     
+    //--------------------------------------------------------------------------
+
+    RenderStateManager::~RenderStateManager()
+    {
+        clear(mBlendStates);
+        clear(mDepthStencilStates);
+        clear(mRasterizerStates);
+        clear(mSamplerStates);
+    }
+
     //--------------------------------------------------------------------------
 
     template<typename STATE_TYPE, typename DESC_TYPE>
@@ -92,7 +147,7 @@ namespace  Tiny3D
             
             if (rval.second)
             {
-                if (!PostLoad(state))
+                if (!postLoad(state))
                 {
                     states.erase(code);
                     state = nullptr;
@@ -185,6 +240,17 @@ namespace  Tiny3D
     
     //--------------------------------------------------------------------------
 
+    RenderBufferManager::~RenderBufferManager()
+    {
+        clear(mVBufferCache);
+        clear(mIBufferCache);
+        clear(mPBufferCache);
+        clear(mCBufferCache);
+        clear(mVertexDeclarations);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult RenderBufferManager::GC()
     {
         TResult ret = T3D_OK;
@@ -240,7 +306,7 @@ namespace  Tiny3D
             // 不存在，那就放到缓存中
             mVertexDeclarations.emplace(decl->hash(), decl);
 
-            if (!PostLoad(decl))
+            if (!postLoad(decl))
             {
                 mVertexDeclarations.erase(decl->hash());
                 decl = nullptr;
@@ -269,7 +335,7 @@ namespace  Tiny3D
             auto rval = buffers.emplace(uuid, rb);
             if (rval.second)
             {
-                if (!PostLoad(rb))
+                if (!postLoad(rb))
                 {
                     buffers.erase(uuid);
                     rb = nullptr;

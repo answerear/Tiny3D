@@ -99,7 +99,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const PixelBufferPtr &Texture1D::getPixelBuffer() const
+    PixelBuffer *Texture1D::getPixelBuffer() const
     {
         return mPixelBuffer;
     }
@@ -160,7 +160,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const PixelBufferPtr &Texture2D::getPixelBuffer() const
+    PixelBuffer *Texture2D::getPixelBuffer() const
     {
         return mPixelBuffer;
     }
@@ -264,7 +264,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const PixelBufferPtr &Texture3D::getPixelBuffer() const
+    PixelBuffer *Texture3D::getPixelBuffer() const
     {
         return mPixelBuffer;
     }

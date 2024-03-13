@@ -54,35 +54,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIRenderTargetPtr NullContext::createRenderWindow(RenderWindowPtr renderWindow)
+    RHIRenderTargetPtr NullContext::createRenderWindow(RenderWindow *renderWindow)
     {
         return NullWindow::create();
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer2DPtr NullContext::createRenderTexture(PixelBuffer2DPtr buffer)
+    RHIPixelBuffer2DPtr NullContext::createRenderTexture(PixelBuffer2D *buffer)
     {
         return nullptr;
     }
     
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setRenderTarget(RenderWindowPtr renderWindow)
+    TResult NullContext::setRenderTarget(RenderWindow *renderWindow)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setRenderTarget(RenderTexturePtr renderTexture)
+    TResult NullContext::setRenderTarget(RenderTexture *renderTexture)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setRenderTarget(RenderTargetPtr renderTarget)
+    TResult NullContext::setRenderTarget(RenderTarget *renderTarget)
     {
         return T3D_OK;
     }
@@ -117,342 +117,336 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIBlendStatePtr NullContext::createBlendState(BlendStatePtr state)
+    RHIBlendStatePtr NullContext::createBlendState(BlendState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIDepthStencilStatePtr NullContext::createDepthStencilState(DepthStencilStatePtr state)
+    RHIDepthStencilStatePtr NullContext::createDepthStencilState(DepthStencilState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIRasterizerStatePtr NullContext::createRasterizerState(RasterizerStatePtr state)
+    RHIRasterizerStatePtr NullContext::createRasterizerState(RasterizerState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHISamplerStatePtr NullContext::createSamplerState(SamplerStatePtr state)
+    RHISamplerStatePtr NullContext::createSamplerState(SamplerState *state)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setBlendState(BlendStatePtr state)
+    TResult NullContext::setBlendState(BlendState *state)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setDepthStencilState(DepthStencilStatePtr state)
+    TResult NullContext::setDepthStencilState(DepthStencilState *state)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setRasterizerState(RasterizerStatePtr state)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    TResult NullContext::setSamplerState(SamplerStatePtr state)
+    TResult NullContext::setRasterizerState(RasterizerState *state)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    RHIVertexDeclarationPtr NullContext::createVertexDeclaration(VertexDeclarationPtr decl)
+    RHIVertexDeclarationPtr NullContext::createVertexDeclaration(VertexDeclaration *decl)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVertexDeclaration(VertexDeclarationPtr decl)
+    TResult NullContext::setVertexDeclaration(VertexDeclaration *decl)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    RHIVertexBufferPtr NullContext::createVertexBuffer(VertexBufferPtr buffer)
+    RHIVertexBufferPtr NullContext::createVertexBuffer(VertexBuffer *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVertexBuffer(VertexBufferPtr buffer)
+    TResult NullContext::setVertexBuffer(VertexBuffer *buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIIndexBufferPtr NullContext::createIndexBuffer(IndexBufferPtr buffer)
+    RHIIndexBufferPtr NullContext::createIndexBuffer(IndexBuffer *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setIndexBuffer(IndexBufferPtr buffer)
+    TResult NullContext::setIndexBuffer(IndexBuffer *buffer)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIConstantBufferPtr NullContext::createConstantBuffer(ConstantBufferPtr buffer)
+    RHIConstantBufferPtr NullContext::createConstantBuffer(ConstantBuffer *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer1DPtr NullContext::createPixelBuffer1D(PixelBuffer1DPtr buffer)
+    RHIPixelBuffer1DPtr NullContext::createPixelBuffer1D(PixelBuffer1D *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer2DPtr NullContext::createPixelBuffer2D(PixelBuffer2DPtr buffer)
+    RHIPixelBuffer2DPtr NullContext::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIPixelBuffer3DPtr NullContext::createPixelBuffer3D(PixelBuffer3DPtr buffer)
+    RHIPixelBuffer3DPtr NullContext::createPixelBuffer3D(PixelBuffer3D *buffer)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr NullContext::createVertexShader(ShaderVariantPtr shader)
+    RHIShaderPtr NullContext::createVertexShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVertexShader(ShaderVariantPtr shader)
+    TResult NullContext::setVertexShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult NullContext::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult NullContext::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult NullContext::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr NullContext::createPixelShader(ShaderVariantPtr shader)
+    RHIShaderPtr NullContext::createPixelShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPixelShader(ShaderVariantPtr shader)
+    TResult NullContext::setPixelShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult NullContext::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult NullContext::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult NullContext::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
-    RHIShaderPtr NullContext::createHullShader(ShaderVariantPtr shader)
+    RHIShaderPtr NullContext::createHullShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setHullShader(ShaderVariantPtr shader)
+    TResult NullContext::setHullShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult NullContext::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult NullContext::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult NullContext::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr NullContext::createDomainShader(ShaderVariantPtr shader)
+    RHIShaderPtr NullContext::createDomainShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setDomainShader(ShaderVariantPtr shader)
+    TResult NullContext::setDomainShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult NullContext::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
-    //--------------------------------------------------------------------------d
+    //--------------------------------------------------------------------------
 
-    TResult NullContext::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult NullContext::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult NullContext::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr NullContext::createGeometryShader(ShaderVariantPtr shader)
+    RHIShaderPtr NullContext::createGeometryShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setGeometryShader(ShaderVariantPtr shader)
+    TResult NullContext::setGeometryShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult NullContext::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult NullContext::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult NullContext::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    RHIShaderPtr NullContext::createComputeShader(ShaderVariantPtr shader)
+    RHIShaderPtr NullContext::createComputeShader(ShaderVariant *shader)
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setComputeShader(ShaderVariantPtr shader)
+    TResult NullContext::setComputeShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers)
+    TResult NullContext::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers)
+    TResult NullContext::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
     {
         return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers)
+    TResult NullContext::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
 
+
     //--------------------------------------------------------------------------
 
-    TResult NullContext::compileShader(ShaderVariantPtr shader)
+    TResult NullContext::compileShader(ShaderVariant *shader)
     {
         return T3D_OK;
     }

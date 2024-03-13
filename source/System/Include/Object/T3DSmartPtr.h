@@ -172,6 +172,9 @@ namespace Tiny3D
          */
         T *operator ->() const
         {
+#if T3D_TRACE_OBJECT
+            mReferObject->printDebugInfo();
+#endif
             return (T*)mReferObject;
         }
 

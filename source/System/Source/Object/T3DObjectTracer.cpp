@@ -54,7 +54,7 @@ namespace Tiny3D
                 Object *obj = *itr;
 
                 ss.str("");
-                ss << "Leak Object : " << typeid(*obj).name() << " ReferCount : " << obj->referCount() << "\n";                
+                ss << "Leak Object : " << typeid(*obj).name() << " ReferCount : " << obj->referCount() << "\n";
                 printInfo(ss.str());
             }
 

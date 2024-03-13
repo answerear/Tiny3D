@@ -48,7 +48,10 @@ namespace Tiny3D
 
     RHIThread::~RHIThread()
     {
-        stop();
+        for (auto &cmdList : mCommandLists)
+        {
+            cmdList.clear();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -67,6 +70,7 @@ namespace Tiny3D
 
     void RHIThread::exchange()
     {
+        mCommandLists[mHanldeCommandListIdx].clear();
         mHanldeCommandListIdx = mEnqueueCommandListIdx;
         mEnqueueCommandListIdx = (mHanldeCommandListIdx + 1) % kMaxCommandLists;
     }
@@ -93,8 +97,6 @@ namespace Tiny3D
             {
                 command->execute();
             }
-
-            mCommandLists[mHanldeCommandListIdx].clear();
             
             T3D_AGENT.resumeEngineThread();
         }
@@ -114,14 +116,14 @@ namespace Tiny3D
 
     void RHIThread::exit()
     {
-        
+
     }
     
     //--------------------------------------------------------------------------
 
     TResult RHIThread::addCommand(RHICommand *command)
     {
-        mCommandLists[mEnqueueCommandListIdx].push_back(command);
+        mCommandLists[mEnqueueCommandListIdx].push_back(RHICommandSafePtr(command));
         return T3D_OK;
     }
 

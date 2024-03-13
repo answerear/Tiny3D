@@ -121,35 +121,35 @@ namespace Tiny3D
          * \param [in] renderWindow : 引擎渲染窗口
          * \return 调用成功返回新建的 RHI 对象
          */
-        virtual RHIRenderTargetPtr createRenderWindow(RenderWindowPtr renderWindow) = 0;
+        virtual RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) = 0;
 
         /**
          * \brief 创建 RHI 渲染纹理
          * \param [in] buffer : 引擎渲染纹理
          * \return 调用成功返回新建的 RHI 对象
          */
-        virtual RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2DPtr buffer) = 0;
+        virtual RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) = 0;
         
         /**
          * \brief 设置当前渲染窗口
          * \param [in] renderWindow : 渲染窗口
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setRenderTarget(RenderWindowPtr renderWindow) = 0;
+        virtual TResult setRenderTarget(RenderWindow *renderWindow) = 0;
 
         /**
          * \brief 设置当前渲染紋理
          * \param [in] renderTexture : 渲染紋理
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setRenderTarget(RenderTexturePtr renderTexture) = 0;
+        virtual TResult setRenderTarget(RenderTexture *renderTexture) = 0;
 
         /**
          * \brief 设置当前渲染目标
          * \param [in] renderTarget : 渲染目标
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setRenderTarget(RenderTargetPtr renderTarget) = 0;
+        virtual TResult setRenderTarget(RenderTarget *renderTarget) = 0;
 
         /**
          * \brief 清除渲染目标
@@ -184,140 +184,133 @@ namespace Tiny3D
          * \param [in] state : 引擎颜色混合状态对象
          * \return 调用成功返回新建的 RHI 对象
          */
-        virtual RHIBlendStatePtr createBlendState(BlendStatePtr state) = 0;
+        virtual RHIBlendStatePtr createBlendState(BlendState *state) = 0;
 
         /**
          * \brief 创建 RHI 深度模板状态对象
          * \param [in] state : 引擎深度模板状态对象
          * \return 调用成功返回新建的 RHI 对象
          */
-        virtual RHIDepthStencilStatePtr createDepthStencilState(DepthStencilStatePtr state) = 0;
+        virtual RHIDepthStencilStatePtr createDepthStencilState(DepthStencilState *state) = 0;
 
         /**
          * \brief 创建 RHI 光栅化状态对象
          * \param [in] state : 引擎光栅化状态对象
          * \return 调用成功返回新建的 RHI 对象
          */
-        virtual RHIRasterizerStatePtr createRasterizerState(RasterizerStatePtr state) = 0;
+        virtual RHIRasterizerStatePtr createRasterizerState(RasterizerState *state) = 0;
 
         /**
          * \brief 创建 RHI 纹理采样状态对象
          * \param [in] state : 引擎纹理采样状态对象
          * \return 调用成功返回新建的 RHI 对象
          */
-        virtual RHISamplerStatePtr createSamplerState(SamplerStatePtr state) = 0;
+        virtual RHISamplerStatePtr createSamplerState(SamplerState *state) = 0;
 
         /**
          * \brief 设置颜色混合状态
          * \param [in] state : 混合状态 
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setBlendState(BlendStatePtr state) = 0;
+        virtual TResult setBlendState(BlendState *state) = 0;
 
         /**
          * \brief 设置深度模板状态
          * \param [in] state : 深度模板状态
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDepthStencilState(DepthStencilStatePtr state) = 0;
+        virtual TResult setDepthStencilState(DepthStencilState *state) = 0;
 
         /**
          * \brief 设置光栅化状态
          * \param [in] state : 光栅化状态
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setRasterizerState(RasterizerStatePtr state) = 0;
-
-        /**
-         * \brief 设置纹理采样状态
-         * \param [in] state : 纹理采样状态
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult setSamplerState(SamplerStatePtr state) = 0;
+        virtual TResult setRasterizerState(RasterizerState *state) = 0;
 
         /**
          * \brief 创建 RHI 顶点格式对象
          * \param [in] decl : 顶点格式对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclarationPtr decl) = 0;
+        virtual RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclaration *decl) = 0;
 
         /**
          * \brief 设置顶点格式
          * \param [in] decl : 顶点格式
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVertexDeclaration(VertexDeclarationPtr decl) = 0;
+        virtual TResult setVertexDeclaration(VertexDeclaration *decl) = 0;
         
         /**
          * \brief 创建 RHI 顶点缓冲区对象
          * \param [in] buffer : 引擎的顶点缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIVertexBufferPtr createVertexBuffer(VertexBufferPtr buffer) = 0;
+        virtual RHIVertexBufferPtr createVertexBuffer(VertexBuffer *buffer) = 0;
 
         /**
          * \brief 设置渲染用的顶点缓冲对象
          * \param [in] buffer : 顶点缓冲对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVertexBuffer(VertexBufferPtr buffer) = 0;
+        virtual TResult setVertexBuffer(VertexBuffer *buffer) = 0;
 
         /**
          * \brief 创建 RHI 索引缓冲对象
          * \param [in] buffer : 引擎的索引缓冲对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIIndexBufferPtr createIndexBuffer(IndexBufferPtr buffer) = 0;
+        virtual RHIIndexBufferPtr createIndexBuffer(IndexBuffer *buffer) = 0;
 
         /**
          * \brief 设置渲染用的索引缓冲对象
          * \param [in] buffer : 索引缓冲对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setIndexBuffer(IndexBufferPtr buffer) = 0;
+        virtual TResult setIndexBuffer(IndexBuffer *buffer) = 0;
 
         /**
          * \brief 创建 RHI 常量缓冲对象
          * \param [in] buffer : 引擎的常量缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIConstantBufferPtr createConstantBuffer(ConstantBufferPtr buffer) = 0;
+        virtual RHIConstantBufferPtr createConstantBuffer(ConstantBuffer *buffer) = 0;
 
         /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1DPtr buffer) = 0;
+        virtual RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1D *buffer) = 0;
 
         /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2DPtr buffer) = 0;
+        virtual RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2D *buffer) = 0;
 
         /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3DPtr buffer) = 0;
+        virtual RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3D *buffer) = 0;
 
         /**
          * \brief 创建 RHI 顶点着色器对象
          * \param [in] shader : 引擎使用的顶点着色器对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIShaderPtr createVertexShader(ShaderVariantPtr shader) = 0;
+        virtual RHIShaderPtr createVertexShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置渲染使用的顶点着色器
          * \param [in] shader : 引擎使用的顶点着色器对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVertexShader(ShaderVariantPtr shader) = 0;
+        virtual TResult setVertexShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置 vs 的常量缓冲区
@@ -326,7 +319,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) = 0;
+        virtual TResult setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 vs 的像素缓冲区
@@ -335,7 +328,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) = 0;
+        virtual TResult setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -344,21 +337,21 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) = 0;
+        virtual TResult setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
 
         /**
          * \brief 创建 RHI 像素着色器对象
          * \param [in] shader : 引擎使用的像素着色器对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIShaderPtr createPixelShader(ShaderVariantPtr shader) = 0;
+        virtual RHIShaderPtr createPixelShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置渲染使用的像素着色器
          * \param [in] shader : 引擎使用的像素着色器对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPixelShader(ShaderVariantPtr shader) = 0;
+        virtual TResult setPixelShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置 ps 的常量缓冲区
@@ -367,7 +360,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) = 0;
+        virtual TResult setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 ps 的像素缓冲区
@@ -376,7 +369,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) = 0;
+        virtual TResult setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
         
         /**
          * \brief 设置 ps 纹理采样器
@@ -385,21 +378,21 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) = 0;
+        virtual TResult setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
          * \param [in] shader : 引擎使用的曲面细分着色器对象
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIShaderPtr createHullShader(ShaderVariantPtr shader) = 0;
+        virtual RHIShaderPtr createHullShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置渲染使用的曲面细分着色器
          * \param [in] shader : 引擎使用的曲面细分着色器对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHullShader(ShaderVariantPtr shader) = 0;
+        virtual TResult setHullShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置 hs 的常量缓冲区
@@ -408,7 +401,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) = 0;
+        virtual TResult setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 hs 的像素缓冲区
@@ -417,7 +410,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) = 0;
+        virtual TResult setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
         
         /**
          * \brief 设置 hs 纹理采样器
@@ -426,21 +419,21 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) = 0;
+        virtual TResult setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 域着色器
          * \param [in] shader : 引擎使用的域着色器对象 
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIShaderPtr createDomainShader(ShaderVariantPtr shader) = 0;
+        virtual RHIShaderPtr createDomainShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置渲染使用的域着色器
          * \param [in] shader : 引擎使用的域着色器
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDomainShader(ShaderVariantPtr shader) = 0;
+        virtual TResult setDomainShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置 ds 的常量缓冲区
@@ -449,7 +442,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) = 0;
+        virtual TResult setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 ds 的像素缓冲区
@@ -458,7 +451,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) = 0;
+        virtual TResult setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
         
         /**
          * \brief 设置 ds 纹理采样器
@@ -467,21 +460,21 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) = 0;
+        virtual TResult setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 几何着色器
          * \param [in] shader : 引擎使用的几何着色器对象 
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIShaderPtr createGeometryShader(ShaderVariantPtr shader) = 0;
+        virtual RHIShaderPtr createGeometryShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置渲染使用的几何着色器
          * \param [in] shader : 引擎使用的几何着色器
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGeometryShader(ShaderVariantPtr shader) = 0;
+        virtual TResult setGeometryShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置 gs 的常量缓冲区
@@ -490,7 +483,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) = 0;
+        virtual TResult setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 gs 的像素缓冲区
@@ -499,7 +492,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) = 0;
+        virtual TResult setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
         
         /**
          * \brief 设置 gs 纹理采样器
@@ -508,21 +501,21 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) = 0;
+        virtual TResult setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 计算着色器
          * \param [in] shader : 引擎使用的计算着色器对象 
          * \return 调用成功返回 RHI 对象
          */
-        virtual RHIShaderPtr createComputeShader(ShaderVariantPtr shader) = 0;
+        virtual RHIShaderPtr createComputeShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置渲染使用的计算着色器
          * \param [in] shader : 引擎使用的计算着色器
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setComputeShader(ShaderVariantPtr shader) = 0;
+        virtual TResult setComputeShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 设置 cs 的常量缓冲区
@@ -531,7 +524,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, const ConstantBufferPtr *buffers) = 0;
+        virtual TResult setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 cs 的像素缓冲区
@@ -540,7 +533,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, const PixelBufferPtr *buffers) = 0;
+        virtual TResult setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
         
         /**
          * \brief 设置 cs 纹理采样器
@@ -549,14 +542,14 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, const SamplerStatePtr *samplers) = 0;
+        virtual TResult setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
 
         /**
          * \brief 编译着色器
          * \param [in,out] shader : 着色器变体对象
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult compileShader(ShaderVariantPtr shader) = 0;
+        virtual TResult compileShader(ShaderVariant *shader) = 0;
 
         /**
          * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息

@@ -43,16 +43,40 @@
 #endif
 
 
-#define D3D_SAFE_RELEASE(p) \
-    if ((p) != nullptr)   \
-    {   \
-        (p)->Release();   \
-        (p) = nullptr;    \
-    }
-
 
 namespace Tiny3D
 {
+#if !defined (T3D_DEBUG)
+    #define D3D_SAFE_RELEASE(p) \
+        if ((p) != nullptr)   \
+        {   \
+            (p)->AddRef();   \
+            ULONG RefCount = (p)->Release();    \
+            T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "%s - %s [IUnknown Pointer] : 0x%016p, RefCount : %u", __FUNCTION__, #p, (p), RefCount);    \
+            (p)->Release();   \
+            (p) = nullptr;    \
+        }
+#else
+    #define D3D_SAFE_RELEASE(p) \
+        if ((p) != nullptr)   \
+        {   \
+            (p)->Release();   \
+            (p) = nullptr;    \
+        }
+#endif
+
+#if defined (T3D_DEBUG)
+    #define D3D_REF_COUNT(prefix, p)    \
+        if ((p) != nullptr) \
+        {   \
+            (p)->AddRef();  \
+            ULONG RefCount = (p)->Release();    \
+            T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "%s %s - %s [IUnknown Pointer] : 0x%016p, RefCount : %u", prefix, __FUNCTION__, #p, (p), RefCount);    \
+        }
+#else
+    #define D3D_REF_COUNT(prefix, p)    (void)0
+#endif
+
     #define LOG_TAG_D3D11RENDERER        "D3D11Renderer"
 
     class D3D11Renderer;

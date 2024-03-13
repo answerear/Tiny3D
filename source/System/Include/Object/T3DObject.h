@@ -33,6 +33,9 @@
 
 namespace Tiny3D
 {
+
+    #define T3D_TRACE_OBJECT    0
+    
     /**
      * @class   Object
      * @brief   引擎所有对象基类
@@ -87,6 +90,8 @@ namespace Tiny3D
 
         void enableThreadSafe(bool enable);
 
+        void printDebugInfo();
+
         virtual bool onPreSave();
 
         virtual bool onPostSave();
@@ -102,6 +107,11 @@ namespace Tiny3D
         ISyncObject *mSyncObject {nullptr};
         /// 是否开启线程安全
         bool    mIsThreadSafe {false};
+
+#if T3D_TRACE_OBJECT
+        String  mClsName;
+        bool    mHasOutputDebug {false};
+#endif
     };
 }
 
