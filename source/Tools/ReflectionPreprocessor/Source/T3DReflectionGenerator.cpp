@@ -1591,6 +1591,9 @@ namespace Tiny3D
                 if (clang_CXXRecord_isAbstract(cxParent))
                 {
                     // 抽象类不能反射构造，要跳过
+                    CXString cxClassName = clang_getCursorSpelling(cxParent);
+                    String className = toString(cxClassName);
+                    RP_LOG_WARNING("Class %s is abstract class !", className.c_str());
                     break;
                 }
                 
