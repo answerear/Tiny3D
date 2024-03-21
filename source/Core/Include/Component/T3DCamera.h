@@ -43,7 +43,7 @@ namespace Tiny3D
          * \brief 投影矩阵类型
          */
         TENUM()
-        enum class ProjectionType : uint32_t
+        enum class Projection : uint32_t
         {
             /// 正交投影
             kOrthographic = 0,
@@ -94,10 +94,10 @@ namespace Tiny3D
         void setClearStencil(uint8_t stencil) { mClearStencil = stencil; }
 
         TPROPERTY(RTTRFuncName="ProjectionType", RTTRFuncType="getter")
-        ProjectionType getProjectionType() const { return mProjectionType; }
+        Projection getProjectionType() const { return mProjectionType; }
 
         TPROPERTY(RTTRFuncName="ProjectionType", RTTRFuncType="setter")
-        void setProjectionType(ProjectionType type) { mProjectionType = type; }
+        void setProjectionType(Projection type) { mProjectionType = type; }
 
         TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="getter")
         const Radian &getFovY() const { return mFovY; }
@@ -142,6 +142,8 @@ namespace Tiny3D
     protected:
         Camera() = default;
 
+        TResult cloneProperties(const Component * const src) override;
+
         void setupRenderTexture(RenderWindow *window);
 
         void setupQuad(RenderWindow *window);
@@ -174,7 +176,7 @@ namespace Tiny3D
         mutable bool mIsProjDirty {false};
 
         /// 投影类型
-        ProjectionType  mProjectionType {ProjectionType::kPerspective};
+        Projection  mProjectionType {Projection::kPerspective};
 
         /// 上下平面夹角，用于透视投影
         Radian  mFovY {Math::PI / REAL_HALF};

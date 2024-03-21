@@ -106,7 +106,7 @@ namespace Tiny3D
     {
         if (mIsProjDirty)
         {
-            if (mProjectionType == ProjectionType::kPerspective)
+            if (mProjectionType == Projection::kPerspective)
             {
                 // 透视投影
                 
@@ -206,6 +206,44 @@ namespace Tiny3D
             camera = nullptr;
         }
         return camera;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Camera::cloneProperties(const Component *const src)
+    {
+        TResult ret;
+
+        do
+        {
+            ret = Component::cloneProperties(src);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            const Camera * other = static_cast<const Camera * const>(src);
+            setRenderTarget(other->mRenderTarget);
+
+            mOrder = other->mOrder;
+            mCullingMask = other->mOrder;
+            mViewport = other->mViewport;
+            mClearColor = other->mClearColor;
+            mClearDepth = other->mClearDepth;
+            mClearStencil = other->mClearStencil;
+            mViewMatrix = other->mViewMatrix;
+            mProjectMatrix = other->mProjectMatrix;
+            mIsProjDirty = true;
+            mProjectionType = other->mProjectionType;
+            mFovY = other->mFovY;
+            mAspectRatio = other->mAspectRatio;
+            mWidth = other->mWidth;
+            mHeight = other->mHeight;
+            mFar = other->mFar;
+            mNear = other->mNear;
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
