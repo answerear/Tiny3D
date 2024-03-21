@@ -24,8 +24,6 @@
 
 #include "CameraApp.h"
 
-#include "Resource/T3DSceneManager.h"
-
 
 using namespace Tiny3D;
 
