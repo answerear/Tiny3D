@@ -43,6 +43,7 @@ namespace Tiny3D
         static const ColorRGB GREEN;
         static const ColorRGB BLUE;
         static const ColorRGB YELLOW;
+        static const ColorRGB GRAY;
 
         ColorRGB()
             : mBlue(1.0f)

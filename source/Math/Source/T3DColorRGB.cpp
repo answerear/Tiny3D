@@ -33,4 +33,5 @@ namespace Tiny3D
     const ColorRGB ColorRGB::GREEN(0.0f, 1.0f, 0.0f);
     const ColorRGB ColorRGB::BLUE(0.0f, 0.0f, 1.0f);
     const ColorRGB ColorRGB::YELLOW(1.0f, 1.0f, 0.0f);
+    const ColorRGB ColorRGB::GRAY(0.5f, 0.5f, 0.5f);
 }
