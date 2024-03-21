@@ -65,8 +65,8 @@ namespace Tiny3D
             kImage,
             /// 著色器
             kShader,
-            /// 模型数据
-            kModel,
+            /// 网格数据
+            kMesh,
             /// 预制件
             kPrefab,
             /// 场景
@@ -147,9 +147,15 @@ namespace Tiny3D
 
         /**
          * \brief 创建回调
-         * \return 返回 T3D_OK 以示成功，否则加载会创建
+         * \return 返回 T3D_OK 以示成功，否则创建会失败
          */
         virtual TResult onCreate();
+
+        /**
+         * \brief 保存回调
+         * \return 返回 T3D_OK 以示成功，否则保存会失败
+         */
+        virtual TResult onSave();
 
         /**
          * \brief 加载回调

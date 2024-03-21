@@ -41,6 +41,7 @@
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DForwardRenderPipeline.h"
 #include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DMeshManager.h"
 #include "Resource/T3DScene.h"
 #include "Resource/T3DSceneManager.h"
 #include "Resource/T3DTextureManager.h"
@@ -91,6 +92,12 @@ namespace Tiny3D
         {
             mSceneMgr->unloadScene();
             mSceneMgr = nullptr;
+        }
+
+        if (mMeshMgr != nullptr)
+        {
+            mMeshMgr->unloadAllResources();
+            mMeshMgr = nullptr;
         }
 
         if (mMaterialMgr != nullptr)
@@ -897,7 +904,8 @@ namespace Tiny3D
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
         mRenderStateMgr = RenderStateManager::create();
         mRenderBufferMgr = RenderBufferManager::create();
-        mDylibMgr = DylibManager::create();      
+        mDylibMgr = DylibManager::create();
+        mMeshMgr = MeshManager::create();
         mPrefabMgr = PrefabManager::create();
         mShaderMgr = ShaderManager::create();
         mTextureMgr = TextureManager::create();

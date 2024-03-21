@@ -60,6 +60,9 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ImageManager);
     T3D_DECLARE_SMART_PTR(Shader);
     T3D_DECLARE_SMART_PTR(ShaderManager);
+    T3D_DECLARE_SMART_PTR(Mesh);
+    T3D_DECLARE_SMART_PTR(MeshManager);
+    T3D_DECLARE_SMART_PTR(SubMesh);
 
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
@@ -83,6 +86,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(TransformNode);
     T3D_DECLARE_SMART_PTR(Transform3D);
     T3D_DECLARE_SMART_PTR(Renderable);
+    T3D_DECLARE_SMART_PTR(Geometry);
     
     T3D_DECLARE_SMART_PTR(RenderContext);
     T3D_DECLARE_SMART_PTR(RenderPipeline);
@@ -175,6 +179,14 @@ namespace Tiny3D
     
     using GameObjectList = TList<GameObjectPtr>;
     using CameraList = TMultimap<uint32_t, Camera *>;
+
+    using VertexAttributes = TArray<VertexAttribute>;
+    using VertexBuffers = TArray<VertexBufferPtr>;
+
+    using SubMeshes = TMap<String, SubMeshPtr>;
+    using Vertices = TArray<Buffer>;
+    using VertexStrides = TArray<uint32_t>;
+    using VertexOffsets = TArray<uint32_t>;
 }
 
 

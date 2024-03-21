@@ -52,20 +52,6 @@ namespace Tiny3D
     };
 
     /**
-     * @enum    PrimitiveType
-     * @brief   渲染图元类型
-     */
-    enum class PrimitiveType : uint32_t
-    {
-        kPointList = 0,     /**< 点列表图元 */
-        kLineList,          /**< 线列表图元 */
-        kLineStrip,         /**< 线带图元 */
-        kTriangleList,      /**< 三角形列表图元 */
-        kTriangleStrip,     /**< 三角形带图元 */
-        kTriangleFan,       /**< 三角形扇形图元 */
-    };
-
-    /**
      * @enum    ClearFlags
      * @brief   Values that represent clear flags
      */
@@ -251,10 +237,14 @@ namespace Tiny3D
 
         /**
          * \brief 设置渲染用的顶点缓冲对象
-         * \param [in] buffer : 顶点缓冲对象
+         * \param [in] startSlot : 缓冲区的插槽，对应 shader 寄存器索引
+         * \param [in] numOfBuffers : 缓冲区数量
+         * \param [in] buffers : 顶点缓冲对象
+         * \param [in] strides : 顶点跨度，也就是一个顶点的大小
+         * \param [in] offsets : 相对缓冲区开始的偏移
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVertexBuffer(VertexBuffer *buffer) = 0;
+        virtual TResult setVertexBuffers(uint32_t startSlot, uint32_t numOfBuffers, VertexBuffer * const *buffers, const uint32_t *strides, const uint32_t *offsets) = 0;
 
         /**
          * \brief 创建 RHI 索引缓冲对象

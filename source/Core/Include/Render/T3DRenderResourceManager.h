@@ -99,7 +99,7 @@ namespace Tiny3D
     public:
         static RenderBufferManagerPtr create();
 
-        VertexDeclarationPtr addVertexDeclaration(VertexDeclarationPtr decl);
+        VertexDeclarationPtr addVertexDeclaration(const VertexAttributes &attributes);
         
         VertexBufferPtr loadVertexBuffer(size_t vertexSize, size_t vertexCount, 
             const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);

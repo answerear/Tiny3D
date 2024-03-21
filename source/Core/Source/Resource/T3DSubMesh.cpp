@@ -22,74 +22,62 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#include "Resource/T3DResource.h"
-#include "Kernel/T3DArchive.h"
+#include "Resource/T3DSubMesh.h"
+#include "Render/T3DRenderResourceManager.h"
+#include "Render/T3DVertexDeclaration.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Resource::Resource()
-        : Resource("")
+    SubMeshPtr SubMesh::create(const String &name, PrimitiveType priType, const Buffer &indices, bool is16Bits)
     {
+        return new SubMesh(name, priType, indices, is16Bits);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SubMesh::SubMesh(const String &name, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+        : mPriType(priType)
+        , mName(name)
+        , mIs16Bits(is16Bits)
+    {
+        mIndices.setData(indices.Data, indices.DataSize);
     }
     
     //--------------------------------------------------------------------------
 
-    Resource::Resource(const String &strName)
-        : mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    SubMesh::~SubMesh()
     {
-        mUUID = UUID::generate();
+        mIndices.release();
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::~Resource()
+    TResult SubMesh::generateRenderResource()
     {
-        T3D_ASSERT(getState() == State::kUnloaded, "Resource has not unloaded !");
-    }
+        TResult ret = T3D_OK;
 
-    //--------------------------------------------------------------------------
-
-    TResult Resource::onCreate()
-    {
-        mState = State::kLoaded;
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Resource::onSave()
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Resource::onLoad()
-    {
-        mState = State::kLoaded;
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Resource::onUnload()
-    {
-        mState = State::kUnloaded;
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Resource::cloneProperties(const Resource *const src)
-    {
-        // 克隆就新生成 UUID
-        mUUID = UUID::generate();
+        do
+        {
+            IndexType indexType;
+            size_t indexCount;
+            if (mIs16Bits)
+            {
+                indexType = IndexType::E_IT_16BITS;
+                indexCount = mIndices.DataSize / sizeof(uint16_t);
+            }
+            else
+            {
+                indexType = IndexType::E_IT_32BITS;
+                indexCount = mIndices.DataSize / sizeof(uint32_t);
+            }
+            
+            mIB = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(indexType, indexCount, mIndices, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

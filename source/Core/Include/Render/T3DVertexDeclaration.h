@@ -38,41 +38,15 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexDeclaration : public RenderResource
     {
     public:
-        using VertexAttriList = TArray<VertexAttribute>;
-        using VertexAttriListItr = VertexAttriList::iterator;
-        using VertexAttriListConstItr = VertexAttriList::const_iterator;
+        static VertexDeclarationPtr create(const VertexAttributes &attributes);
 
-        static VertexDeclarationPtr create();
-
-        virtual ~VertexDeclaration();
+        ~VertexDeclaration() override;
 
         Type getType() const override;
 
         size_t getAttributeCount() const  {  return mVertexAttributes.size(); }
 
-        const VertexAttriList &getAttributes() const { return mVertexAttributes; }
-
-        const VertexAttribute &getAttribute(size_t index) const;
-
-        const VertexAttribute &addAttribute(uint32_t stream, uint32_t offset, VertexAttribute::Type type, VertexAttribute::Semantic semantic, uint32_t semanticIndex);
-
-        const VertexAttribute &insertAttribute(uint32_t pos, uint32_t stream, uint32_t offset, VertexAttribute::Type type, VertexAttribute::Semantic semantic, uint32_t semanticIndex);
-
-        TResult addAttribute(const VertexAttribute &vertexAttribute);
-
-        TResult insertAttribute(uint32_t pos, const VertexAttribute &vertexAttribute);
-
-        TResult removeAttribute(uint32_t pos);
-
-        TResult removeAttribute(VertexAttribute::Semantic semantic, uint32_t semanticIndex);
-
-        TResult removeAllAttributes();
-
-        TResult updateAttribute(uint32_t pos, uint32_t stream, uint32_t offset, VertexAttribute::Type type, VertexAttribute::Semantic semantic, uint32_t semanticIndex);
-
         uint32_t hash();
-
-        const VertexAttribute *findAttributeBySemantic(VertexAttribute::Semantic semantic, uint32_t semanticIndex) const;
         
         uint32_t getVertexSize(uint32_t source) const;
 
@@ -80,7 +54,7 @@ namespace Tiny3D
         /**
          * @brief   构造函数
          */
-        VertexDeclaration();
+        VertexDeclaration(const VertexAttributes &attributes);
 
         bool onLoad() override;
 
@@ -88,11 +62,9 @@ namespace Tiny3D
 
     protected:
         /// 顶点属性列表
-        VertexAttriList mVertexAttributes {};
+        const VertexAttributes &mVertexAttributes;
         /// 数据 hash 值
         uint32_t    mHash {0};
-        /// 数据是否被修改，用于重新计算 hash
-        bool    mIsDirty {false};
     };
 }
 

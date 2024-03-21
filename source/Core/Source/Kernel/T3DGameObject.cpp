@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+﻿    /*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -80,11 +80,14 @@ namespace Tiny3D
             node->visitVisible([](TransformNode *node, Camera *camera, RenderPipeline *pipeline)
             {
                 GameObject *go = node->getGameObject();
-                RenderablePtr renderable = go->getComponent<Renderable>();
-                if (renderable != nullptr)
+                TArray<RenderablePtr> renderables = go->getComponents<Renderable>();
+                for (const auto &renderable : renderables)
                 {
-                    // TODO : 暂时不剔除
-                    pipeline->addRenderable(camera, renderable);
+                    if (renderable != nullptr)
+                    {
+                        // TODO : 暂时不剔除
+                        pipeline->addRenderable(camera, renderable);
+                    }
                 }
             },
             camera, pipeline);
@@ -241,18 +244,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TArray<ComponentPtr> GameObject::getComponents(const RTTRType &type) const
-    {
-        TArray<ComponentPtr> components;
-        
-        auto range = mComponents.equal_range(type);
-        for (auto itr = range.first; itr != range.second; ++itr)
-        {
-            components.emplace_back(itr->second);
-        }
-
-        return components;
-    }
+    // TArray<ComponentPtr> GameObject::getComponents(const RTTRType &type) const
+    // {
+    //     TArray<ComponentPtr> components;
+    //     
+    //     auto range = mComponents.equal_range(type);
+    //     for (auto itr = range.first; itr != range.second; ++itr)
+    //     {
+    //         components.emplace_back(itr->second);
+    //     }
+    //
+    //     return components;
+    // }
 
     //--------------------------------------------------------------------------
 }

@@ -57,6 +57,9 @@
 #include <Resource/T3DImageManager.h>
 #include <Resource/T3DScene.h>
 #include <Resource/T3DSceneManager.h>
+#include <Resource/T3DMesh.h>
+#include <Resource/T3DMeshManager.h>
+#include <Resource/T3DSubMesh.h>
 
 // Material
 #include <Material/T3DPass.h>
@@ -73,6 +76,7 @@
 #include <Component/T3DTransformNode.h>
 #include <Component/T3DTransform3D.h>
 #include <Component/T3DRenderable.h>
+#include <Component/T3DGeometry.h>
 
 // Serialize
 #include <Serializer/T3DSerializer.h>

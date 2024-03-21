@@ -23,74 +23,75 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DResource.h"
-#include "Kernel/T3DArchive.h"
+#include "Resource/T3DMeshManager.h"
+#include "Resource/T3DMesh.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
-{
+{   
     //--------------------------------------------------------------------------
 
-    Resource::Resource()
-        : Resource("")
+    MeshManagerPtr MeshManager::create()
     {
+        return new MeshManager();
     }
     
     //--------------------------------------------------------------------------
 
-    Resource::Resource(const String &strName)
-        : mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    MeshPtr MeshManager::createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes)
     {
-        mUUID = UUID::generate();
+        VertexAttributes attrs = std::move(attributes);
+        Vertices verts = std::move(vertices);
+        VertexStrides vstrides = std::move(strides);
+        VertexOffsets voffsets = std::move(offsets);
+        SubMeshes subs = std::move(submeshes);
+        return smart_pointer_cast<Mesh>(createResource(name, 5, &attrs, &verts, &vstrides, &voffsets, &subs));
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::~Resource()
+    MeshPtr MeshManager::loadMesh(Archive *archive, const String &name)
     {
-        T3D_ASSERT(getState() == State::kUnloaded, "Resource has not unloaded !");
+        return smart_pointer_cast<Mesh>(load(archive, name, 0));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onCreate()
+    TResult MeshManager::saveMesh(Archive *archive, Mesh *mesh)
     {
-        mState = State::kLoaded;
-        return T3D_OK;
+        return save(mesh, archive);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onSave()
+    ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        return T3D_OK;
+        T3D_ASSERT(argc == 5, "New mesh must be 5 arguments !");
+        VertexAttributes *attributes = va_arg(args, VertexAttributes*);
+        Vertices *vertices = va_arg(args, Vertices*);
+        VertexStrides *strides = va_arg(args, VertexStrides*);
+        VertexOffsets *offsets = va_arg(args, VertexOffsets*);
+        SubMeshes *submeshes = va_arg(args, SubMeshes*);
+        return Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onLoad()
+    ResourcePtr MeshManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
     {
-        mState = State::kLoaded;
-        return T3D_OK;
+        return T3D_SERIALIZER_MGR.deserialize<Mesh>(stream);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onUnload()
+    TResult MeshManager::saveResource(DataStream &stream, Resource *res)
     {
-        mState = State::kUnloaded;
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Resource::cloneProperties(const Resource *const src)
-    {
-        // 克隆就新生成 UUID
-        mUUID = UUID::generate();
+        T3D_ASSERT(res->getType() == Resource::Type::kMesh, "Save resource - the resource muust be mesh !");
+        Mesh *mesh = static_cast<Mesh*>(res);
+        return T3D_SERIALIZER_MGR.serialize(stream, mesh);
     }
 
     //--------------------------------------------------------------------------
 }
+

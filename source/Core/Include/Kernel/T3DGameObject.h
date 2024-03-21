@@ -27,6 +27,7 @@
 
 
 #include "T3DTypedef.h"
+#include "Component/T3DComponent.h"
 
 
 namespace Tiny3D
@@ -174,7 +175,7 @@ namespace Tiny3D
         TArray<ComponentPtr> getComponents(const String &name) const
         {
             RTTRType type = RTTRType::get_by_name(name);
-            return getComponents(type);
+            return getComponents<Component>(type);
         }
 
         /**
@@ -186,7 +187,7 @@ namespace Tiny3D
         TArray<SmartPtr<T>> getComponents() const
         {
             RTTRType type = RTTRType::get<T>();
-            return getComponents(type);
+            return getComponents<T>(type);
         }
 
     protected:
@@ -205,7 +206,19 @@ namespace Tiny3D
 
         ComponentPtr getComponent(const RTTRType &type) const;
 
-        TArray<ComponentPtr> getComponents(const RTTRType &type) const;
+        template<typename T>
+        TArray<SmartPtr<T>> getComponents(const RTTRType &type) const
+        {
+            TArray<SmartPtr<T>> components;
+        
+            auto range = mComponents.equal_range(type);
+            for (auto itr = range.first; itr != range.second; ++itr)
+            {
+                components.emplace_back(itr->second);
+            }
+
+            return components;
+        }
 
         virtual void onDestroy();
         

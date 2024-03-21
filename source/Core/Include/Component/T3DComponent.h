@@ -55,7 +55,9 @@ namespace Tiny3D
         void destroy();
 
     protected:
-        Component(const UUID &uuid = UUID::INVALID);
+        Component() = default;
+        
+        Component(const UUID &uuid);
 
         ~Component() override;
 
@@ -68,7 +70,7 @@ namespace Tiny3D
 
     protected:
         /// 唯一 ID
-        UUID    mUUID {};
+        UUID    mUUID {UUID::INVALID};
         /// 绑定的 game object
         GameObjectPtr   mGameObject {nullptr};
     };

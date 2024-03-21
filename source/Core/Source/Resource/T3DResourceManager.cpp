@@ -223,7 +223,14 @@ namespace Tiny3D
                 break;
             }
             
-            res->onLoad();
+            TResult ret = res->onLoad();
+            if (T3D_FAILED(ret))
+            {
+                removeCache(res);
+                res = nullptr;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", res->getName().c_str());
+                break;
+            }
         } while (false);
 
         return res;
@@ -242,9 +249,7 @@ namespace Tiny3D
             TResult ret = archive->read(name, stream);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Read reousrce [%s] from archive failed !",
-                    name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read reousrce [%s] from archive failed !", name.c_str());
                 break;
             }
 
@@ -277,6 +282,7 @@ namespace Tiny3D
             ret = res->onUnload();
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Unload resource [%s] failed !", res->getName().c_str());
                 break;
             }
             
@@ -294,6 +300,13 @@ namespace Tiny3D
 
         do
         {
+            ret = res->onSave();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed !", res->getName().c_str());
+                break;
+            }
+            
             // 保存资源对象
             MemoryDataStream stream(10*1024*1024);
             ret = saveResource(stream, res);
@@ -326,7 +339,13 @@ namespace Tiny3D
             auto itr = mResourcesCache.begin();
             auto res = itr->second;
             if (res->getState() == Resource::State::kLoaded)
-                unload(res);
+            {
+                ret = unload(res);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
         }
 
         return ret;
@@ -355,8 +374,7 @@ namespace Tiny3D
         {
             if (src == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Invalid source resource to clone !");
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid source resource to clone !");
                 break;
             }
 

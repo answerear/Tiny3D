@@ -30,11 +30,11 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    VertexAttribute::VertexAttribute(uint32_t stream, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex /* = 0 */)
+    VertexAttribute::VertexAttribute(uint32_t slot, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex /* = 0 */)
         : mType(type)
         , mSemantic(semantic)
         , mOffset(offset)
-        , mStream(stream)
+        , mSlot(slot)
         , mSemanticIndex(semanticIndex)
     {
 

@@ -79,8 +79,9 @@ namespace Tiny3D
     class Archive;
     class ArchiveManager;
     
-    struct Transform;    
+    struct Transform;
     struct Settings;
+    struct MeshData;
 
     // Serializer
     class Serializer;
@@ -114,6 +115,9 @@ namespace Tiny3D
     class PrefabManager;
     class Shader;
     class ShaderManager;
+    class Mesh;
+    class MeshManager;
+    class SubMesh;
     
     // Material
     class ShaderConstantParam;
@@ -138,6 +142,7 @@ namespace Tiny3D
     class TransformNode;
     class Transform3D;
     class Renderable;
+    class Geometry;
 
     // Render
     class RenderContext;
@@ -173,6 +178,8 @@ namespace Tiny3D
     class PixelBuffer3D;
     class PixelBufferCubemap;
     class ConstantBuffer;
+
+    struct VertexAttribute;
 
     class RenderStateManager;
     class RenderBufferManager;

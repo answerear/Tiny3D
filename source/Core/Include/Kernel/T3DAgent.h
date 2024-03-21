@@ -180,6 +180,7 @@ namespace Tiny3D
         ArchiveManagerPtr       mArchiveMgr {nullptr};
         SerializerManagerPtr    mSerializerMgr {nullptr};
         DylibManagerPtr         mDylibMgr {nullptr};
+        MeshManagerPtr          mMeshMgr {nullptr};
         PrefabManagerPtr        mPrefabMgr {nullptr};
         ShaderManagerPtr        mShaderMgr {nullptr};
         MaterialManagerPtr      mMaterialMgr {nullptr};

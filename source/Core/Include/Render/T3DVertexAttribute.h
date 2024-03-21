@@ -89,12 +89,12 @@ namespace Tiny3D
             E_VAS_BINORMAL = 8,     /**< 副法线 */
         };
 
-        VertexAttribute() : VertexAttribute(0, 0, Type::E_VAT_FLOAT1, Semantic::E_VAS_POSITION, 0) {}
+        VertexAttribute() : VertexAttribute(0, 0, Type::E_VAT_FLOAT3, Semantic::E_VAS_POSITION, 0) {}
 
-        VertexAttribute(uint32_t stream, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex);
+        VertexAttribute(uint32_t slot, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex);
 
-        TPROPERTY(RTTRFuncName="stream", RTTRFuncType="getter")
-        uint32_t getStream() const { return mStream; }
+        TPROPERTY(RTTRFuncName="slot", RTTRFuncType="getter")
+        uint32_t getSlot() const { return mSlot; }
 
         TPROPERTY(RTTRFuncName="offset", RTTRFuncType="getter")
         uint32_t getOffset() const { return mOffset; }
@@ -111,8 +111,8 @@ namespace Tiny3D
         uint32_t getSize() const;
 
     protected:
-        TPROPERTY(RTTRFuncName="stream", RTTRFuncType="setter")
-        void setStream(uint32_t stream) { mStream = stream; }
+        TPROPERTY(RTTRFuncName="slot", RTTRFuncType="setter")
+        void setSlot(uint32_t slot) { mSlot = slot; }
 
         TPROPERTY(RTTRFuncName="offset", RTTRFuncType="setter")
         void setOffset(uint32_t offset) { mOffset = offset; }
@@ -134,7 +134,7 @@ namespace Tiny3D
         /// 顶点属性定义的在顶点缓存中的偏移值
         uint32_t    mOffset {0};
         /// 对应定义的顶点缓存索引
-        uint32_t    mStream {0};
+        uint32_t    mSlot {0};
         /// 顶点语义索引
         uint32_t    mSemanticIndex {0};
     };

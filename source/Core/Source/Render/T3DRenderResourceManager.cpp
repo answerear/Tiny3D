@@ -293,8 +293,10 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr RenderBufferManager::addVertexDeclaration(VertexDeclarationPtr decl)
+    VertexDeclarationPtr RenderBufferManager::addVertexDeclaration(const VertexAttributes &attributes)
     {
+        VertexDeclarationPtr decl = VertexDeclaration::create(attributes);
+        
         auto itr = mVertexDeclarations.find(decl->hash());
         if (itr != mVertexDeclarations.end())
         {
@@ -305,14 +307,14 @@ namespace  Tiny3D
         {
             // 不存在，那就放到缓存中
             mVertexDeclarations.emplace(decl->hash(), decl);
-
+        
             if (!postLoad(decl))
             {
                 mVertexDeclarations.erase(decl->hash());
                 decl = nullptr;
             }
         }
-
+        
         return decl;
     }
 

@@ -22,42 +22,38 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_RENDERABLE_H__
-#define __T3D_RENDERABLE_H__
+#ifndef __T3D_MESH_MANAGER_H__
+#define __T3D_MESH_MANAGER_H__
 
 
-#include "Component/T3DComponent.h"
+#include "Resource/T3DResourceManager.h"
 
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API Renderable : public Component
+    class T3D_ENGINE_API MeshManager
+        : public Singleton<MeshManager>
+        , public ResourceManager
     {
-        TRTTI_ENABLE(Component)
-        TRTTI_FRIEND
-        
     public:
-        ~Renderable() override = default;
-        
-        virtual Material *getMaterial() = 0;
+        static MeshManagerPtr create();
 
-        virtual VertexDeclaration *getVertexDeclaration() const = 0;
+        MeshPtr createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes);
 
-        virtual uint32_t getVertexBuffersCount() const = 0;
+        MeshPtr loadMesh(Archive *archive, const String &name);
 
-        virtual VertexBuffer * const *getVertexBuffers() const = 0;
+        TResult saveMesh(Archive *archive, Mesh *mesh);
 
-        virtual IndexBuffer *getIndexBuffer() const = 0;
-
-        virtual const uint32_t * const getVertexStrides() const = 0;
-
-        virtual const uint32_t * const getVertexOffsets() const = 0;
-        
     protected:
-        Renderable() = default;
+        ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
+
+        ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) override;
+        
+        TResult saveResource(DataStream &stream, Resource *res) override;
     };
+
+    #define T3D_MESH_MGR    (MeshManager::getInstance())
 }
 
 
-#endif  /*__T3D_RENDERABLE_H__*/
+#endif    /*__T3D_MESH_MANAGER_H__*/

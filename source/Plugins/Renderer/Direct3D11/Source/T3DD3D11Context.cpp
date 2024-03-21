@@ -916,7 +916,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVertexBuffer(VertexBuffer *buffer)
+    TResult D3D11Context::setVertexBuffers(uint32_t startSlot, uint32_t numOfBuffers, VertexBuffer * const *buffers, const uint32_t *strides, const uint32_t *offsets)
     {
         return T3D_OK;
     }
@@ -1430,7 +1430,7 @@ namespace Tiny3D
         case RenderTarget::Type::E_RT_WINDOW:
             {
                 D3D11RenderWindow *pDst = static_cast<D3D11RenderWindow*>(dst->getRenderWindow()->getRHIRenderWindow().get());
-                auto lambda = [this](Texture *pSrc, D3D11RenderWindow *pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
+                auto lambda = [this](const TextureSafePtr &pSrc, const D3D11RenderWindowSafePtr &pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
                 {
                     TResult ret = T3D_OK;
 
@@ -1443,7 +1443,7 @@ namespace Tiny3D
                         break;
                     case TEXTURE_TYPE::TT_2D:
                         {
-                            Texture2D *pTex2D = static_cast<Texture2D *>(pSrc);
+                            Texture2D *pTex2D = static_cast<Texture2D *>(pSrc.get());
                             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
                             pD3DSrc = pD3DPixelBuffer->D3DTexture;
                             pD3DSRV = pD3DPixelBuffer->D3DSRView;
@@ -1461,7 +1461,7 @@ namespace Tiny3D
                         break;
                     case TEXTURE_TYPE::TT_RENDER_TEXTURE:
                         {
-                            RenderTexture *pTex2D = static_cast<RenderTexture *>(pSrc);
+                            RenderTexture *pTex2D = static_cast<RenderTexture *>(pSrc.get());
                             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
                             pD3DSRV = pD3DPixelBuffer->D3DSRView;
                             pD3DSrc = pD3DPixelBuffer->D3DTexture;
@@ -1488,7 +1488,7 @@ namespace Tiny3D
                     return ret;
                 };
 
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda, src.get(), pDst, srcOffset, size, dstOffset);
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, TextureSafePtr(src), D3D11RenderWindowSafePtr(pDst), srcOffset, size, dstOffset);
             }
             break;
         case RenderTarget::Type::E_RT_TEXTURE:

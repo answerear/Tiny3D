@@ -64,6 +64,21 @@ namespace Tiny3D
         TT_MAX
     };
 
+    /**
+     * @enum    PrimitiveType
+     * @brief   渲染图元类型
+     */
+    TENUM()
+    enum class PrimitiveType : uint32_t
+    {
+        kPointList = 0,     /**< 点列表图元 */
+        kLineList,          /**< 线列表图元 */
+        kLineStrip,         /**< 线带图元 */
+        kTriangleList,      /**< 三角形列表图元 */
+        kTriangleStrip,     /**< 三角形带图元 */
+        kTriangleFan,       /**< 三角形扇形图元 */
+    };
+
     #define SHADER_TAG_QUEUE        "Queue"
 }
 

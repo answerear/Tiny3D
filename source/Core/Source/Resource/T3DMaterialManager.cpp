@@ -70,8 +70,7 @@ namespace Tiny3D
     TResult MaterialManager::saveResource(DataStream &stream, Resource *res)
     {
         Material *material = static_cast<Material*>(res);
-        T3D_SERIALIZER_MGR.serialize(stream, material);
-        return T3D_OK;
+        return T3D_SERIALIZER_MGR.serialize(stream, material);
     }
 
     //--------------------------------------------------------------------------
