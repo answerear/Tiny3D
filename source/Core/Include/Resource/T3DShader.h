@@ -126,7 +126,7 @@ namespace Tiny3D
         
         ResourcePtr clone() const override;
 
-        bool onPostLoad() override;
+        TResult onLoad() override;
         
     protected:
         /// shader 常量

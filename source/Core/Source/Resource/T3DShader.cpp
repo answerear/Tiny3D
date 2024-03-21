@@ -98,10 +98,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Shader::onPostLoad()
+    TResult Shader::onLoad()
     {
-        compile();
-        return true;
+        TResult ret;
+
+        do
+        {
+            ret = Resource::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = compile();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+﻿    /*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -366,7 +366,7 @@ namespace Tiny3D
 
         void cloneProperties(const Resource * const src) override;
 
-        bool onPostLoad() override;
+        TResult onLoad() override;
 
     protected:
         /// shader 常量

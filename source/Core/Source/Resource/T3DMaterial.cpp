@@ -142,22 +142,30 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Material::onPostLoad()
+    TResult Material::onLoad()
     {
         TResult ret = T3D_OK;
 
         do
         {
+            ret = Resource::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
             ArchivePtr archive;
             mShader = T3D_SHADER_MGR.loadShader(archive, mShaderName);
             if (mShader == nullptr)
             {
                 // 加载 shader 失败
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader failed !");
+                ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
-            
-            if (T3D_FAILED(mShader->compile()))
+
+            ret = mShader->compile();
+            if (T3D_FAILED(ret))
             {
                 // 编译 shader 失败
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Compile shader failed !");
@@ -185,7 +193,7 @@ namespace Tiny3D
             }
         } while (false);
         
-        return true;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
