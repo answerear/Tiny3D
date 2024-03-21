@@ -118,8 +118,8 @@ MeshPtr GeometryApp::buildMesh()
     ColorRGBA color = ColorRGBA::WHITE;
     Vector3 center(0.0f, 0.0f, 0.0f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
-    BoxVertex vertices[8];
-    uint16_t indices[36];
+    BoxVertex *vertices = new BoxVertex[8];
+    uint16_t *indices = new uint16_t[36];
     
     // V0
     offset[0] = -extent[0];

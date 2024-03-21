@@ -49,10 +49,7 @@ namespace Tiny3D
 
     Mesh::~Mesh()
     {
-        for (auto &buffer : mVertices)
-        {
-            buffer.release();
-        }
+
     }
     
     //--------------------------------------------------------------------------
@@ -103,7 +100,7 @@ namespace Tiny3D
 
     TResult Mesh::onCreate()
     {
-        TResult ret = T3D_OK;
+        TResult ret = Resource::onCreate();
         
         if (mCreatedFromData)
         {
