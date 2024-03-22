@@ -84,7 +84,7 @@ namespace Tiny3D
     protected:
         String  mMeshName {};
         String  mSubMeshName {};
-        
+
         MeshPtr mMesh {nullptr};
         SubMesh *mSubMesh {nullptr};
     };

@@ -25,23 +25,27 @@
 #include "Resource/T3DSubMesh.h"
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DVertexDeclaration.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SubMeshPtr SubMesh::create(const String &name, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+    SubMeshPtr SubMesh::create(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits)
     {
-        return new SubMesh(name, priType, indices, is16Bits);
+        return new SubMesh(name, material, priType, indices, is16Bits);
     }
 
     //--------------------------------------------------------------------------
 
-    SubMesh::SubMesh(const String &name, PrimitiveType priType, const Buffer &indices, bool is16Bits)
-        : mPriType(priType)
-        , mName(name)
+    SubMesh::SubMesh(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+        : mMaterial(material)
+        , mPriType(priType)
         , mIs16Bits(is16Bits)
+        , mName(name)
+        , mMaterialName(material->getName())
     {
         mIndices.setData(indices.Data, indices.DataSize);
     }
@@ -61,6 +65,9 @@ namespace Tiny3D
 
         do
         {
+            // TODO: 加载材质资源
+            
+            // 索引缓冲区
             IndexType indexType;
             size_t indexCount;
             if (mIs16Bits)

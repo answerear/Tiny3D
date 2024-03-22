@@ -40,12 +40,15 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static SubMeshPtr create(const String &name, PrimitiveType priType, const Buffer &indices, bool is16Bits);
+        static SubMeshPtr create(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits);
 
         ~SubMesh() override;
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const { return mName; }
+
+        TPROPERTY(RTTRFuncName="Material", RTTRFuncType="getter")
+        const String &getMaterialName() const { return mMaterialName; }
 
         TPROPERTY(RTTRFuncName="Indices", RTTRFuncType="getter")
         const Buffer &getIndices() const { return mIndices; }
@@ -56,6 +59,8 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="PrimitiveType", RTTRFuncType="getter")
         PrimitiveType getPrimitiveType() const { return mPriType; }
 
+        Material    *getMaterial() const { return mMaterial; }
+        
         IndexBuffer *getIndexBuffer() const { return mIB; }
 
         TResult generateRenderResource();
@@ -63,11 +68,14 @@ namespace Tiny3D
     protected:
         SubMesh() = default;
 
-        SubMesh(const String &name, PrimitiveType priType, const Buffer &indices, bool is16Bits);
+        SubMesh(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name) { mName = name; }
 
+        TPROPERTY(RTTRFuncName="Material", RTTRFuncType="setter")
+        void setMaterialName(const String &name) { mMaterialName = name; }
+        
         TPROPERTY(RTTRFuncName="Indices", RTTRFuncType="setter")
         void setIndices(const Buffer &indices)
         {
@@ -80,7 +88,9 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="PrimitiveType", RTTRFuncType="setter")
         void setPrimitiveType(PrimitiveType priType) { mPriType = priType; }
 
-    protected:        
+    protected:
+        /// 材质对象
+        MaterialPtr     mMaterial {nullptr};
         /// 渲染用的 index buffer
         IndexBufferPtr  mIB {nullptr};
 
@@ -95,7 +105,7 @@ namespace Tiny3D
         String  mName {};
         
         /// 对应材质名称
-        String  mMaterial {};
+        String  mMaterialName {};
     };
 }
 

@@ -74,9 +74,9 @@ namespace Tiny3D
 
     Material *Geometry::getMaterial()
     {
-        if (mMesh != nullptr)
+        if (mMesh != nullptr && mSubMesh != nullptr)
         {
-            
+            return mSubMesh->getMaterial();
         }
         return nullptr;
     }
