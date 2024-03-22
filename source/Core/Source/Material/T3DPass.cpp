@@ -154,7 +154,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
+        const auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
         if (itr == mKeywords.end())
         {
             mKeywords.push_back(keyword);
@@ -163,7 +163,6 @@ namespace Tiny3D
         {
             T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword duplicated !");
         }
-
 
         ShaderVariants *vars = nullptr;
 
@@ -204,7 +203,6 @@ namespace Tiny3D
         }
 
         auto rval = vars->insert(ShaderVariantsValue(keyword, variant));
-
 
         return ret;
     }
