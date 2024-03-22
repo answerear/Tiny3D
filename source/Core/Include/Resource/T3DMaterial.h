@@ -228,6 +228,8 @@ namespace Tiny3D
     public:
         static MaterialPtr create(const String &name);
 
+        static MaterialPtr create(const String &name, Shader *shader, ShaderConstantParams &&constants, ShaderSamplerParams &&samplers);
+
         ~Material() override;
 
         Type getType() const override;
@@ -361,6 +363,8 @@ namespace Tiny3D
         
     protected:
         Material(const String &name);
+
+        Material(const String &name, Shader *shader, ShaderConstantParams &&constants, ShaderSamplerParams &&samplers);
         
         ResourcePtr clone() const override;
 

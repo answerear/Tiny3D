@@ -40,12 +40,31 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    MaterialPtr Material::create(const String &name, Shader *shader, ShaderConstantParams &&constants, ShaderSamplerParams &&samplers)
+    {
+        return new Material(name, shader, std::move(constants), std::move(samplers));
+    }
+    
+    //--------------------------------------------------------------------------
+
     Material::Material(const String &name)
         : Resource(name)
     {
         
     }
 
+    //--------------------------------------------------------------------------
+
+    Material::Material(const String &name, Shader *shader, ShaderConstantParams &&constants, ShaderSamplerParams &&samplers)
+        : Resource(name)
+        , mConstants(std::move(constants))
+        , mSamplers(std::move(samplers))
+        , mShader(shader)
+    {
+        mShaderName = shader->getName();
+        mCurTechnique = TechniqueInstance::create(mShader->getSupportTechnique());
+    }
+    
     //--------------------------------------------------------------------------
 
     Material::~Material()
