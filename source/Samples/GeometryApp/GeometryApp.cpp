@@ -173,7 +173,11 @@ MaterialPtr GeometryApp::buildMaterial()
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader, std::move(constants), std::move(samplers));
-
+    StringArray enableKeywrods;
+    enableKeywrods.push_back("-");
+    StringArray disableKeywords;
+    material->switchKeywords(enableKeywrods, disableKeywords);
+    
     return material;
 }
 
