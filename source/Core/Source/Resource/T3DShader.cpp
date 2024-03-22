@@ -166,6 +166,11 @@ namespace Tiny3D
 
         if (!found)
         {
+            if (mTechniques.empty())
+            {
+                mSupportTechnique = tech;
+            }
+            
             mTechniques.push_back(tech);
         }
 
