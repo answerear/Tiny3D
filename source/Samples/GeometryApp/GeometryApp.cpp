@@ -85,6 +85,99 @@ void GeometryApp::applicationWillTerminate()
     
 }
 
+MaterialPtr GeometryApp::buildMaterial()
+{
+    // vertex & pixel shader keyword
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("-");
+    vkeyword.generate();
+    ShaderKeyword pkeyword(vkeyword);
+    
+    // vertex shader
+    const String vs =
+        "struct VS_INPUT\n"
+        "{\n"
+        "    float3 Pos : POSITION;\n"
+        "    float2 Tex : TEXCOORD0;\n"
+        "};\n"
+        "struct PS_INPUT\n"
+        "{\n"
+        "    float4 Pos : SV_POSITION;\n"
+        "    float2 Tex : TEXCOORD0;\n"
+        "};\n"
+        "PS_INPUT VS(VS_INPUT input)\n"
+        "{\n"
+        "    PS_INPUT output;\n"
+        "    output.Pos = float4(input.Pos, 1.0f);\n"
+        "    output.Tex = input.Tex;\n"
+        "    return output;\n"
+        "}";
+    
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->compile();
+
+    // pixel shader
+    const String ps =
+        "Texture2D gSrcTexture : register(t0);\n"
+        "SamplerState gSampler : register(s0);\n"
+        "struct PS_INPUT\n"
+        "{\n"
+        "    float4 Pos : SV_POSITION;\n"
+        "    float2 Tex : TEXCOORD0;\n"
+        "};\n"
+        "float4 PS(PS_INPUT input) : SV_Target\n"
+        "{\n"
+        "    float4 color = gSrcTexture.Sample(gSampler, input.Tex);\n"
+        "    return color;\n"
+        "}";
+    
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
+    pshader->setShaderStage(SHADER_STAGE::kPixel);
+    pshader->compile();
+
+    // render state
+    RenderStatePtr renderState = RenderState::create();
+
+    // blend state
+    BlendDesc blendDesc;
+    renderState->setBlendDesc(blendDesc);
+
+    // depth & stencil state
+    DepthStencilDesc depthStencilDesc;
+    renderState->setDepthStencilDesc(depthStencilDesc);
+
+    // rasterizer state
+    RasterizerDesc rasterizeDesc;
+    renderState->setRasterizerDesc(rasterizeDesc);
+    
+    // pass
+    PassPtr pass = Pass::create("0");
+    pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
+    pass->setRenderState(renderState);
+
+    // technique
+    TechniquePtr tech = Technique::create("Default-Technique");
+    tech->addPass(pass);
+
+    // shader
+    ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
+    shader->addTechnique(tech);
+
+    // constants
+    ShaderConstantParams constants;
+    
+    // samplers
+    ShaderSamplerParams samplers;
+    
+    // material
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader, std::move(constants), std::move(samplers));
+
+    return material;
+}
+
+
 MeshPtr GeometryApp::buildMesh()
 {
     // 
@@ -217,7 +310,8 @@ MeshPtr GeometryApp::buildMesh()
     indexBuffer.DataSize = sizeof(indices);
     
     String name = SUB_MESH_NAME;
-    SubMeshPtr submesh = SubMesh::create(name, PrimitiveType::kTriangleList, indexBuffer, true);
+    MaterialPtr material = buildMaterial();
+    SubMeshPtr submesh = SubMesh::create(name, material, PrimitiveType::kTriangleList, indexBuffer, true);
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 
