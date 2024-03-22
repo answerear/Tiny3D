@@ -40,34 +40,34 @@ namespace Tiny3D
     struct T3D_ENGINE_API RasterizerDesc
     {
         TPROPERTY()
-        PolygonMode FillMode;
+        PolygonMode FillMode = PolygonMode::kSolid;
         
         TPROPERTY()
-        CullingMode CullMode;
+        CullingMode CullMode = CullingMode::kClockwise;
         
         TPROPERTY()
-        Real        DepthBias;
+        Real        DepthBias = 0.0f;
         
         TPROPERTY()
-        Real        DepthBiasClamp;
+        Real        DepthBiasClamp = 0.0f;
         
         TPROPERTY()
-        Real        SlopeScaledDepthBias;
+        Real        SlopeScaledDepthBias = 0.0f;
         
         TPROPERTY()
-        bool        DepthClipEnable;
+        bool        DepthClipEnable = true;
         
         TPROPERTY()
-        bool        ScissorEnable;
+        bool        ScissorEnable = false;
         
         TPROPERTY()
-        bool        MultisampleEnable;
+        bool        MultisampleEnable = false;
         
         TPROPERTY()
-        bool        AntialiasedLineEnable;
+        bool        AntialiasedLineEnable = false;
 
         TPROPERTY()
-        bool        Conservative;
+        bool        Conservative = false;
     };
 
     class T3D_ENGINE_API RasterizerState : public RenderStateResource<RasterizerDesc, RHIRasterizerState>

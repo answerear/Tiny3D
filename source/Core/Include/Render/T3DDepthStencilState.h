@@ -43,16 +43,16 @@ namespace Tiny3D
         struct T3D_ENGINE_API StencilOpDesc
         {
             TPROPERTY()
-            CompareFunction StencilFunc;
+            CompareFunction StencilFunc = CompareFunction::kAlwaysPass;
 
             TPROPERTY()
-            StencilOp       StencilFailOp;
+            StencilOp       StencilFailOp = StencilOp::kKeep;
 
             TPROPERTY()
-            StencilOp       StencilDepthFailOp;
+            StencilOp       StencilDepthFailOp = StencilOp::kKeep;
 
             TPROPERTY()
-            StencilOp       StencilPassOp;
+            StencilOp       StencilPassOp = StencilOp::kKeep;
         };
 
         TPROPERTY()
@@ -62,27 +62,27 @@ namespace Tiny3D
         bool            DepthWriteEnable = true;
         
         TPROPERTY()
-        CompareFunction DepthFunc;
+        CompareFunction DepthFunc = CompareFunction::kLess;
 
         TPROPERTY()
-        bool            StencilEnable;
+        bool            StencilEnable = false;
         
         TPROPERTY()
-        uint32_t        StencilRef;
+        uint32_t        StencilRef = 0;
         
         TPROPERTY()
-        uint8_t         StencilReadMask;
+        uint8_t         StencilReadMask = 0xFF;
         
         TPROPERTY()
-        uint8_t         StencilWriteMask;
+        uint8_t         StencilWriteMask = 0xFF;
 
         // Front face
         TPROPERTY()
-        StencilOpDesc   FrontFace;
+        StencilOpDesc   FrontFace {};
         
         // Back face
         TPROPERTY()
-        StencilOpDesc   BackFace;
+        StencilOpDesc   BackFace {};
     };
 
     class T3D_ENGINE_API DepthStencilState : public RenderStateResource<DepthStencilDesc, RHIDepthStencilState>
