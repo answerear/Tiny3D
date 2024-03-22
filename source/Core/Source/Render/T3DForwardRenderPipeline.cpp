@@ -87,7 +87,7 @@ namespace Tiny3D
         {
             // 已经存在对应的渲染队列
             auto it = itr->second.find(material);
-                        
+
             if (it == itr->second.end())
             {
                 // 没有对应的材质
