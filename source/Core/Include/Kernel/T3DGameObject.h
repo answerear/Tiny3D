@@ -210,11 +210,13 @@ namespace Tiny3D
         TArray<SmartPtr<T>> getComponents(const RTTRType &type) const
         {
             TArray<SmartPtr<T>> components;
-        
-            auto range = mComponents.equal_range(type);
-            for (auto itr = range.first; itr != range.second; ++itr)
+
+            for (const auto &item : mComponents)
             {
-                components.emplace_back(itr->second);
+                if (item.first == type || item.first.is_derived_from(type))
+                {
+                    components.emplace_back(item.second);
+                }
             }
 
             return components;
