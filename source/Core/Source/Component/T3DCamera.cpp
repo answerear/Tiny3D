@@ -24,7 +24,6 @@
 
 
 #include "Component/T3DCamera.h"
-
 #include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
