@@ -117,9 +117,9 @@ namespace Tiny3D
 
         do
         {
-            if (mUsage == Usage::kStatic)
+            if (mUsage == Usage::kImmutable)
             {
-                // 静态缓冲区，无法写
+                // 不可写缓冲区，无法写
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Static buffer could not be written !");
                 break;
             }
