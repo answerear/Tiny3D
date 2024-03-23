@@ -343,6 +343,11 @@ namespace Tiny3D
                 ret = unload(res);
                 T3D_ASSERT(T3D_SUCCEEDED(ret), "Unload resource failed !");
             }
+            else
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Resource invalid state [%d] !", res->getState());
+                mResourcesCache.erase(itr);
+            }
         }
 
         return ret;
