@@ -270,19 +270,19 @@ MeshPtr GeometryApp::buildMesh()
     struct BoxVertex
     {
         Vector3 position {};
-        ColorRGBA diffuse {};
+        Vector2 uv {};
     };
     
     // vertex attributes
     VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
-    VertexAttribute attrColor(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_COLOR, VertexAttribute::Semantic::E_VAS_DIFFUSE, 0);        
+    VertexAttribute attrUV(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);        
     VertexAttributes attributes(2);
     attributes[0] = attrPos;
-    attributes[1] = attrColor;
+    attributes[1] = attrUV;
 
     // vertices & indices
     Vector3 offset;
-    ColorRGBA color = ColorRGBA::WHITE;
+    Vector2 uv(0.0f, 0.0f);
     Vector3 center(0.0f, 0.0f, 0.0f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
     BoxVertex *vertices = new BoxVertex[8];
@@ -293,56 +293,56 @@ MeshPtr GeometryApp::buildMesh()
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[0].position = center + offset;
-    vertices[0].diffuse = color;
+    vertices[0].uv = uv;
 
     // V1
     offset[0] = -extent[0];
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[1].position = center + offset;
-    vertices[1].diffuse = color;
+    vertices[1].uv = uv;
 
     // V2
     offset[0] = extent[0];
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[2].position = center + offset;
-    vertices[2].diffuse = color;
+    vertices[2].uv = uv;
 
     // V3
     offset[0] = extent[0];
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[3].position = center + offset;
-    vertices[3].diffuse = color;
+    vertices[3].uv = uv;
 
     // V4
     offset[0] = extent[0];
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[4].position = center + offset;
-    vertices[4].diffuse = color;
+    vertices[4].uv = uv;
 
     // V5
     offset[0] = extent[0];
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[5].position = center + offset;
-    vertices[5].diffuse = color;
+    vertices[5].uv = uv;
 
     // V6
     offset[0] = -extent[0];
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[6].position = center + offset;
-    vertices[6].diffuse = color;
+    vertices[6].uv = uv;
 
     // V7
     offset[0] = -extent[0];
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[7].position = center + offset;
-    vertices[7].diffuse = color;
+    vertices[7].uv = uv;
 
     // Front face
     indices[0] = 0, indices[1] = 1, indices[2] = 2;
