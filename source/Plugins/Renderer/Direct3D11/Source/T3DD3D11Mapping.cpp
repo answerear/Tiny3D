@@ -327,6 +327,79 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    D3D11_COMPARISON_FUNC D3D11Mapping::get(CompareFunction func)
+    {
+        D3D11_COMPARISON_FUNC dst = D3D11_COMPARISON_ALWAYS;
+
+        switch (func)
+        {
+        case CompareFunction::kAlwaysFail:
+            dst = D3D11_COMPARISON_NEVER;
+            break;
+        case CompareFunction::kAlwaysPass:
+            dst = D3D11_COMPARISON_ALWAYS;
+            break;
+        case CompareFunction::kLess:
+            dst = D3D11_COMPARISON_LESS;
+            break;
+        case CompareFunction::kLessEqual:
+            dst = D3D11_COMPARISON_LESS_EQUAL;
+            break;
+        case CompareFunction::kEqual:
+            dst = D3D11_COMPARISON_EQUAL;
+            break;
+        case CompareFunction::kNotEqual:
+            dst = D3D11_COMPARISON_NOT_EQUAL;
+            break;
+        case CompareFunction::kGreaterEqual:
+            dst = D3D11_COMPARISON_NOT_EQUAL;
+            break;
+        case CompareFunction::kGreater:
+            dst = D3D11_COMPARISON_GREATER;
+            break;
+        }
+        
+        return dst;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_STENCIL_OP D3D11Mapping::get(StencilOp op)
+    {
+        D3D11_STENCIL_OP dst = D3D11_STENCIL_OP_KEEP;
+
+        switch (op)
+        {
+        case StencilOp::kKeep:  /**< 保持现有的模板值 */
+            dst = D3D11_STENCIL_OP_KEEP;
+            break;
+        case StencilOp::kZero:  /**< 将模板值置为0 */
+            dst = D3D11_STENCIL_OP_ZERO;
+            break;
+        case StencilOp::kReplace:   /**< 将模板值设置为用 HWDepthStencilState::setStencilRef 函数设置的 ref 值*/
+            dst = D3D11_STENCIL_OP_REPLACE;
+            break;
+        case StencilOp::kInc:   /**< 如果模板值不是最大值就将模板值+1 */
+            dst = D3D11_STENCIL_OP_INVERT;
+            break;
+        case StencilOp::kIncWrap:   /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
+            dst = D3D11_STENCIL_OP_INCR_SAT;
+            break;
+        case StencilOp::kDec:   /**< 如果模板值不是最小值就将模板值-1 */
+            dst = D3D11_STENCIL_OP_DECR;
+            break;
+        case StencilOp::kDecWrap:   /**< 与 DECR 一样将模板值-1，如果模板值已经是最小值则设为最大值 */
+            dst = D3D11_STENCIL_OP_DECR_SAT;
+            break;
+        case StencilOp::kInvert:    /**< 把模板值按位取反 */
+            dst = D3D11_STENCIL_OP_INVERT;
+            break;
+        }
+        return dst;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
 

@@ -564,7 +564,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderCross::translate(const shaderlab::SLStencilOperation& src, DepthStencilDesc::StencilOpDesc &dst)
+    bool ShaderCross::translate(const shaderlab::SLStencilOperation& src, StencilOpDesc &dst)
     {
         // dst->set_comp(getCompare(src.comp));
         // dst->set_pass(getStencilOp(src.pass));

@@ -85,7 +85,7 @@ namespace Tiny3D
 
         bool translate(const shaderlab::SLShaderState& src, RenderStatePtr state);
 
-        bool translate(const shaderlab::SLStencilOperation& src, DepthStencilDesc::StencilOpDesc &dst);
+        bool translate(const shaderlab::SLStencilOperation& src, StencilOpDesc &dst);
 
         bool translate(const shaderlab::SLProgram& src, PassPtr pass);
         

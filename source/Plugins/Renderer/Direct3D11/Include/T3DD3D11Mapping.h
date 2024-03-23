@@ -55,6 +55,10 @@ namespace Tiny3D
         static D3D11_BLEND_OP get(BlendOperation op);
 
         static uint8_t get(BlendColorWriteMask mask);
+
+        static D3D11_COMPARISON_FUNC get(CompareFunction func);
+
+        static D3D11_STENCIL_OP get(StencilOp op);
     };
 }
 

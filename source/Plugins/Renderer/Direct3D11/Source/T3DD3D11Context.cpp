@@ -901,9 +901,55 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(DepthStencilState*state)
+    RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(DepthStencilState *state)
     {
-        return nullptr;
+        D3D11DepthStencilStatePtr d3dDSState = D3D11DepthStencilState::create();
+
+        const DepthStencilDesc &desc = state->getStateDesc();
+        D3D11_DEPTH_STENCIL_DESC d3dDesc;
+        d3dDesc.DepthEnable = desc.DepthTestEnable;
+        d3dDesc.DepthWriteMask = (desc.DepthWriteEnable ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO);
+        d3dDesc.DepthFunc = D3D11Mapping::get(desc.DepthFunc);
+        d3dDesc.StencilEnable = desc.StencilEnable;
+        d3dDesc.StencilReadMask = desc.StencilReadMask;
+        d3dDesc.StencilWriteMask = desc.StencilWriteMask;
+        d3dDesc.FrontFace.StencilFunc = D3D11Mapping::get(desc.FrontFace.StencilFunc);
+        d3dDesc.FrontFace.StencilDepthFailOp = D3D11Mapping::get(desc.FrontFace.StencilDepthFailOp);
+        d3dDesc.FrontFace.StencilFailOp = D3D11Mapping::get(desc.FrontFace.StencilFailOp);
+        d3dDesc.FrontFace.StencilPassOp = D3D11Mapping::get(desc.FrontFace.StencilPassOp);
+        d3dDesc.BackFace.StencilFunc = D3D11Mapping::get(desc.BackFace.StencilFunc);
+        d3dDesc.BackFace.StencilDepthFailOp = D3D11Mapping::get(desc.BackFace.StencilDepthFailOp);
+        d3dDesc.BackFace.StencilFailOp = D3D11Mapping::get(desc.BackFace.StencilFailOp);
+        d3dDesc.BackFace.StencilPassOp = D3D11Mapping::get(desc.BackFace.StencilPassOp);
+
+        auto lambda = [this](const D3D11_DEPTH_STENCIL_DESC &d3dDesc, const D3D11DepthStencilStateSafePtr &d3dDSState)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ID3D11DepthStencilState *pD3DDSState = nullptr;
+                HRESULT hr = mD3DDevice->CreateDepthStencilState(&d3dDesc, &pD3DDSState);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilState failed ! DX ERROR [%d]", hr);
+                    ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_STATE;
+                    break;
+                }
+
+                d3dDSState->D3DDepthStencilState = pD3DDSState;
+            } while (false);
+            
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11DepthStencilStateSafePtr(d3dDSState));
+        if (T3D_FAILED(ret))
+        {
+            d3dDSState = nullptr;
+        }
+        
+        return d3dDSState;
     }
 
     //--------------------------------------------------------------------------
