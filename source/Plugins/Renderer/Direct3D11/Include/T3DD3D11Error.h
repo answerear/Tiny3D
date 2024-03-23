@@ -64,6 +64,14 @@ namespace Tiny3D
         T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW,
         /// 创建 DepthStencilView 失败
         T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_VIEW,
+        /// 创建 BlendState 失败
+        T3D_ERR_D3D11_CREATE_BLEND_STATE,
+        /// 创建 DepthStencilState 失败
+        T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_STATE,
+        /// 创建 RasterizerState 失败
+        T3D_ERR_D3D11_CREATE_RASTERIZER_STATE,
+        /// 创建 SamplerState 失败
+        T3D_ERR_D3D11_CREATE_SAMPLER_STATE,
         /**< 锁定缓冲区失败 */
         T3D_ERR_D3D11_LOCK_BUFFER,
         /**< 接口调用不配对 */

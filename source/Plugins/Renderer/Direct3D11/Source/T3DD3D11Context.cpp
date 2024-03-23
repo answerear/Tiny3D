@@ -28,6 +28,7 @@
 #include "T3DD3D11Error.h"
 #include "T3DD3D11RenderBuffer.h"
 #include "T3DD3D11Mapping.h"
+#include "T3DD3D11RenderState.h"
 
 
 namespace Tiny3D
@@ -808,11 +809,11 @@ namespace Tiny3D
 
         if (mCurrentRenderTexture != nullptr)
         {
-            ret = clearDepthStencil(mCurrentRenderTexture, depth, stencil);
+            ret = clearDepthStencil(mCurrentRenderTexture, depth, static_cast<uint8_t>(stencil));
         }
         else if (mCurrentRenderWindow != nullptr)
         {
-            ret = clearDepthStencil(mCurrentRenderWindow, depth, stencil);
+            ret = clearDepthStencil(mCurrentRenderWindow, depth, static_cast<uint8_t>(stencil));
         }
 
         return ret;
@@ -848,7 +849,54 @@ namespace Tiny3D
     
     RHIBlendStatePtr D3D11Context::createBlendState(BlendState *state)
     {
-        return nullptr;
+        D3D11BlendStatePtr d3dBlendState = D3D11BlendState::create();
+
+        const BlendDesc &desc = state->getStateDesc();
+        D3D11_BLEND_DESC d3dBlendDesc;
+        d3dBlendDesc.AlphaToCoverageEnable = desc.AlphaToCoverageEnable;
+        d3dBlendDesc.IndependentBlendEnable = desc.IndependentBlendEnable;
+        for (uint32_t i = 0; i < BlendDesc::kMaxRenderTarget; ++i)
+        {
+            auto &dst = d3dBlendDesc.RenderTarget[i];
+            const auto &src = desc.RenderTargetStates[i];
+            dst.BlendEnable = src.BlendEnable;
+            dst.SrcBlend = D3D11Mapping::get(src.SrcBlend);
+            dst.DestBlend = D3D11Mapping::get(src.DestBlend);
+            dst.BlendOp = D3D11Mapping::get(src.BlendOp);
+            dst.SrcBlendAlpha = D3D11Mapping::get(src.SrcBlendAlpha);
+            dst.DestBlendAlpha = D3D11Mapping::get(src.DstBlendAlpha);
+            dst.BlendOpAlpha = D3D11Mapping::get(src.BlendOpAlpha);
+            dst.RenderTargetWriteMask = D3D11Mapping::get(static_cast<BlendColorWriteMask>(src.ColorMask));
+        }
+        
+        auto lambda = [this](const D3D11_BLEND_DESC &d3dBlendDesc, const D3D11BlendStateSafePtr &d3dBlendState)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ID3D11BlendState *pD3DBlendState = nullptr;
+                HRESULT hr = mD3DDevice->CreateBlendState(&d3dBlendDesc, &pD3DBlendState);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateBlendState failed ! DX ERROR [%d]", hr);
+                    ret = T3D_ERR_D3D11_CREATE_BLEND_STATE;
+                    break;
+                }
+
+                d3dBlendState->D3DBlendState = pD3DBlendState;
+            } while (false);
+            
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dBlendDesc, D3D11BlendStateSafePtr(d3dBlendState));
+        if (T3D_FAILED(ret))
+        {
+            d3dBlendState = nullptr;
+        }
+        
+        return d3dBlendState;
     }
 
     //--------------------------------------------------------------------------

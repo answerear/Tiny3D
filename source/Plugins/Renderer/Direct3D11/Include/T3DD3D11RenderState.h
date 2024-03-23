@@ -31,24 +31,56 @@
 
 namespace Tiny3D
 {
-    class D3D11BlendState : RHIBlendState
+    class D3D11BlendState : public RHIBlendState
     {
+    public:
+        static D3D11BlendStatePtr create();
+
+        ~D3D11BlendState() override;
+
+        ID3D11BlendState    *D3DBlendState {nullptr};
         
+    protected:
+        D3D11BlendState() = default;
     };
 
     class D3D11RasterizerState : public RHIRasterizerState
     {
+    public:
+        static D3D11RasterizerStatePtr create();
+
+        ~D3D11RasterizerState() override;
+
+        ID3D11RasterizerState   *D3DRasterizerState {nullptr};
         
+    protected:
+        D3D11RasterizerState() = default;
     };
 
     class D3D11DepthStencilState : public RHIDepthStencilState
     {
+    public:
+        static D3D11DepthStencilStatePtr create();
+
+        ~D3D11DepthStencilState() override;
+
+        ID3D11DepthStencilState *D3DDepthStencilState {nullptr};
         
+    protected:
+        D3D11DepthStencilState() = default;
     };
 
     class D3D11SamplerState : public RHISamplerState
     {
+    public:
+        static D3D11SamplerStatePtr create();
+
+        ~D3D11SamplerState() override;
+
+        ID3D11SamplerState  *D3DSamplerState {nullptr};
         
+    protected:
+        D3D11SamplerState() = default;
     };
 }
 

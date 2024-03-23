@@ -31,6 +31,60 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    D3D11BlendStatePtr D3D11BlendState::create()
+    {
+        return new D3D11BlendState();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11BlendState::~D3D11BlendState()
+    {
+        D3D_SAFE_RELEASE(D3DBlendState);
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11RasterizerStatePtr D3D11RasterizerState::create()
+    {
+        return new D3D11RasterizerState();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    D3D11RasterizerState::~D3D11RasterizerState()
+    {
+        D3D_SAFE_RELEASE(D3DRasterizerState);
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11DepthStencilStatePtr D3D11DepthStencilState::create()
+    {
+        return new D3D11DepthStencilState();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11DepthStencilState::~D3D11DepthStencilState()
+    {
+        D3D_SAFE_RELEASE(D3DDepthStencilState);
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11SamplerStatePtr D3D11SamplerState::create()
+    {
+        return new D3D11SamplerState();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11SamplerState::~D3D11SamplerState()
+    {
+        D3D_SAFE_RELEASE(D3DSamplerState);
+    }
+
     //--------------------------------------------------------------------------
 }
 

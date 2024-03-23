@@ -61,8 +61,6 @@ namespace Tiny3D
     public:
         static D3D11PixelBuffer2DPtr create();
 
-        D3D11PixelBuffer2D();
-
         ~D3D11PixelBuffer2D() override;
         
         ID3D11Texture2D             *D3DTexture {nullptr};
@@ -72,6 +70,9 @@ namespace Tiny3D
         ID3D11DepthStencilView      *D3DDSView {nullptr};
         
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
+
+    protected:
+        D3D11PixelBuffer2D();
     };
 
     class D3D11PixelBuffer3D : public RHIPixelBuffer3D

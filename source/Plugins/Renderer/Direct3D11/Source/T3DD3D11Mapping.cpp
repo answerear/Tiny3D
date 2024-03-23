@@ -230,6 +230,103 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    D3D11_BLEND D3D11Mapping::get(BlendFactor factor)
+    {
+        D3D11_BLEND dst = D3D11_BLEND_ONE;
+
+        switch (factor)
+        {
+        case BlendFactor::kOne:  /// 1.0
+            dst = D3D11_BLEND_ONE;
+            break;
+        case BlendFactor::kZero:    /// 0.0
+            dst = D3D11_BLEND_ZERO;
+            break;
+        case BlendFactor::kDstColor:    /// C_dst
+            dst = D3D11_BLEND_DEST_COLOR;
+            break;
+        case BlendFactor::kSrcColor:    /// C_src
+            dst = D3D11_BLEND_SRC_COLOR;
+            break;
+        case BlendFactor::kOneMinusDstColor:    /// 1 - C_dst
+            dst = D3D11_BLEND_INV_DEST_COLOR;
+            break;
+        case BlendFactor::kOneMinusSrcColor:    /// 1 - C_src
+            dst = D3D11_BLEND_INV_SRC_COLOR;
+            break;
+        case BlendFactor::kDstAlpha:    /// A_dst
+            dst = D3D11_BLEND_DEST_ALPHA;
+            break;
+        case BlendFactor::kSrcAlpha:    /// A_src
+            dst = D3D11_BLEND_SRC_ALPHA;
+            break;
+        case BlendFactor::kOneMinusDstAlpha:    /// 1 - A_dst
+            dst = D3D11_BLEND_INV_DEST_ALPHA;
+            break;
+        case BlendFactor::kOneMinusSrcAlpha:    /// 1 - A_src
+            dst = D3D11_BLEND_INV_SRC_ALPHA;
+            break;
+        }
+        
+        return dst;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_BLEND_OP D3D11Mapping::get(BlendOperation op)
+    {
+        D3D11_BLEND_OP dst = D3D11_BLEND_OP_ADD;
+
+        switch (op)
+        {
+        case BlendOperation::kAdd:  /// C_result = C_src * F_src + C_dst * F_dst
+            dst = D3D11_BLEND_OP_ADD;
+            break;
+        case BlendOperation::kSubtract: /// C_result = C_src * F_src - C_dst * F_dst
+            dst = D3D11_BLEND_OP_SUBTRACT;
+            break;
+        case BlendOperation::kReverseSubtract:  /// C_result = C_dst * F_dst - C_src * F_src
+            dst = D3D11_BLEND_OP_REV_SUBTRACT;
+            break;
+        case BlendOperation::kMin:  ///
+            dst = D3D11_BLEND_OP_MIN;
+            break;
+        case BlendOperation::kMax:
+            dst = D3D11_BLEND_OP_MAX;
+            break;
+        }
+        
+        return dst;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    uint8_t D3D11Mapping::get(BlendColorWriteMask mask)
+    {
+        uint8_t dst = 0;
+
+        if (mask & kWriteMaskRed)
+        {
+            dst |= D3D11_COLOR_WRITE_ENABLE_RED;
+        }
+        if (mask & kWriteMaskGreen)
+        {
+            dst |= D3D11_COLOR_WRITE_ENABLE_GREEN;
+        }
+        if (mask & kWriteMaskBlue)
+        {
+            dst |= D3D11_COLOR_WRITE_ENABLE_BLUE;
+        }
+        if (mask & kWriteMaskAlpha)
+        {
+            dst |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
+        }
+        
+        return dst;
+    }
+
+    //--------------------------------------------------------------------------
 }
 
 

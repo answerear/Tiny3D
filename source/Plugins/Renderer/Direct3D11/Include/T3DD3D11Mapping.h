@@ -49,6 +49,12 @@ namespace Tiny3D
         static D3D_SRV_DIMENSION get(TEXTURE_TYPE texType);
 
         static TEXTURE_TYPE get(D3D_SRV_DIMENSION srvDim);
+
+        static D3D11_BLEND get(BlendFactor factor);
+
+        static D3D11_BLEND_OP get(BlendOperation op);
+
+        static uint8_t get(BlendColorWriteMask mask);
     };
 }
 

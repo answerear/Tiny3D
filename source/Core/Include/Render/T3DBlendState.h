@@ -51,10 +51,10 @@ namespace Tiny3D
             bool            BlendEnable = false;
             
             TPROPERTY()
-            BlendFactor     SrcBlend = BlendFactor::kOne;
+            BlendFactor     SrcBlend = BlendFactor::kSrcAlpha;
             
             TPROPERTY()
-            BlendFactor     DestBlend = BlendFactor::kZero;
+            BlendFactor     DestBlend = BlendFactor::kOneMinusSrcAlpha;
             
             TPROPERTY()
             BlendOperation  BlendOp = BlendOperation::kAdd;
