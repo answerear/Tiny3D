@@ -85,6 +85,39 @@ void GeometryApp::applicationWillTerminate()
     
 }
 
+Texture2DPtr GeometryApp::buildTexture()
+{
+    const uint32_t width = 256;
+    const uint32_t height = 256;
+    uint32_t pitch = Image::calcPitch(width, 24);
+    const uint32_t dataSize = pitch * height;
+    uint8_t *pixels = new uint8_t[dataSize];
+    
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        uint8_t *lines = pixels + pitch * y;
+        uint32_t i = 0;
+        for (uint32_t x = 0; x < width; ++x)
+        {
+            // blue
+            lines[i++] = 39;
+            // green
+            lines[i++] = 127;
+            // red
+            lines[i++] = 255;
+        }
+    }
+    
+    Buffer texData;
+    texData.Data = pixels;
+    texData.DataSize = dataSize;
+    
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8, texData, 1, 0, 0);
+    
+    return texture;
+}
+
+
 MaterialPtr GeometryApp::buildMaterial()
 {
     // vertex & pixel shader keyword
@@ -95,46 +128,57 @@ MaterialPtr GeometryApp::buildMaterial()
     
     // vertex shader
     const String vs =
-        "struct VS_INPUT\n"
+        "cbuffer ConstantBuffer : register(b0)\n"
         "{\n"
-        "    float3 Pos : POSITION;\n"
-        "    float2 Tex : TEXCOORD0;\n"
+        "   float4x4 modelMatrix;\n"
+        "   float4x4 viewMatrix;\n"
+        "   float4x4 projectionMatrix;\n"
+        "}\n"
+        "struct VertexInput\n"
+        "{\n"
+        "   float3 position : POSITION;\n"
+        "   float2 uv : TEXCOORD0;\n"
         "};\n"
-        "struct PS_INPUT\n"
+        "struct VertexOutput\n"
         "{\n"
-        "    float4 Pos : SV_POSITION;\n"
-        "    float2 Tex : TEXCOORD0;\n"
+        "   float4 position : SV_POSITION;\n"
+        "   float2 uv : TEXCOORD0;\n"
         "};\n"
-        "PS_INPUT VS(VS_INPUT input)\n"
+        "VertexOutput main(VertexInput input)\n"
         "{\n"
-        "    PS_INPUT output;\n"
-        "    output.Pos = float4(input.Pos, 1.0f);\n"
-        "    output.Tex = input.Tex;\n"
-        "    return output;\n"
-        "}";
+        "   VertexOutput output;\n"
+        "   float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);\n"
+        "   float4 viewPosition = mul(worldPosition, viewMatrix);\n"
+        "   float4 clipPosition = mul(viewPosition, projectionMatrix);\n"
+        "   output.position = clipPosition;\n"
+        "   output.uv = input.uv;\n"
+        "   return output;\n"
+        "}\n";
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
-    vshader->compile();
+    TResult ret = vshader->compile();
+    T3D_ASSERT(T3D_SUCCEEDED(ret), "Compile vertex shader !");
 
     // pixel shader
     const String ps =
-        "Texture2D gSrcTexture : register(t0);\n"
-        "SamplerState gSampler : register(s0);\n"
+        "Texture2D texCube : register(t0);\n"
+        "SamplerState sampler_texCube : register(s0);\n"
         "struct PS_INPUT\n"
         "{\n"
         "    float4 Pos : SV_POSITION;\n"
         "    float2 Tex : TEXCOORD0;\n"
         "};\n"
-        "float4 PS(PS_INPUT input) : SV_Target\n"
+        "float4 main(PS_INPUT input) : SV_Target\n"
         "{\n"
-        "    float4 color = gSrcTexture.Sample(gSampler, input.Tex);\n"
+        "    float4 color = texCube.Sample(sampler_texCube, input.Tex);\n"
         "    return color;\n"
         "}";
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
-    pshader->compile();
+    // ret = pshader->compile();
+    T3D_ASSERT(T3D_SUCCEEDED(ret), "Compile pixel shader !");
 
     // render state
     RenderStatePtr renderState = RenderState::create();
@@ -153,23 +197,49 @@ MaterialPtr GeometryApp::buildMaterial()
     
     // pass
     PassPtr pass = Pass::create("0");
-    pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
-    pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
+    ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret), "Add vertex shader variant !");
+    ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
     pass->setRenderState(renderState);
+    T3D_ASSERT(T3D_SUCCEEDED(ret), "Add pixel shader variant !");
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
-    tech->addPass(pass);
+    bool rval = tech->addPass(pass);
+    T3D_ASSERT(rval, "Add pass !");
 
     // shader
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
-    shader->addTechnique(tech);
+    rval = shader->addTechnique(tech);
+    T3D_ASSERT(rval, "Add technique !");
 
     // constants
     ShaderConstantParams constants;
+
+    // model matrix
+    Matrix4 modelMatrix;
+    const String modelMatrixName = "modelMatrix";
+    ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    constants.emplace(modelMatrixName, matrixParam);
+    
+    // view matrix
+    Matrix4 viewMatrix;
+    const String viewMatrixName = "viewMatrix";
+    matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    constants.emplace(viewMatrixName, matrixParam);
+    
+    // projection matrix
+    Matrix4 projMatrix;
+    const String projMatrixName = "projectionMatrix";
+    matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    constants.emplace(projMatrixName, matrixParam);
     
     // samplers
     ShaderSamplerParams samplers;
+    const String texSamplerName = "texCube";
+    Texture2DPtr texture = buildTexture();
+    ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
+    samplers.emplace(texSamplerName, sampler);
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader, std::move(constants), std::move(samplers));

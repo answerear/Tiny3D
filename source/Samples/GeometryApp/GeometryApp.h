@@ -41,6 +41,7 @@ protected:  /// from Tiny3D::Application
     void applicationWillTerminate() override;
 
 protected:
+    Tiny3D::Texture2DPtr buildTexture();
     Tiny3D::MaterialPtr buildMaterial();
     Tiny3D::MeshPtr buildMesh();
 };
