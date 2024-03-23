@@ -39,11 +39,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    MaterialPtr MaterialManager::createMaterial(const String &name,  Shader *shader, ShaderConstantParams &&constants, ShaderSamplerParams &&samplers)
+    MaterialPtr MaterialManager::createMaterial(const String &name,  Shader *shader)
     {
-        ShaderConstantParams constParams = std::move(constants);
-        ShaderSamplerParams samplerParams = std::move(samplers);
-        return smart_pointer_cast<Material>(createResource(name, 3, shader, &constParams, &samplerParams));
+        return smart_pointer_cast<Material>(createResource(name, 1, shader));
     }
 
     //--------------------------------------------------------------------------
@@ -64,11 +62,9 @@ namespace Tiny3D
 
     ResourcePtr MaterialManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 3, "Create material must be 3 parameters !");
+        T3D_ASSERT(argc == 1, "Create material must be 3 parameters !");
         Shader *shader = va_arg(args, Shader*);
-        ShaderConstantParams *constants = va_arg(args, ShaderConstantParams*);
-        ShaderSamplerParams *samplers = va_arg(args, ShaderSamplerParams*);
-        return Material::create(name, shader, std::move(*constants), std::move(*samplers));
+        return Material::create(name, shader);
     }
 
     //--------------------------------------------------------------------------

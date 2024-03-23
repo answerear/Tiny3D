@@ -80,12 +80,16 @@ namespace Tiny3D
 
         do
         {
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Start compiling pass [%s] ...", getName().c_str());
+            
             // 编译 vertex shader
             ret = compileShader(mVertexShaders);
             if (T3D_FAILED(ret))
             {
                 break;
             }
+
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling vertex shader !");
 
             // 编译 hull shader
             ret = compileShader(mHullShaders);
@@ -94,6 +98,8 @@ namespace Tiny3D
                 break;
             }
 
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling hull shader !");
+            
             // 编译 domain shader
             ret = compileShader(mDomainShaders);
             if (T3D_FAILED(ret))
@@ -101,6 +107,8 @@ namespace Tiny3D
                 break;
             }
 
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling domain shader !");
+            
             // 编译 gemometry shader
             ret = compileShader(mGeometryShaders);
             if (T3D_FAILED(ret))
@@ -108,12 +116,18 @@ namespace Tiny3D
                 break;
             }
 
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling geometry shader !");
+            
             // 编译 pixel shader
             ret = compileShader(mPixelShaders);
             if (T3D_FAILED(ret))
             {
                 break;
             }
+
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling pixel shader !");
+            
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling technique !");
         } while (false);
 
         return ret;

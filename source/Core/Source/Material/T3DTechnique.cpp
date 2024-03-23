@@ -67,6 +67,7 @@ namespace Tiny3D
 
         do
         {
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Start compiling technique [%s] ...", getName().c_str());
             for (auto pass : mPasses)
             {
                 ret = pass->compile();
@@ -75,6 +76,7 @@ namespace Tiny3D
                     break;
                 }
             }
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling technique !");
         } while (false);
         
         return ret;

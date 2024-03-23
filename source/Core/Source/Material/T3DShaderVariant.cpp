@@ -65,7 +65,7 @@ namespace Tiny3D
                 // 已经编译过，不编译了，也不反射常量、纹理、纹理采样
                 break;
             }
-            
+
             RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
 
             // 编译 shader

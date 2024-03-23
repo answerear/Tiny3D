@@ -75,7 +75,11 @@ namespace Tiny3D
 
     ShaderSamplerParamPtr ShaderSamplerParam::clone() const
     {
-        return create(mName, mTexType);
+        ShaderSamplerParamPtr sampler = new ShaderSamplerParam();
+        sampler->mName = mName;
+        sampler->mTexType = mTexType;
+        sampler->mTexture = mTexture;
+        return sampler;
     }
 
     //--------------------------------------------------------------------------

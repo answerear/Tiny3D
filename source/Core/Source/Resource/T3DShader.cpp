@@ -68,6 +68,8 @@ namespace Tiny3D
 
         do
         {
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Start compiling shader [%s] ...", getName().c_str());
+            
             for (auto tech : mTechniques)
             {
                 ret = tech->compile();
@@ -77,6 +79,8 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling shader !");
         } while (false);
 
         return ret;

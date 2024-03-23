@@ -38,7 +38,7 @@ namespace Tiny3D
     public:
         static MaterialManagerPtr create();
 
-        MaterialPtr createMaterial(const String &name, Shader *shader, ShaderConstantParams &&constants, ShaderSamplerParams &&samplers);
+        MaterialPtr createMaterial(const String &name, Shader *shader);
 
         MaterialPtr loadMaterial(Archive *archive, const String &name);
 

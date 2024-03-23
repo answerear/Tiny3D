@@ -120,6 +120,8 @@ Texture2DPtr GeometryApp::buildTexture()
 
 MaterialPtr GeometryApp::buildMaterial()
 {
+    TResult ret;
+    
     // vertex & pixel shader keyword
     ShaderKeyword vkeyword;
     vkeyword.addKeyword("-");
@@ -157,8 +159,6 @@ MaterialPtr GeometryApp::buildMaterial()
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
-    TResult ret = vshader->compile();
-    T3D_ASSERT(T3D_SUCCEEDED(ret), "Compile vertex shader !");
 
     // pixel shader
     const String ps =
@@ -177,8 +177,6 @@ MaterialPtr GeometryApp::buildMaterial()
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
-    // ret = pshader->compile();
-    T3D_ASSERT(T3D_SUCCEEDED(ret), "Compile pixel shader !");
 
     // render state
     RenderStatePtr renderState = RenderState::create();
@@ -220,29 +218,33 @@ MaterialPtr GeometryApp::buildMaterial()
     Matrix4 modelMatrix;
     const String modelMatrixName = "modelMatrix";
     ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
-    constants.emplace(modelMatrixName, matrixParam);
+    shader->addConstantParam(matrixParam);
+    // constants.emplace(modelMatrixName, matrixParam);
     
     // view matrix
     Matrix4 viewMatrix;
     const String viewMatrixName = "viewMatrix";
     matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
-    constants.emplace(viewMatrixName, matrixParam);
+    shader->addConstantParam(matrixParam);
+    // constants.emplace(viewMatrixName, matrixParam);
     
     // projection matrix
     Matrix4 projMatrix;
     const String projMatrixName = "projectionMatrix";
     matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
-    constants.emplace(projMatrixName, matrixParam);
+    shader->addConstantParam(matrixParam);
+    // constants.emplace(projMatrixName, matrixParam);
     
     // samplers
     ShaderSamplerParams samplers;
     const String texSamplerName = "texCube";
     Texture2DPtr texture = buildTexture();
     ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
-    samplers.emplace(texSamplerName, sampler);
+    shader->addSamplerParam(sampler);
+    // samplers.emplace(texSamplerName, sampler);
     
     // material
-    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader, std::move(constants), std::move(samplers));
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
     StringArray enableKeywrods;
     enableKeywrods.push_back("-");
     StringArray disableKeywords;
