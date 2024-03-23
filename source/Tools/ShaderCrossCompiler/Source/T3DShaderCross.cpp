@@ -710,7 +710,7 @@ namespace Tiny3D
 
     CullingMode ShaderCross::getCulling(shaderlab::SLFloat src) const
     {
-        CullingMode culling = CullingMode::kAnticlockwise;
+        CullingMode culling = CullingMode::kBack;
 
         shaderlab::CullMode mode = (shaderlab::CullMode)src.val;
 
@@ -720,10 +720,10 @@ namespace Tiny3D
             culling = CullingMode::kNone;
             break;
         case shaderlab::CullMode::kCullFront:
-            culling = CullingMode::kClockwise;
+            culling = CullingMode::kFront;
             break;
         case shaderlab::CullMode::kCullBack:
-            culling = CullingMode::kAnticlockwise;
+            culling = CullingMode::kBack;
             break;
         case shaderlab::CullMode::kCullFrontAndBack:
             break;

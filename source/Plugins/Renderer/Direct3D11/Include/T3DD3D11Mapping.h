@@ -59,6 +59,10 @@ namespace Tiny3D
         static D3D11_COMPARISON_FUNC get(CompareFunction func);
 
         static D3D11_STENCIL_OP get(StencilOp op);
+
+        static D3D11_FILL_MODE get(PolygonMode mode);
+
+        static D3D11_CULL_MODE get(CullingMode mode);
     };
 }
 

@@ -849,15 +849,15 @@ namespace Tiny3D
     
     RHIBlendStatePtr D3D11Context::createBlendState(BlendState *state)
     {
-        D3D11BlendStatePtr d3dBlendState = D3D11BlendState::create();
+        D3D11BlendStatePtr d3dState = D3D11BlendState::create();
 
         const BlendDesc &desc = state->getStateDesc();
-        D3D11_BLEND_DESC d3dBlendDesc;
-        d3dBlendDesc.AlphaToCoverageEnable = desc.AlphaToCoverageEnable;
-        d3dBlendDesc.IndependentBlendEnable = desc.IndependentBlendEnable;
+        D3D11_BLEND_DESC d3dDesc;
+        d3dDesc.AlphaToCoverageEnable = desc.AlphaToCoverageEnable;
+        d3dDesc.IndependentBlendEnable = desc.IndependentBlendEnable;
         for (uint32_t i = 0; i < BlendDesc::kMaxRenderTarget; ++i)
         {
-            auto &dst = d3dBlendDesc.RenderTarget[i];
+            auto &dst = d3dDesc.RenderTarget[i];
             const auto &src = desc.RenderTargetStates[i];
             dst.BlendEnable = src.BlendEnable;
             dst.SrcBlend = D3D11Mapping::get(src.SrcBlend);
@@ -869,14 +869,14 @@ namespace Tiny3D
             dst.RenderTargetWriteMask = D3D11Mapping::get(static_cast<BlendColorWriteMask>(src.ColorMask));
         }
         
-        auto lambda = [this](const D3D11_BLEND_DESC &d3dBlendDesc, const D3D11BlendStateSafePtr &d3dBlendState)
+        auto lambda = [this](const D3D11_BLEND_DESC &d3dDesc, const D3D11BlendStateSafePtr &d3dState)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                ID3D11BlendState *pD3DBlendState = nullptr;
-                HRESULT hr = mD3DDevice->CreateBlendState(&d3dBlendDesc, &pD3DBlendState);
+                ID3D11BlendState *pD3DState = nullptr;
+                HRESULT hr = mD3DDevice->CreateBlendState(&d3dDesc, &pD3DState);
                 if (FAILED(hr))
                 {
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateBlendState failed ! DX ERROR [%d]", hr);
@@ -884,26 +884,26 @@ namespace Tiny3D
                     break;
                 }
 
-                d3dBlendState->D3DBlendState = pD3DBlendState;
+                d3dState->D3DBlendState = pD3DState;
             } while (false);
             
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dBlendDesc, D3D11BlendStateSafePtr(d3dBlendState));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11BlendStateSafePtr(d3dState));
         if (T3D_FAILED(ret))
         {
-            d3dBlendState = nullptr;
+            d3dState = nullptr;
         }
         
-        return d3dBlendState;
+        return d3dState;
     }
 
     //--------------------------------------------------------------------------
     
     RHIDepthStencilStatePtr D3D11Context::createDepthStencilState(DepthStencilState *state)
     {
-        D3D11DepthStencilStatePtr d3dDSState = D3D11DepthStencilState::create();
+        D3D11DepthStencilStatePtr d3dState = D3D11DepthStencilState::create();
 
         const DepthStencilDesc &desc = state->getStateDesc();
         D3D11_DEPTH_STENCIL_DESC d3dDesc;
@@ -922,14 +922,14 @@ namespace Tiny3D
         d3dDesc.BackFace.StencilFailOp = D3D11Mapping::get(desc.BackFace.StencilFailOp);
         d3dDesc.BackFace.StencilPassOp = D3D11Mapping::get(desc.BackFace.StencilPassOp);
 
-        auto lambda = [this](const D3D11_DEPTH_STENCIL_DESC &d3dDesc, const D3D11DepthStencilStateSafePtr &d3dDSState)
+        auto lambda = [this](const D3D11_DEPTH_STENCIL_DESC &d3dDesc, const D3D11DepthStencilStateSafePtr &d3dState)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                ID3D11DepthStencilState *pD3DDSState = nullptr;
-                HRESULT hr = mD3DDevice->CreateDepthStencilState(&d3dDesc, &pD3DDSState);
+                ID3D11DepthStencilState *pD3DState = nullptr;
+                HRESULT hr = mD3DDevice->CreateDepthStencilState(&d3dDesc, &pD3DState);
                 if (FAILED(hr))
                 {
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilState failed ! DX ERROR [%d]", hr);
@@ -937,26 +937,67 @@ namespace Tiny3D
                     break;
                 }
 
-                d3dDSState->D3DDepthStencilState = pD3DDSState;
+                d3dState->D3DDepthStencilState = pD3DState;
             } while (false);
             
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11DepthStencilStateSafePtr(d3dDSState));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11DepthStencilStateSafePtr(d3dState));
         if (T3D_FAILED(ret))
         {
-            d3dDSState = nullptr;
+            d3dState = nullptr;
         }
         
-        return d3dDSState;
+        return d3dState;
     }
 
     //--------------------------------------------------------------------------
     
     RHIRasterizerStatePtr D3D11Context::createRasterizerState(RasterizerState *state)
     {
-        return nullptr;
+        D3D11RasterizerStatePtr d3dState = D3D11RasterizerState::create();
+
+        const RasterizerDesc &desc = state->getStateDesc();
+        D3D11_RASTERIZER_DESC d3dDesc;
+        d3dDesc.FillMode = D3D11Mapping::get(desc.FillMode);
+        d3dDesc.CullMode = D3D11Mapping::get(desc.CullMode);
+        d3dDesc.FrontCounterClockwise = desc.FrontAnticlockwise;
+        d3dDesc.DepthBias = static_cast<INT>(desc.DepthBias);
+        d3dDesc.DepthBiasClamp = desc.DepthBiasClamp;
+        d3dDesc.SlopeScaledDepthBias = desc.SlopeScaledDepthBias;
+        d3dDesc.DepthClipEnable = desc.DepthClipEnable; // 启用深度裁剪
+        d3dDesc.ScissorEnable = desc.ScissorEnable; // 禁用剪裁测试
+        d3dDesc.MultisampleEnable = desc.MultisampleEnable; // 禁用多采样
+        d3dDesc.AntialiasedLineEnable = desc.AntialiasedLineEnable; // 禁用抗锯齿线条
+        
+        auto lambda = [this](const D3D11_RASTERIZER_DESC &d3dDesc, const D3D11RasterizerStateSafePtr &d3dState)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ID3D11RasterizerState *pD3DState = nullptr;
+                HRESULT hr = mD3DDevice->CreateRasterizerState(&d3dDesc, &pD3DState);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilState failed ! DX ERROR [%d]", hr);
+                    ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_STATE;
+                    break;
+                }
+
+                d3dState->D3DRasterizerState = pD3DState;
+            } while (false);
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11RasterizerStateSafePtr(d3dState));
+        if (T3D_FAILED(ret))
+        {
+            d3dState = nullptr;
+        }
+        
+        return d3dState;
     }
 
     //--------------------------------------------------------------------------

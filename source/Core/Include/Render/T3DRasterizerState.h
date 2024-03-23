@@ -43,7 +43,10 @@ namespace Tiny3D
         PolygonMode FillMode = PolygonMode::kSolid;
         
         TPROPERTY()
-        CullingMode CullMode = CullingMode::kClockwise;
+        CullingMode CullMode = CullingMode::kBack;
+
+        TPROPERTY()
+        bool        FrontAnticlockwise = true;
         
         TPROPERTY()
         Real        DepthBias = 0.0f;
@@ -70,6 +73,8 @@ namespace Tiny3D
         bool        Conservative = false;
     };
 
+    template class T3D_ENGINE_API RenderStateResource<RasterizerDesc, RHIRasterizerState>;
+    
     class T3D_ENGINE_API RasterizerState : public RenderStateResource<RasterizerDesc, RHIRasterizerState>
     {
     public:

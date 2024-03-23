@@ -128,19 +128,17 @@ namespace Tiny3D
     };
 
     /**
-     * @enum    CullingMode
-     * @brief   背面剔除模式
+     * \brief 剔除面模式
      */
     TENUM()
     enum class CullingMode : uint32_t
     {
         /**< 不做消隐面剔除 */
         kNone = 0,
-        /**< 按照顶点顺时针顺序的消隐面剔除 */
-        kClockwise,
-        /**< 按照顶点逆时针顺序的消隐面剔除 */
-        kAnticlockwise,
-        kMax
+        /**< 剔除正面 */
+        kFront,
+        /**< 剔除背面 */
+        kBack,
     };
 
     /**

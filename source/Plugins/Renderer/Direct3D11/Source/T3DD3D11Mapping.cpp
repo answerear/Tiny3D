@@ -400,6 +400,51 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    D3D11_FILL_MODE D3D11Mapping::get(PolygonMode mode)
+    {
+        D3D11_FILL_MODE dst = D3D11_FILL_SOLID;
+        
+        switch (mode)
+        {
+        case PolygonMode::kNone:
+            break;
+        case PolygonMode::kPoint:
+            break;
+        case PolygonMode::kWireframe:
+            dst = D3D11_FILL_WIREFRAME;
+            break;
+        case PolygonMode::kSolid:
+            dst = D3D11_FILL_SOLID;
+            break;
+        }
+        
+        return dst;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_CULL_MODE D3D11Mapping::get(CullingMode mode)
+    {
+        D3D11_CULL_MODE dst = D3D11_CULL_BACK;
+
+        switch (mode)
+        {
+        case CullingMode::kNone:
+            dst = D3D11_CULL_NONE;
+            break;
+        case CullingMode::kFront:
+            dst = D3D11_CULL_FRONT;
+            break;
+        case CullingMode::kBack:
+            dst = D3D11_CULL_BACK;
+            break;
+        }
+        
+        return dst;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
 
