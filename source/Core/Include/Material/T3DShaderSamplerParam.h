@@ -46,6 +46,8 @@ namespace Tiny3D
     public:
         static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType);
 
+        static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
+
         ~ShaderSamplerParam() override;
 
         ShaderSamplerParamPtr clone() const;
@@ -81,6 +83,8 @@ namespace Tiny3D
         
     protected:
         ShaderSamplerParam(const String &name, TEXTURE_TYPE texType);
+
+        ShaderSamplerParam(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
 
         bool onPostLoad() override;
         
