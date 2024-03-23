@@ -1321,6 +1321,9 @@ namespace Tiny3D
                             varBinding.size = variableDesc.Size;
                             size += varBinding.size;
                             constBinding.variables.emplace(varBinding.name, varBinding);
+
+                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s",
+                                constBinding.name.c_str(), varBinding.name.c_str());
                         }
 
                         constBinding.size = size;
@@ -1342,6 +1345,9 @@ namespace Tiny3D
                             texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
 
                             texSamplerBindings.emplace(name, texSamplerBinding);
+
+                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - texture name : %s, binding point : %d, binding count : %d, texture type : %d",
+                                itr->second.texBinding.name.c_str(), itr->second.texBinding.binding, itr->second.texBinding.bindingCount, itr->second.texBinding.texType);
                         }
                         else
                         {
@@ -1376,6 +1382,8 @@ namespace Tiny3D
                             texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
 
                             texSamplerBindings.emplace(key, texSamplerBinding);
+                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - sampler name : %s, binding point : %d",
+                                texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
                         }
                         else
                         {
