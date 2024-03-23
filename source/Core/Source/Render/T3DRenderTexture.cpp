@@ -46,6 +46,14 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data)
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
     
     RenderTexture::~RenderTexture()
     {
