@@ -61,7 +61,7 @@ namespace Tiny3D
         for (const auto &binding : mShaderVariant->getShaderConstantBindings())
         {
             reallocate(buffer.Data, (uint32_t &)buffer.DataSize, binding.second.size);
-            ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(buffer, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUNone);
+            ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(buffer, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUWrite);
             mConstantBuffers.emplace(binding.first, cbuffer);
         }
     }
