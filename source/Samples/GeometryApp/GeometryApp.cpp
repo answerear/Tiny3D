@@ -219,29 +219,28 @@ MaterialPtr GeometryApp::buildMaterial()
     const String modelMatrixName = "modelMatrix";
     ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
     shader->addConstantParam(matrixParam);
-    // constants.emplace(modelMatrixName, matrixParam);
     
     // view matrix
     Matrix4 viewMatrix;
     const String viewMatrixName = "viewMatrix";
     matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
     shader->addConstantParam(matrixParam);
-    // constants.emplace(viewMatrixName, matrixParam);
     
     // projection matrix
     Matrix4 projMatrix;
     const String projMatrixName = "projectionMatrix";
     matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
     shader->addConstantParam(matrixParam);
-    // constants.emplace(projMatrixName, matrixParam);
     
     // samplers
     ShaderSamplerParams samplers;
     const String texSamplerName = "texCube";
     Texture2DPtr texture = buildTexture();
+    // sampler state
+    SamplerDesc samplerDesc;
+    texture->setSamplerDesc(samplerDesc);
     ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
     shader->addSamplerParam(sampler);
-    // samplers.emplace(texSamplerName, sampler);
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
