@@ -108,16 +108,38 @@ namespace Tiny3D
 
     TResult Texture1D::onCreate()
     {
-        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onCreate();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+        } while (false);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Texture1D::onLoad()
     {
-        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -169,16 +191,39 @@ namespace Tiny3D
 
     TResult Texture2D::onCreate()
     {
-        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onCreate();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Texture2D::onLoad()
     {
-        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -216,14 +261,36 @@ namespace Tiny3D
 
     TResult Texture2DArray::onCreate()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture2D::onCreate();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Texture2DArray::onLoad()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture2D::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -273,14 +340,37 @@ namespace Tiny3D
 
     TResult Texture3D::onCreate()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onCreate();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Texture3D::onLoad()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+        } while (false);
+        return ret;
     }
     
     //--------------------------------------------------------------------------
@@ -318,14 +408,36 @@ namespace Tiny3D
 
     TResult Cubemap::onCreate()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture2D::onCreate();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+        } while (false);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult Cubemap::onLoad()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Texture2D::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+        } while (false);
+        return ret;
     }
     
     //--------------------------------------------------------------------------
@@ -363,14 +475,38 @@ namespace Tiny3D
     
     TResult CubemapArray::onCreate()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Cubemap::onCreate();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult CubemapArray::onLoad()
     {
-        return T3D_OK;
+        TResult ret;
+
+        do
+        {
+            ret = Cubemap::onLoad();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+        } while (false);
+        
+        return ret;
     }
     
     //--------------------------------------------------------------------------
