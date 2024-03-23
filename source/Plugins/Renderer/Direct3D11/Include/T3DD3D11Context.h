@@ -487,7 +487,7 @@ namespace Tiny3D
          * \param [out] texSamplerBindings : 绑定的纹理采样信息
          * \return 调用成功返回 T3D_OK
          */
-        TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings texSamplerBindings) override;
+        TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings &texSamplerBindings) override;
         
         /**
          * \brief 根据上下文设置好的资源、状态来渲染
