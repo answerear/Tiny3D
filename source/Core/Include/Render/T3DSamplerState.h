@@ -40,42 +40,44 @@ namespace Tiny3D
     struct T3D_ENGINE_API SamplerDesc
     {
         TPROPERTY()
-        FilterOptions       MinFilter;
+        FilterOptions       MinFilter {FilterOptions::kLinear};
         
         TPROPERTY()
-        FilterOptions       MagFilter;
+        FilterOptions       MagFilter {FilterOptions::kLinear};
         
         TPROPERTY()
-        FilterOptions       MipFilter;
+        FilterOptions       MipFilter {FilterOptions::kLinear};
         
         TPROPERTY()
-        TextureAddressMode  AddressU;
+        TextureAddressMode  AddressU {TextureAddressMode::kWrap};
         
         TPROPERTY()
-        TextureAddressMode  AddressV;
+        TextureAddressMode  AddressV {TextureAddressMode::kWrap};
         
         TPROPERTY()
-        TextureAddressMode  AddressW;
+        TextureAddressMode  AddressW {TextureAddressMode::kWrap};
         
         TPROPERTY()
-        Real                MipLODBias;
+        Real                MipLODBias {0.0f};
         
         TPROPERTY()
-        uint32_t            MaxAnisotropy;
+        uint32_t            MaxAnisotropy {1};
         
         TPROPERTY()
-        CompareFunction     CompareFunc;
+        CompareFunction     CompareFunc {CompareFunction::kAlwaysFail};
         
         TPROPERTY()
-        ColorRGBA           BorderColor;
+        ColorRGBA           BorderColor {ColorRGBA::WHITE};
         
         TPROPERTY()
-        Real                MinLOD;
+        Real                MinLOD {std::numeric_limits<Real>::min()};
         
         TPROPERTY()
-        Real                MaxLOD;
+        Real                MaxLOD {std::numeric_limits<Real>::max()};
     };
 
+    template class T3D_ENGINE_API RenderStateResource<SamplerDesc, RHISamplerState>;
+    
     class T3D_ENGINE_API SamplerState : public RenderStateResource<SamplerDesc, RHISamplerState>
     {
     public:

@@ -879,7 +879,7 @@ namespace Tiny3D
                 HRESULT hr = mD3DDevice->CreateBlendState(&d3dDesc, &pD3DState);
                 if (FAILED(hr))
                 {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateBlendState failed ! DX ERROR [%d]", hr);
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create blend state ! DX ERROR [%d]", hr);
                     ret = T3D_ERR_D3D11_CREATE_BLEND_STATE;
                     break;
                 }
@@ -932,7 +932,7 @@ namespace Tiny3D
                 HRESULT hr = mD3DDevice->CreateDepthStencilState(&d3dDesc, &pD3DState);
                 if (FAILED(hr))
                 {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilState failed ! DX ERROR [%d]", hr);
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create depth stencil state ! DX ERROR [%d]", hr);
                     ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_STATE;
                     break;
                 }
@@ -981,8 +981,8 @@ namespace Tiny3D
                 HRESULT hr = mD3DDevice->CreateRasterizerState(&d3dDesc, &pD3DState);
                 if (FAILED(hr))
                 {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilState failed ! DX ERROR [%d]", hr);
-                    ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_STATE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create rasterizer state ! DX ERROR [%d]", hr);
+                    ret = T3D_ERR_D3D11_CREATE_RASTERIZER_STATE;
                     break;
                 }
 
@@ -1004,7 +1004,52 @@ namespace Tiny3D
     
     RHISamplerStatePtr D3D11Context::createSamplerState(SamplerState *state)
     {
-        return nullptr;
+        D3D11SamplerStatePtr d3dState = D3D11SamplerState::create();
+
+        const SamplerDesc &desc = state->getStateDesc();
+        D3D11_SAMPLER_DESC d3dDesc;
+        d3dDesc.Filter = D3D11Mapping::get(desc.MinFilter,desc.MagFilter, desc.MipFilter);
+        d3dDesc.AddressU = D3D11Mapping::get(desc.AddressU); // 设置U方向寻址模式为环绕
+        d3dDesc.AddressV = D3D11Mapping::get(desc.AddressV); // 设置V方向寻址模式为环绕
+        d3dDesc.AddressW = D3D11Mapping::get(desc.AddressW); // 设置W方向寻址模式为环绕
+        d3dDesc.MipLODBias = desc.MipLODBias;
+        d3dDesc.MaxAnisotropy = desc.MaxAnisotropy;
+        d3dDesc.ComparisonFunc = D3D11Mapping::get(desc.CompareFunc);
+        d3dDesc.BorderColor[0] = desc.BorderColor.blue();
+        d3dDesc.BorderColor[1] = desc.BorderColor.green();
+        d3dDesc.BorderColor[2] = desc.BorderColor.red();
+        d3dDesc.BorderColor[3] = desc.BorderColor.alpha();
+        d3dDesc.MinLOD = desc.MinLOD;
+        d3dDesc.MaxLOD = desc.MaxLOD;
+
+        auto lambda = [this](const D3D11_SAMPLER_DESC &d3dDesc, const D3D11SamplerStateSafePtr &d3dState)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ID3D11SamplerState *pD3DState = nullptr;
+                HRESULT hr = mD3DDevice->CreateSamplerState(&d3dDesc, &pD3DState);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create sampler state ! DX ERROR [%d]", hr);
+                    ret = T3D_ERR_D3D11_CREATE_SAMPLER_STATE;
+                    break;
+                }
+
+                d3dState->D3DSamplerState = pD3DState;
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11SamplerStateSafePtr(d3dState));
+        if (T3D_FAILED(ret))
+        {
+            d3dState = nullptr;
+        }
+        
+        return d3dState;
     }
 
     //--------------------------------------------------------------------------

@@ -63,6 +63,10 @@ namespace Tiny3D
         static D3D11_FILL_MODE get(PolygonMode mode);
 
         static D3D11_CULL_MODE get(CullingMode mode);
+
+        static D3D11_TEXTURE_ADDRESS_MODE get(TextureAddressMode mode);
+
+        static D3D11_FILTER get(FilterOptions minFilter, FilterOptions magFilter, FilterOptions mipFilter, bool comparison = false);
     };
 }
 

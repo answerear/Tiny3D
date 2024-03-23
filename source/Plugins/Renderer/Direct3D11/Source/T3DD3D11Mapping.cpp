@@ -233,177 +233,177 @@ namespace Tiny3D
 
     D3D11_BLEND D3D11Mapping::get(BlendFactor factor)
     {
-        D3D11_BLEND dst = D3D11_BLEND_ONE;
+        D3D11_BLEND d3dFactor = D3D11_BLEND_ONE;
 
         switch (factor)
         {
         case BlendFactor::kOne:  /// 1.0
-            dst = D3D11_BLEND_ONE;
+            d3dFactor = D3D11_BLEND_ONE;
             break;
         case BlendFactor::kZero:    /// 0.0
-            dst = D3D11_BLEND_ZERO;
+            d3dFactor = D3D11_BLEND_ZERO;
             break;
         case BlendFactor::kDstColor:    /// C_dst
-            dst = D3D11_BLEND_DEST_COLOR;
+            d3dFactor = D3D11_BLEND_DEST_COLOR;
             break;
         case BlendFactor::kSrcColor:    /// C_src
-            dst = D3D11_BLEND_SRC_COLOR;
+            d3dFactor = D3D11_BLEND_SRC_COLOR;
             break;
         case BlendFactor::kOneMinusDstColor:    /// 1 - C_dst
-            dst = D3D11_BLEND_INV_DEST_COLOR;
+            d3dFactor = D3D11_BLEND_INV_DEST_COLOR;
             break;
         case BlendFactor::kOneMinusSrcColor:    /// 1 - C_src
-            dst = D3D11_BLEND_INV_SRC_COLOR;
+            d3dFactor = D3D11_BLEND_INV_SRC_COLOR;
             break;
         case BlendFactor::kDstAlpha:    /// A_dst
-            dst = D3D11_BLEND_DEST_ALPHA;
+            d3dFactor = D3D11_BLEND_DEST_ALPHA;
             break;
         case BlendFactor::kSrcAlpha:    /// A_src
-            dst = D3D11_BLEND_SRC_ALPHA;
+            d3dFactor = D3D11_BLEND_SRC_ALPHA;
             break;
         case BlendFactor::kOneMinusDstAlpha:    /// 1 - A_dst
-            dst = D3D11_BLEND_INV_DEST_ALPHA;
+            d3dFactor = D3D11_BLEND_INV_DEST_ALPHA;
             break;
         case BlendFactor::kOneMinusSrcAlpha:    /// 1 - A_src
-            dst = D3D11_BLEND_INV_SRC_ALPHA;
+            d3dFactor = D3D11_BLEND_INV_SRC_ALPHA;
             break;
         }
         
-        return dst;
+        return d3dFactor;
     }
 
     //--------------------------------------------------------------------------
 
     D3D11_BLEND_OP D3D11Mapping::get(BlendOperation op)
     {
-        D3D11_BLEND_OP dst = D3D11_BLEND_OP_ADD;
+        D3D11_BLEND_OP d3dOp = D3D11_BLEND_OP_ADD;
 
         switch (op)
         {
         case BlendOperation::kAdd:  /// C_result = C_src * F_src + C_dst * F_dst
-            dst = D3D11_BLEND_OP_ADD;
+            d3dOp = D3D11_BLEND_OP_ADD;
             break;
         case BlendOperation::kSubtract: /// C_result = C_src * F_src - C_dst * F_dst
-            dst = D3D11_BLEND_OP_SUBTRACT;
+            d3dOp = D3D11_BLEND_OP_SUBTRACT;
             break;
         case BlendOperation::kReverseSubtract:  /// C_result = C_dst * F_dst - C_src * F_src
-            dst = D3D11_BLEND_OP_REV_SUBTRACT;
+            d3dOp = D3D11_BLEND_OP_REV_SUBTRACT;
             break;
         case BlendOperation::kMin:  ///
-            dst = D3D11_BLEND_OP_MIN;
+            d3dOp = D3D11_BLEND_OP_MIN;
             break;
         case BlendOperation::kMax:
-            dst = D3D11_BLEND_OP_MAX;
+            d3dOp = D3D11_BLEND_OP_MAX;
             break;
         }
         
-        return dst;
+        return d3dOp;
     }
     
     //--------------------------------------------------------------------------
 
     uint8_t D3D11Mapping::get(BlendColorWriteMask mask)
     {
-        uint8_t dst = 0;
+        uint8_t d3dMask = 0;
 
         if (mask & kWriteMaskRed)
         {
-            dst |= D3D11_COLOR_WRITE_ENABLE_RED;
+            d3dMask |= D3D11_COLOR_WRITE_ENABLE_RED;
         }
         if (mask & kWriteMaskGreen)
         {
-            dst |= D3D11_COLOR_WRITE_ENABLE_GREEN;
+            d3dMask |= D3D11_COLOR_WRITE_ENABLE_GREEN;
         }
         if (mask & kWriteMaskBlue)
         {
-            dst |= D3D11_COLOR_WRITE_ENABLE_BLUE;
+            d3dMask |= D3D11_COLOR_WRITE_ENABLE_BLUE;
         }
         if (mask & kWriteMaskAlpha)
         {
-            dst |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
+            d3dMask |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
         }
         
-        return dst;
+        return d3dMask;
     }
 
     //--------------------------------------------------------------------------
 
     D3D11_COMPARISON_FUNC D3D11Mapping::get(CompareFunction func)
     {
-        D3D11_COMPARISON_FUNC dst = D3D11_COMPARISON_ALWAYS;
+        D3D11_COMPARISON_FUNC d3dFunc = D3D11_COMPARISON_ALWAYS;
 
         switch (func)
         {
         case CompareFunction::kAlwaysFail:
-            dst = D3D11_COMPARISON_NEVER;
+            d3dFunc = D3D11_COMPARISON_NEVER;
             break;
         case CompareFunction::kAlwaysPass:
-            dst = D3D11_COMPARISON_ALWAYS;
+            d3dFunc = D3D11_COMPARISON_ALWAYS;
             break;
         case CompareFunction::kLess:
-            dst = D3D11_COMPARISON_LESS;
+            d3dFunc = D3D11_COMPARISON_LESS;
             break;
         case CompareFunction::kLessEqual:
-            dst = D3D11_COMPARISON_LESS_EQUAL;
+            d3dFunc = D3D11_COMPARISON_LESS_EQUAL;
             break;
         case CompareFunction::kEqual:
-            dst = D3D11_COMPARISON_EQUAL;
+            d3dFunc = D3D11_COMPARISON_EQUAL;
             break;
         case CompareFunction::kNotEqual:
-            dst = D3D11_COMPARISON_NOT_EQUAL;
+            d3dFunc = D3D11_COMPARISON_NOT_EQUAL;
             break;
         case CompareFunction::kGreaterEqual:
-            dst = D3D11_COMPARISON_NOT_EQUAL;
+            d3dFunc = D3D11_COMPARISON_NOT_EQUAL;
             break;
         case CompareFunction::kGreater:
-            dst = D3D11_COMPARISON_GREATER;
+            d3dFunc = D3D11_COMPARISON_GREATER;
             break;
         }
         
-        return dst;
+        return d3dFunc;
     }
 
     //--------------------------------------------------------------------------
 
     D3D11_STENCIL_OP D3D11Mapping::get(StencilOp op)
     {
-        D3D11_STENCIL_OP dst = D3D11_STENCIL_OP_KEEP;
+        D3D11_STENCIL_OP d3dOp = D3D11_STENCIL_OP_KEEP;
 
         switch (op)
         {
         case StencilOp::kKeep:  /**< 保持现有的模板值 */
-            dst = D3D11_STENCIL_OP_KEEP;
+            d3dOp = D3D11_STENCIL_OP_KEEP;
             break;
         case StencilOp::kZero:  /**< 将模板值置为0 */
-            dst = D3D11_STENCIL_OP_ZERO;
+            d3dOp = D3D11_STENCIL_OP_ZERO;
             break;
         case StencilOp::kReplace:   /**< 将模板值设置为用 HWDepthStencilState::setStencilRef 函数设置的 ref 值*/
-            dst = D3D11_STENCIL_OP_REPLACE;
+            d3dOp = D3D11_STENCIL_OP_REPLACE;
             break;
         case StencilOp::kInc:   /**< 如果模板值不是最大值就将模板值+1 */
-            dst = D3D11_STENCIL_OP_INVERT;
+            d3dOp = D3D11_STENCIL_OP_INVERT;
             break;
         case StencilOp::kIncWrap:   /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
-            dst = D3D11_STENCIL_OP_INCR_SAT;
+            d3dOp = D3D11_STENCIL_OP_INCR_SAT;
             break;
         case StencilOp::kDec:   /**< 如果模板值不是最小值就将模板值-1 */
-            dst = D3D11_STENCIL_OP_DECR;
+            d3dOp = D3D11_STENCIL_OP_DECR;
             break;
         case StencilOp::kDecWrap:   /**< 与 DECR 一样将模板值-1，如果模板值已经是最小值则设为最大值 */
-            dst = D3D11_STENCIL_OP_DECR_SAT;
+            d3dOp = D3D11_STENCIL_OP_DECR_SAT;
             break;
         case StencilOp::kInvert:    /**< 把模板值按位取反 */
-            dst = D3D11_STENCIL_OP_INVERT;
+            d3dOp = D3D11_STENCIL_OP_INVERT;
             break;
         }
-        return dst;
+        return d3dOp;
     }
     
     //--------------------------------------------------------------------------
 
     D3D11_FILL_MODE D3D11Mapping::get(PolygonMode mode)
     {
-        D3D11_FILL_MODE dst = D3D11_FILL_SOLID;
+        D3D11_FILL_MODE d3dMode = D3D11_FILL_SOLID;
         
         switch (mode)
         {
@@ -412,36 +412,111 @@ namespace Tiny3D
         case PolygonMode::kPoint:
             break;
         case PolygonMode::kWireframe:
-            dst = D3D11_FILL_WIREFRAME;
+            d3dMode = D3D11_FILL_WIREFRAME;
             break;
         case PolygonMode::kSolid:
-            dst = D3D11_FILL_SOLID;
+            d3dMode = D3D11_FILL_SOLID;
             break;
         }
         
-        return dst;
+        return d3dMode;
     }
 
     //--------------------------------------------------------------------------
 
     D3D11_CULL_MODE D3D11Mapping::get(CullingMode mode)
     {
-        D3D11_CULL_MODE dst = D3D11_CULL_BACK;
+        D3D11_CULL_MODE d3dMode = D3D11_CULL_BACK;
 
         switch (mode)
         {
         case CullingMode::kNone:
-            dst = D3D11_CULL_NONE;
+            d3dMode = D3D11_CULL_NONE;
             break;
         case CullingMode::kFront:
-            dst = D3D11_CULL_FRONT;
+            d3dMode = D3D11_CULL_FRONT;
             break;
         case CullingMode::kBack:
-            dst = D3D11_CULL_BACK;
+            d3dMode = D3D11_CULL_BACK;
             break;
         }
         
-        return dst;
+        return d3dMode;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    D3D11_TEXTURE_ADDRESS_MODE D3D11Mapping::get(TextureAddressMode mode)
+    {
+        D3D11_TEXTURE_ADDRESS_MODE d3dMode;
+
+        switch (mode)
+        {
+        case TextureAddressMode::kWrap:
+            d3dMode = D3D11_TEXTURE_ADDRESS_WRAP;
+        case TextureAddressMode::kMirror:
+            d3dMode = D3D11_TEXTURE_ADDRESS_MIRROR;
+        case TextureAddressMode::kClamp:
+            d3dMode = D3D11_TEXTURE_ADDRESS_CLAMP;
+        case TextureAddressMode::kBorder:
+            d3dMode = D3D11_TEXTURE_ADDRESS_BORDER;
+        }
+
+        return d3dMode;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    D3D11_FILTER D3D11Mapping::get(FilterOptions min, FilterOptions mag, FilterOptions mip, bool comparison)
+    {
+        if (min == FilterOptions::kAnisotropic
+            || mag == FilterOptions::kAnisotropic
+            || mip == FilterOptions::kAnisotropic)
+            return comparison ? D3D11_FILTER_COMPARISON_ANISOTROPIC : D3D11_FILTER_ANISOTROPIC;
+
+        // FilterOptions::FilterOptions::NONE is not supported
+#define MERGE_FOR_SWITCH(_comparison_, _min_ , _mag_, _mip_ ) \
+    ((_comparison_ ? 8 : 0) | (_min_ == FilterOptions::kLinear ? 4 : 0) | (_mag_ == FilterOptions::kLinear ? 2 : 0) | (_mip_ == FilterOptions::kLinear ? 1 : 0))
+
+        switch ((MERGE_FOR_SWITCH(comparison, min, mag, mip)))
+        {
+        case MERGE_FOR_SWITCH(true, FilterOptions::kPoint, FilterOptions::kPoint, FilterOptions::kPoint):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kPoint, FilterOptions::kPoint, FilterOptions::kLinear):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kPoint, FilterOptions::kLinear, FilterOptions::kPoint):
+            return D3D11_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kPoint, FilterOptions::kLinear, FilterOptions::kLinear):
+            return D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kLinear, FilterOptions::kPoint, FilterOptions::kPoint):
+            return D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kLinear, FilterOptions::kPoint, FilterOptions::kLinear):
+            return D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kLinear, FilterOptions::kLinear, FilterOptions::kPoint):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(true, FilterOptions::kLinear, FilterOptions::kLinear, FilterOptions::kLinear):
+            return D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kPoint, FilterOptions::kPoint, FilterOptions::kPoint):
+            return D3D11_FILTER_MIN_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kPoint, FilterOptions::kPoint, FilterOptions::kLinear):
+            return D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kPoint, FilterOptions::kLinear, FilterOptions::kPoint):
+            return D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kPoint, FilterOptions::kLinear, FilterOptions::kLinear):
+            return D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kLinear, FilterOptions::kPoint, FilterOptions::kPoint):
+            return D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kLinear, FilterOptions::kPoint, FilterOptions::kLinear):
+            return D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kLinear, FilterOptions::kLinear, FilterOptions::kPoint):
+            return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+        case MERGE_FOR_SWITCH(false, FilterOptions::kLinear, FilterOptions::kLinear, FilterOptions::kLinear):
+            return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        }
+
+#undef MERGE_FOR_SWITCH
+
+        return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     }
     
     //--------------------------------------------------------------------------
