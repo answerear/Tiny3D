@@ -152,7 +152,7 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setRasterizerState(RasterizerState *state) override;
-
+        
         /**
          * \brief 创建 RHI 顶点格式对象
          * \param [in] decl : 顶点格式对象
@@ -577,6 +577,10 @@ namespace Tiny3D
         
         TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 &dstOffset = Vector3::ZERO);
 
+        using SetSamplerState = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11SamplerState * const *);
+        
+        TResult setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const * samplers);
+        
     protected:
         struct BlitVertex
         {

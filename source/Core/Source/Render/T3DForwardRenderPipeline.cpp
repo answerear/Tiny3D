@@ -285,8 +285,8 @@ namespace Tiny3D
                 // ctx->blit(rt, camera->getRenderTarget());
             }
 
-            // 重置 render target 为空
-            ctx->resetRenderTarget();
+            // 重置所有状态
+            ctx->reset();
         }
         
         return T3D_OK;

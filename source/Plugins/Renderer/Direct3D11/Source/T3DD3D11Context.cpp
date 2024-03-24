@@ -290,7 +290,7 @@ namespace Tiny3D
 
     TResult D3D11Context::swapBackBuffer(D3D11RenderWindow *renderWindow)
     {
-        auto lambda = [this](const D3D11RenderWindowSafePtr &renderWindow)
+        auto lambda = [this](const D3D11RenderWindowPtr &renderWindow)
         {
             TResult ret = T3D_OK;
             do
@@ -307,7 +307,7 @@ namespace Tiny3D
             
             return ret;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(renderWindow));
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(renderWindow));
     }
 
     //--------------------------------------------------------------------------
@@ -316,7 +316,7 @@ namespace Tiny3D
     {
         D3D11RenderWindowPtr d3dRenderWindow = D3D11RenderWindow::create(renderWindow);
 
-        auto lambda = [this](const RenderWindowSafePtr &pRenderWindow, const D3D11RenderWindowSafePtr &pD3DRenderWindow)
+        auto lambda = [this](const RenderWindowPtr &pRenderWindow, const D3D11RenderWindowPtr &pD3DRenderWindow)
         {
             TResult ret = T3D_OK;
             IDXGIDevice *pDXGIDevice = nullptr;
@@ -484,7 +484,7 @@ namespace Tiny3D
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderWindowSafePtr(renderWindow), D3D11RenderWindowSafePtr(d3dRenderWindow));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderWindowPtr(renderWindow), D3D11RenderWindowPtr(d3dRenderWindow));
         
         if (T3D_FAILED(ret))
         {
@@ -500,7 +500,7 @@ namespace Tiny3D
     {
         D3D11PixelBuffer2DPtr d3dPixelBuffer = D3D11PixelBuffer2D::create();
 
-        auto lambda = [this](const PixelBuffer2DSafePtr &buffer, const D3D11PixelBuffer2DSafePtr &d3dPixelBuffer)
+        auto lambda = [this](const PixelBuffer2DPtr &buffer, const D3D11PixelBuffer2DPtr &d3dPixelBuffer)
         {
             TResult ret = T3D_OK;
 
@@ -613,7 +613,7 @@ namespace Tiny3D
             return ret;
         };
         
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DSafePtr(buffer), D3D11PixelBuffer2DSafePtr(d3dPixelBuffer));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(buffer), D3D11PixelBuffer2DPtr(d3dPixelBuffer));
         if (T3D_FAILED(ret))
         {
             d3dPixelBuffer = nullptr;
@@ -627,13 +627,13 @@ namespace Tiny3D
     TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
-        auto lambda = [this](const D3D11RenderWindowSafePtr &pD3DRenderWindow)
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow)
         {
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
             return T3D_OK;
         };
         
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow));
         
         if (T3D_SUCCEEDED(ret))
         {
@@ -649,13 +649,13 @@ namespace Tiny3D
     {
         D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(renderTexture->getPixelBuffer()->getRHIResource().get());
         
-        auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer)
+        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer)
         {
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DPixelBuffer->D3DDSView);
             return T3D_OK;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer));
         
         if (T3D_SUCCEEDED(ret))
         {
@@ -767,7 +767,7 @@ namespace Tiny3D
     TResult D3D11Context::clearColor(RenderWindow *window, const ColorRGB &color)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
-        auto lambda = [this](const D3D11RenderWindowSafePtr &pD3DRenderWindow, const ColorRGB &color)
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const ColorRGB &color)
         {
             float clr[4];
             clr[0] = color.red();
@@ -777,7 +777,7 @@ namespace Tiny3D
             mD3DDeviceContext->ClearRenderTargetView(pD3DRenderWindow->D3DRTView, clr);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow), color);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), color);
     }
 
     //--------------------------------------------------------------------------
@@ -795,7 +795,7 @@ namespace Tiny3D
             mD3DDeviceContext->ClearRenderTargetView(pD3DPixelBuffer->D3DRTView, clr);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), color);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), color);
     }
 
     //--------------------------------------------------------------------------
@@ -824,12 +824,12 @@ namespace Tiny3D
     TResult D3D11Context::clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
-        auto lambda = [this](const D3D11RenderWindowSafePtr &pD3DRenderWindow, const Real &depth, uint8_t stencil)
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const Real &depth, uint8_t stencil)
         {
             mD3DDeviceContext->ClearDepthStencilView(pD3DRenderWindow->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow), depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), depth, stencil);
     }
 
     //--------------------------------------------------------------------------
@@ -869,7 +869,7 @@ namespace Tiny3D
             dst.RenderTargetWriteMask = D3D11Mapping::get(static_cast<BlendColorWriteMask>(src.ColorMask));
         }
         
-        auto lambda = [this](const D3D11_BLEND_DESC &d3dDesc, const D3D11BlendStateSafePtr &d3dState)
+        auto lambda = [this](const D3D11_BLEND_DESC &d3dDesc, const D3D11BlendStatePtr &d3dState)
         {
             TResult ret = T3D_OK;
 
@@ -890,7 +890,7 @@ namespace Tiny3D
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11BlendStateSafePtr(d3dState));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11BlendStatePtr(d3dState));
         if (T3D_FAILED(ret))
         {
             d3dState = nullptr;
@@ -922,7 +922,7 @@ namespace Tiny3D
         d3dDesc.BackFace.StencilFailOp = D3D11Mapping::get(desc.BackFace.StencilFailOp);
         d3dDesc.BackFace.StencilPassOp = D3D11Mapping::get(desc.BackFace.StencilPassOp);
 
-        auto lambda = [this](const D3D11_DEPTH_STENCIL_DESC &d3dDesc, const D3D11DepthStencilStateSafePtr &d3dState)
+        auto lambda = [this](const D3D11_DEPTH_STENCIL_DESC &d3dDesc, const D3D11DepthStencilStatePtr &d3dState)
         {
             TResult ret = T3D_OK;
 
@@ -943,7 +943,7 @@ namespace Tiny3D
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11DepthStencilStateSafePtr(d3dState));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11DepthStencilStatePtr(d3dState));
         if (T3D_FAILED(ret))
         {
             d3dState = nullptr;
@@ -971,7 +971,7 @@ namespace Tiny3D
         d3dDesc.MultisampleEnable = desc.MultisampleEnable; // 禁用多采样
         d3dDesc.AntialiasedLineEnable = desc.AntialiasedLineEnable; // 禁用抗锯齿线条
         
-        auto lambda = [this](const D3D11_RASTERIZER_DESC &d3dDesc, const D3D11RasterizerStateSafePtr &d3dState)
+        auto lambda = [this](const D3D11_RASTERIZER_DESC &d3dDesc, const D3D11RasterizerStatePtr &d3dState)
         {
             TResult ret = T3D_OK;
 
@@ -991,7 +991,7 @@ namespace Tiny3D
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11RasterizerStateSafePtr(d3dState));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dState);
         if (T3D_FAILED(ret))
         {
             d3dState = nullptr;
@@ -1022,7 +1022,7 @@ namespace Tiny3D
         d3dDesc.MinLOD = desc.MinLOD;
         d3dDesc.MaxLOD = desc.MaxLOD;
 
-        auto lambda = [this](const D3D11_SAMPLER_DESC &d3dDesc, const D3D11SamplerStateSafePtr &d3dState)
+        auto lambda = [this](const D3D11_SAMPLER_DESC &d3dDesc, const D3D11SamplerStatePtr &d3dState)
         {
             TResult ret = T3D_OK;
 
@@ -1043,7 +1043,7 @@ namespace Tiny3D
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, D3D11SamplerStateSafePtr(d3dState));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dState);
         if (T3D_FAILED(ret))
         {
             d3dState = nullptr;
@@ -1056,21 +1056,37 @@ namespace Tiny3D
     
     TResult D3D11Context::setBlendState(BlendState *state)
     {
-        return T3D_OK;
+        auto lambda = [this](const D3D11BlendStatePtr &d3dState)
+        {
+            mD3DDeviceContext->OMSetBlendState(d3dState->D3DBlendState, nullptr, -1);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11BlendState>(state->getRHIState()));
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setDepthStencilState(DepthStencilState *state)
     {
-        return T3D_OK;
+        auto lambda = [this](const D3D11DepthStencilStatePtr &d3dState)
+        {
+            mD3DDeviceContext->OMSetDepthStencilState(d3dState->D3DDepthStencilState, 0);
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11DepthStencilState>(state->getRHIState()));
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setRasterizerState(RasterizerState *state)
     {
-        return T3D_OK;
+        auto lambda = [this](const D3D11RasterizerStatePtr &d3dState)
+        {
+            // mD3DDeviceContext->RSSetState(d3dState->D3DRasterizerState);
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11RasterizerState>(state->getRHIState()));
     }
 
     //--------------------------------------------------------------------------
@@ -1175,7 +1191,7 @@ namespace Tiny3D
     
     TResult D3D11Context::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
-        return T3D_OK;
+        return T3D_OK;//setSamplers(&ID3D11DeviceContext::VSSetSamplers, startSlot, numOfSamplers, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -1597,7 +1613,21 @@ namespace Tiny3D
 
     TResult D3D11Context::reset()
     {
-        return T3D_OK;
+        mCurrentRenderWindow = nullptr;
+        mCurrentRenderTexture = nullptr;
+
+        auto lambda = [this]()
+        { 
+            mD3DDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+            mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, -1);
+            mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
+            mD3DDeviceContext->RSSetState(nullptr);
+            mD3DDeviceContext->VSSetSamplers(0, 0, nullptr);
+
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
     }
 
     //--------------------------------------------------------------------------
@@ -1797,6 +1827,7 @@ namespace Tiny3D
 
         D3D_SAFE_RELEASE(pCurDSV);
         D3D_SAFE_RELEASE(pCurRTV);
+        D3D_SAFE_RELEASE(pCurDSState);
         
         return T3D_OK;
     }
@@ -1809,6 +1840,31 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const * samplers)
+    {
+        using D3D11Samples = TArray<ID3D11SamplerState*>;
+        D3D11Samples d3dSamplers(numOfSamplers);
+        for (uint32_t i = 0; i< numOfSamplers; ++i)
+        {
+            d3dSamplers[i] = smart_pointer_cast<D3D11SamplerState>(samplers[i]->getRHIState())->D3DSamplerState;
+            d3dSamplers[i]->AddRef();
+        }
+        
+        auto lambda = [this](SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, const D3D11Samples &samplers)
+        {
+            (mD3DDeviceContext->*setSamplerState)(startSlot, numOfSamplers, samplers.data());
+            for (const auto sampler : samplers)
+            {
+                sampler->Release();
+            }
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, setSamplerState, startSlot, numOfSamplers, d3dSamplers);
+    }
+    
     //--------------------------------------------------------------------------
 }
 
