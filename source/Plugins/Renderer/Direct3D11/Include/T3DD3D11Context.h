@@ -613,6 +613,8 @@ namespace Tiny3D
         ID3D11SamplerState  *mBlitSamplerState {nullptr};
         /// 用于 blit 的 depth stencil state
         ID3D11DepthStencilState *mBlitDSState {nullptr};
+        /// 用于 blit 的 rasterizer state
+        ID3D11RasterizerState   *mBlitRState {nullptr};
 
         RenderWindowPtr     mCurrentRenderWindow {nullptr};
         RenderTexturePtr    mCurrentRenderTexture {nullptr};

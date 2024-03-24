@@ -66,6 +66,7 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(mBlitPS)
         D3D_SAFE_RELEASE(mBlitSamplerState)
         D3D_SAFE_RELEASE(mBlitDSState)
+        D3D_SAFE_RELEASE(mBlitRState)
         D3D_SAFE_RELEASE(mD3DDeviceContext)
         D3D_SAFE_RELEASE(mD3DDevice)
 
@@ -281,6 +282,21 @@ namespace Tiny3D
         dsDesc.FrontFace.StencilFunc   = D3D11_COMPARISON_ALWAYS;
         hr = mD3DDevice->CreateDepthStencilState(&dsDesc, &mBlitDSState);
         T3D_ASSERT(SUCCEEDED(hr), "Create blit depth stencil state !");
+
+        // 创建 rasterizer state
+        D3D11_RASTERIZER_DESC rasterizerDesc = {};
+        rasterizerDesc.CullMode = D3D11_CULL_BACK;  // 设置剔除模式为背面剔除
+        rasterizerDesc.FillMode = D3D11_FILL_SOLID; // 设置填充模式为实心
+        rasterizerDesc.FrontCounterClockwise = FALSE; // 设置正面为顺时针
+        rasterizerDesc.DepthBias = 0;
+        rasterizerDesc.DepthBiasClamp = 0.0f;
+        rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+        rasterizerDesc.DepthClipEnable = true; // 启用深度裁剪
+        rasterizerDesc.ScissorEnable = false; // 禁用剪裁测试
+        rasterizerDesc.MultisampleEnable = false; // 禁用多采样
+        rasterizerDesc.AntialiasedLineEnable = false; // 禁用抗锯齿线条
+        hr = mD3DDevice->CreateRasterizerState(&rasterizerDesc, &mBlitRState);
+        T3D_ASSERT(SUCCEEDED(hr), "Create rasterizer state !");
         
         D3D_SAFE_RELEASE(vertexShaderBlob);
         D3D_SAFE_RELEASE(pixelShaderBlob);
@@ -1071,7 +1087,7 @@ namespace Tiny3D
     {
         auto lambda = [this](const D3D11DepthStencilStatePtr &d3dState)
         {
-            mD3DDeviceContext->OMSetDepthStencilState(d3dState->D3DDepthStencilState, 0);
+            mD3DDeviceContext->OMSetDepthStencilState(d3dState->D3DDepthStencilState, 1);
             return T3D_OK;
         };
         return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11DepthStencilState>(state->getRHIState()));
@@ -1083,7 +1099,7 @@ namespace Tiny3D
     {
         auto lambda = [this](const D3D11RasterizerStatePtr &d3dState)
         {
-            // mD3DDeviceContext->RSSetState(d3dState->D3DRasterizerState);
+            mD3DDeviceContext->RSSetState(d3dState->D3DRasterizerState);
             return T3D_OK;
         };
         return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11RasterizerState>(state->getRHIState()));
@@ -1757,9 +1773,11 @@ namespace Tiny3D
         ID3D11DepthStencilView *pCurDSV = nullptr;
         mD3DDeviceContext->OMGetRenderTargets(1, &pCurRTV, &pCurDSV);
 
-        // ID3D11RasterizerState *pCurRState = nullptr;
-        // mD3DDeviceContext->RSGetState(&pCurRState);
+        // current rasterizer state
+        ID3D11RasterizerState *pCurRState = nullptr;
+        mD3DDeviceContext->RSGetState(&pCurRState);
 
+        // current depth & stencil state
         ID3D11DepthStencilState *pCurDSState = nullptr;
         UINT curStencilRef = 0;
         mD3DDeviceContext->OMGetDepthStencilState(&pCurDSState, &curStencilRef);
@@ -1771,7 +1789,7 @@ namespace Tiny3D
         mD3DDeviceContext->OMSetRenderTargets(1, &pDst->D3DRTView, pDst->D3DDSView);
 
         // rasterizer state
-        // mD3DDeviceContext->RSSetState(mBlitRasterState);
+        mD3DDeviceContext->RSSetState(mBlitRState);
 
         // depth stencil state
         mD3DDeviceContext->OMSetDepthStencilState(mBlitDSState, 0);
@@ -1824,10 +1842,12 @@ namespace Tiny3D
         mD3DDeviceContext->OMSetRenderTargets(1, &pCurRTV, pCurDSV);
         mD3DDeviceContext->RSSetViewports(1, &originalVP);
         mD3DDeviceContext->OMSetDepthStencilState(pCurDSState, curStencilRef);
+        mD3DDeviceContext->RSSetState(pCurRState);
 
         D3D_SAFE_RELEASE(pCurDSV);
         D3D_SAFE_RELEASE(pCurRTV);
         D3D_SAFE_RELEASE(pCurDSState);
+        D3D_SAFE_RELEASE(pCurRState);
         
         return T3D_OK;
     }
