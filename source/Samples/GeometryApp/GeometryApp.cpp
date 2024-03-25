@@ -112,7 +112,7 @@ Texture2DPtr GeometryApp::buildTexture()
     texData.Data = pixels;
     texData.DataSize = dataSize;
     
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8, texData, 1, 0, 0);
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8, texData);
     
     return texture;
 }
