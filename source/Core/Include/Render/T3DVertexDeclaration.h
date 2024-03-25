@@ -38,7 +38,7 @@ namespace Tiny3D
     class T3D_ENGINE_API VertexDeclaration : public RenderResource
     {
     public:
-        static VertexDeclarationPtr create(const VertexAttributes &attributes);
+        static VertexDeclarationPtr create(const VertexAttributes &attributes, ShaderVariant *vertexShader);
 
         ~VertexDeclaration() override;
 
@@ -46,15 +46,19 @@ namespace Tiny3D
 
         size_t getAttributeCount() const  {  return mVertexAttributes.size(); }
 
+        const VertexAttributes &getAttributes() const { return mVertexAttributes; }
+
         uint32_t hash();
         
         uint32_t getVertexSize(uint32_t source) const;
+
+        ShaderVariant *getVertexShader() const { return mVertexShader; }
 
     protected:
         /**
          * @brief   构造函数
          */
-        VertexDeclaration(const VertexAttributes &attributes);
+        VertexDeclaration(const VertexAttributes &attributes, ShaderVariant *vertexShader);
 
         bool onLoad() override;
 
@@ -65,6 +69,7 @@ namespace Tiny3D
         const VertexAttributes &mVertexAttributes;
         /// 数据 hash 值
         uint32_t    mHash {0};
+        ShaderVariantPtr    mVertexShader {nullptr};
     };
 }
 

@@ -23,10 +23,16 @@
  ******************************************************************************/
 
 #include "Resource/T3DMesh.h"
+
+#include "Material/T3DPass.h"
+#include "Material/T3DPassInstance.h"
+#include "Material/T3DShaderVariantInstance.h"
+#include "Material/T3DTechniqueInstance.h"
 #include "Resource/T3DSubMesh.h"
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DVertexDeclaration.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
@@ -154,8 +160,27 @@ namespace Tiny3D
 
         do
         {
+            ShaderVariantPtr vshader = nullptr;
+            
+            // 生成子网格的渲染资源
+            for (const auto &submesh : mSubMeshes)
+            {
+                ret = submesh.second->generateRenderResource();
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+                if (vshader == nullptr)
+                {
+                    Material *material = submesh.second->getMaterial();
+                    TechniqueInstance *tech = material->getCurrentTechnique();
+                    PassInstance *pass = tech->getPassInstances().front();
+                    vshader = pass->getCurrentVertexShader()->getShaderVariant();
+                }
+            }
+            
             // 创建顶点声明
-            VertexDeclarationPtr decl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(mVertexAttributes);
+            mVertexDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(mVertexAttributes, vshader);
 
             // 创建顶点缓冲对象
             mVBuffers.resize(mVertices.size());
@@ -166,16 +191,6 @@ namespace Tiny3D
                 const size_t vertexSize = mVertexStrides[i];
                 const size_t vertexCount = buffer.DataSize / vertexSize;
                 mVBuffers[i] = VertexBuffer::create(vertexSize, vertexCount, buffer, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
-            }
-
-            // 生成子网格的渲染资源
-            for (const auto &submesh : mSubMeshes)
-            {
-                ret = submesh.second->generateRenderResource();
-                if (T3D_FAILED(ret))
-                {
-                    break;
-                }
             }
         } while (false);
         
@@ -364,7 +379,7 @@ namespace Tiny3D
     {
         if (mIsAttrDirty)
         {
-            mVertexDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(mVertexAttributes);
+            // mVertexDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(mVertexAttributes);
             mIsAttrDirty = false;
         }
     }

@@ -27,21 +27,23 @@
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIVertexDeclaration.h"
+#include "Material/T3DShaderVariant.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr VertexDeclaration::create(const VertexAttributes &attributes)
+    VertexDeclarationPtr VertexDeclaration::create(const VertexAttributes &attributes, ShaderVariant *vertexShader)
     {
-        return new VertexDeclaration(attributes);
+        return new VertexDeclaration(attributes, vertexShader);
     }
 
     //--------------------------------------------------------------------------
 
-    VertexDeclaration::VertexDeclaration(const VertexAttributes &attributes)
+    VertexDeclaration::VertexDeclaration(const VertexAttributes &attributes, ShaderVariant *vertexShader)
         : mVertexAttributes(attributes)
+        , mVertexShader(vertexShader)
     {
 
     }

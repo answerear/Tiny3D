@@ -293,9 +293,9 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VertexDeclarationPtr RenderBufferManager::addVertexDeclaration(const VertexAttributes &attributes)
+    VertexDeclarationPtr RenderBufferManager::addVertexDeclaration(const VertexAttributes &attributes, ShaderVariant *vertexShader)
     {
-        VertexDeclarationPtr decl = VertexDeclaration::create(attributes);
+        VertexDeclarationPtr decl = VertexDeclaration::create(attributes, vertexShader);
         
         auto itr = mVertexDeclarations.find(decl->hash());
         if (itr != mVertexDeclarations.end())
