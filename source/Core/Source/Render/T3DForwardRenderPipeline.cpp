@@ -257,7 +257,7 @@ namespace Tiny3D
                                 ctx->setVertexDeclaration(renderable->getVertexDeclaration());
 
                                 // 设置 vertex buffer
-                                ctx->setVertexBuffers(0, renderable->getVertexBuffersCount(), renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
+                                ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
 
                                 // 设置 index buffer
                                 ctx->setIndexBuffer(renderable->getIndexBuffer());

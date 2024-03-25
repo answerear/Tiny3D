@@ -175,13 +175,12 @@ namespace Tiny3D
         /**
          * \brief 设置渲染用的顶点缓冲对象
          * \param [in] startSlot : 缓冲区的插槽，对应 shader 寄存器索引
-         * \param [in] numOfBuffers : 缓冲区数量
          * \param [in] buffers : 顶点缓冲对象
          * \param [in] strides : 顶点跨度，也就是一个顶点的大小
          * \param [in] offsets : 相对缓冲区开始的偏移
          * \return 调用成功返回 T3D_OK
          */
-        TResult setVertexBuffers(uint32_t startSlot, uint32_t numOfBuffers, VertexBuffer * const *buffers, const uint32_t *strides, const uint32_t *offsets) override;
+        TResult setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets) override;
 
         /**
          * \brief 创建 RHI 索引缓冲对象

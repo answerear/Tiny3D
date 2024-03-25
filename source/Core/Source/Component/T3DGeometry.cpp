@@ -93,25 +93,15 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    uint32_t Geometry::getVertexBuffersCount() const
+    
+    const VertexBuffers &Geometry::getVertexBuffers() const
     {
         if (mMesh != nullptr)
         {
-            return static_cast<uint32_t>(mMesh->getVertexBuffers().size());
+            return mMesh->getVertexBuffers();
         }
-        return 0;
-    }
-
-    //--------------------------------------------------------------------------
-
-    VertexBuffer * const *Geometry::getVertexBuffers() const
-    {
-        if (mMesh != nullptr)
-        {
-            return mMesh->getVertexBuffers().data();
-        }
-        return nullptr;
+        static VertexBuffers vbuffers;
+        return vbuffers;
     }
 
     //--------------------------------------------------------------------------
@@ -127,24 +117,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const uint32_t * const Geometry::getVertexStrides() const
+    const VertexStrides &Geometry::getVertexStrides() const
     {
         if (mMesh != nullptr)
         {
-            return mMesh->getVertexStrides().data();
+            return mMesh->getVertexStrides();
         }
-        return nullptr;
+        static VertexStrides strides;
+        return strides;
     }
 
     //--------------------------------------------------------------------------
 
-    const uint32_t * const Geometry::getVertexOffsets() const
+    const VertexOffsets &Geometry::getVertexOffsets() const
     {
         if (mMesh != nullptr)
         {
-            return mMesh->getVertexOffsets().data();
+            return mMesh->getVertexOffsets();
         }
-        return nullptr;
+        static VertexOffsets offsets;
+        return offsets;
     }
 
     //--------------------------------------------------------------------------

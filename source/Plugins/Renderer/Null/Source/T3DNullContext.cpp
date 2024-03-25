@@ -187,7 +187,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVertexBuffers(uint32_t startSlot, uint32_t numOfBuffers, VertexBuffer * const *buffers, const uint32_t *strides, const uint32_t *offsets)
+    TResult NullContext::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
         return T3D_OK;
     }

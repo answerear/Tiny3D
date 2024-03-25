@@ -1238,9 +1238,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVertexBuffers(uint32_t startSlot, uint32_t numOfBuffers, VertexBuffer * const *buffers, const uint32_t *strides, const uint32_t *offsets)
+    TResult D3D11Context::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        return T3D_OK;
+        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
+        {
+            TResult ret = T3D_OK;
+
+            TArray<ID3D11Buffer*> vbuffers(buffers.size());
+            for (uint32_t i = 0; i < buffers.size(); ++i)
+            {
+                const auto &vb = buffers[i];
+                vbuffers[i] = smart_pointer_cast<D3D11VertexBuffer>(vb->getRHIResource())->D3D11Buffer;
+            }
+
+            mD3DDeviceContext->IASetVertexBuffers(startSlot, buffers.size(), vbuffers.data(), strides.data(), offsets.data());
+
+            return ret;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, strides, offsets);
     }
 
     //--------------------------------------------------------------------------

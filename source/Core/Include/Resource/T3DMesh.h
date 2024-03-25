@@ -90,7 +90,7 @@ namespace Tiny3D
 
         VertexDeclarationPtr getVertexDeclaration() const { return mVertexDecl; }
 
-        const TArray<VertexBuffer*> &getVertexBuffers() const { return mVBs; }
+        const VertexBuffers &getVertexBuffers() const { return mVBuffers; }
 
         SubMesh *getSubMesh(const String &name) const;
 
@@ -162,8 +162,6 @@ namespace Tiny3D
         VertexDeclarationPtr    mVertexDecl {nullptr};
         /// 渲染用的顶点缓冲区
         VertexBuffers mVBuffers {nullptr};
-        /// 方便返回给 RHI 直接使用的数据
-        TArray<VertexBuffer*> mVBs {};
         
         /// 顶点属性是否需要更新
         bool    mIsAttrDirty {false};

@@ -44,15 +44,17 @@ namespace Tiny3D
 
         virtual VertexDeclaration *getVertexDeclaration() const = 0;
 
-        virtual uint32_t getVertexBuffersCount() const = 0;
+        // virtual uint32_t getVertexBuffersCount() const = 0;
 
-        virtual VertexBuffer * const *getVertexBuffers() const = 0;
+        // virtual VertexBuffer * const *getVertexBuffers() const = 0;
+
+        virtual const VertexBuffers &getVertexBuffers() const = 0;
 
         virtual IndexBuffer *getIndexBuffer() const = 0;
 
-        virtual const uint32_t * const getVertexStrides() const = 0;
+        virtual const VertexStrides &getVertexStrides() const = 0;
 
-        virtual const uint32_t * const getVertexOffsets() const = 0;
+        virtual const VertexOffsets &getVertexOffsets() const = 0;
         
     protected:
         Renderable() = default;

@@ -45,16 +45,14 @@ namespace Tiny3D
         Material *getMaterial() override;
 
         VertexDeclaration *getVertexDeclaration() const override;
-
-        uint32_t getVertexBuffersCount() const override;
         
-        VertexBuffer * const *getVertexBuffers() const override;
+        const VertexBuffers &getVertexBuffers() const override;
 
         IndexBuffer *getIndexBuffer() const override;
 
-        const uint32_t * const getVertexStrides() const override;
+        const VertexStrides &getVertexStrides() const override;
 
-        const uint32_t * const getVertexOffsets() const override;
+        const VertexOffsets &getVertexOffsets() const override;
 
         Mesh *getMeshObject() const { return mMesh; }
 
