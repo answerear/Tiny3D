@@ -1913,21 +1913,23 @@ namespace Tiny3D
     
     TResult D3D11Context::setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const * samplers)
     {
-        using D3D11Samples = TArray<ID3D11SamplerState*>;
-        D3D11Samples d3dSamplers(numOfSamplers);
+        using D3D11Samplers = TArray<D3D11SamplerStatePtr>;
+        D3D11Samplers d3dSamplers(numOfSamplers);
         for (uint32_t i = 0; i< numOfSamplers; ++i)
         {
-            d3dSamplers[i] = smart_pointer_cast<D3D11SamplerState>(samplers[i]->getRHIState())->D3DSamplerState;
-            d3dSamplers[i]->AddRef();
+            d3dSamplers[i] = smart_pointer_cast<D3D11SamplerState>(samplers[i]->getRHIState());
         }
         
-        auto lambda = [this](SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, const D3D11Samples &samplers)
+        auto lambda = [this](SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, const D3D11Samplers &samplers)
         {
-            (mD3DDeviceContext->*setSamplerState)(startSlot, numOfSamplers, samplers.data());
-            for (const auto sampler : samplers)
+            TArray<ID3D11SamplerState*> d3dSamplers(numOfSamplers);
+            for (uint32_t i = 0; i < numOfSamplers; ++i)
             {
-                sampler->Release();
+                const auto &sampler = samplers[i];
+                d3dSamplers[i] = sampler->D3DSamplerState;
             }
+            
+            (mD3DDeviceContext->*setSamplerState)(startSlot, numOfSamplers, d3dSamplers.data());
             return T3D_OK;
         };
         
