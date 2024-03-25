@@ -82,6 +82,10 @@ namespace Tiny3D
         static DXGI_FORMAT get(VertexAttribute::Type type);
 
         static TResult get(Usage usage, uint32_t mode, D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag);
+        
+        static DXGI_FORMAT get(IndexType idxType);
+
+        static D3D11_PRIMITIVE_TOPOLOGY get(PrimitiveType primitive);
     };
 }
 

@@ -27,7 +27,7 @@
 
 
 #include "Component/T3DComponent.h"
-
+#include "Kernel/T3DConstant.h"
 
 namespace Tiny3D
 {
@@ -42,11 +42,9 @@ namespace Tiny3D
         
         virtual Material *getMaterial() = 0;
 
+        virtual PrimitiveType getPrimitiveType() const = 0;
+
         virtual VertexDeclaration *getVertexDeclaration() const = 0;
-
-        // virtual uint32_t getVertexBuffersCount() const = 0;
-
-        // virtual VertexBuffer * const *getVertexBuffers() const = 0;
 
         virtual const VertexBuffers &getVertexBuffers() const = 0;
 

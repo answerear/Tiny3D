@@ -1325,7 +1325,16 @@ namespace Tiny3D
     
     TResult D3D11Context::setIndexBuffer(IndexBuffer *buffer)
     {
-        return T3D_OK;
+        D3D11IndexBufferPtr d3dIndexBuffer = smart_pointer_cast<D3D11IndexBuffer>(buffer->getRHIResource());
+        DXGI_FORMAT d3dFormat = D3D11Mapping::get(buffer->getIndexType());
+        
+        auto lambda = [this](DXGI_FORMAT d3dFormat, const D3D11IndexBufferPtr &d3dIndexBuffer)
+        {
+            mD3DDeviceContext->IASetIndexBuffer(d3dIndexBuffer->D3D11Buffer, d3dFormat, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dFormat, d3dIndexBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -1800,10 +1809,44 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    
-    TResult D3D11Context::render()
+
+    TResult D3D11Context::setPrimitiveType(PrimitiveType primitive)
     {
-        return T3D_OK;
+        D3D11_PRIMITIVE_TOPOLOGY topology = D3D11Mapping::get(primitive);
+        
+        auto lambda = [this](D3D11_PRIMITIVE_TOPOLOGY topology)
+        {
+            mD3DDeviceContext->IASetPrimitiveTopology(topology);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, topology);
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult D3D11Context::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
+    {
+        auto lambda = [this](uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
+        {
+            // mD3DDeviceContext->DrawIndexed(indexCount, startIndex, baseVertex);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, indexCount, startIndex, baseVertex);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::render(uint32_t vertexCount, uint32_t startVertex)
+    {
+        auto lambda = [this](uint32_t vertexCount, uint32_t startVertex)
+        {
+            // mD3DDeviceContext->Draw(vertexCount, startVertex);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, startVertex);
     }
 
     //--------------------------------------------------------------------------

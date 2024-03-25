@@ -701,6 +701,59 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+    
+    DXGI_FORMAT D3D11Mapping::get(IndexType idxType)
+    {
+        DXGI_FORMAT d3dFormat;
+
+        switch (idxType)
+        {
+        case IndexType::E_IT_16BITS:
+            d3dFormat = DXGI_FORMAT_R16_UINT;
+            break;
+        case IndexType::E_IT_32BITS:
+            d3dFormat = DXGI_FORMAT_R32_UINT;
+            break;
+        default:
+            d3dFormat = DXGI_FORMAT_R16_UINT;
+            break;
+        }
+
+        return d3dFormat;
+    }
+        
+    //--------------------------------------------------------------------------
+
+    D3D11_PRIMITIVE_TOPOLOGY D3D11Mapping::get(PrimitiveType primitive)
+    {
+        D3D11_PRIMITIVE_TOPOLOGY d3dPrimitive;
+
+        switch (primitive)
+        {
+        case PrimitiveType::kPointList:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+            break;
+        case PrimitiveType::kLineList:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+            break;
+        case PrimitiveType::kLineStrip:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+            break;
+        case PrimitiveType::kTriangleList:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            break;
+        case PrimitiveType::kTriangleStrip:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+            break;
+        default:
+            d3dPrimitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            break;
+        }
+
+        return d3dPrimitive;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
 

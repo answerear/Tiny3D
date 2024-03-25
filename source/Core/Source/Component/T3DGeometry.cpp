@@ -83,6 +83,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    PrimitiveType Geometry::getPrimitiveType() const
+    {
+        if (mMesh != nullptr && mSubMesh != nullptr)
+        {
+            return mSubMesh->getPrimitiveType();
+        }
+        return PrimitiveType::kTriangleList;
+    }
+
+    //--------------------------------------------------------------------------
+
     VertexDeclaration *Geometry::getVertexDeclaration() const
     {
         if (mMesh != nullptr)

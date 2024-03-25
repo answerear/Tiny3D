@@ -1187,7 +1187,7 @@ namespace Tiny3D
             ret = mRHIThread.start(mRHIRunnable, "RHIThread");
             T3D_LOG_INFO(LOG_TAG_ENGINE, "Start RHI Thread [%d] !", ret);
 #else
-            T3D_LOG_INFOLOG_TAG_ENGINE, "Disable RHI Thread !");
+            T3D_LOG_INFO(LOG_TAG_ENGINE, "Disable RHI Thread !");
 #endif
         } while (false);
         

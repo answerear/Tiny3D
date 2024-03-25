@@ -459,8 +459,22 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullContext::setPrimitiveType(PrimitiveType primitive)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
-    TResult NullContext::render()
+    TResult NullContext::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::render(uint32_t vertexCount, uint32_t startVertex)
     {
         return T3D_OK;
     }

@@ -44,6 +44,8 @@ namespace Tiny3D
 
         Material *getMaterial() override;
 
+        PrimitiveType getPrimitiveType() const override;
+
         VertexDeclaration *getVertexDeclaration() const override;
         
         const VertexBuffers &getVertexBuffers() const override;

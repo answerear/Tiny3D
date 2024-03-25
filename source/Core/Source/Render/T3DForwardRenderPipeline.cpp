@@ -253,17 +253,31 @@ namespace Tiny3D
                                     ctx->setWorldTransform(xform.getAffineMatrix());
                                 }
                                 
+                                // 设置渲染图元类型
+                                ctx->setPrimitiveType(renderable->getPrimitiveType());
+                                
                                 // 设置 vertex declaration
                                 ctx->setVertexDeclaration(renderable->getVertexDeclaration());
 
                                 // 设置 vertex buffer
                                 ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
 
-                                // 设置 index buffer
-                                ctx->setIndexBuffer(renderable->getIndexBuffer());
-
-                                // render
-                                ctx->render();
+                                IndexBuffer *ib = renderable->getIndexBuffer();
+                                if (ib != nullptr)
+                                {
+                                    // 需要索引缓冲区，设置 index buffer
+                                    ctx->setIndexBuffer(ib);
+                                    
+                                    // render
+                                    ctx->render(ib->getIndexCount(), 0, 0);
+                                }
+                                else
+                                {
+                                    VertexBuffer *vb = renderable->getVertexBuffers().front();
+                                    
+                                    // 没有索引缓冲区，直接 render
+                                    ctx->render(vb->getVertexCount(), 0);
+                                }
                             }
                         }
                     }

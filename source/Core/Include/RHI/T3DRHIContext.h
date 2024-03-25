@@ -550,10 +550,29 @@ namespace Tiny3D
         virtual TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings &texSamplerBindings) = 0;
 
         /**
-         * \brief 根据上下文设置好的资源、状态来渲染
+         * \brief 设置渲染图元类型
+         * \param [in] primitve : 图元类型
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult render() = 0;
+        virtual TResult setPrimitiveType(PrimitiveType primitve) = 0;
+
+        /**
+         * \brief 根据上下文设置好的资源、状态来渲染，带顶点索引的绘制
+         * \param [in] indexCount : 索引数量
+         * \param [in] startIndex : 索引缓冲区起始位置
+         * \param [in] baseVertex : 用于索引的基础顶点位置。这个值会被加到索引值上，然后再用来索引顶点缓冲区
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex) = 0;
+
+        /**
+         * \brief 根据上下文设置好的资源、状态来渲染，不带顶点索引的绘制
+         * \param [in] primitive : 图元类型
+         * \param [in] vertexCount : 顶点数量
+         * \param [in] startVertex : 顶点缓冲区其实位置
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult render(uint32_t vertexCount, uint32_t startVertex) = 0;
 
         /**
          * \brief 清除所有状态、渲染资源，包括 RenderTarget

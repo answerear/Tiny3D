@@ -38,6 +38,10 @@ namespace Tiny3D
         static VertexBufferPtr create(size_t vertexSize, size_t vertexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
+
+        uint32_t getVertexCount() const { return mVertexCount; }
+
+        uint32_t getVertexSize() const { return mVertexSize; }
         
     protected:
         VertexBuffer(size_t vertexSize, size_t vertexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);

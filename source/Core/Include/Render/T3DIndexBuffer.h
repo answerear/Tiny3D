@@ -39,6 +39,12 @@ namespace Tiny3D
         static IndexBufferPtr create(IndexType idxType, size_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
+
+        IndexType getIndexType() const { return mIndexType; }
+
+        uint32_t getIndexCount() const { return mIndexCount; }
+
+        uint32_t getIndexSize() const { return mIndexSize; }
         
     protected:
         IndexBuffer(IndexType idxType, size_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
@@ -49,6 +55,7 @@ namespace Tiny3D
 
         bool onUnload() override;
 
+        IndexType   mIndexType {IndexType::E_IT_16BITS};
         size_t  mIndexSize {0};
         size_t  mIndexCount {0};
     };
