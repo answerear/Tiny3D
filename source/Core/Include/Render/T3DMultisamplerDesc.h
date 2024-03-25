@@ -38,7 +38,7 @@ namespace Tiny3D
     {
         /// MSAA 采样数量
         TPROPERTY()
-        uint32_t    Count {0};
+        uint32_t    Count {1};
         /// MSAA 采样质量
         TPROPERTY()
         uint32_t    Quality {0};

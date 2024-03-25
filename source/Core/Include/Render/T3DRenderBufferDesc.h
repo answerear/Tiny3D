@@ -82,11 +82,11 @@ namespace Tiny3D
         TPROPERTY()
         uint32_t    height {0};
         TPROPERTY()
-        uint32_t    mipmaps {0};
+        uint32_t    mipmaps {1};
         TPROPERTY()
-        uint32_t    arraySize {0};
+        uint32_t    arraySize {1};
         TPROPERTY()
-        PixelFormat format {PixelFormat::E_PF_UNKNOWN};
+        PixelFormat format {PixelFormat::E_PF_R8G8B8A8};
         TPROPERTY()
         MultisamplerDesc    sampleDesc {};
         TPROPERTY()
