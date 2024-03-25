@@ -45,6 +45,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    D3D11VertexBufferPtr D3D11VertexBuffer::create()
+    {
+        return new D3D11VertexBuffer();
+    }
+    //--------------------------------------------------------------------------
+
+    D3D11VertexBuffer::~D3D11VertexBuffer()
+    {
+        D3D_SAFE_RELEASE(D3D11Buffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11IndexBufferPtr D3D11IndexBuffer::create()
+    {
+        return new D3D11IndexBuffer();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11IndexBuffer::~D3D11IndexBuffer()
+    {
+        D3D_SAFE_RELEASE(D3D11Buffer);
+    }
+
+    //--------------------------------------------------------------------------
+
     D3D11PixelBuffer2DPtr D3D11PixelBuffer2D::create()
     {
         return new D3D11PixelBuffer2D();

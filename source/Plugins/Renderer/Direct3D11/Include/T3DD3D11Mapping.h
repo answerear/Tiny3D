@@ -80,6 +80,8 @@ namespace Tiny3D
         static const char *get(VertexAttribute::Semantic semantic);
 
         static DXGI_FORMAT get(VertexAttribute::Type type);
+
+        static TResult get(Usage usage, uint32_t mode, D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag);
     };
 }
 

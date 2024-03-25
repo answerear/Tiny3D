@@ -604,6 +604,103 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    TResult D3D11Mapping::get(Usage usage, uint32_t mode, D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            switch (usage)
+            {
+            case Usage::kImmutable:
+                {
+                    if (mode != kCPUNone)
+                    {
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kImmutable, so access mode must be kCPUNone !");
+                    }
+                    else
+                    {
+                        d3dUsage = D3D11_USAGE_IMMUTABLE;
+                        d3dAccessFlag = 0;
+                    }
+                }
+                break;
+            case Usage::kStatic:
+                {
+                    if (mode == CPUAccessMode::kCPUNone)
+                    {
+                        // 静态缓冲，CPU不可读写，只能初始化时候设置数据
+                        d3dUsage = D3D11_USAGE_IMMUTABLE;
+                        d3dAccessFlag = 0;
+                    }
+                    else if (mode == CPUAccessMode::kCPUWrite)
+                    {
+                        d3dUsage = D3D11_USAGE_DEFAULT;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
+                    }
+                    else
+                    {
+                        // 其他 CPU 访问标签在这里都是非法
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kStatic, so access mode must be kCPUNone or kCPUWrite !");
+                    }
+                }
+                break;
+            case Usage::kDynamic:
+                {
+                    if (mode == CPUAccessMode::kCPUNone)
+                    {
+                        // CPU不读也不写，这里建议使用STATIC性能更好
+                        d3dUsage = D3D11_USAGE_DEFAULT;
+                        d3dAccessFlag = 0;
+                        T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "Usage is kDynamic, but CPU access mode is kCPUNone. Here suggests kStatic instead of kDynamic !");
+                    }
+                    else if ((mode == (CPUAccessMode::kCPURead | CPUAccessMode::kCPUWrite)))
+                    {
+                        // CPU读写，GPU读写
+                        d3dUsage = D3D11_USAGE_STAGING;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+                    }
+                    else if (mode == CPUAccessMode::kCPURead)
+                    {
+                        // CPU读，GPU读写
+                        d3dUsage = D3D11_USAGE_STAGING;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_READ;
+                    }
+                    else if (mode == CPUAccessMode::kCPUWrite)
+                    {
+                        // CPU写，GPU读
+                        d3dUsage = D3D11_USAGE_DYNAMIC;
+                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
+                    }
+                    // else if (mode == CPUAccessMode::GPU_COPY)
+                    // {
+                    //     // CPU读写，GPU读写
+                    //     d3dUsage = D3D11_USAGE_STAGING;
+                    //     d3dAccessFlag = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+                    // }
+                    else
+                    {
+                        // 无效 CPU 访问方式参数
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid CPU access mode parameter !");
+                    }
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_INVALID_PARAM;
+                }
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
 

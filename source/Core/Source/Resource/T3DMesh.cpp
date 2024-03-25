@@ -190,7 +190,7 @@ namespace Tiny3D
                 const auto &buffer = mVertices[i];
                 const size_t vertexSize = mVertexStrides[i];
                 const size_t vertexCount = buffer.DataSize / vertexSize;
-                mVBuffers[i] = VertexBuffer::create(vertexSize, vertexCount, buffer, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+                mVBuffers[i] = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(vertexSize, vertexCount, buffer, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
             }
         } while (false);
         

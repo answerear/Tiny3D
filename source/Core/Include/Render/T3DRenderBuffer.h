@@ -48,6 +48,8 @@ namespace Tiny3D
 
         virtual size_t copyData(RenderBufferPtr srcBuffer);
 
+        const Buffer &getBuffer() const { return mBuffer; }
+
         size_t getBufferSize() const { return mBuffer.DataSize; }
 
         MemoryType getMemoryType() const { return mMemoryType; }

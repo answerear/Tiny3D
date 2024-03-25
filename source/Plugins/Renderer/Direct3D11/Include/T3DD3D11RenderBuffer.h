@@ -46,11 +46,27 @@ namespace Tiny3D
     class D3D11VertexBuffer : public RHIVertexBuffer
     {
     public:
+        static D3D11VertexBufferPtr create();
+
+        ~D3D11VertexBuffer() override;
+
+        ID3D11Buffer    *D3D11Buffer {nullptr};
+        
+    protected:
+        D3D11VertexBuffer() = default;
     };
 
     class D3D11IndexBuffer : public RHIIndexBuffer
     {
     public:
+        static D3D11IndexBufferPtr create();
+
+        ~D3D11IndexBuffer() override;
+
+        ID3D11Buffer    *D3D11Buffer {nullptr};
+        
+    protected:
+        D3D11IndexBuffer() = default;
     };
 
     class D3D11ConstantBuffer : public RHIConstantBuffer

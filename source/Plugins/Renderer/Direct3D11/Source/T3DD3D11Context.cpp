@@ -1139,8 +1139,8 @@ namespace Tiny3D
                     HRESULT hr = mD3DDevice->CreateInputLayout(d3dDescs.data(), d3dDescs.size(), bytes, bytesLength, &pD3DInputLayout);
                     if (FAILED(hr))
                     {
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create sampler state ! DX ERROR [%d]", hr);
-                        ret = T3D_ERR_D3D11_CREATE_SAMPLER_STATE;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create input layout ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_INPUT_LAYOUT;
                         break;
                     }
 
@@ -1178,7 +1178,62 @@ namespace Tiny3D
     
     RHIVertexBufferPtr D3D11Context::createVertexBuffer(VertexBuffer *buffer)
     {
-        return nullptr;
+        D3D11VertexBufferPtr d3dBuffer = D3D11VertexBuffer::create();
+
+        do
+        {
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+
+            TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode !");
+                break;
+            }
+            
+            D3D11_BUFFER_DESC d3dDesc = {};
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.ByteWidth = (UINT)buffer->getBufferSize();
+            d3dDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            d3dDesc.CPUAccessFlags = d3dAccess;
+            
+            auto lambda = [this](const D3D11_BUFFER_DESC &d3dDesc, const D3D11VertexBufferPtr &d3dBuffer, const VertexBufferPtr &buffer)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    // 创建顶点缓冲区子资源数据
+                    D3D11_SUBRESOURCE_DATA vertexData = {};
+                    vertexData.pSysMem = buffer->getBuffer().Data;
+                    vertexData.SysMemPitch = 0;
+                    vertexData.SysMemSlicePitch = 0;
+
+                    ID3D11Buffer *pD3DBuffer = nullptr;
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &vertexData, &pD3DBuffer);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create vertex buffer ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                        break;
+                    }
+
+                    d3dBuffer->D3D11Buffer = pD3DBuffer;
+                } while (false);
+                
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dBuffer, VertexBufferPtr(buffer));
+            if (T3D_FAILED(ret))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dBuffer;
     }
 
     //--------------------------------------------------------------------------
