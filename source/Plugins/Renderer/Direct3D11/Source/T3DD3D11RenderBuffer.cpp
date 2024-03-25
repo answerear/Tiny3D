@@ -31,6 +31,20 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    D3D11VertexDeclarationPtr D3D11VertexDeclaration::create()
+    {
+        return new D3D11VertexDeclaration();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    D3D11VertexDeclaration::~D3D11VertexDeclaration()
+    {
+        D3D_SAFE_RELEASE(D3D11InputLayout);
+    }
+
+    //--------------------------------------------------------------------------
+
     D3D11PixelBuffer2DPtr D3D11PixelBuffer2D::create()
     {
         return new D3D11PixelBuffer2D();

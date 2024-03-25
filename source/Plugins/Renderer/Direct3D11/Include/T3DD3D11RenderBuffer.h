@@ -34,6 +34,13 @@ namespace Tiny3D
     class D3D11VertexDeclaration : public RHIVertexDeclaration
     {
     public:
+        static D3D11VertexDeclarationPtr create();
+
+        ~D3D11VertexDeclaration() override;
+
+        ID3D11InputLayout   *D3D11InputLayout {nullptr};
+    protected:
+        D3D11VertexDeclaration() = default;
     };
     
     class D3D11VertexBuffer : public RHIVertexBuffer

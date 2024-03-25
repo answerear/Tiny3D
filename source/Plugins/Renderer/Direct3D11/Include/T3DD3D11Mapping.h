@@ -34,6 +34,15 @@ namespace Tiny3D
     class D3D11Mapping
     {
     public:
+        static const char * const POSITION;     /**< The position */
+        static const char * const BLENDWEIGHT;  /**< The blendweight */
+        static const char * const BLENDINDICES; /**< The blendindices */
+        static const char * const NORMAL;       /**< The normal */
+        static const char * const COLOR;        /**< The color */
+        static const char * const TEXCOORD;     /**< The texcoord */
+        static const char * const TANGENT;      /**< The tangent */
+        static const char * const BINORMAL;     /**< The binormal */
+        
         static DXGI_FORMAT get(PixelFormat src);
 
         static D3D11_USAGE get(Usage src);
@@ -67,6 +76,10 @@ namespace Tiny3D
         static D3D11_TEXTURE_ADDRESS_MODE get(TextureAddressMode mode);
 
         static D3D11_FILTER get(FilterOptions minFilter, FilterOptions magFilter, FilterOptions mipFilter, bool comparison = false);
+
+        static const char *get(VertexAttribute::Semantic semantic);
+
+        static DXGI_FORMAT get(VertexAttribute::Type type);
     };
 }
 

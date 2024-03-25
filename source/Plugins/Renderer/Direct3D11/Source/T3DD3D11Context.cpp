@@ -1109,7 +1109,56 @@ namespace Tiny3D
 
     RHIVertexDeclarationPtr D3D11Context::createVertexDeclaration(VertexDeclaration *decl)
     {
-        return nullptr;
+        D3D11VertexDeclarationPtr d3dDecl = D3D11VertexDeclaration::create();
+
+        do
+        {
+            using D3D11InputDescs = TArray<D3D11_INPUT_ELEMENT_DESC>;
+            D3D11InputDescs d3dDescs(decl->getAttributeCount());
+            for (uint32_t i = 0; i < decl->getAttributeCount(); ++i)
+            {
+                const VertexAttribute &attrib = decl->getAttributes()[i];
+                d3dDescs[i].SemanticName = D3D11Mapping::get(attrib.getSemantic());
+                d3dDescs[i].SemanticIndex = (UINT)attrib.getSemanticIndex();
+                d3dDescs[i].Format = D3D11Mapping::get(attrib.getType());
+                d3dDescs[i].InputSlot = (UINT)attrib.getSlot();
+                d3dDescs[i].AlignedByteOffset = (UINT)attrib.getOffset();
+                d3dDescs[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+                d3dDescs[i].InstanceDataStepRate = 0;
+            }
+            
+            auto lambda = [this](const D3D11InputDescs &d3dDescs, const D3D11VertexDeclarationPtr &d3dDecl, const ShaderVariantPtr &vertexShader)
+            {
+                TResult ret = T3D_OK;
+
+                do
+                {
+                    ID3D11InputLayout *pD3DInputLayout = nullptr;
+                    size_t bytesLength = 0;
+                    char *bytes = vertexShader->getBytesCode(bytesLength);
+                    HRESULT hr = mD3DDevice->CreateInputLayout(d3dDescs.data(), d3dDescs.size(), bytes, bytesLength, &pD3DInputLayout);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create sampler state ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_SAMPLER_STATE;
+                        break;
+                    }
+
+                    d3dDecl->D3D11InputLayout = pD3DInputLayout;
+                } while (false);
+                
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDescs, d3dDecl, ShaderVariantPtr(decl->getVertexShader()));
+            if (T3D_FAILED(ret))
+            {
+                d3dDecl = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dDecl;
     }
 
     //--------------------------------------------------------------------------

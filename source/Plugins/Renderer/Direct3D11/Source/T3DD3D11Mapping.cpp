@@ -30,6 +30,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    const char * const D3D11Mapping::POSITION = "POSITION";
+    const char * const D3D11Mapping::BLENDWEIGHT = "BLENDWEIGHT";
+    const char * const D3D11Mapping::BLENDINDICES = "BLENDINDICES";
+    const char * const D3D11Mapping::NORMAL = "NORMAL";
+    const char * const D3D11Mapping::COLOR = "COLOR";
+    const char * const D3D11Mapping::TEXCOORD = "TEXCOORD";
+    const char * const D3D11Mapping::TANGENT = "TANGENT";
+    const char * const D3D11Mapping::BINORMAL = "BINORMAL";
+    
+    //--------------------------------------------------------------------------
+
     DXGI_FORMAT D3D11Mapping::get(PixelFormat src)
     {
         DXGI_FORMAT dst;
@@ -517,6 +528,79 @@ namespace Tiny3D
 #undef MERGE_FOR_SWITCH
 
         return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    const char *D3D11Mapping::get(VertexAttribute::Semantic semantic)
+    {
+        switch (semantic)
+        {
+        case VertexAttribute::Semantic::E_VAS_POSITION:
+            return POSITION;
+            break;
+        case VertexAttribute::Semantic::E_VAS_BLENDWEIGHT:
+            return BLENDWEIGHT;
+            break;
+        case VertexAttribute::Semantic::E_VAS_BLENDINDICES:
+            return BLENDINDICES;
+            break;
+        case VertexAttribute::Semantic::E_VAS_NORMAL:
+            return NORMAL;
+            break;
+        case VertexAttribute::Semantic::E_VAS_DIFFUSE:
+        case VertexAttribute::Semantic::E_VAS_SPECULAR:
+            return COLOR;
+            break;
+        case VertexAttribute::Semantic::E_VAS_TEXCOORD:
+            return TEXCOORD;
+            break;
+        case VertexAttribute::Semantic::E_VAS_TANGENT:
+            return TANGENT;
+            break;
+        case VertexAttribute::Semantic::E_VAS_BINORMAL:
+            return BINORMAL;
+            break;
+        }
+
+        return nullptr;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mapping::get(VertexAttribute::Type type)
+    {
+        DXGI_FORMAT d3dformat = DXGI_FORMAT_R32G32B32_FLOAT;
+
+        switch (type)
+        {
+        case VertexAttribute::Type::E_VAT_COLOR:
+            d3dformat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            break;
+        case VertexAttribute::Type::E_VAT_FLOAT1:
+            d3dformat = DXGI_FORMAT_R32_FLOAT;
+            break;
+        case VertexAttribute::Type::E_VAT_FLOAT2:
+            d3dformat = DXGI_FORMAT_R32G32_FLOAT;
+            break;
+        case VertexAttribute::Type::E_VAT_FLOAT3:
+            d3dformat = DXGI_FORMAT_R32G32B32_FLOAT;
+            break;
+        case VertexAttribute::Type::E_VAT_FLOAT4:
+            d3dformat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            break;
+        case VertexAttribute::Type::E_VAT_SHORT2:
+            d3dformat = DXGI_FORMAT_R16G16_SINT;
+            break;
+        case VertexAttribute::Type::E_VAT_SHORT4:
+            d3dformat = DXGI_FORMAT_R16G16B16A16_SINT;
+            break;
+        case VertexAttribute::Type::E_VAT_UBYTE4:
+            d3dformat = DXGI_FORMAT_R8G8B8A8_UINT;
+            break;
+        }
+
+        return d3dformat;
     }
     
     //--------------------------------------------------------------------------
