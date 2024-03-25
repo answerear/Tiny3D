@@ -1165,7 +1165,13 @@ namespace Tiny3D
 
     TResult D3D11Context::setVertexDeclaration(VertexDeclaration *decl)
     {
-        return T3D_OK;
+        auto lambda = [this](const D3D11VertexDeclarationPtr &d3dDecl)
+        {
+            mD3DDeviceContext->IASetInputLayout(d3dDecl->D3D11InputLayout);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11VertexDeclaration>(decl->getRHIResource()));
     }
 
     //--------------------------------------------------------------------------
