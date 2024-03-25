@@ -282,12 +282,14 @@ MeshPtr GeometryApp::buildMesh()
     attributes[1] = attrUV;
 
     // vertices & indices
+    const uint32_t kVertexCount = 8;
+    const uint32_t kIndexCount = 36;
     Vector3 offset;
     Vector2 uv(0.0f, 0.0f);
     Vector3 center(0.0f, 0.0f, 0.0f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
-    BoxVertex *vertices = new BoxVertex[8];
-    uint16_t *indices = new uint16_t[36];
+    BoxVertex *vertices = new BoxVertex[kVertexCount];
+    uint16_t *indices = new uint16_t[kIndexCount];
     
     // V0
     offset[0] = -extent[0];
@@ -373,7 +375,7 @@ MeshPtr GeometryApp::buildMesh()
     // construct mesh resource
     Buffer vertexBuffer;
     vertexBuffer.Data = (uint8_t*)vertices;
-    vertexBuffer.DataSize = sizeof(vertices);
+    vertexBuffer.DataSize = sizeof(BoxVertex) * kVertexCount;
     Vertices vertexBuffers(1);
     vertexBuffers[0] = vertexBuffer;
     
@@ -382,7 +384,7 @@ MeshPtr GeometryApp::buildMesh()
     
     Buffer indexBuffer;
     indexBuffer.Data = (uint8_t*)indices;
-    indexBuffer.DataSize = sizeof(indices);
+    indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
     
     String name = SUB_MESH_NAME;
     MaterialPtr material = buildMaterial();
