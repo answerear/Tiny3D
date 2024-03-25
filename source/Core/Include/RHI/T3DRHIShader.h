@@ -33,7 +33,7 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的颜色混合状态
+     * \brief 硬件层着色器
      */
     class T3D_ENGINE_API RHIShader : public RHIResource
     {

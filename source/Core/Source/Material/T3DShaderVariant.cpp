@@ -24,6 +24,8 @@
 
 
 #include "Material/T3DShaderVariant.h"
+
+#include "../../../Tools/ShaderCrossCompiler/Include/Parser/SLParserTypes.h"
 #include "RHI/T3DRHIContext.h"
 #include "Kernel/T3DAgent.h"
 
@@ -81,6 +83,31 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER, "Reflect shader all bindings failed !");
+                break;
+            }
+
+            switch (mShaderStage)
+            {
+            case SHADER_STAGE::kVertex:
+                mRHIShader = ctx->createVertexShader(this);
+                break;
+            case SHADER_STAGE::kPixel:
+                mRHIShader = ctx->createPixelShader(this);
+                break;
+            case SHADER_STAGE::kCompute:
+                mRHIShader = ctx->createComputeShader(this);
+                break;
+            case SHADER_STAGE::kGeometry:
+                mRHIShader = ctx->createGeometryShader(this);
+                break;
+            case SHADER_STAGE::kHull:
+                mRHIShader = ctx->createHullShader(this);
+                break;
+            case SHADER_STAGE::kDomain:
+                mRHIShader = ctx->createDomainShader(this);
+                break;
+            default:
+                T3D_ASSERT(0, "Invalid shader stage !");
                 break;
             }
         } while (false);

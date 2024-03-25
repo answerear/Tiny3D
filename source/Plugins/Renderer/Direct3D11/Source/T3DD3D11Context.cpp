@@ -29,6 +29,7 @@
 #include "T3DD3D11RenderBuffer.h"
 #include "T3DD3D11Mapping.h"
 #include "T3DD3D11RenderState.h"
+#include "T3DD3D11Shader.h"
 
 
 namespace Tiny3D
@@ -1448,14 +1449,57 @@ namespace Tiny3D
     
     RHIShaderPtr D3D11Context::createVertexShader(ShaderVariant *shader)
     {
-        return nullptr;
+        D3D11VertexShaderPtr d3dShader = D3D11VertexShader::create();
+
+        do
+        {
+            auto lambda = [this](const ShaderVariantPtr &shader, const D3D11VertexShaderPtr &d3dShader)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    size_t bytecodeLength = 0;
+                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    ID3D11VertexShader *pD3DShader = nullptr;
+                    HRESULT hr = mD3DDevice->CreateVertexShader(bytecode, bytecodeLength, nullptr, &pD3DShader);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create vertex shader ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_VERTEX_SHADER;
+                        break;
+                    }
+
+                    d3dShader->D3DShader = pD3DShader;
+                } while (false);
+
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), d3dShader);
+            if (T3D_FAILED(ret))
+            {
+                d3dShader = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dShader;
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setVertexShader(ShaderVariant *shader)
     {
-        return T3D_OK;
+        D3D11VertexShaderPtr d3dShader = static_cast<D3D11VertexShader*>(shader->getRHIShader());
+        
+        auto lambda = [this](const D3D11VertexShaderPtr &d3dShader)
+        {
+            mD3DDeviceContext->VSSetShader(d3dShader->D3DShader, nullptr, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dShader);
     }
 
     //--------------------------------------------------------------------------
@@ -1483,14 +1527,57 @@ namespace Tiny3D
     
     RHIShaderPtr D3D11Context::createPixelShader(ShaderVariant *shader)
     {
-        return nullptr;
+        D3D11PixelShaderPtr d3dShader = D3D11PixelShader::create();
+
+        do
+        {
+            auto lambda = [this](const ShaderVariantPtr &shader, const D3D11PixelShaderPtr &d3dShader)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    size_t bytecodeLength = 0;
+                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    ID3D11PixelShader *pD3DShader = nullptr;
+                    HRESULT hr = mD3DDevice->CreatePixelShader(bytecode, bytecodeLength, nullptr, &pD3DShader);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create pixel shader ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_VERTEX_SHADER;
+                        break;
+                    }
+
+                    d3dShader->D3DShader = pD3DShader;
+                } while (false);
+
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), d3dShader);
+            if (T3D_FAILED(ret))
+            {
+                d3dShader = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dShader;
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setPixelShader(ShaderVariant *shader)
     {
-        return T3D_OK;
+        D3D11PixelShaderPtr d3dShader = static_cast<D3D11PixelShader*>(shader->getRHIShader());
+        
+        auto lambda = [this](const D3D11PixelShaderPtr &d3dShader)
+        {
+            mD3DDeviceContext->PSSetShader(d3dShader->D3DShader, nullptr, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dShader);
     }
 
     //--------------------------------------------------------------------------

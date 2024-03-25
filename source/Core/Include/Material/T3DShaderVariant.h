@@ -110,6 +110,8 @@ namespace Tiny3D
         const ShaderConstantBindings &getShaderConstantBindings() const { return mConstantBindings; }
 
         const ShaderTexSamplerBindings &getShaderTexSamplerBindings() const { return mTexSamplerBindings; }
+
+        RHIShader *getRHIShader() const { return mRHIShader; }
         
     private:
         ShaderVariant() = default;
@@ -173,6 +175,9 @@ namespace Tiny3D
         ShaderConstantBindings      mConstantBindings {};
         /// 纹理和纹理采样绑定关系
         ShaderTexSamplerBindings    mTexSamplerBindings {};
+
+        /// RHI 着色器对象
+        RHIShaderPtr    mRHIShader {nullptr};
     };
 }
 
