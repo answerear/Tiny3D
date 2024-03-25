@@ -1995,7 +1995,7 @@ namespace Tiny3D
     {
         auto lambda = [this](uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
         {
-            // mD3DDeviceContext->DrawIndexed(indexCount, startIndex, baseVertex);
+            mD3DDeviceContext->DrawIndexed(indexCount, startIndex, baseVertex);
             return T3D_OK;
         };
         
@@ -2008,7 +2008,7 @@ namespace Tiny3D
     {
         auto lambda = [this](uint32_t vertexCount, uint32_t startVertex)
         {
-            // mD3DDeviceContext->Draw(vertexCount, startVertex);
+            mD3DDeviceContext->Draw(vertexCount, startVertex);
             return T3D_OK;
         };
         
