@@ -1188,7 +1188,7 @@ namespace Tiny3D
             TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create vertex buffer !");
                 break;
             }
             
@@ -1263,7 +1263,62 @@ namespace Tiny3D
     
     RHIIndexBufferPtr D3D11Context::createIndexBuffer(IndexBuffer *buffer)
     {
-        return nullptr;
+        D3D11IndexBufferPtr d3dBuffer = D3D11IndexBuffer::create();
+
+        do
+        {
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+
+            TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create index buffer !");
+                break;
+            }
+            
+            D3D11_BUFFER_DESC d3dDesc = {};
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.ByteWidth = (UINT)buffer->getBufferSize();
+            d3dDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+            d3dDesc.CPUAccessFlags = d3dAccess;
+            
+            auto lambda = [this](const D3D11_BUFFER_DESC &d3dDesc, const D3D11IndexBufferPtr &d3dBuffer, const IndexBufferPtr &buffer)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    // 创建顶点缓冲区子资源数据
+                    D3D11_SUBRESOURCE_DATA vertexData = {};
+                    vertexData.pSysMem = buffer->getBuffer().Data;
+                    vertexData.SysMemPitch = 0;
+                    vertexData.SysMemSlicePitch = 0;
+
+                    ID3D11Buffer *pD3DBuffer = nullptr;
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &vertexData, &pD3DBuffer);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create index buffer ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                        break;
+                    }
+
+                    d3dBuffer->D3D11Buffer = pD3DBuffer;
+                } while (false);
+                
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dBuffer, IndexBufferPtr(buffer));
+            if (T3D_FAILED(ret))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dBuffer;
     }
 
     //--------------------------------------------------------------------------
