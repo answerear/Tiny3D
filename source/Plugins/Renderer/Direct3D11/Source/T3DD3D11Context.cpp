@@ -1348,14 +1348,93 @@ namespace Tiny3D
     
     RHIPixelBuffer1DPtr D3D11Context::createPixelBuffer1D(PixelBuffer1D *buffer)
     {
-        return nullptr;
+        D3D11PixelBuffer1DPtr d3dBuffer = D3D11PixelBuffer1D::create();
+        return d3dBuffer;
     }
 
     //--------------------------------------------------------------------------
     
     RHIPixelBuffer2DPtr D3D11Context::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
-        return nullptr;
+        D3D11PixelBuffer2DPtr d3dBuffer = D3D11PixelBuffer2D::create();
+
+        do
+        {
+            const auto &desc = buffer->getDescriptor();
+            
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+            TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+            
+            // 创建2D纹理描述符
+            D3D11_TEXTURE2D_DESC d3dDesc = {};
+            d3dDesc.Width = desc.width;
+            d3dDesc.Height = desc.height;
+            d3dDesc.MipLevels = desc.mipmaps;
+            d3dDesc.ArraySize = desc.arraySize;
+            d3dDesc.Format = D3D11Mapping::get(desc.format);
+            d3dDesc.SampleDesc.Count = desc.sampleDesc.Count;
+            d3dDesc.SampleDesc.Quality = desc.sampleDesc.Quality;
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            d3dDesc.CPUAccessFlags = d3dAccess;
+            d3dDesc.MiscFlags = 0;
+
+            // 创建着色器资源视图描述符
+            D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc = {};
+            d3dSRVDesc.Format = D3D11Mapping::get(desc.format);
+            d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            d3dSRVDesc.Texture2D.MipLevels = desc.mipmaps;
+            d3dSRVDesc.Texture2D.MostDetailedMip = 0;
+
+            auto lambda = [this](const D3D11_TEXTURE2D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer2DPtr &d3dBuffer, const PixelBuffer2DPtr &buffer)
+            {
+                TResult ret = T3D_OK;
+
+                do
+                {
+                    // 创建2D纹理子资源数据
+                    D3D11_SUBRESOURCE_DATA initDataDesc = {};
+                    initDataDesc.pSysMem = buffer->getBuffer().Data;
+                    initDataDesc.SysMemPitch = static_cast<uint32_t>(buffer->getBuffer().DataSize) / buffer->getDescriptor().height;
+                    initDataDesc.SysMemSlicePitch = 0;
+
+                    ID3D11Texture2D *pD3DTex2D = nullptr;
+                    HRESULT hr = mD3DDevice->CreateTexture2D(&d3dDesc, &initDataDesc, &pD3DTex2D);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create texture2d ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                        break;
+                    }
+                    
+                    // 创建着色器资源视图
+                    ID3D11ShaderResourceView *pD3DSRView = nullptr;
+                    hr = mD3DDevice->CreateShaderResourceView(pD3DTex2D, &d3dSRVDesc, &pD3DSRView);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create shader resource view for 2D texture ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                        break;
+                    }
+
+                    d3dBuffer->D3DTexture = pD3DTex2D;
+                    d3dBuffer->D3DSRView = pD3DSRView;
+                } while (false);
+                
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dSRVDesc, d3dBuffer, buffer);
+            if (T3D_FAILED(ret))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
+        } while (false);
+        
+        
+        return d3dBuffer;
     }
 
     //--------------------------------------------------------------------------

@@ -72,6 +72,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    D3D11PixelBuffer1DPtr D3D11PixelBuffer1D::create()
+    {
+        return new D3D11PixelBuffer1D();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    D3D11PixelBuffer1D::~D3D11PixelBuffer1D()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
     D3D11PixelBuffer2DPtr D3D11PixelBuffer2D::create()
     {
         return new D3D11PixelBuffer2D();
@@ -79,20 +93,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    D3D11PixelBuffer2D::D3D11PixelBuffer2D()
-    {
-        
-    }
-    
-    //--------------------------------------------------------------------------
-
     D3D11PixelBuffer2D::~D3D11PixelBuffer2D()
     {
         D3D_SAFE_RELEASE(D3DTexture);
+        D3D_SAFE_RELEASE(D3DSRView);
         D3D_SAFE_RELEASE(D3DRTView);
         D3D_SAFE_RELEASE(D3DDSTexture);
         D3D_SAFE_RELEASE(D3DDSView);
-        D3D_SAFE_RELEASE(D3DSRView);
     }
 
     //--------------------------------------------------------------------------

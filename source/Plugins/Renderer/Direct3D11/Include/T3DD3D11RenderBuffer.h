@@ -76,7 +76,16 @@ namespace Tiny3D
 
     class D3D11PixelBuffer1D : public RHIPixelBuffer1D
     {
+    public:
+        static D3D11PixelBuffer1DPtr create();
+
+        ~D3D11PixelBuffer1D() override;
+
+        ID3D11Texture1D         *D3DTexture {nullptr};
+        ID3D11RenderTargetView  *D3DRTView {nullptr};
         
+    protected:
+        D3D11PixelBuffer1D() = default;
     };
 
     class D3D11PixelBuffer2D : public RHIPixelBuffer2D
@@ -87,15 +96,13 @@ namespace Tiny3D
         ~D3D11PixelBuffer2D() override;
         
         ID3D11Texture2D             *D3DTexture {nullptr};
-        ID3D11RenderTargetView      *D3DRTView {nullptr};
+        ID3D11ShaderResourceView    *D3DSRView {nullptr};
         
+        ID3D11RenderTargetView      *D3DRTView {nullptr};
         ID3D11Texture2D             *D3DDSTexture {nullptr};
         ID3D11DepthStencilView      *D3DDSView {nullptr};
-        
-        ID3D11ShaderResourceView    *D3DSRView {nullptr};
-
     protected:
-        D3D11PixelBuffer2D();
+        D3D11PixelBuffer2D() = default;
     };
 
     class D3D11PixelBuffer3D : public RHIPixelBuffer3D
