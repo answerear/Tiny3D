@@ -292,7 +292,7 @@ MeshPtr GeometryApp::buildMesh()
     Vector3 center(0.0f, 0.0f, 0.5f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
 
-#if 0
+#if 1
     const uint32_t kVertexCount = 8;
     const uint32_t kIndexCount = 36;
     BoxVertex *vertices = new BoxVertex[kVertexCount];
