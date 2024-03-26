@@ -257,7 +257,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
+    TResult NullContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -292,7 +292,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
+    TResult NullContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -326,7 +326,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
+    TResult NullContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -361,7 +361,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
+    TResult NullContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -396,7 +396,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
+    TResult NullContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -431,7 +431,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers)
+    TResult NullContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return T3D_OK;
     }

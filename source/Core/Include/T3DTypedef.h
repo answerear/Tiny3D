@@ -187,6 +187,8 @@ namespace Tiny3D
     using Vertices = TArray<Buffer>;
     using VertexStrides = TArray<uint32_t>;
     using VertexOffsets = TArray<uint32_t>;
+
+    using PixelBuffers = TArray<PixelBufferPtr>;
 }
 
 

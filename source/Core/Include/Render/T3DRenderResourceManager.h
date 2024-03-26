@@ -101,10 +101,10 @@ namespace Tiny3D
 
         VertexDeclarationPtr addVertexDeclaration(const VertexAttributes &attributes, ShaderVariant *vertexShader);
         
-        VertexBufferPtr loadVertexBuffer(size_t vertexSize, size_t vertexCount, 
+        VertexBufferPtr loadVertexBuffer(uint32_t vertexSize, uint32_t vertexCount, 
             const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
 
-        IndexBufferPtr loadIndexBuffer(IndexType indexType, size_t indexCount,
+        IndexBufferPtr loadIndexBuffer(IndexType indexType, uint32_t indexCount,
             const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
 
         ConstantBufferPtr loadConstantBuffer(const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);

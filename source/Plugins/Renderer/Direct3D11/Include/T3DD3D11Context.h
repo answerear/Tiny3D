@@ -252,11 +252,10 @@ namespace Tiny3D
         /**
          * \brief 设置 vs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) override;
+        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -293,11 +292,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ps 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) override;
+        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
          * \brief 设置 ps 纹理采样器
@@ -334,11 +332,10 @@ namespace Tiny3D
         /**
          * \brief 设置 hs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) override;
+        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
          * \brief 设置 hs 纹理采样器
@@ -375,11 +372,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ds 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) override;
+        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
          * \brief 设置 ds 纹理采样器
@@ -416,11 +412,10 @@ namespace Tiny3D
         /**
          * \brief 设置 gs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) override;
+        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
          * \brief 设置 gs 纹理采样器
@@ -457,11 +452,10 @@ namespace Tiny3D
         /**
          * \brief 设置 cs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) override;
+        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
          * \brief 设置 cs 纹理采样器
@@ -597,6 +591,10 @@ namespace Tiny3D
         using SetSamplerState = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11SamplerState * const *);
         
         TResult setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const * samplers);
+
+        using SetShaderResources = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11ShaderResourceView * const *);
+        
+        TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers);
         
     protected:
         struct BlitVertex
@@ -627,7 +625,9 @@ namespace Tiny3D
         /// 用于 blit 的 pixel shader
         ID3D11PixelShader   *mBlitPS {nullptr};
         /// 用于 blit 的 sampler state
-        ID3D11SamplerState  *mBlitSamplerState {nullptr};
+        ID3D11SamplerState      *mBlitSamplerState {nullptr};
+        /// 用于 blit 的 blend state
+        ID3D11BlendState        *mBlitBState {nullptr};
         /// 用于 blit 的 depth stencil state
         ID3D11DepthStencilState *mBlitDSState {nullptr};
         /// 用于 blit 的 rasterizer state

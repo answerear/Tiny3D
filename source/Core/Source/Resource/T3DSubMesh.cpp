@@ -69,7 +69,7 @@ namespace Tiny3D
             
             // 索引缓冲区
             IndexType indexType;
-            size_t indexCount;
+            uint32_t indexCount;
             if (mIs16Bits)
             {
                 indexType = IndexType::E_IT_16BITS;

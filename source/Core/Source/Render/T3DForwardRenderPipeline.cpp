@@ -41,11 +41,11 @@
 #include "Resource/T3DScene.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DShader.h"
-#include "Render/T3DVertexDeclaration.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DRenderState.h"
-#include "Component/T3DTransform3D.h" 
+#include "Render/T3DPixelBuffer.h"
+
 
 
 namespace Tiny3D
@@ -215,11 +215,11 @@ namespace Tiny3D
                             setupShaderConstants(ctx, &RHIContext::setPSConstantBuffer, material, pixelShader);
 
                             // 设置 shader 使用的纹理和纹理采样
-                            setupShaderTexSamplers(ctx, &RHIContext::setVSSampler, &RHIContext::setVSPixelBuffer, material, vertexShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setHSSampler, &RHIContext::setHSPixelBuffer, material, hullShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setDSSampler, &RHIContext::setDSPixelBuffer, material, domainShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setGSSampler, &RHIContext::setGSPixelBuffer, material, geometryShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setPSSampler, &RHIContext::setPSPixelBuffer, material, pixelShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setVSSampler, &RHIContext::setVSPixelBuffers, material, vertexShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setHSSampler, &RHIContext::setHSPixelBuffers, material, hullShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setDSSampler, &RHIContext::setDSPixelBuffers, material, domainShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setGSSampler, &RHIContext::setGSPixelBuffers, material, geometryShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setPSSampler, &RHIContext::setPSPixelBuffers, material, pixelShader);
                             
                             // 设置各 pipeline stage 的 shader
                             if (vertexShader != nullptr)
@@ -319,18 +319,18 @@ namespace Tiny3D
                 ctx->setBlendState(blendState);
             }
 
-            // 光栅化状态
-            RasterizerState *rasterState = renderState->getRasterizerState();
-            if (rasterState != nullptr)
-            {
-                ctx->setRasterizerState(rasterState);
-            }
-
             // 深度/模板缓存状态
             DepthStencilState *depthStencilState = renderState->getDepthStencilState();
             if (depthStencilState != nullptr)
             {
                 ctx->setDepthStencilState(depthStencilState);
+            }
+
+            // 光栅化状态
+            RasterizerState *rasterState = renderState->getRasterizerState();
+            if (rasterState != nullptr)
+            {
+                ctx->setRasterizerState(rasterState);
             }
         }
 
@@ -397,10 +397,11 @@ namespace Tiny3D
 
             TexturePtr texture = itParam->second->getTexture();
             SamplerState *sampler = texture->getSamplerState();
-            PixelBuffer *pb = texture->getPixelBuffer();
 
+            PixelBuffers buffers(1);
+            buffers[0] = texture->getPixelBuffer();
             (ctx->*setSamplerState)(binding.second.samplerBinding.binding, 1, &sampler);
-            (ctx->*setPixelBuffer)(binding.second.texBinding.binding, 1, &pb);
+            (ctx->*setPixelBuffer)(binding.second.texBinding.binding, buffers);
             
             // for (const auto &param : material->getSamplerParams())
             // {

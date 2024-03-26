@@ -87,9 +87,9 @@ void GeometryApp::applicationWillTerminate()
 
 Texture2DPtr GeometryApp::buildTexture()
 {
-    const uint32_t width = 256;
-    const uint32_t height = 256;
-    uint32_t pitch = Image::calcPitch(width, 24);
+    const uint32_t width = 16;
+    const uint32_t height = 16;
+    uint32_t pitch = Image::calcPitch(width, 32);
     const uint32_t dataSize = pitch * height;
     uint8_t *pixels = new uint8_t[dataSize];
     
@@ -105,6 +105,8 @@ Texture2DPtr GeometryApp::buildTexture()
             lines[i++] = 127;
             // red
             lines[i++] = 255;
+            // alpha
+            lines[i++] = 255;
         }
     }
     
@@ -112,7 +114,7 @@ Texture2DPtr GeometryApp::buildTexture()
     texData.Data = pixels;
     texData.DataSize = dataSize;
     
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8, texData);
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
     
     return texture;
 }
@@ -130,12 +132,12 @@ MaterialPtr GeometryApp::buildMaterial()
     
     // vertex shader
     const String vs =
-        "cbuffer ConstantBuffer : register(b0)\n"
-        "{\n"
-        "   float4x4 modelMatrix;\n"
-        "   float4x4 viewMatrix;\n"
-        "   float4x4 projectionMatrix;\n"
-        "}\n"
+        "//cbuffer ConstantBuffer : register(b0)\n"
+        "//{\n"
+        "//   float4x4 modelMatrix;\n"
+        "//   float4x4 viewMatrix;\n"
+        "//   float4x4 projectionMatrix;\n"
+        "//}\n"
         "struct VertexInput\n"
         "{\n"
         "   float3 position : POSITION;\n"
@@ -149,10 +151,11 @@ MaterialPtr GeometryApp::buildMaterial()
         "VertexOutput main(VertexInput input)\n"
         "{\n"
         "   VertexOutput output;\n"
-        "   float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);\n"
-        "   float4 viewPosition = mul(worldPosition, viewMatrix);\n"
-        "   float4 clipPosition = mul(viewPosition, projectionMatrix);\n"
-        "   output.position = clipPosition;\n"
+        "   //float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);\n"
+        "   //float4 viewPosition = mul(worldPosition, viewMatrix);\n"
+        "   //float4 clipPosition = mul(viewPosition, projectionMatrix);\n"
+        "   //output.position = clipPosition;\n"
+        "   output.position = float4(input.position, 1.0);\n"
         "   output.uv = input.uv;\n"
         "   return output;\n"
         "}\n";
@@ -166,12 +169,13 @@ MaterialPtr GeometryApp::buildMaterial()
         "SamplerState sampler_texCube : register(s0);\n"
         "struct PS_INPUT\n"
         "{\n"
-        "    float4 Pos : SV_POSITION;\n"
-        "    float2 Tex : TEXCOORD0;\n"
+        "    float4 position : SV_POSITION;\n"
+        "    float2 uv : TEXCOORD0;\n"
         "};\n"
         "float4 main(PS_INPUT input) : SV_Target\n"
         "{\n"
-        "    float4 color = texCube.Sample(sampler_texCube, input.Tex);\n"
+        "    float4 color = texCube.Sample(sampler_texCube, input.uv);\n"
+        "    //float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);\n"
         "    return color;\n"
         "}";
     
@@ -187,6 +191,7 @@ MaterialPtr GeometryApp::buildMaterial()
 
     // depth & stencil state
     DepthStencilDesc depthStencilDesc;
+    depthStencilDesc.DepthTestEnable = false;
     renderState->setDepthStencilDesc(depthStencilDesc);
 
     // rasterizer state
@@ -282,12 +287,14 @@ MeshPtr GeometryApp::buildMesh()
     attributes[1] = attrUV;
 
     // vertices & indices
+    Vector3 offset;
+    Vector2 uv(0.5f, 0.5f);
+    Vector3 center(0.0f, 0.0f, 0.5f);
+    Vector3 extent(0.5f, 0.5f, 0.5f);
+
+#if 0
     const uint32_t kVertexCount = 8;
     const uint32_t kIndexCount = 36;
-    Vector3 offset;
-    Vector2 uv(0.0f, 0.0f);
-    Vector3 center(0.0f, 0.0f, 0.0f);
-    Vector3 extent(0.5f, 0.5f, 0.5f);
     BoxVertex *vertices = new BoxVertex[kVertexCount];
     uint16_t *indices = new uint16_t[kIndexCount];
     
@@ -296,56 +303,56 @@ MeshPtr GeometryApp::buildMesh()
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[0].position = center + offset;
-    vertices[0].uv = uv;
+    vertices[0].uv = Vector2(0.0f, 0.0f);
 
     // V1
     offset[0] = -extent[0];
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[1].position = center + offset;
-    vertices[1].uv = uv;
+    vertices[1].uv = Vector2(0.0f, 1.0f);
 
     // V2
     offset[0] = extent[0];
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[2].position = center + offset;
-    vertices[2].uv = uv;
+    vertices[2].uv = Vector2(1.0f, 0.0f);
 
     // V3
     offset[0] = extent[0];
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[3].position = center + offset;
-    vertices[3].uv = uv;
+    vertices[3].uv = Vector2(1.0f, 1.0f);
 
     // V4
     offset[0] = extent[0];
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[4].position = center + offset;
-    vertices[4].uv = uv;
+    vertices[4].uv = Vector2(0.0f, 0.0f);
 
     // V5
     offset[0] = extent[0];
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[5].position = center + offset;
-    vertices[5].uv = uv;
+    vertices[5].uv = Vector2(0.0f, 1.0f);
 
     // V6
     offset[0] = -extent[0];
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[6].position = center + offset;
-    vertices[6].uv = uv;
+    vertices[6].uv = Vector2(1.0f, 0.0f);
 
     // V7
     offset[0] = -extent[0];
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[7].position = center + offset;
-    vertices[7].uv = uv;
+    vertices[7].uv = Vector2(1.0f, 1.0f);
 
     // Front face
     indices[0] = 0, indices[1] = 1, indices[2] = 2;
@@ -370,8 +377,32 @@ MeshPtr GeometryApp::buildMesh()
     // Bottom
     indices[30] = 1, indices[31] = 7, indices[32] = 3;
     indices[33] = 3, indices[34] = 7, indices[35] = 5;
-    
+#else
+    const uint32_t kVertexCount = 4;
+    const uint32_t kIndexCount = 6;
+    BoxVertex *vertices = new BoxVertex[kVertexCount];
+    uint16_t *indices = new uint16_t[kIndexCount];
 
+    vertices[0].position = Vector3(-0.5f, 0.5f, 0.5f);
+    vertices[0].uv = Vector2(0.0f, 0.0f);
+
+    vertices[1].position = Vector3(-0.5f, -0.5f, 0.5f);
+    vertices[1].uv = Vector2(0.0f, 1.0f);
+
+    vertices[2].position = Vector3(0.5f, 0.5f, 0.5f);
+    vertices[2].uv = Vector2(1.0f, 0.0f);
+
+    vertices[3].position = Vector3(0.5f, -0.5f, 0.5f);
+    vertices[3].uv = Vector2(1.0f, 1.0f);
+
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 1;
+    indices[4] = 3;
+    indices[5] = 2;
+#endif
+    
     // construct mesh resource
     Buffer vertexBuffer;
     vertexBuffer.Data = (uint8_t*)vertices;

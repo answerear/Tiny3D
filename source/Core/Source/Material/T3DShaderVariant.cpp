@@ -44,6 +44,7 @@ namespace Tiny3D
     ShaderVariant::ShaderVariant(ShaderKeyword &&key, const String &code)
     {
         mShaderKeyword = new ShaderKeyword(std::move(key));
+        mShaderKeyword->generate();
         setSourceCode(code.c_str(), code.length());
     }
 

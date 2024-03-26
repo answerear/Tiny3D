@@ -36,7 +36,7 @@ namespace Tiny3D
     class T3D_ENGINE_API IndexBuffer : public RenderBuffer
     {
     public:
-        static IndexBufferPtr create(IndexType idxType, size_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static IndexBufferPtr create(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         Type getType() const override;
 
@@ -47,7 +47,7 @@ namespace Tiny3D
         uint32_t getIndexSize() const { return mIndexSize; }
         
     protected:
-        IndexBuffer(IndexType idxType, size_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        IndexBuffer(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         ~IndexBuffer() override = default;
         
@@ -56,8 +56,8 @@ namespace Tiny3D
         bool onUnload() override;
 
         IndexType   mIndexType {IndexType::E_IT_16BITS};
-        size_t  mIndexSize {0};
-        size_t  mIndexCount {0};
+        uint32_t  mIndexSize {0};
+        uint32_t  mIndexCount {0};
     };
 }
 

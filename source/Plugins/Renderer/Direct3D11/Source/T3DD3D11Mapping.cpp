@@ -459,18 +459,22 @@ namespace Tiny3D
 
     D3D11_TEXTURE_ADDRESS_MODE D3D11Mapping::get(TextureAddressMode mode)
     {
-        D3D11_TEXTURE_ADDRESS_MODE d3dMode;
+        D3D11_TEXTURE_ADDRESS_MODE d3dMode = D3D11_TEXTURE_ADDRESS_WRAP;
 
         switch (mode)
         {
         case TextureAddressMode::kWrap:
             d3dMode = D3D11_TEXTURE_ADDRESS_WRAP;
+            break;
         case TextureAddressMode::kMirror:
             d3dMode = D3D11_TEXTURE_ADDRESS_MIRROR;
+            break;
         case TextureAddressMode::kClamp:
             d3dMode = D3D11_TEXTURE_ADDRESS_CLAMP;
+            break;
         case TextureAddressMode::kBorder:
             d3dMode = D3D11_TEXTURE_ADDRESS_BORDER;
+            break;
         }
 
         return d3dMode;

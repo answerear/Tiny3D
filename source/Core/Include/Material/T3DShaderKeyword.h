@@ -72,6 +72,8 @@ namespace Tiny3D
          */
         virtual ~ShaderKeyword() = default;
 
+        const String &getName() const { return mName; }
+
         /**
          * \brief 是否有对应的宏
          * \param [in] keyword : 宏定义名称
@@ -138,6 +140,7 @@ namespace Tiny3D
         
         uint32_t    mHashCode {0};
         Keys        mKeys {};
+        String      mName {};
     };
 }
 

@@ -64,16 +64,16 @@ namespace Tiny3D
         uint32_t            MaxAnisotropy {1};
         
         TPROPERTY()
-        CompareFunction     CompareFunc {CompareFunction::kAlwaysFail};
+        CompareFunction     CompareFunc {CompareFunction::kAlwaysPass};
         
         TPROPERTY()
         ColorRGBA           BorderColor {ColorRGBA::WHITE};
         
         TPROPERTY()
-        Real                MinLOD {std::numeric_limits<Real>::min()};
+        Real                MinLOD {0.0f};
         
         TPROPERTY()
-        Real                MaxLOD {std::numeric_limits<Real>::max()};
+        Real                MaxLOD {FLT_MAX};
     };
 
     template class T3D_ENGINE_API RenderStateResource<SamplerDesc, RHISamplerState>;

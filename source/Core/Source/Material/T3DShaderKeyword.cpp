@@ -88,6 +88,7 @@ namespace Tiny3D
             name += str;
         }
         mHashCode = Hash::hash(name.c_str());
+        mName = name;
         return T3D_OK;
     }
 

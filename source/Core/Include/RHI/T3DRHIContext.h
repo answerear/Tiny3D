@@ -313,11 +313,10 @@ namespace Tiny3D
         /**
          * \brief 设置 vs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setVSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
+        virtual TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -354,11 +353,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ps 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setPSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
+        virtual TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
         /**
          * \brief 设置 ps 纹理采样器
@@ -395,11 +393,10 @@ namespace Tiny3D
         /**
          * \brief 设置 hs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setHSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
+        virtual TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
         /**
          * \brief 设置 hs 纹理采样器
@@ -436,11 +433,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ds 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setDSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
+        virtual TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
         /**
          * \brief 设置 ds 纹理采样器
@@ -477,11 +473,10 @@ namespace Tiny3D
         /**
          * \brief 设置 gs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setGSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
+        virtual TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
         /**
          * \brief 设置 gs 纹理采样器
@@ -518,11 +513,10 @@ namespace Tiny3D
         /**
          * \brief 设置 cs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
-         * \param [in] numOfBuffers : 第三个参数像素缓冲区的数量
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        virtual TResult setCSPixelBuffer(uint32_t startSlot, uint32_t numOfBuffers, PixelBuffer * const *buffers) = 0;
+        virtual TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
         /**
          * \brief 设置 cs 纹理采样器
@@ -551,10 +545,10 @@ namespace Tiny3D
 
         /**
          * \brief 设置渲染图元类型
-         * \param [in] primitve : 图元类型
+         * \param [in] primitive : 图元类型
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPrimitiveType(PrimitiveType primitve) = 0;
+        virtual TResult setPrimitiveType(PrimitiveType primitive) = 0;
 
         /**
          * \brief 根据上下文设置好的资源、状态来渲染，带顶点索引的绘制

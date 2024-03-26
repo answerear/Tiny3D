@@ -81,8 +81,8 @@ namespace Tiny3D
 
         ~D3D11PixelBuffer1D() override;
 
-        ID3D11Texture1D         *D3DTexture {nullptr};
-        ID3D11RenderTargetView  *D3DRTView {nullptr};
+        ID3D11Texture1D             *D3DTexture {nullptr};
+        ID3D11ShaderResourceView    *D3DSRView {nullptr};
         
     protected:
         D3D11PixelBuffer1D() = default;
@@ -107,7 +107,9 @@ namespace Tiny3D
 
     class D3D11PixelBuffer3D : public RHIPixelBuffer3D
     {
-        
+    public:
+        ID3D11Texture2D             *D3DTexture {nullptr};
+        ID3D11ShaderResourceView    *D3DSRView {nullptr};
     };
 }
 
