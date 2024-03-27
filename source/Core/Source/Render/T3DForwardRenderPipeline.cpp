@@ -215,11 +215,11 @@ namespace Tiny3D
                             setupShaderConstants(ctx, &RHIContext::setPSConstantBuffer, material, pixelShader);
 
                             // 设置 shader 使用的纹理和纹理采样
-                            setupShaderTexSamplers(ctx, &RHIContext::setVSSampler, &RHIContext::setVSPixelBuffers, material, vertexShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setHSSampler, &RHIContext::setHSPixelBuffers, material, hullShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setDSSampler, &RHIContext::setDSPixelBuffers, material, domainShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setGSSampler, &RHIContext::setGSPixelBuffers, material, geometryShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setPSSampler, &RHIContext::setPSPixelBuffers, material, pixelShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setVSSamplers, &RHIContext::setVSPixelBuffers, material, vertexShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setHSSamplers, &RHIContext::setHSPixelBuffers, material, hullShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setDSSamplers, &RHIContext::setDSPixelBuffers, material, domainShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setGSSamplers, &RHIContext::setGSPixelBuffers, material, geometryShader);
+                            setupShaderTexSamplers(ctx, &RHIContext::setPSSamplers, &RHIContext::setPSPixelBuffers, material, pixelShader);
                             
                             // 设置各 pipeline stage 的 shader
                             if (vertexShader != nullptr)

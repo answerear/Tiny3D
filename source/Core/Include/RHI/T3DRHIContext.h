@@ -325,7 +325,7 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
 
         /**
          * \brief 创建 RHI 像素着色器对象
@@ -365,7 +365,7 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
@@ -405,7 +405,7 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 域着色器
@@ -445,7 +445,7 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 几何着色器
@@ -485,7 +485,7 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
         
         /**
          * \brief 创建 RHI 计算着色器
@@ -525,7 +525,7 @@ namespace Tiny3D
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
 
         /**
          * \brief 编译着色器
@@ -561,7 +561,6 @@ namespace Tiny3D
 
         /**
          * \brief 根据上下文设置好的资源、状态来渲染，不带顶点索引的绘制
-         * \param [in] primitive : 图元类型
          * \param [in] vertexCount : 顶点数量
          * \param [in] startVertex : 顶点缓冲区其实位置
          * \return 调用成功返回 T3D_OK

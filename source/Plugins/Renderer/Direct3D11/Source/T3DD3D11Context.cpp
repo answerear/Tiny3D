@@ -1551,7 +1551,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return setSamplers(&ID3D11DeviceContext::VSSetSamplers, startSlot, numOfSamplers, samplers);
     }
@@ -1629,7 +1629,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return setSamplers(&ID3D11DeviceContext::PSSetSamplers, startSlot, numOfSamplers, samplers);
     }
@@ -1663,7 +1663,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return setSamplers(&ID3D11DeviceContext::HSSetSamplers, startSlot, numOfSamplers, samplers);
     }
@@ -1698,7 +1698,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return setSamplers(&ID3D11DeviceContext::DSSetSamplers, startSlot, numOfSamplers, samplers);
     }
@@ -1733,7 +1733,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return setSamplers(&ID3D11DeviceContext::GSSetSamplers, startSlot, numOfSamplers, samplers);;
     }
@@ -1768,7 +1768,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return setSamplers(&ID3D11DeviceContext::CSSetSamplers, startSlot, numOfSamplers, samplers);
     }

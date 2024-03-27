@@ -264,7 +264,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
@@ -299,7 +299,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
@@ -333,7 +333,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setHSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
@@ -368,7 +368,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setDSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
@@ -403,7 +403,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setGSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
@@ -438,7 +438,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setCSSampler(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
     {
         return T3D_OK;
     }
