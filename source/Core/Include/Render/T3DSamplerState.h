@@ -64,7 +64,7 @@ namespace Tiny3D
         uint32_t            MaxAnisotropy {1};
         
         TPROPERTY()
-        CompareFunction     CompareFunc {CompareFunction::kAlwaysPass};
+        CompareFunction     CompareFunc {CompareFunction::kAlwaysFail};
         
         TPROPERTY()
         ColorRGBA           BorderColor {ColorRGBA::WHITE};
