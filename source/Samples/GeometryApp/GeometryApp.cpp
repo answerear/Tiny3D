@@ -191,7 +191,6 @@ MaterialPtr GeometryApp::buildMaterial()
 
     // depth & stencil state
     DepthStencilDesc depthStencilDesc;
-    depthStencilDesc.DepthTestEnable = false;
     renderState->setDepthStencilDesc(depthStencilDesc);
 
     // rasterizer state
@@ -292,7 +291,7 @@ MeshPtr GeometryApp::buildMesh()
     Vector3 center(0.0f, 0.0f, 0.5f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
 
-#if 1
+#if 0
     const uint32_t kVertexCount = 8;
     const uint32_t kIndexCount = 36;
     BoxVertex *vertices = new BoxVertex[kVertexCount];
