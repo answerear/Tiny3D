@@ -293,7 +293,7 @@ namespace Tiny3D
         memset(&dsDesc, 0, sizeof(dsDesc));
         dsDesc.DepthEnable             = FALSE;
         dsDesc.StencilEnable           = FALSE;
-        dsDesc.DepthFunc               = D3D11_COMPARISON_ALWAYS;
+        dsDesc.DepthFunc               = D3D11_COMPARISON_LESS;
         dsDesc.DepthWriteMask          = D3D11_DEPTH_WRITE_MASK_ALL;
         dsDesc.BackFace.StencilFailOp  = D3D11_STENCIL_OP_KEEP;
         dsDesc.BackFace.StencilPassOp  = D3D11_STENCIL_OP_KEEP;

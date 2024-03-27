@@ -163,7 +163,7 @@ namespace Tiny3D
         /// 背景填充颜色
         ColorRGB    mClearColor {ColorRGB::BLACK};
         /// 深度缓冲填充值
-        Real    mClearDepth {0.0f};
+        Real    mClearDepth {1.0f};
         /// 模板缓冲填充值
         uint8_t mClearStencil {0};
         
