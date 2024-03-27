@@ -1236,13 +1236,14 @@ namespace Tiny3D
                 do
                 {
                     // 创建顶点缓冲区子资源数据
-                    D3D11_SUBRESOURCE_DATA vertexData = {};
-                    vertexData.pSysMem = buffer->getBuffer().Data;
-                    vertexData.SysMemPitch = 0;
-                    vertexData.SysMemSlicePitch = 0;
+                    D3D11_SUBRESOURCE_DATA initData;
+                    memset(&initData, 0, sizeof(initData));
+                    initData.pSysMem = buffer->getBuffer().Data;
+                    initData.SysMemPitch = 0;
+                    initData.SysMemSlicePitch = 0;
 
                     ID3D11Buffer *pD3DBuffer = nullptr;
-                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &vertexData, &pD3DBuffer);
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
                     if (FAILED(hr))
                     {
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create vertex buffer ! DX ERROR [%d]", hr);
@@ -1250,7 +1251,7 @@ namespace Tiny3D
                         break;
                     }
 
-                    d3dBuffer->D3D11Buffer = pD3DBuffer;
+                    d3dBuffer->D3DBuffer = pD3DBuffer;
                 } while (false);
                 
                 return ret;
@@ -1279,7 +1280,7 @@ namespace Tiny3D
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
                 const auto &vb = buffers[i];
-                vbuffers[i] = smart_pointer_cast<D3D11VertexBuffer>(vb->getRHIResource())->D3D11Buffer;
+                vbuffers[i] = smart_pointer_cast<D3D11VertexBuffer>(vb->getRHIResource())->D3DBuffer;
             }
 
             mD3DDeviceContext->IASetVertexBuffers(startSlot, (UINT)buffers.size(), vbuffers.data(), strides.data(), offsets.data());
@@ -1322,13 +1323,14 @@ namespace Tiny3D
                 do
                 {
                     // 创建顶点缓冲区子资源数据
-                    D3D11_SUBRESOURCE_DATA vertexData = {};
-                    vertexData.pSysMem = buffer->getBuffer().Data;
-                    vertexData.SysMemPitch = 0;
-                    vertexData.SysMemSlicePitch = 0;
+                    D3D11_SUBRESOURCE_DATA initData;
+                    memset(&initData, 0, sizeof(initData));
+                    initData.pSysMem = buffer->getBuffer().Data;
+                    initData.SysMemPitch = 0;
+                    initData.SysMemSlicePitch = 0;
 
                     ID3D11Buffer *pD3DBuffer = nullptr;
-                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &vertexData, &pD3DBuffer);
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
                     if (FAILED(hr))
                     {
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create index buffer ! DX ERROR [%d]", hr);
@@ -1336,7 +1338,7 @@ namespace Tiny3D
                         break;
                     }
 
-                    d3dBuffer->D3D11Buffer = pD3DBuffer;
+                    d3dBuffer->D3DBuffer = pD3DBuffer;
                 } while (false);
                 
                 return ret;
@@ -1362,7 +1364,7 @@ namespace Tiny3D
         
         auto lambda = [this](DXGI_FORMAT d3dFormat, const D3D11IndexBufferPtr &d3dIndexBuffer)
         {
-            mD3DDeviceContext->IASetIndexBuffer(d3dIndexBuffer->D3D11Buffer, d3dFormat, 0);
+            mD3DDeviceContext->IASetIndexBuffer(d3dIndexBuffer->D3DBuffer, d3dFormat, 0);
             return T3D_OK;
         };
         
@@ -1373,7 +1375,64 @@ namespace Tiny3D
     
     RHIConstantBufferPtr D3D11Context::createConstantBuffer(ConstantBuffer *buffer)
     {
-        return nullptr;
+        D3D11ConstantBufferPtr d3dBuffer = D3D11ConstantBuffer::create();
+
+        do
+        {
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+
+            TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create index buffer !");
+                break;
+            }
+            
+            D3D11_BUFFER_DESC d3dDesc;
+            memset(&d3dDesc, 0, sizeof(d3dDesc));
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.ByteWidth = (UINT)buffer->getBufferSize();
+            d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            d3dDesc.CPUAccessFlags = d3dAccess;
+            
+            auto lambda = [this](const D3D11_BUFFER_DESC &d3dDesc, const D3D11ConstantBufferPtr &d3dBuffer, const ConstantBufferPtr &buffer)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    // 创建顶点缓冲区子资源数据
+                    D3D11_SUBRESOURCE_DATA initData;
+                    memset(&initData, 0, sizeof(initData));
+                    initData.pSysMem = buffer->getBuffer().Data;
+                    initData.SysMemPitch = 0;
+                    initData.SysMemSlicePitch = 0;
+
+                    ID3D11Buffer *pD3DBuffer = nullptr;
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create constant buffer ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                        break;
+                    }
+
+                    d3dBuffer->D3DBuffer = pD3DBuffer;
+                } while (false);
+
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dBuffer, ConstantBufferPtr(buffer));
+            if (T3D_FAILED(ret))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dBuffer;
     }
 
     //--------------------------------------------------------------------------
@@ -1537,7 +1596,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setVSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
@@ -1615,7 +1674,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setPSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
@@ -1649,7 +1708,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setHSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
@@ -1684,7 +1743,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setDSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
@@ -1719,7 +1778,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setGSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }
@@ -1754,7 +1813,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setCSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
     {
         return T3D_OK;
     }

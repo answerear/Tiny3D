@@ -53,7 +53,7 @@ namespace Tiny3D
 
     D3D11VertexBuffer::~D3D11VertexBuffer()
     {
-        D3D_SAFE_RELEASE(D3D11Buffer);
+        D3D_SAFE_RELEASE(D3DBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -67,9 +67,23 @@ namespace Tiny3D
 
     D3D11IndexBuffer::~D3D11IndexBuffer()
     {
-        D3D_SAFE_RELEASE(D3D11Buffer);
+        D3D_SAFE_RELEASE(D3DBuffer);
     }
 
+    //--------------------------------------------------------------------------
+    
+    D3D11ConstantBufferPtr D3D11ConstantBuffer::create()
+    {
+        return new D3D11ConstantBuffer();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11ConstantBuffer::~D3D11ConstantBuffer()
+    {
+        D3D_SAFE_RELEASE(D3DBuffer);
+    }
+    
     //--------------------------------------------------------------------------
 
     D3D11PixelBuffer1DPtr D3D11PixelBuffer1D::create()

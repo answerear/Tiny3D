@@ -50,7 +50,7 @@ namespace Tiny3D
 
         ~D3D11VertexBuffer() override;
 
-        ID3D11Buffer    *D3D11Buffer {nullptr};
+        ID3D11Buffer    *D3DBuffer {nullptr};
         
     protected:
         D3D11VertexBuffer() = default;
@@ -63,7 +63,7 @@ namespace Tiny3D
 
         ~D3D11IndexBuffer() override;
 
-        ID3D11Buffer    *D3D11Buffer {nullptr};
+        ID3D11Buffer    *D3DBuffer {nullptr};
         
     protected:
         D3D11IndexBuffer() = default;
@@ -71,7 +71,15 @@ namespace Tiny3D
 
     class D3D11ConstantBuffer : public RHIConstantBuffer
     {
-        
+    public:
+        static D3D11ConstantBufferPtr create();
+
+        ~D3D11ConstantBuffer() override;
+
+        ID3D11Buffer    *D3DBuffer {nullptr};
+
+    protected:
+        D3D11ConstantBuffer() = default;
     };
 
     class D3D11PixelBuffer1D : public RHIPixelBuffer1D

@@ -208,11 +208,11 @@ namespace Tiny3D
                             ShaderVariantInstance *pixelShader = pass->getCurrentPixelShader();
                             
                             // 设置 shader 常量
-                            setupShaderConstants(ctx, &RHIContext::setVSConstantBuffer, material, vertexShader);
-                            setupShaderConstants(ctx, &RHIContext::setHSConstantBuffer, material, hullShader);
-                            setupShaderConstants(ctx, &RHIContext::setDSConstantBuffer, material, domainShader);
-                            setupShaderConstants(ctx, &RHIContext::setGSConstantBuffer, material, geometryShader);
-                            setupShaderConstants(ctx, &RHIContext::setPSConstantBuffer, material, pixelShader);
+                            setupShaderConstants(ctx, &RHIContext::setVSConstantBuffers, material, vertexShader);
+                            setupShaderConstants(ctx, &RHIContext::setHSConstantBuffers, material, hullShader);
+                            setupShaderConstants(ctx, &RHIContext::setDSConstantBuffers, material, domainShader);
+                            setupShaderConstants(ctx, &RHIContext::setGSConstantBuffers, material, geometryShader);
+                            setupShaderConstants(ctx, &RHIContext::setPSConstantBuffers, material, pixelShader);
 
                             // 设置 shader 使用的纹理和纹理采样
                             setupShaderTexSamplers(ctx, &RHIContext::setVSSamplers, &RHIContext::setVSPixelBuffers, material, vertexShader);

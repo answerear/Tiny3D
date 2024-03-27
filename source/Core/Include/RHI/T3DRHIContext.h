@@ -308,7 +308,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
+        virtual TResult setVSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 vs 的像素缓冲区
@@ -348,7 +348,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
+        virtual TResult setPSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 ps 的像素缓冲区
@@ -388,7 +388,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
+        virtual TResult setHSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 hs 的像素缓冲区
@@ -428,7 +428,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
+        virtual TResult setDSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 ds 的像素缓冲区
@@ -468,7 +468,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
+        virtual TResult setGSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 gs 的像素缓冲区
@@ -508,7 +508,7 @@ namespace Tiny3D
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setCSConstantBuffer(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
+        virtual TResult setCSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) = 0;
 
         /**
          * \brief 设置 cs 的像素缓冲区
