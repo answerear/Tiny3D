@@ -46,25 +46,29 @@ namespace Tiny3D
         : mPassInstance(parent)
         , mShaderVariant(shaderVariant)
     {
-        static Buffer buffer;
-        
-        auto reallocate = [](uint8_t *&data, uint32_t &dataSize, uint32_t newSize)
-        {
-            if (dataSize < newSize)
-            {
-                T3D_SAFE_DELETE_ARRAY(data);
-                dataSize = newSize;
-                data = new uint8_t[dataSize];
-            }
-            else
-            {
-                dataSize = newSize;
-            }
-        };
+        // static Buffer buffer;
+        //
+        // auto reallocate = [](uint8_t *&data, uint32_t &dataSize, uint32_t newSize)
+        // {
+        //     if (dataSize < newSize)
+        //     {
+        //         T3D_SAFE_DELETE_ARRAY(data);
+        //         dataSize = newSize;
+        //         data = new uint8_t[dataSize];
+        //     }
+        //     else
+        //     {
+        //         dataSize = newSize;
+        //     }
+        // };
         
         for (const auto &binding : mShaderVariant->getShaderConstantBindings())
         {
-            reallocate(buffer.Data, (uint32_t &)buffer.DataSize, binding.second.size);
+            // reallocate(buffer.Data, (uint32_t &)buffer.DataSize, binding.second.size);
+            Buffer buffer;
+            buffer.DataSize = binding.second.size;
+            buffer.Data = new uint8_t[buffer.DataSize];
+            
             Material *material = getPassInstance()->getTechInstance()->getMaterial();
             for (const auto &param : material->getConstantParams())
             {

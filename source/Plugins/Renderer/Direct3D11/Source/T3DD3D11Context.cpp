@@ -2316,11 +2316,11 @@ namespace Tiny3D
 
                     // write data
                     memcpy(d3dMapData.pData, buffer.Data, buffer.DataSize);
-
-                    buffer.release();
                     
                     // unmap buffer
                     mD3DDeviceContext->Unmap(pD3DResource, 0);
+
+                    buffer.release();
                 } while (false);
 
                 return ret;

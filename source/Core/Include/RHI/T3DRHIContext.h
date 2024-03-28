@@ -53,17 +53,6 @@ namespace Tiny3D
     };
 
     /**
-     * @enum    ClearFlags
-     * @brief   Values that represent clear flags
-     */
-    enum ClearFlags : uint32_t
-    {
-        kClearStencil = 0,
-        kClearTarget,
-        kClearZBuffer,
-    };
-
-    /**
      * @class   RHIContext
      * @brief   渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
      */
@@ -75,16 +64,6 @@ namespace Tiny3D
          */
         ~RHIContext() override;
 
-        // virtual TResult init() = 0;
-        //
-        // virtual TResult renderAllTargets();
-        //
-        // virtual TResult attachRenderTarget(RenderTargetPtr target);
-        //
-        // virtual TResult detachRenderTarget(const String &name);
-        //
-        // RenderTargetPtr getRenderTarget(const String &name);
-
         virtual TResult setTransform(TransformState state, const Matrix4 &mat);
 
         TResult setWorldTransform(const Matrix4 &mat);
@@ -94,14 +73,6 @@ namespace Tiny3D
         TResult setProjectionTransform(const Matrix4 &mat);
 
         virtual const Matrix4 &getTransform(TransformState state) const;
-
-        // virtual Matrix4 makePerspectiveMatrix(const Radian &fovY, Real aspect, Real nearDist, Real farDist) const = 0;
-        //
-        // virtual Matrix4 makeOrthographicMatrix(Real width, Real height, Real nearDist, Real farDist) = 0;
-        //
-        // virtual Matrix4 makeViewportMatrix(Viewport *viewport) = 0;
-        //
-        // virtual RHIRenderWindowPtr createRenderWindow(RenderWindowPtr renderWindow, const RenderWindowDesc &param) = 0;
 
         /**
          * \brief 创建 RHI 渲染窗口
