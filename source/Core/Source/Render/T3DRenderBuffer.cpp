@@ -25,6 +25,8 @@
 
 #include "Render/T3DRenderBuffer.h"
 #include "T3DErrorDef.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
 
 
 namespace Tiny3D
@@ -111,7 +113,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    size_t RenderBuffer::writeData(size_t offset, size_t size, const void *src, bool discardWholeBuffer)
+    size_t RenderBuffer::writeData(size_t offset, const Buffer &buffer, bool discardWholeBuffer)
     {
         size_t bytesOfWritten = 0;
 
@@ -131,19 +133,26 @@ namespace Tiny3D
                 break;
             }
 
-            if (offset + size > mBuffer.DataSize)
+            if (offset + buffer.DataSize > mBuffer.DataSize)
             {
                 // 偏移和长度会超过缓冲区大小
                 T3D_LOG_ERROR(LOG_TAG_ENGINE, "Out of bound of the buffer !");
                 break;
             }
             
-            mBuffer.setData(src, size);
-            
-            // TODO: 通过 RHIContext 写数据
+            // 通过 RHIContext 写数据
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            TResult ret = ctx->writeBuffer(this, buffer, discardWholeBuffer);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mBuffer.setData(buffer.Data, buffer.DataSize);
+            bytesOfWritten = buffer.DataSize;
         } while (false);
         
-        return 0;
+        return bytesOfWritten;
     }
 
     //--------------------------------------------------------------------------

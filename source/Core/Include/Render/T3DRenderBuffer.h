@@ -42,7 +42,7 @@ namespace Tiny3D
 
         virtual TResult readData(size_t offset, size_t size, RenderBuffeReadCallback callback);
 
-        virtual size_t writeData(size_t offset, size_t size, const void *src, bool discardWholeBuffer = false);
+        virtual size_t writeData(size_t offset, const Buffer &buffer, bool discardWholeBuffer = false);
 
         virtual size_t copyData(RenderBufferPtr srcBuffer, size_t srcOffset, size_t dstOffset, size_t size, bool discardWholeBuffer = false);
 

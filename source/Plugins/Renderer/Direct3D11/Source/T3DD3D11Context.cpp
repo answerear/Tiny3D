@@ -114,7 +114,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_D3D11_CREATE_FAILED;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Create ID3D11Device object failed ! DX ERROR : %d", hr);
+                    "Create ID3D11Device object failed ! DX ERROR [%d]", hr);
                 break;
             }
 
@@ -129,7 +129,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_D3D11_CREATE_FAILED;
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER,
-                    "Create ID3D11Debug object failed ! DX ERROR : %d", hr);
+                    "Create ID3D11Debug object failed ! DX ERROR [%d]", hr);
                 break;
             }
 #endif
@@ -1894,7 +1894,7 @@ namespace Tiny3D
                 {
                     error.assign(static_cast<const char *>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
                 }
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader failed ! DX ERROR : %d (%s)", hr, error.c_str());
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader failed ! DX ERROR [%d] (%s)", hr, error.c_str());
                 D3D_SAFE_RELEASE(shaderBlob);
                 D3D_SAFE_RELEASE(errorBlob);
                 break;
@@ -1924,7 +1924,7 @@ namespace Tiny3D
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_CREATE_BLOB;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create blob with shader code failed ! DX ERROR : %d", hr);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create blob with shader code failed ! DX ERROR [%d]", hr);
                 break;
             }
 
@@ -1936,7 +1936,7 @@ namespace Tiny3D
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_SHADER_REFLECTION;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Reflect shadef failed ! DX ERROR : %d", hr);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Reflect shadef failed ! DX ERROR [%d]", hr);
                 D3D_SAFE_RELEASE(pShaderBlob);
                 break;
             }
@@ -1947,7 +1947,7 @@ namespace Tiny3D
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_GET_SHADER_DESC;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get shader description failed ! DX ERROR : %d", hr);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get shader description failed ! DX ERROR [%d]", hr);
                 break;
             }
 
@@ -2251,6 +2251,89 @@ namespace Tiny3D
     TResult D3D11Context::copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset, size_t size, size_t dstOffset)
     {
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (renderBuffer->getUsage() != Usage::kDynamic)
+            {
+                ret = T3D_ERR_D3D11_INVALID_USAGE;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage must be kDynamic when write buffer ! Usage [%d]", renderBuffer->getUsage());
+                break;
+            }
+            
+            auto lambda = [this](const RenderBufferPtr &renderBuffer, Buffer &buffer, bool discardWholeBuffer)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    ID3D11Resource *pD3DResource = nullptr;
+                    
+                    switch (renderBuffer->getRHIResource()->getResourceType())
+                    {
+                    case RenderResource::Type::kVertexBuffer:   /// 顶点缓冲
+                        pD3DResource = smart_pointer_cast<D3D11VertexBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
+                        break;
+                    case RenderResource::Type::kIndexBuffer:    /// 索引缓冲
+                        pD3DResource = smart_pointer_cast<D3D11IndexBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
+                        break;
+                    case RenderResource::Type::kPixelBuffer1D: /// 像素缓冲
+                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer1D>(renderBuffer->getRHIResource())->D3DTexture;
+                        break;
+                    case RenderResource::Type::kPixelBuffer2D:
+                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer2D>(renderBuffer->getRHIResource())->D3DTexture;
+                        break;
+                    case RenderResource::Type::kPixelBuffer3D:
+                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer3D>(renderBuffer->getRHIResource())->D3DTexture;
+                        break;
+                    case RenderResource::Type::kPixelBufferCubemap:
+                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer2D>(renderBuffer->getRHIResource())->D3DTexture;
+                        break;
+                    case RenderResource::Type::kConstantBuffer: /// 常量缓冲
+                        pD3DResource = smart_pointer_cast<D3D11ConstantBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
+                        break;
+                    }
+
+                    D3D11_MAP d3dMapType = discardWholeBuffer ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
+                    D3D11_MAPPED_SUBRESOURCE d3dMapData;
+                    memset(&d3dMapData, 0, sizeof(d3dMapData));
+
+                    // map buffer
+                    HRESULT hr = mD3DDeviceContext->Map(pD3DResource, 0, d3dMapType, 0, &d3dMapData);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to map data when write buffer ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_MAP_RESOURCE;
+                        break;
+                    }
+
+                    // write data
+                    memcpy(d3dMapData.pData, buffer.Data, buffer.DataSize);
+
+                    buffer.release();
+                    
+                    // unmap buffer
+                    mD3DDeviceContext->Unmap(pD3DResource, 0);
+                } while (false);
+
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

@@ -96,6 +96,10 @@ namespace Tiny3D
         T3D_ERR_D3D11_GET_SHADER_DESC,
         /// shader sampler 命名错误
         T3D_ERR_D3D11_INVALID_SHADER_SAMPLER_NAME,
+        /// Usage 和调用的接口不匹配
+        T3D_ERR_D3D11_INVALID_USAGE,
+        /// 映射 VRAM 失败
+        T3D_ERR_D3D11_MAP_RESOURCE,
     };
 }
 

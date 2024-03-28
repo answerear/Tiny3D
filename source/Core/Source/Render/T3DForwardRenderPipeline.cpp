@@ -373,13 +373,9 @@ namespace Tiny3D
                 memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
             }
 
-            itCB->second->writeData(0, buffer.DataSize, buffer.Data);
-                
-            buffer.release();
+            itCB->second->writeData(0, buffer, true);
 
             cbuffers[i++] = itCB->second;
-            // ConstantBuffer *cbuffer = itCB->second;
-            // (ctx->*setCBuffer)(0, 1, &cbuffer);
         }
 
         if (!cbuffers.empty())

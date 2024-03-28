@@ -30,6 +30,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Material/T3DShaderBinding.h"
+#include "Render/T3DRenderConstant.h"
 
 
 namespace Tiny3D
@@ -621,6 +622,15 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) = 0;
+
+        /**
+         * \brief 写 GPU 缓冲区，在写完之前 buffer 不能释放，写完之后，内部会去释放 buffer 空间。 调用本接口，renderBuffer 必须绑定 CPUAccessWrite
+         * \param [in] renderBuffer : GPU 缓冲区 
+         * \param [in] buffer : CPU 的数据缓冲区
+         * \param [in] discardWholeBuffer : 映射到内存的资源用于写入，之前的资源数据将会被抛弃。 该参数为 true 的时候，renderBuffer 必须绑定 Usage::kDynamic
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) = 0;
 
     protected:
         RHIContext();

@@ -561,13 +561,22 @@ namespace Tiny3D
          */
         TResult copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
 
-        void traceDebugInfo(const String &tag = "", const String &func = "");
+        /**
+         * \brief 写 GPU 缓冲区，在写完之前 buffer 不能释放，写完之后，内部会去释放 buffer 空间。 调用本接口，renderBuffer 必须绑定 CPUAccessWrite
+         * \param [in] renderBuffer : GPU 缓冲区 
+         * \param [in] buffer : CPU 的数据缓冲区
+         * \param [in] discardWholeBuffer : 映射到内存的资源用于写入，之前的资源数据将会被抛弃。 该参数为 true 的时候，renderBuffer 必须绑定 Usage::kDynamic
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
         
     protected:
         D3D11Context();
 
         ~D3D11Context() override;
 
+        void traceDebugInfo(const String &tag = "", const String &func = "");
+        
         TResult clearColor(RenderWindow *window, const ColorRGB &color);
 
         TResult clearColor(RenderTexture *texture, const ColorRGB &color);

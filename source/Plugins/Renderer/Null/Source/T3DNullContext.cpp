@@ -522,5 +522,12 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    TResult NullContext::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
 }
 
