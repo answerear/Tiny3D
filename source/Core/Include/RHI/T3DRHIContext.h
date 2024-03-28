@@ -64,15 +64,26 @@ namespace Tiny3D
          */
         ~RHIContext() override;
 
-        virtual TResult setTransform(TransformState state, const Matrix4 &mat);
+        /**
+         * \brief 设置世界变换矩阵
+         * \param [in] mat : 物体到世界的变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setWorldTransform(const Matrix4 &mat) = 0;
 
-        TResult setWorldTransform(const Matrix4 &mat);
-        
-        TResult setViewTransform(const Matrix4 &mat);
+        /**
+         * \brief 设置视图变换矩阵
+         * \param [in] mat : 视图变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setViewTransform(const Matrix4 &mat) = 0;
 
-        TResult setProjectionTransform(const Matrix4 &mat);
-
-        virtual const Matrix4 &getTransform(TransformState state) const;
+        /**
+         * \brief 设置投影变换矩阵
+         * \param [in] mat : 投影变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setProjectionTransform(const Matrix4 &mat) = 0;
 
         /**
          * \brief 创建 RHI 渲染窗口

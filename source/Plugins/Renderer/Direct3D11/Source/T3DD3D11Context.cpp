@@ -349,6 +349,27 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setWorldTransform(const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setViewTransform(const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setProjectionTransform(const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindow *renderWindow)
     {

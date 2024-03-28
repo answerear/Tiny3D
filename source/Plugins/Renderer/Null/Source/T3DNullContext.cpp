@@ -54,6 +54,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult NullContext::setWorldTransform(const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setViewTransform(const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setProjectionTransform(const Matrix4 &mat)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIRenderTargetPtr NullContext::createRenderWindow(RenderWindow *renderWindow)
     {
         return NullWindow::create();

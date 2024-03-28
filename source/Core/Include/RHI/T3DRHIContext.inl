@@ -27,25 +27,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    inline TResult RHIContext::setViewTransform(const Matrix4 &mat)
-    {
-        return setTransform(TransformState::kView, mat);
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline TResult RHIContext::setWorldTransform(const Matrix4 &mat)
-    {
-        return setTransform(TransformState::kProjection, mat);
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline TResult RHIContext::setProjectionTransform(const Matrix4 &mat)
-    {
-        return setTransform(TransformState::kProjection, mat);
-    }
-
     //--------------------------------------------------------------------------
 }
 

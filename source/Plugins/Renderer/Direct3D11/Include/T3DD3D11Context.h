@@ -38,8 +38,29 @@ namespace Tiny3D
         static D3D11ContextPtr create();
 
         TResult init();
-
+        
         TResult swapBackBuffer(D3D11RenderWindow *renderWindow);
+
+        /**
+         * \brief 设置世界变换矩阵
+         * \param [in] mat : 物体到世界的变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setWorldTransform(const Matrix4 &mat) override;
+
+        /**
+         * \brief 设置视图变换矩阵
+         * \param [in] mat : 视图变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setViewTransform(const Matrix4 &mat) override;
+
+        /**
+         * \brief 设置投影变换矩阵
+         * \param [in] mat : 投影变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setProjectionTransform(const Matrix4 &mat) override;
         
         /**
          * \brief 创建 RHI 渲染窗口
