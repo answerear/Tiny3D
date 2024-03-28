@@ -25,22 +25,26 @@
 
 #include "Material/T3DShaderVariantInstance.h"
 #include "Material/T3DShaderVariant.h"
+#include "Material/T3DPassInstance.h"
+#include "Material/T3DTechniqueInstance.h"
 #include "Render/T3DRenderResourceManager.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderVariantInstancePtr ShaderVariantInstance::create(ShaderVariantPtr shaderVariant)
+    ShaderVariantInstancePtr ShaderVariantInstance::create(PassInstance *parent, ShaderVariantPtr shaderVariant)
     {
-        return new ShaderVariantInstance(shaderVariant);
+        return new ShaderVariantInstance(parent, shaderVariant);
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderVariantInstance::ShaderVariantInstance(ShaderVariantPtr shaderVariant)
-        : mShaderVariant(shaderVariant)
+    ShaderVariantInstance::ShaderVariantInstance(PassInstance *parent, ShaderVariantPtr shaderVariant)
+        : mPassInstance(parent)
+        , mShaderVariant(shaderVariant)
     {
         static Buffer buffer;
         
@@ -61,6 +65,19 @@ namespace Tiny3D
         for (const auto &binding : mShaderVariant->getShaderConstantBindings())
         {
             reallocate(buffer.Data, (uint32_t &)buffer.DataSize, binding.second.size);
+            Material *material = getPassInstance()->getTechInstance()->getMaterial();
+            for (const auto &param : material->getConstantParams())
+            {
+                auto itVar = binding.second.variables.find(param.second->getName());
+                if (itVar == binding.second.variables.end())
+                {
+                    // 没有对应名字的变量
+                    continue;
+                }
+
+                memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
+            }
+
             ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(buffer, MemoryType::kVRAM, Usage::kDynamic, CPUAccessMode::kCPUWrite);
             mConstantBuffers.emplace(binding.first, cbuffer);
         }

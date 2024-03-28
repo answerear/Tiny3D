@@ -33,19 +33,20 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TechniqueInstancePtr TechniqueInstance::create(TechniquePtr tech)
+    TechniqueInstancePtr TechniqueInstance::create(Material *parent, TechniquePtr tech)
     {
-        return new TechniqueInstance(tech);
+        return new TechniqueInstance(parent, tech);
     }
 
     //--------------------------------------------------------------------------
 
-    TechniqueInstance::TechniqueInstance(TechniquePtr tech)
-        : mTechnique(tech)
+    TechniqueInstance::TechniqueInstance(Material *parent, TechniquePtr tech)
+        : mMaterial(parent)
+        , mTechnique(tech)
     {
         for (const auto &pass : tech->getPasses())
         {
-            PassInstancePtr instance = PassInstance::create(pass);
+            PassInstancePtr instance = PassInstance::create(this, pass);
             mPassInstances.emplace_back(instance);
         }
     }

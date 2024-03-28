@@ -175,7 +175,7 @@ namespace Tiny3D
     using ShaderConstantParams = TMap<String, ShaderConstantParamPtr>;
     using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;
 
-    using ConstantBuffers = TMap<String, ConstantBufferPtr>;
+    using CBuffers = TMap<String, ConstantBufferPtr>;
     
     using GameObjectList = TList<GameObjectPtr>;
     using CameraList = TMultimap<uint32_t, Camera *>;
@@ -189,6 +189,8 @@ namespace Tiny3D
     using VertexOffsets = TArray<uint32_t>;
 
     using PixelBuffers = TArray<PixelBufferPtr>;
+    using ConstantBuffers = TArray<ConstantBufferPtr>;
+    using Samplers = TArray<SamplerStatePtr>;
 }
 
 

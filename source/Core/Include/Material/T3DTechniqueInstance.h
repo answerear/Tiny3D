@@ -34,10 +34,12 @@ namespace Tiny3D
     class T3D_ENGINE_API TechniqueInstance : public Object
     {
     public:
-        static TechniqueInstancePtr create(TechniquePtr tech);
+        static TechniqueInstancePtr create(Material *parent, TechniquePtr tech);
 
         virtual ~TechniqueInstance() = default;
 
+        Material *getMaterial() const { return mMaterial; }
+        
         TechniquePtr getTechnique() const { return mTechnique; }
 
         const PassInstances &getPassInstances() const { return mPassInstances; }
@@ -45,9 +47,12 @@ namespace Tiny3D
         TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys);
 
     protected:
-        TechniqueInstance(TechniquePtr tech);
+        TechniqueInstance(Material *parent, TechniquePtr tech);
         
     protected:
+        /// Technique instance 所属的 material
+        Material        *mMaterial {nullptr};
+        
         /// Technique 实例对应的 Technique
         TechniquePtr    mTechnique {nullptr};
         /// pass instance

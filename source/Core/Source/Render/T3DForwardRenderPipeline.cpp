@@ -346,6 +346,8 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
+        ConstantBuffers cbuffers(shader->getShaderVariant()->getShaderConstantBindings().size());
+        uint32_t i = 0;
         for (const auto &binding : shader->getShaderVariant()->getShaderConstantBindings())
         {
             auto itCB = shader->getConstantBuffers().find(binding.second.name);
@@ -375,8 +377,14 @@ namespace Tiny3D
                 
             buffer.release();
 
-            ConstantBuffer *cbuffer = itCB->second;
-            (ctx->*setCBuffer)(0, 1, &cbuffer);
+            cbuffers[i++] = itCB->second;
+            // ConstantBuffer *cbuffer = itCB->second;
+            // (ctx->*setCBuffer)(0, 1, &cbuffer);
+        }
+
+        if (!cbuffers.empty())
+        {
+            (ctx->*setCBuffer)(0, cbuffers);
         }
 
         return T3D_OK;

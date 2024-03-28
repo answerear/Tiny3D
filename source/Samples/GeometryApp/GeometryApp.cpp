@@ -219,19 +219,19 @@ MaterialPtr GeometryApp::buildMaterial()
     ShaderConstantParams constants;
 
     // model matrix
-    Matrix4 modelMatrix;
+    Matrix4 modelMatrix(false);
     const String modelMatrixName = "modelMatrix";
     ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
     shader->addConstantParam(matrixParam);
     
     // view matrix
-    Matrix4 viewMatrix;
+    Matrix4 viewMatrix(false);
     const String viewMatrixName = "viewMatrix";
     matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
     shader->addConstantParam(matrixParam);
     
     // projection matrix
-    Matrix4 projMatrix;
+    Matrix4 projMatrix(false);
     const String projMatrixName = "projectionMatrix";
     matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
     shader->addConstantParam(matrixParam);

@@ -250,7 +250,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult NullContext::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -285,7 +285,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult NullContext::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -319,7 +319,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult NullContext::setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -354,7 +354,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setDSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult NullContext::setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -389,7 +389,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult NullContext::setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
         return T3D_OK;
     }
@@ -424,7 +424,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult NullContext::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
         return T3D_OK;
     }

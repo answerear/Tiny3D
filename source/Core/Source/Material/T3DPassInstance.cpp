@@ -26,21 +26,23 @@
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderVariantInstance.h"
 #include "Material/T3DPass.h"
+#include "Material/T3DTechniqueInstance.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    PassInstancePtr PassInstance::create(PassPtr pass)
+    PassInstancePtr PassInstance::create(TechniqueInstance *parent, PassPtr pass)
     {
-        return new PassInstance(pass);
+        return new PassInstance(parent, pass);
     }
 
     //--------------------------------------------------------------------------
 
-    PassInstance::PassInstance(PassPtr pass)
-        : mPass(pass)
+    PassInstance::PassInstance(TechniqueInstance *parent, PassPtr pass)
+        : mTechInstance(parent)
+        , mPass(pass)
     {
         
     }
@@ -74,7 +76,7 @@ namespace Tiny3D
             // 使用对应 shader
             if (itr->second != nullptr)
             {
-                currentVariant = ShaderVariantInstance::create(itr->second);
+                currentVariant = ShaderVariantInstance::create(this, itr->second);
             }
         } while (false);
         

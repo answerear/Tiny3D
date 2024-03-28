@@ -243,11 +243,10 @@ namespace Tiny3D
         /**
          * \brief 设置 vs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setVSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) override;
+        TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
 
         /**
          * \brief 设置 vs 的像素缓冲区
@@ -283,11 +282,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ps 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) override;
+        TResult setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
 
         /**
          * \brief 设置 ps 的像素缓冲区
@@ -323,11 +321,10 @@ namespace Tiny3D
         /**
          * \brief 设置 hs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setHSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) override;
+        TResult setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
 
         /**
          * \brief 设置 hs 的像素缓冲区
@@ -363,11 +360,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ds 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setDSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) override;
+        TResult setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
 
         /**
          * \brief 设置 ds 的像素缓冲区
@@ -403,11 +399,10 @@ namespace Tiny3D
         /**
          * \brief 设置 gs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setGSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) override;
+        TResult setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
 
         /**
          * \brief 设置 gs 的像素缓冲区
@@ -443,11 +438,10 @@ namespace Tiny3D
         /**
          * \brief 设置 cs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] numOfBuffers : 第三个参数常量缓冲区的数量
          * \param [in] buffers : 常量缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setCSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers) override;
+        TResult setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
 
         /**
          * \brief 设置 cs 的像素缓冲区
@@ -595,6 +589,10 @@ namespace Tiny3D
         using SetShaderResources = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11ShaderResourceView * const *);
         
         TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers);
+
+        using SetConstantBuffers = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11Buffer * const *);
+        
+        TResult setConstantBuffers(SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers);
         
     protected:
         struct BlitVertex

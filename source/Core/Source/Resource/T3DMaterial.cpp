@@ -171,7 +171,7 @@ namespace Tiny3D
                 break;
             }
 
-            mCurTechnique = TechniqueInstance::create(mShader->getSupportTechnique());
+            mCurTechnique = TechniqueInstance::create(this, mShader->getSupportTechnique());
 
             // 清除 constant 、sampler数据
             mConstants.clear();

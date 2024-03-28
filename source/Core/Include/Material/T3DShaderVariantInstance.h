@@ -34,22 +34,26 @@ namespace Tiny3D
     class T3D_ENGINE_API ShaderVariantInstance : public Object
     {
     public:
-        static ShaderVariantInstancePtr create(ShaderVariantPtr shaderVariant);
+        static ShaderVariantInstancePtr create(PassInstance *parent, ShaderVariantPtr shaderVariant);
 
         virtual ~ShaderVariantInstance() = default;
 
+        PassInstance *getPassInstance() const { return mPassInstance; }
+
         ShaderVariantPtr getShaderVariant() const { return mShaderVariant; }
 
-        const ConstantBuffers &getConstantBuffers() const { return mConstantBuffers; }
+        const CBuffers &getConstantBuffers() const { return mConstantBuffers; }
 
     protected:
-        ShaderVariantInstance(ShaderVariantPtr shaderVariant);
+        ShaderVariantInstance(PassInstance *parent, ShaderVariantPtr shaderVariant);
         
     protected:
+        /// shader variant instance 所属的 pass instance
+        PassInstance    *mPassInstance {nullptr};
         /// shader variant 实例对应的 shader variant
         ShaderVariantPtr mShaderVariant {nullptr};
         /// 常量缓冲区
-        ConstantBuffers mConstantBuffers {};
+        CBuffers mConstantBuffers {};
     };
 }
 

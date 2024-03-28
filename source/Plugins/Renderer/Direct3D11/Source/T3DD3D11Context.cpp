@@ -1596,9 +1596,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return T3D_OK;
+        return setConstantBuffers(&ID3D11DeviceContext::VSSetConstantBuffers, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -1674,9 +1674,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return T3D_OK;
+        return setConstantBuffers(&ID3D11DeviceContext::PSSetConstantBuffers, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -1708,9 +1708,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return T3D_OK;
+        return setConstantBuffers(&ID3D11DeviceContext::HSSetConstantBuffers, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -1743,9 +1743,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setDSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return T3D_OK;
+        return setConstantBuffers(&ID3D11DeviceContext::DSSetConstantBuffers, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -1778,9 +1778,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return T3D_OK;
+        return setConstantBuffers(&ID3D11DeviceContext::GSSetConstantBuffers, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -1813,9 +1813,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSConstantBuffers(uint32_t startSlot, uint32_t numOfBuffers, ConstantBuffer * const *buffers)
+    TResult D3D11Context::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return T3D_OK;
+        return setConstantBuffers(&ID3D11DeviceContext::CSSetConstantBuffers, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -2425,5 +2425,24 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::setConstantBuffers(SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers)
+    {
+        auto lambda = [this](SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers)
+        {
+            TArray<ID3D11Buffer*> cbuffers(buffers.size());
+            for (uint32_t i = 0; i < buffers.size(); ++i)
+            {
+                const auto &cb = buffers[i];
+                cbuffers[i] = smart_pointer_cast<D3D11ConstantBuffer>(cb->getRHIResource())->D3DBuffer;
+            }
+
+            (mD3DDeviceContext->*setConstantBuffers)(startSlot, (UINT)cbuffers.size(), cbuffers.data());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, setConstantBuffers, startSlot, buffers);
+    }
+
+    //--------------------------------------------------------------------------
 }
 

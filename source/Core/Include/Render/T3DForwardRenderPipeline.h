@@ -50,7 +50,7 @@ namespace Tiny3D
     protected:
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
 
-        using SetCBuffer = TResult (RHIContext::*)(uint32_t, uint32_t, ConstantBuffer * const *);
+        using SetCBuffer = TResult (RHIContext::*)(uint32_t, const ConstantBuffers &);
         
         TResult setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader);
 

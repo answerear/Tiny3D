@@ -35,9 +35,11 @@ namespace Tiny3D
     class T3D_ENGINE_API PassInstance : public Object
     {
     public:
-        static PassInstancePtr create(PassPtr pass);
+        static PassInstancePtr create(TechniqueInstance *parent, PassPtr pass);
 
         virtual ~PassInstance() = default;
+
+        TechniqueInstance *getTechInstance() const { return mTechInstance; }
 
         PassPtr getPass() const { return mPass; }
 
@@ -54,11 +56,14 @@ namespace Tiny3D
         ShaderVariantInstance *getCurrentPixelShader() const { return mCurrentPS; }
         
     protected:
-        PassInstance(PassPtr pass);
+        PassInstance(TechniqueInstance *parent, PassPtr pass);
 
         TResult switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant);
         
     protected:
+        /// pass instance 所属的 technique instancee
+        TechniqueInstance   *mTechInstance {nullptr};
+        
         /// pass 实例对应的 pass
         PassPtr             mPass {nullptr};
         
