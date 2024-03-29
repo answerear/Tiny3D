@@ -132,12 +132,35 @@ MaterialPtr GeometryApp::buildMaterial()
     
     // vertex shader
     const String vs =
-        "cbuffer ConstantBuffer : register(b0)\n"
+        "//cbuffer ConstantBuffer : register(b0)\n"
+        "//{\n"
+        "//   float4x4 modelMatrix;\n"
+        "//   float4x4 viewMatrix;\n"
+        "//   float4x4 projectionMatrix;\n"
+        "//}\n"
+        "cbuffer Tiny3DPerDraw : register(b0)\n"
         "{\n"
-        "   float4x4 modelMatrix;\n"
-        "   float4x4 viewMatrix;\n"
-        "   float4x4 projectionMatrix;\n"
+        "   float4x4 tiny3d_ObjectToWorld;\n"
+        "   float4x4 tiny3d_WorldToObject;\n"
         "}\n"
+        "\n"
+        "cbuffer Tiny3DPerFrame : register(b1)\n"
+        "{\n"
+        "   float4x4 tiny3d_MatrixV;\n"
+        "   float4x4 tiny3d_MatrixP;\n"
+        "   float4x4 tiny3d_MatrixVP;\n"
+        "}\n"
+        "\n"
+        "static float4x4 tiny3d_MatrixMVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);\n"
+        "static float4x4 tiny3d_MatrixMV = mul(tiny3d_MatrixV, tiny3d_ObjectToWorld);\n"
+        "\n"
+        "#define TINY3D_MATRIX_M    tiny3d_ObjectToWorld\n"
+        "#define TINY3D_MATRIX_V    tiny3d_MatrixV\n"
+        "#define TINY3D_MATRIX_P    tiny3d_MatrixP\n"
+        "#define TINY3D_MATRIX_VP   tiny3d_MatrixVP\n"
+        "#define TINY3D_MATRIX_MV   tiny3d_MatrixMV\n"
+        "#define TINY3D_MATRIX_MVP  tiny3d_MatrixMVP\n"
+        "\n"
         "struct VertexInput\n"
         "{\n"
         "   float3 position : POSITION;\n"
@@ -151,10 +174,11 @@ MaterialPtr GeometryApp::buildMaterial()
         "VertexOutput main(VertexInput input)\n"
         "{\n"
         "   VertexOutput output;\n"
-        "   float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);\n"
-        "   float4 viewPosition = mul(viewMatrix, worldPosition);\n"
-        "   float4 clipPosition = mul(projectionMatrix, viewPosition);\n"
-        "   output.position = clipPosition;\n"
+        "   //float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);\n"
+        "   //float4 viewPosition = mul(viewMatrix, worldPosition);\n"
+        "   //float4 clipPosition = mul(projectionMatrix, viewPosition);\n"
+        "   //output.position = clipPosition;\n"
+        "   output.position = mul(TINY3D_MATRIX_MVP, float4(input.position, 1.0f));\n"
         "   //output.position = float4(input.position, 1.0);\n"
         "   output.uv = input.uv;\n"
         "   return output;\n"
@@ -219,22 +243,22 @@ MaterialPtr GeometryApp::buildMaterial()
     ShaderConstantParams constants;
 
     // model matrix
-    Matrix4 modelMatrix(false);
-    const String modelMatrixName = "modelMatrix";
-    ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
-    shader->addConstantParam(matrixParam);
-    
-    // view matrix
-    Matrix4 viewMatrix(false);
-    const String viewMatrixName = "viewMatrix";
-    matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
-    shader->addConstantParam(matrixParam);
-    
-    // projection matrix
-    Matrix4 projMatrix(false);
-    const String projMatrixName = "projectionMatrix";
-    matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
-    shader->addConstantParam(matrixParam);
+    // Matrix4 modelMatrix(false);
+    // const String modelMatrixName = "modelMatrix";
+    // ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    // shader->addConstantParam(matrixParam);
+    //
+    // // view matrix
+    // Matrix4 viewMatrix(false);
+    // const String viewMatrixName = "viewMatrix";
+    // matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    // shader->addConstantParam(matrixParam);
+    //
+    // // projection matrix
+    // Matrix4 projMatrix(false);
+    // const String projMatrixName = "projectionMatrix";
+    // matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    // shader->addConstantParam(matrixParam);
     
     // samplers
     ShaderSamplerParams samplers;

@@ -47,18 +47,12 @@ namespace Tiny3D
         TResult setWorldTransform(const Matrix4 &mat) override;
 
         /**
-         * \brief 设置视图变换矩阵
-         * \param [in] mat : 视图变换矩阵
+         * \brief 设置视图变换矩阵和投影变换矩阵
+         * \param [in] viewMat : 视图变换矩阵
+         * \param [in] projMat : 投影变换矩阵
          * \return 调用成功返回 T3D_OK
          */
-        TResult setViewTransform(const Matrix4 &mat) override;
-
-        /**
-         * \brief 设置投影变换矩阵
-         * \param [in] mat : 投影变换矩阵
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setProjectionTransform(const Matrix4 &mat) override;
+        TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
         
         /**
          * \brief 创建 RHI 渲染窗口

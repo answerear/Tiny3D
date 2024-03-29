@@ -61,14 +61,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setViewTransform(const Matrix4 &mat)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NullContext::setProjectionTransform(const Matrix4 &mat)
+    TResult NullContext::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
         return T3D_OK;
     }

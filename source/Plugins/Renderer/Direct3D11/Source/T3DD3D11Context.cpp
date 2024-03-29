@@ -36,6 +36,13 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    #define TINY3D_CBUFFER_PER_DRAW         "Tiny3DPerDraw"
+    #define TINY3D_CBUFFER_PER_DRAW_LEN     13
+    #define TINY3D_CBUFFER_PER_FRAME        "Tiny3DPerFrame"
+    #define TINY3D_CBUFFER_PER_FRAME_LEN    14
+    
+    //--------------------------------------------------------------------------
+
     D3D11ContextPtr D3D11Context::create()
     {
         D3D11ContextPtr ctx = new D3D11Context();
@@ -60,7 +67,9 @@ namespace Tiny3D
     {
         mCurrentRenderWindow = nullptr;
         mCurrentRenderTexture = nullptr;
-        
+
+        D3D_SAFE_RELEASE(mPerDrawCBuffer)
+        D3D_SAFE_RELEASE(mPerFrameCBuffer)
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
         D3D_SAFE_RELEASE(mBlitVS)
@@ -138,11 +147,52 @@ namespace Tiny3D
             
             // traceDebugInfo("D3D11 D3DObjects trace - After ", __FUNCTION__);
             setupBlitQuad();
+            setupInternalCBuffers();
         } while (false);
 
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::setupInternalCBuffers()
+    {
+        // constant buffer per frame
+        D3D11_BUFFER_DESC d3dDesc;
+        memset(&d3dDesc, 0, sizeof(d3dDesc));
+        d3dDesc.Usage = D3D11_USAGE_DYNAMIC;
+        d3dDesc.ByteWidth = sizeof(CBufferPerFrame);
+        d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        d3dDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        
+        // 创建顶点缓冲区子资源数据
+        D3D11_SUBRESOURCE_DATA initData;
+        memset(&initData, 0, sizeof(initData));
+        initData.pSysMem = &mCBufferPerFrame;
+        initData.SysMemPitch = 0;
+        initData.SysMemSlicePitch = 0;
+
+        ID3D11Buffer *pD3DBuffer = nullptr;
+        HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+        T3D_ASSERT(SUCCEEDED(hr), "Create constant buffer for per frame !");
+        mPerFrameCBuffer = pD3DBuffer;
+
+        // constant buffer per draw
+        memset(&d3dDesc, 0, sizeof(d3dDesc));
+        d3dDesc.Usage = D3D11_USAGE_DYNAMIC;
+        d3dDesc.ByteWidth = sizeof(CBufferPerDraw);
+        d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        d3dDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        memset(&initData, 0, sizeof(initData));
+        initData.pSysMem = &mCBufferPerDraw;
+        initData.SysMemPitch = 0;
+        initData.SysMemSlicePitch = 0;
+        hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+        T3D_ASSERT(SUCCEEDED(hr), "Create constant buffer for per draw !");
+        mPerDrawCBuffer = pD3DBuffer;
+    }
+
     //--------------------------------------------------------------------------
 
     void D3D11Context::traceDebugInfo(const String &tag, const String &func)
@@ -345,28 +395,65 @@ namespace Tiny3D
             
             return ret;
         };
+        
         return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(renderWindow));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setConstantBuffer(uint32_t startSlot, const Buffer &buffer, ID3D11Buffer *pD3DBuffer)
+    {
+        auto lambda = [this](uint32_t startSlot, Buffer &buffer, ID3D11Buffer *pD3DBuffer)
+        {
+            TResult ret = T3D_OK;
+            
+            do
+            {
+                D3D11_MAPPED_SUBRESOURCE d3dMappedData;
+                memset(&d3dMappedData, 0, sizeof(d3dMappedData));
+                HRESULT hr = mD3DDeviceContext->Map(pD3DBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3dMappedData);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to map buffer to set transform ! DX ERROR [%d]", hr);
+                    ret = T3D_ERR_D3D11_MAP_RESOURCE;
+                    break;
+                }
+
+                memcpy(d3dMappedData.pData, buffer.Data, buffer.DataSize);
+                mD3DDeviceContext->Unmap(pD3DBuffer, 0);
+                buffer.release();
+                mD3DDeviceContext->VSSetConstantBuffers(startSlot, 1, &pD3DBuffer);
+            } while (false);
+            
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffer, pD3DBuffer);
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D11Context::setWorldTransform(const Matrix4 &mat)
     {
-        return T3D_OK;
+        mCBufferPerDraw.objectToWorld = mat;
+        mCBufferPerDraw.worldToObject = mat.inverse();
+        Buffer buffer;
+        buffer.setData(&mCBufferPerDraw, sizeof(mCBufferPerDraw));
+        
+        return setConstantBuffer(0, buffer, mPerDrawCBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setViewTransform(const Matrix4 &mat)
+    TResult D3D11Context::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
-        return T3D_OK;
-    }
+        mCBufferPerFrame.matrixV = viewMat;
+        mCBufferPerFrame.matrixP = projMat;
+        mCBufferPerFrame.matrixVP = mCBufferPerFrame.matrixP * mCBufferPerFrame.matrixV;
+        Buffer buffer;
+        buffer.setData(&mCBufferPerFrame, sizeof(CBufferPerFrame));
 
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Context::setProjectionTransform(const Matrix4 &mat)
-    {
-        return T3D_OK;
+        return setConstantBuffer(1, buffer, mPerFrameCBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -1971,7 +2058,7 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get shader description failed ! DX ERROR [%d]", hr);
                 break;
             }
-
+            
             for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
             {
                 D3D11_SHADER_INPUT_BIND_DESC bindDesc;
@@ -1981,6 +2068,13 @@ namespace Tiny3D
                 {
                 case D3D_SIT_CBUFFER:   // 常量缓冲区
                     {
+                        if (strncmp(bindDesc.Name, TINY3D_CBUFFER_PER_DRAW, TINY3D_CBUFFER_PER_DRAW_LEN) == 0
+                            || strncmp(bindDesc.Name, TINY3D_CBUFFER_PER_FRAME, TINY3D_CBUFFER_PER_FRAME_LEN) == 0)
+                        {
+                            // 这里跳开两个 cbuffer ，这两个 cbuffer 内部使用，不反射给外部使用
+                            break;
+                        }
+                    
                         ShaderConstantBinding constBinding;
                         constBinding.name = bindDesc.Name;
                         constBinding.binding = bindDesc.BindPoint;

@@ -158,11 +158,8 @@ namespace Tiny3D
             // 设置 viewport
             ctx->setViewport(camera->getViewport());
 
-            // 设置 view matrix
-            ctx->setViewTransform(camera->getViewMatrix());
-
-            // 设置 project matrix
-            ctx->setProjectionTransform(camera->getProjectMatrix());
+            // 设置 view matrix & projection matrix
+            ctx->setViewProjectionTransform(camera->getViewMatrix(), camera->getProjectMatrix());
 
             // 清除 color
             ctx->clearColor(camera->getClearColor());

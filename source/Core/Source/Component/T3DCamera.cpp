@@ -58,43 +58,43 @@ namespace Tiny3D
 
     const Matrix4 &Camera::getViewMatrix() const
     {
-        Transform3DPtr xformNode = getGameObject()->getComponent<Transform3D>();
-
-        if (xformNode != nullptr)
-        {
-            bool isDirty = xformNode->isDirty();
-            if (isDirty)
-            {
-                const Transform &xform = xformNode->getLocalToWorldTransform();
-                const Matrix4 &worldMatrix = xform.getAffineMatrix();
-
-                // 视图矩阵推导：
-                // 其中C是相机进行世界变换的矩阵，
-                //  T是平移变换
-                //  R是旋转变换
-                //  S是缩放变换
-                //
-                // 由 C = T * R * S
-                // 得 C(-1) = (T * R * S) (-1) = S(-1) * R(-1) * T(-1)
-                // 
-
-                // 旋转矩阵
-                Matrix4 R = xform.getOrientation();
-                // 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
-                Matrix4 invertR = R.transpose();
-                // 平移矩阵
-                Matrix4 invertT(false);
-                invertT.makeTranslate(-xform.getTranslation());
-                // 缩放矩阵
-                Matrix4 invertS(false);
-                const Vector3 &scale = xform.getScaling();
-                invertS[0][0] = REAL_ONE / scale.x();
-                invertS[1][1] = REAL_ONE / scale.y();
-                invertS[2][2] = REAL_ONE / scale.z();
-
-                mViewMatrix = invertS * invertR * invertT;
-            }
-        }
+        // Transform3DPtr xformNode = getGameObject()->getComponent<Transform3D>();
+        //
+        // if (xformNode != nullptr)
+        // {
+        //     bool isDirty = xformNode->isDirty();
+        //     if (isDirty)
+        //     {
+        //         const Transform &xform = xformNode->getLocalToWorldTransform();
+        //         const Matrix4 &worldMatrix = xform.getAffineMatrix();
+        //
+        //         // 视图矩阵推导：
+        //         // 其中C是相机进行世界变换的矩阵，
+        //         //  T是平移变换
+        //         //  R是旋转变换
+        //         //  S是缩放变换
+        //         //
+        //         // 由 C = T * R * S
+        //         // 得 C(-1) = (T * R * S) (-1) = S(-1) * R(-1) * T(-1)
+        //         // 
+        //
+        //         // 旋转矩阵
+        //         Matrix4 R = xform.getOrientation();
+        //         // 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
+        //         Matrix4 invertR = R.transpose();
+        //         // 平移矩阵
+        //         Matrix4 invertT(false);
+        //         invertT.makeTranslate(-xform.getTranslation());
+        //         // 缩放矩阵
+        //         Matrix4 invertS(false);
+        //         const Vector3 &scale = xform.getScaling();
+        //         invertS[0][0] = REAL_ONE / scale.x();
+        //         invertS[1][1] = REAL_ONE / scale.y();
+        //         invertS[2][2] = REAL_ONE / scale.z();
+        //
+        //         mViewMatrix = invertS * invertR * invertT;
+        //     }
+        // }
         
         return mViewMatrix;
     }
@@ -103,52 +103,52 @@ namespace Tiny3D
 
     const Matrix4 &Camera::getProjectMatrix() const
     {
-        if (mIsProjDirty)
-        {
-            if (mProjectionType == Projection::kPerspective)
-            {
-                // 透视投影
-                
-                // P = | 1 / (aspectRatio * tan(fov / 2))  0                 0                             0                              |
-                //     | 0                                 1 / tan(fov / 2)  0                             0                              |
-                //     | 0                                 0                 -(far + near) / (far - near)  -2 * far * near / (far - near) |
-                //     | 0                                 0                 -1                            0                              |
-                
-                const Radian radian = mFovY * REAL_HALF;
-                const Real m11 = REAL_ONE / Math::tan(radian);
-                const Real m00 = m11 / mAspectRatio;
-                const Real m22 = -(mFar + mNear) / (mFar - mNear);
-                const Real m23 = - 2 * mFar * mNear / (mFar - mNear);
-            
-                mProjectMatrix.make(
-                    m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
-                    REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
-                    REAL_ZERO, REAL_ZERO, m22, m23,
-                    REAL_ZERO, REAL_ZERO, -REAL_ONE, REAL_ZERO);
-            }
-            else
-            {
-                // 正交投影
-
-                // O = | 2 / width 0          0                  0                            |
-                //     |      0    2 / height 0                  0                            |
-                //     |      0    0          -2 / (far - near)  -(far + near) / (far - near) |
-                //     |      0    0          0                  1                            |
-
-                const Real m00 = 2.0f / mWidth;
-                const Real m11 = 2.0f / mHeight;
-                const Real m22 = -2.0f / (mFar - mNear);
-                const Real m23 = -(mFar + mNear) / (mFar - mNear);
-
-                mProjectMatrix.make(
-                    m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
-                    REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
-                    REAL_ZERO, REAL_ZERO, m22, m23,
-                    REAL_ZERO, REAL_ZERO, REAL_ZERO, REAL_ONE);
-            }
-            
-            mIsProjDirty = false;
-        }
+        // if (mIsProjDirty)
+        // {
+        //     if (mProjectionType == Projection::kPerspective)
+        //     {
+        //         // 透视投影
+        //         
+        //         // P = | 1 / (aspectRatio * tan(fov / 2))  0                 0                             0                              |
+        //         //     | 0                                 1 / tan(fov / 2)  0                             0                              |
+        //         //     | 0                                 0                 -(far + near) / (far - near)  -2 * far * near / (far - near) |
+        //         //     | 0                                 0                 -1                            0                              |
+        //         
+        //         const Radian radian = mFovY * REAL_HALF;
+        //         const Real m11 = REAL_ONE / Math::tan(radian);
+        //         const Real m00 = m11 / mAspectRatio;
+        //         const Real m22 = -(mFar + mNear) / (mFar - mNear);
+        //         const Real m23 = - 2 * mFar * mNear / (mFar - mNear);
+        //     
+        //         mProjectMatrix.make(
+        //             m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
+        //             REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
+        //             REAL_ZERO, REAL_ZERO, m22, m23,
+        //             REAL_ZERO, REAL_ZERO, -REAL_ONE, REAL_ZERO);
+        //     }
+        //     else
+        //     {
+        //         // 正交投影
+        //
+        //         // O = | 2 / width 0          0                  0                            |
+        //         //     |      0    2 / height 0                  0                            |
+        //         //     |      0    0          -2 / (far - near)  -(far + near) / (far - near) |
+        //         //     |      0    0          0                  1                            |
+        //
+        //         const Real m00 = 2.0f / mWidth;
+        //         const Real m11 = 2.0f / mHeight;
+        //         const Real m22 = -2.0f / (mFar - mNear);
+        //         const Real m23 = -(mFar + mNear) / (mFar - mNear);
+        //
+        //         mProjectMatrix.make(
+        //             m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
+        //             REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
+        //             REAL_ZERO, REAL_ZERO, m22, m23,
+        //             REAL_ZERO, REAL_ZERO, REAL_ZERO, REAL_ONE);
+        //     }
+        //     
+        //     mIsProjDirty = false;
+        // }
         
         return mProjectMatrix;
     }
