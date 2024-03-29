@@ -128,7 +128,7 @@ namespace Tiny3D
         ///  父节点坐标系下的局部朝向
         Quaternion          mOrientation {};
         /// 父节点坐标系下的局部大小
-        Vector3             mScaling {};
+        Vector3             mScaling {REAL_ONE, REAL_ONE, REAL_ONE};
 
         /// 从局部到世界的变换对象
         mutable Transform   mWorldTransform {};
