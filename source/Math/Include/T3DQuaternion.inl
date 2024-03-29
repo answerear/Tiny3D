@@ -79,7 +79,7 @@ namespace Tiny3D
 
     template <typename T>
     inline TQuaternion<T>::TQuaternion()
-        : _w(0.0)
+        : _w(1.0)
         , _x(0.0)
         , _y(0.0)
         , _z(0.0)

@@ -99,7 +99,7 @@ namespace Tiny3D
     template <typename T>
     inline TMatrix4<T>::TMatrix4()
     {
-        makeZero();
+        makeIdentity();
     }
     
     template <typename T>
