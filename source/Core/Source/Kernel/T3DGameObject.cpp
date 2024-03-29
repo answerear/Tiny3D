@@ -230,6 +230,10 @@ namespace Tiny3D
                     }
                 }
             }
+            else
+            {
+                found = true;
+            }
 
             if (!found)
             {
