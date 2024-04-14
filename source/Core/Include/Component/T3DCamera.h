@@ -57,6 +57,8 @@ namespace Tiny3D
         
         ComponentPtr clone() const override;
 
+        TResult lookAt(const Vector3 &eye, const Vector3 &obj, const Vector3 &up);
+
         RenderTargetPtr getRenderTarget() const { return mRenderTarget; }
 
         void setRenderTarget(RenderTargetPtr target);
@@ -97,56 +99,64 @@ namespace Tiny3D
         Projection getProjectionType() const { return mProjectionType; }
 
         TPROPERTY(RTTRFuncName="ProjectionType", RTTRFuncType="setter")
-        void setProjectionType(Projection type) { mProjectionType = type; }
+        void setProjectionType(Projection type)
+        {
+            if (mProjectionType != type)
+            {
+                mProjectionType = type; mIsProjDirty = true;
+            }
+        }
 
         TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="getter")
         const Radian &getFovY() const { return mFovY; }
 
         TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="setter")
-        void setFovY(const Radian &fovY) { mFovY = fovY; }
+        void setFovY(const Radian &fovY) { mFovY = fovY; mIsProjDirty = true; }
 
         TPROPERTY(RTTRFuncName="AspectRatio", RTTRFuncType="getter")
         const Real &getAspectRatio() const { return mAspectRatio; }
 
         TPROPERTY(RTTRFuncName="AspectRatio", RTTRFuncType="setter")
-        void setAspectRatio(const Real &ratio) { mAspectRatio = ratio; }
+        void setAspectRatio(const Real &ratio) { mAspectRatio = ratio; mIsProjDirty = true; }
 
         TPROPERTY(RTTRFuncName="Width", RTTRFuncType="getter")
         const Real &getWidth() const { return mWidth; }
 
         TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
-        void setWidth(const Real &width) { mWidth = width; }
+        void setWidth(const Real &width) { mWidth = width; mIsProjDirty = true; }
 
         TPROPERTY(RTTRFuncName="Height", RTTRFuncType="getter")
         const Real &getHeight() const { return mHeight; }
 
         TPROPERTY(RTTRFuncName="Height", RTTRFuncType="setter")
-        void setHeight(const Real &height) { mHeight = height; }
+        void setHeight(const Real &height) { mHeight = height; mIsProjDirty = true; }
 
         TPROPERTY(RTTRFuncName="FarPlane", RTTRFuncType="getter")
         const Real &getFarPlaneDistance() const { return mFar; }
 
         TPROPERTY(RTTRFuncName="FarPlane", RTTRFuncType="setter")
-        void setFarPlaneDistance(const Real &f) { mFar = f; }
+        void setFarPlaneDistance(const Real &f) { mFar = f; mIsProjDirty = true; }
 
         TPROPERTY(RTTRFuncName="NearPlane", RTTRFuncType="getter")
         const Real &getNearPlaneDistance() const { return mNear; }
 
         TPROPERTY(RTTRFuncName="NearPlane", RTTRFuncType="setter")
-        void setNearPlaneDistance(const Real &n) { mNear = n; }
+        void setNearPlaneDistance(const Real &n) { mNear = n; mIsProjDirty = true; }
         
         const Matrix4 &getViewMatrix() const;
 
-        const Matrix4 &getProjectMatrix() const;
+        const Matrix4 &getProjectionMatrix() const;
         
     protected:
         Camera() = default;
 
+        void onStart() override;
+
+        void onDestroy() override;
+
         TResult cloneProperties(const Component * const src) override;
 
         void setupRenderTexture(RenderWindow *window);
-
-        void setupQuad(RenderWindow *window);
         
     protected:
         /// 相机对应的渲染纹理，如果渲染目标是渲染纹理，则直接渲染到渲染目标上，不经过纹理
@@ -172,6 +182,8 @@ namespace Tiny3D
         /// 投影变换矩阵
         mutable Matrix4 mProjectMatrix {};
 
+        /// 视口矩阵是否需要重新计算标记
+        mutable bool mIsViewDirty {false};
         /// 投影矩阵是否需要重新计算标记
         mutable bool mIsProjDirty {false};
 
@@ -190,6 +202,8 @@ namespace Tiny3D
         Real    mFar {REAL_ZERO};
         /// 近平面
         Real    mNear {REAL_ZERO};
+
+        Transform3D *mXformNode {nullptr};
     };
 }
 

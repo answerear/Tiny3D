@@ -56,14 +56,14 @@ namespace Tiny3D
         {
             node->visitActive([](TransformNode *node)
             {
-                node->update();
+                node->onUpdate();
 
                 GameObject *go = node->getGameObject();
                 for (auto component : go->getComponents<Component>())
                 {
                     if (component != node)
                     {
-                        component->update();
+                        component->onUpdate();
                     }
                 }
             });
@@ -139,8 +139,10 @@ namespace Tiny3D
 
             component = comp;
             component->setGameObject(this);
-
+            
             mComponents.emplace(type, component);
+            
+            component->onStart();
         } while (false);
 
         return component;

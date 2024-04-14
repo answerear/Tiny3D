@@ -357,4 +357,13 @@ namespace Tiny3D
 
     template <typename T>
     const TVector3<T> TVector3<T>::NEGATIVE_UNIT_Z(0.0, 0.0, -1.0);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::LEFT(1.0f, 0.0f, 0.0f);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::UP(0.0f, 1.0f, 0.0f);
+
+    template <typename T>
+    const TVector3<T> TVector3<T>::FORWARD(0.0, 0.0, -1.0);
 }

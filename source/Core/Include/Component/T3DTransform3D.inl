@@ -30,7 +30,9 @@ namespace Tiny3D
     {
         if (pos != mPosition)
         {
+            Vector3 oldPos = mPosition;
             mPosition = pos;
+            onPositionChanged(oldPos, mPosition);
             setDirty(true, true);
         }
     }
@@ -56,7 +58,9 @@ namespace Tiny3D
     {
         if (orientation != mOrientation)
         {
+            Quaternion oldOrient = mOrientation;
             mOrientation = orientation;
+            onOrientationChanged(oldOrient, mOrientation);
             setDirty(true, true);
         }
     }
@@ -91,7 +95,9 @@ namespace Tiny3D
     {
         if (scaling != mScaling)
         {
+            Vector3 oldScaling = mScaling;
             mScaling = scaling;
+            onScalingChanged(oldScaling, mScaling);
             setDirty(true, true);
         }
     }
@@ -117,7 +123,9 @@ namespace Tiny3D
     {
         if (offset != Vector3::ZERO)
         {
+            Vector3 pos = mPosition;
             mPosition += offset;
+            onPositionChanged(pos, mPosition);
             setDirty(true, true);
         }
     }
@@ -143,7 +151,9 @@ namespace Tiny3D
     {
         if (orientation != Quaternion::IDENTITY)
         {
+            Quaternion oldOrient = mOrientation;
             mOrientation *= orientation;
+            onOrientationChanged(oldOrient, mOrientation);
             setDirty(true, true);
         }
     }
@@ -214,7 +224,9 @@ namespace Tiny3D
     {
         if (scaling != mScaling)
         {
-            mScaling = scaling;
+            Vector3 oldScaling = scaling;
+            mScaling += scaling;
+            onScalingChanged(oldScaling, scaling);
             setDirty(true, true);
         }
     }

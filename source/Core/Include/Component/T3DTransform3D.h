@@ -105,11 +105,29 @@ namespace Tiny3D
 
         Transform getLocalTransform() const;
 
-        void update() override;
+        void onUpdate() override;
 
         virtual void setDirty(bool isDirty, bool recursive = false);
 
         bool isDirty() const;
+
+        using PositionChangedCallback = TFunction<void(const Vector3&, const Vector3&)>;
+        
+        void addPositionChangedCallback(Component *component, PositionChangedCallback callback);
+
+        void removePositionChangedCallback(Component *component);
+
+        using OrientationChangedCallback = TFunction<void(const Quaternion&, const Quaternion&)>;
+        
+        void addOrientationChangedCallback(Component *component, OrientationChangedCallback callback);
+
+        void removeOrientationChangedCallback(Component *component);
+
+        using ScalingChangedCallback = TFunction<void(const Vector3&, const Vector3&)>;
+
+        void addScalingChangedCallback(Component *component, ScalingChangedCallback callbak);
+
+        void removeScalingChangedCallback(Component *component);
         
     protected:
         Transform3D();
@@ -121,6 +139,12 @@ namespace Tiny3D
         void onDetachParent(TransformNodePtr parent) override;
         
         void onDestroy() override;
+
+        void onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos);
+
+        void onOrientationChanged(const Quaternion &oldOrient, const Quaternion &newOrient);
+
+        void onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling);
 
     private:
         /// 父节点坐标系下的局部位置
@@ -135,6 +159,15 @@ namespace Tiny3D
         
         /// 结点数据脏标记，脏时需要重新计算
         mutable bool        mIsDirty {false};
+
+        using PositionCallbacks = TUnorderedMap<Component*, PositionChangedCallback>;
+        PositionCallbacks       mPositionCallbacks {};
+        
+        using OrientationCallbacks = TUnorderedMap<Component*, OrientationChangedCallback>;
+        OrientationCallbacks    mOrientationCallbacks {};
+        
+        using ScalingCallbacks = TUnorderedMap<Component*, ScalingChangedCallback>;
+        ScalingCallbacks        mScalingCallbacks {};
     };
 }
 

@@ -182,9 +182,81 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform3D::update()
+    void Transform3D::onUpdate()
     {
         getLocalToWorldTransform();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::addPositionChangedCallback(Component *component, PositionChangedCallback callback)
+    {
+        mPositionCallbacks.emplace(component, callback);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::removePositionChangedCallback(Component *component)
+    {
+        mPositionCallbacks.erase(component);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::addOrientationChangedCallback(Component *component, OrientationChangedCallback callback)
+    {
+        mOrientationCallbacks.emplace(component, callback);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::removeOrientationChangedCallback(Component *component)
+    {
+        mOrientationCallbacks.erase(component);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::addScalingChangedCallback(Component *component, ScalingChangedCallback callback)
+    {
+        mScalingCallbacks.emplace(component, callback);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::removeScalingChangedCallback(Component *component)
+    {
+        mScalingCallbacks.erase(component);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos)
+    {
+        for (const auto &val : mPositionCallbacks)
+        {
+            val.second(oldPos, newPos);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::onOrientationChanged(const Quaternion &oldOrient, const Quaternion &newOrient)
+    {
+        for (const auto &val : mOrientationCallbacks)
+        {
+            val.second(oldOrient, newOrient);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling)
+    {
+        for (const auto &val : mScalingCallbacks)
+        {
+            val.second(oldScaling, newScaling);
+        }
     }
 
     //--------------------------------------------------------------------------

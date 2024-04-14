@@ -50,7 +50,9 @@ namespace Tiny3D
 
         void setGameObject(GameObject *gameObject) { mGameObject = gameObject; }
 
-        virtual void update();
+        virtual void onStart();
+        
+        virtual void onUpdate();
 
         void destroy();
 

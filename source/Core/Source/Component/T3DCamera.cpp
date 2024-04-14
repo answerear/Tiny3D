@@ -42,7 +42,7 @@ namespace Tiny3D
     {
         return new Camera();
     }
-
+    
     //--------------------------------------------------------------------------
     
     Camera::~Camera() 
@@ -56,99 +56,200 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Camera::lookAt(const Vector3 &eye, const Vector3 &obj, const Vector3 &up)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (getGameObject() == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Game object is null when camera look at !");
+                break;
+            }
+
+            Transform3D *xform = getGameObject()->getComponent<Transform3D>();
+            if (xform == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Transform3D is nullptr when camera look at !");
+                break;
+            }
+
+            // 构造相机的三个坐标轴，U(x)，V(y)，N(z)
+            // 这里使用右手系，所以相机空间，相机是看向 -z 轴方向
+            Vector3 N = eye-obj;
+            N.normalize();
+            Vector3 V = up;
+            V.normalize();
+            Vector3 U = V.cross(N);
+            U.normalize();
+            V = N.cross(U);
+            V.normalize();
+
+            // 设置相机位置
+            xform->setPosition(eye);
+
+            // 设置相机朝向
+            Matrix3 mat;
+            mat.setColumn(0, U);
+            mat.setColumn(1, V);
+            mat.setColumn(2, N);
+            Quaternion orientation;
+            orientation.fromRotationMatrix(mat);
+            xform->setOrientation(orientation);
+
+            // 设置相机缩放，UVN 相机是没有缩放的
+            xform->setScaling(Vector3::UNIT_SCALE);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     const Matrix4 &Camera::getViewMatrix() const
     {
-        // Transform3DPtr xformNode = getGameObject()->getComponent<Transform3D>();
-        //
-        // if (xformNode != nullptr)
-        // {
-        //     bool isDirty = xformNode->isDirty();
-        //     if (isDirty)
-        //     {
-        //         const Transform &xform = xformNode->getLocalToWorldTransform();
-        //         const Matrix4 &worldMatrix = xform.getAffineMatrix();
-        //
-        //         // 视图矩阵推导：
-        //         // 其中C是相机进行世界变换的矩阵，
-        //         //  T是平移变换
-        //         //  R是旋转变换
-        //         //  S是缩放变换
-        //         //
-        //         // 由 C = T * R * S
-        //         // 得 C(-1) = (T * R * S) (-1) = S(-1) * R(-1) * T(-1)
-        //         // 
-        //
-        //         // 旋转矩阵
-        //         Matrix4 R = xform.getOrientation();
-        //         // 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
-        //         Matrix4 invertR = R.transpose();
-        //         // 平移矩阵
-        //         Matrix4 invertT(false);
-        //         invertT.makeTranslate(-xform.getTranslation());
-        //         // 缩放矩阵
-        //         Matrix4 invertS(false);
-        //         const Vector3 &scale = xform.getScaling();
-        //         invertS[0][0] = REAL_ONE / scale.x();
-        //         invertS[1][1] = REAL_ONE / scale.y();
-        //         invertS[2][2] = REAL_ONE / scale.z();
-        //
-        //         mViewMatrix = invertS * invertR * invertT;
-        //     }
-        // }
+        if (mIsViewDirty)
+        {
+            const Transform &xform = mXformNode->getLocalToWorldTransform();
+        
+            // 视图矩阵推导：
+            // 其中C是相机进行世界变换的矩阵，
+            //  T是平移变换
+            //  R是旋转变换
+            //  S是缩放变换
+            //
+            // 由 C = T * R * S
+            // 得 C^(-1) = (T * R * S)^(-1) = S^(-1) * R^(-1) * T^(-1)
+            // 
+        
+            // 旋转矩阵
+            Matrix4 R = xform.getOrientation();
+            // 旋转矩阵是正交矩阵，正交矩阵的逆矩阵是其转置矩阵
+            Matrix4 invertR = R.transpose();
+            // 平移矩阵
+            Matrix4 invertT(false);
+            invertT.setTranslate(-xform.getTranslation());
+            // 缩放矩阵
+            Matrix4 invertS(false);
+            const Vector3 &scale = xform.getScaling();
+            invertS[0][0] = REAL_ONE / scale.x();
+            invertS[1][1] = REAL_ONE / scale.y();
+            invertS[2][2] = REAL_ONE / scale.z();
+        
+            mViewMatrix = invertS * invertR * invertT;
+            mIsViewDirty = false;
+        }
         
         return mViewMatrix;
     }
 
     //--------------------------------------------------------------------------
 
-    const Matrix4 &Camera::getProjectMatrix() const
+    const Matrix4 &Camera::getProjectionMatrix() const
     {
-        // if (mIsProjDirty)
-        // {
-        //     if (mProjectionType == Projection::kPerspective)
-        //     {
-        //         // 透视投影
-        //         
-        //         // P = | 1 / (aspectRatio * tan(fov / 2))  0                 0                             0                              |
-        //         //     | 0                                 1 / tan(fov / 2)  0                             0                              |
-        //         //     | 0                                 0                 -(far + near) / (far - near)  -2 * far * near / (far - near) |
-        //         //     | 0                                 0                 -1                            0                              |
-        //         
-        //         const Radian radian = mFovY * REAL_HALF;
-        //         const Real m11 = REAL_ONE / Math::tan(radian);
-        //         const Real m00 = m11 / mAspectRatio;
-        //         const Real m22 = -(mFar + mNear) / (mFar - mNear);
-        //         const Real m23 = - 2 * mFar * mNear / (mFar - mNear);
-        //     
-        //         mProjectMatrix.make(
-        //             m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
-        //             REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
-        //             REAL_ZERO, REAL_ZERO, m22, m23,
-        //             REAL_ZERO, REAL_ZERO, -REAL_ONE, REAL_ZERO);
-        //     }
-        //     else
-        //     {
-        //         // 正交投影
-        //
-        //         // O = | 2 / width 0          0                  0                            |
-        //         //     |      0    2 / height 0                  0                            |
-        //         //     |      0    0          -2 / (far - near)  -(far + near) / (far - near) |
-        //         //     |      0    0          0                  1                            |
-        //
-        //         const Real m00 = 2.0f / mWidth;
-        //         const Real m11 = 2.0f / mHeight;
-        //         const Real m22 = -2.0f / (mFar - mNear);
-        //         const Real m23 = -(mFar + mNear) / (mFar - mNear);
-        //
-        //         mProjectMatrix.make(
-        //             m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
-        //             REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
-        //             REAL_ZERO, REAL_ZERO, m22, m23,
-        //             REAL_ZERO, REAL_ZERO, REAL_ZERO, REAL_ONE);
-        //     }
-        //     
-        //     mIsProjDirty = false;
-        // }
+        if (mIsProjDirty)
+        {
+            // M_gl2dx = | 1 0   0   0 |
+            //           | 0 1   0   0 |
+            //           | 0 0 0.5 0.5 |
+            //           | 0 0   0   1 |
+            //
+            // M_dx2gl = | 1 0 0  0 |
+            //           | 0 1 0  0 |
+            //           | 0 0 2 -1 |
+            //           | 0 0 0  1 |
+            //
+            // 不管是左手坐标系还是右手坐标系，far 和 near 均是非负数
+            
+            if (mProjectionType == Projection::kPerspective)
+            {
+                // 透视投影
+
+                // P_dx_lh = | 1/(aspectRatio*tan(fov*0.5)) 0                0              0                      |
+                //           | 0                            1/tan(fov * 0.5) 0              0                      |
+                //           | 0                            0                far/(far-near) -(far*near)/(far-near) |
+                //           | 0                            0                1              0                      |
+                //
+                // P_dx_rh = | 1/(aspectRatio*tan(fov/0.5)) 0                0               0                      |
+                //           | 0                            1/tan(fov / 0.5) 0               0                      |
+                //           | 0                            0                -far/(far-near) -(far*near)/(far-near) |
+                //           | 0                            0                -1              0                      |
+                //
+                // P_gl_lh = | 1/(aspectRatio*tan(fov*0.5)) 0              0                     0                        |
+                //           | 0                            1/tan(fov*0.5) 0                     0                        |
+                //           | 0                            0              (far+near)/(far-near) -(2*far*near)/(far-near) |
+                //           | 0                            0              1                     0                        |
+                //
+                // P_gl_rh = | 1/(aspectRatio*tan(fov*0.5)) 0              0                      0                      |
+                //           | 0                            1/tan(fov*0.5) 0                      0                      |
+                //           | 0                            0              -(far+near)/(far-near) -2*far*near/(far-near) |
+                //           | 0                            0              -1                     0                      |
+
+                // P_dx_lh = M_gl2dx * P_gl_lh
+                // P_dx_rh = M_gl2dx * P_gl_rh
+                // P_gl_lh = M_dx2gl * P_dx_lh
+                // p_gl_rh = M_dx2gl * P_dx_rh
+                
+                // 这里使用 OpenGL RH 作为透视投影矩阵
+                const Radian radian = mFovY * REAL_HALF;
+                const Real m11 = REAL_ONE / Math::tan(radian);
+                const Real m00 = m11 / mAspectRatio;
+                const Real m22 = -(mFar + mNear) / (mFar - mNear);
+                const Real m23 = - 2 * mFar * mNear / (mFar - mNear);
+
+                mProjectMatrix.make(
+                    m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
+                    REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
+                    REAL_ZERO, REAL_ZERO, m22, m23,
+                    REAL_ZERO, REAL_ZERO, -REAL_ONE, REAL_ZERO);
+            }
+            else
+            {
+                // 正交投影
+
+                // O_dx_lh = | 2/width 0        0            0                |
+                //           | 0       2/height 0            0                |
+                //           | 0       0        1/(far-near) -near/(far-near) |
+                //           | 0       0        0            1                |
+                //
+                // O_dx_rh = | 2/width 0        0             0                |
+                //           | 0       2/height 0             0                |
+                //           | 0       0        -1/(far-near) -near/(far-near) |
+                //           | 0       0        0             1                |
+                //
+                // O_gl_lh = | 2/width 0        0            0                      |
+                //           | 0       2/height 0            0                      |
+                //           | 0       0        2/(far-near) -(far+near)/(far-near) |
+                //           | 0       0        0            1                      |
+                //
+                // O_gl_rh = | 2/width 0        0             0                      |
+                //           | 0       2/height 0             0                      |
+                //           | 0       0        -2/(far-near) -(far+near)/(far-near) |
+                //           | 0       0        0             1                      |
+
+                // O_dx_lh = M_gl2dx * O_gl_lh
+                // O_dx_rh = M_gl2dx * O_gl_rh
+                // O_gl_lh = M_dx2gl * O_dx_lh
+                // O_gl_rh = M_dx2gl * O_dx_rh
+                
+                // 这里使用 OpenGL RH 作为正交投影矩阵
+                const Real m00 = 2.0f / mWidth;
+                const Real m11 = 2.0f / mHeight;
+                const Real m22 = -2.0f / (mFar - mNear);
+                const Real m23 = -(mFar + mNear) / (mFar - mNear);
+        
+                mProjectMatrix.make(
+                    m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
+                    REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
+                    REAL_ZERO, REAL_ZERO, m22, m23,
+                    REAL_ZERO, REAL_ZERO, REAL_ZERO, REAL_ONE);
+            }
+            
+            mIsProjDirty = false;
+        }
         
         return mProjectMatrix;
     }
@@ -175,9 +276,6 @@ namespace Tiny3D
                     
                         // 新建个 render texture ，相机先渲染到 render texture 上，然后再画到屏幕上
                         setupRenderTexture(renderWindow);
-                    
-                        // 新建个 quad ，用于最后 blit render texture 到 render windows 上用
-                        setupQuad(renderWindow);
                     }
                     break;
                 case RenderTarget::Type::E_RT_TEXTURE:
@@ -275,38 +373,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Camera::setupQuad(RenderWindow *window)
+    void Camera::onStart()
     {
-        // if (mVB == nullptr)
-        // {
-        //     // 没有创建过才创建
-        //     struct Vertex
-        //     {
-        //         Vector3 position;
-        //         Vector2 uv;
-        //     };
-        //
-        //     Vertex vertices[4] =
-        //     {
-        //         { Vector3(-1.0f, 1.0f, 0.5f), Vector2(0.0f, 0.0f) },
-        //         { Vector3(-1.0f, -1.0f, 0.5f), Vector2(0.0f, 1.0f) },
-        //         { Vector3(1.0f, 1.0f, 0.5f), Vector2(1.0f, 0.0f) },
-        //         { Vector3(1.0f, -1.0f, 0.5f), Vector2(1.0f, 1.0f) }
-        //     };
-        //     
-        //     // vertex input layout
-        //     VertexDeclarationPtr decl = VertexDeclaration::create();
-        //     decl->addAttribute(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
-        //     decl->addAttribute(0, 12, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
-        //     T3D_RENDER_BUFFER_MGR.addVertexDeclaration(decl);
-        //
-        //     // vertex buffer
-        //     Buffer buffer;
-        //     buffer.setData(&vertices, sizeof(vertices));
-        //     T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(Vertex), 4, buffer, MemoryType::kVRAM, Usage::kImmutable, kCPUNone);
-        //
-        //     
-        // }
+        GameObject *go = getGameObject();
+        if (go != nullptr)
+        {
+            Transform3D *xform = go->getComponent<Transform3D>();
+            xform->addPositionChangedCallback(this, [this](const Vector3&, const Vector3&)
+                {
+                    mIsViewDirty = true;
+                });
+
+            xform->addOrientationChangedCallback(this, [this](const Quaternion&, const Quaternion&)
+                {
+                    mIsViewDirty = true;
+                });
+
+            xform->addScalingChangedCallback(this, [this](const Vector3&, const Vector3&)
+                {
+                    mIsViewDirty = true;
+                });
+
+            mXformNode = getGameObject()->getComponent<Transform3D>();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Camera::onDestroy()
+    {
+        GameObject *go = getGameObject();
+        if (go != nullptr)
+        {
+            Transform3D *xform = go->getComponent<Transform3D>();
+            if (xform != nullptr)
+            {
+                xform->removePositionChangedCallback(this);
+                xform->removeOrientationChangedCallback(this);
+                xform->removeScalingChangedCallback(this);
+            }
+        }
+        
+        Component::onDestroy();
     }
 
     //--------------------------------------------------------------------------

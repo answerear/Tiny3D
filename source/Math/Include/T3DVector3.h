@@ -138,14 +138,28 @@ namespace Tiny3D
         TFUNCTION("Description"="Normalize the vector")
         T normalize();
 
-        static const TVector3 ZERO;              /// 零向量
-        static const TVector3 UNIT_SCALE;        /// 单位缩放向量
-        static const TVector3 UNIT_X;            /// X轴单位向量
-        static const TVector3 UNIT_Y;            /// Y轴单位向量
-        static const TVector3 UNIT_Z;            /// Z轴单位向量
-        static const TVector3 NEGATIVE_UNIT_X;   /// X轴负方向单位向量
-        static const TVector3 NEGATIVE_UNIT_Y;   /// Y轴负方向单位向量
-        static const TVector3 NEGATIVE_UNIT_Z;   /// Z轴负方向单位向量
+        /// 零向量
+        static const TVector3 ZERO;
+        /// 单位缩放向量
+        static const TVector3 UNIT_SCALE;
+        /// X轴单位向量
+        static const TVector3 UNIT_X;
+        /// Y轴单位向量
+        static const TVector3 UNIT_Y;
+        /// Z轴单位向量
+        static const TVector3 UNIT_Z;
+        /// X轴负方向单位向量
+        static const TVector3 NEGATIVE_UNIT_X;
+        /// Y轴负方向单位向量
+        static const TVector3 NEGATIVE_UNIT_Y;
+        /// Z轴负方向单位向量
+        static const TVector3 NEGATIVE_UNIT_Z;
+        /// 左方向
+        static const TVector3 LEFT;
+        /// 上方向
+        static const TVector3 UP;
+        /// 前方向
+        static const TVector3 FORWARD;
 
     private:
         /// 比较大小
