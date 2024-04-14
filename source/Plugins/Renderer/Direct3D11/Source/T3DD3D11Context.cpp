@@ -447,8 +447,14 @@ namespace Tiny3D
 
     TResult D3D11Context::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
+        static Matrix4 conversionMat(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f
+            );
         mCBufferPerFrame.matrixV = viewMat;
-        mCBufferPerFrame.matrixP = projMat;
+        mCBufferPerFrame.matrixP = conversionMat * projMat;
         mCBufferPerFrame.matrixVP = mCBufferPerFrame.matrixP * mCBufferPerFrame.matrixV;
         Buffer buffer;
         buffer.setData(&mCBufferPerFrame, sizeof(CBufferPerFrame));
