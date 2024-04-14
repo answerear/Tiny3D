@@ -66,6 +66,18 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setViewport(vp);
     camera->setClearColor(ColorRGB::GRAY);
     camera->setRenderTarget(rt);
+    // camera for perspective
+    camera->setProjectionType(Camera::Projection::kPerspective);
+    camera->setFovY(Radian(Math::PI / 3.0f));
+    // camera->setFovY(Radian(Math::PI * 0.5f));
+    Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
+    camera->setAspectRatio(as);
+    camera->setNearPlaneDistance(0.1f);
+    camera->setFarPlaneDistance(10.0f);
+    // construct camera position & orientation & scaling
+    Vector3 eye(2.0f, 2.0f, 4.0f);
+    Vector3 obj(0.0f, 0.0f, 0.0f);
+    camera->lookAt(eye, obj, Vector3::UP);
     scene->addCamera(camera);
 
     // transform node for cube
@@ -87,8 +99,8 @@ void GeometryApp::applicationWillTerminate()
 
 Texture2DPtr GeometryApp::buildTexture()
 {
-    const uint32_t width = 16;
-    const uint32_t height = 16;
+    const uint32_t width = 64;
+    const uint32_t height = 64;
     uint32_t pitch = Image::calcPitch(width, 32);
     const uint32_t dataSize = pitch * height;
     uint8_t *pixels = new uint8_t[dataSize];
@@ -140,15 +152,15 @@ MaterialPtr GeometryApp::buildMaterial()
         "//}\n"
         "cbuffer Tiny3DPerDraw : register(b0)\n"
         "{\n"
-        "   float4x4 tiny3d_ObjectToWorld;\n"
-        "   float4x4 tiny3d_WorldToObject;\n"
+        "   row_major float4x4 tiny3d_ObjectToWorld;\n"
+        "   row_major float4x4 tiny3d_WorldToObject;\n"
         "}\n"
         "\n"
         "cbuffer Tiny3DPerFrame : register(b1)\n"
         "{\n"
-        "   float4x4 tiny3d_MatrixV;\n"
-        "   float4x4 tiny3d_MatrixP;\n"
-        "   float4x4 tiny3d_MatrixVP;\n"
+        "   row_major float4x4 tiny3d_MatrixV;\n"
+        "   row_major float4x4 tiny3d_MatrixP;\n"
+        "   row_major float4x4 tiny3d_MatrixVP;\n"
         "}\n"
         "\n"
         "static float4x4 tiny3d_MatrixMVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);\n"
@@ -178,6 +190,7 @@ MaterialPtr GeometryApp::buildMaterial()
         "   //float4 viewPosition = mul(viewMatrix, worldPosition);\n"
         "   //float4 clipPosition = mul(projectionMatrix, viewPosition);\n"
         "   //output.position = clipPosition;\n"
+        "   //row_major float4x4 MVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);\n"
         "   output.position = mul(TINY3D_MATRIX_MVP, float4(input.position, 1.0f));\n"
         "   //output.position = float4(input.position, 1.0);\n"
         "   output.uv = input.uv;\n"
@@ -239,10 +252,10 @@ MaterialPtr GeometryApp::buildMaterial()
     rval = shader->addTechnique(tech);
     T3D_ASSERT(rval, "Add technique !");
 
-    // constants
-    ShaderConstantParams constants;
-
-    // model matrix
+    // // constants
+    // ShaderConstantParams constants;
+    //
+    // // model matrix
     // Matrix4 modelMatrix(false);
     // const String modelMatrixName = "modelMatrix";
     // ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
@@ -315,7 +328,7 @@ MeshPtr GeometryApp::buildMesh()
     Vector3 center(0.0f, 0.0f, 0.5f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
 
-#if 0
+#if 1
     const uint32_t kVertexCount = 8;
     const uint32_t kIndexCount = 36;
     BoxVertex *vertices = new BoxVertex[kVertexCount];
@@ -406,16 +419,16 @@ MeshPtr GeometryApp::buildMesh()
     BoxVertex *vertices = new BoxVertex[kVertexCount];
     uint16_t *indices = new uint16_t[kIndexCount];
 
-    vertices[0].position = Vector3(-0.5f, 0.5f, 0.5f);
+    vertices[0].position = Vector3(-0.5f, 0.5f, 0.0f);
     vertices[0].uv = Vector2(0.0f, 0.0f);
 
-    vertices[1].position = Vector3(-0.5f, -0.5f, 0.5f);
+    vertices[1].position = Vector3(-0.5f, -0.5f, 0.0f);
     vertices[1].uv = Vector2(0.0f, 1.0f);
 
-    vertices[2].position = Vector3(0.5f, 0.5f, 0.5f);
+    vertices[2].position = Vector3(0.5f, 0.5f, 0.0f);
     vertices[2].uv = Vector2(1.0f, 0.0f);
 
-    vertices[3].position = Vector3(0.5f, -0.5f, 0.5f);
+    vertices[3].position = Vector3(0.5f, -0.5f, 0.0f);
     vertices[3].uv = Vector2(1.0f, 1.0f);
 
     indices[0] = 0;
