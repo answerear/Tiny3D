@@ -111,13 +111,77 @@ Texture2DPtr GeometryApp::buildTexture()
         uint32_t i = 0;
         for (uint32_t x = 0; x < width; ++x)
         {
-            // blue
-            lines[i++] = 39;
-            // green
-            lines[i++] = 127;
-            // red
-            lines[i++] = 255;
-            // alpha
+            if (x < 16 && y < 16)
+            {
+                // top, blue
+                // B
+                lines[i++] = 196;
+                // G
+                lines[i++] = 114;
+                // R
+                lines[i++] = 68;
+            }
+            else if (x < 16 && y >= 16 && y < 32)
+            {
+                // front, orange
+                // B
+                lines[i++] = 49;
+                // G
+                lines[i++] = 125;
+                // R
+                lines[i++] = 237;
+            }
+            else if (x >= 16 && x < 32 && y >= 16 && y < 32)
+            {
+                // right, green
+                // B
+                lines[i++] = 71;
+                // G
+                lines[i++] = 173;
+                // R
+                lines[i++] = 112;
+            }
+            else if (x >= 32 && x < 48 && y >= 16 && y < 32)
+            {
+                // back, yellow
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 192;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x >= 48 && x < 64 && y >= 16 && y <32)
+            {
+                // left, red
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x < 16 && y >= 32 && y < 48)
+            {
+                // bottom, 
+                // B
+                lines[i++] = 160;
+                // G
+                lines[i++] = 48;
+                // R
+                lines[i++] = 112;
+            }
+            else
+            {
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 0;
+            }
+            
+            // A
             lines[i++] = 255;
         }
     }
@@ -329,90 +393,211 @@ MeshPtr GeometryApp::buildMesh()
     Vector3 extent(0.5f, 0.5f, 0.5f);
 
 #if 1
-    const uint32_t kVertexCount = 8;
+    const uint32_t kVertexCount = 24;
     const uint32_t kIndexCount = 36;
     BoxVertex *vertices = new BoxVertex[kVertexCount];
     uint16_t *indices = new uint16_t[kIndexCount];
+
+    const uint32_t kTexSize = 64;
+
+    const Real end1stQuater = Real(15) / Real(kTexSize);
+    const Real start2ndQuater= Real(16) / Real(kTexSize);
+    const Real end2ndQuater = Real(31) / Real(kTexSize);
+    const Real start3rdQuater = Real(32) / Real(kTexSize);
+    const Real end3rdQuater = Real(47) / Real(kTexSize);
+    const Real start4thQuater = Real(48) / Real(kTexSize);
     
-    // V0
+    // front - V0
     offset[0] = -extent[0];
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[0].position = center + offset;
-    vertices[0].uv = Vector2(0.0f, 0.0f);
-
-    // V1
+    vertices[0].uv = Vector2(0.0f, start2ndQuater);
+    
+    // front - V1
     offset[0] = -extent[0];
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[1].position = center + offset;
-    vertices[1].uv = Vector2(0.0f, 1.0f);
-
-    // V2
+    vertices[1].uv = Vector2(0.0f, end2ndQuater);
+    
+    // front - V2
     offset[0] = extent[0];
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[2].position = center + offset;
-    vertices[2].uv = Vector2(1.0f, 0.0f);
-
-    // V3
+    vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
+    
+    // front - V3
     offset[0] = extent[0];
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[3].position = center + offset;
-    vertices[3].uv = Vector2(1.0f, 1.0f);
+    vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
 
-    // V4
+    // right - V2
     offset[0] = extent[0];
     offset[1] = extent[1];
-    offset[2] = -extent[2];
+    offset[2] = extent[2];
     vertices[4].position = center + offset;
-    vertices[4].uv = Vector2(0.0f, 0.0f);
-
-    // V5
+    vertices[4].uv = Vector2(start2ndQuater, start2ndQuater);
+    
+    // right - V3
     offset[0] = extent[0];
     offset[1] = -extent[1];
-    offset[2] = -extent[2];
+    offset[2] = extent[2];
     vertices[5].position = center + offset;
-    vertices[5].uv = Vector2(0.0f, 1.0f);
-
-    // V6
-    offset[0] = -extent[0];
+    vertices[5].uv = Vector2(start2ndQuater, end2ndQuater);
+    
+    // right - V4
+    offset[0] = extent[0];
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[6].position = center + offset;
-    vertices[6].uv = Vector2(1.0f, 0.0f);
-
-    // V7
-    offset[0] = -extent[0];
+    vertices[6].uv = Vector2(end2ndQuater, start2ndQuater);
+    
+    // right - V5
+    offset[0] = extent[0];
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[7].position = center + offset;
-    vertices[7].uv = Vector2(1.0f, 1.0f);
+    vertices[7].uv = Vector2(end2ndQuater, end2ndQuater);
 
+    // back - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[8].position = center + offset;
+    vertices[8].uv = Vector2(start3rdQuater, start2ndQuater);
+    
+    // back - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[9].position = center + offset;
+    vertices[9].uv = Vector2(start3rdQuater, end2ndQuater);
+
+    // back - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[10].position = center + offset;
+    vertices[10].uv = Vector2(end3rdQuater, start2ndQuater);
+    
+    // back - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[11].position = center + offset;
+    vertices[11].uv = Vector2(end3rdQuater, end2ndQuater);
+    
+    // left - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[12].position = center + offset;
+    vertices[12].uv = Vector2(start4thQuater, start2ndQuater);
+    
+    // left - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[13].position = center + offset;
+    vertices[13].uv = Vector2(start4thQuater, end2ndQuater);
+
+    // left - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[14].position = center + offset;
+    vertices[14].uv = Vector2(1.0f, start2ndQuater);
+    
+    // left - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[15].position = center + offset;
+    vertices[15].uv = Vector2(1.0f, end2ndQuater);
+
+    // top - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[16].position = center + offset;
+    vertices[16].uv = Vector2(0.0f, end1stQuater);
+    
+    // top - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[17].position = center + offset;
+    vertices[17].uv = Vector2(end1stQuater, end1stQuater);
+
+    // top - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[18].position = center + offset;
+    vertices[18].uv = Vector2(end1stQuater, 0.0f);
+
+    // top - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[19].position = center + offset;
+    vertices[19].uv = Vector2(0.0f, 0.0f);
+
+    // bottom - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[20].position = center + offset;
+    vertices[20].uv = Vector2(0.0f, start3rdQuater);
+
+    // bottom - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[21].position = center + offset;
+    vertices[21].uv = Vector2(0.0f, end3rdQuater);
+
+    // bottom - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[22].position = center + offset;
+    vertices[22].uv = Vector2(end1stQuater, start3rdQuater);
+    
+    // bottom - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[23].position = center + offset;
+    vertices[23].uv = Vector2(end1stQuater, end3rdQuater);
+    
     // Front face
     indices[0] = 0, indices[1] = 1, indices[2] = 2;
     indices[3] = 1, indices[4] = 3, indices[5] = 2;
-
+    
     // Back
-    indices[6] = 4, indices[7] = 5, indices[8] = 6;
-    indices[9] = 5, indices[10] = 7, indices[11] = 6;
-
+    indices[6] = 8, indices[7] = 9, indices[8] = 10;
+    indices[9] = 9, indices[10] = 11, indices[11] = 10;
+    
     // Left
-    indices[12] = 0, indices[13] = 6, indices[14] = 7;
-    indices[15] = 0, indices[16] = 7, indices[17] = 1;
-
+    indices[12] = 14, indices[13] = 12, indices[14] = 13;
+    indices[15] = 14, indices[16] = 13, indices[17] = 15;
+    
     // Right
-    indices[18] = 2, indices[19] = 3, indices[20] = 4;
-    indices[21] = 3, indices[22] = 5, indices[23] = 4;
-
+    indices[18] = 4, indices[19] = 5, indices[20] = 6;
+    indices[21] = 5, indices[22] = 7, indices[23] = 6;
+    
     // Top
-    indices[24] = 0, indices[25] = 2, indices[26] = 4;
-    indices[27] = 0, indices[28] = 4, indices[29] = 6;
-
+    indices[24] = 16, indices[25] = 17, indices[26] = 18;
+    indices[27] = 16, indices[28] = 18, indices[29] = 19;
+    
     // Bottom
-    indices[30] = 1, indices[31] = 7, indices[32] = 3;
-    indices[33] = 3, indices[34] = 7, indices[35] = 5;
+    indices[30] = 20, indices[31] = 21, indices[32] = 22;
+    indices[33] = 22, indices[34] = 21, indices[35] = 23;
 #else
     const uint32_t kVertexCount = 4;
     const uint32_t kIndexCount = 6;
