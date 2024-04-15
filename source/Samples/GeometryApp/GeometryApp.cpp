@@ -86,8 +86,6 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Radian yAngle(Math::PI * 0.25f);
     Radian zAngle(0.0f);
     xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
-    // xform->yaw(Radian(Math::PI*0.25f));
-    // xform->pitch(Degree(-25.0f));
 #endif
     scene->addCamera(camera);
 
