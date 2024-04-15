@@ -95,6 +95,30 @@ namespace Tiny3D
 
         void roll(const Radian &radians);
 
+        Matrix3 fromEulerAnglesXYZ(const Radian &xAngle, const Radian &yAngle, const Radian &zAngle);
+
+        Matrix3 fromEulerAnglesXZY(const Radian &xAngle, const Radian &zAngle, const Radian &yAngle);
+
+        Matrix3 fromEulerAnglesYXZ(const Radian &yAngle, const Radian &xAngle, const Radian &zAngle);
+
+        Matrix3 fromEulerAnglesYZX(const Radian &yAngle, const Radian &zAngle, const Radian &xAngle);
+
+        Matrix3 fromEulerAnglesZXY(const Radian &zAngle, const Radian &xAngle, const Radian &yAngle);
+
+        Matrix3 fromEulerAnglesZYX(const Radian &zAngle, const Radian &yAngle, const Radian &xAngle);
+
+        void toEulerAnglesXYZ(Radian &xAngle, Radian &yAngle, Radian &zAngle);
+
+        void toEulerAnglesXZY(Radian &xAngle, Radian &zAngle, Radian &yAngle);
+
+        void toEulerAnglesYXZ(Radian &yAngle, Radian &xAngle, Radian &zAngle);
+
+        void toEulerAnglesYZX(Radian &yAngle, Radian &zAngle, Radian &xAngle);
+
+        void toEulerAnglesZXY(Radian &zAngle, Radian &xAngle, Radian &yAngle);
+
+        void toEulerAnglesZYX(Radian &zAngle, Radian &yAngle, Radian &xAngle);
+
         void scale(const Vector3 &scaling);
 
         void scale(Real x, Real y, Real z);

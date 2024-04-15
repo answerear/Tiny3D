@@ -220,6 +220,120 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline Matrix3 Transform3D::fromEulerAnglesXYZ(const Radian &xAngle, const Radian &yAngle, const Radian &zAngle)
+    {
+        Matrix3 mat;
+        mat.fromEulerAnglesXYZ(xAngle, yAngle, zAngle);
+        mOrientation = mat;
+        return mat;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    inline Matrix3 Transform3D::fromEulerAnglesXZY(const Radian &xAngle, const Radian &zAngle, const Radian &yAngle)
+    {
+        Matrix3 mat;
+        mat.fromEulerAnglesXZY(xAngle, zAngle, yAngle);
+        mOrientation = mat;
+        return mat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Matrix3 Transform3D::fromEulerAnglesYXZ(const Radian &yAngle, const Radian &xAngle, const Radian &zAngle)
+    {
+        Matrix3 mat;
+        mat.fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+        mOrientation = mat;
+        return mat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Matrix3 Transform3D::fromEulerAnglesYZX(const Radian &yAngle, const Radian &zAngle, const Radian &xAngle)
+    {
+        Matrix3 mat;
+        mat.fromEulerAnglesYZX(yAngle, zAngle, xAngle);
+        mOrientation = mat;
+        return mat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Matrix3 Transform3D::fromEulerAnglesZXY(const Radian &zAngle, const Radian &xAngle, const Radian &yAngle)
+    {
+        Matrix3 mat;
+        mat.fromEulerAnglesZXY(zAngle, xAngle, yAngle);
+        mOrientation = mat;
+        return mat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline Matrix3 Transform3D::fromEulerAnglesZYX(const Radian &zAngle, const Radian &yAngle, const Radian &xAngle)
+    {
+        Matrix3 mat;
+        mat.fromEulerAnglesZYX(zAngle, yAngle, xAngle);
+        mOrientation = mat;
+        return mat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Transform3D::toEulerAnglesXYZ(Radian &xAngle, Radian &yAngle, Radian &zAngle)
+    {
+        Matrix3 mat;
+        mOrientation.toRotationMatrix(mat);
+        mat.toEulerAnglesXYZ(xAngle, yAngle, zAngle);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Transform3D::toEulerAnglesXZY(Radian &xAngle, Radian &zAngle, Radian &yAngle)
+    {
+        Matrix3 mat;
+        mOrientation.toRotationMatrix(mat);
+        mat.toEulerAnglesXZY(xAngle, zAngle, yAngle);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Transform3D::toEulerAnglesYXZ(Radian &yAngle, Radian &xAngle, Radian &zAngle)
+    {
+        Matrix3 mat;
+        mOrientation.toRotationMatrix(mat);
+        mat.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Transform3D::toEulerAnglesYZX(Radian &yAngle, Radian &zAngle, Radian &xAngle)
+    {
+        Matrix3 mat;
+        mOrientation.toRotationMatrix(mat);
+        mat.toEulerAnglesYZX(yAngle, zAngle, xAngle);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    inline void Transform3D::toEulerAnglesZXY(Radian &zAngle, Radian &xAngle, Radian &yAngle)
+    {
+        Matrix3 mat;
+        mOrientation.toRotationMatrix(mat);
+        mat.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline void Transform3D::toEulerAnglesZYX(Radian &zAngle, Radian &yAngle, Radian &xAngle)
+    {
+        Matrix3 mat;
+        mOrientation.toRotationMatrix(mat);
+        mat.toEulerAnglesZYX(zAngle, yAngle, xAngle);
+    }
+    
+    //--------------------------------------------------------------------------
+
     inline void Transform3D::scale(const Vector3 &scaling)
     {
         if (scaling != mScaling)
