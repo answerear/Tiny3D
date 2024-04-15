@@ -155,7 +155,7 @@ namespace Tiny3D
         /// Z轴负方向单位向量
         static const TVector3 NEGATIVE_UNIT_Z;
         /// 左方向
-        static const TVector3 LEFT;
+        static const TVector3 RIGHT;
         /// 上方向
         static const TVector3 UP;
         /// 前方向
