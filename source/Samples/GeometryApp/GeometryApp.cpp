@@ -24,6 +24,7 @@
 
 #include "GeometryApp.h"
 
+// #define UVN_CAMERA
 
 using namespace Tiny3D;
 
@@ -75,9 +76,19 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setNearPlaneDistance(0.1f);
     camera->setFarPlaneDistance(10.0f);
     // construct camera position & orientation & scaling
+#if defined (UVN_CAMERA)
     Vector3 eye(2.0f, 2.0f, 4.0f);
     Vector3 obj(0.0f, 0.0f, 0.0f);
     camera->lookAt(eye, obj, Vector3::UP);
+#else
+    xform->setPosition(2.0f, 2.0f, 4.0f);
+    Radian xAngle(Degree(-25.0f));
+    Radian yAngle(Math::PI * 0.25f);
+    Radian zAngle(0.0f);
+    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    // xform->yaw(Radian(Math::PI*0.25f));
+    // xform->pitch(Degree(-25.0f));
+#endif
     scene->addCamera(camera);
 
     // transform node for cube
@@ -163,7 +174,7 @@ Texture2DPtr GeometryApp::buildTexture()
             }
             else if ( x < 16 && y >= 32 && y < 48)
             {
-                // bottom, 
+                // bottom, purple
                 // B
                 lines[i++] = 160;
                 // G
