@@ -48,6 +48,14 @@ namespace Tiny3D
         T3D_ERR_D3D11_CREATE_VERTEX_SHADER,
         /**< 创建像素着色器失败 */
         T3D_ERR_D3D11_CREATE_PIXEL_SHADER,
+        /**< 创建 hull shader 失败 */
+        T3D_ERR_D3D11_CREATE_HULL_SHADER,
+        /**< 创建 domain shader 失败 */
+        T3D_ERR_D3D11_CREATE_DOMAIN_SHADER,
+        /**< 创建 geometry shader 失败 */
+        T3D_ERR_D3D11_CREATE_GEOMETRY_SHADER,
+        /**< 创建 compute shader 失败 */
+        T3D_ERR_D3D11_CREATE_COMPUTE_SHADER,
         /**< Shader 没有编译 */
         T3D_ERR_D3D11_SHADER_NOT_COMPILED,
         /**< Shader 编译失败 */

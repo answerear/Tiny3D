@@ -1750,7 +1750,7 @@ namespace Tiny3D
                     if (FAILED(hr))
                     {
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create pixel shader ! DX ERROR [%d]", hr);
-                        ret = T3D_ERR_D3D11_CREATE_VERTEX_SHADER;
+                        ret = T3D_ERR_D3D11_CREATE_PIXEL_SHADER;
                         break;
                     }
 
@@ -1810,14 +1810,57 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     RHIShaderPtr D3D11Context::createHullShader(ShaderVariant *shader)
     {
-        return nullptr;
+        D3D11HullShaderPtr d3dShader = D3D11HullShader::create();
+
+        do
+        {
+            auto lambda = [this](const ShaderVariantPtr &shader, const D3D11HullShaderPtr &d3dShader)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    size_t bytecodeLength = 0;
+                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    ID3D11HullShader *pD3DShader = nullptr;
+                    HRESULT hr = mD3DDevice->CreateHullShader(bytecode, bytecodeLength, nullptr, &pD3DShader);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create hull shader ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_HULL_SHADER;
+                        break;
+                    }
+
+                    d3dShader->D3DShader = pD3DShader;
+                } while (false);
+
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), d3dShader);
+            if (T3D_FAILED(ret))
+            {
+                d3dShader = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dShader;
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setHullShader(ShaderVariant *shader)
     {
-        return T3D_OK;
+        D3D11HullShaderPtr d3dShader = static_cast<D3D11HullShader*>(shader->getRHIShader());
+        
+        auto lambda = [this](const D3D11HullShaderPtr &d3dShader)
+        {
+            mD3DDeviceContext->HSSetShader(d3dShader->D3DShader, nullptr, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dShader);
     }
 
     //--------------------------------------------------------------------------
@@ -1845,14 +1888,57 @@ namespace Tiny3D
     
     RHIShaderPtr D3D11Context::createDomainShader(ShaderVariant *shader)
     {
-        return nullptr;
+        D3D11DomainShaderPtr d3dShader = D3D11DomainShader::create();
+
+        do
+        {
+            auto lambda = [this](const ShaderVariantPtr &shader, const D3D11DomainShaderPtr &d3dShader)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    size_t bytecodeLength = 0;
+                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    ID3D11DomainShader *pD3DShader = nullptr;
+                    HRESULT hr = mD3DDevice->CreateDomainShader(bytecode, bytecodeLength, nullptr, &pD3DShader);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create domain shader ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_DOMAIN_SHADER;
+                        break;
+                    }
+
+                    d3dShader->D3DShader = pD3DShader;
+                } while (false);
+
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), d3dShader);
+            if (T3D_FAILED(ret))
+            {
+                d3dShader = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dShader;
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setDomainShader(ShaderVariant *shader)
     {
-        return T3D_OK;
+        D3D11DomainShaderPtr d3dShader = static_cast<D3D11DomainShader*>(shader->getRHIShader());
+        
+        auto lambda = [this](const D3D11DomainShaderPtr &d3dShader)
+        {
+            mD3DDeviceContext->DSSetShader(d3dShader->D3DShader, nullptr, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dShader);
     }
 
     //--------------------------------------------------------------------------
@@ -1880,14 +1966,57 @@ namespace Tiny3D
     
     RHIShaderPtr D3D11Context::createGeometryShader(ShaderVariant *shader)
     {
-        return nullptr;
+        D3D11GeometryShaderPtr d3dShader = D3D11GeometryShader::create();
+
+        do
+        {
+            auto lambda = [this](const ShaderVariantPtr &shader, const D3D11GeometryShaderPtr &d3dShader)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    size_t bytecodeLength = 0;
+                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    ID3D11GeometryShader *pD3DShader = nullptr;
+                    HRESULT hr = mD3DDevice->CreateGeometryShader(bytecode, bytecodeLength, nullptr, &pD3DShader);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create geometry shader ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_GEOMETRY_SHADER;
+                        break;
+                    }
+
+                    d3dShader->D3DShader = pD3DShader;
+                } while (false);
+
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), d3dShader);
+            if (T3D_FAILED(ret))
+            {
+                d3dShader = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dShader;
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setGeometryShader(ShaderVariant *shader)
     {
-        return T3D_OK;
+        D3D11GeometryShaderPtr d3dShader = static_cast<D3D11GeometryShader*>(shader->getRHIShader());
+                
+        auto lambda = [this](const D3D11GeometryShaderPtr &d3dShader)
+        {
+            mD3DDeviceContext->GSSetShader(d3dShader->D3DShader, nullptr, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dShader);
     }
 
     //--------------------------------------------------------------------------
@@ -1915,14 +2044,57 @@ namespace Tiny3D
     
     RHIShaderPtr D3D11Context::createComputeShader(ShaderVariant *shader)
     {
-        return nullptr;
+        D3D11ComputeShaderPtr d3dShader = D3D11ComputeShader::create();
+
+        do
+        {
+            auto lambda = [this](const ShaderVariantPtr &shader, const D3D11ComputeShaderPtr &d3dShader)
+            {
+                TResult ret = T3D_OK;
+                
+                do
+                {
+                    size_t bytecodeLength = 0;
+                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    ID3D11ComputeShader *pD3DShader = nullptr;
+                    HRESULT hr = mD3DDevice->CreateComputeShader(bytecode, bytecodeLength, nullptr, &pD3DShader);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create compute shader ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_COMPUTE_SHADER;
+                        break;
+                    }
+
+                    d3dShader->D3DShader = pD3DShader;
+                } while (false);
+
+                return ret;
+            };
+
+            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), d3dShader);
+            if (T3D_FAILED(ret))
+            {
+                d3dShader = nullptr;
+                break;
+            }
+        } while (false);
+        
+        return d3dShader;
     }
 
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setComputeShader(ShaderVariant *shader)
     {
-        return T3D_OK;
+        D3D11ComputeShaderPtr d3dShader = static_cast<D3D11ComputeShader*>(shader->getRHIShader());
+                
+        auto lambda = [this](const D3D11ComputeShaderPtr &d3dShader)
+        {
+            mD3DDeviceContext->CSSetShader(d3dShader->D3DShader, nullptr, 0);
+            return T3D_OK;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d3dShader);
     }
 
     //--------------------------------------------------------------------------
