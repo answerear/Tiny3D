@@ -28,6 +28,7 @@
 
 #include "T3DMacro.h"
 
+
 #if defined T3DCORE_EXPORT
     #define T3D_ENGINE_API        T3D_EXPORT_API
 #else

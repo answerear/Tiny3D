@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 
+#include "T3DConfig.h"
 #include "Component/T3DCamera.h"
 #include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderTarget.h"
@@ -78,8 +79,9 @@ namespace Tiny3D
             }
 
             // 构造相机的三个坐标轴，U(x)，V(y)，N(z)
-            // 这里使用右手系，所以相机空间，相机是看向 -z 轴方向
-            Vector3 N = eye-obj;
+#if (T3D_COORDINATION_RH)
+            // 这里使用右手系，所以相机空间里相机是看向 -z 轴方向
+            Vector3 N = eye - obj;
             N.normalize();
             Vector3 V = up;
             V.normalize();
@@ -87,7 +89,18 @@ namespace Tiny3D
             U.normalize();
             V = N.cross(U);
             V.normalize();
-
+#else
+            // 这里使用左手系，所以相机空间里相机是看向 z 轴方向
+            Vector3 N = obj - eye;
+            N.normalize();
+            Vector3 V = up;
+            V.normalize();
+            Vector3 U = V.cross(N);
+            U.normalize();
+            V = N.cross(U);
+            V.normalize();
+#endif
+            
             // 设置相机位置
             xform->setPosition(eye);
 
@@ -138,8 +151,14 @@ namespace Tiny3D
             invertS[0][0] = REAL_ONE / scale.x();
             invertS[1][1] = REAL_ONE / scale.y();
             invertS[2][2] = REAL_ONE / scale.z();
-        
+
+#if (T3D_COORDINATION_RH)
             mViewMatrix = invertS * invertR * invertT;
+#else
+            Matrix4 matFlipZ(false);
+            matFlipZ[2][2] = -1.0f;
+            mViewMatrix = matFlipZ * invertS * invertR * invertT;
+#endif
             mIsViewDirty = false;
         }
         

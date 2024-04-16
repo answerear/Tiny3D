@@ -27,6 +27,7 @@
 #define __T3D_RASTERIZER_STATE_H__
 
 
+#include "T3DConfig.h"
 #include "Render/T3DRenderResource.h"
 #include "Render/T3DRenderConstant.h"
 
@@ -46,7 +47,11 @@ namespace Tiny3D
         CullingMode CullMode = CullingMode::kBack;
 
         TPROPERTY()
+#if (T3D_COORDINATION_RH)
         bool        FrontAnticlockwise = true;
+#else
+        bool        FrontAnticlockwise = false;
+#endif
         
         TPROPERTY()
         Real        DepthBias = 0.0f;
