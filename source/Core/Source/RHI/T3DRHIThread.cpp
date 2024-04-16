@@ -87,10 +87,13 @@ namespace Tiny3D
 
     TResult RHIThread::run()
     {
-        while (mIsRunning)
+        while (true)
         {
             // 线程等待
             mEvent.wait();
+
+            if (!mIsRunning)
+                break;
             
             // 循环执行 RHI 命令
             for (auto command : mCommandLists[mHanldeCommandListIdx])
