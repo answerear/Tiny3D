@@ -24,7 +24,7 @@
 
 #include "GeometryApp.h"
 
-// #define UVN_CAMERA
+#define UVN_CAMERA
 
 using namespace Tiny3D;
 
