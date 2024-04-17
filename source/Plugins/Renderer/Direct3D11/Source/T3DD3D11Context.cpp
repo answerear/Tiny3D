@@ -660,8 +660,8 @@ namespace Tiny3D
             do
             {
                 // 获取支持的 MSAA
-                UINT uMSAACount = 1;//buffer->getDescriptor().sampleDesc.Count;
-                UINT uMSAAQuality = 0;//buffer->getDescriptor().sampleDesc.Quality;
+                UINT uMSAACount = buffer->getDescriptor().sampleDesc.Count;
+                UINT uMSAAQuality = buffer->getDescriptor().sampleDesc.Quality;
 
                 DXGI_FORMAT format = D3D11Mapping::get(buffer->getDescriptor().format);
 
@@ -680,13 +680,12 @@ namespace Tiny3D
                     }
                 
                     uMSAAQuality = uNumQuality - 1;
-                    // uMSAACount = uNumQuality;
                 }
 
                 // 创建颜色纹理资源
                 D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
-                texDesc.SampleDesc.Count = 1;
-                texDesc.SampleDesc.Quality = 0;
+                texDesc.SampleDesc.Count = uMSAACount;
+                texDesc.SampleDesc.Quality = uMSAAQuality;
                 texDesc.Usage = D3D11Mapping::get(buffer->getUsage()); // 设置纹理用途
                 texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
                 texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
@@ -705,7 +704,7 @@ namespace Tiny3D
                 D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
                 memset(&rtvDesc, 0, sizeof(rtvDesc));
                 rtvDesc.Format = texDesc.Format;
-                rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+                rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;//D3D11_RTV_DIMENSION_TEXTURE2D;
                 hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, &rtvDesc, &d3dPixelBuffer->D3DRTView);
                 if (FAILED(hr))
                 {
@@ -738,7 +737,7 @@ namespace Tiny3D
                 D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
                 memset(&dsvDesc, 0, sizeof(dsvDesc));
                 dsvDesc.Format = depthStencilDesc.Format;
-                dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+                dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;//D3D11_DSV_DIMENSION_TEXTURE2D;
                 dsvDesc.Texture2D.MipSlice = 0;
                 hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DDSTexture, &dsvDesc, &d3dPixelBuffer->D3DDSView);
                 if (FAILED(hr))
@@ -753,7 +752,7 @@ namespace Tiny3D
                 D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
                 memset(&srvDesc, 0, sizeof(srvDesc));
                 srvDesc.Format = texDesc.Format;
-                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;//D3D11_SRV_DIMENSION_TEXTURE2D;
                 srvDesc.Texture2D.MostDetailedMip = 0;
                 srvDesc.Texture2D.MipLevels = 1;
                 hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
