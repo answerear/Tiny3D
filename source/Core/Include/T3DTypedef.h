@@ -87,6 +87,12 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Transform3D);
     T3D_DECLARE_SMART_PTR(Renderable);
     T3D_DECLARE_SMART_PTR(Geometry);
+
+    T3D_DECLARE_SMART_PTR(Bound);
+    T3D_DECLARE_SMART_PTR(SphereBound);
+    T3D_DECLARE_SMART_PTR(AabbBound);
+    T3D_DECLARE_SMART_PTR(ObbBound);
+    T3D_DECLARE_SMART_PTR(FrustumBound);
     
     T3D_DECLARE_SMART_PTR(RenderContext);
     T3D_DECLARE_SMART_PTR(RenderPipeline);

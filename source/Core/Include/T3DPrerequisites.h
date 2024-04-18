@@ -145,6 +145,13 @@ namespace Tiny3D
     class Renderable;
     class Geometry;
 
+    // Bound
+    class Bound;
+    class SphereBound;
+    class AabbBound;
+    class ObbBound;
+    class FrustumBound;
+    
     // Render
     class RenderContext;
     class RenderPipeline;

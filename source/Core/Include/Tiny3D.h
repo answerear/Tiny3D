@@ -78,6 +78,13 @@
 #include <Component/T3DRenderable.h>
 #include <Component/T3DGeometry.h>
 
+// Bound
+#include <Bound/T3DBound.h>
+#include <Bound/T3DSphereBound.h>
+#include <Bound/T3DAabbBound.h>
+#include <Bound/T3DObbBound.h>
+#include <Bound/T3DFrustumBound.h>
+
 // Serialize
 #include <Serializer/T3DSerializer.h>
 #include <Serializer/T3DSerializerManager.h>
