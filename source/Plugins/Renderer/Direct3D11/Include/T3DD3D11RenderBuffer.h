@@ -105,10 +105,13 @@ namespace Tiny3D
         
         ID3D11Texture2D             *D3DTexture {nullptr};
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
-        
+
+        // 用于 render texture 的
         ID3D11RenderTargetView      *D3DRTView {nullptr};
         ID3D11Texture2D             *D3DDSTexture {nullptr};
         ID3D11DepthStencilView      *D3DDSView {nullptr};
+
+        ID3D11Texture2D             *D3DResolveTex {nullptr};
     protected:
         D3D11PixelBuffer2D() = default;
     };

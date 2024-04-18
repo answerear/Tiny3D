@@ -623,12 +623,18 @@ namespace Tiny3D
         TResult setConstantBuffer(uint32_t startSlot, const Buffer &buffer, ID3D11Buffer *pD3DBuffer);
         
     protected:
+        /**
+         * \brief 用于 blit 的 quad 顶点结构
+         */
         struct BlitVertex
         {
             Vector3 position;
             Vector2 uv;
         };
 
+        /**
+         * \brief 用于每帧更新的 cbuffer
+         */
         struct CBufferPerFrame
         {
             Matrix4 matrixV {false};
@@ -636,6 +642,9 @@ namespace Tiny3D
             Matrix4 matrixVP {false};
         };
 
+        /**
+         * \brief 用于每个物体更新的 cbuffer
+         */
         struct CBufferPerDraw
         {
             Matrix4 objectToWorld {false};

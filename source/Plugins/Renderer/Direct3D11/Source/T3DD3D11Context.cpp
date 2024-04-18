@@ -700,11 +700,37 @@ namespace Tiny3D
                     break;
                 }
 
+                if (uMSAACount > 1)
+                {
+                    // 创建 MSAA 解析后的纹理
+                    D3D11_TEXTURE2D_DESC texResolvDesc = texDesc;  
+                    texResolvDesc.SampleDesc.Count = 1;
+                    texResolvDesc.SampleDesc.Quality = 0;
+                    hr = mD3DDevice->CreateTexture2D(&texResolvDesc, nullptr, &d3dPixelBuffer->D3DResolveTex);
+                    if (FAILED(hr))
+                    {
+                        // 错误
+                        ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create resolved color texture failed when create render texture ! DX ERROR [%d]", hr);
+                        break;
+                    }
+                }
+                
                 // 创建渲染目标视图
                 D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
                 memset(&rtvDesc, 0, sizeof(rtvDesc));
                 rtvDesc.Format = texDesc.Format;
-                rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;//D3D11_RTV_DIMENSION_TEXTURE2D;
+                if (uMSAACount == 1)
+                {
+                    // 没开 MSAA
+                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+                }
+                else
+                {
+                    // 开了 MSAA
+                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+                }
+                
                 hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, &rtvDesc, &d3dPixelBuffer->D3DRTView);
                 if (FAILED(hr))
                 {
@@ -714,6 +740,33 @@ namespace Tiny3D
                     break;
                 }
 
+                // 创建着色器资源视图
+                D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+                memset(&srvDesc, 0, sizeof(srvDesc));
+                srvDesc.Format = texDesc.Format;
+                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                srvDesc.Texture2D.MostDetailedMip = 0;
+                srvDesc.Texture2D.MipLevels = 1;
+                ID3D11Texture2D *pD3DTex = nullptr;
+                if (uMSAACount == 1)
+                {
+                    // 没开 MSAA
+                    pD3DTex = d3dPixelBuffer->D3DTexture;
+                }
+                else
+                {
+                    // 开了 MSAA
+                    pD3DTex = d3dPixelBuffer->D3DResolveTex;
+                }
+                hr = mD3DDevice->CreateShaderResourceView(pD3DTex, &srvDesc, &d3dPixelBuffer->D3DSRView);
+                if (FAILED(hr))
+                {
+                    // 错误
+                    ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateShaderResourceView failed when create render texture ! DX ERROR [%d]", hr);
+                    break;
+                }
+                
                 // 创建 depth & stencil 纹理
                 D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(buffer->getDescriptor());
                 depthStencilDesc.SampleDesc.Count = uMSAACount;
@@ -745,22 +798,6 @@ namespace Tiny3D
                     // 错误
                     ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_VIEW;
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilView failed when create render texture ! DX ERROR [%d]", hr);
-                    break;
-                }
-
-                // 创建着色器资源视图
-                D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-                memset(&srvDesc, 0, sizeof(srvDesc));
-                srvDesc.Format = texDesc.Format;
-                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;//D3D11_SRV_DIMENSION_TEXTURE2D;
-                srvDesc.Texture2D.MostDetailedMip = 0;
-                srvDesc.Texture2D.MipLevels = 1;
-                hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
-                if (FAILED(hr))
-                {
-                    // 错误
-                    ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateShaderResourceView failed when create render texture ! DX ERROR [%d]", hr);
                     break;
                 }
             } while (false);
@@ -2461,8 +2498,6 @@ namespace Tiny3D
                             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
                             pD3DSrc = pD3DPixelBuffer->D3DTexture;
                             pD3DSRV = pD3DPixelBuffer->D3DSRView;
-                            // width = pTex2D->getWidth();
-                            // height = pTex2D->getHeight();
                         }
                         break;
                     case TEXTURE_TYPE::TT_2D_ARRAY:
@@ -2478,13 +2513,16 @@ namespace Tiny3D
                             RenderTexture *pTex2D = static_cast<RenderTexture *>(pSrc.get());
                             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
                             pD3DSRV = pD3DPixelBuffer->D3DSRView;
-                            pD3DSrc = pD3DPixelBuffer->D3DTexture;
-                            // D3D11_TEXTURE2D_DESC srcTexDesc;
-                            // pD3DPixelBuffer->D3DTexture->GetDesc(&srcTexDesc);
-                            // D3D11_TEXTURE2D_DESC dstTexDesc;
-                            // pDst->D3DBackBuffer->GetDesc(&dstTexDesc);
-                            // width = pTex2D->getWidth();
-                            // height = pTex2D->getHeight();
+                            if (pD3DPixelBuffer->D3DResolveTex != nullptr)
+                            {
+                                DXGI_FORMAT d3dFormat = D3D11Mapping::get(pTex2D->getPixelFormat());
+                                mD3DDeviceContext->ResolveSubresource(pD3DPixelBuffer->D3DResolveTex, 0, pD3DPixelBuffer->D3DTexture, 0, d3dFormat);
+                                pD3DSrc = pD3DPixelBuffer->D3DResolveTex;
+                            }
+                            else
+                            {
+                                pD3DSrc = pD3DPixelBuffer->D3DTexture;
+                            }
                         }
                         break;
                     }
@@ -2668,9 +2706,6 @@ namespace Tiny3D
         
         // rasterizer state
         mD3DDeviceContext->RSSetState(mBlitRState);
-
-        // D3D11_TEXTURE2D_DESC d3dTexDesc;
-        // pDst->D3DBackBuffer->GetDesc(&d3dTexDesc);
 
         // set viewport
         D3D11_VIEWPORT viewport = {};
