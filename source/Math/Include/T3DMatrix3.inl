@@ -24,6 +24,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::makeZero()
     {
@@ -32,6 +34,8 @@ namespace Tiny3D
         mTuples[6] = mTuples[7] = mTuples[8] = T(0.0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::makeIdentity()
     {
@@ -40,6 +44,8 @@ namespace Tiny3D
         mTuples[6] = T(0.0), mTuples[7] = T(0.0), mTuples[8] = T(1.0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::makeDiagonal(T m00, T m11, T m22)
     {
@@ -48,6 +54,8 @@ namespace Tiny3D
         mTuples[6] = T(0.0), mTuples[7] = T(0.0), mTuples[8] = m22;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::makeTensorProduct(const TVector3<T> &rkU, 
         const TVector3<T> &rkV)
@@ -63,6 +71,8 @@ namespace Tiny3D
         mTuples[8] = rkU[2] * rkV[2];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromAxisAngle(const TVector3<T> &rkAxis, 
         const TRadian<T> &radians)
@@ -91,13 +101,16 @@ namespace Tiny3D
         mTuples[8] = fZ2 * fOneMinusCos + fCos;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3()
     {
         makeZero();
     }
 
-
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(bool isZero)
     {
@@ -111,12 +124,16 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(const TMatrix3 &other)
     {
         memcpy(mTuples, other.mTuples, sizeof(mTuples));
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(
         T m00, T m01, T m02, 
@@ -134,6 +151,8 @@ namespace Tiny3D
         mTuples[8] = m22;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(T tuples[9], bool isRowMajor)
     {
@@ -155,6 +174,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(const TVector3<T> &rkU, const TVector3<T> &rkV, 
         const TVector3<T> &rkW, bool isColumns)
@@ -185,6 +206,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(const TVector3<T> *akV, bool isColumns)
     {
@@ -214,36 +237,48 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(T m00, T m11, T m22)
     {
         makeDiagonal(m00, m11, m22);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(const TVector3<T> &rkAxis, const TRadian<T> &rkRadians)
     {
         fromAxisAngle(rkAxis, rkRadians);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T>::TMatrix3(const TVector3<T> &rkU, const TVector3<T> &rkV)
     {
         makeTensorProduct(rkU, rkV);
     }
 
+    //--------------------------------------------------------------------------
+    
     //template <typename T>
     //inline TMatrix3<T>::operator const T *() const
     //{
     //    return mTuples;
     //}
 
+    //--------------------------------------------------------------------------
+    
     //template <typename T>
     //inline TMatrix3<T>::operator T *()
     //{
     //    return mTuples;
     //}
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline const T *TMatrix3<T>::operator [](size_t nRow) const
     {
@@ -251,6 +286,8 @@ namespace Tiny3D
         return m3x3[nRow];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T *TMatrix3<T>::operator [](size_t nRow)
     {
@@ -258,6 +295,8 @@ namespace Tiny3D
         return m3x3[nRow];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TMatrix3<T>::operator ()(size_t nRow, size_t nCol) const
     {
@@ -265,6 +304,8 @@ namespace Tiny3D
         return mTuples[nRow * 3 + nCol];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T &TMatrix3<T>::operator ()(size_t nRow, size_t nCol)
     {
@@ -272,6 +313,8 @@ namespace Tiny3D
         return mTuples[nRow * 3 + nCol];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::setRow(size_t nRow, const TVector3<T> &rkV)
     {
@@ -282,6 +325,8 @@ namespace Tiny3D
         mTuples[i+2] = rkV[2];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TMatrix3<T>::getRow(size_t nRow) const
     {
@@ -290,6 +335,8 @@ namespace Tiny3D
         return TVector3<T>(mTuples[i], mTuples[i+1], mTuples[i+2]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::setColumn(size_t nCol, const TVector3<T> &rkV)
     {
@@ -299,6 +346,8 @@ namespace Tiny3D
         mTuples[nCol+6] = rkV[2];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TMatrix3<T>::getColumn(size_t nCol) const
     {
@@ -306,6 +355,8 @@ namespace Tiny3D
         return TVector3<T>(mTuples[nCol], mTuples[nCol+3], mTuples[nCol+6]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::getColumnMajor(T *afColumns) const
     {
@@ -320,6 +371,8 @@ namespace Tiny3D
         afColumns[8] = mTuples[8];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> &TMatrix3<T>::operator =(const TMatrix3 &other)
     {
@@ -327,48 +380,64 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline int32_t TMatrix3<T>::compareArrays(const TMatrix3 &other) const
     {
         return memcmp(mTuples, other.mTuples, sizeof(mTuples));
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix3<T>::operator ==(const TMatrix3 &other) const
     {
         return (compareArrays(other) == 0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix3<T>::operator !=(const TMatrix3 &other) const
     {
         return (compareArrays(other) != 0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix3<T>::operator <(const TMatrix3 &other) const
     {
         return (compareArrays(other) < 0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix3<T>::operator <=(const TMatrix3 &other) const
     {
         return (compareArrays(other) <= 0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix3<T>::operator >(const TMatrix3 &other) const
     {
         return (compareArrays(other) > 0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix3<T>::operator >=(const TMatrix3 &other) const
     {
         return (compareArrays(other) >= 0);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::operator +(const TMatrix3 &other) const
     {
@@ -384,6 +453,8 @@ namespace Tiny3D
             mTuples[8] + other.mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::operator -(const TMatrix3 &other) const
     {
@@ -399,6 +470,8 @@ namespace Tiny3D
             mTuples[8] - other.mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::operator *(const TMatrix3 &other) const
     {
@@ -415,6 +488,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::operator *(T scalar) const
     {
@@ -424,6 +499,8 @@ namespace Tiny3D
             mTuples[6] * scalar, mTuples[7] * scalar, mTuples[8] * scalar);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::operator /(T scalar) const
     {
@@ -435,6 +512,8 @@ namespace Tiny3D
         return ZERO;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::operator -() const
     {
@@ -444,6 +523,8 @@ namespace Tiny3D
             -mTuples[6], -mTuples[7], -mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> &TMatrix3<T>::operator +=(const TMatrix3 &other)
     {
@@ -459,6 +540,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> &TMatrix3<T>::operator -=(const TMatrix3 &other)
     {
@@ -474,6 +557,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> &TMatrix3<T>::operator *=(T scalar)
     {
@@ -489,6 +574,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> &TMatrix3<T>::operator /=(T scalar)
     {
@@ -511,6 +598,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TMatrix3<T>::operator *(const TVector3<T> &rkV) const
     {
@@ -520,6 +609,8 @@ namespace Tiny3D
             mTuples[6] * rkV[0] + mTuples[7] * rkV[1] + mTuples[8] * rkV[2]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::transpose() const
     {
@@ -529,6 +620,8 @@ namespace Tiny3D
             mTuples[2], mTuples[5], mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::transposeTimes(const TMatrix3 &other) const
     {
@@ -544,6 +637,8 @@ namespace Tiny3D
             mTuples[2] * other.mTuples[2] + mTuples[5] * other.mTuples[5] + mTuples[8] * other.mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::timesTranspose(const TMatrix3 &other) const
     {
@@ -559,6 +654,8 @@ namespace Tiny3D
             mTuples[6] * other.mTuples[6] + mTuples[7] * other.mTuples[7] + mTuples[8] * other.mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::inverse() const
     {
@@ -634,15 +731,15 @@ namespace Tiny3D
         return matInverse;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TMatrix3<T>::determinant() const
     {
         // This 3x3 matrix : 
-        //        +-        -+
         //    A = | A0 A1 A2 |
         //        | A3 A4 A5 |
         //        | A6 A7 A8 |
-        //        +-        -+
         // 
         // det(A) = A0 * A4 * A8 + A1 * A5 * A6 + A2 * A3 * A7 - A2 * A4 * A6 - A1 * A3 * A8 - A0 * A5 * A7
         // equal to
@@ -655,12 +752,16 @@ namespace Tiny3D
         return mTuples[0] * fCofactor00 + mTuples[1] * fCofactor01 + mTuples[2] * fCofactor02;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TMatrix3<T>::qform(const TVector3<T> &rkU, const TVector3<T> &rkV) const
     {
         return rkU.dot((*this) * rkV);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::timesDiagonal(const TVector3<T> &rkDiag) const
     {
@@ -670,6 +771,8 @@ namespace Tiny3D
             mTuples[6] * rkDiag[0], mTuples[7] * rkDiag[1], mTuples[8] * rkDiag[2]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> TMatrix3<T>::diagonalTimes(const TVector3<T> &rkDiag) const
     {
@@ -679,6 +782,8 @@ namespace Tiny3D
             rkDiag[2] * mTuples[6], rkDiag[2] * mTuples[7], rkDiag[2] * mTuples[8]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromEulerAnglesXYZ(const TRadian<T> &rkPitch, const TRadian<T> &rkYaw, const TRadian<T> &rkRoll)
     {
@@ -708,6 +813,8 @@ namespace Tiny3D
         *this = matX * (matY * matZ);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromEulerAnglesXZY(const TRadian<T> &rkPitch, const TRadian<T> &rkRoll, const TRadian<T> &rkYaw)
     {
@@ -737,6 +844,8 @@ namespace Tiny3D
         *this = matX * (matZ * matY);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromEulerAnglesYXZ(const TRadian<T> &rkYaw, const TRadian<T> &rkPitch, const TRadian<T> &rkRoll)
     {
@@ -766,6 +875,8 @@ namespace Tiny3D
         *this = matY * (matX * matZ);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromEulerAnglesYZX(const TRadian<T> &rkYaw, const TRadian<T> &rkRoll, const TRadian<T> &rkPitch)
     {
@@ -795,6 +906,8 @@ namespace Tiny3D
         *this = matY * (matZ * matX);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromEulerAnglesZXY(const TRadian<T> &rkRoll, const TRadian<T> &rkPitch, const TRadian<T> &rkYaw)
     {
@@ -824,6 +937,8 @@ namespace Tiny3D
         *this = matZ * (matX * matY);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix3<T>::fromEulerAnglesZYX(const TRadian<T> &rkRoll, const TRadian<T> &rkYaw, const TRadian<T> &rkPitch)
     {
@@ -853,12 +968,16 @@ namespace Tiny3D
         *this = matZ * (matY * matX);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix3<T> operator *(T scalar, const TMatrix3<T> &rkM)
     {
         return rkM * scalar;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> operator *(const TVector3<T> &rkV, const TMatrix3<T> &rkM)
     {
@@ -868,18 +987,24 @@ namespace Tiny3D
             rkV[0] * rkM[0][2] + rkV[1] * rkM[1][2] + rkV[2] * rkM[2][2]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     const TMatrix3<T> TMatrix3<T>::ZERO(
         T(0.0), T(0.0), T(0.0),
         T(0.0), T(0.0), T(0.0),
         T(0.0), T(0.0), T(0.0));
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     const TMatrix3<T> TMatrix3<T>::IDENTITY(
         T(1.0), T(0.0), T(0.0),
         T(0.0), T(1.0), T(0.0),
         T(0.0), T(0.0), T(1.0));
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix3<T>::toAxisAngle(TVector3<T> &rAxis, TRadian<T> &rRadians) const
     {
@@ -887,11 +1012,9 @@ namespace Tiny3D
         // The rotation matrix is R = I + sin(A)*P + (1-cos(A))*P^2 where
         // I is the identity and
         //
-        //       +-        -+
         //   P = |  0 -z +y |
         //       | +z  0 -x |
         //       | -y +x  0 |
-        //       +-        -+
         //
         // If A > 0, R represents a counterclockwise rotation about the axis in
         // the sense of looking from the tip of the axis vector towards the
@@ -978,19 +1101,18 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     TMatrix3<T> TMatrix3<T>::adjoint() const
     {
         // This 3x3 matrix :
-        //          +-        -+
         //          | A0 A1 A2 |
         //      A = | A3 A4 A5 |
         //          | A6 A7 A8 |
-        //          +-        -+
         //
         // The adjoint of this 3x3 matrix :
         //
-        //          +-                                  -+
         //          |  | A4 A5 |   | A1 A2 |   | A1 A2 | |
         //          | +| A7 A8 |  -| A7 A8 |  +| A4 A5 | |
         //          |                                    |
@@ -999,7 +1121,6 @@ namespace Tiny3D
         //          |                                    |
         //          |  | A3 A4 |   | A0 A1 |   | A0 A1 | |
         //          | +| A6 A7 |  -| A6 A7 |  +| A3 A4 | |
-        //          +-                                  -+
 
         TMatrix3 matAdjoint;
         T fSum = 0.0;
@@ -1053,6 +1174,8 @@ namespace Tiny3D
         return matAdjoint;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix3<T>::orthonormalize()
     {
@@ -1108,14 +1231,14 @@ namespace Tiny3D
         mTuples[8] /= fLength;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     bool TMatrix3<T>::toEulerAnglesXYZ(TRadian<T> &rPitch, TRadian<T> &rYaw, TRadian<T> &rRoll) const
     {
-        //          +-                                      -+
         //          |  cy*cz          -cy*sz           sy    |
         // rot(A) = |  cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx |
         //          | -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy |
-        //          +-                                      -+
 
         rYaw = TMath<T>::asin(mTuples[2]);
 
@@ -1147,14 +1270,14 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     bool TMatrix3<T>::toEulerAnglesXZY(TRadian<T> &rPitch, TRadian<T> &rRoll, TRadian<T> &rYaw) const
     {
-        //          +-                                      -+
         //          |  cy*cz          -sz     cz*sy          |
         // rot(A) = |  sx*sy+cx*cy*sz  cx*cz -cy*sx+cx*sy*sz |
         //          | -cx*sy+cy*sx*sz  cz*sx  cx*cy+sx*sy*sz |
-        //          +-                                      -+
 
         rRoll = TMath<T>::asin(-mTuples[1]);
 
@@ -1186,14 +1309,14 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     bool TMatrix3<T>::toEulerAnglesYXZ(TRadian<T> &rYaw, TRadian<T> &rPitch, TRadian<T> &rRoll) const
     {
-        //          +-                                      -+
         //          |  cy*cz+sx*sy*sz  cz*sx*sy-cy*sz  cx*sy |
         // rot(A) = |  cx*sz           cx*cz          -sx    |
         //          | -cz*sy+cy*sx*sz  cy*cz*sx+sy*sz  cx*cy |
-        //          +-                                      -+
 
         rPitch = TMath<T>::asin(-mTuples[4]);
 
@@ -1225,14 +1348,14 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     bool TMatrix3<T>::toEulerAnglesYZX(TRadian<T> &rYaw, TRadian<T> &rRoll, TRadian<T> &rPitch) const
     {
-        //          +-                                      -+
         //          |  cy*cz  sx*sy-cx*cy*sz  cx*sy+cy*sx*sz |
         // rot(A) = |  sz     cx*cz          -cz*sx          |
         //          | -cz*sy  cy*sx+cx*sy*sz  cx*cy-sx*sy*sz |
-        //          +-                                      -+
 
         rRoll = TMath<T>::asin(mTuples[3]);
 
@@ -1265,14 +1388,14 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     bool TMatrix3<T>::toEulerAnglesZXY(TRadian<T> &rRoll, TRadian<T> &rPitch, TRadian<T> &rYaw) const
     {
-        //          +-                                     -+
         //          | cy*cz-sx*sy*sz -cx*sz  cz*sy+cy*sx*sz |
         // rot(A) = | cz*sx*sy+cy*sz  cx*cz -cy*cz*sx+sy*sz |
         //          | -cx*sy          sx              cx*cy |
-        //          +-                                     -+
 
         rPitch = TMath<T>::asin(mTuples[7]);
 
@@ -1304,14 +1427,14 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     bool TMatrix3<T>::toEulerAnglesZYX(TRadian<T> &rRoll, TRadian<T> &rYaw, TRadian<T> &rPitch) const
     {
-        //          +-                                     -+
         //          | cy*cz  cz*sx*sy-cx*sz  cx*cz*sy+sx*sz |
         // rot(A) = | cy*sz  cx*cz+sx*sy*sz -cz*sx+cx*sy*sz |
         //          | -sy             cy*sx           cx*cy |
-        //          +-                                     -+
 
         rYaw = TMath<T>::asin(-mTuples[6]);
         if (rYaw < TRadian<T>(TMath<T>::HALF_PI))
@@ -1342,6 +1465,8 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix3<T>::QDUDecomposition(TMatrix3& kQ, TVector3<T>& kD, TVector3<T>& kU) const
     {
@@ -1450,14 +1575,18 @@ namespace Tiny3D
         kU[2] = kR[1][2] / kD[1];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
-    TArray<T> TMatrix3<T>::getData() const
+    inline TArray<T> TMatrix3<T>::getData() const
     {
         return TArray<T>(mTuples, mTuples + 9);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
-    void TMatrix3<T>::setData(TArray<T> data)
+    inline void TMatrix3<T>::setData(TArray<T> data)
     {
         for (size_t i = 0; i < 9; i++)
         {
