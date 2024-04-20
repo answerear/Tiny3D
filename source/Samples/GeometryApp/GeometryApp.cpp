@@ -24,7 +24,7 @@
 
 #include "GeometryApp.h"
 
-#define UVN_CAMERA
+// #define UVN_CAMERA
 
 #if (T3D_COORDINATION_RH)
 #define USE_COORDINATION_RH
@@ -91,8 +91,13 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->lookAt(eye, obj, Vector3::UP);
 #else
     xform->setPosition(eye);
+#if defined (USE_COORDINATION_RH)
     Radian xAngle(Degree(-25.0f));
     Radian yAngle(Math::PI * 0.25f);
+#else
+    Radian xAngle(Degree(25.0f));
+    Radian yAngle(-Math::PI * 0.25f);
+#endif
     Radian zAngle(0.0f);
     xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
 #endif
