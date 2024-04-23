@@ -46,7 +46,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="getter", "Description"="Oriented Bounding Box")
         const Obb &getObb() const { return mObb; }
 
-        TPROPERTY(RTTRFuncName="originOBB", RTTRFuncType="getter", "Description"="Original Oriented Bounding Box")
+        TPROPERTY(RTTRFuncName="originalOBB", RTTRFuncType="getter", "Description"="Original Oriented Bounding Box")
         const Obb& getOriginalObb() const { return mOriginalObb; }
 
         TFUNCTION()
@@ -100,10 +100,10 @@ namespace Tiny3D
 
     private:
         TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="setter", "Description"="Oriented Bounding Box")
-        void setAlignAxisBox(const Obb &obb) { mObb = obb; }
+        void setObb(const Obb &obb) { mObb = obb; }
 
         TPROPERTY(RTTRFuncName="originalOBB", RTTRFuncType="setter", "Description"="Original Oriented Bounding Box")
-        void setOriginalAlignAxisBox(const Obb &obb) { mOriginalObb = obb; }
+        void setOriginalObb(const Obb &obb) { mOriginalObb = obb; }
         
     private:
         /// 实时变换的OBB

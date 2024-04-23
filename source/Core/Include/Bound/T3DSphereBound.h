@@ -83,10 +83,10 @@ namespace Tiny3D
         void update();
 
     private:
-        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="getter", "Description"="Sphere")
+        TPROPERTY(RTTRFuncName="sphere", RTTRFuncType="setter", "Description"="Sphere")
         void setSphere(const Sphere &sphere) { mSphere = sphere; }
 
-        TPROPERTY(RTTRFuncName="originalSphere", RTTRFuncType="getter", "Description"="OriginalSphere")
+        TPROPERTY(RTTRFuncName="originalSphere", RTTRFuncType="setter", "Description"="OriginalSphere")
         void setOriginalSphere(const Sphere &sphere) { mOriginalSphere = sphere; }
 
     private:

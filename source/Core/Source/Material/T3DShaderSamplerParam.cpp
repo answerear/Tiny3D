@@ -26,6 +26,7 @@
 #include "Material/T3DShaderSamplerParam.h"
 #include "Kernel/T3DAgent.h"
 #include "Resource/T3DTextureManager.h"
+#include "Resource/T3DTexture.h"
 
 
 namespace Tiny3D
