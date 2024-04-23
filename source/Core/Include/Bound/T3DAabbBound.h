@@ -44,10 +44,10 @@ namespace Tiny3D
         ComponentPtr clone() const override;
 
         TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="getter", "Description"="Aligned Axis Bounding Box")
-        const Aabb &getAlignAxisBox() const { return mAabb; }
+        const Aabb &getAabb() const { return mAabb; }
 
         TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="getter", "Description"="Original Aligned Axis Bounding Box")
-        const Aabb& getOriginalAlignAxisBox() const { return mOriginalAabb; }
+        const Aabb& getOriginalAabb() const { return mOriginalAabb; }
 
         TFUNCTION()
         void setParams(Real minX, Real maxX, Real minY, Real maxY, Real minZ, Real maxZ)
@@ -80,10 +80,10 @@ namespace Tiny3D
 
     private:
         TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="setter", "Description"="Aligned Axis Bounding Box")
-        void setAlignAxisBox(const Aabb &aabb) { mAabb = aabb; }
+        void setAabb(const Aabb &aabb) { mAabb = aabb; }
 
         TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="setter", "Description"="Original Aligned Axis Bounding Box")
-        void setOriginalAlignAxisBox(const Aabb &aabb) { mOriginalAabb = aabb; }
+        void setOriginalAabb(const Aabb &aabb) { mOriginalAabb = aabb; }
 
     private:
         /// 实时变换的AABB
