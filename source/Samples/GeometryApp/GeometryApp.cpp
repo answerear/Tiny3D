@@ -25,6 +25,7 @@
 #include "GeometryApp.h"
 
 // #define UVN_CAMERA
+// #define PERSPECTIVE_CAMERA
 
 #if (T3D_COORDINATION_RH)
 #define USE_COORDINATION_RH
@@ -89,6 +90,7 @@ void GeometryApp::buildCamera(Transform3D *parent)
     camera->setClearColor(ColorRGB::GRAY);
     camera->setRenderTarget(rt);
     
+#if defined (PERSPECTIVE_CAMERA)
     // camera for perspective
     camera->setProjectionType(Camera::Projection::kPerspective);
     camera->setFovY(Radian(Math::PI / 3.0f));
@@ -97,6 +99,15 @@ void GeometryApp::buildCamera(Transform3D *parent)
     camera->setAspectRatio(as);
     camera->setNearPlaneDistance(0.1f);
     camera->setFarPlaneDistance(10.0f);
+#else
+    // camera for orthographic
+    camera->setProjectionType(Camera::Projection::kOrthographic);
+    camera->setWidth(Real(rw->getDescriptor().Width));
+    camera->setHeight(Real(rw->getDescriptor().Height));
+    camera->setNearPlaneDistance(0.1f);
+    camera->setFarPlaneDistance(1000.0f);
+#endif
+    
     
     // construct camera position & orientation & scaling
 #if defined (USE_COORDINATION_RH)
@@ -132,6 +143,10 @@ void GeometryApp::buildCube(Transform3D *parent)
     GameObjectPtr go = GameObject::create("Cube");
     Transform3DPtr xform = go->addComponent<Transform3D>();
     parent->addChild(xform);
+#if !defined (PERSPECTIVE_CAMERA)
+    xform->setPosition(0.0f, 0.0f, 200.0f);
+    xform->setScaling(100.0f, 100.0f, 100.0f);
+#endif
     
     // geometry component
     GeometryPtr geometry = go->addComponent<Geometry>();
