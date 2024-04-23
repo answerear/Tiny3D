@@ -86,7 +86,7 @@ namespace Tiny3D
         virtual Renderable *getRenderable() = 0;
 
     protected:
-        Bound(const UUID &uuid = UUID::INVALID);
+        Bound() = default;
 
         virtual bool testSphere(const Sphere &sphere) const = 0;
 

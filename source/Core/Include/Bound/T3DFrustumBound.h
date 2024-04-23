@@ -34,7 +34,7 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
-        static FrustumBoundPtr create(const UUID &uuid = UUID::INVALID);
+        static FrustumBoundPtr create();
 
         ~FrustumBound() override;
 
@@ -58,7 +58,7 @@ namespace Tiny3D
         Renderable *getRenderable() override;
 
     protected:
-        FrustumBound(const UUID &uuid = UUID::INVALID);
+        FrustumBound() = default;
 
         bool testSphere(const Sphere &sphere) const override;
 
@@ -87,9 +87,9 @@ namespace Tiny3D
 
     private:
         /// 可变换的视锥体对象
-        Frustum mFrustum;
+        Frustum mFrustum {};
         /// 不参与变换的原始视锥体
-        Frustum mOriginalFrustum;
+        Frustum mOriginalFrustum {};
     };
 }
 

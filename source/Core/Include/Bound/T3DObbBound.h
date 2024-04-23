@@ -34,7 +34,7 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
-        static ObbBoundPtr create(const UUID &uuid = UUID::INVALID);
+        static ObbBoundPtr create();
 
         ~ObbBound() override;
 
@@ -78,7 +78,7 @@ namespace Tiny3D
         Renderable *getRenderable() override;
 
     protected:
-        ObbBound(const UUID &uuid = UUID::INVALID);
+        ObbBound() = default;
 
         bool testSphere(const Sphere &sphere) const override;
 

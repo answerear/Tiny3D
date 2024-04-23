@@ -19,24 +19,18 @@
 
 
 #include "Bound/T3DAabbBound.h"
+#include "Component/T3DGeometry.h"
 #include "Component/T3DTransform3D.h"
+#include "Resource/T3DMesh.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    AabbBoundPtr AabbBound::create(const UUID &uuid)
+    AabbBoundPtr AabbBound::create()
     {
-        return new AabbBound(uuid);
-    }
-
-    //--------------------------------------------------------------------------
-
-    AabbBound::AabbBound(const UUID &uuid)
-        : Bound(uuid)
-    {
-
+        return new AabbBound();
     }
 
     //--------------------------------------------------------------------------

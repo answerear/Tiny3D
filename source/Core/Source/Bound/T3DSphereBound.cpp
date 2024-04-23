@@ -26,21 +26,13 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SphereBoundPtr SphereBound::create(const UUID &uuid)
+    SphereBoundPtr SphereBound::create()
     {
-        return new SphereBound(uuid);
+        return new SphereBound();
     }
 
     //--------------------------------------------------------------------------
-
-    SphereBound::SphereBound(const UUID &uuid)
-        : Bound(uuid)
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
+    
     SphereBound::~SphereBound()
     {
     }

@@ -26,17 +26,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ObbBoundPtr ObbBound::create(const UUID &uuid)
+    ObbBoundPtr ObbBound::create()
     {
-        return new ObbBound(uuid);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ObbBound::ObbBound(const UUID &uuid)
-        : Bound(uuid)
-    {
-
+        return new ObbBound();
     }
 
     //--------------------------------------------------------------------------
