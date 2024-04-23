@@ -257,8 +257,10 @@ namespace Tiny3D
                 // O_gl_rh = M_dx2gl * O_dx_rh
                 
                 // 这里使用 OpenGL RH 作为正交投影矩阵
-                const Real m00 = 2.0f / mWidth;
-                const Real m11 = 2.0f / mHeight;
+                Real h = mOrthographicSize * 2.0f;
+                Real w = mAspectRatio * h;
+                const Real m00 = 2.0f / w;
+                const Real m11 = 2.0f / h;
                 const Real m22 = -2.0f / (mFar - mNear);
                 const Real m23 = -(mFar + mNear) / (mFar - mNear);
         
@@ -355,8 +357,7 @@ namespace Tiny3D
             mProjectionType = other->mProjectionType;
             mFovY = other->mFovY;
             mAspectRatio = other->mAspectRatio;
-            mWidth = other->mWidth;
-            mHeight = other->mHeight;
+            mOrthographicSize = other->mOrthographicSize;
             mFar = other->mFar;
             mNear = other->mNear;
         } while (false);

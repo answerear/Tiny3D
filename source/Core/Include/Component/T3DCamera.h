@@ -119,17 +119,11 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="AspectRatio", RTTRFuncType="setter")
         void setAspectRatio(const Real &ratio) { mAspectRatio = ratio; mIsProjDirty = true; }
 
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="getter")
-        const Real &getWidth() const { return mWidth; }
+        TPROPERTY(RTTRFuncName="OrthographicSize", RTTRFuncType="getter")
+        const Real &getOrthographicSize() const { return mOrthographicSize; }
 
-        TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
-        void setWidth(const Real &width) { mWidth = width; mIsProjDirty = true; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="getter")
-        const Real &getHeight() const { return mHeight; }
-
-        TPROPERTY(RTTRFuncName="Height", RTTRFuncType="setter")
-        void setHeight(const Real &height) { mHeight = height; mIsProjDirty = true; }
+        TPROPERTY(RTTRFuncName="OrthographicSize", RTTRFuncType="setter")
+        void setOrthographicSize(const Real &size) { mOrthographicSize = size; mIsProjDirty = true; }
 
         TPROPERTY(RTTRFuncName="FarPlane", RTTRFuncType="getter")
         const Real &getFarPlaneDistance() const { return mFar; }
@@ -194,10 +188,8 @@ namespace Tiny3D
         Radian  mFovY {Math::PI / REAL_HALF};
         /// 宽高比，用于透视投影
         Real    mAspectRatio {16.0f / 9.0f};
-        /// 视口宽度，用于正交投影
-        Real    mWidth {REAL_ZERO};
-        /// 视口高度，用于正交投影
-        Real    mHeight {REAL_ZERO};
+        /// 正交相机下的高度的一半大小
+        Real    mOrthographicSize {1.0f};
         /// 远平面
         Real    mFar {REAL_ZERO};
         /// 近平面
