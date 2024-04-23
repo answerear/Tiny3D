@@ -24,14 +24,59 @@
 
 
 #include "Kernel/T3DGameObject.h"
+
+#include "Bound/T3DFrustumBound.h"
+#include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransformNode.h"
 #include "Component/T3DComponent.h"
+#include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderPipeline.h"
-
+#include "bound/T3DBound.h"
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    GameObject::WaitingDestroyComponents GameObject::mWaitingDestroyComponents;
+    GameObject::WaitingDestroyGameObjects GameObject::mWaitingDestroyGameObjects;
+    
+    //--------------------------------------------------------------------------
+
+    void GameObject::destroyComponent(Component *component)
+    {
+        auto itr = std::find(mWaitingDestroyComponents.begin(), mWaitingDestroyComponents.end(), component);
+        if (itr == mWaitingDestroyComponents.end())
+        {
+            mWaitingDestroyComponents.emplace_back(component);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::destroyComponents()
+    {
+        while (!mWaitingDestroyComponents.empty())
+        {
+            Component *component = mWaitingDestroyComponents.front();
+            component->onDestroy();
+            component->setGameObject(nullptr);
+            mWaitingDestroyComponents.pop_front();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::destroyGameObjects()
+    {
+        while (!mWaitingDestroyGameObjects.empty())
+        {
+            GameObject *go = mWaitingDestroyGameObjects.front();
+            go->onDestroy();
+            mWaitingDestroyGameObjects.pop_front();
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     GameObjectPtr GameObject::create(const String &name)
@@ -44,7 +89,12 @@ namespace Tiny3D
     GameObject::GameObject(const String &name)
         : mName(name)
     {
-        
+        const ComponentSettings &settings = T3D_AGENT.getSettings().componentSettins;
+        int32_t i = 0;
+        for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)
+        {
+            mUpdateComponents.emplace(i, ComponentList());
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -56,17 +106,37 @@ namespace Tiny3D
         {
             node->visitActive([](TransformNode *node)
             {
-                node->onUpdate();
-
                 GameObject *go = node->getGameObject();
-                for (auto component : go->getComponents<Component>())
-                {
-                    if (component != node)
-                    {
-                        component->onUpdate();
-                    }
-                }
+                go->onUpdate();
+                // node->onUpdate();
+                //
+                // GameObject *go = node->getGameObject();
+                // for (auto component : go->getComponents<Component>())
+                // {
+                //     if (component != node)
+                //     {
+                //         component->onUpdate();
+                //     }
+                // }
             });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::onUpdate()
+    {
+        for (auto item : mUpdateComponents)
+        {
+            for (auto component : item.second)
+            {
+                component->onUpdate();
+            }
+        }
+
+        for (auto item : mUpdateComponents2)
+        {
+            item.second->onUpdate();
         }
     }
 
@@ -75,36 +145,58 @@ namespace Tiny3D
     void GameObject::frustumCulling(Camera *camera, RenderPipeline *pipeline) const
     {
         TransformNodePtr node = getComponent<TransformNode>();
-        if (node != nullptr)
+        if (node != nullptr && camera != nullptr)
         {
-            node->visitVisible([](TransformNode *node, Camera *camera, RenderPipeline *pipeline)
+            FrustumBound *frustum = camera->getGameObject()->getComponent<FrustumBound>();
+            node->visitVisible([](TransformNode *node, Camera *camera, FrustumBound *frustum, RenderPipeline *pipeline)
             {
                 GameObject *go = node->getGameObject();
-                TArray<RenderablePtr> renderables = go->getComponents<Renderable>();
-                for (const auto &renderable : renderables)
+                Renderable *renderable = go->getComponent<Renderable>();
+                Bound *bound = go->getComponent<Bound>();
+                if (renderable != nullptr)
                 {
-                    if (renderable != nullptr)
+                    if (bound == nullptr || frustum == nullptr)
                     {
-                        // TODO : 暂时不剔除
+                        // 没有包围盒，不剔除，直接渲染
                         pipeline->addRenderable(camera, renderable);
+                    }
+                    else
+                    {
+                        // 有包围盒，根据包围盒来判断
+                        if (frustum->test(bound))
+                        {
+                            pipeline->addRenderable(camera, renderable);
+                        }
                     }
                 }
             },
-            camera, pipeline);
+            camera, frustum, pipeline);
         }
     }
 
     //--------------------------------------------------------------------------
 
-    void GameObject::destroy()
+    void GameObject::destroy(GameObject *gameObject)
     {
-        TransformNodePtr node = getComponent<TransformNode>();
+        TransformNodePtr node = gameObject->getComponent<TransformNode>();
         if (node != nullptr)
         {
             node->reverseVisitAll([](TransformNode *node)
             {
-                node->getGameObject()->onDestroy();
+                node->getGameObject()->removeAllComponents();
+                destroyGameObject(node->getGameObject());
             });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::destroyGameObject(GameObject *gameObject)
+    {
+        auto itr = std::find(mWaitingDestroyGameObjects.begin(), mWaitingDestroyGameObjects.end(), gameObject);
+        if (itr == mWaitingDestroyGameObjects.end())
+        {
+            mWaitingDestroyGameObjects.emplace_back(gameObject);
         }
     }
 
@@ -112,7 +204,7 @@ namespace Tiny3D
 
     void GameObject::onDestroy()
     {
-        removeAllComponents();
+        
     }
 
     //--------------------------------------------------------------------------
@@ -139,8 +231,30 @@ namespace Tiny3D
 
             component = comp;
             component->setGameObject(this);
-            
+
+            // 放入组件对象表里
             mComponents.emplace(type, component);
+
+            // 放入组件更新队列
+            const ComponentSettings &settings = T3D_AGENT.getSettings().componentSettins;
+            int32_t i = 0;
+            for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)
+            {
+                if (*it == type.get_name())
+                {
+                    auto itUpdate = mUpdateComponents.find(i);
+                    T3D_ASSERT(itUpdate != mUpdateComponents.end(), "GameObject::addComponent");
+                    itUpdate->second.emplace_back(component);
+                    break;
+                }
+            }
+
+            int32_t orderCount = (int32_t)settings.updateOrders.size();
+            if (i == orderCount)
+            {
+                // 不在预设序列里面，直接放到乱序更新队列
+                mUpdateComponents2.emplace(type.get_name(), component);
+            }
             
             component->onStart();
         } while (false);
@@ -154,10 +268,12 @@ namespace Tiny3D
     {
         for (auto itr = mComponents.begin(); itr != mComponents.end(); ++itr)
         {
-            itr->second->destroy();
+            destroyComponent(itr->second);
         }
 
         mComponents.clear();
+        mUpdateComponents.clear();
+        mUpdateComponents2.clear();
     }
 
     //--------------------------------------------------------------------------
@@ -176,7 +292,7 @@ namespace Tiny3D
                 break;
             }
 
-            itr->second->destroy();
+            destroyComponent(itr->second);
             mComponents.erase(itr);
         } while (false);
         
@@ -200,7 +316,7 @@ namespace Tiny3D
             
             for (auto itr = range.first; itr != range.second; ++itr)
             {
-                itr->second->destroy();
+                destroyComponent(itr->second);
                 mComponents.erase(itr);
             }
         } while (false);

@@ -78,6 +78,10 @@ namespace Tiny3D
 
         void update();
 
+        void onStart() override;
+
+        void onDestroy() override;
+
     private:
         TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter", "Description"="Frustum")
         void setFrustum(const Frustum &frustum) { mFrustum = frustum; }
@@ -90,6 +94,8 @@ namespace Tiny3D
         Frustum mFrustum {};
         /// 不参与变换的原始视锥体
         Frustum mOriginalFrustum {};
+
+        Transform3DPtr  mXformNode {nullptr};
     };
 }
 

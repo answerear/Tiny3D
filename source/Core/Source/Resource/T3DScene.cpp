@@ -124,6 +124,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Scene::removeAll()
+    {
+        for (auto itr = mRootGameObjects.rbegin(); itr != mRootGameObjects.rend(); ++itr)
+        {
+            GameObject::destroy(*itr);
+        }
+
+        mRootGameObjects.clear();
+        mCameras.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
     void Scene::update()
     {
         for (auto go : mRootGameObjects)
@@ -221,19 +234,9 @@ namespace Tiny3D
 
     TResult Scene::onUnload()
     {
-        TResult ret = T3D_OK;
-
-        for (auto itr = mRootGameObjects.rbegin(); itr != mRootGameObjects.rend(); ++itr)
-        {
-            (*itr)->destroy();
-        }
-
-        mRootGameObjects.clear();        
-        mCameras.clear();
+        removeAll();
         
-        ret = Resource::onUnload();
-
-        return ret;
+        return Resource::onUnload();
     }
 
     //--------------------------------------------------------------------------

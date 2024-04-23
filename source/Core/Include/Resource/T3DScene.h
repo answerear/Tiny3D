@@ -56,6 +56,8 @@ namespace Tiny3D
 
         void removeRootGameObject(const UUID &uuid);
 
+        void removeAll();
+
         virtual void update();
 
         TResult addCamera(Camera *camera);

@@ -41,9 +41,13 @@ protected:  /// from Tiny3D::Application
     void applicationWillTerminate() override;
 
 protected:
+    void buildCamera(Tiny3D::Transform3D *parent);
+    void buildCube(Tiny3D::Transform3D *parent);
+    
     Tiny3D::Texture2DPtr buildTexture();
     Tiny3D::MaterialPtr buildMaterial();
     Tiny3D::MeshPtr buildMesh();
+    void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
 };
 
 

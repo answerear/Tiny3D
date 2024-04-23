@@ -115,6 +115,10 @@ namespace Tiny3D
         const VertexAttribute *findVertexAttributeBySemantic(VertexAttribute::Semantic semantic, uint32_t semanticIndex) const;
 
         void flushVertexAttributes();
+
+        uint32_t getVertexStride(uint32_t slot) const { return mVertexStrides[slot]; }
+
+        uint32_t getVertexOffset(uint32_t slot) const { return mVertexOffsets[slot]; }
         
     protected:
         Mesh() = default;

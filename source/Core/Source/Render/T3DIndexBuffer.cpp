@@ -45,7 +45,15 @@ namespace Tiny3D
         , mIndexType(idxType)
         , mIndexCount(idxCount)
     {
-        
+        switch (mIndexType)
+        {
+        case IndexType::E_IT_16BITS:
+            mIndexSize = sizeof(uint16_t);
+            break;
+        case IndexType::E_IT_32BITS:
+            mIndexSize = sizeof(uint32_t);
+            break;
+        }
     }
 
     //--------------------------------------------------------------------------

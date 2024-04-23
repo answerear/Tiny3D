@@ -37,6 +37,8 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API Component : public Object, public Noncopyable
     {
+        friend class GameObject;
+        
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND
      
@@ -53,8 +55,6 @@ namespace Tiny3D
         virtual void onStart();
         
         virtual void onUpdate();
-
-        void destroy();
 
     protected:
         Component() = default;

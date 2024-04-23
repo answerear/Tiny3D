@@ -40,6 +40,10 @@ namespace Tiny3D
         
     public:
         static GameObjectPtr create(const String &name);
+
+        static void destroyComponents();
+
+        static void destroyGameObjects();
         
         ~GameObject() override = default;
 
@@ -71,7 +75,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="getter")
         uint32_t getCameraMask() const { return mCameraMask; }
 
-        void destroy();
+        static void destroy(GameObject *gameObject);
 
         /**
          * \brief 添加指定类名的组件
@@ -223,6 +227,12 @@ namespace Tiny3D
         }
 
         virtual void onDestroy();
+
+        void onUpdate();
+
+        static void destroyComponent(Component *component);
+
+        static void destroyGameObject(GameObject *gameObject);
         
     private:
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
@@ -242,7 +252,25 @@ namespace Tiny3D
 
         using Components = TMultimap<RTTRType, ComponentPtr>;
 
+        /// 挂在 gameobject 上的组件集合
         Components  mComponents {};
+
+        using ComponentList = TList<Component*>;
+        using ComponentQueue = TMap<int32_t, ComponentList>;
+
+        /// 按照设置里面设定更新顺序的组件
+        ComponentQueue mUpdateComponents {};
+
+        using ComponentQueue2 = TMultimap<String, Component*>;
+
+        /// 没在设置里面设定更新顺序的组件
+        ComponentQueue2 mUpdateComponents2 {};
+
+        using WaitingDestroyComponents = TList<ComponentPtr>;
+        static WaitingDestroyComponents mWaitingDestroyComponents;
+
+        using WaitingDestroyGameObjects = TList<GameObjectPtr>;
+        static WaitingDestroyGameObjects mWaitingDestroyGameObjects;
     };
 }
 

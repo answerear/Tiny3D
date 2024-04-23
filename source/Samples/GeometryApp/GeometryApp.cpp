@@ -56,14 +56,31 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     scene->addRootGameObject(go);
     Transform3DPtr root = go->addComponent<Transform3D>();
 
+    // camera
+    buildCamera(root);
+
+    // cube
+    buildCube(root);
+    
+    return true;
+}
+
+void GeometryApp::applicationWillTerminate() 
+{
+    
+}
+
+void GeometryApp::buildCamera(Transform3D *parent)
+{
     // render window for render target in camera
     RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
     RenderTargetPtr rt = RenderTarget::create(rw);
 
     // transform node for camera
-    go = GameObject::create("Camera");
+    GameObjectPtr go = GameObject::create("Camera");
     Transform3DPtr xform = go->addComponent<Transform3D>();
-    root->addChild(xform);
+    parent->addChild(xform);
+    
     // camera component
     CameraPtr camera = go->addComponent<Camera>();
     camera->setOrder(0);
@@ -71,6 +88,7 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setViewport(vp);
     camera->setClearColor(ColorRGB::GRAY);
     camera->setRenderTarget(rt);
+    
     // camera for perspective
     camera->setProjectionType(Camera::Projection::kPerspective);
     camera->setFovY(Radian(Math::PI / 3.0f));
@@ -79,13 +97,14 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setAspectRatio(as);
     camera->setNearPlaneDistance(0.1f);
     camera->setFarPlaneDistance(10.0f);
+    
     // construct camera position & orientation & scaling
 #if defined (USE_COORDINATION_RH)
     Vector3 eye(2.0f, 2.0f, 4.0f);
 #else
     Vector3 eye(2.0f, 2.0f, -4.0f);
 #endif
-    
+
 #if defined (UVN_CAMERA)
     Vector3 obj(0.0f, 0.0f, 0.0f);
     camera->lookAt(eye, obj, Vector3::UP);
@@ -101,23 +120,28 @@ bool GeometryApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Radian zAngle(0.0f);
     xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
 #endif
-    scene->addCamera(camera);
 
+    // construct frustum bound
+    auto frustum = go->addComponent<FrustumBound>();
+    T3D_ASSERT(frustum != nullptr, "add frustum bound component !");
+}
+
+void GeometryApp::buildCube(Transform3D *parent)
+{
     // transform node for cube
-    go = GameObject::create("Cube");
-    xform = go->addComponent<Transform3D>();
-    root->addChild(xform);
+    GameObjectPtr go = GameObject::create("Cube");
+    Transform3DPtr xform = go->addComponent<Transform3D>();
+    parent->addChild(xform);
+    
     // geometry component
     GeometryPtr geometry = go->addComponent<Geometry>();
     MeshPtr mesh = buildMesh();
-    geometry->setMeshObject(mesh, mesh->getSubMesh(SUB_MESH_NAME));
-
-    return true;
-}
-
-void GeometryApp::applicationWillTerminate() 
-{
+    SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
+    geometry->setMeshObject(mesh, submesh);
     
+    // aabb bound component
+    AabbBoundPtr bound = go->addComponent<AabbBound>();
+    buildAabb(mesh, submesh, bound);
 }
 
 Texture2DPtr GeometryApp::buildTexture()
@@ -412,7 +436,7 @@ MeshPtr GeometryApp::buildMesh()
     // vertices & indices
     Vector3 offset;
     Vector2 uv(0.5f, 0.5f);
-    Vector3 center(0.0f, 0.0f, 0.5f);
+    Vector3 center(0.0f, 0.0f, 0.0f);
     Vector3 extent(0.5f, 0.5f, 0.5f);
 
 #if 1
@@ -882,6 +906,32 @@ MeshPtr GeometryApp::buildMesh()
 
     MeshPtr mesh = T3D_MESH_MGR.createMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
     return mesh;
+}
+
+void GeometryApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+{
+    const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    size_t vertexSize = mesh->getVertexStride(attr->getSlot());
+    size_t offset = mesh->getVertexOffset(attr->getOffset());
+    const Buffer &vertexBuffer = mesh->getVertices()[attr->getSlot()];
+    const Buffer &indexBuffer = submesh->getIndices();
+    size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
+    size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
+    Vector3 *points = new Vector3[pointCount];
+    for (size_t i = 0; i < pointCount; ++i)
+    {
+        int32_t idx = 0;
+        const uint8_t *src = indexBuffer.Data + i * indexSize;
+        memcpy(&idx, src, indexSize);
+        src = vertexBuffer.Data + idx * vertexSize + offset;
+        memcpy(points+i, src, sizeof(Vector3));
+        Vector3 *srcPos = (Vector3*)src;
+        T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
+    }
+    Aabb aabb;
+    aabb.build(points, pointCount);
+    T3D_SAFE_DELETE_ARRAY(points);
+    bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
 }
 
 

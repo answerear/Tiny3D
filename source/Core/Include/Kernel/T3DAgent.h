@@ -50,6 +50,10 @@ namespace Tiny3D
 
         const char *getVersionName() const;
 
+        const Settings &getSettings() const { return mSettings; }
+
+        Settings &getSettings() { return mSettings; }
+
         TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config = "Tiny3D.cfg");
 
         TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings);

@@ -32,6 +32,8 @@
 #include "Render/T3DRenderWindow.h"
 #include "Component/T3DTransform3D.h"
 #include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DScene.h"
+#include "Resource/T3DSceneManager.h"
 #include "Resource/T3DTextureManager.h"
 
 
@@ -415,6 +417,8 @@ namespace Tiny3D
 
             mXformNode = getGameObject()->getComponent<Transform3D>();
         }
+
+        T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
     }
 
     //--------------------------------------------------------------------------
@@ -432,6 +436,8 @@ namespace Tiny3D
                 xform->removeScalingChangedCallback(this);
             }
         }
+
+        T3D_SCENE_MGR.getCurrentScene()->removeCamera(this);
         
         Component::onDestroy();
     }

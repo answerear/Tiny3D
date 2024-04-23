@@ -73,13 +73,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Component::destroy()
-    {
-        onDestroy();
-    }
-
-    //--------------------------------------------------------------------------
-
     void Component::onDestroy()
     {
         mGameObject = nullptr;

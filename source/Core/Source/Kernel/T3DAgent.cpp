@@ -35,6 +35,7 @@
 #include "Resource/T3DPrefabManager.h"
 #include "Resource/T3DShaderManager.h"
 #include "T3DErrorDef.h"
+#include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderer.h"
 #include "RHI/T3DRHIThread.h"
@@ -81,7 +82,12 @@ namespace Tiny3D
         
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
+
+        mSceneMgr->getCurrentScene()->removeAll();
         
+        GameObject::destroyComponents();
+        GameObject::destroyGameObjects();
+
         if (mPrefabMgr != nullptr)
         {
             mPrefabMgr->unloadAllResources();
@@ -599,6 +605,10 @@ namespace Tiny3D
 
             // 异步赋值
             mAssignableObjMgr->assign();
+
+            // 清理要删除的对象
+            GameObject::destroyComponents();
+            GameObject::destroyGameObjects();
         }
 
         theApp->applicationWillTerminate();

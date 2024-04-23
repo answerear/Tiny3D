@@ -100,6 +100,22 @@ namespace Tiny3D
         TList<String> plugins;
     };
 
+    using ComponentUpdateOrders = TList<String>;
+    
+    TSTRUCT()
+    struct ComponentSettings
+    {
+        TPROPERTY()
+        ComponentUpdateOrders updateOrders;
+
+        ComponentSettings()
+        {
+            updateOrders.emplace_back("Transform3D");
+            updateOrders.emplace_back("Camera");
+            updateOrders.emplace_back("Geometry");
+        }
+    };
+
     TSTRUCT()
     struct T3D_ENGINE_API Settings
     {
@@ -112,30 +128,8 @@ namespace Tiny3D
         TPROPERTY()
         PluginSettings  pluginSettings {};
 
-//         void setPluginSettings(const PluginSettings& settings)
-//         {
-//             pluginSettings = settings;
-//         }
-// 
-//         const PluginSettings& getPluginSettings() const
-//         {
-//             return pluginSettings;
-//         }
-// 
-//         Settings()
-//         {
-//             int a = 0;
-//         }
-// 
-//         Settings(const Settings& other)
-//         {
-//             *this = other;
-//         }
-// 
-//         ~Settings()
-//         {
-//             int a = 0;
-//         }
+        TPROPERTY()
+        ComponentSettings   componentSettins {};
     };
 }
 

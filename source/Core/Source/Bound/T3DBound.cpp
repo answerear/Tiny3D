@@ -51,7 +51,7 @@ namespace Tiny3D
         case Type::AABB:
             {
                 AabbBound *aabb = static_cast<AabbBound*>(bound);
-                ret = testAabb(aabb->getAlignAxisBox());
+                ret = testAabb(aabb->getAabb());
             }
             break;
         case Type::OBB:
