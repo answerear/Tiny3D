@@ -24,8 +24,8 @@
 
 #include "GeometryApp.h"
 
-// #define UVN_CAMERA
-// #define PERSPECTIVE_CAMERA
+#define UVN_CAMERA
+#define PERSPECTIVE_CAMERA
 
 #if (T3D_COORDINATION_RH)
 #define USE_COORDINATION_RH
@@ -938,8 +938,8 @@ void GeometryApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
         memcpy(&idx, src, indexSize);
         src = vertexBuffer.Data + idx * vertexSize + offset;
         memcpy(points+i, src, sizeof(Vector3));
-        Vector3 *srcPos = (Vector3*)src;
-        T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
+        // Vector3 *srcPos = (Vector3*)src;
+        // T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
     }
     Aabb aabb;
     aabb.build(points, pointCount);
