@@ -182,7 +182,7 @@ namespace Tiny3D
         mutable Transform   mWorldTransform {};
         
         /// 结点数据脏标记，脏时需要重新计算
-        mutable bool        mIsDirty {false};
+        mutable bool        mIsDirty {true};
 
         using PositionCallbacks = TUnorderedMap<Component*, PositionChangedCallback>;
         PositionCallbacks       mPositionCallbacks {};

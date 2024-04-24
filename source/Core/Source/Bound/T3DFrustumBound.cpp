@@ -24,6 +24,8 @@
 
 
 #include "Bound/T3DFrustumBound.h"
+
+#include "Component/T3DCamera.h"
 #include "Component/T3DTransform3D.h"
 
 
@@ -139,27 +141,6 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    void FrustumBound::onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos)
-    {
-        update();
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void FrustumBound::onOrientationChanged(const Quaternion &oldOri, const Quaternion &newOri)
-    {
-        update();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void FrustumBound::onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling)
-    {
-        // update();
-    }
-    
-    //--------------------------------------------------------------------------
     
     void FrustumBound::update()
     {
@@ -210,7 +191,9 @@ namespace Tiny3D
 
         Plane plane[E_MAX_FACE];
 
-        const Matrix4 &m = mXformNode->getLocalToWorldTransform().getAffineMatrix();
+        // const Matrix4 &m = mXformNode->getLocalToWorldTransform().getAffineMatrix();
+        Camera *camera = getGameObject()->getComponent<Camera>();
+        Matrix4 m = camera->getProjectionMatrix() * camera->getViewMatrix();
 
         // Left
         plane[E_FACE_LEFT][0] = m[3][0] + m[0][0];
@@ -261,7 +244,16 @@ namespace Tiny3D
 
     void FrustumBound::onStart()
     {
+        Bound::onStart();
         mXformNode = getGameObject()->getComponent<Transform3D>();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FrustumBound::onUpdate()
+    {
+        Bound::onUpdate();
+        update();
     }
 
     //--------------------------------------------------------------------------
@@ -269,6 +261,7 @@ namespace Tiny3D
     void FrustumBound::onDestroy()
     {
         mXformNode = nullptr;
+        Bound::onDestroy();
     }
 
     //--------------------------------------------------------------------------

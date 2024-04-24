@@ -94,14 +94,10 @@ namespace Tiny3D
         bool testFrustum(const Frustum &frustum) const override;
 
         TResult cloneProperties(const Component * const src) override;
-
-        void onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos) override;
-
-        void onOrientationChanged(const Quaternion &oldOri, const Quaternion &newOri) override;
-
-        void onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling) override;
         
         void update();
+
+        void onUpdate() override;
 
     private:
         TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="setter", "Description"="Oriented Bounding Box")

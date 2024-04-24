@@ -119,27 +119,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ObbBound::onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos)
-    {
-        update();
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void ObbBound::onOrientationChanged(const Quaternion &oldOri, const Quaternion &newOri)
-    {
-        update();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ObbBound::onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling)
-    {
-        update();
-    }
-    
-    //--------------------------------------------------------------------------
-
     void ObbBound::update()
     {
         GameObject *go = getGameObject();
@@ -173,6 +152,15 @@ namespace Tiny3D
             mObb.setExtent(2, extent2);
         }
     }
+
+    //--------------------------------------------------------------------------
+
+    void ObbBound::onUpdate()
+    {
+        update();
+    }
+
+    //--------------------------------------------------------------------------
 }
 
 

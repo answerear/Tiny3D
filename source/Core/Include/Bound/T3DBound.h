@@ -102,14 +102,6 @@ namespace Tiny3D
         virtual bool testFrustum(const Frustum &frustum) const = 0;
 
         TResult cloneProperties(const Component * const src) override;
-
-        void onStart() override;
-
-        virtual void onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos) = 0;
-
-        virtual void onOrientationChanged(const Quaternion &oldOri, const Quaternion &newOri) = 0;
-
-        virtual void onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling) = 0;
         
     private:
         /// 碰撞体分组ID

@@ -98,29 +98,4 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    void Bound::onStart()
-    {
-        GameObject *go = getGameObject();
-        if (go != nullptr)
-        {
-            Transform3D *xform = go->getComponent<Transform3D>();
-            xform->addPositionChangedCallback(this, [this](const Vector3 &oldPos, const Vector3 &newPos)
-                {
-                    onPositionChanged(oldPos, newPos);
-                });
-
-            xform->addOrientationChangedCallback(this, [this](const Quaternion &oldOri, const Quaternion &newOri)
-                {
-                    onOrientationChanged(oldOri, newOri);
-                });
-
-            xform->addScalingChangedCallback(this, [this](const Vector3 &oldScaling, const Vector3 &newScaling)
-                {
-                    onScalingChanged(oldScaling, newScaling);
-                });
-        }
-    }
-
-    //--------------------------------------------------------------------------
 }

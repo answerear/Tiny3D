@@ -118,28 +118,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void SphereBound::onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos)
-    {
-        update();
-    }
-
-    
-    //--------------------------------------------------------------------------
-
-    void SphereBound::onOrientationChanged(const Quaternion &oldOri, const Quaternion &newOri)
-    {
-        update();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void SphereBound::onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling)
-    {
-        update();
-    }
-
-    //--------------------------------------------------------------------------
-
     void SphereBound::update()
     {
         GameObject *go = getGameObject();
@@ -165,4 +143,13 @@ namespace Tiny3D
             mOriginalSphere.setCenter(center);
         }
     }
+    
+    //--------------------------------------------------------------------------
+
+    void SphereBound::onUpdate()
+    {
+        update();
+    }
+
+    //--------------------------------------------------------------------------
 }

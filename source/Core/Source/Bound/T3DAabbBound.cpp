@@ -121,28 +121,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void AabbBound::onPositionChanged(const Vector3 &oldPos, const Vector3 &newPos)
-    {
-        update();
-    }
-
-    
-    //--------------------------------------------------------------------------
-
-    void AabbBound::onOrientationChanged(const Quaternion &oldOri, const Quaternion &newOri)
-    {
-        update();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void AabbBound::onScalingChanged(const Vector3 &oldScaling, const Vector3 &newScaling)
-    {
-        update();
-    }
-    
-    //--------------------------------------------------------------------------
-
     void AabbBound::update()
     {
         // 这里不用传统的变换8个顶点，然后逐个比较获取最大x,y,z来重新设置AABB
@@ -286,6 +264,13 @@ namespace Tiny3D
 
             mAabb.setParam(vMin, vMax);
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AabbBound::onUpdate()
+    {
+        update();
     }
 
     //--------------------------------------------------------------------------
