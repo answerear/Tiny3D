@@ -56,7 +56,7 @@ namespace Tiny3D
 
     TResult ImageManager::saveImage(Archive *archive, Image *image)
     {
-        return save(image, archive); 
+        return save(archive, image); 
     }
 
     //--------------------------------------------------------------------------

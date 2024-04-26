@@ -326,7 +326,7 @@ namespace Tiny3D
 
     TResult TextureManager::saveTexture(Archive *archive, Texture *texture)
     {
-        return save(texture, archive);
+        return save(archive, texture);
     }
     
     //--------------------------------------------------------------------------

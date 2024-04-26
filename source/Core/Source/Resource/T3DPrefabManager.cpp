@@ -49,7 +49,7 @@ namespace Tiny3D
 
     TResult PrefabManager::savePrefab(Archive *archive, Prefab *prefab)
     {
-        return save(prefab, archive);
+        return save(archive, prefab);
     }
 
     //--------------------------------------------------------------------------

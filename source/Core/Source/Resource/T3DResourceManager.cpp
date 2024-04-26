@@ -294,7 +294,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ResourceManager::save(Resource *res, Archive *archive)
+    TResult ResourceManager::save(Archive *archive, Resource *res)
     {
         TResult ret = T3D_OK;
 

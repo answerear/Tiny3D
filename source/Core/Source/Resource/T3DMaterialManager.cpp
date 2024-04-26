@@ -55,7 +55,7 @@ namespace Tiny3D
 
     TResult MaterialManager::saveMaterial(Archive *archive, Material *material)
     {
-        return save(material, archive);
+        return save(archive, material);
     }
 
     //--------------------------------------------------------------------------

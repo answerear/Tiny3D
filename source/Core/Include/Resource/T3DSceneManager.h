@@ -38,7 +38,7 @@ namespace Tiny3D
 
         virtual ScenePtr loadScene(Archive *archive, const String &name) = 0;
 
-        virtual TResult saveScene(Scene *scene, Archive *archive) = 0;
+        virtual TResult saveScene(Archive *archive, Scene *scene) = 0;
 
         virtual TResult unloadScene(ScenePtr &scene);
     };
@@ -56,7 +56,7 @@ namespace Tiny3D
 
         ScenePtr loadScene(Archive *archive, const String &name);
 
-        TResult saveScene(Scene *scene, Archive *archive);
+        TResult saveScene(Archive *archive, Scene *scene);
 
         ScenePtr getCurrentScene() const { return mCurrentScene; }
 
@@ -87,7 +87,7 @@ namespace Tiny3D
 
         ScenePtr loadScene(Archive *archive, const String &name) override;
 
-        TResult saveScene(Scene *scene, Archive *archive) override;
+        TResult saveScene(Archive *archive, Scene *scene) override;
         
     protected:
         BuiltinSceneManager() = default;

@@ -42,7 +42,7 @@ namespace Tiny3D
 
         ShaderPtr loadShader(Archive *archive, const String &name);
 
-        TResult saveShader(Shader *shader, Archive *archive);
+        TResult saveShader(Archive *archive, Shader *shader);
 
     protected:
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;

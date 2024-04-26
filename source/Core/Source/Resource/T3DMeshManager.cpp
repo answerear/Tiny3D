@@ -60,7 +60,7 @@ namespace Tiny3D
 
     TResult MeshManager::saveMesh(Archive *archive, Mesh *mesh)
     {
-        return save(mesh, archive);
+        return save(archive, mesh);
     }
 
     //--------------------------------------------------------------------------

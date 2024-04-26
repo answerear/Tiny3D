@@ -54,9 +54,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ShaderManager::saveShader(Shader *shader, Archive *archive)
+    TResult ShaderManager::saveShader(Archive *archive, Shader *shader)
     {
-        return save(shader, archive); 
+        return save(archive, shader); 
     }
 
     //--------------------------------------------------------------------------

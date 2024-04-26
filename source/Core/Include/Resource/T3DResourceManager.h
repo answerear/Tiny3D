@@ -131,11 +131,11 @@ namespace Tiny3D
 
         /**
          * \brief 同步保存资源
-         * \param [in] res : 要保存的资源对象 
-         * \param [in] archive : Meta 档案系统对象，用于保存数据
+         * \param [in] archive : 档案系统对象，用于保存数据
+         * \param [in] res : 要保存的资源对象
          * \return 调用成功返回 T3D_OK
          */
-        TResult save(Resource *res, Archive *archive);
+        TResult save(Archive *archive, Resource *res);
 
         /**
          * \brief 保存资源对象到数据流中
