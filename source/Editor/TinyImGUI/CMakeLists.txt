@@ -6,9 +6,6 @@
 #-------------------------------------------------------------------------------
 
 
-#add_subdirectory(protobuf)
-add_subdirectory(rttr)
+add_subdirectory(ImGuiDX11)
 
-if (TINY3D_OS_DESKTOP)
-	add_subdirectory(imgui)
-endif (TINY3D_OS_DESKTOP)
+
