@@ -33,6 +33,9 @@ namespace Tiny3D
 {
     class T3D_ENGINE_API Prefab : public Resource
     {
+        TRTTI_ENABLE(Resource)
+        TRTTI_FRIEND
+        
     public:
         static PrefabPtr create(const String &name);
 
@@ -60,8 +63,17 @@ namespace Tiny3D
         ResourcePtr clone() const override;
 
         void cloneProperties(const Resource * const src) override;
+
+        TResult onLoad(Archive *archive) override;
+
+        void addCompnentForLoadingResource(Component *component);
+
+    protected:
+        // Component* : 组件对象
+        using NeedToLoadResourceComponents = TSet<Component*>;
         
-        RTTRObject  *mObject;
+        RTTRObject  *mObject {nullptr};
+        NeedToLoadResourceComponents mNeedToLoadResourceComponents {};
     };
 }
 

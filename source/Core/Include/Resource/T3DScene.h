@@ -77,7 +77,7 @@ namespace Tiny3D
 
         void cloneProperties(const Resource * const src) override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
         
         TResult onUnload() override;
         

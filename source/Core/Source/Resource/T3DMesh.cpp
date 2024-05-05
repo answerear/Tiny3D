@@ -118,13 +118,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Mesh::onLoad()
+    TResult Mesh::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Resource::onLoad();
+            ret = Resource::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;

@@ -111,7 +111,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
 
         TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
         void setWidth(uint32_t width) { mDesc.width = width; }
@@ -178,7 +178,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
 
         TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
         void setWidth(uint32_t width) { mDesc.width = width; }
@@ -232,7 +232,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
 
         TPROPERTY(RTTRFuncName="ArraySize", RTTRFuncType="setter")
         void setArraySize(uint32_t arraySize) { mDesc.arraySize = arraySize; }
@@ -282,7 +282,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
 
         TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
         void setWidth(uint32_t width) { mDesc.width = width; }
@@ -332,7 +332,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
     };
 
     TCLASS()
@@ -358,7 +358,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
         
         TPROPERTY(RTTRFuncName="ArraySize", RTTRFuncType="setter")
         void setArraySize(uint32_t arraySize) { mDesc.arraySize = arraySize * 6; }

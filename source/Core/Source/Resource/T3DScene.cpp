@@ -225,9 +225,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Scene::onLoad()
+    TResult Scene::onLoad(Archive *archive)
     {
-        return Resource::onLoad();
+        return Resource::onLoad(archive);
     }
 
     //--------------------------------------------------------------------------

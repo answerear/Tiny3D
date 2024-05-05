@@ -71,19 +71,22 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
-        mRHIRunnable->stop();
-        mRHIThread.wait();
-        mRHIRunnable = nullptr;
+        if (mRHIRunnable != nullptr)
+        {
+            mRHIRunnable->stop();
+            mRHIThread.wait();
+            mRHIRunnable = nullptr;
+        }
 
         // mRenderPipeline->detachAllRenderTargets();
-        
-        mInternalArchive = nullptr;
-        mProjectArchive = nullptr;
         
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
 
-        mSceneMgr->getCurrentScene()->removeAll();
+        if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
+        {
+            mSceneMgr->getCurrentScene()->removeAll();
+        }
         
         GameObject::destroyComponents();
         GameObject::destroyGameObjects();
@@ -960,6 +963,7 @@ namespace Tiny3D
             //
             // SerializablePtr res = smart_pointer_cast<Serializable>(T3D_SERIALIZABLE_MGR.load("MetaFileSystemArchive", "Tiny3D.cfg"));
             // mSettings = res->instantiateAsObject<Settings>();
+
 #if defined (T3D_OS_ANDROID)
             // Android，只能读取apk包里面的文件
             ret = loadPlugin("ZipArchive");
@@ -980,28 +984,25 @@ namespace Tiny3D
             
             ArchivePtr archive = mArchiveMgr->loadArchive(mAppPath, "FileSystem", Archive::AccessMode::kRead);
 #endif
-
-            MemoryDataStream stream;
-            ret = archive->read(cfgPath, stream);
+            ret = archive->read(cfgPath, [this](DataStream &stream)
+            {
+                return T3D_SERIALIZER_MGR.deserialize(stream, mSettings);
+            });
+            
             if (T3D_FAILED(ret))
             {
                 break;
             }
+            
+            // MemoryDataStream stream;
+            // ret = archive->read(cfgPath, stream);
+            // if (T3D_FAILED(ret))
+            // {
+            //     break;
+            // }
+            
+            
 
-#if 1
-            //RTTRVariant var(mSettings);
-            //T3D_SERIALIZER_MGR.deserializeObject(stream, var);
-            T3D_SERIALIZER_MGR.deserialize(stream, mSettings);
-#else
-            Settings *settings = T3D_SERIALIZER_MGR.deserialize<Settings>(stream);
-            if (settings == nullptr)
-            {
-                break;
-            }
-
-            mSettings = *settings;
-            T3D_SAFE_DELETE(settings);
-#endif
         } while (false);
         
         return ret;

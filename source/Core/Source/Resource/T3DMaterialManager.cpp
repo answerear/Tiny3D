@@ -48,7 +48,7 @@ namespace Tiny3D
 
     MaterialPtr MaterialManager::loadMaterial(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Material>(load(archive, name, 0));
+        return smart_pointer_cast<Material>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -69,7 +69,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr MaterialManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr MaterialManager::loadResource(const String &name, DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Material>(stream);
     }

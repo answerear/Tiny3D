@@ -41,27 +41,27 @@ namespace Tiny3D
         /**
          * @brief 获取插件名称
          */
-        virtual const String &getName() const override;
+        const String &getName() const override;
 
         /**
          * @brief 安装插件
          */
-        virtual TResult install() override;
+        TResult install() override;
 
         /**
          * @brief 启动插件
          */
-        virtual TResult startup() override;
+        TResult startup() override;
 
         /**
          * @brief 关闭插件
          */
-        virtual TResult shutdown() override;
+        TResult shutdown() override;
 
         /**
          * @brief 卸载插件
          */
-        virtual TResult uninstall() override;
+        TResult uninstall() override;
 
     protected:
         String mName = "FileSystemArchive";          /**< 插件名称 */

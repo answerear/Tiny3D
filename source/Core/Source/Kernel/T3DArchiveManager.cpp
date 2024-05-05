@@ -24,7 +24,6 @@
 
 
 #include "Kernel/T3DArchiveManager.h"
-#include "Kernel/T3DArchive.h"
 
 
 namespace Tiny3D
@@ -33,9 +32,7 @@ namespace Tiny3D
 
     ArchiveManagerPtr ArchiveManager::create()
     {
-        ArchiveManagerPtr mgr = new ArchiveManager();
-        // mgr->release();
-        return mgr;
+        return new ArchiveManager();
     }
     
     //--------------------------------------------------------------------------
@@ -44,6 +41,114 @@ namespace Tiny3D
     {
         unloadAllArchives();
     }
+
+    //--------------------------------------------------------------------------
+//
+//     TResult ArchiveManager::readArchive(const String &archiveName, const String &archiveType, const String &fileName, const ArchiveReadCallback &callback)
+//     {
+//         TResult ret = T3D_OK;
+//
+//         do
+//         {
+// #if defined (T3D_OS_DESKTOP)
+//             // Windows & Mac OS X & Linux
+//             Archive *archive;
+//             if (archiveType == "FileSystem")
+//             {
+//                 //  桌面系统的文件系统，直接特殊处理一番
+//                 String path = archiveName + Dir::getNativeSeparator() + fileName;
+//                 archive = T3D_ARCHIVE_MGR.loadArchive("Computer", archiveType, Archive::AccessMode::kRead);
+//                 if (archive == nullptr)
+//                 {
+//                     ret = T3D_ERR_INVALID_POINTER;
+//                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid archive when reading archive [%s] !", archiveName.c_str());
+//                     break;
+//                 }
+//                 ret = archive->read(path, callback);
+//             }
+//             else
+//             {
+//                 // 其他的，按照常规处理
+//                 archive = T3D_ARCHIVE_MGR.loadArchive(archiveName, archiveType, Archive::AccessMode::kRead);
+//                 if (archive == nullptr)
+//                 {
+//                     ret = T3D_ERR_INVALID_POINTER;
+//                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid archive when reading archive [%s] !", archiveName.c_str());
+//                 }
+//                 ret = archive->read(fileName, callback);
+//             }
+// #elif defined (T3D_OS_MOBILE)
+//             // iOS & Android
+//             Archive *archive = T3D_ARCHIVE_MGR.loadArchive(archiveName, archiveType, Archive::AccessMode::kRead);
+//             if (archive == nullptr)
+//             {
+//                 ret = T3D_ERR_INVALID_POINTER;
+//                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid archive when reading archive [%s] !", archiveName.c_str());
+//             }
+//             ret = archive->read(fileName, callback);
+// #else
+//             #error "Invalid platform" 
+// #endif
+//         } while (false);
+//
+//         return ret;
+//     }
+//     
+//     //--------------------------------------------------------------------------
+//
+//     TResult ArchiveManager::writeArchive(const String &archiveName, const String &archiveType, const String &fileName, const ArchiveWriteCallback &callback, bool truncate)
+//     {
+//         TResult ret = T3D_OK;
+//
+//         do
+//         {
+//             Archive::AccessMode mode = truncate ? Archive::AccessMode::kTruncate : Archive::AccessMode::kAppend;
+//             
+// #if defined (T3D_OS_DESKTOP)
+//             // Windows & Mac OS X & Linux
+//             Archive *archive;
+//             
+//             if (archiveType == "FileSystem")
+//             {
+//                 // 桌面系统的文件系统，直接特殊处理一番
+//                 String path = archiveName + Dir::getNativeSeparator() + fileName;
+//                 archive = T3D_ARCHIVE_MGR.loadArchive("Computer", archiveType, mode);
+//                 if (archive == nullptr)
+//                 {
+//                     ret = T3D_ERR_INVALID_POINTER;
+//                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid archive when reading archive [%s] !", archiveName.c_str());
+//                     break;
+//                 }
+//                 ret = archive->write(path, callback);
+//             }
+//             else
+//             {
+//                 // 其他的，按照常规处理
+//                 archive = T3D_ARCHIVE_MGR.loadArchive(archiveName, archiveType, mode);
+//                 if (archive == nullptr)
+//                 {
+//                     ret = T3D_ERR_INVALID_POINTER;
+//                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid archive when reading archive [%s] !", archiveName.c_str());
+//                 }
+//                 ret = archive->write(fileName, callback);
+//             }
+// #elif defined (T3D_OS_MOBILE)
+//             // iOS & Android
+//             Archive *archive = T3D_ARCHIVE_MGR.loadArchive(archiveName, archiveType, mode);
+//             if (archive == nullptr)
+//             {
+//                 ret = T3D_ERR_INVALID_POINTER;
+//                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid archive when reading archive [%s] !", archiveName.c_str());
+//             }
+//             
+//             ret = archive->write(fileName, callback);
+// #else
+//             #error "Invalid platform"
+// #endif
+//         } while (false);
+//         
+//         return ret;
+//     }
 
     //--------------------------------------------------------------------------
 
@@ -86,6 +191,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ArchiveManager::unloadArchive(const String &archiveType)
+    {
+        auto itr = mArchives.begin();
+        while (itr != mArchives.end())
+        {
+            if (itr->second->getArchiveType() == archiveType)
+            {
+                itr = mArchives.erase(itr);
+            }
+            else
+            {
+                ++itr;
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ArchiveManager::unloadAllArchives()
     {
         mArchives.clear();
@@ -101,7 +226,7 @@ namespace Tiny3D
 
         if (itr != mCreators.end())
         {
-            ArchiveCreator creator = itr->second;
+            ArchiveCreatorNew creator = itr->second;
             archive = creator(name, mode);
         }
 
@@ -110,9 +235,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ArchiveManager::addArchiveCreator(const String &archiveType, ArchiveCreator creator)
+    TResult ArchiveManager::addArchiveCreator(const String &archiveType, const ArchiveCreatorNew &creator)
     {
-        mCreators.insert(CreatorsValue(archiveType, creator));
+        mCreators.emplace(archiveType, creator);
         return T3D_OK;
     }
 
@@ -135,18 +260,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ArchiveManager::getArchive(const String &name, Archive::AccessMode mode, ArchivePtr &archive)
+    Archive *ArchiveManager::getArchive(const String &name, Archive::AccessMode mode) const
     {
-        bool found = false;
+        Archive *archive = nullptr;
         auto itr = mArchives.find({name, mode});
 
         if (itr != mArchives.end())
         {
             archive = itr->second;
-            found = true;
         }
 
-        return found;
+        return archive;
     }
 
     //--------------------------------------------------------------------------

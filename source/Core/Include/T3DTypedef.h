@@ -125,8 +125,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderWindow);
     T3D_DECLARE_SMART_PTR(NullRenderWindow);
 
-    // T3D_DECLARE_SMART_PTR(Viewport);
-    
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
 

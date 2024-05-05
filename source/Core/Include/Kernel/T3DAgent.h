@@ -54,6 +54,8 @@ namespace Tiny3D
 
         Settings &getSettings() { return mSettings; }
 
+        void getEditorInfo(void *info) const;
+
         TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config = "Tiny3D.cfg");
 
         TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings);
@@ -121,10 +123,6 @@ namespace Tiny3D
          */
         RHIRendererPtr getRHIRenderer(const String &name) const;
 
-        ArchivePtr getInternalArchive() const { return mInternalArchive; }
-
-        ArchivePtr getProjectArchive() const { return mProjectArchive; }
-
         void resumeEngineThread();
         
     protected:
@@ -168,18 +166,20 @@ namespace Tiny3D
         using RenderWindows = TMap<String, RenderWindowPtr>;
 
         /// 异步赋值对象管理器
-        AssignableObjectManagerPtr  mAssignableObjMgr;
+        AssignableObjectManagerPtr  mAssignableObjMgr {nullptr};
 
-        /**< 日志对象 */
+        /// 日志对象
         Logger                  *mLogger {nullptr};
-        /**< 事件管理器对象 */
+        /// 事件管理器对象
         EventManager            *mEventMgr {nullptr};
-        /**< 对象内存跟踪 */
+        /// 对象内存跟踪
         ObjectTracer            *mObjTracer {nullptr};
 
         RenderPipelinePtr       mRenderPipeline {nullptr};
-        RenderWindowPtr         mDefaultWindow {nullptr};     /**< 默认渲染窗口 */
-        RHIRendererPtr          mActiveRHIRenderer {nullptr}; /**< 当前使用的 RHI 渲染器 */
+        /// 默认渲染窗口
+        RenderWindowPtr         mDefaultWindow {nullptr};
+        /// 当前使用的 RHI 渲染器
+        RHIRendererPtr          mActiveRHIRenderer {nullptr};
 
         ArchiveManagerPtr       mArchiveMgr {nullptr};
         SerializerManagerPtr    mSerializerMgr {nullptr};
@@ -193,28 +193,33 @@ namespace Tiny3D
 
         RenderStateManagerPtr   mRenderStateMgr {nullptr};
         RenderBufferManagerPtr  mRenderBufferMgr {nullptr};
-        
-        ArchivePtr              mInternalArchive {nullptr};
-        ArchivePtr              mProjectArchive {nullptr};
-        
-        Plugins                 mPlugins;           /**< 安装的插件列表 */
-        Dylibs                  mDylibs;            /**< 加载的动态库列表 */
-        RHIRenderers            mRenderers;         /**< 渲染器列表 */
+
+        /// 安装的插件列表
+        Plugins                 mPlugins {};
+        /// 加载的动态库列表
+        Dylibs                  mDylibs {};
+        /// 渲染器列表
+        RHIRenderers            mRenderers {};
 
         /// 所有的渲染窗口
         RenderWindows           mRenderWindows {};
-        
-        String                  mAppPath;           /**< 程序路径 */
-        String                  mAppName;           /**< 程序名称 */
-        String                  mPluginsPath = ".";
 
-        Settings                mSettings;          /**< 引擎配置项 */
+        /// 程序路径
+        String                  mAppPath {};
+        /// 程序名称
+        String                  mAppName {};
+        /// 插件路径
+        String                  mPluginsPath {"."};
+        /// 游戏项目路径，用于资源读写
+        String                  mProjectPath {};
+
+        Settings                mSettings {};           /**< 引擎配置项 */
 
         RunnableThread          mRHIThread {};
         RHIThreadPtr            mRHIRunnable {nullptr};
         Event                   mRHIEvent {};
         
-        bool                    mIsRunning {false}; /**< 引擎是否在运行中 */
+        bool                    mIsRunning {false};     /**< 引擎是否在运行中 */
     };
 
     #define T3D_AGENT   Agent::getInstance()

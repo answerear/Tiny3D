@@ -409,9 +409,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Image::onLoad()
+    TResult Image::onLoad(Archive *archive)
     {
-        return Resource::onLoad();
+        return Resource::onLoad(archive);
     }
 
     //--------------------------------------------------------------------------

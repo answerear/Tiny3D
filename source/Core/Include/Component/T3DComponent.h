@@ -56,6 +56,8 @@ namespace Tiny3D
         
         virtual void onUpdate();
 
+        virtual void onLoadResource(Archive *archive);
+
     protected:
         Component() = default;
         

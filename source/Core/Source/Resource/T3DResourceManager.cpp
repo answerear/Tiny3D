@@ -27,6 +27,7 @@
 #include "Resource/T3DResource.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DArchive.h"
+// #include "Kernel/T3DArchiveManager.h"
 
 
 namespace Tiny3D
@@ -192,7 +193,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(Archive *archive, const String &name, int32_t argc, ...)
+    ResourcePtr ResourceManager::load(Archive *archive, const String &name)
     {
         ResourcePtr res = nullptr;
         
@@ -206,10 +207,7 @@ namespace Tiny3D
                 break;
             }
 
-            va_list args;
-            va_start(args, argc);
-            res = loadResource(name, archive, argc, args);
-            va_end(args);
+            res = loadResource(archive, name);
             if (res == nullptr)
             {
                 break;
@@ -223,7 +221,7 @@ namespace Tiny3D
                 break;
             }
             
-            TResult ret = res->onLoad();
+            TResult ret = res->onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 removeCache(res);
@@ -238,27 +236,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::loadResource(const String &name, Archive *archive, int32_t argc, va_list args)
+    ResourcePtr ResourceManager::loadResource(Archive *archive, const String &name)
     {
         ResourcePtr res = nullptr;
 
         do
         {
-            // 从档案系统获取数据
-            MemoryDataStream stream;
-            TResult ret = archive->read(name, stream);
-            if (T3D_FAILED(ret))
+            TResult ret = archive->read(name, [this, &res, &name](DataStream &stream)
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Read reousrce [%s] from archive failed !", name.c_str());
-                break;
-            }
-
-            // 加载 resource 对象
-            res = loadResource(name, stream, argc, args);
-            if (res == nullptr)
-            {
-                break;
-            }
+                TResult ret = T3D_OK;
+                // 加载 resource 对象
+                res = loadResource(name, stream);
+                if (res == nullptr)
+                {
+                    ret = T3D_ERR_RES_LOAD_FAILED;
+                }
+                return ret;
+            });
         } while (false);
 
         return res;
@@ -300,7 +294,7 @@ namespace Tiny3D
 
         do
         {
-            ret = res->onSave();
+            ret = res->onSave(archive);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed !", res->getName().c_str());
@@ -308,20 +302,10 @@ namespace Tiny3D
             }
             
             // 保存资源对象
-            MemoryDataStream stream(10*1024*1024);
-            ret = saveResource(stream, res);
-            if (T3D_FAILED(ret))
+            ret = archive->write(res->getName(), [this, res](DataStream &stream)
             {
-                break;
-            }
-
-            // 写到 资源 档案系统里
-            const String &name = res->getName();
-            ret = archive->write(name, stream);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
+                return saveResource(stream, res);
+            });
         } while (false);
         
         return ret;
@@ -395,8 +379,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::getResource(
-        const String &name, UUID uuid /* = UUID::INVALID */) const
+    ResourcePtr ResourceManager::getResource(const String &name, UUID uuid /* = UUID::INVALID */) const
     {
         ResourcePtr res;
 
@@ -432,7 +415,7 @@ namespace Tiny3D
 
                 res = itr->second;
             }
-        } while (0);
+        } while (false);
 
         return res;
     }

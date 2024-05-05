@@ -27,6 +27,7 @@
 #include "Resource/T3DImage.h"
 #include "Kernel/T3DAgent.h"
 #include "ImageCodec/T3DImageCodec.h"
+#include "Kernel/T3DArchiveManager.h"
 
 
 namespace Tiny3D
@@ -49,7 +50,7 @@ namespace Tiny3D
 
     ImagePtr ImageManager::loadImage(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Image>(load(archive, name, 0));
+        return smart_pointer_cast<Image>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -76,7 +77,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ImageManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr ImageManager::loadResource(const String &name, DataStream &stream)
     {
         ImagePtr image;
 

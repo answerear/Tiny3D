@@ -26,7 +26,6 @@
 #include "Material/T3DShaderSamplerParam.h"
 #include "Kernel/T3DAgent.h"
 #include "Resource/T3DTextureManager.h"
-#include "Resource/T3DTexture.h"
 
 
 namespace Tiny3D
@@ -51,8 +50,8 @@ namespace Tiny3D
         : mName(name)
         , mTexType(texType)
     {
-        ArchivePtr archive = T3D_AGENT.getProjectArchive();
-        mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
+        // ArchivePtr archive;
+        // mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
     }
 
     //--------------------------------------------------------------------------
@@ -87,8 +86,8 @@ namespace Tiny3D
 
     bool ShaderSamplerParam::onPostLoad()
     {
-        ArchivePtr archive = T3D_AGENT.getProjectArchive();
-        mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
+        // ArchivePtr archive;
+        // mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
         return true;
     }
 

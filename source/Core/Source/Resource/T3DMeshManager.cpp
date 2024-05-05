@@ -53,7 +53,7 @@ namespace Tiny3D
 
     MeshPtr MeshManager::loadMesh(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Mesh>(load(archive, name, 0));
+        return smart_pointer_cast<Mesh>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr MeshManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr MeshManager::loadResource(const String &name, DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Mesh>(stream);
     }

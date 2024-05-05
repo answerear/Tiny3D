@@ -27,6 +27,7 @@
 #include "Material/T3DTechnique.h"
 #include "Material/T3DShaderConstantParam.h"
 #include "Material/T3DShaderSamplerParam.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -102,13 +103,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Shader::onLoad()
+    TResult Shader::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Resource::onLoad();
+            ret = Resource::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -118,6 +119,12 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 break;
+            }
+
+            for (auto sampler : mSamplers)
+            {
+                Texture *tex = T3D_TEXTURE_MGR.loadTexture(archive, sampler.second->getName());
+                sampler.second->setTexture(tex);
             }
         } while (false);
         

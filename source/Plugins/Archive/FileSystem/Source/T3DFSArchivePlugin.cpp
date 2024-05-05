@@ -40,17 +40,13 @@ namespace Tiny3D
 
     TResult FileSystemArchivePlugin::install()
     {
-        TResult ret = T3D_OK;
-
-        ret = T3D_ARCHIVE_MGR.addArchiveCreator(
+        return T3D_ARCHIVE_MGR.addArchiveCreator(
             FileSystemArchive::ARCHIVE_TYPE,
             [](const String &name, Archive::AccessMode mode)
             {
                 FileSystemArchivePtr archive = FileSystemArchive::create(name, mode);
                 return archive;
             });
-
-        return ret;
     }
 
     //--------------------------------------------------------------------------

@@ -42,7 +42,7 @@ namespace Tiny3D
 
     PrefabPtr PrefabManager::loadPrefab(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Prefab>(load(archive, name, 0));
+        return smart_pointer_cast<Prefab>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -61,7 +61,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr PrefabManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr PrefabManager::loadResource(const String &name, DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Prefab>(stream);
     }

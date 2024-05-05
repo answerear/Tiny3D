@@ -109,29 +109,25 @@ namespace Tiny3D
         
         /**
          * \brief 同步加载资源
-         * \param [in] archive : 档案系统对象，用于读取数据
+         * \param [in] archive : 档案系统对象，资源文件从该档案系统读取
          * \param [in] name : 资源文件名
-         * \param [in] argc : 资源参数数量 
-         * \param [in,out] ... : 参数列表
          * \return 返回加载出来的资源对象
          */
-        ResourcePtr load(Archive *archive, const String &name, int32_t argc, ...);
+        ResourcePtr load(Archive *archive, const String &name);
 
-        virtual ResourcePtr loadResource(const String &name, Archive *archive, int32_t argc, va_list args);
+        virtual ResourcePtr loadResource(Archive *archive, const String &name);
 
         /**
          * \brief 从数据流加载资源对象
          * \param [in] name : 资源名称
          * \param [in,out] stream : 数据流对象
-         * \param [in] argc : 参数列表的参数数量
-         * \param [in,out] args : 参数列表 
          * \return 返回资源对象
          */
-        virtual ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) = 0;
+        virtual ResourcePtr loadResource(const String &name, DataStream &stream) = 0;
 
         /**
          * \brief 同步保存资源
-         * \param [in] archive : 档案系统对象，用于保存数据
+         * \param [in] archive : 档案系统对象，资源文件保存到该档案系统里
          * \param [in] res : 要保存的资源对象
          * \return 调用成功返回 T3D_OK
          */

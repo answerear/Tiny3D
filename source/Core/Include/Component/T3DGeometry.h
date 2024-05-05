@@ -80,6 +80,8 @@ namespace Tiny3D
         TResult cloneProperties(const Component * const src) override;
 
         bool onPostLoad() override;
+
+        void onLoadResource(Archive *archive) override;
         
     protected:
         String  mMeshName {};

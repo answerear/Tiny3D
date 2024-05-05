@@ -28,6 +28,7 @@
 
 #include "T3DTypedef.h"
 #include "Kernel/T3DConstant.h"
+#include "Resource/T3DTexture.h"
 
 
 namespace Tiny3D
@@ -65,6 +66,8 @@ namespace Tiny3D
         }
 
         TexturePtr getTexture() const { return mTexture; }
+
+        void setTexture(Texture *tex) { mTexture = tex; }
         
     private:
         ShaderSamplerParam() = default;

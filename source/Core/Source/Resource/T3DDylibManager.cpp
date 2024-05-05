@@ -46,7 +46,7 @@ namespace Tiny3D
     DylibPtr DylibManager::loadDylib(const String &name)
     {
         Archive *archive = nullptr;
-        return smart_pointer_cast<Dylib>(load(archive, name, 0));
+        return smart_pointer_cast<Dylib>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -65,15 +65,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr DylibManager::loadResource(const String &name, Archive *archive, int32_t argc, va_list args)
+    ResourcePtr DylibManager::loadResource(Archive *archive, const String &name)
     {
         MemoryDataStream stream;
-        return loadResource(name, stream, argc, args);
+        return loadResource(name, stream);
     }
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr DylibManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr DylibManager::loadResource(const String &name, DataStream &stream)
     {
         return Dylib::create(name);
     }

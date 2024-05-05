@@ -110,7 +110,7 @@ namespace  Tiny3D
 
     ScenePtr BuiltinSceneManager::loadScene(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Scene>(load(archive, name, 0));
+        return smart_pointer_cast<Scene>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -129,7 +129,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr BuiltinSceneManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr BuiltinSceneManager::loadResource(const String &name, DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Scene>(stream);
     }

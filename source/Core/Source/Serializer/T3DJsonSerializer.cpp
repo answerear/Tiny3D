@@ -27,6 +27,8 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 #include <prettywriter.h>
 #include <document.h>
+#include <Resource/T3DPrefab.h>
+#include "Component/T3DComponent.h"
 
 
 namespace Tiny3D
@@ -394,7 +396,9 @@ namespace Tiny3D
     class RTTRObjectJsonReader
     {
     public:
-        static bool ReadAtomicType(const Value &node, const type &klass, variant &obj)
+        variant *mObj {nullptr};
+        
+        bool ReadAtomicType(const Value &node, const type &klass, variant &obj)
         {
             bool ret = false;
         
@@ -440,7 +444,7 @@ namespace Tiny3D
             return ret;
         }
 
-        static TResult ReadValue(const Value &value, const type &klass, variant &obj)
+        TResult ReadValue(const Value &value, const type &klass, variant &obj)
         {
             TResult ret = T3D_OK;
 
@@ -527,7 +531,7 @@ namespace Tiny3D
 
                         // property type & value
                         bool isArray = false;
-                        variant prop = ReadObject(it->value, isArray);
+                        variant prop = ReadObjectRecursively(it->value, isArray);
                         if (!prop.is_valid() && isArray)
                         {
                             // 原生数组
@@ -544,15 +548,28 @@ namespace Tiny3D
 
                 if (klass.is_derived_from<Tiny3D::Object>())
                 {
+                    // Tiny3D::Object
                     auto postLoad = klass.get_method("onPostLoad");
                     postLoad.invoke(obj);
+                }
+
+                if (mObj != nullptr && klass.is_derived_from<Tiny3D::Component>())
+                {
+                    // Tiny3D::Component in Tiny3D:Prefab
+                    auto addComponent = mObj->get_type().get_method("addCompnentForLoadingResource");
+                    bool ok = false;
+                    Component *component = obj.convert<Tiny3D::Component*>(&ok);
+                    if (ok)
+                    {
+                        addComponent.invoke(mObj, component);
+                    }
                 }
             } while (false);
 
             return ret;
         }
 
-        static TResult ReadObject(const Value& node, RTTRVariant &obj)
+        TResult ReadObject(const Value& node, RTTRVariant &obj, bool recursively = true)
         {
             TResult ret = T3D_OK;
 
@@ -573,6 +590,11 @@ namespace Tiny3D
                 constructor ctor = klass.get_constructor();
                 obj = ctor.invoke();
                 // obj = klass.create();
+                if (!recursively && (klass == type::get<Tiny3D::Prefab>()))
+                {
+                    // prefab
+                    mObj = &obj;
+                }
 
                 itr = node.FindMember(RTTI_VALUE);
                 if (itr == node.MemberEnd())
@@ -590,7 +612,7 @@ namespace Tiny3D
             return ret;
         }
 
-        static variant ReadObject(const Value &node, bool &isArray)
+        variant ReadObjectRecursively(const Value &node, bool &isArray, bool recursively = true)
         {
             variant obj;
 
@@ -618,6 +640,11 @@ namespace Tiny3D
                 constructor ctor = klass.get_constructor();
                 obj = ctor.invoke();
                 // obj = klass.create();
+                if (!recursively && (klass == type::get<Tiny3D::Prefab>()))
+                {
+                    // prefab
+                    mObj = &obj;
+                }
 
                 itr = node.FindMember(RTTI_VALUE);
                 if (itr == node.MemberEnd())
@@ -635,13 +662,13 @@ namespace Tiny3D
             return obj;
         }
 
-        static variant ReadObject(const Value& node)
+        variant ReadObject(const Value& node, bool recursively = true)
         {
             bool isArray = false;
-            return ReadObject(node, isArray);
+            return ReadObjectRecursively(node, isArray, recursively);
         }
 
-        static TResult ReadNativeArray(const Value& node, variant &obj)
+        TResult ReadNativeArray(const Value& node, variant &obj)
         {
             TResult ret = T3D_OK;
 
@@ -767,17 +794,19 @@ namespace Tiny3D
         Document doc;
         Value value;
         ReadJsonHeader(stream, doc, value);
-        return RTTRObjectJsonReader::ReadObject(value);
+        RTTRObjectJsonReader reader;
+        return reader.ReadObject(value, false);
     }
 
     //--------------------------------------------------------------------------
     
-    TResult JsonSerializer::deserialize(DataStream &stream, RTTRVariant&obj)
+    TResult JsonSerializer::deserialize(DataStream &stream, RTTRVariant &obj)
     {
         Document doc;
         Value value;
         ReadJsonHeader(stream, doc, value);
-        RTTRObjectJsonReader::ReadObject(value, obj);
+        RTTRObjectJsonReader reader;
+        reader.ReadObject(value, obj, false);
         return T3D_OK;
     }
 

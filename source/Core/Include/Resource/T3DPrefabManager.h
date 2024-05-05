@@ -46,7 +46,7 @@ namespace Tiny3D
 
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
-        ResourcePtr loadResource(const String &name, DataStream &stream, int32_t argc, va_list args) override;
+        ResourcePtr loadResource(const String &name, DataStream &stream) override;
         
         TResult saveResource(DataStream &stream, Resource *res) override;
     };

@@ -125,13 +125,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Texture1D::onLoad()
+    TResult Texture1D::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Texture::onLoad();
+            ret = Texture::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -209,13 +209,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Texture2D::onLoad()
+    TResult Texture2D::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Texture::onLoad();
+            ret = Texture::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -277,13 +277,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Texture2DArray::onLoad()
+    TResult Texture2DArray::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Texture2D::onLoad();
+            ret = Texture2D::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -357,13 +357,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Texture3D::onLoad()
+    TResult Texture3D::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Texture::onLoad();
+            ret = Texture::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -424,13 +424,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Cubemap::onLoad()
+    TResult Cubemap::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Texture2D::onLoad();
+            ret = Texture2D::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -492,13 +492,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult CubemapArray::onLoad()
+    TResult CubemapArray::onLoad(Archive *archive)
     {
         TResult ret;
 
         do
         {
-            ret = Cubemap::onLoad();
+            ret = Cubemap::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;

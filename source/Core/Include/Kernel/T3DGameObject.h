@@ -267,9 +267,13 @@ namespace Tiny3D
         ComponentQueue2 mUpdateComponents2 {};
 
         using WaitingDestroyComponents = TList<ComponentPtr>;
+        
+        /// 等待销毁的 component 列表
         static WaitingDestroyComponents mWaitingDestroyComponents;
 
         using WaitingDestroyGameObjects = TList<GameObjectPtr>;
+        
+        /// 等待销毁的 game object 列表
         static WaitingDestroyGameObjects mWaitingDestroyGameObjects;
     };
 }

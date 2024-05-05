@@ -24,6 +24,8 @@
 
 #include "Resource/T3DPrefab.h"
 
+#include "Component/T3DComponent.h"
+
 
 namespace Tiny3D
 {
@@ -72,6 +74,30 @@ namespace Tiny3D
     {
         const Prefab *prefab = static_cast<const Prefab*>(src);
         mObject = new RTTRObject(*prefab->mObject);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Prefab::onLoad(Archive *archive)
+    {
+        TResult ret = Resource::onLoad(archive);
+
+        if (T3D_SUCCEEDED(ret))
+        {
+            for (auto component : mNeedToLoadResourceComponents)
+            {
+                component->onLoadResource(archive);
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Prefab::addCompnentForLoadingResource(Component *component)
+    {
+        mNeedToLoadResourceComponents.emplace(component);
     }
 
     //--------------------------------------------------------------------------

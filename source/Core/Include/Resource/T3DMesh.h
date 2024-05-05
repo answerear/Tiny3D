@@ -133,7 +133,7 @@ namespace Tiny3D
 
         TResult onCreate() override;
         
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
 
         TPROPERTY(RTTRFuncName="VertexAttributes", RTTRFuncType="setter")
         void setVertexAttributes(const VertexAttributes &attributes) { mVertexAttributes = attributes; }

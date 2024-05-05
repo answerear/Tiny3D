@@ -91,7 +91,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Dylib::onLoad()
+    TResult Dylib::onLoad(Archive *archive)
     {
         TResult ret = T3D_OK;
 
@@ -114,13 +114,12 @@ namespace Tiny3D
             if (mHandle == nullptr)
             {
                 ret = T3D_ERR_PLG_LOAD_FAILED;
-                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s",
-                    DYLIB_ERROR());
+                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s", DYLIB_ERROR());
                 mState = State::kUnloaded;
                 break;
             }
 
-            ret = Resource::onLoad();
+            ret = Resource::onLoad(archive);
         } while (false);
 
         return ret;

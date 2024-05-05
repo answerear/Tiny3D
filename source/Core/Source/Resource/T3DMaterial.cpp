@@ -217,19 +217,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Material::onLoad()
+    TResult Material::onLoad(Archive *archive)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            ret = Resource::onLoad();
+            ret = Resource::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
             }
-            
-            ArchivePtr archive;
+
             mShader = T3D_SHADER_MGR.loadShader(archive, mShaderName);
             if (mShader == nullptr)
             {

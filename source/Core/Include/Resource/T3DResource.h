@@ -155,13 +155,13 @@ namespace Tiny3D
          * \brief 保存回调
          * \return 返回 T3D_OK 以示成功，否则保存会失败
          */
-        virtual TResult onSave();
+        virtual TResult onSave(Archive *archive);
 
         /**
          * \brief 加载回调
          * \return 返回 T3D_OK 以示成功，否则加载会失败
          */
-        virtual TResult onLoad();
+        virtual TResult onLoad(Archive *archive);
 
         /**
          * \brief 卸载回调

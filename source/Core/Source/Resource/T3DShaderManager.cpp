@@ -49,7 +49,7 @@ namespace Tiny3D
 
     ShaderPtr ShaderManager::loadShader(Archive *archive, const String &name)
     {
-        return smart_pointer_cast<Shader>(load(archive, name, 0));
+        return smart_pointer_cast<Shader>(load(archive, name));
     }
 
     //--------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ShaderManager::loadResource(const String &name, DataStream &stream, int32_t argc, va_list args)
+    ResourcePtr ShaderManager::loadResource(const String &name, DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Shader>(stream);
     }

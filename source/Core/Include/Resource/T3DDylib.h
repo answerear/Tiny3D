@@ -78,7 +78,7 @@ namespace Tiny3D
 
         ResourcePtr clone() const override;
 
-        TResult onLoad() override;
+        TResult onLoad(Archive *archive) override;
 
         TResult onUnload() override;
      

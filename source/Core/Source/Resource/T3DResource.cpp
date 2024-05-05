@@ -63,14 +63,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onSave()
+    TResult Resource::onSave(Archive *archive)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onLoad()
+    TResult Resource::onLoad(Archive *archive)
     {
         mState = State::kLoaded;
         return T3D_OK;
