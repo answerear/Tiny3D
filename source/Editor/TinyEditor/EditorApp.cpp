@@ -28,6 +28,8 @@ Tiny3D::EditorApp *app = nullptr;
 
 namespace Tiny3D
 {
+    EditorApp theApp;
+    
     EditorApp::EditorApp()
     {
         app = this;
