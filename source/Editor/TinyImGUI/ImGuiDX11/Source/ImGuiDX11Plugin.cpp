@@ -40,6 +40,9 @@ namespace Tiny3D
 
     TResult ImGuiDX11Plugin::install()
     {
+        EditorApp *app = static_cast<EditorApp*>(EditorApp::getInstancePtr());
+        mEditorRenderer = new ImGuiDX11();
+        app->setEditorRenderer(mEditorRenderer);
         return T3D_OK;
     }
 
@@ -62,6 +65,9 @@ namespace Tiny3D
     TResult ImGuiDX11Plugin::uninstall()
     {
         TResult ret = T3D_OK;
+        EditorApp *app = static_cast<EditorApp*>(EditorApp::getInstancePtr());
+        app->setEditorRenderer(nullptr);
+        T3D_SAFE_DELETE(mEditorRenderer);
         return ret;
     }
 }

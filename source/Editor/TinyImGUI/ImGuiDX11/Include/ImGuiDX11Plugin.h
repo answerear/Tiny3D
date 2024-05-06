@@ -60,7 +60,10 @@ namespace Tiny3D
         TResult uninstall() override;
 
     protected:
-        String mName = "ImGuiDX11";          /**< 插件名称 */
+        /// 插件名称
+        String mName = "ImGuiDX11";
+        /// 当前 imgui 渲染器
+        EditorRenderer  *mEditorRenderer {nullptr};
     };
 
 }

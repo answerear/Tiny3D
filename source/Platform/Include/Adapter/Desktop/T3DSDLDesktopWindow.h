@@ -38,7 +38,7 @@ namespace Tiny3D
     public:
         SDLDesktopWindow();
 
-        virtual ~SDLDesktopWindow();
+        ~SDLDesktopWindow() override;
 
         /**
          * @brief 创建窗口.
@@ -49,7 +49,7 @@ namespace Tiny3D
          * @param [in] flags : 创建窗口需要的一些标记位，可使用或操作合并标记
          * @return 创建成功返回T3D_OK.
          */
-        virtual TResult create(const char *title, int32_t x, int32_t y,
+        TResult create(const char *title, int32_t x, int32_t y,
             int32_t w, int32_t h, uint32_t flags) override;
 
         /**
@@ -57,21 +57,27 @@ namespace Tiny3D
          * @param [in] data : 窗口依赖的数据指针
          * @return 成功返回 T3D_OK
          */
-        virtual TResult createFrom(const void *data) override;
+        TResult createFrom(const void *data) override;
 
         /**
          * @brief 销毁窗口
          * @return void
          */
-        virtual void destroy() override;
+        void destroy() override;
 
         /**
          * @brief 获取窗口系统相关信息
          * @param [in][out] info : 返回的窗口系统相关信息
          * @return 获取成功返回true
          */
-        virtual bool getSystemInfo(SysWMInfo &info) const override;
+        bool getSystemInfo(SysWMInfo &info) const override;
 
+        /**
+         * @brief 获取原生对象，这个视系统而定
+         * @return 返回的原生窗口对象
+         */
+        void *getNativeObject() const override;
+        
         /**
          * @brief 设置窗口图标
          * @param [in] pixels : 图标数据
@@ -81,34 +87,33 @@ namespace Tiny3D
          * @param [in] pitch : 图标数据跨度
          * @param [in] format : 图标数据格式
          */
-        virtual void setWindowIcon(void *pixels, int32_t width, int32_t height,
+        void setWindowIcon(void *pixels, int32_t width, int32_t height,
             int32_t depth, int32_t pitch, uint32_t format) override;
 
         /**
          * @brief 获取窗口宽度和高度
          */
-        virtual void getWindowSize(int32_t &width, 
-            int32_t &height) const override;
+        void getWindowSize(int32_t &width, int32_t &height) const override;
 
         /**
          * @brief 获取色深
          */
-        virtual uint32_t getColorDepth() const override;
+        uint32_t getColorDepth() const override;
 
         /**
          * @brief 获取窗口显示帧缓冲
          */
-        virtual uint8_t *getFramebuffer() override;
+        uint8_t *getFramebuffer() override;
 
         /**
          * @brief 获取窗口显示帧缓冲大小
          */
-        virtual size_t getFramebufferSize() const override;
+        size_t getFramebufferSize() const override;
 
         /**
          * @brief 更新窗口，把帧缓冲数据更新到窗口里
          */
-        virtual TResult updateWindow() override;
+        TResult updateWindow() override;
 
     protected:
         SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */

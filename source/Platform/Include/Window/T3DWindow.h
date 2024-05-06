@@ -135,6 +135,12 @@ namespace Tiny3D
         bool getSystemInfo(SysWMInfo &info) const;
 
         /**
+         * @brief 获取原生对象，这个视系统而定
+         * @return 返回的原生窗口对象
+         */
+        void *getNativeObject() const;
+
+        /**
          * @brief 获取窗口宽度和高度
          */
         void getWindowSize(int32_t &width, int32_t &height) const;

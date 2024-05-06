@@ -25,7 +25,9 @@ include_directories(
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${DirectX11_INCLUDE_DIR}"
+    "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
+    "${T3D_COMMON_INCLUDE_DIR}"
     )
 
 
@@ -35,6 +37,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
+list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h)
 
 if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})

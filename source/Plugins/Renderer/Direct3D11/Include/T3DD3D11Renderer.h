@@ -38,11 +38,13 @@ namespace Tiny3D
     public:
         static D3D11RendererPtr create();
 
-        virtual ~D3D11Renderer() override;
+        ~D3D11Renderer() override;
         
-        virtual TResult init() override;
+        TResult init() override;
         
-        virtual TResult destroy() override;
+        TResult destroy() override;
+        
+        void getEditorInfo(void *info) override;
         
     protected:
         D3D11Renderer();

@@ -185,6 +185,16 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    void Agent::getEditorInfo(void *info) const
+    {
+        if (mActiveRHIRenderer != nullptr)
+        {
+            mActiveRHIRenderer->getEditorInfo(info);
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+
     TResult Agent::initSystem(const String &appPath)
     {
         TResult ret = T3D_OK;

@@ -29,8 +29,10 @@ include_directories(
     "${IMGUI_DIR}"
     "${IMGUI_BACKENDS_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../TinyEditor"
+    "${T3D_COMMON_INCLUDE_DIR}"
     )
 
+message (STATUS "Common include : ${T3D_COMMON_INCLUDE_DIR}")
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
@@ -38,6 +40,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
+list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h)
 
 #if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
@@ -60,24 +63,26 @@ if (TINY3D_OS_IOS)
 
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DSystem
-        T3DLog
-		T3DUtils
-        T3DMath
-        T3DCore
-        rttr_core
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
+        LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
+        LINK_PRIVATE imgui_dx11
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DSystem
-        T3DLog
-		T3DUtils
-        T3DMath
-        T3DCore
-        rttr_core
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
+        LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
+        LINK_PRIVATE imgui_dx11
         )
 
     add_custom_command(TARGET ${BIN_NAME}
@@ -89,13 +94,14 @@ elseif (TINY3D_OS_LINUX)
 else (TINY3D_OS_IOS)
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DSystem
-        T3DLog
-		T3DUtils
-        T3DMath
-        T3DCore
-        rttr_core
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
+        LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
+        LINK_PRIVATE imgui_dx11
         )
 endif (TINY3D_OS_IOS)
 

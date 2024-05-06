@@ -42,6 +42,7 @@ include_directories(
     "${IMGUI_SOURCE_DIR}"
 	"${IMGUI_BACKENDS_DIR}"
 	"${SDL2_INCLUDE_DIR}"
+	"${T3D_COMMON_INCLUDE_DIR}"
     )
 	
 # Setup header files for this project.

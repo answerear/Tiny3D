@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,16 +22,21 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
+#ifndef __T3D_EDITOR_INFO_DX11_H__
+#define __T3D_EDITOR_INFO_DX11_H__
 
 
-#include <Tiny3D.h>
-#include <imgui.h>
-
+#include <SDL.h>
+#include <d3d11.h>
 
 namespace Tiny3D
 {
-    #define LOG_TAG_EDITOR     "Editor"
-
-    class EditorRenderer;
+    struct EditorInfoDX11
+    {
+        SDL_Window          *sdlWindow {nullptr};
+        ID3D11Device        *d3dDevice {nullptr};
+        ID3D11DeviceContext *d3dContext {nullptr};
+    };
 }
+
+#endif  /*__T3D_EDITOR_INFO_DX11_H__*/

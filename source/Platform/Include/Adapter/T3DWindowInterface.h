@@ -77,6 +77,12 @@ namespace Tiny3D
         virtual bool getSystemInfo(SysWMInfo &info) const = 0;
 
         /**
+         * @brief 获取原生对象，这个视系统而定
+         * @return 返回的原生窗口对象
+         */
+        virtual void *getNativeObject() const = 0;
+
+        /**
          * @brief 设置窗口图标
          * @param [in] pixels : 图标数据
          * @param [in] width : 图标宽度

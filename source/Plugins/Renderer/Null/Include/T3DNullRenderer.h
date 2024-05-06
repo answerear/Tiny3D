@@ -38,12 +38,14 @@ namespace Tiny3D
     public:
         static NullRendererPtr create();
 
-        virtual ~NullRenderer() override;
+        ~NullRenderer() override;
         
-        virtual TResult init() override;
+        TResult init() override;
         
-        virtual TResult destroy() override;
+        TResult destroy() override;
 
+        void getEditorInfo(void *info) override;
+        
     protected:
         NullRenderer();
         

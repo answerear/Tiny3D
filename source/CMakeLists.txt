@@ -202,6 +202,9 @@ add_definitions(-DT3D_ERR_USER=0x00020000)
 include(FindPkgMacros)
 include(ProjectCMakeModule)
 
+# Common headers directory
+set(T3D_COMMON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Common")
+
 # Search SDL2 library for all projects.
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
@@ -230,7 +233,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
-
+# Project Reflect
 add_subdirectory(Reflect)
 
 # Project Platform

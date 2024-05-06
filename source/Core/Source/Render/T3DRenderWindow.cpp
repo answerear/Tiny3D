@@ -259,5 +259,17 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void *RenderWindow::getNativeObject() const
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getNativeObject();
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
 }
 

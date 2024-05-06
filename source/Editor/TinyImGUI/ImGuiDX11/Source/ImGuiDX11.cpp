@@ -24,6 +24,7 @@
 
 
 #include "ImGuiDX11.h"
+#include "T3DEditorInfoDX11.h"
 
 
 namespace Tiny3D
@@ -39,14 +40,17 @@ namespace Tiny3D
 
     ImGuiDX11::~ImGuiDX11()
     {
-        
+        ImGui_ImplDX11_Shutdown();
+        ImGui_ImplSDL2_Shutdown();
     }
 
     //--------------------------------------------------------------------------
 
     void ImGuiDX11::init(void *initData)
     {
-        
+        EditorInfoDX11 *info = static_cast<EditorInfoDX11*>(initData);
+        ImGui_ImplSDL2_InitForD3D(info->sdlWindow);
+        ImGui_ImplDX11_Init(info->d3dDevice, info->d3dContext);
     }
 
     //--------------------------------------------------------------------------

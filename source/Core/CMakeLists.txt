@@ -109,7 +109,6 @@ set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cp
 #set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.h)
 #set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/ .pb.cc)
 
-
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
     # Make dynamic library for this project.

@@ -167,6 +167,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void *SDLDesktopWindow::getNativeObject() const
+    {
+        return mSDLWindow;
+    }
+
+    //--------------------------------------------------------------------------
+
     void SDLDesktopWindow::setWindowIcon(void *pixels, int32_t width,
         int32_t height, int32_t depth, int32_t pitch, uint32_t format)
     {

@@ -52,6 +52,8 @@ namespace Tiny3D
 
         bool getSystemInfo(SysWMInfo &info) const;
 
+        void *getNativeObject() const;
+
         const RenderWindowDesc &getDescriptor() const { return mDesc; }
 
         RHIRenderWindowPtr getRHIRenderWindow() const { return mRHIRenderWindow; }

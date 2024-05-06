@@ -61,6 +61,12 @@ namespace Tiny3D
         virtual TResult destroy() = 0;
 
         /**
+         * @brief 获取编辑需要的信息
+         * @param [in] info : 存放编辑器的信息，实现者负责填充
+         */
+        virtual void getEditorInfo(void *info) = 0;
+        
+        /**
          * @fn  const String Renderer::&getName() const;
          * @brief   获取渲染器名称
          * @returns The name.
@@ -70,9 +76,10 @@ namespace Tiny3D
         RHIContextPtr getContext() { return mContext; }
         
     protected:
-        String                  mName;              /**< 渲染器名称 */
-
-        RHIContextPtr           mContext;           /**< RHI 渲染上下文 */
+        /// 渲染器名称
+        String                  mName {};
+        /// RHI 渲染上下文
+        RHIContextPtr           mContext {nullptr};
     };
 }
 

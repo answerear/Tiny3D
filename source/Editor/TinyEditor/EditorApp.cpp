@@ -23,6 +23,8 @@
  ******************************************************************************/
 
 #include "EditorApp.h"
+#include "EditorRenderer.h"
+#include "T3DEditorInfoDX11.h"
 
 Tiny3D::EditorApp *app = nullptr;
 
@@ -44,13 +46,55 @@ namespace Tiny3D
     {
         TResult ret;
 
-        Agent *theEngine = new Tiny3D::Agent();
+        Agent *engine = new Agent();
 
-        ret = theEngine->init(argc, argv, true, true);
-        if (ret == T3D_OK)
-            theEngine->run();
+        do
+        {
+            ret = engine->init(argc, argv, true, true);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
 
-        delete theEngine;
+            ret = engine->loadPlugin("ImGuiDX11");
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO(); (void)io;
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+            //io.ConfigViewportsNoAutoMerge = true;
+            //io.ConfigViewportsNoTaskBarIcon = true;
+
+            // Setup Dear ImGui style
+            ImGui::StyleColorsDark();
+            //ImGui::StyleColorsLight();
+
+            // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+            ImGuiStyle& style = ImGui::GetStyle();
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                style.WindowRounding = 0.0f;
+                style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+            }
+            
+#if defined(T3D_OS_WINDOWS)
+            EditorInfoDX11 info;
+            engine->getEditorInfo(&info);
+            mEditorRenderer->init(&info);
+#elif defined (T3D_OS_OSX)
+#elif defined (T3D_OS_LINUX)
+#endif
+            engine->run();
+        } while (false);
+
+        delete engine;
 
         return ret;
     }

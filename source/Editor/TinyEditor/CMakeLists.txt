@@ -28,6 +28,7 @@ include_directories(
     "${RTTR_INCLUDE_DIR}"
     "${IMGUI_DIR}"
     "${IMGUI_BACKENDS_DIR}"
+    "${T3D_COMMON_INCLUDE_DIR}"
     )
 
 # Setup project header files
@@ -55,6 +56,7 @@ if (TINY3D_OS_WINDOWS)
         T3DFramework
         T3DCore
         rttr_core
+        imgui_dx11
         )
     
     # Setup install files and path for Windows.

@@ -33,7 +33,6 @@
 namespace Tiny3D
 {
     /**
-     * @class   D3D11RenderWindow
      * @brief   DirectX 11 渲染窗口.
      */
     class D3D11RenderWindow : public RHIRenderWindow
@@ -46,7 +45,6 @@ namespace Tiny3D
         static D3D11RenderWindowPtr create(RenderWindow *renderWindow);
 
         /**
-         * @fn  virtual D3D11RenderWindow::~D3D11RenderWindow();
          * @brief   析构函数
          */
         virtual ~D3D11RenderWindow();
@@ -54,7 +52,6 @@ namespace Tiny3D
         bool init(RenderWindow *renderWindow);
 
         /**
-         * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
          * @brief   双缓冲中交换离屏缓存到显示缓存，显示出图像
          * @return  调用成功返回 T3D_OK.
          * @remarks  具体渲染系统子类实现本接口.
@@ -62,8 +59,6 @@ namespace Tiny3D
         TResult swapBuffers() override;
 
         /**
-         * @fn  virtual void D3D11RenderWindow::clear(const ColorRGB &clrFill, 
-         *      uint32_t clearFlags, Real depth, uint32_t stencil) override;
          * @brief   Clears this object to its blank/initial state
          * @param   clrFill     The color fill.
          * @param   clearFlags  The clear flags.
@@ -72,18 +67,17 @@ namespace Tiny3D
          */
         TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
-        /**< The d 3D swap chain */
+        /// The d 3D swap chain
         IDXGISwapChain          *D3DSwapChain {nullptr};
         ID3D11Texture2D         *D3DBackBuffer {nullptr};
-        /**< The d 3D right view */
+        /// The d 3D right view
         ID3D11RenderTargetView  *D3DRTView {nullptr};
         ID3D11Texture2D         *D3DDSBuffer {nullptr};
-        /**< The d 3D ds view */
+        ///The d 3D ds view
         ID3D11DepthStencilView  *D3DDSView {nullptr};
         
     protected:
         /**
-         * @fn  D3D11RenderWindow::D3D11RenderWindow(const String &name);
          * @brief   Constructor
          */
         D3D11RenderWindow();

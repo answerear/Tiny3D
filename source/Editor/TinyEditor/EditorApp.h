@@ -35,9 +35,12 @@ namespace Tiny3D
     {
     public:
         EditorApp();
+        
         ~EditorApp() override;
 
         TResult go(int32_t argc, char *argv[]);
+
+        void setEditorRenderer(EditorRenderer *renderer) { mEditorRenderer = renderer; }
 
     protected:  /// from Tiny3D::Application
         bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
@@ -51,6 +54,7 @@ namespace Tiny3D
         void applicationLowMemory() override;
 
     protected:
+        EditorRenderer  *mEditorRenderer {nullptr};
     };
 }
 

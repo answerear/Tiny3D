@@ -82,6 +82,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void NullRenderer::getEditorInfo(void *info)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
     void NullRenderer::cleanup()
     {
         mContext = nullptr;

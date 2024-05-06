@@ -150,6 +150,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void *Window::getNativeObject() const
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getNativeObject();
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     void Window::getWindowSize(int32_t &width, int32_t &height) const
     {
         if (mWindow != nullptr)
@@ -158,6 +170,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     uint32_t Window::getColorDepth() const
     {
         if (mWindow != nullptr)
@@ -180,6 +194,8 @@ namespace Tiny3D
         return nullptr;
     }
 
+    //--------------------------------------------------------------------------
+    
     size_t Window::getFramebufferSize() const
     {
         if (mWindow != nullptr)
@@ -203,4 +219,6 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
 }

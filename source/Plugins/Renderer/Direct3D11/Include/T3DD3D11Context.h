@@ -584,6 +584,10 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
+
+        ID3D11Device *getD3DDevice() const { return mD3DDevice; }
+
+        ID3D11DeviceContext *getD3DDeviceContext() const { return mD3DDeviceContext; }
         
     protected:
         D3D11Context();

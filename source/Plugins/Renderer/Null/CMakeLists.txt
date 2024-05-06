@@ -25,6 +25,7 @@ include_directories(
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${RTTR_INCLUDE_DIR}"
+    "${T3D_COMMON_INCLUDE_DIR}"
     )
 
 

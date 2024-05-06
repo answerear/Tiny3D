@@ -25,13 +25,5 @@
 #pragma once
 
 
-#include <Tiny3D.h>
-#include <imgui.h>
-
-
-namespace Tiny3D
-{
-    #define LOG_TAG_EDITOR     "Editor"
-
-    class EditorRenderer;
-}
+#include <EditorApp.h>
+#include <EditorRenderer.h>

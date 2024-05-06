@@ -26,6 +26,7 @@
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11Context.h"
 #include "T3DD3D11RenderWindow.h"
+#include "T3DEditorInfoDX11.h"
 
 
 namespace Tiny3D
@@ -75,9 +76,24 @@ namespace Tiny3D
         do 
         {
             cleanup();
-        } while (0);
+        } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Renderer::getEditorInfo(void *info)
+    {
+        if (mContext != nullptr)
+        {
+            EditorInfoDX11 *dx11Info = static_cast<EditorInfoDX11*>(info);
+            SDL_Window *sdlWindow = static_cast<SDL_Window*>(T3D_AGENT.getDefaultRenderWindow()->getNativeObject());
+            dx11Info->sdlWindow = sdlWindow;
+            D3D11Context *d3dContext = static_cast<D3D11Context*>(mContext.get());
+            dx11Info->d3dDevice = d3dContext->getD3DDevice();
+            dx11Info->d3dContext = d3dContext->getD3DDeviceContext();
+        }
     }
 
     //--------------------------------------------------------------------------
