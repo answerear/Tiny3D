@@ -10,10 +10,6 @@ set_project_name(imgui_dx11)
 message(STATUS "Generating project : ${BIN_NAME}")
 
 
-if (TINY3D_CORE_RTTR)
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-endif (TINY3D_CORE_RTTR)
-
 
 if (MSVC)
     # Add definition only for Windows.
@@ -34,8 +30,8 @@ set (IMGUI_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 set (IMGUI_BACKENDS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../backends")
 
 
-message(STATUS "Imgui source :${IMGUI_SOURCE_DIR}")
-message(STATUS "Imgui backends : ${IMGUI_BACKENDS_DIR}")
+#message(STATUS "Imgui source :${IMGUI_SOURCE_DIR}")
+#message(STATUS "Imgui backends : ${IMGUI_BACKENDS_DIR}")
 
 # Setup search header path for this project.
 include_directories(
@@ -53,7 +49,7 @@ set_project_files(Source ${IMGUI_SOURCE_DIR}/ .cpp)
 
 list(APPEND SOURCE_FILES ${IMGUI_BACKENDS_DIR}/imgui_impl_sdl2.h ${IMGUI_BACKENDS_DIR}/imgui_impl_dx11.h ${IMGUI_BACKENDS_DIR}/imgui_impl_sdl2.cpp ${IMGUI_BACKENDS_DIR}/imgui_impl_dx11.cpp)
 
-message(STATUS "${SOURCE_FILES}")
+#message(STATUS "${SOURCE_FILES}")
 
 # Setup all files for building this project.
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -90,21 +86,21 @@ if (TINY3D_OS_WINDOWS)
         ARCHIVE DESTINATION lib/Debug CONFIGURATIONS Debug
         )
 
-    install(DIRECTORY
-        ${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Core
-        FILE_PERMISSIONS GROUP_READ OWNER_READ
-        PATTERN "Android" EXCLUDE
-        PATTERN "iOS" EXCLUDE
-        PATTERN "Linux" EXCLUDE
-        PATTERN "MacOSX" EXCLUDE
-        PATTERN "Unix" EXCLUDE
-        PATTERN "Windows" EXCLUDE
-        PATTERN "Direct3D9" EXCLUDE
-        PATTERN "Direct3D11" EXCLUDE
-        PATTERN "OpenGL3Plus" EXCLUDE
-        PATTERN "OpenGLES2" EXCLUDE
-        PATTERN "OpenGLES3" EXCLUDE
-        )
+    #install(DIRECTORY
+    #    ${CMAKE_CURRENT_SOURCE_DIR}/Include/ DESTINATION include/Core
+    #    FILE_PERMISSIONS GROUP_READ OWNER_READ
+    #    PATTERN "Android" EXCLUDE
+    #    PATTERN "iOS" EXCLUDE
+    #    PATTERN "Linux" EXCLUDE
+    #    PATTERN "MacOSX" EXCLUDE
+    #    PATTERN "Unix" EXCLUDE
+    #    PATTERN "Windows" EXCLUDE
+    #    PATTERN "Direct3D9" EXCLUDE
+    #    PATTERN "Direct3D11" EXCLUDE
+    #    PATTERN "OpenGL3Plus" EXCLUDE
+    #    PATTERN "OpenGLES2" EXCLUDE
+    #    PATTERN "OpenGLES3" EXCLUDE
+    #    )
 
     add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
