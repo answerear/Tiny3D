@@ -821,6 +821,25 @@ namespace Tiny3D
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
         auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow)
         {
+            mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
+            mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+            mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+            mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
+            mD3DDeviceContext->RSGetState(&mBackupState.RS);
+            mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
+            mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
+            mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
+            mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
+            mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
+            mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
+            mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
+            mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
+            mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
+            mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
+            mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
+            mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
+            mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+            
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
             return T3D_OK;
         };
@@ -843,6 +862,25 @@ namespace Tiny3D
         
         auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer)
         {
+            mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
+            mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+            mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+            mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
+            mD3DDeviceContext->RSGetState(&mBackupState.RS);
+            mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
+            mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
+            mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
+            mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
+            mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
+            mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
+            mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
+            mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
+            mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
+            mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
+            mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
+            mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
+            mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+            
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DPixelBuffer->D3DDSView);
             return T3D_OK;
         };
@@ -2451,12 +2489,30 @@ namespace Tiny3D
 
         auto lambda = [this]()
         { 
-            mD3DDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
-            mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, -1);
-            mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
-            mD3DDeviceContext->RSSetState(nullptr);
-            mD3DDeviceContext->VSSetSamplers(0, 0, nullptr);
+            // mD3DDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+            // mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, -1);
+            // mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
+            // mD3DDeviceContext->RSSetState(nullptr);
+            // mD3DDeviceContext->VSSetSamplers(0, 0, nullptr);
 
+            // Restore modified DX state
+            mD3DDeviceContext->RSSetScissorRects(mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+            mD3DDeviceContext->RSSetViewports(mBackupState.ViewportsCount, mBackupState.Viewports);
+            mD3DDeviceContext->RSSetState(mBackupState.RS); if (mBackupState.RS) mBackupState.RS->Release();
+            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask); if (mBackupState.BlendState) mBackupState.BlendState->Release();
+            mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef); if (mBackupState.DepthStencilState) mBackupState.DepthStencilState->Release();
+            mD3DDeviceContext->PSSetShaderResources(0, 1, &mBackupState.PSShaderResource); if (mBackupState.PSShaderResource) mBackupState.PSShaderResource->Release();
+            mD3DDeviceContext->PSSetSamplers(0, 1, &mBackupState.PSSampler); if (mBackupState.PSSampler) mBackupState.PSSampler->Release();
+            mD3DDeviceContext->PSSetShader(mBackupState.PS, mBackupState.PSInstances, mBackupState.PSInstancesCount); if (mBackupState.PS) mBackupState.PS->Release();
+            for (UINT i = 0; i < mBackupState.PSInstancesCount; i++) if (mBackupState.PSInstances[i]) mBackupState.PSInstances[i]->Release();
+            mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount); if (mBackupState.VS) mBackupState.VS->Release();
+            mD3DDeviceContext->VSSetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer); if (mBackupState.VSConstantBuffer) mBackupState.VSConstantBuffer->Release();
+            mD3DDeviceContext->GSSetShader(mBackupState.GS, mBackupState.GSInstances, mBackupState.GSInstancesCount); if (mBackupState.GS) mBackupState.GS->Release();
+            for (UINT i = 0; i < mBackupState.VSInstancesCount; i++) if (mBackupState.VSInstances[i]) mBackupState.VSInstances[i]->Release();
+            mD3DDeviceContext->IASetPrimitiveTopology(mBackupState.PrimitiveTopology);
+            mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset); if (mBackupState.IndexBuffer) mBackupState.IndexBuffer->Release();
+            mD3DDeviceContext->IASetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset); if (mBackupState.VertexBuffer) mBackupState.VertexBuffer->Release();
+            mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout); if (mBackupState.InputLayout) mBackupState.InputLayout->Release();
             return T3D_OK;
         };
 

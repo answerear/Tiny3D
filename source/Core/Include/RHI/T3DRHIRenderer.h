@@ -64,7 +64,7 @@ namespace Tiny3D
          * @brief 获取编辑需要的信息
          * @param [in] info : 存放编辑器的信息，实现者负责填充
          */
-        virtual void getEditorInfo(void *info) = 0;
+        virtual void getEditorInfo(void *info, RenderWindow *window) = 0;
         
         /**
          * @fn  const String Renderer::&getName() const;

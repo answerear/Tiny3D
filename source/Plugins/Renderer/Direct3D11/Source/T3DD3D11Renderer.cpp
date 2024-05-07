@@ -83,7 +83,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void D3D11Renderer::getEditorInfo(void *info)
+    void D3D11Renderer::getEditorInfo(void *info, RenderWindow *window)
     {
         if (mContext != nullptr)
         {
@@ -93,6 +93,8 @@ namespace Tiny3D
             D3D11Context *d3dContext = static_cast<D3D11Context*>(mContext.get());
             dx11Info->d3dDevice = d3dContext->getD3DDevice();
             dx11Info->d3dContext = d3dContext->getD3DDeviceContext();
+            D3D11RenderWindow *renderWindow = static_cast<D3D11RenderWindow *>(window->getRHIRenderWindow().get());
+            dx11Info->d3dRTView = renderWindow->D3DRTView;
         }
     }
 

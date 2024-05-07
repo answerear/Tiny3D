@@ -44,7 +44,7 @@ namespace Tiny3D
         
         TResult destroy() override;
         
-        void getEditorInfo(void *info) override;
+        void getEditorInfo(void *info, RenderWindow *window) override;
         
     protected:
         D3D11Renderer();

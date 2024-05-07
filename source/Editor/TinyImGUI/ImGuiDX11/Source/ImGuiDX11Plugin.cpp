@@ -24,7 +24,7 @@
 
 
 #include "ImGuiDX11Plugin.h"
-#include "ImGuiDX11.h"
+#include "ImGuiImplDX11.h"
 
 
 namespace Tiny3D
@@ -41,8 +41,8 @@ namespace Tiny3D
     TResult ImGuiDX11Plugin::install()
     {
         EditorApp *app = static_cast<EditorApp*>(EditorApp::getInstancePtr());
-        mEditorRenderer = new ImGuiDX11();
-        app->setEditorRenderer(mEditorRenderer);
+        mEditorImGuiImpl = new ImGuiImplDX11();
+        app->setEditorRenderer(mEditorImGuiImpl);
         return T3D_OK;
     }
 
@@ -67,7 +67,7 @@ namespace Tiny3D
         TResult ret = T3D_OK;
         EditorApp *app = static_cast<EditorApp*>(EditorApp::getInstancePtr());
         app->setEditorRenderer(nullptr);
-        T3D_SAFE_DELETE(mEditorRenderer);
+        T3D_SAFE_DELETE(mEditorImGuiImpl);
         return ret;
     }
 }

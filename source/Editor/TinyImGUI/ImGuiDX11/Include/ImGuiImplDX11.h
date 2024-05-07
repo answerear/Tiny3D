@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,24 +22,44 @@
  * SOFTWARE.
  ******************************************************************************/
 
+
 #pragma once
+
+
+
+#include "ImGuiDX11Prerequisites.h"
+#include <d3d11.h>
 
 
 namespace Tiny3D
 {
-    class EditorRenderer
+    class ImGuiImplDX11 : public EditorImGuiImpl
     {
     public:
-        EditorRenderer(const EditorRenderer &) = delete;
-        EditorRenderer(EditorRenderer &&) = delete;
+        ImGuiImplDX11();
 
-        EditorRenderer &operator=(const EditorRenderer &) = delete;
-        EditorRenderer &operator=(EditorRenderer &&) = delete;
+        ~ImGuiImplDX11() override;
 
-        EditorRenderer() = default;
-        virtual ~EditorRenderer() = default;
+        void init(void *initData) override;
+
+        bool pollEvents() override;
+
+        void update() override;
+
+        void preRender() override;
+
+        void postRender() override;
+
+        void createRenderTarget();
+
+        void cleanupRenderTarget();
         
-        virtual void init(void *initData) = 0;
+    protected:
+        SDL_Window  *mSDLWindow {nullptr};
+        ID3D11Device            *mD3DDevice {nullptr};
+        ID3D11DeviceContext     *mD3DDeviceContext {nullptr};
+        ID3D11RenderTargetView  *mD3DRTView {nullptr};
+        
     };
 }
 

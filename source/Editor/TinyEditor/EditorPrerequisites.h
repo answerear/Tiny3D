@@ -33,5 +33,5 @@ namespace Tiny3D
 {
     #define LOG_TAG_EDITOR     "Editor"
 
-    class EditorRenderer;
+    class EditorImGuiImpl;
 }

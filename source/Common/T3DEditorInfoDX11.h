@@ -33,9 +33,10 @@ namespace Tiny3D
 {
     struct EditorInfoDX11
     {
-        SDL_Window          *sdlWindow {nullptr};
-        ID3D11Device        *d3dDevice {nullptr};
-        ID3D11DeviceContext *d3dContext {nullptr};
+        SDL_Window              *sdlWindow {nullptr};
+        ID3D11Device            *d3dDevice {nullptr};
+        ID3D11DeviceContext     *d3dContext {nullptr};
+        ID3D11RenderTargetView  *d3dRTView {nullptr};
     };
 }
 

@@ -36,6 +36,7 @@
 #include "Resource/T3DShaderManager.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DGameObject.h"
+#include "RHI/T3DRHIContext.h"
 #include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderer.h"
 #include "RHI/T3DRHIThread.h"
@@ -189,7 +190,7 @@ namespace Tiny3D
     {
         if (mActiveRHIRenderer != nullptr)
         {
-            mActiveRHIRenderer->getEditorInfo(info);
+            mActiveRHIRenderer->getEditorInfo(info, mDefaultWindow);
         }
     }
     
@@ -590,38 +591,20 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
-#if (T3D_ENABLE_RHI_THREAD)
-            T3D_RHI_THREAD.resume();
-#endif
+            // 帧开始
+            beginFrame();
             
             // 轮询系统事件
             mIsRunning = theApp->pollEvents();
 
-            // if (!mIsRunning)
-            //     break;
-
-            // 事件系统派发事件
-            T3D_EVENT_MGR.dispatchEvent();
-
-            // 更新场景树
-            if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
-            {
-                mSceneMgr->getCurrentScene()->update();
-            }
+            // 更新
+            update();
 
             // 渲染一帧
             renderOneFrame();
 
-#if (T3D_ENABLE_RHI_THREAD)
-            mRHIEvent.wait();
-#endif
-
-            // 异步赋值
-            mAssignableObjMgr->assign();
-
-            // 清理要删除的对象
-            GameObject::destroyComponents();
-            GameObject::destroyGameObjects();
+            // 帧结束
+            endFrame();
         }
 
         theApp->applicationWillTerminate();
@@ -629,8 +612,22 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
     void Agent::renderOneFrame()
     {
+        renderOneFrame(nullptr, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::renderOneFrame(const PreEngineRender &preRender, const PostEngineRender &postRender)
+    {
+        if (preRender != nullptr)
+        {
+            preRender();
+        }
+
         if (mRenderPipeline != nullptr)
         {
             // 剔除
@@ -640,6 +637,11 @@ namespace Tiny3D
             mRenderPipeline->render(mActiveRHIRenderer->getContext());
         }
 
+        if (postRender != nullptr)
+        {
+            postRender();
+        }
+        
         for (auto win : mRenderWindows)
         {
             win.second->swapBuffers();
@@ -647,6 +649,82 @@ namespace Tiny3D
 
         mRenderStateMgr->GC();
         mRenderBufferMgr->GC();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::beginFrame()
+    {
+#if (T3D_ENABLE_RHI_THREAD)
+        T3D_RHI_THREAD.resume();
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::update()
+    {
+        // 事件系统派发事件
+        T3D_EVENT_MGR.dispatchEvent();
+
+        // 更新场景树
+        if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
+        {
+            mSceneMgr->getCurrentScene()->update();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::endFrame()
+    {
+#if (T3D_ENABLE_RHI_THREAD)
+        mRHIEvent.wait();
+#endif
+
+        // 异步赋值
+        mAssignableObjMgr->assign();
+
+        // 清理要删除的对象
+        GameObject::destroyComponents();
+        GameObject::destroyGameObjects();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Agent::runForEditor(const EditorRunningData &updateData)
+    {
+        Application *theApp = Application::getInstancePtr();
+
+        while (mIsRunning)
+        {
+            // 帧开始
+            beginFrame();
+            
+            // 轮询系统事件
+            if (updateData.pollEvents != nullptr)
+            {
+                mIsRunning = updateData.pollEvents();
+            }
+
+            // 更新
+            update();
+
+            if (updateData.update != nullptr)
+            {
+                updateData.update();
+            }
+
+            // 渲染一帧
+            renderOneFrame(updateData.preRender, updateData.postRender);
+
+            // 帧结束
+            endFrame();
+        }
+
+        theApp->applicationWillTerminate();
+
+        return true;
     }
 
     //--------------------------------------------------------------------------

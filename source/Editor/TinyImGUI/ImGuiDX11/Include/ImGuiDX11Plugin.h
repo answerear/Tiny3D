@@ -63,7 +63,7 @@ namespace Tiny3D
         /// 插件名称
         String mName = "ImGuiDX11";
         /// 当前 imgui 渲染器
-        EditorRenderer  *mEditorRenderer {nullptr};
+        EditorImGuiImpl  *mEditorImGuiImpl {nullptr};
     };
 
 }

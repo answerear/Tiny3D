@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,37 +22,32 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#include "ImGuiDX11.h"
-#include "T3DEditorInfoDX11.h"
+#pragma once
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    ImGuiDX11::ImGuiDX11()
+    class EditorImGuiImpl
     {
+    public:
+        EditorImGuiImpl(const EditorImGuiImpl &) = delete;
+        EditorImGuiImpl(EditorImGuiImpl &&) = delete;
+
+        EditorImGuiImpl &operator=(const EditorImGuiImpl &) = delete;
+        EditorImGuiImpl &operator=(EditorImGuiImpl &&) = delete;
+
+        EditorImGuiImpl() = default;
+        virtual ~EditorImGuiImpl() = default;
         
-    }
-    
-    //--------------------------------------------------------------------------
+        virtual void init(void *initData) = 0;
 
-    ImGuiDX11::~ImGuiDX11()
-    {
-        ImGui_ImplDX11_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
-    }
+        virtual bool pollEvents() = 0;
 
-    //--------------------------------------------------------------------------
+        virtual void update() = 0;
 
-    void ImGuiDX11::init(void *initData)
-    {
-        EditorInfoDX11 *info = static_cast<EditorInfoDX11*>(initData);
-        ImGui_ImplSDL2_InitForD3D(info->sdlWindow);
-        ImGui_ImplDX11_Init(info->d3dDevice, info->d3dContext);
-    }
+        virtual void preRender() = 0;
 
-    //--------------------------------------------------------------------------
+        virtual void postRender() = 0;
+    };
 }
 

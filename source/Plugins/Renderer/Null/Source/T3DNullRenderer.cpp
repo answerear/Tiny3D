@@ -82,7 +82,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void NullRenderer::getEditorInfo(void *info)
+    void NullRenderer::getEditorInfo(void *info, RenderWindow *window)
     {
         
     }

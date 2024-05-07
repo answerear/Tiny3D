@@ -33,6 +33,19 @@
 
 namespace Tiny3D
 {
+    using PollEvents = TFunction<bool()>;
+    using Update = TFunction<void()>;
+    using PreEngineRender = TFunction<void()>;
+    using PostEngineRender = TFunction<void()>;
+
+    struct EditorRunningData
+    {
+        PollEvents          pollEvents {nullptr};
+        Update              update {nullptr};
+        PreEngineRender     preRender {nullptr};
+        PostEngineRender    postRender {nullptr};
+    };
+    
     class T3D_ENGINE_API Agent : public Singleton<Agent>
     {
     public:
@@ -74,6 +87,8 @@ namespace Tiny3D
         }
 
         bool run();
+
+        bool runForEditor(const EditorRunningData &updateData);
 
         void renderOneFrame();
 
@@ -151,7 +166,15 @@ namespace Tiny3D
         TResult initSceneManager();
 
         TResult initRenderThread();
-     
+
+        void renderOneFrame(const PreEngineRender &preRender, const PostEngineRender &postRender);
+
+        void update();
+
+        void beginFrame();
+
+        void endFrame();
+        
     protected:
         typedef TMap<String, Plugin*>       Plugins;
         typedef Plugins::iterator           PluginsItr;

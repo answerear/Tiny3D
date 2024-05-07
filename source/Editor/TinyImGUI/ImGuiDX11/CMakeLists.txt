@@ -71,6 +71,7 @@ if (TINY3D_OS_IOS)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
+        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
@@ -83,6 +84,7 @@ elseif (TINY3D_OS_LINUX)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
+        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 
     add_custom_command(TARGET ${BIN_NAME}
@@ -102,6 +104,7 @@ else (TINY3D_OS_IOS)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
+        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 endif (TINY3D_OS_IOS)
 
