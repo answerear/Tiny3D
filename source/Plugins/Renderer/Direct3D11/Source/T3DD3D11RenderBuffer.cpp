@@ -45,6 +45,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void *D3D11VertexDeclaration::getNativeObject() const
+    {
+        return D3D11InputLayout;
+    }
+    
+    //--------------------------------------------------------------------------
+
     D3D11VertexBufferPtr D3D11VertexBuffer::create()
     {
         return new D3D11VertexBuffer();
@@ -56,6 +63,13 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(D3DBuffer);
     }
 
+    //--------------------------------------------------------------------------
+
+    void *D3D11VertexBuffer::getNativeObject() const
+    {
+        return D3DBuffer;
+    }
+    
     //--------------------------------------------------------------------------
 
     D3D11IndexBufferPtr D3D11IndexBuffer::create()
@@ -70,6 +84,13 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(D3DBuffer);
     }
 
+    //--------------------------------------------------------------------------
+
+    void *D3D11IndexBuffer::getNativeObject() const
+    {
+        return D3DBuffer;
+    }
+    
     //--------------------------------------------------------------------------
     
     D3D11ConstantBufferPtr D3D11ConstantBuffer::create()
@@ -86,6 +107,13 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    void *D3D11ConstantBuffer::getNativeObject() const
+    {
+        return D3DBuffer;
+    }
+    
+    //--------------------------------------------------------------------------
+
     D3D11PixelBuffer1DPtr D3D11PixelBuffer1D::create()
     {
         return new D3D11PixelBuffer1D();
@@ -98,6 +126,13 @@ namespace Tiny3D
         
     }
 
+    //--------------------------------------------------------------------------
+
+    void *D3D11PixelBuffer1D::getNativeObject() const
+    {
+        return D3DSRView;
+    }
+    
     //--------------------------------------------------------------------------
 
     D3D11PixelBuffer2DPtr D3D11PixelBuffer2D::create()
@@ -117,6 +152,20 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(D3DResolveTex);
     }
 
+    //--------------------------------------------------------------------------
+
+    void *D3D11PixelBuffer2D::getNativeObject() const
+    {
+        return D3DSRView;
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    void *D3D11PixelBuffer3D::getNativeObject() const
+    {
+        return D3DSRView;
+    }
+    
     //--------------------------------------------------------------------------
 }
 

@@ -2496,23 +2496,39 @@ namespace Tiny3D
             // mD3DDeviceContext->VSSetSamplers(0, 0, nullptr);
 
             // Restore modified DX state
+            mD3DDeviceContext->OMSetRenderTargets(1, &mBackupState.RenderTargetView, mBackupState.DepthStencilView);
+            D3D_SAFE_RELEASE(mBackupState.RenderTargetView);
+            D3D_SAFE_RELEASE(mBackupState.DepthStencilView);
             mD3DDeviceContext->RSSetScissorRects(mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
             mD3DDeviceContext->RSSetViewports(mBackupState.ViewportsCount, mBackupState.Viewports);
             mD3DDeviceContext->RSSetState(mBackupState.RS); if (mBackupState.RS) mBackupState.RS->Release();
-            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask); if (mBackupState.BlendState) mBackupState.BlendState->Release();
-            mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef); if (mBackupState.DepthStencilState) mBackupState.DepthStencilState->Release();
-            mD3DDeviceContext->PSSetShaderResources(0, 1, &mBackupState.PSShaderResource); if (mBackupState.PSShaderResource) mBackupState.PSShaderResource->Release();
-            mD3DDeviceContext->PSSetSamplers(0, 1, &mBackupState.PSSampler); if (mBackupState.PSSampler) mBackupState.PSSampler->Release();
-            mD3DDeviceContext->PSSetShader(mBackupState.PS, mBackupState.PSInstances, mBackupState.PSInstancesCount); if (mBackupState.PS) mBackupState.PS->Release();
-            for (UINT i = 0; i < mBackupState.PSInstancesCount; i++) if (mBackupState.PSInstances[i]) mBackupState.PSInstances[i]->Release();
-            mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount); if (mBackupState.VS) mBackupState.VS->Release();
-            mD3DDeviceContext->VSSetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer); if (mBackupState.VSConstantBuffer) mBackupState.VSConstantBuffer->Release();
-            mD3DDeviceContext->GSSetShader(mBackupState.GS, mBackupState.GSInstances, mBackupState.GSInstancesCount); if (mBackupState.GS) mBackupState.GS->Release();
-            for (UINT i = 0; i < mBackupState.VSInstancesCount; i++) if (mBackupState.VSInstances[i]) mBackupState.VSInstances[i]->Release();
+            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask);
+            D3D_SAFE_RELEASE(mBackupState.BlendState);
+            mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef);
+            D3D_SAFE_RELEASE(mBackupState.DepthStencilState);
+            mD3DDeviceContext->PSSetShaderResources(0, 1, &mBackupState.PSShaderResource);
+            D3D_SAFE_RELEASE(mBackupState.PSShaderResource);
+            mD3DDeviceContext->PSSetSamplers(0, 1, &mBackupState.PSSampler);
+            D3D_SAFE_RELEASE(mBackupState.PSSampler);
+            mD3DDeviceContext->PSSetShader(mBackupState.PS, mBackupState.PSInstances, mBackupState.PSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.PS);
+            for (UINT i = 0; i < mBackupState.PSInstancesCount; i++)
+                D3D_SAFE_RELEASE(mBackupState.PSInstances[i]);
+            mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.VS);
+            mD3DDeviceContext->VSSetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
+            D3D_SAFE_RELEASE(mBackupState.VSConstantBuffer);
+            mD3DDeviceContext->GSSetShader(mBackupState.GS, mBackupState.GSInstances, mBackupState.GSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.GS);
+            for (UINT i = 0; i < mBackupState.VSInstancesCount; i++)
+                D3D_SAFE_RELEASE(mBackupState.VSInstances[i]);
             mD3DDeviceContext->IASetPrimitiveTopology(mBackupState.PrimitiveTopology);
-            mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset); if (mBackupState.IndexBuffer) mBackupState.IndexBuffer->Release();
-            mD3DDeviceContext->IASetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset); if (mBackupState.VertexBuffer) mBackupState.VertexBuffer->Release();
-            mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout); if (mBackupState.InputLayout) mBackupState.InputLayout->Release();
+            mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset);
+            D3D_SAFE_RELEASE(mBackupState.IndexBuffer);
+            mD3DDeviceContext->IASetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
+            D3D_SAFE_RELEASE(mBackupState.VertexBuffer);
+            mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout);
+            D3D_SAFE_RELEASE(mBackupState.InputLayout);
             return T3D_OK;
         };
 
@@ -2585,12 +2601,12 @@ namespace Tiny3D
                     if (size == Vector3::ZERO)
                     {
                         // 复制全部
-                        ret = blitAll(pD3DSrc, pDst);
+                        ret = blitAll(pD3DSrc, pDst->D3DBackBuffer);
                     }
                     else
                     {
                         // 按区域复制
-                        ret = blitRegion(pD3DSRV, pDst, srcOffset, size, dstOffset);
+                        ret = blitRegion(pD3DSRV, pDst->D3DRTView, pDst->D3DDSView, srcOffset, size, dstOffset);
                     }
 
                     return ret;
@@ -2603,14 +2619,66 @@ namespace Tiny3D
             {
                 D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(dst->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
 
-                auto lambda = [this]()
+                auto lambda = [this](const TextureSafePtr &pSrc, const D3D11PixelBuffer2DSafePtr &pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
                 {
                     TResult ret = T3D_OK;
 
+                    ID3D11Resource *pD3DSrc = nullptr;
+                    ID3D11ShaderResourceView *pD3DSRV = nullptr;
+                    
+                    switch (pSrc->getTextureType())
+                    {
+                    case TEXTURE_TYPE::TT_1D:
+                        break;
+                    case TEXTURE_TYPE::TT_2D:
+                        {
+                            Texture2D *pTex2D = static_cast<Texture2D *>(pSrc.get());
+                            D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
+                            pD3DSrc = pD3DPixelBuffer->D3DTexture;
+                            pD3DSRV = pD3DPixelBuffer->D3DSRView;
+                        }
+                        break;
+                    case TEXTURE_TYPE::TT_2D_ARRAY:
+                        break;
+                    case TEXTURE_TYPE::TT_3D:
+                        break;
+                    case TEXTURE_TYPE::TT_CUBE:
+                        break;
+                    case TEXTURE_TYPE::TT_CUBE_ARRAY:
+                        break;
+                    case TEXTURE_TYPE::TT_RENDER_TEXTURE:
+                        {
+                            RenderTexture *pTex2D = static_cast<RenderTexture *>(pSrc.get());
+                            D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(pTex2D->getPixelBuffer()->getRHIResource().get());
+                            pD3DSRV = pD3DPixelBuffer->D3DSRView;
+                            if (pD3DPixelBuffer->D3DResolveTex != nullptr)
+                            {
+                                DXGI_FORMAT d3dFormat = D3D11Mapping::get(pTex2D->getPixelFormat());
+                                mD3DDeviceContext->ResolveSubresource(pD3DPixelBuffer->D3DResolveTex, 0, pD3DPixelBuffer->D3DTexture, 0, d3dFormat);
+                                pD3DSrc = pD3DPixelBuffer->D3DResolveTex;
+                            }
+                            else
+                            {
+                                pD3DSrc = pD3DPixelBuffer->D3DTexture;
+                            }
+                        }
+                        break;
+                    }
+                    if (size == Vector3::ZERO)
+                    {
+                        // 复制全部
+                        ret = blitAll(pD3DSrc, pDst->D3DTexture);
+                    }
+                    else
+                    {
+                        // 按区域复制
+                        ret = blitRegion(pD3DSRV, pDst->D3DRTView, pDst->D3DDSView, srcOffset, size, dstOffset);
+                    }
+                    
                     return ret;
                 };
 
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda);
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, TextureSafePtr(src), D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), srcOffset, size, dstOffset);
             }
             break;
         }
@@ -2724,7 +2792,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
+    TResult D3D11Context::blitRegion(ID3D11ShaderResourceView *pD3DSRV, ID3D11RenderTargetView *pD3DRTView, ID3D11DepthStencilView *pD3DDSView, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
     {
         // current render target
         ID3D11RenderTargetView *pCurRTV = nullptr;
@@ -2752,7 +2820,8 @@ namespace Tiny3D
         mD3DDeviceContext->RSGetState(&pCurRState);
 
         // set render target
-        mD3DDeviceContext->OMSetRenderTargets(1, &pDst->D3DRTView, pDst->D3DDSView);
+        // mD3DDeviceContext->OMSetRenderTargets(1, &pDst->D3DRTView, pDst->D3DDSView);
+        mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRTView, pD3DDSView);
 
         // blend state
         mD3DDeviceContext->OMSetBlendState(mBlitBState, nullptr, -1);
@@ -2820,9 +2889,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blitAll(ID3D11Resource *pD3DSrc, D3D11RenderWindow *pDst)
+    TResult D3D11Context::blitAll(ID3D11Resource *pD3DSrc, ID3D11Resource *pD3DDst)
     {        
-        mD3DDeviceContext->CopyResource(pDst->D3DBackBuffer, pD3DSrc);
+        mD3DDeviceContext->CopyResource(pD3DDst, pD3DSrc);
         return T3D_OK;
     }
 

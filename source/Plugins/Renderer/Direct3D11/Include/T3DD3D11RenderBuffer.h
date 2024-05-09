@@ -38,6 +38,8 @@ namespace Tiny3D
 
         ~D3D11VertexDeclaration() override;
 
+        void *getNativeObject() const override;
+
         ID3D11InputLayout   *D3D11InputLayout {nullptr};
     protected:
         D3D11VertexDeclaration() = default;
@@ -50,6 +52,8 @@ namespace Tiny3D
 
         ~D3D11VertexBuffer() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11Buffer    *D3DBuffer {nullptr};
         
     protected:
@@ -63,6 +67,8 @@ namespace Tiny3D
 
         ~D3D11IndexBuffer() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11Buffer    *D3DBuffer {nullptr};
         
     protected:
@@ -76,6 +82,8 @@ namespace Tiny3D
 
         ~D3D11ConstantBuffer() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11Buffer    *D3DBuffer {nullptr};
 
     protected:
@@ -89,6 +97,8 @@ namespace Tiny3D
 
         ~D3D11PixelBuffer1D() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11Texture1D             *D3DTexture {nullptr};
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
         
@@ -102,6 +112,8 @@ namespace Tiny3D
         static D3D11PixelBuffer2DPtr create();
 
         ~D3D11PixelBuffer2D() override;
+
+        void *getNativeObject() const override;
         
         ID3D11Texture2D             *D3DTexture {nullptr};
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
@@ -119,6 +131,8 @@ namespace Tiny3D
     class D3D11PixelBuffer3D : public RHIPixelBuffer3D
     {
     public:
+        void *getNativeObject() const override;
+        
         ID3D11Texture2D             *D3DTexture {nullptr};
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
     };

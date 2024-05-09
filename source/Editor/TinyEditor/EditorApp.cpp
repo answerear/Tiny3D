@@ -32,6 +32,8 @@ namespace Tiny3D
 {
     EditorApp theApp;
 
+    #define IMGUI_DX11_PLUGIN   "ImGuiDX11"
+
     //--------------------------------------------------------------------------
     
     EditorApp::EditorApp()
@@ -62,7 +64,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = engine->loadPlugin("ImGuiDX11");
+            ret = engine->loadPlugin(IMGUI_DX11_PLUGIN);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -109,33 +111,35 @@ namespace Tiny3D
                 ImGui::NewFrame();
 
                 ImGuiIO& io = ImGui::GetIO();
+
+                ImGui::Image(mSceneRT, ImVec2(640, 480));
                 
                 // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-                if (show_demo_window)
-                    ImGui::ShowDemoWindow(&show_demo_window);
-
-                // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-                {
-                    static float f = 0.0f;
-                    static int counter = 0;
-
-                    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-                    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                    ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-                    // ImGui::Checkbox("Another Window", &show_another_window);
-
-                    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                    // ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-                    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                        counter++;
-                    ImGui::SameLine();
-                    ImGui::Text("counter = %d", counter);
-
-                    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                    ImGui::End();
-                }
+                // if (show_demo_window)
+                //     ImGui::ShowDemoWindow(&show_demo_window);
+                //
+                // // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+                // {
+                //     static float f = 0.0f;
+                //     static int counter = 0;
+                //
+                //     ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+                //
+                //     ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+                //     ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+                //     // ImGui::Checkbox("Another Window", &show_another_window);
+                //
+                //     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                //     // ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+                //
+                //     if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                //         counter++;
+                //     ImGui::SameLine();
+                //     ImGui::Text("counter = %d", counter);
+                //
+                //     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+                //     ImGui::End();
+                // }
             };
             runningData.preRender = [this]()
             {
@@ -155,14 +159,15 @@ namespace Tiny3D
                 }
             };
 
-            // buildScene();
+            buildScene();
             
             engine->runForEditor(runningData);
+
+            engine->unloadPlugin(IMGUI_DX11_PLUGIN);
+            ImGui::DestroyContext();
         } while (false);
 
         delete engine;
-
-        ImGui::DestroyContext();
 
         return ret;
     }
@@ -215,8 +220,14 @@ namespace Tiny3D
         scene->addRootGameObject(go);
         Transform3DPtr root = go->addComponent<Transform3D>();
 
+#if 0
         RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
         RenderTargetPtr rt = RenderTarget::create(rw);
+#else
+        RenderWindow *rw = T3D_AGENT.getDefaultRenderWindow();
+        RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("RT_Scene", 640, 480, PixelFormat::E_PF_R8G8B8A8);
+        RenderTargetPtr rt = RenderTarget::create(renderTex);
+#endif
     
         CameraPtr camera;
 
@@ -228,9 +239,11 @@ namespace Tiny3D
         camera->setOrder(1);
         Viewport vpCenter {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         camera->setViewport(vpCenter);
-        camera->setClearColor(ColorRGB::GRAY);
+        camera->setClearColor(ColorRGB::BLUE);
         camera->setRenderTarget(rt);
         scene->addCamera(camera);
+
+        mSceneRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
     }
 
     //--------------------------------------------------------------------------

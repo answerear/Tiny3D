@@ -22,75 +22,95 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDER_STATE_H__
-#define __T3D_D3D11_RENDER_STATE_H__
+#pragma once
 
 
-#include "T3DD3D11Prerequisites.h"
+#include "T3DNullPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class D3D11BlendState : public RHIBlendState
+    class NullShader : public RHIShader
     {
-    public:
-        static D3D11BlendStatePtr create();
-
-        ~D3D11BlendState() override;
-
-        void *getNativeObject() const override;
-        
-        ID3D11BlendState    *D3DBlendState {nullptr};
-        
     protected:
-        D3D11BlendState() = default;
+        NullShader() = default;
     };
 
-    class D3D11RasterizerState : public RHIRasterizerState
+    class NullVertexShader : public NullShader
     {
     public:
-        static D3D11RasterizerStatePtr create();
+        static NullVertexShaderPtr create();
 
-        ~D3D11RasterizerState() override;
+        ~NullVertexShader() override;
 
         void *getNativeObject() const override;
         
-        ID3D11RasterizerState   *D3DRasterizerState {nullptr};
-        
     protected:
-        D3D11RasterizerState() = default;
+        NullVertexShader() = default;
     };
 
-    class D3D11DepthStencilState : public RHIDepthStencilState
+    class NullHullShader : public NullShader
     {
     public:
-        static D3D11DepthStencilStatePtr create();
+        static NullHullShaderPtr create();
 
-        ~D3D11DepthStencilState() override;
+        ~NullHullShader() override;
 
         void *getNativeObject() const override;
         
-        ID3D11DepthStencilState *D3DDepthStencilState {nullptr};
-        
     protected:
-        D3D11DepthStencilState() = default;
+        NullHullShader() = default;
     };
 
-    class D3D11SamplerState : public RHISamplerState
+    class NullDomainShader : public NullShader
     {
     public:
-        static D3D11SamplerStatePtr create();
+        static NullDomainShaderPtr create();
 
-        ~D3D11SamplerState() override;
+        ~NullDomainShader() override;
 
         void *getNativeObject() const override;
         
-        ID3D11SamplerState  *D3DSamplerState {nullptr};
+    protected:
+        NullDomainShader() = default;
+    };
+
+    class NullGeometryShader : public NullShader
+    {
+    public:
+        static NullGeometryShaderPtr create();
+
+        ~NullGeometryShader() override;
+
+        void *getNativeObject() const override;
         
     protected:
-        D3D11SamplerState() = default;
+        NullGeometryShader() = default;
+    };
+
+    class NullPixelShader : public NullShader
+    {
+    public:
+        static NullPixelShaderPtr create();
+
+        ~NullPixelShader() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        NullPixelShader() = default;
+    };
+
+    class NullComputeShader : public NullShader
+    {
+    public:
+        static NullComputeShaderPtr create();
+
+        ~NullComputeShader() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        NullComputeShader() = default;
     };
 }
-
-
-#endif    /*__T3D_D3D11_RENDER_STATE_H__*/

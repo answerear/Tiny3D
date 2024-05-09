@@ -62,7 +62,9 @@ namespace Tiny3D
             kShader,
         };
         
-        virtual ResourceType getResourceType() const = 0; 
+        virtual ResourceType getResourceType() const = 0;
+
+        virtual void *getNativeObject() const = 0;
     };
 }
 

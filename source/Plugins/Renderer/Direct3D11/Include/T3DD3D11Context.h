@@ -608,9 +608,9 @@ namespace Tiny3D
 
         void setupInternalCBuffers();
 
-        TResult blitAll(ID3D11Resource *pD3DSrc, D3D11RenderWindow *pDst);
+        TResult blitAll(ID3D11Resource *pD3DSrc, ID3D11Resource *pD3DDst);
         
-        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, D3D11RenderWindow *pDst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 &dstOffset = Vector3::ZERO);
+        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, ID3D11RenderTargetView *pD3DRTView, ID3D11DepthStencilView *pD3DDSView, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 &dstOffset = Vector3::ZERO);
 
         using SetSamplerState = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11SamplerState * const *);
         

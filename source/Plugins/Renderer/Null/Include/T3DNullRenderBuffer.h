@@ -22,75 +22,93 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDER_STATE_H__
-#define __T3D_D3D11_RENDER_STATE_H__
+#ifndef __T3D_NULL_RENDER_BUFFER_H__
+#define __T3D_NULL_RENDER_BUFFER_H__
 
 
-#include "T3DD3D11Prerequisites.h"
+#include "T3DNullPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class D3D11BlendState : public RHIBlendState
+    class NullVertexDeclaration : public RHIVertexDeclaration
     {
     public:
-        static D3D11BlendStatePtr create();
+        static NullVertexDeclarationPtr create();
 
-        ~D3D11BlendState() override;
+        ~NullVertexDeclaration() override;
 
         void *getNativeObject() const override;
-        
-        ID3D11BlendState    *D3DBlendState {nullptr};
-        
     protected:
-        D3D11BlendState() = default;
+        NullVertexDeclaration() = default;
+    };
+    
+    class NullVertexBuffer : public RHIVertexBuffer
+    {
+    public:
+        static NullVertexBufferPtr create();
+
+        ~NullVertexBuffer() override;
+
+        void *getNativeObject() const override;
+    protected:
+        NullVertexBuffer() = default;
     };
 
-    class D3D11RasterizerState : public RHIRasterizerState
+    class NullIndexBuffer : public RHIIndexBuffer
     {
     public:
-        static D3D11RasterizerStatePtr create();
+        static NullIndexBufferPtr create();
 
-        ~D3D11RasterizerState() override;
+        ~NullIndexBuffer() override;
 
-        void *getNativeObject() const override;
-        
-        ID3D11RasterizerState   *D3DRasterizerState {nullptr};
-        
+        void *getNativeObject() const override;        
     protected:
-        D3D11RasterizerState() = default;
+        NullIndexBuffer() = default;
     };
 
-    class D3D11DepthStencilState : public RHIDepthStencilState
+    class NullConstantBuffer : public RHIConstantBuffer
     {
     public:
-        static D3D11DepthStencilStatePtr create();
+        static NullConstantBufferPtr create();
 
-        ~D3D11DepthStencilState() override;
+        ~NullConstantBuffer() override;
 
         void *getNativeObject() const override;
-        
-        ID3D11DepthStencilState *D3DDepthStencilState {nullptr};
-        
     protected:
-        D3D11DepthStencilState() = default;
+        NullConstantBuffer() = default;
     };
 
-    class D3D11SamplerState : public RHISamplerState
+    class NullPixelBuffer1D : public RHIPixelBuffer1D
     {
     public:
-        static D3D11SamplerStatePtr create();
+        static NullPixelBuffer1DPtr create();
 
-        ~D3D11SamplerState() override;
+        ~NullPixelBuffer1D() override;
 
         void *getNativeObject() const override;
-        
-        ID3D11SamplerState  *D3DSamplerState {nullptr};
-        
     protected:
-        D3D11SamplerState() = default;
+        NullPixelBuffer1D() = default;
+    };
+
+    class NullPixelBuffer2D : public RHIPixelBuffer2D
+    {
+    public:
+        static NullPixelBuffer2DPtr create();
+
+        ~NullPixelBuffer2D() override;
+
+        void *getNativeObject() const override;
+    protected:
+        NullPixelBuffer2D() = default;
+    };
+
+    class NullPixelBuffer3D : public RHIPixelBuffer3D
+    {
+    public:
+        void *getNativeObject() const override;
     };
 }
 
 
-#endif    /*__T3D_D3D11_RENDER_STATE_H__*/
+#endif    /*__T3D_NULL_RENDER_BUFFER_H__*/

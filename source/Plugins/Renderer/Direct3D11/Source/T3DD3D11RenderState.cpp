@@ -45,6 +45,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void *D3D11BlendState::getNativeObject() const
+    {
+        return D3DBlendState;
+    }
+
+    //--------------------------------------------------------------------------
+
     D3D11RasterizerStatePtr D3D11RasterizerState::create()
     {
         return new D3D11RasterizerState();
@@ -57,6 +64,13 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(D3DRasterizerState);
     }
 
+    //--------------------------------------------------------------------------
+
+    void *D3D11RasterizerState::getNativeObject() const
+    {
+        return D3DRasterizerState;
+    }
+    
     //--------------------------------------------------------------------------
 
     D3D11DepthStencilStatePtr D3D11DepthStencilState::create()
@@ -73,6 +87,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void *D3D11DepthStencilState::getNativeObject() const
+    {
+        return D3DDepthStencilState;
+    }
+    
+    //--------------------------------------------------------------------------
+
     D3D11SamplerStatePtr D3D11SamplerState::create()
     {
         return new D3D11SamplerState();
@@ -85,6 +106,13 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(D3DSamplerState);
     }
 
+    //--------------------------------------------------------------------------
+
+    void *D3D11SamplerState::getNativeObject() const
+    {
+        return D3DSamplerState;
+    }
+    
     //--------------------------------------------------------------------------
 }
 

@@ -43,6 +43,8 @@ namespace Tiny3D
 
         ~D3D11VertexShader() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11VertexShader  *D3DShader {nullptr};
     protected:
         D3D11VertexShader() = default;
@@ -55,6 +57,8 @@ namespace Tiny3D
 
         ~D3D11HullShader() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11HullShader    *D3DShader {nullptr};
     protected:
         D3D11HullShader() = default;
@@ -67,6 +71,8 @@ namespace Tiny3D
 
         ~D3D11DomainShader() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11DomainShader  *D3DShader {nullptr};
     protected:
         D3D11DomainShader() = default;
@@ -79,6 +85,8 @@ namespace Tiny3D
 
         ~D3D11GeometryShader() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11GeometryShader    *D3DShader {nullptr};
     protected:
         D3D11GeometryShader() = default;
@@ -91,6 +99,8 @@ namespace Tiny3D
 
         ~D3D11PixelShader() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11PixelShader   *D3DShader {nullptr};
     protected:
         D3D11PixelShader() = default;
@@ -103,6 +113,8 @@ namespace Tiny3D
 
         ~D3D11ComputeShader() override;
 
+        void *getNativeObject() const override;
+        
         ID3D11ComputeShader *D3DShader {nullptr};
     protected:
         D3D11ComputeShader() = default;

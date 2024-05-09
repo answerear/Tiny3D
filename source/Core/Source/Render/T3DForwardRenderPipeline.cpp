@@ -146,15 +146,13 @@ namespace Tiny3D
         {
             // 设置渲染目标为相机对应纹理
             RenderTexturePtr rt = camera->getRenderTexture();
-            if (rt != nullptr)
+            if (rt == nullptr)
             {
-                ctx->setRenderTarget(rt);
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid render texture in camera [%s] when rendering !", camera->getGameObject()->getName().c_str());
+                continue;
             }
-            else
-            {
-                ctx->setRenderTarget(camera->getRenderTarget());
-            }
-
+            ctx->setRenderTarget(rt);
+            
             // 设置 viewport
             ctx->setViewport(camera->getViewport());
 
@@ -282,7 +280,7 @@ namespace Tiny3D
             }
 
             // 把相机渲染纹理渲染到相机对应的渲染目标上
-            if (rt != nullptr)
+            if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
             {
                 const Viewport &vp = camera->getViewport();
                 Real left = Real(rt->getWidth()) * vp.Left;

@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,44 +22,67 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
+#ifndef __T3D_NULL_RENDER_STATE_H__
+#define __T3D_NULL_RENDER_STATE_H__
 
 
-#include "EditorPrerequisites.h"
+#include "T3DNullPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    
-    class EditorApp : public WindowApplication
+    class NullBlendState : public RHIBlendState
     {
     public:
-        EditorApp();
-        
-        ~EditorApp() override;
+        static NullBlendStatePtr create();
 
-        TResult go(int32_t argc, char *argv[]);
+        ~NullBlendState() override;
 
-        void setEditorRenderer(EditorImGuiImpl *impl) { mEditorImGuiImpl = impl; }
-
-    protected:  /// from Tiny3D::Application
-        bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
-
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
-        void buildScene();
+        void *getNativeObject() const override;
         
     protected:
-        EditorImGuiImpl  *mEditorImGuiImpl {nullptr};
-        ImTextureID mSceneRT {nullptr};
-        bool    show_demo_window {true};
+        NullBlendState() = default;
+    };
+
+    class NullRasterizerState : public RHIRasterizerState
+    {
+    public:
+        static NullRasterizerStatePtr create();
+
+        ~NullRasterizerState() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        NullRasterizerState() = default;
+    };
+
+    class NullDepthStencilState : public RHIDepthStencilState
+    {
+    public:
+        static NullDepthStencilStatePtr create();
+
+        ~NullDepthStencilState() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        NullDepthStencilState() = default;
+    };
+
+    class NullSamplerState : public RHISamplerState
+    {
+    public:
+        static NullSamplerStatePtr create();
+
+        ~NullSamplerState() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        NullSamplerState() = default;
     };
 }
 
 
+#endif    /*__T3D_NULL_RENDER_STATE_H__*/

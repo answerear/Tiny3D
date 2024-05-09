@@ -304,6 +304,7 @@ namespace Tiny3D
                 case RenderTarget::Type::E_RT_TEXTURE:
                     {
                         // 渲染目标本来就是渲染纹理，则不创建了渲染纹理，直接绘制到渲染纹理上
+                        mRenderTexture = target->getRenderTexture();
                     }
                     break;
                 default:

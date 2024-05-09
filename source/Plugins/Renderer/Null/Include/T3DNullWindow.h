@@ -67,6 +67,8 @@ namespace Tiny3D
          */
         TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
+        void *getNativeObject() const override;
+        
     protected:
         /**
          * @fn  NullRenderWindow::NullRenderWindow(const String &name);

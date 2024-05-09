@@ -49,10 +49,44 @@ namespace Tiny3D
     class NullRenderer;
     class NullContext;
     class NullWindow;
+    class NullVertexDeclaration;
+    class NullVertexBuffer;
+    class NullIndexBuffer;
+    class NullConstantBuffer;
+    class NullPixelBuffer1D;
+    class NullPixelBuffer2D;
+    class NullPixelBuffer3D;
+    class NullBlendState;
+    class NullRasterizerState;
+    class NullDepthStencilState;
+    class NullSamplerState;
+    class NullVertexShader;
+    class NullHullShader;
+    class NullDomainShader;
+    class NullGeometryShader;
+    class NullPixelShader;
+    class NullComputeShader;
 
     T3D_DECLARE_SMART_PTR(NullRenderer);
     T3D_DECLARE_SMART_PTR(NullContext);
     T3D_DECLARE_SMART_PTR(NullWindow);
+    T3D_DECLARE_SMART_PTR(NullVertexDeclaration);
+    T3D_DECLARE_SMART_PTR(NullVertexBuffer);
+    T3D_DECLARE_SMART_PTR(NullIndexBuffer);
+    T3D_DECLARE_SMART_PTR(NullConstantBuffer);
+    T3D_DECLARE_SMART_PTR(NullPixelBuffer1D);
+    T3D_DECLARE_SMART_PTR(NullPixelBuffer2D);
+    T3D_DECLARE_SMART_PTR(NullPixelBuffer3D);
+    T3D_DECLARE_SMART_PTR(NullBlendState);
+    T3D_DECLARE_SMART_PTR(NullRasterizerState);
+    T3D_DECLARE_SMART_PTR(NullDepthStencilState);
+    T3D_DECLARE_SMART_PTR(NullSamplerState);
+    T3D_DECLARE_SMART_PTR(NullVertexShader);
+    T3D_DECLARE_SMART_PTR(NullHullShader);
+    T3D_DECLARE_SMART_PTR(NullDomainShader);
+    T3D_DECLARE_SMART_PTR(NullGeometryShader);
+    T3D_DECLARE_SMART_PTR(NullPixelShader);
+    T3D_DECLARE_SMART_PTR(NullComputeShader);
 }
 
 

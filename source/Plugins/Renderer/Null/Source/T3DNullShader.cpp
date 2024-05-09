@@ -23,135 +23,131 @@
  ******************************************************************************/
 
 
-#include "T3DD3D11Shader.h"
+#include "T3DNullShader.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    D3D11VertexShaderPtr D3D11VertexShader::create()
+    NullVertexShaderPtr NullVertexShader::create()
     {
-        return new D3D11VertexShader();
+        return new NullVertexShader();
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11VertexShader::~D3D11VertexShader()
+    NullVertexShader::~NullVertexShader()
     {
-        D3D_SAFE_RELEASE(D3DShader);
+        
     }
 
     //--------------------------------------------------------------------------
 
-    void *D3D11VertexShader::getNativeObject() const
+    void *NullVertexShader::getNativeObject() const
     {
-        return D3DShader;
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HullShaderPtr D3D11HullShader::create()
+    NullHullShaderPtr NullHullShader::create()
     {
-        return new D3D11HullShader();
+        return new NullHullShader();
     }
 
     //--------------------------------------------------------------------------
 
-    D3D11HullShader::~D3D11HullShader()
+    NullHullShader::~NullHullShader()
     {
-        D3D_SAFE_RELEASE(D3DShader);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    void *D3D11HullShader::getNativeObject() const
-    {
-        return D3DShader;
+        
     }
     
     //--------------------------------------------------------------------------
 
-    D3D11DomainShaderPtr D3D11DomainShader::create()
+    void *NullHullShader::getNativeObject() const
     {
-        return new D3D11DomainShader();
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11DomainShader::~D3D11DomainShader()
-    {
-        D3D_SAFE_RELEASE(D3DShader);
+        return nullptr;
     }
     
     //--------------------------------------------------------------------------
 
-    void *D3D11DomainShader::getNativeObject() const
+    NullDomainShaderPtr NullDomainShader::create()
     {
-        return D3DShader;
+        return new NullDomainShader();
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullDomainShader::~NullDomainShader()
+    {
     }
     
     //--------------------------------------------------------------------------
 
-    D3D11GeometryShaderPtr D3D11GeometryShader::create()
+    void *NullDomainShader::getNativeObject() const
     {
-        return new D3D11GeometryShader();
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11GeometryShader::~D3D11GeometryShader()
-    {
-        D3D_SAFE_RELEASE(D3DShader);
+        return nullptr;
     }
     
     //--------------------------------------------------------------------------
 
-    void *D3D11GeometryShader::getNativeObject() const
+    NullGeometryShaderPtr NullGeometryShader::create()
     {
-        return D3DShader;
+        return new NullGeometryShader();
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullGeometryShader::~NullGeometryShader()
+    {
     }
     
     //--------------------------------------------------------------------------
 
-    D3D11PixelShaderPtr D3D11PixelShader::create()
+    void *NullGeometryShader::getNativeObject() const
     {
-        return new D3D11PixelShader();
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11PixelShader::~D3D11PixelShader()
-    {
-        D3D_SAFE_RELEASE(D3DShader);
+        return nullptr;
     }
     
     //--------------------------------------------------------------------------
 
-    void *D3D11PixelShader::getNativeObject() const
+    NullPixelShaderPtr NullPixelShader::create()
     {
-        return D3DShader;
+        return new NullPixelShader();
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullPixelShader::~NullPixelShader()
+    {
     }
     
     //--------------------------------------------------------------------------
 
-    D3D11ComputeShaderPtr D3D11ComputeShader::create()
+    void *NullPixelShader::getNativeObject() const
     {
-        return new D3D11ComputeShader();
-    }
-
-    //--------------------------------------------------------------------------
-
-    D3D11ComputeShader::~D3D11ComputeShader()
-    {
-        D3D_SAFE_RELEASE(D3DShader);
+        return nullptr;
     }
     
     //--------------------------------------------------------------------------
 
-    void *D3D11ComputeShader::getNativeObject() const
+    NullComputeShaderPtr NullComputeShader::create()
     {
-        return D3DShader;
+        return new NullComputeShader();
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullComputeShader::~NullComputeShader()
+    {
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void *NullComputeShader::getNativeObject() const
+    {
+        return nullptr;
     }
     
     //--------------------------------------------------------------------------
