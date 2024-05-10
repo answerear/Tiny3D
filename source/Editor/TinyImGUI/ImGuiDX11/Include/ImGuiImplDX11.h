@@ -42,7 +42,7 @@ namespace Tiny3D
 
         void init(void *initData) override;
 
-        bool pollEvents() override;
+        void pollEvents(void *event) override;
 
         void update() override;
 

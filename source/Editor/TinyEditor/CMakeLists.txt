@@ -48,15 +48,16 @@ if (TINY3D_OS_WINDOWS)
 
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DSystem
-        T3DLog
-		T3DUtils
-        T3DMath
-        T3DFramework
-        T3DCore
-        rttr_core
-        imgui_dx11
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
+        LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DFramework
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
+        LINK_PRIVATE imgui_dx11
+        LINK_PRIVATE ${SDL2_LIBRARY}
         )
     
     # Setup install files and path for Windows.
@@ -76,14 +77,15 @@ elseif (TINY3D_OS_MACOSX)
 	# Setup all link libraries frameworks for Mac OS X
 	target_link_libraries(
 		${LIB_NAME}
-		T3DPlatform
-		T3DSystem
-		T3DLog
-		T3DUtils
-		T3DMath
-		T3DFramework
-		T3DCore
-		rttr_core
+		LINK_PRIVATE T3DPlatform
+		LINK_PRIVATE T3DSystem
+		LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
+		LINK_PRIVATE T3DMath
+		LINK_PRIVATE T3DFramework
+		LINK_PRIVATE T3DCore
+		LINK_PRIVATE rttr_core
+        LINK_PRIVATE ${SDL2_LIBRARY}
 		)
 
 	# Setup all properties for this Mac OS X project.
@@ -132,13 +134,14 @@ elseif (TINY3D_OS_LINUX)
 
     target_link_libraries(
         ${LIB_NAME}
-        T3DPlatform
-        T3DSystem
-        T3DLog
-		T3DUtils
-        T3DFramework
-        T3DCore
-        rttr_core
+        LINK_PRIVATE T3DPlatform
+        LINK_PRIVATE T3DSystem
+        LINK_PRIVATE T3DLog
+		LINK_PRIVATE T3DUtils
+        LINK_PRIVATE T3DFramework
+        LINK_PRIVATE T3DCore
+        LINK_PRIVATE rttr_core
+        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 
     # Setup install files and path for Windows.

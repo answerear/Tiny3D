@@ -60,26 +60,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ImGuiImplDX11::pollEvents()
+    void ImGuiImplDX11::pollEvents(void *event)
     {
-        bool done = false;
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mSDLWindow))
-                done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(mSDLWindow))
-            {
-                // Release all outstanding references to the swap chain's buffers before resizing.
-                // CleanupRenderTarget();
-                // g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-                // CreateRenderTarget();
-            }
-        }
-        return !done;
+        ImGui_ImplSDL2_ProcessEvent((SDL_Event*)event);
     }
 
     //--------------------------------------------------------------------------

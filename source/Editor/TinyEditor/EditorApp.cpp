@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -25,6 +25,7 @@
 #include "EditorApp.h"
 #include "EditorImGuiImpl.h"
 #include "T3DEditorInfoDX11.h"
+
 
 Tiny3D::EditorApp *app = nullptr;
 
@@ -58,12 +59,48 @@ namespace Tiny3D
 
         do
         {
+            // 初始化引擎，只有初始化后才能使用
             ret = engine->init(argc, argv, true, true);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
+            // 创建 imgui 环境
+            ret = createImGuiEnv(engine);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 构建编辑器场景
+            buildScene();
+
+            // 构建引擎运行数据，并运行引擎
+            EditorRunningData runningData;
+            runningData.pollEvents = std::bind(&EditorApp::enginePollEvents, this);
+            runningData.update = std::bind(&EditorApp::engineUpdate, this);
+            runningData.preRender = std::bind(&EditorApp::enginePreRender, this);
+            runningData.postRender = std::bind(&EditorApp::enginePostRender, this);
+            engine->runForEditor(runningData);
+
+            // 删除清理 imgui 环境，此后无法再使用 imgui
+            destroyImGuiEnv(engine);
+        } while (false);
+
+        delete engine;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorApp::createImGuiEnv(Agent *engine)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
             ret = engine->loadPlugin(IMGUI_DX11_PLUGIN);
             if (T3D_FAILED(ret))
             {
@@ -96,80 +133,21 @@ namespace Tiny3D
             EditorInfoDX11 info;
             engine->getEditorInfo(&info);
             mEditorImGuiImpl->init(&info);
+            mSDLWindow = info.sdlWindow;
 #elif defined (T3D_OS_OSX)
 #elif defined (T3D_OS_LINUX)
 #endif
-
-            EditorRunningData runningData;
-            runningData.pollEvents = [this]()
-            {
-                return mEditorImGuiImpl->pollEvents();
-            };
-            runningData.update = [this]()
-            {
-                mEditorImGuiImpl->update();
-                ImGui::NewFrame();
-
-                ImGuiIO& io = ImGui::GetIO();
-
-                ImGui::Image(mSceneRT, ImVec2(640, 480));
-                
-                // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-                // if (show_demo_window)
-                //     ImGui::ShowDemoWindow(&show_demo_window);
-                //
-                // // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-                // {
-                //     static float f = 0.0f;
-                //     static int counter = 0;
-                //
-                //     ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-                //
-                //     ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                //     ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-                //     // ImGui::Checkbox("Another Window", &show_another_window);
-                //
-                //     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                //     // ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-                //
-                //     if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                //         counter++;
-                //     ImGui::SameLine();
-                //     ImGui::Text("counter = %d", counter);
-                //
-                //     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                //     ImGui::End();
-                // }
-            };
-            runningData.preRender = [this]()
-            {
-                ImGui::Render();
-                mEditorImGuiImpl->preRender();
-            };
-            runningData.postRender = [this]()
-            {
-                mEditorImGuiImpl->postRender();
-
-                // Update and Render additional Platform Windows
-                ImGuiIO& io = ImGui::GetIO();
-                if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-                {
-                    ImGui::UpdatePlatformWindows();
-                    ImGui::RenderPlatformWindowsDefault();
-                }
-            };
-
-            buildScene();
-            
-            engine->runForEditor(runningData);
-
-            engine->unloadPlugin(IMGUI_DX11_PLUGIN);
-            ImGui::DestroyContext();
         } while (false);
 
-        delete engine;
-
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::destroyImGuiEnv(Agent *engine)
+    {
+        engine->unloadPlugin(IMGUI_DX11_PLUGIN);
+        ImGui::DestroyContext();
     }
 
     //--------------------------------------------------------------------------
@@ -244,6 +222,84 @@ namespace Tiny3D
         scene->addCamera(camera);
 
         mSceneRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool EditorApp::enginePollEvents()
+    {
+        bool done = false;
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            mEditorImGuiImpl->pollEvents(&event);
+            if (event.type == SDL_QUIT)
+                done = true;
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mSDLWindow))
+                done = true;
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(mSDLWindow))
+            {
+                // Release all outstanding references to the swap chain's buffers before resizing.
+                // CleanupRenderTarget();
+                // g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+                // CreateRenderTarget();
+            }
+        }
+        return !done;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::engineUpdate()
+    {
+        mEditorImGuiImpl->update();
+        ImGui::NewFrame();
+    
+        ImGuiIO& io = ImGui::GetIO();
+
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking |
+                ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(mainViewport->WorkPos);
+        ImGui::SetNextWindowSize(io.DisplaySize);
+        const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize;
+        const auto windowRounding   = ImGui::GetStyle().WindowRounding;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+
+        ImGui::Begin("Main", nullptr, flags);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
+        
+        ImGui::Image(mSceneRT, ImVec2(640, 480));
+
+        ImGui::PopStyleVar(2);
+        ImGui::End();
+        ImGui::PopStyleVar(2);
+    };
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::enginePreRender()
+    {
+        ImGui::Render();
+        mEditorImGuiImpl->preRender();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::enginePostRender()
+    {
+        mEditorImGuiImpl->postRender();
+
+        // Update and Render additional Platform Windows
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
     }
 
     //--------------------------------------------------------------------------

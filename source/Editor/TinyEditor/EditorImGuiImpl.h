@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -41,7 +41,7 @@ namespace Tiny3D
         
         virtual void init(void *initData) = 0;
 
-        virtual bool pollEvents() = 0;
+        virtual void pollEvents(void *event) = 0;
 
         virtual void update() = 0;
 

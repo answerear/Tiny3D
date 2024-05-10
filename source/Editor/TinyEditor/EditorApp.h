@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -53,12 +53,24 @@ namespace Tiny3D
 
         void applicationLowMemory() override;
 
+        TResult createImGuiEnv(Agent *engine);
+
+        void destroyImGuiEnv(Agent *engine);
+        
         void buildScene();
+
+        bool enginePollEvents();
+
+        void engineUpdate();
+
+        void enginePreRender();
+
+        void enginePostRender();
         
     protected:
+        SDL_Window    *mSDLWindow {nullptr};
         EditorImGuiImpl  *mEditorImGuiImpl {nullptr};
         ImTextureID mSceneRT {nullptr};
-        bool    show_demo_window {true};
     };
 }
 
