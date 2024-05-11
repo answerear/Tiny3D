@@ -378,6 +378,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ImWidget::setVisible(bool visible)
+    {
+        if (mVisible != visible)
+        {
+            mVisible = visible;
+
+            if (visible)
+            {
+                onVisible();
+            }
+            else
+            {
+                onInvisible();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ImWidget::onCreate()
     {
         return T3D_OK;
@@ -408,6 +427,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     void ImWidget::onDestroy()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::onVisible()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::onInvisible()
     {
         
     }

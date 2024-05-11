@@ -47,6 +47,10 @@ namespace Tiny3D
 
         const UUID &getUUID() const { return mUUID; }
 
+        bool isVisible() const { return mVisible; }
+        
+        void setVisible(bool visible);
+
         TResult create(const String &name, ImWidget *parent);
 
         /**
@@ -123,6 +127,10 @@ namespace Tiny3D
         virtual void onGUIEnd();
 
         virtual void onDestroy();
+
+        virtual void onVisible();
+
+        virtual void onInvisible();
 
         ImWidget *getWidgetRecursively(StringList &names) const;
 
