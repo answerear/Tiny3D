@@ -27,6 +27,7 @@
 
 #include <Tiny3D.h>
 #include <imgui.h>
+#include <TinyImGui.h>
 
 
 namespace Tiny3D

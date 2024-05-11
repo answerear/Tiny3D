@@ -24,6 +24,7 @@
 
 #include "EditorApp.h"
 #include "EditorImGuiImpl.h"
+#include "EditorMainWindow.h"
 #include "T3DEditorInfoDX11.h"
 
 
@@ -63,6 +64,7 @@ namespace Tiny3D
             ret = engine->init(argc, argv, true, true);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -70,9 +72,19 @@ namespace Tiny3D
             ret = createImGuiEnv(engine);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create ImGui environment failed ! ERROR [%d]", ret);
                 break;
             }
 
+            // 主窗口
+            mMainWindow = new EditorMainWindow();
+            ret = mMainWindow->create("MainWindow", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);
+                break;
+            }
+            
             // 构建编辑器场景
             buildScene();
 
@@ -83,6 +95,9 @@ namespace Tiny3D
             runningData.preRender = std::bind(&EditorApp::enginePreRender, this);
             runningData.postRender = std::bind(&EditorApp::enginePostRender, this);
             engine->runForEditor(runningData);
+
+            mMainWindow->destroy();
+            ImWidget::GC();
 
             // 删除清理 imgui 环境，此后无法再使用 imgui
             destroyImGuiEnv(engine);
@@ -104,6 +119,7 @@ namespace Tiny3D
             ret = engine->loadPlugin(IMGUI_DX11_PLUGIN);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Load ImGuiDX11 plugin failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -254,29 +270,11 @@ namespace Tiny3D
     {
         mEditorImGuiImpl->update();
         ImGui::NewFrame();
-    
-        ImGuiIO& io = ImGui::GetIO();
 
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking |
-                ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
-        ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(mainViewport->WorkPos);
-        ImGui::SetNextWindowSize(io.DisplaySize);
-        const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize;
-        const auto windowRounding   = ImGui::GetStyle().WindowRounding;
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-
-        ImGui::Begin("Main", nullptr, flags);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
-        
-        ImGui::Image(mSceneRT, ImVec2(640, 480));
-
-        ImGui::PopStyleVar(2);
-        ImGui::End();
-        ImGui::PopStyleVar(2);
+        if (mMainWindow != nullptr)
+        {
+            mMainWindow->update();
+        }
     };
 
     //--------------------------------------------------------------------------

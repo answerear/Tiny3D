@@ -30,51 +30,15 @@
 
 namespace Tiny3D
 {
-    class EditorMainWindow;
-    
-    class EditorApp : public WindowApplication
+    class EditorMainWindow : public ImWindow
     {
     public:
-        EditorApp();
-        
-        ~EditorApp() override;
 
-        TResult go(int32_t argc, char *argv[]);
-
-        void setEditorRenderer(EditorImGuiImpl *impl) { mEditorImGuiImpl = impl; }
-
-    protected:  /// from Tiny3D::Application
-        bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
-
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
-        TResult createImGuiEnv(Agent *engine);
-
-        void destroyImGuiEnv(Agent *engine);
-        
-        void buildScene();
-
-        bool enginePollEvents();
-
-        void engineUpdate();
-
-        void enginePreRender();
-
-        void enginePostRender();
-        
     protected:
-        SDL_Window    *mSDLWindow {nullptr};
-        EditorImGuiImpl  *mEditorImGuiImpl {nullptr};
-        ImTextureID mSceneRT {nullptr};
+        TResult onCreate() override;
 
-        EditorMainWindow    *mMainWindow {nullptr};
+        bool onGUIBegin() override;
+
+        void onGUIEnd() override;
     };
 }
-
-
