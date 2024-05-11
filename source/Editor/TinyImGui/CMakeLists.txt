@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(ImGuiDX11)
+set_project_name(TinyImGui)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
@@ -13,7 +13,6 @@ if (MSVC)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
-set(TINY3D_TINYIMGUI_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../TinyImGui/Include)
 
 # Setup project include files path
 include_directories(
@@ -28,13 +27,8 @@ include_directories(
     "${RTTR_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${IMGUI_DIR}"
-    "${IMGUI_BACKENDS_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../TinyEditor"
-    "${T3D_COMMON_INCLUDE_DIR}"
-    "${TINY3D_TINYIMGUI_INC_DIR}"
     )
 
-message (STATUS "Common include : ${T3D_COMMON_INCLUDE_DIR}")
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
@@ -42,15 +36,15 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
-list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h)
 
-#if (TINY3D_BUILD_SHARED_LIBS)
+
+if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
-#else (TINY3D_BUILD_SHARED_LIBS)
-#    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
-#endif (TINY3D_BUILD_SHARED_LIBS)
+else (TINY3D_BUILD_SHARED_LIBS)
+    add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
+endif (TINY3D_BUILD_SHARED_LIBS)
 
-set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Editor/Plugins")
+set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Editor")
 
 if (TINY3D_OS_IOS)
 #    find_library(FWK_SECURITY Security)
@@ -73,7 +67,6 @@ if (TINY3D_OS_IOS)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
-        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 elseif (TINY3D_OS_LINUX)
     target_link_libraries(
@@ -86,7 +79,6 @@ elseif (TINY3D_OS_LINUX)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
-        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 
     add_custom_command(TARGET ${BIN_NAME}
@@ -106,11 +98,10 @@ else (TINY3D_OS_IOS)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
-        LINK_PRIVATE ${SDL2_LIBRARY}
         )
 endif (TINY3D_OS_IOS)
 
-add_dependencies(${BIN_NAME} TinyEditor imgui_dx11)
+add_dependencies(${BIN_NAME} imgui_dx11)
 
 #install(TARGETS ${LIB_NAME}
 #    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

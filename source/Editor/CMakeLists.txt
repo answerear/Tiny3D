@@ -20,4 +20,5 @@ set(IMGUI_BACKENDS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../External/imgui/backends")
 
 add_subdirectory(TinyEditor)
 add_subdirectory(ImGuiImpl)
+add_subdirectory(TinyImGui)
 

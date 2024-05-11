@@ -12,7 +12,7 @@ if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
 endif (MSVC)
 
-
+set(TINY3D_TINYIMGUI_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../TinyImGui/Include)
 
 # Setup project include files path
 include_directories(
@@ -29,6 +29,7 @@ include_directories(
     "${IMGUI_DIR}"
     "${IMGUI_BACKENDS_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
+    "${TINY3D_TINYIMGUI_INC_DIR}"
     )
 
 # Setup project header files
@@ -58,6 +59,7 @@ if (TINY3D_OS_WINDOWS)
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE TinyImGui
         )
     
     # Setup install files and path for Windows.
@@ -86,6 +88,7 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE T3DCore
 		LINK_PRIVATE rttr_core
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE TinyImGui
 		)
 
 	# Setup all properties for this Mac OS X project.
@@ -142,6 +145,7 @@ elseif (TINY3D_OS_LINUX)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE TinyImGui
         )
 
     # Setup install files and path for Windows.
