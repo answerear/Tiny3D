@@ -76,8 +76,15 @@ namespace Tiny3D
 
         do
         {
+            Settings settings;
+            settings.renderSettings.resizable = true;
+            settings.renderSettings.title = "Tiny3D Editor";
+            settings.pluginSettings.pluginPath = ".";
+            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
+            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
+            
             // 初始化引擎，只有初始化后才能使用
-            ret = engine->init(argc, argv, true, true);
+            ret = engine->init(argc, argv, true, true, settings);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
