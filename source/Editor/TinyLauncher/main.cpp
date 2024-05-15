@@ -23,22 +23,13 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "LauncherApp.h"
 
 
-#include "ImPrerequisites.h"
+extern Tiny3D::Launcher::LauncherApp *app;
 
 
-namespace Tiny3D
+int main(int argc, char *argv[])
 {
-    enum ImErrorCode
-    {
-        IM_ERR_NONE             = T3D_OK,
-        IM_OK                   = IM_ERR_NONE,
-        IM_SUCCESS              = IM_ERR_NONE,
-        IM_ERR_FAIL             = 0x00000001,
-        IM_ERR_CREATE_WIDGET    = 0x00000002,
-        IM_ERR_INVALID_PARAM    = 0x00000003,
-        IM_ERR_INVALID_PARENT   = 0x00000004,
-    };
+    return app->go(argc, argv);
 }

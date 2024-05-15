@@ -26,13 +26,16 @@
 
 
 #include "EditorPrerequisites.h"
+#include "ImGuiApp.h"
 
 
 namespace Tiny3D
 {
-    class EditorMainWindow;
+    NS_BEGIN(Editor)
     
-    class EditorApp : public WindowApplication
+    class MainWindow;
+    
+    class EditorApp : public ImGuiApp
     {
     public:
         EditorApp();
@@ -41,7 +44,9 @@ namespace Tiny3D
 
         TResult go(int32_t argc, char *argv[]);
 
-        void setEditorRenderer(EditorImGuiImpl *impl) { mEditorImGuiImpl = impl; }
+        void setEditorRenderer(ImGuiImpl *impl) override;
+
+        void exitApp() override;
 
     protected:  /// from Tiny3D::Application
         bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
@@ -70,11 +75,13 @@ namespace Tiny3D
         
     protected:
         SDL_Window    *mSDLWindow {nullptr};
-        EditorImGuiImpl  *mEditorImGuiImpl {nullptr};
+        ImGuiImpl  *mImGuiImpl {nullptr};
         ImTextureID mSceneRT {nullptr};
 
-        EditorMainWindow    *mMainWindow {nullptr};
+        MainWindow        *mMainWindow {nullptr};
     };
+
+    NS_END
 }
 
 

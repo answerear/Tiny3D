@@ -27,13 +27,13 @@
 #include "ImGuiDX11Plugin.h"
 
 
-Tiny3D::ImGuiDX11Plugin *gPlugin = nullptr;
+Tiny3D::Editor::ImGuiDX11Plugin *gPlugin = nullptr;
 
 extern "C"
 {
     IMGUIDX11_API TResult dllStartPlugin()
     {
-        gPlugin = new Tiny3D::ImGuiDX11Plugin();
+        gPlugin = new Tiny3D::Editor::ImGuiDX11Plugin();
         return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 

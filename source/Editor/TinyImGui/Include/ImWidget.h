@@ -45,6 +45,8 @@ namespace Tiny3D
 
         const String &getName() const { return mName; }
 
+        void setName(const String &name) { mName = name; }
+
         const UUID &getUUID() const { return mUUID; }
 
         bool isVisible() const { return mVisible; }
@@ -60,6 +62,12 @@ namespace Tiny3D
         TResult destroy();
 
         TResult addWidget(ImWidget *widget);
+
+        TResult insertAfterWidget(const String &prevName, ImWidget *widget);
+
+        TResult insertAfterWidget(const UUID &prevUUID, ImWidget *widget);
+
+        TResult insertAfterWidget(ImWidget *prevWidget, ImWidget *widget);
 
         TResult removeWidget(ImWidget *widget, bool destroy = true);
 
@@ -133,6 +141,10 @@ namespace Tiny3D
         virtual void onInvisible();
 
         ImWidget *getWidgetRecursively(StringList &names) const;
+
+        void PushWidgetID() { ImGui::PushID(this); }
+
+        void PopWidgetID() { ImGui::PopID(); }
 
     private:
         void destroyWidget(ImWidget *child);

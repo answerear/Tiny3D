@@ -33,33 +33,36 @@
 
 namespace Tiny3D
 {
-    class ImGuiImplDX11 : public EditorImGuiImpl
+    namespace Editor
     {
-    public:
-        ImGuiImplDX11();
+        class ImGuiImplDX11 : public ImGuiImpl
+        {
+        public:
+            ImGuiImplDX11();
 
-        ~ImGuiImplDX11() override;
+            ~ImGuiImplDX11() override;
 
-        void init(void *initData) override;
+            void init(void *initData) override;
 
-        void pollEvents(void *event) override;
+            void pollEvents(void *event) override;
 
-        void update() override;
+            void update() override;
 
-        void preRender() override;
+            void preRender() override;
 
-        void postRender() override;
+            void postRender() override;
 
-        void createRenderTarget();
+            void createRenderTarget();
 
-        void cleanupRenderTarget();
+            void cleanupRenderTarget();
         
-    protected:
-        SDL_Window  *mSDLWindow {nullptr};
-        ID3D11Device            *mD3DDevice {nullptr};
-        ID3D11DeviceContext     *mD3DDeviceContext {nullptr};
-        ID3D11RenderTargetView  *mD3DRTView {nullptr};
+        protected:
+            SDL_Window  *mSDLWindow {nullptr};
+            ID3D11Device            *mD3DDevice {nullptr};
+            ID3D11DeviceContext     *mD3DDeviceContext {nullptr};
+            ID3D11RenderTargetView  *mD3DRTView {nullptr};
         
-    };
+        };
+    }
 }
 

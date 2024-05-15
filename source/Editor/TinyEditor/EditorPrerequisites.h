@@ -30,9 +30,17 @@
 #include <TinyImGui.h>
 
 
+#define NS_BEGIN(name)  namespace name {
+#define NS_END    }
+
 namespace Tiny3D
 {
-    #define LOG_TAG_EDITOR     "Editor"
+    NS_BEGIN(Editor)
 
-    class EditorImGuiImpl;
+    #define LOG_TAG_EDITOR "Editor"
+
+    NS_END
+
+    class ImGuiImpl;
 }
+

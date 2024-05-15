@@ -30,7 +30,9 @@
 
 namespace Tiny3D
 {
-    class EditorMainWindow : public ImWindow
+    NS_BEGIN(Editor)
+    
+    class MainWindow : public ImWindow
     {
     public:
 
@@ -40,5 +42,12 @@ namespace Tiny3D
         bool onGUIBegin() override;
 
         void onGUIEnd() override;
+
+        TResult buildMenu();
+        
+    protected:
+        ImMenuBar   *mMenuBar {nullptr};
     };
+
+    NS_END
 }

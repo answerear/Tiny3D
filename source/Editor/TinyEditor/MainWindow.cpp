@@ -23,22 +23,30 @@
  ******************************************************************************/
 
 
-#include "EditorMainWindow.h"
+#include "MainWindow.h"
+
+#include "ImErrors.h"
 
 
 namespace Tiny3D
 {
+    NS_BEGIN(Editor)
+
     //--------------------------------------------------------------------------
 
-    TResult EditorMainWindow::onCreate()
+    TResult MainWindow::onCreate()
     {
+        TResult ret = buildMenu();
+        
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    bool EditorMainWindow::onGUIBegin()
+    bool MainWindow::onGUIBegin()
     {
+        PushWidgetID();
+        
         ImGuiIO& io = ImGui::GetIO();
 
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
@@ -47,12 +55,12 @@ namespace Tiny3D
         ImGuiViewport* mainViewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(mainViewport->WorkPos);
         ImGui::SetNextWindowSize(io.DisplaySize);
-        const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize;
+        const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize; 
         const auto windowRounding   = ImGui::GetStyle().WindowRounding;
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 
-        bool ret = ImGui::Begin(getName().c_str(), nullptr, flags);
+        bool ret = ImGui::Begin(getName().c_str(), &mVisible, flags);
         if (ret)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
@@ -64,14 +72,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorMainWindow::onGUIEnd()
+    void MainWindow::onGUIEnd()
     {
         // ImGui::Image(mSceneRT, ImVec2(640, 480));
 
         ImGui::PopStyleVar(2);
         ImGui::End();
         ImGui::PopStyleVar(2);
+
+        PopWidgetID();
     }
 
     //--------------------------------------------------------------------------
+
+    TResult MainWindow::buildMenu()
+    {
+        mMenuBar = new ImMenuBar();
+        mMenuBar->create("Main Menu", this);
+        
+        // File
+        IM_BEGIN_MENU("File")
+            // New
+            IM_BEGIN_POPUP_MENU("New")
+                IM_MENU_ITEM("New Scene", "Ctrl+N", nullptr, 0)
+            IM_END_POPUP_MENU()
+        IM_END_MENU(mMenuBar)
+
+        return IM_OK;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    NS_END
 }

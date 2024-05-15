@@ -22,23 +22,66 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
 #pragma once
 
 
-#include "ImPrerequisites.h"
+#include "LauncherPrerequisites.h"
+#include "ImGuiApp.h"
 
 
 namespace Tiny3D
 {
-    enum ImErrorCode
+    NS_BEGIN(Launcher)
+    
+    class MainWindow;
+    
+    class LauncherApp : public ImGuiApp
     {
-        IM_ERR_NONE             = T3D_OK,
-        IM_OK                   = IM_ERR_NONE,
-        IM_SUCCESS              = IM_ERR_NONE,
-        IM_ERR_FAIL             = 0x00000001,
-        IM_ERR_CREATE_WIDGET    = 0x00000002,
-        IM_ERR_INVALID_PARAM    = 0x00000003,
-        IM_ERR_INVALID_PARENT   = 0x00000004,
+    public:
+        LauncherApp();
+        
+        ~LauncherApp() override;
+
+        TResult go(int32_t argc, char *argv[]);
+
+        void setEditorRenderer(ImGuiImpl *impl) override;
+
+        void exitApp() override;
+
+    protected:  /// from Tiny3D::Application
+        bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+
+        void applicationDidEnterBackground() override;
+
+        void applicationWillEnterForeground() override;
+
+        void applicationWillTerminate() override;
+
+        void applicationLowMemory() override;
+
+        TResult createImGuiEnv(Agent *engine);
+
+        void destroyImGuiEnv(Agent *engine);
+        
+        bool enginePollEvents();
+
+        void engineUpdate();
+
+        void enginePreRender();
+
+        void enginePostRender();
+        
+    protected:
+        SDL_Window    *mSDLWindow {nullptr};
+        ImGuiImpl  *mImGuiImpl {nullptr};
+        ImTextureID mSceneRT {nullptr};
+
+        MainWindow *mMainWindow {nullptr};
+
+        bool mExitApp {false};
     };
+
+    NS_END
 }
+
+

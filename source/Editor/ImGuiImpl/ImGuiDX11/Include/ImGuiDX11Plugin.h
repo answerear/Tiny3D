@@ -31,41 +31,43 @@
 
 namespace Tiny3D
 {
-    class ImGuiDX11Plugin : public Plugin
+    namespace Editor
     {
-    public:
-        /**
-         * @brief 获取插件名称
-         */
-        const String &getName() const override;
+        class ImGuiDX11Plugin : public Plugin
+        {
+        public:
+            /**
+             * @brief 获取插件名称
+             */
+            const String &getName() const override;
 
-        /**
-         * @brief 安装插件
-         */
-        TResult install() override;
+            /**
+             * @brief 安装插件
+             */
+            TResult install() override;
 
-        /**
-         * @brief 启动插件
-         */
-        TResult startup() override;
+            /**
+             * @brief 启动插件
+             */
+            TResult startup() override;
 
-        /**
-         * @brief 关闭插件
-         */
-        TResult shutdown() override;
+            /**
+             * @brief 关闭插件
+             */
+            TResult shutdown() override;
 
-        /**
-         * @brief 卸载插件
-         */
-        TResult uninstall() override;
+            /**
+             * @brief 卸载插件
+             */
+            TResult uninstall() override;
 
-    protected:
-        /// 插件名称
-        String mName = "ImGuiDX11";
-        /// 当前 imgui 渲染器
-        EditorImGuiImpl  *mEditorImGuiImpl {nullptr};
-    };
-
+        protected:
+            /// 插件名称
+            String mName = "ImGuiDX11";
+            /// 当前 imgui 渲染器
+            ImGuiImpl  *mImGuiImpl {nullptr};
+        };
+    }
 }
 
 

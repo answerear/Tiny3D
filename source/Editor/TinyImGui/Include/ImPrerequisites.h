@@ -26,8 +26,10 @@
 #pragma once
 
 #include <T3DPlatformLib.h>
+#include <T3DLog.h>
 #include <T3DSystemLib.h>
 #include <T3DUtils.h>
+#include <T3DFramework.h>
 #include <imgui.h>
 
 
@@ -36,3 +38,9 @@
 #else
     #define TINYIMGUI_API        T3D_IMPORT_API
 #endif
+
+
+namespace Tiny3D
+{
+    #define LOG_TAG_TINYIMGUI       "TinyImGui"
+}

@@ -22,23 +22,23 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
 #pragma once
 
-
-#include "ImPrerequisites.h"
+#include <T3DPlatformLib.h>
 
 
 namespace Tiny3D
 {
-    enum ImErrorCode
+    class ImGuiImpl;
+    
+    class ImGuiApp : public WindowApplication
     {
-        IM_ERR_NONE             = T3D_OK,
-        IM_OK                   = IM_ERR_NONE,
-        IM_SUCCESS              = IM_ERR_NONE,
-        IM_ERR_FAIL             = 0x00000001,
-        IM_ERR_CREATE_WIDGET    = 0x00000002,
-        IM_ERR_INVALID_PARAM    = 0x00000003,
-        IM_ERR_INVALID_PARENT   = 0x00000004,
+    public:
+        virtual ~ImGuiApp() = default;
+        
+        virtual void setEditorRenderer(ImGuiImpl *impl) = 0;
+
+        virtual void exitApp() = 0;
     };
 }
+

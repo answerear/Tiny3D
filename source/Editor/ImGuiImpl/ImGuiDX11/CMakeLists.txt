@@ -42,7 +42,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
-list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h)
+list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h ${T3D_COMMON_INCLUDE_DIR}/ImGuiApp.h)
 
 #if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
@@ -110,7 +110,7 @@ else (TINY3D_OS_IOS)
         )
 endif (TINY3D_OS_IOS)
 
-add_dependencies(${BIN_NAME} TinyEditor imgui_dx11)
+add_dependencies(${BIN_NAME} TinyEditor TinyLauncher imgui_dx11)
 
 #install(TARGETS ${LIB_NAME}
 #    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

@@ -25,50 +25,57 @@
 
 #include "ImGuiDX11Plugin.h"
 #include "ImGuiImplDX11.h"
+#include "ImGuiApp.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    const String &ImGuiDX11Plugin::getName() const
+    namespace Editor
     {
-        return mName;
+        //----------------------------------------------------------------------
+
+        const String &ImGuiDX11Plugin::getName() const
+        {
+            return mName;
+        }
+
+        //----------------------------------------------------------------------
+
+        TResult ImGuiDX11Plugin::install()
+        {
+            ImGuiApp *app = static_cast<ImGuiApp *>(ImGuiApp::getInstancePtr());
+            mImGuiImpl = new ImGuiImplDX11();
+            app->setEditorRenderer(mImGuiImpl);
+            return T3D_OK;
+        }
+
+        //----------------------------------------------------------------------
+
+        TResult ImGuiDX11Plugin::startup()
+        {
+            return T3D_OK;
+        }
+
+        //----------------------------------------------------------------------
+
+        TResult ImGuiDX11Plugin::shutdown()
+        {
+            return T3D_OK;
+        }
+
+        //----------------------------------------------------------------------
+
+        TResult ImGuiDX11Plugin::uninstall()
+        {
+            TResult ret = T3D_OK;
+            ImGuiApp *app = static_cast<ImGuiApp*>(ImGuiApp::getInstancePtr());
+            app->setEditorRenderer(nullptr);
+            T3D_SAFE_DELETE(mImGuiImpl);
+            return ret;
+        }
+
+        //----------------------------------------------------------------------
     }
-
-    //--------------------------------------------------------------------------
-
-    TResult ImGuiDX11Plugin::install()
-    {
-        EditorApp *app = static_cast<EditorApp*>(EditorApp::getInstancePtr());
-        mEditorImGuiImpl = new ImGuiImplDX11();
-        app->setEditorRenderer(mEditorImGuiImpl);
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ImGuiDX11Plugin::startup()
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ImGuiDX11Plugin::shutdown()
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ImGuiDX11Plugin::uninstall()
-    {
-        TResult ret = T3D_OK;
-        EditorApp *app = static_cast<EditorApp*>(EditorApp::getInstancePtr());
-        app->setEditorRenderer(nullptr);
-        T3D_SAFE_DELETE(mEditorImGuiImpl);
-        return ret;
-    }
+    
 }
 

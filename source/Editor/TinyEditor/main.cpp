@@ -26,7 +26,7 @@
 #include "EditorApp.h"
 
 
-extern Tiny3D::EditorApp *app;
+extern Tiny3D::Editor::EditorApp *app;
 
 
 int main(int argc, char *argv[])

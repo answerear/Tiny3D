@@ -22,53 +22,53 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "EditorApp.h"
+#include "LauncherApp.h"
 #include "ImGuiImpl.h"
 #include "MainWindow.h"
 #include "T3DEditorInfoDX11.h"
 
 
-Tiny3D::Editor::EditorApp *app = nullptr;
+Tiny3D::Launcher::LauncherApp *app = nullptr;
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
+    NS_BEGIN(Launcher)
 
-    EditorApp theApp;
+    LauncherApp theApp;
 
     #define IMGUI_DX11_PLUGIN   "ImGuiDX11"
 
     //--------------------------------------------------------------------------
     
-    EditorApp::EditorApp()
-    {
+    LauncherApp::LauncherApp()
+    { 
         app = this;
     }
 
     //--------------------------------------------------------------------------
     
-    EditorApp::~EditorApp()
-    {
+    LauncherApp::~LauncherApp()
+    { 
         app = nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    void EditorApp::setEditorRenderer(ImGuiImpl *impl)
+    void LauncherApp::setEditorRenderer(ImGuiImpl *impl)
     {
         mImGuiImpl = impl;
     }
     
     //--------------------------------------------------------------------------
 
-    void EditorApp::exitApp()
+    void LauncherApp::exitApp()
     {
-        
+        mExitApp = true;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult EditorApp::go(int32_t argc, char *argv[])
+    TResult LauncherApp::go(int32_t argc, char *argv[])
     {
         TResult ret;
 
@@ -84,8 +84,6 @@ namespace Tiny3D
                 break;
             }
 
-            T3D_LOG_INFO(LOG_TAG_EDITOR, "argv[0] = %s, argv[1] = %s, argv[2] = %s", argv[0], argv[1], argv[2]);
-
             // 创建 imgui 环境
             ret = createImGuiEnv(engine);
             if (T3D_FAILED(ret))
@@ -96,10 +94,10 @@ namespace Tiny3D
 
             // 项目管理窗口
             mMainWindow = new MainWindow();
-            ret = mMainWindow->create("Main Window", nullptr);
+            ret = mMainWindow->create("Project Manager Window", nullptr);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create project manager window failed ! ERROR [%d]", ret);
                 break;
             }
             
@@ -108,10 +106,10 @@ namespace Tiny3D
 
             // 构建引擎运行数据，并运行引擎
             EditorRunningData runningData;
-            runningData.pollEvents = std::bind(&EditorApp::enginePollEvents, this);
-            runningData.update = std::bind(&EditorApp::engineUpdate, this);
-            runningData.preRender = std::bind(&EditorApp::enginePreRender, this);
-            runningData.postRender = std::bind(&EditorApp::enginePostRender, this);
+            runningData.pollEvents = std::bind(&LauncherApp::enginePollEvents, this);
+            runningData.update = std::bind(&LauncherApp::engineUpdate, this);
+            runningData.preRender = std::bind(&LauncherApp::enginePreRender, this);
+            runningData.postRender = std::bind(&LauncherApp::enginePostRender, this);
             engine->runForEditor(runningData);
 
             if (mMainWindow != nullptr)
@@ -132,7 +130,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult EditorApp::createImGuiEnv(Agent *engine)
+    TResult LauncherApp::createImGuiEnv(Agent *engine)
     {
         TResult ret = T3D_OK;
 
@@ -182,7 +180,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorApp::destroyImGuiEnv(Agent *engine)
+    void LauncherApp::destroyImGuiEnv(Agent *engine)
     {
         engine->unloadPlugin(IMGUI_DX11_PLUGIN);
         ImGui::DestroyContext();
@@ -190,81 +188,42 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    bool EditorApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+    bool LauncherApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
     
-    void EditorApp::applicationDidEnterBackground()
+    void LauncherApp::applicationDidEnterBackground()
     {
         T3D_AGENT.appDidEnterBackground();
     }
 
     //--------------------------------------------------------------------------
     
-    void EditorApp::applicationWillEnterForeground()
+    void LauncherApp::applicationWillEnterForeground()
     {
         T3D_AGENT.appWillEnterForeground();
     }
 
     //--------------------------------------------------------------------------
     
-    void EditorApp::applicationWillTerminate()
+    void LauncherApp::applicationWillTerminate()
     {
 
     }
 
     //--------------------------------------------------------------------------
     
-    void EditorApp::applicationLowMemory()
+    void LauncherApp::applicationLowMemory()
     {
 
     }
 
     //--------------------------------------------------------------------------
-    
-    void EditorApp::buildScene()
-    {
-        // create scene
-        ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
-        T3D_SCENE_MGR.setCurrentScene(scene);
-    
-        // root game object
-        GameObjectPtr go = GameObject::create("TestScene");
-        scene->addRootGameObject(go);
-        Transform3DPtr root = go->addComponent<Transform3D>();
 
-#if 0
-        RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
-        RenderTargetPtr rt = RenderTarget::create(rw);
-#else
-        RenderWindow *rw = T3D_AGENT.getDefaultRenderWindow();
-        RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("RT_Scene", 640, 480, PixelFormat::E_PF_R8G8B8A8);
-        RenderTargetPtr rt = RenderTarget::create(renderTex);
-#endif
-    
-        CameraPtr camera;
-
-        // center camera
-        go = GameObject::create("CenterCamera");
-        Transform3DPtr center = go->addComponent<Transform3D>();
-        root->addChild(center);
-        camera = go->addComponent<Camera>();
-        camera->setOrder(1);
-        Viewport vpCenter {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
-        camera->setViewport(vpCenter);
-        camera->setClearColor(ColorRGB::BLUE);
-        camera->setRenderTarget(rt);
-        scene->addCamera(camera);
-
-        mSceneRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool EditorApp::enginePollEvents()
+    bool LauncherApp::enginePollEvents()
     {
         bool done = false;
         SDL_Event event;
@@ -283,12 +242,13 @@ namespace Tiny3D
                 // CreateRenderTarget();
             }
         }
-        return !done;
+        
+        return !done && !mExitApp;
     }
 
     //--------------------------------------------------------------------------
 
-    void EditorApp::engineUpdate()
+    void LauncherApp::engineUpdate()
     {
         mImGuiImpl->update();
         ImGui::NewFrame();
@@ -303,7 +263,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorApp::enginePreRender()
+    void LauncherApp::enginePreRender()
     {
         ImGui::Render();
         mImGuiImpl->preRender();
@@ -311,7 +271,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorApp::enginePostRender()
+    void LauncherApp::enginePostRender()
     {
         mImGuiImpl->postRender();
 

@@ -22,23 +22,32 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
 #pragma once
 
 
-#include "ImPrerequisites.h"
+#include "LauncherPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    enum ImErrorCode
+    NS_BEGIN(Launcher)
+    
+    class MainWindow : public ImWindow
     {
-        IM_ERR_NONE             = T3D_OK,
-        IM_OK                   = IM_ERR_NONE,
-        IM_SUCCESS              = IM_ERR_NONE,
-        IM_ERR_FAIL             = 0x00000001,
-        IM_ERR_CREATE_WIDGET    = 0x00000002,
-        IM_ERR_INVALID_PARAM    = 0x00000003,
-        IM_ERR_INVALID_PARENT   = 0x00000004,
+    public:
+
+    protected:
+        TResult onCreate() override;
+
+        bool onGUIBegin() override;
+
+        void onGUIEnd() override;
+
+        TResult buildMenu();
+        
+    protected:
+        ImMenuBar   *mMenuBar {nullptr};
     };
+
+    NS_END
 }

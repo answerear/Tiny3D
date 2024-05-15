@@ -27,17 +27,17 @@
 
 namespace Tiny3D
 {
-    class EditorImGuiImpl
+    class ImGuiImpl
     {
     public:
-        EditorImGuiImpl(const EditorImGuiImpl &) = delete;
-        EditorImGuiImpl(EditorImGuiImpl &&) = delete;
+        ImGuiImpl(const ImGuiImpl &) = delete;
+        ImGuiImpl(ImGuiImpl &&) = delete;
 
-        EditorImGuiImpl &operator=(const EditorImGuiImpl &) = delete;
-        EditorImGuiImpl &operator=(EditorImGuiImpl &&) = delete;
+        ImGuiImpl &operator=(const ImGuiImpl &) = delete;
+        ImGuiImpl &operator=(ImGuiImpl &&) = delete;
 
-        EditorImGuiImpl() = default;
-        virtual ~EditorImGuiImpl() = default;
+        ImGuiImpl() = default;
+        virtual ~ImGuiImpl() = default;
         
         virtual void init(void *initData) = 0;
 

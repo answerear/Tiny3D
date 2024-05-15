@@ -39,9 +39,11 @@ namespace Tiny3D
 
     bool ImWindow::onGUIBegin()
     {
+        PushWidgetID();
         if (!ImGui::Begin(getName().c_str(), &mVisible))
         {
             ImGui::End();
+            PopWidgetID();
             return false;
         }
 
@@ -60,6 +62,7 @@ namespace Tiny3D
     void ImWindow::onGUIEnd()
     {
         ImGui::End();
+        PopWidgetID();
     }
 
     //--------------------------------------------------------------------------

@@ -67,17 +67,6 @@ namespace Tiny3D
 
     TResult ImWidget::create(const String &name, ImWidget *parent, int32_t argc, ...)
     {
-        va_list args;
-        va_start(args, argc);
-        TResult ret = create(name, parent, argc, args);
-        va_end(args);
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ImWidget::create(const String &name, ImWidget *parent, int32_t argc, va_list args)
-    {
         TResult ret = IM_OK;
 
         do
@@ -91,18 +80,39 @@ namespace Tiny3D
 
             mUUID = UUID::generate();
             
+            va_list args;
+            va_start(args, argc);
+            ret = create(name, parent, argc, args);
+            va_end(args);
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
             ret = onCreate();
             
             if (T3D_FAILED(ret))
             {
-                mUUID = UUID::INVALID;
-                mParent->removeWidget(this, false);
-                mParent = nullptr;
                 break;
             }
         } while (false);
 
+        if (T3D_FAILED(ret))
+        {
+            mUUID = UUID::INVALID;
+            mParent->removeWidget(this, false);
+            mParent = nullptr;
+        }
+        
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::create(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    {
+        return IM_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -147,7 +157,9 @@ namespace Tiny3D
 
             if (widget->getParent() != nullptr)
             {
-                widget->getParent()->removeWidget(widget);
+                ret = IM_ERR_INVALID_PARENT;
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when addWidget !", widget->getName().c_str());
+                break;
             }
 
             if (widget != nullptr)
@@ -157,6 +169,141 @@ namespace Tiny3D
             }
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::insertAfterWidget(const String &prevName, ImWidget *widget)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            if (widget == nullptr)
+            {
+                // 空 widget
+                ret = IM_ERR_INVALID_PARAM;
+                break;
+            }
+
+            if (widget->getParent() != nullptr)
+            {
+                // 已经有父节点，直接报错
+                ret = IM_ERR_INVALID_PARENT;
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                break;
+            }
+
+            if (prevName.empty())
+            {
+                // 插入最前面
+                mChildren.emplace_front(widget);
+            }
+            else
+            {
+                for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+                {
+                    if ((*itr)->getName() == prevName)
+                    {
+                        ++itr;
+                        mChildren.emplace(itr, widget);
+                        break;
+                    }
+                }
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::insertAfterWidget(const UUID &prevUUID, ImWidget *widget)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            if (widget == nullptr)
+            {
+                // 空 widget
+                ret = IM_ERR_INVALID_PARAM;
+                break;
+            }
+
+            if (widget->getParent() != nullptr)
+            {
+                // 已经有父节点，直接报错
+                ret = IM_ERR_INVALID_PARENT;
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                break;
+            }
+
+            if (prevUUID == UUID::INVALID)
+            {
+                // 插入最前面
+                mChildren.emplace_front(widget);
+            }
+            else
+            {
+                for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+                {
+                    if ((*itr)->getUUID() == prevUUID)
+                    {
+                        ++itr;
+                        mChildren.emplace(itr, widget);
+                        break;
+                    }
+                }
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::insertAfterWidget(ImWidget *prevWidget, ImWidget *widget)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            if (widget == nullptr)
+            {
+                // 空 widget
+                ret = IM_ERR_INVALID_PARAM;
+                break;
+            }
+
+            if (widget->getParent() != nullptr)
+            {
+                // 已经有父节点，直接报错
+                ret = IM_ERR_INVALID_PARENT;
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                break;
+            }
+
+            if (prevWidget == nullptr)
+            {
+                // 插入最前面
+                mChildren.emplace_front(widget);
+            }
+            else
+            {
+                for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+                {
+                    if ((*itr) == prevWidget)
+                    {
+                        ++itr;
+                        mChildren.emplace(itr, widget);
+                        break;
+                    }
+                }
+            }
+        } while (false);
+
         return ret;
     }
 

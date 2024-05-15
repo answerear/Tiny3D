@@ -27,9 +27,9 @@
 
 
 #include <Tiny3D.h>
-#include <TinyEditor.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_dx11.h>
+#include "ImGuiImpl.h"
 
 
 #if defined IMGUIDX11_EXPORT

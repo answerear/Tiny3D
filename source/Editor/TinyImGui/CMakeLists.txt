@@ -64,6 +64,7 @@ if (TINY3D_OS_IOS)
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
@@ -76,6 +77,7 @@ elseif (TINY3D_OS_LINUX)
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
@@ -95,6 +97,7 @@ else (TINY3D_OS_IOS)
         LINK_PRIVATE T3DLog
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
+        LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
@@ -102,6 +105,9 @@ else (TINY3D_OS_IOS)
 endif (TINY3D_OS_IOS)
 
 add_dependencies(${BIN_NAME} imgui_dx11)
+
+# Setup project folder
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Editor/Editor")
 
 #install(TARGETS ${LIB_NAME}
 #    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

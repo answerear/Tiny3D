@@ -30,68 +30,69 @@
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    ImGuiImplDX11::ImGuiImplDX11()
+    namespace Editor
     {
+        //----------------------------------------------------------------------
+
+        ImGuiImplDX11::ImGuiImplDX11()
+        {
         
-    }
+        }
     
-    //--------------------------------------------------------------------------
+        //----------------------------------------------------------------------
 
-    ImGuiImplDX11::~ImGuiImplDX11()
-    {
-        ImGui_ImplDX11_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
+        ImGuiImplDX11::~ImGuiImplDX11()
+        {
+            ImGui_ImplDX11_Shutdown();
+            ImGui_ImplSDL2_Shutdown();
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplDX11::init(void *initData)
+        {
+            EditorInfoDX11 *info = static_cast<EditorInfoDX11*>(initData);
+            ImGui_ImplSDL2_InitForD3D(info->sdlWindow);
+            ImGui_ImplDX11_Init(info->d3dDevice, info->d3dContext);
+            mSDLWindow = info->sdlWindow;
+            mD3DDevice = info->d3dDevice;
+            mD3DDeviceContext = info->d3dContext;
+            mD3DRTView = info->d3dRTView;
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplDX11::pollEvents(void *event)
+        {
+            ImGui_ImplSDL2_ProcessEvent((SDL_Event*)event);
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplDX11::update()
+        {
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplSDL2_NewFrame();
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplDX11::preRender()
+        {
+            ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+            const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+            mD3DDeviceContext->OMSetRenderTargets(1, &mD3DRTView, nullptr);
+            mD3DDeviceContext->ClearRenderTargetView(mD3DRTView, clear_color_with_alpha);
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplDX11::postRender()
+        {
+            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        }
+
+        //----------------------------------------------------------------------
     }
-
-    //--------------------------------------------------------------------------
-
-    void ImGuiImplDX11::init(void *initData)
-    {
-        EditorInfoDX11 *info = static_cast<EditorInfoDX11*>(initData);
-        ImGui_ImplSDL2_InitForD3D(info->sdlWindow);
-        ImGui_ImplDX11_Init(info->d3dDevice, info->d3dContext);
-        mSDLWindow = info->sdlWindow;
-        mD3DDevice = info->d3dDevice;
-        mD3DDeviceContext = info->d3dContext;
-        mD3DRTView = info->d3dRTView;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ImGuiImplDX11::pollEvents(void *event)
-    {
-        ImGui_ImplSDL2_ProcessEvent((SDL_Event*)event);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ImGuiImplDX11::update()
-    {
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ImGuiImplDX11::preRender()
-    {
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
-        mD3DDeviceContext->OMSetRenderTargets(1, &mD3DRTView, nullptr);
-        mD3DDeviceContext->ClearRenderTargetView(mD3DRTView, clear_color_with_alpha);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ImGuiImplDX11::postRender()
-    {
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-    }
-
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
 }
 

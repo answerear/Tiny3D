@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(TinyEditor)
+set_project_name(TinyLauncher)
 
 
 if (MSVC)
@@ -34,12 +34,11 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
-#set_project_files(include\\\\MainEditor ${CMAKE_CURRENT_SOURCE_DIR}/MainEditor/ .h)
 
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
-#set_project_files(source\\\\MainEditor ${CMAKE_CURRENT_SOURCE_DIR}/MainEditor/ .cpp)
+
 
 # common header files
 list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/ImGuiImpl.h ${T3D_COMMON_INCLUDE_DIR}/ImGuiApp.h)
