@@ -99,6 +99,10 @@ namespace Tiny3D
                 {
                     flags |= Window::WINDOW_FULLSCREEN;
                 }
+                if (desc.IsResizable)
+                {
+                    flags |= Window::WINDOW_RESIZABLE;
+                }
 
                 String title = desc.Title + " - " + T3D_AGENT.getActiveRHIRenderer()->getName();
                 ret = mWindow->create(title.c_str(), desc.Left, desc.Top, desc.Width, desc.Height, flags);

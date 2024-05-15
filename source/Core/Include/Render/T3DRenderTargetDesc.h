@@ -38,36 +38,39 @@ namespace Tiny3D
     struct T3D_ENGINE_API RenderWindowDesc
     {
         THandle externalHandle {nullptr};
-        /**< 窗口横向坐标位置，全屏窗口忽略该参数 */
+        /// 窗口横向坐标位置，全屏窗口忽略该参数
         TPROPERTY()
-        int32_t Left;
-        /**< 窗口纵向坐标位置，全屏窗口忽略该参数 */
+        int32_t Left {0};
+        /// 窗口纵向坐标位置，全屏窗口忽略该参数
         TPROPERTY()
-        int32_t Top;
-        /**< 窗口宽度 */
+        int32_t Top {0};
+        /// 窗口宽度
         TPROPERTY()
-        int32_t Width;
-        /**< 窗口高度 */
+        int32_t Width {0};
+        /// 窗口高度
         TPROPERTY()
-        int32_t Height;
-        /**< 窗口色深 */
+        int32_t Height {0};
+        /// 窗口色深
         TPROPERTY()
-        int32_t ColorDepth;
-        /**< 抗锯齿质量 */
+        int32_t ColorDepth {0};
+        /// 抗锯齿质量
         TPROPERTY()
-        MultisamplerDesc    MSAA;
+        MultisamplerDesc    MSAA {};
         TPROPERTY()
-        /**< 窗口标题 */
-        String  Title;
-        /**< 图标文件路径 */
+        /// 窗口标题
+        String  Title {};
+        /// 图标文件路径
         TPROPERTY()
-        String  IconPath;
-        /**< 是否全屏，终端平台忽略该参数 */
+        String  IconPath {};
+        /// 是否全屏，终端平台忽略该参数
         TPROPERTY()
-        bool    IsFullscreen;
-        /**< 是否开启垂直同步 */
+        bool    IsFullscreen {false};
+        /// 是否开启垂直同步
         TPROPERTY()
-        bool    IsVsync;
+        bool    IsVsync {false};
+        /// 窗口是否可调整大小
+        TPROPERTY()
+        bool    IsResizable {false};
     };
 }
 

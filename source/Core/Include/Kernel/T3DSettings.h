@@ -38,6 +38,9 @@ namespace Tiny3D
         bool    fullscreen = false;   /// 是否全屏
 
         TPROPERTY()
+        bool    resizable = false;
+
+        TPROPERTY()
         int32_t width = 1280;
 
         TPROPERTY()

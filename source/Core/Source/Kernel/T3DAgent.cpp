@@ -494,6 +494,8 @@ namespace Tiny3D
             param.MSAA.Quality = 0;
             // 垂直同步
             param.IsVsync = mSettings.renderSettings.vsync;
+            // 是否可调整大小
+            param.IsResizable = mSettings.renderSettings.resizable;
 
             std::stringstream ss;
             ss << "Tiny3D " << getVersionName() << "(" << getVersionString();
