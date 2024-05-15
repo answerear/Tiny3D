@@ -32,6 +32,7 @@
 #include "Adapter/Windows/T3DWin32Console.h"
 #include "Adapter/Windows/T3DWin32Thread.h"
 #include "Adapter/Windows/T3DWin32SyncObject.h"
+#include "Adapter/Windows/T3DWin32Process.h"
 #include "Adapter/Windows/T3DWin32Platform.h"
 
 
@@ -144,6 +145,13 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    IProcess *Win32Factory::createPlatformProcess()
+    {
+        return new Win32Process();
+    }
+    
+    //--------------------------------------------------------------------------
+
     EPlatform Win32Factory::getPlatform()
     {
         return E_PLATFORM_WIN32;
@@ -155,4 +163,6 @@ namespace Tiny3D
     {
         return new Win32Factory();
     }
+
+    //--------------------------------------------------------------------------
 }

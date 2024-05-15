@@ -35,39 +35,42 @@ namespace Tiny3D
     {
     public:
         Win32Factory() = default;
-        virtual ~Win32Factory() override = default;
 
-        virtual IPlatform *createPlatform() override;
+        ~Win32Factory() override = default;
 
-        virtual IApplication *createPlatformApplication() override;
+        IPlatform *createPlatform() override;
 
-        virtual IWindow *createPlatformWindow() override;
+        IApplication *createPlatformApplication() override;
 
-        virtual ITime *createPlatformTime() override;
+        IWindow *createPlatformWindow() override;
 
-        virtual ITimerService *createPlatformTimerService() override;
+        ITime *createPlatformTime() override;
 
-        virtual IDir *createPlatformDir() override;
+        ITimerService *createPlatformTimerService() override;
 
-        virtual IDeviceInfo *createPlatformDeviceInfo() override;
+        IDir *createPlatformDir() override;
 
-        virtual IConsole *createPlatformConsole() override;
+        IDeviceInfo *createPlatformDeviceInfo() override;
 
-        virtual IThread *createPlatformThread() override;
+        IConsole *createPlatformConsole() override;
 
-        virtual ICriticalSection *createPlatformCriticalSection() override;
+        IThread *createPlatformThread() override;
 
-        virtual IMutex *createPlatformMutex() override;
+        ICriticalSection *createPlatformCriticalSection() override;
 
-        virtual IRecursiveMutex *createPlatformRecursiveMutex() override;
+        IMutex *createPlatformMutex() override;
+
+        IRecursiveMutex *createPlatformRecursiveMutex() override;
         
-        virtual ISemaphore *createPlatformSemaphore() override;
+        ISemaphore *createPlatformSemaphore() override;
 
-        virtual IEvent *createPlatformEvent() override;
+        IEvent *createPlatformEvent() override;
 
-        virtual IWaitCondition *createPlatformWaitCondition() override;
+        IWaitCondition *createPlatformWaitCondition() override;
+
+        IProcess *createPlatformProcess() override;
         
-        virtual EPlatform getPlatform() override;
+        EPlatform getPlatform() override;
 
     protected:
 

@@ -52,7 +52,7 @@ namespace Tiny3D
         /**
          * \brief Destructor
          */
-        virtual ~RunnableThread() override;
+        ~RunnableThread() override;
 
         /**
          * \brief 启动线程
@@ -153,10 +153,10 @@ namespace Tiny3D
     protected:
         TResult run();
         
-        String      mName;
-        Event       mInitSyncEvent;
-        Runnable    *mRunnable = nullptr;
-        IThread     *mThread = nullptr;
+        String      mName {};
+        Event       mInitSyncEvent {};
+        Runnable    *mRunnable {nullptr};
+        IThread     *mThread {nullptr};
     };
 }
 

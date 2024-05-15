@@ -53,6 +53,10 @@ namespace Tiny3D
         T3D_ERR_NATIVE_OBJECT_NOT_CREATED   = T3D_ERR_IMPLEMENT_NOT_CREATED + 1,
         /// 非可写文件
         T3D_ERR_NOT_WRAITABLE_FILE          = T3D_ERR_NATIVE_OBJECT_NOT_CREATED + 1,
+        /// 进程创建失败
+        T3D_ERR_PROCESS_CREATED             = T3D_ERR_NOT_WRAITABLE_FILE + 1,
+        /// 进程终止失败
+        T3D_ERR_PROCESS_TERMINATED          = T3D_ERR_PROCESS_CREATED + 1,
     };
 };
 

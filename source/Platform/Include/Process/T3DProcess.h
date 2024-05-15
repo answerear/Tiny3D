@@ -22,37 +22,35 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_PROCESS_H__
+#define __T3D_PROCESS_H__
 
-#ifndef __T3D_PLATFORM_LIB_H__
-#define __T3D_PLATFORM_LIB_H__
 
-#include <T3DType.h>
-#include <T3DMacro.h>
-#include <T3DCommonErrorDef.h>
-#include <T3DPlatformErrorDef.h>
-#include <T3DPlatform.h>
-#include <T3DNoncopyable.h>
-#include <Application/T3DApplication.h>
-#include <Application/T3DConsoleApplication.h>
-#include <Application/T3DWindowApplication.h>
-#include <Window/T3DWindow.h>
-#include <Time/T3DTimerManager.h>
-#include <Time/T3DDateTime.h>
-#include <Time/T3DTimerListener.h>
-#include <IO/T3DDataStream.h>
-#include <IO/T3DFileDataStream.h>
-#include <IO/T3DMemoryDataStream.h>
-#include <IO/T3DDir.h>
-#include <Console/T3DConsole.h>
-#include <Device/T3DDeviceInfo.h>
-#include <Thread/T3DQueuedJob.h>
-#include <Thread/T3DQueuedJobPool.h>
-#include <Thread/T3DQueuedThread.h>
-#include <Thread/T3DRunnable.h>
-#include <Thread/T3DRunnableThread.h>
-#include <Thread/T3DSyncObject.h>
-#include <Thread/T3DThreadConstant.h>
-#include <Thread/T3DThreadManager.h>
-#include <Process/T3DProcess.h>
+#include "T3DMacro.h"
+#include "T3DNoncopyable.h"
+#include "T3DPlatformPrerequisites.h"
 
-#endif  /*__T3D_PLATFORM_LIB_H__*/
+
+namespace Tiny3D
+{
+    class IProcess;
+    
+    class T3D_PLATFORM_API Process : public Noncopyable
+    {
+    public:
+        Process();
+        
+        ~Process() override;
+
+        TResult start(const String &exePath, const String &cmdLine);
+
+        TResult wait(uint32_t timeout = -1);
+
+        TResult terminate(int32_t exitCode);
+
+    protected:
+        IProcess    *mProcess {nullptr};
+    };
+}
+
+#endif  /*__T3D_NONCOPYABLE_H__*/

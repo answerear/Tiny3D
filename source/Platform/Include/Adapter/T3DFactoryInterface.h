@@ -49,6 +49,7 @@ namespace Tiny3D
     class ISemaphore;
     class IEvent;
     class IWaitCondition;
+    class IProcess;
 
     enum EPlatform
     {
@@ -131,6 +132,8 @@ namespace Tiny3D
         virtual IEvent *createPlatformEvent() = 0;
 
         virtual IWaitCondition *createPlatformWaitCondition() = 0;
+
+        virtual IProcess *createPlatformProcess() = 0;
 
         /**
          * @brief 获取当前平台类型.
