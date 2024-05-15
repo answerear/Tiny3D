@@ -31,6 +31,8 @@
 
 namespace Tiny3D
 {
+    using EventHandle = TFunction<bool(EventParam*, TINSTANCE sender)>;
+    
     class T3D_FRAMEWORK_API EventHandler
     {
         friend class EventManager;
@@ -79,8 +81,7 @@ namespace Tiny3D
         * @param [in] sender : 事件发送实例句柄
         * @return 有处理事件返回true，否则返回false。
         */
-        virtual TResult processEvent(EventID evid, EventParam *param,
-            TINSTANCE sender);
+        TResult processEvent(EventID evid, EventParam *param, TINSTANCE sender);
 
     protected:
         /**
@@ -102,7 +103,7 @@ namespace Tiny3D
          * @brief 注册关注的事件到过滤器里面
          * @param [in] evid : 事件ID 
          */
-        TResult registerEvent(EventID evid);
+        TResult registerEvent(EventID evid, const EventHandle &handle);
 
         /**
          * @brief 反注册关注的事件，反注册后，过滤器里面没有该事件
@@ -116,13 +117,12 @@ namespace Tiny3D
         void unregisterAllEvent();
 
     private:
-        typedef TList<uint32_t>             EventList;
-        typedef EventList::iterator         EventListItr;
-        typedef EventList::const_iterator   EventListConstItr;
-
-        TINSTANCE   mInstance;      /// 实例句柄
-
-        EventList   mEventList;     /// 本实例关注的事件列表
+        using EventMap = TMap<uint32_t, EventHandle>;
+        
+        /// 实例句柄
+        TINSTANCE   mInstance;
+        /// 事件响应函数列表
+        EventMap    mEventMap;
     };
 }
 

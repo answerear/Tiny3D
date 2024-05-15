@@ -109,7 +109,7 @@ namespace Tiny3D
                 ret = singlecastEvent(evid, param, receiver, sender);
             }
 
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -159,7 +159,7 @@ namespace Tiny3D
                     ret = T3D_OK;
                     ++itr;
                 }
-            } while (0);
+            } while (false);
 
             mCurrentCallStack--;
         }
@@ -226,7 +226,7 @@ namespace Tiny3D
 
                     ++itr;
                 }
-            } while (0);
+            } while (false);
 
             mCurrentCallStack--;
         }
@@ -265,7 +265,7 @@ namespace Tiny3D
                 {
                     ret = handler->processEvent(evid, param, sender);
                 }
-            } while (0);
+            } while (false);
 
             mCurrentCallStack--;
         }
@@ -318,7 +318,7 @@ namespace Tiny3D
                 // 单播
                 ret = pushSinglecastEvent(evid, param, receiver, sender);
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -521,7 +521,7 @@ namespace Tiny3D
                 mEventQueue[index].pop_front();
             }
 
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -646,7 +646,7 @@ namespace Tiny3D
                 mEventHandlers[idx] = nullptr;
                 ret = T3D_OK;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -672,7 +672,7 @@ namespace Tiny3D
             }
 
             EventInstSet &instSet = mEventFilters[evid];
-            std::pair<EventInstSetItr, bool> r = instSet.insert(instance);
+            auto r = instSet.emplace(instance);
             if (r.second)
             {
                 ret = T3D_OK;
@@ -681,7 +681,7 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_FWK_DUPLICATE_INSTANCE;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -709,7 +709,7 @@ namespace Tiny3D
             EventInstSet &instSet = mEventFilters[evid];
             instSet.erase(instance);
             ret = T3D_OK;
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -722,7 +722,7 @@ namespace Tiny3D
 
         for (i = 0; i < MAX_EVENT_QUEUE; ++i)
         {
-            EventListItr itr = mEventQueue[i].begin();
+            auto itr = mEventQueue[i].begin();
             while (itr != mEventQueue[i].end())
             {
                 EventItem &item = *itr;
@@ -733,4 +733,6 @@ namespace Tiny3D
             mEventQueue[i].clear();
         }
     }
+
+    //--------------------------------------------------------------------------
 }

@@ -43,6 +43,65 @@ namespace Tiny3D
          */
         virtual EventParam *clone() = 0;
     };
+
+    template <typename T1>
+    class EventParamT1 : public EventParam
+    {
+    public:
+        EventParamT1() = default;
+        
+        EventParamT1(T1 a1) : arg1(a1) {}
+
+        EventParam *clone() override { return new EventParamT1(arg1); }
+        
+        T1 arg1 {};
+    };
+
+    template <typename T1, typename T2>
+    class EventParamT2 : public EventParam
+    {
+    public:
+        EventParamT2() = default;
+        
+        EventParamT2(T1 a1, T2 a2) : arg1(a1), arg2(a2) {}
+
+        EventParam *clone() override { return new EventParamT2(arg1, arg2); }
+        
+        T1 arg1 {};
+        T2 arg2 {};
+    };
+
+
+    template <typename T1, typename T2, typename T3>
+    class EventParamT3 : public EventParam
+    {
+    public:
+        EventParamT3() = default;
+        
+        EventParamT3(T1 a1, T2 a2, T3 a3) : arg1(a1), arg2(a2), arg3(a3) {}
+
+        EventParam *clone() override { return new EventParamT3(arg1, arg2, arg3); }
+        
+        T1 arg1 {};
+        T2 arg2 {};
+        T3 arg3 {};
+    };
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    class EventParamT4 : public EventParam
+    {
+    public:
+        EventParamT4() = default;
+        
+        EventParamT4(T1 a1, T2 a2, T3 a3, T4 a4) : arg1(a1), arg2(a2), arg3(a3), arg4(a4) {}
+
+        EventParam *clone() override { return new EventParamT4(arg1, arg2, arg3, arg4); }
+        
+        T1 arg1 {};
+        T2 arg2 {};
+        T3 arg3 {};
+        T4 arg4 {};
+    };
 }
 
 

@@ -116,13 +116,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult EventHandler::registerEvent(EventID evid)
+    TResult EventHandler::registerEvent(EventID evid, const EventHandle &handle)
     {
         TResult ret = T3D_EVENT_MGR.registerEvent(evid, mInstance);
 
         if (T3D_OK == ret)
         {
-            mEventList.push_back(evid);
+            auto rval = mEventMap.emplace(evid, handle);
+            ret = rval.second;
         }
 
         return ret;
@@ -136,18 +137,7 @@ namespace Tiny3D
 
         if (T3D_OK == ret)
         {
-            auto itr = mEventList.begin();
-
-            while (itr != mEventList.end())
-            {
-                if (evid == *itr)
-                {
-                    mEventList.erase(itr);
-                    break;
-                }
-
-                ++itr;
-            }
+            mEventMap.erase(evid);
         }
 
         return ret;
@@ -157,22 +147,29 @@ namespace Tiny3D
 
     void EventHandler::unregisterAllEvent()
     {
-        while (!mEventList.empty())
+        while (!mEventMap.empty())
         {
-            auto eventID = mEventList.back();
+            auto itr = mEventMap.begin();
+            auto eventID = itr->first;
             T3D_EVENT_MGR.unregisterEvent(eventID, mInstance);
-            mEventList.pop_back();
+            mEventMap.erase(eventID);
         }
-
-        mEventList.clear();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult EventHandler::processEvent(EventID evid, EventParam *param,
-        TINSTANCE sender)
+    TResult EventHandler::processEvent(EventID evid, EventParam *param, TINSTANCE sender)
     {
-        // 都跑到基类了，还没有人处理过这个事件，那只能不处理了
-        return T3D_ERR_FWK_NONE_HANDLER;
+        TResult ret = T3D_OK;
+
+        auto itr = mEventMap.find(evid);
+        if (itr != mEventMap.end())
+        {
+            ret = itr->second(param, sender);
+        }
+
+        return ret;
     }
+
+    //--------------------------------------------------------------------------
 }

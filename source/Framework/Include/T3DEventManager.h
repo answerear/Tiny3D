@@ -114,8 +114,7 @@ namespace Tiny3D
          *  - getMaxCallStackLevel()
          *  - getMaxHandlingDuration()
          */
-        TResult sendEvent(EventID evid, EventParam *param,
-            TINSTANCE receiver, TINSTANCE sender);
+        TResult sendEvent(EventID evid, EventParam *param, TINSTANCE receiver, TINSTANCE sender);
 
         /**
          * @brief 发送异步事件，事件处理函数会再后面统一派发，这里不会触发。
@@ -138,8 +137,7 @@ namespace Tiny3D
          *  - getMaxHandlingDuration()
          *  - getHandlingEventMode()
          */
-        TResult postEvent(EventID evid, EventParam *param,
-            TINSTANCE receiver, TINSTANCE sender);
+        TResult postEvent(EventID evid, EventParam *param, TINSTANCE receiver, TINSTANCE sender);
 
         /**
          * @brief 通过传入instance实例句柄获取回对象指针。
@@ -286,49 +284,47 @@ namespace Tiny3D
         /**
          * @brief 单播事件
          */
-        TResult singlecastEvent(EventID evid, EventParam *param,
-            TINSTANCE receiver, TINSTANCE sender);
+        TResult singlecastEvent(EventID evid, EventParam *param, TINSTANCE receiver, TINSTANCE sender);
 
-        TResult pushBroadcastEvent(EventID evid, EventParam *param,
-            TINSTANCE sender);
+        TResult pushBroadcastEvent(EventID evid, EventParam *param, TINSTANCE sender);
 
-        TResult pushMulticastEvent(EventID evid, EventParam *param,
-            TINSTANCE sender);
+        TResult pushMulticastEvent(EventID evid, EventParam *param, TINSTANCE sender);
 
-        TResult pushSinglecastEvent(EventID evid, EventParam *param,
-            TINSTANCE receiver, TINSTANCE sender);
+        TResult pushSinglecastEvent(EventID evid, EventParam *param, TINSTANCE receiver, TINSTANCE sender);
 
     private:
-        typedef TArray<EventHandler*>       HandlerList;
-        typedef HandlerList::iterator       HandlerListItr;
-        typedef HandlerList::const_iterator HandlerListConstItr;
+        using HandlerList = TArray<EventHandler*>;
+        using EventList = TList<EventItem>;
+        using EventInstSet = TSet<TINSTANCE>;
+        using EventFilterList = TArray<EventInstSet>;
+        using EventFilterListItr = EventFilterList::iterator;
 
-        typedef TList<EventItem>            EventList;
-        typedef EventList::iterator         EventListItr;
-        typedef EventList::const_iterator   EventListConstItr;
+        /// 事件处理对象链表
+        HandlerList	mEventHandlers {};
+        /// 待处理事件队列
+        EventList   mEventQueue[MAX_EVENT_QUEUE] {};
 
-        typedef TSet<TINSTANCE>             EventInstSet;
-        typedef EventInstSet::iterator      EventInstSetItr;
-        typedef EventInstSet::value_type	EventInstSetValue;
+        /// 事件过滤表
+        EventFilterList	mEventFilters {};
 
-        typedef TArray<EventInstSet>        EventFilterList;
-        typedef EventFilterList::iterator   EventFilterListItr;
+        /// 当前待处理事件队列
+        int32_t         mCurrentQueue {0};
+        /// 处理事件持续最大时间
+        uint32_t        mMaxHandlingDuration {0};
+        /// 开始处理事件时间
+        int64_t         mStartHandleTime {0};
+        /// 处理事件嵌套调用栈层级
+        uint32_t        mMaxCallStackLevel {0};
+        /// 当前栈深度
+        uint32_t        mCurrentCallStack {0};
 
-        HandlerList	mEventHandlers;                 /// 事件处理对象链表
-        EventList   mEventQueue[MAX_EVENT_QUEUE];   /// 待处理事件队列
+        /// 被打断后续事件处理方式
+        HandleEventMode mHandlingMode {};
 
-        EventFilterList	mEventFilters;              /// 事件过滤表
-
-        int32_t         mCurrentQueue;              /// 当前待处理事件队列
-        uint32_t        mMaxHandlingDuration;       /// 处理事件持续最大时间
-        int64_t         mStartHandleTime;           /// 开始处理事件时间
-        uint32_t        mMaxCallStackLevel;         /// 处理事件嵌套调用栈层级
-        uint32_t        mCurrentCallStack;          /// 当前栈深度
-
-        HandleEventMode mHandlingMode;              /// 被打断后续事件处理方式
-
-        bool            mIsDispatchPaused;          /// 暂停派发事件标识
-        EventList       mEventCache;                /// 暂存事件缓存
+        /// 暂停派发事件标识
+        bool            mIsDispatchPaused {false};
+        /// 暂存事件缓存
+        EventList       mEventCache {};
     };
 
     #define T3D_EVENT_MGR   (EventManager::getInstance())
