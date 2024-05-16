@@ -22,18 +22,45 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SYSTEM_LIB_H__
-#define __T3D_SYSTEM_LIB_H__
+#ifndef __T3D_LANGUAGE_MANAGER_H__
+#define __T3D_LANGUAGE_MANAGER_H__
 
 
-#include <T3DSystem.h>
-#include <Object/T3DObject.h>
-#include <Object/T3DSmartPtr.h>
-#include <Object/T3DObjectTracer.h>
-#include <Object/T3DBuffer.h>
-#include <Object/T3DAssignableObjectManager.h>
-#include <UUID/T3DUUID.h>
-#include <Language/T3DLanguageManager.h>
+#include "T3DSystemPrerequisites.h"
+#include "Object/T3DObject.h"
+#include "Object/T3DSmartPtr.h"
 
 
-#endif  /*__T3D_SYSTEM_LIB_H__*/
+namespace Tiny3D
+{
+    class LanguageManager;
+    T3D_DECLARE_SMART_PTR(LanguageManager);
+    
+    class T3D_SYSTEM_API LanguageManager
+        : public Object
+        , public Singleton<LanguageManager>
+    {
+    public:
+        static LanguageManagerPtr create();
+        
+        ~LanguageManager() override;
+
+        TResult init(const String &languageFilePath);
+
+        TResult init(DataStream &stream);
+
+        const String &getText(uint32_t txtID);
+
+    protected:
+        LanguageManager() = default;
+        
+        using TextCache = TUnorderedMap<uint32_t, String>;
+
+        TextCache  mTextCache {};
+    };
+
+    #define T3D_LANG_MGR    (LanguageManager::getInstance())
+}
+
+
+#endif  /*__T3D_LANGUAGE_MANAGER_H__*/
