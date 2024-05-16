@@ -34,7 +34,7 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
-#set_project_files(include\\\\MainEditor ${CMAKE_CURRENT_SOURCE_DIR}/MainEditor/ .h)
+set_project_files(include\\\\Language ${CMAKE_CURRENT_SOURCE_DIR}/Language/ .h)
 
 
 # Setup project source files
@@ -67,6 +67,17 @@ if (TINY3D_OS_WINDOWS)
         LINK_PRIVATE TinyImGui
         )
     
+    # 在编译前执行包含 Python 程序的批处理文件 "my_script.bat"
+    execute_process(COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/generate-zh-hans.bat")
+    
+    add_custom_command(TARGET ${BIN_NAME}
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Language"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/Language"
+        #COMMAND ${CMAKE_COMMAND} -E chdir "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator" cmd /c generate-zh-hans.bat
+        COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/lang-zh-hans.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h"
+        COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Language/lang-zh-hans.txt"
+        )
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
         RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug

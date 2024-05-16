@@ -7,6 +7,7 @@
 - Windows 10
 - Visual Studio 2019
 - Windows SDK 10.0.19042
+- Python 3
 
 **Build**
 
