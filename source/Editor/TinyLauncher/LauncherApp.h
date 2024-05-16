@@ -72,12 +72,12 @@ namespace Tiny3D
         void enginePostRender();
         
     protected:
-        SDL_Window    *mSDLWindow {nullptr};
-        ImGuiImpl  *mImGuiImpl {nullptr};
+        SDL_Window *mSDLWindow {nullptr};
+        ImGuiImpl *mImGuiImpl {nullptr};
         ImTextureID mSceneRT {nullptr};
 
         MainWindow *mMainWindow {nullptr};
-
+        
         bool mExitApp {false};
     };
 

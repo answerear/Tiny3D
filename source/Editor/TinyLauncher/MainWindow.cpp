@@ -24,7 +24,6 @@
 
 
 #include "MainWindow.h"
-
 #include "ImErrors.h"
 #include "LauncherApp.h"
 
@@ -65,7 +64,7 @@ namespace Tiny3D
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
         }
 
-        if (ImGui::Button("Open Project", ImVec2(100, 20)))
+        if (ImGui::Button(CH(TXT_OPEN_PROJECT), ImVec2(100, 20)))
         {
             String appPath = Dir::getAppPath();
             String editorAppPath = appPath + Dir::getNativeSeparator() + "TinyEditor.exe";

@@ -28,7 +28,7 @@
 #include <Tiny3D.h>
 #include <imgui.h>
 #include <TinyImGui.h>
-
+#include "Language/Language.h"
 
 #define NS_BEGIN(name)  namespace name {
 #define NS_END    }
@@ -37,7 +37,10 @@ namespace Tiny3D
 {
     NS_BEGIN(Launcher)
 
-    #define LOG_TAG_EDITOR "Launcher"
+    #define LOG_TAG_LAUNCHER "Launcher"
+
+    #define CH(txtID)   (T3D_LANG_MGR.getText(txtID).c_str())
+    #define STR(txtID)  (T3D_LANG_MGR.getText(txtID))
 
     NS_END
 

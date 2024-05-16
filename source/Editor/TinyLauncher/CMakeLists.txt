@@ -34,6 +34,7 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
+set_project_files(include\\\\Language ${CMAKE_CURRENT_SOURCE_DIR}/Language/ .h)
 
 
 # Setup project source files
@@ -66,6 +67,13 @@ if (TINY3D_OS_WINDOWS)
         LINK_PRIVATE TinyImGui
         )
     
+    # 在生成工程前，先产生语言文件，并移动到对应文件夹下
+    execute_process(COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/generate-en-us.bat")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/Language")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/lang-en-us.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/lang-en-us.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/Language/lang-en-us.txt")
+
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
         RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug

@@ -87,7 +87,16 @@ namespace Tiny3D
             ret = engine->init(argc, argv, true, true, settings);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init engine failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            LanguageManagerPtr langMgr = LanguageManager::create();
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
+            ret = langMgr->init(path);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init language file failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -95,7 +104,7 @@ namespace Tiny3D
             ret = createImGuiEnv(engine);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create ImGui environment failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create ImGui environment failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -104,7 +113,7 @@ namespace Tiny3D
             ret = mMainWindow->create("Project Manager Window", nullptr);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create project manager window failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create project manager window failed ! ERROR [%d]", ret);
                 break;
             }
             
@@ -126,10 +135,12 @@ namespace Tiny3D
             
             ImWidget::GC();
 
+            langMgr = nullptr;
+            
             // 删除清理 imgui 环境，此后无法再使用 imgui
             destroyImGuiEnv(engine);
         } while (false);
-
+        
         delete engine;
 
         return ret;
@@ -146,7 +157,7 @@ namespace Tiny3D
             ret = engine->loadPlugin(IMGUI_DX11_PLUGIN);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Load ImGuiDX11 plugin failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Load ImGuiDX11 plugin failed ! ERROR [%d]", ret);
                 break;
             }
 
