@@ -39,9 +39,6 @@ namespace Tiny3D
 
     #define LOG_TAG_LAUNCHER "Launcher"
 
-    #define CH(txtID)   (T3D_LANG_MGR.getText(txtID).c_str())
-    #define STR(txtID)  (T3D_LANG_MGR.getText(txtID))
-
     NS_END
 
     class ImGuiImpl;

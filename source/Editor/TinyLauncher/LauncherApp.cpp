@@ -91,8 +91,9 @@ namespace Tiny3D
                 break;
             }
 
+            // 加载语言文件
             LanguageManagerPtr langMgr = LanguageManager::create();
-            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
             ret = langMgr->init(path);
             if (T3D_FAILED(ret))
             {
@@ -108,7 +109,7 @@ namespace Tiny3D
                 break;
             }
 
-            // 项目管理窗口
+            // 主窗口
             mMainWindow = new MainWindow();
             ret = mMainWindow->create("Project Manager Window", nullptr);
             if (T3D_FAILED(ret))
@@ -116,9 +117,6 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create project manager window failed ! ERROR [%d]", ret);
                 break;
             }
-            
-            // 构建编辑器场景
-            // buildScene();
 
             // 构建引擎运行数据，并运行引擎
             EditorRunningData runningData;
@@ -191,6 +189,21 @@ namespace Tiny3D
 #elif defined (T3D_OS_OSX)
 #elif defined (T3D_OS_LINUX)
 #endif
+
+            IM_DELETE(io.Fonts);
+            io.Fonts = IM_NEW(ImFontAtlas);
+            ImFontConfig config;
+            float dpi = 0.0f;
+            if (!SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr))
+                config.RasterizerDensity = dpi / 96.0f;
+            const ImWchar* glyph_ranges = io.Fonts->GetGlyphRangesChineseFull();
+            if (config.RasterizerDensity > 1.0f)
+            {
+                io.Fonts->TexDesiredWidth = (config.RasterizerDensity > 2.0f) ? 4096 * 3 : 4096;
+            }
+            std::string path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "fonts" + Dir::getNativeSeparator() + "STZHONGS.ttf";
+            io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f, &config, glyph_ranges);
+            io.Fonts->Build();
         } while (false);
 
         return ret;
