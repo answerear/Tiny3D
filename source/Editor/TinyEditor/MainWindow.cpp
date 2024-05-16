@@ -91,10 +91,10 @@ namespace Tiny3D
         mMenuBar->create("Main Menu", this);
         
         // File
-        IM_BEGIN_MENU("File")
+        IM_BEGIN_MENU(STR(TXT_FILE))
             // New
-            IM_BEGIN_POPUP_MENU("New")
-                IM_MENU_ITEM("New Scene", "Ctrl+N", nullptr, 0)
+            IM_BEGIN_POPUP_MENU(STR(TXT_NEW))
+                IM_MENU_ITEM(STR(TXT_NEW_SCENE), "Ctrl+N", nullptr, 0)
             IM_END_POPUP_MENU()
         IM_END_MENU(mMenuBar)
 

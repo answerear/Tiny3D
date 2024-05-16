@@ -28,6 +28,7 @@
 #include <Tiny3D.h>
 #include <imgui.h>
 #include <TinyImGui.h>
+#include "Language/Language.h"
 
 
 #define NS_BEGIN(name)  namespace name {

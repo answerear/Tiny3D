@@ -91,8 +91,18 @@ namespace Tiny3D
                 break;
             }
 
-            T3D_LOG_INFO(LOG_TAG_EDITOR, "argv[0] = %s, argv[1] = %s, argv[2] = %s", argv[0], argv[1], argv[2]);
+            // T3D_LOG_INFO(LOG_TAG_EDITOR, "argv[0] = %s, argv[1] = %s, argv[2] = %s", argv[0], argv[1], argv[2]);
 
+            // 加载语言文件
+            LanguageManagerPtr langMgr = LanguageManager::create();
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
+            ret = langMgr->init(path);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init language file failed ! ERROR [%d]", ret);
+                break;
+            }
+            
             // 创建 imgui 环境
             ret = createImGuiEnv(engine);
             if (T3D_FAILED(ret))
@@ -101,7 +111,7 @@ namespace Tiny3D
                 break;
             }
 
-            // 项目管理窗口
+            // 主窗口
             mMainWindow = new MainWindow();
             ret = mMainWindow->create("Main Window", nullptr);
             if (T3D_FAILED(ret))
@@ -182,6 +192,21 @@ namespace Tiny3D
 #elif defined (T3D_OS_OSX)
 #elif defined (T3D_OS_LINUX)
 #endif
+
+            IM_DELETE(io.Fonts);
+            io.Fonts = IM_NEW(ImFontAtlas);
+            ImFontConfig config;
+            float dpi = 0.0f;
+            if (!SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr))
+                config.RasterizerDensity = dpi / 96.0f;
+            const ImWchar* glyph_ranges = io.Fonts->GetGlyphRangesChineseFull();
+            if (config.RasterizerDensity > 1.0f)
+            {
+                io.Fonts->TexDesiredWidth = (config.RasterizerDensity > 2.0f) ? 4096 * 3 : 4096;
+            }
+            std::string path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "fonts" + Dir::getNativeSeparator() + "STZHONGS.ttf";
+            io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f, &config, glyph_ranges);
+            io.Fonts->Build();
         } while (false);
 
         return ret;
