@@ -68,13 +68,16 @@ if (TINY3D_OS_WINDOWS)
         )
     
     # 在生成工程前，先产生语言文件，并移动到对应文件夹下
-    execute_process(COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/generate-en-us.bat")
+    set(LANGUAGE_GENERATOR "generate-en-us.bat")
+    set(LAUNCHER_LANGUAGE "lang-en-us")
+    
+    execute_process(COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/${LANGUAGE_GENERATOR}")
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher")
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/Language")
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/fonts")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/lang-en-us.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/lang-en-us.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/Language/lang-en-us.txt")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/STZHONGS.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/fonts/STZHONGS.ttf")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/${LAUNCHER_LANGUAGE}.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/${LAUNCHER_LANGUAGE}.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/Language/${LAUNCHER_LANGUAGE}.txt")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/fonts/arial.ttf")
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
