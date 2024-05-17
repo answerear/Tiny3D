@@ -316,6 +316,15 @@ namespace Tiny3D
                 // CleanupRenderTarget();
                 // g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
                 // CreateRenderTarget();
+                T3D_AGENT.getDefaultRenderWindow()->resize(event.window.data1, event.window.data2);
+
+#if defined(T3D_OS_WINDOWS)
+                EditorInfoDX11 info;
+                T3D_AGENT.getEditorInfo(&info);
+                mImGuiImpl->refreshInfo(&info);
+#elif defined (T3D_OS_OSX)
+#elif defined (T3D_OS_LINUX)
+#endif
             }
         }
         return !done;
