@@ -62,6 +62,16 @@ namespace Tiny3D
 
         //----------------------------------------------------------------------
 
+        void ImGuiImplDX11::refreshInfo(void *initData)
+        {
+            EditorInfoDX11 *info = static_cast<EditorInfoDX11*>(initData);
+            mD3DDevice = info->d3dDevice;
+            mD3DDeviceContext = info->d3dContext;
+            mD3DRTView = info->d3dRTView;
+        }
+
+        //----------------------------------------------------------------------
+
         void ImGuiImplDX11::pollEvents(void *event)
         {
             ImGui_ImplSDL2_ProcessEvent((SDL_Event*)event);

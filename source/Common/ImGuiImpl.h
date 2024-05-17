@@ -41,6 +41,8 @@ namespace Tiny3D
         
         virtual void init(void *initData) = 0;
 
+        virtual void refreshInfo(void *initData) = 0;
+
         virtual void pollEvents(void *event) = 0;
 
         virtual void update() = 0;

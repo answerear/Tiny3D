@@ -44,6 +44,8 @@ namespace Tiny3D
 
             void init(void *initData) override;
 
+            void refreshInfo(void *initData) override;
+
             void pollEvents(void *event) override;
 
             void update() override;
@@ -51,10 +53,6 @@ namespace Tiny3D
             void preRender() override;
 
             void postRender() override;
-
-            void createRenderTarget();
-
-            void cleanupRenderTarget();
         
         protected:
             SDL_Window  *mSDLWindow {nullptr};
