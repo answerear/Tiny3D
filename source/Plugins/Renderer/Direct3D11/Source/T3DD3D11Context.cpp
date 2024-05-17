@@ -571,61 +571,7 @@ namespace Tiny3D
 
                 // traceDebugInfo("D3D11 D3DObjects trace - #6 ", __FUNCTION__);
                 
-                // 创建 RenderTargetView
-                hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DRenderWindow->D3DBackBuffer));
-                if (FAILED(hr))
-                {
-                    ret = T3D_ERR_D3D11_GET_INTERFACE;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
-                    break;
-                }
-
-                // traceDebugInfo("D3D11 D3DObjects trace - #7 ", __FUNCTION__);
-                
-                hr = mD3DDevice->CreateRenderTargetView(pD3DRenderWindow->D3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
-                if (FAILED(hr))
-                {
-                    ret = T3D_ERR_D3D11_CREATE_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create render target view failed ! DX ERROR [%d]", hr);
-                    break;
-                }
-
-                // traceDebugInfo("D3D11 D3DObjects trace - #8 ", __FUNCTION__);
-                
-                // 创建 DepthStencilView
-                D3D11_TEXTURE2D_DESC d3dTexDesc;
-                memset(&d3dTexDesc, 0, sizeof(d3dTexDesc));
-                d3dTexDesc.Width = desc.Width;
-                d3dTexDesc.Height = desc.Height;
-                d3dTexDesc.MipLevels = 1;
-                d3dTexDesc.ArraySize = 1;
-                d3dTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-                
-                d3dTexDesc.SampleDesc.Count = uMSAACount;
-                d3dTexDesc.SampleDesc.Quality = uMSAAQuality;
-                
-                d3dTexDesc.Usage = D3D11_USAGE_DEFAULT;
-                d3dTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-                d3dTexDesc.CPUAccessFlags = 0;
-                d3dTexDesc.MiscFlags = 0;
-
-                hr = mD3DDevice->CreateTexture2D(&d3dTexDesc, nullptr, &pD3DRenderWindow->D3DDSBuffer);
-                if (FAILED(hr))
-                {
-                    ret = T3D_ERR_D3D11_CREATE_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
-                    break;
-                }
-
-                // traceDebugInfo("D3D11 D3DObjects trace - #9 ", __FUNCTION__);
-                
-                hr = mD3DDevice->CreateDepthStencilView(pD3DRenderWindow->D3DDSBuffer, nullptr, &pD3DRenderWindow->D3DDSView);
-                if (FAILED(hr))
-                {
-                    ret = T3D_ERR_D3D11_CREATE_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth stencil view failed ! DX ERROR [%d]", hr);
-                    break;
-                }
+                ret = createRenderWindow(pD3DRenderWindow, desc.Width, desc.Height, uMSAACount, uMSAAQuality);
             } while (false);
 
             D3D_SAFE_RELEASE(pDXGIFactory);
@@ -814,6 +760,118 @@ namespace Tiny3D
         return d3dPixelBuffer;
     }
     
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::createRenderWindow(D3D11RenderWindow *pD3DRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 创建 RenderTargetView
+            HRESULT hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DRenderWindow->D3DBackBuffer));
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_GET_INTERFACE;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
+                break;
+            }
+            
+            hr = mD3DDevice->CreateRenderTargetView(pD3DRenderWindow->D3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create render target view failed ! DX ERROR [%d]", hr);
+                break;
+            }
+            
+            // 创建 DepthStencilView
+            D3D11_TEXTURE2D_DESC d3dTexDesc;
+            memset(&d3dTexDesc, 0, sizeof(d3dTexDesc));
+            d3dTexDesc.Width = w;
+            d3dTexDesc.Height = h;
+            d3dTexDesc.MipLevels = 1;
+            d3dTexDesc.ArraySize = 1;
+            d3dTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            
+            d3dTexDesc.SampleDesc.Count = MSAACount;
+            d3dTexDesc.SampleDesc.Quality = MSAAQuality;
+            
+            d3dTexDesc.Usage = D3D11_USAGE_DEFAULT;
+            d3dTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+            d3dTexDesc.CPUAccessFlags = 0;
+            d3dTexDesc.MiscFlags = 0;
+
+            hr = mD3DDevice->CreateTexture2D(&d3dTexDesc, nullptr, &pD3DRenderWindow->D3DDSBuffer);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
+                break;
+            }
+            
+            hr = mD3DDevice->CreateDepthStencilView(pD3DRenderWindow->D3DDSBuffer, nullptr, &pD3DRenderWindow->D3DDSView);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth stencil view failed ! DX ERROR [%d]", hr);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::resizeRenderWindow(D3D11RenderWindow *rw, uint32_t w, uint32_t h)
+    {
+        D3D11RenderWindow *pD3DRenderWindow = rw;
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, uint32_t w, uint32_t h)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                D3D11_TEXTURE2D_DESC desc;
+                pD3DRenderWindow->D3DBackBuffer->GetDesc(&desc);
+            
+                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DRTView);
+                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DBackBuffer);
+                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DDSView);
+                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DDSBuffer);
+
+                HRESULT hr = pD3DRenderWindow->D3DSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_RESIZE_BUFFERS;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Resize render window failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+
+                ret = createRenderWindow(pD3DRenderWindow, w, h, desc.SampleDesc.Count, desc.SampleDesc.Quality);
+            } while (false);
+
+            return ret;
+        };
+        
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow), w, h);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::resizeRenderTexture(RenderTexture *rt, uint32_t w, uint32_t h)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::resizeRenderTarget(RenderTarget *rt, uint32_t w, uint32_t h)
+    {
+        return T3D_OK;
+    }
+
     //--------------------------------------------------------------------------
     
     TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow)

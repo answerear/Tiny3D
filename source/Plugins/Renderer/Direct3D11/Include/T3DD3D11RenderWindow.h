@@ -58,6 +58,8 @@ namespace Tiny3D
          */
         TResult swapBuffers() override;
 
+        TResult resize(uint32_t w, uint32_t h) override;
+
         /**
          * @brief   Clears this object to its blank/initial state
          * @param   clrFill     The color fill.

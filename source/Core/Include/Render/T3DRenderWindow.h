@@ -59,6 +59,8 @@ namespace Tiny3D
         RHIRenderWindowPtr getRHIRenderWindow() const { return mRHIRenderWindow; }
 
         const String &getName() const { return mName; }
+
+        TResult resize(uint32_t w, uint32_t h);
         
     protected:
         RenderWindow(const String &name);

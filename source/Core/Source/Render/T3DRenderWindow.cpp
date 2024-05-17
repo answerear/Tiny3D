@@ -189,6 +189,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult RenderWindow::resize(uint32_t w, uint32_t h)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mRHIRenderWindow == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "RHI render window has not created !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            ret = mRHIRenderWindow->resize(w, h);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult RenderWindow::loadIcon(const String &iconPath)
     {
         TResult ret = T3D_OK;

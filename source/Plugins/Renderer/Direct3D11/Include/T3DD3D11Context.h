@@ -69,6 +69,33 @@ namespace Tiny3D
          * \return 调用成功返回新建的 RHI 对象
          */
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
+
+        /**
+         * 改变渲染窗口大小
+         * @param [in] rw : 要改变大小的渲染窗口对象
+         * @param [in] w : 要改变的宽度
+         * @param [in] h : 要改变的高度 
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult resizeRenderWindow(D3D11RenderWindow *rw, uint32_t w, uint32_t h);
+
+        /**
+         * 改变渲染纹理大小
+         * @param [in] rt : 要改变大小的渲染纹理对象
+         * @param [in] w : 要改变的宽度
+         * @param [in] h : 要改变的高度
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult resizeRenderTexture(RenderTexture *rt, uint32_t w, uint32_t h);
+
+        /**
+         * 改变渲染目标大小
+         * @param [in] rt : 要改变大小的渲染目标
+         * @param [in] w : 要改变的宽度 
+         * @param [in] h : 要改变的高度
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult resizeRenderTarget(RenderTarget *rt, uint32_t w, uint32_t h);
         
         /**
          * \brief 设置当前渲染目标
@@ -625,6 +652,8 @@ namespace Tiny3D
         TResult setConstantBuffers(SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers);
 
         TResult setConstantBuffer(uint32_t startSlot, const Buffer &buffer, ID3D11Buffer *pD3DBuffer);
+
+        TResult createRenderWindow(D3D11RenderWindow *pD3DRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality);
         
     protected:
         /**

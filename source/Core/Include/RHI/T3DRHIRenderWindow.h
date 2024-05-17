@@ -48,6 +48,8 @@ namespace Tiny3D
          */
         virtual TResult swapBuffers() = 0;
 
+        virtual TResult resize(uint32_t w, uint32_t h) = 0;
+
     protected:
         RHIRenderWindow();
 

@@ -67,7 +67,7 @@ namespace Tiny3D
          * \return 调用成功返回新建的 RHI 对象
          */
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
-
+        
         /**
          * \brief 设置当前渲染窗口
          * \param [in] renderWindow : 渲染窗口

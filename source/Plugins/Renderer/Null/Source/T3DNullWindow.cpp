@@ -68,6 +68,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult NullWindow::resize(uint32_t w, uint32_t h)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     void *NullWindow::getNativeObject() const
     {
         return nullptr;

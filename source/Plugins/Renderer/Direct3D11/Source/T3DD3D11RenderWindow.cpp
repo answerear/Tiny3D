@@ -127,7 +127,14 @@ namespace Tiny3D
 
     TResult D3D11RenderWindow::swapBuffers()
     {
-        return  D3D11_CONTEXT->swapBackBuffer(this);
+        return D3D11_CONTEXT->swapBackBuffer(this);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11RenderWindow::resize(uint32_t w, uint32_t h)
+    {
+        return D3D11_CONTEXT->resizeRenderWindow(this, w, h);
     }
 
     //--------------------------------------------------------------------------

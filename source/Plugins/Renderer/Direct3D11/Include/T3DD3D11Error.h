@@ -108,6 +108,8 @@ namespace Tiny3D
         T3D_ERR_D3D11_INVALID_USAGE,
         /// 映射 VRAM 失败
         T3D_ERR_D3D11_MAP_RESOURCE,
+        /// 改变所有 frame buffer 大小失败
+        T3D_ERR_D3D11_RESIZE_BUFFERS,
     };
 }
 
