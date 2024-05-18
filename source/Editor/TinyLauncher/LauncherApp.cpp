@@ -93,8 +93,8 @@ namespace Tiny3D
 
             // 加载语言文件
             LanguageManagerPtr langMgr = LanguageManager::create();
-            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
-            // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
+            // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
             ret = langMgr->init(path);
             if (T3D_FAILED(ret))
             {
@@ -191,23 +191,8 @@ namespace Tiny3D
 #elif defined (T3D_OS_LINUX)
 #endif
 
-            // IM_DELETE(io.Fonts);
-            // io.Fonts = IM_NEW(ImFontAtlas);
-            // ImFontConfig config;
-            // config.SizePixels = 13.0 * 1.0f;
-            // #define IM_TRUNC(_VAL)                  ((float)(int)(_VAL))
-            // config.GlyphOffset.y = 1.0f * IM_TRUNC(config.SizePixels / 13.0f);  // Add +1 offset per 13 units
-            // float dpi = 0.0f;
-            // if (!SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr))
-            //     config.RasterizerDensity = dpi / 96.0f;
-            // const ImWchar* glyph_ranges = io.Fonts->GetGlyphRangesChineseFull();
-            // if (config.RasterizerDensity > 1.0f)
-            // {
-            //     io.Fonts->TexDesiredWidth = (config.RasterizerDensity > 2.0f) ? 4096 * 3 : 4096;
-            // }
-            // std::string path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "fonts" + Dir::getNativeSeparator() + "arial unicode ms.ttf";
-            // io.Fonts->AddFontFromFileTTF(path.c_str(), 13.0f, &config, glyph_ranges);
-            io.Fonts->Build();
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "fonts" + Dir::getNativeSeparator() + "arial unicode ms.ttf";
+            io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
         } while (false);
 
         return ret;
