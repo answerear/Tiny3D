@@ -25,13 +25,22 @@
 
 #pragma once
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
+
+#include "ImChildView.h"
+
+
+namespace Tiny3D
+{
+    class TINYIMGUI_API ImTabItem : public ImChildView
+    {
+    public:
+        ~ImTabItem() override;
+        
+    protected:
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+
+        virtual ImGuiTabItemFlags onGetTabItemFlags();
+    };
+}

@@ -23,15 +23,54 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "ImTabItem.h"
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
+#include "ImChildView.h"
+
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    ImTabItem::~ImTabItem()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImTabItem::onGUIBegin()
+    {
+        PushWidgetID();
+        bool ret = ImGui::BeginTabItem(getName().c_str(), nullptr, onGetTabItemFlags());
+        if (!ret)
+        {
+            PopWidgetID();
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTabItem::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTabItem::onGUIEnd()
+    {
+        ImGui::EndTabItem();
+        PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImGuiTabItemFlags ImTabItem::onGetTabItemFlags()
+    {
+        return ImGuiTabItemFlags_None;
+    }
+
+    //--------------------------------------------------------------------------
+}

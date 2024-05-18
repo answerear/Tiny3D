@@ -23,15 +23,47 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "ImDockItem.h"
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    ImDockItem::~ImDockItem()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImDockItem::onGUIBegin()
+    {
+        PushWidgetID();
+        if (!ImGui::Begin(getName().c_str(), &mVisible))
+        {
+            ImGui::End();
+            PopWidgetID();
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImDockItem::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImDockItem::onGUIEnd()
+    {
+        ImGui::End();
+        PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+}

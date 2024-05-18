@@ -118,6 +118,10 @@ namespace Tiny3D
         const Children &getChildren() const { return mChildren; }
 
         virtual void update();
+
+        virtual ImVec2 onGetSize();
+
+        virtual bool *onGetVisible();
         
     protected:
         ImWidget() = default;

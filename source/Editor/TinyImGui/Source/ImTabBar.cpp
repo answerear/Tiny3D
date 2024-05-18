@@ -23,15 +23,45 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "ImTabBar.h"
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    ImTabBar::~ImTabBar()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImTabBar::onGUIBegin()
+    {
+        if (mVisible)
+        {
+            ImChildView::onGUIBegin();
+            ImGui::BeginTabBar(getName().c_str(), ImGuiTabBarFlags_None);
+        }
+
+        return mVisible;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTabBar::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTabBar::onGUIEnd()
+    {
+        ImGui::EndTabBar();
+        ImChildView::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+}
