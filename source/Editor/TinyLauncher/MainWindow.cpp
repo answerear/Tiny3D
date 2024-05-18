@@ -35,8 +35,42 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult MainWindow::onCreate()
-    {        
-        return T3D_OK;
+    {
+        TResult ret = IM_OK;
+        
+        do
+        {
+            // Tab bar
+            ImTabBar *bar = new ImTabBar();
+            ret = bar->create("Project Types", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab bar failed !");
+                break;
+            }
+
+            // Local projects
+            ImTabItem *item = new ImTabItem();
+            const String &name0 = STR(TXT_LOCAL_PROJECTS);
+            ret = item->create(name0, bar);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab item [%s] failed !", name0.c_str());
+                break;
+            }
+
+            // Asset store projects
+            item = new ImTabItem();
+            const String &name1 = STR(TXT_STORE_PROJECTS);
+            ret = item->create(name1, bar);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab item [%s] failed !", name1.c_str());
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -62,18 +96,6 @@ namespace Tiny3D
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
-        }
-
-        if (ImGui::Button(CH(TXT_OPEN_PROJECT), ImVec2(100, 20)))
-        {
-            String appPath = Dir::getAppPath();
-            String editorAppPath = appPath + Dir::getNativeSeparator() + "TinyEditor.exe";
-            Process proc;
-            TResult ret = proc.start(editorAppPath, "a=1 b=2");
-            T3D_ASSERT(T3D_SUCCEEDED(ret), "start TinyEditor !");
-            
-            LauncherApp *app = static_cast<LauncherApp *>(T3D_APPLICATION.getInstancePtr());
-            app->exitApp();
         }
         
         return ret;
