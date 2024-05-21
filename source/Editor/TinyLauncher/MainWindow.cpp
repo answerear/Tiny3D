@@ -26,6 +26,7 @@
 #include "MainWindow.h"
 #include "ImErrors.h"
 #include "LauncherApp.h"
+#include "LocalProjectsView.h"
 
 
 namespace Tiny3D
@@ -56,6 +57,14 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab item [%s] failed !", name0.c_str());
+                break;
+            }
+
+            LocalProjectsView *localProjView = new LocalProjectsView();
+            ret = localProjView->create(STR(TXT_LOCAL_PROJECTS), item);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create local projects view failed !");
                 break;
             }
 
