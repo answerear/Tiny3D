@@ -31,41 +31,20 @@
 namespace Tiny3D
 {
     NS_BEGIN(Launcher)
-
-    class NewProjectDialog;
     
-    class LocalProjectsView : public ImChildView
+    class NewProjectDialog : public ImDialog
     {
     public:
+        ~NewProjectDialog() override;
 
     protected:
-        // TResult onCreate() override;
-
         bool onGUIBegin() override;
-
         void onGUI() override;
-
         void onGUIEnd() override;
 
-        void openNewProjectDialog();
-
     protected:
-        enum class SortType : int32_t
-        {
-            kRecentEdit = 0,
-            kName,
-            kPath,
-            kTag,
-        };
-        
-        int32_t mCurrentSortType {0};
-        int32_t mCurrentLanguage {0};
-        
-        char mFilterText[512] {0};
-
-        bool mProjectSelected {false};
-
-        NewProjectDialog *mNewProjectDlg {nullptr};
+        char mProjectPath[512] {0};
+        char mProjectName[512] {0};
     };
 
     NS_END

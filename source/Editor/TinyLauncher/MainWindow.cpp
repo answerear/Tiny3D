@@ -105,6 +105,8 @@ namespace Tiny3D
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
+
+            checkFocused();
         }
         
         return ret;

@@ -282,12 +282,14 @@ namespace Tiny3D
         mImGuiImpl->update();
         ImGui::NewFrame();
 
+        ImWidget::beginUpdate();
+        
         if (mMainWindow != nullptr)
         {
             mMainWindow->update();
         }
-        
-        ImWidget::GC();
+
+        ImWidget::endUpdate();
     };
 
     //--------------------------------------------------------------------------

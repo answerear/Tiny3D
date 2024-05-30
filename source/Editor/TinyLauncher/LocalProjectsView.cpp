@@ -24,6 +24,7 @@
 
 
 #include "LocalProjectsVIew.h"
+#include "NewProjectDlg.h"
 #include "ImErrors.h"
 
 
@@ -40,6 +41,8 @@ namespace Tiny3D
             
         }
 
+        checkFocused();
+        
         return true;
     }
 
@@ -64,7 +67,7 @@ namespace Tiny3D
             auto button_w = 100.0f;
             auto button_h = child_height - margin_y * 2;
 
-            auto x = margin_x;
+            auto x = 0;
             auto y = margin_y;
             
             // 新建按钮
@@ -72,7 +75,7 @@ namespace Tiny3D
             ImGui::SetCursorPosY(y);
             if (ImGui::Button(CH(TXT_NEW_PROJECT), ImVec2(button_w, 0)))
             {
-            
+                openNewProjectDialog();
             }
 
             ImGui::SameLine();
@@ -104,7 +107,7 @@ namespace Tiny3D
             ImGui::SameLine();
         
             const char *items[] = {CH(TXT_SORT_TYPE_RECENT), CH(TXT_SORT_TYPE_NAME), CH(TXT_SORT_TYPE_PATH), CH(TXT_SORT_TYPE_TAG)};
-            ImGui::PushItemWidth(-margin_x*0.5f);
+            ImGui::PushItemWidth(-FLT_MIN);
             ImGui::Combo("##Sort_Type", &mCurrentSortType, items, IM_ARRAYSIZE(items));
             ImGui::PopItemWidth();
 
@@ -224,6 +227,23 @@ namespace Tiny3D
     void LocalProjectsView::onGUIEnd()
     {
         ImChildView::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void LocalProjectsView::openNewProjectDialog()
+    {
+        if (mNewProjectDlg == nullptr)
+        {
+            mNewProjectDlg = new NewProjectDialog();
+            mNewProjectDlg->create(CH(TXT_NEW_PROJECT_TITLE), nullptr);
+            mNewProjectDlg->setVisible(false);
+        }
+
+        if (!mNewProjectDlg->isVisible())
+        {
+            mNewProjectDlg->show(ImDialog::ShowType::kEnqueueBack);
+        }
     }
 
     //--------------------------------------------------------------------------
