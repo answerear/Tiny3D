@@ -30,6 +30,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ImWindow *ImWindow::msFocusedWindow = nullptr;
+    
+    //--------------------------------------------------------------------------
+
+    ImWindow *ImWindow::getFocusedWindow()
+    {
+        return msFocusedWindow;
+    }
+
+    //--------------------------------------------------------------------------
+
     ImWindow::~ImWindow()
     {
         
@@ -47,6 +58,8 @@ namespace Tiny3D
             return false;
         }
 
+        checkFocused();
+
         return true;
     }
 
@@ -63,6 +76,23 @@ namespace Tiny3D
     {
         ImGui::End();
         PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWindow::checkFocused()
+    {
+        // if (msFocusedWindow != this && ImGui::IsWindowFocused())
+        // {
+        //     // 获得焦点
+        //     msFocusedWindow = this;
+        // }
+        // else if (msFocusedWindow == this && !ImGui::IsWindowFocused())
+        // {
+        //     // 失去焦点
+        //     msFocusedWindow = nullptr;
+        // }
+        msFocusedWindow = this;
     }
 
     //--------------------------------------------------------------------------

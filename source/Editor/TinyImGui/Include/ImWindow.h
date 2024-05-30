@@ -34,11 +34,18 @@ namespace Tiny3D
     class TINYIMGUI_API ImWindow : public ImWidget
     {
     public:
+        static ImWindow *getFocusedWindow();
+        
         ~ImWindow() override;
         
     protected:
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
+
+        void checkFocused();
+        
+    protected:
+        static ImWindow *msFocusedWindow;
     };
 }

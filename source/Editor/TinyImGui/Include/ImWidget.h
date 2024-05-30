@@ -32,7 +32,7 @@
 namespace Tiny3D
 {
     using Children = TList<class ImWidget*>;
-    
+
     class TINYIMGUI_API ImWidget : public Noncopyable
     {
     public:
@@ -40,6 +40,10 @@ namespace Tiny3D
          * 释放没有使用的 widgets
          */
         static void GC();
+
+        static void beginUpdate();
+        
+        static void endUpdate();
         
         ~ImWidget() override;
 
@@ -152,11 +156,26 @@ namespace Tiny3D
 
     private:
         void destroyWidget(ImWidget *child);
-        
-        using WaitingDestroyWidgets = TList<ImWidget*>;
 
-        /// 所有待删除的 widget
+        struct RemoveWidgetInfo
+        {
+            Children::iterator itr;
+            bool destroy {false};
+        };
+
+        void removeWidget(Children::iterator itr, bool destroy);
+
+        using WaitingRemoveWidgets = TMultimap<ImWidget*, RemoveWidgetInfo>;
+        
+        /// 所有待从父节点移除的 widgets
+        static WaitingRemoveWidgets msWaitingRemoveWidgets;
+
+        using WaitingDestroyWidgets = TList<ImWidget*>;
+        
+        /// 所有待删除的 widgets
         static WaitingDestroyWidgets msWaitingDestroyWidgets;
+
+        static bool msInUpdate;
         
         /// UUID
         UUID    mUUID {UUID::INVALID};

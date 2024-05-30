@@ -30,6 +30,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ImChildView *ImChildView::msFocusedView = nullptr;
+    
+    //--------------------------------------------------------------------------
+
+    ImChildView *ImChildView::getFocusedView()
+    {
+        return msFocusedView;
+    }
+
+    //--------------------------------------------------------------------------
+
     ImChildView::~ImChildView()
     {
         
@@ -41,6 +52,7 @@ namespace Tiny3D
     {
         PushWidgetID();
         ImGui::BeginChild(getName().c_str(), onGetSize(), onGetChildFlags());
+        checkFocused();
         return true;
     }
 
@@ -64,6 +76,22 @@ namespace Tiny3D
     ImGuiChildFlags ImChildView::onGetChildFlags()
     {
         return ImGuiChildFlags_None;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImChildView::checkFocused()
+    {
+        if (msFocusedView != this && ImGui::IsWindowFocused())
+        {
+            // 获得焦点
+            msFocusedView = this;
+        }
+        else if (msFocusedView == this && !ImGui::IsWindowFocused())
+        {
+            // 失去焦点
+            msFocusedView = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------

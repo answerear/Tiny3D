@@ -34,6 +34,8 @@ namespace Tiny3D
     class TINYIMGUI_API ImChildView : public ImWidget
     {
     public:
+        static ImChildView *getFocusedView();
+        
         ~ImChildView() override;
         
     protected:
@@ -42,5 +44,10 @@ namespace Tiny3D
         void onGUIEnd() override;
 
         virtual ImGuiChildFlags onGetChildFlags();
+
+        void checkFocused();
+
+    protected:
+        static ImChildView *msFocusedView;
     };
 }

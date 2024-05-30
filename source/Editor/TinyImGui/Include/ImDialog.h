@@ -34,11 +34,54 @@ namespace Tiny3D
     class TINYIMGUI_API ImDialog : public ImWidget
     {
     public:
+        enum class ShowType : uint32_t
+        {
+            /// 排队显示
+            kEnqueueBack = 0,
+            /// 如果当前有一个正在显示，则当前这个关闭后马上显示；如果没有，那就马上显示
+            kEnqueueFront,
+            /// 覆盖显示
+            kOverlay,
+            /// 挤掉当前正在显示的，马上显示
+            kImmediately,
+        };
+        
         ~ImDialog() override;
+
+        TResult show(ShowType type);
+
+        void close(bool destroy = false);
         
     protected:
+        void update() override;
+        
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
+
+        TResult enqueueBack();
+        TResult enqueueFront();
+        TResult showOverlay();
+        TResult showImmediately();
+
+        void appear(bool overlay);
+        
+    protected:
+        /// 将要显示标记
+        bool mWillAppear {false};
+        /// 是否在 update 中调用
+        bool mInUpdate {false};
+        /// 是否关闭对话框
+        bool mShouldClose {false};
+
+        using DialogStack = TStack<ImDialog*>;
+
+        /// 当前正在显示的 dialog
+        static DialogStack msDialogStack;
+
+        using DialogQueue = TList<ImDialog*>;
+
+        /// 排队等待显示的对话框
+        static DialogQueue msDialogQueue;
     };
 }

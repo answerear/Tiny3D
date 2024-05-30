@@ -31,12 +31,24 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ImWidget::WaitingRemoveWidgets ImWidget::msWaitingRemoveWidgets;
     ImWidget::WaitingDestroyWidgets ImWidget::msWaitingDestroyWidgets;
+
+    bool ImWidget::msInUpdate = false;
     
     //--------------------------------------------------------------------------
 
     void ImWidget::GC()
     {
+        // 移除子节点
+        for (auto item : msWaitingRemoveWidgets)
+        {
+            item.first->removeWidget(item.second.itr, item.second.destroy);
+        }
+
+        msWaitingRemoveWidgets.clear();
+
+        // 删除节点
         for (auto widget : msWaitingDestroyWidgets)
         {
             widget->onDestroy();
@@ -47,6 +59,22 @@ namespace Tiny3D
         }
 
         msWaitingDestroyWidgets.clear();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ImWidget::beginUpdate()
+    {
+        msInUpdate = true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::endUpdate()
+    {
+        msInUpdate = false;
+        
+        GC();
     }
     
     //--------------------------------------------------------------------------
@@ -309,6 +337,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ImWidget::removeWidget(Children::iterator itr, bool destroy)
+    {
+        ImWidget *widget = *itr;
+        widget->mParent = nullptr;
+        mChildren.erase(itr);
+        if (destroy)
+        {
+            widget->destroy();
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+
     TResult ImWidget::removeWidget(ImWidget *widget, bool destroy)
     {
         TResult ret = IM_OK;
@@ -325,12 +366,20 @@ namespace Tiny3D
             {
                 if (*itr == widget)
                 {
-                    widget->mParent = nullptr;
-                    mChildren.erase(itr);
-                    if (destroy)
+                    if (msInUpdate)
                     {
-                        widget->destroy();
+                        // 在遍历调用中，不能直接移除
+                        RemoveWidgetInfo info;
+                        info.itr = itr;
+                        info.destroy = destroy;
+                        msWaitingRemoveWidgets.emplace(this, info);
                     }
+                    else
+                    {
+                        // 没在遍历调用中，直接移除
+                        removeWidget(itr, destroy);
+                    }
+                    
                     break;
                 }
             }
@@ -349,13 +398,18 @@ namespace Tiny3D
         {
             if ((*itr)->getName() == name)
             {
-                widget = *itr;
-                widget->mParent = nullptr;
-                mChildren.erase(itr);
-                if (destroy)
+                if (msInUpdate)
                 {
-                    widget->destroy();
-                    widget = nullptr;
+                    // 在遍历调用中，不能直接移除
+                    RemoveWidgetInfo info;
+                    info.itr = itr;
+                    info.destroy = destroy;
+                    msWaitingRemoveWidgets.emplace(this, info);
+                }
+                else
+                {
+                    // 没在遍历调用中，直接移除
+                    removeWidget(itr, destroy);
                 }
                 break;
             }
@@ -374,13 +428,18 @@ namespace Tiny3D
         {
             if ((*itr)->getUUID() == uuid)
             {
-                widget = *itr;
-                widget->mParent = nullptr;
-                mChildren.erase(itr);
-                if (destroy)
+                if (msInUpdate)
                 {
-                    widget->destroy();
-                    widget = nullptr;
+                    // 在遍历调用中，不能直接移除
+                    RemoveWidgetInfo info;
+                    info.itr = itr;
+                    info.destroy = destroy;
+                    msWaitingRemoveWidgets.emplace(this, info);
+                }
+                else
+                {
+                    // 没在遍历调用中，直接移除
+                    removeWidget(itr, destroy);
                 }
                 break;
             }
