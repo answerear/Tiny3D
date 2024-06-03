@@ -72,6 +72,8 @@ int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
+    Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+    
     Platform* platform = new Platform();
     Logger *logger = new Logger();
     T3D_LOG_STARTUP(1000, LOG_TAG, true, true);

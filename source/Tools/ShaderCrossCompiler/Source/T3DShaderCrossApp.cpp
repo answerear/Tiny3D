@@ -109,6 +109,8 @@ int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
+    Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+    
     Agent *theEngine = new Agent();
     Settings settings;
     settings.pluginSettings.pluginPath = ".";

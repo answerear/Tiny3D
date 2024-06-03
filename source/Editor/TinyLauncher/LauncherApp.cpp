@@ -76,6 +76,8 @@ namespace Tiny3D
 
         do
         {
+            Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+            
             Settings settings;
             settings.renderSettings.resizable = true;
             settings.renderSettings.title = "Launcher";
