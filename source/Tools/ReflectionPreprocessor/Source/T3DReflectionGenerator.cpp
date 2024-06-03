@@ -2876,18 +2876,25 @@ namespace Tiny3D
                         first = true;
                         fs << std::endl << "\tusing namespace ";
                     }
+                    String ns;
                     while (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
                     {
                         if (!first)
                         {
-                            fs << "::";
+                            // fs << "::";
+                            ns = parent->getName() + "::" + ns;
                         }
-                        fs << parent->getName();
+                        else
+                        {
+                            ns = parent->getName();
+                            first = false;
+                        }
+                        // fs << parent->getName();
                         parent = parent->getParent();
                     }
                     if (hasNS)
                     {
-                        fs << ";" << std::endl;
+                        fs << ns << ";" << std::endl;
                     }
 
                     value.second->generateSourceFile(fs);
