@@ -50,6 +50,7 @@ namespace Tiny3D
     class IEvent;
     class IWaitCondition;
     class IProcess;
+    class ILocale;
 
     enum EPlatform
     {
@@ -74,66 +75,100 @@ namespace Tiny3D
         virtual IPlatform *createPlatform() = 0;
         
         /**
-         * @brief 创建操作系统平台相关的应用程序对象
+         * 创建操作系统平台相关的应用程序对象
          * @return 返回平台相关的应用程序对象，需要用户调用delete释放对象
          */
         virtual IApplication *createPlatformApplication() = 0;
 
         /**
-         * @brief 创建操作系统平台相关的窗口.
+         * 创建操作系统平台相关的窗口.
          * @return 返回平台相关的窗口操作对象，需要用户调用delete释放对象
          */
         virtual IWindow *createPlatformWindow() = 0;
 
         /**
-         * @brief 创建操作系统平台相关的时间对象.
+         * 创建操作系统平台相关的时间对象.
          * @return 返回平台相关的时间对象，需要用户调用delete释放对象
          */
         virtual ITime *createPlatformTime() = 0;
 
         /**
-         * @brief 创建操作系统平台相关的定时器服务对象.
+         * 创建操作系统平台相关的定时器服务对象.
          * @return 返回平台相关的定时器服务对象，需要用户调用delete释放对象
          */
         virtual ITimerService *createPlatformTimerService() = 0;
 
         /**
-         * @brief 创建操作系统平台相关的路径搜索对象.
+         * 创建操作系统平台相关的路径搜索对象.
          * @return 返回平台相关的路径搜索对象，需要用户调用delete释放对象
          */
         virtual IDir *createPlatformDir() = 0;
 
         /**
-         * @brief 创建操作系统平台相关的设备信息对象.
+         * 创建操作系统平台相关的设备信息对象.
          * @return 返回平台相关的设备信息对象，需要用户调用delete释放对象
          */
         virtual IDeviceInfo *createPlatformDeviceInfo() = 0;
 
         /**
-         * @brief 创建操作系统平台相关的控制台对象.
+         * 创建操作系统平台相关的控制台对象.
          * @return 返回平台相关的控制台对象，需要用户调用delete释放对象
          */
         virtual IConsole *createPlatformConsole() = 0;
 
         /**
-         * \brief 创建操作系统平台相关的线程对象
-         * \return 返回平台相关的线程对象，需要用户调用 delete 释放对象
+         * 创建操作系统平台相关的线程对象
+         * @return 返回平台相关的线程对象，需要用户调用 delete 释放对象
          */
         virtual IThread *createPlatformThread() = 0;
 
+        /**
+         * 创建操作系统平台相关的关键段对象
+         * @return 返回平台相关的关键段对象，需要用户调用 delete 释放对象
+         */
         virtual ICriticalSection *createPlatformCriticalSection() = 0;
 
+        /**
+         * 创建操作系统平台相关的互斥量对象
+         * @return 返回平台相关的互斥量对象，需要用户调用 delete 释放对象
+         */
         virtual IMutex *createPlatformMutex() = 0;
 
+        /**
+         * 创建操作系统平台相关的递归互斥量对象
+         * @return 返回平台相关的互斥量对象，需要用户调用 delete 释放对象
+         */
         virtual IRecursiveMutex *createPlatformRecursiveMutex() = 0;
 
+        /**
+         * 创建操作系统平台相关的信号量对象
+         * @return 返回平台相关的信号量对象，需要用户调用 delete 释放对象
+         */
         virtual ISemaphore *createPlatformSemaphore() = 0;
 
+        /**
+         * 创建操作系统平台相关的事件对象
+         * @return 返回平台相关的事件对象，需要用户调用 delete 释放对象
+         */
         virtual IEvent *createPlatformEvent() = 0;
 
+        /**
+         * 创建操作系统平台相关的条件变量对象
+         * @return 返回平台相关的条件变量对象，需要用户调用 delete 释放对象
+         */
         virtual IWaitCondition *createPlatformWaitCondition() = 0;
 
+        /**
+         * 创建操作系统平台相关的进程对象
+         * @return 返回平台相关的进程对象，需要用户调用 delete 释放对象
+         */
         virtual IProcess *createPlatformProcess() = 0;
+
+        /**
+         * 创建操作系统平台相关的位置编码对象
+         * @return 返回平台相关的位置编码对象，需要用户调用 delete 释放对象
+         */
+        virtual ILocale *createPlatformLocale() = 0;
 
         /**
          * @brief 获取当前平台类型.

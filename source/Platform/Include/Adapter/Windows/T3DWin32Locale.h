@@ -22,34 +22,30 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_MACRO_H__
-#define __T3D_PLATFORM_MACRO_H__
+#ifndef __T3D_WIN32_LOCALE_H__
+#define __T3D_WIN32_LOCALE_H__
 
 
-#if defined T3DPLATFORM_EXPORT
-    #define T3D_PLATFORM_API    T3D_EXPORT_API
-#else
-    #define T3D_PLATFORM_API    T3D_IMPORT_API
-#endif
+#include "Adapter/T3DLocaleInterface.h"
 
 
 namespace Tiny3D
 {
-    class System;
-    class Application;
-    class Window;
-    class TimerManager;
-    class ITimerListener;
-    class DateTime;
-    class Console;
-    class DeviceInfo;
-    class Dir;
-    class DataStream;
-    class FileDataStream;
-    class MemoryDataStream;
-    class Locale;
-    class Process;
-}
- 
+    class Win32Locale : public ILocale
+    {
+    public:
+        Win32Locale();
+        virtual ~Win32Locale();
 
-#endif  /*__T3D_PLATFORM_MACRO_H__*/
+        String ANSIToUTF8(const String &src) override;
+
+        String UTF8ToANSI(const String &src) override;
+
+        String UnicodeToUTF8(const WString &src) override;
+
+        WString UTF8ToUnicode(const String &src) override;
+    };
+}
+
+
+#endif  /*__T3D_WIN32_LOCALE_H__*/

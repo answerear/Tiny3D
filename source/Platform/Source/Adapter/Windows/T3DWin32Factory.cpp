@@ -33,6 +33,7 @@
 #include "Adapter/Windows/T3DWin32Thread.h"
 #include "Adapter/Windows/T3DWin32SyncObject.h"
 #include "Adapter/Windows/T3DWin32Process.h"
+#include "Adapter/Windows/T3DWin32Locale.h"
 #include "Adapter/Windows/T3DWin32Platform.h"
 
 
@@ -150,6 +151,13 @@ namespace Tiny3D
         return new Win32Process();
     }
     
+    //--------------------------------------------------------------------------
+
+    ILocale *Win32Factory::createPlatformLocale()
+    {
+        return new Win32Locale();
+    }
+
     //--------------------------------------------------------------------------
 
     EPlatform Win32Factory::getPlatform()

@@ -85,13 +85,14 @@ namespace Tiny3D
         }
 
     private:
-        IFactory        *mPlatformFactory = nullptr;
-        IPlatform       *mPlatform = nullptr;
-        ThreadManager   *mThreadMgr = nullptr;
-        TimerManager    *mTimerMgr = nullptr;
-        Console         *mConsole = nullptr;
-        DeviceInfo      *mDeviceInfo = nullptr;
-        ThreadSingleton *mThreadSingleton = nullptr;
+        IFactory        *mPlatformFactory {nullptr};
+        IPlatform       *mPlatform {nullptr};
+        ThreadManager   *mThreadMgr {nullptr};
+        TimerManager    *mTimerMgr {nullptr};
+        Console         *mConsole {nullptr};
+        Locale          *mLocale {nullptr};
+        DeviceInfo      *mDeviceInfo {nullptr};
+        ThreadSingleton *mThreadSingleton {nullptr};
     };
 
     #define T3D_PLATFORM            (Platform::getInstance())

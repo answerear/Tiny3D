@@ -22,34 +22,31 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_MACRO_H__
-#define __T3D_PLATFORM_MACRO_H__
+#ifndef __T3D_LOCALE_INTERFACE_H__
+#define __T3D_LOCALE_INTERFACE_H__
 
 
-#if defined T3DPLATFORM_EXPORT
-    #define T3D_PLATFORM_API    T3D_EXPORT_API
-#else
-    #define T3D_PLATFORM_API    T3D_IMPORT_API
-#endif
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
+#include "T3DMacro.h"
 
 
 namespace Tiny3D
 {
-    class System;
-    class Application;
-    class Window;
-    class TimerManager;
-    class ITimerListener;
-    class DateTime;
-    class Console;
-    class DeviceInfo;
-    class Dir;
-    class DataStream;
-    class FileDataStream;
-    class MemoryDataStream;
-    class Locale;
-    class Process;
-}
- 
+    class ILocale
+    {
+        T3D_DECLARE_INTERFACE(ILocale);
 
-#endif  /*__T3D_PLATFORM_MACRO_H__*/
+    public:
+        virtual String ANSIToUTF8(const String &src) = 0;
+
+        virtual String UTF8ToANSI(const String &src) = 0;
+
+        virtual String UnicodeToUTF8(const WString &src) = 0;
+
+        virtual WString UTF8ToUnicode(const String &src) = 0;
+    };
+}
+
+
+#endif  /*__T3D_LOCALE_INTERFACE_H__*/

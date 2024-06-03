@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,85 +22,75 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "T3DPlatform.h"
-#include "Adapter/T3DPlatformInterface.h"
-#include "Adapter/T3DFactoryInterface.h"
-#include "Time/T3DTimerManager.h"
-#include "IO/T3DDir.h"
-#include "Console/T3DConsole.h"
 #include "Locale/T3DLocale.h"
-#include "Device/T3DDeviceInfo.h"
-#include "Thread/T3DRunnableThread.h"
-#include "Thread/T3DThreadManager.h"
-#include "T3DCommonErrorDef.h"
+#include "Adapter/T3DLocaleInterface.h"
+#include "Adapter/T3DFactoryInterface.h"
+#include "T3DPlatform.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Platform::Platform()
+    Locale::Locale()
     {
-        mPlatformFactory = createPlatformFactory();
-        mPlatform = mPlatformFactory->createPlatform();
-        Dir::getNativeSeparator();
-        mThreadMgr = new ThreadManager();
-        mConsole = new Console();
-        mLocale = new Locale();
-        mDeviceInfo = new DeviceInfo();
-        mTimerMgr = new TimerManager();
+        mLocale = T3D_PLATFORM_FACTORY.createPlatformLocale();
     }
 
     //--------------------------------------------------------------------------
 
-    Platform::~Platform()
+    Locale::~Locale()
     {
-        T3D_SAFE_DELETE(mTimerMgr);
-        T3D_SAFE_DELETE(mDeviceInfo);
-        T3D_SAFE_DELETE(mConsole);
         T3D_SAFE_DELETE(mLocale);
-        T3D_SAFE_DELETE(mThreadMgr);
-        T3D_SAFE_DELETE(mPlatform);
-        T3D_SAFE_DELETE(mPlatformFactory);
     }
 
     //--------------------------------------------------------------------------
 
-    int32_t Platform::init()
+    String Locale::ANSIToUTF8(const String &src)
     {
-        int32_t ret = T3D_OK;
-
-        do
+        if (mLocale != nullptr)
         {
-            String strCachePath = Dir::getCachePath();
-            if (!Dir::exists(strCachePath))
-            {
-                if (!Dir::makeDir(strCachePath))
-                    break;
-            }
-            
-            ret  = mTimerMgr->init();
-            if (T3D_FAILED(ret))
-                break;
-            
-        } while (false);
-        
-        return ret;
+            return mLocale->ANSIToUTF8(src);
+        }
+
+        return "";
     }
 
     //--------------------------------------------------------------------------
-
-    void Platform::poll()
+    
+    String Locale::UTF8ToANSI(const String &src)
     {
-        mTimerMgr->pollEvents();
+        if (mLocale != nullptr)
+        {
+            return mLocale->UTF8ToANSI(src);
+        }
+
+        return "";
+    }
+
+    //--------------------------------------------------------------------------
+    
+    String Locale::UnicodeToUTF8(const WString &src)
+    {
+        if (mLocale != nullptr)
+        {
+            return mLocale->UnicodeToUTF8(src);
+        }
+
+        return "";
+    }
+
+    //--------------------------------------------------------------------------
+    
+    WString Locale::UTF8ToUnicode(const String &src)
+    {
+        if (mLocale != nullptr)
+        {
+            return mLocale->UTF8ToUnicode(src);
+        }
+
+        return L"";
     }
     
-    //--------------------------------------------------------------------------
-
-    void Platform::memoryBarrier()
-    {
-        mPlatform->memoryBarrier();
-    }
-
     //--------------------------------------------------------------------------
 }

@@ -364,6 +364,7 @@ namespace Tiny3D
         mutable String     m_strPath;
         mutable String     m_strName;
         mutable String     m_strTitle;
+        mutable String     m_strCachePath;
     };
 #endif
 }

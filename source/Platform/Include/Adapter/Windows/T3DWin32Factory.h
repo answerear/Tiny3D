@@ -69,6 +69,8 @@ namespace Tiny3D
         IWaitCondition *createPlatformWaitCondition() override;
 
         IProcess *createPlatformProcess() override;
+
+        ILocale *createPlatformLocale() override;
         
         EPlatform getPlatform() override;
 

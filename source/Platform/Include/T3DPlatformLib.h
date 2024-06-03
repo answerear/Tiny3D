@@ -54,5 +54,6 @@
 #include <Thread/T3DThreadConstant.h>
 #include <Thread/T3DThreadManager.h>
 #include <Process/T3DProcess.h>
+#include <Locale/T3DLocale.h>
 
 #endif  /*__T3D_PLATFORM_LIB_H__*/

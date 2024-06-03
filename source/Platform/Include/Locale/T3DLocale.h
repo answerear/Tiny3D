@@ -22,34 +22,37 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_MACRO_H__
-#define __T3D_PLATFORM_MACRO_H__
+#ifndef __T3D_LOCALE_H__
+#define __T3D_LOCALE_H__
 
 
-#if defined T3DPLATFORM_EXPORT
-    #define T3D_PLATFORM_API    T3D_EXPORT_API
-#else
-    #define T3D_PLATFORM_API    T3D_IMPORT_API
-#endif
+#include "T3DSingleton.h"
+#include "T3DPlatformPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class System;
-    class Application;
-    class Window;
-    class TimerManager;
-    class ITimerListener;
-    class DateTime;
-    class Console;
-    class DeviceInfo;
-    class Dir;
-    class DataStream;
-    class FileDataStream;
-    class MemoryDataStream;
-    class Locale;
-    class Process;
-}
- 
+    class ILocale;
+    
+    class T3D_PLATFORM_API Locale : public Singleton<Locale>
+    {
+    public:
+        Locale();
+        ~Locale() override;
 
-#endif  /*__T3D_PLATFORM_MACRO_H__*/
+        String ANSIToUTF8(const String &src);
+
+        String UTF8ToANSI(const String &src);
+
+        String UnicodeToUTF8(const WString &src);
+
+        WString UTF8ToUnicode(const String &src);
+
+    protected:
+        ILocale *mLocale {nullptr};
+    };
+
+    #define T3D_LOCALE  Locale::getInstance() 
+}
+
+#endif  /*__T3D_LOCALE_H__*/
