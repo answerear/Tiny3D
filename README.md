@@ -19,6 +19,7 @@ Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/sourc
 
 - Mac OS X Monterey (12.x.x)
 - xcode 13
+- Python 3
 
 **Build**
 
