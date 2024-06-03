@@ -35,6 +35,8 @@ namespace Tiny3D
 
     IDir *Dir::sDir = nullptr;
 
+    String Dir::sCompany;
+    String Dir::sAppName;
     String Dir::sCachePath;
     String Dir::sAppPath;
     String Dir::sWritablePath;

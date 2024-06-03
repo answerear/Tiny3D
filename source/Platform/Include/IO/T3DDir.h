@@ -234,9 +234,26 @@ namespace Tiny3D
          */
         static String formatPath(const String &path);
 
+        /**
+         * 设置缓存路径信息
+         * @param [in] company : 公司名称
+         * @param [in] app : app 名称 
+         */
+        static void setCachePathInfo(const String &company, const String &app)
+        {
+            sCompany = company;
+            sAppName = app;
+        }
+
+        static const String &getCompany() { return sCompany; }
+        
+        static const String &getAppName() { return sAppName; }
+        
     protected:
         IDir    *mDir;
 
+        static String  sCompany;
+        static String  sAppName;
         static String  sCachePath;
         static String  sAppPath;
         static String  sWritablePath;

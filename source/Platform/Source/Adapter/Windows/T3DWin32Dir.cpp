@@ -30,6 +30,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <io.h>
+#include <ShlObj.h>
+
+#include "T3DDir.h"
 
 
 #pragma warning(disable:4244)
@@ -687,7 +690,38 @@ namespace Tiny3D
 
     String Win32Dir::getCachePath() const
     {
-        return getAppPath() + "\\Caches";
+        // return getAppPath() + "\\Caches";
+
+        if (m_strCachePath.empty())
+        {
+            char localAppData[MAX_PATH];
+            if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppData)))
+            {
+                String path = localAppData;
+                
+                if (!Dir::getCompany().empty())
+                {
+                    path = path + getNativeSeparator() + Dir::getCompany();
+                    if (!Dir::exists(path))
+                    {
+                        Dir::makeDir(path);
+                    }
+                }
+                
+                if (!Dir::getAppName().empty())
+                {
+                    path = path + getNativeSeparator() + Dir::getAppName();
+                    if (!Dir::exists(path))
+                    {
+                        Dir::makeDir(path);
+                    }
+                }
+
+                m_strCachePath = path;
+            }
+        }
+
+        return m_strCachePath;
     }
 
     //--------------------------------------------------------------------------
