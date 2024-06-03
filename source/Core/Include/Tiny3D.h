@@ -87,6 +87,8 @@
 
 // Serialize
 #include <Serializer/T3DSerializer.h>
+#include <Serializer/T3DBinSerializer.h>
+#include <Serializer/T3DJsonSerializer.h>
 #include <Serializer/T3DSerializerManager.h>
 
 // ImageCodec

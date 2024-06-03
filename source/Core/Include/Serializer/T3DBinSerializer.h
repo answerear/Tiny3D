@@ -32,7 +32,7 @@
 
 namespace Tiny3D
 {
-    class BinSerializer : public Serializer
+    class T3D_ENGINE_API BinSerializer : public Serializer
     {
     public:
         static BinSerializerPtr create();

@@ -202,6 +202,11 @@ namespace Tiny3D
 
         do
         {
+            if (Dir::getCompany().empty() && Dir::getAppName().empty())
+            {
+                Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+            }
+            
 #if !defined (T3D_OS_ANDROID)
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);

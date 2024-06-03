@@ -32,7 +32,7 @@
 
 namespace Tiny3D
 {
-    class JsonSerializer : public Serializer
+    class T3D_ENGINE_API JsonSerializer : public Serializer
     {
     public:
         static JsonSerializerPtr create();
@@ -42,6 +42,28 @@ namespace Tiny3D
         RTTRObject deserialize(DataStream &stream) override;
 
         TResult deserialize(DataStream& stream, RTTRVariant& obj) override;
+
+        template<typename T>
+        TResult serialize(DataStream &stream, const T &obj)
+        {
+            return serialize(stream, obj);
+        }
+
+        template<typename T>
+        T *deserialize(DataStream &stream)
+        {
+            RTTRObject obj = deserialize(stream);
+            return obj.try_convert<T>();
+        }
+
+        template<typename T>
+        TResult deserialize(DataStream& stream, T& obj)
+        {
+            RTTRVariant var;
+            TResult ret = deserialize(stream, var);
+            obj = var.get_value<T>();
+            return ret;
+        }
     };
 }
 
