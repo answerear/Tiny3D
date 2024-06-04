@@ -2973,7 +2973,7 @@ namespace Tiny3D
             //String varType = toString(clang_getTypeSpelling(cxVarType));
             // CXType cxCanonicalType = clang_getCanonicalType(cxVarType);
             // String canonicalType = toString(clang_getTypeSpelling(cxCanonicalType));
-            CXCursor cxCursorDecl = clang_getTypeDeclaration(cxVarType);
+            CXCursor cxCursorDecl = clang_getTypeDeclaration(clang_getCanonicalType(cxVarType));
             CXCursor cxTemplateCursor = clang_getSpecializedCursorTemplate(cxCursorDecl);
             String templateName = toString(clang_getCursorUSR(cxTemplateCursor));
             // CXType cxType = clang_getCursorType(cxCursorDecl);
