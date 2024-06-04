@@ -540,8 +540,8 @@ namespace Tiny3D
                         }
                         else
                         {
-                            bool ret = klass.set_property_value(name.GetString(), obj, prop);
-                            T3D_ASSERT(ret, "set property value failed !");
+                            bool rval = klass.set_property_value(name.GetString(), obj, prop);
+                            T3D_ASSERT(rval, "set property value failed !");
                         }
                     }
                 }

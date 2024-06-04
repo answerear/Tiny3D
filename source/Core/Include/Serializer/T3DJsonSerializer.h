@@ -44,20 +44,20 @@ namespace Tiny3D
         TResult deserialize(DataStream& stream, RTTRVariant& obj) override;
 
         template<typename T>
-        TResult serialize(DataStream &stream, const T &obj)
+        TResult serializeObject(DataStream &stream, const T &obj)
         {
             return serialize(stream, obj);
         }
 
         template<typename T>
-        T *deserialize(DataStream &stream)
+        T *deserializeObject(DataStream &stream)
         {
             RTTRObject obj = deserialize(stream);
             return obj.try_convert<T>();
         }
 
         template<typename T>
-        TResult deserialize(DataStream& stream, T& obj)
+        TResult deserializeObject(DataStream& stream, T& obj)
         {
             RTTRVariant var;
             TResult ret = deserialize(stream, var);
