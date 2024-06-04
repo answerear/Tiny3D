@@ -67,6 +67,11 @@ namespace Tiny3D
         {
             m_pFileHandle = fopen(szFileName, "ab");
         }
+        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE)
+            || unMode == E_MODE_TRUNCATE)
+        {
+            m_pFileHandle = fopen(szFileName, "wb");
+        }
         else if (unMode == E_MODE_READ_WRITE)
         {
             m_pFileHandle = fopen(szFileName, "r+b");
