@@ -42,6 +42,10 @@ namespace Tiny3D
         void onGUI() override;
         void onGUIEnd() override;
 
+        void onClickedBrowser();
+        void onClickedOK();
+        void onClickedCancel();
+        
     protected:
         char mProjectPath[512] {0};
         char mProjectName[512] {0};

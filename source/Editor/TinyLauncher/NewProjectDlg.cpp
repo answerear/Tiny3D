@@ -24,6 +24,7 @@
 
 
 #include "NewProjectDlg.h"
+#include "ProjectManager.h"
 
 
 namespace Tiny3D
@@ -79,7 +80,7 @@ namespace Tiny3D
         // ImGui::SetCursorPosX(x);
         if (ImGui::Button("...", ImVec2(button_brw_w, 0)))
         {
-            
+            onClickedBrowser();
         }
         ImGui::PopItemWidth();
 
@@ -91,7 +92,7 @@ namespace Tiny3D
         ImGui::SetCursorPosX(x);
         if (ImGui::Button(CH(TXT_OK), ImVec2(button_w, 0)))
         {
-            
+            onClickedOK();
         }
 
         ImGui::SameLine(0, button_space);
@@ -101,7 +102,7 @@ namespace Tiny3D
         // ImGui::PushItemWidth(-FLT_MIN);
         if (ImGui::Button(CH(TXT_CANCEL), ImVec2(button_w, 0)))
         {
-            
+            onClickedCancel();
         }
         // ImGui::PopItemWidth();
     }
@@ -111,6 +112,33 @@ namespace Tiny3D
     void NewProjectDialog::onGUIEnd()
     {
         ImDialog::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NewProjectDialog::onClickedBrowser()
+    {
+        String path = ImOpenFileDialog::openExplorerFolderDialog();
+        int32_t pathLength = sizeof(mProjectPath) - 1;
+        int32_t len = static_cast<int32_t>(path.length()) > pathLength ? pathLength : static_cast<int32_t>(path.length());
+        strncpy(mProjectPath, path.c_str(), len);
+        mProjectPath[len] = 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NewProjectDialog::onClickedOK()
+    {
+        PROJECT_MGR.createProject(mProjectPath, mProjectName);
+        PROJECT_MGR.saveProjects();
+        PROJECT_MGR.loadProjects();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NewProjectDialog::onClickedCancel()
+    {
+        
     }
 
     //--------------------------------------------------------------------------

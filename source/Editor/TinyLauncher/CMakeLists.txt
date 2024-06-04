@@ -7,6 +7,11 @@
 
 set_project_name(TinyLauncher)
 
+message(STATUS "Generating project : ${BIN_NAME}")
+
+if (TINY3D_LAUNCHER_RTTR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif (TINY3D_LAUNCHER_RTTR)
 
 if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
@@ -39,6 +44,10 @@ set_project_files(include\\\\Language ${CMAKE_CURRENT_SOURCE_DIR}/Language/ .h)
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
+
+
+# Generated source for reflection.
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
 
 
 # common header files
@@ -185,3 +194,4 @@ endif (TINY3D_OS_WINDOWS)
 # Setup project folder
 set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Editor/Editor")
 
+message(STATUS "Generating project : ${BIN_NAME} - done")

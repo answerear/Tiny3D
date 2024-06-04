@@ -26,6 +26,7 @@
 #include "ImGuiImpl.h"
 #include "MainWindow.h"
 #include "T3DEditorInfoDX11.h"
+#include "ProjectManager.h"
 
 
 Tiny3D::Launcher::LauncherApp *app = nullptr;
@@ -73,7 +74,9 @@ namespace Tiny3D
         TResult ret;
 
         Agent *engine = new Agent();
-
+        LanguageManagerPtr langMgr = nullptr;
+        ProjectManager *projectMgr = nullptr;
+        
         do
         {
             Dir::setCachePathInfo("Tiny3D", "Tiny3D");
@@ -94,7 +97,7 @@ namespace Tiny3D
             }
 
             // 加载语言文件
-            LanguageManagerPtr langMgr = LanguageManager::create();
+            langMgr = LanguageManager::create();
             // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
             String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
             ret = langMgr->init(path);
@@ -111,6 +114,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create ImGui environment failed ! ERROR [%d]", ret);
                 break;
             }
+
+            projectMgr = new ProjectManager();
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -135,12 +140,13 @@ namespace Tiny3D
             }
             
             ImWidget::GC();
-
-            langMgr = nullptr;
             
             // 删除清理 imgui 环境，此后无法再使用 imgui
             destroyImGuiEnv(engine);
         } while (false);
+
+        T3D_SAFE_DELETE(projectMgr);
+        langMgr = nullptr;
         
         delete engine;
 

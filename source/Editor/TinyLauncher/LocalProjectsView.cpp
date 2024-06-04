@@ -53,7 +53,7 @@ namespace Tiny3D
         ImGui::Spacing();
 
         ImVec2 region = ImGui::GetContentRegionAvail();
-        auto child_height = 40.0f;
+        float child_height = 40.0f;
 
         // Top child
         {
@@ -61,14 +61,14 @@ namespace Tiny3D
 
             ImGui::BeginChild("##ProjectView_Top", ImVec2(region.x, child_height), ImGuiChildFlags_None);
 
-            auto margin_x = 8.0f;
-            auto margin_y = 4.0f;
+            float margin_x = 8.0f;
+            float margin_y = 4.0f;
             
-            auto button_w = 100.0f;
-            auto button_h = child_height - margin_y * 2;
+            float button_w = 100.0f;
+            float button_h = child_height - margin_y * 2;
 
-            auto x = 0;
-            auto y = margin_y;
+            float x = 0;
+            float y = margin_y;
             
             // 新建按钮
             ImGui::SetCursorPosX(x);
