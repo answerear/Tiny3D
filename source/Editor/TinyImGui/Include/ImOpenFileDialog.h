@@ -25,14 +25,17 @@
 
 #pragma once
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
-#include <ImOpenFileDialog.h>
+
+#include "ImWidget.h"
+
+
+namespace Tiny3D
+{
+    class TINYIMGUI_API ImOpenFileDialog
+    {
+    public:
+        static String openExplorerFolderDialog();
+        
+        static String openExplorerFileDialog(const char *filter = "All Files (*.*)\0*.*\0");
+    };
+}
