@@ -35,8 +35,8 @@ namespace Tiny3D
     #define T3D_BROADCAST_INSTANCE      EventManager::BROADCAST_INSTANCE
     #define T3D_MULTICAST_INSTANCE      EventManager::MULTICAST_INSTANCE
 
-    #define ON_EVENT(evid, func)        registerEventHandle(evid, func)
-    #define ON_EVENT_MEMBER(evid, func) ON(evid, std::bind(&func, this, std::placeholders::_1, std::placeholders::_2))
+    #define ON_EVENT(evid, func)        registerEvent(evid, func)
+    #define ON_MEMBER(evid, func)       ON_EVENT(evid, std::bind(&func, this, std::placeholders::_1, std::placeholders::_2))
     
     // // 声明事件MAP
     // #define T3D_DECLARE_EVENT_MAP() \
