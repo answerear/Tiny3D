@@ -27,6 +27,7 @@
 #include "ImErrors.h"
 #include "ImChildView.h"
 #include "ImWindow.h"
+#include "../../TinyLauncher/LauncherPrerequisites.h"
 
 
 namespace Tiny3D
@@ -80,8 +81,7 @@ namespace Tiny3D
 
     void ImDialog::appear(bool overlay)
     {
-        msDialogStack.push(this);
-        mWillAppear = true;
+
 
         ImWidget *parent = nullptr;
         
@@ -90,7 +90,7 @@ namespace Tiny3D
             parent = msDialogStack.top();
         }
         else
-        {
+        {            
             ImChildView *focusedView = ImChildView::getFocusedView();
             if (focusedView != nullptr && focusedView->isVisible())
             {
@@ -106,9 +106,14 @@ namespace Tiny3D
             }
         }
 
+        msDialogStack.push(this);
+        mWillAppear = true;
+        
         T3D_ASSERT(parent != nullptr, "DoShow in dialog, parent must not be nullptr !");
         parent->addWidget(this);
         setVisible(true);
+
+        onShow();
     }
 
     //--------------------------------------------------------------------------
@@ -201,6 +206,7 @@ namespace Tiny3D
     {
         if (mInUpdate)
         {
+            onClose();
             ImGui::CloseCurrentPopup();
         }
         else
@@ -255,6 +261,7 @@ namespace Tiny3D
                 {
                     msDialogStack.pop();
                 }
+                onClose();
             }
             
             PopWidgetID();
@@ -276,12 +283,141 @@ namespace Tiny3D
     {
         if (mShouldClose)
         {
+            onClose();
             ImGui::CloseCurrentPopup();
             mShouldClose = false;
         }
         
         ImGui::EndPopup();
         PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImDialog::onShow()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImDialog::onClose()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMessageBox::show(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor)
+    {
+        if (ImMessageBox::getInstancePtr() == nullptr)
+        {
+            ImMessageBox *instance = new ImMessageBox();
+            instance->create(title, nullptr);
+        }
+
+        return ImMessageBox::getInstance().appear(title, message, type, std::move(buttons), txtColor);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMessageBox::appear(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor)
+    {
+        if (buttons.size() > 2)
+        {
+            T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The number of buttons passed to MessageBox is out of bound !");
+            return T3D_ERR_OUT_OF_BOUND;
+        }
+        
+        setName(title);
+        mMessage = message;
+        mButtons = std::move(buttons);
+        mMessageColor = txtColor;
+        ImDialog::show(type);
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImMessageBox::onGUIBegin()
+    {
+        ImVec2 texSize = ImGui::CalcTextSize(mMessage.c_str());
+        const float dialog_w = 256.0f;
+        
+        // 设置对话框宽度
+        if (texSize.x < dialog_w)
+        {
+            ImGui::SetNextWindowSize(ImVec2(256.0f, 0.0f));
+        }
+        
+        return ImDialog::onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImMessageBox::onGUI()
+    {
+        auto region = ImGui::GetWindowSize();
+        
+        ImGui::Spacing();
+
+        if (mMessageColor.x > 0 || mMessageColor.y > 0
+            || mMessageColor.z > 0 || mMessageColor.w > 0)
+        {
+            ImGui::TextColored(mMessageColor, mMessage.c_str());
+        }
+        else
+        {
+            ImGui::Text(mMessage.c_str());
+        }
+        
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        
+        auto itr = mButtons.begin();
+        const float button_w = 80.0f;
+        const float button_space = 10.0f;
+        
+        if (mButtons.size() == 2)
+        {
+            float x = (region.x - 2 * button_w - button_space) * 0.5f;
+            ImGui::SetCursorPosX(x);
+            if (ImGui::Button(itr->name.c_str(), ImVec2(button_w, 0)))
+            {
+                itr->callback();
+                close();
+            }
+
+            ImGui::SameLine(0, button_space);
+
+            ++itr;
+            
+            x = x + button_w + button_space;
+            ImGui::SetCursorPosX(x);
+            // ImGui::PushItemWidth(-FLT_MIN);
+            if (ImGui::Button(itr->name.c_str(), ImVec2(button_w, 0)))
+            {
+                itr->callback();
+                close();
+            }
+        }
+        else if (mButtons.size() == 1)
+        {
+            float x = (region.x - button_w) * 0.5f;
+            ImGui::SetCursorPosX(x);
+            if (ImGui::Button(itr->name.c_str(), ImVec2(button_w, 0)))
+            {
+                itr->callback();
+                close();
+            }
+        }
+        else
+        {
+            // NO any buttons, do nothing
+        }
+        
     }
 
     //--------------------------------------------------------------------------

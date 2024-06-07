@@ -81,6 +81,8 @@ namespace Tiny3D
 
         ~ImMenuItem() override;
 
+        WidgetType getWidgetType() const override { return WidgetType::kMenuItem; }
+        
         virtual Type getType() const = 0;
     };
 
@@ -212,6 +214,8 @@ namespace Tiny3D
     public:
         ~ImMenuBar() override;
 
+        WidgetType getWidgetType() const override { return WidgetType::kMenuBar; }
+        
         TResult addMenu(ImMenu *menu);
 
     protected:

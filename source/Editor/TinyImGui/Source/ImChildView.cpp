@@ -95,4 +95,31 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void ImChildView::update(const ImVec2 &size)
+    {
+        if (mVisible && onGUIBegin(size))
+        {
+            onGUI();
+
+            for (auto child : getChildren())
+            {
+                child->update();
+            }
+            
+            onGUIEnd();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImChildView::onGUIBegin(const ImVec2 &size)
+    {
+        PushWidgetID();
+        ImGui::BeginChild(getName().c_str(), size, onGetChildFlags());
+        checkFocused();
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
 }

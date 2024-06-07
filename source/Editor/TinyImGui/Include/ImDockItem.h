@@ -35,6 +35,8 @@ namespace Tiny3D
     {
     public:
         ~ImDockItem() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kDockItem; }
         
     protected:
         bool onGUIBegin() override;

@@ -35,6 +35,8 @@ namespace Tiny3D
     {
     public:
         ~ImTabItem() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kTabItem; }
         
     protected:
         bool onGUIBegin() override;

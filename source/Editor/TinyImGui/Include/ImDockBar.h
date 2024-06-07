@@ -35,6 +35,8 @@ namespace Tiny3D
     {
     public:
         ~ImDockBar() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kDockBar; }
         
     protected:
         bool onGUIBegin() override;

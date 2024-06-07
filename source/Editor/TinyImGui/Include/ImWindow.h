@@ -37,6 +37,8 @@ namespace Tiny3D
         static ImWindow *getFocusedWindow();
         
         ~ImWindow() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kWindow; }
         
     protected:
         bool onGUIBegin() override;

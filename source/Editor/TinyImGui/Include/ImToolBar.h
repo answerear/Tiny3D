@@ -35,6 +35,8 @@ namespace Tiny3D
     {
     public:
         ~ImToolBar() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kToolBar; }
         
     protected:
         bool onGUIBegin() override;

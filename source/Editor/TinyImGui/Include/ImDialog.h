@@ -48,11 +48,17 @@ namespace Tiny3D
         
         ~ImDialog() override;
 
+        WidgetType getWidgetType() const override { return WidgetType::kDialog; }
+        
         TResult show(ShowType type);
 
         void close(bool destroy = false);
         
     protected:
+        virtual void onShow();
+
+        virtual void onClose();
+        
         void update() override;
         
         bool onGUIBegin() override;
@@ -83,5 +89,48 @@ namespace Tiny3D
 
         /// 排队等待显示的对话框
         static DialogQueue msDialogQueue;
+    };
+
+    using OnMessageBoxCB = TFunction<void()>;
+    
+    class TINYIMGUI_API ImMessageBox : public ImDialog, public Singleton<ImMessageBox>
+    {
+    public:
+        struct Button
+        {
+            Button() = default;
+
+            Button(const Button &other)
+                : name(other.name)
+                , callback(other.callback)
+            {
+            }
+            
+            Button(Button &&other) noexcept
+            {
+                name = std::move(other.name);
+                callback = std::move(other.callback);
+            }
+            
+            String          name {};
+            OnMessageBoxCB  callback {nullptr};
+        };
+        
+        using Buttons = TArray<Button>;
+        
+        ~ImMessageBox() override = default;
+
+        static TResult show(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor = ImVec4(0, 0, 0, 0));
+
+    protected:
+        TResult appear(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor);
+
+        bool onGUIBegin() override;
+        
+        void onGUI() override;
+        
+        String  mMessage {};
+        Buttons mButtons {};
+        ImVec4  mMessageColor {};
     };
 }

@@ -37,12 +37,18 @@ namespace Tiny3D
         static ImChildView *getFocusedView();
         
         ~ImChildView() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kChildView; }
+
+        virtual void update(const ImVec2 &size);
         
     protected:
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
 
+        virtual bool onGUIBegin(const ImVec2 &size);
+        
         virtual ImGuiChildFlags onGetChildFlags();
 
         void checkFocused();

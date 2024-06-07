@@ -33,6 +33,21 @@ namespace Tiny3D
 {
     using Children = TList<class ImWidget*>;
 
+    enum class WidgetType : uint32_t
+    {
+        kNone = 0,
+        kWindow,
+        kChildView,
+        kDialog,
+        kMenuBar,
+        kMenuItem,
+        kToolBar,
+        kTabBar,
+        kTabItem,
+        kDockBar,
+        kDockItem
+    };
+    
     class TINYIMGUI_API ImWidget : public Noncopyable
     {
     public:
@@ -46,6 +61,8 @@ namespace Tiny3D
         static void endUpdate();
         
         ~ImWidget() override;
+
+        virtual WidgetType getWidgetType() const = 0; 
 
         const String &getName() const { return mName; }
 
