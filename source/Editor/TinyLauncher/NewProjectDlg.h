@@ -42,6 +42,8 @@ namespace Tiny3D
         void onGUI() override;
         void onGUIEnd() override;
 
+        void onShow() override;
+        
         void onClickedBrowser();
         void onClickedOK();
         void onClickedCancel();

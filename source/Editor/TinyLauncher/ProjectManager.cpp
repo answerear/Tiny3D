@@ -140,14 +140,14 @@ namespace Tiny3D
             ProjectInfo *project = new ProjectInfo();
             project->name = name;
             project->path = path;
-            project->recent = DateTime::currentMSecsSinceEpoch();
+            project->recent = DateTime::currentSecsSinceEpoch();
             mProjectData.projects.emplace_back(project);
 
             // 重新排序
-            sort(mProjectData.sortType, mProjectData.ascending);
+            sort();
 
             // 启动编辑器
-            ret = startTinyEditor(path, name, true);
+            // ret = startTinyEditor(path, name, true);
         } while (false);
 
         return ret;
@@ -177,10 +177,31 @@ namespace Tiny3D
 
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_WARNING(LOG_TAG_LAUNCHER, "Project [Name=%s, Path=%s]not found when remove project !", name.c_str(), path.c_str());
                 break;
             }
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::removeProject(int32_t index)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (index >= mProjectData.projects.size())
+            {
+                ret = T3D_ERR_NOT_FOUND;
+                break;
+            }
+
+            mProjectData.projects.erase(mProjectData.projects.begin()+index);
+        } while (false);
+
         return ret;
     }
 
@@ -210,8 +231,8 @@ namespace Tiny3D
 
             // 重新排序
             ProjectInfo *info = (*it);
-            info->recent = DateTime::currentMSecsSinceEpoch();
-            sort(mProjectData.sortType, mProjectData.ascending);
+            info->recent = DateTime::currentSecsSinceEpoch();
+            sort();
 
             // 启动编辑器
             ret = startTinyEditor(path, name, false);
@@ -253,11 +274,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ProjectManager::sort(SortType type, bool ascending)
+    void ProjectManager::sort()
     {
         mDisplayProjects = mProjectData.projects;
 
-        mDisplayProjects.sort(
+        SortType type = mProjectData.sortType;
+        bool ascending = mProjectData.ascending;
+
+        // mDisplayProjects.sort(
+        std::sort(mDisplayProjects.begin(), mDisplayProjects.end(),
             [type, ascending](ProjectInfo *p1, ProjectInfo *p2)
             {
                 switch (type)
@@ -266,11 +291,11 @@ namespace Tiny3D
                     {
                         if (ascending)
                         {
-                            return p1->recent < p2->recent;
+                            return p1->recent > p2->recent;
                         }
                         else
                         {
-                            return p1->recent > p2->recent;
+                            return p1->recent < p2->recent;
                         }
                     }
                     break;

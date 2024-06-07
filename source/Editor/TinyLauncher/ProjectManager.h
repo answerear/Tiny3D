@@ -36,7 +36,7 @@ namespace Tiny3D
     struct ProjectInfo
     {
         TPROPERTY()
-        uint64_t    recent {0};
+        int64_t     recent {0};
 
         TPROPERTY()
         bool        favourites {false};
@@ -51,7 +51,7 @@ namespace Tiny3D
         String      tags {};
     };
 
-    using Projects = TList<ProjectInfo*>;
+    using Projects = TArray<ProjectInfo*>;
 
     TENUM()
     enum class SortType : uint32_t
@@ -93,13 +93,23 @@ namespace Tiny3D
 
         TResult removeProject(const String &path, const String &name);
 
+        TResult removeProject(int32_t index);
+
         TResult openProject(const String &path, const String &name);
 
         const Projects &getProjects() const { return mProjectData.projects; }
         
         const Projects &getDisplayProjects() const { return mDisplayProjects; }
 
-        void sort(SortType type, bool ascending);
+        SortType getSortType() const { return mProjectData.sortType; }
+        
+        void setSortType(SortType type) { mProjectData.sortType = type; }
+
+        bool isSortAscending() const { return mProjectData.ascending; }
+        
+        void setSortAscending(bool ascending) { mProjectData.ascending = ascending; }
+
+        void sort();
 
     protected:
         void releaseProjectInfo();

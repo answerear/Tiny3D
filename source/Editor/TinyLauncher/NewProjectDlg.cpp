@@ -49,13 +49,17 @@ namespace Tiny3D
 
     void NewProjectDialog::onGUI()
     {
-        auto region = ImGui::GetContentRegionAvail();
-        
-        const float labelWidth = 80.0f;
+        auto region = ImGui::GetWindowSize();
+
+        const ImVec2 txtNameSize = ImGui::CalcTextSize(CH(TXT_PROJECT_NAME));
+        const ImVec2 txtPathSize = ImGui::CalcTextSize(CH(TXT_PROJECT_PATH));
+
+        const float txtSpacing = 16.0f;
+        const float labelWidth = txtNameSize.x > txtPathSize.x ? txtNameSize.x : txtPathSize.x;
         float x = 0.0f;
         ImGui::Text(CH(TXT_PROJECT_NAME));
         ImGui::SameLine();
-        x = labelWidth;
+        x = labelWidth + txtSpacing;
         ImGui::SetCursorPosX(x);
         ImGui::InputText("##Name", mProjectName, sizeof(mProjectName));
 
@@ -67,7 +71,7 @@ namespace Tiny3D
 
         const float button_brw_w = 40.0f;
         const float button_brw_space = 8.0f;
-        x = labelWidth;
+        x = labelWidth + txtSpacing;
         ImGui::SetCursorPosX(x);
         ImGui::PushItemWidth(-button_brw_w-button_brw_space);
         ImGui::InputText("##Path", mProjectPath, sizeof(mProjectPath));
@@ -116,6 +120,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void NewProjectDialog::onShow()
+    {
+        memset(mProjectName, 0, sizeof(mProjectName));
+        memset(mProjectPath, 0, sizeof(mProjectPath));
+    }
+
+    //--------------------------------------------------------------------------
+
     void NewProjectDialog::onClickedBrowser()
     {
         String path = ImOpenFileDialog::openExplorerFolderDialog();
@@ -129,16 +141,44 @@ namespace Tiny3D
 
     void NewProjectDialog::onClickedOK()
     {
+        if (mProjectName[0] == 0)
+        {
+            // 没有输入名字
+            ImMessageBox::Buttons buttons;
+            ImMessageBox::Button btnOK;
+            btnOK.name = STR(TXT_OK);
+            btnOK.callback = [](){};
+            buttons.emplace_back(btnOK);
+            // ImMessageBox::Button btnCancel;
+            // btnCancel.name = STR(TXT_CANCEL);
+            // btnCancel.callback = [](){};
+            // buttons.emplace_back(btnCancel);
+            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EMPTY_NAME), ImDialog::ShowType::kOverlay, std::move(buttons));
+            return;
+        }
+
+        if (mProjectPath[0] == 0)
+        {
+            // 没有输入路径
+            ImMessageBox::Buttons buttons;
+            ImMessageBox::Button btnOK;
+            btnOK.name = STR(TXT_OK);
+            btnOK.callback = [](){};
+            buttons.emplace_back(btnOK);
+            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EMPTY_PATH), ImDialog::ShowType::kOverlay, std::move(buttons));
+            return;
+        }
+        
         PROJECT_MGR.createProject(mProjectPath, mProjectName);
         PROJECT_MGR.saveProjects();
-        PROJECT_MGR.loadProjects();
+        close();
     }
 
     //--------------------------------------------------------------------------
 
     void NewProjectDialog::onClickedCancel()
     {
-        
+        close();
     }
 
     //--------------------------------------------------------------------------

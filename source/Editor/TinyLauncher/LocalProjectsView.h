@@ -32,38 +32,91 @@ namespace Tiny3D
 {
     NS_BEGIN(Launcher)
 
+    enum AppEventID
+    {
+        kEvtApp = 1,
+        kEvtOpenNewDialog,
+    };
+
     class NewProjectDialog;
-    
-    class LocalProjectsView : public ImChildView
+
+    class LocalProjectViewT : public ImChildView, public EventHandler
+    {
+    protected:
+        TResult onCreate() override;
+        
+        void onGUI() override;
+
+        int32_t mCurrentSortType {0};
+        char mFilterText[512] {0};
+    };
+
+    class LocalProjectViewBL : public ImChildView, public EventHandler
+    {
+    protected:
+        void onGUI() override;
+
+        int32_t onGetChildFlags() override;
+
+        int32_t mProjectSelectedIndex {-1};
+    };
+
+    class LocalProjectViewBR : public ImChildView, public EventHandler
     {
     public:
+        void onGUI() override;
 
+        int32_t onGetChildFlags() override;
+
+        int32_t mCurrentLanguage {0};
+    };
+    
+    class LocalProjectsView : public ImChildView, public EventHandler
+    {
+    public:
+        void update() override;
+        
     protected:
-        // TResult onCreate() override;
+        TResult onCreate() override;
+
+        void onDestroy() override;
 
         bool onGUIBegin() override;
 
-        void onGUI() override;
+        // void onGUI() override;
+        //
+        // void onGUIEnd() override;
 
-        void onGUIEnd() override;
+        bool onOpenNewDialog(EventParam *param, TINSTANCE sender);
+        
+        // void onGUITop(const ImVec2 &size);
+        //
+        // void onGUIBottomLeft(const ImVec2 &size);
+        //
+        // void onGUIBottomRight(const ImVec2 &size);
+        //
+        // void openNewProjectDialog();
 
-        void openNewProjectDialog();
-
+        
     protected:
-        enum class SortType : int32_t
-        {
-            kRecentEdit = 0,
-            kName,
-            kPath,
-            kTag,
-        };
+        LocalProjectViewT   *mViewT {nullptr};
+        LocalProjectViewBL  *mViewBL {nullptr};
+        LocalProjectViewBR  *mViewBR {nullptr};
         
-        int32_t mCurrentSortType {0};
-        int32_t mCurrentLanguage {0};
-        
-        char mFilterText[512] {0};
-
-        bool mProjectSelected {false};
+        // enum class SortType : int32_t
+        // {
+        //     kRecentEdit = 0,
+        //     kName,
+        //     kPath,
+        //     kTag,
+        // };
+        //
+        // int32_t mCurrentSortType {0};
+        // int32_t mCurrentLanguage {0};
+        //
+        // char mFilterText[512] {0};
+        //
+        // int32_t mProjectSelectedIndex {-1};
 
         NewProjectDialog *mNewProjectDlg {nullptr};
     };
