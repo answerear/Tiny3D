@@ -32,12 +32,6 @@ namespace Tiny3D
 {
     NS_BEGIN(Launcher)
 
-    enum AppEventID
-    {
-        kEvtApp = 1,
-        kEvtOpenNewDialog,
-    };
-
     class NewProjectDialog;
 
     class LocalProjectViewT : public ImChildView, public EventHandler
@@ -63,13 +57,18 @@ namespace Tiny3D
 
     class LocalProjectViewBR : public ImChildView, public EventHandler
     {
-    public:
+    protected:
         TResult onCreate() override;
         
         void onGUI() override;
 
         int32_t onGetChildFlags() override;
 
+        void onComboLanguageChanged(int32_t lastIndex);
+
+        void onBtnAboutClicked();
+
+    protected:
         int32_t mCurrentLanguage {0};
     };
     
@@ -85,20 +84,17 @@ namespace Tiny3D
 
         bool onGUIBegin() override;
 
-        // void onGUI() override;
-        //
-        // void onGUIEnd() override;
-
         bool onOpenNewDialog(EventParam *param, TINSTANCE sender);
-        
-        // void onGUITop(const ImVec2 &size);
-        //
-        // void onGUIBottomLeft(const ImVec2 &size);
-        //
-        // void onGUIBottomRight(const ImVec2 &size);
-        //
-        // void openNewProjectDialog();
 
+        bool onEditProject(EventParam *param, TINSTANCE sender);
+        
+        bool onRunProject(EventParam *param, TINSTANCE sender);
+        
+        bool onRenameProject(EventParam *param, TINSTANCE sender);
+        
+        bool onManageTags(EventParam *param, TINSTANCE sender);
+
+        bool onRemoveProject(EventParam *param, TINSTANCE sender);
         
     protected:
         LocalProjectViewT   *mViewT {nullptr};
