@@ -27,12 +27,13 @@
 #include "NewProjectDlg.h"
 #include "ImErrors.h"
 #include "ProjectManager.h"
+#include "LauncherApp.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Launcher)
-
+    
     //--------------------------------------------------------------------------
 
     TResult LocalProjectViewT::onCreate()
@@ -229,6 +230,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult LocalProjectViewBR::onCreate()
+    {
+        LauncherApp *app = static_cast<LauncherApp*>(T3D_APPLICATION.getInstancePtr());
+        mCurrentLanguage = app->getAppSettings().languageIndex;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     int32_t LocalProjectViewBR::onGetChildFlags()
     {
         return ImGuiChildFlags_Border;
@@ -305,15 +315,22 @@ namespace Tiny3D
             ImMessageBox::Button btnRestart;
             btnRestart.name = STR(TXT_BTN_RESTART);
             btnRestart.callback =
-                []()
+                [this]()
                 {
-                    
+                    LauncherApp *app = static_cast<LauncherApp*>(T3D_APPLICATION.getInstancePtr());
+                    app->getAppSettings().languageIndex = mCurrentLanguage;
+                    const char *languages[] = {"lang-en-us.txt", "lang-zh-hans.txt"};
+                    app->getAppSettings().languageFileName = languages[mCurrentLanguage];
                 };
             buttons.emplace_back(btnRestart);
-            ImMessageBox::Button btnClose;
-            btnClose.name = STR(TXT_BTN_CLOSE);
-            btnClose.callback = [](){};
-            buttons.emplace_back(btnClose);
+            ImMessageBox::Button btnCancel;
+            btnCancel.name = STR(TXT_CANCEL);
+            btnCancel.callback =
+                [this, lastLanguage]()
+                {
+                    mCurrentLanguage = lastLanguage;
+                };
+            buttons.emplace_back(btnCancel);
             ImMessageBox::show(STR(TXT_INFO), STR(TXT_INFO_CHANGE_LANGUAGE), ImDialog::ShowType::kEnqueueBack, std::move(buttons), ImVec4(1.0f, 0.788f, 0.055f, 1.0f));
         }
         ImGui::PopItemWidth();

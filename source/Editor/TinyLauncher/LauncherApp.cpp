@@ -27,6 +27,7 @@
 #include "MainWindow.h"
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
+#include "AppSettings.h"
 
 
 Tiny3D::Launcher::LauncherApp *app = nullptr;
@@ -79,7 +80,7 @@ namespace Tiny3D
         
         do
         {
-            Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+            Dir::setCachePathInfo("Tiny3D", "Launcher");
             
             Settings settings;
             settings.renderSettings.resizable = true;
@@ -96,10 +97,30 @@ namespace Tiny3D
                 break;
             }
 
+            String settingsPath = Dir::getCachePath() + Dir::getNativeSeparator() + "Settings.dat";
+            if (Dir::exists(settingsPath))
+            {
+                FileDataStream fs;
+                if (!fs.open(settingsPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                {
+                    ret = T3D_ERR_FILE_NOT_EXIST;
+                    break;
+                }
+
+                ret = T3D_SERIALIZER_MGR.deserialize(fs, mAppSettings);
+                if (T3D_FAILED(ret))
+                {
+                    fs.close();
+                    break;
+                }
+                
+                fs.close();
+            }
+
             // 加载语言文件
             langMgr = LanguageManager::create();
             // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
-            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + mAppSettings.languageFileName;
             ret = langMgr->init(path);
             if (T3D_FAILED(ret))
             {
@@ -140,6 +161,13 @@ namespace Tiny3D
             }
             
             ImWidget::GC();
+
+            FileDataStream fs;
+            if (fs.open(settingsPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY))
+            {
+                T3D_SERIALIZER_MGR.serialize(fs, mAppSettings);
+                fs.close();
+            }
             
             // 删除清理 imgui 环境，此后无法再使用 imgui
             destroyImGuiEnv(engine);

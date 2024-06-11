@@ -22,73 +22,13 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
 
-
-#include "LauncherPrerequisites.h"
-#include "ImGuiApp.h"
 #include "AppSettings.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Launcher)
-    
-    class MainWindow;
-    
-    class LauncherApp : public ImGuiApp
-    {
-    public:
-        LauncherApp();
-        
-        ~LauncherApp() override;
-
-        TResult go(int32_t argc, char *argv[]);
-
-        const AppSettings &getAppSettings() const { return mAppSettings; }
-
-        AppSettings &getAppSettings() { return mAppSettings; }
-
-        void setEditorRenderer(ImGuiImpl *impl) override;
-
-        void exitApp() override;
-
-    protected:  /// from Tiny3D::Application
-        bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
-
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
-        TResult createImGuiEnv(Agent *engine);
-
-        void destroyImGuiEnv(Agent *engine);
-        
-        bool enginePollEvents();
-
-        void engineUpdate();
-
-        void enginePreRender();
-
-        void enginePostRender();
-        
-    protected:
-        SDL_Window *mSDLWindow {nullptr};
-        ImGuiImpl *mImGuiImpl {nullptr};
-        ImTextureID mSceneRT {nullptr};
-
-        MainWindow *mMainWindow {nullptr};
-
-        AppSettings mAppSettings {};
-        
-        bool mExitApp {false};
-    };
 
     NS_END
 }
-
-

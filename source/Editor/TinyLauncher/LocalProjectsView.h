@@ -64,6 +64,8 @@ namespace Tiny3D
     class LocalProjectViewBR : public ImChildView, public EventHandler
     {
     public:
+        TResult onCreate() override;
+        
         void onGUI() override;
 
         int32_t onGetChildFlags() override;
