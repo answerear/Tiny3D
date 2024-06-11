@@ -39,9 +39,38 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    void ImDialog::poll()
+    {
+        if (!msDialogQueue.empty())
+        {
+            auto dialog = msDialogQueue.front();
+            msDialogQueue.pop_front();
+            dialog->appear(false);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     ImDialog::~ImDialog()
     {
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImDialog::create(const String &name, ImWidget *parent, bool hasCloseBtn)
+    {
+        return ImWidget::createInternal(name, parent, 1, hasCloseBtn);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImDialog::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    {
+        T3D_ASSERT(argc == 1, "Invalid number of arguments in ImDialog::create() !");
+
+        mHasCloseBtn = va_arg(args, bool);
+        return IM_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -208,6 +237,7 @@ namespace Tiny3D
         {
             onClose();
             ImGui::CloseCurrentPopup();
+            msDialogStack.pop();
         }
         else
         {
@@ -251,10 +281,11 @@ namespace Tiny3D
         }
 
         bool visible = mVisible;
-        bool ret = ImGui::BeginPopupModal(getName().c_str(), &mVisible, ImGuiWindowFlags_AlwaysAutoResize);
+        bool *isOpened = mHasCloseBtn ? &mVisible : nullptr;
+        bool ret = ImGui::BeginPopupModal(getName().c_str(), isOpened, ImGuiWindowFlags_AlwaysAutoResize);
         if (!ret)
         {
-            if (visible != mVisible)
+            if (isOpened != nullptr && visible != mVisible)
             {
                 // 点 X 关闭了
                 if (msDialogStack.top() == this)
@@ -286,6 +317,7 @@ namespace Tiny3D
             onClose();
             ImGui::CloseCurrentPopup();
             mShouldClose = false;
+            msDialogStack.pop();
         }
         
         ImGui::EndPopup();
@@ -313,7 +345,7 @@ namespace Tiny3D
         if (ImMessageBox::getInstancePtr() == nullptr)
         {
             ImMessageBox *instance = new ImMessageBox();
-            instance->create(title, nullptr);
+            instance->create(title, nullptr, false);
         }
 
         return ImMessageBox::getInstance().appear(title, message, type, std::move(buttons), txtColor);

@@ -130,7 +130,7 @@ namespace Tiny3D
         TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
-        TResult create(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -158,7 +158,7 @@ namespace Tiny3D
         TResult insertAfterItem(ImMenuItem *prevItem, ImMenuItem *item);
 
     protected:
-        TResult create(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -178,7 +178,7 @@ namespace Tiny3D
         TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
-        TResult create(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;

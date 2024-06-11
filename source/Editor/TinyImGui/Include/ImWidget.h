@@ -147,9 +147,9 @@ namespace Tiny3D
     protected:
         ImWidget() = default;
 
-        TResult create(const String &name, ImWidget *parent, int32_t argc, ...);
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, ...);
         
-        virtual TResult create(const String &name, ImWidget *parent, int32_t argc, va_list args);
+        virtual TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args);
         
         virtual TResult onCreate();
         

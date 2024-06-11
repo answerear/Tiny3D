@@ -45,11 +45,15 @@ namespace Tiny3D
             /// 挤掉当前正在显示的，马上显示
             kImmediately,
         };
-        
+
+        static void poll();
+
         ~ImDialog() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kDialog; }
-        
+
+        TResult create(const String &name, ImWidget *parent, bool hasCloseBtn = true);
+
         TResult show(ShowType type);
 
         void close(bool destroy = false);
@@ -58,6 +62,8 @@ namespace Tiny3D
         virtual void onShow();
 
         virtual void onClose();
+
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
         
         void update() override;
         
@@ -79,6 +85,8 @@ namespace Tiny3D
         bool mInUpdate {false};
         /// 是否关闭对话框
         bool mShouldClose {false};
+        /// 是否有关闭按钮
+        bool mHasCloseBtn {true};
 
         using DialogStack = TStack<ImDialog*>;
 

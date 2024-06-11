@@ -25,6 +25,7 @@
 
 #include "ImWidget.h"
 #include "ImErrors.h"
+#include "ImDialog.h"
 
 
 namespace Tiny3D
@@ -73,7 +74,8 @@ namespace Tiny3D
     void ImWidget::endUpdate()
     {
         msInUpdate = false;
-        
+
+        ImDialog::poll();
         GC();
     }
     
@@ -88,12 +90,12 @@ namespace Tiny3D
 
     TResult ImWidget::create(const String &name, ImWidget *parent)
     {
-        return create(name, parent, 0);
+        return createInternal(name, parent, 0);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::create(const String &name, ImWidget *parent, int32_t argc, ...)
+    TResult ImWidget::createInternal(const String &name, ImWidget *parent, int32_t argc, ...)
     {
         TResult ret = IM_OK;
 
@@ -110,7 +112,7 @@ namespace Tiny3D
             
             va_list args;
             va_start(args, argc);
-            ret = create(name, parent, argc, args);
+            ret = createInternal(name, parent, argc, args);
             va_end(args);
 
             if (T3D_FAILED(ret))
@@ -138,7 +140,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::create(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    TResult ImWidget::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
     {
         return IM_OK;
     }

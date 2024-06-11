@@ -56,19 +56,19 @@ namespace Tiny3D
 
     TResult ImMenuItemNormal::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::create(title, parent, 5, &shortcut, &queryEnable, &callback, -1, icon);
+        return ImWidget::createInternal(title, parent, 5, &shortcut, &queryEnable, &callback, -1, icon);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImMenuItemNormal::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::create(title, parent, 5, &shortcut, &queryEnable, nullptr, eventID, icon);
+        return ImWidget::createInternal(title, parent, 5, &shortcut, &queryEnable, nullptr, eventID, icon);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemNormal::create(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    TResult ImMenuItemNormal::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
     {
         T3D_ASSERT(argc == 5, "Invalid number of arguments in ImMenuItemNormal::create() !");
 
@@ -177,12 +177,12 @@ namespace Tiny3D
 
     TResult ImMenuItemPopup::create(const String &title, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::create(title, parent, 2, &queryEnable, icon);
+        return ImWidget::createInternal(title, parent, 2, &queryEnable, icon);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::create(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    TResult ImMenuItemPopup::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
     {
         T3D_ASSERT(argc == 2, "Invalid number of arguments in ImMenuItemPopup::create() !");
 
@@ -292,12 +292,12 @@ namespace Tiny3D
 
     TResult ImMenuItemCheck::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::create(title, parent, 4, &shortcut, &queryEnable, &queryCheck, icon);
+        return ImWidget::createInternal(title, parent, 4, &shortcut, &queryEnable, &queryCheck, icon);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemCheck::create(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    TResult ImMenuItemCheck::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
     {
         T3D_ASSERT(argc == 4, "Invalid number of arguments in ImMenuItemCheck::create() !");
 
