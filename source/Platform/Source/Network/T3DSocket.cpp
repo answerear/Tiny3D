@@ -308,7 +308,7 @@ namespace Tiny3D
         sockClient.mState = State::kConnected;
         sockClient.callOnConnected(true);
         
-        callOnAccepted();
+        callOnAccepted(&sockClient);
 
         return true;
     }
@@ -606,11 +606,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Socket::callOnAccepted()
+    void Socket::callOnAccepted(Socket *sockClient)
     {
         if (mOnAccepted != nullptr)
         {
-            mOnAccepted();
+            mOnAccepted(this, sockClient);
         }
     }
 
@@ -620,7 +620,7 @@ namespace Tiny3D
     {
         if (mOnConnected != nullptr)
         {
-            mOnConnected(isOK);
+            mOnConnected(this, isOK);
         }
     }
 
@@ -630,7 +630,7 @@ namespace Tiny3D
     {
         if (mOnRecv != nullptr)
         {
-            return mOnRecv();
+            return mOnRecv(this);
         }
         return T3D_OK;
     }
@@ -641,7 +641,7 @@ namespace Tiny3D
     {
         if (mOnSend != nullptr)
         {
-            return mOnSend();
+            return mOnSend(this);
         }
         return T3D_OK;
     }
@@ -652,7 +652,7 @@ namespace Tiny3D
     {
         if (mOnException != nullptr)
         {
-            return mOnException();
+            return mOnException(this);
         }
         return T3D_OK;
     }
@@ -663,7 +663,7 @@ namespace Tiny3D
     {
         if (mOnDisconnected != nullptr)
         {
-            mOnDisconnected();
+            mOnDisconnected(this);
         }
     }
 

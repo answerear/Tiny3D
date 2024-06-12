@@ -49,6 +49,7 @@ namespace Tiny3D
     class MemoryDataStream;
     class Locale;
     class Process;
+    class Socket;
 }
  
 

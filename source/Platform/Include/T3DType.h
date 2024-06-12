@@ -143,8 +143,11 @@ using TUnorderedSet = std::unordered_set<T>;
 template <typename T>
 using UUnorderedMultiset = std::unordered_multiset<T>;
 
-template <typename K, typename V>
-using TUnorderedMap = std::unordered_map<K, V>;
+// template <typename K, typename V>
+// using TUnorderedMap = std::unordered_map<K, V>;
+
+template <typename K, typename V, typename HASHER = std::hash<K>, typename KEY_EQ = std::equal_to<K>, typename ALLOC = std::allocator<std::pair<const K, V>>>
+using TUnorderedMap = std::unordered_map<K, V, HASHER, KEY_EQ, ALLOC>;
 
 template <typename K, typename V>
 using TUnorderedMultimap = std::unordered_multimap<K, V>;

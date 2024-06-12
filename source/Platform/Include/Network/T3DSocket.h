@@ -33,12 +33,12 @@
 
 namespace Tiny3D
 {
-    using OnAccepted = TFunction<void()>;
-    using OnConnected = TFunction<void(bool)>;
-    using OnRecv = TFunction<TResult()>;
-    using OnSend = TFunction<TResult()>;
-    using OnException = TFunction<TResult()>;
-    using OnDisconnected = TFunction<void()>;
+    using OnAccepted = TFunction<void(Socket *sockListen, Socket *sockClient)>;
+    using OnConnected = TFunction<void(Socket*, bool)>;
+    using OnRecv = TFunction<TResult(Socket*)>;
+    using OnSend = TFunction<TResult(Socket*)>;
+    using OnException = TFunction<TResult(Socket*)>;
+    using OnDisconnected = TFunction<void(Socket*)>;
     
     class T3D_PLATFORM_API Socket : public Noncopyable
     {
@@ -341,7 +341,7 @@ namespace Tiny3D
 
         static void dequeue(Socket *socket);
 
-        void callOnAccepted();
+        void callOnAccepted(Socket *sockClient);
 
         void callOnConnected(bool isOK);
 
