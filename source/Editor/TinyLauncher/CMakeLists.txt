@@ -31,6 +31,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
+    "${PROTOBUF_INCLUDE_DIR}"
     "${IMGUI_DIR}"
     "${IMGUI_BACKENDS_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
@@ -45,6 +46,9 @@ set_project_files(include\\\\Language ${CMAKE_CURRENT_SOURCE_DIR}/Language/ .h)
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 
+# protobuf source files
+set_project_files(proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/ .pb.h)
+set_project_files(proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/ .pb.cc)
 
 # Generated source for reflection.
 set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
@@ -73,6 +77,7 @@ if (TINY3D_OS_WINDOWS)
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         LINK_PRIVATE TinyImGui
         )
     
@@ -122,6 +127,7 @@ elseif (TINY3D_OS_MACOSX)
 		LINK_PRIVATE T3DCore
 		LINK_PRIVATE rttr_core
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         LINK_PRIVATE TinyImGui
 		)
 
@@ -179,6 +185,7 @@ elseif (TINY3D_OS_LINUX)
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
         LINK_PRIVATE ${SDL2_LIBRARY}
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         LINK_PRIVATE TinyImGui
         )
 

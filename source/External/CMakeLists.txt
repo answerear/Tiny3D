@@ -6,7 +6,7 @@
 #-------------------------------------------------------------------------------
 
 
-#add_subdirectory(protobuf)
+add_subdirectory(protobuf)
 add_subdirectory(rttr)
 
 if (TINY3D_OS_DESKTOP)

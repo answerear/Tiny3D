@@ -223,6 +223,10 @@ find_package(SDL2)
 set(RAPIDJSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rapidjson")
 
 if (NOT TINY3D_BUILD_RTTR_TOOL)
+	# Project protobuf
+	option (protobuf_BUILD_LITE_LIBRARIES "Build protobuf-lite library" OFF)
+	set(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/protobuf/src")
+	
 	# Project rttr
 	set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
 	message(STATUS "rttr include : ${RTTR_INCLUDE_DIR}")
@@ -230,6 +234,18 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     # All Third Parties Sources
     add_subdirectory(External)
 
+    # Setup project folder
+	set(protobuf_VERBOSE TRUE)
+	#set(protobuf_HAVE_BUILTIN_ATOMICS TRUE)
+	if (protobuf_BUILD_LITE_LIBRARIES)
+		set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+		set (PROTOBUF_LIBRARY libprotobuf-lite)
+	else (protobuf_BUILD_LITE_LIBRARIES)
+		set_property(TARGET libprotobuf PROPERTY FOLDER "External/protobuf")
+		set_property(TARGET libprotobuf-lite PROPERTY FOLDER "External/protobuf")
+		set (PROTOBUF_LIBRARY libprotobuf)
+	endif (protobuf_BUILD_LITE_LIBRARIES)
+	
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
@@ -294,7 +310,8 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DSystem T3DPlatform)
     
     if (TINY3D_BUILD_EDITOR)
-        add_dependencies(TinyEditor T3DCore)
+        add_dependencies(TinyEditor ${PROTOBUF_LIBRARY} T3DCore)
+        add_dependencies(TinyLauncher ${PROTOBUF_LIBRARY} T3DCore)
     endif (TINY3D_BUILD_EDITOR)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
