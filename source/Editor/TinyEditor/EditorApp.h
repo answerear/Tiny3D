@@ -34,6 +34,8 @@ namespace Tiny3D
     NS_BEGIN(Editor)
     
     class MainWindow;
+    class ProjectManager;
+    class NetworkManager;
     
     class EditorApp : public ImGuiApp
     {
@@ -59,9 +61,9 @@ namespace Tiny3D
 
         void applicationLowMemory() override;
 
-        TResult createImGuiEnv(Agent *engine);
+        TResult createImGuiEnv();
 
-        void destroyImGuiEnv(Agent *engine);
+        void destroyImGuiEnv();
         
         void buildScene();
 
@@ -72,13 +74,35 @@ namespace Tiny3D
         void enginePreRender();
 
         void enginePostRender();
+
+        TResult createEngine(int32_t argc, char *argv[]);
+
+        void readAppSettings();
+
+        void writeAppSettings();
+
+        TResult createLanguageMgr();
+
+        TResult startup(int32_t argc, char *argv[]);
+        
+        bool run();
+
+        void shutdown();
+
+        String getSettingsPath() const
+        {
+            return Dir::getCachePath() + Dir::getNativeSeparator() + "Settings.dat";
+        }
         
     protected:
         SDL_Window    *mSDLWindow {nullptr};
         ImGuiImpl  *mImGuiImpl {nullptr};
         ImTextureID mSceneRT {nullptr};
 
-        Socket *mSocket {nullptr};
+        Agent *mEngine {nullptr};
+        LanguageManagerPtr mLangMgr {nullptr};
+        ProjectManager *mProjectMgr {nullptr};
+        NetworkManager *mNetworkMgr {nullptr};
         
         MainWindow        *mMainWindow {nullptr};
     };

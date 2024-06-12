@@ -26,6 +26,8 @@
 #include "ImGuiImpl.h"
 #include "MainWindow.h"
 #include "T3DEditorInfoDX11.h"
+#include "ProjectManager.h"
+#include "NetworkManager.h"
 
 
 Tiny3D::Editor::EditorApp *app = nullptr;
@@ -49,6 +51,16 @@ namespace Tiny3D
     
     EditorApp::~EditorApp()
     {
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
+        T3D_SAFE_DELETE(mProjectMgr);
+        mLangMgr = nullptr;
+        T3D_SAFE_DELETE(mEngine);
+        
         app = nullptr;
     }
 
@@ -72,42 +84,66 @@ namespace Tiny3D
     {
         TResult ret;
 
-        Agent *engine = new Agent();
+        do
+        {
+            // 启动
+            ret = startup(argc, argv);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 运行
+            run();
+
+            // 关闭
+            shutdown();
+        } while (false);
+
+        mLangMgr = nullptr;
+        T3D_SAFE_DELETE(mEngine);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool EditorApp::run()
+    {
+        // 构建引擎运行数据，并运行引擎
+        EditorRunningData runningData;
+        runningData.pollEvents = std::bind(&EditorApp::enginePollEvents, this);
+        runningData.update = std::bind(&EditorApp::engineUpdate, this);
+        runningData.preRender = std::bind(&EditorApp::enginePreRender, this);
+        runningData.postRender = std::bind(&EditorApp::enginePostRender, this);
+        return mEngine->runForEditor(runningData);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorApp::startup(int32_t argc, char *argv[])
+    {
+        TResult ret = T3D_OK;
 
         do
         {
             Dir::setCachePathInfo("Tiny3D", "TinyEditor");
             
-            Settings settings;
-            settings.renderSettings.resizable = true;
-            settings.renderSettings.title = "Tiny3D Editor";
-            settings.pluginSettings.pluginPath = ".";
-            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
-            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
-            
-            // 初始化引擎，只有初始化后才能使用
-            ret = engine->init(argc, argv, true, true, settings);
+            ret = createEngine(argc, argv);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
                 break;
             }
 
-            // T3D_LOG_INFO(LOG_TAG_EDITOR, "argv[0] = %s, argv[1] = %s, argv[2] = %s", argv[0], argv[1], argv[2]);
-
             // 加载语言文件
-            LanguageManagerPtr langMgr = LanguageManager::create();
-            // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
-            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
-            ret = langMgr->init(path);
+            ret = createLanguageMgr();
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init language file failed ! ERROR [%d]", ret);
                 break;
             }
             
             // 创建 imgui 环境
-            ret = createImGuiEnv(engine);
+            ret = createImGuiEnv();
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create ImGui environment failed ! ERROR [%d]", ret);
@@ -122,75 +158,74 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);
                 break;
             }
-
-            mSocket = new Socket();
-            bool rval = mSocket->create(Socket::Protocol::kTCP);
-            if (!rval)
-            {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create socket failed ! ERROR [%u]", mSocket->getErrorCode());
-                break;
-            }
-            rval = mSocket->setNonBlocking();
-            if (!rval)
-            {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Set socket non-blocking failed ! ERROR [%u]", mSocket->getErrorCode());
-                break;
-            }
-            rval = mSocket->connect("127.0.0.1", 5327);
-            if (!rval)
-            {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Connect failed ! ERROR [%u]", mSocket->getErrorCode());
-                break;
-            }
-            
-            mSocket->setConnectedCallback(
-                [this](bool isOK)
-                {
-                    if (isOK)
-                    {
-                        String str = "EditorApp Start !";
-                        mSocket->send((uchar_t*)str.data(), str.size());
-                    }
-                });
             
             // 构建编辑器场景
             // buildScene();
-
-            // 构建引擎运行数据，并运行引擎
-            EditorRunningData runningData;
-            runningData.pollEvents = std::bind(&EditorApp::enginePollEvents, this);
-            runningData.update = std::bind(&EditorApp::engineUpdate, this);
-            runningData.preRender = std::bind(&EditorApp::enginePreRender, this);
-            runningData.postRender = std::bind(&EditorApp::enginePostRender, this);
-            engine->runForEditor(runningData);
-
-            if (mMainWindow != nullptr)
-            {
-                mMainWindow->destroy();
-            }
-            
-            ImWidget::GC();
-
-            langMgr = nullptr;
-
-            // 删除清理 imgui 环境，此后无法再使用 imgui
-            destroyImGuiEnv(engine);
         } while (false);
-
-        delete engine;
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult EditorApp::createImGuiEnv(Agent *engine)
+    TResult EditorApp::createEngine(int32_t argc, char *argv[])
     {
         TResult ret = T3D_OK;
 
         do
         {
-            ret = engine->loadPlugin(IMGUI_DX11_PLUGIN);
+            mEngine = new Agent();
+
+            Settings settings;
+            settings.renderSettings.resizable = true;
+            settings.renderSettings.title = "Tiny3D Editor";
+            settings.pluginSettings.pluginPath = ".";
+            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
+            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
+            
+            // 初始化引擎，只有初始化后才能使用
+            ret = mEngine->init(argc, argv, true, true, settings);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorApp::createLanguageMgr()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mLangMgr = LanguageManager::create();
+            // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
+            ret = mLangMgr->init(path);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init language file failed ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorApp::createImGuiEnv()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ret = mEngine->loadPlugin(IMGUI_DX11_PLUGIN);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Load ImGuiDX11 plugin failed ! ERROR [%d]", ret);
@@ -221,7 +256,7 @@ namespace Tiny3D
             
 #if defined(T3D_OS_WINDOWS)
             EditorInfoDX11 info;
-            engine->getEditorInfo(&info);
+            mEngine->getEditorInfo(&info);
             mImGuiImpl->init(&info);
             mSDLWindow = info.sdlWindow;
 #elif defined (T3D_OS_OSX)
@@ -237,10 +272,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorApp::destroyImGuiEnv(Agent *engine)
+    void EditorApp::destroyImGuiEnv()
     {
-        engine->unloadPlugin(IMGUI_DX11_PLUGIN);
+        mEngine->unloadPlugin(IMGUI_DX11_PLUGIN);
         ImGui::DestroyContext();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::shutdown()
+    {
+        if (mMainWindow != nullptr)
+        {
+            mMainWindow->destroy();
+        }
+            
+        ImWidget::GC();
+
+        // 删除清理 imgui 环境，此后无法再使用 imgui
+        destroyImGuiEnv();
+
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
+        T3D_SAFE_DELETE(mProjectMgr);
+        
+        mLangMgr = nullptr;
+        T3D_SAFE_DELETE(mEngine);
     }
 
     //--------------------------------------------------------------------------
@@ -354,7 +415,7 @@ namespace Tiny3D
 
     void EditorApp::engineUpdate()
     {
-        Socket::pollEvents(100);
+        mNetworkMgr->poll();
         
         mImGuiImpl->update();
         ImGui::NewFrame();
