@@ -57,6 +57,10 @@ namespace Tiny3D
         T3D_ERR_PROCESS_CREATED             = T3D_ERR_NOT_WRAITABLE_FILE + 1,
         /// 进程终止失败
         T3D_ERR_PROCESS_TERMINATED          = T3D_ERR_PROCESS_CREATED + 1,
+        /// socket 错误
+        T3D_ERR_SOCKET_ERROR                = T3D_ERR_PROCESS_TERMINATED + 1,
+        /// 远端关闭
+        T3D_ERR_REMOTE_DISCONNECTED         = T3D_ERR_SOCKET_ERROR + 1,
     };
 };
 

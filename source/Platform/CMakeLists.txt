@@ -86,6 +86,7 @@ set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console
 set_project_files(Include\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread/ .h)
 set_project_files(Include\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Include/Process/ .h)
 set_project_files(Include\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Include/Locale/ .h)
+set_project_files(Include\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Include/Network/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -131,6 +132,7 @@ set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ 
 set_project_files(Source\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Source/Thread/ .cpp)
 set_project_files(Source\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Source/Process/ .cpp)
 set_project_files(Source\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Source/Locale/ .cpp)
+set_project_files(Source\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Source/Network/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -186,6 +188,7 @@ if (TINY3D_OS_WINDOWS)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE ${SDL2_LIBRARY}
+		LINK_PRIVATE Ws2_32
 		)
 
 	install(TARGETS ${LIB_NAME}
