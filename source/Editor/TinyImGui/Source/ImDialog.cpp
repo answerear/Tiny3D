@@ -110,11 +110,9 @@ namespace Tiny3D
 
     void ImDialog::appear(bool overlay)
     {
-
-
         ImWidget *parent = nullptr;
         
-        if (overlay)
+        if (overlay && !msDialogStack.empty())
         {
             parent = msDialogStack.top();
         }
