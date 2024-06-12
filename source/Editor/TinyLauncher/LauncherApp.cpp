@@ -28,6 +28,7 @@
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
 #include "AppSettings.h"
+#include "NetworkManager.h"
 
 
 Tiny3D::Launcher::LauncherApp *app = nullptr;
@@ -43,14 +44,23 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     LauncherApp::LauncherApp()
-    { 
+    {
         app = this;
     }
 
     //--------------------------------------------------------------------------
     
     LauncherApp::~LauncherApp()
-    { 
+    {
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
+        T3D_SAFE_DELETE(mProjectMgr);
+        mLangMgr = nullptr;
+        T3D_SAFE_DELETE(mEngine);
         app = nullptr;
     }
 
@@ -74,70 +84,83 @@ namespace Tiny3D
     {
         TResult ret;
 
-        Agent *engine = new Agent();
-        LanguageManagerPtr langMgr = nullptr;
-        ProjectManager *projectMgr = nullptr;
-        
         do
         {
-            Dir::setCachePathInfo("Tiny3D", "Launcher");
-            
-            Settings settings;
-            settings.renderSettings.resizable = true;
-            settings.renderSettings.title = "Launcher";
-            settings.pluginSettings.pluginPath = ".";
-            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
-            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
-            
-            // 初始化引擎，只有初始化后才能使用
-            ret = engine->init(argc, argv, true, true, settings);
+            // 启动
+            ret = startup(argc, argv);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init engine failed ! ERROR [%d]", ret);
                 break;
             }
 
-            String settingsPath = Dir::getCachePath() + Dir::getNativeSeparator() + "Settings.dat";
-            if (Dir::exists(settingsPath))
-            {
-                FileDataStream fs;
-                if (!fs.open(settingsPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
-                {
-                    ret = T3D_ERR_FILE_NOT_EXIST;
-                    break;
-                }
+            // 运行
+            run();
 
-                ret = T3D_SERIALIZER_MGR.deserialize(fs, mAppSettings);
-                if (T3D_FAILED(ret))
-                {
-                    fs.close();
-                    break;
-                }
-                
-                fs.close();
-            }
+            // 关闭
+            shutdown();
+        } while (false);
 
-            // 加载语言文件
-            langMgr = LanguageManager::create();
-            // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
-            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + mAppSettings.languageFileName;
-            ret = langMgr->init(path);
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool LauncherApp::run()
+    {
+        EditorRunningData runningData;
+        runningData.pollEvents = std::bind(&LauncherApp::enginePollEvents, this);
+        runningData.update = std::bind(&LauncherApp::engineUpdate, this);
+        runningData.preRender = std::bind(&LauncherApp::enginePreRender, this);
+        runningData.postRender = std::bind(&LauncherApp::enginePostRender, this);
+        return mEngine->runForEditor(runningData);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult LauncherApp::startup(int32_t argc, char *argv[])
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            Dir::setCachePathInfo("Tiny3D", "Launcher");
+
+            // 创建引擎
+            ret = createEngine(argc, argv);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init language file failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            // 读取 app 设置
+            readAppSettings();
+
+            // 创建语言管理器并加载语言文件
+            ret = createLanguageMgr();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 创建工程管理器
+            mProjectMgr = new ProjectManager();
+
+            // 创建网络管理器
+            mNetworkMgr = new NetworkManager();
+            ret = mNetworkMgr->startup();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Startup network failed ! ERROR [%d]", ret);
                 break;
             }
 
             // 创建 imgui 环境
-            ret = createImGuiEnv(engine);
+            ret = createImGuiEnv();
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create ImGui environment failed ! ERROR [%d]", ret);
                 break;
             }
-
-            projectMgr = new ProjectManager();
-            projectMgr->init();
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -147,50 +170,113 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create project manager window failed ! ERROR [%d]", ret);
                 break;
             }
-
-            // 构建引擎运行数据，并运行引擎
-            EditorRunningData runningData;
-            runningData.pollEvents = std::bind(&LauncherApp::enginePollEvents, this);
-            runningData.update = std::bind(&LauncherApp::engineUpdate, this);
-            runningData.preRender = std::bind(&LauncherApp::enginePreRender, this);
-            runningData.postRender = std::bind(&LauncherApp::enginePostRender, this);
-            engine->runForEditor(runningData);
-
-            if (mMainWindow != nullptr)
-            {
-                mMainWindow->destroy();
-            }
-            
-            ImWidget::GC();
-
-            FileDataStream fs;
-            if (fs.open(settingsPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY))
-            {
-                T3D_SERIALIZER_MGR.serialize(fs, mAppSettings);
-                fs.close();
-            }
-            
-            // 删除清理 imgui 环境，此后无法再使用 imgui
-            destroyImGuiEnv(engine);
         } while (false);
-
-        T3D_SAFE_DELETE(projectMgr);
-        langMgr = nullptr;
-        
-        delete engine;
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult LauncherApp::createImGuiEnv(Agent *engine)
+    TResult LauncherApp::createEngine(int32_t argc, char *argv[])
+    {
+        TResult ret = T3D_OK;
+        
+        do
+        {
+            mEngine = new Agent();
+
+            Settings settings;
+            settings.renderSettings.resizable = true;
+            settings.renderSettings.title = "Launcher";
+            settings.pluginSettings.pluginPath = ".";
+            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
+            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
+            
+            // 初始化引擎，只有初始化后才能使用
+            ret = mEngine->init(argc, argv, true, true, settings);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init engine failed ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void LauncherApp::readAppSettings()
+    {
+        do
+        {
+            String path = getSettingsPath();
+            if (Dir::exists(path))
+            {
+                FileDataStream fs;
+                if (!fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                {
+                    T3D_LOG_WARNING(LOG_TAG_LAUNCHER, "Read setting file [%s] failed !", path.c_str());
+                    break;
+                }
+
+                TResult ret = T3D_SERIALIZER_MGR.deserialize(fs, mAppSettings);
+                if (T3D_FAILED(ret))
+                {
+                    fs.close();
+                    T3D_LOG_WARNING(LOG_TAG_LAUNCHER, "Deserialize settings object failed !");
+                    mAppSettings = AppSettings();
+                    break;
+                }
+                
+                fs.close();
+            }
+        } while (false);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void LauncherApp::writeAppSettings()
+    {
+        String path = getSettingsPath();
+        FileDataStream fs;
+        if (fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY))
+        {
+            T3D_SERIALIZER_MGR.serialize(fs, mAppSettings);
+            fs.close();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult LauncherApp::createLanguageMgr()
     {
         TResult ret = T3D_OK;
 
         do
         {
-            ret = engine->loadPlugin(IMGUI_DX11_PLUGIN);
+            mLangMgr = LanguageManager::create();
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Launcher" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + mAppSettings.languageFileName;
+            ret = mLangMgr->init(path);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init language file failed ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult LauncherApp::createImGuiEnv()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ret = mEngine->loadPlugin(IMGUI_DX11_PLUGIN);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Load ImGuiDX11 plugin failed ! ERROR [%d]", ret);
@@ -221,7 +307,7 @@ namespace Tiny3D
             
 #if defined(T3D_OS_WINDOWS)
             EditorInfoDX11 info;
-            engine->getEditorInfo(&info);
+            mEngine->getEditorInfo(&info);
             mImGuiImpl->init(&info);
             mSDLWindow = info.sdlWindow;
 #elif defined (T3D_OS_OSX)
@@ -237,10 +323,40 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void LauncherApp::destroyImGuiEnv(Agent *engine)
+    void LauncherApp::destroyImGuiEnv()
     {
-        engine->unloadPlugin(IMGUI_DX11_PLUGIN);
+        mEngine->unloadPlugin(IMGUI_DX11_PLUGIN);
         ImGui::DestroyContext();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void LauncherApp::shutdown()
+    {
+        // 删除主窗口
+        if (mMainWindow != nullptr)
+        {
+            mMainWindow->destroy();
+        }
+
+        // 回收所有 widgets
+        ImWidget::GC();
+
+        // 删除清理 imgui 环境，此后无法再使用 imgui
+        destroyImGuiEnv();
+
+        // 写 app 设置
+        writeAppSettings();
+
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
+        T3D_SAFE_DELETE(mProjectMgr);
+        mLangMgr = nullptr;
+        T3D_SAFE_DELETE(mEngine);
     }
 
     //--------------------------------------------------------------------------
@@ -316,7 +432,7 @@ namespace Tiny3D
 
     void LauncherApp::engineUpdate()
     {
-        PROJECT_MGR.poll();
+        mNetworkMgr->poll();
         
         mImGuiImpl->update();
         ImGui::NewFrame();

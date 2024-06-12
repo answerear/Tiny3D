@@ -86,10 +86,6 @@ namespace Tiny3D
         ProjectManager();
 
         ~ProjectManager() override;
-
-        TResult init();
-        
-        void poll();
         
         TResult loadProjects();
 
@@ -119,9 +115,7 @@ namespace Tiny3D
 
         TResult startTinyEditor(const String &path, const String &name, bool isNewProject);
         
-    protected:
-        void releaseAllClientSockets();
-        
+    protected:        
         void releaseProjectInfo();
         
     protected:
@@ -130,12 +124,6 @@ namespace Tiny3D
         
         /// 要存储的项目数据
         ProjectData mProjectData {};
-
-        Socket *mListenSocket {nullptr};
-
-        Socket *mCurrentClientSock {nullptr};
-        using ClientSockets = TList<Socket*>;
-        ClientSockets mClientSockets {};
 
         static const char *PROJECT_DATA_FILE;
     };

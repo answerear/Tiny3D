@@ -46,80 +46,11 @@ namespace Tiny3D
 
     ProjectManager::~ProjectManager()
     {
-        releaseAllClientSockets();
-        
-        mListenSocket->close();
-        T3D_SAFE_DELETE(mListenSocket);
-        
         releaseProjectInfo();
     }
 
     //--------------------------------------------------------------------------
-
-    TResult ProjectManager::init()
-    {
-        mListenSocket = new Socket();
-        if (!mListenSocket->create(Socket::Protocol::kTCP))
-        {
-            return T3D_ERR_SYS_NOT_INIT;
-        }
-        mListenSocket->setNonBlocking();
-        mListenSocket->bind(5327, "127.0.0.1");
-        mListenSocket->listen();
-        
-        return T3D_OK;
-    }
     
-    //--------------------------------------------------------------------------
-
-    void ProjectManager::poll()
-    {
-        if (mCurrentClientSock == nullptr)
-        {
-            mCurrentClientSock = new Socket();
-        }
-        
-        if (mListenSocket->accept(*mCurrentClientSock))
-        {
-            mCurrentClientSock->setNonBlocking();
-            mCurrentClientSock->setRecvCallback(
-                [socket=mCurrentClientSock]() -> TResult
-                {
-                    uchar_t buffer[64];
-                    int32_t recvLen = socket->recv(buffer, sizeof(buffer));
-                    if (recvLen > 0)
-                    {
-                        String str(buffer, buffer+recvLen);
-                        ImMessageBox::Buttons buttons;
-                        ImMessageBox::Button btnOK;
-                        btnOK.name = "OK";
-                        btnOK.callback = []() {};
-                        buttons.emplace_back(btnOK);
-                        ImMessageBox::show("Info", str, ImDialog::ShowType::kOverlay, std::move(buttons));
-                    }
-                    return T3D_OK;
-                });
-            mClientSockets.emplace_back(mCurrentClientSock);
-            mCurrentClientSock = nullptr;
-        }
-        
-        Socket::pollEvents(100);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ProjectManager::releaseAllClientSockets()
-    {
-        for (auto sock : mClientSockets)
-        {
-            T3D_SAFE_DELETE(sock);
-        }
-
-        mClientSockets.clear();
-    }
-
-    //--------------------------------------------------------------------------
-
     void ProjectManager::releaseProjectInfo()
     {
         for (auto info : mProjectData.projects)
