@@ -128,7 +128,7 @@ namespace Tiny3D
 
             while (itr != mEventHandlers.end())
             {
-                TINSTANCE receiver = (*itr)->getInstance();
+                TINSTANCE receiver = (*itr)->instance();
                 EventItem item(evid, param->clone(), receiver, sender);
                 mEventCache.push_back(item);
                 ret = T3D_ERR_FWK_SUSPENDED;
@@ -338,7 +338,7 @@ namespace Tiny3D
             {
                 EventHandler *handler = *itr;
                 EventParam *para = param->clone();
-                EventItem item(evid, para, handler->getInstance(), sender);
+                EventItem item(evid, para, handler->instance(), sender);
                 mEventCache.push_back(item);
                 ret = T3D_ERR_FWK_SUSPENDED;
                 ++itr;
@@ -352,7 +352,7 @@ namespace Tiny3D
             {
                 EventHandler *handler = *itr;
                 EventParam *para = param->clone();
-                EventItem item(evid, para, handler->getInstance(), sender);
+                EventItem item(evid, para, handler->instance(), sender);
                 mEventQueue[mCurrentQueue].push_back(item);
                 ret = T3D_OK;
                 ++itr;
@@ -461,7 +461,7 @@ namespace Tiny3D
             return false;
 
         bool ret = false;
-        TINSTANCE instance = handler->getInstance();
+        TINSTANCE instance = handler->instance();
         void *obj = instance->obj;
 
         if (instance->slot >= 0)

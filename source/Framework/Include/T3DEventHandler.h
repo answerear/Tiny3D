@@ -72,7 +72,7 @@ namespace Tiny3D
         /**
          * @brief 获取实例句柄
          */
-        TINSTANCE getInstance() const { return mInstance; }
+        TINSTANCE instance() const { return mInstance; }
 
         /**
         * @brief 统一处理事件函数
