@@ -38,9 +38,26 @@ namespace Tiny3D
         friend class RunnableThread;
 
     public:
+        /**
+         * 初始化回调，在线程中执行
+         * @return 返回 true，初始化成功，线程继续执行，否则线程终止执行
+         */
         virtual bool init();
+
+        /**
+         * 线程执行函数，子类负责具体实现
+         * @return 返回线程执行返回值
+         */
         virtual TResult run() = 0;
+
+        /**
+         * 其他线程中调用，用于停止线程执行，非暴力终止线程
+         */
         virtual void stop();
+
+        /**
+         * 线程执行结束回调
+         */
         virtual void exit();
     };
 }
