@@ -78,6 +78,8 @@ namespace Tiny3D
         ImGuiImpl  *mImGuiImpl {nullptr};
         ImTextureID mSceneRT {nullptr};
 
+        Socket *mSocket {nullptr};
+        
         MainWindow        *mMainWindow {nullptr};
     };
 

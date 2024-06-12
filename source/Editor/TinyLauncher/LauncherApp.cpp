@@ -137,6 +137,7 @@ namespace Tiny3D
             }
 
             projectMgr = new ProjectManager();
+            projectMgr->init();
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -315,6 +316,8 @@ namespace Tiny3D
 
     void LauncherApp::engineUpdate()
     {
+        PROJECT_MGR.poll();
+        
         mImGuiImpl->update();
         ImGui::NewFrame();
 

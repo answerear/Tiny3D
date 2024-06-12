@@ -78,13 +78,19 @@ namespace Tiny3D
         bool        ascending {true};
     };
     
-    class ProjectManager : public Singleton<ProjectManager>
+    class ProjectManager
+        : public EventHandler
+        , public Singleton<ProjectManager>
     {
     public:
         ProjectManager();
 
         ~ProjectManager() override;
 
+        TResult init();
+        
+        void poll();
+        
         TResult loadProjects();
 
         TResult saveProjects();
@@ -111,10 +117,12 @@ namespace Tiny3D
 
         void sort();
 
-    protected:
-        void releaseProjectInfo();
-
         TResult startTinyEditor(const String &path, const String &name, bool isNewProject);
+        
+    protected:
+        void releaseAllClientSockets();
+        
+        void releaseProjectInfo();
         
     protected:
         /// 用于展示的，按照指定排序规则排序的结果
@@ -122,6 +130,12 @@ namespace Tiny3D
         
         /// 要存储的项目数据
         ProjectData mProjectData {};
+
+        Socket *mListenSocket {nullptr};
+
+        Socket *mCurrentClientSock {nullptr};
+        using ClientSockets = TList<Socket*>;
+        ClientSockets mClientSockets {};
 
         static const char *PROJECT_DATA_FILE;
     };

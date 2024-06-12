@@ -122,6 +122,36 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);
                 break;
             }
+
+            mSocket = new Socket();
+            bool rval = mSocket->create(Socket::Protocol::kTCP);
+            if (!rval)
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create socket failed ! ERROR [%u]", mSocket->getErrorCode());
+                break;
+            }
+            rval = mSocket->setNonBlocking();
+            if (!rval)
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Set socket non-blocking failed ! ERROR [%u]", mSocket->getErrorCode());
+                break;
+            }
+            rval = mSocket->connect("127.0.0.1", 5327);
+            if (!rval)
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Connect failed ! ERROR [%u]", mSocket->getErrorCode());
+                break;
+            }
+            
+            mSocket->setConnectedCallback(
+                [this](bool isOK)
+                {
+                    if (isOK)
+                    {
+                        String str = "EditorApp Start !";
+                        mSocket->send((uchar_t*)str.data(), str.size());
+                    }
+                });
             
             // 构建编辑器场景
             // buildScene();
@@ -324,6 +354,8 @@ namespace Tiny3D
 
     void EditorApp::engineUpdate()
     {
+        Socket::pollEvents(100);
+        
         mImGuiImpl->update();
         ImGui::NewFrame();
 

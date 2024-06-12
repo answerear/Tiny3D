@@ -478,6 +478,8 @@ namespace Tiny3D
 
     bool LocalProjectsView::onEditProject(EventParam *param, TINSTANCE sender)
     {
+        PROJECT_MGR.startTinyEditor("Path", "Name", false);
+        
         return true;
     }
 
