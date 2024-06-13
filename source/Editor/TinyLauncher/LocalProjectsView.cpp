@@ -68,13 +68,13 @@ namespace Tiny3D
 
         ImGui::SameLine();
 
-        // 打开按钮
+        // 导入按钮
         x += button_w + margin_x;
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
         if (ImGui::Button(CH(TXT_IMPORT_PROJECT), ImVec2(button_w, 0)))
         {
-            
+            sendEvent(kEvtImportProject, nullptr);
         }
 
         ImGui::SameLine();
@@ -459,6 +459,7 @@ namespace Tiny3D
     TResult LocalProjectsView::onCreate()
     {
         ON_MEMBER(kEvtOpenNewDialog, LocalProjectsView::onOpenNewDialog);
+        ON_MEMBER(kEvtImportProject, LocalProjectsView::onImportProject);
         ON_MEMBER(kEvtNewProject, LocalProjectsView::onNewProject);
         ON_MEMBER(kEvtEditProject, LocalProjectsView::onEditProject);
         ON_MEMBER(kEvtRunProject, LocalProjectsView::onRunProject);
@@ -532,6 +533,24 @@ namespace Tiny3D
         PROJECT_MGR.saveProjects();
 
         startTinyEditor(path, name, true);
+        
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool LocalProjectsView::onImportProject(EventParam *param, TINSTANCE sender)
+    {
+        String path = ImOpenFileDialog::openExplorerFolderDialog();
+
+        if (!path.empty())
+        {
+            String dir, name;
+            Dir::parsePath(path, dir, name);
+
+            PROJECT_MGR.createProject(dir, name);
+            PROJECT_MGR.saveProjects();
+        }
         
         return true;
     }

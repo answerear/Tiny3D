@@ -96,6 +96,8 @@ namespace Tiny3D
         bool onOpenNewDialog(EventParam *param, TINSTANCE sender);
 
         bool onNewProject(EventParam *param, TINSTANCE sender);
+
+        bool onImportProject(EventParam *param, TINSTANCE sender);
         
         bool onEditProject(EventParam *param, TINSTANCE sender);
         

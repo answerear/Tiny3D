@@ -35,11 +35,13 @@ namespace Tiny3D
     enum AppEventID
     {
         kEvtApp = 0,
-        /// 打开新建工程对话框
+        /// 打开新建工程对话框，参数：nullptr
         kEvtOpenNewDialog,
-        /// 新建工程，事件参数：EventParamNewProject
+        /// 新建工程，参数：EventParamNewProject
         kEvtNewProject,
-        /// 编辑工程，事件参数：EventParamEditProject
+        /// 导入工程，参数：nullptr
+        kEvtImportProject,
+        /// 编辑工程，参数：EventParamEditProject
         kEvtEditProject,
         /// 运行工程
         kEvtRunProject,
