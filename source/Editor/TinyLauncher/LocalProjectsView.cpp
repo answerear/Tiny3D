@@ -605,6 +605,14 @@ namespace Tiny3D
             
             Process proc;
             ret = proc.start(editorAppPath, cmdline);
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            LauncherApp *app = static_cast<LauncherApp *>(Application::getInstancePtr());
+            app->exitApp();
         } while (false);
 
         return ret;
