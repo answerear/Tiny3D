@@ -302,7 +302,8 @@ namespace Tiny3D
         ImGui::BeginDisabled(!enable);
         if (ImGui::Button(CH(TXT_EDIT), button_size))
         {
-            sendEvent(kEvtEditProject, nullptr);
+            EventParamEditProject paraEditProj(param.arg1);
+            sendEvent(kEvtEditProject, &paraEditProj);
         }
         ImGui::EndDisabled();
 
@@ -458,6 +459,7 @@ namespace Tiny3D
     TResult LocalProjectsView::onCreate()
     {
         ON_MEMBER(kEvtOpenNewDialog, LocalProjectsView::onOpenNewDialog);
+        ON_MEMBER(kEvtNewProject, LocalProjectsView::onNewProject);
         ON_MEMBER(kEvtEditProject, LocalProjectsView::onEditProject);
         ON_MEMBER(kEvtRunProject, LocalProjectsView::onRunProject);
         ON_MEMBER(kEvtRenameProject, LocalProjectsView::onRenameProject);
@@ -521,9 +523,30 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool LocalProjectsView::onNewProject(EventParam *param, TINSTANCE sender)
+    {
+        EventParamNewProject *para = static_cast<EventParamNewProject*>(param);
+        const String &path = para->arg1;
+        const String &name = para->arg2;
+        PROJECT_MGR.createProject(path, name);
+        PROJECT_MGR.saveProjects();
+
+        startTinyEditor(path, name, true);
+        
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool LocalProjectsView::onEditProject(EventParam *param, TINSTANCE sender)
     {
-        PROJECT_MGR.startTinyEditor("Path", "Name", false);
+        EventParamEditProject *para = static_cast<EventParamEditProject*>(param);
+
+        auto project = PROJECT_MGR.getDisplayProjects().at(para->arg1);
+        PROJECT_MGR.openProject(project->path, project->name);
+        PROJECT_MGR.saveProjects();
+
+        startTinyEditor(project->path, project->name, false);
         
         return true;
     }
@@ -556,6 +579,37 @@ namespace Tiny3D
         return true;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult LocalProjectsView::startTinyEditor(const String &path, const String &name, bool isNewProject)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String appPath = Dir::getAppPath();
+            String editorAppPath = appPath + Dir::getNativeSeparator() + "TinyEditor.exe";
+            
+            String cmdline = "-p " + path + " -n " + name;
+            
+            if (isNewProject)
+            {
+                cmdline = cmdline + " -c";
+            }
+            else
+            {
+                cmdline = cmdline + " -o";
+            }
+
+            // cmdline = cmdline + " ip=127.0.0.1 port=5327";
+            
+            Process proc;
+            ret = proc.start(editorAppPath, cmdline);
+        } while (false);
+
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     NS_END

@@ -37,7 +37,9 @@ namespace Tiny3D
         kEvtApp = 0,
         /// 打开新建工程对话框
         kEvtOpenNewDialog,
-        /// 编辑工程
+        /// 新建工程，事件参数：EventParamNewProject
+        kEvtNewProject,
+        /// 编辑工程，事件参数：EventParamEditProject
         kEvtEditProject,
         /// 运行工程
         kEvtRunProject,
@@ -50,6 +52,13 @@ namespace Tiny3D
         /// 查询是否选中某个工程，事件参数：EventParamQueryProjectSelected
         kEvtQueryProjectSelected,
     };
+
+    /// arg1 : 路径名称
+    /// arg2 : 工程名称
+    using EventParamNewProject = EventParamT2<String, String>;
+
+    /// arg1 : 选中的 project 索引
+    using EventParamEditProject = EventParamT1<int32_t>;
 
     /// arg1 : 返回选中的 Project 索引
     using EventParamQueryProjectSelected = EventParamT1<int32_t>;

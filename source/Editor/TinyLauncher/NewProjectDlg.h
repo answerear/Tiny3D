@@ -32,7 +32,9 @@ namespace Tiny3D
 {
     NS_BEGIN(Launcher)
     
-    class NewProjectDialog : public ImDialog
+    class NewProjectDialog
+        : public EventHandler
+        , public ImDialog
     {
     public:
         ~NewProjectDialog() override;

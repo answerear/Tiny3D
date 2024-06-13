@@ -112,10 +112,8 @@ namespace Tiny3D
         void setSortAscending(bool ascending) { mProjectData.ascending = ascending; }
 
         void sort();
-
-        TResult startTinyEditor(const String &path, const String &name, bool isNewProject);
         
-    protected:        
+    protected:
         void releaseProjectInfo();
         
     protected:

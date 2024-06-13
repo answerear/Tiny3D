@@ -95,6 +95,8 @@ namespace Tiny3D
 
         bool onOpenNewDialog(EventParam *param, TINSTANCE sender);
 
+        bool onNewProject(EventParam *param, TINSTANCE sender);
+        
         bool onEditProject(EventParam *param, TINSTANCE sender);
         
         bool onRunProject(EventParam *param, TINSTANCE sender);
@@ -104,6 +106,8 @@ namespace Tiny3D
         bool onManageTags(EventParam *param, TINSTANCE sender);
 
         bool onRemoveProject(EventParam *param, TINSTANCE sender);
+
+        TResult startTinyEditor(const String &path, const String &name, bool isNewProject);
         
     protected:
         LocalProjectViewT   *mViewT {nullptr};

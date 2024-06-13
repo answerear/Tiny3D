@@ -218,7 +218,7 @@ namespace Tiny3D
                 mProjectData.projects.end(),
                 [&path, &name](ProjectInfo *info)
                 {
-                    return (path == info->path && name == info->path);
+                    return (path == info->path && name == info->name);
                 });
 
             if (it == mProjectData.projects.end())
@@ -233,42 +233,8 @@ namespace Tiny3D
             ProjectInfo *info = (*it);
             info->recent = DateTime::currentSecsSinceEpoch();
             sort();
-
-            // 启动编辑器
-            ret = startTinyEditor(path, name, false);
         } while (false);
         
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    TResult ProjectManager::startTinyEditor(const String &path, const String &name, bool isNewProject)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            String appPath = Dir::getAppPath();
-            String editorAppPath = appPath + Dir::getNativeSeparator() + "TinyEditor.exe";
-            
-            String cmdline = "-p " + path + " -n " + name;
-            
-            if (isNewProject)
-            {
-                cmdline = cmdline + " -c";
-            }
-            else
-            {
-                cmdline = cmdline + " -o";
-            }
-
-            // cmdline = cmdline + " ip=127.0.0.1 port=5327";
-            
-            Process proc;
-            ret = proc.start(editorAppPath, cmdline);
-        } while (false);
-
         return ret;
     }
 

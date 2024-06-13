@@ -24,6 +24,8 @@
 
 
 #include "NewProjectDlg.h"
+
+#include "LauncherEvent.h"
 #include "ProjectManager.h"
 
 
@@ -161,10 +163,11 @@ namespace Tiny3D
             ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EXISTS_PROJECT), STR(TXT_OK), ImDialog::ShowType::kOverlay);
             return;
         }
-        
-        PROJECT_MGR.createProject(mProjectPath, mProjectName);
-        PROJECT_MGR.saveProjects();
+
         close();
+
+        EventParamNewProject param(mProjectPath, mProjectName);
+        sendEvent(kEvtNewProject, &param);
     }
 
     //--------------------------------------------------------------------------
