@@ -33,6 +33,9 @@
 #endif
 
 
+#include "T3DType.h"
+
+
 namespace Tiny3D
 {
     class System;
@@ -50,6 +53,9 @@ namespace Tiny3D
     class Locale;
     class Process;
     class Socket;
+
+    // ulong_t pid , const String &pname
+    using OnTraverseProcess = TFunction<bool(ulong_t, const String &)>;
 }
  
 

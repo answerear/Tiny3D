@@ -48,6 +48,12 @@ namespace Tiny3D
         virtual void sleepCurrentThread(uint32_t msec) = 0;
 
         virtual uint32_t getThreadHardwareConcurrency() = 0;
+
+        virtual void traverseAllProcesses(const OnTraverseProcess &callback) = 0;
+
+        virtual ulong_t getCurrentProcessID() = 0;
+
+        virtual const String &getCurrentProcessName() = 0;
     };
 }
 

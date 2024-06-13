@@ -24,6 +24,9 @@
 
 #include "Adapter/Windows/T3DWin32Platform.h"
 #include <windows.h>
+#include <tlhelp32.h>
+#include "T3DDir.h"
+#include "T3DPlatformErrorDef.h"
 
 
 namespace Tiny3D
@@ -69,6 +72,54 @@ namespace Tiny3D
     uint32_t Win32Platform::getThreadHardwareConcurrency()
     {
         return std::thread::hardware_concurrency();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Win32Platform::traverseAllProcesses(const OnTraverseProcess &callback)
+    {
+        PROCESSENTRY32 entry;
+        entry.dwSize = sizeof(PROCESSENTRY32);
+
+        HANDLE snapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+        if (::Process32First(snapshot, &entry))
+        {
+            do
+            {
+                if (callback(entry.th32ProcessID, entry.szExeFile))
+                {
+                    break;
+                }
+            } while (::Process32Next(snapshot, &entry));
+        }
+
+        ::CloseHandle(snapshot);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ulong_t Win32Platform::getCurrentProcessID()
+    {
+        return ::GetCurrentProcessId();
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &Win32Platform::getCurrentProcessName()
+    {
+        if (mCurrentProcessName.empty())
+        {
+            const DWORD exePathSize = 1024;
+            char exePath[exePathSize];
+            DWORD exePathLength = GetModuleFileName(nullptr, exePath, exePathSize);
+
+            String path(exePath);
+            String dir;
+            Dir::parsePath(path, dir, mCurrentProcessName);
+        }
+
+        return mCurrentProcessName;
     }
 
     //--------------------------------------------------------------------------

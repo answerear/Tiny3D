@@ -38,6 +38,10 @@ namespace Tiny3D
         T3D_DECLARE_INTERFACE(IProcess);
 
     public:
+        virtual ulong_t getID() const = 0;
+
+        virtual const String &getName() const = 0;
+        
         virtual TResult start(const String &exePath, const String &cmdLine) = 0;
 
         virtual TResult wait(uint32_t timeout = -1) = 0;

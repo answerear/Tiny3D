@@ -23,7 +23,11 @@
  ******************************************************************************/
 
 #include "Adapter/Windows/T3DWin32Process.h"
+
+#include <filesystem>
 #include <windows.h>
+
+#include "T3DDir.h"
 #include "T3DPlatformErrorDef.h"
 
 
@@ -53,6 +57,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ulong_t Win32Process::getID() const
+    {
+        return mProcessID;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &Win32Process::getName() const
+    {
+        return mProcessName;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Win32Process::start(const String &exePath, const String &cmdList)
     {
         TResult ret = T3D_OK;
@@ -75,6 +93,10 @@ namespace Tiny3D
 
             mProcess = pi.hProcess;
             mThread = pi.hThread;
+            mProcessID = pi.dwProcessId;
+
+            String path;
+            Dir::parsePath(exePath, path, mProcessName);
         } while (false);
         
         return ret;

@@ -49,7 +49,15 @@ namespace Tiny3D
 
         uint32_t getThreadHardwareConcurrency() override;
 
-        ulong_t mMainThreadID = 0;
+        void traverseAllProcesses(const OnTraverseProcess &callback) override;
+
+        ulong_t getCurrentProcessID() override;
+
+        const String &getCurrentProcessName() override;
+        
+    protected:
+        ulong_t mMainThreadID {0};
+        String mCurrentProcessName {};
     };
 }
 

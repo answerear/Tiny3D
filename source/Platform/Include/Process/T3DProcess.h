@@ -42,11 +42,25 @@ namespace Tiny3D
         
         ~Process() override;
 
+        ulong_t getID() const;
+
+        const String &getName() const;
+        
         TResult start(const String &exePath, const String &cmdLine);
 
         TResult wait(uint32_t timeout = -1);
 
         TResult terminate(int32_t exitCode);
+
+        static ulong_t getCurrentProcessID();
+
+        static const String &getCurrentProcessName();
+
+        static void traverseAllProcesses(const OnTraverseProcess &callback);
+
+        static bool isProcessRunning(const String &procName);
+
+        static bool isProcessRunning(ulong_t pid);
 
     protected:
         IProcess    *mProcess {nullptr};

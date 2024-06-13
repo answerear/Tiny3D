@@ -27,6 +27,7 @@
 #include "T3DPlatformErrorDef.h"
 #include "T3DPlatform.h"
 #include "Adapter/T3DFactoryInterface.h"
+#include "Adapter/T3DPlatformInterface.h"
 #include "Adapter/T3DProcessInterface.h"
 
 
@@ -44,6 +45,30 @@ namespace Tiny3D
     Process::~Process()
     {
         T3D_SAFE_DELETE(mProcess);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ulong_t Process::getID() const
+    {
+        if (mProcess != nullptr)
+        {
+            return mProcess->getID();
+        }
+        
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &Process::getName() const
+    {
+        if (mProcess != nullptr)
+        {
+            return mProcess->getName();
+        }
+        static String empty;
+        return empty;
     }
 
     //--------------------------------------------------------------------------
@@ -80,6 +105,55 @@ namespace Tiny3D
         }
 
         return T3D_ERR_IMPLEMENT_NOT_CREATED;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ulong_t Process::getCurrentProcessID()
+    {
+        return T3D_PLATFORM.getPlatformImpl()->getCurrentProcessID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &Process::getCurrentProcessName()
+    {
+        return T3D_PLATFORM.getPlatformImpl()->getCurrentProcessName();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Process::traverseAllProcesses(const OnTraverseProcess &callback)
+    {
+        T3D_PLATFORM.getPlatformImpl()->traverseAllProcesses(callback);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Process::isProcessRunning(const String &procName)
+    {
+        bool isRunning = false;
+        traverseAllProcesses(
+            [&procName, &isRunning](ulong_t pid, const String &pname)
+            {
+                isRunning = (procName == pname);
+                return isRunning;
+            });
+        return isRunning;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Process::isProcessRunning(ulong_t pid)
+    {
+        bool isRunning = false;
+        traverseAllProcesses(
+            [pid, &isRunning](ulong_t procID, const String &pname)
+            {
+                isRunning = (pid == procID);
+                return isRunning;
+            });
+        return isRunning;
     }
 
     //--------------------------------------------------------------------------

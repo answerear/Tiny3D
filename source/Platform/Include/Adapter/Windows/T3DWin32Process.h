@@ -40,6 +40,10 @@ namespace Tiny3D
 
         ~Win32Process() override;
 
+        ulong_t getID() const override;
+
+        const String &getName() const override;
+
         TResult start(const String &exePath, const String &cmdList) override;
 
         TResult wait(uint32_t timeout) override;
@@ -49,6 +53,8 @@ namespace Tiny3D
     protected:
         HANDLE mProcess {nullptr};
         HANDLE mThread {nullptr};
+        ulong_t mProcessID {0};
+        String mProcessName {};
     };
 }
 
