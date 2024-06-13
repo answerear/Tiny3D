@@ -351,6 +351,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImMessageBox::show(const String &title, const String &message, const String &btnText, ShowType type, const ImVec4 &txtColor)
+    {
+        if (ImMessageBox::getInstancePtr() == nullptr)
+        {
+            ImMessageBox *instance = new ImMessageBox();
+            instance->create(title, nullptr, false);
+        }
+
+        Buttons buttons;
+        Button button;
+        button.name = btnText;
+        button.callback = []() {};
+        buttons.emplace_back(button);
+        return ImMessageBox::getInstance().appear(title, message, type, std::move(buttons), txtColor);
+    }
+    
+    //--------------------------------------------------------------------------
+
     TResult ImMessageBox::appear(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor)
     {
         if (buttons.size() > 2)

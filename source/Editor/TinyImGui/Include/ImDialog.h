@@ -130,6 +130,8 @@ namespace Tiny3D
 
         static TResult show(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor = ImVec4(0, 0, 0, 0));
 
+        static TResult show(const String &title, const String &message, const String &btnText, ShowType type, const ImVec4 &txtColor = ImVec4(0, 0, 0, 0));
+
     protected:
         TResult appear(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor);
 
