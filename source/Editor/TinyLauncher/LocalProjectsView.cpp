@@ -114,6 +114,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult LocalProjectViewBL::onCreate()
+    {
+        TResult ret = ImChildView::onCreate();
+
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        ON_MEMBER(kEvtQueryProjectSelected, LocalProjectViewBL::onQueryProjectSelected);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void LocalProjectViewBL::onDestroy()
+    {
+        unregisterAllEvent();
+    }
+
+    //--------------------------------------------------------------------------
+
     void LocalProjectViewBL::onGUI()
     {
         if (ImGui::BeginTable("##Projects_LocalProjectsView", 4, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_ScrollY, ImVec2(-FLT_MIN, 0.0f)))
@@ -231,6 +253,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool LocalProjectViewBL::onQueryProjectSelected(EventParam *param, TINSTANCE sender)
+    {
+        EventParamQueryProjectSelected *para = static_cast<EventParamQueryProjectSelected *>(param);
+        para->arg1 = mProjectSelectedIndex;
+        
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult LocalProjectViewBR::onCreate()
     {
         LauncherApp *app = static_cast<LauncherApp*>(T3D_APPLICATION.getInstancePtr());
@@ -259,31 +291,42 @@ namespace Tiny3D
         float x = margin_x;
         float y = margin_y;
 
+        EventParamQueryProjectSelected param;
+        param.arg1 = -1;
+        sendEvent(kEvtQueryProjectSelected, &param);
+        bool enable = (param.arg1 != -1);
+        
         // 编辑工程
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
+        ImGui::BeginDisabled(!enable);
         if (ImGui::Button(CH(TXT_EDIT), button_size))
         {
             sendEvent(kEvtEditProject, nullptr);
         }
+        ImGui::EndDisabled();
 
         // 运行工程
         y += button_h + margin_y;
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
+        ImGui::BeginDisabled(!enable);
         if (ImGui::Button(CH(TXT_RUN), button_size))
         {
             sendEvent(kEvtRunProject, nullptr);
         }
+        ImGui::EndDisabled();
 
         // 重命名工程
         y += button_h + margin_y;
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
+        ImGui::BeginDisabled(!enable);
         if (ImGui::Button(CH(TXT_RENAME), button_size))
         {
             sendEvent(kEvtRenameProject, nullptr);
         }
+        ImGui::EndDisabled();
 
         // 管理标签
         y += button_h + margin_y;
@@ -298,10 +341,12 @@ namespace Tiny3D
         y += button_h + margin_y;
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
+        ImGui::BeginDisabled(!enable);
         if (ImGui::Button(CH(TXT_REMOVE_PROJECT), button_size))
         {
             sendEvent(kEvtRemoveProject, nullptr);
         }
+        ImGui::EndDisabled();
 
         // 选择语言
         y = region.y - (margin_y + button_h) * 2;

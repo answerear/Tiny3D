@@ -47,7 +47,16 @@ namespace Tiny3D
 
     class LocalProjectViewBL : public ImChildView, public EventHandler
     {
+    public:
+        int32_t getProjectIndex() const { return mProjectSelectedIndex; }
+        
     protected:
+        bool onQueryProjectSelected(EventParam *param, TINSTANCE sender);
+        
+        TResult onCreate() override;
+
+        void onDestroy() override;
+        
         void onGUI() override;
 
         int32_t onGetChildFlags() override;

@@ -27,6 +27,7 @@
 
 #include "LauncherPrerequisites.h"
 
+
 namespace Tiny3D
 {
     NS_BEGIN(Launcher)
@@ -34,13 +35,24 @@ namespace Tiny3D
     enum AppEventID
     {
         kEvtApp = 0,
+        /// 打开新建工程对话框
         kEvtOpenNewDialog,
+        /// 编辑工程
         kEvtEditProject,
+        /// 运行工程
         kEvtRunProject,
+        /// 重命名工程
         kEvtRenameProject,
+        /// 管理 tags
         kEvtManageTags,
+        /// 移除工程
         kEvtRemoveProject,
+        /// 查询是否选中某个工程，事件参数：EventParamQueryProjectSelected
+        kEvtQueryProjectSelected,
     };
+
+    /// arg1 : 返回选中的 Project 索引
+    using EventParamQueryProjectSelected = EventParamT1<int32_t>;
 
     NS_END
 }
