@@ -72,7 +72,7 @@ namespace Tiny3D
         x += button_w + margin_x;
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
-        if (ImGui::Button(CH(TXT_OPEN_PROJECT), ImVec2(button_w, 0)))
+        if (ImGui::Button(CH(TXT_IMPORT_PROJECT), ImVec2(button_w, 0)))
         {
             
         }
