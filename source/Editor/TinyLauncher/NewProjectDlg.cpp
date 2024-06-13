@@ -144,28 +144,21 @@ namespace Tiny3D
         if (mProjectName[0] == 0)
         {
             // 没有输入名字
-            ImMessageBox::Buttons buttons;
-            ImMessageBox::Button btnOK;
-            btnOK.name = STR(TXT_OK);
-            btnOK.callback = [](){};
-            buttons.emplace_back(btnOK);
-            // ImMessageBox::Button btnCancel;
-            // btnCancel.name = STR(TXT_CANCEL);
-            // btnCancel.callback = [](){};
-            // buttons.emplace_back(btnCancel);
-            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EMPTY_NAME), ImDialog::ShowType::kOverlay, std::move(buttons));
+            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EMPTY_NAME), STR(TXT_OK), ImDialog::ShowType::kOverlay);
             return;
         }
 
         if (mProjectPath[0] == 0)
         {
             // 没有输入路径
-            ImMessageBox::Buttons buttons;
-            ImMessageBox::Button btnOK;
-            btnOK.name = STR(TXT_OK);
-            btnOK.callback = [](){};
-            buttons.emplace_back(btnOK);
-            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EMPTY_PATH), ImDialog::ShowType::kOverlay, std::move(buttons));
+            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EMPTY_PATH), STR(TXT_OK), ImDialog::ShowType::kOverlay);
+            return;
+        }
+
+        String path = String(mProjectPath) + Dir::getNativeSeparator() + String(mProjectName);
+        if (Dir::exists(path))
+        {
+            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_WARNING_EXISTS_PROJECT), STR(TXT_OK), ImDialog::ShowType::kOverlay);
             return;
         }
         
