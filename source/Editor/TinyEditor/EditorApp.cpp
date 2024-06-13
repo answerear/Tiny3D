@@ -51,12 +51,12 @@ namespace Tiny3D
     
     EditorApp::~EditorApp()
     {
-        if (mNetworkMgr != nullptr)
-        {
-            mNetworkMgr->shutdown();
-        }
-        
-        T3D_SAFE_DELETE(mNetworkMgr);
+        // if (mNetworkMgr != nullptr)
+        // {
+        //     mNetworkMgr->shutdown();
+        // }
+        //
+        // T3D_SAFE_DELETE(mNetworkMgr);
         T3D_SAFE_DELETE(mProjectMgr);
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine);
@@ -135,12 +135,31 @@ namespace Tiny3D
                 break;
             }
 
+            std::stringstream ss;
+            for (int32_t i = 0; i < argc; ++i)
+            {
+                ss << argv[i] << " ";
+            }
+            
+            T3D_LOG_INFO(LOG_TAG_EDITOR, "Tthe number of arguments : %d, Command line : %s", argc, ss.str().c_str());
+            
+            if (!parseCommandLine(argc, argv))
+            {
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // T3D_LOG_INFO(LOG_TAG_EDITOR, "Path:%s, Name:%s, Created: %d", mOptions.path.c_str(), mOptions.name.c_str(), mOptions.created);
+            
             // 加载语言文件
             ret = createLanguageMgr();
             if (T3D_FAILED(ret))
             {
                 break;
             }
+
+            // 创建工程管理器
+            mProjectMgr = new ProjectManager();
             
             // 创建 imgui 环境
             ret = createImGuiEnv();
@@ -292,16 +311,69 @@ namespace Tiny3D
         // 删除清理 imgui 环境，此后无法再使用 imgui
         destroyImGuiEnv();
 
-        if (mNetworkMgr != nullptr)
+        // if (mNetworkMgr != nullptr)
+        // {
+        //     mNetworkMgr->shutdown();
+        // }
+        //
+        // T3D_SAFE_DELETE(mNetworkMgr);
+
+        if (mProjectMgr != nullptr)
         {
-            mNetworkMgr->shutdown();
+            mProjectMgr->closeProject();
         }
-        
-        T3D_SAFE_DELETE(mNetworkMgr);
         T3D_SAFE_DELETE(mProjectMgr);
         
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool EditorApp::parseCommandLine(int32_t argc, char *argv[])
+    {
+        bool ret = true;
+
+        do
+        {
+            if (argc != 6)
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "The number of arguments in command line is invalid !");
+                ret = false;
+                break;
+            }
+
+            int32_t i = 1;
+
+            while (i < argc)
+            {
+                if (strcmp(argv[i], "-p") == 0)
+                {
+                    ++i;
+                    // path
+                    mOptions.path = argv[i];
+                }
+                else if (strcmp(argv[i], "-n") == 0)
+                {
+                    // name
+                    mOptions.name = argv[i];
+                }
+                else if (strcmp(argv[i], "-c") == 0)
+                {
+                    // create project
+                    mOptions.created = true;
+                }
+                else if (strcmp(argv[i], "-o") == 0)
+                {
+                    // open project
+                    mOptions.created = false;
+                }
+            
+                ++i;
+            }
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -415,7 +487,7 @@ namespace Tiny3D
 
     void EditorApp::engineUpdate()
     {
-        mNetworkMgr->poll();
+        // mNetworkMgr->poll();
         
         mImGuiImpl->update();
         ImGui::NewFrame();

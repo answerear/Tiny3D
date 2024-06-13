@@ -252,18 +252,18 @@ namespace Tiny3D
             String appPath = Dir::getAppPath();
             String editorAppPath = appPath + Dir::getNativeSeparator() + "TinyEditor.exe";
             
-            String cmdline = "path=" + path + " name=" + name;
+            String cmdline = "-p " + path + " -n " + name;
             
             if (isNewProject)
             {
-                cmdline = cmdline + " newProject=1";
+                cmdline = cmdline + " -c";
             }
             else
             {
-                cmdline = cmdline + " newProject=0";
+                cmdline = cmdline + " -o";
             }
 
-            cmdline = cmdline + " ip=127.0.0.1 port=5327";
+            // cmdline = cmdline + " ip=127.0.0.1 port=5327";
             
             Process proc;
             ret = proc.start(editorAppPath, cmdline);

@@ -93,8 +93,17 @@ namespace Tiny3D
         {
             return Dir::getCachePath() + Dir::getNativeSeparator() + "Settings.dat";
         }
+
+        bool parseCommandLine(int32_t argc, char *argv[]);
         
     protected:
+        struct StartOptions
+        {
+            String path {};
+            String name {};
+            bool created {false};
+        };
+        
         SDL_Window    *mSDLWindow {nullptr};
         ImGuiImpl  *mImGuiImpl {nullptr};
         ImTextureID mSceneRT {nullptr};
@@ -102,7 +111,9 @@ namespace Tiny3D
         Agent *mEngine {nullptr};
         LanguageManagerPtr mLangMgr {nullptr};
         ProjectManager *mProjectMgr {nullptr};
-        NetworkManager *mNetworkMgr {nullptr};
+        // NetworkManager *mNetworkMgr {nullptr};
+
+        StartOptions mOptions {};
         
         MainWindow        *mMainWindow {nullptr};
     };
