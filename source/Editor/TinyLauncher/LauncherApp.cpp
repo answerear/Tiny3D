@@ -52,12 +52,12 @@ namespace Tiny3D
     
     LauncherApp::~LauncherApp()
     {
-        // if (mNetworkMgr != nullptr)
-        // {
-        //     mNetworkMgr->shutdown();
-        // }
-        //
-        // T3D_SAFE_DELETE(mNetworkMgr);
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
         T3D_SAFE_DELETE(mProjectMgr);
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine);
@@ -171,13 +171,13 @@ namespace Tiny3D
             mProjectMgr = new ProjectManager();
 
             // 创建网络管理器
-            // mNetworkMgr = new NetworkManager();
-            // ret = mNetworkMgr->startup();
-            // if (T3D_FAILED(ret))
-            // {
-            //     T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Startup network failed ! ERROR [%d]", ret);
-            //     break;
-            // }
+            mNetworkMgr = new NetworkManager();
+            ret = mNetworkMgr->startup();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Startup network failed ! ERROR [%d]", ret);
+                break;
+            }
 
             // 创建 imgui 环境
             ret = createImGuiEnv();
@@ -373,12 +373,12 @@ namespace Tiny3D
         // 写 app 设置
         writeAppSettings();
 
-        // if (mNetworkMgr != nullptr)
-        // {
-        //     mNetworkMgr->shutdown();
-        // }
-        //
-        // T3D_SAFE_DELETE(mNetworkMgr);
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
         T3D_SAFE_DELETE(mProjectMgr);
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine);
@@ -457,7 +457,7 @@ namespace Tiny3D
 
     void LauncherApp::engineUpdate()
     {
-        // mNetworkMgr->poll();
+        mNetworkMgr->poll();
         
         mImGuiImpl->update();
         ImGui::NewFrame();

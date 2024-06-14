@@ -78,7 +78,9 @@ namespace Tiny3D
                 });
 
             // 绑定端口
-            if (!mListenSocket->bind(5327, "127.0.0.1"))
+            const String addr = "127.0.0.1";
+            uint16_t port = 5327;
+            if (!mListenSocket->bind(port, addr))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Bind socket ip & port failed ! ERROR [%u]", mListenSocket->getErrorCode());
                 ret = T3D_ERR_FAIL;
@@ -92,6 +94,8 @@ namespace Tiny3D
                 ret = T3D_ERR_FAIL;
                 break;
             }
+
+            T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Started listening socket (port:%d) ...", port);
         } while (false);
         
         return ret;
@@ -138,6 +142,8 @@ namespace Tiny3D
             sockClient->setExceptionCallback([this](Socket *socket) { return onException(socket); });
 
             enqueue(sockClient);
+
+            T3D_LOG_INFO(LOG_TAG_LAUNCHER, "TinyEditor connected !");
         } while (false);
 
         mCurrentClientSock = nullptr;
