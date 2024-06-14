@@ -123,6 +123,31 @@ namespace Tiny3D
 
         do
         {
+            // 先检查是否有同名进程，如果已经启动过 launcher，则不再启动新实例
+            const String &procName = Process::getCurrentProcessName();
+            ulong_t pid = Process::getCurrentProcessID();
+            ulong_t runningProcID = 0;
+            bool isRunning = false;
+            Process::traverseAllProcesses(
+                [&runningProcID, &isRunning, &procName, pid](ulong_t id, const String &name)
+                {
+                    isRunning = (name == procName && pid != id);
+                    if (isRunning)
+                    {
+                        runningProcID = id;
+                    }
+                    return isRunning;
+                });
+            if (isRunning)
+            {
+                // 如果已经存在的进程，直接拉起
+                Process::wakeupProcess(runningProcID);
+                printf("Exists the same name process !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 设置缓存文件路径
             Dir::setCachePathInfo("Tiny3D", "TinyLauncher");
 
             // 创建引擎
