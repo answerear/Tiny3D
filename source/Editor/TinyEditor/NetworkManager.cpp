@@ -25,6 +25,8 @@
 
 #include "NetworkManager.h"
 
+#include "../TinyLauncher/LauncherPrerequisites.h"
+
 
 namespace Tiny3D
 {
@@ -41,7 +43,11 @@ namespace Tiny3D
 
     NetworkManager::~NetworkManager()
     {
-        mSocket->close();
+        if (mSocket != nullptr)
+        {
+            mSocket->close();
+        }
+        
         T3D_SAFE_DELETE(mSocket);
     }
 
@@ -104,7 +110,7 @@ namespace Tiny3D
 
     void NetworkManager::onConnected(Socket *socket, bool isOK)
     {
-        
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Connected TinyLauncher !");
     }
 
     //--------------------------------------------------------------------------

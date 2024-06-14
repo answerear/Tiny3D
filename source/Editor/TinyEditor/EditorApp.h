@@ -111,7 +111,7 @@ namespace Tiny3D
         Agent *mEngine {nullptr};
         LanguageManagerPtr mLangMgr {nullptr};
         ProjectManager *mProjectMgr {nullptr};
-        // NetworkManager *mNetworkMgr {nullptr};
+        NetworkManager *mNetworkMgr {nullptr};
 
         StartOptions mOptions {};
         

@@ -135,13 +135,13 @@ namespace Tiny3D
                 break;
             }
 
-            std::stringstream ss;
-            for (int32_t i = 0; i < argc; ++i)
-            {
-                ss << argv[i] << " ";
-            }
-            
-            T3D_LOG_INFO(LOG_TAG_EDITOR, "Tthe number of arguments : %d, Command line : %s", argc, ss.str().c_str());
+            // std::stringstream ss;
+            // for (int32_t i = 0; i < argc; ++i)
+            // {
+            //     ss << argv[i] << " ";
+            // }
+            //
+            // T3D_LOG_INFO(LOG_TAG_EDITOR, "Tthe number of arguments : %d, Command line : %s", argc, ss.str().c_str());
             
             if (!parseCommandLine(argc, argv))
             {
@@ -160,6 +160,15 @@ namespace Tiny3D
 
             // 创建工程管理器
             mProjectMgr = new ProjectManager();
+
+            // 创建网络管理器
+            mNetworkMgr = new NetworkManager();
+            ret = mNetworkMgr->startup("127.0.0.1", 5327);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Startup network failed ! ERROR [%d]", ret);
+                break;
+            }
             
             // 创建 imgui 环境
             ret = createImGuiEnv();
@@ -311,12 +320,12 @@ namespace Tiny3D
         // 删除清理 imgui 环境，此后无法再使用 imgui
         destroyImGuiEnv();
 
-        // if (mNetworkMgr != nullptr)
-        // {
-        //     mNetworkMgr->shutdown();
-        // }
-        //
-        // T3D_SAFE_DELETE(mNetworkMgr);
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
+        T3D_SAFE_DELETE(mNetworkMgr);
 
         if (mProjectMgr != nullptr)
         {
@@ -338,7 +347,7 @@ namespace Tiny3D
         {
             if (argc != 6)
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "The number of arguments in command line is invalid !");
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "The number of arguments [%d] in command line is invalid !", argc);
                 ret = false;
                 break;
             }
@@ -487,7 +496,7 @@ namespace Tiny3D
 
     void EditorApp::engineUpdate()
     {
-        // mNetworkMgr->poll();
+        mNetworkMgr->poll();
         
         mImGuiImpl->update();
         ImGui::NewFrame();
