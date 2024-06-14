@@ -157,4 +157,25 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    bool Process::isProcessRunning(ulong_t pid, const String &procName)
+    {
+        bool isRunning = false;
+        traverseAllProcesses(
+            [pid, &procName, &isRunning](ulong_t id, const String &name)
+            {
+                isRunning = (id == pid && name == procName);
+                return isRunning;
+            });
+        return isRunning;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Process::wakeupProcess(ulong_t pid)
+    {
+        return T3D_PLATFORM.getPlatformImpl()->wakeupProcess(pid);
+    }
+
+    //--------------------------------------------------------------------------
 }

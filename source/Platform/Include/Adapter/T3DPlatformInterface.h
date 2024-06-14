@@ -54,6 +54,8 @@ namespace Tiny3D
         virtual ulong_t getCurrentProcessID() = 0;
 
         virtual const String &getCurrentProcessName() = 0;
+
+        virtual bool wakeupProcess(ulong_t pid) = 0;
     };
 }
 

@@ -54,6 +54,8 @@ namespace Tiny3D
         ulong_t getCurrentProcessID() override;
 
         const String &getCurrentProcessName() override;
+
+        bool wakeupProcess(ulong_t pid) override;
         
     protected:
         ulong_t mMainThreadID {0};

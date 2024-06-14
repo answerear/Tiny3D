@@ -123,4 +123,33 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+    {
+        DWORD targetProcessID = (DWORD)lParam;
+        DWORD windowProcessID;
+
+        // 获取窗口关联的进程ID
+        ::GetWindowThreadProcessId(hwnd, &windowProcessID);
+
+        // 检查窗口关联的进程ID是否与目标进程ID匹配
+        if (windowProcessID == targetProcessID)
+        {
+            // 将窗口置于最上层
+            ::SetForegroundWindow(hwnd);
+            return FALSE; // 停止遍历窗口
+        }
+
+        return TRUE; // 继续遍历窗口
+    }
+
+    
+    bool Win32Platform::wakeupProcess(ulong_t pid)
+    {
+        // 遍历所有窗口，查找与目标进程ID关联的窗口
+        ::EnumWindows(EnumWindowsProc, (LPARAM)pid);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
 }

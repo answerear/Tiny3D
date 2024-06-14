@@ -62,6 +62,14 @@ namespace Tiny3D
 
         static bool isProcessRunning(ulong_t pid);
 
+        static bool isProcessRunning(ulong_t pid, const String &procName);
+
+        /**
+         * 唤起已经在运行的进程
+         * @param [in] pid : 正在运行的进程 ID
+         */
+        static bool wakeupProcess(ulong_t pid);
+
     protected:
         IProcess    *mProcess {nullptr};
     };
