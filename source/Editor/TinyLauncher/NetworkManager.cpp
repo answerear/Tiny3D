@@ -42,7 +42,7 @@ namespace Tiny3D
 
     NetworkManager::~NetworkManager()
     {
-        
+        shutdown();
     }
 
     //--------------------------------------------------------------------------
@@ -53,45 +53,47 @@ namespace Tiny3D
 
         do
         {
-            mListenSocket = new Socket();
-
-            // 创建监听 socket
-            if (!mListenSocket->create(Socket::Protocol::kTCP))
+            if (mTCPListener == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create listen socket failed ! ERROR [%u]", mListenSocket->getErrorCode());
-                ret = T3D_ERR_FAIL;
-                break;
+                mTCPListener = new TCPListener();
+
+                mTCPListener->setOnAcceptedCallback(
+                    [this](TCPListener *listener, TCPConnection *connection)
+                    {
+                        connection->setOnConnectedCallbak(
+                            [this](TCPConnection *connection, TResult result)
+                            {
+                                T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected !",
+                                    connection->getPeerName().c_str(), connection->getPeerPort());
+                            });
+
+                        connection->setOnRecvCallback(
+                            [this](TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
+                            {});
+
+                        connection->setOnSendCallback(
+                            [this](TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
+                            {});
+
+                        connection->setOnExceptionCallback(
+                            [this](TCPConnection *connection, TResult result)
+                            {});
+
+                        connection->setOnDisconnectedCallback(
+                            [this](TCPConnection *connection)
+                            {
+                                T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] disconnected !",
+                                    connection->getPeerName().c_str(), connection->getPeerPort());
+                            });
+                        
+                        enqueue(connection);
+                    });
             }
 
-            // 设置非阻塞式 socket
-            if (!mListenSocket->setNonBlocking())
-            {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Set socket non-blocking failed ! ERROR [%u]", mListenSocket->getErrorCode());
-                ret = T3D_ERR_FAIL;
-                break;
-            }
-
-            mListenSocket->setAcceptedCallback(
-                [this](Socket *sockListen, Socket *sockClient)
-                {
-                    onAccepted(sockListen, sockClient);
-                });
-
-            // 绑定端口
-            const String addr = "127.0.0.1";
             uint16_t port = 5327;
-            if (!mListenSocket->bind(port, addr))
+            ret = mTCPListener->listen(port);
+            if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Bind socket ip & port failed ! ERROR [%u]", mListenSocket->getErrorCode());
-                ret = T3D_ERR_FAIL;
-                break;
-            }
-
-            // 开始监听 editor 接入
-            if (!mListenSocket->listen())
-            {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Start listening failed ! ERROR [%u]", mListenSocket->getErrorCode());
-                ret = T3D_ERR_FAIL;
                 break;
             }
 
@@ -105,119 +107,73 @@ namespace Tiny3D
 
     void NetworkManager::poll()
     {
-        if (mCurrentClientSock == nullptr)
-        {
-            mCurrentClientSock = new Socket();
-        }
-        
-        mListenSocket->accept(*mCurrentClientSock);
-        
-        Socket::pollEvents(100);
+        TCPListener::poll();
+        TCPConnection::poll();
     }
 
     //--------------------------------------------------------------------------
 
     void NetworkManager::shutdown()
     {
-        closeAllSockets();
+        closeAllConnections();
         
-        mListenSocket->close();
-        T3D_SAFE_DELETE(mListenSocket);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void NetworkManager::onAccepted(Socket *sockListen, Socket *sockClient)
-    {
-        do
+        if (mTCPListener != nullptr)
         {
-            if (!sockClient->setNonBlocking())
-            {
-                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Set socket non-blocking failed when accept client socket ! ERROR [%u]", mCurrentClientSock->getErrorCode());
-                break;
-            }
-
-            sockClient->setRecvCallback([this](Socket *socket) { return onRecv(socket); });
-            sockClient->setSendCallback([this](Socket *socket) { return onSend(socket); });
-            sockClient->setExceptionCallback([this](Socket *socket) { return onException(socket); });
-
-            enqueue(sockClient);
-
-            T3D_LOG_INFO(LOG_TAG_LAUNCHER, "TinyEditor connected !");
-        } while (false);
-
-        mCurrentClientSock = nullptr;
+            T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Stop listening socket (port:5327)");
+            mTCPListener->stop();
+            delete mTCPListener;
+            mTCPListener = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NetworkManager::onRecv(Socket *socket)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NetworkManager::onSend(Socket *socket)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NetworkManager::onException(Socket *socket)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void NetworkManager::enqueue(Socket *socket)
+    void NetworkManager::enqueue(TCPConnection *connection)
     {
         auto itr = std::find_if(
-            mSockets.begin(),
-            mSockets.end(),
-            [socket](Socket *sock)
+            mTCPConnections.begin(),
+            mTCPConnections.end(),
+            [connection](TCPConnection *conn)
             {
-                return (socket == sock);
+                return (connection == conn);
             });
 
-        if (itr != mSockets.end())
+        if (itr != mTCPConnections.end())
         {
             return;
         }
 
-        mSockets.emplace_back(socket);
+        mTCPConnections.emplace_back(connection);
     }
 
     //--------------------------------------------------------------------------
 
-    void NetworkManager::enqueue(Socket *socket, const String &path, const String &name)
+    void NetworkManager::enqueue(TCPConnection *connection, const String &path, const String &name)
     {
         EditorInstance editorInst = {path, name};
-        mClientSockets.emplace(socket, editorInst);
-        mEditorInstances.emplace(editorInst, socket);
+        mClientConnections.emplace(connection, editorInst);
+        mEditorInstances.emplace(editorInst, connection);
     }
 
     //--------------------------------------------------------------------------
 
-    void NetworkManager::dequeue(Socket *socket)
+    void NetworkManager::dequeue(TCPConnection *connection)
     {
         auto itr = std::find_if(
-            mSockets.begin(),
-            mSockets.end(),
-            [socket](Socket *sock)
+            mTCPConnections.begin(),
+            mTCPConnections.end(),
+            [connection](TCPConnection *conn)
             {
-                return (socket == sock);
+                return (connection == conn);
             });
 
-        if (itr == mSockets.end())
+        if (itr == mTCPConnections.end())
         {
             return;
         }
 
-        auto itSock = mClientSockets.find(socket);
-        if (itSock == mClientSockets.end())
+        auto itSock = mClientConnections.find(connection);
+        if (itSock == mClientConnections.end())
         {
             return;
         }
@@ -228,16 +184,16 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    void NetworkManager::closeAllSockets()
+    void NetworkManager::closeAllConnections()
     {
-        for (auto sock : mSockets)
+        for (auto connection : mTCPConnections)
         {
-            sock->close();
-            T3D_SAFE_DELETE(sock);
+            connection->disconnect();
+            T3D_SAFE_DELETE(connection);
         }
 
-        mSockets.clear();
-        mClientSockets.clear();
+        mTCPConnections.clear();
+        mClientConnections.clear();
         mEditorInstances.clear();
     }
 

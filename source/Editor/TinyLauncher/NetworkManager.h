@@ -48,21 +48,13 @@ namespace Tiny3D
         void shutdown();
         
     protected:
-        void onAccepted(Socket *sockListen, Socket *sockClient);
+        void enqueue(TCPConnection *connection);
 
-        TResult onRecv(Socket *socket);
+        void enqueue(TCPConnection *connection, const String &path, const String &name);
 
-        TResult onSend(Socket *socket);
+        void dequeue(TCPConnection *connection);
 
-        TResult onException(Socket *socket);
-
-        void enqueue(Socket *socket);
-
-        void enqueue(Socket *socket, const String &path, const String &name);
-
-        void dequeue(Socket *socket);
-
-        void closeAllSockets();
+        void closeAllConnections();
 
     protected:
         struct EditorInstance
@@ -86,21 +78,18 @@ namespace Tiny3D
             }
         };
         
-        /// 监听用 socket，用于接入 editor 的连接请求
-        Socket *mListenSocket {nullptr};
+        /// 网络接入 listener，用于接入 editor 的连接请求
+        TCPListener *mTCPListener {nullptr};
 
-        /// 当前在监听的套接字，当客户端连接进入后，则放入套接字队列里面管理
-        Socket *mCurrentClientSock {nullptr};
-
-        using Sockets = TList<Socket*>;
-        using EditorInstances = TUnorderedMap<EditorInstance, Socket*, EditorInstanceHash>;
-        using ClientSockets = TUnorderedMap<Socket*, EditorInstance>;
+        using TCPConnections = TList<TCPConnection*>;
+        using EditorInstances = TUnorderedMap<EditorInstance, TCPConnection*, EditorInstanceHash>;
+        using ClientConnections = TUnorderedMap<TCPConnection*, EditorInstance>;
 
         /// 所有客户端套接字
-        Sockets mSockets {};
-        /// 方便根据 EditorInstance 获取 socket
-        ClientSockets mClientSockets {};
-        /// 方便根据 socket 获取 editor 实例
+        TCPConnections mTCPConnections {};
+        /// 方便根据 EditorInstance 获取 connection
+        ClientConnections mClientConnections {};
+        /// 方便根据 connection 获取 editor 实例
         EditorInstances mEditorInstances {};
     };
 

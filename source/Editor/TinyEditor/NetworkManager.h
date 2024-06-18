@@ -48,17 +48,11 @@ namespace Tiny3D
         void shutdown();
 
     protected:
-        void onConnected(Socket *socket, bool isOK);
 
-        TResult onRecv(Socket *socket);
-
-        TResult onSend(Socket *socket);
-
-        TResult onException(Socket *socket);
 
     protected:
-        /// 跟 launcher 通信的套接字
-        Socket *mSocket {nullptr};
+        /// 跟 launcher 通信的连接
+        TCPConnection *mConnection {nullptr};
     };
 
     #define NETWORK_MGR     NetworkManager::getInstance()

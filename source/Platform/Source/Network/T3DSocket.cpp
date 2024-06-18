@@ -104,95 +104,134 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    bool Socket::create(Protocol eProtocol /* = Protocol::kTCP */)
+    TResult Socket::create(Protocol eProtocol /* = Protocol::kTCP */)
     {
-        if (0 == msCount++)
-        {
-            if (!startup(1, 1))
-                return false;
-        }
+        TResult ret = T3D_OK;
 
-        if (INVALID_SOCKET != mSocket)
+        do
         {
-            close();
-        }
+            if (0 == msCount++)
+            {
+                ret = startup(1, 1);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
 
-        mState = State::kDisconnected;
+            if (INVALID_SOCKET != mSocket)
+            {
+                close();
+            }
+
+            mState = State::kDisconnected;
         
-        if (Protocol::kUDP == eProtocol)
-        {
-            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        }
-        else
-        {
-            mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        }
+            if (Protocol::kUDP == eProtocol)
+            {
+                mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+            }
+            else
+            {
+                mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+            }
 
-        bool ret = (INVALID_SOCKET != mSocket);
-        if (ret)
-        {
-            enqueue(this);
-        }
+            if (INVALID_SOCKET == mSocket)
+            {
+                ret = T3D_ERR_SOCKET_CREATED;
+                break;
+            }
+            
+            ret = enqueue(this);
+        } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::close()
+    TResult Socket::close()
     {
-        if (INVALID_SOCKET == mSocket)
+        TResult ret = T3D_OK;
+
+        do
         {
-            return false;
-        }
+            if (INVALID_SOCKET == mSocket)
+            {
+                ret = T3D_ERR_SOCKET_INVALID;
+                break;
+            }
 
-        dequeue(this);
+            if (mState == State::kConnected)
+            {
+                ret = dequeue(this);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
 
-        ::shutdown(mSocket, 2);
+                ::shutdown(mSocket, 2);
 
-        T3DCloseSocket(mSocket);
-        mSocket = INVALID_SOCKET;
-        mState = State::kDisconnected;
+                T3DCloseSocket(mSocket);
+                mSocket = INVALID_SOCKET;
+                mState = State::kDisconnected;
         
-        if (0 == --msCount)
-        {
-            cleanup();
-        }
+                if (0 == --msCount)
+                {
+                    cleanup();
+                }
+            }
+        } while (false);
 
-        return true;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::attach(SOCKET socket)
+    TResult Socket::attach(SOCKET socket)
     {
         mSocket = socket;
-        enqueue(this);
-        return true;
+        TResult ret = enqueue(this);
+        if (T3D_FAILED(ret))
+        {
+            mSocket = INVALID_SOCKET;
+        }
+        return ret;
     }
 
     //--------------------------------------------------------------------------
     
     SOCKET Socket::detach()
     {
-        dequeue(this);
-        SOCKET socket = mSocket;
-        mSocket = INVALID_SOCKET;
+        SOCKET socket = INVALID_SOCKET;
+        do
+        {
+            TResult ret = dequeue(this);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            socket = mSocket;
+            mSocket = INVALID_SOCKET;
+        } while (false);
+        
         return socket;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::connect(const String &strHostAddress, uint16_t unHostPort)
+    TResult Socket::connect(const String &strHostAddress, uint16_t unHostPort)
     {
         if (strHostAddress.empty() || strHostAddress == "")
         {
-            return false;
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (INVALID_SOCKET == mSocket)
+        {
+            return T3D_ERR_SOCKET_INVALID;
         }
 
         SOCKADDR_IN addrRemote;
-        hostent *lpszHost = 0;
-
         memset(&addrRemote, 0, sizeof(addrRemote));
         addrRemote.sin_family = AF_INET;
         addrRemote.sin_port = ::htons(unHostPort);
@@ -200,9 +239,9 @@ namespace Tiny3D
 
         if (INADDR_NONE == addrRemote.sin_addr.s_addr)
         {
-            lpszHost = ::gethostbyname(strHostAddress.c_str());
-            if (NULL == lpszHost)
-                return false;
+            hostent *lpszHost = ::gethostbyname(strHostAddress.c_str());
+            if (nullptr == lpszHost)
+                return T3D_ERR_SOCKET_DNS;
 
             memcpy(&addrRemote.sin_addr, lpszHost->h_addr_list[0], lpszHost->h_length);
         }
@@ -210,68 +249,78 @@ namespace Tiny3D
         if (::connect(mSocket, (SOCKADDR *)&addrRemote, sizeof(addrRemote)) == SOCKET_ERROR
             && T3DGetError() != T3D_EAGAIN)
         {
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         }
 
         mState = State::kConnecting;
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::connect(unsigned long ulHostIP, uint16_t unHostPort)
+    TResult Socket::connect(unsigned long ulHostIP, uint16_t unHostPort)
     {
         if (ulHostIP == 0)
         {
-            return false;
+            return T3D_ERR_INVALID_PARAM;
         }
 
+        if (INVALID_SOCKET == mSocket)
+        {
+            return T3D_ERR_SOCKET_INVALID;
+        }
+        
         SOCKADDR_IN addrRemote;
-
         memset(&addrRemote, 0, sizeof(addrRemote));
         addrRemote.sin_family = AF_INET;
         addrRemote.sin_port = ::htons(unHostPort);
         addrRemote.sin_addr.s_addr = ulHostIP;
 
-        if (::connect(mSocket, (SOCKADDR *)&addrRemote, sizeof(addrRemote)) == SOCKET_ERROR)
+        if (::connect(mSocket, (SOCKADDR *)&addrRemote, sizeof(addrRemote)) == SOCKET_ERROR
+            && T3DGetError() != T3D_EAGAIN)
         {
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         }
 
         mState = State::kConnecting;
         
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::listen(int32_t nConnectionBacklog /* = 5 */)
+    TResult Socket::listen(int32_t nConnectionBacklog /* = 5 */)
     {
+        if (mSocket == INVALID_SOCKET)
+        {
+            return T3D_ERR_SOCKET_INVALID;
+        }
+        
         if (::listen(mSocket, nConnectionBacklog) == SOCKET_ERROR)
         {
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         }
 
         mState = State::kListening;
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::bind(uint16_t unSocketPort, const String &strSocketAddress /* = "" */)
+    TResult Socket::bind(uint16_t unSocketPort, const String &strSocketAddress /* = "" */)
     {
         if (INVALID_SOCKET == mSocket)
         {
-            return false;
+            return T3D_ERR_SOCKET_INVALID;
         }
 
         SOCKADDR_IN addrLocal;
         addrLocal.sin_family = AF_INET;
         addrLocal.sin_port = ::htons(unSocketPort);
 
-        if (strSocketAddress.empty() || strSocketAddress == "")
+        if (!strSocketAddress.empty())
         {
             addrLocal.sin_addr.s_addr = inet_addr(strSocketAddress.c_str());
         }
@@ -282,35 +331,33 @@ namespace Tiny3D
 
         if (::bind(mSocket, (SOCKADDR *)&addrLocal, sizeof(addrLocal)) == SOCKET_ERROR)
         {
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         }
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::accept(Socket &sockClient)
+    TResult Socket::accept(Socket &sockClient)
     {
         SOCKADDR_IN addr;
         int32_t len = sizeof(addr);
-        SOCKET socket;
-
-        socket = ::accept(mSocket, (SOCKADDR *)&addr, (socklen_t *)&len);
+        SOCKET socket = ::accept(mSocket, (SOCKADDR *)&addr, (socklen_t *)&len);
         if (INVALID_SOCKET == socket || 0 == socket)
         {
-            return false;
+            return T3D_ERR_SOCKET_INVALID;
         }
 
         ++msCount;
 
         sockClient.attach(socket);
         sockClient.mState = State::kConnected;
-        sockClient.callOnConnected(true);
-        
         callOnAccepted(&sockClient);
+        
+        sockClient.callOnConnected(true);
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -361,60 +408,9 @@ namespace Tiny3D
         return ::sendto(mSocket, (char*)pBuffer, nBufLen, 0, (SOCKADDR *)&addrRemote, sizeof(SOCKADDR_IN));
     }
 
-    // bool Socket::canWrite() const
-    // {
-    //     fd_set writefds;
-    //     struct timeval timeout;
-    //
-    //     timeout.tv_sec=0;
-    //     timeout.tv_usec=0;
-    //     FD_ZERO(&writefds);
-    //     FD_SET(mSocket, &writefds);
-    //
-    //     int ret = ::select(FD_SETSIZE, NULL, &writefds, NULL, &timeout);
-    //     if(ret > 0 && FD_ISSET(mSocket, &writefds))
-    //         return true;
-    //     
-    //     return false;
-    // }
-    //
-    // bool Socket::canRead() const
-    // {
-    //     fd_set readfds;
-    //     struct timeval timeout;
-    //
-    //     timeout.tv_sec = 0;
-    //     timeout.tv_usec = 0;
-    //     FD_ZERO(&readfds);
-    //     FD_SET(mSocket, &readfds);
-    //
-    //     int32_t ret = ::select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
-    //     if (ret > 0 && FD_ISSET(mSocket, &readfds))
-    //         return true;
-    //     
-    //     return false;
-    // }
-    //
-    // bool Socket::hasExcept() const
-    // {
-    //     fd_set exceptfds;
-    //     struct timeval timeout;
-    //
-    //     timeout.tv_sec=0;
-    //     timeout.tv_usec=0;
-    //     FD_ZERO(&exceptfds);
-    //     FD_SET(mSocket, &exceptfds);
-    //
-    //     int ret = select(FD_SETSIZE, NULL, NULL, &exceptfds, &timeout);
-    //     if(ret > 0 && FD_ISSET(mSocket, &exceptfds))
-    //         return true;
-    //     
-    //     return false;
-    // }
-
     //--------------------------------------------------------------------------
     
-    bool Socket::setNonBlocking()
+    TResult Socket::setNonBlocking()
     {
         /* set to nonblocking mode */
         unsigned long arg;
@@ -422,47 +418,53 @@ namespace Tiny3D
 
         if (T3DIOCtlSocket(mSocket, FIONBIO, &arg) == SOCKET_ERROR)
         {
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         }
         
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
     void Socket::reset()
     {
+        if (mState != State::kDisconnected)
+        {
+            close();
+
+            if (mState == State::kConnected)
+            {
+                callOnDisconnected();
+            }
+        }
+        
         mState = State::kDisconnected;
         mSocket = INVALID_SOCKET;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::setSendBufferSize(int32_t nSize)
+    TResult Socket::setSendBufferSize(int32_t nSize)
     {
-        int32_t ret;
-        ret = ::setsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char*)&nSize, sizeof(nSize));
-        if (ret == SOCKET_ERROR) 
-            return false;
+        if (::setsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char*)&nSize, sizeof(nSize)) == SOCKET_ERROR) 
+            return T3D_ERR_SOCKET_ERROR;
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::setRecvBufferSize(int32_t nSize)
+    TResult Socket::setRecvBufferSize(int32_t nSize)
     {
-        int32_t ret;
-        ret = ::setsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char*)&nSize, sizeof(nSize));
-        if (ret == SOCKET_ERROR)
-            return false;
+        if (::setsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char*)&nSize, sizeof(nSize)) == SOCKET_ERROR)
+            return T3D_ERR_SOCKET_ERROR;
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::setReuseAddress(bool bReuse)
+    TResult Socket::setReuseAddress(bool bReuse)
     {
 #ifndef T3D_OS_WINDOWS
         /* only useful in linux */
@@ -474,51 +476,51 @@ namespace Tiny3D
 
         if (::setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, len) == SOCKET_ERROR)
         {
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         }
         
-        return true;
+        return T3D_OK;
 #else
-        return true;
+        return T3D_OK;
 #endif
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::getLocalName(String &rSockName, uint16_t &rSockPort) const
+    TResult Socket::getLocalName(String &rSockName, uint16_t &rSockPort) const
     {
         SOCKADDR_IN addrLocal;
         socklen_t len = sizeof(addrLocal);
         if (::getsockname(mSocket, (SOCKADDR*)&addrLocal, &len) == SOCKET_ERROR)
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
 
         char *tmp = ::inet_ntoa(addrLocal.sin_addr);
         if (!tmp) 
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         
         rSockName = tmp;
         rSockPort = ::ntohs(addrLocal.sin_port);
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::getPeerName(String &rPeerName, uint16_t &rPeerPort) const
+    TResult Socket::getPeerName(String &rPeerName, uint16_t &rPeerPort) const
     {
         sockaddr_in addrRemote;
         int len = sizeof(addrRemote);
         if (::getpeername(mSocket, (sockaddr *)&addrRemote, (socklen_t *)&len) == SOCKET_ERROR)
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
 
         char *tmp = ::inet_ntoa(addrRemote.sin_addr);
         if (!tmp) 
-            return false;
+            return T3D_ERR_SOCKET_ERROR;
         
         rPeerName = tmp;
         rPeerPort = ::ntohs(addrRemote.sin_port);
 
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -542,7 +544,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    bool Socket::startup(int32_t nVersionH, int32_t nVersionL)
+    TResult Socket::startup(int32_t nVersionH, int32_t nVersionL)
     {
 #ifdef T3D_OS_WINDOWS
         WORD wVersionRequested;
@@ -556,52 +558,65 @@ namespace Tiny3D
         if (err != 0)
         {
             ::WSACleanup();
-            return false;
+            return T3D_ERR_SOCKET_STARTUP;
         }
 
         /* version error */
         if (LOBYTE(wsaData.wVersion)!= nVersionL || HIBYTE(wsaData.wVersion)!= nVersionH ) 
         {
             ::WSACleanup();
-            return false;
+            return T3D_ERR_SOCKET_VERSION;
         }
 #endif
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
     
-    bool Socket::cleanup()
+    TResult Socket::cleanup()
     {
 #ifdef T3D_OS_WINDOWS   
         ::WSACleanup();
 #endif
-        return true;
+        return T3D_OK;
     }
     
     //--------------------------------------------------------------------------
 
-    void Socket::enqueue(Socket *socket)
-    {
-        msSockets.emplace_back(socket);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Socket::dequeue(Socket *socket)
+    TResult Socket::enqueue(Socket *socket)
     {
         auto it = std::find_if(
             msSockets.begin(),
             msSockets.end(),
             [socket](Socket *sock)
             {
-                if (sock->mSocket == socket->mSocket)
-                {
-                    return true;
-                }
-                return false;
+                return (sock->mSocket == socket->mSocket);
             });
+        if (it != msSockets.end())
+        {
+            return T3D_ERR_SOCKET_DUPLICATED;
+        }
+        msSockets.emplace_back(socket);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Socket::dequeue(Socket *socket)
+    {
+        auto it = std::find_if(
+            msSockets.begin(),
+            msSockets.end(),
+            [socket](Socket *sock)
+            {
+                return (sock->mSocket == socket->mSocket);
+            });
+        if (it == msSockets.end())
+        {
+            return T3D_ERR_SOCKET_NOT_FOUND;
+        }
         msSockets.erase(it);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -768,6 +783,7 @@ namespace Tiny3D
             {
                 // 出错了
                 ret = T3D_ERR_SOCKET_ERROR;
+                mState = State::kDisconnected;
                 callOnConnected(false);
             }
             else if (FD_ISSET(mSocket, &writefds))
@@ -775,6 +791,7 @@ namespace Tiny3D
                 if (getSocketError() != 0)
                 {
                     ret = T3D_ERR_SOCKET_ERROR;
+                    mState = State::kDisconnected;
                     callOnConnected(false);
                 }
                 else

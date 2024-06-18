@@ -59,8 +59,28 @@ namespace Tiny3D
         T3D_ERR_PROCESS_TERMINATED          = T3D_ERR_PROCESS_CREATED + 1,
         /// socket 错误
         T3D_ERR_SOCKET_ERROR                = T3D_ERR_PROCESS_TERMINATED + 1,
-        /// 远端关闭
+        /// socket 远端关闭
         T3D_ERR_REMOTE_DISCONNECTED         = T3D_ERR_SOCKET_ERROR + 1,
+        /// socket 启动失败，windows 系统专有错误码
+        T3D_ERR_SOCKET_STARTUP              = T3D_ERR_REMOTE_DISCONNECTED + 1,
+        /// socket 版本错误，windows 系统专有错误码
+        T3D_ERR_SOCKET_VERSION              = T3D_ERR_SOCKET_STARTUP + 1,
+        /// socket 创建失败
+        T3D_ERR_SOCKET_CREATED              = T3D_ERR_SOCKET_VERSION + 1,
+        /// socket 无效
+        T3D_ERR_SOCKET_INVALID              = T3D_ERR_SOCKET_CREATED + 1,
+        /// socket 重复
+        T3D_ERR_SOCKET_DUPLICATED           = T3D_ERR_SOCKET_INVALID + 1,
+        /// socket 没找到
+        T3D_ERR_SOCKET_NOT_FOUND            = T3D_ERR_SOCKET_DUPLICATED + 1,
+        /// DNS 解析失败
+        T3D_ERR_SOCKET_DNS                  = T3D_ERR_SOCKET_NOT_FOUND + 1,
+        /// socket 没有连接
+        T3D_ERR_SOCKET_NOT_CONNECTED        = T3D_ERR_SOCKET_DNS + 1,
+        /// socket 发送失败
+        T3D_ERR_SOCKET_SEND                 = T3D_ERR_SOCKET_NOT_CONNECTED + 1,
+        /// socket 发送缓冲区满了
+        T3D_ERR_SOCKET_NO_SENDBUF           = T3D_ERR_SOCKET_SEND + 1,
     };
 };
 

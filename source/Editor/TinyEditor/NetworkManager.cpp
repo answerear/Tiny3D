@@ -43,12 +43,7 @@ namespace Tiny3D
 
     NetworkManager::~NetworkManager()
     {
-        if (mSocket != nullptr)
-        {
-            mSocket->close();
-        }
-        
-        T3D_SAFE_DELETE(mSocket);
+        shutdown();
     }
 
     //--------------------------------------------------------------------------
@@ -59,29 +54,51 @@ namespace Tiny3D
 
         do
         {
-            mSocket = new Socket();
-            if (!mSocket->create(Socket::Protocol::kTCP))
+            if (mConnection == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create socket failed ! ERROR [%u]", mSocket->getErrorCode());
-                break;
-            }
-            
-            if (!mSocket->setNonBlocking())
-            {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Set socket non-blocking failed ! ERROR [%u]", mSocket->getErrorCode());
-                break;
-            }
+                mConnection = new TCPConnection();
 
-            if (!mSocket->connect(addr, port))
-            {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Connect failed ! ERROR [%u]", mSocket->getErrorCode());
-                break;
+                mConnection->setOnConnectedCallbak(
+                    [](TCPConnection *connection, TResult result)
+                    {
+                        if (T3D_SUCCEEDED(result))
+                        {
+                            T3D_LOG_INFO(LOG_TAG_EDITOR, "Connected TinyLauncher !");
+                        }
+                        else
+                        {
+                            T3D_LOG_INFO(LOG_TAG_EDITOR, "Connected error !");
+                        }
+                    });
+
+                mConnection->setOnRecvCallback(
+                    [](TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
+                    {
+                        return T3D_OK;
+                    });
+
+                mConnection->setOnSendCallback(
+                    [](TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
+                    {
+                        return T3D_OK;
+                    });
+
+                mConnection->setOnExceptionCallback(
+                    [](TCPConnection *connection, TResult result)
+                    {});
+
+                mConnection->setOnDisconnectedCallback(
+                    [](TCPConnection *connection)
+                    {
+                        T3D_LOG_INFO(LOG_TAG_EDITOR, "Disconnected TinyLauncher !");
+                    });
             }
             
-            mSocket->setConnectedCallback([this](Socket *socket, bool isOK){ onConnected(socket, isOK); });
-            mSocket->setRecvCallback([this](Socket *socket) { return onRecv(socket); });
-            mSocket->setSendCallback([this](Socket *socket) { return onSend(socket); });
-            mSocket->setExceptionCallback([this](Socket *socket) { return onException(socket); });
+            ret = mConnection->connect(addr, port);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
 
         return ret;
@@ -91,48 +108,23 @@ namespace Tiny3D
 
     void NetworkManager::poll()
     {
-        Socket::pollEvents(100);
+        TCPConnection::poll();
     }
 
     //--------------------------------------------------------------------------
 
     void NetworkManager::shutdown()
     {
-        if (mSocket != nullptr)
+        if (mConnection != nullptr)
         {
-            mSocket->close();
+            mConnection->disconnect();
         }
 
-        T3D_SAFE_DELETE(mSocket);
+        T3D_SAFE_DELETE(mConnection);
     }
 
     //--------------------------------------------------------------------------
 
-    void NetworkManager::onConnected(Socket *socket, bool isOK)
-    {
-        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Connected TinyLauncher !");
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NetworkManager::onRecv(Socket *socket)
-    {
-        return T3D_OK;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    TResult NetworkManager::onSend(Socket *socket)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NetworkManager::onException(Socket *socket)
-    {
-        return T3D_OK;
-    }
 
     //--------------------------------------------------------------------------
 

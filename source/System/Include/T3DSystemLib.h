@@ -34,6 +34,7 @@
 #include <Object/T3DAssignableObjectManager.h>
 #include <UUID/T3DUUID.h>
 #include <Language/T3DLanguageManager.h>
+#include <Network/T3DTCPConnection.h>
 
 
 #endif  /*__T3D_SYSTEM_LIB_H__*/

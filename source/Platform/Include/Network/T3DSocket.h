@@ -91,62 +91,62 @@ namespace Tiny3D
         /**
          * @brief 创建套接字.
          * @param [in] eProtocol : 套接字协议类型，默认是TCP.
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.  
          */
-        bool create(Protocol eProtocol = Protocol::kTCP);
+        TResult create(Protocol eProtocol = Protocol::kTCP);
 
         /**
          * 设置接受连接回调，有远端请求连接时候回调
          * @param [in] onAccepted : 回调对象 
          */
-        void setAcceptedCallback(const OnAccepted &onAccepted) { mOnAccepted = onAccepted; }
+        void setOnAcceptedCallback(const OnAccepted &onAccepted) { mOnAccepted = onAccepted; }
 
         /**
          * 设置连接上回调，连接上远端时候回调
          * @param [in] onConnected : 回调对象 
          */
-        void setConnectedCallback(const OnConnected &onConnected) { mOnConnected = onConnected; }
+        void setOnConnectedCallback(const OnConnected &onConnected) { mOnConnected = onConnected; }
 
         /**
          * 设置接收数据回调，套接字有数据可读时回调
          * @param [in] onRecv : 回调对象
          */
-        void setRecvCallback(const OnRecv &onRecv) { mOnRecv = onRecv; }
+        void setOnRecvCallback(const OnRecv &onRecv) { mOnRecv = onRecv; }
 
         /**
          * 设置发送数据回调，套接字可写时回调
          * @param [in] onSend : 回调对象
          */
-        void setSendCallback(const OnSend &onSend) { mOnSend = onSend; };
+        void setOnSendCallback(const OnSend &onSend) { mOnSend = onSend; }
 
         /**
          * 设置异常回调，套接字有异常发生的时候回调
          * @param [in] onException : 回调对象
          */
-        void setExceptionCallback(const OnException &onException) { mOnException = onException; }
+        void setOnExceptionCallback(const OnException &onException) { mOnException = onException; }
 
         /**
          * 设置套接字关闭回调，套接字被关闭的时候回调
-         * @param [in] onClosed : 回调对象
+         * @param [in] onDisconnected : 回调对象
          */
-        void setDisconnectedCallback(const OnDisconnected &onDisconnected) { mOnDisconnected = onDisconnected; }
+        void setOnDisconnectedCallback(const OnDisconnected &onDisconnected) { mOnDisconnected = onDisconnected; }
 
         /**
          * @brief 关闭套接字.
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3_OK.  
          */
-        bool close();
+        TResult close();
 
         /**
          * @brief 附加原始套接字.
          * @param [in] socket : 原始套接字描述符
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3_OK.
          */
-        bool attach(SOCKET socket);
+        TResult attach(SOCKET socket);
 
         /**
          * @brief 分离出原始套接字.
-         * @return 返回原始套接字描述符  
+         * @return 返回原始套接字描述符
          */
         SOCKET detach();
 
@@ -154,32 +154,39 @@ namespace Tiny3D
          * @brief 连接到指定IP和端口服务器.
          * @param [in] strHostAddress : IP地址
          * @param [in] unHostPort : 端口
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool connect(const String &strHostAddress, uint16_t unHostPort);
-        bool connect(unsigned long ulHostIP, uint16_t unHostPort);
+        TResult connect(const String &strHostAddress, uint16_t unHostPort);
+
+        /**
+         * @brief 连接到指定IP和端口服务器.
+         * @param [in] ulHostIP : IP 地址
+         * @param [in] unHostPort : 端口
+         * @return 函数调用成功返回 T3D_OK.
+         */
+        TResult connect(unsigned long ulHostIP, uint16_t unHostPort);
         
         /**
          * @brief 监听连接请求.
-         * @param [in] nConnectionBacklog : Defaults to 5.
+         * @param [in] nConnectionBacklog : 等待队列最大值，Defaults to 5.
          * @return 函数调用成功返回true，否则返回false.  
          */
-        bool listen(int32_t nConnectionBacklog = 5);
+        TResult listen(int32_t nConnectionBacklog = 5);
 
         /**
          * @brief 绑定端口和IP.
          * @param [in] unSocketPort : 端口
          * @param [in] strSocketAddress : Defaults to "".
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool bind(uint16_t unSocketPort, const String &strSocketAddress = "");
+        TResult bind(uint16_t unSocketPort, const String &strSocketAddress = "");
 
         /**
          * @brief 接受新连接.
          * @param [out] sockClient : 返回新套接字对象
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool accept(Socket &sockClient);
+        TResult accept(Socket &sockClient);
 
         /**
          * @brief 接收数据.
@@ -218,10 +225,20 @@ namespace Tiny3D
         int32_t sendTo(uchar_t *pBuffer, int32_t nBufLen, const String &strHostAddress, uint16_t unHostPort);
 
         /**
-         * @brief 设置为非阻塞套接字.
-         * @return 函数调用成功返回true，否则返回false.  
+         * 是否连接上
          */
-        bool setNonBlocking();
+        bool isConnected() const { return mState == State::kConnected; }
+
+        /**
+         * 是否连接中
+         */
+        bool isConnecting() const { return mState == State::kConnecting; }
+
+        /**
+         * @brief 设置为非阻塞套接字.
+         * @return 函数调用成功返回 T3D_OK.
+         */
+        TResult setNonBlocking();
 
         /**
          * @brief 重置套接字及其状态
@@ -231,31 +248,31 @@ namespace Tiny3D
         /**
          * @brief 设置系统发送缓冲区大小.
          * @param [in] nSize : 缓冲区大小
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool setSendBufferSize(int32_t nSize);
+        TResult setSendBufferSize(int32_t nSize);
 
         /**
          * @brief 设置系统接收缓冲区大小.
          * @param [in] nSize : 换红区大熊啊
-         * @return 函数调用成功返回true，否则返回false.
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool setRecvBufferSize(int32_t nSize);
+        TResult setRecvBufferSize(int32_t nSize);
 
         /**
          * @brief 设置是否可重用端口.
          * @param [in] bReuse : reuse
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool setReuseAddress(bool bReuse);
+        TResult setReuseAddress(bool bReuse);
 
         /**
          * @brief 获取本地ip和端口.
          * @param [out] rSockName : ip
          * @param [out] rSockPort : 端口
-         * @return 函数调用成功返回true，否则返回false.  
+         * @return 函数调用成功返回 T3D_OK.
          */
-        bool getLocalName(String &rSockName, uint16_t &rSockPort) const;
+        TResult getLocalName(String &rSockName, uint16_t &rSockPort) const;
 
         /**
          * @brief 获取对端ip和端口.
@@ -263,7 +280,7 @@ namespace Tiny3D
          * @param [in] rPeerPort : 端口
          * @return 函数调用成功返回true，否则返回false.  
          */
-        bool getPeerName(String &rPeerName, uint16_t &rPeerPort) const;
+        TResult getPeerName(String &rPeerName, uint16_t &rPeerPort) const;
 
         /**
          * @brief 获取系统错误码.
@@ -333,13 +350,13 @@ namespace Tiny3D
          */
         TResult handleEvent(fd_set &readfds, fd_set &writefds, fd_set &errorfds);
         
-        bool startup(int32_t nVersionH, int32_t nVersionL);
+        TResult startup(int32_t nVersionH, int32_t nVersionL);
         
-        bool cleanup();
+        TResult cleanup();
 
-        static void enqueue(Socket *socket);
+        static TResult enqueue(Socket *socket);
 
-        static void dequeue(Socket *socket);
+        static TResult dequeue(Socket *socket);
 
         void callOnAccepted(Socket *sockClient);
 

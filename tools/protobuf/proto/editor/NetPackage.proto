@@ -5,12 +5,78 @@ syntax = "proto3";
 package Tiny3D.Editor;
 
 
-message NetPackageHeader
+enum MessageID
 {
-    fixed32 magic = 1;
-    fixed32 version = 2;
-    int32 length = 3;
+	MSDID_NONE = 0;
+	MSGID_HELLO = 10086; 			// 心跳
+	MSGID_CREATE_PROJECT = 10087;	// 创建工程
+	MSGID_OPEN_PROJECT = 10088;		// 打开工程
 }
+
+
+// 心跳
+message ReqHello
+{
+
+}
+
+message RspHello
+{
+}
+
+
+// 创建工程 - 上行
+message ReqCreateProject
+{
+	int32 result = 1;
+	string path = 2;
+	string name = 3;
+}
+
+
+// 创建工程 - 下行
+message RspCreateProject
+{
+	int32 result = 1;
+}
+
+// 打开工程 - 上行
+message ReqOpenProject
+{
+
+}
+
+// 打开工程 - 下行
+message RspOpenProject
+{
+}
+
+
+// 上行包体
+message NetRequestBody
+{
+	int32 message_id = 1;
+	oneof data
+	{
+		ReqHello hello = 2;
+		ReqCreateProject create_project = 3;
+		ReqOpenProject open_project = 4;
+	}
+}
+
+// 下行包体
+message NetResponseBody
+{
+	int32 seq_id = 1;
+	int32 message_id = 2;
+	oneof data
+	{
+		RspHello hello = 3;
+		RspCreateProject create_project = 4;
+		RspOpenProject open_project = 5;
+	}
+}
+
 
 
 

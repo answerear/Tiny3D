@@ -53,6 +53,8 @@ namespace Tiny3D
     class Locale;
     class Process;
     class Socket;
+    class TCPConnection;
+    class TCPListener;
 
     // ulong_t pid , const String &pname
     using OnTraverseProcess = TFunction<bool(ulong_t, const String &)>;
