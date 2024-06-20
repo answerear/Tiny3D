@@ -119,8 +119,8 @@ using TQueue = std::queue<T>;
 template <typename T>
 using TDeque = std::deque<T>;
 
-template <typename T>
-using TPriorityQueue = std::priority_queue<T>;
+template <typename T, typename CONTAINER = TArray<T>, typename CMP = std::less<typename CONTAINER::value_type>>
+using TPriorityQueue = std::priority_queue<T, CONTAINER, CMP>;
 
 template <typename T>
 using TStack = std::stack<T>;
