@@ -48,11 +48,28 @@ namespace Tiny3D
         void shutdown();
 
     protected:
+        void onConnected(TCPConnection *connection, TResult result);
 
+        TResult onRecv(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize);
+
+        TResult onSend(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize);
+
+        TResult onException(TCPConnection *connection, TResult result);
+
+        void onDisconnected(TCPConnection *connection, TResult result);
+
+        void startMonitorTimer();
+
+        void stopMonitorTimer();
 
     protected:
         /// 跟 launcher 通信的连接
         TCPConnection *mConnection {nullptr};
+
+        ID mTimerID {T3D_INVALID_TIMER_ID};
+
+        String mRemoteAddr {};
+        uint16_t mRemotePort {0};
     };
 
     #define NETWORK_MGR     NetworkManager::getInstance()

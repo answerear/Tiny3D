@@ -29,6 +29,8 @@
 #include <chrono>
 #include <functional>
 
+#include "T3DRunnableThread.h"
+
 
 namespace Tiny3D
 {
@@ -62,28 +64,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID TimerService::startTimer(uint32_t interval, bool repeat,
-        ITimerListener *listener)
+    ID TimerService::startTimer(uint32_t interval, bool repeat, const TimerCallback &callback)
     {
-        if (nullptr == listener)
+        if (nullptr == callback)
             return INVALID_TIMER_ID;
 
         int64_t timestamp = DateTime::currentMSecsSinceEpoch();
-        Timer timer = { timestamp, interval, listener, repeat, true };
+        int64_t timeout = timestamp + interval;
 
-        TAutoLock<TMutex> lockL(mTimerListMutex);
-
-        ID timerID = mTimerID + 1;
-        auto r = mTimerList.insert(TimerValue(timerID, timer));
-        if (r.second)
+        ID timerID = timerID = mTimerID + 1;
+        
+        if (timerID == (uint32_t)-1)
         {
-            if (timerID == (uint32_t)-1)
-            {
-                // 越界了，重置为1
-                timerID = 1;
-            }
+            // 越界了，重置为1
+            timerID = 1;
+        }
 
-            mTimerID = timerID;
+        mTimerID = timerID;
+        Timer timer = { timestamp, interval, timerID, callback, repeat, true };
+        
+        if (mInCallback)
+        {
+            mToAddTimers.emplace(timeout, timer);
+        }
+        else
+        {
+            TAutoLock<TMutex> lockL(mTimerListMutex);
+            mTimers.emplace(timeout, timer);
         }
 
         return timerID;
@@ -103,24 +110,35 @@ namespace Tiny3D
                 break;
             }
 
-            TAutoLock<TMutex> lockL(mTimerListMutex);
-            mTimerList.erase(timerID);
-            lockL.unlock();
-
-            // 事件队列里面把这个ID的都干掉
-            TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-
-            auto itrQ = mTimerEventQueue.begin();
-
-            while (itrQ != mTimerEventQueue.end())
             {
-                auto itrCur = itrQ++;
-                if (timerID == itrCur->timerID)
+                // 事件队列里面把这个ID的都干掉
+                TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
+
+                auto itrQ = std::find_if(
+                    mTimerEventQueue.begin(),
+                    mTimerEventQueue.end(),
+                    [timerID](const TimerEvent &evt)
+                    {
+                        return (timerID == evt.timerID);
+                    });
+                if (itrQ != mTimerEventQueue.end())
                 {
-                    mTimerEventQueue.erase(itrCur);
+                    itrQ->alive = false;
                 }
             }
-        } while (0);
+            
+            {
+                if (mInCallback)
+                {
+                    mToDeleteTimers.push_back(timerID);
+                }
+                else
+                {
+                    TAutoLock<TMutex> lockL(mTimerListMutex);
+                    deleteTimer(timerID);
+                }
+            }
+        } while (false);
 
         return ret;
     }
@@ -144,45 +162,75 @@ namespace Tiny3D
 
         while (mIsRunning)
         {
-            if (!mTimerList.empty())
+            // if (!mTimerList.empty())
+            // {
+            //     int64_t timestamp = DateTime::currentMSecsSinceEpoch();
+            //
+            //     TAutoLock<TRecursiveMutex> lockL(mTimerListMutex);
+            //
+            //     auto itr = mTimerList.begin();
+            //
+            //     while (itr != mTimerList.end())
+            //     {
+            //         ID timerID = itr->first;
+            //         auto itrCur = itr++;
+            //
+            //         Timer &timer = itrCur->second;
+            //         int32_t dt = int32_t(timestamp - timer.timestamp);
+            //
+            //         if (dt >= timer.interval)
+            //         {
+            //             timer.timestamp = timestamp;
+            //
+            //             // 放到事件队列里
+            //             TimerEvent ev = { timerID, dt, timer.callback };
+            //
+            //             if (!timer.repeat)
+            //             {
+            //                 // 不循环的定时器，直接删掉
+            //                 mTimerList.erase(itrCur);
+            //             }
+            //
+            //             TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
+            //             mTimerEventQueue.push_back(ev);
+            //         }
+            //     }
+            //
+            //     lockL.unlock();
+            // }
+
+            int64_t now = DateTime::currentMSecsSinceEpoch();
+            TAutoLock<TMutex> lockL(mTimerListMutex);
+
+            auto itr = mTimers.begin();
+            while (!mTimers.empty() && itr->first <= now)
             {
-                int64_t timestamp = DateTime::currentMSecsSinceEpoch();
+                Timer &timer = itr->second;
 
-                TAutoLock<TMutex> lockL(mTimerListMutex);
+                uint32_t dt = (uint32_t)(now - timer.timestamp);
+                    
+                // 放到事件队列里
+                TimerEvent ev = {timer.timerID, dt, timer.callback, true};
 
-                auto itr = mTimerList.begin();
-
-                while (itr != mTimerList.end())
+                if (timer.repeat)
                 {
-                    ID timerID = itr->first;
-                    auto itrCur = itr++;
-
-                    Timer &timer = itrCur->second;
-                    int32_t dt = int32_t(timestamp - timer.timestamp);
-
-                    if (dt >= timer.interval)
-                    {
-                        timer.timestamp = timestamp;
-
-                        // 放到事件队列里
-                        TimerEvent ev = { timerID, dt, timer.listener };
-
-                        if (!timer.repeat)
-                        {
-                            // 不循环的定时器，直接删掉
-                            mTimerList.erase(itrCur);
-                        }
-
-                        TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-                        mTimerEventQueue.push_back(ev);
-                    }
+                    // 循环定时器，更新时间戳，重新放到优先队列中
+                    int64_t timeout = now + timer.interval;
+                    mTimers.emplace(timeout, timer);
                 }
 
-                lockL.unlock();
+                // 因为要更新到时时间戳，所以不管怎样，都从优先队列删掉
+                itr = mTimers.erase(itr);
+                    
+                TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
+                mTimerEventQueue.push_back(ev);
             }
 
+            lockL.unlock();
+
             // 挂起10ms
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            RunnableThread::sleep(10);
         }
     }
 
@@ -190,19 +238,67 @@ namespace Tiny3D
 
     TResult TimerService::pollEvents()
     {
-        // 查询事件并派发
-        TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
-
-        auto itr = mTimerEventQueue.begin();
-
-        while (itr != mTimerEventQueue.end())
         {
-            TimerEvent ev = *itr++;
-            ev.listener->onTimer(ev.timerID, ev.dt);
+            // 查询事件并派发
+            TAutoLock<TRecursiveMutex> lockQ(mEventListMutex);
+
+            auto itr = mTimerEventQueue.begin();
+
+            mInCallback = true;
+        
+            while (itr != mTimerEventQueue.end())
+            {
+                TimerEvent ev = *itr++;
+                if (ev.alive)
+                {
+                    ev.callback(ev.timerID, ev.dt);
+                }
+            }
+        
+            mInCallback = false;
+
+            mTimerEventQueue.clear();
         }
 
-        mTimerEventQueue.clear();
+        {
+            TAutoLock<TMutex> lockL(mTimerListMutex);
+
+            // 删除定时器
+            for (auto timerID : mToDeleteTimers)
+            {
+                deleteTimer(timerID);
+            }
+
+            mToDeleteTimers.clear();
+
+            // 添加定时器
+            for (const auto &item : mToAddTimers)
+            {
+                mTimers.emplace(item.first, item.second);
+            }
+
+            mToAddTimers.clear();
+        }
 
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
+    
+    void TimerService::deleteTimer(uint32_t timerID)
+    {
+        auto it = std::find_if(
+            mTimers.begin(),
+            mTimers.end(),
+            [timerID](const std::pair<int64_t, Timer>& item)
+            {
+                return (timerID == item.second.timerID);
+            });
+        if (it != mTimers.end())
+        {
+            mTimers.erase(it);
+        }
+    }
+
+    //--------------------------------------------------------------------------
 }

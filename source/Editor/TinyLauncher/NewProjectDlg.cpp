@@ -24,8 +24,7 @@
 
 
 #include "NewProjectDlg.h"
-
-#include "LauncherEvent.h"
+#include "LauncherEventDefine.h"
 #include "ProjectManager.h"
 
 

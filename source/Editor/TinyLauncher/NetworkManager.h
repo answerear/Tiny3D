@@ -56,6 +56,16 @@ namespace Tiny3D
 
         void closeAllConnections();
 
+        void onConnected(TCPConnection *connection, TResult result);
+
+        void onDisconnected(TCPConnection *connection, TResult result);
+
+        TResult onRecv(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize);
+
+        TResult onSend(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize);
+
+        TResult onException(TCPConnection *connection, TResult result);
+
     protected:
         struct EditorInstance
         {
@@ -91,6 +101,13 @@ namespace Tiny3D
         ClientConnections mClientConnections {};
         /// 方便根据 connection 获取 editor 实例
         EditorInstances mEditorInstances {};
+
+        enum
+        {
+            SENDBUF_SIZE = 32*1024
+        };
+        
+        uint8_t mSendBuffer[SENDBUF_SIZE];
     };
 
     #define NETWORK_MGR     NetworkManager::getInstance()

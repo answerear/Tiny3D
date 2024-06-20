@@ -224,7 +224,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_NetPackage_2eproto::offsets[] 
   ~0u,  // no _extensions_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::NetRequestBody, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::NetRequestBody, seq_id_),
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::NetRequestBody, message_id_),
   offsetof(::Tiny3D::Editor::NetRequestBodyDefaultTypeInternal, hello_),
   offsetof(::Tiny3D::Editor::NetRequestBodyDefaultTypeInternal, create_project_),
@@ -250,7 +249,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 24, -1, sizeof(::Tiny3D::Editor::ReqOpenProject)},
   { 29, -1, sizeof(::Tiny3D::Editor::RspOpenProject)},
   { 34, -1, sizeof(::Tiny3D::Editor::NetRequestBody)},
-  { 45, -1, sizeof(::Tiny3D::Editor::NetResponseBody)},
+  { 44, -1, sizeof(::Tiny3D::Editor::NetResponseBody)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -269,21 +268,21 @@ const char descriptor_table_protodef_NetPackage_2eproto[] PROTOBUF_SECTION_VARIA
   "Hello\"\n\n\010RspHello\">\n\020ReqCreateProject\022\016\n"
   "\006result\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001("
   "\t\"\"\n\020RspCreateProject\022\016\n\006result\030\001 \001(\005\"\020\n"
-  "\016ReqOpenProject\"\020\n\016RspOpenProject\"\330\001\n\016Ne"
-  "tRequestBody\022\016\n\006seq_id\030\001 \001(\005\022\022\n\nmessage_"
-  "id\030\002 \001(\005\022(\n\005hello\030\003 \001(\0132\027.Tiny3D.Editor."
-  "ReqHelloH\000\0229\n\016create_project\030\004 \001(\0132\037.Tin"
-  "y3D.Editor.ReqCreateProjectH\000\0225\n\014open_pr"
-  "oject\030\005 \001(\0132\035.Tiny3D.Editor.ReqOpenProje"
-  "ctH\000B\006\n\004data\"\331\001\n\017NetResponseBody\022\016\n\006seq_"
-  "id\030\001 \001(\005\022\022\n\nmessage_id\030\002 \001(\005\022(\n\005hello\030\003 "
-  "\001(\0132\027.Tiny3D.Editor.RspHelloH\000\0229\n\016create"
-  "_project\030\004 \001(\0132\037.Tiny3D.Editor.RspCreate"
-  "ProjectH\000\0225\n\014open_project\030\005 \001(\0132\035.Tiny3D"
-  ".Editor.RspOpenProjectH\000B\006\n\004data*a\n\tMess"
-  "ageID\022\016\n\nMSDID_NONE\020\000\022\020\n\013MSGID_HELLO\020\346N\022"
-  "\031\n\024MSGID_CREATE_PROJECT\020\347N\022\027\n\022MSGID_OPEN"
-  "_PROJECT\020\350Nb\006proto3"
+  "\016ReqOpenProject\"\020\n\016RspOpenProject\"\310\001\n\016Ne"
+  "tRequestBody\022\022\n\nmessage_id\030\001 \001(\005\022(\n\005hell"
+  "o\030\002 \001(\0132\027.Tiny3D.Editor.ReqHelloH\000\0229\n\016cr"
+  "eate_project\030\003 \001(\0132\037.Tiny3D.Editor.ReqCr"
+  "eateProjectH\000\0225\n\014open_project\030\004 \001(\0132\035.Ti"
+  "ny3D.Editor.ReqOpenProjectH\000B\006\n\004data\"\331\001\n"
+  "\017NetResponseBody\022\016\n\006seq_id\030\001 \001(\005\022\022\n\nmess"
+  "age_id\030\002 \001(\005\022(\n\005hello\030\003 \001(\0132\027.Tiny3D.Edi"
+  "tor.RspHelloH\000\0229\n\016create_project\030\004 \001(\0132\037"
+  ".Tiny3D.Editor.RspCreateProjectH\000\0225\n\014ope"
+  "n_project\030\005 \001(\0132\035.Tiny3D.Editor.RspOpenP"
+  "rojectH\000B\006\n\004data*a\n\tMessageID\022\016\n\nMSDID_N"
+  "ONE\020\000\022\020\n\013MSGID_HELLO\020\346N\022\031\n\024MSGID_CREATE_"
+  "PROJECT\020\347N\022\027\n\022MSGID_OPEN_PROJECT\020\350Nb\006pro"
+  "to3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_NetPackage_2eproto_deps[1] = {
 };
@@ -300,7 +299,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Net
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_NetPackage_2eproto_once;
 static bool descriptor_table_NetPackage_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_NetPackage_2eproto = {
-  &descriptor_table_NetPackage_2eproto_initialized, descriptor_table_protodef_NetPackage_2eproto, "NetPackage.proto", 739,
+  &descriptor_table_NetPackage_2eproto_initialized, descriptor_table_protodef_NetPackage_2eproto, "NetPackage.proto", 723,
   &descriptor_table_NetPackage_2eproto_once, descriptor_table_NetPackage_2eproto_sccs, descriptor_table_NetPackage_2eproto_deps, 8, 0,
   schemas, file_default_instances, TableStruct_NetPackage_2eproto::offsets,
   file_level_metadata_NetPackage_2eproto, 8, file_level_enum_descriptors_NetPackage_2eproto, file_level_service_descriptors_NetPackage_2eproto,
@@ -1474,9 +1473,7 @@ NetRequestBody::NetRequestBody(const NetRequestBody& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::memcpy(&seq_id_, &from.seq_id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&message_id_) -
-    reinterpret_cast<char*>(&seq_id_)) + sizeof(message_id_));
+  message_id_ = from.message_id_;
   clear_has_data();
   switch (from.data_case()) {
     case kHello: {
@@ -1500,9 +1497,7 @@ NetRequestBody::NetRequestBody(const NetRequestBody& from)
 
 void NetRequestBody::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_NetRequestBody_NetPackage_2eproto.base);
-  ::memset(&seq_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&message_id_) -
-      reinterpret_cast<char*>(&seq_id_)) + sizeof(message_id_));
+  message_id_ = 0;
   clear_has_data();
 }
 
@@ -1555,9 +1550,7 @@ void NetRequestBody::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&seq_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&message_id_) -
-      reinterpret_cast<char*>(&seq_id_)) + sizeof(message_id_));
+  message_id_ = 0;
   clear_data();
   _internal_metadata_.Clear();
 }
@@ -1569,37 +1562,30 @@ const char* NetRequestBody::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // int32 seq_id = 1;
+      // int32 message_id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          seq_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // int32 message_id = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           message_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Editor.ReqHello hello = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+      // .Tiny3D.Editor.ReqHello hello = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_hello(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Editor.ReqCreateProject create_project = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+      // .Tiny3D.Editor.ReqCreateProject create_project = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_create_project(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .Tiny3D.Editor.ReqOpenProject open_project = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+      // .Tiny3D.Editor.ReqOpenProject open_project = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_open_project(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -1630,40 +1616,34 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 seq_id = 1;
-  if (this->seq_id() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_seq_id(), target);
-  }
-
-  // int32 message_id = 2;
+  // int32 message_id = 1;
   if (this->message_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_message_id(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_message_id(), target);
   }
 
-  // .Tiny3D.Editor.ReqHello hello = 3;
+  // .Tiny3D.Editor.ReqHello hello = 2;
   if (_internal_has_hello()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
-        3, _Internal::hello(this), target, stream);
+        2, _Internal::hello(this), target, stream);
   }
 
-  // .Tiny3D.Editor.ReqCreateProject create_project = 4;
+  // .Tiny3D.Editor.ReqCreateProject create_project = 3;
   if (_internal_has_create_project()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
-        4, _Internal::create_project(this), target, stream);
+        3, _Internal::create_project(this), target, stream);
   }
 
-  // .Tiny3D.Editor.ReqOpenProject open_project = 5;
+  // .Tiny3D.Editor.ReqOpenProject open_project = 4;
   if (_internal_has_open_project()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
-        5, _Internal::open_project(this), target, stream);
+        4, _Internal::open_project(this), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1682,14 +1662,7 @@ size_t NetRequestBody::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // int32 seq_id = 1;
-  if (this->seq_id() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-        this->_internal_seq_id());
-  }
-
-  // int32 message_id = 2;
+  // int32 message_id = 1;
   if (this->message_id() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
@@ -1697,21 +1670,21 @@ size_t NetRequestBody::ByteSizeLong() const {
   }
 
   switch (data_case()) {
-    // .Tiny3D.Editor.ReqHello hello = 3;
+    // .Tiny3D.Editor.ReqHello hello = 2;
     case kHello: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *data_.hello_);
       break;
     }
-    // .Tiny3D.Editor.ReqCreateProject create_project = 4;
+    // .Tiny3D.Editor.ReqCreateProject create_project = 3;
     case kCreateProject: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *data_.create_project_);
       break;
     }
-    // .Tiny3D.Editor.ReqOpenProject open_project = 5;
+    // .Tiny3D.Editor.ReqOpenProject open_project = 4;
     case kOpenProject: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -1753,9 +1726,6 @@ void NetRequestBody::MergeFrom(const NetRequestBody& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.seq_id() != 0) {
-    _internal_set_seq_id(from._internal_seq_id());
-  }
   if (from.message_id() != 0) {
     _internal_set_message_id(from._internal_message_id());
   }
@@ -1799,7 +1769,6 @@ bool NetRequestBody::IsInitialized() const {
 void NetRequestBody::InternalSwap(NetRequestBody* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(seq_id_, other->seq_id_);
   swap(message_id_, other->message_id_);
   swap(data_, other->data_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);

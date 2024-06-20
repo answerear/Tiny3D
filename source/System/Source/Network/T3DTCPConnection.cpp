@@ -249,23 +249,21 @@ namespace Tiny3D
     void TCPConnection::setupCallbacks()
     {
         mSocket->setOnConnectedCallback(
-            [this](Socket *socket, bool isOK)
+            [this](Socket *socket, TResult result)
             {
+                stopConnectingTimer();
                 mSocket->getPeerName(mPeerName, mPeerPort);
-                if (isOK)
+                if (T3D_FAILED(result))
                 {
-                    callOnConnected(T3D_OK);
+                    disconnect();
                 }
-                else
-                {
-                    callOnConnected(T3D_ERR_FAIL);
-                }
+                callOnConnected(result);
             });
 
         mSocket->setOnDisconnectedCallback(
-            [this](Socket *socket)
+            [this](Socket *socket, TResult result)
             {
-                callOnDisconnected();
+                callOnDisconnected(result);
             });
 
         mSocket->setOnRecvCallback(
@@ -289,7 +287,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult TCPConnection::connect(const String &addr, uint16_t port)
+    TResult TCPConnection::connect(const String &addr, uint16_t port, uint32_t timeout)
     {
         TResult ret = T3D_OK;
 
@@ -304,17 +302,49 @@ namespace Tiny3D
             ret = mSocket->setNonBlocking();
             if (T3D_FAILED(ret))
             {
+                disconnect();
                 break;
             }
             
             ret = mSocket->connect(addr, port);
             if (T3D_FAILED(ret))
             {
+                disconnect();
                 break;
             }
+
+            startConnectingTimer(timeout);
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TCPConnection::startConnectingTimer(uint32_t timeout)
+    {
+        if (mConnectTimerID == T3D_INVALID_TIMER_ID)
+        {
+            mConnectTimerID = T3D_TIMER_MGR.startTimer(timeout, false,
+                [this](uint32_t timerID, uint32_t dt)
+                {
+                    if (timerID == mConnectTimerID)
+                    {
+                        mConnectTimerID = T3D_INVALID_TIMER_ID;
+                    }
+                });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TCPConnection::stopConnectingTimer()
+    {
+        if (mConnectTimerID != T3D_INVALID_TIMER_ID)
+        {
+            T3D_TIMER_MGR.stopTimer(mConnectTimerID);
+            mConnectTimerID = T3D_INVALID_TIMER_ID;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -499,6 +529,8 @@ namespace Tiny3D
 
     TResult TCPConnection::disconnect()
     {
+        stopConnectingTimer();
+        
         if (mSocket != nullptr)
         {
             mSocket->close();

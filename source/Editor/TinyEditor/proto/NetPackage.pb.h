@@ -914,9 +914,9 @@ class NetRequestBody :
   static const NetRequestBody& default_instance();
 
   enum DataCase {
-    kHello = 3,
-    kCreateProject = 4,
-    kOpenProject = 5,
+    kHello = 2,
+    kCreateProject = 3,
+    kOpenProject = 4,
     DATA_NOT_SET = 0,
   };
 
@@ -990,22 +990,12 @@ class NetRequestBody :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSeqIdFieldNumber = 1,
-    kMessageIdFieldNumber = 2,
-    kHelloFieldNumber = 3,
-    kCreateProjectFieldNumber = 4,
-    kOpenProjectFieldNumber = 5,
+    kMessageIdFieldNumber = 1,
+    kHelloFieldNumber = 2,
+    kCreateProjectFieldNumber = 3,
+    kOpenProjectFieldNumber = 4,
   };
-  // int32 seq_id = 1;
-  void clear_seq_id();
-  ::PROTOBUF_NAMESPACE_ID::int32 seq_id() const;
-  void set_seq_id(::PROTOBUF_NAMESPACE_ID::int32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_seq_id() const;
-  void _internal_set_seq_id(::PROTOBUF_NAMESPACE_ID::int32 value);
-  public:
-
-  // int32 message_id = 2;
+  // int32 message_id = 1;
   void clear_message_id();
   ::PROTOBUF_NAMESPACE_ID::int32 message_id() const;
   void set_message_id(::PROTOBUF_NAMESPACE_ID::int32 value);
@@ -1014,7 +1004,7 @@ class NetRequestBody :
   void _internal_set_message_id(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // .Tiny3D.Editor.ReqHello hello = 3;
+  // .Tiny3D.Editor.ReqHello hello = 2;
   bool has_hello() const;
   private:
   bool _internal_has_hello() const;
@@ -1029,7 +1019,7 @@ class NetRequestBody :
   ::Tiny3D::Editor::ReqHello* _internal_mutable_hello();
   public:
 
-  // .Tiny3D.Editor.ReqCreateProject create_project = 4;
+  // .Tiny3D.Editor.ReqCreateProject create_project = 3;
   bool has_create_project() const;
   private:
   bool _internal_has_create_project() const;
@@ -1044,7 +1034,7 @@ class NetRequestBody :
   ::Tiny3D::Editor::ReqCreateProject* _internal_mutable_create_project();
   public:
 
-  // .Tiny3D.Editor.ReqOpenProject open_project = 5;
+  // .Tiny3D.Editor.ReqOpenProject open_project = 4;
   bool has_open_project() const;
   private:
   bool _internal_has_open_project() const;
@@ -1072,7 +1062,6 @@ class NetRequestBody :
   inline void clear_has_data();
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::PROTOBUF_NAMESPACE_ID::int32 seq_id_;
   ::PROTOBUF_NAMESPACE_ID::int32 message_id_;
   union DataUnion {
     DataUnion() {}
@@ -1490,27 +1479,7 @@ inline void RspCreateProject::set_result(::PROTOBUF_NAMESPACE_ID::int32 value) {
 
 // NetRequestBody
 
-// int32 seq_id = 1;
-inline void NetRequestBody::clear_seq_id() {
-  seq_id_ = 0;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 NetRequestBody::_internal_seq_id() const {
-  return seq_id_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 NetRequestBody::seq_id() const {
-  // @@protoc_insertion_point(field_get:Tiny3D.Editor.NetRequestBody.seq_id)
-  return _internal_seq_id();
-}
-inline void NetRequestBody::_internal_set_seq_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  seq_id_ = value;
-}
-inline void NetRequestBody::set_seq_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_seq_id(value);
-  // @@protoc_insertion_point(field_set:Tiny3D.Editor.NetRequestBody.seq_id)
-}
-
-// int32 message_id = 2;
+// int32 message_id = 1;
 inline void NetRequestBody::clear_message_id() {
   message_id_ = 0;
 }
@@ -1530,7 +1499,7 @@ inline void NetRequestBody::set_message_id(::PROTOBUF_NAMESPACE_ID::int32 value)
   // @@protoc_insertion_point(field_set:Tiny3D.Editor.NetRequestBody.message_id)
 }
 
-// .Tiny3D.Editor.ReqHello hello = 3;
+// .Tiny3D.Editor.ReqHello hello = 2;
 inline bool NetRequestBody::_internal_has_hello() const {
   return data_case() == kHello;
 }
@@ -1580,7 +1549,7 @@ inline ::Tiny3D::Editor::ReqHello* NetRequestBody::mutable_hello() {
   return _internal_mutable_hello();
 }
 
-// .Tiny3D.Editor.ReqCreateProject create_project = 4;
+// .Tiny3D.Editor.ReqCreateProject create_project = 3;
 inline bool NetRequestBody::_internal_has_create_project() const {
   return data_case() == kCreateProject;
 }
@@ -1630,7 +1599,7 @@ inline ::Tiny3D::Editor::ReqCreateProject* NetRequestBody::mutable_create_projec
   return _internal_mutable_create_project();
 }
 
-// .Tiny3D.Editor.ReqOpenProject open_project = 5;
+// .Tiny3D.Editor.ReqOpenProject open_project = 4;
 inline bool NetRequestBody::_internal_has_open_project() const {
   return data_case() == kOpenProject;
 }

@@ -48,6 +48,19 @@ namespace Tiny3D
 
     TResult ProjectManager::createProject(const String &path, const String &name)
     {
+        String projectPath = path + Dir::getNativeSeparator() + name;
+
+        if (!Dir::makeDir(projectPath))
+        {
+            
+        }
+
+        String assetsPath = projectPath + Dir::getNativeSeparator() + "Assets";
+        if (!Dir::makeDir(assetsPath))
+        {
+            
+        }
+        
         return T3D_OK;
     }
 

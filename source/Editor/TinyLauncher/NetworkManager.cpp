@@ -24,6 +24,8 @@
 
 
 #include "NetworkManager.h"
+
+#include "../TinyEditor/EditorPrerequisites.h"
 #include "proto/NetPackage.pb.h"
 
 
@@ -63,27 +65,31 @@ namespace Tiny3D
                         connection->setOnConnectedCallbak(
                             [this](TCPConnection *connection, TResult result)
                             {
-                                T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected !",
-                                    connection->getPeerName().c_str(), connection->getPeerPort());
+                                onConnected(connection, result);
                             });
 
                         connection->setOnRecvCallback(
                             [this](TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
-                            {});
+                            {
+                                return onRecv(connection, seq, data, dataSize);
+                            });
 
                         connection->setOnSendCallback(
                             [this](TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
-                            {});
+                            {
+                                return onSend(connection, seq, data, dataSize);
+                            });
 
                         connection->setOnExceptionCallback(
                             [this](TCPConnection *connection, TResult result)
-                            {});
+                            {
+                                return onException(connection, result);
+                            });
 
                         connection->setOnDisconnectedCallback(
-                            [this](TCPConnection *connection)
+                            [this](TCPConnection *connection, TResult result)
                             {
-                                T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] disconnected !",
-                                    connection->getPeerName().c_str(), connection->getPeerPort());
+                                onDisconnected(connection, result);
                             });
                         
                         enqueue(connection);
@@ -195,6 +201,95 @@ namespace Tiny3D
         mTCPConnections.clear();
         mClientConnections.clear();
         mEditorInstances.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NetworkManager::onConnected(TCPConnection *connection, TResult result)
+    {
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected !", connection->getPeerName().c_str(), connection->getPeerPort());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NetworkManager::onDisconnected(TCPConnection *connection, TResult result)
+    {
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] disconnected !",
+            connection->getPeerName().c_str(), connection->getPeerPort());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NetworkManager::onRecv(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
+    {
+        Editor::NetRequestBody req;
+        std::string str(static_cast<const char*>(data), dataSize);
+        if (req.ParseFromArray(data, dataSize))
+        {
+            switch (req.message_id())
+            {
+            case Editor::MessageID::MSGID_HELLO:
+                {
+                    // 心跳
+                    Editor::NetResponseBody rsp;
+                    rsp.set_message_id(Editor::MessageID::MSGID_HELLO);
+                    rsp.mutable_hello();
+                    int32_t rspDataSize = static_cast<int32_t>(rsp.ByteSizeLong());
+                    if (rsp.SerializeToArray(mSendBuffer, rspDataSize))
+                    {
+                        connection->send(seq, mSendBuffer, rspDataSize, false);
+                    }
+                    else
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_EDITOR, "Pack hello failed !");
+                    }
+                }
+                break;
+            case Editor::MessageID::MSGID_CREATE_PROJECT:
+                {
+                    // 创建工程
+                    const auto &msg = req.create_project();
+                    enqueue(connection, msg.path(), msg.name());
+
+                    // 回包
+                    Editor::NetResponseBody rsp;
+                    rsp.set_message_id(Editor::MessageID::MSGID_CREATE_PROJECT);
+                    auto rspMsg = rsp.mutable_create_project();
+                    rspMsg->set_result(0);
+                    int32_t rspDataSize = static_cast<int32_t>(rsp.ByteSizeLong());
+                    if (rsp.SerializeToArray(mSendBuffer, rspDataSize))
+                    {
+                        connection->send(seq, mSendBuffer, rspDataSize, false);
+                    }
+                    else
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_EDITOR, "Pack create project failed !");
+                    }
+                }
+                break;
+            case Editor::MessageID::MSGID_OPEN_PROJECT:
+                {
+                    // 打开工程
+                }
+                break;
+            }
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NetworkManager::onSend(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NetworkManager::onException(TCPConnection *connection, TResult result)
+    {
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

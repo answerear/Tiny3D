@@ -28,17 +28,18 @@
 
 #include "T3DPlatformPrerequisites.h"
 #include "T3DNoncopyable.h"
+#include "T3DPlatformErrorDef.h"
 #include "T3DSocketType.h"
 
 
 namespace Tiny3D
 {
     using OnAccepted = TFunction<void(Socket *sockListen, Socket *sockClient)>;
-    using OnConnected = TFunction<void(Socket*, bool)>;
+    using OnConnected = TFunction<void(Socket*, TResult)>;
     using OnRecv = TFunction<TResult(Socket*)>;
     using OnSend = TFunction<TResult(Socket*)>;
     using OnException = TFunction<TResult(Socket*)>;
-    using OnDisconnected = TFunction<void(Socket*)>;
+    using OnDisconnected = TFunction<void(Socket*, TResult)>;
     
     class T3D_PLATFORM_API Socket : public Noncopyable
     {
@@ -358,17 +359,17 @@ namespace Tiny3D
 
         static TResult dequeue(Socket *socket);
 
-        void callOnAccepted(Socket *sockClient);
+        void callOnAccepted(Socket *sockClient) { if (mOnAccepted) mOnAccepted(this, sockClient); }
 
-        void callOnConnected(bool isOK);
+        void callOnConnected(TResult result) { if (mOnConnected) mOnConnected(this, result); }
 
-        TResult callOnRecv();
+        TResult callOnRecv() { return mOnRecv ? mOnRecv(this) : T3D_OK; }
 
-        TResult callOnSend();
+        TResult callOnSend() { return mOnSend ? mOnSend(this) : T3D_OK; };
 
-        TResult callOnException();
+        TResult callOnException() { return mOnException ? mOnException(this) : T3D_OK; }
         
-        void callOnDisconnected();
+        void callOnDisconnected(TResult result) { if (mOnDisconnected) mOnDisconnected(this, result); }
 
     protected:
         OnAccepted mOnAccepted {nullptr};

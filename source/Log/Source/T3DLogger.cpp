@@ -465,7 +465,13 @@ namespace Tiny3D
 
     void Logger::startFlushTimer()
     {
-        mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(mStrategy.unMaxCacheTime, true, this);
+        mFlushCacheTimerID = T3D_TIMER_MGR.startTimer(
+            mStrategy.unMaxCacheTime,
+            true,
+            [this](ID timerID, uint32_t dt)
+            {
+                onTimer(timerID, dt);
+            });
     }
 
     //--------------------------------------------------------------------------
@@ -481,7 +487,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Logger::onTimer(ID timerID, int32_t dt)
+    void Logger::onTimer(ID timerID, uint32_t dt)
     {
         if (timerID == mFlushCacheTimerID)
         {

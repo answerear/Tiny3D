@@ -28,7 +28,7 @@
 #include "ImErrors.h"
 #include "ProjectManager.h"
 #include "LauncherApp.h"
-#include "LauncherEvent.h"
+#include "LauncherEventDefine.h"
 
 
 namespace Tiny3D

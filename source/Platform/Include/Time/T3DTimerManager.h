@@ -58,10 +58,10 @@ namespace Tiny3D
          * @brief 启动定时器
          * @param [in] interval : 时间间隔
          * @param [in] repeat : 是否循环定时器
-         * @param [in] listener : 定时器回调对象
+         * @param [in] callback : 定时器回调对象
          * @return 调用成功返回有效定时器ID，否则返回T3D_INVALID_TIMER_ID
          */
-        ID startTimer(uint32_t interval, bool repeat, ITimerListener *listener);
+        ID startTimer(uint32_t interval, bool repeat, const TimerCallback &callback);
 
         /**
          * @brief 停止定时器

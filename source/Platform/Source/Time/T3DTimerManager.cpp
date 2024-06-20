@@ -53,12 +53,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID TimerManager::startTimer(uint32_t interval, bool repeat,
-        ITimerListener *listener)
+    ID TimerManager::startTimer(uint32_t interval, bool repeat, const TimerCallback &callback)
     {
         if (mTimerService != nullptr)
         {
-            return mTimerService->startTimer(interval, repeat, listener);
+            return mTimerService->startTimer(interval, repeat, callback);
         }
 
         return INVALID_TIMER_ID;

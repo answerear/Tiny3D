@@ -141,7 +141,7 @@ namespace Tiny3D
     using OnTCPException = TFunction<void(TCPConnection *connection, TResult result)>;
 
     /// connection : 连接对象
-    using OnTCPDisconnected = TFunction<void(TCPConnection *connection)>;
+    using OnTCPDisconnected = TFunction<void(TCPConnection *connection, TResult result)>;
     
     /**
      * TCP 连接
@@ -217,9 +217,10 @@ namespace Tiny3D
          * 发起连接
          * @param [in] addr : 远端地址
          * @param [in] port : 远端端口
+         * @param [in] timeout : 连接超时
          * @return 调用成功返回 T3D_OK.
          */
-        TResult connect(const String &addr, uint16_t port);
+        TResult connect(const String &addr, uint16_t port, uint32_t timeout = 10 * 1000);
 
         /**
          * 发送数据
@@ -256,7 +257,7 @@ namespace Tiny3D
         
         void callOnException(TResult result) { if (mOnException) mOnException(this, result); }
         
-        void callOnDisconnected() { if (mOnDisconnected) mOnDisconnected(this); }
+        void callOnDisconnected(TResult result) { if (mOnDisconnected) mOnDisconnected(this, result); }
 
         void ensureSendBuffer();
 
@@ -269,8 +270,12 @@ namespace Tiny3D
         TResult sendRemainData();
 
         static TResult enqueue(TCPConnection *connection);
-
+    
         static TResult dequeue(TCPConnection *connection);
+
+        void startConnectingTimer(uint32_t timeout);
+
+        void stopConnectingTimer();
         
     protected:
         /// 连接 socket
@@ -302,6 +307,9 @@ namespace Tiny3D
 
         /// 发送数据缓冲区的容量
         int32_t mSendBufferCapacity {8*1024};
+
+        /// 连接超时定时器
+        ID mConnectTimerID {T3D_INVALID_TIMER_ID};
 
         /// 是否发送缓冲区重新分配空间
         bool mIsSendBufDirty {true};

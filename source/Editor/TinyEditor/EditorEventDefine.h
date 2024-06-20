@@ -22,53 +22,20 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_TIMER_INTERFACE_H__
-#define __T3D_TIMER_INTERFACE_H__
+#pragma once
 
 
-#include "T3DPlatformPrerequisites.h"
-#include "T3DType.h"
-#include "T3DMacro.h"
+#include "EditorPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class ITimerListener;
+    NS_BEGIN(Editor)
 
-    class ITimerService
+    enum AppEventID
     {
-        T3D_DECLARE_INTERFACE(ITimerService);
-
-    public:
-        static const ID INVALID_TIMER_ID;   /**< 无效定时器ID */
-
-        /**
-         * @brief 启动定时器
-         * @param [in] interval : 时间间隔
-         * @param [in] repeat : 是否循环定时器
-         * @param [in] callback : 定时器回调函数
-         * @return 调用成功返回有效定时器ID，否则返回T3D_INVALID_TIMER_ID
-         */
-        virtual ID startTimer(uint32_t interval, bool repeat, const TimerCallback &callback) = 0;
-
-        /**
-         * @brief 停止定时器
-         * @param [in] timerID : 有效定时器ID，通过startTimer返回
-         * @return 调用成功返回T3D_OK
-         */
-        virtual TResult stopTimer(ID timerID) = 0;
-
-        /**
-         * @brief 初始化定时器服务
-         */
-        virtual TResult init() = 0;
-
-        /**
-         * @brief 轮询是否有定时器事件触发
-         */
-        virtual TResult pollEvents() = 0;
+        kEvtApp = 0,
     };
+
+    NS_END
 }
-
-
-#endif  /*__T3D_TIMER_INTERFACE_H__*/

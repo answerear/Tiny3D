@@ -33,13 +33,13 @@
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API ITimerListener
-    {
-        T3D_DECLARE_INTERFACE(ITimerListener);
-
-    public:
-        virtual void onTimer(ID timerID, int32_t dt) = 0;
-    };
+    // class T3D_PLATFORM_API ITimerListener
+    // {
+    //     T3D_DECLARE_INTERFACE(ITimerListener);
+    //
+    // public:
+    //     virtual void onTimer(ID timerID, int32_t dt) = 0;
+    // };
 }
 
 

@@ -56,8 +56,13 @@ namespace Tiny3D
     class TCPConnection;
     class TCPListener;
 
-    // ulong_t pid , const String &pname
-    using OnTraverseProcess = TFunction<bool(ulong_t, const String &)>;
+    /// pid : 进程 ID
+    /// pname : 进程名称
+    using OnTraverseProcess = TFunction<bool(ulong_t pid, const String &pname)>;
+
+    /// timerID : 定时器 ID，startTimer 返回的那个 ID
+    /// dt : 距离启动或者上次回调（循环定时器时候存在上一次回调）的时间间隔
+    using TimerCallback = TFunction<void(ID timerID, uint32_t dt)>;
 }
  
 

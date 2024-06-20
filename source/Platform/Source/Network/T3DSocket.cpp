@@ -92,7 +92,7 @@ namespace Tiny3D
     Socket::Socket()
         : mSocket(INVALID_SOCKET)
     {
-        
+        enqueue(this);
     }
 
     //--------------------------------------------------------------------------
@@ -100,6 +100,7 @@ namespace Tiny3D
     Socket::~Socket()
     {
         close();
+        dequeue(this);
     }
 
     //--------------------------------------------------------------------------
@@ -140,8 +141,6 @@ namespace Tiny3D
                 ret = T3D_ERR_SOCKET_CREATED;
                 break;
             }
-            
-            ret = enqueue(this);
         } while (false);
 
         return ret;
@@ -163,12 +162,6 @@ namespace Tiny3D
 
             if (mState == State::kConnected)
             {
-                ret = dequeue(this);
-                if (T3D_FAILED(ret))
-                {
-                    break;
-                }
-
                 ::shutdown(mSocket, 2);
 
                 T3DCloseSocket(mSocket);
@@ -179,6 +172,8 @@ namespace Tiny3D
                 {
                     cleanup();
                 }
+
+                callOnDisconnected(T3D_OK);
             }
         } while (false);
 
@@ -190,12 +185,7 @@ namespace Tiny3D
     TResult Socket::attach(SOCKET socket)
     {
         mSocket = socket;
-        TResult ret = enqueue(this);
-        if (T3D_FAILED(ret))
-        {
-            mSocket = INVALID_SOCKET;
-        }
-        return ret;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -205,11 +195,6 @@ namespace Tiny3D
         SOCKET socket = INVALID_SOCKET;
         do
         {
-            TResult ret = dequeue(this);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
             socket = mSocket;
             mSocket = INVALID_SOCKET;
         } while (false);
@@ -355,7 +340,7 @@ namespace Tiny3D
         sockClient.mState = State::kConnected;
         callOnAccepted(&sockClient);
         
-        sockClient.callOnConnected(true);
+        sockClient.callOnConnected(T3D_OK);
 
         return T3D_OK;
     }
@@ -434,7 +419,7 @@ namespace Tiny3D
 
             if (mState == State::kConnected)
             {
-                callOnDisconnected();
+                callOnDisconnected(T3D_OK);
             }
         }
         
@@ -621,69 +606,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Socket::callOnAccepted(Socket *sockClient)
-    {
-        if (mOnAccepted != nullptr)
-        {
-            mOnAccepted(this, sockClient);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Socket::callOnConnected(bool isOK)
-    {
-        if (mOnConnected != nullptr)
-        {
-            mOnConnected(this, isOK);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Socket::callOnRecv()
-    {
-        if (mOnRecv != nullptr)
-        {
-            return mOnRecv(this);
-        }
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Socket::callOnSend()
-    {
-        if (mOnSend != nullptr)
-        {
-            return mOnSend(this);
-        }
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Socket::callOnException()
-    {
-        if (mOnException != nullptr)
-        {
-            return mOnException(this);
-        }
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Socket::callOnDisconnected()
-    {
-        if (mOnDisconnected != nullptr)
-        {
-            mOnDisconnected(this);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult Socket::pollEvents(uint32_t timeout)
     {
         fd_set readfds, writefds, errorfds;
@@ -697,14 +619,17 @@ namespace Tiny3D
 
         for (auto socket : msSockets)
         {
-            if ((handle = socket->prepareFdSet(readfds, writefds, errorfds)) != (int32_t)INVALID_SOCKET)
+            if (socket->isConnecting() || socket->isConnected())
             {
-                if (handle > maxHandle)
+                if (handle = socket->prepareFdSet(readfds, writefds, errorfds) != (int32_t)INVALID_SOCKET)
                 {
-                    maxHandle = handle;
-                }
+                    if (handle > maxHandle)
+                    {
+                        maxHandle = handle;
+                    }
 
-                useSelect = true;
+                    useSelect = true;
+                }
             }
         }
 
@@ -721,7 +646,10 @@ namespace Tiny3D
 
             for (auto socket : msSockets)
             {
-                ret = socket->handleEvent(readfds, writefds, errorfds);
+                if (socket->isConnecting() || socket->isConnected())
+                {
+                    ret = socket->handleEvent(readfds, writefds, errorfds);
+                }
             }
         }
 
@@ -784,7 +712,7 @@ namespace Tiny3D
                 // 出错了
                 ret = T3D_ERR_SOCKET_ERROR;
                 mState = State::kDisconnected;
-                callOnConnected(false);
+                callOnConnected(ret);
             }
             else if (FD_ISSET(mSocket, &writefds))
             {
@@ -792,14 +720,14 @@ namespace Tiny3D
                 {
                     ret = T3D_ERR_SOCKET_ERROR;
                     mState = State::kDisconnected;
-                    callOnConnected(false);
+                    callOnConnected(ret);
                 }
                 else
                 {
                     // 连接上
                     setNonBlocking();
                     mState = State::kConnected;
-                    callOnConnected(true);
+                    callOnConnected(T3D_OK);
                 }
             }
         }
@@ -811,9 +739,9 @@ namespace Tiny3D
                 ret = callOnRecv();
                 if (T3D_FAILED(ret))
                 {
-                    callOnDisconnected();
-                    close();
                     mState = State::kDisconnected;
+                    close();
+                    callOnDisconnected(ret);
                 }
             }
 
@@ -823,9 +751,9 @@ namespace Tiny3D
                 ret = callOnSend();
                 if (T3D_FAILED(ret))
                 {
-                    callOnDisconnected();
                     close();
                     mState = State::kDisconnected;
+                    callOnDisconnected(ret);
                 }
             }
         }
