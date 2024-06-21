@@ -231,6 +231,8 @@ namespace Tiny3D
     {
         T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] disconnected !",
             connection->getPeerName().c_str(), connection->getPeerPort());
+
+        dequeue(connection);
     }
 
     //--------------------------------------------------------------------------

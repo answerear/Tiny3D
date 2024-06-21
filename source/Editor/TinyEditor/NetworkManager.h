@@ -99,6 +99,11 @@ namespace Tiny3D
         };
         
         uint8_t mSendBuffer[SENDBUF_SIZE];
+
+        String mProjectPath {};
+        String mProjectName {};
+
+        bool mIsOpenedProject {false};
     };
 
     #define NETWORK_MGR     NetworkManager::getInstance()

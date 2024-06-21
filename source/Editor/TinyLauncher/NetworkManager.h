@@ -88,13 +88,9 @@ namespace Tiny3D
         {
             std::size_t operator()(const EditorInstance &inst) const
             {
-#if 1
                 std::size_t h1 = std::hash<String>{}(inst.path);
                 std::size_t h2 = std::hash<String>{}(inst.name);
                 return h1 ^ (h2 << 1); // 合并两个哈希值
-#else
-                return inst.pid;
-#endif
             }
         };
         

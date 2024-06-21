@@ -118,6 +118,7 @@ namespace Tiny3D
     void NetworkManager::shutdown()
     {
         stopHelloTimer();
+        stopMonitorTimer();
         
         if (mConnection != nullptr)
         {
@@ -137,6 +138,12 @@ namespace Tiny3D
 
             // 启动 hello 定时器
             startHelloTimer();
+
+            if (!mIsOpenedProject)
+            {
+                // 没有上报过打开信息，上报一次
+                openProject(mProjectPath, mProjectName);
+            }
         }
         else
         {
@@ -144,6 +151,8 @@ namespace Tiny3D
 
             // 连接失败，说明 launcher 可能没运行，启动定时检测
             startMonitorTimer();
+
+            mIsOpenedProject = false;
         }
     }
 
@@ -171,6 +180,10 @@ namespace Tiny3D
                     auto msg = rsp.mutable_create_project();
                     T3D_LOG_INFO(LOG_TAG_EDITOR, "Create project : Path [%s], Name [%s], Result [%d]",
                         msg->path().c_str(), msg->name().c_str(), msg->result());
+                    if (msg->result() == T3D_OK)
+                    {
+                        mIsOpenedProject = true;
+                    }
                 }
                 break;
             case MSGID_OPEN_PROJECT:
@@ -179,6 +192,10 @@ namespace Tiny3D
                     auto msg = rsp.mutable_open_project();
                     T3D_LOG_INFO(LOG_TAG_EDITOR, "Open project : Path [%s], Name [%s], Result [%d]",
                         msg->path().c_str(), msg->name().c_str(), msg->result());
+                    if (msg->result() == T3D_OK)
+                    {
+                        mIsOpenedProject = true;
+                    }
                 }
                 break;
             }
@@ -218,6 +235,8 @@ namespace Tiny3D
         {
             // 异常断开连接，启动监控定时器
             startMonitorTimer();
+
+            mIsOpenedProject = false;
         }
     }
 
@@ -303,6 +322,14 @@ namespace Tiny3D
         {
             ret = mConnection->send(mSeq++, mSendBuffer, reqDataSize, true);
         }
+
+        if (mProjectPath.empty() && mProjectName.empty())
+        {
+            mIsOpenedProject = true;
+        }
+
+        mProjectPath = path;
+        mProjectName = name;
         
         return ret;
     }
@@ -326,6 +353,14 @@ namespace Tiny3D
         {
             ret = mConnection->send(mSeq++, mSendBuffer, reqDataSize, true);
         }
+
+        if (mProjectPath.empty() && mProjectName.empty())
+        {
+            mIsOpenedProject = true;
+        }
+        
+        mProjectPath = path;
+        mProjectName = name;
         
         return ret;
     }
