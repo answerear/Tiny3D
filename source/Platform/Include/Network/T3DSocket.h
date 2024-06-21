@@ -321,6 +321,14 @@ namespace Tiny3D
          */
         static bool isDomain(const String &strDomain);
 
+        static uint16_t htons(uint16_t val) { return isBigEndian() ? val : swap16(val); }
+
+        static uint32_t htonl(uint32_t val) { return isBigEndian() ? val : swap32(val); }
+
+        static uint16_t ntohs(uint16_t val) { return isBigEndian() ? val : swap16(val); }
+
+        static uint32_t ntohl(uint32_t val) { return isBigEndian() ? val : swap32(val); }
+
     protected:
         /**
          * 准备套接字描述符集，用于检测是否可读、可写、发生异常错误
@@ -358,6 +366,19 @@ namespace Tiny3D
         static TResult enqueue(Socket *socket);
 
         static TResult dequeue(Socket *socket);
+
+        static bool isBigEndian() { uint16_t x = 0x1234; return (*(unsigned char*)&x == 0x12); }
+
+        static uint16_t swap16(uint16_t val)
+        {
+            return ((((uint16_t)(val) & 0xff00) >> 8) | (((uint16_t)(val) & 0x00ff) << 8));
+        }
+
+        static uint32_t swap32(uint32_t val)
+        {
+            return ((((uint32_t)(val) & 0xff000000) >> 24) | (((uint32_t)(val) & 0x00ff0000) >> 8)
+                | (((uint32_t)(val) & 0x0000ff00) << 8) | (((uint32_t)(val) & 0x000000ff) << 24));
+        }
 
         void callOnAccepted(Socket *sockClient) { if (mOnAccepted) mOnAccepted(this, sockClient); }
 
