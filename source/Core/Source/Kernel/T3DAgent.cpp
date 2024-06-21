@@ -712,6 +712,7 @@ namespace Tiny3D
             if (updateData.pollEvents != nullptr)
             {
                 mIsRunning = updateData.pollEvents();
+                T3D_PLATFORM.poll();
             }
 
             // 更新
