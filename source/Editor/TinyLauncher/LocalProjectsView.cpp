@@ -630,8 +630,8 @@ namespace Tiny3D
                 break;
             }
 
-            LauncherApp *app = static_cast<LauncherApp *>(Application::getInstancePtr());
-            app->exitApp();
+            // LauncherApp *app = static_cast<LauncherApp *>(Application::getInstancePtr());
+            // app->exitApp();
         } while (false);
 
         return ret;
