@@ -384,9 +384,10 @@ namespace Tiny3D
                         ret = T3D_ERR_SOCKET_NO_SENDBUF;
                         break;
                     }
-                    
-                    package->seq = seq;
-                    package->length = static_cast<uint16_t>(pkgSize);
+
+                    package->magic = Socket::htons(T3D_NET_PACKAGE_MAGIC);
+                    package->seq = Socket::htonl(seq);
+                    package->length = Socket::htons(static_cast<uint16_t>(pkgSize));
                     memcpy(package->data, data, dataSize);
                     mSendBufferSize += pkgSize;
                 }
@@ -407,8 +408,9 @@ namespace Tiny3D
                 break;
             }
 
-            package->seq = seq;
-            package->length = static_cast<uint16_t>(pkgSize);
+            package->magic = Socket::htons(T3D_NET_PACKAGE_MAGIC);
+            package->seq = Socket::htonl(seq);
+            package->length = Socket::htons(static_cast<uint16_t>(pkgSize));
             memcpy(package->data, data, dataSize);
             
             if (mSendBufferSize > 0)
@@ -446,7 +448,7 @@ namespace Tiny3D
             }
             
             // 发送了完整的包，回调通知发送成功
-            callOnSend(seq, data, dataSize);
+            callOnSend(seq, data, dataSize-T3D_NET_PACKAGE_HEADER_SIZE);
         } while (false);
         
         return ret;
@@ -486,18 +488,18 @@ namespace Tiny3D
             // 发送回调，告知上层发送了哪些包
             int32_t offset = 0;
             NetPackage *package = (NetPackage *)(mSendBuffer);
-            int32_t pkgSize = package->length + T3D_NET_PACKAGE_HEADER_SIZE;
+            int32_t pkgSize = Socket::ntohs(package->length);
             int32_t remainLen = sendLen + mSendBufferBegin;
                 
             while (remainLen > 0 && remainLen >= pkgSize)
             {
-                T3D_ASSERT(package->magic == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
+                T3D_ASSERT(Socket::ntohs(package->magic) == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
                 // 发送回调，告知上层发送了哪些包
-                callOnSend(package->seq, package->data, package->length);
+                callOnSend(package->seq, package->data, package->length-T3D_NET_PACKAGE_HEADER_SIZE);
                 offset += pkgSize;
                 remainLen -= pkgSize;
                 package = (NetPackage *)(mSendBuffer + offset);
-                pkgSize = package->length + T3D_NET_PACKAGE_HEADER_SIZE;
+                pkgSize = Socket::ntohs(package->length);
             }
             
             if (sendLen < length)
@@ -505,7 +507,7 @@ namespace Tiny3D
                 // 发送了部分
                 
                 T3D_ASSERT(remainLen > 0, "The length of remain data greater than zero !");
-                T3D_ASSERT(package->magic == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
+                T3D_ASSERT(Socket::ntohs(package->magic) == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
                 
                 uint8_t *buf = mSendBuffer + offset;
                 memmove(mSendBuffer, buf, remainLen);
@@ -578,7 +580,7 @@ namespace Tiny3D
                 break;
             }
 
-            int32_t pkgSize = package->length + T3D_NET_PACKAGE_HEADER_SIZE;
+            int32_t pkgSize = package->length = Socket::ntohs(package->length);
             if (mRecvBufferSize < pkgSize)
             {
                 // 长度不够一个完整包，只能等等
@@ -589,12 +591,15 @@ namespace Tiny3D
             int32_t offset = 0;
             while (length >= pkgSize)
             {
+                package->magic = Socket::ntohs(package->magic);
                 T3D_ASSERT(package->magic == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
-                callOnRecv(package->seq, package->data, package->length);
+                package->seq = Socket::ntohl(package->seq);
+                callOnRecv(package->seq, package->data, package->length-T3D_NET_PACKAGE_HEADER_SIZE);
                 length -= pkgSize;
                 offset += pkgSize;
                 package = (NetPackage *)(mRecvBuffer + offset);
-                pkgSize = package->length + T3D_NET_PACKAGE_HEADER_SIZE;
+                package->length = Socket::ntohs(package->length);
+                pkgSize = package->length;
             }
 
             buf = mRecvBuffer + offset;
