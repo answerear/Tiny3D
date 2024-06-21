@@ -136,6 +136,12 @@ namespace Tiny3D
         if (windowProcessID == targetProcessID)
         {
             // 将窗口置于最上层
+            // 检查窗口是否最小化
+            if (IsIconic(hwnd))
+            {
+                // 激活最小化的窗口并将其置于最前端
+                ShowWindow(hwnd, SW_RESTORE);
+            }
             ::SetForegroundWindow(hwnd);
             return FALSE; // 停止遍历窗口
         }
