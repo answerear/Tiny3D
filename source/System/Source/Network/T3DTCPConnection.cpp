@@ -535,8 +535,15 @@ namespace Tiny3D
         
         if (mSocket != nullptr)
         {
+            // 断开连接
             mSocket->close();
+
+            // 清楚所有缓存带处理数据
+            mSendBufferBegin = 0;
+            mSendBufferSize = 0;
+            mRecvBufferSize = 0;
         }
+        
         return T3D_OK;
     }
 
