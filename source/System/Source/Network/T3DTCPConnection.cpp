@@ -172,12 +172,16 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TCPConnection::TCPConnections TCPConnection::msConnections;
+    TCPConnection::TCPConnections TCPConnection::msWaitingDeleteConnections;
     
     //--------------------------------------------------------------------------
 
     void TCPConnection::poll()
     {
         Socket::pollEvents(100);
+
+        // 释放所有待删除连接对象
+        destroyAll();
     }
 
     //--------------------------------------------------------------------------
@@ -191,6 +195,26 @@ namespace Tiny3D
         }
 
         msConnections.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TCPConnection::destroyConnection(TCPConnection *connection)
+    {
+        msConnections.erase(connection);
+        msWaitingDeleteConnections.emplace(connection);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TCPConnection::destroyAll()
+    {
+        for (auto conn : msWaitingDeleteConnections)
+        {
+            T3D_SAFE_DELETE(conn);
+        }
+
+        msWaitingDeleteConnections.clear();
     }
 
     //--------------------------------------------------------------------------
@@ -531,17 +555,20 @@ namespace Tiny3D
 
     TResult TCPConnection::disconnect()
     {
-        stopConnectingTimer();
-        
-        if (mSocket != nullptr)
+        if (mSocket != nullptr && (mSocket->isConnected() || mSocket->isConnecting()))
         {
-            // 断开连接
-            mSocket->close();
+            stopConnectingTimer();
+        
+            if (mSocket != nullptr)
+            {
+                // 断开连接
+                mSocket->close();
 
-            // 清楚所有缓存带处理数据
-            mSendBufferBegin = 0;
-            mSendBufferSize = 0;
-            mRecvBufferSize = 0;
+                // 清楚所有缓存带处理数据
+                mSendBufferBegin = 0;
+                mSendBufferSize = 0;
+                mRecvBufferSize = 0;
+            }
         }
         
         return T3D_OK;

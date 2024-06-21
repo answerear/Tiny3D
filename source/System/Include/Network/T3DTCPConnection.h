@@ -159,6 +159,14 @@ namespace Tiny3D
          */
         static void closeAllConnections();
 
+        /**
+         * 释放连接对象，相当于 Delete ，请勿自己调用 delete 去删除，使用本函数代替
+         * @param [in] connection : 要删除的连接对象
+         */
+        static void destroyConnection(TCPConnection *connection);
+
+        static void destroyAll();
+
         /// Constructor.
         TCPConnection();
 
@@ -334,8 +342,10 @@ namespace Tiny3D
 
         using TCPConnections = TUnorderedSet<TCPConnection*>;
 
-        /// 所有的连接
+        /// 所有的连接对象
         static TCPConnections msConnections;
+        /// 待删除的连接对象
+        static TCPConnections msWaitingDeleteConnections;
     };
 }
  

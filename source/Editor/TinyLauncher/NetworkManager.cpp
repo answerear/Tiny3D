@@ -192,6 +192,7 @@ namespace Tiny3D
         {
             return;
         }
+        mTCPConnections.erase(itr);
 
         auto itSock = mClientConnections.find(connection);
         if (itSock == mClientConnections.end())
@@ -201,18 +202,20 @@ namespace Tiny3D
 
         EditorInstance editorInst = {itSock->second.path, itSock->second.name};
         mEditorInstances.erase(editorInst);
+        mClientConnections.erase(itSock);
     }
     
     //--------------------------------------------------------------------------
 
     void NetworkManager::closeAllConnections()
     {
-        for (auto connection : mTCPConnections)
+        while (!mTCPConnections.empty())
         {
+            auto connection = mTCPConnections.front();
             connection->disconnect();
-            T3D_SAFE_DELETE(connection);
         }
 
+        TCPConnection::destroyAll();
         mTCPConnections.clear();
         mClientConnections.clear();
         mEditorInstances.clear();
@@ -222,7 +225,8 @@ namespace Tiny3D
 
     void NetworkManager::onConnected(TCPConnection *connection, TResult result)
     {
-        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected !", connection->getPeerName().c_str(), connection->getPeerPort());
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected !",
+            connection->getPeerName().c_str(), connection->getPeerPort());
     }
 
     //--------------------------------------------------------------------------
@@ -233,6 +237,7 @@ namespace Tiny3D
             connection->getPeerName().c_str(), connection->getPeerPort());
 
         dequeue(connection);
+        TCPConnection::destroyConnection(connection);
     }
 
     //--------------------------------------------------------------------------
