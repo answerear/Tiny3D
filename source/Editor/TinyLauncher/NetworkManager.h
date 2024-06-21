@@ -46,11 +46,13 @@ namespace Tiny3D
         void poll();
         
         void shutdown();
+
+        ulong_t getEditorProcessID(const String &path, const String &name) const;
         
     protected:
         void enqueue(TCPConnection *connection);
 
-        void enqueue(TCPConnection *connection, const String &path, const String &name);
+        void enqueue(TCPConnection *connection, const String &path, const String &name, ulong_t pid);
 
         void dequeue(TCPConnection *connection);
 
@@ -73,18 +75,26 @@ namespace Tiny3D
             String path {};
             /// 编辑器打开工程的名称
             String name {};
+            /// 进程 ID
+            ulong_t pid {0};
 
-            bool operator ==(const EditorInstance &other) const { return (path == other.path && name == other.name); }
-
-            bool operator ==(const EditorInstance &other) { return (path == other.path && name == other.name); }
+            bool operator ==(const EditorInstance &other) const
+            {
+                return (path == other.path && name == other.name);
+            }
         };
 
         struct EditorInstanceHash
         {
-            std::size_t operator()(const EditorInstance &inst) const {
+            std::size_t operator()(const EditorInstance &inst) const
+            {
+#if 1
                 std::size_t h1 = std::hash<String>{}(inst.path);
                 std::size_t h2 = std::hash<String>{}(inst.name);
                 return h1 ^ (h2 << 1); // 合并两个哈希值
+#else
+                return inst.pid;
+#endif
             }
         };
         

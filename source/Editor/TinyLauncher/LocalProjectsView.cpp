@@ -27,6 +27,7 @@
 #include "NewProjectDlg.h"
 #include "ImErrors.h"
 #include "ProjectManager.h"
+#include "NetworkManager.h"
 #include "LauncherApp.h"
 #include "LauncherEventDefine.h"
 
@@ -565,7 +566,17 @@ namespace Tiny3D
         PROJECT_MGR.openProject(project->path, project->name);
         PROJECT_MGR.saveProjects();
 
-        startTinyEditor(project->path, project->name, false);
+        ulong_t pid = NETWORK_MGR.getEditorProcessID(project->path, project->name);
+        if (pid != 0)
+        {
+            // 已经有进程在运行，直接唤起进程
+            Process::wakeupProcess(pid);
+        }
+        else
+        {
+            // 没有进程，拉起新进程
+            startTinyEditor(project->path, project->name, false);
+        }
         
         return true;
     }
@@ -627,11 +638,9 @@ namespace Tiny3D
 
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Start TinyEditor failed ! ERROR [%d]", ret);
                 break;
             }
-
-            // LauncherApp *app = static_cast<LauncherApp *>(Application::getInstancePtr());
-            // app->exitApp();
         } while (false);
 
         return ret;

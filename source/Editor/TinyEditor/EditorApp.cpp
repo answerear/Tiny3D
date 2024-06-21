@@ -169,6 +169,17 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Startup network failed ! ERROR [%d]", ret);
                 break;
             }
+
+            if (mOptions.created)
+            {
+                // 新建工程
+                mNetworkMgr->createProject(mOptions.path, mOptions.name);
+            }
+            else
+            {
+                // 打开工程
+                mNetworkMgr->openProject(mOptions.path, mOptions.name);
+            }
             
             // 创建 imgui 环境
             ret = createImGuiEnv();
@@ -365,6 +376,7 @@ namespace Tiny3D
                 else if (strcmp(argv[i], "-n") == 0)
                 {
                     // name
+                    ++i;
                     mOptions.name = argv[i];
                 }
                 else if (strcmp(argv[i], "-c") == 0)

@@ -169,14 +169,16 @@ namespace Tiny3D
                 {
                     // 创建工程
                     auto msg = rsp.mutable_create_project();
-                    T3D_LOG_INFO(LOG_TAG_EDITOR, "Create project : Path [%s], Name [%s], Result [%d]", msg->path().c_str(), msg->name().c_str(), msg->result());
+                    T3D_LOG_INFO(LOG_TAG_EDITOR, "Create project : Path [%s], Name [%s], Result [%d]",
+                        msg->path().c_str(), msg->name().c_str(), msg->result());
                 }
                 break;
             case MSGID_OPEN_PROJECT:
                 {
                     // 打开工程
                     auto msg = rsp.mutable_open_project();
-                    T3D_LOG_INFO(LOG_TAG_EDITOR, "Open project : Path [%s], Name [%s], Result [%d]", msg->path().c_str(), msg->name().c_str(), msg->result());
+                    T3D_LOG_INFO(LOG_TAG_EDITOR, "Open project : Path [%s], Name [%s], Result [%d]",
+                        msg->path().c_str(), msg->name().c_str(), msg->result());
                 }
                 break;
             }
@@ -287,12 +289,14 @@ namespace Tiny3D
     TResult NetworkManager::createProject(const String &path, const String &name)
     {
         TResult ret = T3D_OK;
-
+        
         NetRequestBody req;
         req.set_message_id(MSGID_CREATE_PROJECT);
         auto pkg = req.mutable_create_project();
         pkg->set_path(path);
         pkg->set_name(name);
+        ulong_t pid = Process::getCurrentProcessID();
+        pkg->set_pid(pid);
         pkg->set_result(0);
         int32_t reqDataSize = static_cast<int32_t>(req.ByteSizeLong());
         if (req.SerializeToArray(mSendBuffer, reqDataSize))
@@ -314,6 +318,8 @@ namespace Tiny3D
         auto pkg = req.mutable_open_project();
         pkg->set_path(path);
         pkg->set_name(name);
+        ulong_t pid = Process::getCurrentProcessID();
+        pkg->set_pid(pid);
         pkg->set_result(0);
         int32_t reqDataSize = static_cast<int32_t>(req.ByteSizeLong());
         if (req.SerializeToArray(mSendBuffer, reqDataSize))

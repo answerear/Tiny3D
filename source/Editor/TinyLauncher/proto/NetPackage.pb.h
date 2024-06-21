@@ -463,6 +463,7 @@ class ReqCreateProject :
   enum : int {
     kPathFieldNumber = 2,
     kNameFieldNumber = 3,
+    kPidFieldNumber = 4,
     kResultFieldNumber = 1,
   };
   // string path = 2;
@@ -497,6 +498,15 @@ class ReqCreateProject :
   std::string* _internal_mutable_name();
   public:
 
+  // sint64 pid = 4;
+  void clear_pid();
+  ::PROTOBUF_NAMESPACE_ID::int64 pid() const;
+  void set_pid(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_pid() const;
+  void _internal_set_pid(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
   // int32 result = 1;
   void clear_result();
   ::PROTOBUF_NAMESPACE_ID::int32 result() const;
@@ -513,6 +523,7 @@ class ReqCreateProject :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::PROTOBUF_NAMESPACE_ID::int64 pid_;
   ::PROTOBUF_NAMESPACE_ID::int32 result_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_NetPackage_2eproto;
@@ -791,6 +802,7 @@ class ReqOpenProject :
   enum : int {
     kPathFieldNumber = 2,
     kNameFieldNumber = 3,
+    kPidFieldNumber = 4,
     kResultFieldNumber = 1,
   };
   // string path = 2;
@@ -825,6 +837,15 @@ class ReqOpenProject :
   std::string* _internal_mutable_name();
   public:
 
+  // sint64 pid = 4;
+  void clear_pid();
+  ::PROTOBUF_NAMESPACE_ID::int64 pid() const;
+  void set_pid(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_pid() const;
+  void _internal_set_pid(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
   // int32 result = 1;
   void clear_result();
   ::PROTOBUF_NAMESPACE_ID::int32 result() const;
@@ -841,6 +862,7 @@ class ReqOpenProject :
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::PROTOBUF_NAMESPACE_ID::int64 pid_;
   ::PROTOBUF_NAMESPACE_ID::int32 result_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_NetPackage_2eproto;
@@ -1577,6 +1599,26 @@ inline void ReqCreateProject::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Editor.ReqCreateProject.name)
 }
 
+// sint64 pid = 4;
+inline void ReqCreateProject::clear_pid() {
+  pid_ = PROTOBUF_LONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 ReqCreateProject::_internal_pid() const {
+  return pid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 ReqCreateProject::pid() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Editor.ReqCreateProject.pid)
+  return _internal_pid();
+}
+inline void ReqCreateProject::_internal_set_pid(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  pid_ = value;
+}
+inline void ReqCreateProject::set_pid(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_pid(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Editor.ReqCreateProject.pid)
+}
+
 // -------------------------------------------------------------------
 
 // RspCreateProject
@@ -1863,6 +1905,26 @@ inline void ReqOpenProject::set_allocated_name(std::string* name) {
   }
   name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:Tiny3D.Editor.ReqOpenProject.name)
+}
+
+// sint64 pid = 4;
+inline void ReqOpenProject::clear_pid() {
+  pid_ = PROTOBUF_LONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 ReqOpenProject::_internal_pid() const {
+  return pid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 ReqOpenProject::pid() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Editor.ReqOpenProject.pid)
+  return _internal_pid();
+}
+inline void ReqOpenProject::_internal_set_pid(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  pid_ = value;
+}
+inline void ReqOpenProject::set_pid(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_pid(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Editor.ReqOpenProject.pid)
 }
 
 // -------------------------------------------------------------------

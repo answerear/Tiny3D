@@ -134,6 +134,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ulong_t NetworkManager::getEditorProcessID(const String &path, const String &name) const
+    {
+        ulong_t pid = 0;
+
+        EditorInstance inst = {path, name, 0};
+        auto itr = mEditorInstances.find(inst);
+        if (itr != mEditorInstances.end())
+        {
+            pid = itr->first.pid;
+        }
+        return pid;
+    }
+
+    //--------------------------------------------------------------------------
+
     void NetworkManager::enqueue(TCPConnection *connection)
     {
         auto itr = std::find_if(
@@ -154,9 +169,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void NetworkManager::enqueue(TCPConnection *connection, const String &path, const String &name)
+    void NetworkManager::enqueue(TCPConnection *connection, const String &path, const String &name, ulong_t pid)
     {
-        EditorInstance editorInst = {path, name};
+        EditorInstance editorInst = {path, name, pid};
         mClientConnections.emplace(connection, editorInst);
         mEditorInstances.emplace(editorInst, connection);
     }
@@ -253,13 +268,15 @@ namespace Tiny3D
                 {
                     // 创建工程
                     const auto &msg = req.create_project();
-                    enqueue(connection, msg.path(), msg.name());
+                    enqueue(connection, msg.path(), msg.name(), msg.pid());
 
                     // 回包
                     Editor::NetResponseBody rsp;
                     rsp.set_message_id(Editor::MessageID::MSGID_CREATE_PROJECT);
                     auto rspMsg = rsp.mutable_create_project();
                     rspMsg->set_result(0);
+                    rspMsg->set_path(msg.path());
+                    rspMsg->set_name(msg.name());
                     int32_t rspDataSize = static_cast<int32_t>(rsp.ByteSizeLong());
                     if (rsp.SerializeToArray(mSendBuffer, rspDataSize))
                     {
@@ -274,6 +291,25 @@ namespace Tiny3D
             case Editor::MessageID::MSGID_OPEN_PROJECT:
                 {
                     // 打开工程
+                    const auto &msg = req.open_project();
+                    enqueue(connection, msg.path(), msg.name(), msg.pid());
+
+                    // 回包
+                    Editor::NetResponseBody rsp;
+                    rsp.set_message_id(Editor::MessageID::MSGID_OPEN_PROJECT);
+                    auto rspMsg = rsp.mutable_open_project();
+                    rspMsg->set_result(0);
+                    rspMsg->set_path(msg.path());
+                    rspMsg->set_name(msg.name());
+                    int32_t rspDataSize = static_cast<int32_t>(rsp.ByteSizeLong());
+                    if (rsp.SerializeToArray(mSendBuffer, rspDataSize))
+                    {
+                        connection->send(seq, mSendBuffer, rspDataSize, false);
+                    }
+                    else
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_EDITOR, "Pack open project failed !");
+                    }
                 }
                 break;
             }
