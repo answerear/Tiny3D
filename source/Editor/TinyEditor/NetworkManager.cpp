@@ -151,6 +151,41 @@ namespace Tiny3D
 
     TResult NetworkManager::onRecv(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
     {
+        T3D_LOG_INFO(LOG_TAG_EDITOR, "Recv seq [%u], dataSize [%d]", seq, dataSize);
+
+        Editor::NetResponseBody rsp;
+        if (rsp.ParseFromArray(data, dataSize))
+        {
+            T3D_LOG_INFO(LOG_TAG_EDITOR, "Recv message id [%d]", rsp.message_id());
+            
+            switch (rsp.message_id())
+            {
+            case MSGID_HELLO:
+                {
+                    // 心跳
+                }
+                break;
+            case MSGID_CREATE_PROJECT:
+                {
+                    // 创建工程
+                    auto msg = rsp.mutable_create_project();
+                    T3D_LOG_INFO(LOG_TAG_EDITOR, "Create project : Path [%s], Name [%s], Result [%d]", msg->path().c_str(), msg->name().c_str(), msg->result());
+                }
+                break;
+            case MSGID_OPEN_PROJECT:
+                {
+                    // 打开工程
+                    auto msg = rsp.mutable_open_project();
+                    T3D_LOG_INFO(LOG_TAG_EDITOR, "Open project : Path [%s], Name [%s], Result [%d]", msg->path().c_str(), msg->name().c_str(), msg->result());
+                }
+                break;
+            }
+        }
+        else
+        {
+            T3D_LOG_ERROR(LOG_TAG_EDITOR, "Parse net message failed !");
+        }
+        
         return T3D_OK;
     }
 

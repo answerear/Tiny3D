@@ -625,8 +625,42 @@ class RspCreateProject :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kPathFieldNumber = 2,
+    kNameFieldNumber = 3,
     kResultFieldNumber = 1,
   };
+  // string path = 2;
+  void clear_path();
+  const std::string& path() const;
+  void set_path(const std::string& value);
+  void set_path(std::string&& value);
+  void set_path(const char* value);
+  void set_path(const char* value, size_t size);
+  std::string* mutable_path();
+  std::string* release_path();
+  void set_allocated_path(std::string* path);
+  private:
+  const std::string& _internal_path() const;
+  void _internal_set_path(const std::string& value);
+  std::string* _internal_mutable_path();
+  public:
+
+  // string name = 3;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
   // int32 result = 1;
   void clear_result();
   ::PROTOBUF_NAMESPACE_ID::int32 result() const;
@@ -641,6 +675,8 @@ class RspCreateProject :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   ::PROTOBUF_NAMESPACE_ID::int32 result_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_NetPackage_2eproto;
@@ -917,8 +953,42 @@ class RspOpenProject :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kPathFieldNumber = 2,
+    kNameFieldNumber = 3,
     kResultFieldNumber = 1,
   };
+  // string path = 2;
+  void clear_path();
+  const std::string& path() const;
+  void set_path(const std::string& value);
+  void set_path(std::string&& value);
+  void set_path(const char* value);
+  void set_path(const char* value, size_t size);
+  std::string* mutable_path();
+  std::string* release_path();
+  void set_allocated_path(std::string* path);
+  private:
+  const std::string& _internal_path() const;
+  void _internal_set_path(const std::string& value);
+  std::string* _internal_mutable_path();
+  public:
+
+  // string name = 3;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
   // int32 result = 1;
   void clear_result();
   ::PROTOBUF_NAMESPACE_ID::int32 result() const;
@@ -933,6 +1003,8 @@ class RspOpenProject :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   ::PROTOBUF_NAMESPACE_ID::int32 result_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_NetPackage_2eproto;
@@ -1529,6 +1601,126 @@ inline void RspCreateProject::set_result(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:Tiny3D.Editor.RspCreateProject.result)
 }
 
+// string path = 2;
+inline void RspCreateProject::clear_path() {
+  path_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& RspCreateProject::path() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Editor.RspCreateProject.path)
+  return _internal_path();
+}
+inline void RspCreateProject::set_path(const std::string& value) {
+  _internal_set_path(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Editor.RspCreateProject.path)
+}
+inline std::string* RspCreateProject::mutable_path() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Editor.RspCreateProject.path)
+  return _internal_mutable_path();
+}
+inline const std::string& RspCreateProject::_internal_path() const {
+  return path_.GetNoArena();
+}
+inline void RspCreateProject::_internal_set_path(const std::string& value) {
+  
+  path_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RspCreateProject::set_path(std::string&& value) {
+  
+  path_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Editor.RspCreateProject.path)
+}
+inline void RspCreateProject::set_path(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  path_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Editor.RspCreateProject.path)
+}
+inline void RspCreateProject::set_path(const char* value, size_t size) {
+  
+  path_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Editor.RspCreateProject.path)
+}
+inline std::string* RspCreateProject::_internal_mutable_path() {
+  
+  return path_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RspCreateProject::release_path() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Editor.RspCreateProject.path)
+  
+  return path_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void RspCreateProject::set_allocated_path(std::string* path) {
+  if (path != nullptr) {
+    
+  } else {
+    
+  }
+  path_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), path);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Editor.RspCreateProject.path)
+}
+
+// string name = 3;
+inline void RspCreateProject::clear_name() {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& RspCreateProject::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Editor.RspCreateProject.name)
+  return _internal_name();
+}
+inline void RspCreateProject::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Editor.RspCreateProject.name)
+}
+inline std::string* RspCreateProject::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Editor.RspCreateProject.name)
+  return _internal_mutable_name();
+}
+inline const std::string& RspCreateProject::_internal_name() const {
+  return name_.GetNoArena();
+}
+inline void RspCreateProject::_internal_set_name(const std::string& value) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RspCreateProject::set_name(std::string&& value) {
+  
+  name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Editor.RspCreateProject.name)
+}
+inline void RspCreateProject::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Editor.RspCreateProject.name)
+}
+inline void RspCreateProject::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Editor.RspCreateProject.name)
+}
+inline std::string* RspCreateProject::_internal_mutable_name() {
+  
+  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RspCreateProject::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Editor.RspCreateProject.name)
+  
+  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void RspCreateProject::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Editor.RspCreateProject.name)
+}
+
 // -------------------------------------------------------------------
 
 // ReqOpenProject
@@ -1695,6 +1887,126 @@ inline void RspOpenProject::_internal_set_result(::PROTOBUF_NAMESPACE_ID::int32 
 inline void RspOpenProject::set_result(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_result(value);
   // @@protoc_insertion_point(field_set:Tiny3D.Editor.RspOpenProject.result)
+}
+
+// string path = 2;
+inline void RspOpenProject::clear_path() {
+  path_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& RspOpenProject::path() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Editor.RspOpenProject.path)
+  return _internal_path();
+}
+inline void RspOpenProject::set_path(const std::string& value) {
+  _internal_set_path(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Editor.RspOpenProject.path)
+}
+inline std::string* RspOpenProject::mutable_path() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Editor.RspOpenProject.path)
+  return _internal_mutable_path();
+}
+inline const std::string& RspOpenProject::_internal_path() const {
+  return path_.GetNoArena();
+}
+inline void RspOpenProject::_internal_set_path(const std::string& value) {
+  
+  path_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RspOpenProject::set_path(std::string&& value) {
+  
+  path_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Editor.RspOpenProject.path)
+}
+inline void RspOpenProject::set_path(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  path_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Editor.RspOpenProject.path)
+}
+inline void RspOpenProject::set_path(const char* value, size_t size) {
+  
+  path_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Editor.RspOpenProject.path)
+}
+inline std::string* RspOpenProject::_internal_mutable_path() {
+  
+  return path_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RspOpenProject::release_path() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Editor.RspOpenProject.path)
+  
+  return path_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void RspOpenProject::set_allocated_path(std::string* path) {
+  if (path != nullptr) {
+    
+  } else {
+    
+  }
+  path_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), path);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Editor.RspOpenProject.path)
+}
+
+// string name = 3;
+inline void RspOpenProject::clear_name() {
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& RspOpenProject::name() const {
+  // @@protoc_insertion_point(field_get:Tiny3D.Editor.RspOpenProject.name)
+  return _internal_name();
+}
+inline void RspOpenProject::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:Tiny3D.Editor.RspOpenProject.name)
+}
+inline std::string* RspOpenProject::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:Tiny3D.Editor.RspOpenProject.name)
+  return _internal_mutable_name();
+}
+inline const std::string& RspOpenProject::_internal_name() const {
+  return name_.GetNoArena();
+}
+inline void RspOpenProject::_internal_set_name(const std::string& value) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RspOpenProject::set_name(std::string&& value) {
+  
+  name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Tiny3D.Editor.RspOpenProject.name)
+}
+inline void RspOpenProject::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Tiny3D.Editor.RspOpenProject.name)
+}
+inline void RspOpenProject::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Tiny3D.Editor.RspOpenProject.name)
+}
+inline std::string* RspOpenProject::_internal_mutable_name() {
+  
+  return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RspOpenProject::release_name() {
+  // @@protoc_insertion_point(field_release:Tiny3D.Editor.RspOpenProject.name)
+  
+  return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void RspOpenProject::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:Tiny3D.Editor.RspOpenProject.name)
 }
 
 // -------------------------------------------------------------------

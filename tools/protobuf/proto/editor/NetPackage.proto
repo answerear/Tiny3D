@@ -38,6 +38,8 @@ message ReqCreateProject
 message RspCreateProject
 {
 	int32 result = 1;
+	string path = 2;
+	string name = 3;
 }
 
 // 打开工程 - 上行
@@ -52,6 +54,8 @@ message ReqOpenProject
 message RspOpenProject
 {
 	int32 result = 1;
+	string path = 2;
+	string name = 3;
 }
 
 

@@ -448,7 +448,7 @@ namespace Tiny3D
             }
             
             // 发送了完整的包，回调通知发送成功
-            callOnSend(seq, data, dataSize-T3D_NET_PACKAGE_HEADER_SIZE);
+            callOnSend(seq, data, dataSize);
         } while (false);
         
         return ret;

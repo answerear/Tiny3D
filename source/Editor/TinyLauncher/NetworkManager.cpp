@@ -222,16 +222,18 @@ namespace Tiny3D
 
     TResult NetworkManager::onRecv(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
     {
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Recv seq [%u], dataSize [%d]", seq, dataSize);
+        
         Editor::NetRequestBody req;
         
         if (req.ParseFromArray(data, dataSize))
         {
+            T3D_LOG_INFO(LOG_TAG_EDITOR, "Recv message id [%d]", req.message_id());
+            
             switch (req.message_id())
             {
             case Editor::MessageID::MSGID_HELLO:
                 {
-                    T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Recv hello seq [%u]", seq);
-                
                     // 心跳
                     Editor::NetResponseBody rsp;
                     rsp.set_message_id(Editor::MessageID::MSGID_HELLO);
@@ -276,6 +278,10 @@ namespace Tiny3D
                 break;
             }
         }
+        else
+        {
+            T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Parse net message failed !");
+        }
         
         return T3D_OK;
     }
@@ -284,6 +290,7 @@ namespace Tiny3D
 
     TResult NetworkManager::onSend(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
     {
+        T3D_LOG_INFO(LOG_TAG_EDITOR, "Send : seq [%u], dataSize [%d]", seq, dataSize);
         return T3D_OK;
     }
 
