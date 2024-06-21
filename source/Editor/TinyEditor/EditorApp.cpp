@@ -135,13 +135,13 @@ namespace Tiny3D
                 break;
             }
 
-            // std::stringstream ss;
-            // for (int32_t i = 0; i < argc; ++i)
-            // {
-            //     ss << argv[i] << " ";
-            // }
-            //
-            // T3D_LOG_INFO(LOG_TAG_EDITOR, "Tthe number of arguments : %d, Command line : %s", argc, ss.str().c_str());
+            std::stringstream ss;
+            for (int32_t i = 0; i < argc; ++i)
+            {
+                ss << argv[i] << " ";
+            }
+            
+            T3D_LOG_INFO(LOG_TAG_EDITOR, "Tthe number of arguments : %d, Command line : %s", argc, ss.str().c_str());
             
             if (!parseCommandLine(argc, argv))
             {
