@@ -209,6 +209,14 @@ namespace Tiny3D
     void NetworkManager::onDisconnected(TCPConnection *connection, TResult result)
     {
         T3D_LOG_INFO(LOG_TAG_EDITOR, "Disconnected TinyLauncher ! ERROR [%d]", result);
+
+        stopHelloTimer();
+        
+        if (T3D_FAILED(result))
+        {
+            // 异常断开连接，启动监控定时器
+            startMonitorTimer();
+        }
     }
 
     //--------------------------------------------------------------------------
