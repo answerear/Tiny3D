@@ -214,11 +214,15 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_NetPackage_2eproto::offsets[] 
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::ReqOpenProject, result_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::ReqOpenProject, path_),
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::ReqOpenProject, name_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::RspOpenProject, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::RspOpenProject, result_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Tiny3D::Editor::NetRequestBody, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -247,9 +251,9 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 10, -1, sizeof(::Tiny3D::Editor::ReqCreateProject)},
   { 18, -1, sizeof(::Tiny3D::Editor::RspCreateProject)},
   { 24, -1, sizeof(::Tiny3D::Editor::ReqOpenProject)},
-  { 29, -1, sizeof(::Tiny3D::Editor::RspOpenProject)},
-  { 34, -1, sizeof(::Tiny3D::Editor::NetRequestBody)},
-  { 44, -1, sizeof(::Tiny3D::Editor::NetResponseBody)},
+  { 32, -1, sizeof(::Tiny3D::Editor::RspOpenProject)},
+  { 38, -1, sizeof(::Tiny3D::Editor::NetRequestBody)},
+  { 48, -1, sizeof(::Tiny3D::Editor::NetResponseBody)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -267,22 +271,23 @@ const char descriptor_table_protodef_NetPackage_2eproto[] PROTOBUF_SECTION_VARIA
   "\n\020NetPackage.proto\022\rTiny3D.Editor\"\n\n\010Req"
   "Hello\"\n\n\010RspHello\">\n\020ReqCreateProject\022\016\n"
   "\006result\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001("
-  "\t\"\"\n\020RspCreateProject\022\016\n\006result\030\001 \001(\005\"\020\n"
-  "\016ReqOpenProject\"\020\n\016RspOpenProject\"\310\001\n\016Ne"
-  "tRequestBody\022\022\n\nmessage_id\030\001 \001(\005\022(\n\005hell"
-  "o\030\002 \001(\0132\027.Tiny3D.Editor.ReqHelloH\000\0229\n\016cr"
-  "eate_project\030\003 \001(\0132\037.Tiny3D.Editor.ReqCr"
-  "eateProjectH\000\0225\n\014open_project\030\004 \001(\0132\035.Ti"
-  "ny3D.Editor.ReqOpenProjectH\000B\006\n\004data\"\331\001\n"
-  "\017NetResponseBody\022\016\n\006seq_id\030\001 \001(\005\022\022\n\nmess"
-  "age_id\030\002 \001(\005\022(\n\005hello\030\003 \001(\0132\027.Tiny3D.Edi"
-  "tor.RspHelloH\000\0229\n\016create_project\030\004 \001(\0132\037"
-  ".Tiny3D.Editor.RspCreateProjectH\000\0225\n\014ope"
-  "n_project\030\005 \001(\0132\035.Tiny3D.Editor.RspOpenP"
-  "rojectH\000B\006\n\004data*a\n\tMessageID\022\016\n\nMSDID_N"
-  "ONE\020\000\022\020\n\013MSGID_HELLO\020\346N\022\031\n\024MSGID_CREATE_"
-  "PROJECT\020\347N\022\027\n\022MSGID_OPEN_PROJECT\020\350Nb\006pro"
-  "to3"
+  "\t\"\"\n\020RspCreateProject\022\016\n\006result\030\001 \001(\005\"<\n"
+  "\016ReqOpenProject\022\016\n\006result\030\001 \001(\005\022\014\n\004path\030"
+  "\002 \001(\t\022\014\n\004name\030\003 \001(\t\" \n\016RspOpenProject\022\016\n"
+  "\006result\030\001 \001(\005\"\310\001\n\016NetRequestBody\022\022\n\nmess"
+  "age_id\030\001 \001(\005\022(\n\005hello\030\002 \001(\0132\027.Tiny3D.Edi"
+  "tor.ReqHelloH\000\0229\n\016create_project\030\003 \001(\0132\037"
+  ".Tiny3D.Editor.ReqCreateProjectH\000\0225\n\014ope"
+  "n_project\030\004 \001(\0132\035.Tiny3D.Editor.ReqOpenP"
+  "rojectH\000B\006\n\004data\"\331\001\n\017NetResponseBody\022\016\n\006"
+  "seq_id\030\001 \001(\005\022\022\n\nmessage_id\030\002 \001(\005\022(\n\005hell"
+  "o\030\003 \001(\0132\027.Tiny3D.Editor.RspHelloH\000\0229\n\016cr"
+  "eate_project\030\004 \001(\0132\037.Tiny3D.Editor.RspCr"
+  "eateProjectH\000\0225\n\014open_project\030\005 \001(\0132\035.Ti"
+  "ny3D.Editor.RspOpenProjectH\000B\006\n\004data*a\n\t"
+  "MessageID\022\016\n\nMSDID_NONE\020\000\022\020\n\013MSGID_HELLO"
+  "\020\346N\022\031\n\024MSGID_CREATE_PROJECT\020\347N\022\027\n\022MSGID_"
+  "OPEN_PROJECT\020\350Nb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_NetPackage_2eproto_deps[1] = {
 };
@@ -299,7 +304,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Net
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_NetPackage_2eproto_once;
 static bool descriptor_table_NetPackage_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_NetPackage_2eproto = {
-  &descriptor_table_NetPackage_2eproto_initialized, descriptor_table_protodef_NetPackage_2eproto, "NetPackage.proto", 723,
+  &descriptor_table_NetPackage_2eproto_initialized, descriptor_table_protodef_NetPackage_2eproto, "NetPackage.proto", 783,
   &descriptor_table_NetPackage_2eproto_once, descriptor_table_NetPackage_2eproto_sccs, descriptor_table_NetPackage_2eproto_deps, 8, 0,
   schemas, file_default_instances, TableStruct_NetPackage_2eproto::offsets,
   file_level_metadata_NetPackage_2eproto, 8, file_level_enum_descriptors_NetPackage_2eproto, file_level_service_descriptors_NetPackage_2eproto,
@@ -1102,10 +1107,23 @@ ReqOpenProject::ReqOpenProject(const ReqOpenProject& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_path().empty()) {
+    path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.path_);
+  }
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_name().empty()) {
+    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+  }
+  result_ = from.result_;
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Editor.ReqOpenProject)
 }
 
 void ReqOpenProject::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ReqOpenProject_NetPackage_2eproto.base);
+  path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  result_ = 0;
 }
 
 ReqOpenProject::~ReqOpenProject() {
@@ -1114,6 +1132,8 @@ ReqOpenProject::~ReqOpenProject() {
 }
 
 void ReqOpenProject::SharedDtor() {
+  path_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void ReqOpenProject::SetCachedSize(int size) const {
@@ -1131,6 +1151,9 @@ void ReqOpenProject::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  path_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  result_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -1140,6 +1163,34 @@ const char* ReqOpenProject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
+    switch (tag >> 3) {
+      // int32 result = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          result_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string path = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_path();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Editor.ReqOpenProject.path"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string name = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          auto str = _internal_mutable_name();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "Tiny3D.Editor.ReqOpenProject.name"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
         if ((tag & 7) == 4 || tag == 0) {
           ctx->SetLastTag(tag);
           goto success;
@@ -1147,6 +1198,8 @@ const char* ReqOpenProject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
         ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
+      }
+    }  // switch
   }  // while
 success:
   return ptr;
@@ -1161,6 +1214,32 @@ failure:
   // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Editor.ReqOpenProject)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
+
+  // int32 result = 1;
+  if (this->result() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_result(), target);
+  }
+
+  // string path = 2;
+  if (this->path().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_path().data(), static_cast<int>(this->_internal_path().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Tiny3D.Editor.ReqOpenProject.path");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_path(), target);
+  }
+
+  // string name = 3;
+  if (this->name().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Tiny3D.Editor.ReqOpenProject.name");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_name(), target);
+  }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1177,6 +1256,27 @@ size_t ReqOpenProject::ByteSizeLong() const {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // string path = 2;
+  if (this->path().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_path());
+  }
+
+  // string name = 3;
+  if (this->name().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_name());
+  }
+
+  // int32 result = 1;
+  if (this->result() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_result());
+  }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
@@ -1209,6 +1309,17 @@ void ReqOpenProject::MergeFrom(const ReqOpenProject& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.path().size() > 0) {
+
+    path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.path_);
+  }
+  if (from.name().size() > 0) {
+
+    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+  }
+  if (from.result() != 0) {
+    _internal_set_result(from._internal_result());
+  }
 }
 
 void ReqOpenProject::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1232,6 +1343,11 @@ bool ReqOpenProject::IsInitialized() const {
 void ReqOpenProject::InternalSwap(ReqOpenProject* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  path_.Swap(&other->path_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(result_, other->result_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ReqOpenProject::GetMetadata() const {
@@ -1256,10 +1372,12 @@ RspOpenProject::RspOpenProject(const RspOpenProject& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  result_ = from.result_;
   // @@protoc_insertion_point(copy_constructor:Tiny3D.Editor.RspOpenProject)
 }
 
 void RspOpenProject::SharedCtor() {
+  result_ = 0;
 }
 
 RspOpenProject::~RspOpenProject() {
@@ -1285,6 +1403,7 @@ void RspOpenProject::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  result_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -1294,6 +1413,16 @@ const char* RspOpenProject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
+    switch (tag >> 3) {
+      // int32 result = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          result_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
         if ((tag & 7) == 4 || tag == 0) {
           ctx->SetLastTag(tag);
           goto success;
@@ -1301,6 +1430,8 @@ const char* RspOpenProject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
         ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
+      }
+    }  // switch
   }  // while
 success:
   return ptr;
@@ -1315,6 +1446,12 @@ failure:
   // @@protoc_insertion_point(serialize_to_array_start:Tiny3D.Editor.RspOpenProject)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
+
+  // int32 result = 1;
+  if (this->result() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_result(), target);
+  }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1331,6 +1468,13 @@ size_t RspOpenProject::ByteSizeLong() const {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // int32 result = 1;
+  if (this->result() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_result());
+  }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
@@ -1363,6 +1507,9 @@ void RspOpenProject::MergeFrom(const RspOpenProject& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.result() != 0) {
+    _internal_set_result(from._internal_result());
+  }
 }
 
 void RspOpenProject::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1386,6 +1533,7 @@ bool RspOpenProject::IsInitialized() const {
 void RspOpenProject::InternalSwap(RspOpenProject* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(result_, other->result_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RspOpenProject::GetMetadata() const {

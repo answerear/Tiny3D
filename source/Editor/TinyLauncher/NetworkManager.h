@@ -106,7 +106,8 @@ namespace Tiny3D
         {
             SENDBUF_SIZE = 32*1024
         };
-        
+
+        /// 用于发送的缓冲区，每个发包复用，发完即用完，避免频繁分配内存
         uint8_t mSendBuffer[SENDBUF_SIZE];
     };
 

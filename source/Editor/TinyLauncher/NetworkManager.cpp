@@ -223,13 +223,15 @@ namespace Tiny3D
     TResult NetworkManager::onRecv(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
     {
         Editor::NetRequestBody req;
-        std::string str(static_cast<const char*>(data), dataSize);
+        
         if (req.ParseFromArray(data, dataSize))
         {
             switch (req.message_id())
             {
             case Editor::MessageID::MSGID_HELLO:
                 {
+                    T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Recv hello seq [%u]", seq);
+                
                     // 心跳
                     Editor::NetResponseBody rsp;
                     rsp.set_message_id(Editor::MessageID::MSGID_HELLO);

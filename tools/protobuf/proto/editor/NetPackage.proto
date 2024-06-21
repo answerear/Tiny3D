@@ -43,12 +43,15 @@ message RspCreateProject
 // 打开工程 - 上行
 message ReqOpenProject
 {
-
+	int32 result = 1;
+	string path = 2;
+	string name = 3;
 }
 
 // 打开工程 - 下行
 message RspOpenProject
 {
+	int32 result = 1;
 }
 
 

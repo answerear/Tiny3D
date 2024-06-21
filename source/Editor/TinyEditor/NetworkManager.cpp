@@ -24,12 +24,18 @@
 
 
 #include "NetworkManager.h"
+#include "proto/NetPackage.pb.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
+    //--------------------------------------------------------------------------
+
+    uint32_t NetworkManager::MONITOR_INTERVAL = 1000;
+    uint32_t NetworkManager::HELLO_INTERVAL = 5 * 1000;
+    
     //--------------------------------------------------------------------------
 
     NetworkManager::NetworkManager()
@@ -111,6 +117,8 @@ namespace Tiny3D
 
     void NetworkManager::shutdown()
     {
+        stopHelloTimer();
+        
         if (mConnection != nullptr)
         {
             mConnection->disconnect();
@@ -126,11 +134,15 @@ namespace Tiny3D
         if (T3D_SUCCEEDED(result))
         {
             T3D_LOG_INFO(LOG_TAG_EDITOR, "Connected TinyLauncher !");
+
+            // 启动 hello 定时器
+            startHelloTimer();
         }
         else
         {
             T3D_LOG_INFO(LOG_TAG_EDITOR, "Connect failed ! ERROR [%d]", result);
 
+            // 连接失败，说明 launcher 可能没运行，启动定时检测
             startMonitorTimer();
         }
     }
@@ -146,6 +158,7 @@ namespace Tiny3D
 
     TResult NetworkManager::onSend(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
     {
+        T3D_LOG_INFO(LOG_TAG_EDITOR, "Send : seq [%u], dataSize [%d]", seq, dataSize);
         return T3D_OK;
     }
 
@@ -167,19 +180,18 @@ namespace Tiny3D
 
     void NetworkManager::startMonitorTimer()
     {
-        T3D_ASSERT(mTimerID == T3D_INVALID_TIMER_ID, "Monitor in network must be not set !");
-        mTimerID = T3D_TIMER_MGR.startTimer(1000, true,
+        T3D_ASSERT(mMonitorTimerID == T3D_INVALID_TIMER_ID, "Monitor in network must be not set !");
+        mMonitorTimerID = T3D_TIMER_MGR.startTimer(MONITOR_INTERVAL, true,
             [this](ID timerID, uint32_t dt)
             {
-                if (timerID == mTimerID)
+                T3D_ASSERT(timerID == mMonitorTimerID, "Must be monitor timer !");
+                
+                if (Process::isProcessRunning("TinyLauncher.exe"))
                 {
-                    if (Process::isProcessRunning("TinyLauncher.exe"))
-                    {
-                        // 进程已经启动了
-                        stopMonitorTimer();
-                        TResult ret = mConnection->connect(mRemoteAddr, mRemotePort);
-                        T3D_LOG_INFO(LOG_TAG_EDITOR, "TinyLauncher is running, start connecting ... ERROR [%d]", ret);
-                    }
+                    // 进程已经启动了
+                    stopMonitorTimer();
+                    TResult ret = mConnection->connect(mRemoteAddr, mRemotePort);
+                    T3D_LOG_INFO(LOG_TAG_EDITOR, "TinyLauncher is running, start connecting ... ERROR [%d]", ret);
                 }
             });
     }
@@ -188,11 +200,85 @@ namespace Tiny3D
 
     void NetworkManager::stopMonitorTimer()
     {
-        if (mTimerID != T3D_INVALID_TIMER_ID)
+        if (mMonitorTimerID != T3D_INVALID_TIMER_ID)
         {
-            T3D_TIMER_MGR.stopTimer(mTimerID);
-            mTimerID = T3D_INVALID_TIMER_ID;
+            T3D_TIMER_MGR.stopTimer(mMonitorTimerID);
+            mMonitorTimerID = T3D_INVALID_TIMER_ID;
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NetworkManager::startHelloTimer()
+    {
+        T3D_ASSERT(mHelloTimerID == T3D_INVALID_TIMER_ID, "Hello timer id must be invalid !");
+        mHelloTimerID = T3D_TIMER_MGR.startTimer(HELLO_INTERVAL, true,
+            [this](ID timerID, uint32_t dt)
+            {
+                T3D_ASSERT(timerID == mHelloTimerID, "Must be hello timer !");
+                NetRequestBody req;
+                req.set_message_id(MSGID_HELLO);
+                req.mutable_hello();
+                int32_t reqDataSize = static_cast<int32_t>(req.ByteSizeLong());
+                if (req.SerializeToArray(mSendBuffer, reqDataSize))
+                {
+                    mConnection->send(mSeq++, mSendBuffer, reqDataSize, false);
+                }
+                
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NetworkManager::stopHelloTimer()
+    {
+        if (mHelloTimerID != T3D_INVALID_TIMER_ID)
+        {
+            T3D_TIMER_MGR.stopTimer(mHelloTimerID);
+            mHelloTimerID = T3D_INVALID_TIMER_ID;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NetworkManager::createProject(const String &path, const String &name)
+    {
+        TResult ret = T3D_OK;
+
+        NetRequestBody req;
+        req.set_message_id(MSGID_CREATE_PROJECT);
+        auto pkg = req.mutable_create_project();
+        pkg->set_path(path);
+        pkg->set_name(name);
+        pkg->set_result(0);
+        int32_t reqDataSize = static_cast<int32_t>(req.ByteSizeLong());
+        if (req.SerializeToArray(mSendBuffer, reqDataSize))
+        {
+            ret = mConnection->send(mSeq++, mSendBuffer, reqDataSize, true);
+        }
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NetworkManager::openProject(const String &path, const String &name)
+    {
+        TResult ret = T3D_OK;
+
+        NetRequestBody req;
+        req.set_message_id(MSGID_OPEN_PROJECT);
+        auto pkg = req.mutable_open_project();
+        pkg->set_path(path);
+        pkg->set_name(name);
+        pkg->set_result(0);
+        int32_t reqDataSize = static_cast<int32_t>(req.ByteSizeLong());
+        if (req.SerializeToArray(mSendBuffer, reqDataSize))
+        {
+            ret = mConnection->send(mSeq++, mSendBuffer, reqDataSize, true);
+        }
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

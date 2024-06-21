@@ -47,6 +47,10 @@ namespace Tiny3D
         
         void shutdown();
 
+        TResult createProject(const String &path, const String &name);
+
+        TResult openProject(const String &path, const String &name);
+
     protected:
         void onConnected(TCPConnection *connection, TResult result);
 
@@ -62,14 +66,39 @@ namespace Tiny3D
 
         void stopMonitorTimer();
 
+        void startHelloTimer();
+
+        void stopHelloTimer();
+
     protected:
         /// 跟 launcher 通信的连接
         TCPConnection *mConnection {nullptr};
 
-        ID mTimerID {T3D_INVALID_TIMER_ID};
+        /// 检测 launcher 时间间隔
+        static uint32_t MONITOR_INTERVAL;
+        /// 心跳时间间隔
+        static uint32_t HELLO_INTERVAL;
+        
+        /// 检测 launcher 是否存在的定时器
+        ID mMonitorTimerID {T3D_INVALID_TIMER_ID};
 
+        /// 心跳定时器
+        ID mHelloTimerID {T3D_INVALID_TIMER_ID};
+
+        /// 对端地址
         String mRemoteAddr {};
+        /// 对端端口
         uint16_t mRemotePort {0};
+
+        /// 发包序列号
+        uint32_t mSeq {0};
+
+        enum
+        {
+            SENDBUF_SIZE = 32*1024
+        };
+        
+        uint8_t mSendBuffer[SENDBUF_SIZE];
     };
 
     #define NETWORK_MGR     NetworkManager::getInstance()
