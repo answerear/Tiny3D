@@ -24,7 +24,7 @@
 
 
 #include "MainWindow.h"
-
+#include "HierarchyView.h"
 #include "ImErrors.h"
 
 
@@ -36,7 +36,41 @@ namespace Tiny3D
 
     TResult MainWindow::onCreate()
     {
-        TResult ret = buildMenu();
+        TResult ret;
+
+        do
+        {
+            ret = buildMenu();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Build main menu failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            ImDockBar *dockBar = new ImDockBar();
+            ret = dockBar->create("MainDockingWindow", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main dockbar failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            ImDockItem *hierarchyItem = new ImDockItem();
+            ret = hierarchyItem->create("Hierarchy", dockBar, dockBar->getDockID());
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create hierarchy dock item failed ! ERROR [%d]", ret);
+                break;
+            }
+            
+            HierarchyView *hierarchyView = new HierarchyView();
+            ret = hierarchyView->create("Hierarchy", hierarchyItem);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create hierarchy view failed ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
         
         return T3D_OK;
     }

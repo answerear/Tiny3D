@@ -24,6 +24,8 @@
 
 
 #include "ImDockBar.h"
+#include "ImCommon.h"
+#include "imgui_internal.h"
 
 
 namespace Tiny3D
@@ -37,16 +39,40 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImDockBar::onCreate()
+    {
+        TResult ret = ImChildView::onCreate();
+
+        if (T3D_SUCCEEDED(ret))
+        {
+            mDockID = ImHashStr(getUUID().toString().c_str());
+            
+            mImGuiWndClass.ClassId = ImHashStr("ObjectLayer");
+            mImGuiWndClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingSplit;
+            mImGuiWndClass.DockingAllowUnclassed = false;
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ImDockBar::onGUIBegin()
     {
         PushWidgetID();
-        if (!ImGui::Begin(getName().c_str(), &mVisible))
+        ImGui::SetNextWindowClass(&mImGuiWndClass);
+        if (!ImGui::Begin(getDockWindowName(getName(), mDockID).c_str(), &mVisible))
         {
             ImGui::End();
             PopWidgetID();
             return false;
         }
 
+        if (mVisible)
+        {
+            ImGui::DockSpace(mDockID);
+        }
+        
         return true;
     }
 

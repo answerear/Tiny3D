@@ -27,21 +27,22 @@
 
 
 #include "ImChildView.h"
-#include "ImCommon.h"
 
 
 namespace Tiny3D
 {
-    class TINYIMGUI_API ImDockItem : public ImChildView
+    class TINYIMGUI_API ImSplitView : public ImChildView
     {
     public:
-        ~ImDockItem() override;
+        ~ImSplitView() override;
 
-        WidgetType getWidgetType() const override { return WidgetType::kDockItem; }
+        WidgetType getWidgetType() const override { return WidgetType::kSplitView; }
 
-        TResult create(const String &name, ImWidget *parent, ImGuiID dockID);
+        TResult create(const String &name, float sizePct0, ImChildView *child0, float sizePct1, ImChildView *child1, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable = true);
 
-        ImGuiID getDockID() const { return mDockID; }
+        float getSplitterThickness() const { return mSplitterThickness; }
+
+        void setSplitterThickness(float thickness) { mSplitterThickness = thickness; }
         
     protected:
         TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -50,8 +51,20 @@ namespace Tiny3D
         void onGUI() override;
         void onGUIEnd() override;
 
+        void update() override;
+
+        bool splitter(bool splitVert, float thickness, float *size0, float *size1, float minSize0, float minSize1, float splitterLongAxisSize = -1.0f);
+
+        void initChildrenSize();
+        
     protected:
-        ImGuiID mDockID {0};
-        DockType mDockType {DockType::kLeft};
+        float mSplitterThickness {4.0f};
+        float mSizePct0 {0.5f};
+        float mSizePct1 {0.5f};
+        bool mResizable {true};
+        bool mIsHorz {true};
+
+        ImWidget *mMainChild {nullptr};
+        ImWidget *mOtherChild {nullptr};
     };
 }

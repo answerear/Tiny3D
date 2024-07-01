@@ -140,8 +140,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    TResult ImWidget::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
+        // TResult ret = IM_OK;
+        //
+        // setName(name);
+        //
+        // if (parent != nullptr)
+        // {
+        //     ret = parent->addWidget(this);
+        // }
+        //
+        // return ret;
         return IM_OK;
     }
 
@@ -651,13 +661,6 @@ namespace Tiny3D
     void ImWidget::onInvisible()
     {
         
-    }
-
-    //--------------------------------------------------------------------------
-
-    ImVec2 ImWidget::onGetSize()
-    {
-        return ImVec2 {};
     }
 
     //--------------------------------------------------------------------------

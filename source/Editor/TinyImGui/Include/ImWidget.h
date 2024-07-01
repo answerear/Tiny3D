@@ -45,7 +45,8 @@ namespace Tiny3D
         kTabBar,
         kTabItem,
         kDockBar,
-        kDockItem
+        kDockItem,
+        kSplitView,
     };
     
     class TINYIMGUI_API ImWidget : public Noncopyable
@@ -138,9 +139,15 @@ namespace Tiny3D
          */
         const Children &getChildren() const { return mChildren; }
 
+        const ImVec2 &getSize() const { return mSize; }
+
+        void setSize(float x, float y) { mSize.x = x; mSize.y = y;}
+
+        void setSize(const ImVec2 &size) { mSize = size; }
+
         virtual void update();
 
-        virtual ImVec2 onGetSize();
+        virtual const ImVec2 &onGetSize() { return getSize(); }
 
         virtual bool *onGetVisible();
         
@@ -149,7 +156,7 @@ namespace Tiny3D
 
         TResult createInternal(const String &name, ImWidget *parent, int32_t argc, ...);
         
-        virtual TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args);
+        virtual TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args);
         
         virtual TResult onCreate();
         
@@ -204,6 +211,7 @@ namespace Tiny3D
         Children    mChildren {};
         
     protected:
+        ImVec2  mSize {};
         bool    mVisible {true};
     };
 }

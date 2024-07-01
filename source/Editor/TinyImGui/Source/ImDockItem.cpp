@@ -24,6 +24,8 @@
 
 
 #include "ImDockItem.h"
+#include "ImCommon.h"
+#include "ImErrors.h"
 
 
 namespace Tiny3D
@@ -37,10 +39,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImDockItem::create(const String &name, ImWidget *parent, ImGuiID dockID)
+    {
+        return ImWidget::createInternal(name, parent, 1, dockID);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImDockItem::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        T3D_ASSERT(argc >= 1, "Invalid number of arguments in ImDockItem::create() !");
+
+        TResult ret = IM_OK;
+
+        do
+        {
+            ret = ImChildView::createInternal(name, parent, argc, args);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // dock id
+            mDockID = va_arg(args, ImGuiID);
+        } while (false);
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ImDockItem::onGUIBegin()
     {
         PushWidgetID();
-        if (!ImGui::Begin(getName().c_str(), &mVisible))
+        ImGuiWindowClass wndClass;
+        wndClass.ClassId = mDockID;
+        wndClass.DockNodeFlagsOverrideSet = 0;
+        wndClass.DockingAllowUnclassed = true;
+        ImGui::SetNextWindowClass(&wndClass);
+        
+        if (!ImGui::Begin(getDockWindowName(getName(), mDockID).c_str(), &mVisible, ImGuiWindowFlags_NoCollapse))
         {
             ImGui::End();
             PopWidgetID();

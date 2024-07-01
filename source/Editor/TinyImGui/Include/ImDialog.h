@@ -63,7 +63,7 @@ namespace Tiny3D
 
         virtual void onClose();
 
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         void update() override;
         

@@ -36,3 +36,4 @@
 #include <ImDockItem.h>
 #include <ImDialog.h>
 #include <ImOpenFileDialog.h>
+#include <ImSplitView.h>

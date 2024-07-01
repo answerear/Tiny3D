@@ -26,21 +26,31 @@
 #pragma once
 
 
-#include "ImWidget.h"
+#include "ImChildView.h"
 
 
 namespace Tiny3D
 {
-    class TINYIMGUI_API ImDockBar : public ImWidget
+    class TINYIMGUI_API ImDockBar : public ImChildView
     {
     public:
         ~ImDockBar() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kDockBar; }
+
+        ImGuiID getDockID() const { return mDockID; }
         
     protected:
+        TResult onCreate() override;
+        
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
+
+    protected:
+        /// 存储停靠窗口的唯一标识
+        ImGuiID mDockID {0};
+        /// ImGui 窗口类
+        ImGuiWindowClass mImGuiWndClass {};
     };
 }

@@ -23,35 +23,20 @@
  ******************************************************************************/
 
 
-#pragma once
-
-
-#include "ImChildView.h"
 #include "ImCommon.h"
+#include "imgui_internal.h"
 
 
 namespace Tiny3D
 {
-    class TINYIMGUI_API ImDockItem : public ImChildView
+    //--------------------------------------------------------------------------
+
+    String getDockWindowName(const String &name, ImGuiID dockID)
     {
-    public:
-        ~ImDockItem() override;
+        char buf[16] = {0};
+        ImFormatString(buf, sizeof(buf), "##%08X", dockID);
+        return name + buf;
+    }
 
-        WidgetType getWidgetType() const override { return WidgetType::kDockItem; }
-
-        TResult create(const String &name, ImWidget *parent, ImGuiID dockID);
-
-        ImGuiID getDockID() const { return mDockID; }
-        
-    protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
-        
-        bool onGUIBegin() override;
-        void onGUI() override;
-        void onGUIEnd() override;
-
-    protected:
-        ImGuiID mDockID {0};
-        DockType mDockType {DockType::kLeft};
-    };
+    //--------------------------------------------------------------------------
 }

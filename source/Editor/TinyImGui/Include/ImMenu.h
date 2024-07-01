@@ -95,6 +95,9 @@ namespace Tiny3D
     class TINYIMGUI_API ImMenuItemEnabled : public ImMenuItem
     {
     protected:
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+
+    protected:
         /// 查询 enable 状态
         ImMenuItemQueryCallback mQueryEnable {nullptr};
         /// 图标
@@ -106,6 +109,9 @@ namespace Tiny3D
      */
     class TINYIMGUI_API ImMenuItemClickable : public ImMenuItemEnabled
     {
+    protected:
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+
     protected:
         /// 点击事件
         uint32_t mClickedEventID {(uint32_t)-1};
@@ -130,7 +136,7 @@ namespace Tiny3D
         TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -158,7 +164,7 @@ namespace Tiny3D
         TResult insertAfterItem(ImMenuItem *prevItem, ImMenuItem *item);
 
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -178,7 +184,7 @@ namespace Tiny3D
         TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args) override;
+        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;

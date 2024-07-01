@@ -65,12 +65,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImDialog::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list args)
+    TResult ImDialog::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 1, "Invalid number of arguments in ImDialog::create() !");
+        T3D_ASSERT(argc >= 1, "Invalid number of arguments in ImDialog::create() !");
 
-        mHasCloseBtn = va_arg(args, bool);
-        return IM_OK;
+        TResult ret = IM_OK;
+
+        do
+        {
+            ret = ImWidget::createInternal(name, parent, argc, args);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mHasCloseBtn = va_arg(args, bool);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
