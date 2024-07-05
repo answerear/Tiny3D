@@ -31,6 +31,7 @@
 #include "ImErrors.h"
 #include "InspectorWindow.h"
 #include "ProjectWindow.h"
+#include "../../Plugins/Renderer/Null/Include/T3DNullPrerequisites.h"
 
 
 
@@ -53,48 +54,48 @@ namespace Tiny3D
                 break;
             }
 
-            HierarchyWindow *hierarchyWnd = new HierarchyWindow();
-            ret = hierarchyWnd->create("Hierarchy", this);
+            mHierarchyWnd = new HierarchyWindow();
+            ret = mHierarchyWnd->create("Hierarchy", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create hierarchy window failed ! ERROR [%d]", ret);
                 break;
             }
 
-            GameWindow *gameWnd = new GameWindow();
-            ret = gameWnd->create("Game", this);
+            mGameWnd = new GameWindow();
+            ret = mGameWnd->create("Game", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window failed ! ERROR [%d]", ret);
                 break;
             }
 
-            SceneWindow *sceneWnd = new SceneWindow();
-            ret = sceneWnd->create("Scene", this);
+            mSceneWnd = new SceneWindow();
+            ret = mSceneWnd->create("Scene", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create scene window failed ! ERROR [%d]", ret);
                 break;
             }
 
-            InspectorWindow *inspectorWnd = new InspectorWindow();
-            ret = inspectorWnd->create("Inspector", this);
+            mInspectorWnd = new InspectorWindow();
+            ret = mInspectorWnd->create("Inspector", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create inspector window failed ! ERROR [%d]", ret);
                 break;
             }
 
-            ProjectWindow *projectWnd = new ProjectWindow();
-            ret = projectWnd->create("Project", this);
+            mProjectWnd = new ProjectWindow();
+            ret = mProjectWnd->create("Project", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create project window failed ! ERROR [%d]", ret);
                 break;
             }
 
-            ConsoleWindow *consoleWnd = new ConsoleWindow();
-            ret = consoleWnd->create("Console", this);
+            mConsoleWnd = new ConsoleWindow();
+            ret = mConsoleWnd->create("Console", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create console window failed ! ERROR [%d]", ret);
@@ -155,14 +156,57 @@ namespace Tiny3D
     {
         mMenuBar = new ImMenuBar();
         mMenuBar->create("Main Menu", this);
+
+        auto queryEnableDefault = [](ImMenuItem*) {return true;};
         
         // File
-        IM_BEGIN_MENU(STR(TXT_FILE))
+        {
+            auto menu = mMenuBar->addMenu(STR(TXT_FILE));
             // New
-            IM_BEGIN_POPUP_MENU(STR(TXT_NEW))
-                IM_MENU_ITEM(STR(TXT_NEW_SCENE), "Ctrl+N", nullptr, 0)
-            IM_END_POPUP_MENU()
-        IM_END_MENU(mMenuBar)
+            {
+                menu->addItem(STR(TXT_NEW_SCENE), "Ctrl+N", queryEnableDefault, 0);
+            }
+        }
+        // Window
+        {
+            auto menu = mMenuBar->addMenu(STR(TXT_WINDOW));
+            // Panels
+            {
+                auto popup = menu->addItem(STR(TXT_PANELS));
+                {
+                    // console
+                    popup->addItem(STR(TXT_CONSOLE), "",
+                        queryEnableDefault,
+                        [this](ImMenuItem*) { return mConsoleWnd != nullptr ? mConsoleWnd->isVisible() : false; },
+                        [this](ImMenuItem*) { if (mConsoleWnd != nullptr) mConsoleWnd->setVisible(!mConsoleWnd->isVisible()); });
+                    // Game
+                    popup->addItem(STR(TXT_GAME), "",
+                        queryEnableDefault,
+                        [this](ImMenuItem*) { return mGameWnd != nullptr ? mGameWnd->isVisible() : false; },
+                        [this](ImMenuItem*) { if (mGameWnd != nullptr) mGameWnd->setVisible(!mGameWnd->isVisible()); });
+                    // Hierarchy
+                    popup->addItem(STR(TXT_HIERARCHY), "",
+                        queryEnableDefault,
+                        [this](ImMenuItem*) { return mHierarchyWnd != nullptr ? mHierarchyWnd->isVisible() : false; },
+                        [this](ImMenuItem*) { if (mHierarchyWnd != nullptr) mHierarchyWnd->setVisible(!mHierarchyWnd->isVisible()); });
+                    // Inspector
+                    popup->addItem(STR(TXT_INSPECTOR), "",
+                        queryEnableDefault,
+                        [this](ImMenuItem*) { return mInspectorWnd != nullptr ? mInspectorWnd->isVisible() : false; },
+                        [this](ImMenuItem*) { if (mInspectorWnd != nullptr) mInspectorWnd->setVisible(!mInspectorWnd->isVisible()); });
+                    // Project
+                    popup->addItem(STR(TXT_PROJECT), "",
+                        queryEnableDefault,
+                        [this](ImMenuItem*) { return mProjectWnd != nullptr ? mProjectWnd->isVisible() : false; },
+                        [this](ImMenuItem*) { if (mProjectWnd != nullptr) mProjectWnd->setVisible(!mProjectWnd->isVisible()); });
+                    // Scene
+                    popup->addItem(STR(TXT_SCENE), "",
+                        queryEnableDefault,
+                        [this](ImMenuItem*) { return mSceneWnd != nullptr ? mSceneWnd->isVisible() : false; },
+                        [this](ImMenuItem*) { if (mSceneWnd != nullptr) mSceneWnd->setVisible(!mSceneWnd->isVisible()); });
+                }
+            }
+        }
 
         return IM_OK;
     }

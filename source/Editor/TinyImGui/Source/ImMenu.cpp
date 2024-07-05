@@ -24,9 +24,7 @@
 
 
 #include "ImMenu.h"
-
 #include "ImErrors.h"
-#include "T3DLog.h"
 
 
 namespace Tiny3D
@@ -56,7 +54,10 @@ namespace Tiny3D
 
             // query enable
             ImMenuItemQueryCallback *query = va_arg(args, ImMenuItemQueryCallback*);
-            mQueryEnable = *query;
+            if (query != nullptr)
+            {
+                mQueryEnable = *query;
+            }
 
             // icon
             mIcon = va_arg(args, ImTextureID);
@@ -90,7 +91,10 @@ namespace Tiny3D
             
             /// 点击回调函数
             ImMenuItemClickedCallback *callback = va_arg(args, ImMenuItemClickedCallback*);
-            mClickedCallback = *callback;
+            if (callback != nullptr)
+            {
+                mClickedCallback = *callback;
+            }
         } while (false);
 
         return ret;
@@ -168,7 +172,7 @@ namespace Tiny3D
         // 菜单项
         if (ImGui::MenuItem(getName().c_str(), mShortcut.empty() ? nullptr : mShortcut.c_str(), false, enable))
         {
-            if (mClickedEventID != (uint32_t)-1)
+            if (mClickedEventID != 0)
             {
                 EventParamMenuItem param;
                 param.arg1 = this;
@@ -233,6 +237,106 @@ namespace Tiny3D
     TResult ImMenuItemPopup::addItem(ImMenuItem *item)
     {
         return addWidget(item); 
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            ImMenuItemNormal *item = new ImMenuItemNormal();
+            ret = item->create(name, shortcut, queryEnable, eventID, this, icon);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(item);
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "Add menu item %s failed ! ERROR [%d]", name.c_str(), ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImTextureID icon)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            ImMenuItemNormal *item = new ImMenuItemNormal();
+            ret = item->create(name, shortcut, queryEnable, callback, this, icon);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(item);
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "Add menu item %s failed ! ERROR [%d]", name.c_str(), ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImTextureID icon)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            ImMenuItemCheck *item = new ImMenuItemCheck();
+            ret = item->create(name, shortcut, queryEnable, queryCheck, callback, this, icon);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(item);
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "Add check menu item %s failed ! ERROR [%d]", name.c_str(), ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            ImMenuItemCheck *item = new ImMenuItemCheck();
+            ret = item->create(name, shortcut, queryEnable, queryCheck, eventID, this, icon);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(item);
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "Add check menu item %s failed ! ERROR [%d]", name.c_str(), ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImMenuItemPopup *ImMenuItemPopup::addItem(const String &name, ImTextureID icon)
+    {
+        ImMenuItemPopup *item = new ImMenuItemPopup();
+        TResult ret = item->create(name, nullptr, this, icon);
+        if (T3D_FAILED(ret))
+        {
+            T3D_SAFE_DELETE(item);
+            T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "Add popup menu item %s failed ! ERROR [%d]", name.c_str(), ret);
+            return nullptr;
+        }
+
+        return item;
     }
 
     //--------------------------------------------------------------------------
@@ -302,11 +406,18 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemCheck::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemCheck::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(title, parent, 6, &queryEnable, icon, &shortcut, 0, nullptr, &queryCheck);
+        return ImWidget::createInternal(title, parent, 6, &queryEnable, icon, &shortcut, 0, &callback, &queryCheck);
     }
     
+    //--------------------------------------------------------------------------
+
+    TResult ImMenuItemCheck::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon)
+    {
+        return ImWidget::createInternal(title, parent, 6, &queryEnable, icon, &shortcut, eventID, nullptr, &queryCheck);
+    }
+
     //--------------------------------------------------------------------------
 
     TResult ImMenuItemCheck::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
@@ -325,7 +436,10 @@ namespace Tiny3D
 
             // query check
             ImMenuItemQueryCallback *queryCheck = va_arg(args, ImMenuItemQueryCallback*);
-            mQueryCheck = *queryCheck;
+            if (queryCheck != nullptr)
+            {
+                mQueryCheck = *queryCheck;
+            }
         } while (false);
 
         return ret;
@@ -344,7 +458,7 @@ namespace Tiny3D
     {
         auto callback = [this]()
         {
-            if (mClickedEventID != (uint32_t)-1)
+            if (mClickedEventID != 0)
             {
                 EventParamMenuItem param;
                 param.arg1 = this;
@@ -429,6 +543,21 @@ namespace Tiny3D
     TResult ImMenuBar::addMenu(ImMenu *menu)
     {
         return addWidget(menu);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImMenu *ImMenuBar::addMenu(const String &name, ImTextureID icon)
+    {
+        ImMenu *menu = new ImMenu();
+        TResult ret = menu->create(name, nullptr, this, icon);
+        if (T3D_FAILED(ret))
+        {
+            T3D_SAFE_DELETE(menu);
+            return nullptr;
+        }
+
+        return menu;
     }
 
     //--------------------------------------------------------------------------

@@ -39,10 +39,24 @@ namespace Tiny3D
     #define IM_MENU_ITEM(title, shortcut, enable, event) \
             { \
                 ImMenuItemNormal *item = new ImMenuItemNormal(); \
-                item->create(title, shortcut, enable, nullptr, event); \
+                item->create(title, shortcut, enable, event, nullptr); \
                 menu->addItem(item); \
             }
 
+    #define IM_MENU_ITEM_CB(title, shortcut, enable, callback) \
+            { \
+                ImMenuItemNormal *item = new ImMenuItemNormal(); \
+                item->create(title, shortcut, enable, callback, nullptr); \
+                menu->addItem(item); \
+            }
+
+    #define IM_MENU_ITEM_CHECK(title, shortcut, enable, check)    \
+            { \
+                ImMenuItemCheck *item = new ImMenuItemCheck(); \
+                item->create(title, shortcut, enable, check, nullptr); \
+                menu->addItem(item); \
+            }
+    
     #define IM_BEGIN_POPUP_MENU(title) \
             { \
                 ImMenuItemPopup *subMenu = new ImMenuItemPopup(); \
@@ -154,8 +168,67 @@ namespace Tiny3D
         Type getType() const override;
 
         TResult create(const String &title, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon = nullptr);
-        
+
+        /**
+         * 添加菜单项
+         * @param item 
+         * @return 
+         */
         TResult addItem(ImMenuItem *item);
+
+        /**
+         * 添加普通菜單項
+         * @param name 
+         * @param shortcut 
+         * @param queryEnable 
+         * @param callback 
+         * @param icon 
+         * @return 
+         */
+        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImTextureID icon = nullptr);
+
+        /**
+         * 添加普通菜單項
+         * @param name 
+         * @param shortcut 
+         * @param queryEnable 
+         * @param eventID 
+         * @param icon 
+         * @return 
+         */
+        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon = nullptr);
+
+        /**
+         * 添加两态菜单项
+         * @param name 
+         * @param shortcut 
+         * @param queryEnable 
+         * @param queryCheck
+         * @param callback
+         * @param icon 
+         * @return 
+         */
+        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImTextureID icon = nullptr);
+
+        /**
+         * 添加两态菜单项
+         * @param name 
+         * @param shortcut 
+         * @param queryEnable 
+         * @param queryCheck 
+         * @param eventID 
+         * @param icon 
+         * @return 
+         */
+        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon = nullptr);
+
+        /**
+         * 添加二级弹出式菜单项
+         * @param name 
+         * @param icon 
+         * @return 
+         */
+        ImMenuItemPopup *addItem(const String &name, ImTextureID icon = nullptr);
 
         TResult insertAfterItem(const String &prevName, ImMenuItem *item);
 
@@ -181,7 +254,9 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImWidget *parent, ImTextureID icon = nullptr);
+        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon = nullptr);
+
+        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
         TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -223,6 +298,8 @@ namespace Tiny3D
         WidgetType getWidgetType() const override { return WidgetType::kMenuBar; }
         
         TResult addMenu(ImMenu *menu);
+
+        ImMenu *addMenu(const String &name, ImTextureID icon = nullptr);
 
     protected:
         bool onGUIBegin() override;
