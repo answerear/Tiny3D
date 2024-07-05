@@ -230,6 +230,8 @@ namespace Tiny3D
          */
         ImMenuItemPopup *addItem(const String &name, ImTextureID icon = nullptr);
 
+        TResult addSeparator();
+
         TResult insertAfterItem(const String &prevName, ImMenuItem *item);
 
         TResult insertAfterItem(const UUID &prevUUID, ImMenuItem *item);

@@ -177,7 +177,37 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(STR(TXT_FILE));
             // New
             {
+                // New Scene
                 menu->addItem(STR(TXT_NEW_SCENE), "Ctrl+N", queryEnableDefault, 0);
+                // Open Scene
+                menu->addItem(STR(TXT_OPEN_SCENE), "Ctrl+O", queryEnableDefault, 0);
+                // Open Recent Scene
+                menu->addItem(STR(TXT_OPEN_RECENT_SCENE), "", queryEnableDefault, 0);
+                // Separator
+                menu->addSeparator();
+                // Save
+                menu->addItem(STR(TXT_SAVE), "Ctrl+S", queryEnableDefault, 0);
+                // Save As
+                menu->addItem(STR(TXT_SAVE_AS), "Ctrl+Shift+S", queryEnableDefault, 0);
+                // Save As Scene Template
+                menu->addItem(STR(TXT_SAVE_AS_SCENE_TEMPLATE), "", queryEnableDefault, 0);
+                // Separator
+                menu->addSeparator();
+                // New Project
+                menu->addItem(STR(TXT_NEW_PROJECT), "", queryEnableDefault, 0);
+                // Open Project
+                menu->addItem(STR(TXT_OPEN_PROJECT), "", queryEnableDefault, 0);
+                // Save Project
+                menu->addItem(STR(TXT_SAVE_PROJECT), "", queryEnableDefault, 0);
+                // Separator
+                // Build Settings
+                menu->addItem(STR(TXT_BUILD_SETTINGS), "Ctrl+Shift+B", queryEnableDefault, 0);
+                // Build And Run
+                menu->addItem(STR(TXT_BUILD_AND_RUN), "Ctrl+B", queryEnableDefault, 0);
+                // Separator
+                menu->addSeparator();
+                // Exit
+                menu->addItem(STR(TXT_EXIT), "", queryEnableDefault, 0);
             }
         }
         // Window

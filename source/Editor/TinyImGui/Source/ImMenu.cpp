@@ -341,6 +341,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImMenuItemPopup::addSeparator()
+    {
+        TResult ret;
+        do
+        {
+            ImMenuSeparator *separator = new ImMenuSeparator();
+            ret = separator->create("", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(separator);
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "Add separator failed ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ImMenuItemPopup::insertAfterItem(const String &prevName, ImMenuItem *item)
     {
         return insertAfterWidget(prevName, item);
