@@ -152,12 +152,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    //--------------------------------------------------------------------------
+
     TResult MainWindow::buildMenu()
     {
         mMenuBar = new ImMenuBar();
         mMenuBar->create("Main Menu", this);
 
         auto queryEnableDefault = [](ImMenuItem*) {return true;};
+        auto queryCheck = [](ImWidget *widget)
+        {
+            return widget != nullptr ? widget->isVisible() : false;
+        };
+        auto toggleWindowVisible = [](ImWidget *widget)
+        {
+            if (widget != nullptr)
+            {
+                widget->setVisible(!widget->isVisible());
+            }
+        };
         
         // File
         {
@@ -174,36 +187,36 @@ namespace Tiny3D
             {
                 auto popup = menu->addItem(STR(TXT_PANELS));
                 {
-                    // console
+                    // Console
                     popup->addItem(STR(TXT_CONSOLE), "",
                         queryEnableDefault,
-                        [this](ImMenuItem*) { return mConsoleWnd != nullptr ? mConsoleWnd->isVisible() : false; },
-                        [this](ImMenuItem*) { if (mConsoleWnd != nullptr) mConsoleWnd->setVisible(!mConsoleWnd->isVisible()); });
+                        [&window=mConsoleWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
+                        [&window=mConsoleWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
                     // Game
                     popup->addItem(STR(TXT_GAME), "",
                         queryEnableDefault,
-                        [this](ImMenuItem*) { return mGameWnd != nullptr ? mGameWnd->isVisible() : false; },
-                        [this](ImMenuItem*) { if (mGameWnd != nullptr) mGameWnd->setVisible(!mGameWnd->isVisible()); });
+                        [&window=mGameWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
+                        [&window=mGameWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
                     // Hierarchy
                     popup->addItem(STR(TXT_HIERARCHY), "",
                         queryEnableDefault,
-                        [this](ImMenuItem*) { return mHierarchyWnd != nullptr ? mHierarchyWnd->isVisible() : false; },
-                        [this](ImMenuItem*) { if (mHierarchyWnd != nullptr) mHierarchyWnd->setVisible(!mHierarchyWnd->isVisible()); });
+                        [&window=mHierarchyWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
+                        [&window=mHierarchyWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
                     // Inspector
                     popup->addItem(STR(TXT_INSPECTOR), "",
                         queryEnableDefault,
-                        [this](ImMenuItem*) { return mInspectorWnd != nullptr ? mInspectorWnd->isVisible() : false; },
-                        [this](ImMenuItem*) { if (mInspectorWnd != nullptr) mInspectorWnd->setVisible(!mInspectorWnd->isVisible()); });
+                        [&window=mInspectorWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
+                        [&window=mInspectorWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
                     // Project
                     popup->addItem(STR(TXT_PROJECT), "",
                         queryEnableDefault,
-                        [this](ImMenuItem*) { return mProjectWnd != nullptr ? mProjectWnd->isVisible() : false; },
-                        [this](ImMenuItem*) { if (mProjectWnd != nullptr) mProjectWnd->setVisible(!mProjectWnd->isVisible()); });
+                        [&window=mProjectWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
+                        [&window=mProjectWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
                     // Scene
                     popup->addItem(STR(TXT_SCENE), "",
                         queryEnableDefault,
-                        [this](ImMenuItem*) { return mSceneWnd != nullptr ? mSceneWnd->isVisible() : false; },
-                        [this](ImMenuItem*) { if (mSceneWnd != nullptr) mSceneWnd->setVisible(!mSceneWnd->isVisible()); });
+                        [&window=mSceneWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
+                        [&window=mSceneWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
                 }
             }
         }
