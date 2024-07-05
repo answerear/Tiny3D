@@ -225,8 +225,8 @@ namespace Tiny3D
 
     void NetworkManager::onConnected(TCPConnection *connection, TResult result)
     {
-        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected !",
-            connection->getPeerName().c_str(), connection->getPeerPort());
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Remote TinyEditor [%s:%d] connected ! ERROR [%d]",
+            connection->getPeerName().c_str(), connection->getPeerPort(), result);
     }
 
     //--------------------------------------------------------------------------
