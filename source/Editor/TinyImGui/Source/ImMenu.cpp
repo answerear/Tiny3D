@@ -436,7 +436,7 @@ namespace Tiny3D
     bool ImMenuBar::onGUIBegin()
     {
         PushWidgetID();
-        bool ret = ImGui::BeginMenuBar();
+        bool ret = ImGui::BeginMainMenuBar();
 
         if (!ret)
         {
@@ -457,9 +457,9 @@ namespace Tiny3D
 
     void ImMenuBar::onGUIEnd()
     {
-        ImGui::EndMenuBar();
+        ImGui::EndMainMenuBar();
         PopWidgetID();
     }
 
-    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------         
 }
