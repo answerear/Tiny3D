@@ -24,8 +24,14 @@
 
 
 #include "MainWindow.h"
-#include "HierarchyView.h"
+#include "ConsoleWindow.h"
+#include "HierarchyWindow.h"
+#include "GameWindow.h"
+#include "SceneWindow.h"
 #include "ImErrors.h"
+#include "InspectorWindow.h"
+#include "ProjectWindow.h"
+
 
 
 namespace Tiny3D
@@ -47,27 +53,51 @@ namespace Tiny3D
                 break;
             }
 
-            ImDockBar *dockBar = new ImDockBar();
-            ret = dockBar->create("MainDockingWindow", this);
+            HierarchyWindow *hierarchyWnd = new HierarchyWindow();
+            ret = hierarchyWnd->create("Hierarchy", this);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main dockbar failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create hierarchy window failed ! ERROR [%d]", ret);
                 break;
             }
 
-            ImDockItem *hierarchyItem = new ImDockItem();
-            ret = hierarchyItem->create("Hierarchy", dockBar, dockBar->getDockID());
+            GameWindow *gameWnd = new GameWindow();
+            ret = gameWnd->create("Game", this);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create hierarchy dock item failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window failed ! ERROR [%d]", ret);
                 break;
             }
-            
-            HierarchyView *hierarchyView = new HierarchyView();
-            ret = hierarchyView->create("Hierarchy", hierarchyItem);
+
+            SceneWindow *sceneWnd = new SceneWindow();
+            ret = sceneWnd->create("Scene", this);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create hierarchy view failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create scene window failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            InspectorWindow *inspectorWnd = new InspectorWindow();
+            ret = inspectorWnd->create("Inspector", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create inspector window failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            ProjectWindow *projectWnd = new ProjectWindow();
+            ret = projectWnd->create("Project", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create project window failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            ConsoleWindow *consoleWnd = new ConsoleWindow();
+            ret = consoleWnd->create("Console", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create console window failed ! ERROR [%d]", ret);
                 break;
             }
         } while (false);
@@ -79,29 +109,31 @@ namespace Tiny3D
 
     bool MainWindow::onGUIBegin()
     {
-        PushWidgetID();
-        
-        ImGuiIO& io = ImGui::GetIO();
+        // PushWidgetID();
+        //
+        // ImGuiIO& io = ImGui::GetIO();
+        //
+        // ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
+        //         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | /*ImGuiWindowFlags_NoDocking |*/
+        //         ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        // ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+        // ImGui::SetNextWindowPos(mainViewport->WorkPos);
+        // ImGui::SetNextWindowSize(io.DisplaySize);
+        // const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize; 
+        // const auto windowRounding   = ImGui::GetStyle().WindowRounding;
+        // ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        // ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        //
+        // bool ret = ImGui::Begin(getName().c_str(), &mVisible, flags);
+        // if (ret)
+        // {
+        //     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
+        //     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
+        // }
+        //
+        // return ret;
 
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking |
-                ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
-        ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(mainViewport->WorkPos);
-        ImGui::SetNextWindowSize(io.DisplaySize);
-        const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize; 
-        const auto windowRounding   = ImGui::GetStyle().WindowRounding;
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-
-        bool ret = ImGui::Begin(getName().c_str(), &mVisible, flags);
-        if (ret)
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
-        }
-        
-        return ret;
+        return true;
     }
 
     //--------------------------------------------------------------------------
@@ -110,11 +142,11 @@ namespace Tiny3D
     {
         // ImGui::Image(mSceneRT, ImVec2(640, 480));
 
-        ImGui::PopStyleVar(2);
-        ImGui::End();
-        ImGui::PopStyleVar(2);
-
-        PopWidgetID();
+        // ImGui::PopStyleVar(2);
+        // ImGui::End();
+        // ImGui::PopStyleVar(2);
+        //
+        // PopWidgetID();
     }
 
     //--------------------------------------------------------------------------

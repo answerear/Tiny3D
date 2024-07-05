@@ -281,6 +281,9 @@ namespace Tiny3D
             //io.ConfigViewportsNoAutoMerge = true;
             //io.ConfigViewportsNoTaskBarIcon = true;
 
+            static String iniPath = Dir::getAppPath() + Dir::getNativeSeparator() + "TinyEditorGUI.ini";
+            io.IniFilename = iniPath.c_str();
+            
             // Setup Dear ImGui style
             ImGui::StyleColorsDark();
             //ImGui::StyleColorsLight();
@@ -292,6 +295,8 @@ namespace Tiny3D
                 style.WindowRounding = 0.0f;
                 style.Colors[ImGuiCol_WindowBg].w = 1.0f;
             }
+
+            style.WindowMenuButtonPosition = ImGuiDir_None;
             
 #if defined(T3D_OS_WINDOWS)
             EditorInfoDX11 info;
@@ -512,7 +517,8 @@ namespace Tiny3D
         
         mImGuiImpl->update();
         ImGui::NewFrame();
-
+        ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+        
         ImWidget::beginUpdate();
         
         if (mMainWindow != nullptr)
@@ -521,7 +527,9 @@ namespace Tiny3D
         }
 
         ImWidget::endUpdate();
-    };
+
+        ImGui::EndFrame();
+    }
 
     //--------------------------------------------------------------------------
 
