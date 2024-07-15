@@ -31,6 +31,7 @@
 #include <T3DUtils.h>
 #include <T3DFramework.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 
 
 #if defined TINYIMGUI_EXPORT
