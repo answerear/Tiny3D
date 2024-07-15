@@ -51,6 +51,9 @@ namespace Tiny3D
         void onGUIEnd() override;
 
         TResult buildMenu();
+        TResult buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault);
+        TResult buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault);
+        TResult buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault);
         
     protected:
         ImMenuBar   *mMenuBar {nullptr};
