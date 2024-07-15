@@ -346,9 +346,43 @@ namespace Tiny3D
             // Selection
             {
                 auto popup = menu->addItem(STR(TXT_SELECTION));
+                
+                // Load Selection
+                const int32_t kMaxSelections = 10;
+                for (int32_t i = 0; i < kMaxSelections; ++i)
                 {
-                    
+                    std::stringstream ss;
+                    ss << STR(TXT_LOAD_SELECTION) << " " << i;
+                    std::stringstream ssKey;
+                    ssKey << "Ctrl+Shift+" << i;
+                    ret = popup->addItem(ss.str(), ssKey.str(), queryEnableDefault, 0);
+                    std::stringstream ssMsg;
+                    ssMsg << "Add menu item - " << ss.str() << " - failed !";
+                    CHECK_RESULT_MESSAGE(ret, ssMsg.str())
+                    ss.str("");
+                    ssKey.str("");
+                    ssMsg.str("");
                 }
+
+                CHECK_RESULT(ret)
+
+                // Save Selection
+                for (int32_t i = 0; i < kMaxSelections; ++i)
+                {
+                    std::stringstream ss;
+                    ss << STR(TXT_SAVE_SELECTION) << " " << i;
+                    std::stringstream ssKey;
+                    ssKey << "Ctrl+Shift+" << i;
+                    popup->addItem(ss.str(), ssKey.str(), queryEnableDefault, 0);
+                    std::stringstream ssMsg;
+                    ssMsg << "Add menu item - " << ss.str() << " - failed !";
+                    CHECK_RESULT_MESSAGE(ret, ssMsg.str())
+                    ss.str("");
+                    ssKey.str("");
+                    ssMsg.str("");
+                }
+
+                CHECK_RESULT(ret)
             }
             
             // Separator
@@ -370,9 +404,16 @@ namespace Tiny3D
             // Graphics Tier
             {
                 auto popup = menu->addItem(STR(TXT_GRAPHICS_TIER));
-                {
-                    
-                }
+
+                // Tier 1
+                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_1), "", queryEnableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 1 - failed !");
+                // Tier 2
+                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_2), "", queryEnableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 2 - failed !");
+                // Tier 3
+                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_3), "", queryEnableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 3 - failed !");
             }
         } while (false);
         
