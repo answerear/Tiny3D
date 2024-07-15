@@ -628,7 +628,93 @@ namespace Tiny3D
 
         do
         {
+            auto menu = mMenuBar->addMenu(STR(TXT_GAMEOBJECT));
             
+            // Create Empty
+            ret = menu->addItem(STR(TXT_CREATE_EMPTY), "Ctrl+Shift+N", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Create Empty - failed !")
+            // Create Empty Child
+            ret = menu->addItem(STR(TXT_CREATE_EMPTY_CHILD), "Alt+Shift+N", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Create Empty Child - failed !")
+            // Create Empty Parent
+            ret = menu->addItem(STR(TXT_CREATE_EMPTY_PARENT), "Ctrl+Shift+G", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Create Empty Parent - failed !")
+            // 3D Object
+            {
+                auto popup = menu->addItem(STR(TXT_3D_OBJECT));
+            }
+            // Effects
+            {
+                auto popup = menu->addItem(STR(TXT_EFFECTS));
+            }
+            // Light
+            {
+                auto popup = menu->addItem(STR(TXT_LIGHT));
+            }
+            // Audio
+            {
+                auto popup = menu->addItem(STR(TXT_AUDIO));
+            }
+            // Video
+            {
+                auto popup = menu->addItem(STR(TXT_VIDEO));
+            }
+            // UI
+            {
+                auto popup = menu->addItem(STR(TXT_UI));
+            }
+            // UI Toolkit
+            {
+                auto popup = menu->addItem(STR(TXT_UI_TOOLKIT));
+            }
+            // Camera
+            ret = menu->addItem(STR(TXT_CAMERA), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Camera - failed !")
+            // Visual Scripting Scene Varaibles
+            ret = menu->addItem(STR(TXT_VISUAL_SCRIPTING_SCENE_VARAIBLES), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Visual Scripting Scene Variables - failed !")
+            
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            
+            // Center On Children
+            ret = menu->addItem(STR(TXT_CENTER_ON_CHILDREN), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Center On Children - failed !")
+            
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            
+            // Make Parent
+            ret = menu->addItem(STR(TXT_MAKE_PARENT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Make Parent - failed !")
+            // Clear Parent
+            ret = menu->addItem(STR(TXT_CLEAR_PARENT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Clear Parent - failed !")
+            
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            
+            // Set as first sibling
+            ret = menu->addItem(STR(TXT_SET_AS_FIRST_SIBLING), "Ctrl+=", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Set as first sibling - failed !")
+            // Set as last sibling
+            ret = menu->addItem(STR(TXT_SET_AS_LAST_SIBLING), "Ctrl+-", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Set as last sibling - failed !")
+            // Move To View
+            ret = menu->addItem(STR(TXT_MOVE_TO_VIEW), "Ctrl+Alt+F", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Move To View - failed !")
+            // Align With View
+            ret = menu->addItem(STR(TXT_ALIGN_WITH_VIEW), "Ctrl+Shift+F", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Align With View - failed !")
+            // Align View to Selected
+            ret = menu->addItem(STR(TXT_ALIGN_VIEW_TO_SELECTED), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Align View to Selected - failed !")
+            // Toggle Active State
+            ret = menu->addItem(STR(TXT_TOGGLE_ACTIVE_STATE), "Alt+Shift+A", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Toggle Active State - failed !")
         } while (false);
         
         return ret;
