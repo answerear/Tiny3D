@@ -171,7 +171,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault)
+    TResult MainWindow::buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = IM_OK;
         
@@ -180,13 +180,13 @@ namespace Tiny3D
         do
         {
             // New Scene
-            ret = menu->addItem(STR(TXT_NEW_SCENE), "Ctrl+N", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_NEW_SCENE), "Ctrl+N", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - New Scene - failed !")
             // Open Scene
-            ret = menu->addItem(STR(TXT_OPEN_SCENE), "Ctrl+O", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_OPEN_SCENE), "Ctrl+O", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Scene - failed !")
             // Open Recent Scene
-            ret = menu->addItem(STR(TXT_OPEN_RECENT_SCENE), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_OPEN_RECENT_SCENE), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Recent Scene - failed !")
             
             // Separator
@@ -194,13 +194,13 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Save
-            ret = menu->addItem(STR(TXT_SAVE), "Ctrl+S", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SAVE), "Ctrl+S", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Save - failed !")
             // Save As
-            ret = menu->addItem(STR(TXT_SAVE_AS), "Ctrl+Shift+S", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SAVE_AS), "Ctrl+Shift+S", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Save As - failed !")
             // Save As Scene Template
-            ret = menu->addItem(STR(TXT_SAVE_AS_SCENE_TEMPLATE), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SAVE_AS_SCENE_TEMPLATE), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Save As Scene Template - failed !")
             
             // Separator
@@ -208,13 +208,13 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // New Project
-            ret = menu->addItem(STR(TXT_NEW_PROJECT), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_NEW_PROJECT), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - New Project - failed !")
             // Open Project
-            ret = menu->addItem(STR(TXT_OPEN_PROJECT), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_OPEN_PROJECT), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Project - failed !")
             // Save Project
-            ret = menu->addItem(STR(TXT_SAVE_PROJECT), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SAVE_PROJECT), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Save Project - failed !")
             
             // Separator
@@ -222,10 +222,10 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Build Settings...
-            ret = menu->addItem(STR(TXT_BUILD_SETTINGS), "Ctrl+Shift+B", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_BUILD_SETTINGS), "Ctrl+Shift+B", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Build Settings... - failed !")
             // Build And Run
-            ret = menu->addItem(STR(TXT_BUILD_AND_RUN), "Ctrl+B", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_BUILD_AND_RUN), "Ctrl+B", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Build And Run - failed !")
             
             // Separator
@@ -242,7 +242,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault)
+    TResult MainWindow::buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
 
@@ -251,29 +251,29 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(STR(TXT_EDIT));
             
             // Undo
-            ret = menu->addItem(STR(TXT_UNDO), "Ctrl+Z", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_UNDO), "Ctrl+Z", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Undo - failed !")
             // Redo
-            ret = menu->addItem(STR(TXT_REDO), "Ctrl+Y", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_REDO), "Ctrl+Y", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Redo - failed !")
             
             // Separator
             ret = menu->addSeparator();
             
             // Select All
-            ret = menu->addItem(STR(TXT_SELECT_ALL), "Ctrl+A", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SELECT_ALL), "Ctrl+A", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Select All - failed !")
             // Deselect All
-            ret = menu->addItem(STR(TXT_DESELECT_ALL), "Shift+D", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_DESELECT_ALL), "Shift+D", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Deselect All - failed !")
             // Select Children
-            ret = menu->addItem(STR(TXT_SELECT_CHILDREN), "Shift+C", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SELECT_CHILDREN), "Shift+C", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Select Children - failed !")
             // Select Prefab Root
-            ret = menu->addItem(STR(TXT_SELECT_PREFAB_ROOT), "Ctrl+Shift+R", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SELECT_PREFAB_ROOT), "Ctrl+Shift+R", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Select Prefab Root - failed !")
             // Insert Selection
-            ret = menu->addItem(STR(TXT_INSERT_SELECTION), "Ctrl+I", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_INSERT_SELECTION), "Ctrl+I", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Insert Selection - failed !")
             
             // Separator
@@ -281,13 +281,13 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Cut
-            ret = menu->addItem(STR(TXT_CUT), "Ctrl+X", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_CUT), "Ctrl+X", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Cut - failed !")
             // Copy
-            ret = menu->addItem(STR(TXT_COPY), "Ctrl+C", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_COPY), "Ctrl+C", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Copy - failed !")
             // Paste
-            ret = menu->addItem(STR(TXT_PASTE), "Ctrl+V", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_PASTE), "Ctrl+V", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Paste - failed !")
             
             // Seperator
@@ -295,23 +295,23 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Duplicate
-            ret = menu->addItem(STR(TXT_DUPLICATE), "Ctrl+D", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_DUPLICATE), "Ctrl+D", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Duplicate - failed !")
             // Rename
-            ret = menu->addItem(STR(TXT_RENAME), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_RENAME), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Rename - failed !")
             // Delete
-            ret = menu->addItem(STR(TXT_DELETE), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_DELETE), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Delete - failed !")
             
             // Separator
             ret = menu->addSeparator();
             
             // Frame Selected
-            ret = menu->addItem(STR(TXT_FRAME_SELECTED), "F", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_FRAME_SELECTED), "F", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Frame Selected - failed !")
             // Lock View to Selected
-            ret = menu->addItem(STR(TXT_LOCK_VIEW_TO_SELECTED), "Shift+F", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_LOCK_VIEW_TO_SELECTED), "Shift+F", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Lock View to Selected - failed !")
             
             // Seperator
@@ -319,10 +319,10 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Find
-            ret = menu->addItem(STR(TXT_FIND), "Ctrl+F", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_FIND), "Ctrl+F", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Undo - failed !")
             // Search All...
-            ret = menu->addItem(STR(TXT_SEARCH_ALL), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SEARCH_ALL), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Search All... - failed !")
             
             // Separator
@@ -330,13 +330,13 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Play
-            ret = menu->addItem(STR(TXT_PLAY), "Ctrl+P", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_PLAY), "Ctrl+P", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Play - failed !")
             // Pause
-            ret = menu->addItem(STR(TXT_PAUSE), "Ctrl+Shift+P", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_PAUSE), "Ctrl+Shift+P", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Pause - failed !")
             // Stop
-            ret = menu->addItem(STR(TXT_STOP), "Ctrl+Alt+P", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_STOP), "Ctrl+Alt+P", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Stop - failed !")
             
             // Separator
@@ -355,7 +355,7 @@ namespace Tiny3D
                     ss << STR(TXT_LOAD_SELECTION) << " " << i;
                     std::stringstream ssKey;
                     ssKey << "Ctrl+Shift+" << i;
-                    ret = popup->addItem(ss.str(), ssKey.str(), queryEnableDefault, 0);
+                    ret = popup->addItem(ss.str(), ssKey.str(), queryDisableDefault, 0);
                     std::stringstream ssMsg;
                     ssMsg << "Add menu item - " << ss.str() << " - failed !";
                     CHECK_RESULT_MESSAGE(ret, ssMsg.str())
@@ -373,7 +373,7 @@ namespace Tiny3D
                     ss << STR(TXT_SAVE_SELECTION) << " " << i;
                     std::stringstream ssKey;
                     ssKey << "Ctrl+Shift+" << i;
-                    popup->addItem(ss.str(), ssKey.str(), queryEnableDefault, 0);
+                    popup->addItem(ss.str(), ssKey.str(), queryDisableDefault, 0);
                     std::stringstream ssMsg;
                     ssMsg << "Add menu item - " << ss.str() << " - failed !";
                     CHECK_RESULT_MESSAGE(ret, ssMsg.str())
@@ -390,29 +390,29 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Project Settings...
-            ret = menu->addItem(STR(TXT_PROJECT_SETTINGS), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_PROJECT_SETTINGS), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Project Settings... - failed !")
             // Preferences...
-            ret = menu->addItem(STR(TXT_PREFERENCES), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_PREFERENCES), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Preferences... - failed !")
             // Shortcuts...
-            ret = menu->addItem(STR(TXT_SHORTCUTS), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_SHORTCUTS), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Shortcuts... - failed !")
             // Clear All PlayerPrefs
-            ret = menu->addItem(STR(TXT_CLEAR_ALL_PLAYERPREFS), "", queryEnableDefault, 0);
+            ret = menu->addItem(STR(TXT_CLEAR_ALL_PLAYERPREFS), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Clear All PlayerPrefs - failed !")
             // Graphics Tier
             {
                 auto popup = menu->addItem(STR(TXT_GRAPHICS_TIER));
 
                 // Tier 1
-                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_1), "", queryEnableDefault, 0);
+                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_1), "", queryDisableDefault, 0);
                 CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 1 - failed !");
                 // Tier 2
-                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_2), "", queryEnableDefault, 0);
+                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_2), "", queryDisableDefault, 0);
                 CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 2 - failed !");
                 // Tier 3
-                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_3), "", queryEnableDefault, 0);
+                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_3), "", queryDisableDefault, 0);
                 CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 3 - failed !");
             }
         } while (false);
@@ -422,7 +422,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault)
+    TResult MainWindow::buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         auto queryCheck = [](ImWidget *widget)
         {
@@ -480,7 +480,7 @@ namespace Tiny3D
                 {
                     // Reset All Layouts
                     ret = popup->addItem(STR(TXT_RESET_ALL_LAYOUTS), "",
-                        queryEnableDefault,
+                        queryDisableDefault,
                         [](ImMenuItem*)
                         {
                             // ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
@@ -495,28 +495,214 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult MainWindow::buildAssetsMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto menu = mMenuBar->addMenu(STR(TXT_ASSETS));
+
+            // Create
+            {
+                auto popup = menu->addItem(STR(TXT_CREATE));
+            }
+            // Show in Explorer
+            ret = menu->addItem(STR(TXT_SHOW_IN_EXPLORER), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Show in Explorer - failed !")
+            // Open
+            ret = menu->addItem(STR(TXT_OPEN), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open - failed !")
+            // Delete
+            ret = menu->addItem(STR(TXT_DELETE), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Delete - failed !")
+            // Rename
+            ret = menu->addItem(STR(TXT_RENAME), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Rename - failed !")
+            // Copy path
+            ret = menu->addItem(STR(TXT_COPY_PATH), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Copy Path - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Open Scene Additive
+            ret = menu->addItem(STR(TXT_OPEN_SCENE_ADDITIVE), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Scene Additive - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // View in Package Manager
+            ret = menu->addItem(STR(TXT_VIEW_IN_PACKAGE_MANAGER), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - View in Package Manager - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Import New Asset...
+            ret = menu->addItem(STR(TXT_IMPORT_NEW_ASSET), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Import New Asset... - failed !")
+            // Import Package
+            ret = menu->addItem(STR(TXT_IMPORT_PACKAGE), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Import Package - failed !")
+            // Export Package...
+            ret = menu->addItem(STR(TXT_EXPORT_PACKAGE), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Export Package... - failed !")
+            // Find References In Scene
+            ret = menu->addItem(STR(TXT_FIND_REFERENCES_IN_SCENE), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Find References In Scene - failed !")
+            // Find References In Project
+            ret = menu->addItem(STR(TXT_FIND_REFERENCES_IN_PROJECT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Find References In Project - failed !")
+            // Select Dependencies
+            ret = menu->addItem(STR(TXT_SELECT_DEPENDENCIES), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Select Dependencies - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Refresh
+            ret = menu->addItem(STR(TXT_REFRESH), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Refresh - failed !")
+            // Reimport
+            ret = menu->addItem(STR(TXT_REIMPORT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Reimport - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Reimport All
+            ret = menu->addItem(STR(TXT_REIMPORT_ALL), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Reimport All - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Extract From Prefab
+            ret = menu->addItem(STR(TXT_EXTRACT_FROM_PREFAB), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Extract From Prefab - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Update UXML Schema
+            ret = menu->addItem(STR(TXT_UPDATE_UXML_SCHEMA), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Update UXML Schema - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Cache Server
+            {
+                auto popup = menu->addItem(STR(TXT_CACHE_SERVER));
+            }
+
+            // Open C++ Project
+            ret = menu->addItem(STR(TXT_OPEN_CPP_PROJECT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open C++ Project - failed !")
+            // View in Import Activity Window
+            ret = menu->addItem(STR(TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - View in Import Activity Window - failed !")
+            // Properties
+            ret = menu->addItem(STR(TXT_PROPERTIES), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Properties - failed !")
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MainWindow::buildGameObjectMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MainWindow::buildComponentMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MainWindow::buildHelpMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult MainWindow::buildMenu()
     {
         mMenuBar = new ImMenuBar();
         mMenuBar->create("Main Menu", this);
 
-        auto queryEnableDefault = [](ImMenuItem*) {return true;};
+        auto queryEnableDefault = [](ImMenuItem*) { return true; };
+        auto queryDisableDefault = [](ImMenuItem*) { return false; };
 
         TResult ret = T3D_OK;
 
         do
         {
             // File
-            ret = buildFileMenu(queryEnableDefault);
+            ret = buildFileMenu(queryEnableDefault, queryDisableDefault);
             CHECK_RESULT_MESSAGE(ret, "Build file menu failed !")
 
             // Edit
-            ret = buildEditMenu(queryEnableDefault);
+            ret = buildEditMenu(queryEnableDefault, queryDisableDefault);
             CHECK_RESULT_MESSAGE(ret, "Build edit menu failed !")
 
+            // Assets
+            ret = buildAssetsMenu(queryEnableDefault, queryDisableDefault);
+            CHECK_RESULT_MESSAGE(ret, "Build assets menu failed !")
+
+            // GameObject
+            ret = buildGameObjectMenu(queryEnableDefault, queryDisableDefault);
+            CHECK_RESULT_MESSAGE(ret, "Build game object menu failed !")
+
+            // Component
+            ret = buildComponentMenu(queryEnableDefault, queryDisableDefault);
+            CHECK_RESULT_MESSAGE(ret, "Build component menu failed !")
+            
             // Window
-            ret = buildWindowMenu(queryEnableDefault);
-            CHECK_RESULT_MESSAGE(ret, "Build window menu failed !");
+            ret = buildWindowMenu(queryEnableDefault, queryDisableDefault);
+            CHECK_RESULT_MESSAGE(ret, "Build window menu failed !")
+
+            // Help
+            ret = buildHelpMenu(queryEnableDefault, queryDisableDefault);
+            CHECK_RESULT_MESSAGE(ret, "Build help menu failed !")
         } while (false);
 
         return ret;
