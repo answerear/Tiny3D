@@ -173,6 +173,9 @@ namespace Tiny3D
                 widget->setVisible(!widget->isVisible());
             }
         };
+
+        #define QUERY_CHECK(widget)             [&window=(widget), &queryCheck](ImMenuItem*) { return queryCheck(window); }
+        #define TOGGLE_WINDOW_VISIBLE(widget)   [&window=(widget), &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); }
         
         // File
         {
@@ -217,35 +220,17 @@ namespace Tiny3D
                 auto popup = menu->addItem(STR(TXT_PANELS));
                 {
                     // Console
-                    popup->addItem(STR(TXT_CONSOLE), "",
-                        queryEnableDefault,
-                        [&window=mConsoleWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
-                        [&window=mConsoleWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
+                    popup->addItem(STR(TXT_CONSOLE), "", queryEnableDefault, QUERY_CHECK(mConsoleWnd), TOGGLE_WINDOW_VISIBLE(mConsoleWnd));
                     // Game
-                    popup->addItem(STR(TXT_GAME), "",
-                        queryEnableDefault,
-                        [&window=mGameWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
-                        [&window=mGameWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
+                    popup->addItem(STR(TXT_GAME), "", queryEnableDefault, QUERY_CHECK(mGameWnd), TOGGLE_WINDOW_VISIBLE(mGameWnd));
                     // Hierarchy
-                    popup->addItem(STR(TXT_HIERARCHY), "",
-                        queryEnableDefault,
-                        [&window=mHierarchyWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
-                        [&window=mHierarchyWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
+                    popup->addItem(STR(TXT_HIERARCHY), "", queryEnableDefault, QUERY_CHECK(mHierarchyWnd), TOGGLE_WINDOW_VISIBLE(mHierarchyWnd));
                     // Inspector
-                    popup->addItem(STR(TXT_INSPECTOR), "",
-                        queryEnableDefault,
-                        [&window=mInspectorWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
-                        [&window=mInspectorWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
+                    popup->addItem(STR(TXT_INSPECTOR), "", queryEnableDefault,QUERY_CHECK(mInspectorWnd), TOGGLE_WINDOW_VISIBLE(mInspectorWnd));
                     // Project
-                    popup->addItem(STR(TXT_PROJECT), "",
-                        queryEnableDefault,
-                        [&window=mProjectWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
-                        [&window=mProjectWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
+                    popup->addItem(STR(TXT_PROJECT), "", queryEnableDefault,QUERY_CHECK(mProjectWnd), TOGGLE_WINDOW_VISIBLE(mProjectWnd));
                     // Scene
-                    popup->addItem(STR(TXT_SCENE), "",
-                        queryEnableDefault,
-                        [&window=mSceneWnd, &queryCheck](ImMenuItem*) { return queryCheck(window); },
-                        [&window=mSceneWnd, &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); });
+                    popup->addItem(STR(TXT_SCENE), "", queryEnableDefault,QUERY_CHECK(mSceneWnd), TOGGLE_WINDOW_VISIBLE(mSceneWnd));
                 }
             }
             // Separator
@@ -261,8 +246,7 @@ namespace Tiny3D
                         queryEnableDefault,
                         [](ImMenuItem*)
                         {
-                            ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
-                            
+                            // ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
                         });
                 }
             }
