@@ -75,7 +75,7 @@ namespace Tiny3D
 
     void EditorApp::exitApp()
     {
-        
+        mExitApp = true;
     }
 
     //--------------------------------------------------------------------------
@@ -516,7 +516,7 @@ namespace Tiny3D
 #endif
             }
         }
-        return !done;
+        return !done && !mExitApp;
     }
 
     //--------------------------------------------------------------------------

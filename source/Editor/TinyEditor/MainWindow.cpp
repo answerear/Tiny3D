@@ -31,14 +31,14 @@
 #include "ImErrors.h"
 #include "InspectorWindow.h"
 #include "ProjectWindow.h"
-#include "../../Plugins/Renderer/Null/Include/T3DNullPrerequisites.h"
+#include "EditorApp.h"
 
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
-
+    
     //--------------------------------------------------------------------------
 
     TResult MainWindow::onCreate()
@@ -233,7 +233,7 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Exit
-            ret = menu->addItem(STR(TXT_EXIT), "", queryEnableDefault, []() { });
+            ret = menu->addItem(STR(TXT_EXIT), "", queryEnableDefault, [](ImMenuItem*) { static_cast<EditorApp*>(Application::getInstancePtr())->exitApp(); });
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Exit - failed !")
         } while (false);
         

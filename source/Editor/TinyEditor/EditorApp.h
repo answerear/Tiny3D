@@ -116,6 +116,8 @@ namespace Tiny3D
         StartOptions mOptions {};
         
         MainWindow        *mMainWindow {nullptr};
+
+        bool mExitApp {false};
     };
 
     NS_END
