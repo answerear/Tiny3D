@@ -258,6 +258,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    extern const char *kTinyEditorInitData;
+
+    //--------------------------------------------------------------------------
+
     TResult EditorApp::createImGuiEnv()
     {
         TResult ret = T3D_OK;
@@ -272,7 +276,7 @@ namespace Tiny3D
             }
 
             IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
+            ImGuiContext *ctx = ImGui::CreateContext();
             ImGuiIO& io = ImGui::GetIO(); (void)io;
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -283,6 +287,12 @@ namespace Tiny3D
 
             static String iniPath = Dir::getAppPath() + Dir::getNativeSeparator() + "TinyEditorGUI.ini";
             io.IniFilename = iniPath.c_str();
+
+            // if (!Dir::exists(iniPath.c_str()))
+            // {
+            //     ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
+            //     ctx->SettingsLoaded = true;
+            // }
             
             // Setup Dear ImGui style
             ImGui::StyleColorsDark();

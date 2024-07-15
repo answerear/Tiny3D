@@ -100,6 +100,13 @@ if (TINY3D_OS_WINDOWS)
     #    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/lang-zh-hans.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h"
     #    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Language/lang-zh-hans.txt"
     #    )
+
+        
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/TinyEditorGUI.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/TinyEditorGUI.ini
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/TinyEditorGUI.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/TinyEditorGUI.ini
+        )
         
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
