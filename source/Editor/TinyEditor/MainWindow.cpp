@@ -433,6 +433,181 @@ namespace Tiny3D
             // Create
             {
                 auto popup = menu->addItem(STR(TXT_CREATE));
+
+                // Folder
+                ret = popup->addItem(STR(TXT_FOLDER), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Folder - failed !")
+                
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Type Script
+                ret = popup->addItem(STR(TXT_TYPE_SCRIPT), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Type Script - failed !")
+                // 2D
+                {
+                    auto popup1 = popup->addItem(STR(TXT_2D));
+                }
+                // Visual Scripting
+                {
+                    auto popup1 = popup->addItem(STR(TXT_VISUAL_SCRIPTING));
+                }
+                // Shader
+                {
+                    auto popup1 = popup->addItem(STR(TXT_SHADER));
+                }
+                // Shader Variant Collection
+                ret = popup->addItem(STR(TXT_SHADER_VARIANT_COLLECTION), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Shader Variant Collection - failed !")
+                // Testing
+                {
+                    auto popup1 = popup->addItem(STR(TXT_TESTING));
+                }
+                // Playables
+                {
+                    auto popup1 = popup->addItem(STR(TXT_PLAYABLES));
+                }
+                // Dynamic Link Library
+                ret = popup->addItem(STR(TXT_DYLIB), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Dynamic Link Library - failed !")
+                // Dynamic Link Library Reference
+                ret = popup->addItem(STR(TXT_DYLIB_REF), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Dynamic Link Library Reference - failed !")
+
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Text
+                {
+                    auto popup1 = popup->addItem(STR(TXT_TEXT));
+                }
+                // Test Mesh Pro
+                {
+                    auto popup1 = popup->addItem(STR(TXT_TEXT_MESH_PRO));
+                }
+
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Scene
+                ret = popup->addItem(STR(TXT_SCENE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene - failed !")
+                // Scene Template
+                ret = popup->addItem(STR(TXT_SCENE_TEMPLATE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene Template - failed !")
+                // Scene Template From Scene
+                ret = popup->addItem(STR(TXT_SCENE_TEMPLATE_FROM_SCENE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene Template From Scene - failed !")
+                // Scene Template Pipeline
+                ret = popup->addItem(STR(TXT_SCENE_TEMPLATE_PIPELINE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene Template Pipeline - failed !")
+                // Prefab
+                ret = popup->addItem(STR(TXT_PREFAB), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Prefab - failed !")
+                // Prefab Variant
+                ret = popup->addItem(STR(TXT_PREFAB_VARIANT), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Prefab Variant - failed !")
+                
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Audio Mixer
+                ret = popup->addItem(STR(TXT_AUDIO_MIXER), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Audio Mixer - failed !")
+                
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Material
+                ret = popup->addItem(STR(TXT_MATERIAL), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Material - failed !")
+                // Lens Flare
+                ret = popup->addItem(STR(TXT_LENS_FLARE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Lens Flare - failed !")
+                // Render Texture
+                ret = popup->addItem(STR(TXT_RENDER_TEXTURE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Render Texture - failed !")
+                // Lightmap Parameters
+                ret = popup->addItem(STR(TXT_LIGHTMAP_PARAMETERS), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Lightmap Parameters - failed !")
+                // Lighting Settings
+                ret = popup->addItem(STR(TXT_LIGHTING_SETTINGS), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Lighting Settings - failed !")
+                // Custom Render Texture
+                ret = popup->addItem(STR(TXT_CUSTOM_RENDER_TEXTURE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Custom Render Texture - failed !")
+                
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Animator Controller
+                ret = popup->addItem(STR(TXT_ANIMATOR_CONTROLLER), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Animator Controller - failed !")
+                // Animation
+                ret = popup->addItem(STR(TXT_ANIMATION), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Animation - failed !")
+                // Animator Override Controller
+                ret = popup->addItem(STR(TXT_ANIMATOR_OVERRIDE_CONTROLLER), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Animator Override Controller - failed !")
+                // Avatar Mask
+                ret = popup->addItem(STR(TXT_AVATAR_MASK), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Avatar Mask - failed !")
+                
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Timeline
+                ret = popup->addItem(STR(TXT_TIMELINE), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Timeline - failed !")
+                // Signal
+                ret = popup->addItem(STR(TXT_SIGNAL), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Signal - failed !")
+
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // GUI Skin
+                ret = popup->addItem(STR(TXT_GUI_SKIN), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - GUI Skin - failed !")
+                // Custom Font
+                ret = popup->addItem(STR(TXT_CUSTOM_FONT), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Custom Font - failed !")
+                
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Legacy
+                {
+                    auto popup1 = popup->addItem(STR(TXT_LEGACY));
+                }
+                // UI Toolkit
+                {
+                    auto popup1 = popup->addItem(STR(TXT_UI_TOOLKIT));
+                }
+
+                // Separator
+                ret = popup->addSeparator();
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                
+                // Search
+                {
+                    auto popup1 = popup->addItem(STR(TXT_SEARCH));
+                }
+                // Brush
+                ret = popup->addItem(STR(TXT_BRUSH), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Brush - failed !")
+                // Terrain Layer
+                ret = popup->addItem(STR(TXT_TERRAIN_LAYER), "", queryDisableDefault, 0);
+                CHECK_RESULT_MESSAGE(ret, "Add menu item - Terrain Layer - failed !")
             }
             // Show in Explorer
             ret = menu->addItem(STR(TXT_SHOW_IN_EXPLORER), "", queryDisableDefault, 0);
@@ -447,7 +622,7 @@ namespace Tiny3D
             ret = menu->addItem(STR(TXT_RENAME), "", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Rename - failed !")
             // Copy path
-            ret = menu->addItem(STR(TXT_COPY_PATH), "", queryDisableDefault, 0);
+            ret = menu->addItem(STR(TXT_COPY_PATH), "Alt+Ctrl+C", queryDisableDefault, 0);
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Copy Path - failed !")
 
             // Separator
@@ -834,6 +1009,8 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Asset Management - failed !")
 
             // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
 
             // Text
             ret = menu->addItem(STR(TXT_TEXT), "", queryDisableDefault, 0);
@@ -846,6 +1023,8 @@ namespace Tiny3D
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Text Mesh Pro - failed !")
 
             // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // General
             {
