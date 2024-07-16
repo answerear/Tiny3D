@@ -473,6 +473,17 @@ namespace Tiny3D
             // Separator
             ret = menu->addSeparator();
             CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Next Window
+            ret = menu->addItem(STR(TXT_NEXT_WINDOW), "Ctrl+Tab", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Next Window - failed !")
+            // Previous Window
+            ret = menu->addItem(STR(TXT_PREV_WINDOW), "Ctrl+Shift+Tab", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Previous Window - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
             
             // Layouts
             {
@@ -487,6 +498,77 @@ namespace Tiny3D
                         });
                     CHECK_RESULT_MESSAGE(ret, "Add menu item - Reset All Layouts - failed !")
                 }
+            }
+            // Search
+            {
+                auto popup = menu->addItem(STR(TXT_SEARCH));
+            }
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Package Manager
+            ret = menu->addItem(STR(TXT_PACKAGE_MANAGER), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Package Manager - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Asset Management
+            ret = menu->addItem(STR(TXT_ASSET_MANAGEMENT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Asset Management - failed !")
+
+            // Separator
+
+            // Text
+            ret = menu->addItem(STR(TXT_TEXT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text - failed !")
+
+            // Separator
+
+            // Text Mesh Pro
+            ret = menu->addItem(STR(TXT_TEXT_MESH_PRO), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text Mesh Pro - failed !")
+
+            // Separator
+            
+            // General
+            {
+                auto popup = menu->addItem(STR(TXT_GENERAL));
+            }
+            // Rendering
+            {
+                auto popup = menu->addItem(STR(TXT_RENDERING));
+            }
+            // Animation
+            {
+                auto popup = menu->addItem(STR(TXT_ANIMATION));
+            }
+            // Audio
+            {
+                auto popup = menu->addItem(STR(TXT_AUDIO));
+            }
+            // Sequencing
+            {
+                auto popup = menu->addItem(STR(TXT_SEQUENCING));
+            }
+            // Analysis
+            {
+                auto popup = menu->addItem(STR(TXT_ANALYSIS));
+            }
+            // AI
+            {
+                auto popup = menu->addItem(STR(TXT_AI));
+            }
+            // UI Toolkit
+            {
+                auto popup = menu->addItem(STR(TXT_UI_TOOLKIT));
+            }
+            // Visual Scripting
+            {
+                auto popup = menu->addItem(STR(TXT_VISUAL_SCRIPTING));
             }
         } while (false);
         
@@ -728,7 +810,79 @@ namespace Tiny3D
 
         do
         {
-            
+            auto menu = mMenuBar->addMenu(STR(TXT_COMPONENT));
+
+            // Add...
+            ret = menu->addItem(STR(TXT_ADD), "Ctrl+Shift+A", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Add... - failed !")
+            // Mesh
+            {
+                auto popup = menu->addItem(STR(TXT_MESH));
+            }
+            // Effects
+            {
+                auto popup = menu->addItem(STR(TXT_EFFECTS));
+            }
+            // Physics
+            {
+                auto popup = menu->addItem(STR(TXT_PHYSICS));
+            }
+            // Physics 2D
+            {
+                auto popup = menu->addItem(STR(TXT_PHYSICS_2D));
+            }
+            // Navigation
+            {
+                auto popup = menu->addItem(STR(TXT_NAVIGATION));
+            }
+            // Audio
+            {
+                auto popup = menu->addItem(STR(TXT_AUDIO));
+            }
+            // Video
+            {
+                auto popup = menu->addItem(STR(TXT_VIDEO));
+            }
+            // Rendering
+            {
+                auto popup = menu->addItem(STR(TXT_RENDERING));
+            }
+            // Tilemap
+            {
+                auto popup = menu->addItem(STR(TXT_TILEMAP));
+            }
+            // Layout
+            {
+                auto popup = menu->addItem(STR(TXT_LAYOUT));
+            }
+            // Playables
+            {
+                auto popup = menu->addItem(STR(TXT_PLAYABLES));
+            }
+            // Miscellaneous
+            {
+                auto popup = menu->addItem(STR(TXT_MISCELLANEOUS));
+            }
+            // Scripts
+            {
+                auto popup = menu->addItem(STR(TXT_SCRIPTS));
+            }
+            // UI
+            {
+                auto popup = menu->addItem(STR(TXT_UI));
+            }
+            // Visual Scripting
+            {
+                auto popup = menu->addItem(STR(TXT_VISUAL_SCRIPTING));
+            }
+            // Event
+            {
+                auto popup = menu->addItem(STR(TXT_EVENT));
+            }
+            // UI Toolkit
+            {
+                auto popup = menu->addItem(STR(TXT_UI_TOOLKIT));
+            }
         } while (false);
 
         return ret;
