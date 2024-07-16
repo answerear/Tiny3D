@@ -896,7 +896,22 @@ namespace Tiny3D
 
         do
         {
+            auto menu = mMenuBar->addMenu(STR(TXT_HELP));
+
+            // About
+            ret = menu->addItem(STR(TXT_ABOUT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - About - failed !")
             
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            
+            // User Manual
+            ret = menu->addItem(STR(TXT_USER_MANUAL), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - User Manual - failed !")
+            // API Document
+            ret = menu->addItem(STR(TXT_API_DOCUMENT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - API Document - failed !")
         } while (false);
 
         return ret;
