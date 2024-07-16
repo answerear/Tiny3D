@@ -422,161 +422,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
-    {
-        auto queryCheck = [](ImWidget *widget)
-        {
-            return widget != nullptr ? widget->isVisible() : false;
-        };
-        auto toggleWindowVisible = [](ImWidget *widget)
-        {
-            if (widget != nullptr)
-            {
-                widget->setVisible(!widget->isVisible());
-            }
-        };
-
-        #define QUERY_CHECK(widget)             [&window=(widget), &queryCheck](ImMenuItem*) { return queryCheck(window); }
-        #define TOGGLE_WINDOW_VISIBLE(widget)   [&window=(widget), &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); }
-
-        TResult ret = T3D_OK;
-        
-        do
-        {
-            auto menu = mMenuBar->addMenu(STR(TXT_WINDOW));
-            
-            // Panels
-            {
-                auto popup = menu->addItem(STR(TXT_PANELS));
-                {
-                    // Console
-                    ret = popup->addItem(STR(TXT_CONSOLE), "", queryEnableDefault, QUERY_CHECK(mConsoleWnd), TOGGLE_WINDOW_VISIBLE(mConsoleWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Console - failed !")
-                    // Game
-                    ret = popup->addItem(STR(TXT_GAME), "", queryEnableDefault, QUERY_CHECK(mGameWnd), TOGGLE_WINDOW_VISIBLE(mGameWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Game - failed !")
-                    // Hierarchy
-                    ret = popup->addItem(STR(TXT_HIERARCHY), "", queryEnableDefault, QUERY_CHECK(mHierarchyWnd), TOGGLE_WINDOW_VISIBLE(mHierarchyWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Hierarchy - failed !")
-                    // Inspector
-                    ret = popup->addItem(STR(TXT_INSPECTOR), "", queryEnableDefault,QUERY_CHECK(mInspectorWnd), TOGGLE_WINDOW_VISIBLE(mInspectorWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Inspector - failed !")
-                    // Project
-                    ret = popup->addItem(STR(TXT_PROJECT), "", queryEnableDefault,QUERY_CHECK(mProjectWnd), TOGGLE_WINDOW_VISIBLE(mProjectWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Project - failed !")
-                    // Scene
-                    ret = popup->addItem(STR(TXT_SCENE), "", queryEnableDefault,QUERY_CHECK(mSceneWnd), TOGGLE_WINDOW_VISIBLE(mSceneWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene - failed !")
-                }
-            }
-            
-            // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
-
-            // Next Window
-            ret = menu->addItem(STR(TXT_NEXT_WINDOW), "Ctrl+Tab", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Next Window - failed !")
-            // Previous Window
-            ret = menu->addItem(STR(TXT_PREV_WINDOW), "Ctrl+Shift+Tab", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Previous Window - failed !")
-
-            // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
-            
-            // Layouts
-            {
-                auto popup = menu->addItem(STR(TXT_LAYOUTS));
-                {
-                    // Reset All Layouts
-                    ret = popup->addItem(STR(TXT_RESET_ALL_LAYOUTS), "",
-                        queryDisableDefault,
-                        [](ImMenuItem*)
-                        {
-                            // ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
-                        });
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Reset All Layouts - failed !")
-                }
-            }
-            // Search
-            {
-                auto popup = menu->addItem(STR(TXT_SEARCH));
-            }
-
-            // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
-
-            // Package Manager
-            ret = menu->addItem(STR(TXT_PACKAGE_MANAGER), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Package Manager - failed !")
-
-            // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
-
-            // Asset Management
-            ret = menu->addItem(STR(TXT_ASSET_MANAGEMENT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Asset Management - failed !")
-
-            // Separator
-
-            // Text
-            ret = menu->addItem(STR(TXT_TEXT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text - failed !")
-
-            // Separator
-
-            // Text Mesh Pro
-            ret = menu->addItem(STR(TXT_TEXT_MESH_PRO), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text Mesh Pro - failed !")
-
-            // Separator
-            
-            // General
-            {
-                auto popup = menu->addItem(STR(TXT_GENERAL));
-            }
-            // Rendering
-            {
-                auto popup = menu->addItem(STR(TXT_RENDERING));
-            }
-            // Animation
-            {
-                auto popup = menu->addItem(STR(TXT_ANIMATION));
-            }
-            // Audio
-            {
-                auto popup = menu->addItem(STR(TXT_AUDIO));
-            }
-            // Sequencing
-            {
-                auto popup = menu->addItem(STR(TXT_SEQUENCING));
-            }
-            // Analysis
-            {
-                auto popup = menu->addItem(STR(TXT_ANALYSIS));
-            }
-            // AI
-            {
-                auto popup = menu->addItem(STR(TXT_AI));
-            }
-            // UI Toolkit
-            {
-                auto popup = menu->addItem(STR(TXT_UI_TOOLKIT));
-            }
-            // Visual Scripting
-            {
-                auto popup = menu->addItem(STR(TXT_VISUAL_SCRIPTING));
-            }
-        } while (false);
-        
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult MainWindow::buildAssetsMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
@@ -888,6 +733,161 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult MainWindow::buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    {
+        auto queryCheck = [](ImWidget *widget)
+        {
+            return widget != nullptr ? widget->isVisible() : false;
+        };
+        auto toggleWindowVisible = [](ImWidget *widget)
+        {
+            if (widget != nullptr)
+            {
+                widget->setVisible(!widget->isVisible());
+            }
+        };
+
+        #define QUERY_CHECK(widget)             [&window=(widget), &queryCheck](ImMenuItem*) { return queryCheck(window); }
+        #define TOGGLE_WINDOW_VISIBLE(widget)   [&window=(widget), &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); }
+
+        TResult ret = T3D_OK;
+        
+        do
+        {
+            auto menu = mMenuBar->addMenu(STR(TXT_WINDOW));
+            
+            // Panels
+            {
+                auto popup = menu->addItem(STR(TXT_PANELS));
+                {
+                    // Console
+                    ret = popup->addItem(STR(TXT_CONSOLE), "", queryEnableDefault, QUERY_CHECK(mConsoleWnd), TOGGLE_WINDOW_VISIBLE(mConsoleWnd));
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Console - failed !")
+                    // Game
+                    ret = popup->addItem(STR(TXT_GAME), "", queryEnableDefault, QUERY_CHECK(mGameWnd), TOGGLE_WINDOW_VISIBLE(mGameWnd));
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Game - failed !")
+                    // Hierarchy
+                    ret = popup->addItem(STR(TXT_HIERARCHY), "", queryEnableDefault, QUERY_CHECK(mHierarchyWnd), TOGGLE_WINDOW_VISIBLE(mHierarchyWnd));
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Hierarchy - failed !")
+                    // Inspector
+                    ret = popup->addItem(STR(TXT_INSPECTOR), "", queryEnableDefault,QUERY_CHECK(mInspectorWnd), TOGGLE_WINDOW_VISIBLE(mInspectorWnd));
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Inspector - failed !")
+                    // Project
+                    ret = popup->addItem(STR(TXT_PROJECT), "", queryEnableDefault,QUERY_CHECK(mProjectWnd), TOGGLE_WINDOW_VISIBLE(mProjectWnd));
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Project - failed !")
+                    // Scene
+                    ret = popup->addItem(STR(TXT_SCENE), "", queryEnableDefault,QUERY_CHECK(mSceneWnd), TOGGLE_WINDOW_VISIBLE(mSceneWnd));
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene - failed !")
+                }
+            }
+            
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Next Window
+            ret = menu->addItem(STR(TXT_NEXT_WINDOW), "Ctrl+Tab", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Next Window - failed !")
+            // Previous Window
+            ret = menu->addItem(STR(TXT_PREV_WINDOW), "Ctrl+Shift+Tab", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Previous Window - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            
+            // Layouts
+            {
+                auto popup = menu->addItem(STR(TXT_LAYOUTS));
+                {
+                    // Reset All Layouts
+                    ret = popup->addItem(STR(TXT_RESET_ALL_LAYOUTS), "",
+                        queryDisableDefault,
+                        [](ImMenuItem*)
+                        {
+                            // ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
+                        });
+                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Reset All Layouts - failed !")
+                }
+            }
+            // Search
+            {
+                auto popup = menu->addItem(STR(TXT_SEARCH));
+            }
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Package Manager
+            ret = menu->addItem(STR(TXT_PACKAGE_MANAGER), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Package Manager - failed !")
+
+            // Separator
+            ret = menu->addSeparator();
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+
+            // Asset Management
+            ret = menu->addItem(STR(TXT_ASSET_MANAGEMENT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Asset Management - failed !")
+
+            // Separator
+
+            // Text
+            ret = menu->addItem(STR(TXT_TEXT), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text - failed !")
+
+            // Separator
+
+            // Text Mesh Pro
+            ret = menu->addItem(STR(TXT_TEXT_MESH_PRO), "", queryDisableDefault, 0);
+            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text Mesh Pro - failed !")
+
+            // Separator
+            
+            // General
+            {
+                auto popup = menu->addItem(STR(TXT_GENERAL));
+            }
+            // Rendering
+            {
+                auto popup = menu->addItem(STR(TXT_RENDERING));
+            }
+            // Animation
+            {
+                auto popup = menu->addItem(STR(TXT_ANIMATION));
+            }
+            // Audio
+            {
+                auto popup = menu->addItem(STR(TXT_AUDIO));
+            }
+            // Sequencing
+            {
+                auto popup = menu->addItem(STR(TXT_SEQUENCING));
+            }
+            // Analysis
+            {
+                auto popup = menu->addItem(STR(TXT_ANALYSIS));
+            }
+            // AI
+            {
+                auto popup = menu->addItem(STR(TXT_AI));
+            }
+            // UI Toolkit
+            {
+                auto popup = menu->addItem(STR(TXT_UI_TOOLKIT));
+            }
+            // Visual Scripting
+            {
+                auto popup = menu->addItem(STR(TXT_VISUAL_SCRIPTING));
+            }
+        } while (false);
+        
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult MainWindow::buildHelpMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
