@@ -100,7 +100,8 @@ namespace Tiny3D
 
         if (mSceneMgr != nullptr)
         {
-            mSceneMgr->unloadScene();
+            // mSceneMgr->unloadScene();
+            mSceneMgr->unloadAllScenes();
             mSceneMgr = nullptr;
         }
 

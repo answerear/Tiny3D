@@ -63,6 +63,8 @@ namespace Tiny3D
         void setCurrentScene(Scene *scene) { mCurrentScene = scene; }
 
         TResult unloadScene();
+
+        TResult unloadAllScenes();
         
     protected:
         SceneManager() = default;
