@@ -34,7 +34,7 @@ namespace Tiny3D
 
     enum AppEventID
     {
-        kEvtApp = 0,
+        kEvtInvalid = 0,
     };
 
     NS_END

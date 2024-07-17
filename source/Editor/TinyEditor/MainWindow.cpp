@@ -32,6 +32,7 @@
 #include "InspectorWindow.h"
 #include "ProjectWindow.h"
 #include "EditorApp.h"
+#include "EditorEventDefine.h"
 
 
 
@@ -169,6 +170,34 @@ namespace Tiny3D
             break; \
         }
 
+    #define MENU_ITEM_WITH_EVENT(m, txt_id, shortcut, query_enable_cb, event_id) \
+        ret = (m)->addItem(STR(txt_id), shortcut, query_enable_cb, event_id); \
+        CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
+
+    #define MENU_ITEM_WITH_CB(m, txt_id, shortcut, query_enable_cb, clicked_cb) \
+        ret =(m)->addItem(STR(txt_id), shortcut, query_enable_cb, clicked_cb); \
+        CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
+
+    #define MENU_ITEM_NAME_WITH_EVENT(m, name, shortcut, query_enable_cb, event_id) \
+        ret = (m)->addItem(name, shortcut, query_enable_cb, event_id); \
+        CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + name + " - failed !").c_str())
+
+    #define MENU_ITEM_NAME_WITH_CB(m, name, shortcut, query_enable_cb, clicked_cb) \
+        ret = (m)->addItem(name, shortcut, query_enable_cb, clicked_cb); \
+        CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + name + " - failed !").c_str())
+
+    #define MENU_ITEM_CHECK_WITH_EVENT(m, txt_id, shortcut, query_enable_cb, query_check_cb, event_id) \
+        ret = (m)->addItem(STR(txt_id), shortcut, queryEnableDefault, query_check_cb, event_id); \
+        CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
+    
+    #define MENU_ITEM_CHECK_WITH_CB(m, txt_id, shortcut, query_enable_cb, query_check_cb, toggle_cb) \
+        ret = (m)->addItem(STR(txt_id), shortcut, queryEnableDefault, query_check_cb, toggle_cb); \
+        CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
+    
+    #define MENU_SEPARATOR(m) \
+        ret = (m)->addSeparator(); \
+        CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+    
     //--------------------------------------------------------------------------
 
     TResult MainWindow::buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
@@ -180,61 +209,45 @@ namespace Tiny3D
         do
         {
             // New Scene
-            ret = menu->addItem(STR(TXT_NEW_SCENE), "Ctrl+N", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - New Scene - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_NEW_SCENE, "Ctrl+N", queryDisableDefault, kEvtInvalid)
             // Open Scene
-            ret = menu->addItem(STR(TXT_OPEN_SCENE), "Ctrl+O", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Scene - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_OPEN_SCENE, "Ctrl+O", queryDisableDefault, kEvtInvalid)
             // Open Recent Scene
-            ret = menu->addItem(STR(TXT_OPEN_RECENT_SCENE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Recent Scene - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_OPEN_RECENT_SCENE, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Save
-            ret = menu->addItem(STR(TXT_SAVE), "Ctrl+S", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Save - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SAVE, "Ctrl+S", queryDisableDefault, kEvtInvalid)
             // Save As
-            ret = menu->addItem(STR(TXT_SAVE_AS), "Ctrl+Shift+S", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Save As - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SAVE_AS, "Ctrl+Shift+S", queryDisableDefault, kEvtInvalid)
             // Save As Scene Template
-            ret = menu->addItem(STR(TXT_SAVE_AS_SCENE_TEMPLATE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Save As Scene Template - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SAVE_AS_SCENE_TEMPLATE, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // New Project
-            ret = menu->addItem(STR(TXT_NEW_PROJECT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - New Project - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_NEW_PROJECT, "", queryDisableDefault, kEvtInvalid)
             // Open Project
-            ret = menu->addItem(STR(TXT_OPEN_PROJECT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Project - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_OPEN_PROJECT, "", queryDisableDefault, kEvtInvalid)
             // Save Project
-            ret = menu->addItem(STR(TXT_SAVE_PROJECT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Save Project - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SAVE_PROJECT, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Build Settings...
-            ret = menu->addItem(STR(TXT_BUILD_SETTINGS), "Ctrl+Shift+B", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Build Settings... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_BUILD_SETTINGS, "Ctrl+Shift+B", queryDisableDefault, kEvtInvalid)
             // Build And Run
-            ret = menu->addItem(STR(TXT_BUILD_AND_RUN), "Ctrl+B", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Build And Run - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_BUILD_AND_RUN, "Ctrl+B", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Exit
-            ret = menu->addItem(STR(TXT_EXIT), "", queryEnableDefault, [](ImMenuItem*) { static_cast<EditorApp*>(Application::getInstancePtr())->exitApp(); });
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Exit - failed !")
+            MENU_ITEM_WITH_CB(menu, TXT_EXIT, "", queryEnableDefault, [](ImMenuItem*) { static_cast<EditorApp*>(Application::getInstancePtr())->exitApp(); })
         } while (false);
         
         return ret;
@@ -251,97 +264,72 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(STR(TXT_EDIT));
             
             // Undo
-            ret = menu->addItem(STR(TXT_UNDO), "Ctrl+Z", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Undo - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_UNDO, "Ctrl+Z", queryDisableDefault, kEvtInvalid)
             // Redo
-            ret = menu->addItem(STR(TXT_REDO), "Ctrl+Y", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Redo - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_REDO, "Ctrl+Y", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
+            MENU_SEPARATOR(menu)
             
             // Select All
-            ret = menu->addItem(STR(TXT_SELECT_ALL), "Ctrl+A", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Select All - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SELECT_ALL, "Ctrl+A", queryDisableDefault, kEvtInvalid)
             // Deselect All
-            ret = menu->addItem(STR(TXT_DESELECT_ALL), "Shift+D", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Deselect All - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_DESELECT_ALL, "Shift+D", queryDisableDefault, kEvtInvalid)
             // Select Children
-            ret = menu->addItem(STR(TXT_SELECT_CHILDREN), "Shift+C", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Select Children - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SELECT_CHILDREN, "Shift+C", queryDisableDefault, kEvtInvalid)
             // Select Prefab Root
-            ret = menu->addItem(STR(TXT_SELECT_PREFAB_ROOT), "Ctrl+Shift+R", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Select Prefab Root - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SELECT_PREFAB_ROOT, "Ctrl+Shift+R", queryDisableDefault, kEvtInvalid)
             // Insert Selection
-            ret = menu->addItem(STR(TXT_INSERT_SELECTION), "Ctrl+I", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Insert Selection - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_INSERT_SELECTION, "Ctrl+I", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Cut
-            ret = menu->addItem(STR(TXT_CUT), "Ctrl+X", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Cut - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CUT, "Ctrl+X", queryDisableDefault, kEvtInvalid)
             // Copy
-            ret = menu->addItem(STR(TXT_COPY), "Ctrl+C", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Copy - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_COPY, "Ctrl+C", queryDisableDefault, kEvtInvalid)
             // Paste
-            ret = menu->addItem(STR(TXT_PASTE), "Ctrl+V", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Paste - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PASTE, "Ctrl+V", queryDisableDefault, kEvtInvalid)
             
-            // Seperator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            // Separator
+            MENU_SEPARATOR(menu)
             
             // Duplicate
-            ret = menu->addItem(STR(TXT_DUPLICATE), "Ctrl+D", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Duplicate - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_DUPLICATE, "Ctrl+D", queryDisableDefault, kEvtInvalid)
             // Rename
-            ret = menu->addItem(STR(TXT_RENAME), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Rename - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_RENAME, "", queryDisableDefault, kEvtInvalid)
             // Delete
-            ret = menu->addItem(STR(TXT_DELETE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Delete - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_DELETE, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
+            MENU_SEPARATOR(menu)
             
             // Frame Selected
-            ret = menu->addItem(STR(TXT_FRAME_SELECTED), "F", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Frame Selected - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_FRAME_SELECTED, "F", queryDisableDefault, kEvtInvalid)
             // Lock View to Selected
-            ret = menu->addItem(STR(TXT_LOCK_VIEW_TO_SELECTED), "Shift+F", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Lock View to Selected - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_LOCK_VIEW_TO_SELECTED, "Shift+F", queryDisableDefault, kEvtInvalid)
             
             // Seperator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Find
-            ret = menu->addItem(STR(TXT_FIND), "Ctrl+F", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Undo - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_FIND, "Ctrl+F", queryDisableDefault, kEvtInvalid)
             // Search All...
-            ret = menu->addItem(STR(TXT_SEARCH_ALL), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Search All... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SEARCH_ALL, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Play
-            ret = menu->addItem(STR(TXT_PLAY), "Ctrl+P", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Play - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PLAY, "Ctrl+P", queryDisableDefault, kEvtInvalid)
             // Pause
-            ret = menu->addItem(STR(TXT_PAUSE), "Ctrl+Shift+P", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Pause - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PAUSE, "Ctrl+Shift+P", queryDisableDefault, kEvtInvalid)
             // Stop
-            ret = menu->addItem(STR(TXT_STOP), "Ctrl+Alt+P", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Stop - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_STOP, "Ctrl+Alt+P", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Selection
             {
@@ -355,13 +343,9 @@ namespace Tiny3D
                     ss << STR(TXT_LOAD_SELECTION) << " " << i;
                     std::stringstream ssKey;
                     ssKey << "Ctrl+Shift+" << i;
-                    ret = popup->addItem(ss.str(), ssKey.str(), queryDisableDefault, 0);
-                    std::stringstream ssMsg;
-                    ssMsg << "Add menu item - " << ss.str() << " - failed !";
-                    CHECK_RESULT_MESSAGE(ret, ssMsg.str())
+                    MENU_ITEM_NAME_WITH_EVENT(popup, ss.str(), ssKey.str(), queryDisableDefault, kEvtInvalid)
                     ss.str("");
                     ssKey.str("");
-                    ssMsg.str("");
                 }
 
                 CHECK_RESULT(ret)
@@ -373,47 +357,35 @@ namespace Tiny3D
                     ss << STR(TXT_SAVE_SELECTION) << " " << i;
                     std::stringstream ssKey;
                     ssKey << "Ctrl+Shift+" << i;
-                    popup->addItem(ss.str(), ssKey.str(), queryDisableDefault, 0);
-                    std::stringstream ssMsg;
-                    ssMsg << "Add menu item - " << ss.str() << " - failed !";
-                    CHECK_RESULT_MESSAGE(ret, ssMsg.str())
+                    MENU_ITEM_NAME_WITH_EVENT(popup, ss.str(), ssKey.str(), queryDisableDefault, kEvtInvalid)
                     ss.str("");
                     ssKey.str("");
-                    ssMsg.str("");
                 }
 
                 CHECK_RESULT(ret)
             }
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Project Settings...
-            ret = menu->addItem(STR(TXT_PROJECT_SETTINGS), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Project Settings... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PROJECT_SETTINGS, "", queryDisableDefault, kEvtInvalid)
             // Preferences...
-            ret = menu->addItem(STR(TXT_PREFERENCES), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Preferences... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PREFERENCES, "", queryDisableDefault, kEvtInvalid)
             // Shortcuts...
-            ret = menu->addItem(STR(TXT_SHORTCUTS), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Shortcuts... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SHORTCUTS, "", queryDisableDefault, kEvtInvalid)
             // Clear All PlayerPrefs
-            ret = menu->addItem(STR(TXT_CLEAR_ALL_PLAYERPREFS), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Clear All PlayerPrefs - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CLEAR_ALL_PLAYERPREFS, "", queryDisableDefault, kEvtInvalid)
             // Graphics Tier
             {
                 auto popup = menu->addItem(STR(TXT_GRAPHICS_TIER));
 
                 // Tier 1
-                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_1), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 1 - failed !");
+                MENU_ITEM_WITH_EVENT(popup, TXT_GRAPHICS_TIER_1, "", queryDisableDefault, kEvtInvalid)
                 // Tier 2
-                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_2), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 2 - failed !");
+                MENU_ITEM_WITH_EVENT(popup, TXT_GRAPHICS_TIER_2, "", queryDisableDefault, kEvtInvalid)
                 // Tier 3
-                ret = popup->addItem(STR(TXT_GRAPHICS_TIER_3), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Graphics Tier 3 - failed !");
+                MENU_ITEM_WITH_EVENT(popup, TXT_GRAPHICS_TIER_3, "", queryDisableDefault, kEvtInvalid)
             }
         } while (false);
         
@@ -435,19 +407,19 @@ namespace Tiny3D
                 auto popup = menu->addItem(STR(TXT_CREATE));
 
                 // Folder
-                ret = popup->addItem(STR(TXT_FOLDER), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Folder - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_FOLDER, "", queryDisableDefault, kEvtInvalid)
                 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Type Script
-                ret = popup->addItem(STR(TXT_TYPE_SCRIPT), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Type Script - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_TYPE_SCRIPT, "", queryDisableDefault, kEvtInvalid)
                 // 2D
                 {
                     auto popup1 = popup->addItem(STR(TXT_2D));
+
+                    // Physics Material 2D
+                    MENU_ITEM_WITH_EVENT(popup1, TXT_PHYSICS_MATERIAL_2D, "", queryDisableDefault, kEvtInvalid)
                 }
                 // Visual Scripting
                 {
@@ -458,8 +430,7 @@ namespace Tiny3D
                     auto popup1 = popup->addItem(STR(TXT_SHADER));
                 }
                 // Shader Variant Collection
-                ret = popup->addItem(STR(TXT_SHADER_VARIANT_COLLECTION), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Shader Variant Collection - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_SHADER_VARIANT_COLLECTION, "", queryDisableDefault, kEvtInvalid)
                 // Testing
                 {
                     auto popup1 = popup->addItem(STR(TXT_TESTING));
@@ -469,15 +440,12 @@ namespace Tiny3D
                     auto popup1 = popup->addItem(STR(TXT_PLAYABLES));
                 }
                 // Dynamic Link Library
-                ret = popup->addItem(STR(TXT_DYLIB), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Dynamic Link Library - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_DYLIB, "", queryDisableDefault, kEvtInvalid)
                 // Dynamic Link Library Reference
-                ret = popup->addItem(STR(TXT_DYLIB_REF), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Dynamic Link Library Reference - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_DYLIB_REF, "", queryDisableDefault, kEvtInvalid)
 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Text
                 {
@@ -489,101 +457,73 @@ namespace Tiny3D
                 }
 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Scene
-                ret = popup->addItem(STR(TXT_SCENE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_SCENE, "", queryDisableDefault, kEvtInvalid)
                 // Scene Template
-                ret = popup->addItem(STR(TXT_SCENE_TEMPLATE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene Template - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_SCENE_TEMPLATE, "", queryDisableDefault, kEvtInvalid)
                 // Scene Template From Scene
-                ret = popup->addItem(STR(TXT_SCENE_TEMPLATE_FROM_SCENE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene Template From Scene - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_SCENE_TEMPLATE_FROM_SCENE, "", queryDisableDefault, kEvtInvalid)
                 // Scene Template Pipeline
-                ret = popup->addItem(STR(TXT_SCENE_TEMPLATE_PIPELINE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene Template Pipeline - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_SCENE_TEMPLATE_PIPELINE, "", queryDisableDefault, kEvtInvalid)
                 // Prefab
-                ret = popup->addItem(STR(TXT_PREFAB), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Prefab - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_PREFAB, "", queryDisableDefault, kEvtInvalid)
                 // Prefab Variant
-                ret = popup->addItem(STR(TXT_PREFAB_VARIANT), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Prefab Variant - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_PREFAB_VARIANT, "", queryDisableDefault, kEvtInvalid)
                 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Audio Mixer
-                ret = popup->addItem(STR(TXT_AUDIO_MIXER), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Audio Mixer - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_AUDIO_MIXER, "", queryDisableDefault, kEvtInvalid)
                 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Material
-                ret = popup->addItem(STR(TXT_MATERIAL), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Material - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_MATERIAL, "", queryDisableDefault, kEvtInvalid)
                 // Lens Flare
-                ret = popup->addItem(STR(TXT_LENS_FLARE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Lens Flare - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_LENS_FLARE, "", queryDisableDefault, kEvtInvalid)
                 // Render Texture
-                ret = popup->addItem(STR(TXT_RENDER_TEXTURE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Render Texture - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_RENDER_TEXTURE, "", queryDisableDefault, kEvtInvalid)
                 // Lightmap Parameters
-                ret = popup->addItem(STR(TXT_LIGHTMAP_PARAMETERS), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Lightmap Parameters - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_LIGHTMAP_PARAMETERS, "", queryDisableDefault, kEvtInvalid)
                 // Lighting Settings
-                ret = popup->addItem(STR(TXT_LIGHTING_SETTINGS), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Lighting Settings - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_LIGHTING_SETTINGS, "", queryDisableDefault, kEvtInvalid)
                 // Custom Render Texture
-                ret = popup->addItem(STR(TXT_CUSTOM_RENDER_TEXTURE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Custom Render Texture - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_CUSTOM_RENDER_TEXTURE, "", queryDisableDefault, kEvtInvalid)
                 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Animator Controller
-                ret = popup->addItem(STR(TXT_ANIMATOR_CONTROLLER), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Animator Controller - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_ANIMATOR_CONTROLLER, "", queryDisableDefault, kEvtInvalid)
                 // Animation
-                ret = popup->addItem(STR(TXT_ANIMATION), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Animation - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_ANIMATION, "", queryDisableDefault, kEvtInvalid)
                 // Animator Override Controller
-                ret = popup->addItem(STR(TXT_ANIMATOR_OVERRIDE_CONTROLLER), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Animator Override Controller - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_ANIMATOR_OVERRIDE_CONTROLLER, "", queryDisableDefault, kEvtInvalid)
                 // Avatar Mask
-                ret = popup->addItem(STR(TXT_AVATAR_MASK), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Avatar Mask - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_AVATAR_MASK, "", queryDisableDefault, kEvtInvalid)
                 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Timeline
-                ret = popup->addItem(STR(TXT_TIMELINE), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Timeline - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_TIMELINE, "", queryDisableDefault, kEvtInvalid)
                 // Signal
-                ret = popup->addItem(STR(TXT_SIGNAL), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Signal - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_SIGNAL, "", queryDisableDefault, kEvtInvalid)
 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // GUI Skin
-                ret = popup->addItem(STR(TXT_GUI_SKIN), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - GUI Skin - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_GUI_SKIN, "", queryDisableDefault, kEvtInvalid)
                 // Custom Font
-                ret = popup->addItem(STR(TXT_CUSTOM_FONT), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Custom Font - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_CUSTOM_FONT, "", queryDisableDefault, kEvtInvalid)
                 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Legacy
                 {
@@ -595,128 +535,96 @@ namespace Tiny3D
                 }
 
                 // Separator
-                ret = popup->addSeparator();
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+                MENU_SEPARATOR(popup)
                 
                 // Search
                 {
                     auto popup1 = popup->addItem(STR(TXT_SEARCH));
                 }
                 // Brush
-                ret = popup->addItem(STR(TXT_BRUSH), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Brush - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_BRUSH, "", queryDisableDefault, kEvtInvalid)
                 // Terrain Layer
-                ret = popup->addItem(STR(TXT_TERRAIN_LAYER), "", queryDisableDefault, 0);
-                CHECK_RESULT_MESSAGE(ret, "Add menu item - Terrain Layer - failed !")
+                MENU_ITEM_WITH_EVENT(popup, TXT_TERRAIN_LAYER, "", queryDisableDefault, kEvtInvalid)
             }
             // Show in Explorer
-            ret = menu->addItem(STR(TXT_SHOW_IN_EXPLORER), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Show in Explorer - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SHOW_IN_EXPLORER, "", queryDisableDefault, kEvtInvalid)
             // Open
-            ret = menu->addItem(STR(TXT_OPEN), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_OPEN, "", queryDisableDefault, kEvtInvalid)
             // Delete
-            ret = menu->addItem(STR(TXT_DELETE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Delete - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_DELETE, "", queryDisableDefault, kEvtInvalid)
             // Rename
-            ret = menu->addItem(STR(TXT_RENAME), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Rename - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_RENAME, "", queryDisableDefault, kEvtInvalid)
             // Copy path
-            ret = menu->addItem(STR(TXT_COPY_PATH), "Alt+Ctrl+C", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Copy Path - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_COPY_PATH, "Alt+Ctrl+C", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Open Scene Additive
-            ret = menu->addItem(STR(TXT_OPEN_SCENE_ADDITIVE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open Scene Additive - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_OPEN_SCENE_ADDITIVE, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // View in Package Manager
-            ret = menu->addItem(STR(TXT_VIEW_IN_PACKAGE_MANAGER), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - View in Package Manager - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_VIEW_IN_PACKAGE_MANAGER, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Import New Asset...
-            ret = menu->addItem(STR(TXT_IMPORT_NEW_ASSET), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Import New Asset... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_IMPORT_NEW_ASSET, "", queryDisableDefault, kEvtInvalid)
             // Import Package
-            ret = menu->addItem(STR(TXT_IMPORT_PACKAGE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Import Package - failed !")
+            {
+                auto popup = menu->addItem(STR(TXT_IMPORT_PACKAGE));
+
+                // Custom Package
+                MENU_ITEM_WITH_EVENT(popup, TXT_CUSTOM_PACKAGE, "", queryDisableDefault, kEvtInvalid)
+            }
             // Export Package...
-            ret = menu->addItem(STR(TXT_EXPORT_PACKAGE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Export Package... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_EXPORT_PACKAGE, "", queryDisableDefault, kEvtInvalid)
             // Find References In Scene
-            ret = menu->addItem(STR(TXT_FIND_REFERENCES_IN_SCENE), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Find References In Scene - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_FIND_REFERENCES_IN_SCENE, "", queryDisableDefault, kEvtInvalid)
             // Find References In Project
-            ret = menu->addItem(STR(TXT_FIND_REFERENCES_IN_PROJECT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Find References In Project - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_FIND_REFERENCES_IN_PROJECT, "", queryDisableDefault, kEvtInvalid)
             // Select Dependencies
-            ret = menu->addItem(STR(TXT_SELECT_DEPENDENCIES), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Select Dependencies - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SELECT_DEPENDENCIES, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Refresh
-            ret = menu->addItem(STR(TXT_REFRESH), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Refresh - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_REFRESH, "Ctrl+R", queryDisableDefault, kEvtInvalid)
             // Reimport
-            ret = menu->addItem(STR(TXT_REIMPORT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Reimport - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_REIMPORT, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Reimport All
-            ret = menu->addItem(STR(TXT_REIMPORT_ALL), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Reimport All - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_REIMPORT_ALL, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Extract From Prefab
-            ret = menu->addItem(STR(TXT_EXTRACT_FROM_PREFAB), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Extract From Prefab - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_EXTRACT_FROM_PREFAB, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Update UXML Schema
-            ret = menu->addItem(STR(TXT_UPDATE_UXML_SCHEMA), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Update UXML Schema - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_UPDATE_UXML_SCHEMA, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
-
-            // Cache Server
-            {
-                auto popup = menu->addItem(STR(TXT_CACHE_SERVER));
-            }
+            MENU_SEPARATOR(menu)
 
             // Open C++ Project
-            ret = menu->addItem(STR(TXT_OPEN_CPP_PROJECT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Open C++ Project - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_OPEN_CPP_PROJECT, "", queryDisableDefault, kEvtInvalid)
             // View in Import Activity Window
-            ret = menu->addItem(STR(TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - View in Import Activity Window - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW, "", queryDisableDefault, kEvtInvalid)
             // Properties
-            ret = menu->addItem(STR(TXT_PROPERTIES), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Properties - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PROPERTIES, "Alt+P", queryDisableDefault, kEvtInvalid)
         } while (false);
         
         return ret;
@@ -733,14 +641,11 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(STR(TXT_GAMEOBJECT));
             
             // Create Empty
-            ret = menu->addItem(STR(TXT_CREATE_EMPTY), "Ctrl+Shift+N", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Create Empty - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CREATE_EMPTY, "Ctrl+Shift+N", queryDisableDefault, kEvtInvalid)
             // Create Empty Child
-            ret = menu->addItem(STR(TXT_CREATE_EMPTY_CHILD), "Alt+Shift+N", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Create Empty Child - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CREATE_EMPTY_CHILD, "Alt+Shift+N", queryDisableDefault, kEvtInvalid)
             // Create Empty Parent
-            ret = menu->addItem(STR(TXT_CREATE_EMPTY_PARENT), "Ctrl+Shift+G", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Create Empty Parent - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CREATE_EMPTY_PARENT, "Ctrl+Shift+G", queryDisableDefault, kEvtInvalid)
             // 3D Object
             {
                 auto popup = menu->addItem(STR(TXT_3D_OBJECT));
@@ -770,53 +675,39 @@ namespace Tiny3D
                 auto popup = menu->addItem(STR(TXT_UI_TOOLKIT));
             }
             // Camera
-            ret = menu->addItem(STR(TXT_CAMERA), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Camera - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CAMERA, "", queryDisableDefault, kEvtInvalid)
             // Visual Scripting Scene Varaibles
-            ret = menu->addItem(STR(TXT_VISUAL_SCRIPTING_SCENE_VARAIBLES), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Visual Scripting Scene Variables - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_VISUAL_SCRIPTING_SCENE_VARAIBLES, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Center On Children
-            ret = menu->addItem(STR(TXT_CENTER_ON_CHILDREN), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Center On Children - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CENTER_ON_CHILDREN, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Make Parent
-            ret = menu->addItem(STR(TXT_MAKE_PARENT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Make Parent - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_MAKE_PARENT, "", queryDisableDefault, kEvtInvalid)
             // Clear Parent
-            ret = menu->addItem(STR(TXT_CLEAR_PARENT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Clear Parent - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_CLEAR_PARENT, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Set as first sibling
-            ret = menu->addItem(STR(TXT_SET_AS_FIRST_SIBLING), "Ctrl+=", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Set as first sibling - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SET_AS_FIRST_SIBLING, "Ctrl+=", queryDisableDefault, kEvtInvalid)
             // Set as last sibling
-            ret = menu->addItem(STR(TXT_SET_AS_LAST_SIBLING), "Ctrl+-", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Set as last sibling - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_SET_AS_LAST_SIBLING, "Ctrl+-", queryDisableDefault, kEvtInvalid)
             // Move To View
-            ret = menu->addItem(STR(TXT_MOVE_TO_VIEW), "Ctrl+Alt+F", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Move To View - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_MOVE_TO_VIEW, "Ctrl+Alt+F", queryDisableDefault, kEvtInvalid)
             // Align With View
-            ret = menu->addItem(STR(TXT_ALIGN_WITH_VIEW), "Ctrl+Shift+F", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Align With View - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_ALIGN_WITH_VIEW, "Ctrl+Shift+F", queryDisableDefault, kEvtInvalid)
             // Align View to Selected
-            ret = menu->addItem(STR(TXT_ALIGN_VIEW_TO_SELECTED), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Align View to Selected - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_ALIGN_VIEW_TO_SELECTED, "", queryDisableDefault, kEvtInvalid)
             // Toggle Active State
-            ret = menu->addItem(STR(TXT_TOGGLE_ACTIVE_STATE), "Alt+Shift+A", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Toggle Active State - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_TOGGLE_ACTIVE_STATE, "Alt+Shift+A", queryDisableDefault, kEvtInvalid)
         } while (false);
         
         return ret;
@@ -833,8 +724,7 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(STR(TXT_COMPONENT));
 
             // Add...
-            ret = menu->addItem(STR(TXT_ADD), "Ctrl+Shift+A", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Add... - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_ADD, "Ctrl+Shift+A", queryDisableDefault, kEvtInvalid)
             // Mesh
             {
                 auto popup = menu->addItem(STR(TXT_MESH));
@@ -938,53 +828,42 @@ namespace Tiny3D
                 auto popup = menu->addItem(STR(TXT_PANELS));
                 {
                     // Console
-                    ret = popup->addItem(STR(TXT_CONSOLE), "", queryEnableDefault, QUERY_CHECK(mConsoleWnd), TOGGLE_WINDOW_VISIBLE(mConsoleWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Console - failed !")
+                    MENU_ITEM_CHECK_WITH_CB(popup, TXT_CONSOLE, "", queryEnableDefault, QUERY_CHECK(mConsoleWnd), TOGGLE_WINDOW_VISIBLE(mConsoleWnd))
                     // Game
-                    ret = popup->addItem(STR(TXT_GAME), "", queryEnableDefault, QUERY_CHECK(mGameWnd), TOGGLE_WINDOW_VISIBLE(mGameWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Game - failed !")
+                    MENU_ITEM_CHECK_WITH_CB(popup, TXT_GAME, "", queryEnableDefault, QUERY_CHECK(mGameWnd), TOGGLE_WINDOW_VISIBLE(mGameWnd))
                     // Hierarchy
-                    ret = popup->addItem(STR(TXT_HIERARCHY), "", queryEnableDefault, QUERY_CHECK(mHierarchyWnd), TOGGLE_WINDOW_VISIBLE(mHierarchyWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Hierarchy - failed !")
+                    MENU_ITEM_CHECK_WITH_CB(popup, TXT_HIERARCHY, "", queryEnableDefault, QUERY_CHECK(mHierarchyWnd), TOGGLE_WINDOW_VISIBLE(mHierarchyWnd))
                     // Inspector
-                    ret = popup->addItem(STR(TXT_INSPECTOR), "", queryEnableDefault,QUERY_CHECK(mInspectorWnd), TOGGLE_WINDOW_VISIBLE(mInspectorWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Inspector - failed !")
+                    MENU_ITEM_CHECK_WITH_CB(popup, TXT_INSPECTOR, "", queryEnableDefault,QUERY_CHECK(mInspectorWnd), TOGGLE_WINDOW_VISIBLE(mInspectorWnd))
                     // Project
-                    ret = popup->addItem(STR(TXT_PROJECT), "", queryEnableDefault,QUERY_CHECK(mProjectWnd), TOGGLE_WINDOW_VISIBLE(mProjectWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Project - failed !")
+                    MENU_ITEM_CHECK_WITH_CB(popup, TXT_PROJECT, "", queryEnableDefault,QUERY_CHECK(mProjectWnd), TOGGLE_WINDOW_VISIBLE(mProjectWnd))
                     // Scene
-                    ret = popup->addItem(STR(TXT_SCENE), "", queryEnableDefault,QUERY_CHECK(mSceneWnd), TOGGLE_WINDOW_VISIBLE(mSceneWnd));
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Scene - failed !")
+                    MENU_ITEM_CHECK_WITH_CB(popup, TXT_SCENE, "", queryEnableDefault,QUERY_CHECK(mSceneWnd), TOGGLE_WINDOW_VISIBLE(mSceneWnd))
                 }
             }
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Next Window
-            ret = menu->addItem(STR(TXT_NEXT_WINDOW), "Ctrl+Tab", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Next Window - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_NEXT_WINDOW, "Ctrl+Tab", queryDisableDefault, kEvtInvalid)
             // Previous Window
-            ret = menu->addItem(STR(TXT_PREV_WINDOW), "Ctrl+Shift+Tab", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Previous Window - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PREV_WINDOW, "Ctrl+Shift+Tab", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // Layouts
             {
                 auto popup = menu->addItem(STR(TXT_LAYOUTS));
                 {
                     // Reset All Layouts
-                    ret = popup->addItem(STR(TXT_RESET_ALL_LAYOUTS), "",
+                    MENU_ITEM_WITH_CB(popup, TXT_RESET_ALL_LAYOUTS, "",
                         queryDisableDefault,
                         [](ImMenuItem*)
                         {
                             // ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
-                        });
-                    CHECK_RESULT_MESSAGE(ret, "Add menu item - Reset All Layouts - failed !")
+                        })
                 }
             }
             // Search
@@ -993,38 +872,31 @@ namespace Tiny3D
             }
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Package Manager
-            ret = menu->addItem(STR(TXT_PACKAGE_MANAGER), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Package Manager - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_PACKAGE_MANAGER, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Asset Management
-            ret = menu->addItem(STR(TXT_ASSET_MANAGEMENT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Asset Management - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_ASSET_MANAGEMENT, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
 
             // Text
-            ret = menu->addItem(STR(TXT_TEXT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_TEXT, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
+            MENU_SEPARATOR(menu)
 
             // Text Mesh Pro
-            ret = menu->addItem(STR(TXT_TEXT_MESH_PRO), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Text Mesh Pro - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_TEXT_MESH_PRO, "", queryDisableDefault, kEvtInvalid)
 
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // General
             {
@@ -1078,19 +950,15 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(STR(TXT_HELP));
 
             // About
-            ret = menu->addItem(STR(TXT_ABOUT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - About - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_ABOUT, "", queryDisableDefault, kEvtInvalid)
             
             // Separator
-            ret = menu->addSeparator();
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - Separator - failed !")
+            MENU_SEPARATOR(menu)
             
             // User Manual
-            ret = menu->addItem(STR(TXT_USER_MANUAL), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - User Manual - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_USER_MANUAL, "", queryDisableDefault, kEvtInvalid)
             // API Document
-            ret = menu->addItem(STR(TXT_API_DOCUMENT), "", queryDisableDefault, 0);
-            CHECK_RESULT_MESSAGE(ret, "Add menu item - API Document - failed !")
+            MENU_ITEM_WITH_EVENT(menu, TXT_API_DOCUMENT, "", queryDisableDefault, kEvtInvalid)
         } while (false);
 
         return ret;
