@@ -101,7 +101,7 @@ namespace Tiny3D
         {
             // 插入根据名称查找表
             const String &name = resource->getName();
-            auto rval = mResourcesLookup.insert(ResourcesLookupValue(name, Resources()));
+            auto rval = mResourcesLookup.emplace(name, Resources());
             if (!rval.second)
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE,
@@ -113,7 +113,7 @@ namespace Tiny3D
             rval.first->second.push_back(resource.get());
 
             // 插入资源缓存池
-            auto rt = mResourcesCache.insert(ResourcesCacheValue(resource->getUUID(), resource.get()));
+            auto rt = mResourcesCache.emplace(resource->getUUID(), resource.get());
             if (!rt.second)
             {
                 mResourcesLookup.erase(rval.first);
@@ -144,6 +144,11 @@ namespace Tiny3D
                         itr->second.erase(it);
                         break;
                     }
+                }
+
+                if (itr->second.empty())
+                {
+                    mResourcesLookup.erase(itr);
                 }
             }
 

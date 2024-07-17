@@ -202,6 +202,8 @@ namespace Tiny3D
                 break;
             }
 
+            mDesc.Width = w;
+            mDesc.Height = h;
             ret = mRHIRenderWindow->resize(w, h);
         } while (false);
 
