@@ -37,7 +37,20 @@ namespace Tiny3D
         ~SceneWindow() override = default;
 
     protected:
+        TResult onCreate() override;
+
+        void onDestroy() override;
+        
         void onGUI() override;
+
+        TResult buildScene();
+
+        void refreshRenderTarget();
+        
+    protected:
+        CameraPtr       mDefaultCamera {nullptr};
+        RenderTargetPtr mRenderTarget {nullptr};
+        ImTextureID mSceneRT {nullptr};
     };
 
     NS_END
