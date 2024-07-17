@@ -197,6 +197,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);
                 break;
             }
+
+            SDL_MaximizeWindow(mSDLWindow);
             
             // 构建编辑器场景
             // buildScene();
