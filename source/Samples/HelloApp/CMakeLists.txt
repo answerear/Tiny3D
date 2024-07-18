@@ -51,7 +51,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DUtils
         T3DMath
         T3DFramework
-        T3DCoreRuntime
+        T3DCore
         rttr_core
         )
     
@@ -73,7 +73,7 @@ elseif (TINY3D_OS_ANDROID)
 		T3DUtils
         T3DMath
         T3DFramework
-        T3DCoreRuntime
+        T3DCore
         rttr_core
         )
 
@@ -105,7 +105,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			T3DUtils
             T3DMath
             T3DFramework
-            T3DCoreRuntime
+            T3DCore
             rttr_core
             #T3DXRenderer
             #FileSystemArchive
@@ -162,7 +162,7 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
 			T3DUtils
             T3DMath
             T3DFramework
-            T3DCoreRuntime
+            T3DCore
             rttr_core
             )
 
@@ -218,7 +218,7 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
 		T3DUtils
         T3DFramework
-        T3DCoreRuntime
+        T3DCore
         rttr_core
         )
 

@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(T3DCoreRuntime)
+set_project_name(T3DCore)
 
 message(STATUS "Generating project : ${BIN_NAME}")
 

@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(D3D11RendererRuntime)
+set_project_name(D3D11Renderer)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
@@ -57,7 +57,7 @@ target_link_libraries(
 	T3DUtils
     T3DPlatform
     T3DSystem
-    T3DCoreRuntime
+    T3DCore
     rttr_core
     )
 

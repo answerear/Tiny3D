@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(FileSystemArchiveRuntime)
+set_project_name(FileSystemArchive)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
@@ -64,7 +64,7 @@ if (TINY3D_OS_IOS)
         T3DLog
 		T3DUtils
         T3DMath
-        T3DCoreRuntime
+        T3DCore
         rttr_core
         )
 elseif (TINY3D_OS_LINUX)
@@ -75,7 +75,7 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
 		T3DUtils
         T3DMath
-        T3DCoreRuntime
+        T3DCore
         rttr_core
         )
 
@@ -93,7 +93,7 @@ else (TINY3D_OS_IOS)
         T3DLog
 		T3DUtils
         T3DMath
-        T3DCoreRuntime
+        T3DCore
         rttr_core
         )
 endif (TINY3D_OS_IOS)
