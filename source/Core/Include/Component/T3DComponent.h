@@ -59,7 +59,7 @@ namespace Tiny3D
         virtual void onLoadResource(Archive *archive);
 
     protected:
-        Component() = default;
+        Component();
         
         Component(const UUID &uuid);
 
