@@ -280,7 +280,8 @@ namespace Tiny3D
             }
 
             // 把相机渲染纹理渲染到相机对应的渲染目标上
-            if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
+            // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
+            if (camera->getRenderTarget()->getRenderTexture() != camera->getRenderTexture())
             {
                 const Viewport &vp = camera->getViewport();
                 Real left = Real(rt->getWidth()) * vp.Left;
