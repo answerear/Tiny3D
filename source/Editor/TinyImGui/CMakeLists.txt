@@ -65,7 +65,7 @@ if (TINY3D_OS_IOS)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DFramework
-        LINK_PRIVATE T3DCore
+        LINK_PRIVATE T3DCoreEditor
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
         )
@@ -78,7 +78,7 @@ elseif (TINY3D_OS_LINUX)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DFramework
-        LINK_PRIVATE T3DCore
+        LINK_PRIVATE T3DCoreEditor
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
         )
@@ -98,7 +98,7 @@ else (TINY3D_OS_IOS)
 		LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DFramework
-        LINK_PRIVATE T3DCore
+        LINK_PRIVATE T3DCoreEditor
         LINK_PRIVATE rttr_core
         LINK_PRIVATE imgui_dx11
         )

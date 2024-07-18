@@ -221,8 +221,8 @@ namespace Tiny3D
             settings.renderSettings.resizable = true;
             settings.renderSettings.title = "Tiny3D Editor";
             settings.pluginSettings.pluginPath = ".";
-            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
-            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
+            settings.pluginSettings.plugins.emplace_back("FileSystemArchiveEditor");
+            settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
             
             // 初始化引擎，只有初始化后才能使用
             ret = mEngine->init(argc, argv, true, true, settings);

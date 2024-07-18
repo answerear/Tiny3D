@@ -52,7 +52,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DUtils
         T3DMath
         T3DFramework
-        T3DCore
+        T3DCoreRuntime
         rttr_core
         )
     
