@@ -130,7 +130,12 @@ namespace Tiny3D
             
             for (auto go : scene->getRootGameObjects())
             {
-                go->frustumCulling(item.second, this);
+                uint32_t cullingMask = item.second->getCullingMask();
+                uint32_t cameraMask = go->getCameraMask();
+                if (cullingMask & cameraMask)
+                {
+                    go->frustumCulling(item.second, this);
+                }
             }
         }
         

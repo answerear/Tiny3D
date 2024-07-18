@@ -248,7 +248,7 @@ namespace Tiny3D
         /// 有效性
         bool mIsActive {true};
         /// 相机可见掩码
-        uint32_t mCameraMask {0};
+        uint32_t mCameraMask {0x1};
 
         using Components = TMultimap<RTTRType, ComponentPtr>;
 

@@ -136,6 +136,12 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="NearPlane", RTTRFuncType="setter")
         void setNearPlaneDistance(const Real &n) { mNear = n; mIsProjDirty = true; }
+
+        TPROPERTY(RTTRFuncName="CullingMask", RTTRFuncType="getter")
+        uint32_t getCullingMask() const { return mCullingMask; }
+
+        TPROPERTY(RTTRFuncName="CullingMask", RTTRFuncType="setter")
+        void setCullingMask(uint32_t mask) { mCullingMask = mask; }
         
         const Matrix4 &getViewMatrix() const;
 
