@@ -18,6 +18,16 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 set(IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../External/imgui")
 set(IMGUI_BACKENDS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../External/imgui/backends")
 
+add_definitions(-DT3D_EDITOR)
+
+if (TINY3D_OS_WINDOWS)
+    add_definitions(-DT3D_WIN_EDITOR)
+elseif (TINY3D_OS_MACOSX)
+    add_definitions(-DT3D_OSX_EDITOR)
+elseif (TINY3D_OS_LINUX)
+    add_definitions(-DT3D_LINUX_EDITOR)
+endif (TINY3D_OS_WINDOWS)
+
 add_subdirectory(TinyEditor)
 add_subdirectory(TinyLauncher)
 add_subdirectory(ImGuiImpl)

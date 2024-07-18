@@ -31,6 +31,16 @@ if (MSVC)
 endif (MSVC)
 
 
+add_definitions(-DT3D_EDITOR)
+
+if (TINY3D_OS_WINDOWS)
+    add_definitions(-DT3D_WIN_EDITOR)
+elseif (TINY3D_OS_MACOSX)
+    add_definitions(-DT3D_OSX_EDITOR)
+elseif (TINY3D_OS_LINUX)
+    add_definitions(-DT3D_LINUX_EDITOR)
+endif (TINY3D_OS_WINDOWS)
+
 set(TINY3D_CORE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 
