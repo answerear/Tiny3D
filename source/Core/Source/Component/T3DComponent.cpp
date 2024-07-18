@@ -31,16 +31,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Component::Component(const UUID &uuid /* = UUID::INVALID */)
+    Component::Component()
     {
-        if (uuid != UUID::INVALID)
-        {
-            mUUID = uuid;
-        }
-        else
-        {
-            mUUID = UUID::generate();
-        }
+        mUUID = UUID::generate();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    Component::Component(const UUID &uuid)
+    {
+        mUUID = uuid;
     }
 
     //--------------------------------------------------------------------------
