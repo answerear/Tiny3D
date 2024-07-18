@@ -420,7 +420,7 @@ namespace Tiny3D
             mXformNode = getGameObject()->getComponent<Transform3D>();
         }
 
-        T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
+        // T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
     }
 
     //--------------------------------------------------------------------------
