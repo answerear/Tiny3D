@@ -36,6 +36,7 @@ namespace Tiny3D
     class MainWindow;
     class ProjectManager;
     class NetworkManager;
+    class EditorScene;
     
     class EditorApp : public ImGuiApp
     {
@@ -112,6 +113,7 @@ namespace Tiny3D
         LanguageManagerPtr mLangMgr {nullptr};
         ProjectManager *mProjectMgr {nullptr};
         NetworkManager *mNetworkMgr {nullptr};
+        EditorScene *mEditorScene {nullptr};
 
         StartOptions mOptions {};
         

@@ -22,37 +22,52 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#pragma once
 
-#include "GameWindow.h"
-#include "EditorScene.h"
+
+#include "EditorPrerequisites.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    //--------------------------------------------------------------------------
-
-    void GameWindow::onGUI()
+    class EditorScene : public Singleton<EditorScene>
     {
-        auto region = ImGui::GetContentRegionAvail();
-        EDITOR_SCENE.refreshGameRenderTarget(region);
+    public:
+        EditorScene() = default;
+        ~EditorScene() override;
 
-        RenderTarget *target = EDITOR_SCENE.getGameRenderTarget();
+        void build();
+
+        void refreshSceneRenderTarget();
+
+        void refreshGameRenderTarget(const ImVec2 &size);
         
-        float rtWidth = static_cast<float>(target->getRenderTexture()->getWidth());
-        float rtHeight = static_cast<float>(target->getRenderTexture()->getHeight());
+        RenderTarget *getSceneRenderTarget() { return mSceneTarget; }
 
-        float u0 = (rtWidth - region.x) * 0.5f;
-        float v0 = (rtHeight - region.y) * 0.5f;
-        float u1 = u0 + region.x;
-        float v1 = v0 + region.y;
-        ImVec2 uv0(u0, v0);
-        ImVec2 uv1(u1, v1);
-        ImGui::Image(EDITOR_SCENE.getGameRT(), region, uv0, uv1);
-    }
+        ImTextureID getSceneRT() const { return mSceneRT; }
 
-    //--------------------------------------------------------------------------
+        RenderTarget *getGameRenderTarget() { return mGameTarget; }
+
+        ImTextureID getGameRT() const { return mGameRT; }
+
+    protected:
+        /// 编辑器场景相机
+        CameraPtr       mSceneCamera {nullptr};
+        /// 编辑器场景渲染目标
+        RenderTargetPtr mSceneTarget {nullptr};
+        /// 编辑器场景渲染纹理，给 imgui 用
+        ImTextureID     mSceneRT {nullptr};
+        /// 游戏场景渲染目标
+        RenderTargetPtr mGameTarget {nullptr};
+        /// 游戏场景渲染纹理，给 imgui 用
+        ImTextureID     mGameRT {nullptr};
+        /// 游戏场景根节点
+        GameObjectPtr   mRoot {nullptr};
+    };
+
+    #define EDITOR_SCENE (EditorScene::getInstance())
 
     NS_END
 }

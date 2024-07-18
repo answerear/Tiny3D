@@ -28,6 +28,7 @@
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
 #include "NetworkManager.h"
+#include "EditorScene.h"
 
 
 Tiny3D::Editor::EditorApp *app = nullptr;
@@ -57,9 +58,10 @@ namespace Tiny3D
         // }
         //
         // T3D_SAFE_DELETE(mNetworkMgr);
-        T3D_SAFE_DELETE(mProjectMgr);
+        T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
-        T3D_SAFE_DELETE(mEngine);
+        T3D_SAFE_DELETE(mEditorScene)
+        T3D_SAFE_DELETE(mEngine)
         
         app = nullptr;
     }
@@ -188,6 +190,10 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create ImGui environment failed ! ERROR [%d]", ret);
                 break;
             }
+
+            // 编辑器场景
+            mEditorScene = new EditorScene();
+            mEditorScene->build();
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -348,21 +354,23 @@ namespace Tiny3D
         // 删除清理 imgui 环境，此后无法再使用 imgui
         destroyImGuiEnv();
 
+        T3D_SAFE_DELETE(mEditorScene)
+
         if (mNetworkMgr != nullptr)
         {
             mNetworkMgr->shutdown();
         }
         
-        T3D_SAFE_DELETE(mNetworkMgr);
+        T3D_SAFE_DELETE(mNetworkMgr)
 
         if (mProjectMgr != nullptr)
         {
             mProjectMgr->closeProject();
         }
-        T3D_SAFE_DELETE(mProjectMgr);
+        T3D_SAFE_DELETE(mProjectMgr)
         
         mLangMgr = nullptr;
-        T3D_SAFE_DELETE(mEngine);
+        T3D_SAFE_DELETE(mEngine)
     }
 
     //--------------------------------------------------------------------------
