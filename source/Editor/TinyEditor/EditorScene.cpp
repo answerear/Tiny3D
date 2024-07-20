@@ -149,18 +149,25 @@ namespace Tiny3D
     void EditorScene::refreshGameRenderTarget(const ImVec2 &size)
     {
         bool rtIsDirty = false;
-        if (mGameTarget == nullptr
-            || mGameTarget->getRenderTexture()->getWidth() != static_cast<uint32_t>(size.x)
-            || mGameTarget->getRenderTexture()->getHeight() != static_cast<uint32_t>(size.y))
+        // if (mGameTarget == nullptr
+        //     || mGameTarget->getRenderTexture()->getWidth() != static_cast<uint32_t>(size.x)
+        //     || mGameTarget->getRenderTexture()->getHeight() != static_cast<uint32_t>(size.y))
+        // {
+        //     // 大小发生变化，重新生成
+        //     if (mGameTarget != nullptr)
+        //     {
+        //         T3D_TEXTURE_MGR.unload(mGameTarget->getRenderTexture());
+        //         mGameTarget = nullptr;
+        //     }
+        //
+        //     RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y), PixelFormat::E_PF_R8G8B8A8);
+        //     mGameTarget = RenderTarget::create(renderTex);
+        //     mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
+        //     rtIsDirty = true;
+        // }
+        if (mGameTarget == nullptr)
         {
-            // 大小发生变化，重新生成
-            if (mGameTarget != nullptr)
-            {
-                T3D_TEXTURE_MGR.unload(mGameTarget->getRenderTexture());
-                mGameTarget = nullptr;
-            }
-
-            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y), PixelFormat::E_PF_R8G8B8A8);
+            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", mGameRTWidth, mGameRTHeight, PixelFormat::E_PF_R8G8B8A8);
             mGameTarget = RenderTarget::create(renderTex);
             mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
             rtIsDirty = true;

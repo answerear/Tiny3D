@@ -73,6 +73,9 @@ namespace Tiny3D
         ImTextureID     mGameRT {nullptr};
         /// 游戏场景根节点
         GameObjectPtr   mRoot {nullptr};
+
+        float mGameRTWidth {1920};
+        float mGameRTHeight {1080};
     };
 
     #define EDITOR_SCENE (EditorScene::getInstance())

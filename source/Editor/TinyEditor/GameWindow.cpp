@@ -47,12 +47,10 @@ namespace Tiny3D
 
         RenderTarget *target = EDITOR_SCENE.getGameRenderTarget();
         
-        // float rtWidth = static_cast<float>(target->getRenderTexture()->getWidth());
-        // float rtHeight = static_cast<float>(target->getRenderTexture()->getHeight());
+        float rtWidth = static_cast<float>(target->getRenderTexture()->getWidth());
+        float rtHeight = static_cast<float>(target->getRenderTexture()->getHeight());
 
-        float w = 16.0f;
-        float h = 9.0f;
-        float ratio = w / h;
+        float ratio = rtWidth / rtHeight;
 
         float targetRatio = region.x / region.y;
 
@@ -63,16 +61,30 @@ namespace Tiny3D
         if (targetRatio > ratio)
         {
             // 大于 16:9，则屏幕宽度更大，高度更小
-            size.y = region.y;
+            if (rtHeight > region.y)
+            {
+                size.y = region.y;
+            }
+            else
+            {
+                size.y = rtHeight;
+            }
             size.x = size.y * ratio;
-            x = (region.x - size.x) * 0.5f;
+            x = Math::abs(region.x - size.x) * 0.5f;
         }
         else
         {
             // 小于 16:9，如 4:3，则屏幕宽度更小，高度更大
-            size.x = region.x;
+            if (rtWidth > region.x)
+            {
+                size.x = region.x;
+            }
+            else
+            {
+                size.x = rtWidth;
+            }
             size.y = size.x / ratio;
-            y = (region.y - size.y) * 0.5f;
+            y = Math::abs(region.y - size.y) * 0.5f;
         }
 
         T3D_ASSERT(size.x <= region.x && size.y <= region.y, "Image size must be smaller than region size !");
@@ -87,7 +99,8 @@ namespace Tiny3D
         y = ImGui::GetCursorPosY() + y;
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
-        ImGui::Image(EDITOR_SCENE.getGameRT(), size, uv0, uv1);
+        // ImGui::Image(EDITOR_SCENE.getGameRT(), size, uv0, uv1);
+        ImGui::Image(EDITOR_SCENE.getGameRT(), size);
     }
 
     //--------------------------------------------------------------------------
