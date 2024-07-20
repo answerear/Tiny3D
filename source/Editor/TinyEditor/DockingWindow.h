@@ -41,7 +41,7 @@ namespace Tiny3D
     protected:
         bool onGUIBegin() override;
 
-        virtual ImGuiWindowFlags flags() { return ImGuiWindowFlags_NoCollapse; }
+        virtual ImGuiWindowFlags flags() const { return ImGuiWindowFlags_NoCollapse; }
     };
 
     NS_END

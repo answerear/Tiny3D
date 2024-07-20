@@ -38,7 +38,7 @@ namespace Tiny3D
         EDITOR_SCENE.refreshSceneRenderTarget();
 
         RenderTarget *target = EDITOR_SCENE.getSceneRenderTarget();
-        
+
         float rtWidth = static_cast<float>(target->getRenderTexture()->getWidth());
         float rtHeight = static_cast<float>(target->getRenderTexture()->getHeight());
 

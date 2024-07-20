@@ -52,6 +52,14 @@ namespace Tiny3D
 
         ImTextureID getGameRT() const { return mGameRT; }
 
+    protected:  // for test
+        void buildCamera(Transform3D *parent);
+        void buildCube(Transform3D *parent);
+        Texture2DPtr buildTexture();
+        MaterialPtr buildMaterial();
+        MeshPtr buildMesh();
+        void buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
+        
     protected:
         /// 编辑器场景相机
         CameraPtr       mSceneCamera {nullptr};

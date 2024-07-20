@@ -39,6 +39,8 @@ namespace Tiny3D
         ~GameWindow() override = default;
 
     protected:
+        ImGuiWindowFlags flags() const override;
+        
         void onGUI() override;
     };
 
