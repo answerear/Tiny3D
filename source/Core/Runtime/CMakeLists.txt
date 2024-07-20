@@ -33,6 +33,8 @@ endif (MSVC)
 
 set(TINY3D_CORE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+add_definitions(-DT3D_ENABLE_RHI_THREAD=1)
+
 
 # Setup search header path for this project.
 include_directories(

@@ -35,7 +35,9 @@ namespace Tiny3D
 
     #define T3D_MAX_SIMULTANEOUS_LIGHTS         8
 
+#if !defined (T3D_ENABLE_RHI_THREAD)
     #define T3D_ENABLE_RHI_THREAD               0
+#endif
 
     #define T3D_COORDINATION_RH                 0
 }
