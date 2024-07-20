@@ -91,6 +91,25 @@ namespace Tiny3D
         camera->setClearColor(ColorRGB::GRAY);
         camera->setRenderTarget(mSceneTarget);
         scene->addCamera(camera);
+
+        // camera for perspective
+        camera->setProjectionType(Camera::Projection::kPerspective);
+        camera->setFovY(Radian(Math::PI / 3.0f));
+        Real as = mGameRTWidth / mGameRTHeight;// Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
+        camera->setAspectRatio(as);
+        // camera->setFovY(Radian(Math::PI * 0.5f));
+        camera->setNearPlaneDistance(0.1f);
+        camera->setFarPlaneDistance(1000.0f);
+        
+        // construct camera position & orientation & scaling
+        Vector3 eye(2.0f, 2.0f, -4.0f);
+        Vector3 obj(0.0f, 0.0f, 0.0f);
+        camera->lookAt(eye, obj, Vector3::UP);
+        
+        // construct frustum bound
+        auto frustum = go->addComponent<FrustumBound>();
+        T3D_ASSERT(frustum != nullptr, "add frustum bound component !");
+        
         mSceneCamera = camera;
 
         // For test
@@ -221,8 +240,8 @@ namespace Tiny3D
         camera->setProjectionType(Camera::Projection::kPerspective);
         camera->setFovY(Radian(Math::PI / 3.0f));
         // camera->setFovY(Radian(Math::PI * 0.5f));
-        camera->setNearPlaneDistance(0.1f);
-        camera->setFarPlaneDistance(10.0f);
+        // camera->setNearPlaneDistance(0.1f);
+        // camera->setFarPlaneDistance(10.0f);
     #else
         // camera for orthographic
         camera->setProjectionType(Camera::Projection::kOrthographic);

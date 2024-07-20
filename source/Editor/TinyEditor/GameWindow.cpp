@@ -89,12 +89,12 @@ namespace Tiny3D
 
         T3D_ASSERT(size.x <= region.x && size.y <= region.y, "Image size must be smaller than region size !");
         
-        float u0 = x / region.x;
-        float v0 = y / region.y;
-        float u1 = (u0 + size.x) / region.x;
-        float v1 = (v0 + size.y) / region.y;
-        ImVec2 uv0(u0, v0);
-        ImVec2 uv1(u1, v1);
+        // float u0 = x / region.x;
+        // float v0 = y / region.y;
+        // float u1 = (x + size.x) / region.x;
+        // float v1 = (y + size.y) / region.y;
+        // ImVec2 uv0(u0, v0);
+        // ImVec2 uv1(u1, v1);
         x = ImGui::GetCursorPosX() + x;
         y = ImGui::GetCursorPosY() + y;
         ImGui::SetCursorPosX(x);
