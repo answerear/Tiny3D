@@ -86,9 +86,9 @@ namespace Tiny3D
         builtinNode->addChild(cameraNode);
         CameraPtr camera = go->addComponent<Camera>();
         camera->setOrder(65535);
-        Viewport vpCenter {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
-        camera->setViewport(vpCenter);
-        camera->setClearColor(ColorRGB::GRAY);
+        Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+        camera->setViewport(vp);
+        camera->setClearColor(ColorRGB(0.133f, 0.231f, 0.329f));
         camera->setRenderTarget(mSceneTarget);
         scene->addCamera(camera);
 
@@ -102,7 +102,7 @@ namespace Tiny3D
         camera->setFarPlaneDistance(1000.0f);
         
         // construct camera position & orientation & scaling
-        Vector3 eye(2.0f, 2.0f, -4.0f);
+        Vector3 eye(2.0f, 2.0f, -8.0f);
         Vector3 obj(0.0f, 0.0f, 0.0f);
         camera->lookAt(eye, obj, Vector3::UP);
         
@@ -113,21 +113,6 @@ namespace Tiny3D
         mSceneCamera = camera;
 
         // For test
-#if 0
-        go = GameObject::create("root");
-        Transform3DPtr node = go->addComponent<Transform3D>();
-        gameNode->addChild(node);
-        camera = go->addComponent<Camera>();
-        camera->setOrder(0);
-        Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
-        camera->setViewport(vp);
-        camera->setClearColor(ColorRGB::BLUE);
-        auto rw = T3D_AGENT.getDefaultRenderWindow();
-        RenderTargetPtr rt = RenderTarget::create(rw);
-        camera->setRenderTarget(rt);
-        scene->addCamera(camera);
-#endif
-        
         // camera
         buildCamera(gameNode);
 
@@ -186,7 +171,7 @@ namespace Tiny3D
         // }
         if (mGameTarget == nullptr)
         {
-            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", mGameRTWidth, mGameRTHeight, PixelFormat::E_PF_R8G8B8A8);
+            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_R8G8B8A8);
             mGameTarget = RenderTarget::create(renderTex);
             mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
             rtIsDirty = true;
@@ -229,49 +214,22 @@ namespace Tiny3D
         camera->setOrder(0);
         Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         camera->setViewport(vp);
-        camera->setClearColor(ColorRGB::GRAY);
+        camera->setClearColor(ColorRGB(0.133f, 0.231f, 0.329f));
         camera->setRenderTarget(rt);
         Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
         camera->setAspectRatio(as);
         T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
         
-    #if defined (PERSPECTIVE_CAMERA)
         // camera for perspective
         camera->setProjectionType(Camera::Projection::kPerspective);
         camera->setFovY(Radian(Math::PI / 3.0f));
-        // camera->setFovY(Radian(Math::PI * 0.5f));
-        // camera->setNearPlaneDistance(0.1f);
-        // camera->setFarPlaneDistance(10.0f);
-    #else
-        // camera for orthographic
-        camera->setProjectionType(Camera::Projection::kOrthographic);
-        camera->setOrthographicSize(5.0f);
-    #endif
         camera->setNearPlaneDistance(0.1f);
         camera->setFarPlaneDistance(1000.0f);
         
         // construct camera position & orientation & scaling
-    #if defined (USE_COORDINATION_RH)
-        Vector3 eye(2.0f, 2.0f, 4.0f);
-    #else
         Vector3 eye(2.0f, 2.0f, -4.0f);
-    #endif
-
-    #if defined (UVN_CAMERA)
         Vector3 obj(0.0f, 0.0f, 0.0f);
         camera->lookAt(eye, obj, Vector3::UP);
-    #else
-        xform->setPosition(eye);
-    #if defined (USE_COORDINATION_RH)
-        Radian xAngle(Degree(-25.0f));
-        Radian yAngle(Math::PI * 0.25f);
-    #else
-        Radian xAngle(Degree(25.0f));
-        Radian yAngle(-Math::PI * 0.25f);
-    #endif
-        Radian zAngle(0.0f);
-        xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
-    #endif
 
         // construct frustum bound
         auto frustum = go->addComponent<FrustumBound>();
