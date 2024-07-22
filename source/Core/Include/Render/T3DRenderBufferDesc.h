@@ -86,7 +86,7 @@ namespace Tiny3D
         TPROPERTY()
         uint32_t    arraySize {1};
         TPROPERTY()
-        PixelFormat format {PixelFormat::E_PF_R8G8B8A8};
+        PixelFormat format {PixelFormat::E_PF_B8G8R8A8};
         TPROPERTY()
         MultisamplerDesc    sampleDesc {};
         TPROPERTY()

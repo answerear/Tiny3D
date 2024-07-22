@@ -28,6 +28,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "ImageCodec/T3DImageCodecBase.h"
 #include "Kernel/T3DSettings.h"
 
 
@@ -139,6 +140,10 @@ namespace Tiny3D
         RHIRendererPtr getRHIRenderer(const String &name) const;
 
         void resumeEngineThread();
+
+        TResult addImageCodec(ImageCodecBase::FileType type, ImageCodecBase *codec);
+
+        TResult removeImageCodec(ImageCodecBase::FileType type);
         
     protected:
         TResult initSystem(const String &appPath);

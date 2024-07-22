@@ -28,10 +28,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    T3D_IMPLEMENT_CLASS_1(FreeImageCodec, ImageCodecBase);
-
-    //--------------------------------------------------------------------------
-
     void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
     {
         if (fif != FIF_UNKNOWN)
@@ -252,8 +248,7 @@ namespace Tiny3D
             if (dib == nullptr)
             {
                 ret = T3D_ERR_CODEC_DECODE_FROM_MEMORY;
-                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC,
-                    "Decode from memory failed !");
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Decode from memory failed !");
                 break;
             }
 
@@ -263,7 +258,7 @@ namespace Tiny3D
 
             FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(dib);
             FREE_IMAGE_COLOR_TYPE colorType = FreeImage_GetColorType(dib);
-            PixelFormat eFormat = PixelFormat::E_PF_A8R8G8B8;
+            PixelFormat eFormat = PixelFormat::E_PF_B8G8R8A8;
 
             switch (imageType)
             {
@@ -347,22 +342,22 @@ namespace Tiny3D
                     {
                         if (FreeImage_GetGreenMask(dib) == FI16_565_GREEN_MASK)
                         {
-                            eFormat = PixelFormat::E_PF_R5G6B5;
+                            eFormat = PixelFormat::E_PF_B5G6R5;
                         }
                         else
                         {
-                            eFormat = PixelFormat::E_PF_A1R5G5B5;
+                            eFormat = PixelFormat::E_PF_B5G5R5A1;
                         }
                     }
                     break;
                 case 24:
                     {
-                        eFormat = PixelFormat::E_PF_R8G8B8;
+                        eFormat = PixelFormat::E_PF_B8G8R8;
                     }
                     break;
                 case 32:
                     {
-                        eFormat = PixelFormat::E_PF_A8R8G8B8;
+                        eFormat = PixelFormat::E_PF_B8G8R8A8;
                         hasAlpha = true;
                     }
                     break;
@@ -403,11 +398,10 @@ namespace Tiny3D
                 fif = FreeImage_GetFileTypeFromMemory(stream);
 
                 setImageDimension(image, width, height, dstPitch);
-                setImageInfo(image, fif, bpp, hasAlpha, 
-                    isPreMulti, eFormat);
+                setImageInfo(image, static_cast<Image::FileFormat>(fif), bpp, hasAlpha, isPreMulti, eFormat);
                 setImageData(image, dst, imageSize);
             }
-        } while (0);
+        } while (false);
 
         if (dib != nullptr)
         {
@@ -634,7 +628,7 @@ namespace Tiny3D
                 && rtDst == rtSrc)
             {
                 // 源和目标区域完全相同，直接点吧
-                T3D_ASSERT(srcImage.getSize() == dstImage.getSize());
+                T3D_ASSERT(srcImage.getSize() == dstImage.getSize(), "The size of the images must be the same !");
                 size_t size = srcImage.getSize();
                 memcpy(dstImage.getData(), srcImage.getData(), size);
             }
@@ -696,7 +690,7 @@ namespace Tiny3D
 
                 // 把转好的数据复制到目标图像上
                 uint32_t srcBPP = FreeImage_GetBPP(newdib);
-                T3D_ASSERT(srcBPP == srcImage.getBPP());
+                T3D_ASSERT(srcBPP == srcImage.getBPP(), "The bpp of the images must be the same !");
 
                 uint32_t srcPitch = FreeImage_GetPitch(newdib);
                 uint8_t *srcData = FreeImage_GetBits(newdib);

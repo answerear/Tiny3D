@@ -1312,4 +1312,22 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult Agent::addImageCodec(ImageCodecBase::FileType type, ImageCodecBase *codec)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::removeImageCodec(ImageCodecBase::FileType type)
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
 }
