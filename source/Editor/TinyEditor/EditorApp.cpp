@@ -475,7 +475,7 @@ namespace Tiny3D
         RenderTargetPtr rt = RenderTarget::create(rw);
 #else
         RenderWindow *rw = T3D_AGENT.getDefaultRenderWindow();
-        RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("RT_Scene", 640, 480, PixelFormat::E_PF_R8G8B8A8);
+        RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("RT_Scene", 640, 480, PixelFormat::E_PF_B8G8R8A8);
         RenderTargetPtr rt = RenderTarget::create(renderTex);
 #endif
     

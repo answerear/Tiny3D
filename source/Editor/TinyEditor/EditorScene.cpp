@@ -137,7 +137,7 @@ namespace Tiny3D
                 mSceneTarget = nullptr;
             }
             
-            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__SceneRT__", width, height, PixelFormat::E_PF_R8G8B8A8);
+            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__SceneRT__", width, height, PixelFormat::E_PF_B8G8R8A8);
             mSceneTarget = RenderTarget::create(renderTex);
             mSceneRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
 
@@ -171,7 +171,7 @@ namespace Tiny3D
         // }
         if (mGameTarget == nullptr)
         {
-            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_R8G8B8A8);
+            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__GameRT__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_B8G8R8A8);
             mGameTarget = RenderTarget::create(renderTex);
             mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
             rtIsDirty = true;
