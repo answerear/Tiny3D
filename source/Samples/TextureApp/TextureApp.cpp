@@ -126,16 +126,16 @@ Texture2DPtr TextureApp::buildTexture()
     T3D_ASSERT(archive != nullptr, "Archive must be not nullptr !");
     ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/textures/blocks.png");
     T3D_ASSERT(image != nullptr, "Load image failed !");
-
-    uint8_t *pixels = new uint8_t[image->getSize()];
-    memcpy(pixels, image->getData(), image->getSize());
-    
-    Buffer texData;
-    texData.Data = pixels;
-    texData.DataSize = image->getSize();
-    uint32_t width = image->getWidth();
-    uint32_t height = image->getHeight();
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
+    // uint8_t *pixels = new uint8_t[image->getSize()];
+    // memcpy(pixels, image->getData(), image->getSize());
+    //
+    // Buffer texData;
+    // texData.Data = pixels;
+    // texData.DataSize = image->getSize();
+    // uint32_t width = image->getWidth();
+    // uint32_t height = image->getHeight();
+    // Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
 #else
     const uint32_t width = 64;
     const uint32_t height = 64;
