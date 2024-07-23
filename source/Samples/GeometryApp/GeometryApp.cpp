@@ -98,8 +98,8 @@ void GeometryApp::buildCamera(Transform3D *parent)
     camera->setProjectionType(Camera::Projection::kPerspective);
     camera->setFovY(Radian(Math::PI / 3.0f));
     // camera->setFovY(Radian(Math::PI * 0.5f));
-    camera->setNearPlaneDistance(0.1f);
-    camera->setFarPlaneDistance(10.0f);
+    // camera->setNearPlaneDistance(0.1f);
+    // camera->setFarPlaneDistance(10.0f);
 #else
     // camera for orthographic
     camera->setProjectionType(Camera::Projection::kOrthographic);

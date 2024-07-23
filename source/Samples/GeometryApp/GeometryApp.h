@@ -40,7 +40,6 @@ protected:  /// from Tiny3D::Application
 
     void applicationWillTerminate() override;
 
-protected:
     void buildCamera(Tiny3D::Transform3D *parent);
     void buildCube(Tiny3D::Transform3D *parent);
     
