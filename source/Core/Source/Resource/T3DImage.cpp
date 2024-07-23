@@ -25,6 +25,7 @@
 
 #include "Resource/T3DImage.h"
 #include "ImageCodec/T3DImageCodec.h"
+#include "Kernel/T3DArchive.h"
 
 
 namespace Tiny3D
@@ -409,9 +410,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Image::onSave(Archive *archive)
+    {
+        return Resource::onSave(archive);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Image::onLoad(Archive *archive)
     {
         return Resource::onLoad(archive);
+        // TResult ret = T3D_OK;
+        //
+        // do
+        // {
+        //     ret = Resource::onLoad(archive);
+        //     if (T3D_FAILED(ret))
+        //     {
+        //         break;
+        //     }
+        //
+        //     ret = archive->read(getName(),
+        //         [this](DataStream &stream)
+        //         {
+        //             return T3D_IMAGE_CODEC.decode(stream, *this);
+        //         });
+        //     mIsEmpty = (ret != T3D_OK);
+        // } while (false);
+        //
+        // return ret;
     }
 
     //--------------------------------------------------------------------------

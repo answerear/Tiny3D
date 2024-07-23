@@ -22,7 +22,7 @@ add_subdirectory(GeometryApp)
 add_subdirectory(SceneApp)
 #add_subdirectory(PlatformApp)
 #add_subdirectory(FrameworkApp)
-#add_subdirectory(TextureApp)
+add_subdirectory(TextureApp)
 
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(TransformationApp)

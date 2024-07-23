@@ -99,6 +99,8 @@ else (TINY3D_OS_IOS)
 endif (TINY3D_OS_IOS)
 
 
+add_dependencies(FileSystemArchive T3DCore)
+
 
 #install(TARGETS ${LIB_NAME}
 #    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

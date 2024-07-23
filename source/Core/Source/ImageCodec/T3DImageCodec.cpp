@@ -55,11 +55,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImageCodec::addImageCodec(ImageCodecBase::FileType type, ImageCodecBasePtr codec)
+    TResult ImageCodec::addImageCodec(ImageCodecBase::FileType type, ImageCodecBase *codec)
     {
         TResult ret = T3D_OK;
 
-        mCodecMap.insert(ImageCodecMapValue(type, codec));
+        mCodecMap.emplace(type, codec);
 
         return ret;
     }

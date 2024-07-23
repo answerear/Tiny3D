@@ -28,8 +28,8 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "ImageCodec/T3DImageCodecBase.h"
 #include "Kernel/T3DSettings.h"
+#include "ImageCodec/T3DImageCodecBase.h"
 
 
 namespace Tiny3D
@@ -218,6 +218,8 @@ namespace Tiny3D
         MaterialManagerPtr      mMaterialMgr {nullptr};
         TextureManagerPtr       mTextureMgr {nullptr};
         SceneManagerPtr         mSceneMgr {nullptr};
+        ImageCodecPtr           mImageCodec {nullptr};
+        ImageManagerPtr         mImageMgr {nullptr};
 
         RenderStateManagerPtr   mRenderStateMgr {nullptr};
         RenderBufferManagerPtr  mRenderBufferMgr {nullptr};

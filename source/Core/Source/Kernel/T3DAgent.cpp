@@ -47,6 +47,9 @@
 #include "Resource/T3DScene.h"
 #include "Resource/T3DSceneManager.h"
 #include "Resource/T3DTextureManager.h"
+#include "ImageCodec/T3DImageCodec.h"
+#include "ImageCodec/T3DImageCodecBase.h"
+#include "Resource/T3DImageManager.h"
 
 
 namespace Tiny3D
@@ -129,6 +132,12 @@ namespace Tiny3D
             mTextureMgr = nullptr;
         }
 
+        if (mImageMgr != nullptr)
+        {
+            mImageMgr->unloadAllResources();
+            mImageMgr = nullptr;
+        }
+
         if (mArchiveMgr != nullptr)
         {
             mArchiveMgr->unloadAllArchives();
@@ -149,6 +158,7 @@ namespace Tiny3D
             mDylibMgr = nullptr;
         }
 
+        mImageCodec = nullptr;
         mSerializerMgr = nullptr;
         mArchiveMgr = nullptr;
         
@@ -211,6 +221,7 @@ namespace Tiny3D
 #if !defined (T3D_OS_ANDROID)
             // 获取应用程序路径、应用程序名称
             StringUtil::split(appPath, mAppPath, mAppName);
+            mAppPath = Dir::getAppPath();
 #endif
 
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
@@ -1010,6 +1021,7 @@ namespace Tiny3D
         mAssignableObjMgr = AssignableObjectManager::create();
         mRenderPipeline = ForwardRenderPipeline::create();
         mArchiveMgr = ArchiveManager::create();
+        mImageCodec = ImageCodec::create();
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
         mRenderStateMgr = RenderStateManager::create();
@@ -1022,6 +1034,7 @@ namespace Tiny3D
         mMaterialMgr = MaterialManager::create();
         mSceneMgr = SceneManager::create();
         mSceneMgr->setSceneManagerImpl(BuiltinSceneManager::create());
+        mImageMgr = ImageManager::create();
         
         return T3D_OK;
     }
@@ -1315,18 +1328,14 @@ namespace Tiny3D
 
     TResult Agent::addImageCodec(ImageCodecBase::FileType type, ImageCodecBase *codec)
     {
-        TResult ret = T3D_OK;
-
-        return ret;
+        return mImageCodec->addImageCodec(type, codec);
     }
 
     //--------------------------------------------------------------------------
 
     TResult Agent::removeImageCodec(ImageCodecBase::FileType type)
     {
-        TResult ret = T3D_OK;
-
-        return ret;
+        return mImageCodec->removeImageCodec(type);
     }
 
     //--------------------------------------------------------------------------

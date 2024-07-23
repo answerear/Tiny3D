@@ -49,7 +49,7 @@ namespace Tiny3D
          * @param [in]  codec   : 编解码器对象.
          * @return  调用成功返回 T3D_OK.
          */
-        TResult addImageCodec(ImageCodecBase::FileType type, ImageCodecBasePtr codec);
+        TResult addImageCodec(ImageCodecBase::FileType type, ImageCodecBase *codec);
 
         /**
          * @fn  TResult removeImageCodec(ImageCodecBase::FileType type);

@@ -126,18 +126,18 @@ namespace Tiny3D
                 break;
             }
 
-            FREE_IMAGE_FORMAT fif 
-                = FreeImage_GetFileTypeFromMemory(fiMem, (DWORD)size);
+            FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(fiMem, (DWORD)size);
             FreeImage_CloseMemory(fiMem);
 
             type = (FileType)fif;
             if (fif == FIF_UNKNOWN)
             {
                 ret = false;
+                T3D_LOG_ERROR(LOG_TAG_FREEIMAGE_CODEC, "Unknown file format !");
                 break;
             }
 
-        } while (0);
+        } while (false);
 
         return ret;
     }

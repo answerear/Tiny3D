@@ -165,7 +165,7 @@ elseif (TINY3D_OS_ANDROID)
 #        )
 endif (TINY3D_OS_IOS)
 
-
+add_dependencies(FreeImageCodec T3DCore)
 
 #install(TARGETS ${LIB_NAME}
 #    RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug

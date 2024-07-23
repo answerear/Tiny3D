@@ -83,6 +83,8 @@ namespace Tiny3D
     class Plugin;
     class Archive;
     class ArchiveManager;
+    class ImageCodecBase;
+    class ImageCodec;
     
     struct Transform;
     struct Settings;

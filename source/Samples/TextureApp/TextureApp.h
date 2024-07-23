@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -24,15 +24,22 @@
 #include "../Common/SampleApp.h"
 
 
-class TextureApp : public SampleApp
+class TextureApp : public SampleWindowApp
 {
 public:
     TextureApp();
     virtual ~TextureApp();
 
 protected:
-    virtual bool applicationDidFinishLaunching() override;
+    bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
+    void buildCamera(Tiny3D::Transform3D *parent);
+    void buildCube(Tiny3D::Transform3D *parent);
+    
+    Tiny3D::Texture2DPtr buildTexture();
+    Tiny3D::MaterialPtr buildMaterial();
+    Tiny3D::MeshPtr buildMesh();
+    void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
 };
 
 
