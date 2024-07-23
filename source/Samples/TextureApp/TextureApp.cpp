@@ -121,116 +121,11 @@ void TextureApp::buildCube(Transform3D *parent)
 
 Texture2DPtr TextureApp::buildTexture()
 {
-#if 1
     ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
     T3D_ASSERT(archive != nullptr, "Archive must be not nullptr !");
     ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/textures/blocks.png");
     T3D_ASSERT(image != nullptr, "Load image failed !");
     Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
-    // uint8_t *pixels = new uint8_t[image->getSize()];
-    // memcpy(pixels, image->getData(), image->getSize());
-    //
-    // Buffer texData;
-    // texData.Data = pixels;
-    // texData.DataSize = image->getSize();
-    // uint32_t width = image->getWidth();
-    // uint32_t height = image->getHeight();
-    // Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
-#else
-    const uint32_t width = 64;
-    const uint32_t height = 64;
-    uint32_t pitch = Image::calcPitch(width, 32);
-    const uint32_t dataSize = pitch * height;
-    uint8_t *pixels = new uint8_t[dataSize];
-    
-    for (uint32_t y = 0; y < height; ++y)
-    {
-        uint8_t *lines = pixels + pitch * y;
-        uint32_t i = 0;
-        for (uint32_t x = 0; x < width; ++x)
-        {
-            if (x < 16 && y < 16)
-            {
-                // top, blue
-                // B
-                lines[i++] = 196;
-                // G
-                lines[i++] = 114;
-                // R
-                lines[i++] = 68;
-            }
-            else if (x < 16 && y >= 16 && y < 32)
-            {
-                // front, orange
-                // B
-                lines[i++] = 49;
-                // G
-                lines[i++] = 125;
-                // R
-                lines[i++] = 237;
-            }
-            else if (x >= 16 && x < 32 && y >= 16 && y < 32)
-            {
-                // right, green
-                // B
-                lines[i++] = 71;
-                // G
-                lines[i++] = 173;
-                // R
-                lines[i++] = 112;
-            }
-            else if (x >= 32 && x < 48 && y >= 16 && y < 32)
-            {
-                // back, yellow
-                // B
-                lines[i++] = 0;
-                // G
-                lines[i++] = 192;
-                // R
-                lines[i++] = 255;
-            }
-            else if ( x >= 48 && x < 64 && y >= 16 && y <32)
-            {
-                // left, red
-                // B
-                lines[i++] = 0;
-                // G
-                lines[i++] = 0;
-                // R
-                lines[i++] = 255;
-            }
-            else if ( x < 16 && y >= 32 && y < 48)
-            {
-                // bottom, purple
-                // B
-                lines[i++] = 160;
-                // G
-                lines[i++] = 48;
-                // R
-                lines[i++] = 112;
-            }
-            else
-            {
-                // B
-                lines[i++] = 0;
-                // G
-                lines[i++] = 0;
-                // R
-                lines[i++] = 0;
-            }
-            
-            // A
-            lines[i++] = 255;
-        }
-    }
-
-    Buffer texData;
-    texData.Data = pixels;
-    texData.DataSize = dataSize;
-    
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
-#endif
-    
     return texture;
 }
 
