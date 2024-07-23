@@ -45,6 +45,8 @@ namespace Tiny3D
 
         Texture2DPtr createTexture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
 
+        Texture2DPtr createTexture2D(const String &name, Image *image, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
+
         Texture2DArrayPtr createTexture2DArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
         
         Texture3DPtr createTexture3D(const String &name, uint32_t width, uint32_t height, uint32_t depth, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1);

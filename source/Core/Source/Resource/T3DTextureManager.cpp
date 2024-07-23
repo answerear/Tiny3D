@@ -68,6 +68,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    Texture2DPtr TextureManager::createTexture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    {
+        return smart_pointer_cast<Texture2D>(createResource(name, 5, TEXTURE_TYPE::TT_2D, image, mipmaps, MSAACount, MSAAQuality));
+    }
+
+    //--------------------------------------------------------------------------
     
     Texture2DArrayPtr TextureManager::createTexture2DArray(const String &name, uint32_t width, uint32_t height,
         PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/)
@@ -133,17 +140,28 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_2D:
             {
-                T3D_ASSERT(argc == 9, "The number of arguments when create Texture2D does not match !");
-                uint32_t width = va_arg(args, uint32_t);
-                uint32_t height = va_arg(args, uint32_t);
-                PixelFormat format = va_arg(args, PixelFormat);
-                Buffer data;
-                data.Data = va_arg(args, uint8_t*);
-                data.DataSize = va_arg(args, size_t);
-                uint32_t mipmaps = va_arg(args, uint32_t);
-                uint32_t MSAACount = va_arg(args, uint32_t);
-                uint32_t MSAAQuality = va_arg(args, uint32_t);
-                texture = Texture2D::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+                T3D_ASSERT(argc == 5 || argc == 9, "The number of arguments when create Texture2D does not match !");
+                if (argc == 9)
+                {
+                    uint32_t width = va_arg(args, uint32_t);
+                    uint32_t height = va_arg(args, uint32_t);
+                    PixelFormat format = va_arg(args, PixelFormat);
+                    Buffer data;
+                    data.Data = va_arg(args, uint8_t*);
+                    data.DataSize = va_arg(args, size_t);
+                    uint32_t mipmaps = va_arg(args, uint32_t);
+                    uint32_t MSAACount = va_arg(args, uint32_t);
+                    uint32_t MSAAQuality = va_arg(args, uint32_t);
+                    texture = Texture2D::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+                }
+                else if (argc == 5)
+                {
+                    Image *image = va_arg(args, Image*);
+                    uint32_t mipmaps = va_arg(args, uint32_t);
+                    uint32_t MSAACount = va_arg(args, uint32_t);
+                    uint32_t MSAAQuality = va_arg(args, uint32_t);
+                    texture = Texture2D::create(name, image, mipmaps, MSAACount, MSAAQuality);
+                }
             }
             break;
         case TEXTURE_TYPE::TT_2D_ARRAY:

@@ -26,6 +26,7 @@
 #include "Resource/T3DTexture.h"
 #include "Render/T3DRenderResourceManager.h" 
 #include "Render/T3DPixelBuffer.h"
+#include "Resource/T3DImage.h"
 
 namespace Tiny3D
 {
@@ -171,6 +172,29 @@ namespace Tiny3D
         mDesc.sampleDesc.Count = MSAACount;
         mDesc.sampleDesc.Quality = MSAAQuality;
         mDesc.buffer = data;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture2DPtr Texture2D::create(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    {
+        return new Texture2D(name, image, mipmaps, MSAACount, MSAAQuality);
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture2D::Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+        : Texture(name)
+    {
+        T3D_ASSERT(image != nullptr, "Image must be valid !");
+        mDesc.width = image->getWidth();
+        mDesc.height = image->getHeight();
+        mDesc.format = image->getFormat();
+        mDesc.mipmaps = mipmaps;
+        mDesc.arraySize = 1;
+        mDesc.sampleDesc.Count = MSAACount;
+        mDesc.sampleDesc.Quality = MSAAQuality;
+        mDesc.buffer.setData(image->getData(), image->getSize());
     }
 
     //--------------------------------------------------------------------------

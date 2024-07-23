@@ -144,6 +144,8 @@ namespace Tiny3D
     public:
         static Texture2DPtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
 
+        static Texture2DPtr create(const String &name, Image *iamge, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality);
+
         TEXTURE_TYPE getTextureType() const override;
 
         const uint8_t * const getData() const { return mDesc.buffer.Data; }
@@ -173,6 +175,8 @@ namespace Tiny3D
         Texture2D() : Texture("") {}
         
         Texture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
+
+        Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality);
         
         ResourcePtr clone() const override;
 
