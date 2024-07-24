@@ -187,6 +187,7 @@ namespace Tiny3D
         : Texture(name)
     {
         T3D_ASSERT(image != nullptr, "Image must be valid !");
+        
         mDesc.width = image->getWidth();
         mDesc.height = image->getHeight();
         mDesc.format = image->getFormat();
@@ -195,6 +196,8 @@ namespace Tiny3D
         mDesc.sampleDesc.Count = MSAACount;
         mDesc.sampleDesc.Quality = MSAAQuality;
         mDesc.buffer.setData(image->getData(), image->getSize());
+        
+        mImage = image;
     }
 
     //--------------------------------------------------------------------------
@@ -247,6 +250,26 @@ namespace Tiny3D
             mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Texture2D::onUnload()
+    {
+        TResult ret;
+
+        do
+        {
+            ret = Texture::onUnload();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mImage = nullptr;
+        } while (false);
+
         return ret;
     }
 

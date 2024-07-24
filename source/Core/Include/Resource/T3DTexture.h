@@ -184,6 +184,8 @@ namespace Tiny3D
 
         TResult onLoad(Archive *archive) override;
 
+        TResult onUnload() override;
+
         TPROPERTY(RTTRFuncName="Width", RTTRFuncType="setter")
         void setWidth(uint32_t width) { mDesc.width = width; }
 
@@ -210,6 +212,8 @@ namespace Tiny3D
         PixelBuffer2DDesc   mDesc {};
         /// 像素缓冲区对象
         PixelBuffer2DPtr    mPixelBuffer {nullptr};
+        /// 图像数据对象
+        ImagePtr            mImage {nullptr};
     };
 
     TCLASS()
