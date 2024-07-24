@@ -62,7 +62,6 @@ namespace Tiny3D
     protected:
         ImMenuBar   *mMenuBar {nullptr};
 
-    protected:
         HierarchyWindow *mHierarchyWnd {nullptr};
         GameWindow *mGameWnd {nullptr};
         SceneWindow *mSceneWnd {nullptr};

@@ -78,10 +78,6 @@ namespace Tiny3D
 
         TResult createEngine(int32_t argc, char *argv[]);
 
-        void readAppSettings();
-
-        void writeAppSettings();
-
         TResult createLanguageMgr();
 
         TResult startup(int32_t argc, char *argv[]);

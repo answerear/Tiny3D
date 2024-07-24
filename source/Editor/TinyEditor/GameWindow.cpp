@@ -33,14 +33,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImGuiWindowFlags GameWindow::flags() const
-    {
-        return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-    }
-
+    #define ID_GAME_VIEW_TOOL_BTN_PLAY      1
+    #define ID_GAME_VIEW_TOOL_BTN_PAUSE     2
+    #define ID_GAME_VIEW_TOOL_BTN_NEXT      3
+    
     //--------------------------------------------------------------------------
 
-    void GameWindow::onGUI()
+    void GameView::onGUI()
     {
         auto region = ImGui::GetContentRegionAvail();
         EDITOR_SCENE.refreshGameRenderTarget(region);
@@ -101,6 +100,100 @@ namespace Tiny3D
         ImGui::SetCursorPosY(y);
         // ImGui::Image(EDITOR_SCENE.getGameRT(), size, uv0, uv1);
         ImGui::Image(EDITOR_SCENE.getGameRT(), size);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImGuiWindowFlags GameWindow::flags() const
+    {
+        return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GameWindow::addToolButton(const String &name, uint32_t id, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
+            T3D_ASSERT(archive != nullptr, "Archive must be not nullptr !");
+            ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
+            T3D_ASSERT(image != nullptr, "Load image [%s] failed !", name.c_str());
+            Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image);
+            ImTextureID texID = texture->getPixelBuffer()->getRHIResource()->getNativeObject();
+            ret = mToolBar->addButton(id, texID, shortcut, tips, query, check, clicked);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Add toolbar button %s failed ! ERROR [%d]", name.c_str(), ret)
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GameWindow::onCreate()
+    {
+        TResult ret = ImWidget::onCreate();
+
+        do
+        {
+            mToolBar = new ImToolBar();
+            ret = mToolBar->create("GameToolBar", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game tool bar failed ! ERROR [%d]", ret)
+                break;
+            }
+            mToolBar->setAlignment(ImToolBar::Alignment::kMiddle);
+            mToolBar->setButtonSize(ImVec2(16.0f, 16.0f));
+            
+            auto queryEnableDefault = [](uint32_t id) { return true; };
+
+            ret = addToolButton("Editor/icons/d_PlayButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PLAY, "", "Run Game", queryEnableDefault, nullptr, [](uint32_t id) {});
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = addToolButton("Editor/icons/d_PauseButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PAUSE, "", "Pause Game", queryEnableDefault, nullptr, [](uint32_t id) {});
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = addToolButton("Editor/icons/d_StepButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_NEXT, "", "Pause Game", queryEnableDefault, nullptr, [](uint32_t id) {});
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            GameView *gameView = new GameView();
+            ret = gameView->create("GameView", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view failed ! ERROR [%d]", ret)
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameWindow::onGUI()
+    {
+        // auto region = ImGui::GetContentRegionAvail();
+        //  ImGui::BeginChild("GameView");
+        //
+        //
+        //
+        // ImGui::EndChild();
     }
 
     //--------------------------------------------------------------------------

@@ -32,6 +32,14 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
+    class GameView : public ImChildView
+    {
+    public:
+
+    protected:
+        void onGUI() override;
+    };
+    
     class GameWindow : public DockingWindow
     {
     public:
@@ -40,9 +48,16 @@ namespace Tiny3D
 
     protected:
         ImGuiWindowFlags flags() const override;
+
+        TResult onCreate() override;
         
         void onGUI() override;
-    };
 
+        TResult addToolButton(const String &name, uint32_t id, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked);
+
+    protected:
+        ImToolBar   *mToolBar {nullptr};
+    };
+    
     NS_END
 }

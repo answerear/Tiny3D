@@ -238,6 +238,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
                 break;
             }
+
+            T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), "FileSystem", Archive::AccessMode::kRead);
         } while (false);
 
         return ret;
