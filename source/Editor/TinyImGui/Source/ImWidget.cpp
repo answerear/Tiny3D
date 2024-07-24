@@ -592,6 +592,24 @@ namespace Tiny3D
             
             onGUIEnd();
         }
+
+        if (mDebugEnabled && (mDebugFrame == 0xFFFFFFFF || mDebugFrame == mFrameCount))
+        {
+            T3D_LOG_INFO(LOG_TAG_TINYIMGUI, "Widget hierarchy : ");
+            traverseHierarchyPreOrder(
+                [](ImWidget *widget, int32_t depth)
+                {
+                    std::stringstream ss;
+                    for (int32_t i = 0; i < depth; ++i)
+                    {
+                        ss << "\t";
+                    }
+                    ss << widget->getName();
+                    T3D_LOG_INFO(LOG_TAG_TINYIMGUI, "%s", ss.str().c_str());
+                });
+        }
+        
+        mFrameCount++;
     }
 
     //--------------------------------------------------------------------------
@@ -617,7 +635,7 @@ namespace Tiny3D
 
     TResult ImWidget::onCreate()
     {
-        return T3D_OK;
+        return IM_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -668,6 +686,52 @@ namespace Tiny3D
     bool *ImWidget::onGetVisible()
     {
         return &mVisible;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::setDebugHierarchy(bool enable, uint32_t frame)
+    {
+        mDebugEnabled = enable;
+        mDebugFrame = frame;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::traverseHierarchyPreOrder(const TraverseHierarchyCallback &callback, int32_t depth)
+    {
+        if (callback == nullptr)
+        {
+            return;
+        }
+        
+        callback(this, depth);
+
+        depth++;
+        for (auto widget : getChildren())
+        {
+            widget->traverseHierarchyPreOrder(callback, depth);
+        }
+        depth--;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::traverseHierarchyPostOrder(const TraverseHierarchyCallback &callback, int32_t depth)
+    {
+        if (callback == nullptr)
+        {
+            return;
+        }
+
+        depth++;
+        for (auto widget : getChildren())
+        {
+            widget->traverseHierarchyPostOrder(callback);
+        }
+        depth--;
+
+        callback(this, depth);
     }
 
     //--------------------------------------------------------------------------

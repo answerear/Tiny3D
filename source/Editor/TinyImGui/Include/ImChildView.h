@@ -50,6 +50,7 @@ namespace Tiny3D
         virtual bool onGUIBegin(const ImVec2 &size);
         
         virtual ImGuiChildFlags onGetChildFlags();
+        virtual ImGuiWindowFlags onGetWindowFlags();
 
         void checkFocused();
 

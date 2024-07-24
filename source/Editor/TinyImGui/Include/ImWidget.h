@@ -44,10 +44,13 @@ namespace Tiny3D
         kToolBar,
         kTabBar,
         kTabItem,
+        kDockingWindow,
         kDockBar,
         kDockItem,
         kSplitView,
     };
+
+    using TraverseHierarchyCallback = TFunction<void(ImWidget *, int32_t)>;
     
     class TINYIMGUI_API ImWidget : public Noncopyable
     {
@@ -147,9 +150,20 @@ namespace Tiny3D
 
         virtual void update();
 
-        virtual const ImVec2 &onGetSize() { return getSize(); }
+        virtual const ImVec2 &onGetSize() const { return getSize(); }
 
         virtual bool *onGetVisible();
+
+        /**
+         * 设置在 update 函数指定帧输出层级结构信息
+         * @param enable : 打开还是关闭
+         * @param frame : 输出日志的帧数，当为 -1 的时候，则每帧输出
+         */
+        void setDebugHierarchy(bool enable, uint32_t frame = 0);
+
+        void traverseHierarchyPreOrder(const TraverseHierarchyCallback &callback, int32_t depth = 0);
+
+        void traverseHierarchyPostOrder(const TraverseHierarchyCallback &callback, int32_t depth = 0);
         
     protected:
         ImWidget() = default;
@@ -209,9 +223,13 @@ namespace Tiny3D
         ImWidget  *mParent {nullptr};
         /// Children
         Children    mChildren {};
+
+        bool    mDebugEnabled {false};
+        uint32_t    mFrameCount {0};
+        uint32_t    mDebugFrame {0};
         
     protected:
-        ImVec2  mSize {};
+        ImVec2  mSize {0, 0};
         bool    mVisible {true};
     };
 }

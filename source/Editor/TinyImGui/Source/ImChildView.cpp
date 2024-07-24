@@ -80,6 +80,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ImGuiWindowFlags ImChildView::onGetWindowFlags()
+    {
+        return ImGuiWindowFlags_None;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ImChildView::checkFocused()
     {
         if (msFocusedView != this && ImGui::IsWindowFocused())
@@ -116,7 +123,7 @@ namespace Tiny3D
     bool ImChildView::onGUIBegin(const ImVec2 &size)
     {
         PushWidgetID();
-        ImGui::BeginChild(getName().c_str(), size, onGetChildFlags());
+        ImGui::BeginChild(getName().c_str(), size, onGetChildFlags(), onGetWindowFlags());
         checkFocused();
         return true;
     }
