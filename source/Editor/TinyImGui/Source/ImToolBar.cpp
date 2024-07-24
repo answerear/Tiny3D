@@ -144,7 +144,8 @@ namespace Tiny3D
             float x = region.x - width;
             ImGui::SetCursorPosX(x);
         }
-        
+
+        int32_t i = 0;
         for (auto button : mButtons)
         {
             bool enable = button.query ? button.query(button.id) : false;
@@ -176,8 +177,17 @@ namespace Tiny3D
             {
                 ImGui::PopStyleColor();
             }
-            
-            ImGui::SameLine();
+
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip(button.tips.c_str());
+            }
+
+            i++;
+            if (i != mButtons.size())
+            {
+                ImGui::SameLine();
+            }
         }
     }
 
