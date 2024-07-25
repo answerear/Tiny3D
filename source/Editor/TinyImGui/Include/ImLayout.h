@@ -25,17 +25,43 @@
 
 #pragma once
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
-#include <ImOpenFileDialog.h>
-#include <ImSplitView.h>
-#include <ImLayout.h>
-#include <ImButton.h>
+
+#include "ImWidget.h"
+
+
+namespace Tiny3D
+{
+    class ImChildView;
+    
+    class TINYIMGUI_API ImLayout : public ImWidget
+    {
+    public:
+        static ImChildView *NEWLINE;
+        
+        struct Item
+        {
+            /// 大小
+            ImVec2  size {0, 0};
+            /// 子窗口
+            ImChildView *childView {nullptr};
+        };
+
+        using Items = TList<Item>;
+        
+        ~ImLayout() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kLayout; }
+
+        TResult addWidgets(const Items &items, bool relative = false);
+
+        void update() override;
+        
+    protected:
+
+    protected:
+        /// 所有要布局的子控件
+        Items   mItems {};
+        /// 相对布局还是绝对布局
+        bool    mRelative {false};
+    };
+}

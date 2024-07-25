@@ -23,19 +23,24 @@
  ******************************************************************************/
 
 
-#pragma once
+#include "ImButton.h"
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
-#include <ImOpenFileDialog.h>
-#include <ImSplitView.h>
-#include <ImLayout.h>
-#include <ImButton.h>
+
+namespace Tiny3D
+{
+    //--------------------------------------------------------------------------
+
+    ImButton::~ImButton()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImButton::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+}

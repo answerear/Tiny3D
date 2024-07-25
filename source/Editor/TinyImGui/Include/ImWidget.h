@@ -48,6 +48,9 @@ namespace Tiny3D
         kDockBar,
         kDockItem,
         kSplitView,
+        kLayout,
+        kButton,
+        kImageButton
     };
 
     using TraverseHierarchyCallback = TFunction<void(ImWidget *, int32_t)>;
@@ -77,6 +80,10 @@ namespace Tiny3D
         bool isVisible() const { return mVisible; }
         
         void setVisible(bool visible);
+
+        bool isEnable() const { return mEnable; }
+
+        void setEnable(bool enable);
 
         TResult create(const String &name, ImWidget *parent);
 
@@ -186,6 +193,10 @@ namespace Tiny3D
 
         virtual void onInvisible();
 
+        virtual void onEnable();
+
+        virtual void onDisable();
+
         ImWidget *getWidgetRecursively(StringList &names) const;
 
         void PushWidgetID() { ImGui::PushID(this); }
@@ -231,5 +242,6 @@ namespace Tiny3D
     protected:
         ImVec2  mSize {0, 0};
         bool    mVisible {true};
+        bool    mEnable {true};
     };
 }

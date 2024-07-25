@@ -51,6 +51,8 @@ namespace Tiny3D
         WidgetType getWidgetType() const override { return WidgetType::kToolBar; }
 
         void setButtonSize(const ImVec2 &size) { mButtonSize = size; mSize.y = size.y + mHorzSpacing * 2.0f; }
+
+        const ImVec2 &getButtonSize() const { return mButtonSize; }
         
         void setAlignment(Alignment alignment) { mAlignment = alignment; }
 

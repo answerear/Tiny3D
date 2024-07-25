@@ -25,17 +25,20 @@
 
 #pragma once
 
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
-#include <ImOpenFileDialog.h>
-#include <ImSplitView.h>
-#include <ImLayout.h>
-#include <ImButton.h>
+
+#include "ImWidget.h"
+
+
+namespace Tiny3D
+{
+    class TINYIMGUI_API ImButton : public ImWidget
+    {
+    public:
+        ~ImButton() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kButton; }
+
+    protected:
+        void onGUI() override;
+    };
+}
