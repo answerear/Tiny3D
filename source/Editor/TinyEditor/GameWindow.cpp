@@ -143,7 +143,7 @@ namespace Tiny3D
         do
         {
             mToolBar = new ImToolBar();
-            ret = mToolBar->create("GameToolBar", this);
+            ret = mToolBar->create("GameToolBar", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game tool bar failed ! ERROR [%d]", ret)
@@ -153,32 +153,53 @@ namespace Tiny3D
             mToolBar->setButtonSize(ImVec2(16.0f, 16.0f));
             
             auto queryEnableDefault = [](uint32_t id) { return true; };
+            auto queryDisableDefault = [](uint32_t id) { return false; };
 
-            ret = addToolButton("Editor/icons/d_PlayButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PLAY, "", "Run Game", queryEnableDefault, nullptr, [](uint32_t id) {});
+            ret = addToolButton("Editor/icons/d_PlayButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PLAY, "", "Run Game", queryDisableDefault, nullptr, [](uint32_t id) {});
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            ret = addToolButton("Editor/icons/d_PauseButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PAUSE, "", "Pause Game", queryEnableDefault, nullptr, [](uint32_t id) {});
+            ret = addToolButton("Editor/icons/d_PauseButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PAUSE, "", "Pause Game", queryDisableDefault, nullptr, [](uint32_t id) {});
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            ret = addToolButton("Editor/icons/d_StepButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_NEXT, "", "Next Frame", queryEnableDefault, nullptr, [](uint32_t id) {});
+            ret = addToolButton("Editor/icons/d_StepButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_NEXT, "", "Next Frame", queryDisableDefault, nullptr, [](uint32_t id) {});
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
             GameView *gameView = new GameView();
-            ret = gameView->create("GameView", this);
+            ret = gameView->create("GameView", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view failed ! ERROR [%d]", ret)
                 break;
             }
+
+            ImLayout *layout = new ImLayout();
+            ret = layout->create("GameWindowLayout", this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window layout failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            ImLayout::Items items;
+            ImLayout::Item item;
+            item.size = mToolBar->getSize();
+            item.childView = mToolBar;
+            items.emplace_back(item);
+            item.childView = ImLayout::NEWLINE;
+            items.emplace_back(item);
+            item.size = gameView->getSize();
+            item.childView = gameView;
+            items.emplace_back(item);
+            layout->addWidgets(items);
         } while (false);
 
         return ret;
