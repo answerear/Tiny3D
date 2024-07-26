@@ -31,30 +31,132 @@
 
 namespace Tiny3D
 {
-    using ButtonClickedCallback = TFunction<void(uint32_t id)>;
-    using ButtonQueryCallback = TFunction<bool(uint32_t id)>;
-    
-    class TINYIMGUI_API ImButton : public ImWidget
+    using ImButtonClickedCallback = TFunction<void(ImWidget*)>;
+    using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
+
+    using EventParamButtonClicked = EventParamT1<ImWidget*>;
+
+    /**
+     * 普通按钮
+     */
+    class TINYIMGUI_API ImButton : public ImWidget, public EventHandler
     {
     public:
         ~ImButton() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kButton; }
 
-        // TResult create(uint32_t id, const String &name, uint32_t clickedEvtID, const String &shortcut = "");
-        //
-        // TResult create(uint32_t id, const String &name, const ButtonClickedCallback &clicked, const String &shortcut = "");
-        //
-        // TResult create(uint32_t id, const String &name, const ButtonQueryCallback &enable, uint32_t clickedEvtID, const String &shortcut = "");
-        //
-        // TResult create(uint32_t id, const String &name, const ButtonQueryCallback &enable, const ButtonClickedCallback &clicked, const String &shortcut = "");
+        TResult create(uint32_t id, const String &title, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult create(uint32_t id, const String &title, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult create(uint32_t id, const String &title, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult create(uint32_t id, const String &title, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
     protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        
         void onGUI() override;
+
+    protected:
+        /// 点击响应事件 ID
+        uint32_t    mClickedEvtID {0};
+        /// 查询是否可用的 Lambda 对象
+        ImButtonQueryCallback   mQueryEnabled {nullptr};
+        /// 点击响应的 Lambda 对象
+        ImButtonClickedCallback mClicked {nullptr};
+        /// 提示语
+        String      mTips {};
     };
 
+    /**
+     * 有按下状态的按钮
+     */
     class TINYIMGUI_API ImPushButton : public ImButton
     {
+    public:
+        ~ImPushButton() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kPushButton; }
+
+        TResult create(uint32_t id, const String &title, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult create(uint32_t id, const String &title, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult create(uint32_t id, const String &title, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult create(uint32_t id, const String &title, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        bool isPushed() const { return mQueryChecked ? mQueryChecked(this) : false; }
         
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+
+        void onGUI() override;
+
+    protected:
+        /// 查询是否按下状态的 Lambda 对象
+        ImButtonQueryCallback   mQueryChecked {nullptr};
+    };
+
+    /**
+     * 纯图片按钮
+     */
+    class TINYIMGUI_API ImImageButton : public ImButton
+    {
+    public:
+        ~ImImageButton() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kImageButton; }
+
+        TResult create(uint32_t id, ImTextureID texID, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+
+        void onGUI() override;
+
+        String makeName(uint32_t id);
+        
+    protected:
+        /// 图片 ID
+        ImTextureID mTexID {nullptr};
+    };
+
+    /**
+     * 带按下状态的纯图片按钮
+     */
+    class TINYIMGUI_API ImPushImageButton : public ImImageButton
+    {
+    public:
+        ~ImPushImageButton() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kPushImageButton; }
+
+        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        bool isPushed() const { return mQueryChecked ? mQueryChecked(this) : false; }
+        
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+
+        void onGUI() override;
+
+    protected:
+        /// 查询是否按下状态的 Lambda 对象
+        ImButtonQueryCallback   mQueryChecked {nullptr};
     };
 }

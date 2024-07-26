@@ -50,7 +50,9 @@ namespace Tiny3D
         kSplitView,
         kLayout,
         kButton,
-        kImageButton
+        kPushButton,
+        kImageButton,
+        kPushImageButton,
     };
 
     using TraverseHierarchyCallback = TFunction<void(ImWidget *, int32_t)>;

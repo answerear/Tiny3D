@@ -44,4 +44,9 @@
 namespace Tiny3D
 {
     #define LOG_TAG_TINYIMGUI       "TinyImGui"
+
+    #define IMGUI_LOG_ERROR(fmt, ...)   T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
+    #define IMGUI_LOG_WARNING(fmt, ...) T3D_LOG_WARNING(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
+    #define IMGUI_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
+    #define IMGUI_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
 }
