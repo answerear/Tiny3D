@@ -23,44 +23,17 @@
  ******************************************************************************/
 
 
-#include "ProjectWindow.h"
-#include "EditorWidgetID.h"
+#pragma once
+
+
+#include "ImPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
-
-    //--------------------------------------------------------------------------
-
-    TResult ProjectWindow::onCreate()
+    enum TinyWidgetID
     {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            mToolBar = new ImToolBar();
-            ret = mToolBar->create(ID_PROJECT_WINDOW_TOOLBAR, "ProjectToolBar", this);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create project tool bar failed !")
-                break;
-            }
-
-            
-        } while (false);
-        
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-    
-    void ProjectWindow::onGUI()
-    {
-        
-    }
-    
-    //--------------------------------------------------------------------------
-
-    NS_END
+        ID_MENU_SEPARATOR = 0x10000000,
+        ID_MESSAGE_BOX = 0x10000001,
+    };
 }

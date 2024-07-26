@@ -75,6 +75,8 @@ namespace Tiny3D
 
         void setName(const String &name) { mName = name; }
 
+        uint32_t getID() const { return mID; }
+
         const UUID &getUUID() const { return mUUID; }
 
         bool isVisible() const { return mVisible; }
@@ -85,7 +87,7 @@ namespace Tiny3D
 
         void setEnable(bool enable);
 
-        TResult create(const String &name, ImWidget *parent);
+        TResult create(uint32_t id, const String &name, ImWidget *parent);
 
         /**
          * 删除 widget，包括自动 delete
@@ -117,11 +119,18 @@ namespace Tiny3D
         ImWidget *getWidget(const String &name) const;
 
         /**
-         * 获取所有子节点中对应 uuid 的子节点，这个调用可以递归搜索o
+         * 获取所有子 widget 中对应 uuid 的子 widget，这个调用可以递归搜索
          * @param uuid 
          * @return 返回对应的 widget 对象
          */
         ImWidget *getWidget(const UUID &uuid) const;
+
+        /**
+         * 获取所以子 widget 中对应 id 的子 widget，这个调用可以递归搜索
+         * @param id 
+         * @return 
+         */
+        ImWidget *getWidget(uint32_t id) const;
 
         /**
          * 获取父 widget
@@ -142,6 +151,13 @@ namespace Tiny3D
          * @return 返回对应的 widget 对象
          */
         ImWidget *getChild(const UUID &uuid) const;
+
+        /**
+         * 只获取第一层子 widget 对应 id 的 widget
+         * @param id 
+         * @return 
+         */
+        ImWidget *getChild(uint32_t id) const;
 
         /**
          * 获取下一级的所有子 widgets
@@ -175,9 +191,9 @@ namespace Tiny3D
     protected:
         ImWidget() = default;
 
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, ...);
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, ...);
         
-        virtual TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args);
+        virtual TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args);
         
         virtual TResult onCreate();
         
@@ -227,21 +243,29 @@ namespace Tiny3D
         static bool msInUpdate;
         
         /// UUID
-        UUID    mUUID {UUID::INVALID};
+        UUID        mUUID {UUID::INVALID};
+        /// User-defined ID
+        uint32_t    mID {0};
         /// Name
-        String  mName {};
+        String      mName {};
         /// Parent
-        ImWidget  *mParent {nullptr};
+        ImWidget    *mParent {nullptr};
         /// Children
         Children    mChildren {};
 
-        bool    mDebugEnabled {false};
+        /// 是否开启调试，调试模式下，会在 update 输出层级关系日志
+        bool        mDebugEnabled {false};
+        /// 当前帧数
         uint32_t    mFrameCount {0};
+        /// 调试输出的帧编号，-1 表示每帧都输出
         uint32_t    mDebugFrame {0};
         
     protected:
+        /// 大小
         ImVec2  mSize {0, 0};
+        /// 可见性
         bool    mVisible {true};
+        /// 可用性
         bool    mEnable {true};
     };
 }

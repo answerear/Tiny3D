@@ -27,6 +27,7 @@
 #include "ImErrors.h"
 #include "LauncherApp.h"
 #include "LocalProjectsView.h"
+#include "LauncherWidgetID.h"
 
 
 namespace Tiny3D
@@ -43,7 +44,7 @@ namespace Tiny3D
         {
             // Tab bar
             ImTabBar *bar = new ImTabBar();
-            ret = bar->create("Project Types", this);
+            ret = bar->create(ID_MAIN_TAB_BAR, "Project Types", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab bar failed !");
@@ -53,7 +54,7 @@ namespace Tiny3D
             // Local projects
             ImTabItem *item = new ImTabItem();
             const String &name0 = STR(TXT_LOCAL_PROJECTS);
-            ret = item->create(name0, bar);
+            ret = item->create(ID_TAB_ITEM_LOCAL_PROJECT, name0, bar);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab item [%s] failed !", name0.c_str());
@@ -61,7 +62,7 @@ namespace Tiny3D
             }
 
             LocalProjectsView *localProjView = new LocalProjectsView();
-            ret = localProjView->create(STR(TXT_LOCAL_PROJECTS), item);
+            ret = localProjView->create(ID_LOCAL_PROJECT_VIEW, STR(TXT_LOCAL_PROJECTS), item);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create local projects view failed !");
@@ -71,7 +72,7 @@ namespace Tiny3D
             // Asset store projects
             item = new ImTabItem();
             const String &name1 = STR(TXT_STORE_PROJECTS);
-            ret = item->create(name1, bar);
+            ret = item->create(ID_TAB_ITEM_STORE_PROJECT, name1, bar);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create tab item [%s] failed !", name1.c_str());
@@ -129,16 +130,16 @@ namespace Tiny3D
 
     TResult MainWindow::buildMenu()
     {
-        mMenuBar = new ImMenuBar();
-        mMenuBar->create("Main Menu", this);
-        
-        // File
-        IM_BEGIN_MENU("File")
-            // New
-            IM_BEGIN_POPUP_MENU("New")
-                IM_MENU_ITEM("New Scene", "Ctrl+N", nullptr, 0)
-            IM_END_POPUP_MENU()
-        IM_END_MENU(mMenuBar)
+        // mMenuBar = new ImMenuBar();
+        // mMenuBar->create(ID_MAIN_MENU, "Main Menu", this);
+        //
+        // // File
+        // IM_BEGIN_MENU("File")
+        //     // New
+        //     IM_BEGIN_POPUP_MENU("New")
+        //         IM_MENU_ITEM("New Scene", "Ctrl+N", nullptr, 0)
+        //     IM_END_POPUP_MENU()
+        // IM_END_MENU(mMenuBar)
 
         return IM_OK;
     }

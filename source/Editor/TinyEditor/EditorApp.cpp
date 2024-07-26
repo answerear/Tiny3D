@@ -29,6 +29,7 @@
 #include "ProjectManager.h"
 #include "NetworkManager.h"
 #include "EditorScene.h"
+#include "EditorWidgetID.h"
 
 
 Tiny3D::Editor::EditorApp *app = nullptr;
@@ -197,7 +198,7 @@ namespace Tiny3D
 
             // 主窗口
             mMainWindow = new MainWindow();
-            ret = mMainWindow->create("Main Window", nullptr);
+            ret = mMainWindow->create(ID_MAIN_WINDOW, "Main Window", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);

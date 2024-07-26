@@ -25,18 +25,13 @@
 
 #include "GameWindow.h"
 #include "EditorScene.h"
+#include "EditorWidgetID.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    //--------------------------------------------------------------------------
-
-    #define ID_GAME_VIEW_TOOL_BTN_PLAY      1
-    #define ID_GAME_VIEW_TOOL_BTN_PAUSE     2
-    #define ID_GAME_VIEW_TOOL_BTN_NEXT      3
-    
     //--------------------------------------------------------------------------
 
     void GameView::onGUI()
@@ -143,7 +138,7 @@ namespace Tiny3D
         do
         {
             mToolBar = new ImToolBar();
-            ret = mToolBar->create("GameToolBar", nullptr);
+            ret = mToolBar->create(ID_GAME_WINDOW_TOOLBAR, "GameToolBar", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game tool bar failed ! ERROR [%d]", ret)
@@ -155,26 +150,26 @@ namespace Tiny3D
             auto queryEnableDefault = [](uint32_t id) { return true; };
             auto queryDisableDefault = [](uint32_t id) { return false; };
 
-            ret = addToolButton("Editor/icons/d_PlayButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PLAY, "", "Run Game", queryDisableDefault, nullptr, [](uint32_t id) {});
+            ret = addToolButton("Editor/icons/d_PlayButton On@2x.png", ID_GAME_WIDNOW_TOOL_BTN_PLAY, "", "Run Game", queryDisableDefault, nullptr, [](uint32_t id) {});
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            ret = addToolButton("Editor/icons/d_PauseButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_PAUSE, "", "Pause Game", queryDisableDefault, nullptr, [](uint32_t id) {});
+            ret = addToolButton("Editor/icons/d_PauseButton On@2x.png", ID_GAME_WINDOW_TOOL_BTN_PAUSE, "", "Pause Game", queryDisableDefault, nullptr, [](uint32_t id) {});
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            ret = addToolButton("Editor/icons/d_StepButton On@2x.png", ID_GAME_VIEW_TOOL_BTN_NEXT, "", "Next Frame", queryDisableDefault, nullptr, [](uint32_t id) {});
+            ret = addToolButton("Editor/icons/d_StepButton On@2x.png", ID_GAME_WINDOW_TOOL_BTN_NEXT, "", "Next Frame", queryDisableDefault, nullptr, [](uint32_t id) {});
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
             GameView *gameView = new GameView();
-            ret = gameView->create("GameView", nullptr);
+            ret = gameView->create(ID_GAME_VIEW, "GameView", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view failed ! ERROR [%d]", ret)
@@ -182,7 +177,7 @@ namespace Tiny3D
             }
 
             ImLayout *layout = new ImLayout();
-            ret = layout->create("GameWindowLayout", this);
+            ret = layout->create(ID_GAME_WINDOW_LAYOUT, "GameWindowLayout", this);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window layout failed ! ERROR [%d]", ret)

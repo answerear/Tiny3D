@@ -33,7 +33,7 @@ elseif (TINY3D_OS_LINUX)
 endif (TINY3D_OS_WINDOWS)
 
 
-set(FREEIMAGE_HOME "${TINY3D_FREEIMAGECODEC_SOURCE_DIR}/../../../../../dependencies/freeimage" CACHE PATH "FreeImage library path")
+set(FREEIMAGE_HOME "${TINY3D_FREEIMAGECODEC_SOURCE_DIR}/../../../../dependencies/freeimage" CACHE PATH "FreeImage library path")
 find_package(FreeImage)
 
 # Setup project include files path

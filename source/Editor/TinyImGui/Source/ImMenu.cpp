@@ -25,6 +25,7 @@
 
 #include "ImMenu.h"
 #include "ImErrors.h"
+#include "ImWidgetID.h"
 
 
 namespace Tiny3D
@@ -38,7 +39,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemEnabled::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImMenuItemEnabled::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 2, "Invalid number of arguments in ImMenuItemEnabled::create() !");
         
@@ -46,7 +47,7 @@ namespace Tiny3D
 
         do
         {
-            ret = ImMenuItem::createInternal(name, parent, argc, args);
+            ret = ImMenuItem::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -68,7 +69,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemClickable::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImMenuItemClickable::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 3, "Invalid number of arguments in ImMenuItemClickable::create() !");
         
@@ -76,7 +77,7 @@ namespace Tiny3D
 
         do
         {
-            ret = ImMenuItemEnabled::createInternal(name, parent, argc, args);
+            ret = ImMenuItemEnabled::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -116,21 +117,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemNormal::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemNormal::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(title, parent, 5, &queryEnable, icon, &shortcut, 0, &callback);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, 0, &callback);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemNormal::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemNormal::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(title, parent, 5, &queryEnable, icon, &shortcut, eventID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, eventID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemNormal::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImMenuItemNormal::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 5, "Invalid number of arguments in ImMenuItemNormal::create() !");
 
@@ -138,7 +139,7 @@ namespace Tiny3D
         
         do
         {
-            ret = ImMenuItemClickable::createInternal(name, parent, argc, args);
+            ret = ImMenuItemClickable::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -208,14 +209,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::create(const String &title, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemPopup::create(uint32_t id, const String &title, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(title, parent, 2, &queryEnable, icon);
+        return ImWidget::createInternal(id, title, parent, 2, &queryEnable, icon);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImMenuItemPopup::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 2, "Invalid number of arguments in ImMenuItemPopup::create() !");
 
@@ -223,7 +224,7 @@ namespace Tiny3D
         
         do
         {
-            ret = ImMenuItemEnabled::createInternal(name, parent, argc, args);
+            ret = ImMenuItemEnabled::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -241,14 +242,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon)
+    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon)
     {
         TResult ret = IM_OK;
 
         do
         {
             ImMenuItemNormal *item = new ImMenuItemNormal();
-            ret = item->create(name, shortcut, queryEnable, eventID, this, icon);
+            ret = item->create(id, name, shortcut, queryEnable, eventID, this, icon);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(item);
@@ -262,14 +263,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImTextureID icon)
+    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImTextureID icon)
     {
         TResult ret = IM_OK;
 
         do
         {
             ImMenuItemNormal *item = new ImMenuItemNormal();
-            ret = item->create(name, shortcut, queryEnable, callback, this, icon);
+            ret = item->create(id, name, shortcut, queryEnable, callback, this, icon);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(item);
@@ -283,14 +284,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImTextureID icon)
+    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImTextureID icon)
     {
         TResult ret = IM_OK;
 
         do
         {
             ImMenuItemCheck *item = new ImMenuItemCheck();
-            ret = item->create(name, shortcut, queryEnable, queryCheck, callback, this, icon);
+            ret = item->create(id, name, shortcut, queryEnable, queryCheck, callback, this, icon);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(item);
@@ -304,14 +305,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon)
+    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon)
     {
         TResult ret = IM_OK;
 
         do
         {
             ImMenuItemCheck *item = new ImMenuItemCheck();
-            ret = item->create(name, shortcut, queryEnable, queryCheck, eventID, this, icon);
+            ret = item->create(id, name, shortcut, queryEnable, queryCheck, eventID, this, icon);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(item);
@@ -325,10 +326,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImMenuItemPopup *ImMenuItemPopup::addItem(const String &name, ImTextureID icon)
+    ImMenuItemPopup *ImMenuItemPopup::addItem(uint32_t id, const String &name, ImTextureID icon)
     {
         ImMenuItemPopup *item = new ImMenuItemPopup();
-        TResult ret = item->create(name, nullptr, this, icon);
+        TResult ret = item->create(id, name, nullptr, this, icon);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(item);
@@ -347,7 +348,7 @@ namespace Tiny3D
         do
         {
             ImMenuSeparator *separator = new ImMenuSeparator();
-            ret = separator->create("", this);
+            ret = separator->create(ID_MENU_SEPARATOR, "", this);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(separator);
@@ -426,21 +427,21 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemCheck::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemCheck::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(title, parent, 6, &queryEnable, icon, &shortcut, 0, &callback, &queryCheck);
+        return ImWidget::createInternal(id, title, parent, 6, &queryEnable, icon, &shortcut, 0, &callback, &queryCheck);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemCheck::create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemCheck::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(title, parent, 6, &queryEnable, icon, &shortcut, eventID, nullptr, &queryCheck);
+        return ImWidget::createInternal(id, title, parent, 6, &queryEnable, icon, &shortcut, eventID, nullptr, &queryCheck);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemCheck::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImMenuItemCheck::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 6, "Invalid number of arguments in ImMenuItemCheck::create() !");
 
@@ -448,7 +449,7 @@ namespace Tiny3D
         
         do
         {
-            ret = ImMenuItemClickable::createInternal(name, parent, argc, args);
+            ret = ImMenuItemClickable::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -567,10 +568,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImMenu *ImMenuBar::addMenu(const String &name, ImTextureID icon)
+    ImMenu *ImMenuBar::addMenu(uint32_t id, const String &name, ImTextureID icon)
     {
         ImMenu *menu = new ImMenu();
-        TResult ret = menu->create(name, nullptr, this, icon);
+        TResult ret = menu->create(id, name, nullptr, this, icon);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(menu);

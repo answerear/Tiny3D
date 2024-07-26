@@ -39,12 +39,12 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kDockItem; }
 
-        TResult create(const String &name, ImWidget *parent, ImGuiID dockID);
+        TResult create(uint32_t id, const String &name, ImWidget *parent, ImGuiID dockID);
 
         ImGuiID getDockID() const { return mDockID; }
         
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;

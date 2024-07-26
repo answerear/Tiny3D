@@ -30,6 +30,7 @@
 #include "NetworkManager.h"
 #include "LauncherApp.h"
 #include "LauncherEventDefine.h"
+#include "LauncherWidgetID.h"
 
 
 namespace Tiny3D
@@ -472,13 +473,13 @@ namespace Tiny3D
         PROJECT_MGR.sort(); 
 
         mViewT = new LocalProjectViewT();
-        mViewT->create("##ProjectView_Top", this);
+        mViewT->create(ID_LOCAL_PROJECT_TOP_VIEW, "##ProjectView_Top", this);
 
         mViewBL = new LocalProjectViewBL();
-        mViewBL->create("##ProjectView_BottomLeft", this);
+        mViewBL->create(ID_LOCAL_PROJECT_BL_VIEW, "##ProjectView_BottomLeft", this);
 
         mViewBR = new LocalProjectViewBR();
-        mViewBR->create("##ProjectView_BottomRight", this);
+        mViewBR->create(ID_LOCAL_PROJECT_BR_VIEW, "##ProjectView_BottomRight", this);
         
         return T3D_OK;
     }
@@ -511,7 +512,7 @@ namespace Tiny3D
         if (mNewProjectDlg == nullptr)
         {
             mNewProjectDlg = new NewProjectDialog();
-            mNewProjectDlg->create(CH(TXT_NEW_PROJECT_TITLE), nullptr);
+            mNewProjectDlg->create(ID_DIALOG_NEW_PROJECT, STR(TXT_NEW_PROJECT_TITLE), nullptr);
             mNewProjectDlg->setVisible(false);
         }
 

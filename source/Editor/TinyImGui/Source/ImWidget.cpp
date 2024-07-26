@@ -88,19 +88,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::create(const String &name, ImWidget *parent)
+    TResult ImWidget::create(uint32_t id, const String &name, ImWidget *parent)
     {
-        return createInternal(name, parent, 0);
+        return createInternal(id, name, parent, 0);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::createInternal(const String &name, ImWidget *parent, int32_t argc, ...)
+    TResult ImWidget::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, ...)
     {
         TResult ret = IM_OK;
 
         do
         {
+            mID = id;
             mName = name;
             
             if (parent != nullptr)
@@ -112,7 +113,7 @@ namespace Tiny3D
             
             va_list args;
             va_start(args, argc);
-            ret = createInternal(name, parent, argc, args);
+            ret = createInternal(id, name, parent, argc, args);
             va_end(args);
 
             if (T3D_FAILED(ret))
@@ -130,6 +131,8 @@ namespace Tiny3D
 
         if (T3D_FAILED(ret))
         {
+            mID = 0;
+            mName = "";
             mUUID = UUID::INVALID;
             mParent->removeWidget(this, false);
             mParent = nullptr;
@@ -140,7 +143,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImWidget::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         // TResult ret = IM_OK;
         //

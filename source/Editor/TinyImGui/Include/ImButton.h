@@ -31,6 +31,9 @@
 
 namespace Tiny3D
 {
+    using ButtonClickedCallback = TFunction<void(uint32_t id)>;
+    using ButtonQueryCallback = TFunction<bool(uint32_t id)>;
+    
     class TINYIMGUI_API ImButton : public ImWidget
     {
     public:
@@ -38,7 +41,20 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kButton; }
 
+        // TResult create(uint32_t id, const String &name, uint32_t clickedEvtID, const String &shortcut = "");
+        //
+        // TResult create(uint32_t id, const String &name, const ButtonClickedCallback &clicked, const String &shortcut = "");
+        //
+        // TResult create(uint32_t id, const String &name, const ButtonQueryCallback &enable, uint32_t clickedEvtID, const String &shortcut = "");
+        //
+        // TResult create(uint32_t id, const String &name, const ButtonQueryCallback &enable, const ButtonClickedCallback &clicked, const String &shortcut = "");
+
     protected:
         void onGUI() override;
+    };
+
+    class TINYIMGUI_API ImPushButton : public ImButton
+    {
+        
     };
 }

@@ -38,14 +38,14 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kSplitView; }
 
-        TResult create(const String &name, float sizePct0, ImChildView *child0, float sizePct1, ImChildView *child1, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable = true);
+        TResult create(uint32_t id, const String &name, float sizePct0, ImChildView *child0, float sizePct1, ImChildView *child1, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable = true);
 
         float getSplitterThickness() const { return mSplitterThickness; }
 
         void setSplitterThickness(float thickness) { mSplitterThickness = thickness; }
         
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;

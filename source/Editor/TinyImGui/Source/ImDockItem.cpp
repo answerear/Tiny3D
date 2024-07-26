@@ -39,14 +39,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImDockItem::create(const String &name, ImWidget *parent, ImGuiID dockID)
+    TResult ImDockItem::create(uint32_t id, const String &name, ImWidget *parent, ImGuiID dockID)
     {
-        return ImWidget::createInternal(name, parent, 1, dockID);
+        return ImWidget::createInternal(id, name, parent, 1, dockID);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImDockItem::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImDockItem::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 1, "Invalid number of arguments in ImDockItem::create() !");
 
@@ -54,7 +54,7 @@ namespace Tiny3D
 
         do
         {
-            ret = ImChildView::createInternal(name, parent, argc, args);
+            ret = ImChildView::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;

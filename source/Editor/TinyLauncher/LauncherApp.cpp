@@ -29,6 +29,7 @@
 #include "ProjectManager.h"
 #include "AppSettings.h"
 #include "NetworkManager.h"
+#include "LauncherWidgetID.h"
 
 
 Tiny3D::Launcher::LauncherApp *app = nullptr;
@@ -189,7 +190,7 @@ namespace Tiny3D
 
             // 主窗口
             mMainWindow = new MainWindow();
-            ret = mMainWindow->create("Project Manager Window", nullptr);
+            ret = mMainWindow->create(ID_MAIN_WINDOW, "Project Manager Window", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Create project manager window failed ! ERROR [%d]", ret);
@@ -214,8 +215,9 @@ namespace Tiny3D
             settings.renderSettings.resizable = true;
             settings.renderSettings.title = "Launcher";
             settings.pluginSettings.pluginPath = ".";
-            settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
-            settings.pluginSettings.plugins.emplace_back("D3D11Renderer");
+            settings.pluginSettings.plugins.emplace_back("FileSystemArchiveEditor");
+            settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
+            settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
             
             // 初始化引擎，只有初始化后才能使用
             ret = mEngine->init(argc, argv, true, true, settings);

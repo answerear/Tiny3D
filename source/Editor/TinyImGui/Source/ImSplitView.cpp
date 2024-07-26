@@ -39,14 +39,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImSplitView::create(const String &name, float sizePct1, ImChildView *child1, float sizePct2, ImChildView *child2, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable)
+    TResult ImSplitView::create(uint32_t id, const String &name, float sizePct1, ImChildView *child1, float sizePct2, ImChildView *child2, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable)
     {
-        return ImWidget::createInternal(name, parent, 7, sizePct1, child1, sizePct2, child2, mainIdx, isHorz, resizable);
+        return ImWidget::createInternal(id, name, parent, 7, sizePct1, child1, sizePct2, child2, mainIdx, isHorz, resizable);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImSplitView::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImSplitView::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 7, "Invalid number of arguments in ImSplitView::create() !");
 
@@ -54,7 +54,7 @@ namespace Tiny3D
 
         do
         {
-            ret = ImChildView::createInternal(name, parent, argc, args);
+            ret = ImChildView::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;

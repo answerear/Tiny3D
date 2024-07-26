@@ -27,7 +27,7 @@
 #include "ImErrors.h"
 #include "ImChildView.h"
 #include "ImWindow.h"
-#include "../../TinyLauncher/LauncherPrerequisites.h"
+#include "ImWidgetID.h"
 
 
 namespace Tiny3D
@@ -58,14 +58,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImDialog::create(const String &name, ImWidget *parent, bool hasCloseBtn)
+    TResult ImDialog::create(uint32_t id, const String &name, ImWidget *parent, bool hasCloseBtn)
     {
-        return ImWidget::createInternal(name, parent, 1, hasCloseBtn);
+        return ImWidget::createInternal(id, name, parent, 1, hasCloseBtn);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImDialog::createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    TResult ImDialog::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 1, "Invalid number of arguments in ImDialog::create() !");
 
@@ -73,7 +73,7 @@ namespace Tiny3D
 
         do
         {
-            ret = ImWidget::createInternal(name, parent, argc, args);
+            ret = ImWidget::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -355,7 +355,7 @@ namespace Tiny3D
         if (ImMessageBox::getInstancePtr() == nullptr)
         {
             ImMessageBox *instance = new ImMessageBox();
-            instance->create(title, nullptr, false);
+            instance->create(ID_MESSAGE_BOX, title, nullptr, false);
         }
 
         return ImMessageBox::getInstance().appear(title, message, type, std::move(buttons), txtColor);
@@ -368,7 +368,7 @@ namespace Tiny3D
         if (ImMessageBox::getInstancePtr() == nullptr)
         {
             ImMessageBox *instance = new ImMessageBox();
-            instance->create(title, nullptr, false);
+            instance->create(ID_MESSAGE_BOX, title, nullptr, false);
         }
 
         Buttons buttons;

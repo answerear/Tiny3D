@@ -109,7 +109,7 @@ namespace Tiny3D
     class TINYIMGUI_API ImMenuItemEnabled : public ImMenuItem
     {
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
 
     protected:
         /// 查询 enable 状态
@@ -124,7 +124,7 @@ namespace Tiny3D
     class TINYIMGUI_API ImMenuItemClickable : public ImMenuItemEnabled
     {
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
 
     protected:
         /// 点击事件
@@ -145,12 +145,12 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon = nullptr);
+        TResult create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon = nullptr);
         
-        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
+        TResult create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -167,7 +167,7 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TResult create(const String &title, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon = nullptr);
+        TResult create(uint32_t id, const String &title, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon = nullptr);
 
         /**
          * 添加菜单项
@@ -178,6 +178,7 @@ namespace Tiny3D
 
         /**
          * 添加普通菜單項
+         * @param id
          * @param name 
          * @param shortcut 
          * @param queryEnable 
@@ -185,10 +186,11 @@ namespace Tiny3D
          * @param icon 
          * @return 
          */
-        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImTextureID icon = nullptr);
+        TResult addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImTextureID icon = nullptr);
 
         /**
          * 添加普通菜單項
+         * @param id
          * @param name 
          * @param shortcut 
          * @param queryEnable 
@@ -196,10 +198,11 @@ namespace Tiny3D
          * @param icon 
          * @return 
          */
-        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon = nullptr);
+        TResult addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon = nullptr);
 
         /**
          * 添加两态菜单项
+         * @param id
          * @param name 
          * @param shortcut 
          * @param queryEnable 
@@ -208,10 +211,11 @@ namespace Tiny3D
          * @param icon 
          * @return 
          */
-        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImTextureID icon = nullptr);
+        TResult addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImTextureID icon = nullptr);
 
         /**
          * 添加两态菜单项
+         * @param id
          * @param name 
          * @param shortcut 
          * @param queryEnable 
@@ -220,15 +224,16 @@ namespace Tiny3D
          * @param icon 
          * @return 
          */
-        TResult addItem(const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon = nullptr);
+        TResult addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon = nullptr);
 
         /**
          * 添加二级弹出式菜单项
+         * @param id
          * @param name 
          * @param icon 
          * @return 
          */
-        ImMenuItemPopup *addItem(const String &name, ImTextureID icon = nullptr);
+        ImMenuItemPopup *addItem(uint32_t id, const String &name, ImTextureID icon = nullptr);
 
         TResult addSeparator();
 
@@ -239,7 +244,7 @@ namespace Tiny3D
         TResult insertAfterItem(ImMenuItem *prevItem, ImMenuItem *item);
 
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -256,12 +261,12 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon = nullptr);
+        TResult create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon = nullptr);
 
-        TResult create(const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
+        TResult create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon = nullptr);
         
     protected:
-        TResult createInternal(const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
@@ -301,7 +306,7 @@ namespace Tiny3D
         
         TResult addMenu(ImMenu *menu);
 
-        ImMenu *addMenu(const String &name, ImTextureID icon = nullptr);
+        ImMenu *addMenu(uint32_t id, const String &name, ImTextureID icon = nullptr);
 
     protected:
         bool onGUIBegin() override;

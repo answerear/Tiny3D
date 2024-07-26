@@ -32,6 +32,16 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
+    class AssetHierarchyView : public ImChildView
+    {
+        
+    };
+
+    class AssetThumbView : public ImChildView
+    {
+        
+    };
+
     class ProjectWindow : public DockingWindow
     {
     public:
@@ -39,7 +49,12 @@ namespace Tiny3D
         ~ProjectWindow() override = default;
 
     protected:
+        TResult onCreate() override;
+        
         void onGUI() override;
+
+    protected:
+        ImToolBar   *mToolBar {nullptr};
     };
 
     NS_END
