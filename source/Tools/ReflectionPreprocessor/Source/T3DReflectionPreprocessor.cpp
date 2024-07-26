@@ -76,6 +76,8 @@ namespace  Tiny3D
                 break;
             }
 
+            RP_LOG_INFO("Starting reflection [%s] ...", opts.SourcePath.c_str());
+
             // 设置自动反射类
             StringList whitelist;
             whitelist.push_back("std::vector");
@@ -97,27 +99,39 @@ namespace  Tiny3D
             // 设置工程路径
             mGenerator->setProjectPath(opts.SourcePath);
 
+            RP_LOG_INFO("Parse project header path !");
+
             // 分析头文件包含路径并记录
             mGenerator->parseProjectHeaderPath(args);
+
+            RP_LOG_INFO("Collect project headers !");
 
             // 收集项目头文件信息
             ret = collectProjectHeaders(opts.SourcePath);
             if (T3D_FAILED(ret))
             {
+                RP_LOG_ERROR("Collect project headers failed ! ERROR [%d]", ret);
                 break;
             }
 
             String path = opts.SourcePath + Dir::getNativeSeparator() + mGeneratedPath;
             
+            RP_LOG_INFO("Generating AST [%s] ...", path.c_str());
+
             // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
             ret = generateAST(opts.SourcePath, args, path, opts.IsRebuild);
             if (T3D_FAILED(ret))
             {
+                RP_LOG_ERROR("Generating AST failed ! ERROR [%d]", ret);
                 break;
             }
 
+            RP_LOG_INFO("Generating source files ...");
+
             // 生成源码文件
             ret = generateSource(path, opts.IsRebuild);
+
+            RP_LOG_INFO("Completed reflection [%s] ! ERROR [%d]", opts.SourcePath.c_str(), ret);
         } while (false);
         
         return ret;
@@ -385,7 +399,7 @@ namespace  Tiny3D
                     long_t genLastWTime = Dir::getLastWriteTime(generatedFile);
                     if (rebuild || genLastWTime < srcLastWTime)
                     {
-                        // 反射文件文件不存在，或者反射生成文件比源码文件还旧，则重新生成
+                        // 反射文件不存在，或者反射生成文件比源码文件还旧，则重新生成
                         mGenerator->generateAST(filePath, args);
                     }
                     else

@@ -57,10 +57,10 @@ namespace Tiny3D
         
         typedef TList<String> SettingsPathes;
 
-        SettingsPathes mPathes;
-        ReflectionGenerator *mGenerator;
-        StringList mArgs;
-        String mGeneratedPath;
+        SettingsPathes mPathes {};
+        ReflectionGenerator *mGenerator {nullptr};
+        StringList mArgs {};
+        String mGeneratedPath {};
     };
 }
 

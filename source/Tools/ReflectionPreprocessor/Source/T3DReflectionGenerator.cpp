@@ -1528,6 +1528,7 @@ namespace Tiny3D
                     if (!rval)
                     {
                         // 属性标签也没有，那没有反射
+                        RP_LOG_WARNING("Did not set reflection tags on function or property ! [%s:%u]", path.c_str(), start);
                         break;
                     }
                     
@@ -1555,6 +1556,7 @@ namespace Tiny3D
                         CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrClsSpec, cxParent, structs, path, start, end, column, offset);
                         if (!rval)
                         {
+                            RP_LOG_WARNING("Did not set reflection tags on class or struct ! [%s:%u]", path.c_str(), start);
                             break;
                         }
                     }
@@ -1618,8 +1620,7 @@ namespace Tiny3D
                     {
                         // 父结点不存在
                         ret = T3D_ERR_RP_AST_NO_PARENT;
-                        RP_LOG_ERROR("The parent of class %s is null [%s:%u] !",
-                            className.c_str(), path.c_str(), start);
+                        RP_LOG_ERROR("The parent of class %s is null [%s:%u] !", className.c_str(), path.c_str(), start);
                         break;
                     }
 
@@ -1638,6 +1639,7 @@ namespace Tiny3D
                         CHECK_TAG_RET_FILE_SPEC(rval, itrFile, itrSpec, cxParent, structs, path, start, end, column, offset);
                         if (!rval)
                         {
+                            RP_LOG_WARNING("The struct %s must be setting reflection tags ! [%s:%u]", className.c_str(), path.c_str(), start);
                             break;
                         }
                     }
@@ -1646,11 +1648,13 @@ namespace Tiny3D
                         && !clang_CXXConstructor_isDefaultConstructor(cxCursor))
                     {
                         // 白名单类里面的非默认构造、非拷贝构造、非赋值构造，均不自动反射
+                        RP_LOG_WARNING("The class %s in whitelist and not move constructo and not copy constructor and not default constructor ! [%s:%u]", className.c_str(), path.c_str(), start);
                         break;
                     }
                 }
                 else
                 {
+                    RP_LOG_WARNING("The kind of parent is not class or class template or struct or template partial specialization ! [%s:%u]", path.c_str(), start);
                     break;
                 }
 
@@ -1676,6 +1680,7 @@ namespace Tiny3D
                 && !isFriend)
             {
                 // 私有、保护访问，并且没有开启友元，忽略该反射
+                RP_LOG_WARNING("Private or Proected accessor but not setting friend accessor in reflection !");
                 break;
             }
             
@@ -1963,16 +1968,20 @@ namespace Tiny3D
             }
         } while (false);
 
-        ClientData data = {node, this};
-        clang_visitChildren(cxCursor,
+        if (node != nullptr)
+        {
+            ClientData data = {node, this};
+            clang_visitChildren(
+            cxCursor,
             [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
             {
-                auto *data = static_cast<ClientData*>(cxData);
-                auto *parent = static_cast<ASTFunction*>(data->parent);
+                auto *data = static_cast<ClientData *>(cxData);
+                auto *parent = static_cast<ASTFunction *>(data->parent);
                 return data->generator->visitFunctionChildren(cxCursor, cxParent, parent);
             },
             &data);
-        
+        }
+
         return ret;
     }
 #else
