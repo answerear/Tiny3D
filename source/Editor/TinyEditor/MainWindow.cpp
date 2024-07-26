@@ -247,7 +247,7 @@ namespace Tiny3D
             MENU_SEPARATOR(menu)
             
             // Exit
-            MENU_ITEM_WITH_CB(menu, ID_MENU_ITEM_EXIT, TXT_EXIT, "", queryEnableDefault, [](ImMenuItem*) { static_cast<EditorApp*>(Application::getInstancePtr())->exitApp(); })
+            MENU_ITEM_WITH_CB(menu, ID_MENU_ITEM_EXIT, TXT_EXIT, "", queryEnableDefault, [](ImWidget*) { static_cast<EditorApp*>(Application::getInstancePtr())->exitApp(); })
         } while (false);
         
         return ret;
@@ -812,8 +812,8 @@ namespace Tiny3D
             }
         };
 
-        #define QUERY_CHECK(widget)             [&window=(widget), &queryCheck](ImMenuItem*) { return queryCheck(window); }
-        #define TOGGLE_WINDOW_VISIBLE(widget)   [&window=(widget), &toggleWindowVisible](ImMenuItem*) { toggleWindowVisible(window); }
+        #define QUERY_CHECK(widget)             [&window=(widget), &queryCheck](ImWidget*) { return queryCheck(window); }
+        #define TOGGLE_WINDOW_VISIBLE(widget)   [&window=(widget), &toggleWindowVisible](ImWidget*) { toggleWindowVisible(window); }
 
         TResult ret = T3D_OK;
         
@@ -858,7 +858,7 @@ namespace Tiny3D
                     // Reset All Layouts
                     MENU_ITEM_WITH_CB(popup, ID_MENU_ITEM_RESET_ALL_LAYOUTS, TXT_RESET_ALL_LAYOUTS, "",
                         queryDisableDefault,
-                        [](ImMenuItem*)
+                        [](ImWidget*)
                         {
                             // ImGui::LoadIniSettingsFromMemory(kTinyEditorInitData);
                         })
@@ -969,8 +969,8 @@ namespace Tiny3D
         mMenuBar = new ImMenuBar();
         mMenuBar->create(ID_MAIN_MENU, "Main Menu", this);
 
-        auto queryEnableDefault = [](ImMenuItem*) { return true; };
-        auto queryDisableDefault = [](ImMenuItem*) { return false; };
+        auto queryEnableDefault = [](ImWidget*) { return true; };
+        auto queryDisableDefault = [](ImWidget*) { return false; };
 
         TResult ret = T3D_OK;
 

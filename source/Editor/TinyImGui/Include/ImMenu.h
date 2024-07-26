@@ -73,7 +73,7 @@ namespace Tiny3D
             menubar->addMenu(menu); \
         }
     
-    using EventParamMenuItem = EventParamT1<class ImMenuItem*>;
+    using EventParamMenuItem = EventParamT1<class ImWidget*>;
     
     /**
      * 菜单项基类
@@ -100,8 +100,8 @@ namespace Tiny3D
         virtual Type getType() const = 0;
     };
 
-    using ImMenuItemClickedCallback = TFunction<void(ImMenuItem*)>;
-    using ImMenuItemQueryCallback = TFunction<bool(ImMenuItem*)>;
+    using ImMenuItemClickedCallback = TFunction<void(ImWidget*)>;
+    using ImMenuItemQueryCallback = TFunction<bool(ImWidget*)>;
 
     /**
      * 可启用/禁用菜单项
