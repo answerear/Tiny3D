@@ -73,7 +73,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc == 5, "Invalid number of arguments in ImButton::create() !");
+            T3D_ASSERT(argc >= 5, "Invalid number of arguments in ImButton::create() !");
 
             ImButtonQueryCallback *queryEnabled = va_arg(args, ImButtonQueryCallback*);
             uint32_t clickedEvtID = va_arg(args, uint32_t);
@@ -159,7 +159,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc == 6, "Invalid number of arguments in ImPsuhButton::create() !");
+            T3D_ASSERT(argc >= 6, "Invalid number of arguments in ImPsuhButton::create() !");
 
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -267,7 +267,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc == 6, "Invalid number of arguments in ImImageButton::create() !");
+            T3D_ASSERT(argc >= 6, "Invalid number of arguments in ImImageButton::create() !");
             
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -318,28 +318,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, 0, &clicked, &tips, &shortcut, texID, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, 0, &clicked, &tips, &shortcut, texID, &queryChecked);
     }
@@ -352,7 +352,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc == 7, "Invalid number of arguments in ImPushImageButton::create() !");
+            T3D_ASSERT(argc >= 7, "Invalid number of arguments in ImPushImageButton::create() !");
             
             ret = ImImageButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))

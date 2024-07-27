@@ -209,6 +209,9 @@ namespace Tiny3D
             {
                 widget->mParent = this;
                 mChildren.emplace_back(widget);
+
+                // 回调通知加入子 widget
+                onChildAdded(widget);
             }
         } while (false);
         
@@ -242,6 +245,7 @@ namespace Tiny3D
             {
                 // 插入最前面
                 mChildren.emplace_front(widget);
+                onChildAdded(widget);
             }
             else
             {
@@ -251,6 +255,7 @@ namespace Tiny3D
                     {
                         ++itr;
                         mChildren.emplace(itr, widget);
+                        onChildAdded(widget);
                         break;
                     }
                 }
@@ -287,6 +292,7 @@ namespace Tiny3D
             {
                 // 插入最前面
                 mChildren.emplace_front(widget);
+                onChildAdded(widget);
             }
             else
             {
@@ -296,6 +302,7 @@ namespace Tiny3D
                     {
                         ++itr;
                         mChildren.emplace(itr, widget);
+                        onChildAdded(widget);
                         break;
                     }
                 }
@@ -332,6 +339,7 @@ namespace Tiny3D
             {
                 // 插入最前面
                 mChildren.emplace_front(widget);
+                onChildAdded(widget);
             }
             else
             {
@@ -341,6 +349,7 @@ namespace Tiny3D
                     {
                         ++itr;
                         mChildren.emplace(itr, widget);
+                        onChildAdded(widget);
                         break;
                     }
                 }
@@ -352,11 +361,59 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImWidget::insertAfterWidget(uint32_t prevID, ImWidget *widget)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            if (widget == nullptr)
+            {
+                // 空 widget
+                ret = IM_ERR_INVALID_PARAM;
+                break;
+            }
+
+            if (widget->getParent() != nullptr)
+            {
+                // 已经有父节点，直接报错
+                ret = IM_ERR_INVALID_PARENT;
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                break;
+            }
+
+            if (prevID == T3D_INVALID_ID)
+            {
+                // 插入最前面
+                mChildren.emplace_front(widget);
+                onChildAdded(widget);
+            }
+            else
+            {
+                for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+                {
+                    if ((*itr)->getID() == prevID)
+                    {
+                        ++itr;
+                        mChildren.emplace(itr, widget);
+                        onChildAdded(widget);
+                        break;
+                    }
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ImWidget::removeWidget(Children::iterator itr, bool destroy)
     {
         ImWidget *widget = *itr;
         widget->mParent = nullptr;
         mChildren.erase(itr);
+        onChildRemoved(widget);
         if (destroy)
         {
             widget->destroy();
@@ -409,27 +466,31 @@ namespace Tiny3D
     {
         ImWidget *widget = nullptr;
 
-        for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
-        {
-            if ((*itr)->getName() == name)
+        auto itr = std::find_if(
+            mChildren.begin(),
+            mChildren.end(),
+            [&name](ImWidget *widget)
             {
-                if (msInUpdate)
-                {
-                    // 在遍历调用中，不能直接移除
-                    RemoveWidgetInfo info;
-                    info.itr = itr;
-                    info.destroy = destroy;
-                    msWaitingRemoveWidgets.emplace(this, info);
-                }
-                else
-                {
-                    // 没在遍历调用中，直接移除
-                    removeWidget(itr, destroy);
-                }
-                break;
+                return widget->getName() == name;
+            });
+
+        if (itr != mChildren.end())
+        {
+            widget = *itr;
+            if (msInUpdate)
+            {
+                // 在遍历调用中，不能直接移除
+                RemoveWidgetInfo info;
+                info.itr = itr;
+                info.destroy = destroy;
+                msWaitingRemoveWidgets.emplace(this, info);
+            }
+            else
+            {
+                // 没在遍历调用中，直接移除
+                removeWidget(itr, destroy);
             }
         }
-        
         return widget;
     }
 
@@ -439,24 +500,64 @@ namespace Tiny3D
     {
         ImWidget *widget = nullptr;
 
-        for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
-        {
-            if ((*itr)->getUUID() == uuid)
+        auto itr = std::find_if(
+            mChildren.begin(),
+            mChildren.end(),
+            [&uuid](ImWidget *widget)
             {
-                if (msInUpdate)
-                {
-                    // 在遍历调用中，不能直接移除
-                    RemoveWidgetInfo info;
-                    info.itr = itr;
-                    info.destroy = destroy;
-                    msWaitingRemoveWidgets.emplace(this, info);
-                }
-                else
-                {
-                    // 没在遍历调用中，直接移除
-                    removeWidget(itr, destroy);
-                }
-                break;
+                return widget->getUUID() == uuid;
+            });
+
+        if (itr != mChildren.end())
+        {
+            widget = *itr;
+            if (msInUpdate)
+            {
+                // 在遍历调用中，不能直接移除
+                RemoveWidgetInfo info;
+                info.itr = itr;
+                info.destroy = destroy;
+                msWaitingRemoveWidgets.emplace(this, info);
+            }
+            else
+            {
+                // 没在遍历调用中，直接移除
+                removeWidget(itr, destroy);
+            }
+        }
+        
+        return widget;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::removeWidget(uint32_t id, bool destroy)
+    {
+        ImWidget *widget = nullptr;
+
+        auto itr = std::find_if(
+            mChildren.begin(),
+            mChildren.end(),
+            [id](ImWidget *widget)
+            {
+                return widget->getID() == id;
+            });
+
+        if (itr != mChildren.end())
+        {
+            widget = *itr;
+            if (msInUpdate)
+            {
+                // 在遍历调用中，不能直接移除
+                RemoveWidgetInfo info;
+                info.itr = itr;
+                info.destroy = destroy;
+                msWaitingRemoveWidgets.emplace(this, info);
+            }
+            else
+            {
+                // 没在遍历调用中，直接移除
+                removeWidget(itr, destroy);
             }
         }
         
@@ -546,15 +647,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImWidget *ImWidget::getChild(const String &name) const
+    ImWidget *ImWidget::getWidget(uint32_t id) const
     {
         ImWidget *widget = nullptr;
 
         for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
         {
-            if (name == (*itr)->getName())
+            if (id == (*itr)->getID())
             {
                 widget = *itr;
+                break;
+            }
+
+            widget = widget->getWidget(id);
+            if (widget != nullptr)
+            {
                 break;
             }
         }
@@ -564,20 +671,47 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ImWidget *ImWidget::getChild(const String &name) const
+    {
+        auto itr = std::find_if(
+            mChildren.begin(),
+            mChildren.end(),
+            [&name](ImWidget *widget)
+            {
+                return name == widget->getName();
+            });
+
+        return itr != mChildren.end() ? *itr : nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     ImWidget *ImWidget::getChild(const UUID &uuid) const
     {
-        ImWidget *widget = nullptr;
-
-        for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
-        {
-            if (uuid == (*itr)->getUUID())
+        auto itr = std::find_if(
+            mChildren.begin(),
+            mChildren.end(),
+            [&uuid](ImWidget *widget)
             {
-                widget = *itr;
-                break;
-            }
-        }
-        
-        return widget;
+                return uuid == widget->getUUID();
+            });
+
+        return itr != mChildren.end() ? *itr : nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::getChild(uint32_t id) const
+    {
+        auto itr = std::find_if(
+            mChildren.begin(),
+            mChildren.end(),
+            [id](ImWidget *widget)
+            {
+                return id == widget->getID();
+            });
+
+        return itr != mChildren.end() ? *itr : nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -713,6 +847,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     void ImWidget::onDisable()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::onChildAdded(ImWidget *widget)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::onChildRemoved(ImWidget *widget)
     {
         
     }

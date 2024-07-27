@@ -105,11 +105,15 @@ namespace Tiny3D
 
         TResult insertAfterWidget(ImWidget *prevWidget, ImWidget *widget);
 
+        TResult insertAfterWidget(uint32_t prevID, ImWidget *widget);
+
         TResult removeWidget(ImWidget *widget, bool destroy = true);
 
         ImWidget *removeWidget(const String &name, bool destroy = true);
 
         ImWidget *removeWidget(const UUID &uuid, bool destroy = true);
+
+        ImWidget *removeWidget(uint32_t id, bool destroy = true);
 
         TResult removeAllWidgets();
 
@@ -215,6 +219,10 @@ namespace Tiny3D
 
         virtual void onDisable();
 
+        virtual void onChildAdded(ImWidget *widget);
+
+        virtual void onChildRemoved(ImWidget *widget);
+
         ImWidget *getWidgetRecursively(StringList &names) const;
 
         void PushWidgetID() { ImGui::PushID(this); }
@@ -247,7 +255,7 @@ namespace Tiny3D
         /// UUID
         UUID        mUUID {UUID::INVALID};
         /// User-defined ID
-        uint32_t    mID {0};
+        uint32_t    mID {T3D_INVALID_ID};
         /// Name
         String      mName {};
         /// Parent

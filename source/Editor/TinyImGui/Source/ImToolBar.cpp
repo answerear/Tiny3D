@@ -24,7 +24,7 @@
 
 
 #include "ImToolBar.h"
-
+#include "ImButton.h"
 #include "ImErrors.h"
 
 
@@ -50,63 +50,67 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonClickedCallback &clicked)
+    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &shortcut, const String &tips)
     {
-        mButtons.emplace_back(makeName(id), id, 0, texID, shortcut, tips, query, nullptr, clicked);
-        return IM_OK;
+        ImImageButton *button = new ImImageButton();
+        return button->create(id, texID, queryEnabled, clicked, this, tips, shortcut);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, uint32_t clickedEvtID)
+    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &shortcut, const String &tips)
     {
-        mButtons.emplace_back(makeName(id), id, clickedEvtID, texID, shortcut, tips, query, nullptr, nullptr);
-        return IM_OK;
+        ImImageButton *button = new ImImageButton();
+        return button->create(id, texID, queryEnabled, clickedEvtID, this, tips, shortcut);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked)
+    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &shortcut, const String &tips)
     {
-        mButtons.emplace_back(makeName(id), id, 0, texID, shortcut, tips, query, check, clicked);
-        return IM_OK;
+        ImPushImageButton *button = new ImPushImageButton();
+        return button->create(id, texID, queryEnabled, queryChecked, clicked, this, tips, shortcut);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, uint32_t clickedEvtID)
+    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &shortcut, const String &tips)
     {
-        mButtons.emplace_back(makeName(id), id, clickedEvtID, texID, shortcut, tips, query, check, nullptr);
-        return IM_OK;
+        ImPushImageButton *button = new ImPushImageButton();
+        return button->create(id, texID, queryEnabled, queryChecked, clickedEvtID, this, tips, shortcut);
     }
 
     //--------------------------------------------------------------------------
-
-    TResult ImToolBar::removeButton(uint32_t id)
+    
+    void ImToolBar::update(const ImVec2 &size)
     {
-        TResult ret = IM_OK;
-
-        do
+        if (isVisible() && onGUIBegin())
         {
-            auto itr = std::find_if(
-            mButtons.begin(),
-            mButtons.end(),
-            [id](const ToolButton &button)
-            {
-                return button.id == id;
-            });
+            onGUI();
 
-            if (itr == mButtons.end())
+            auto region = ImGui::GetContentRegionAvail();
+
+            if (mAlignment == Alignment::kMiddle)
             {
-                T3D_LOG_WARNING(LOG_TAG_TINYIMGUI, "Could not found tool button [%u] !", id);
-                ret = T3D_ERR_NOT_FOUND;
-                break;
+                uint32_t count = static_cast<uint32_t>(getChildren().size());
+                float x = (region.x - mChildrenWidth) * 0.5f;
+                ImGui::SetCursorPosX(x);
+            }
+            else if (mAlignment == Alignment::kRight)
+            {
+                uint32_t count = static_cast<uint32_t>(getChildren().size());
+                float x = region.x - mChildrenWidth;
+                ImGui::SetCursorPosX(x);
             }
 
-            mButtons.erase(itr);
-        } while (false);
+            for (auto child : getChildren())
+            {
+                child->update();
+                ImGui::SameLine();
+            }
 
-        return ret;
+            onGUIEnd();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -128,67 +132,6 @@ namespace Tiny3D
 
     void ImToolBar::onGUI()
     {
-        auto region = ImGui::GetContentRegionAvail();
-
-        if (mAlignment == Alignment::kMiddle)
-        {
-            uint32_t count = static_cast<uint32_t>(mButtons.size());
-            float width = count * (mButtonSize.x + ImGui::GetStyle().ItemSpacing.x * 2.0f);
-            float x = (region.x - width) * 0.5f;
-            ImGui::SetCursorPosX(x);
-        }
-        else if (mAlignment == Alignment::kRight)
-        {
-            uint32_t count = static_cast<uint32_t>(mButtons.size());
-            float width = count * (mButtonSize.x + ImGui::GetStyle().ItemSpacing.x * 2.0f);
-            float x = region.x - width;
-            ImGui::SetCursorPosX(x);
-        }
-
-        int32_t i = 0;
-        for (auto button : mButtons)
-        {
-            bool enable = button.query ? button.query(button.id) : false;
-            bool check = button.check ? button.check(button.id) : false;
-            ImGuiStyle &style = ImGui::GetStyle();
-            
-            if (enable && check)
-            {
-                ImVec4 color = style.Colors[ImGuiCol_ButtonActive];
-                ImGui::PushStyleColor(ImGuiCol_Button, color);
-            }
-            
-            ImGui::BeginDisabled(!enable);
-            if (ImGui::ImageButton(button.name.c_str(), button.texID, mButtonSize))
-            {
-                if (button.clicked != nullptr)
-                {
-                    button.clicked(button.id);
-                }
-                else
-                {
-                    EventParamToolButton param(button.id);
-                    sendEvent(button.clickedEvtID, &param);
-                }
-            }
-            ImGui::EndDisabled();
-
-            if (enable && check)
-            {
-                ImGui::PopStyleColor();
-            }
-
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::SetTooltip(button.tips.c_str());
-            }
-
-            i++;
-            if (i != mButtons.size())
-            {
-                ImGui::SameLine();
-            }
-        }
     }
 
     //--------------------------------------------------------------------------
@@ -214,6 +157,34 @@ namespace Tiny3D
         return ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse
         | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize
         | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImToolBar::onChildAdded(ImWidget *widget)
+    {
+        switch (widget->getWidgetType())
+        {
+        case WidgetType::kButton:
+        case WidgetType::kPushButton:
+        case WidgetType::kImageButton:
+        case WidgetType::kPushImageButton:
+            {
+                widget->setSize(mButtonSize);
+            }
+            break;
+        default:
+            break;
+        }
+
+        mChildrenWidth += widget->getSize().x + ImGui::GetStyle().ItemSpacing.x * 2.0f;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImToolBar::onChildRemoved(ImWidget *widget)
+    {
+        mChildrenWidth -= widget->getSize().x + ImGui::GetStyle().ItemSpacing.x * 2.0f;
     }
 
     //--------------------------------------------------------------------------

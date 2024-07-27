@@ -31,11 +31,6 @@
 
 namespace Tiny3D
 {
-    using ButtonClickedCallback = TFunction<void(uint32_t id)>;
-    using ButtonQueryCallback = TFunction<bool(uint32_t id)>;
-
-    using EventParamToolButton = EventParamT1<uint32_t>;
-    
     class TINYIMGUI_API ImToolBar : public ImChildView, public EventHandler
     {
     public:
@@ -56,15 +51,17 @@ namespace Tiny3D
         
         void setAlignment(Alignment alignment) { mAlignment = alignment; }
 
-        TResult addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonClickedCallback &clicked);
+        TResult addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
 
-        TResult addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, uint32_t clickedEvtID);
+        TResult addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut);
 
-        TResult addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked);
+        TResult addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
         
-        TResult addButton(uint32_t id, ImTextureID texID, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, uint32_t clickedEvtID);
+        TResult addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut);
 
-        TResult removeButton(uint32_t id);
+        // TResult removeButton(uint32_t id);
+
+        void update(const ImVec2 &size) override;
         
     protected:
         TResult onCreate() override;
@@ -74,54 +71,19 @@ namespace Tiny3D
 
         ImGuiChildFlags onGetChildFlags() override;
         ImGuiWindowFlags onGetWindowFlags() override;
+
+        void onChildAdded(ImWidget *widget) override;
+
+        void onChildRemoved(ImWidget *widget) override;
         
         String makeName(uint32_t id);
         
     protected:
-        struct ToolButton
-        {
-            ToolButton() = default;
-            
-            ToolButton(const String &_name, uint32_t _id, uint32_t _clickedEvtID, ImTextureID _texID, const String &_shortcut, const String &_tips, const ButtonQueryCallback &_query, const ButtonQueryCallback &_check, const ButtonClickedCallback &_clicked)
-                : id(_id)
-                , clickedEvtID(_clickedEvtID)
-                , texID(_texID)
-                , name(_name)
-                , shortcut(_shortcut)
-                , tips(_tips)
-                , query(_query)
-                , check(_check)
-                , clicked(_clicked)
-            {
-            }
-            
-            /// 用户赋值的 ID
-            uint32_t    id {0xFFFFFFFF};
-            /// 点击事件 ID
-            uint32_t    clickedEvtID {0};
-            /// 纹理对象
-            ImTextureID texID {nullptr};
-            /// 名字
-            String      name {};
-            /// 快捷键
-            String      shortcut {};
-            /// 提示语
-            String      tips {};
-            /// 查询可用状态的 Lambda
-            ButtonQueryCallback query {nullptr};
-            /// 查询选中状态的 Lambda
-            ButtonQueryCallback check {nullptr};
-            /// 点击的 Lambda
-            ButtonClickedCallback clicked{nullptr};
-        };
-
-        using ToolButtons = TList<ToolButton>;
-
-        /// 所有按钮
-        ToolButtons mButtons {};
         /// 按钮大小
         ImVec2  mButtonSize {20, 20};
-        /// toolbar 上下 space
+        /// 所有子 widget 的宽度，包括 Item space 
+        float   mChildrenWidth {0.0f};
+        /// toolbar 上下左右 space
         float   mHorzSpacing {5.0f};
         /// 按钮对齐方式
         Alignment mAlignment {Alignment::kLeft};

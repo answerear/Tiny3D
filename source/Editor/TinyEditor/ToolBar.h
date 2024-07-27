@@ -25,41 +25,30 @@
 #pragma once
 
 
-#include "DockingWindow.h"
+#include "EditorPrerequisites.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class ToolBar;
-
-    class GameView : public ImChildView
+    class ToolBar : public ImToolBar
     {
     public:
+        ToolBar() = default;
+        ~ToolBar() override = default;
 
-    protected:
-        void onGUI() override;
-    };
-    
-    class GameWindow : public DockingWindow
-    {
-    public:
-        GameWindow() = default;
-        ~GameWindow() override = default;
+        TResult addImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
 
-    protected:
-        ImGuiWindowFlags flags() const override;
+        TResult addImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut);
 
-        TResult onCreate() override;
+        TResult addPushImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
         
-        void onGUI() override;
-
-        // TResult addToolButton(const String &name, uint32_t id, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked);
+        TResult addPushImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut);
 
     protected:
-        ToolBar   *mToolBar {nullptr};
+        ImTextureID loadTexture(const String &imageName);
     };
-    
+
     NS_END
 }

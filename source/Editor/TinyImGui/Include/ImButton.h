@@ -31,11 +31,6 @@
 
 namespace Tiny3D
 {
-    using ImButtonClickedCallback = TFunction<void(ImWidget*)>;
-    using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
-
-    using EventParamButtonClicked = EventParamT1<ImWidget*>;
-
     /**
      * 普通按钮
      */
@@ -140,13 +135,13 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kPushImageButton; }
 
-        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult create(uint32_t id, ImTextureID texID, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
         bool isPushed() const { return mQueryChecked ? mQueryChecked(this) : false; }
         

@@ -49,4 +49,29 @@ namespace Tiny3D
     #define IMGUI_LOG_WARNING(fmt, ...) T3D_LOG_WARNING(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
     #define IMGUI_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
     #define IMGUI_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_TINYIMGUI, fmt, ##__VA_ARGS__)
+
+    class ImWidget;
+    class ImWindow;
+    class ImChildView;
+    class ImSplitView;
+    class ImDialog;
+    class ImOpenFileDialog;
+    class ImLayout;
+    class ImMenuBar;
+    class ImMenuItemEnabled;
+    class ImMenuItemCheck;
+    class ImMenuItemNormal;
+    class ImToolBar;
+    class ImTabBar;
+    class ImTabItem;
+    class ImButton;
+    class ImPushButton;
+    class ImImageButton;
+    class ImPushImageButton;
+    
+    
+    using ImButtonClickedCallback = TFunction<void(ImWidget*)>;
+    using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
+
+    using EventParamButtonClicked = EventParamT1<ImWidget*>;
 }
