@@ -53,13 +53,19 @@ namespace Tiny3D
 
         TResult addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
 
+        TResult addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
+        
         TResult addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut);
+
+        TResult addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut);
 
         TResult addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
         
+        TResult addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
+        
         TResult addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut);
-
-        // TResult removeButton(uint32_t id);
+        
+        TResult addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut);
 
         void update(const ImVec2 &size) override;
         

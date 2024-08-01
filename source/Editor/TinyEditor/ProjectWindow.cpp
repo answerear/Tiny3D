@@ -25,11 +25,49 @@
 
 #include "ProjectWindow.h"
 #include "EditorWidgetID.h"
+#include "ImErrors.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
+
+    //--------------------------------------------------------------------------
+
+    TResult AssetHierarchyView::onCreate()
+    {
+        ImTreeWidget *tree = new ImTreeWidget();
+        // TResult ret = tree->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "AssetHierarchy", this);
+        return IM_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetHierarchyView::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImGuiChildFlags AssetHierarchyView::onGetChildFlags()
+    {
+        return ImGuiChildFlags_Border;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetThumbView::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImGuiChildFlags AssetThumbView::onGetChildFlags()
+    {
+        return ImGuiChildFlags_Border;
+    }
 
     //--------------------------------------------------------------------------
 
@@ -39,15 +77,26 @@ namespace Tiny3D
 
         do
         {
-            mToolBar = new ImToolBar();
-            ret = mToolBar->create(ID_PROJECT_WINDOW_TOOLBAR, "ProjectToolBar", this);
+            AssetHierarchyView *leftView = new AssetHierarchyView();
+            ret = leftView->create(ID_PROJECT_ASSET_HIERARCHY_VIEW, "ProjectHierarchyView", nullptr);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create project tool bar failed !")
                 break;
             }
-
             
+            AssetThumbView *rightView = new AssetThumbView();
+            ret = rightView->create(ID_PROJECT_ASSET_THUMB_VIEW, "ProjectThumbView", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            mSplitView = new ImSplitView();
+            ret = mSplitView->create(ID_PROJECT_WINDOW_SPLIT_VIEW, "ProjectSplitView", 0.3f, leftView, 0.7f, rightView, 0, true, this);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
         
         return ret;

@@ -112,8 +112,9 @@ namespace Tiny3D
         EditorScene *mEditorScene {nullptr};
 
         StartOptions mOptions {};
-        
-        MainWindow        *mMainWindow {nullptr};
+
+        ImTextureManager    *mTextureMgr {nullptr};
+        MainWindow          *mMainWindow {nullptr};
 
         bool mExitApp {false};
     };

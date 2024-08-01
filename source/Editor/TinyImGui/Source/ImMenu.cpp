@@ -237,7 +237,7 @@ namespace Tiny3D
 
     TResult ImMenuItemPopup::addItem(ImMenuItem *item)
     {
-        return addWidget(item); 
+        return addChild(item); 
     }
 
     //--------------------------------------------------------------------------
@@ -364,21 +364,21 @@ namespace Tiny3D
 
     TResult ImMenuItemPopup::insertAfterItem(const String &prevName, ImMenuItem *item)
     {
-        return insertAfterWidget(prevName, item);
+        return insertAfterChild(prevName, item);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImMenuItemPopup::insertAfterItem(const UUID &prevUUID, ImMenuItem *item)
     {
-        return insertAfterWidget(prevUUID, item);
+        return insertAfterChild(prevUUID, item);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImMenuItemPopup::insertAfterItem(ImMenuItem *prevItem, ImMenuItem *item)
     {
-        return insertAfterWidget(prevItem, item);
+        return insertAfterChild(prevItem, item);
     }
 
     //--------------------------------------------------------------------------
@@ -563,7 +563,7 @@ namespace Tiny3D
 
     TResult ImMenuBar::addMenu(ImMenu *menu)
     {
-        return addWidget(menu);
+        return addChild(menu);
     }
 
     //--------------------------------------------------------------------------

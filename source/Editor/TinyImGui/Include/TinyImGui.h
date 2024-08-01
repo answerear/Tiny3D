@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <ImTextureManager.h>
 #include <ImWidget.h>
 #include <ImWindow.h>
 #include <ImMenu.h>
@@ -39,3 +40,5 @@
 #include <ImSplitView.h>
 #include <ImLayout.h>
 #include <ImButton.h>
+#include <ImTreeWidget.h>
+#include <ImListWidget.h>

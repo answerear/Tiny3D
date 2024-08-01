@@ -41,7 +41,7 @@ namespace Tiny3D
 
     TResult ImSplitView::create(uint32_t id, const String &name, float sizePct1, ImChildView *child1, float sizePct2, ImChildView *child2, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable)
     {
-        return ImWidget::createInternal(id, name, parent, 7, sizePct1, child1, sizePct2, child2, mainIdx, isHorz, resizable);
+        return ImWidget::createInternal(id, name, parent, 7, &sizePct1, child1, &sizePct2, child2, mainIdx, isHorz, resizable);
     }
 
     //--------------------------------------------------------------------------
@@ -60,9 +60,11 @@ namespace Tiny3D
                 break;
             }
             
-            mSizePct0 = va_arg(args, float);
+            float *pct = va_arg(args, float*);
+            mSizePct0 = *pct;
             ImWidget *child0 = va_arg(args, ImWidget*);
-            mSizePct1 = va_arg(args, float);
+            pct = va_arg(args, float*);
+            mSizePct1 = *pct;
             ImWidget *child1 = va_arg(args, ImWidget*);
             int32_t mainIdx = va_arg(args, int32_t);
             mIsHorz = va_arg(args, bool);
@@ -79,8 +81,17 @@ namespace Tiny3D
                 mOtherChild = child0;
             }
             
-            addWidget(child0);
-            addWidget(child1);
+            ret = addChild(child0);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            ret = addChild(child1);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
 
         return ret;
@@ -131,12 +142,10 @@ namespace Tiny3D
         float width = ImGui::GetContentRegionAvail().x;
         float height = ImGui::GetContentRegionAvail().y;
 
-        static bool isFirst = true;
-
-        if (isFirst || !mResizable)
+        if (mIsFirst || !mResizable)
         {
             initChildrenSize();
-            isFirst = false;
+            mIsFirst = false;
         }
 
         bool isAllChildrenVisible = child0->isVisible() && child1->isVisible();

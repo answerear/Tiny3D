@@ -26,46 +26,60 @@
 #pragma once
 
 
-#include "ImChildView.h"
+#include "ImWidget.h"
 
 
 namespace Tiny3D
 {
-    class TINYIMGUI_API ImSplitView : public ImChildView
+    class TINYIMGUI_API ImTreeNode : public ImWidget
     {
     public:
-        ~ImSplitView() override;
+        ~ImTreeNode() override;
 
-        WidgetType getWidgetType() const override { return WidgetType::kSplitView; }
+        WidgetType getWidgetType() const override { return WidgetType::kTreeNode; }
 
-        TResult create(uint32_t id, const String &name, float sizePct0, ImChildView *child0, float sizePct1, ImChildView *child1, int32_t mainIdx, bool isHorz, ImWidget *parent, bool resizable = true);
+        TResult create(uint32_t id, ImTextureID texID, const String &title, ImTreeNode *parent);
 
-        float getSplitterThickness() const { return mSplitterThickness; }
-
-        void setSplitterThickness(float thickness) { mSplitterThickness = thickness; }
+        TResult addNode(ImTreeNode *node);
         
     protected:
-        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
 
-        void update() override;
+    private:
+        TResult addWidget(const String &parentName, ImWidget *widget) override;
 
-        bool splitter(bool splitVert, float thickness, float *size0, float *size1, float minSize0, float minSize1, float splitterLongAxisSize = -1.0f);
+        TResult addWidget(const UUID &parentUUID, ImWidget *widget) override;
 
-        void initChildrenSize();
+        TResult addWidget(uint32_t parentID, ImWidget *widget) override;
+        
+        TResult addChild(ImWidget *widget) override;
+
+        TResult insertAfterChild(const String &prevName, ImWidget *widget) override;
+
+        TResult insertAfterChild(const UUID &prevUUID, ImWidget *widget) override;
+
+        TResult insertAfterChild(ImWidget *prevWidget, ImWidget *widget) override;
+
+        TResult insertAfterChild(uint32_t prevID, ImWidget *widget) override;
+
+    protected:
+        ImTextureID mIconID {nullptr};
+    };
+
+    class TINYIMGUI_API ImTreeWidget : public ImTreeNode
+    {
+    public:
+        ~ImTreeWidget() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kTreeWidget; }
         
     protected:
-        float mSplitterThickness {4.0f};
-        float mSizePct0 {0.5f};
-        float mSizePct1 {0.5f};
-        bool mResizable {true};
-        bool mIsHorz {true};
-        bool mIsFirst {true};
-        
-        ImWidget *mMainChild {nullptr};
-        ImWidget *mOtherChild {nullptr};
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
     };
 }

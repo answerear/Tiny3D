@@ -26,6 +26,7 @@
 #include "ImToolBar.h"
 #include "ImButton.h"
 #include "ImErrors.h"
+#include "ImTextureManager.h"
 
 
 namespace Tiny3D
@@ -50,7 +51,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &shortcut, const String &tips)
+    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
         return button->create(id, texID, queryEnabled, clicked, this, tips, shortcut);
@@ -58,7 +59,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &shortcut, const String &tips)
+    TResult ImToolBar::addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
+    {
+        ImTextureID texID = IM_TEXTURE_MGR.loadTexture(imageName);
+        return addImageButton(id, texID, queryEnabled, clicked, tips, shortcut);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
         return button->create(id, texID, queryEnabled, clickedEvtID, this, tips, shortcut);
@@ -66,7 +75,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &shortcut, const String &tips)
+    TResult ImToolBar::addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut)
+    {
+        ImTextureID texID = IM_TEXTURE_MGR.loadTexture(imageName);
+        return addImageButton(id, texID, queryEnabled, clickedEvtID, tips, shortcut);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
         return button->create(id, texID, queryEnabled, queryChecked, clicked, this, tips, shortcut);
@@ -74,10 +91,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &shortcut, const String &tips)
+    TResult ImToolBar::addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
+    {
+        ImTextureID texID = IM_TEXTURE_MGR.loadTexture(imageName);
+        return addPushImageButton(id, texID, queryEnabled, queryChecked, clicked, tips, shortcut);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
         return button->create(id, texID, queryEnabled, queryChecked, clickedEvtID, this, tips, shortcut);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImToolBar::addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut)
+    {
+        ImTextureID texID = IM_TEXTURE_MGR.loadTexture(imageName);
+        return addPushImageButton(id, texID, queryEnabled, queryChecked, clickedEvtID, tips, shortcut);
     }
 
     //--------------------------------------------------------------------------

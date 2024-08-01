@@ -22,33 +22,25 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
 
-
-#include "EditorPrerequisites.h"
+#include "ImListWidget.h"
 
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
+    //--------------------------------------------------------------------------
 
-    class ToolBar : public ImToolBar
+    ImListItem::~ImListItem()
     {
-    public:
-        ToolBar() = default;
-        ~ToolBar() override = default;
-
-        TResult addImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
-
-        TResult addImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut);
-
-        TResult addPushImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut);
         
-        TResult addPushImageButton(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut);
+    }
 
-    protected:
-        ImTextureID loadTexture(const String &imageName);
-    };
+    //--------------------------------------------------------------------------
 
-    NS_END
+    ImListWidget::~ImListWidget()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
 }

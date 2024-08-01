@@ -55,10 +55,13 @@ namespace Tiny3D
         
         void onGUI() override;
 
-        // TResult addToolButton(const String &name, uint32_t id, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked);
+        TResult createToolBar();
+
+        TResult createGameView();
 
     protected:
-        ToolBar   *mToolBar {nullptr};
+        ImToolBar   *mToolBar {nullptr};
+        GameView    *mGameView {nullptr};
     };
     
     NS_END

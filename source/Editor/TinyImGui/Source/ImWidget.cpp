@@ -44,7 +44,7 @@ namespace Tiny3D
         // 移除子节点
         for (auto item : msWaitingRemoveWidgets)
         {
-            item.first->removeWidget(item.second.itr, item.second.destroy);
+            item.first->removeChild(item.second.itr, item.second.destroy);
         }
 
         msWaitingRemoveWidgets.clear();
@@ -55,7 +55,7 @@ namespace Tiny3D
             widget->onDestroy();
             if (widget->getParent() != nullptr)
             {
-                widget->getParent()->removeWidget(widget);
+                widget->getParent()->removeChild(widget);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Tiny3D
             
             if (parent != nullptr)
             {
-                parent->addWidget(this);
+                parent->addChild(this);
             }
 
             mUUID = UUID::generate();
@@ -134,7 +134,7 @@ namespace Tiny3D
             mID = 0;
             mName = "";
             mUUID = UUID::INVALID;
-            mParent->removeWidget(this, false);
+            mParent->removeChild(this, false);
             mParent = nullptr;
         }
         
@@ -151,7 +151,7 @@ namespace Tiny3D
         //
         // if (parent != nullptr)
         // {
-        //     ret = parent->addWidget(this);
+        //     ret = parent->addChild(this);
         // }
         //
         // return ret;
@@ -186,7 +186,249 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::addWidget(ImWidget *widget)
+    TResult ImWidget::addWidget(const String &parentName, ImWidget *widget)
+    {
+        TResult ret = T3D_ERR_NOT_FOUND;
+
+        do
+        {
+            if (parentName == getName())
+            {
+                ret = addChild(widget);
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                ret = child->addWidget(parentName, widget);
+                if (T3D_SUCCEEDED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::addWidget(const UUID &parentUUID, ImWidget *widget)
+    {
+        TResult ret = T3D_ERR_NOT_FOUND;
+
+        do
+        {
+            if (parentUUID == getUUID())
+            {
+                ret = addChild(widget);
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                ret = child->addWidget(parentUUID, widget);
+                if (T3D_SUCCEEDED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::addWidget(uint32_t parentID, ImWidget *widget)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            if (parentID == getID())
+            {
+                ret = addChild(widget);
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                ret = child->addWidget(parentID, widget);
+                if (T3D_SUCCEEDED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::removeWidget(ImWidget *widget, bool destroy)
+    {
+        TResult ret = IM_OK;
+
+        do
+        {
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                if (widget == child)
+                {
+                    ret = removeChild(child, destroy);
+                    break;
+                }
+            }
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                ret = child->removeWidget(widget, destroy);
+                if (T3D_SUCCEEDED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::removeWidget(const String &name, bool destroy)
+    {
+        ImWidget *widget = nullptr;
+
+        do
+        {
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                if (name == child->getName())
+                {
+                    if (T3D_SUCCEEDED(removeChild(child, destroy)))
+                    {
+                        widget = child;
+                        break;
+                    }
+                }
+            }
+
+            if (widget != nullptr)
+            {
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                widget = child->removeWidget(name, destroy);
+                if (widget != nullptr)
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return widget;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::removeWidget(const UUID &uuid, bool destroy)
+    {
+        ImWidget *widget = nullptr;
+
+        do
+        {
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                if (uuid == child->getUUID())
+                {
+                    if (T3D_SUCCEEDED(removeChild(child, destroy)))
+                    {
+                        widget = child;
+                        break;
+                    }
+                }
+            }
+
+            if (widget != nullptr)
+            {
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                widget = child->removeWidget(uuid, destroy);
+                if (widget != nullptr)
+                {
+                    break;
+                }
+            }
+        } while (false);
+
+        return widget;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::removeWidget(uint32_t id, bool destroy)
+    {
+        ImWidget *widget = nullptr;
+
+        do
+        {
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                if (id == child->getID())
+                {
+                    if (T3D_SUCCEEDED(removeChild(child, destroy)))
+                    {
+                        widget = child;
+                        break;
+                    }
+                }
+            }
+
+            if (widget != nullptr)
+            {
+                break;
+            }
+
+            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+            {
+                auto child = *itr;
+                widget = child->removeWidget(id, destroy);
+                if (widget != nullptr)
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return widget;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImWidget::addChild(ImWidget *widget)
     {
         TResult ret = IM_OK;
 
@@ -201,7 +443,7 @@ namespace Tiny3D
             if (widget->getParent() != nullptr)
             {
                 ret = IM_ERR_INVALID_PARENT;
-                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when addWidget !", widget->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when addChild !", widget->getName().c_str());
                 break;
             }
 
@@ -220,7 +462,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::insertAfterWidget(const String &prevName, ImWidget *widget)
+    TResult ImWidget::insertAfterChild(const String &prevName, ImWidget *widget)
     {
         TResult ret = IM_OK;
 
@@ -237,7 +479,7 @@ namespace Tiny3D
             {
                 // 已经有父节点，直接报错
                 ret = IM_ERR_INVALID_PARENT;
-                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterChild !", widget->getName().c_str());
                 break;
             }
 
@@ -267,7 +509,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::insertAfterWidget(const UUID &prevUUID, ImWidget *widget)
+    TResult ImWidget::insertAfterChild(const UUID &prevUUID, ImWidget *widget)
     {
         TResult ret = IM_OK;
 
@@ -284,7 +526,7 @@ namespace Tiny3D
             {
                 // 已经有父节点，直接报错
                 ret = IM_ERR_INVALID_PARENT;
-                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterChild !", widget->getName().c_str());
                 break;
             }
 
@@ -314,7 +556,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::insertAfterWidget(ImWidget *prevWidget, ImWidget *widget)
+    TResult ImWidget::insertAfterChild(ImWidget *prevWidget, ImWidget *widget)
     {
         TResult ret = IM_OK;
 
@@ -331,7 +573,7 @@ namespace Tiny3D
             {
                 // 已经有父节点，直接报错
                 ret = IM_ERR_INVALID_PARENT;
-                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterChild !", widget->getName().c_str());
                 break;
             }
 
@@ -361,7 +603,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::insertAfterWidget(uint32_t prevID, ImWidget *widget)
+    TResult ImWidget::insertAfterChild(uint32_t prevID, ImWidget *widget)
     {
         TResult ret = IM_OK;
 
@@ -378,7 +620,7 @@ namespace Tiny3D
             {
                 // 已经有父节点，直接报错
                 ret = IM_ERR_INVALID_PARENT;
-                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterWidget !", widget->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The parent of widget [%s] is not nullptr when insertAfterChild !", widget->getName().c_str());
                 break;
             }
 
@@ -408,7 +650,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ImWidget::removeWidget(Children::iterator itr, bool destroy)
+    void ImWidget::removeChild(Children::iterator itr, bool destroy)
     {
         ImWidget *widget = *itr;
         widget->mParent = nullptr;
@@ -422,7 +664,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::removeWidget(ImWidget *widget, bool destroy)
+    TResult ImWidget::removeChild(ImWidget *widget, bool destroy)
     {
         TResult ret = IM_OK;
 
@@ -434,25 +676,29 @@ namespace Tiny3D
                 break;
             }
 
-            for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
-            {
-                if (*itr == widget)
+            auto itr = std::find_if(
+                mChildren.begin(),
+                mChildren.end(),
+                [widget](ImWidget *w)
                 {
-                    if (msInUpdate)
-                    {
-                        // 在遍历调用中，不能直接移除
-                        RemoveWidgetInfo info;
-                        info.itr = itr;
-                        info.destroy = destroy;
-                        msWaitingRemoveWidgets.emplace(this, info);
-                    }
-                    else
-                    {
-                        // 没在遍历调用中，直接移除
-                        removeWidget(itr, destroy);
-                    }
-                    
-                    break;
+                    return widget == w;
+                });
+
+            if (itr != mChildren.end())
+            {
+                widget = *itr;
+                if (msInUpdate)
+                {
+                    // 在遍历调用中，不能直接移除
+                    RemoveWidgetInfo info;
+                    info.itr = itr;
+                    info.destroy = destroy;
+                    msWaitingRemoveWidgets.emplace(this, info);
+                }
+                else
+                {
+                    // 没在遍历调用中，直接移除
+                    removeChild(itr, destroy);
                 }
             }
         } while (false);
@@ -462,7 +708,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImWidget *ImWidget::removeWidget(const String &name, bool destroy)
+    ImWidget *ImWidget::removeChild(const String &name, bool destroy)
     {
         ImWidget *widget = nullptr;
 
@@ -488,7 +734,7 @@ namespace Tiny3D
             else
             {
                 // 没在遍历调用中，直接移除
-                removeWidget(itr, destroy);
+                removeChild(itr, destroy);
             }
         }
         return widget;
@@ -496,7 +742,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImWidget *ImWidget::removeWidget(const UUID &uuid, bool destroy)
+    ImWidget *ImWidget::removeChild(const UUID &uuid, bool destroy)
     {
         ImWidget *widget = nullptr;
 
@@ -522,7 +768,7 @@ namespace Tiny3D
             else
             {
                 // 没在遍历调用中，直接移除
-                removeWidget(itr, destroy);
+                removeChild(itr, destroy);
             }
         }
         
@@ -531,7 +777,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImWidget *ImWidget::removeWidget(uint32_t id, bool destroy)
+    ImWidget *ImWidget::removeChild(uint32_t id, bool destroy)
     {
         ImWidget *widget = nullptr;
 
@@ -557,7 +803,7 @@ namespace Tiny3D
             else
             {
                 // 没在遍历调用中，直接移除
-                removeWidget(itr, destroy);
+                removeChild(itr, destroy);
             }
         }
         
@@ -566,7 +812,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImWidget::removeAllWidgets()
+    TResult ImWidget::removeAllChildren()
     {
         for (auto itr = mChildren.begin(); itr != mChildren.end(); ++itr)
         {

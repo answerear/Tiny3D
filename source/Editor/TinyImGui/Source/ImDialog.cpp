@@ -149,7 +149,7 @@ namespace Tiny3D
         mWillAppear = true;
         
         T3D_ASSERT(parent != nullptr, "DoShow in dialog, parent must not be nullptr !");
-        parent->addWidget(this);
+        parent->addChild(this);
         setVisible(true);
 
         onShow();

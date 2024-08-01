@@ -23,19 +23,23 @@
  ******************************************************************************/
 
 
-#include "ImCommon.h"
+#pragma once
+
+
+#include "ImWidget.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    String getDockWindowName(const String &name, ImGuiID dockID)
+    class TINYIMGUI_API ImListItem : public ImWidget
     {
-        char buf[16] = {0};
-        ImFormatString(buf, sizeof(buf), "##%08X", dockID);
-        return name + buf;
-    }
+    public:
+        ~ImListItem() override;
+    };
 
-    //--------------------------------------------------------------------------
+    class TINYIMGUI_API ImListWidget : public ImWidget
+    {
+    public:
+        ~ImListWidget() override;
+    };
 }

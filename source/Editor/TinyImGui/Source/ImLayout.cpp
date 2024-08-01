@@ -45,7 +45,7 @@ namespace Tiny3D
 
     TResult ImLayout::addWidgets(const Items &items, bool relative)
     {
-        TResult ret = removeAllWidgets();
+        TResult ret = removeAllChildren();
         if (T3D_FAILED(ret))
         {
             return ret;
@@ -57,7 +57,7 @@ namespace Tiny3D
         {
             if (item.childView != NEWLINE)
             {
-                addWidget(item.childView);
+                addChild(item.childView);
                 onlyNewLine = false;
             }
         }

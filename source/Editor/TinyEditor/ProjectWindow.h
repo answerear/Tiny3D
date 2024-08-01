@@ -34,12 +34,20 @@ namespace Tiny3D
 
     class AssetHierarchyView : public ImChildView
     {
+    protected:
+        TResult onCreate() override;
         
+        void onGUI() override;
+
+        ImGuiChildFlags onGetChildFlags() override;
     };
 
     class AssetThumbView : public ImChildView
     {
+    protected:
+        void onGUI() override;
         
+        ImGuiChildFlags onGetChildFlags() override;
     };
 
     class ProjectWindow : public DockingWindow
@@ -54,7 +62,7 @@ namespace Tiny3D
         void onGUI() override;
 
     protected:
-        ImToolBar   *mToolBar {nullptr};
+        ImSplitView *mSplitView {nullptr};
     };
 
     NS_END

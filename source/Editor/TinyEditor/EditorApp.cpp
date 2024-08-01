@@ -192,6 +192,9 @@ namespace Tiny3D
                 break;
             }
 
+            // TinyImGui 单例初始化
+            mTextureMgr = new ImTextureManager();
+
             // 编辑器场景
             mEditorScene = new EditorScene();
             mEditorScene->build();
@@ -354,6 +357,10 @@ namespace Tiny3D
         }
             
         ImWidget::GC();
+
+        mTextureMgr->unloadAllTextures();
+
+        T3D_SAFE_DELETE(mTextureMgr);
 
         // 删除清理 imgui 环境，此后无法再使用 imgui
         destroyImGuiEnv();

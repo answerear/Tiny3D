@@ -25,8 +25,8 @@
 
 #include "GameWindow.h"
 #include "EditorScene.h"
-#include "ToolBar.h"
 #include "EditorWidgetID.h"
+#include "ImErrors.h"
 
 
 namespace Tiny3D
@@ -106,39 +106,14 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    // TResult GameWindow::addToolButton(const String &name, uint32_t id, const String &shortcut, const String &tips, const ButtonQueryCallback &query, const ButtonQueryCallback &check, const ButtonClickedCallback &clicked)
-    // {
-    //     TResult ret = T3D_OK;
-    //
-    //     do
-    //     {
-    //         ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
-    //         T3D_ASSERT(archive != nullptr, "Archive must be not nullptr !");
-    //         ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
-    //         T3D_ASSERT(image != nullptr, "Load image failed !");
-    //         Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image);
-    //         ImTextureID texID = texture->getPixelBuffer()->getRHIResource()->getNativeObject();
-    //         ret = mToolBar->addButton(id, texID, shortcut, tips, query, check, clicked);
-    //         if (T3D_FAILED(ret))
-    //         {
-    //             T3D_LOG_ERROR(LOG_TAG_EDITOR, "Add toolbar button %s failed ! ERROR [%d]", name.c_str(), ret)
-    //             break;
-    //         }
-    //     } while (false);
-    //
-    //     return ret;
-    // }
-
-    //--------------------------------------------------------------------------
-
-    TResult GameWindow::onCreate()
+    
+    TResult GameWindow::createToolBar()
     {
-        TResult ret = ImWidget::onCreate();
+        TResult ret = T3D_OK;
 
         do
         {
-            mToolBar = new ToolBar();
+            mToolBar = new ImToolBar();
             ret = mToolBar->create(ID_GAME_WINDOW_TOOLBAR, "GameToolBar", nullptr);
             if (T3D_FAILED(ret))
             {
@@ -152,35 +127,73 @@ namespace Tiny3D
             auto queryDisableDefault = [](const ImWidget *widget) { return false; };
             auto clickedDefault = [](ImWidget *widget) {};
 
-            // ret = addToolButton("Editor/icons/d_PlayButton On@2x.png", ID_GAME_WIDNOW_TOOL_BTN_PLAY, "", "Run Game", queryDisableDefault, nullptr, [](uint32_t id) {});
-            ret = mToolBar->addPushImageButton(ID_GAME_WIDNOW_TOOL_BTN_PLAY, "Editor/icons/d_PlayButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Run Game", "");
+            ret = mToolBar->addPushImageButtonEx(ID_GAME_WIDNOW_TOOL_BTN_PLAY, "Editor/icons/d_PlayButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Run Game", "");
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            // ret = addToolButton("Editor/icons/d_PauseButton On@2x.png", ID_GAME_WINDOW_TOOL_BTN_PAUSE, "", "Pause Game", queryDisableDefault, nullptr, [](uint32_t id) {});
-            ret = mToolBar->addPushImageButton(ID_GAME_WINDOW_TOOL_BTN_PAUSE, "Editor/icons/d_PauseButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Pause Game", "");
+            ret = mToolBar->addPushImageButtonEx(ID_GAME_WINDOW_TOOL_BTN_PAUSE, "Editor/icons/d_PauseButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Pause Game", "");
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            // ret = addToolButton("Editor/icons/d_StepButton On@2x.png", ID_GAME_WINDOW_TOOL_BTN_NEXT, "", "Next Frame", queryDisableDefault, nullptr, [](uint32_t id) {});
-            ret = mToolBar->addPushImageButton(ID_GAME_WINDOW_TOOL_BTN_NEXT, "Editor/icons/d_StepButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Next Frame", "");
+            ret = mToolBar->addPushImageButtonEx(ID_GAME_WINDOW_TOOL_BTN_NEXT, "Editor/icons/d_StepButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Next Frame", "");
             if (T3D_FAILED(ret))
             {
                 break;
             }
+        } while (false);
 
-            GameView *gameView = new GameView();
-            ret = gameView->create(ID_GAME_VIEW, "GameView", nullptr);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GameWindow::createGameView()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mGameView = new GameView();
+            ret = mGameView->create(ID_GAME_VIEW, "GameView", nullptr);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view failed ! ERROR [%d]", ret)
                 break;
             }
+        } while (false);
+        
+        return ret;
+    }
 
+    //--------------------------------------------------------------------------
+
+    TResult GameWindow::onCreate()
+    {
+        TResult ret = ImWidget::onCreate();
+
+        do
+        {
+            // 工具栏
+            ret = createToolBar();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window toolbar failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            // 游戏视图
+            ret = createGameView();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view in game window failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            // 创建自动布局，上下布局
             ImLayout *layout = new ImLayout();
             ret = layout->create(ID_GAME_WINDOW_LAYOUT, "GameWindowLayout", this);
             if (T3D_FAILED(ret))
@@ -191,13 +204,16 @@ namespace Tiny3D
 
             ImLayout::Items items;
             ImLayout::Item item;
+            // 工具栏
             item.size = mToolBar->getSize();
             item.childView = mToolBar;
             items.emplace_back(item);
+            // 分行
             item.childView = ImLayout::NEWLINE;
             items.emplace_back(item);
-            item.size = gameView->getSize();
-            item.childView = gameView;
+            // 游戏视图
+            item.size = mGameView->getSize();
+            item.childView = mGameView;
             items.emplace_back(item);
             layout->addWidgets(items);
         } while (false);
@@ -209,12 +225,7 @@ namespace Tiny3D
 
     void GameWindow::onGUI()
     {
-        // auto region = ImGui::GetContentRegionAvail();
-        //  ImGui::BeginChild("GameView");
-        //
-        //
-        //
-        // ImGui::EndChild();
+        
     }
 
     //--------------------------------------------------------------------------
