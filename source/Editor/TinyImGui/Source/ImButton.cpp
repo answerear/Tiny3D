@@ -24,7 +24,7 @@
 
 
 #include "ImButton.h"
-
+#include "ImTextureManager.h"
 #include "ImErrors.h"
 
 
@@ -235,28 +235,56 @@ namespace Tiny3D
 
     TResult ImImageButton::create(uint32_t id, ImTextureID texID, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImImageButton::createEx(uint32_t id, const String &imageName, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName);
     }
 
     //--------------------------------------------------------------------------
     
     TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, 0, &clicked, &tips, &shortcut, texID);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, 0, &clicked, &tips, &shortcut, texID, nullptr);
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, 0, &clicked, &tips, &shortcut, nullptr, &imageName);
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr);
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName);
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, 0, &clicked, &tips, &shortcut, texID);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, 0, &clicked, &tips, &shortcut, texID);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, 0, &clicked, &tips, &shortcut, nullptr, &imageName);
     }
     
     //--------------------------------------------------------------------------
@@ -267,7 +295,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc >= 6, "Invalid number of arguments in ImImageButton::create() !");
+            T3D_ASSERT(argc >= 7, "Invalid number of arguments in ImImageButton::create() !");
             
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -277,15 +305,36 @@ namespace Tiny3D
             }
             
             mTexID = va_arg(args, ImTextureID);
+            String *imageName = va_arg(args, String*);
             if (mTexID == nullptr)
             {
-                IMGUI_LOG_ERROR("ImTextureID is nullptr when create ImImageButton %u !", id);
-                ret = T3D_ERR_INVALID_PARAM;
-                break;
+                mTexID = IM_TEXTURE_MGR.loadTexture(*imageName);
+                if (mTexID == nullptr)
+                {
+                    ret = T3D_ERR_FAIL;
+                    IMGUI_LOG_ERROR("Load texture %s failed ! ERROR [%d]", imageName->c_str(), ret);
+                    break;
+                }
+                mIsInternalLoaded = true;
+            }
+            else
+            {
+                mIsInternalLoaded = false;
             }
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImImageButton::onDestroy()
+    {
+        if (mIsInternalLoaded && mTexID != nullptr)
+        {
+            IM_TEXTURE_MGR.unloadTexture(mTexID);
+            mTexID = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -320,28 +369,56 @@ namespace Tiny3D
 
     TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, 0, &clicked, &tips, &shortcut, texID, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, 0, &clicked, &tips, &shortcut, texID, &queryChecked);
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, 0, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+    }
+    
     //--------------------------------------------------------------------------
     
     TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, 0, &clicked, &tips, &shortcut, texID, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, 0, &clicked, &tips, &shortcut, texID, nullptr, &queryChecked);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    {
+        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, 0, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
@@ -352,7 +429,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc >= 7, "Invalid number of arguments in ImPushImageButton::create() !");
+            T3D_ASSERT(argc >= 8, "Invalid number of arguments in ImPushImageButton::create() !");
             
             ret = ImImageButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))

@@ -40,6 +40,8 @@ namespace Tiny3D
 
         TResult create(uint32_t id, ImTextureID texID, const String &title, ImTreeNode *parent);
 
+        TResult createEx(uint32_t id, const String &imageName, const String &title, ImTreeNode *parent);
+
         TResult addNode(ImTreeNode *node);
         
     protected:
@@ -48,6 +50,8 @@ namespace Tiny3D
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
+
+        void onDestroy() override;
 
     private:
         TResult addWidget(const String &parentName, ImWidget *widget) override;
@@ -67,7 +71,10 @@ namespace Tiny3D
         TResult insertAfterChild(uint32_t prevID, ImWidget *widget) override;
 
     protected:
+        /// 图标对象
         ImTextureID mIconID {nullptr};
+        /// 是否内部加载图标
+        bool    mIsInternalLoaded {false};
     };
 
     class TINYIMGUI_API ImTreeWidget : public ImTreeNode

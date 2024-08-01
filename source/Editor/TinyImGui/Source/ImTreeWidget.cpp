@@ -24,7 +24,7 @@
 
 
 #include "ImTreeWidget.h"
-
+#include "ImTextureManager.h"
 #include "ImErrors.h"
 
 
@@ -41,20 +41,39 @@ namespace Tiny3D
 
     TResult ImTreeNode::create(uint32_t id, ImTextureID texID, const String &title, ImTreeNode *parent)
     {
-        return ImWidget::createInternal(id, title, parent, 1, texID);
+        return ImWidget::createInternal(id, title, parent, 2, texID, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::createEx(uint32_t id, const String &imageName, const String &title, ImTreeNode *parent)
+    {
+        return ImWidget::createInternal(id, title, parent, 2, nullptr, &imageName);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 1, "Invalid number of arguments in ImTreeNode::create() !");
+        T3D_ASSERT(argc == 2, "Invalid number of arguments in ImTreeNode::create() !");
         
         TResult ret = IM_OK;
 
         do
         {
             mIconID = va_arg(args, ImTextureID);
+            String *imageName = va_arg(args, String*);
+            if (mIconID == nullptr)
+            {
+                mIconID = IM_TEXTURE_MGR.loadTexture(*imageName);
+                if (mIconID == nullptr)
+                {
+                    IMGUI_LOG_ERROR("Load texture %s for TreeNode failed ! ERROR [%d]", imageName->c_str(), ret)
+                    ret = T3D_ERR_FAIL;
+                    break;
+                }
+                mIsInternalLoaded = true;
+            }
         } while (false);
         
         return ret;
@@ -65,6 +84,17 @@ namespace Tiny3D
     TResult ImTreeNode::addNode(ImTreeNode *node)
     {
         return ImTreeNode::addChild(node);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTreeNode::onDestroy()
+    {
+        if (mIsInternalLoaded && mIconID != nullptr)
+        {
+            IM_TEXTURE_MGR.unloadTexture(mIconID);
+            mIconID = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------

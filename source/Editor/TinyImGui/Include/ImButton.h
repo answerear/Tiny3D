@@ -107,22 +107,34 @@ namespace Tiny3D
 
         TResult create(uint32_t id, ImTextureID texID, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
+        TResult createEx(uint32_t id, const String &imageName, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
         TResult create(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
         TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
         TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
 
         void onGUI() override;
 
+        void onDestroy() override;
+
         String makeName(uint32_t id);
         
     protected:
         /// 图片 ID
         ImTextureID mTexID {nullptr};
+        /// 是否内部加载纹理对象，内部加载的，需要自己卸载
+        bool    mIsInternalLoaded {false};
     };
 
     /**
@@ -136,12 +148,20 @@ namespace Tiny3D
         WidgetType getWidgetType() const override { return WidgetType::kPushImageButton; }
 
         TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
         TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
         TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
         TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+
+        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
         bool isPushed() const { return mQueryChecked ? mQueryChecked(this) : false; }
         
