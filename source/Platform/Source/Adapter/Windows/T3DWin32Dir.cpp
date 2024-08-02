@@ -350,7 +350,7 @@ namespace Tiny3D
     Win32Dir::~Win32Dir()
     {
         // close();
-        T3D_ASSERT(m_hFindFile == INVALID_HANDLE_VALUE, "m_hFindFile == INVALID_HANDLE_VALUE");
+        T3D_ASSERT(m_hFindFile == INVALID_HANDLE_VALUE);
     }
 
     //--------------------------------------------------------------------------

@@ -118,7 +118,7 @@ namespace Tiny3D
 
     ResourcePtr TextureManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc > 1, "The number of arguments must be more than one !");
+        T3D_ASSERT(argc > 1);
         
         TEXTURE_TYPE texType = va_arg(args, TEXTURE_TYPE);
 
@@ -128,7 +128,7 @@ namespace Tiny3D
         {
         case TEXTURE_TYPE::TT_1D:
             {
-                T3D_ASSERT(argc == 6, "The number of arguments when create Texture1D does not match !");
+                T3D_ASSERT(argc == 6);
                 uint32_t width = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
                 Buffer data;
@@ -140,7 +140,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_2D:
             {
-                T3D_ASSERT(argc == 5 || argc == 9, "The number of arguments when create Texture2D does not match !");
+                T3D_ASSERT(argc == 5 || argc == 9);
                 if (argc == 9)
                 {
                     uint32_t width = va_arg(args, uint32_t);
@@ -166,7 +166,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_2D_ARRAY:
             {
-                T3D_ASSERT(argc == 10, "The number of arguments when create Texture2DArray does not match !");
+                T3D_ASSERT(argc == 10);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -182,7 +182,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_3D:
             {
-                T3D_ASSERT(argc == 8, "The number of arguments when create Texture2D does not match !");
+                T3D_ASSERT(argc == 8);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 uint32_t depth = va_arg(args, uint32_t);
@@ -196,7 +196,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_CUBE:
             {
-                T3D_ASSERT(argc == 9, "The number of arguments when create Cubemap does not match !");
+                T3D_ASSERT(argc == 9);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -211,7 +211,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_CUBE_ARRAY:
             {
-                T3D_ASSERT(argc == 10, "The number of arguments when create CubemapArray does not match !");
+                T3D_ASSERT(argc == 10);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -227,7 +227,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
-                T3D_ASSERT(argc == 7, "The number of arguments when create RenderTexture does not match !");
+                T3D_ASSERT(argc == 7);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);

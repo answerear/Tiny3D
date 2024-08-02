@@ -103,7 +103,7 @@ namespace Tiny3D
     template <typename T>
     inline const TVector3<T> &TObb<T>::getAxis(int32_t idx) const
     {
-        T3D_ASSERT(idx >= 0 && idx < 3, "The idx is out of bound !");
+        T3D_ASSERT(idx >= 0 && idx < 3);
         return mAxis[idx];
     }
 
@@ -145,7 +145,7 @@ namespace Tiny3D
     template <typename T>
     inline void TObb<T>::setExtent(int32_t idx, T fExtent)
     {
-        T3D_ASSERT(idx >= 0 && idx < 3, "The idx is out of bound !");
+        T3D_ASSERT(idx >= 0 && idx < 3);
         mExtent[idx] = fExtent;
     }
 
@@ -193,7 +193,7 @@ namespace Tiny3D
     void TObb<T>::buildByCovariance(const TVector3<T> points[], size_t count)
     {
         // 暂未实现
-        T3D_ASSERT(0, "No implementation !");
+        T3D_ASSERT(0);
     }
 
     template <typename T>

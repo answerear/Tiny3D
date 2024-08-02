@@ -256,7 +256,7 @@ namespace Tiny3D
         
         if (mTimeToDie)
         {
-            T3D_ASSERT(mQueuedJobs.empty(), "Queued jobs must be empty when thread pool timeout !");
+            T3D_ASSERT(mQueuedJobs.empty());
         }
         else if (!mQueuedJobs.empty())
         {

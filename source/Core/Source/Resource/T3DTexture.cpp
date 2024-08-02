@@ -186,7 +186,7 @@ namespace Tiny3D
     Texture2D::Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
         : Texture(name)
     {
-        T3D_ASSERT(image != nullptr, "Image must be valid !");
+        T3D_ASSERT(image != nullptr);
         
         mDesc.width = image->getWidth();
         mDesc.height = image->getHeight();

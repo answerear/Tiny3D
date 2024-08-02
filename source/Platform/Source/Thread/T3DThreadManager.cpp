@@ -32,7 +32,7 @@ namespace Tiny3D
 
     void ThreadManager::addThread(ulong_t threadID, RunnableThread *thread)
     {
-        T3D_ASSERT(thread != nullptr, "Thread added in ThreadManager must not be nullptr !");
+        T3D_ASSERT(thread != nullptr);
 
         ScopeLock lock(&mThreadsCS);
 

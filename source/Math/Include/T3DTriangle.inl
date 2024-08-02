@@ -68,14 +68,14 @@ namespace Tiny3D
     template <typename T>
     inline const TVector3<T> &TTriangle<T>::operator [](size_t idx) const
     {
-        T3D_ASSERT(idx < 3, "The idx is out of bound !");
+        T3D_ASSERT(idx < 3);
         return mVertices[idx];
     }
 
     template <typename T>
     inline TVector3<T> &TTriangle<T>::operator [](size_t idx)
     {
-        T3D_ASSERT(idx < 3, "The idx is out of bound !");
+        T3D_ASSERT(idx < 3);
         return mVertices[idx];
     }
 }

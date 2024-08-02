@@ -41,7 +41,7 @@ namespace Tiny3D
 
     TResult ImMenuItemEnabled::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 2, "Invalid number of arguments in ImMenuItemEnabled::create() !");
+        T3D_ASSERT(argc >= 2);
         
         TResult ret = IM_OK;
 
@@ -71,7 +71,7 @@ namespace Tiny3D
 
     TResult ImMenuItemClickable::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 3, "Invalid number of arguments in ImMenuItemClickable::create() !");
+        T3D_ASSERT(argc >= 3);
         
         TResult ret = IM_OK;
 
@@ -133,7 +133,7 @@ namespace Tiny3D
 
     TResult ImMenuItemNormal::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 5, "Invalid number of arguments in ImMenuItemNormal::create() !");
+        T3D_ASSERT(argc >= 5);
 
         TResult ret = IM_OK;
         
@@ -218,7 +218,7 @@ namespace Tiny3D
 
     TResult ImMenuItemPopup::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 2, "Invalid number of arguments in ImMenuItemPopup::create() !");
+        T3D_ASSERT(argc >= 2);
 
         TResult ret = IM_OK;
         
@@ -443,7 +443,7 @@ namespace Tiny3D
 
     TResult ImMenuItemCheck::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 6, "Invalid number of arguments in ImMenuItemCheck::create() !");
+        T3D_ASSERT(argc >= 6);
 
         TResult ret = IM_OK;
         

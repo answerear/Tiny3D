@@ -174,7 +174,7 @@ namespace Tiny3D
 
         ID3D11Buffer *pD3DBuffer = nullptr;
         HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
-        T3D_ASSERT(SUCCEEDED(hr), "Create constant buffer for per frame !");
+        T3D_ASSERT(SUCCEEDED(hr));
         mPerFrameCBuffer = pD3DBuffer;
 
         // constant buffer per draw
@@ -189,7 +189,7 @@ namespace Tiny3D
         initData.SysMemPitch = 0;
         initData.SysMemSlicePitch = 0;
         hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
-        T3D_ASSERT(SUCCEEDED(hr), "Create constant buffer for per draw !");
+        T3D_ASSERT(SUCCEEDED(hr));
         mPerDrawCBuffer = pD3DBuffer;
     }
 
@@ -239,7 +239,7 @@ namespace Tiny3D
         D3D11_SUBRESOURCE_DATA initData = {};
         initData.pSysMem = vertices;
         HRESULT hr = mD3DDevice->CreateBuffer(&bd, &initData, &mBlitVB);
-        T3D_ASSERT(SUCCEEDED(hr), "Create blit vertex buffer !");
+        T3D_ASSERT(SUCCEEDED(hr));
 
         // 编译顶点着色器
         const String vs =
@@ -269,7 +269,7 @@ namespace Tiny3D
         ID3DBlob *vertexShaderBlob = nullptr;
         ID3DBlob *errorMsgBlob = nullptr;
         hr = D3DCompile(vs.c_str(), vs.length(), "BlitVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_4_0", shaderCompileFlags, 0, &vertexShaderBlob, &errorMsgBlob);
-        T3D_ASSERT(SUCCEEDED(hr), "Compile blit vertex shader !");        
+        T3D_ASSERT(SUCCEEDED(hr));        
         mD3DDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &mBlitVS);
         D3D_SAFE_RELEASE(errorMsgBlob);
         
@@ -295,9 +295,9 @@ namespace Tiny3D
         {
             strError.assign((const char *)errorMsgBlob->GetBufferPointer(), errorMsgBlob->GetBufferSize());
         }
-        T3D_ASSERT(SUCCEEDED(hr), "Compile blit pixel shader !");        
+        T3D_ASSERT(SUCCEEDED(hr));        
         mD3DDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &mBlitPS);
-        T3D_ASSERT(SUCCEEDED(hr), "Create blit pixel shader !");
+        T3D_ASSERT(SUCCEEDED(hr));
         D3D_SAFE_RELEASE(errorMsgBlob);
         
         // 创建输入布局
@@ -307,7 +307,7 @@ namespace Tiny3D
             { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
         hr = mD3DDevice->CreateInputLayout(layout, ARRAYSIZE(layout), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &mBlitLayout);
-        T3D_ASSERT(SUCCEEDED(hr), "Create blit vertex input layout !");
+        T3D_ASSERT(SUCCEEDED(hr));
         
         // 创建 sampler state
         D3D11_SAMPLER_DESC sampDesc;
@@ -320,7 +320,7 @@ namespace Tiny3D
         sampDesc.MinLOD = 0;
         sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
         hr = mD3DDevice->CreateSamplerState(&sampDesc, &mBlitSamplerState);
-        T3D_ASSERT(SUCCEEDED(hr), "Create blit sampler state !");
+        T3D_ASSERT(SUCCEEDED(hr));
 
         // 创建 blend state
         D3D11_BLEND_DESC blendDesc = {};
@@ -336,7 +336,7 @@ namespace Tiny3D
         blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; // Alpha混合操作：加法
         blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // 启用所有颜色通道
         hr = mD3DDevice->CreateBlendState(&blendDesc, &mBlitBState);
-        T3D_ASSERT(SUCCEEDED(hr), "Create blit blend state !");
+        T3D_ASSERT(SUCCEEDED(hr));
 
         // 创建 depth stencil state
         D3D11_DEPTH_STENCIL_DESC dsDesc;
@@ -352,7 +352,7 @@ namespace Tiny3D
         dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
         dsDesc.FrontFace.StencilFunc   = D3D11_COMPARISON_ALWAYS;
         hr = mD3DDevice->CreateDepthStencilState(&dsDesc, &mBlitDSState);
-        T3D_ASSERT(SUCCEEDED(hr), "Create blit depth stencil state !");
+        T3D_ASSERT(SUCCEEDED(hr));
 
         // 创建 rasterizer state
         D3D11_RASTERIZER_DESC rasterizerDesc;
@@ -368,7 +368,7 @@ namespace Tiny3D
         rasterizerDesc.MultisampleEnable = false; // 禁用多采样
         rasterizerDesc.AntialiasedLineEnable = false; // 禁用抗锯齿线条
         hr = mD3DDevice->CreateRasterizerState(&rasterizerDesc, &mBlitRState);
-        T3D_ASSERT(SUCCEEDED(hr), "Create rasterizer state !");
+        T3D_ASSERT(SUCCEEDED(hr));
         
         D3D_SAFE_RELEASE(vertexShaderBlob);
         D3D_SAFE_RELEASE(pixelShaderBlob);

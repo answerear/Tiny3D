@@ -216,7 +216,7 @@ namespace Tiny3D
         ScopeLock(ISyncObject *syncObj)
             : mSyncObject(syncObj)
         {
-            T3D_ASSERT(mSyncObject != nullptr, "Sync object must not be nullptr !");
+            T3D_ASSERT(mSyncObject != nullptr);
             mSyncObject->lock();
         }
         

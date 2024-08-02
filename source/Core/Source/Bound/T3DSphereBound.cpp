@@ -121,7 +121,7 @@ namespace Tiny3D
     void SphereBound::update()
     {
         GameObject *go = getGameObject();
-        T3D_ASSERT(go != nullptr, "Game object must be not nullptr !");
+        T3D_ASSERT(go != nullptr);
         Transform3D *xform = go->getComponent<Transform3D>();
         if (xform != nullptr)
         {

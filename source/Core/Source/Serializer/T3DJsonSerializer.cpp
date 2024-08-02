@@ -541,7 +541,7 @@ namespace Tiny3D
                         else
                         {
                             bool rval = klass.set_property_value(name.GetString(), obj, prop);
-                            T3D_ASSERT(rval, "set property value failed !");
+                            T3D_ASSERT(rval);
                         }
                     }
                 }
@@ -760,7 +760,7 @@ namespace Tiny3D
                 break;
             }
 
-            T3D_ASSERT(doc.IsObject(), "The doc must be an object !");
+            T3D_ASSERT(doc.IsObject());
 
             // Magic
             auto itr = doc.FindMember(T3D_FILE_MAGIC_KEY);

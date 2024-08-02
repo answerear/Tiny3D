@@ -1370,8 +1370,7 @@ namespace Tiny3D
             auto derivedNode = dynamic_cast<ASTStruct*>(node);
 
             // 检测反射继承链是否跟实际父子类继承链相一致
-            T3D_ASSERT(baseNode->RTTIEnabled,
-                "The reflection hierarchy is not correspondent with the class derived hierarchy !");
+            T3D_ASSERT(baseNode->RTTIEnabled);
             auto itr = std::find(derivedNode->RTTIBaseClasses->begin(), derivedNode->RTTIBaseClasses->end(), baseNode->getName());
             if (itr == derivedNode->RTTIBaseClasses->end())
             {
@@ -1751,8 +1750,7 @@ namespace Tiny3D
             {
                 T3D_ASSERT(parent->getType() == ASTNode::Type::kClass
                     || parent->getType() == ASTNode::Type::kStruct
-                    || parent->getType() == ASTNode::Type::kClassTemplate,
-                    "The type of parent node in ast is invalid !");
+                    || parent->getType() == ASTNode::Type::kClassTemplate);
                 ASTClass *klass = static_cast<ASTClass *>(parent);
                 klass->HasConstructor = true;
 
@@ -2417,8 +2415,7 @@ namespace Tiny3D
             case ASTNode::Type::kStaticFunction:
             case ASTNode::Type::kInstanceFunction:
             case ASTNode::Type::kConstructor:
-                T3D_ASSERT(parent->getParent()->getType() == ASTNode::Type::kFunctionTemplate,
-                    "The type of parent node in ast is invalid !");
+                T3D_ASSERT(parent->getParent()->getType() == ASTNode::Type::kFunctionTemplate);
                 temp = static_cast<ASTFunctionTemplate*>(parent->getParent());
                 break;
             }
@@ -2607,7 +2604,7 @@ namespace Tiny3D
             break;
         default:
             {
-                T3D_ASSERT(0, "Invlid kind of CXCursor !");
+                T3D_ASSERT(0);
             }
             break;
         }
@@ -2663,8 +2660,7 @@ namespace Tiny3D
                 || parent->getType() == ASTNode::Type::kClassTemplate
                 || parent->getType() == ASTNode::Type::kStruct
                 || parent->getType() == ASTNode::Type::kClass
-                || parent->getType() == ASTNode::Type::kEnum,
-                "The type of parent node in ast is invalid !");
+                || parent->getType() == ASTNode::Type::kEnum);
         }
 
         return parent;

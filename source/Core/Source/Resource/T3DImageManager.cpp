@@ -64,7 +64,7 @@ namespace Tiny3D
 
     ResourcePtr ImageManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 3, "The number of arguments when create Image does not match !");
+        T3D_ASSERT(argc == 3);
         
         ImagePtr image = nullptr;
         
@@ -104,7 +104,7 @@ namespace Tiny3D
 
     TResult ImageManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kImage, "Save resource must be shader !");
+        T3D_ASSERT(res->getType() == Resource::Type::kImage);
         Image *image = static_cast<Image*>(res);
         return T3D_OK;
     }

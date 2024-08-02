@@ -66,14 +66,14 @@ namespace Tiny3D
     template <typename T>
     inline T TVector3<T>::operator [](int32_t i) const
     {
-        T3D_ASSERT(i < 3, "The i is out of bound !");
+        T3D_ASSERT(i < 3);
         return *(&_x+i);
     }
 
     template <typename T>
     inline T &TVector3<T>::operator [](int32_t i)
     {
-        T3D_ASSERT(i < 3, "The i is out of bound !");
+        T3D_ASSERT(i < 3);
         return *(&_x+i);
     }
 

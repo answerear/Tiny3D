@@ -54,9 +54,9 @@ namespace Tiny3D
             }
             
             ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
-            T3D_ASSERT(archive != nullptr, "Archive must be not nullptr !");
+            T3D_ASSERT(archive != nullptr);
             ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
-            T3D_ASSERT(image != nullptr, "Load image failed !");
+            T3D_ASSERT(image != nullptr);
             Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image);
             texID = texture->getPixelBuffer()->getRHIResource()->getNativeObject();
             TextureData *texData = new TextureData(texture);

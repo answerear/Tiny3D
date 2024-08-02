@@ -196,35 +196,35 @@ namespace Tiny3D
     template <typename T>
     inline const T *TMatrix2<T>::operator [](int32_t row) const
     {
-        T3D_ASSERT(row >= 0 && row < 2, "The row is out of bound !");
+        T3D_ASSERT(row >= 0 && row < 2);
         return &mTuples[row << 1];
     }
 
     template <typename T>
     inline T *TMatrix2<T>::operator [](int32_t row)
     {
-        T3D_ASSERT(row >= 0 && row < 2, "The row is out of bound !");
+        T3D_ASSERT(row >= 0 && row < 2);
         return &mTuples[row << 1];
     }
 
     template <typename T>
     inline T TMatrix2<T>::operator ()(int32_t row, int32_t col) const
     {
-        T3D_ASSERT(row >= 0 && row < 2 && col >= 0 && col < 2, "The row and column is out of bound !");
+        T3D_ASSERT(row >= 0 && row < 2 && col >= 0 && col < 2);
         return mTuples[(row << 1) + col];
     }
 
     template <typename T>
     inline T &TMatrix2<T>::operator ()(int32_t row, int32_t col)
     {
-        T3D_ASSERT(row >= 0 && row < 2 && col >= 0 && col < 2, "The row and column is out of bound !");
+        T3D_ASSERT(row >= 0 && row < 2 && col >= 0 && col < 2);
         return mTuples[(row << 1) + col];
     }
 
     template <typename T>
     inline void TMatrix2<T>::setRow(int32_t row, const TVector2<T> &rkV)
     {
-        T3D_ASSERT(row >= 0 && row < 2, "The row is out of bound !");
+        T3D_ASSERT(row >= 0 && row < 2);
         int32_t i = row << 1;
         mTuples[i] = rkV[0];
         mTuples[i+1] = rkV[1];
@@ -233,7 +233,7 @@ namespace Tiny3D
     template <typename T>
     inline TVector2<T> TMatrix2<T>::getRow(int32_t row) const
     {
-        T3D_ASSERT(row >= 0 && row < 2, "The row is out of bound !");
+        T3D_ASSERT(row >= 0 && row < 2);
         int32_t i = row << 1;
         return TVector2<T>(mTuples[i], mTuples[i+1]);
     }
@@ -241,7 +241,7 @@ namespace Tiny3D
     template <typename T>
     inline void TMatrix2<T>::setColumn(int32_t col, const TVector2<T> &rkV)
     {
-        T3D_ASSERT(col >= 0 && col < 2, "The column is out of bound !");
+        T3D_ASSERT(col >= 0 && col < 2);
         mTuples[col] = rkV[0];
         mTuples[2+ col] = rkV[1];
     }
@@ -249,7 +249,7 @@ namespace Tiny3D
     template <typename T>
     inline TVector2<T> TMatrix2<T>::getColumn(int32_t col) const
     {
-        T3D_ASSERT(col >= 0 && col < 2, "The column is out of bound !");
+        T3D_ASSERT(col >= 0 && col < 2);
         return TVector2<T>(mTuples[col], mTuples[2+ col]);
     }
 

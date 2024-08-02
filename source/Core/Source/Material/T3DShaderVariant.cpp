@@ -108,7 +108,7 @@ namespace Tiny3D
                 mRHIShader = ctx->createDomainShader(this);
                 break;
             default:
-                T3D_ASSERT(0, "Invalid shader stage !");
+                T3D_ASSERT(0);
                 break;
             }
         } while (false);

@@ -82,7 +82,7 @@ namespace Tiny3D
             y = Math::abs(region.y - size.y) * 0.5f;
         }
 
-        T3D_ASSERT(size.x <= region.x && size.y <= region.y, "Image size must be smaller than region size !");
+        T3D_ASSERT(size.x <= region.x && size.y <= region.y);
         
         // float u0 = x / region.x;
         // float v0 = y / region.y;

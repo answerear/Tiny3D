@@ -243,7 +243,7 @@ namespace Tiny3D
                 if (*it == type.get_name())
                 {
                     auto itUpdate = mUpdateComponents.find(i);
-                    T3D_ASSERT(itUpdate != mUpdateComponents.end(), "GameObject::addComponent");
+                    T3D_ASSERT(itUpdate != mUpdateComponents.end());
                     itUpdate->second.emplace_back(component);
                     break;
                 }

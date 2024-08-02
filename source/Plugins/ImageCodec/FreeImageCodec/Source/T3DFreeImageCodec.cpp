@@ -628,7 +628,7 @@ namespace Tiny3D
                 && rtDst == rtSrc)
             {
                 // 源和目标区域完全相同，直接点吧
-                T3D_ASSERT(srcImage.getSize() == dstImage.getSize(), "The size of the images must be the same !");
+                T3D_ASSERT(srcImage.getSize() == dstImage.getSize());
                 size_t size = srcImage.getSize();
                 memcpy(dstImage.getData(), srcImage.getData(), size);
             }
@@ -690,7 +690,7 @@ namespace Tiny3D
 
                 // 把转好的数据复制到目标图像上
                 uint32_t srcBPP = FreeImage_GetBPP(newdib);
-                T3D_ASSERT(srcBPP == srcImage.getBPP(), "The bpp of the images must be the same !");
+                T3D_ASSERT(srcBPP == srcImage.getBPP());
 
                 uint32_t srcPitch = FreeImage_GetPitch(newdib);
                 uint8_t *srcData = FreeImage_GetBits(newdib);

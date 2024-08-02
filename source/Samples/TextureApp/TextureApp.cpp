@@ -98,7 +98,7 @@ void TextureApp::buildCamera(Transform3D *parent)
 
     // construct frustum bound
     auto frustum = go->addComponent<FrustumBound>();
-    T3D_ASSERT(frustum != nullptr, "add frustum bound component !");
+    T3D_ASSERT(frustum != nullptr);
 }
 
 void TextureApp::buildCube(Transform3D *parent)
@@ -122,9 +122,9 @@ void TextureApp::buildCube(Transform3D *parent)
 Texture2DPtr TextureApp::buildTexture()
 {
     ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
-    T3D_ASSERT(archive != nullptr, "Archive must be not nullptr !");
+    T3D_ASSERT(archive != nullptr);
     ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/textures/blocks.png");
-    T3D_ASSERT(image != nullptr, "Load image failed !");
+    T3D_ASSERT(image != nullptr);
     Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
     return texture;
 }
@@ -235,20 +235,20 @@ MaterialPtr TextureApp::buildMaterial()
     // pass
     PassPtr pass = Pass::create("0");
     ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret), "Add vertex shader variant !");
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
     ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
     pass->setRenderState(renderState);
-    T3D_ASSERT(T3D_SUCCEEDED(ret), "Add pixel shader variant !");
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
     bool rval = tech->addPass(pass);
-    T3D_ASSERT(rval, "Add pass !");
+    T3D_ASSERT(rval);
 
     // shader
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
     rval = shader->addTechnique(tech);
-    T3D_ASSERT(rval, "Add technique !");
+    T3D_ASSERT(rval);
     
     // samplers
     ShaderSamplerParams samplers;

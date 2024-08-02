@@ -155,7 +155,7 @@ namespace  Tiny3D
             }
             else
             {
-                T3D_ASSERT(rval.second, "insert state must succeed !");
+                T3D_ASSERT(rval.second);
             }
         }
         else
@@ -345,7 +345,7 @@ namespace  Tiny3D
             }
             else
             {
-                T3D_ASSERT(rval.second, "insert buffers must succeed !");
+                T3D_ASSERT(rval.second);
             }
         }
 

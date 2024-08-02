@@ -62,7 +62,7 @@ namespace Tiny3D
 
     ResourcePtr MaterialManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 1, "Create material must be 3 parameters !");
+        T3D_ASSERT(argc == 1);
         Shader *shader = va_arg(args, Shader*);
         return Material::create(name, shader);
     }

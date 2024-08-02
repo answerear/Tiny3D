@@ -202,7 +202,7 @@ namespace Tiny3D
         {
             TVector3<T> dist = points[i] - mCenter;
             T radius = dist.length();
-            T3D_ASSERT(radius <= mRadius, "radius <= mRadius");
+            T3D_ASSERT(radius <= mRadius);
         }
     }
 

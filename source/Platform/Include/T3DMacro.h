@@ -78,9 +78,9 @@
 
 #ifndef T3D_ASSERT
     #ifdef T3D_DEBUG
-        #define T3D_ASSERT(exp, msg)   assert(((void)msg, exp))
+        #define T3D_ASSERT(exp)   assert(exp)
     #else
-        #define T3D_ASSERT(exp, msg)
+        #define T3D_ASSERT(exp)
     #endif
 #endif
 

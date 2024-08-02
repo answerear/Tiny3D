@@ -102,14 +102,14 @@ namespace Tiny3D
     template <typename T>
     inline const T TPlane<T>::operator [](int32_t idx) const
     {
-        T3D_ASSERT(idx >= 0 && idx < 4, "The idx is out of bound !");
+        T3D_ASSERT(idx >= 0 && idx < 4);
         return mCoeff[idx];
     }
 
     template <typename T>
     inline T &TPlane<T>::operator [](int32_t idx)
     {
-        T3D_ASSERT(idx >= 0 && idx < 4, "The idx is out of bound !");
+        T3D_ASSERT(idx >= 0 && idx < 4);
         return mCoeff[idx];
     }
 

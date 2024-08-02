@@ -85,7 +85,8 @@ namespace Tiny3D
             IQueuedJob *job = mQueuedJob;
             mQueuedJob = nullptr;
             T3D_PLATFORM.memoryBarrier();
-            T3D_ASSERT(job != nullptr || mTimeToDie.load(std::memory_order_relaxed), "Queued job must not be nullptr or time to die !");
+            auto rval = mTimeToDie.load(std::memory_order_relaxed);
+            T3D_ASSERT(job != nullptr || rval);
             while (job != nullptr)
             {
                 job->execute();

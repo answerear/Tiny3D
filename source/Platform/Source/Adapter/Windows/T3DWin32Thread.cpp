@@ -42,7 +42,7 @@ namespace Tiny3D
 
     Win32Thread::~Win32Thread()
     {
-        T3D_ASSERT(mThread == nullptr, "Thread must terminate before free object !");
+        T3D_ASSERT(mThread == nullptr);
     }
 
     //--------------------------------------------------------------------------

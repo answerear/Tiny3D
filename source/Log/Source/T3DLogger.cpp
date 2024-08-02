@@ -354,7 +354,7 @@ namespace Tiny3D
         }
         else
         {
-            T3D_ASSERT(0, "Back item has not be set !");
+            T3D_ASSERT(0);
         }
         
         mBackItem = item;

@@ -46,7 +46,7 @@ namespace Tiny3D
     
     TResult TransformNode::addChild(TransformNodePtr node)
     {
-        T3D_ASSERT(node->getParent() == nullptr, "parent node is nullptr !");
+        T3D_ASSERT(node->getParent() == nullptr);
         
         if (mFirstChild == nullptr)
         {

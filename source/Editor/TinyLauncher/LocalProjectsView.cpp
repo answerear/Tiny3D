@@ -421,12 +421,12 @@ namespace Tiny3D
             ImVec2 region = ImGui::GetContentRegionAvail();
             float child_height = 40.0f;
             
-            T3D_ASSERT(getChildren().size() == 3, "Must be 3 children !");
+            T3D_ASSERT(getChildren().size() == 3);
 
             // Part #1 - Top
             auto itr = getChildren().begin();
             ImWidget *widget = *itr;
-            T3D_ASSERT(widget->getWidgetType() == WidgetType::kChildView, "Must be child view !");
+            T3D_ASSERT(widget->getWidgetType() == WidgetType::kChildView);
             ImChildView *child = static_cast<ImChildView*>(widget);
             child->update(ImVec2(region.x, child_height));
 
@@ -436,7 +436,7 @@ namespace Tiny3D
             // Part #2 - Bottom-left
             ++itr;
             widget = *itr;
-            T3D_ASSERT(widget->getWidgetType() == WidgetType::kChildView, "Must be child view !");
+            T3D_ASSERT(widget->getWidgetType() == WidgetType::kChildView);
             child = static_cast<ImChildView*>(widget);
             child->update(ImVec2(region.x - child_width, 0));
 
@@ -445,7 +445,7 @@ namespace Tiny3D
             // Part #3 - Bottom-right
             ++itr;
             widget = *itr;
-            T3D_ASSERT(widget->getWidgetType() == WidgetType::kChildView, "Must be child view !");
+            T3D_ASSERT(widget->getWidgetType() == WidgetType::kChildView);
             child = static_cast<ImChildView*>(widget);
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(54.0f/255.0f, 61.0f/255.0f, 74.0f/255.0f, 1.0f));
             child->update(ImVec2(child_width, 0));

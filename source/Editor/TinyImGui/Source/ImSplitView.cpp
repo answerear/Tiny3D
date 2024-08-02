@@ -48,7 +48,7 @@ namespace Tiny3D
 
     TResult ImSplitView::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 7, "Invalid number of arguments in ImSplitView::create() !");
+        T3D_ASSERT(argc >= 7);
 
         TResult ret = IM_OK;
 
@@ -134,7 +134,7 @@ namespace Tiny3D
         ImGui::PushStyleColor(ImGuiCol_Separator, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
 
         const Children &children = getChildren();
-        T3D_ASSERT(children.size() == 2, "SplitView must be 2 children !");
+        T3D_ASSERT(children.size() == 2);
 
         auto child0 = children.front();
         auto child1 = children.back();

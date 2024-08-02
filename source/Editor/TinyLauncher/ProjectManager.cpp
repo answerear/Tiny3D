@@ -303,7 +303,7 @@ namespace Tiny3D
                     break;
                 }
 
-                T3D_ASSERT(0, "Invalid sort type !");
+                T3D_ASSERT(0);
                 return true;
             });
     }

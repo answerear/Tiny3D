@@ -201,7 +201,7 @@ namespace Tiny3D
 
     const VertexAttribute &Mesh::getVertexAttribute(size_t index) const
     {
-        T3D_ASSERT(index < mVertexAttributes.size(), "Mesh the index of attribute is out of bound !");
+        T3D_ASSERT(index < mVertexAttributes.size());
 
         auto itr = mVertexAttributes.begin();
 

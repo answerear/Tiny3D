@@ -244,11 +244,11 @@ namespace Tiny3D
 
     void NetworkManager::startMonitorTimer()
     {
-        T3D_ASSERT(mMonitorTimerID == T3D_INVALID_TIMER_ID, "Monitor in network must be not set !");
+        T3D_ASSERT(mMonitorTimerID == T3D_INVALID_TIMER_ID);
         mMonitorTimerID = T3D_TIMER_MGR.startTimer(MONITOR_INTERVAL, true,
             [this](ID timerID, uint32_t dt)
             {
-                T3D_ASSERT(timerID == mMonitorTimerID, "Must be monitor timer !");
+                T3D_ASSERT(timerID == mMonitorTimerID);
                 
                 if (Process::isProcessRunning("TinyLauncher.exe"))
                 {
@@ -275,11 +275,11 @@ namespace Tiny3D
 
     void NetworkManager::startHelloTimer()
     {
-        T3D_ASSERT(mHelloTimerID == T3D_INVALID_TIMER_ID, "Hello timer id must be invalid !");
+        T3D_ASSERT(mHelloTimerID == T3D_INVALID_TIMER_ID);
         mHelloTimerID = T3D_TIMER_MGR.startTimer(HELLO_INTERVAL, true,
             [this](ID timerID, uint32_t dt)
             {
-                T3D_ASSERT(timerID == mHelloTimerID, "Must be hello timer !");
+                T3D_ASSERT(timerID == mHelloTimerID);
                 NetRequestBody req;
                 req.set_message_id(MSGID_HELLO);
                 req.mutable_hello();

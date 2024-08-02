@@ -93,8 +93,8 @@ namespace Tiny3D
                 }
                 else
                 {
-                    T3D_ASSERT(itr != getChildren().end(), "Child view must be valid !");
-                    T3D_ASSERT((*itr) == item.childView, "Child view must be the same !");
+                    T3D_ASSERT(itr != getChildren().end());
+                    T3D_ASSERT((*itr) == item.childView);
                     
                     if (!isFirst)
                     {

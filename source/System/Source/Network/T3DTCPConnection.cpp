@@ -135,7 +135,7 @@ namespace Tiny3D
 
     TResult TCPListener::stop()
     {
-        T3D_ASSERT(mSockListener != nullptr, "Socket is nulltpr !");
+        T3D_ASSERT(mSockListener != nullptr);
         if (!mIsListening)
         {
             return T3D_OK;
@@ -517,7 +517,7 @@ namespace Tiny3D
                 
             while (remainLen > 0 && remainLen >= pkgSize)
             {
-                T3D_ASSERT(Socket::ntohs(package->magic) == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
+                T3D_ASSERT(Socket::ntohs(package->magic) == T3D_NET_PACKAGE_MAGIC);
                 // 发送回调，告知上层发送了哪些包
                 callOnSend(package->seq, package->data, package->length-T3D_NET_PACKAGE_HEADER_SIZE);
                 offset += pkgSize;
@@ -530,8 +530,8 @@ namespace Tiny3D
             {
                 // 发送了部分
                 
-                T3D_ASSERT(remainLen > 0, "The length of remain data greater than zero !");
-                T3D_ASSERT(Socket::ntohs(package->magic) == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
+                T3D_ASSERT(remainLen > 0);
+                T3D_ASSERT(Socket::ntohs(package->magic) == T3D_NET_PACKAGE_MAGIC);
                 
                 uint8_t *buf = mSendBuffer + offset;
                 memmove(mSendBuffer, buf, remainLen);
@@ -542,7 +542,7 @@ namespace Tiny3D
             }
             
             // 全部发完
-            T3D_ASSERT(sendLen == length, "Send all data !");
+            T3D_ASSERT(sendLen == length);
             
             mSendBufferBegin = 0;
             mSendBufferSize = 0;
@@ -626,7 +626,7 @@ namespace Tiny3D
             while (length >= pkgSize)
             {
                 package->magic = Socket::ntohs(package->magic);
-                T3D_ASSERT(package->magic == T3D_NET_PACKAGE_MAGIC, "Invalid net package magic !");
+                T3D_ASSERT(package->magic == T3D_NET_PACKAGE_MAGIC);
                 package->seq = Socket::ntohl(package->seq);
                 callOnRecv(package->seq, package->data, package->length-T3D_NET_PACKAGE_HEADER_SIZE);
                 length -= pkgSize;

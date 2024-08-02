@@ -67,7 +67,7 @@ namespace Tiny3D
 
     ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 5, "New mesh must be 5 arguments !");
+        T3D_ASSERT(argc == 5);
         VertexAttributes *attributes = va_arg(args, VertexAttributes*);
         Vertices *vertices = va_arg(args, Vertices*);
         VertexStrides *strides = va_arg(args, VertexStrides*);
@@ -87,7 +87,7 @@ namespace Tiny3D
 
     TResult MeshManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kMesh, "Save resource - the resource muust be mesh !");
+        T3D_ASSERT(res->getType() == Resource::Type::kMesh);
         Mesh *mesh = static_cast<Mesh*>(res);
         return T3D_SERIALIZER_MGR.serialize(stream, mesh);
     }

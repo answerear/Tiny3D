@@ -133,7 +133,7 @@ void GeometryApp::buildCamera(Transform3D *parent)
 
     // construct frustum bound
     auto frustum = go->addComponent<FrustumBound>();
-    T3D_ASSERT(frustum != nullptr, "add frustum bound component !");
+    T3D_ASSERT(frustum != nullptr);
 }
 
 void GeometryApp::buildCube(Transform3D *parent)
@@ -362,20 +362,20 @@ MaterialPtr GeometryApp::buildMaterial()
     // pass
     PassPtr pass = Pass::create("0");
     ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret), "Add vertex shader variant !");
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
     ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
     pass->setRenderState(renderState);
-    T3D_ASSERT(T3D_SUCCEEDED(ret), "Add pixel shader variant !");
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
     bool rval = tech->addPass(pass);
-    T3D_ASSERT(rval, "Add pass !");
+    T3D_ASSERT(rval);
 
     // shader
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
     rval = shader->addTechnique(tech);
-    T3D_ASSERT(rval, "Add technique !");
+    T3D_ASSERT(rval);
 
     // // constants
     // ShaderConstantParams constants;

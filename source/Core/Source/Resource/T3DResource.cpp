@@ -50,7 +50,7 @@ namespace Tiny3D
 
     Resource::~Resource()
     {
-        T3D_ASSERT(getState() == State::kUnloaded, "Resource has not unloaded !");
+        T3D_ASSERT(getState() == State::kUnloaded);
     }
 
     //--------------------------------------------------------------------------

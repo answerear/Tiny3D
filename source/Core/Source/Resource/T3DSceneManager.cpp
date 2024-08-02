@@ -150,7 +150,7 @@ namespace  Tiny3D
 
     TResult BuiltinSceneManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kScene, "Save resource must be scene !");
+        T3D_ASSERT(res->getType() == Resource::Type::kScene);
         Scene *scene = static_cast<Scene*>(res);
         return T3D_SERIALIZER_MGR.serialize(stream, scene);
     }

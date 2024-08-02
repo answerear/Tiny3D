@@ -73,7 +73,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc >= 5, "Invalid number of arguments in ImButton::create() !");
+            T3D_ASSERT(argc >= 5);
 
             ImButtonQueryCallback *queryEnabled = va_arg(args, ImButtonQueryCallback*);
             uint32_t clickedEvtID = va_arg(args, uint32_t);
@@ -159,7 +159,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc >= 6, "Invalid number of arguments in ImPsuhButton::create() !");
+            T3D_ASSERT(argc >= 6);
 
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -295,7 +295,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc >= 7, "Invalid number of arguments in ImImageButton::create() !");
+            T3D_ASSERT(argc >= 7);
             
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -429,7 +429,7 @@ namespace Tiny3D
 
         do
         {
-            T3D_ASSERT(argc >= 8, "Invalid number of arguments in ImPushImageButton::create() !");
+            T3D_ASSERT(argc >= 8);
             
             ret = ImImageButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))

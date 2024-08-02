@@ -58,14 +58,14 @@ namespace Tiny3D
         TFUNCTION()
         void setFace(Face face, const TPlane<T> &plane)
         {
-            T3D_ASSERT(face >= 0 && face < E_MAX_FACE, "The number of faces is out of bound !");
+            T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
             mFaces[face] = plane;
         }
 
         TFUNCTION()
         const TPlane<T> &getFace(Face face) const
         {
-            T3D_ASSERT(face >= 0 && face < E_MAX_FACE, "The number of faces is out of bound !");
+            T3D_ASSERT(face >= 0 && face < E_MAX_FACE);
             return mFaces[face];
         }
 

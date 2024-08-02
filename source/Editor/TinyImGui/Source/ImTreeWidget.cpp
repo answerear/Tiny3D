@@ -120,7 +120,7 @@ namespace Tiny3D
 
     TResult ImTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 6, "Invalid number of arguments in ImTreeNode::create() !");
+        T3D_ASSERT(argc == 6);
         
         TResult ret = IM_OK;
 
@@ -188,7 +188,7 @@ namespace Tiny3D
         {
             for (auto child : getChildren())
             {
-                T3D_ASSERT(child->getWidgetType() == WidgetType::kTreeNode, "Child must be tree node !");
+                T3D_ASSERT(child->getWidgetType() == WidgetType::kTreeNode);
                 ImTreeNode *node = static_cast<ImTreeNode*>(child);
                 node->collapse(recursively);
             }
@@ -210,7 +210,7 @@ namespace Tiny3D
         {
             for (auto child : getChildren())
             {
-                T3D_ASSERT(child->getWidgetType() == WidgetType::kTreeNode, "Child must be tree node !");
+                T3D_ASSERT(child->getWidgetType() == WidgetType::kTreeNode);
                 ImTreeNode *node = static_cast<ImTreeNode*>(child);
                 node->expand(recursively);
             }

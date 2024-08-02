@@ -92,7 +92,7 @@ namespace Tiny3D
 
     void FrustumBound::setFrustumFaces(Plane *plane, size_t planeCount)
     {
-        T3D_ASSERT(planeCount <= E_MAX_FACE, "Frustum must be 6 faces !");
+        T3D_ASSERT(planeCount <= E_MAX_FACE);
 
         for (size_t i = 0; i < planeCount; ++i)
         {

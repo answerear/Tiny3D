@@ -148,7 +148,7 @@ namespace Tiny3D
         // 同理，可以根据最小值计算方法计算最大值，并且如此类推，计算p'y'和p'z'
 
         GameObject *go = getGameObject();
-        T3D_ASSERT(go != nullptr, "Game object must be not nullptr !");
+        T3D_ASSERT(go != nullptr);
         
         Transform3D *xform = go->getComponent<Transform3D>();
         if (xform != nullptr)

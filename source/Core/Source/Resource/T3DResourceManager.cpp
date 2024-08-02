@@ -330,7 +330,7 @@ namespace Tiny3D
             if (res->getState() == Resource::State::kLoaded)
             {
                 ret = unload(res);
-                T3D_ASSERT(T3D_SUCCEEDED(ret), "Unload resource failed !");
+                T3D_ASSERT(T3D_SUCCEEDED(ret));
             }
             else
             {

@@ -77,7 +77,7 @@ namespace Tiny3D
 
     TResult ShaderManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kShader, "Save resource must be shader !");
+        T3D_ASSERT(res->getType() == Resource::Type::kShader);
         Shader *shader = static_cast<Shader*>(res);
         return T3D_SERIALIZER_MGR.serialize(stream, shader);
     }

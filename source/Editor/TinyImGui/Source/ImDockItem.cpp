@@ -48,7 +48,7 @@ namespace Tiny3D
 
     TResult ImDockItem::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 1, "Invalid number of arguments in ImDockItem::create() !");
+        T3D_ASSERT(argc >= 1);
 
         TResult ret = IM_OK;
 
