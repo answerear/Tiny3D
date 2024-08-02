@@ -54,7 +54,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, clickedEvtID, nullptr);
@@ -62,7 +62,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
+    TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, 0, &clicked);
@@ -70,7 +70,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByPath(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, clickedEvtID, nullptr);
@@ -78,7 +78,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
+    TResult ImTreeNode::createByPath(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, 0, &clicked);
@@ -86,7 +86,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, clickedEvtID, nullptr);
@@ -94,7 +94,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
+    TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, 0, &clicked);
@@ -102,7 +102,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, clickedEvtID, nullptr);
@@ -110,7 +110,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
+    TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
         return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, 0, &clicked);

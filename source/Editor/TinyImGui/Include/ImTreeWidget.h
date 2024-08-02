@@ -40,21 +40,21 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeNode; }
 
-        TResult create(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        TResult createByTexture(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
         
-        TResult create(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+        TResult createByTexture(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
 
-        TResult createEx(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        TResult createByPath(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
         
-        TResult createEx(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+        TResult createByPath(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
 
-        TResult create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        TResult createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
         
-        TResult create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+        TResult createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
         
-        TResult createEx(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        TResult createByPath(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
         
-        TResult createEx(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+        TResult createByPath(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
 
         TResult addNode(ImTreeNode *node);
 
