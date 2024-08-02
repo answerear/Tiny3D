@@ -79,6 +79,30 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Create all prefabs node failed ! ERROR [%d]", ret)
                 break;
             }
+
+            ImDummyTreeNode *dummyNode = new ImDummyTreeNode(tree);
+            ret = dummyNode->create(ID_PROJECT_ASSET_NODE+4, tree);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create dummy node failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            ImTreeNode *assetsNode = new ImTreeNode(tree);
+            ret = assetsNode->createEx(ID_PROJECT_ASSET_NODE+5, "Editor/icons/d_Folder@32.png", "Assets", tree);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create assets folder node faield ! ERROR [%d]", ret)
+                break;
+            }
+
+            node = new ImTreeNode(tree);
+            ret = node->createEx(ID_PROJECT_ASSET_NODE+6, "Editor/icons/d_Folder@32.png", "Scenes", assetsNode);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create scenes folder node failed ! ERROR [%d]", ret)
+                break;
+            }
         } while (false);
         
         return ret;
