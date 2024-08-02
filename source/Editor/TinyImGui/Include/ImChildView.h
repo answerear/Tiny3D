@@ -40,14 +40,14 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kChildView; }
 
-        virtual void update(const ImVec2 &size);
+        void update(const ImVec2 &size) override;
         
     protected:
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
 
-        virtual bool onGUIBegin(const ImVec2 &size);
+        bool onGUIBegin(const ImVec2 &size) override;
         
         virtual ImGuiChildFlags onGetChildFlags();
         virtual ImGuiWindowFlags onGetWindowFlags();

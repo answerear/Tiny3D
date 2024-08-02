@@ -69,6 +69,9 @@ namespace Tiny3D
     class ImPushButton;
     class ImImageButton;
     class ImPushImageButton;
+    class ImTreeWidget;
+    class ImTreeNode;
+    class ImTextureManager;
     
     
     using ImButtonClickedCallback = TFunction<void(ImWidget*)>;

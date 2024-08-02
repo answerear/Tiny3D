@@ -976,7 +976,45 @@ namespace Tiny3D
             onGUIEnd();
         }
 
-        if (mDebugEnabled && (mDebugFrame == 0xFFFFFFFF || mDebugFrame == mFrameCount))
+        if (getParent() == nullptr)
+        {
+            if (mDebugEnabled && (mDebugFrame == 0xFFFFFFFF || mDebugFrame == mFrameCount))
+            {
+                T3D_LOG_INFO(LOG_TAG_TINYIMGUI, "Widget hierarchy : ");
+                traverseHierarchyPreOrder(
+                    [](ImWidget *widget, int32_t depth)
+                    {
+                        std::stringstream ss;
+                        for (int32_t i = 0; i < depth; ++i)
+                        {
+                            ss << "\t";
+                        }
+                        ss << widget->getName();
+                        T3D_LOG_INFO(LOG_TAG_TINYIMGUI, "%s", ss.str().c_str());
+                    });
+            }
+            
+            mFrameCount++;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImWidget::update(const ImVec2 &size)
+    {
+        if (mVisible && onGUIBegin(size))
+        {
+            onGUI();
+
+            for (auto child : mChildren)
+            {
+                child->update(size);
+            }
+            
+            onGUIEnd();
+        }
+
+        if (getParent() == nullptr && mDebugEnabled && (mDebugFrame == 0xFFFFFFFF || mDebugFrame == mFrameCount))
         {
             T3D_LOG_INFO(LOG_TAG_TINYIMGUI, "Widget hierarchy : ");
             traverseHierarchyPreOrder(
@@ -991,8 +1029,6 @@ namespace Tiny3D
                     T3D_LOG_INFO(LOG_TAG_TINYIMGUI, "%s", ss.str().c_str());
                 });
         }
-        
-        mFrameCount++;
     }
 
     //--------------------------------------------------------------------------
@@ -1046,6 +1082,13 @@ namespace Tiny3D
     {
         ImGui::PushID(this);
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImWidget::onGUIBegin(const ImVec2 &size)
+    {
+        return onGUIBegin();
     }
 
     //--------------------------------------------------------------------------

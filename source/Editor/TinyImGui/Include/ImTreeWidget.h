@@ -34,6 +34,8 @@ namespace Tiny3D
     class TINYIMGUI_API ImTreeNode : public ImWidget
     {
     public:
+        ImTreeNode(ImTreeWidget *tree);
+        
         ~ImTreeNode() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeNode; }
@@ -45,13 +47,15 @@ namespace Tiny3D
         TResult addNode(ImTreeNode *node);
         
     protected:
-        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
-        bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
         void onGUI() override;
         void onGUIEnd() override;
 
         void onDestroy() override;
+
+        String getUniqueName() const;
 
     private:
         TResult addWidget(const String &parentName, ImWidget *widget) override;
@@ -71,8 +75,12 @@ namespace Tiny3D
         TResult insertAfterChild(uint32_t prevID, ImWidget *widget) override;
 
     protected:
+        /// tree 容器对象
+        ImTreeWidget    *mTreeWidget {nullptr};
         /// 图标对象
         ImTextureID mIconID {nullptr};
+        /// TreeWidget 的大小
+        ImVec2  mTreeWidgetSize {};
         /// 是否内部加载图标
         bool    mIsInternalLoaded {false};
     };
@@ -80,13 +88,30 @@ namespace Tiny3D
     class TINYIMGUI_API ImTreeWidget : public ImTreeNode
     {
     public:
+        ImTreeWidget();
+        
         ~ImTreeWidget() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeWidget; }
+
+        TResult create(uint32_t id, const String &name, ImWidget *parent = nullptr);
+
+        String &getSelectedNode() { return mSelectedNode; }
+
+        const ImVec2 &getContentPos() const { return mContentPos; }
+
+        void update() override;
         
     protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        
         bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
         void onGUI() override;
         void onGUIEnd() override;
+
+    protected:
+        String  mSelectedNode {};
+        ImVec2  mContentPos {};
     };
 }

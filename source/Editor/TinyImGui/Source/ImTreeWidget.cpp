@@ -32,6 +32,14 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    ImTreeNode::ImTreeNode(ImTreeWidget *tree)
+        : mTreeWidget(tree)
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
     ImTreeNode::~ImTreeNode()
     {
         
@@ -99,27 +107,104 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ImTreeNode::onGUIBegin()
+    String ImTreeNode::getUniqueName() const
     {
-        PushWidgetID();
         std::stringstream ss;
-        ss << "##" << getName();
-        if (!ImGui::TreeNode(ss.str().c_str()))
+        ss << "##" << getUUID().values.high << getUUID().values.low;
+        return ss.str();
+    }
+
+    //--------------------------------------------------------------------------
+
+    #define TREENODE_SPACING_X              (2.0f)
+    #define TREENODE_ICON_OFFSET_X          (-8.0f)
+    #define TREENODE_LEAF_ICON_OFFSET_X     (-16.0f)
+
+    bool ImTreeNode::onGUIBegin(const ImVec2 &size)
+    {
+        mTreeWidgetSize = size;
+        
+        // 告诉 imgui 一个唯一 ID
+        PushWidgetID();
+
+        // 生成唯一字符串
+        String strID = getUniqueName();
+        
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+        float offset_x = TREENODE_ICON_OFFSET_X;
+        if (getChildren().empty())
         {
-            PopWidgetID();
-            return false;
+            // 叶子节点
+            flags |= ImGuiTreeNodeFlags_Leaf;
+            offset_x = TREENODE_LEAF_ICON_OFFSET_X;
         }
-        return true;
+
+        if (mTreeWidget->getSelectedNode() == strID)
+        {
+            flags |= ImGuiTreeNodeFlags_Selected;
+        }
+
+        bool ret = ImGui::TreeNodeEx(strID.c_str(), flags);
+        if (!ret)
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
+
+            ImGui::SameLine();
+            float x = ImGui::GetCursorPosX();
+            x += offset_x;
+            ImGui::SetCursorPosX(x);
+            
+            // 图标
+            auto itemSize = ImGui::GetItemRectSize();
+            ImGui::Image(mIconID, ImVec2(itemSize.y, itemSize.y));
+            ImGui::SameLine();
+            // 文本
+            ImGui::Text(getName().c_str());
+
+            ImGui::PopStyleVar();
+
+            PopWidgetID();
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     void ImTreeNode::onGUI()
-    {        
+    {
+        String strID = getUniqueName();
+        
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+        {
+            mTreeWidget->getSelectedNode() = strID;
+        }
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
+
+        auto itemSize = ImGui::GetItemRectSize();
+        
         ImGui::SameLine();
-        ImGui::Image(mIconID, ImVec2(16, 16));
+        
+        float x = ImGui::GetCursorPosX();
+        if (getChildren().empty())
+        {
+            x += TREENODE_LEAF_ICON_OFFSET_X;
+        }
+        else
+        {
+            x += TREENODE_ICON_OFFSET_X;
+        }
+        
+        ImGui::SetCursorPosX(x);
+        
+        // 图标
+        ImGui::Image(mIconID, ImVec2(itemSize.y, itemSize.y));
         ImGui::SameLine();
+        // 文本
         ImGui::Text(getName().c_str());
+        
+        ImGui::PopStyleVar();
     }
 
     //--------------------------------------------------------------------------
@@ -189,9 +274,52 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    ImTreeWidget::ImTreeWidget()
+        : ImTreeNode(this)
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
     ImTreeWidget::~ImTreeWidget()
     {
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeWidget::create(uint32_t id, const String &name, ImWidget *parent)
+    {
+        return ImWidget::createInternal(id, name, parent, 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeWidget::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        return ImWidget::createInternal(id, name, parent, argc, args);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTreeWidget::update()
+    {
+        auto region = ImGui::GetContentRegionAvail();
+
+        mContentPos = ImGui::GetCursorPos();
+        
+        if (mVisible && onGUIBegin(region))
+        {
+            onGUI();
+
+            for (auto child : getChildren())
+            {
+                child->update(region);
+            }
+            
+            onGUIEnd();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -200,6 +328,13 @@ namespace Tiny3D
     {
         PushWidgetID();
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImTreeWidget::onGUIBegin(const ImVec2 &size)
+    {
+        return onGUIBegin();
     }
 
     //--------------------------------------------------------------------------

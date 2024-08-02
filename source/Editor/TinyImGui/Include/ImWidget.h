@@ -364,6 +364,12 @@ namespace Tiny3D
         virtual void update();
 
         /**
+         * 更新，用于更新自己及其子 widget
+         * @param size : 父 widget 的大小
+         */
+        virtual void update(const ImVec2 &size);
+
+        /**
          * 某些类型子类需要获取大小的回调
          * @return : 返回 widget 大小
          */
@@ -406,6 +412,8 @@ namespace Tiny3D
         virtual TResult onCreate();
         
         virtual bool onGUIBegin();
+
+        virtual bool onGUIBegin(const ImVec2 &size);
 
         virtual void onGUI();
 
