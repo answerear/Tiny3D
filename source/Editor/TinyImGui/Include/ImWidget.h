@@ -55,6 +55,8 @@ namespace Tiny3D
         kPushImageButton,
         kTreeNode,
         kTreeWidget,
+        kListItem,
+        kListWidget,
     };
 
     using TraverseHierarchyCallback = TFunction<void(ImWidget *, int32_t)>;
@@ -144,7 +146,7 @@ namespace Tiny3D
          * @param [in] parent : 父 widget
          * @return : 调用成功返回 IM_OK
          */
-        TResult create(uint32_t id, const String &name, ImWidget *parent);
+        virtual TResult create(uint32_t id, const String &name, ImWidget *parent);
 
         /**
          * 销毁 widget，包括自动 delete

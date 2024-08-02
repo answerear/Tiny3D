@@ -35,11 +35,15 @@ namespace Tiny3D
     {
     public:
         ~ImListItem() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kListItem; }
     };
 
     class TINYIMGUI_API ImListWidget : public ImWidget
     {
     public:
         ~ImListWidget() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kListWidget; }
     };
 }

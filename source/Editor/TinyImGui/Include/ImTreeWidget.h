@@ -132,7 +132,7 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeWidget; }
 
-        TResult create(uint32_t id, const String &name, ImWidget *parent = nullptr);
+        TResult create(uint32_t id, const String &name, ImWidget *parent = nullptr) override;
 
         void update() override;
         
