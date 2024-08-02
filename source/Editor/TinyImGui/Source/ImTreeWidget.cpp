@@ -49,7 +49,7 @@ namespace Tiny3D
 
     uint32_t ImTreeNode::getNodeID() const
     {
-        return mTreeWidget->getNodeID();
+        return mTreeWidget->generateNodeID();
     }
 
     //--------------------------------------------------------------------------
@@ -168,6 +168,41 @@ namespace Tiny3D
     #define TREENODE_ICON_OFFSET_X          (-8.0f)
     #define TREENODE_LEAF_ICON_OFFSET_X     (-16.0f)
 
+    //--------------------------------------------------------------------------
+
+    void ImTreeNode::drawIconAndText(bool opened)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
+
+        ImGui::SameLine();
+        
+        float x = ImGui::GetCursorPosX();
+        bool hasChildren = !getChildren().empty();
+        if (hasChildren)
+        {
+            x += TREENODE_ICON_OFFSET_X;
+            
+        }
+        else
+        {
+            x += TREENODE_LEAF_ICON_OFFSET_X;
+        }
+        
+        ImGui::SetCursorPosX(x);
+            
+        // 图标
+        auto itemSize = ImGui::GetItemRectSize();
+        ImTextureID icon = (opened && hasChildren && mOpenedIconID != nullptr) ? mOpenedIconID : mIconID;
+        ImGui::Image(icon, ImVec2(itemSize.y, itemSize.y));
+        ImGui::SameLine();
+        // 文本
+        ImGui::Text(getName().c_str());
+
+        ImGui::PopStyleVar();
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ImTreeNode::onGUIBegin(const ImVec2 &size)
     {
         mTreeWidgetSize = size;
@@ -195,21 +230,7 @@ namespace Tiny3D
         bool ret = ImGui::TreeNodeEx(strID.c_str(), flags);
         if (!ret)
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
-
-            ImGui::SameLine();
-            float x = ImGui::GetCursorPosX();
-            x += offset_x;
-            ImGui::SetCursorPosX(x);
-            
-            // 图标
-            auto itemSize = ImGui::GetItemRectSize();
-            ImGui::Image(mIconID, ImVec2(itemSize.y, itemSize.y));
-            ImGui::SameLine();
-            // 文本
-            ImGui::Text(getName().c_str());
-
-            ImGui::PopStyleVar();
+            drawIconAndText(false);
 
             PopWidgetID();
         }
@@ -227,34 +248,35 @@ namespace Tiny3D
         {
             mTreeWidget->getSelectedNode() = strID;
         }
-        
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
 
-        ImGui::SameLine();
-        
-        float x = ImGui::GetCursorPosX();
-        bool hasChildren = !getChildren().empty();
-        if (hasChildren)
-        {
-            x += TREENODE_ICON_OFFSET_X;
-            
-        }
-        else
-        {
-            x += TREENODE_LEAF_ICON_OFFSET_X;
-        }
-        
-        ImGui::SetCursorPosX(x);
-        
-        // 图标
-        auto itemSize = ImGui::GetItemRectSize();
-        ImTextureID icon = (hasChildren && mOpenedIconID != nullptr) ? mOpenedIconID : mIconID;
-        ImGui::Image(icon, ImVec2(itemSize.y, itemSize.y));
-        ImGui::SameLine();
-        // 文本
-        ImGui::Text(getName().c_str());
-        
-        ImGui::PopStyleVar();
+        drawIconAndText(true);
+        // ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
+        //
+        // ImGui::SameLine();
+        //
+        // float x = ImGui::GetCursorPosX();
+        // bool hasChildren = !getChildren().empty();
+        // if (hasChildren)
+        // {
+        //     x += TREENODE_ICON_OFFSET_X;
+        //     
+        // }
+        // else
+        // {
+        //     x += TREENODE_LEAF_ICON_OFFSET_X;
+        // }
+        //
+        // ImGui::SetCursorPosX(x);
+        //
+        // // 图标
+        // auto itemSize = ImGui::GetItemRectSize();
+        // ImTextureID icon = (hasChildren && mOpenedIconID != nullptr) ? mOpenedIconID : mIconID;
+        // ImGui::Image(icon, ImVec2(itemSize.y, itemSize.y));
+        // ImGui::SameLine();
+        // // 文本
+        // ImGui::Text(getName().c_str());
+        //
+        // ImGui::PopStyleVar();
     }
 
     //--------------------------------------------------------------------------

@@ -63,6 +63,8 @@ namespace Tiny3D
 
         uint32_t getNodeID() const;
 
+        void drawIconAndText(bool opened);
+
     private:
         TResult addWidget(const String &parentName, ImWidget *widget) override;
 
@@ -120,10 +122,10 @@ namespace Tiny3D
 
         const ImVec2 &getContentPos() const { return mContentPos; }
 
-        uint32_t getNodeID() const { return mNodeID++; }
+        uint32_t generateNodeID() { return mNodeID++; }
         
     protected:
-        mutable uint32_t mNodeID {0};
+        uint32_t mNodeID {0};
         String  mSelectedNode {};
         ImVec2  mContentPos {};
     };
