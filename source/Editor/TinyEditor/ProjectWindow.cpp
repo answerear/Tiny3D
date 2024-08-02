@@ -36,9 +36,52 @@ namespace Tiny3D
 
     TResult AssetHierarchyView::onCreate()
     {
-        ImTreeWidget *tree = new ImTreeWidget();
-        // TResult ret = tree->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "AssetHierarchy", this);
-        return IM_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ImTreeWidget *tree = new ImTreeWidget();
+            ret = tree->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "Asset Hierarchy Tree", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create asset hierarchy tree failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            ImTreeNode *favoriteRoot = new ImTreeNode(tree);
+            ret = favoriteRoot->createEx(ID_PROJECT_ASSET_NODE, "Editor/icons/d_Favorite@32.png", "Fovorites", tree);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create favarites node failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            ImTreeNode *node = new ImTreeNode(tree);
+            ret = node->createEx(ID_PROJECT_ASSET_NODE+1, "Editor/icons/d_Search@32.png", "All Materials", favoriteRoot);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create all material node failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            node = new ImTreeNode(tree);
+            ret = node->createEx(ID_PROJECT_ASSET_NODE+2, "Editor/icons/d_Search@32.png", "All Models", favoriteRoot);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create all modles node failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            node = new ImTreeNode(tree);
+            ret = node->createEx(ID_PROJECT_ASSET_NODE+3, "Editor/icons/d_Search@32.png", "All Prefabs", favoriteRoot);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create all prefabs node failed ! ERROR [%d]", ret)
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
