@@ -47,23 +47,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(uint32_t id, ImTextureID texID, const String &title, ImTreeNode *parent)
+    uint32_t ImTreeNode::getNodeID() const
     {
-        return ImWidget::createInternal(id, title, parent, 2, texID, nullptr);
+        return mTreeWidget->getNodeID();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(uint32_t id, const String &imageName, const String &title, ImTreeNode *parent)
+    TResult ImTreeNode::create(ImTextureID texID, const String &title, ImTreeNode *parent)
     {
-        return ImWidget::createInternal(id, title, parent, 2, nullptr, &imageName);
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 4, texID, nullptr, nullptr, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::createEx(const String &imageName, const String &title, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 4, nullptr, &imageName, nullptr, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 4, collapsedTexID, nullptr, openedTexID, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::createEx(const String &collapsedImage, const String &openedImage, const String &title, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 4, nullptr, &collapsedImage, nullptr, &openedImage);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 2, "Invalid number of arguments in ImTreeNode::create() !");
+        T3D_ASSERT(argc == 4, "Invalid number of arguments in ImTreeNode::create() !");
         
         TResult ret = IM_OK;
 
@@ -76,7 +101,21 @@ namespace Tiny3D
                 mIconID = IM_TEXTURE_MGR.loadTexture(*imageName);
                 if (mIconID == nullptr)
                 {
-                    IMGUI_LOG_ERROR("Load texture %s for TreeNode failed ! ERROR [%d]", imageName->c_str(), ret)
+                    IMGUI_LOG_ERROR("Load texture %s for TreeNode collapsed icon failed ! ERROR [%d]", imageName->c_str(), ret)
+                    ret = T3D_ERR_FAIL;
+                    break;
+                }
+                mIsInternalLoaded = true;
+            }
+
+            mOpenedIconID = va_arg(args, ImTextureID);
+            imageName = va_arg(args, String*);
+            if (mOpenedIconID == nullptr && imageName != nullptr)
+            {
+                mOpenedIconID = IM_TEXTURE_MGR.loadTexture(*imageName);
+                if (mOpenedIconID == nullptr)
+                {
+                    IMGUI_LOG_ERROR("Load texture %s for TreeNode opened icon failed ! ERROR [%d]", imageName->c_str(), ret)
                     ret = T3D_ERR_FAIL;
                     break;
                 }
@@ -98,10 +137,19 @@ namespace Tiny3D
 
     void ImTreeNode::onDestroy()
     {
-        if (mIsInternalLoaded && mIconID != nullptr)
+        if (mIsInternalLoaded)
         {
-            IM_TEXTURE_MGR.unloadTexture(mIconID);
-            mIconID = nullptr;
+            if (mIconID != nullptr)
+            {
+                IM_TEXTURE_MGR.unloadTexture(mIconID);
+                mIconID = nullptr;
+            }
+
+            if (mOpenedIconID != nullptr)
+            {
+                IM_TEXTURE_MGR.unloadTexture(mOpenedIconID);
+                mOpenedIconID = nullptr;
+            }
         }
     }
 
@@ -185,20 +233,23 @@ namespace Tiny3D
         ImGui::SameLine();
         
         float x = ImGui::GetCursorPosX();
-        if (getChildren().empty())
+        bool hasChildren = !getChildren().empty();
+        if (hasChildren)
         {
-            x += TREENODE_LEAF_ICON_OFFSET_X;
+            x += TREENODE_ICON_OFFSET_X;
+            
         }
         else
         {
-            x += TREENODE_ICON_OFFSET_X;
+            x += TREENODE_LEAF_ICON_OFFSET_X;
         }
         
         ImGui::SetCursorPosX(x);
         
         // 图标
         auto itemSize = ImGui::GetItemRectSize();
-        ImGui::Image(mIconID, ImVec2(itemSize.y, itemSize.y));
+        ImTextureID icon = (hasChildren && mOpenedIconID != nullptr) ? mOpenedIconID : mIconID;
+        ImGui::Image(icon, ImVec2(itemSize.y, itemSize.y));
         ImGui::SameLine();
         // 文本
         ImGui::Text(getName().c_str());
@@ -297,7 +348,8 @@ namespace Tiny3D
 
     TResult ImTreeWidget::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        return ImWidget::createInternal(id, name, parent, argc, args);
+        mNodeID = id;
+        return IM_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -367,8 +419,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImDummyTreeNode::create(uint32_t id, ImTreeNode *parent)
+    TResult ImDummyTreeNode::create(ImTreeNode *parent)
     {
+        uint32_t id = getNodeID();
         return ImWidget::create(id, "##DUMMY_TREE_NODE", parent);
     }
 

@@ -40,9 +40,13 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeNode; }
 
-        TResult create(uint32_t id, ImTextureID texID, const String &title, ImTreeNode *parent);
+        TResult create(ImTextureID texID, const String &title, ImTreeNode *parent);
 
-        TResult createEx(uint32_t id, const String &imageName, const String &title, ImTreeNode *parent);
+        TResult createEx(const String &imageName, const String &title, ImTreeNode *parent);
+
+        TResult create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, ImTreeNode *parent);
+        
+        TResult createEx(const String &collapsedImage, const String &openedImage, const String &title, ImTreeNode *parent);
 
         TResult addNode(ImTreeNode *node);
         
@@ -56,6 +60,8 @@ namespace Tiny3D
         void onDestroy() override;
 
         String getUniqueName() const;
+
+        uint32_t getNodeID() const;
 
     private:
         TResult addWidget(const String &parentName, ImWidget *widget) override;
@@ -76,17 +82,21 @@ namespace Tiny3D
 
     protected:
         /// tree 容器对象
-        ImTreeWidget    *mTreeWidget {nullptr};
+        ImTreeWidget *mTreeWidget {nullptr};
         /// 图标对象
         ImTextureID mIconID {nullptr};
+        /// 展开状态的图标对象
+        ImTextureID mOpenedIconID {nullptr};
         /// TreeWidget 的大小
-        ImVec2  mTreeWidgetSize {};
+        ImVec2 mTreeWidgetSize {};
         /// 是否内部加载图标
-        bool    mIsInternalLoaded {false};
+        bool mIsInternalLoaded {false};
     };
 
     class TINYIMGUI_API ImTreeWidget : public ImTreeNode
     {
+        friend class ImTreeNode;
+        
     public:
         ImTreeWidget();
         
@@ -95,10 +105,6 @@ namespace Tiny3D
         WidgetType getWidgetType() const override { return WidgetType::kTreeWidget; }
 
         TResult create(uint32_t id, const String &name, ImWidget *parent = nullptr);
-
-        String &getSelectedNode() { return mSelectedNode; }
-
-        const ImVec2 &getContentPos() const { return mContentPos; }
 
         void update() override;
         
@@ -110,7 +116,14 @@ namespace Tiny3D
         void onGUI() override;
         void onGUIEnd() override;
 
+        String &getSelectedNode() { return mSelectedNode; }
+
+        const ImVec2 &getContentPos() const { return mContentPos; }
+
+        uint32_t getNodeID() const { return mNodeID++; }
+        
     protected:
+        mutable uint32_t mNodeID {0};
         String  mSelectedNode {};
         ImVec2  mContentPos {};
     };
@@ -122,7 +135,7 @@ namespace Tiny3D
 
         ~ImDummyTreeNode() override;
 
-        TResult create(uint32_t id, ImTreeNode *parent = nullptr);
+        TResult create(ImTreeNode *parent = nullptr);
 
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;

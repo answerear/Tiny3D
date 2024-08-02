@@ -49,7 +49,7 @@ namespace Tiny3D
             }
 
             ImTreeNode *favoriteRoot = new ImTreeNode(tree);
-            ret = favoriteRoot->createEx(ID_PROJECT_ASSET_NODE, "Editor/icons/d_Favorite@32.png", "Fovorites", tree);
+            ret = favoriteRoot->createEx("Editor/icons/d_Favorite@32.png", "Fovorites", tree);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create favarites node failed ! ERROR [%d]", ret)
@@ -57,7 +57,7 @@ namespace Tiny3D
             }
 
             ImTreeNode *node = new ImTreeNode(tree);
-            ret = node->createEx(ID_PROJECT_ASSET_NODE+1, "Editor/icons/d_Search@32.png", "All Materials", favoriteRoot);
+            ret = node->createEx("Editor/icons/d_Search@32.png", "All Materials", favoriteRoot);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create all material node failed ! ERROR [%d]", ret)
@@ -65,7 +65,7 @@ namespace Tiny3D
             }
 
             node = new ImTreeNode(tree);
-            ret = node->createEx(ID_PROJECT_ASSET_NODE+2, "Editor/icons/d_Search@32.png", "All Models", favoriteRoot);
+            ret = node->createEx("Editor/icons/d_Search@32.png", "All Models", favoriteRoot);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create all modles node failed ! ERROR [%d]", ret)
@@ -73,7 +73,7 @@ namespace Tiny3D
             }
 
             node = new ImTreeNode(tree);
-            ret = node->createEx(ID_PROJECT_ASSET_NODE+3, "Editor/icons/d_Search@32.png", "All Prefabs", favoriteRoot);
+            ret = node->createEx("Editor/icons/d_Search@32.png", "All Prefabs", favoriteRoot);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create all prefabs node failed ! ERROR [%d]", ret)
@@ -81,7 +81,7 @@ namespace Tiny3D
             }
 
             ImDummyTreeNode *dummyNode = new ImDummyTreeNode(tree);
-            ret = dummyNode->create(ID_PROJECT_ASSET_NODE+4, tree);
+            ret = dummyNode->create(tree);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create dummy node failed ! ERROR [%d]", ret)
@@ -89,7 +89,7 @@ namespace Tiny3D
             }
 
             ImTreeNode *assetsNode = new ImTreeNode(tree);
-            ret = assetsNode->createEx(ID_PROJECT_ASSET_NODE+5, "Editor/icons/d_Folder@32.png", "Assets", tree);
+            ret = assetsNode->createEx("Editor/icons/d_Folder@32.png", "Editor/icons/d_FolderOpened@32.png", "Assets", tree);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create assets folder node faield ! ERROR [%d]", ret)
@@ -97,7 +97,7 @@ namespace Tiny3D
             }
 
             node = new ImTreeNode(tree);
-            ret = node->createEx(ID_PROJECT_ASSET_NODE+6, "Editor/icons/d_Folder@32.png", "Scenes", assetsNode);
+            ret = node->createEx("Editor/icons/d_Folder@32.png", "Editor/icons/d_FolderOpened@32.png", "Scenes", assetsNode);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create scenes folder node failed ! ERROR [%d]", ret)
