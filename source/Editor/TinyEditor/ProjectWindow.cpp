@@ -85,6 +85,8 @@ namespace Tiny3D
                 break;
             }
 
+            favoriteRoot->expand(true);
+
             ImDummyTreeNode *dummyNode = new ImDummyTreeNode(tree);
             ret = dummyNode->create(tree);
             if (T3D_FAILED(ret))
@@ -93,8 +95,8 @@ namespace Tiny3D
                 break;
             }
 
-            ImTreeNode *assetsNode = new ImTreeNode(tree);
-            ret = assetsNode->createEx("Editor/icons/d_Folder@32.png", "Editor/icons/d_FolderOpened@32.png", "Assets", treeNodeClicked, tree);
+            ImTreeNode *assetsRoot = new ImTreeNode(tree);
+            ret = assetsRoot->createEx("Editor/icons/d_Folder@32.png", "Editor/icons/d_FolderOpened@32.png", "Assets", treeNodeClicked, tree);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create assets folder node faield ! ERROR [%d]", ret)
@@ -102,12 +104,14 @@ namespace Tiny3D
             }
 
             node = new ImTreeNode(tree);
-            ret = node->createEx("Editor/icons/d_Folder@32.png", "Editor/icons/d_FolderOpened@32.png", "Scenes", treeNodeClicked, assetsNode);
+            ret = node->createEx("Editor/icons/d_Folder@32.png", "Editor/icons/d_FolderOpened@32.png", "Scenes", treeNodeClicked, assetsRoot);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create scenes folder node failed ! ERROR [%d]", ret)
                 break;
             }
+
+            assetsRoot->expand(true);
         } while (false);
         
         return ret;
