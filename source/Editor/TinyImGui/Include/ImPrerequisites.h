@@ -71,11 +71,14 @@ namespace Tiny3D
     class ImPushImageButton;
     class ImTreeWidget;
     class ImTreeNode;
+    class ImDummyTreeNode;
     class ImTextureManager;
     
     
     using ImButtonClickedCallback = TFunction<void(ImWidget*)>;
     using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
-
+    using ImTreeNodeClickedCallback = TFunction<void(ImTreeNode*)>;
+    
     using EventParamButtonClicked = EventParamT1<ImWidget*>;
+    using EventParamTreeNodeClicked = EventParamT1<ImTreeNode*>;
 }

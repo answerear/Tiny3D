@@ -54,47 +54,81 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(ImTextureID texID, const String &title, ImTreeNode *parent)
+    TResult ImTreeNode::create(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
-        return ImWidget::createInternal(id, title, parent, 4, texID, nullptr, nullptr, nullptr);
+        return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, clickedEvtID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(const String &imageName, const String &title, ImTreeNode *parent)
+    TResult ImTreeNode::create(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
-        return ImWidget::createInternal(id, title, parent, 4, nullptr, &imageName, nullptr, nullptr);
+        return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, 0, &clicked);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::createEx(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, clickedEvtID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, ImTreeNode *parent)
+    TResult ImTreeNode::createEx(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
-        return ImWidget::createInternal(id, title, parent, 4, collapsedTexID, nullptr, openedTexID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, 0, &clicked);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, clickedEvtID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createEx(const String &collapsedImage, const String &openedImage, const String &title, ImTreeNode *parent)
+    TResult ImTreeNode::create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNodeID();
-        return ImWidget::createInternal(id, title, parent, 4, nullptr, &collapsedImage, nullptr, &openedImage);
+        return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, 0, &clicked);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::createEx(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, clickedEvtID, nullptr);
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::createEx(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
+    {
+        uint32_t id = getNodeID();
+        return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, 0, &clicked);
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult ImTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 4, "Invalid number of arguments in ImTreeNode::create() !");
+        T3D_ASSERT(argc == 6, "Invalid number of arguments in ImTreeNode::create() !");
         
         TResult ret = IM_OK;
 
         do
         {
+            // collapse icon texture
             mIconID = va_arg(args, ImTextureID);
+            // collapse icon path
             String *imageName = va_arg(args, String*);
             if (mIconID == nullptr)
             {
@@ -108,7 +142,9 @@ namespace Tiny3D
                 mIsInternalLoaded = true;
             }
 
+            // opened icon texture
             mOpenedIconID = va_arg(args, ImTextureID);
+            // opened icon path
             imageName = va_arg(args, String*);
             if (mOpenedIconID == nullptr && imageName != nullptr)
             {
@@ -121,6 +157,12 @@ namespace Tiny3D
                 }
                 mIsInternalLoaded = true;
             }
+
+            // clicked event id
+            mClickedEvtID = va_arg(args, uint32_t);
+            // clicked callback
+            ImTreeNodeClickedCallback *callback = va_arg(args, ImTreeNodeClickedCallback*);
+            mClickedCallback = *callback;
         } while (false);
         
         return ret;
@@ -203,6 +245,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ImTreeNode::fireClickedEvent()
+    {
+        if (mClickedEvtID != 0)
+        {
+            EventParamTreeNodeClicked param(this);
+            mTreeWidget->sendClickedEvent(mClickedEvtID, &param);
+        }
+        else if (mClickedCallback != nullptr)
+        {
+            mClickedCallback(this);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ImTreeNode::onGUIBegin(const ImVec2 &size)
     {
         mTreeWidgetSize = size;
@@ -233,6 +290,11 @@ namespace Tiny3D
             drawIconAndText(false);
 
             PopWidgetID();
+        }
+
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+        {
+            fireClickedEvent();
         }
 
         return ret;
@@ -422,6 +484,13 @@ namespace Tiny3D
     void ImTreeWidget::onGUIEnd()
     {
         PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTreeWidget::sendClickedEvent(uint32_t evt, EventParamTreeNodeClicked *param)
+    {
+        sendEvent(evt, param);
     }
 
     //--------------------------------------------------------------------------

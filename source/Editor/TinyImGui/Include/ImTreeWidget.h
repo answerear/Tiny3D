@@ -40,15 +40,25 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeNode; }
 
-        TResult create(ImTextureID texID, const String &title, ImTreeNode *parent);
-
-        TResult createEx(const String &imageName, const String &title, ImTreeNode *parent);
-
-        TResult create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, ImTreeNode *parent);
+        TResult create(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
         
-        TResult createEx(const String &collapsedImage, const String &openedImage, const String &title, ImTreeNode *parent);
+        TResult create(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+
+        TResult createEx(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        
+        TResult createEx(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+
+        TResult create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        
+        TResult create(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
+        
+        TResult createEx(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent);
+        
+        TResult createEx(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent);
 
         TResult addNode(ImTreeNode *node);
+
+        ImTreeWidget *getTreeWidget() const { return mTreeWidget; }
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -64,6 +74,8 @@ namespace Tiny3D
         uint32_t getNodeID() const;
 
         void drawIconAndText(bool opened);
+
+        void fireClickedEvent();
 
     private:
         TResult addWidget(const String &parentName, ImWidget *widget) override;
@@ -91,11 +103,17 @@ namespace Tiny3D
         ImTextureID mOpenedIconID {nullptr};
         /// TreeWidget 的大小
         ImVec2 mTreeWidgetSize {};
+        /// 单击发送的事件 ID
+        uint32_t mClickedEvtID {0};
+        /// 单击回调
+        ImTreeNodeClickedCallback mClickedCallback {nullptr};
         /// 是否内部加载图标
         bool mIsInternalLoaded {false};
     };
 
-    class TINYIMGUI_API ImTreeWidget : public ImTreeNode
+    class TINYIMGUI_API ImTreeWidget
+        : public ImTreeNode
+        , public EventHandler
     {
         friend class ImTreeNode;
         
@@ -123,6 +141,8 @@ namespace Tiny3D
         const ImVec2 &getContentPos() const { return mContentPos; }
 
         uint32_t generateNodeID() { return mNodeID++; }
+
+        void sendClickedEvent(uint32_t evt, EventParamTreeNodeClicked *param);
         
     protected:
         uint32_t mNodeID {0};
