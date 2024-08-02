@@ -114,4 +114,22 @@ namespace Tiny3D
         String  mSelectedNode {};
         ImVec2  mContentPos {};
     };
+
+    class TINYIMGUI_API ImDummyTreeNode : public ImTreeNode
+    {
+    public:
+        ImDummyTreeNode(ImTreeWidget *tree);
+
+        ~ImDummyTreeNode() override;
+
+        TResult create(uint32_t id, ImTreeNode *parent = nullptr);
+
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        
+        bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
+        void onGUI() override;
+        void onGUIEnd() override;
+    };
 }

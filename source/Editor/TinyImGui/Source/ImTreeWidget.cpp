@@ -130,7 +130,7 @@ namespace Tiny3D
         // 生成唯一字符串
         String strID = getUniqueName();
         
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
         float offset_x = TREENODE_ICON_OFFSET_X;
         if (getChildren().empty())
         {
@@ -182,8 +182,6 @@ namespace Tiny3D
         
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
 
-        auto itemSize = ImGui::GetItemRectSize();
-        
         ImGui::SameLine();
         
         float x = ImGui::GetCursorPosX();
@@ -199,6 +197,7 @@ namespace Tiny3D
         ImGui::SetCursorPosX(x);
         
         // 图标
+        auto itemSize = ImGui::GetItemRectSize();
         ImGui::Image(mIconID, ImVec2(itemSize.y, itemSize.y));
         ImGui::SameLine();
         // 文本
@@ -275,7 +274,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ImTreeWidget::ImTreeWidget()
-        : ImTreeNode(this)
+        : ImTreeNode(nullptr)
     {
         
     }
@@ -348,6 +347,72 @@ namespace Tiny3D
 
     void ImTreeWidget::onGUIEnd()
     {
+        PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImDummyTreeNode::ImDummyTreeNode(ImTreeWidget *tree)
+        : ImTreeNode(tree)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImDummyTreeNode::~ImDummyTreeNode()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImDummyTreeNode::create(uint32_t id, ImTreeNode *parent)
+    {
+        return ImWidget::create(id, "##DUMMY_TREE_NODE", parent);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImDummyTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        return ImWidget::createInternal(id, name, parent, argc, args);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImDummyTreeNode::onGUIBegin()
+    {
+        PushWidgetID();
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf;
+        String strID = getUniqueName();
+        bool ret = ImGui::TreeNodeEx(strID.c_str(), flags);
+        if (!ret)
+        {
+            PopWidgetID();
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImDummyTreeNode::onGUIBegin(const ImVec2 &size)
+    {
+        return onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImDummyTreeNode::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImDummyTreeNode::onGUIEnd()
+    {
+        ImGui::TreePop();
         PopWidgetID();
     }
 
