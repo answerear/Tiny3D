@@ -59,6 +59,10 @@ namespace Tiny3D
         TResult addNode(ImTreeNode *node);
 
         ImTreeWidget *getTreeWidget() const { return mTreeWidget; }
+
+        TResult collapse(bool recursively);
+
+        TResult expand(bool recursively);
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -109,6 +113,10 @@ namespace Tiny3D
         ImTreeNodeClickedCallback mClickedCallback {nullptr};
         /// 是否内部加载图标
         bool mIsInternalLoaded {false};
+        /// 是否展开
+        bool mIsExpanded {false};
+        /// 是否更新展开、收起状态
+        bool mIsUpdateExpanding {false};
     };
 
     class TINYIMGUI_API ImTreeWidget

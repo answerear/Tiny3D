@@ -177,6 +177,50 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImTreeNode::collapse(bool recursively)
+    {
+        TResult ret = IM_OK;
+
+        mIsExpanded = false;
+        mIsUpdateExpanding = true;
+
+        if (recursively)
+        {
+            for (auto child : getChildren())
+            {
+                T3D_ASSERT(child->getWidgetType() == WidgetType::kTreeNode, "Child must be tree node !");
+                ImTreeNode *node = static_cast<ImTreeNode*>(child);
+                node->collapse(recursively);
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImTreeNode::expand(bool recursively)
+    {
+        TResult ret = IM_OK;
+
+        mIsExpanded = true;
+        mIsUpdateExpanding = true;
+
+        if (recursively)
+        {
+            for (auto child : getChildren())
+            {
+                T3D_ASSERT(child->getWidgetType() == WidgetType::kTreeNode, "Child must be tree node !");
+                ImTreeNode *node = static_cast<ImTreeNode*>(child);
+                node->expand(recursively);
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ImTreeNode::onDestroy()
     {
         if (mIsInternalLoaded)
@@ -223,7 +267,6 @@ namespace Tiny3D
         if (hasChildren)
         {
             x += TREENODE_ICON_OFFSET_X;
-            
         }
         else
         {
@@ -282,6 +325,19 @@ namespace Tiny3D
         if (mTreeWidget->getSelectedNode() == strID)
         {
             flags |= ImGuiTreeNodeFlags_Selected;
+        }
+
+        if (mIsUpdateExpanding)
+        {
+            if (mIsExpanded)
+            {
+                ImGui::SetNextItemOpen(true);
+            }
+            else
+            {
+                ImGui::SetNextItemOpen(false);
+            }
+            mIsUpdateExpanding = false;
         }
 
         bool ret = ImGui::TreeNodeEx(strID.c_str(), flags);
