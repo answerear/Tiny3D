@@ -35,7 +35,7 @@ namespace Tiny3D
     ImTreeNode::ImTreeNode(ImTreeWidget *tree)
         : mTreeWidget(tree)
     {
-        T3D_ASSERT(mTreeWidget != nullptr);
+        
     }
     
     //--------------------------------------------------------------------------
@@ -49,7 +49,7 @@ namespace Tiny3D
 
     uint32_t ImTreeNode::getNewNodeID() const
     {
-        return mTreeWidget->generateNodeID();
+        return mTreeWidget != nullptr ? mTreeWidget->generateNodeID() : 0;
     }
 
     //--------------------------------------------------------------------------
@@ -298,7 +298,7 @@ namespace Tiny3D
 
     void ImTreeNode::fireClickedEvent()
     {
-        if (mClickedEvtID != 0)
+        if (mClickedEvtID != 0 && mTreeWidget != nullptr)
         {
             EventParamTreeNodeClicked param(this);
             mTreeWidget->sendClickedEvent(mClickedEvtID, &param);
@@ -330,7 +330,7 @@ namespace Tiny3D
             offset_x = TREENODE_LEAF_ICON_OFFSET_X;
         }
 
-        if (mTreeWidget->getSelectedNode() == strID)
+        if (mTreeWidget != nullptr && mTreeWidget->getSelectedNode() == strID)
         {
             flags |= ImGuiTreeNodeFlags_Selected;
         }
@@ -370,7 +370,7 @@ namespace Tiny3D
     {
         String strID = getUniqueName();
         
-        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+        if (mTreeWidget != nullptr && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
         {
             mTreeWidget->getSelectedNode() = strID;
         }

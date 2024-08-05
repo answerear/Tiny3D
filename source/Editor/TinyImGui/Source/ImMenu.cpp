@@ -26,6 +26,7 @@
 #include "ImMenu.h"
 #include "ImErrors.h"
 #include "ImWidgetID.h"
+#include "ImEventDefine.h"
 
 
 namespace Tiny3D
@@ -39,6 +40,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // argc : >= 2
+    // args :
+    //  ImMenuItemQueryCallback* : 可用状态查询回调
+    //  ImTextureID : 图标纹理对象
     TResult ImMenuItemEnabled::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 2);
@@ -69,9 +74,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // argc : >= 4
+    // args :
+    //  ImMenuItemQueryCallback* : 可用状态查询回调
+    //  ImTextureID : 图标纹理对象
+    //  String* : 快捷键字符串
+    //  ImMenuItemClickedCallback* : 点击回调
     TResult ImMenuItemClickable::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 3);
+        T3D_ASSERT(argc >= 4);
         
         TResult ret = IM_OK;
 
@@ -86,9 +97,6 @@ namespace Tiny3D
             /// 快捷键
             String *shortcut = va_arg(args, String*);
             mShortcut = *shortcut;
-            
-            /// 点击事件
-            mClickedEventID = va_arg(args, uint32_t);
             
             /// 点击回调函数
             ImMenuItemClickedCallback *callback = va_arg(args, ImMenuItemClickedCallback*);
@@ -119,21 +127,27 @@ namespace Tiny3D
 
     TResult ImMenuItemNormal::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, 0, &callback);
+        return ImWidget::createInternal(id, title, parent, 4, &queryEnable, icon, &shortcut, &callback);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemNormal::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemNormal::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, eventID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
+    // argc : >= 4
+    // args :
+    //  ImMenuItemQueryCallback* : 可用状态查询回调
+    //  ImTextureID : 图标纹理对象
+    //  String* : 快捷键字符串
+    //  ImMenuItemClickedCallback* : 点击回调
     TResult ImMenuItemNormal::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 5);
+        T3D_ASSERT(argc >= 4);
 
         TResult ret = IM_OK;
         
@@ -173,15 +187,15 @@ namespace Tiny3D
         // 菜单项
         if (ImGui::MenuItem(getName().c_str(), mShortcut.empty() ? nullptr : mShortcut.c_str(), false, enable))
         {
-            if (mClickedEventID != 0)
+            if (mClickedCallback != nullptr)
+            {
+                mClickedCallback(this);
+            }
+            else
             {
                 EventParamMenuItem param;
                 param.arg1 = this;
-                sendEvent(mClickedEventID, &param);
-            }
-            else if (mClickedCallback != nullptr)
-            {
-                mClickedCallback(this);
+                sendEvent(kEvtMenuItemClicked, &param);
             }
         }
     }
@@ -216,6 +230,10 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    // argc : >= 2
+    // args :
+    //  ImMenuItemQueryCallback* : 可用状态查询回调
+    //  ImTextureID : 图标纹理对象
     TResult ImMenuItemPopup::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         T3D_ASSERT(argc >= 2);
@@ -242,14 +260,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, uint32_t eventID, ImTextureID icon)
+    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, ImTextureID icon)
     {
         TResult ret = IM_OK;
 
         do
         {
             ImMenuItemNormal *item = new ImMenuItemNormal();
-            ret = item->create(id, name, shortcut, queryEnable, eventID, this, icon);
+            ret = item->create(id, name, shortcut, queryEnable, this, icon);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(item);
@@ -305,14 +323,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImTextureID icon)
+    TResult ImMenuItemPopup::addItem(uint32_t id, const String &name, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImTextureID icon)
     {
         TResult ret = IM_OK;
 
         do
         {
             ImMenuItemCheck *item = new ImMenuItemCheck();
-            ret = item->create(id, name, shortcut, queryEnable, queryCheck, eventID, this, icon);
+            ret = item->create(id, name, shortcut, queryEnable, queryCheck, this, icon);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(item);
@@ -429,21 +447,28 @@ namespace Tiny3D
 
     TResult ImMenuItemCheck::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &callback, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(id, title, parent, 6, &queryEnable, icon, &shortcut, 0, &callback, &queryCheck);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, &callback, &queryCheck);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImMenuItemCheck::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, uint32_t eventID, ImWidget *parent, ImTextureID icon)
+    TResult ImMenuItemCheck::create(uint32_t id, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, ImWidget *parent, ImTextureID icon)
     {
-        return ImWidget::createInternal(id, title, parent, 6, &queryEnable, icon, &shortcut, eventID, nullptr, &queryCheck);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnable, icon, &shortcut, nullptr, &queryCheck);
     }
 
     //--------------------------------------------------------------------------
 
+    // argc : >= 5
+    // args :
+    //  ImMenuItemQueryCallback* : 可用状态查询回调
+    //  ImTextureID : 图标纹理对象
+    //  String* : 快捷键字符串
+    //  ImMenuItemClickedCallback* : 点击回调
+    //  ImMenuItemQueryCallback* : 选中态查询回调
     TResult ImMenuItemCheck::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc >= 6);
+        T3D_ASSERT(argc >= 5);
 
         TResult ret = IM_OK;
         
@@ -479,15 +504,15 @@ namespace Tiny3D
     {
         auto callback = [this]()
         {
-            if (mClickedEventID != 0)
+            if (mClickedCallback != nullptr)
+            {
+                mClickedCallback(this);
+            }
+            else
             {
                 EventParamMenuItem param;
                 param.arg1 = this;
-                sendEvent(mClickedEventID, &param);
-            }
-            else if (mClickedCallback != nullptr)
-            {
-                mClickedCallback(this);
+                sendEvent(kEvtMenuItemClicked, &param);
             }
         };
 

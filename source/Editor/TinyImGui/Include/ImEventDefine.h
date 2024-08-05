@@ -22,19 +22,20 @@
  * SOFTWARE.
  ******************************************************************************/
 
+
 #pragma once
 
 
-#include "EditorPrerequisites.h"
+#include "ImPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
-
-    enum AppEventID
+    enum TinyImGuiEventID
     {
+        kEvtInvalid = 0,
+        kEvtMenuItemClicked,
+        kEvtTreeNodeClicked,
+        kEvtListItemClicked,
     };
-
-    NS_END
 }

@@ -170,24 +170,24 @@ namespace Tiny3D
             break; \
         }
 
-    #define MENU_ITEM_WITH_EVENT(m, id, txt_id, shortcut, query_enable_cb, event_id) \
-        ret = (m)->addItem(id, STR(txt_id), shortcut, query_enable_cb, event_id); \
+    #define MENU_ITEM_WITH_EVENT(m, id, txt_id, shortcut, query_enable_cb) \
+        ret = (m)->addItem(id, STR(txt_id), shortcut, query_enable_cb); \
         CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
 
     #define MENU_ITEM_WITH_CB(m, id, txt_id, shortcut, query_enable_cb, clicked_cb) \
         ret =(m)->addItem(id, STR(txt_id), shortcut, query_enable_cb, clicked_cb); \
         CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
 
-    #define MENU_ITEM_NAME_WITH_EVENT(m, id, name, shortcut, query_enable_cb, event_id) \
-        ret = (m)->addItem(id, name, shortcut, query_enable_cb, event_id); \
+    #define MENU_ITEM_NAME_WITH_EVENT(m, id, name, shortcut, query_enable_cb) \
+        ret = (m)->addItem(id, name, shortcut, query_enable_cb); \
         CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + name + " - failed !").c_str())
 
     #define MENU_ITEM_NAME_WITH_CB(m, id, name, shortcut, query_enable_cb, clicked_cb) \
         ret = (m)->addItem(id, name, shortcut, query_enable_cb, clicked_cb); \
         CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + name + " - failed !").c_str())
 
-    #define MENU_ITEM_CHECK_WITH_EVENT(m, id, txt_id, shortcut, query_enable_cb, query_check_cb, event_id) \
-        ret = (m)->addItem(id, STR(txt_id), shortcut, queryEnableDefault, query_check_cb, event_id); \
+    #define MENU_ITEM_CHECK_WITH_EVENT(m, id, txt_id, shortcut, query_enable_cb, query_check_cb) \
+        ret = (m)->addItem(id, STR(txt_id), shortcut, queryEnableDefault, query_check_cb); \
         CHECK_RESULT_MESSAGE(ret, ("Add menu item - " + STR(txt_id) + " - failed !").c_str())
     
     #define MENU_ITEM_CHECK_WITH_CB(m, id, txt_id, shortcut, query_enable_cb, query_check_cb, toggle_cb) \
@@ -209,39 +209,39 @@ namespace Tiny3D
         do
         {
             // New Scene
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_NEW_SCENE, TXT_NEW_SCENE, "Ctrl+N", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_NEW_SCENE, TXT_NEW_SCENE, "Ctrl+N", queryDisableDefault)
             // Open Scene
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_SCENE, TXT_OPEN_SCENE, "Ctrl+O", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_SCENE, TXT_OPEN_SCENE, "Ctrl+O", queryDisableDefault)
             // Open Recent Scene
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_RECENT_SCENE, TXT_OPEN_RECENT_SCENE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_RECENT_SCENE, TXT_OPEN_RECENT_SCENE, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Save
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE, TXT_SAVE, "Ctrl+S", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE, TXT_SAVE, "Ctrl+S", queryDisableDefault)
             // Save As
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE_AS, TXT_SAVE_AS, "Ctrl+Shift+S", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE_AS, TXT_SAVE_AS, "Ctrl+Shift+S", queryDisableDefault)
             // Save As Scene Template
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE_AS_SCENE_TEMPLATE, TXT_SAVE_AS_SCENE_TEMPLATE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE_AS_SCENE_TEMPLATE, TXT_SAVE_AS_SCENE_TEMPLATE, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // New Project
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_NEW_PROJECT, TXT_NEW_PROJECT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_NEW_PROJECT, TXT_NEW_PROJECT, "", queryDisableDefault)
             // Open Project
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_PROJECT, TXT_OPEN_PROJECT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_PROJECT, TXT_OPEN_PROJECT, "", queryDisableDefault)
             // Save Project
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE_PROJECT, TXT_SAVE_PROJECT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SAVE_PROJECT, TXT_SAVE_PROJECT, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Build Settings...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_BUILD_SETTINGS, TXT_BUILD_SETTINGS, "Ctrl+Shift+B", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_BUILD_SETTINGS, TXT_BUILD_SETTINGS, "Ctrl+Shift+B", queryDisableDefault)
             // Build And Run
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_BUILD_AND_RUN, TXT_BUILD_AND_RUN, "Ctrl+B", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_BUILD_AND_RUN, TXT_BUILD_AND_RUN, "Ctrl+B", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
@@ -264,69 +264,69 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(ID_MENU_EDIT, STR(TXT_EDIT));
             
             // Undo
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_UNDO, TXT_UNDO, "Ctrl+Z", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_UNDO, TXT_UNDO, "Ctrl+Z", queryDisableDefault)
             // Redo
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REDO, TXT_REDO, "Ctrl+Y", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REDO, TXT_REDO, "Ctrl+Y", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Select All
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_ALL, TXT_SELECT_ALL, "Ctrl+A", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_ALL, TXT_SELECT_ALL, "Ctrl+A", queryDisableDefault)
             // Deselect All
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DESELECT_ALL, TXT_DESELECT_ALL, "Shift+D", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DESELECT_ALL, TXT_DESELECT_ALL, "Shift+D", queryDisableDefault)
             // Select Children
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_CHILDREN, TXT_SELECT_CHILDREN, "Shift+C", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_CHILDREN, TXT_SELECT_CHILDREN, "Shift+C", queryDisableDefault)
             // Select Prefab Root
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_PREFAB_ROOT, TXT_SELECT_PREFAB_ROOT, "Ctrl+Shift+R", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_PREFAB_ROOT, TXT_SELECT_PREFAB_ROOT, "Ctrl+Shift+R", queryDisableDefault)
             // Insert Selection
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_INSERT_SELECTION, TXT_INSERT_SELECTION, "Ctrl+I", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_INSERT_SELECTION, TXT_INSERT_SELECTION, "Ctrl+I", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Cut
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CUT, TXT_CUT, "Ctrl+X", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CUT, TXT_CUT, "Ctrl+X", queryDisableDefault)
             // Copy
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_COPY, TXT_COPY, "Ctrl+C", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_COPY, TXT_COPY, "Ctrl+C", queryDisableDefault)
             // Paste
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PASTE, TXT_PASTE, "Ctrl+V", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PASTE, TXT_PASTE, "Ctrl+V", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Duplicate
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DUPLICATE, TXT_DUPLICATE, "Ctrl+D", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DUPLICATE, TXT_DUPLICATE, "Ctrl+D", queryDisableDefault)
             // Rename
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_RENAME, TXT_RENAME, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_RENAME, TXT_RENAME, "", queryDisableDefault)
             // Delete
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DELETE, TXT_DELETE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DELETE, TXT_DELETE, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Frame Selected
-            MENU_ITEM_WITH_EVENT(menu, ID_MEHU_ITEM_FRAME_SELECTED, TXT_FRAME_SELECTED, "F", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MEHU_ITEM_FRAME_SELECTED, TXT_FRAME_SELECTED, "F", queryDisableDefault)
             // Lock View to Selected
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_LOCK_VIEW_TO_SELECTED, TXT_LOCK_VIEW_TO_SELECTED, "Shift+F", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_LOCK_VIEW_TO_SELECTED, TXT_LOCK_VIEW_TO_SELECTED, "Shift+F", queryDisableDefault)
             
             // Seperator
             MENU_SEPARATOR(menu)
             
             // Find
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_FIND, TXT_FIND, "Ctrl+F", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_FIND, TXT_FIND, "Ctrl+F", queryDisableDefault)
             // Search All...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SEARCH_ALL, TXT_SEARCH_ALL, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SEARCH_ALL, TXT_SEARCH_ALL, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Play
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PLAY, TXT_PLAY, "Ctrl+P", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PLAY, TXT_PLAY, "Ctrl+P", queryDisableDefault)
             // Pause
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PAUSE, TXT_PAUSE, "Ctrl+Shift+P", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PAUSE, TXT_PAUSE, "Ctrl+Shift+P", queryDisableDefault)
             // Stop
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_STOP, TXT_STOP, "Ctrl+Alt+P", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_STOP, TXT_STOP, "Ctrl+Alt+P", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
@@ -343,7 +343,7 @@ namespace Tiny3D
                     ss << STR(TXT_LOAD_SELECTION) << " " << i;
                     std::stringstream ssKey;
                     ssKey << "Ctrl+Shift+" << i;
-                    MENU_ITEM_NAME_WITH_EVENT(popup, ID_MENU_ITEM_LOAD_SELECTION + i, ss.str(), ssKey.str(), queryDisableDefault, kEvtInvalid)
+                    MENU_ITEM_NAME_WITH_EVENT(popup, ID_MENU_ITEM_LOAD_SELECTION + i, ss.str(), ssKey.str(), queryDisableDefault)
                     ss.str("");
                     ssKey.str("");
                 }
@@ -357,7 +357,7 @@ namespace Tiny3D
                     ss << STR(TXT_SAVE_SELECTION) << " " << i;
                     std::stringstream ssKey;
                     ssKey << "Ctrl+Shift+" << i;
-                    MENU_ITEM_NAME_WITH_EVENT(popup, ID_MENU_ITEM_SAVE_SELECTION + i, ss.str(), ssKey.str(), queryDisableDefault, kEvtInvalid)
+                    MENU_ITEM_NAME_WITH_EVENT(popup, ID_MENU_ITEM_SAVE_SELECTION + i, ss.str(), ssKey.str(), queryDisableDefault)
                     ss.str("");
                     ssKey.str("");
                 }
@@ -369,23 +369,23 @@ namespace Tiny3D
             MENU_SEPARATOR(menu)
             
             // Project Settings...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PROJECT_SETTINGS, TXT_PROJECT_SETTINGS, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PROJECT_SETTINGS, TXT_PROJECT_SETTINGS, "", queryDisableDefault)
             // Preferences...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PREFERENCES, TXT_PREFERENCES, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PREFERENCES, TXT_PREFERENCES, "", queryDisableDefault)
             // Shortcuts...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SHORTCUT, TXT_SHORTCUTS, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SHORTCUT, TXT_SHORTCUTS, "", queryDisableDefault)
             // Clear All PlayerPrefs
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CLEAR_ALL_PLAYERPREFS, TXT_CLEAR_ALL_PLAYERPREFS, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CLEAR_ALL_PLAYERPREFS, TXT_CLEAR_ALL_PLAYERPREFS, "", queryDisableDefault)
             // Graphics Tier
             {
                 auto popup = menu->addItem(ID_MENU_ITEM_GRAPHICS_TIER, STR(TXT_GRAPHICS_TIER));
 
                 // Tier 1
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GRAPHICS_TIER_1, TXT_GRAPHICS_TIER_1, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GRAPHICS_TIER_1, TXT_GRAPHICS_TIER_1, "", queryDisableDefault)
                 // Tier 2
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GRAPHICS_TIER_2, TXT_GRAPHICS_TIER_2, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GRAPHICS_TIER_2, TXT_GRAPHICS_TIER_2, "", queryDisableDefault)
                 // Tier 3
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GRAPHICS_TIER_3, TXT_GRAPHICS_TIER_3, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GRAPHICS_TIER_3, TXT_GRAPHICS_TIER_3, "", queryDisableDefault)
             }
         } while (false);
         
@@ -407,19 +407,19 @@ namespace Tiny3D
                 auto popup = menu->addItem(ID_MENU_ITEM_CREATE, STR(TXT_CREATE));
 
                 // Folder
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_FOLDER, TXT_FOLDER, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_FOLDER, TXT_FOLDER, "", queryDisableDefault)
                 
                 // Separator
                 MENU_SEPARATOR(popup)
                 
                 // Type Script
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_TYPE_SCRIPT, TXT_TYPE_SCRIPT, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_TYPE_SCRIPT, TXT_TYPE_SCRIPT, "", queryDisableDefault)
                 // 2D
                 {
                     auto popup1 = popup->addItem(ID_MENU_ITEM_2D, STR(TXT_2D));
 
                     // Physics Material 2D
-                    MENU_ITEM_WITH_EVENT(popup1, ID_MENU_ITEM_PHYSICS_MATERIAL_2D, TXT_PHYSICS_MATERIAL_2D, "", queryDisableDefault, kEvtInvalid)
+                    MENU_ITEM_WITH_EVENT(popup1, ID_MENU_ITEM_PHYSICS_MATERIAL_2D, TXT_PHYSICS_MATERIAL_2D, "", queryDisableDefault)
                 }
                 // Visual Scripting
                 {
@@ -430,7 +430,7 @@ namespace Tiny3D
                     auto popup1 = popup->addItem(ID_MENU_ITEM_SHADER, STR(TXT_SHADER));
                 }
                 // Shader Variant Collection
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SHADER_VARIANT_COLLECTION, TXT_SHADER_VARIANT_COLLECTION, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SHADER_VARIANT_COLLECTION, TXT_SHADER_VARIANT_COLLECTION, "", queryDisableDefault)
                 // Testing
                 {
                     auto popup1 = popup->addItem(ID_MENU_ITEM_TESTING, STR(TXT_TESTING));
@@ -440,9 +440,9 @@ namespace Tiny3D
                     auto popup1 = popup->addItem(ID_MENU_ITEM_PLAYABLES, STR(TXT_PLAYABLES));
                 }
                 // Dynamic Link Library
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_DYLIB, TXT_DYLIB, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_DYLIB, TXT_DYLIB, "", queryDisableDefault)
                 // Dynamic Link Library Reference
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_DYLIB_REF, TXT_DYLIB_REF, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_DYLIB_REF, TXT_DYLIB_REF, "", queryDisableDefault)
 
                 // Separator
                 MENU_SEPARATOR(popup)
@@ -460,65 +460,65 @@ namespace Tiny3D
                 MENU_SEPARATOR(popup)
                 
                 // Scene
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE, TXT_SCENE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE, TXT_SCENE, "", queryDisableDefault)
                 // Scene Template
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE_TEMPLATE, TXT_SCENE_TEMPLATE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE_TEMPLATE, TXT_SCENE_TEMPLATE, "", queryDisableDefault)
                 // Scene Template From Scene
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE_TEMPLATE_FROM_SCENE, TXT_SCENE_TEMPLATE_FROM_SCENE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE_TEMPLATE_FROM_SCENE, TXT_SCENE_TEMPLATE_FROM_SCENE, "", queryDisableDefault)
                 // Scene Template Pipeline
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE_TEMPLATE_PIPELINE, TXT_SCENE_TEMPLATE_PIPELINE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SCENE_TEMPLATE_PIPELINE, TXT_SCENE_TEMPLATE_PIPELINE, "", queryDisableDefault)
                 // Prefab
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_PREFAB, TXT_PREFAB, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_PREFAB, TXT_PREFAB, "", queryDisableDefault)
                 // Prefab Variant
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_PREFAB_VARIANT, TXT_PREFAB_VARIANT, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_PREFAB_VARIANT, TXT_PREFAB_VARIANT, "", queryDisableDefault)
                 
                 // Separator
                 MENU_SEPARATOR(popup)
                 
                 // Audio Mixer
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_AUDIO_MIXER, TXT_AUDIO_MIXER, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_AUDIO_MIXER, TXT_AUDIO_MIXER, "", queryDisableDefault)
                 
                 // Separator
                 MENU_SEPARATOR(popup)
                 
                 // Material
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_MATERIAL, TXT_MATERIAL, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_MATERIAL, TXT_MATERIAL, "", queryDisableDefault)
                 // Render Texture
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_RENDER_TEXTURE, TXT_RENDER_TEXTURE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_RENDER_TEXTURE, TXT_RENDER_TEXTURE, "", queryDisableDefault)
                 // Lightmap Parameters
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_LIGHTMAP_PARAMETERS, TXT_LIGHTMAP_PARAMETERS, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_LIGHTMAP_PARAMETERS, TXT_LIGHTMAP_PARAMETERS, "", queryDisableDefault)
                 // Lighting Settings
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_LIGHTING_SETTINGS, TXT_LIGHTING_SETTINGS, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_LIGHTING_SETTINGS, TXT_LIGHTING_SETTINGS, "", queryDisableDefault)
                 // Custom Render Texture
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_CUSTOM_RENDER_TEXTURE, TXT_CUSTOM_RENDER_TEXTURE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_CUSTOM_RENDER_TEXTURE, TXT_CUSTOM_RENDER_TEXTURE, "", queryDisableDefault)
                 
                 // Separator
                 MENU_SEPARATOR(popup)
                 
                 // Animator Controller
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_ANIMATOR_CONTROLLER, TXT_ANIMATOR_CONTROLLER, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_ANIMATOR_CONTROLLER, TXT_ANIMATOR_CONTROLLER, "", queryDisableDefault)
                 // Animation
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_ANIMATION, TXT_ANIMATION, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_ANIMATION, TXT_ANIMATION, "", queryDisableDefault)
                 // Animator Override Controller
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_ANIMATOR_OVERRIDE_CONTROLLER, TXT_ANIMATOR_OVERRIDE_CONTROLLER, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_ANIMATOR_OVERRIDE_CONTROLLER, TXT_ANIMATOR_OVERRIDE_CONTROLLER, "", queryDisableDefault)
                 // Avatar Mask
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_AVATAR_MASK, TXT_AVATAR_MASK, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_AVATAR_MASK, TXT_AVATAR_MASK, "", queryDisableDefault)
                 
                 // Separator
                 MENU_SEPARATOR(popup)
                 
                 // Timeline
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_TIMELINE, TXT_TIMELINE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_TIMELINE, TXT_TIMELINE, "", queryDisableDefault)
                 // Signal
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SIGNAL, TXT_SIGNAL, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_SIGNAL, TXT_SIGNAL, "", queryDisableDefault)
 
                 // Separator
                 MENU_SEPARATOR(popup)
                 
                 // GUI Skin
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GUI_SKIN, TXT_GUI_SKIN, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_GUI_SKIN, TXT_GUI_SKIN, "", queryDisableDefault)
                 // Custom Font
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_CUSTOM_FONT, TXT_CUSTOM_FONT, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_CUSTOM_FONT, TXT_CUSTOM_FONT, "", queryDisableDefault)
                 
                 // Separator
                 MENU_SEPARATOR(popup)
@@ -540,89 +540,89 @@ namespace Tiny3D
                     auto popup1 = popup->addItem(ID_MENU_ITEM_SEARCH, STR(TXT_SEARCH));
                 }
                 // Brush
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_BRUSH, TXT_BRUSH, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_BRUSH, TXT_BRUSH, "", queryDisableDefault)
                 // Terrain Layer
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_TERRAIN_LAYER, TXT_TERRAIN_LAYER, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_TERRAIN_LAYER, TXT_TERRAIN_LAYER, "", queryDisableDefault)
             }
             // Show in Explorer
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SHOW_IN_EXPLORER, TXT_SHOW_IN_EXPLORER, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SHOW_IN_EXPLORER, TXT_SHOW_IN_EXPLORER, "", queryDisableDefault)
             // Open
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN, TXT_OPEN, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN, TXT_OPEN, "", queryDisableDefault)
             // Delete
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DELETE_ASSET, TXT_DELETE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_DELETE_ASSET, TXT_DELETE, "", queryDisableDefault)
             // Rename
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_RENAME_ASSET, TXT_RENAME, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_RENAME_ASSET, TXT_RENAME, "", queryDisableDefault)
             // Copy path
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_COPY_PATH, TXT_COPY_PATH, "Alt+Ctrl+C", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_COPY_PATH, TXT_COPY_PATH, "Alt+Ctrl+C", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Open Scene Additive
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_SCENE_ADDITIVE, TXT_OPEN_SCENE_ADDITIVE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_SCENE_ADDITIVE, TXT_OPEN_SCENE_ADDITIVE, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // View in Package Manager
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_VIEW_IN_PACKAGE_MANAGER, TXT_VIEW_IN_PACKAGE_MANAGER, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_VIEW_IN_PACKAGE_MANAGER, TXT_VIEW_IN_PACKAGE_MANAGER, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Import New Asset...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_IMPORT_NEW_ASSET, TXT_IMPORT_NEW_ASSET, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_IMPORT_NEW_ASSET, TXT_IMPORT_NEW_ASSET, "", queryDisableDefault)
             // Import Package
             {
                 auto popup = menu->addItem(ID_MENU_ITEM_IMPORT_PACKAGE, STR(TXT_IMPORT_PACKAGE));
 
                 // Custom Package
-                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_CUSTOM_PACKAGE, TXT_CUSTOM_PACKAGE, "", queryDisableDefault, kEvtInvalid)
+                MENU_ITEM_WITH_EVENT(popup, ID_MENU_ITEM_CUSTOM_PACKAGE, TXT_CUSTOM_PACKAGE, "", queryDisableDefault)
             }
             // Export Package...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_EXPORT_PACKAGE, TXT_EXPORT_PACKAGE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_EXPORT_PACKAGE, TXT_EXPORT_PACKAGE, "", queryDisableDefault)
             // Find References In Scene
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_FIND_REFERENCES_IN_SCENE, TXT_FIND_REFERENCES_IN_SCENE, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_FIND_REFERENCES_IN_SCENE, TXT_FIND_REFERENCES_IN_SCENE, "", queryDisableDefault)
             // Find References In Project
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_FIND_REFERENCES_IN_PROJECT, TXT_FIND_REFERENCES_IN_PROJECT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_FIND_REFERENCES_IN_PROJECT, TXT_FIND_REFERENCES_IN_PROJECT, "", queryDisableDefault)
             // Select Dependencies
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_DEPENDENCIES, TXT_SELECT_DEPENDENCIES, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SELECT_DEPENDENCIES, TXT_SELECT_DEPENDENCIES, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Refresh
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REFRESH, TXT_REFRESH, "Ctrl+R", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REFRESH, TXT_REFRESH, "Ctrl+R", queryDisableDefault)
             // Reimport
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REIMPORT, TXT_REIMPORT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REIMPORT, TXT_REIMPORT, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Reimport All
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REIMPORT_ALL, TXT_REIMPORT_ALL, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_REIMPORT_ALL, TXT_REIMPORT_ALL, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Extract From Prefab
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_EXTRACT_FROM_PREFAB, TXT_EXTRACT_FROM_PREFAB, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_EXTRACT_FROM_PREFAB, TXT_EXTRACT_FROM_PREFAB, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Update UXML Schema
-            // MENU_ITEM_WITH_EVENT(menu, TXT_UPDATE_UXML_SCHEMA, "", queryDisableDefault, kEvtInvalid)
+            // MENU_ITEM_WITH_EVENT(menu, TXT_UPDATE_UXML_SCHEMA, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Open C++ Project
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_CPP_PROJECT, TXT_OPEN_CPP_PROJECT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_OPEN_CPP_PROJECT, TXT_OPEN_CPP_PROJECT, "", queryDisableDefault)
             // View in Import Activity Window
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW, TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW, TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW, "", queryDisableDefault)
             // Properties
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PROPERTIES, TXT_PROPERTIES, "Alt+P", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PROPERTIES, TXT_PROPERTIES, "Alt+P", queryDisableDefault)
         } while (false);
         
         return ret;
@@ -639,11 +639,11 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(ID_MENU_GAME_OBJECT, STR(TXT_GAMEOBJECT));
             
             // Create Empty
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CREATE_EMPTY, TXT_CREATE_EMPTY, "Ctrl+Shift+N", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CREATE_EMPTY, TXT_CREATE_EMPTY, "Ctrl+Shift+N", queryDisableDefault)
             // Create Empty Child
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CREATE_EMPTY_CHILD, TXT_CREATE_EMPTY_CHILD, "Alt+Shift+N", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CREATE_EMPTY_CHILD, TXT_CREATE_EMPTY_CHILD, "Alt+Shift+N", queryDisableDefault)
             // Create Empty Parent
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CREATE_EMPTY_PARENT, TXT_CREATE_EMPTY_PARENT, "Ctrl+Shift+G", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CREATE_EMPTY_PARENT, TXT_CREATE_EMPTY_PARENT, "Ctrl+Shift+G", queryDisableDefault)
             // 3D Object
             {
                 auto popup = menu->addItem(ID_MENU_ITEM_3D_OBJECT, STR(TXT_3D_OBJECT));
@@ -673,39 +673,39 @@ namespace Tiny3D
                 auto popup = menu->addItem(ID_MENU_ITEM_GAMEOJECT_UI_TOOLKIT, STR(TXT_UI_TOOLKIT));
             }
             // Camera
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CAMERA, TXT_CAMERA, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CAMERA, TXT_CAMERA, "", queryDisableDefault)
             // Visual Scripting Scene Varaibles
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_VISUAL_SCRIPTING_SCENE_VARAIBLES, TXT_VISUAL_SCRIPTING_SCENE_VARAIBLES, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_VISUAL_SCRIPTING_SCENE_VARAIBLES, TXT_VISUAL_SCRIPTING_SCENE_VARAIBLES, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Center On Children
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CENTER_ON_CHILDREN, TXT_CENTER_ON_CHILDREN, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CENTER_ON_CHILDREN, TXT_CENTER_ON_CHILDREN, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Make Parent
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_MAKE_PARENT, TXT_MAKE_PARENT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_MAKE_PARENT, TXT_MAKE_PARENT, "", queryDisableDefault)
             // Clear Parent
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CLEAR_PARENT, TXT_CLEAR_PARENT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_CLEAR_PARENT, TXT_CLEAR_PARENT, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // Set as first sibling
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SET_AS_FIRST_SIBLING, TXT_SET_AS_FIRST_SIBLING, "Ctrl+=", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SET_AS_FIRST_SIBLING, TXT_SET_AS_FIRST_SIBLING, "Ctrl+=", queryDisableDefault)
             // Set as last sibling
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SET_AS_LAST_SIBLING, TXT_SET_AS_LAST_SIBLING, "Ctrl+-", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_SET_AS_LAST_SIBLING, TXT_SET_AS_LAST_SIBLING, "Ctrl+-", queryDisableDefault)
             // Move To View
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_MOVE_TO_VIEW, TXT_MOVE_TO_VIEW, "Ctrl+Alt+F", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_MOVE_TO_VIEW, TXT_MOVE_TO_VIEW, "Ctrl+Alt+F", queryDisableDefault)
             // Align With View
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ALIGN_WITH_VIEW, TXT_ALIGN_WITH_VIEW, "Ctrl+Shift+F", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ALIGN_WITH_VIEW, TXT_ALIGN_WITH_VIEW, "Ctrl+Shift+F", queryDisableDefault)
             // Align View to Selected
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ALIGN_VIEW_TO_SELECTED, TXT_ALIGN_VIEW_TO_SELECTED, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ALIGN_VIEW_TO_SELECTED, TXT_ALIGN_VIEW_TO_SELECTED, "", queryDisableDefault)
             // Toggle Active State
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_TOGGLE_ACTIVE_STATE, TXT_TOGGLE_ACTIVE_STATE, "Alt+Shift+A", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_TOGGLE_ACTIVE_STATE, TXT_TOGGLE_ACTIVE_STATE, "Alt+Shift+A", queryDisableDefault)
         } while (false);
         
         return ret;
@@ -722,7 +722,7 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(ID_MENU_COMPONENT, STR(TXT_COMPONENT));
 
             // Add...
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ADD, TXT_ADD, "Ctrl+Shift+A", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ADD, TXT_ADD, "Ctrl+Shift+A", queryDisableDefault)
             // Mesh
             {
                 auto popup = menu->addItem(ID_MENU_ITEM_MESH, STR(TXT_MESH));
@@ -844,9 +844,9 @@ namespace Tiny3D
             MENU_SEPARATOR(menu)
 
             // Next Window
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_NEXT_WINDOW, TXT_NEXT_WINDOW, "Ctrl+Tab", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_NEXT_WINDOW, TXT_NEXT_WINDOW, "Ctrl+Tab", queryDisableDefault)
             // Previous Window
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PREV_WINDOW, TXT_PREV_WINDOW, "Ctrl+Shift+Tab", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PREV_WINDOW, TXT_PREV_WINDOW, "Ctrl+Shift+Tab", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
@@ -873,25 +873,25 @@ namespace Tiny3D
             MENU_SEPARATOR(menu)
 
             // Package Manager
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PACKAGE_MANAGER, TXT_PACKAGE_MANAGER, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_PACKAGE_MANAGER, TXT_PACKAGE_MANAGER, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Asset Management
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ASSET_MANAGEMENT, TXT_ASSET_MANAGEMENT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ASSET_MANAGEMENT, TXT_ASSET_MANAGEMENT, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Text
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_TEXT_WINDOW, TXT_TEXT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_TEXT_WINDOW, TXT_TEXT, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
 
             // Text Mesh Pro
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_TEXT_MESH_PRO_WINDOW, TXT_TEXT_MESH_PRO, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_TEXT_MESH_PRO_WINDOW, TXT_TEXT_MESH_PRO, "", queryDisableDefault)
 
             // Separator
             MENU_SEPARATOR(menu)
@@ -948,15 +948,15 @@ namespace Tiny3D
             auto menu = mMenuBar->addMenu(ID_MENU_HELP, STR(TXT_HELP));
 
             // About
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ABOUT, TXT_ABOUT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_ABOUT, TXT_ABOUT, "", queryDisableDefault)
             
             // Separator
             MENU_SEPARATOR(menu)
             
             // User Manual
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_USER_MANUAL, TXT_USER_MANUAL, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_USER_MANUAL, TXT_USER_MANUAL, "", queryDisableDefault)
             // API Document
-            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_API_DOCUMENT, TXT_API_DOCUMENT, "", queryDisableDefault, kEvtInvalid)
+            MENU_ITEM_WITH_EVENT(menu, ID_MENU_ITEM_API_DOCUMENT, TXT_API_DOCUMENT, "", queryDisableDefault)
         } while (false);
 
         return ret;
