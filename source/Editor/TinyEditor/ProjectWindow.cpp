@@ -38,6 +38,7 @@ namespace Tiny3D
     #define ICON_NAME_SEARCH            "Editor/icons/d_Search@32.png"
     #define ICON_NAME_FOLDER            "Editor/icons/d_Folder@32.png"
     #define ICON_NAME_FOLDER_OPENED     "Editor/icons/d_FolderOpened@32.png"
+    #define ICON_NAME_PREFAB            "Editor/icons/d_Prefab@64.png"
 
     //--------------------------------------------------------------------------
     
@@ -140,6 +141,51 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult AssetThumbView::onCreate()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto listItemClicked = [](ImListItem *item)
+            {
+                EDITOR_LOG_INFO("List item [%s] clicked ", item->getName().c_str());
+            };
+            
+            ImListWidget *list = new ImListWidget();
+            ret = list->create(ID_PROJECT_ASSET_THUMB_LIST, "AssetThumbList", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create asset thumb list failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            const int32_t numOfItems = 50;
+            String postfix = "abcdefghijklmn";
+            for (int32_t i = 0; i < numOfItems; ++i)
+            {
+                std::stringstream ss;
+                ss << i << postfix;
+                ImListItem *item = new ImListItem(list);
+                ret = item->createByPath(ICON_NAME_PREFAB, ss.str(), listItemClicked, list);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_ERROR("Create list item failed ! ERROR [%d]", ret)
+                    break;
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     void AssetThumbView::onGUI()
     {
         
@@ -152,6 +198,13 @@ namespace Tiny3D
         return ImGuiChildFlags_Border;
     }
 
+    //--------------------------------------------------------------------------
+
+    ImGuiWindowFlags AssetThumbView::onGetWindowFlags()
+    {
+        return ImChildView::onGetWindowFlags();
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult ProjectWindow::onCreate()

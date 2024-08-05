@@ -45,9 +45,13 @@ namespace Tiny3D
     class AssetThumbView : public ImChildView
     {
     protected:
+        TResult onCreate() override;
+        
         void onGUI() override;
         
         ImGuiChildFlags onGetChildFlags() override;
+
+        ImGuiWindowFlags onGetWindowFlags() override;
     };
 
     class ProjectWindow : public DockingWindow
