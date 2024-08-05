@@ -103,13 +103,12 @@ namespace Tiny3D
         {
             mID = id;
             mName = name;
+            mUUID = UUID::generate();
             
             if (parent != nullptr)
             {
                 parent->addChild(this);
             }
-
-            mUUID = UUID::generate();
             
             va_list args;
             va_start(args, argc);

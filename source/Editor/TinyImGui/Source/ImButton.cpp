@@ -88,7 +88,10 @@ namespace Tiny3D
             String *shortcut = va_arg(args, String*);
 
             mQueryEnabled = *queryEnabled;
-            mClicked = *clicked;
+            if (clicked != nullptr)
+            {
+                mClicked = *clicked;
+            }
             mTips = *tips;
         } while (false);
 
@@ -181,7 +184,10 @@ namespace Tiny3D
             }
 
             ImButtonQueryCallback *checked = va_arg(args, ImButtonQueryCallback*);
-            mQueryChecked = *checked;
+            if (checked != nullptr)
+            {
+                mQueryChecked = *checked;
+            }
         } while (false);
 
         return ret;
@@ -466,8 +472,11 @@ namespace Tiny3D
                 break;
             }
 
-            ImButtonQueryCallback *check = va_arg(args, ImButtonQueryCallback*);
-            mQueryChecked = *check;
+            ImButtonQueryCallback *checked = va_arg(args, ImButtonQueryCallback*);
+            if (checked != nullptr)
+            {
+                mQueryChecked = *checked;
+            }
         } while (false);
 
         return ret;
