@@ -26,6 +26,7 @@
 #include "ImTreeWidget.h"
 #include "ImTextureManager.h"
 #include "ImErrors.h"
+#include "ImEventDefine.h"
 
 
 namespace Tiny3D
@@ -54,10 +55,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, clickedEvtID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 5, texID, nullptr, nullptr, nullptr, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -65,15 +66,15 @@ namespace Tiny3D
     TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, 0, &clicked);
+        return ImWidget::createInternal(id, title, parent, 5, texID, nullptr, nullptr, nullptr, &clicked);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByPath(const String &imageName, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByPath(const String &imageName, const String &title, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, clickedEvtID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 5, nullptr, &imageName, nullptr, nullptr, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -81,15 +82,15 @@ namespace Tiny3D
     TResult ImTreeNode::createByPath(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, 0, &clicked);
+        return ImWidget::createInternal(id, title, parent, 5, nullptr, &imageName, nullptr, nullptr, &clicked);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, clickedEvtID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 5, collapsedTexID, nullptr, openedTexID, nullptr, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -97,15 +98,15 @@ namespace Tiny3D
     TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, 0, &clicked);
+        return ImWidget::createInternal(id, title, parent, 5, collapsedTexID, nullptr, openedTexID, nullptr, &clicked);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, uint32_t clickedEvtID, ImTreeNode *parent)
+    TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, clickedEvtID, nullptr);
+        return ImWidget::createInternal(id, title, parent, 5, nullptr, &collapsedImage, nullptr, &openedImage, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -113,22 +114,21 @@ namespace Tiny3D
     TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, 0, &clicked);
+        return ImWidget::createInternal(id, title, parent, 5, nullptr, &collapsedImage, nullptr, &openedImage, &clicked);
     }
     
     //--------------------------------------------------------------------------
 
-    // argc : 6
+    // argc : 5
     // args :
     //  ImTextureID : 折叠状态的图标纹理对象
     //  String* : 折叠状态的图标图像路径
     //  ImTextureID : 展开状态的图标纹理对象
     //  String* : 展开状态的图标图像路径
-    //  uint32_t : 点击事件 ID
     //  ImTreeNodeClickedCallback* : 点击回调函数
     TResult ImTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 6);
+        T3D_ASSERT(argc == 5);
         
         TResult ret = IM_OK;
 
@@ -166,8 +166,6 @@ namespace Tiny3D
                 mIsInternalLoaded = true;
             }
 
-            // clicked event id
-            mClickedEvtID = va_arg(args, uint32_t);
             // clicked callback
             ImTreeNodeClickedCallback *callback = va_arg(args, ImTreeNodeClickedCallback*);
             mClickedCallback = *callback;
@@ -298,15 +296,15 @@ namespace Tiny3D
 
     void ImTreeNode::fireClickedEvent()
     {
-        if (mClickedEvtID != 0 && mTreeWidget != nullptr)
-        {
-            EventParamTreeNodeClicked param(this);
-            mTreeWidget->sendClickedEvent(mClickedEvtID, &param);
-        }
-        else if (mClickedCallback != nullptr)
+        if (mClickedCallback != nullptr)
         {
             mClickedCallback(this);
         }
+        else if (mTreeWidget != nullptr)
+        {
+            EventParamTreeNodeClicked param(this);
+            mTreeWidget->sendClickedEvent(kEvtTreeNodeClicked, &param);
+        } 
     }
 
     //--------------------------------------------------------------------------
@@ -376,33 +374,6 @@ namespace Tiny3D
         }
 
         drawIconAndText(true);
-        // ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(TREENODE_SPACING_X, 0.0f));
-        //
-        // ImGui::SameLine();
-        //
-        // float x = ImGui::GetCursorPosX();
-        // bool hasChildren = !getChildren().empty();
-        // if (hasChildren)
-        // {
-        //     x += TREENODE_ICON_OFFSET_X;
-        //     
-        // }
-        // else
-        // {
-        //     x += TREENODE_LEAF_ICON_OFFSET_X;
-        // }
-        //
-        // ImGui::SetCursorPosX(x);
-        //
-        // // 图标
-        // auto itemSize = ImGui::GetItemRectSize();
-        // ImTextureID icon = (hasChildren && mOpenedIconID != nullptr) ? mOpenedIconID : mIconID;
-        // ImGui::Image(icon, ImVec2(itemSize.y, itemSize.y));
-        // ImGui::SameLine();
-        // // 文本
-        // ImGui::Text(getName().c_str());
-        //
-        // ImGui::PopStyleVar();
     }
 
     //--------------------------------------------------------------------------
