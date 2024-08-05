@@ -168,7 +168,10 @@ namespace Tiny3D
 
             // clicked callback
             ImTreeNodeClickedCallback *callback = va_arg(args, ImTreeNodeClickedCallback*);
-            mClickedCallback = *callback;
+            if (callback != nullptr)
+            {
+                mClickedCallback = *callback;
+            }
         } while (false);
         
         return ret;
@@ -304,7 +307,7 @@ namespace Tiny3D
         {
             EventParamTreeNodeClicked param(this);
             mTreeWidget->sendClickedEvent(kEvtTreeNodeClicked, &param);
-        } 
+        }
     }
 
     //--------------------------------------------------------------------------

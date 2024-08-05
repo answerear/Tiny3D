@@ -27,6 +27,7 @@
 
 
 #include "ImWidget.h"
+#include "ImEventDefine.h"
 
 
 namespace Tiny3D
@@ -36,6 +37,8 @@ namespace Tiny3D
      */
     class TINYIMGUI_API ImListItem : public ImWidget
     {
+        friend class ImListWidget;
+        
     public:
         ImListItem(ImListWidget *owner);
         
@@ -46,28 +49,60 @@ namespace Tiny3D
         TResult create(const String &title, ImWidget *parent);
 
         TResult createByTexture(ImTextureID texID, const String &title, ImWidget *parent);
+        
+        TResult createByTexture(ImTextureID texID, const String &title, const ImListItemClickedCallback &clicked, ImWidget *parent);
 
         TResult createByPath(const String &imageName, const String &title, ImWidget *parent);
+        
+        TResult createByPath(const String &imageName, const String &title, const ImListItemClickedCallback &clicked, ImWidget *parent);
 
     protected:
-        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
 
         bool onGUIBegin() override;
         bool onGUIBegin(const ImVec2 &size) override;
         void onGUI() override;
         void onGUIEnd() override;
 
+        void onDestroy() override;
+        
         uint32_t generateItemID();
+
+        void drawIconMode();
+
+        void drawListMode();
+
+        String getUniqueName() const;
+
+        void drawTruncateText(const String &text, float maxWidth);
+
+        void updateSizeOnIconMode();
+
+        void updateSizeOnListMode();
+
+        void markSizeDirty() { mIsSizeDirty = true; }
+
+        void fireClickedEvent();
         
     protected:
         /// 列表项绑定的列表控件
         ImListWidget    *mListWidget {nullptr};
+        /// 图标纹理对象
+        ImTextureID     mIconID {nullptr};
+        /// 单击回调
+        ImListItemClickedCallback mClickedCallback {nullptr};
+        /// 是否内部加载图标
+        bool mIsInternalLoaded {false};
+        /// 是否更新大小尺寸
+        bool mIsSizeDirty {true};
     };
 
     /**
      * 列表控件
      */
-    class TINYIMGUI_API ImListWidget : public ImWidget
+    class TINYIMGUI_API ImListWidget
+        : public ImWidget
+        , public EventHandler
     {
         friend class ImListItem;
         
@@ -97,19 +132,30 @@ namespace Tiny3D
          * 设置当前列表模式
          * @param [in] mode : 新的列表模式
          */
-        void setListMode(ListMode mode) { mListMode = mode; }
+        void setListMode(ListMode mode);
 
     protected:
-        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         bool onGUIBegin(const ImVec2 &size) override;
         void onGUI() override;
         void onGUIEnd() override;
 
+        void update() override;
+
+        void updateChildrenOnIconMode();
+
+        void updateChildrenOnListMode();
+
         uint32_t generateID() { return mItemID++; }
+
+        String &getSelectedName() { return mSelectedName; }
+
+        void sendClickedEvent(uint32_t evt, EventParamListItemClicked *param);
         
     protected:
+        String  mSelectedName {};
         /// 列表模式
         ListMode    mListMode {ListMode::kIcon};
         /// 列表项 ID
