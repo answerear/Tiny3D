@@ -82,9 +82,6 @@ namespace Tiny3D
     using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
     // 树节点点击回调
     using ImTreeNodeClickedCallback = TFunction<void(ImTreeNode*)>;
-
-    // 按钮点击事件附带的参数
-    using EventParamButtonClicked = EventParamT1<ImWidget*>;
-    // 树节点点击事件附带的参数
-    using EventParamTreeNodeClicked = EventParamT1<ImTreeNode*>;
+    // 列表项点击回调
+    using ImListItemClickedCallback = TFunction<void(ImListItem*)>;
 }

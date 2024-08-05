@@ -35,7 +35,15 @@ namespace Tiny3D
     {
         kEvtInvalid = 0,
         kEvtMenuItemClicked,
+        kEvtButtonClicked,
         kEvtTreeNodeClicked,
         kEvtListItemClicked,
     };
+
+    // 按钮点击事件附带的参数
+    using EventParamButtonClicked = EventParamT1<ImWidget*>;
+    // 树节点点击事件附带的参数
+    using EventParamTreeNodeClicked = EventParamT1<ImTreeNode*>;
+    // 列表项点击事件附带的参数
+    using EventParamListItemClicked = EventParamT1<ImListItem*>;
 }

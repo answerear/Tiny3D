@@ -26,6 +26,7 @@
 #include "ImButton.h"
 #include "ImTextureManager.h"
 #include "ImErrors.h"
+#include "ImEventDefine.h"
 
 
 namespace Tiny3D
@@ -39,50 +40,54 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImButton::create(uint32_t id, const String &title, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImButton::create(uint32_t id, const String &title, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 5, nullptr, clickedEvtID, nullptr, &tips, &shortcut);
+        return ImWidget::createInternal(id, title, parent, 4, nullptr, nullptr, &tips, &shortcut);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImButton::create(uint32_t id, const String &title, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 5, nullptr, 0, &clicked, &tips, &shortcut);
+        return ImWidget::createInternal(id, title, parent, 4, nullptr, &clicked, &tips, &shortcut);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImButton::create(uint32_t id, const String &title, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImButton::create(uint32_t id, const String &title, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 5, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut);
+        return ImWidget::createInternal(id, title, parent, 4, &queryEnabled, nullptr, &tips, &shortcut);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImButton::create(uint32_t id, const String &title, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 5, &queryEnabled, 0, &clicked, &tips, &shortcut);
+        return ImWidget::createInternal(id, title, parent, 4, &queryEnabled, &clicked, &tips, &shortcut);
     }
 
     //--------------------------------------------------------------------------
 
+    // argc : 4
+    // args :
+    //  ImButtonQueryCallback* : 可用状态查询回调
+    //  ImButtonClickedCallback* : 点击回调
+    //  String* : 提示语
+    //  String* : 快捷键
     TResult ImButton::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         TResult ret = IM_OK;
 
         do
         {
-            T3D_ASSERT(argc >= 5);
+            T3D_ASSERT(argc >= 4);
 
             ImButtonQueryCallback *queryEnabled = va_arg(args, ImButtonQueryCallback*);
-            uint32_t clickedEvtID = va_arg(args, uint32_t);
             ImButtonClickedCallback *clicked = va_arg(args, ImButtonClickedCallback*);
             String *tips = va_arg(args, String*);
             String *shortcut = va_arg(args, String*);
 
             mQueryEnabled = *queryEnabled;
-            mClickedEvtID = clickedEvtID;
             mClicked = *clicked;
             mTips = *tips;
         } while (false);
@@ -98,15 +103,15 @@ namespace Tiny3D
         ImGui::BeginDisabled(!enable);
         if (ImGui::Button(getName().c_str(), getSize()))
         {
-            if (mClickedEvtID != 0)
-            {
-                EventParamButtonClicked param(this);
-                sendEvent(mClickedEvtID, &param);
-            }
-            else if (mClicked != nullptr)
+            if (mClicked != nullptr)
             {
                 mClicked(this);
             }
+            else
+            {
+                EventParamButtonClicked param(this);
+                sendEvent(kEvtButtonClicked, &param);
+            } 
 
             if (ImGui::IsItemHovered())
             {
@@ -125,41 +130,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, clickedEvtID, nullptr, &tips, &shortcut, &queryChecked);
+        return ImWidget::createInternal(id, title, parent, 5, nullptr, nullptr, &tips, &shortcut, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, 0, &clicked, &tips, &shortcut, &queryChecked);
+        return ImWidget::createInternal(id, title, parent, 5, nullptr, &clicked, &tips, &shortcut, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 6, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, &queryChecked);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnabled, nullptr, &tips, &shortcut, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 6, &queryEnabled, 0, clicked, &tips, &shortcut, &queryChecked);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnabled, clicked, &tips, &shortcut, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
+    // argc : 5
+    // args :
+    //  ImButtonQueryCallback* : 可用状态查询回调
+    //  ImButtonClickedCallback* : 点击回调
+    //  String* : 提示语
+    //  String* : 快捷键
+    //  ImButtonQueryCallback* : 是否按下状态查询回调
     TResult ImPushButton::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         TResult ret = IM_OK;
 
         do
         {
-            T3D_ASSERT(argc >= 6);
+            T3D_ASSERT(argc >= 5);
 
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -199,7 +211,7 @@ namespace Tiny3D
             else
             {
                 EventParamButtonClicked param(this);
-                sendEvent(mClickedEvtID, &param);
+                sendEvent(kEvtButtonClicked, &param);
             }
         }
         ImGui::EndDisabled();
@@ -233,69 +245,77 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::create(uint32_t id, ImTextureID texID, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::create(uint32_t id, ImTextureID texID, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, nullptr, &tips, &shortcut, texID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::createEx(uint32_t id, const String &imageName, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createEx(uint32_t id, const String &imageName, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, nullptr, &tips, &shortcut, nullptr, &imageName);
     }
 
     //--------------------------------------------------------------------------
     
     TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, 0, &clicked, &tips, &shortcut, texID, nullptr);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, &clicked, &tips, &shortcut, texID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, 0, &clicked, &tips, &shortcut, nullptr, &imageName);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, &clicked, &tips, &shortcut, nullptr, &imageName);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, nullptr, &tips, &shortcut, texID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, nullptr, &tips, &shortcut, nullptr, &imageName);
     }
     
     //--------------------------------------------------------------------------
     
     TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, 0, &clicked, &tips, &shortcut, texID);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, &clicked, &tips, &shortcut, texID);
     }
     
     //--------------------------------------------------------------------------
 
     TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, 0, &clicked, &tips, &shortcut, nullptr, &imageName);
+        return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, &clicked, &tips, &shortcut, nullptr, &imageName);
     }
     
     //--------------------------------------------------------------------------
 
+    // argc : 6
+    // args :
+    //  ImButtonQueryCallback* : 可用状态查询回调
+    //  ImButtonClickedCallback* : 点击回调
+    //  String* : 提示语
+    //  String* : 快捷键
+    //  ImTextureID : 图标纹理对象
+    //  String * 图标图像文件路径
     TResult ImImageButton::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         TResult ret = IM_OK;
 
         do
         {
-            T3D_ASSERT(argc >= 7);
+            T3D_ASSERT(argc >= 6);
             
             ret = ImButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -352,7 +372,7 @@ namespace Tiny3D
             else
             {
                 EventParamButtonClicked param(this);
-                sendEvent(mClickedEvtID, &param);
+                sendEvent(kEvtButtonClicked, &param);
             }
         }
         ImGui::EndDisabled();
@@ -367,69 +387,77 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
     
     TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, 0, &clicked, &tips, &shortcut, texID, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, &clicked, &tips, &shortcut, texID, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, nullptr, 0, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, clickedEvtID, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
     
     TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, 0, &clicked, &tips, &shortcut, texID, nullptr, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, &clicked, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
 
     TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, makeName(id), parent, 8, &queryEnabled, 0, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
+        return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
 
+    // argc : 7
+    // args :
+    //  ImButtonQueryCallback* : 可用状态查询回调
+    //  ImButtonClickedCallback* : 点击回调
+    //  String* : 提示语
+    //  String* : 快捷键
+    //  ImTextureID : 图标纹理对象
+    //  String * 图标图像文件路径
     TResult ImPushImageButton::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
         TResult ret = IM_OK;
 
         do
         {
-            T3D_ASSERT(argc >= 8);
+            T3D_ASSERT(argc >= 7);
             
             ret = ImImageButton::createInternal(id, name, parent, argc, args);
             if (T3D_FAILED(ret))
@@ -469,7 +497,7 @@ namespace Tiny3D
             else
             {
                 EventParamButtonClicked param(this);
-                sendEvent(mClickedEvtID, &param);
+                sendEvent(kEvtButtonClicked, &param);
             }
         }
         ImGui::EndDisabled();

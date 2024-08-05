@@ -77,10 +77,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut)
+    TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
-        TResult ret = button->create(id, texID, queryEnabled, clickedEvtID, this, tips, shortcut);
+        TResult ret = button->create(id, texID, queryEnabled, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -90,10 +90,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, uint32_t clickedEvtID, const String &tips, const String &shortcut)
+    TResult ImToolBar::addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
-        TResult ret = button->createEx(id, imageName, queryEnabled, clickedEvtID, this, tips, shortcut);
+        TResult ret = button->createEx(id, imageName, queryEnabled, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -129,10 +129,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut)
+    TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
-        TResult ret = button->create(id, texID, queryEnabled, queryChecked, clickedEvtID, this, tips, shortcut);
+        TResult ret = button->create(id, texID, queryEnabled, queryChecked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -142,10 +142,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImToolBar::addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, uint32_t clickedEvtID, const String &tips, const String &shortcut)
+    TResult ImToolBar::addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
-        TResult ret = button->createEx(id, imageName, queryEnabled, queryChecked, clickedEvtID, this, tips, shortcut);
+        TResult ret = button->createEx(id, imageName, queryEnabled, queryChecked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -190,7 +190,7 @@ namespace Tiny3D
 
     TResult ImToolBar::onCreate()
     {
-        mSize.y = mButtonSize.y + mHorzSpacing * 2.0f;
+        mSize.y = mButtonSize.y + mHorzSpacing + mHorzSpacing;
         return IM_OK;
     }
 
@@ -250,14 +250,16 @@ namespace Tiny3D
             break;
         }
 
-        mChildrenWidth += widget->getSize().x + ImGui::GetStyle().ItemSpacing.x * 2.0f;
+        float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+        mChildrenWidth += widget->getSize().x + itemSpacing + itemSpacing;
     }
 
     //--------------------------------------------------------------------------
 
     void ImToolBar::onChildRemoved(ImWidget *widget)
     {
-        mChildrenWidth -= widget->getSize().x + ImGui::GetStyle().ItemSpacing.x * 2.0f;
+        float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+        mChildrenWidth -= widget->getSize().x + itemSpacing + itemSpacing;
     }
 
     //--------------------------------------------------------------------------
