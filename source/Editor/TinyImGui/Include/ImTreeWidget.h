@@ -75,7 +75,7 @@ namespace Tiny3D
 
         String getUniqueName() const;
 
-        uint32_t getNodeID() const;
+        uint32_t getNewNodeID() const;
 
         void drawIconAndText(bool opened);
 

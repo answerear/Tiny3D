@@ -25,9 +25,19 @@
 
 #include "ImListWidget.h"
 
+#include "ImErrors.h"
+
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    ImListItem::ImListItem(ImListWidget *owner)
+        : mListWidget(owner)
+    {
+        
+    }
+    
     //--------------------------------------------------------------------------
 
     ImListItem::~ImListItem()
@@ -37,9 +47,118 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ImListItem::create(const String &title, ImWidget *parent)
+    {
+        uint32_t id = generateItemID();
+        return ImWidget::createInternal(id, title, parent, 2, nullptr, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImListItem::createByTexture(ImTextureID texID, const String &title, ImWidget *parent)
+    {
+        uint32_t id = generateItemID();
+        return ImWidget::createInternal(id, title, parent, 2, texID, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImListItem::createByPath(const String &imageName, const String &title, ImWidget *parent)
+    {
+        uint32_t id = generateItemID();
+        return ImWidget::createInternal(id, title, parent, 2, nullptr, nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    // argc : 2
+    // args :
+    //  ImTexture : 图标纹理对象
+    //  String* : 图标图像路径
+    TResult ImListItem::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        TResult ret = IM_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t ImListItem::generateItemID()
+    {
+        return mListWidget->generateID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImListItem::onGUIBegin()
+    {
+        return ImWidget::onGUIBegin();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool ImListItem::onGUIBegin(const ImVec2 &size)
+    {
+        return onGUIBegin();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ImListItem::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImListItem::onGUIEnd()
+    {
+        ImWidget::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
     ImListWidget::~ImListWidget()
     {
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImListWidget::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        TResult ret = IM_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImListWidget::onGUIBegin()
+    {
+        return ImWidget::onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImListWidget::onGUIBegin(const ImVec2 &size)
+    {
+        return onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImListWidget::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImListWidget::onGUIEnd()
+    {
+        ImWidget::onGUIEnd();
     }
 
     //--------------------------------------------------------------------------

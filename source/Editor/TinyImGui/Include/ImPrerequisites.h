@@ -73,12 +73,18 @@ namespace Tiny3D
     class ImTreeNode;
     class ImDummyTreeNode;
     class ImTextureManager;
+    class ImListItem;
+    class ImListWidget;
     
-    
+    // 按钮点击回调
     using ImButtonClickedCallback = TFunction<void(ImWidget*)>;
+    // 状态按钮查询回调
     using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
+    // 树节点点击回调
     using ImTreeNodeClickedCallback = TFunction<void(ImTreeNode*)>;
-    
+
+    // 按钮点击事件附带的参数
     using EventParamButtonClicked = EventParamT1<ImWidget*>;
+    // 树节点点击事件附带的参数
     using EventParamTreeNodeClicked = EventParamT1<ImTreeNode*>;
 }
