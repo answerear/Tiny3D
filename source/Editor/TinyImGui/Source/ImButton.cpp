@@ -251,56 +251,56 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::create(uint32_t id, ImTextureID texID, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByTexture(uint32_t id, ImTextureID texID, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, nullptr, &tips, &shortcut, texID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::createEx(uint32_t id, const String &imageName, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByPath(uint32_t id, const String &imageName, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, nullptr, &tips, &shortcut, nullptr, &imageName);
     }
 
     //--------------------------------------------------------------------------
     
-    TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, &clicked, &tips, &shortcut, texID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, nullptr, &clicked, &tips, &shortcut, nullptr, &imageName);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, nullptr, &tips, &shortcut, texID, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, nullptr, &tips, &shortcut, nullptr, &imageName);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, &clicked, &tips, &shortcut, texID);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 6, &queryEnabled, &clicked, &tips, &shortcut, nullptr, &imageName);
     }
@@ -393,56 +393,56 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, &clicked, &tips, &shortcut, texID, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, nullptr, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, nullptr, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, nullptr, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
     
-    TResult ImPushImageButton::create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, &clicked, &tips, &shortcut, texID, nullptr, &queryChecked);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImPushImageButton::createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
+    TResult ImPushImageButton::createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
         return ImWidget::createInternal(id, makeName(id), parent, 7, &queryEnabled, &clicked, &tips, &shortcut, nullptr, &imageName, &queryChecked);
     }

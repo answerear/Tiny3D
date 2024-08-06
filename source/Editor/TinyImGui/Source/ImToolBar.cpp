@@ -54,7 +54,7 @@ namespace Tiny3D
     TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
-        TResult ret = button->create(id, texID, queryEnabled, clicked, this, tips, shortcut);
+        TResult ret = button->createByTexture(id, texID, queryEnabled, clicked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -67,7 +67,7 @@ namespace Tiny3D
     TResult ImToolBar::addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
-        TResult ret = button->createEx(id, imageName, queryEnabled, clicked, this, tips, shortcut);
+        TResult ret = button->createByPath(id, imageName, queryEnabled, clicked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -80,7 +80,7 @@ namespace Tiny3D
     TResult ImToolBar::addImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
-        TResult ret = button->create(id, texID, queryEnabled, this, tips, shortcut);
+        TResult ret = button->createByTexture(id, texID, queryEnabled, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -93,7 +93,7 @@ namespace Tiny3D
     TResult ImToolBar::addImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const String &tips, const String &shortcut)
     {
         ImImageButton *button = new ImImageButton();
-        TResult ret = button->createEx(id, imageName, queryEnabled, this, tips, shortcut);
+        TResult ret = button->createByPath(id, imageName, queryEnabled, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -106,7 +106,7 @@ namespace Tiny3D
     TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
-        TResult ret = button->create(id, texID, queryEnabled, queryChecked, clicked, this, tips, shortcut);
+        TResult ret = button->createByTexture(id, texID, queryEnabled, queryChecked, clicked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -119,7 +119,7 @@ namespace Tiny3D
     TResult ImToolBar::addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
-        TResult ret = button->createEx(id, imageName, queryEnabled, queryChecked, clicked, this, tips, shortcut);
+        TResult ret = button->createByPath(id, imageName, queryEnabled, queryChecked, clicked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -132,7 +132,7 @@ namespace Tiny3D
     TResult ImToolBar::addPushImageButton(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
-        TResult ret = button->create(id, texID, queryEnabled, queryChecked, this, tips, shortcut);
+        TResult ret = button->createByTexture(id, texID, queryEnabled, queryChecked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)
@@ -145,7 +145,7 @@ namespace Tiny3D
     TResult ImToolBar::addPushImageButtonEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const String &tips, const String &shortcut)
     {
         ImPushImageButton *button = new ImPushImageButton();
-        TResult ret = button->createEx(id, imageName, queryEnabled, queryChecked, this, tips, shortcut);
+        TResult ret = button->createByPath(id, imageName, queryEnabled, queryChecked, this, tips, shortcut);
         if (T3D_FAILED(ret))
         {
             T3D_SAFE_DELETE(button)

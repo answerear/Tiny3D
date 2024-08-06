@@ -103,21 +103,21 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kImageButton; }
 
-        TResult create(uint32_t id, ImTextureID texID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
@@ -145,21 +145,21 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kPushImageButton; }
 
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
         
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult create(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByTexture(uint32_t id, ImTextureID texID, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
-        TResult createEx(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
+        TResult createByPath(uint32_t id, const String &imageName, const ImButtonQueryCallback &queryEnabled, const ImButtonQueryCallback &queryChecked, const ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips = "", const String &shortcut = "");
 
         bool isPushed() const { return mQueryChecked ? mQueryChecked(this) : false; }
         
