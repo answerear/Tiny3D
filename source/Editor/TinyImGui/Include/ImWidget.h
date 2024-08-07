@@ -48,7 +48,8 @@ namespace Tiny3D
         kDockBar,
         kDockItem,
         kSplitView,
-        kLayout,
+        kHorizontalLayout,
+        kVerticalLayout,
         kButton,
         kPushButton,
         kImageButton,
@@ -57,6 +58,7 @@ namespace Tiny3D
         kTreeWidget,
         kListItem,
         kListWidget,
+        kTreeBar,
     };
 
     using TraverseHierarchyCallback = TFunction<void(ImWidget *, int32_t)>;
@@ -336,6 +338,18 @@ namespace Tiny3D
         ImWidget *getChild(uint32_t id) const;
 
         /**
+         * 获取前一个兄弟节点
+         * @return 返回前一个兄弟节点，如果自己是第一个节点，则返回 nullptr
+         */
+        ImWidget *getPrevSibling() const;
+
+        /**
+         * 获取后一个兄弟节点
+         * @return 返回后一个兄弟节点，如果自己是最后一个节点，则返回 nullptr
+         */
+        ImWidget *getNextSibling() const;
+
+        /**
          * 获取下一级的所有子 widgets
          * @return : 返回下一级所有子 widgets
          */
@@ -476,6 +490,9 @@ namespace Tiny3D
         /// Children
         Children    mChildren {};
 
+        /// 自己在子节点的迭代器，也就是位置
+        Children::iterator  mSelfItr {};
+        
         /// 是否开启调试，调试模式下，会在 update 输出层级关系日志
         bool        mDebugEnabled {false};
         /// 当前帧数

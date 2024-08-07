@@ -32,6 +32,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * 树形控件节点
+     */
     class TINYIMGUI_API ImTreeNode : public ImWidget
     {
     public:
@@ -61,9 +64,31 @@ namespace Tiny3D
 
         ImTreeWidget *getTreeWidget() const { return mTreeWidget; }
 
+        /**
+         * 折叠节点
+         * @param [in] recursively : 是否递归折叠每一级子节点 
+         * @return 调用成功返回 IM_OK
+         */
         TResult collapse(bool recursively);
 
+        /**
+         * 展开节点
+         * @param [in] recursively : 是否递归展开每一级子节点 
+         * @return 调用成功返回 IM_OK
+         */
         TResult expand(bool recursively);
+
+        /**
+         * 设置用户数据，这个指针所指内存，用户自己负责生命周期
+         * @param [in] data : 用户数据
+         */
+        void setUserData(void *data) { mUserData = data; }
+
+        /**
+         * 获取用户数据
+         * @return 返回用户数据首地址
+         */
+        void *getUserData() const { return mUserData; }
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -106,6 +131,8 @@ namespace Tiny3D
         ImTextureID mIconID {nullptr};
         /// 展开状态的图标对象
         ImTextureID mOpenedIconID {nullptr};
+        /// 用户自定义数据对象
+        void *mUserData {nullptr};
         /// TreeWidget 的大小
         ImVec2 mTreeWidgetSize {};
         /// 单击回调

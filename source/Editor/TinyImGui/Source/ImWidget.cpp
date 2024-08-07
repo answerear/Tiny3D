@@ -451,6 +451,8 @@ namespace Tiny3D
                 widget->mParent = this;
                 mChildren.emplace_back(widget);
 
+                widget->mSelfItr = mChildren.end()--;
+
                 // 回调通知加入子 widget
                 onChildAdded(widget);
             }
@@ -654,6 +656,7 @@ namespace Tiny3D
         ImWidget *widget = *itr;
         widget->mParent = nullptr;
         mChildren.erase(itr);
+        widget->mSelfItr = mChildren.end();
         onChildRemoved(widget);
         if (destroy)
         {
@@ -959,6 +962,41 @@ namespace Tiny3D
         return itr != mChildren.end() ? *itr : nullptr;
     }
 
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::getPrevSibling() const
+    {
+        if (getParent() == nullptr || mSelfItr == getParent()->getChildren().begin())
+        {
+            return nullptr;
+        }
+
+        auto itr = mSelfItr;
+        itr--;
+        return *itr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImWidget *ImWidget::getNextSibling() const
+    {
+        if (getParent() == nullptr)
+        {
+            return nullptr;
+        }
+
+        auto itr = mSelfItr;
+        itr++;
+
+        if (itr == getParent()->getChildren().end())
+        {
+            return nullptr;
+        }
+
+        return *itr;
+    }
+
+    
     //--------------------------------------------------------------------------
 
     void ImWidget::update()

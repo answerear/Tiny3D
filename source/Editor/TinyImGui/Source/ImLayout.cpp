@@ -32,10 +32,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ImChildView *ImLayout::NEWLINE = (ImChildView*)0x1;
-    
-    //--------------------------------------------------------------------------
-
     ImLayout::~ImLayout()
     {
         
@@ -55,11 +51,12 @@ namespace Tiny3D
         
         for (auto item : items)
         {
-            if (item.childView != NEWLINE)
+            if (item.childView->getParent() != nullptr)
             {
-                addChild(item.childView);
-                onlyNewLine = false;
+                item.childView->getParent()->removeChild(item.childView, false);
             }
+            addChild(item.childView);
+            onlyNewLine = false;
         }
 
         if (!onlyNewLine)
@@ -73,63 +70,192 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ImLayout::update()
+    void ImHorizontalLayout::calcItemSizeRelative(const ImVec2 &region)
     {
-        if (mVisible && onGUIBegin())
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImHorizontalLayout::calcItemsSizeAbsolute(const ImVec2 &region)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImHorizontalLayout::update()
+    {
+        if (isVisible() && onGUIBegin())
+        {
+            onGUI();
+
+            
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImHorizontalLayout::update(const ImVec2 &size)
+    {
+        update();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImVerticalLayout::calcItemSizeRelative(const ImVec2 &region)
+    {
+        float totalHeight = 0.0f;
+        Items::iterator itrItem = mItems.end();
+        size_t i = 0;
+
+        for (auto itr = mItems.begin(); itr != mItems.end(); ++itr, ++i)
+        {
+            auto &item = *itr;
+
+            if (item.size.y == 0.0f && i != mItems.size() - 1)
+            {
+                // 不是最后一行
+                T3D_ASSERT(itrItem == mItems.end());    // 只有一个 item 是需要计算的，如果多于一个，则无法计算大小了
+                itrItem = itr;
+            }
+            else
+            {
+                totalHeight += itr->size.y;
+
+                if (i != mItems.size() - 1)
+                {
+                    // 非最后一行，要计算 item 间隔
+                    totalHeight += ImGui::GetStyle().ItemSpacing.y;
+                }
+            }
+        }
+
+        if (itrItem != mItems.end())
+        {
+            itrItem->size.y = region.y - totalHeight;
+            itrItem->size.y = itrItem->size.y / region.y;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImVerticalLayout::calcItemsSizeAbsolute(const ImVec2 &region)
+    {
+        float totalHeight = 0.0f;
+        Items::iterator itrItem = mItems.end();
+        size_t i = 0;
+        float spacingHeight = ImGui::GetStyle().ItemSpacing.y;
+        
+        for (auto itr = mItems.begin(); itr != mItems.end(); ++itr, ++i)
+        {
+            auto &item = *itr;
+
+            // 加分隔空间高度
+            totalHeight += spacingHeight;
+            
+            if (item.size.y == 0.0f && i != mItems.size() - 1)
+            {
+                // 不是最后一行
+                T3D_ASSERT(itrItem == mItems.end());    // 只有一个 item 是需要计算的，如果多于一个，则无法计算大小了
+                itrItem = itr;
+                
+            }
+            else
+            {
+                totalHeight += fabs(itr->size.y);
+                item.size.y = fabs(item.size.y) / region.y;
+            }
+        }
+
+        // 最后一行下面还有一个分隔高度，需要加上去
+        totalHeight += spacingHeight;
+
+        if (itrItem != mItems.end())
+        {
+            itrItem->size.y = region.y - totalHeight;
+            itrItem->size.y = itrItem->size.y / region.y;
+
+            IMGUI_LOG_INFO("Total height : %f, Child view %s size (%f, %f)", totalHeight, itrItem->childView->getName().c_str(), itrItem->size.x, itrItem->size.y)
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImVerticalLayout::update()
+    {
+        if (isVisible() && onGUIBegin())
         {
             onGUI();
 
             auto region = ImGui::GetContentRegionAvail();
 
-            auto itr = getChildren().begin();
-            bool isFirst = true;
-            
-            for (auto item : mItems)
+            if (mIsSizeDirty)
             {
-                if (item.childView == NEWLINE)
+                if (mRelative)
                 {
-                    ImGui::Spacing();
-                    isFirst = true;
+                    calcItemSizeRelative(region);
                 }
                 else
                 {
-                    T3D_ASSERT(itr != getChildren().end());
-                    T3D_ASSERT((*itr) == item.childView);
-                    
-                    if (!isFirst)
-                    {
-                        // 不是第一个，又不是换行，需要同一行继续下一个
-                        ImGui::SameLine();
-                    }
-                    
-                    ImVec2 size;
-                    
-                    if (mRelative)
-                    {
-                        // 相对大小
-                        size.x = item.size.x * region.x;
-                        size.y = item.size.y * region.y;
-                    }
-                    else
-                    {
-                        // 绝对大小
-                        size = item.size;
-                    }
-                    
-                    item.childView->update(size);
-
-                    if (isFirst)
-                    {
-                        // 第一个结束，标记非第一个
-                        isFirst = false;
-                    }
-                    
-                    ++itr;
+                    calcItemsSizeAbsolute(region);
                 }
+                
+                mIsSizeDirty = false;
+            }
+            
+            auto itr = getChildren().begin();
+
+            size_t i = 0;
+            for (auto item : mItems)
+            {
+                if (i != 0)
+                {
+                    ImGui::Spacing();
+                }
+
+                T3D_ASSERT(itr != getChildren().end());
+                T3D_ASSERT((*itr) == item.childView);
+                    
+                ImVec2 size;
+                    
+                if (item.size.x > 0.0f && item.size.x < 1.0f)
+                {
+                    // 相对大小
+                    size.x = item.size.x * region.x;
+                }
+                else
+                {
+                    // 绝对大小
+                    size.x = item.size.x;
+                }
+
+                if (item.size.y > 0.0f && item.size.y < 1.0f)
+                {
+                    // 相对大小
+                    size.y = item.size.y * region.y;
+                }
+                else
+                {
+                    // 绝对大小
+                    size.y = item.size.y;
+                }
+                
+                item.childView->update(size);
+
+                ++itr;
+                ++i;
             }
             
             onGUIEnd();
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImVerticalLayout::update(const ImVec2 &size)
+    {
+        update();
     }
 
     //--------------------------------------------------------------------------

@@ -42,16 +42,38 @@ namespace Tiny3D
         ImGuiChildFlags onGetChildFlags() override;
     };
 
-    class AssetThumbView : public ImChildView
+    class AssetThumbView : public ImChildView 
     {
     protected:
         TResult onCreate() override;
-        
-        void onGUI() override;
-        
-        ImGuiChildFlags onGetChildFlags() override;
 
-        ImGuiWindowFlags onGetWindowFlags() override;
+        ImGuiChildFlags onGetChildFlags() override;
+    };
+
+    class AssetPathBar : public ImChildView
+    {
+    public:
+        ~AssetPathBar() override = default;
+
+    protected:
+        TResult onCreate() override;
+
+        ImGuiChildFlags onGetChildFlags() override;
+        
+    protected:
+        ImTreeBar   *mTreeBar {nullptr};
+    };
+    
+    class AssetDetailView : public ImChildView
+    {
+    protected:
+        TResult onCreate() override;
+    };
+
+    class AssetStatusBar : public ImChildView
+    {
+    protected:
+        ImGuiChildFlags onGetChildFlags() override;
     };
 
     class ProjectWindow : public DockingWindow

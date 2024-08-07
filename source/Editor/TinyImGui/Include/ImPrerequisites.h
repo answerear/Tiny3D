@@ -75,6 +75,8 @@ namespace Tiny3D
     class ImTextureManager;
     class ImListItem;
     class ImListWidget;
+    class ImTreeBar;
+    class ImTreeBarNode;
     
     // 按钮点击回调
     using ImButtonClickedCallback = TFunction<void(ImWidget*)>;
@@ -84,4 +86,6 @@ namespace Tiny3D
     using ImTreeNodeClickedCallback = TFunction<void(ImTreeNode*)>;
     // 列表项点击回调
     using ImListItemClickedCallback = TFunction<void(ImListItem*)>;
+    // 树形工具栏点击节点回调
+    using ImTreeBarNodeClickedCallback = TFunction<void(ImTreeBarNode*)>;
 }

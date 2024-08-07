@@ -141,7 +141,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult AssetThumbView::onCreate()
+    TResult AssetPathBar::onCreate()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImGuiChildFlags AssetPathBar::onGetChildFlags()
+    {
+        return ImGuiChildFlags_Border;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult AssetDetailView::onCreate()
     {
         TResult ret = T3D_OK;
 
@@ -186,9 +207,67 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void AssetThumbView::onGUI()
+    TResult AssetThumbView::onCreate()
     {
-        
+        TResult ret = T3D_OK;
+
+        do
+        {
+            AssetPathBar *pathBar = new AssetPathBar();
+            ret = pathBar->create(ID_PROJECT_PATH_BAR, "Asset Path Bar", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create project asset path bar failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            AssetDetailView *detailView = new AssetDetailView();
+            ret = detailView->create(ID_PROJECT_ASSET_DETAIL_VIEW, "Asset Detail View", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create project asset detail view failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            AssetStatusBar *statusBar = new AssetStatusBar();
+            ret = statusBar->create(ID_PROJECT_STATUS_BAR,  "Asset Status Bar", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create project asset status bar failed ! ERROR [%d]", ret)
+                break;
+            }
+
+            // 创建自动布局，上中下布局
+            ImVerticalLayout *layout = new ImVerticalLayout();
+            ret = layout->create(ID_GAME_WINDOW_LAYOUT, "GameWindowLayout", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create project window layout failed ! ERROR [%d]", ret)
+                break;
+            }
+            
+            ImLayout::Items items;
+            ImLayout::Item item;
+            float txtHeight = 20.0f;
+            // 工具栏
+            item.size.x = 0;
+            item.size.y = txtHeight;
+            item.childView = pathBar;
+            items.emplace_back(item);
+            // 详情视图
+            item.size.x = item.size.y = 0;
+            item.childView = detailView;
+            items.emplace_back(item);
+            // 状态栏
+            item.size.x = 0;
+            item.size.y = -txtHeight;
+            item.childView = statusBar;
+            items.emplace_back(item);
+            
+            layout->addWidgets(items);
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -200,9 +279,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImGuiWindowFlags AssetThumbView::onGetWindowFlags()
+    ImGuiChildFlags AssetStatusBar::onGetChildFlags()
     {
-        return ImChildView::onGetWindowFlags();
+        return ImGuiChildFlags_Border;
     }
     
     //--------------------------------------------------------------------------

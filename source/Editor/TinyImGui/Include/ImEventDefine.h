@@ -33,11 +33,19 @@ namespace Tiny3D
 {
     enum TinyImGuiEventID
     {
+        /// 无效事件
         kEvtInvalid = 0,
+
+        /// 点击菜单项
         kEvtMenuItemClicked,
+        /// 点击按钮
         kEvtButtonClicked,
+        /// 点击树形控件节点
         kEvtTreeNodeClicked,
+        /// 点击列表控件列表项
         kEvtListItemClicked,
+        /// 点击树形工具栏节点
+        kEvtTreeBarNodeClicked,
     };
 
     // 按钮点击事件附带的参数
@@ -46,4 +54,6 @@ namespace Tiny3D
     using EventParamTreeNodeClicked = EventParamT1<ImTreeNode*>;
     // 列表项点击事件附带的参数
     using EventParamListItemClicked = EventParamT1<ImListItem*>;
+    // 树形工具栏点击节点事件附带的参数
+    using EventParamTreeBarNodeClicked = EventParamT1<ImTreeBarNode*>;
 }

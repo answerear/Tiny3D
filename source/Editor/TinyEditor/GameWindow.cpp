@@ -117,7 +117,7 @@ namespace Tiny3D
             ret = mToolBar->create(ID_GAME_WINDOW_TOOLBAR, "GameToolBar", nullptr);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game tool bar failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Create game tool bar failed ! ERROR [%d]", ret)
                 break;
             }
             mToolBar->setAlignment(ImToolBar::Alignment::kMiddle);
@@ -161,7 +161,7 @@ namespace Tiny3D
             ret = mGameView->create(ID_GAME_VIEW, "GameView", nullptr);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Create game view failed ! ERROR [%d]", ret)
                 break;
             }
         } while (false);
@@ -181,7 +181,7 @@ namespace Tiny3D
             ret = createToolBar();
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window toolbar failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Create game window toolbar failed ! ERROR [%d]", ret)
                 break;
             }
 
@@ -189,16 +189,16 @@ namespace Tiny3D
             ret = createGameView();
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game view in game window failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Create game view in game window failed ! ERROR [%d]", ret)
                 break;
             }
 
             // 创建自动布局，上下布局
-            ImLayout *layout = new ImLayout();
+            ImVerticalLayout *layout = new ImVerticalLayout();
             ret = layout->create(ID_GAME_WINDOW_LAYOUT, "GameWindowLayout", this);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create game window layout failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Create game window layout failed ! ERROR [%d]", ret)
                 break;
             }
 
@@ -208,13 +208,11 @@ namespace Tiny3D
             item.size = mToolBar->getSize();
             item.childView = mToolBar;
             items.emplace_back(item);
-            // 分行
-            item.childView = ImLayout::NEWLINE;
-            items.emplace_back(item);
             // 游戏视图
             item.size = mGameView->getSize();
             item.childView = mGameView;
             items.emplace_back(item);
+            
             layout->addWidgets(items);
         } while (false);
 

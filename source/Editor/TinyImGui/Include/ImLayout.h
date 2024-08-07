@@ -32,12 +32,13 @@
 namespace Tiny3D
 {
     class ImChildView;
-    
+
+    /**
+     * 排版基类
+     */
     class TINYIMGUI_API ImLayout : public ImWidget
     {
     public:
-        static ImChildView *NEWLINE;
-        
         struct Item
         {
             /// 大小
@@ -50,18 +51,62 @@ namespace Tiny3D
         
         ~ImLayout() override;
 
-        WidgetType getWidgetType() const override { return WidgetType::kLayout; }
-
         TResult addWidgets(const Items &items, bool relative = false);
-
-        void update() override;
         
-    protected:
-
     protected:
         /// 所有要布局的子控件
         Items   mItems {};
         /// 相对布局还是绝对布局
         bool    mRelative {false};
+        /// 是否重新计算所有子窗口尺寸
+        bool    mIsSizeDirty {true};
+    };
+
+    /**
+     * 横向排版
+     */
+    class TINYIMGUI_API ImHorizontalLayout : public ImLayout
+    {
+    public:
+        ~ImHorizontalLayout() override = default;
+
+        WidgetType getWidgetType() const override { return WidgetType::kHorizontalLayout; }
+
+        void update() override;
+
+        void update(const ImVec2 &size) override;
+
+    protected:
+        void calcItemsSizeAbsolute(const ImVec2 &region);
+
+        void calcItemSizeRelative(const ImVec2 &region);
+    };
+
+    /**
+     * 纵向排版
+     */
+    class TINYIMGUI_API ImVerticalLayout : public ImLayout
+    {
+    public:
+        ~ImVerticalLayout() override = default;
+
+        WidgetType getWidgetType() const override { return WidgetType::kVerticalLayout; }
+
+        void update() override;
+
+        void update(const ImVec2 &size) override;
+
+    protected:
+        void calcItemsSizeAbsolute(const ImVec2 &region);
+
+        void calcItemSizeRelative(const ImVec2 &region);
+    };
+
+    /**
+     * 多行多列的格子排版
+     */
+    class TINYIMGUI_API ImGridLayout : public ImLayout
+    {
+    public:
     };
 }

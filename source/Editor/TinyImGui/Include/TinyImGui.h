@@ -42,3 +42,4 @@
 #include <ImButton.h>
 #include <ImTreeWidget.h>
 #include <ImListWidget.h>
+#include <ImTreeBar.h>
