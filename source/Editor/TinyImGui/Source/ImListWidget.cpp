@@ -429,12 +429,14 @@ namespace Tiny3D
 
     void ImListWidget::updateChildrenOnIconMode()
     {
+        ImGuiStyle &style = ImGui::GetStyle();
         auto region = ImGui::GetContentRegionAvail();
         auto startPos = ImGui::GetCursorPos();
-        float x = startPos.x;
+        float x = startPos.x + style.ItemSpacing.x;
+        startPos.x = x;
+        ImGui::SetCursorPos(startPos);
         float y = startPos.y;
 
-        ImGuiStyle &style = ImGui::GetStyle();
         bool isFirst = true;
         
         for (auto child : getChildren())

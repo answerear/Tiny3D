@@ -99,8 +99,13 @@ namespace Tiny3D
     {
         size_t i = 0;
 
+        ImGuiStyle &style = ImGui::GetStyle();
         ImVec2 separatorSize = ImGui::CalcTextSize(">");
         float textHeight = ImGui::GetTextLineHeightWithSpacing();
+
+        auto startPos = ImGui::GetCursorPos();
+        startPos.x += style.ItemSpacing.x;
+        ImGui::SetCursorPos(startPos);
         
         for (auto itr = mSelectedNodes.begin(); itr != mSelectedNodes.end(); ++itr, ++i)
         {
@@ -118,7 +123,7 @@ namespace Tiny3D
             ImGui::SameLine(0, 0);
             std::stringstream ss;
             ss << ">##" << i;
-            ImGuiStyle &style = ImGui::GetStyle();
+            
             if (i != mSelectedNodes.size() - 1 || mSelectedNodes.size() == 1)
             {
                 separatorSize.x += style.ItemSpacing.x + style.ItemSpacing.x;
