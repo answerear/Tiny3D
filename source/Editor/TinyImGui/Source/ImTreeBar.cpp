@@ -119,7 +119,7 @@ namespace Tiny3D
             std::stringstream ss;
             ss << ">##" << i;
             ImGuiStyle &style = ImGui::GetStyle();
-            if (i != mSelectedNodes.size() - 1)
+            if (i != mSelectedNodes.size() - 1 || mSelectedNodes.size() == 1)
             {
                 separatorSize.x += style.ItemSpacing.x + style.ItemSpacing.x;
             }
