@@ -282,7 +282,7 @@ namespace Tiny3D
             items.emplace_back(item);
             // 状态栏
             item.size.x = 0;
-            item.size.y = -txtHeight;
+            item.size.y = -txtHeight;   // 负值，停靠下端，上一个 item 自动计算高度
             item.childView = statusBar;
             items.emplace_back(item);
             
@@ -290,6 +290,40 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetThumbView::onGUIBegin()
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        bool ret = ImChildView::onGUIBegin();
+        if (!ret)
+        {
+            ImGui::PopStyleVar();
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetThumbView::onGUIBegin(const ImVec2 &size)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        bool ret = ImChildView::onGUIBegin(size);
+        if (!ret)
+        {
+            ImGui::PopStyleVar();
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetThumbView::onGUIEnd()
+    {
+        ImChildView::onGUIEnd();
+        ImGui::PopStyleVar();
     }
 
     //--------------------------------------------------------------------------
@@ -346,9 +380,54 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool AssetPathBar::onGUIBegin()
+    {
+        ImGuiStyle &style = ImGui::GetStyle();
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, style.Colors[ImGuiCol_MenuBarBg]);
+        // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        bool ret = ImChildView::onGUIBegin();
+        if (!ret)
+        {
+            // ImGui::PopStyleVar();
+            ImGui::PopStyleColor();
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetPathBar::onGUIBegin(const ImVec2 &size)
+    {
+        auto parentSize = ImGui::GetWindowSize();
+        parentSize.y = size.y;
+        ImGuiStyle &style = ImGui::GetStyle();
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, style.Colors[ImGuiCol_MenuBarBg]);
+        // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        // auto pos = ImGui::GetCursorScreenPos();
+        // ImGui::SetNextWindowPos(pos);
+        bool ret = ImChildView::onGUIBegin(parentSize);
+        if (!ret)
+        {
+            // ImGui::PopStyleVar();
+            ImGui::PopStyleColor();
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetPathBar::onGUIEnd()
+    {
+        ImChildView::onGUIEnd();
+        // ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+    }
+
+    //--------------------------------------------------------------------------
+
     ImGuiChildFlags AssetPathBar::onGetChildFlags()
     {
-        return ImGuiChildFlags_FrameStyle;
+        return ImGuiChildFlags_None;
     }
     
     //--------------------------------------------------------------------------

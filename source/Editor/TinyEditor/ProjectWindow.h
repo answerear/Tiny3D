@@ -58,6 +58,10 @@ namespace Tiny3D
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
 
+        bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
+        void onGUIEnd() override;
+        
         ImGuiChildFlags onGetChildFlags() override;
     };
 
@@ -74,6 +78,10 @@ namespace Tiny3D
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
 
         TResult onCreate() override;
+
+        bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
+        void onGUIEnd() override;
 
         void onDestroy() override;
         
