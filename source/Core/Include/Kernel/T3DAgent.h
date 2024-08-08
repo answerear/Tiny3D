@@ -70,9 +70,9 @@ namespace Tiny3D
 
         void getEditorInfo(void *info) const;
 
-        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config = "Tiny3D.cfg");
+        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config = "Tiny3D.cfg", uint32_t maxEvent = 0);
 
-        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings);
+        TResult init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings, uint32_t maxEvent = 0);
 
         TResult createDefaultRenderWindow(RenderWindowPtr &window, bool isWindowApp);
 
@@ -146,13 +146,13 @@ namespace Tiny3D
         TResult removeImageCodec(ImageCodecBase::FileType type);
         
     protected:
-        TResult initSystem(const String &appPath);
+        TResult initSystem(const String &appPath, uint32_t maxEvent);
         
         TResult initApplication();
 
         TResult initLogSystem();
 
-        TResult initEventSystem();
+        TResult initEventSystem(uint32_t maxEvent);
 
         TResult initObjectTracer();
 

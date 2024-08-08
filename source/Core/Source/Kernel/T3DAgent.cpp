@@ -207,7 +207,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult Agent::initSystem(const String &appPath)
+    TResult Agent::initSystem(const String &appPath, uint32_t maxEvent)
     {
         TResult ret = T3D_OK;
 
@@ -247,7 +247,7 @@ namespace Tiny3D
 #endif
 
             // 初始化事件系统
-            ret = initEventSystem();
+            ret = initEventSystem(maxEvent);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -273,7 +273,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config)
+    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const String &config, uint32_t maxEvent)
     {
         TResult ret = T3D_OK;
 
@@ -289,7 +289,7 @@ namespace Tiny3D
             String appPath = argv[0];
             
             // 初始化系统必须的
-            ret = initSystem(appPath);
+            ret = initSystem(appPath, maxEvent);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -413,7 +413,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings)
+    TResult Agent::init(int32_t argc, char *argv[], bool autoCreateWindow, bool isWindowApp, const Settings &settings, uint32_t maxEvent)
     {
         TResult ret = T3D_OK;
 
@@ -429,7 +429,7 @@ namespace Tiny3D
             String appPath = argv[0];
             
             // 初始化系统必须的
-            ret = initSystem(appPath);
+            ret = initSystem(appPath, maxEvent);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -1000,9 +1000,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult Agent::initEventSystem()
+    TResult Agent::initEventSystem(uint32_t maxEvent)
     {
-        mEventMgr = new EventManager(10);
+        mEventMgr = new EventManager(maxEvent);
         return T3D_OK;
     }
 
