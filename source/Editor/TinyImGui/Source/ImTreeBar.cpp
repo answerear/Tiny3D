@@ -39,26 +39,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeBar::create(uint32_t id, const String &name, ImWidget *parent, ImTreeBarNode *root, const ImTreeBarNodeClickedCallback &clickedNode)
+    TResult ImTreeBar::create(uint32_t id, const String &name, ImWidget *parent, const TreeBarNodes &roots, const ImTreeBarNodeClickedCallback &clickedNode)
     {
-        return ImWidget::createInternal(id, name, parent, 2, root, &clickedNode);
+        return ImWidget::createInternal(id, name, parent, 2, &roots, &clickedNode);
     }
 
     //--------------------------------------------------------------------------
 
     // argc : 2
     // args :
-    //  Node* : 根节点
+    //  TreeBarNodes* : 根节点列表
     //  ImTreeBarClickedCallback* : 点击回调
     TResult ImTreeBar::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
-        T3D_ASSERT(argc == 1);
+        T3D_ASSERT(argc == 2);
         
         TResult ret = IM_OK;
 
         do
         {
-            mRoot = va_arg(args, ImTreeBarNode*);
+            TreeBarNodes *roots = va_arg(args, TreeBarNodes*);
+            mRoots = *roots;
             ImTreeBarNodeClickedCallback *nodeCB = va_arg(args, ImTreeBarNodeClickedCallback*);
             mClickedNodeCB = *nodeCB;
         } while (false);
@@ -96,27 +97,39 @@ namespace Tiny3D
 
     void ImTreeBar::onGUI()
     {
-        int32_t i = 0;
+        size_t i = 0;
 
         ImVec2 separatorSize = ImGui::CalcTextSize(">");
         float textHeight = ImGui::GetTextLineHeightWithSpacing();
         
-        for (auto node : mSelectedNodes)
+        for (auto itr = mSelectedNodes.begin(); itr != mSelectedNodes.end(); ++itr, ++i)
         {
+            auto node = *itr;
             ImVec2 textSize = ImGui::CalcTextSize(node->getName().c_str());
             ImVec2 buttonSize = ImVec2(textSize.x, textHeight);
+            auto pos = ImGui::GetCursorPos();
             if (ImGui::InvisibleButton(node->getName().c_str(), buttonSize))
             {
-                
+                IMGUI_LOG_INFO("Clicked node %s", node->getName().c_str())
             }
+            ImGui::SetCursorPos(pos);
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text(node->getName().c_str());
             ImGui::SameLine(0, 0);
             std::stringstream ss;
             ss << ">##" << i;
+            ImGuiStyle &style = ImGui::GetStyle();
+            if (i != mSelectedNodes.size() - 1)
+            {
+                separatorSize.x += style.ItemSpacing.x + style.ItemSpacing.x;
+            }
             separatorSize.y = textHeight;
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
             if (ImGui::Button(ss.str().c_str(), separatorSize))
             {
                 
             }
+            ImGui::PopStyleColor();
             ImGui::SameLine(0, 0);
         }
     }

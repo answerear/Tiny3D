@@ -34,9 +34,8 @@ namespace Tiny3D
 
     enum AppEventID
     {
-        kEvtApp = 0,
         /// 打开新建工程对话框，参数：nullptr
-        kEvtOpenNewDialog,
+        kEvtOpenNewDialog = kEvtApp,
         /// 新建工程，参数：EventParamNewProject
         kEvtNewProject,
         /// 导入工程，参数：nullptr
@@ -53,6 +52,8 @@ namespace Tiny3D
         kEvtRemoveProject,
         /// 查询是否选中某个工程，事件参数：EventParamQueryProjectSelected
         kEvtQueryProjectSelected,
+
+        kEvtMax
     };
 
     /// arg1 : 路径名称

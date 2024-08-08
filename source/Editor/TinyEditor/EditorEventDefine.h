@@ -34,7 +34,12 @@ namespace Tiny3D
 
     enum AppEventID
     {
+        kEvtHierarchyNodeClicked = kEvtApp,
+
+        kEvtMax
     };
+
+    using EventParamHierarchyNodeClicked = EventParamT1<ImTreeNode*>;
 
     NS_END
 }

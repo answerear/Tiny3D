@@ -37,6 +37,8 @@ namespace Tiny3D
     class ImTreeBarNode
     {
     public:
+        using Children = TList<ImTreeBarNode*>;
+        
         virtual ~ImTreeBarNode() = default;
 
         /// 获取节点名称
@@ -49,7 +51,7 @@ namespace Tiny3D
         virtual ImTreeBarNode *getChild(const String &name) const = 0;
 
         /// 获取所有子节点
-        virtual TList<ImTreeBarNode*> getChildren() const = 0;
+        virtual Children getChildren() const = 0;
 
         /// 获取前一个兄弟节点
         virtual ImTreeBarNode *getPrevSibling() = 0;
@@ -63,11 +65,13 @@ namespace Tiny3D
         , public EventHandler
     {
     public:
+        using TreeBarNodes = TList<ImTreeBarNode*>;
+        
         ~ImTreeBar() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeBar; }
 
-        TResult create(uint32_t id, const String &name, ImWidget *parent, ImTreeBarNode *root, const ImTreeBarNodeClickedCallback &clickedNode);
+        TResult create(uint32_t id, const String &name, ImWidget *parent, const TreeBarNodes &roots, const ImTreeBarNodeClickedCallback &clickedNode);
 
         /**
          * 设置选中节点
@@ -92,7 +96,7 @@ namespace Tiny3D
         using SelectedNodes = TList<ImTreeBarNode*>;
         
         /// 根节点
-        ImTreeBarNode *mRoot {nullptr};
+        TreeBarNodes mRoots {};
         /// 选中节点
         ImTreeBarNode *mSelectedNode {nullptr};
         /// 选中节点链

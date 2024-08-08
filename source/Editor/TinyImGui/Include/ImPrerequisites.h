@@ -84,6 +84,8 @@ namespace Tiny3D
     using ImButtonQueryCallback = TFunction<bool(const ImWidget*)>;
     // 树节点点击回调
     using ImTreeNodeClickedCallback = TFunction<void(ImTreeNode*)>;
+    // 树节点被删除的时候回调
+    using ImTreeNodeDestroyCallback = TFunction<void(ImTreeNode*)>;
     // 列表项点击回调
     using ImListItemClickedCallback = TFunction<void(ImListItem*)>;
     // 树形工具栏点击节点回调

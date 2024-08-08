@@ -30,6 +30,7 @@
 #include "AppSettings.h"
 #include "NetworkManager.h"
 #include "LauncherWidgetID.h"
+#include "LauncherEventDefine.h"
 
 
 Tiny3D::Launcher::LauncherApp *app = nullptr;
@@ -220,7 +221,7 @@ namespace Tiny3D
             settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
             
             // 初始化引擎，只有初始化后才能使用
-            ret = mEngine->init(argc, argv, true, true, settings);
+            ret = mEngine->init(argc, argv, true, true, settings, kEvtMax);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Init engine failed ! ERROR [%d]", ret);

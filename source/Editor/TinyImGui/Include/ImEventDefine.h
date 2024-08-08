@@ -46,6 +46,8 @@ namespace Tiny3D
         kEvtListItemClicked,
         /// 点击树形工具栏节点
         kEvtTreeBarNodeClicked,
+
+        kEvtApp
     };
 
     // 按钮点击事件附带的参数

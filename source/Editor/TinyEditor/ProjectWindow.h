@@ -32,33 +32,54 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class AssetHierarchyView : public ImChildView
+    class AssetHierarchyView
+        : public ImChildView
+        , public EventHandler
     {
+    public:
+        const ImTreeBar::TreeBarNodes &getTreeBarRoots() const { return mRoots; }
+        
     protected:
         TResult onCreate() override;
         
         void onGUI() override;
 
         ImGuiChildFlags onGetChildFlags() override;
+
+    protected:
+        ImTreeBar::TreeBarNodes mRoots {};
     };
 
     class AssetThumbView : public ImChildView 
     {
+    public:
+        TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
+        
     protected:
-        TResult onCreate() override;
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
 
         ImGuiChildFlags onGetChildFlags() override;
     };
 
-    class AssetPathBar : public ImChildView
+    class AssetPathBar
+        : public ImChildView
+        , public EventHandler
     {
-    public:
+    public:        
         ~AssetPathBar() override = default;
 
+        TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
+        
     protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+
         TResult onCreate() override;
 
+        void onDestroy() override;
+        
         ImGuiChildFlags onGetChildFlags() override;
+
+        bool onClickedHierarchyNode(EventParam *param, TINSTANCE sender);
         
     protected:
         ImTreeBar   *mTreeBar {nullptr};
