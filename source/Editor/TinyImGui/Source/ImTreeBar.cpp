@@ -24,7 +24,7 @@
 
 
 #include "ImTreeBar.h"
-
+#include "ImEventDefine.h"
 #include "ImErrors.h"
 
 
@@ -110,32 +110,57 @@ namespace Tiny3D
         for (auto itr = mSelectedNodes.begin(); itr != mSelectedNodes.end(); ++itr, ++i)
         {
             auto node = *itr;
+
+            // 文件夹名称以及点击按钮
             ImVec2 textSize = ImGui::CalcTextSize(node->getName().c_str());
             ImVec2 buttonSize = ImVec2(textSize.x, textHeight);
             auto pos = ImGui::GetCursorPos();
             if (ImGui::InvisibleButton(node->getName().c_str(), buttonSize))
             {
-                IMGUI_LOG_INFO("Clicked node %s", node->getName().c_str())
+                fireClickedNodeEvent(node);
             }
             ImGui::SetCursorPos(pos);
             ImGui::AlignTextToFramePadding();
             ImGui::Text(node->getName().c_str());
-            ImGui::SameLine(0, 0);
-            std::stringstream ss;
-            ss << ">##" << i;
+
+            if (!node->getChildren().empty() && i != mSelectedNodes.size() - 1)
+            {
+                // 非空，则显示分隔符
+                ImGui::SameLine(0, 0);
             
-            if (i != mSelectedNodes.size() - 1 || mSelectedNodes.size() == 1)
-            {
-                separatorSize.x += style.ItemSpacing.x + style.ItemSpacing.x;
+                // 文件夹分隔符
+                if (i != mSelectedNodes.size() - 1 || mSelectedNodes.size() == 1)
+                {
+                    separatorSize.x += style.ItemSpacing.x + style.ItemSpacing.x;
+                }
+                separatorSize.y = textHeight;
+                std::stringstream ss;
+                ss << ">##" << i;
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+                if (ImGui::Button(ss.str().c_str(), separatorSize))
+                {
+                    // 点击分隔符，直接出子文件夹菜单
+                    ImGui::OpenPopup(node->getName().c_str());
+                }
+                ImGui::PopStyleColor();
+
+                // 弹出菜单
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+                if (ImGui::BeginPopup(node->getName().c_str()))
+                {
+                    for (auto child : node->getChildren())
+                    {
+                        if (ImGui::Button(child->getName().c_str()))
+                        {
+                            fireClickedNodeEvent(child);
+                        }
+                    }
+                    ImGui::EndPopup();
+                }
+                ImGui::PopStyleColor();
+            
+                ImGui::SameLine(0, 0);
             }
-            separatorSize.y = textHeight;
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-            if (ImGui::Button(ss.str().c_str(), separatorSize))
-            {
-                
-            }
-            ImGui::PopStyleColor();
-            ImGui::SameLine(0, 0);
         }
     }
 
@@ -144,6 +169,21 @@ namespace Tiny3D
     void ImTreeBar::onGUIEnd()
     {
         ImWidget::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImTreeBar::fireClickedNodeEvent(ImTreeBarNode *node)
+    {
+        if (mClickedNodeCB != nullptr)
+        {
+            mClickedNodeCB(node);
+        }
+        else
+        {
+            EventParamTreeBarNodeClicked param(node);
+            sendEvent(kEvtTreeBarNodeClicked, &param);
+        }
     }
 
     //--------------------------------------------------------------------------

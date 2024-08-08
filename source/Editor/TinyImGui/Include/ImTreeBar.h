@@ -91,6 +91,8 @@ namespace Tiny3D
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
+
+        void fireClickedNodeEvent(ImTreeBarNode *node);
         
     protected:
         using SelectedNodes = TList<ImTreeBarNode*>;
