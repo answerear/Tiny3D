@@ -114,6 +114,10 @@ namespace Tiny3D
         RHIRendererPtr getActiveRHIRenderer() const;
 
         RHIContextPtr getActiveRHIContext() const;
+
+        void setRunInBackground(bool enable) { T3D_APPLICATION.setRunInBackground(enable); }
+
+        bool isRunInBackground() const { return T3D_APPLICATION.isRunInBackground(); }
      
         /**
          * @fn  TResult Agent::addRenderer(RenderContextPtr renderer);
