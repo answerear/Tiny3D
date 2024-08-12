@@ -22,59 +22,41 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SDL_APPLICATION_H__
-#define __T3D_SDL_APPLICATION_H__
+#ifndef __T3D_FS_MONITOR_INTERFACE_H__
+#define __T3D_FS_MONITOR_INTERFACE_H__
 
-#include "Adapter/T3DApplicationInterface.h"
-#include <SDL.h>
+
+#include "T3DMacro.h"
+#include "T3DPlatformPrerequisites.h"
+
 
 namespace Tiny3D
 {
-    class SDLApplication : public IApplication
+    class T3D_PLATFORM_API IFSMonitor
     {
+        T3D_DECLARE_INTERFACE(IFSMonitor);
+
     public:
-        SDLApplication();
+        /**
+         * 初始化监控
+         * @param [in] path : 监控的路径
+         * @param [in] excludeExts : 排除的文件扩展名，不监控这些扩展名文件
+         * @param [in] excludeFolders : 排除的文件夹，不监控这些文件夹
+         * @param [in] onChanged : 发生变化的回调
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult init(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) = 0;
         
-        virtual ~SDLApplication();
+        /**
+         * 监控文件系统变化
+         */
+        virtual TResult monitor() = 0;
 
         /**
-         * @brief 初始化应用程序
-         * @return 调用成功返回T3D_OK
+         * 监控结束，清理操作
          */
-        TResult init() override;
-
-        /**
-         * @brief 轮询处理应用程序事件
-         * @return 返回false时表示需要退出程序
-         */
-        bool pollEvents() override;
-
-        /**
-         * @brief 释放应用程序对象资源
-         */
-        void release() override;
-
-        /**
-         * @brief 获取平台原生应用对象
-         */
-        void *getNativeAppObject() override;
-
-        void setRunInBackground(bool enable) override { mRunInBackground = enable; }
-
-        bool isRunInBackground() const override { return mRunInBackground; }
-
-    protected:
-        enum class WindowState : uint32_t
-        {
-            kNormal,
-            kMinimized,
-            kMaxmized,
-        };
-
-        WindowState mState {WindowState::kNormal};
-        bool mRunInBackground {false};
+        virtual void cleanup() = 0;
     };
 }
 
-
-#endif  /*__T3D_SDL_APPLICATION_H__*/
+#endif  /*__T3D_FS_MONITOR_INTERFACE_H__*/

@@ -113,4 +113,26 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void WindowApplication::setRunInBackground(bool enable)
+    {
+        if (mApp != nullptr)
+        {
+            mApp->setRunInBackground(enable);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool WindowApplication::isRunInBackground() const
+    {
+        if (mApp != nullptr)
+        {
+            return mApp->isRunInBackground();
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
 }

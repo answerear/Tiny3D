@@ -63,6 +63,24 @@ namespace Tiny3D
     /// timerID : 定时器 ID，startTimer 返回的那个 ID
     /// dt : 距离启动或者上次回调（循环定时器时候存在上一次回调）的时间间隔
     using TimerCallback = TFunction<void(ID timerID, uint32_t dt)>;
+
+    enum class FSMonitorAction : uint32_t
+    {
+        /// 新增文件或文件夹
+        kAdded = 0,
+        /// 删除文件或者文件夹
+        kRemoved,
+        /// 修改文件或文件夹
+        kModifed,
+        /// 重命名文件或文件夹，此时文件或文件夹名是旧名称
+        kRenamedOld,
+        /// 重命名文件或文件夹，此时文件或文件夹名是新名称
+        kRenamedNew,
+    };
+        
+    using FSMonitorExts = TList<String>;
+    using FSMonitorExcludes = TList<String>;
+    using FSMonitorOnChanged = TFunction<void(const String&, FSMonitorAction)>;
 }
  
 

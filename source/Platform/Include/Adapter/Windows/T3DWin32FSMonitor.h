@@ -22,59 +22,37 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SDL_APPLICATION_H__
-#define __T3D_SDL_APPLICATION_H__
+#ifndef __T3D_WIN32_FS_MONITOR_H__
+#define __T3D_WIN32_FS_MONITOR_H__
 
-#include "Adapter/T3DApplicationInterface.h"
-#include <SDL.h>
+
+#include "Adapter/T3DFSMonitorInterface.h"
+#include <windows.h>
+
 
 namespace Tiny3D
 {
-    class SDLApplication : public IApplication
+    class T3D_PLATFORM_API Win32FSMonitor : public IFSMonitor
     {
     public:
-        SDLApplication();
+        Win32FSMonitor();
+
+        ~Win32FSMonitor() override;
+
+        TResult init(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) override;
         
-        virtual ~SDLApplication();
+        TResult monitor() override;
 
-        /**
-         * @brief 初始化应用程序
-         * @return 调用成功返回T3D_OK
-         */
-        TResult init() override;
-
-        /**
-         * @brief 轮询处理应用程序事件
-         * @return 返回false时表示需要退出程序
-         */
-        bool pollEvents() override;
-
-        /**
-         * @brief 释放应用程序对象资源
-         */
-        void release() override;
-
-        /**
-         * @brief 获取平台原生应用对象
-         */
-        void *getNativeAppObject() override;
-
-        void setRunInBackground(bool enable) override { mRunInBackground = enable; }
-
-        bool isRunInBackground() const override { return mRunInBackground; }
+        void cleanup() override;
 
     protected:
-        enum class WindowState : uint32_t
-        {
-            kNormal,
-            kMinimized,
-            kMaxmized,
-        };
-
-        WindowState mState {WindowState::kNormal};
-        bool mRunInBackground {false};
+        HANDLE mDirHandle {nullptr};
+        String mPath {};
+        FSMonitorExts mExcludeExts {};
+        FSMonitorExcludes mExcludeFolders {};
+        FSMonitorOnChanged mOnChanged {nullptr};
     };
 }
 
 
-#endif  /*__T3D_SDL_APPLICATION_H__*/
+#endif  /*__T3D_WIN32_FS_MONITOR_H__*/

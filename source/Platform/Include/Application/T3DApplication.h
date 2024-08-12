@@ -73,6 +73,10 @@ namespace Tiny3D
         virtual void release();
 
         virtual void *getNativeAppObject() const;
+
+        virtual void setRunInBackground(bool enable);
+
+        virtual bool isRunInBackground() const;
      
         virtual bool applicationDidFinishLaunching(int32_t argc, char* argv[]) = 0;
 

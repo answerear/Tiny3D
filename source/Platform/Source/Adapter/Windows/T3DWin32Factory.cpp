@@ -35,6 +35,7 @@
 #include "Adapter/Windows/T3DWin32Process.h"
 #include "Adapter/Windows/T3DWin32Locale.h"
 #include "Adapter/Windows/T3DWin32Platform.h"
+#include "Adapter/Windows/T3DWin32FSMonitor.h"
 
 
 namespace Tiny3D
@@ -156,6 +157,13 @@ namespace Tiny3D
     ILocale *Win32Factory::createPlatformLocale()
     {
         return new Win32Locale();
+    }
+
+    //--------------------------------------------------------------------------
+
+    IFSMonitor *Win32Factory::createFileSystemMonitor()
+    {
+        return new Win32FSMonitor();
     }
 
     //--------------------------------------------------------------------------

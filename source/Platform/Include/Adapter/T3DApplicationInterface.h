@@ -60,6 +60,18 @@ namespace Tiny3D
          * @brief 获取平台原生应用对象
          */
         virtual void *getNativeAppObject() = 0;
+
+        /**
+         * @brief 设置是否后台运行
+         * @param [in] enable : 开启或关闭后台运行
+         */
+        virtual void setRunInBackground(bool enable) = 0;
+
+        /**
+         * @brief 获取是否开启后台运行
+         * @return 返回是否开启后台运行
+         */
+        virtual bool isRunInBackground() const = 0;
     };
 }
 

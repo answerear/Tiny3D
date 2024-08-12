@@ -67,6 +67,10 @@ namespace Tiny3D
         void release() override;
 
         void *getNativeAppObject() const override;
+
+        void setRunInBackground(bool enable) override;
+
+        bool isRunInBackground() const override;
      
     private:
         IApplication    *mApp;          /// 具体平台应用程序对象

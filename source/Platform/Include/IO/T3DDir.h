@@ -250,7 +250,7 @@ namespace Tiny3D
         static const String &getAppName() { return sAppName; }
         
     protected:
-        IDir    *mDir;
+        IDir    *mDir {nullptr};
 
         static String  sCompany;
         static String  sAppName;

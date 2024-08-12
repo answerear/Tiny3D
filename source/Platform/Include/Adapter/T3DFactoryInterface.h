@@ -51,6 +51,7 @@ namespace Tiny3D
     class IWaitCondition;
     class IProcess;
     class ILocale;
+    class IFSMonitor;
 
     enum EPlatform
     {
@@ -169,6 +170,12 @@ namespace Tiny3D
          * @return 返回平台相关的位置编码对象，需要用户调用 delete 释放对象
          */
         virtual ILocale *createPlatformLocale() = 0;
+
+        /**
+         * 创建文件系统监控对象
+         * @return 返回平台相关的文件系统监控对象，需要用户调用 delete 释放对象
+         */
+        virtual IFSMonitor *createFileSystemMonitor() = 0;
 
         /**
          * @brief 获取当前平台类型.

@@ -119,6 +119,42 @@ namespace Tiny3D
                     ret = false;
                 }
                 break;
+            case SDL_WINDOWEVENT:
+                {
+                    switch (ev.window.event)
+                    {
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                        if (!mRunInBackground)
+                        {
+                            T3D_APPLICATION.applicationDidEnterBackground();
+                        }
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        if (!mRunInBackground)
+                        {
+                            T3D_APPLICATION.applicationDidEnterBackground();
+                        }
+                        break;
+                    case SDL_WINDOWEVENT_MINIMIZED:
+                        if (!mRunInBackground)
+                        {
+                            T3D_APPLICATION.applicationDidEnterBackground();
+                        }
+                        mState = WindowState::kMinimized;
+                        break;
+                    case SDL_WINDOWEVENT_MAXIMIZED:
+                        mState = WindowState::kMaxmized;
+                        break;
+                    case SDL_WINDOWEVENT_RESTORED:
+                        if (mState == WindowState::kMinimized && !mRunInBackground)
+                        {
+                            T3D_APPLICATION.applicationDidEnterBackground();
+                        }
+                        mState = WindowState::kNormal;
+                        break;
+                    }
+                }
+                break;
             }
         }
 

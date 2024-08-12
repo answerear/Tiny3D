@@ -32,7 +32,8 @@
 #include "Device/T3DDeviceInfo.h"
 #include "Thread/T3DRunnableThread.h"
 #include "Thread/T3DThreadManager.h"
-#include "T3DCommonErrorDef.h"
+#include "T3DPlatformErrorDef.h"
+#include "IO/T3DFileSystemMonitor.h"
 
 
 namespace Tiny3D
@@ -93,6 +94,7 @@ namespace Tiny3D
     void Platform::poll()
     {
         mTimerMgr->pollEvents();
+        FileSystemMonitor::poll();
     }
     
     //--------------------------------------------------------------------------

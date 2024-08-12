@@ -71,6 +71,8 @@ namespace Tiny3D
         IProcess *createPlatformProcess() override;
 
         ILocale *createPlatformLocale() override;
+
+        IFSMonitor *createFileSystemMonitor() override;
         
         EPlatform getPlatform() override;
 

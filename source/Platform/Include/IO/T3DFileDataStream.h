@@ -28,7 +28,6 @@
 
 
 #include "IO/T3DDataStream.h"
-#include <stdio.h>
 
 
 namespace Tiny3D
@@ -70,7 +69,7 @@ namespace Tiny3D
         /**
          * @brief Destructor for T3DFileDataStream.
          */
-        virtual ~FileDataStream();
+        ~FileDataStream() override;
 
         /**
          * @brief 打开文件流.
@@ -93,7 +92,7 @@ namespace Tiny3D
          * @param [in] nSize : 数据缓冲区大小
          * @return 读取到的数据大小.
          */
-        virtual size_t read(void *pBuffer, size_t nSize) override;
+        size_t read(void *pBuffer, size_t nSize) override;
 
         /**
          * @brief 写入文件流.
@@ -101,7 +100,7 @@ namespace Tiny3D
          * @param [in] nSize : 数据缓冲区大小
          * @return 写入的数据大小
          */
-        virtual size_t write(void *pBuffer, size_t nSize) override;
+        size_t write(void *pBuffer, size_t nSize) override;
 
         /**
          * @brief 把文件缓存在内存的内容全部强制写到文件中
@@ -113,25 +112,25 @@ namespace Tiny3D
          * @param [in] llPos : 偏移位置
          * @return 当调用成功时，返回当前读写位置，若错误时，返回-1
          */
-        virtual bool seek(long_t lPos, bool relative) override;
+        bool seek(long_t lPos, bool relative) override;
 
         /**
          * @brief 获取当前文件流当前读写位置.
          * @return 返回文件流当前读写位置
          */
-        virtual long_t tell() const override;
+        long_t tell() const override;
 
         /**
          * @brief 获取文件大小.
          * @return 返回文件大小
          */
-        virtual long_t size() const override;
+        long_t size() const override;
 
         /**
          * @brief 获取是否到文件流末尾.
          * @return 已到文件流末尾
          */
-        virtual bool eof() const override;
+        bool eof() const override;
 
         /**
          * @brief 一次把整个数据流读取完并返回这块buffer
@@ -139,15 +138,19 @@ namespace Tiny3D
          * @param [in][out] pData : 返回读取的数据首地址
          * @return 返回读取的长度
          */
-        virtual size_t read(uint8_t *&pData) override;
+        size_t read(uint8_t *&pData) override;
 
         bool isOpened() const   { return m_bIsOpened; }
 
     protected:
-        FILE                *m_pFileHandle;     /**< 文件操作指针 */
-        mutable long_t      m_lSize;            /**< 文件大小 */
-        bool                m_bIsOpened;        /**< 文件是否打开 */
-        uint8_t             *m_pData;           /**< 读取回来的数据 */
+        /// 文件操作指针
+        FILE *m_pFileHandle {nullptr};
+        /// 文件大小
+        mutable long_t m_lSize {0};
+        /// 文件是否打开
+        bool m_bIsOpened {false};
+        /// 读取回来的数据
+        uint8_t *m_pData {nullptr};
     };
 }
 

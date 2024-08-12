@@ -38,49 +38,51 @@ namespace Tiny3D
         /// 线程已经创建了
         T3D_ERR_THREAD_ALREADY_CREATED      = T3D_ERR_PLATFORM,
         /// 创建系统线程失败
-        T3D_ERR_THREAD_CREATED              = T3D_ERR_THREAD_ALREADY_CREATED + 1,
+        T3D_ERR_THREAD_CREATED,
         /// 线程未创建
-        T3D_ERR_THREAD_NOT_CREATED          = T3D_ERR_THREAD_CREATED + 1,
+        T3D_ERR_THREAD_NOT_CREATED,
         /// 线程初始化失败
-        T3D_ERR_THREAD_INIT                 = T3D_ERR_THREAD_NOT_CREATED + 1,
+        T3D_ERR_THREAD_INIT,
         /// 线程挂起失败
-        T3D_ERR_THREAD_SUSPEND              = T3D_ERR_THREAD_INIT + 1,
+        T3D_ERR_THREAD_SUSPEND,
         /// 线程继续失败
-        T3D_ERR_THREAD_RESUME               = T3D_ERR_THREAD_SUSPEND + 1,
+        T3D_ERR_THREAD_RESUME,
         /// 实现对象没有创建
-        T3D_ERR_IMPLEMENT_NOT_CREATED       = T3D_ERR_THREAD_RESUME + 1,
+        T3D_ERR_IMPLEMENT_NOT_CREATED,
         /// 原生对象没创建
-        T3D_ERR_NATIVE_OBJECT_NOT_CREATED   = T3D_ERR_IMPLEMENT_NOT_CREATED + 1,
+        T3D_ERR_NATIVE_OBJECT_NOT_CREATED,
         /// 非可写文件
-        T3D_ERR_NOT_WRAITABLE_FILE          = T3D_ERR_NATIVE_OBJECT_NOT_CREATED + 1,
+        T3D_ERR_NOT_WRAITABLE_FILE,
         /// 进程创建失败
-        T3D_ERR_PROCESS_CREATED             = T3D_ERR_NOT_WRAITABLE_FILE + 1,
+        T3D_ERR_PROCESS_CREATED,
         /// 进程终止失败
-        T3D_ERR_PROCESS_TERMINATED          = T3D_ERR_PROCESS_CREATED + 1,
+        T3D_ERR_PROCESS_TERMINATED,
         /// socket 错误
-        T3D_ERR_SOCKET_ERROR                = T3D_ERR_PROCESS_TERMINATED + 1,
+        T3D_ERR_SOCKET_ERROR,
         /// socket 远端关闭
-        T3D_ERR_REMOTE_DISCONNECTED         = T3D_ERR_SOCKET_ERROR + 1,
+        T3D_ERR_REMOTE_DISCONNECTED,
         /// socket 启动失败，windows 系统专有错误码
-        T3D_ERR_SOCKET_STARTUP              = T3D_ERR_REMOTE_DISCONNECTED + 1,
+        T3D_ERR_SOCKET_STARTUP,
         /// socket 版本错误，windows 系统专有错误码
-        T3D_ERR_SOCKET_VERSION              = T3D_ERR_SOCKET_STARTUP + 1,
+        T3D_ERR_SOCKET_VERSION,
         /// socket 创建失败
-        T3D_ERR_SOCKET_CREATED              = T3D_ERR_SOCKET_VERSION + 1,
+        T3D_ERR_SOCKET_CREATED,
         /// socket 无效
-        T3D_ERR_SOCKET_INVALID              = T3D_ERR_SOCKET_CREATED + 1,
+        T3D_ERR_SOCKET_INVALID,
         /// socket 重复
-        T3D_ERR_SOCKET_DUPLICATED           = T3D_ERR_SOCKET_INVALID + 1,
+        T3D_ERR_SOCKET_DUPLICATED,
         /// socket 没找到
-        T3D_ERR_SOCKET_NOT_FOUND            = T3D_ERR_SOCKET_DUPLICATED + 1,
+        T3D_ERR_SOCKET_NOT_FOUND,
         /// DNS 解析失败
-        T3D_ERR_SOCKET_DNS                  = T3D_ERR_SOCKET_NOT_FOUND + 1,
+        T3D_ERR_SOCKET_DNS,
         /// socket 没有连接
-        T3D_ERR_SOCKET_NOT_CONNECTED        = T3D_ERR_SOCKET_DNS + 1,
+        T3D_ERR_SOCKET_NOT_CONNECTED,
         /// socket 发送失败
-        T3D_ERR_SOCKET_SEND                 = T3D_ERR_SOCKET_NOT_CONNECTED + 1,
+        T3D_ERR_SOCKET_SEND,
         /// socket 发送缓冲区满了
-        T3D_ERR_SOCKET_NO_SENDBUF           = T3D_ERR_SOCKET_SEND + 1,
+        T3D_ERR_SOCKET_NO_SENDBUF,
+        /// File System Monitor 创建失败
+        T3D_ERR_FS_MONITOR_CREATED,
     };
 };
 
