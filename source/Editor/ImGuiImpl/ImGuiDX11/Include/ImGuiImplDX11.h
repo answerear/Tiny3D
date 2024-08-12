@@ -46,7 +46,7 @@ namespace Tiny3D
 
             void refreshInfo(void *initData) override;
 
-            void pollEvents(void *event) override;
+            void processEvents(void *event) override;
 
             void update() override;
 

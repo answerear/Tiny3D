@@ -66,6 +66,8 @@ namespace Tiny3D
          */
         virtual bool pollEvents();
 
+        virtual bool processEvents(void *ev);
+
         /**
          * @brief 应用程序退出释放资源
          * @return void

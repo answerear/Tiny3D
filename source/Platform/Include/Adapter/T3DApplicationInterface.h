@@ -47,9 +47,16 @@ namespace Tiny3D
 
         /**
          * @brief 轮询处理应用程序事件
-         * @return 返回false时表示需要退出程序
+         * @return 返回 false 时表示需要退出程序
          */
         virtual bool pollEvents() = 0;
+
+        /**
+         * @brief 处理应用程序事件
+         * @param [in] evt : 事件，不同平台不一样定义，自己解析
+         * @return 返回 false 时表示需要退出程序
+         */
+        virtual bool processEvents(void *evt) = 0;
 
         /**
          * @brief 释放应用程序对象资源

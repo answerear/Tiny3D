@@ -50,6 +50,13 @@ namespace Tiny3D
         bool pollEvents() override;
 
         /**
+         * @brief 处理应用程序事件
+         * @param [in] evt : 事件，不同平台不一样定义，自己解析
+         * @return 返回 false 时表示需要退出程序
+         */
+        bool processEvents(void *evt) override;
+
+        /**
          * @brief 释放应用程序对象资源
          */
         void release() override;
@@ -66,12 +73,17 @@ namespace Tiny3D
     protected:
         enum class WindowState : uint32_t
         {
+            /// 一般状态
             kNormal,
+            /// 最小化
             kMinimized,
+            /// 最大化
             kMaxmized,
         };
-
+        
+        /// 窗口状态
         WindowState mState {WindowState::kNormal};
+        /// 能否后台运行标记
         bool mRunInBackground {false};
     };
 }

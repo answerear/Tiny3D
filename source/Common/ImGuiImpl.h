@@ -43,7 +43,7 @@ namespace Tiny3D
 
         virtual void refreshInfo(void *initData) = 0;
 
-        virtual void pollEvents(void *event) = 0;
+        virtual void processEvents(void *event) = 0;
 
         virtual void update() = 0;
 

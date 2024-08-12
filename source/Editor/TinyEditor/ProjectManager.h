@@ -47,14 +47,28 @@ namespace Tiny3D
 
         TResult closeProject();
 
+        const String &getProjectPath() const { return mPath; }
+
+        const String &getProjectName() const { return mName; }
+
+        const String &getAssetsPath() const { return mAssetsPath; }
+
     protected:
+        static const char *ASSETS;
+        static const char *SCENES;
+        
         /// 跟 launcher 通信的套接字
         Socket *mSocket {nullptr};
 
+        /// 文件系统监控器
+        FileSystemMonitor *mFSMonitor {nullptr};
+        
         /// 工程路径
         String mPath {};
         /// 工程名称
         String mName {};
+        /// Assets 路径
+        String mAssetsPath {};
     };
 
     #define PROJECT_MGR     ProjectManager::getInstance()

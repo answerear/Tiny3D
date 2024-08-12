@@ -110,7 +110,6 @@ namespace Tiny3D
     bool LauncherApp::run()
     {
         EditorRunningData runningData;
-        runningData.pollEvents = std::bind(&LauncherApp::enginePollEvents, this);
         runningData.update = std::bind(&LauncherApp::engineUpdate, this);
         runningData.preRender = std::bind(&LauncherApp::enginePreRender, this);
         runningData.postRender = std::bind(&LauncherApp::enginePostRender, this);
@@ -424,34 +423,62 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool LauncherApp::enginePollEvents()
+    bool LauncherApp::processEvents(void *ev)
     {
-        bool done = false;
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
+//         bool done = false;
+//         SDL_Event event;
+//         while (SDL_PollEvent(&event))
+//         {
+//             mImGuiImpl->processEvents(&event);
+//             if (event.type == SDL_QUIT)
+//                 done = true;
+//             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mSDLWindow))
+//                 done = true;
+//             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(mSDLWindow))
+//             {
+//                 // Release all outstanding references to the swap chain's buffers before resizing.
+//                 // CleanupRenderTarget();
+//                 // g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+//                 // CreateRenderTarget();
+//                 T3D_AGENT.getDefaultRenderWindow()->resize(event.window.data1, event.window.data2);
+//
+// #if defined(T3D_OS_WINDOWS)
+//                 EditorInfoDX11 info;
+//                 T3D_AGENT.getEditorInfo(&info);
+//                 mImGuiImpl->refreshInfo(&info);
+// #elif defined (T3D_OS_OSX)
+// #elif defined (T3D_OS_LINUX)
+// #endif
+//             }
+//         }
+//         
+//         return !done && !mExitApp;
+
+        SDL_Event &event = *static_cast<SDL_Event*>(ev);
+        mImGuiImpl->processEvents(&event);
+        bool done = !WindowApplication::processEvents(ev);
+        // if (event.type == SDL_QUIT)
+        //     done = true;
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mSDLWindow))
+            done = true;
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(mSDLWindow))
         {
-            mImGuiImpl->pollEvents(&event);
-            if (event.type == SDL_QUIT)
-                done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mSDLWindow))
-                done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(mSDLWindow))
-            {
-                // Release all outstanding references to the swap chain's buffers before resizing.
-                // CleanupRenderTarget();
-                // g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-                // CreateRenderTarget();
-                T3D_AGENT.getDefaultRenderWindow()->resize(event.window.data1, event.window.data2);
+            // Release all outstanding references to the swap chain's buffers before resizing.
+            // CleanupRenderTarget();
+            // g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+            // CreateRenderTarget();
+            T3D_AGENT.getDefaultRenderWindow()->resize(event.window.data1, event.window.data2);
 
 #if defined(T3D_OS_WINDOWS)
-                EditorInfoDX11 info;
-                T3D_AGENT.getEditorInfo(&info);
-                mImGuiImpl->refreshInfo(&info);
+            EditorInfoDX11 info;
+            T3D_AGENT.getEditorInfo(&info);
+            mImGuiImpl->refreshInfo(&info);
 #elif defined (T3D_OS_OSX)
 #elif defined (T3D_OS_LINUX)
 #endif
-            }
         }
+
+        T3D_AGENT.processEvents(ev);
         
         return !done && !mExitApp;
     }

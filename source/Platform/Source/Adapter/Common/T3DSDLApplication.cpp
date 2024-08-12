@@ -98,7 +98,7 @@ namespace Tiny3D
             SDL_AddEventWatch(AppEventWatcher, nullptr);
 
             ret = T3D_OK;
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -112,50 +112,68 @@ namespace Tiny3D
 
         while (SDL_PollEvent(&ev) != 0)
         {
-            switch (ev.type)
+            // ret = processEvents(&ev);
+            ret = T3D_APPLICATION.processEvents(&ev);
+            
+            if (!ret)
             {
-            case SDL_QUIT:
-                {
-                    ret = false;
-                }
-                break;
-            case SDL_WINDOWEVENT:
-                {
-                    switch (ev.window.event)
-                    {
-                    case SDL_WINDOWEVENT_FOCUS_GAINED:
-                        if (!mRunInBackground)
-                        {
-                            T3D_APPLICATION.applicationDidEnterBackground();
-                        }
-                        break;
-                    case SDL_WINDOWEVENT_FOCUS_LOST:
-                        if (!mRunInBackground)
-                        {
-                            T3D_APPLICATION.applicationDidEnterBackground();
-                        }
-                        break;
-                    case SDL_WINDOWEVENT_MINIMIZED:
-                        if (!mRunInBackground)
-                        {
-                            T3D_APPLICATION.applicationDidEnterBackground();
-                        }
-                        mState = WindowState::kMinimized;
-                        break;
-                    case SDL_WINDOWEVENT_MAXIMIZED:
-                        mState = WindowState::kMaxmized;
-                        break;
-                    case SDL_WINDOWEVENT_RESTORED:
-                        if (mState == WindowState::kMinimized && !mRunInBackground)
-                        {
-                            T3D_APPLICATION.applicationDidEnterBackground();
-                        }
-                        mState = WindowState::kNormal;
-                        break;
-                    }
-                }
                 break;
             }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SDLApplication::processEvents(void *evt)
+    {
+        bool ret = true;
+        SDL_Event &ev = *static_cast<SDL_Event *>(evt);
+        
+        switch (ev.type)
+        {
+        case SDL_QUIT:
+            {
+                ret = false;
+            }
+            break;
+        case SDL_WINDOWEVENT:
+            {
+                switch (ev.window.event)
+                {
+                case SDL_WINDOWEVENT_FOCUS_GAINED:
+                    if (!mRunInBackground)
+                    {
+                        T3D_APPLICATION.applicationWillEnterForeground();
+                    }
+                    break;
+                case SDL_WINDOWEVENT_FOCUS_LOST:
+                    if (!mRunInBackground)
+                    {
+                        T3D_APPLICATION.applicationDidEnterBackground();
+                    }
+                    break;
+                case SDL_WINDOWEVENT_MINIMIZED:
+                    if (!mRunInBackground)
+                    {
+                        T3D_APPLICATION.applicationDidEnterBackground();
+                    }
+                    mState = WindowState::kMinimized;
+                    break;
+                case SDL_WINDOWEVENT_MAXIMIZED:
+                    mState = WindowState::kMaxmized;
+                    break;
+                case SDL_WINDOWEVENT_RESTORED:
+                    if (mState == WindowState::kMinimized && !mRunInBackground)
+                    {
+                        T3D_APPLICATION.applicationWillEnterForeground();
+                    }
+                    mState = WindowState::kNormal;
+                    break;
+                }
+            }
+            break;
         }
 
         return ret;

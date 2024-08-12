@@ -60,6 +60,8 @@ namespace Tiny3D
          */
         bool pollEvents() override;
 
+        bool processEvents(void *ev) override;
+
         /**
          * @brief 应用程序退出释放资源
          * @return void
@@ -70,8 +72,7 @@ namespace Tiny3D
 
         void setRunInBackground(bool enable) override;
 
-        bool isRunInBackground() const override;
-     
+        bool isRunInBackground() const override;     
     private:
         IApplication    *mApp;          /// 具体平台应用程序对象
     };

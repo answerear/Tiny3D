@@ -34,14 +34,14 @@
 
 namespace Tiny3D
 {
-    using PollEvents = TFunction<bool()>;
+    // using PollEvents = TFunction<bool()>;
     using Update = TFunction<void()>;
     using PreEngineRender = TFunction<void()>;
     using PostEngineRender = TFunction<void()>;
 
     struct EditorRunningData
     {
-        PollEvents          pollEvents {nullptr};
+        // PollEvents          pollEvents {nullptr};
         Update              update {nullptr};
         PreEngineRender     preRender {nullptr};
         PostEngineRender    postRender {nullptr};
@@ -96,6 +96,8 @@ namespace Tiny3D
         void appDidEnterBackground();
 
         void appWillEnterForeground();
+
+        bool processEvents(void *ev);
      
         const String &getPluginsPath() const { return mPluginsPath; }
 

@@ -32,43 +32,97 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    const char *ProjectManager::ASSETS = "Assets";
+    const char *ProjectManager::SCENES = "Scenes";
+    
+    //--------------------------------------------------------------------------
+
     ProjectManager::ProjectManager()
     {
-        
+        mFSMonitor = new FileSystemMonitor();
     }
     
     //--------------------------------------------------------------------------
 
     ProjectManager::~ProjectManager()
     {
-        
+        T3D_SAFE_DELETE(mFSMonitor);
     }
 
     //--------------------------------------------------------------------------
 
     TResult ProjectManager::createProject(const String &path, const String &name)
     {
-        String projectPath = path + Dir::getNativeSeparator() + name;
+        TResult ret = T3D_OK;
 
-        if (!Dir::makeDir(projectPath))
+        do
         {
-            
-        }
+            // 创建工程文件夹
+            String projectPath = path + Dir::getNativeSeparator() + name;
+            if (!Dir::makeDir(projectPath))
+            {
+                EDITOR_LOG_ERROR("Create project folder [%s] failed !", projectPath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
 
-        String assetsPath = projectPath + Dir::getNativeSeparator() + "Assets";
-        if (!Dir::makeDir(assetsPath))
-        {
-            
-        }
-        
-        return T3D_OK;
+            // 创建资产文件夹
+            String assetsPath = projectPath + Dir::getNativeSeparator() + ASSETS;
+            if (!Dir::makeDir(assetsPath))
+            {
+                EDITOR_LOG_ERROR("Create assets folder [%s] failed !", assetsPath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 创建场景文件夹
+            String scenesPath = assetsPath + Dir::getNativeSeparator() + SCENES;
+            if (!Dir::makeDir(scenesPath))
+            {
+                EDITOR_LOG_ERROR("Create scenes folder [%s] failed !", scenesPath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            mPath = path;
+            mName = name;
+            mAssetsPath = assetsPath;
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult ProjectManager::openProject(const String &path, const String &name)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String projectPath = path + Dir::getNativeSeparator() + name;
+
+            if (!Dir::exists(projectPath))
+            {
+                EDITOR_LOG_ERROR("Open project [%s] failed !", projectPath.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+
+            String assetsPath = projectPath + Dir::getNativeSeparator() + ASSETS;
+            if (!Dir::exists(assetsPath))
+            {
+                EDITOR_LOG_ERROR("Open assets [%s] failed !", assetsPath.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+
+            mPath = path;
+            mName = name;
+            mAssetsPath = assetsPath;
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

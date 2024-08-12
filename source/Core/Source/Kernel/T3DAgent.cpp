@@ -721,12 +721,15 @@ namespace Tiny3D
             beginFrame();
             
             // 轮询系统事件
-            if (updateData.pollEvents != nullptr)
-            {
-                mIsRunning = updateData.pollEvents();
-                T3D_PLATFORM.poll();
-            }
-
+            // if (updateData.pollEvents != nullptr)
+            // {
+            //     mIsRunning = updateData.pollEvents();
+            //     T3D_PLATFORM.poll();
+            // }
+            
+            // 轮询系统事件
+            mIsRunning = theApp->pollEvents();
+            
             // 更新
             update();
 
@@ -761,6 +764,13 @@ namespace Tiny3D
         T3D_LOG_ENTER_BACKGROUND();
     }
     
+    //--------------------------------------------------------------------------
+
+    bool Agent::processEvents(void *ev)
+    {
+        return true;
+    }
+
     //--------------------------------------------------------------------------
     
     TResult Agent::installPlugin(Plugin *plugin)
@@ -969,7 +979,7 @@ namespace Tiny3D
             {
                 break;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -987,13 +997,8 @@ namespace Tiny3D
             ret = mLogger->startup(1000, "Agent", true, true);
         }
 
-        T3D_LOG_INFO(LOG_TAG_ENGINE, 
-            "Start Tiny3D - %s(%s) ...... version %s",
-            getVersionName(), getVersionString(),
-            T3D_DEVICE_INFO.getSoftwareVersion().c_str());
-
-        T3D_LOG_INFO(LOG_TAG_ENGINE, "System Information : \n%s",
-            T3D_DEVICE_INFO.getSystemInfo().c_str());
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "Start Tiny3D - %s(%s) ...... version %s", getVersionName(), getVersionString(), T3D_DEVICE_INFO.getSoftwareVersion().c_str());
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
 
         return ret;
     }

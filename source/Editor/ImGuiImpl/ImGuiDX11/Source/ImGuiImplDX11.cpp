@@ -72,7 +72,7 @@ namespace Tiny3D
 
         //----------------------------------------------------------------------
 
-        void ImGuiImplDX11::pollEvents(void *event)
+        void ImGuiImplDX11::processEvents(void *event)
         {
             ImGui_ImplSDL2_ProcessEvent((SDL_Event*)event);
         }

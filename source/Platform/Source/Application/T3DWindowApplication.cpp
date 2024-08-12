@@ -92,6 +92,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool WindowApplication::processEvents(void *ev)
+    {
+        T3D_ASSERT(mApp != nullptr);
+        return mApp->processEvents(ev);
+    }
+
+    //--------------------------------------------------------------------------
+
     void WindowApplication::release()
     {
         if (mApp != nullptr)
