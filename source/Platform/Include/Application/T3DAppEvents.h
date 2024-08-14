@@ -157,9 +157,9 @@ namespace Tiny3D
         uint32_t timestamp {0};
     };
 
-    enum AppWindowEventID
+    enum AppWindowEventID : uint8_t
     {
-        APP_WINDOWEVENT_NONE,           /**< Never used */
+        APP_WINDOWEVENT_NONE = 0,       /**< Never used */
         APP_WINDOWEVENT_SHOWN,          /**< Window has been shown */
         APP_WINDOWEVENT_HIDDEN,         /**< Window has been hidden */
         APP_WINDOWEVENT_EXPOSED,        /**< Window has been exposed and should be
@@ -195,7 +195,7 @@ namespace Tiny3D
         /// 事件触发的窗口
         uint32_t windowID {0};
         /// 窗口事件 ID
-        uint8_t event {0};
+        AppWindowEventID event {APP_WINDOWEVENT_NONE};
         /// 用于字节对齐
         uint8_t padding1 {0};
         uint8_t padding2 {0};
@@ -221,8 +221,11 @@ namespace Tiny3D
         uint32_t unused {0};
     };
 
-    #define TKEY_RELEASED   0
-    #define TKEY_PRESSED    1
+    enum KeyState : uint8_t
+    {
+        TKEY_RELEASED = 0,
+        TKEY_PRESSED,
+    };
 
     /**
      * 键盘按钮事件数据
@@ -236,7 +239,7 @@ namespace Tiny3D
         /// 触发事件的窗口 ID
         uint32_t windowID {0};
         /// 按键状态，这里是 TKEY_PRESSED 或者 TKEY_RELEASED
-        uint8_t state {0};
+        KeyState state {TKEY_RELEASED};
         /// 是否重复
         bool repeat {false};
         /// 用于字节对齐
@@ -324,8 +327,10 @@ namespace Tiny3D
         uint32_t windowID {0};
         /// 鼠标实例 ID，或者是 T3D_APP_TOUCH_MOUSEID
         uint32_t which {0};
+        /// 按钮索引
+        uint8_t button {0};
         /// 状态，TKEY_PRESSED 或者 TKEY_RELEASED
-        uint32_t state {0};
+        KeyState state {TKEY_RELEASED};
         /// 点击次数，1 为单机，2为双击
         uint8_t clicks {0};
         /// 用于字节对齐
@@ -403,15 +408,18 @@ namespace Tiny3D
         int16_t yrel {0};
     };
 
-    #define T3D_APP_HAT_CENTERED    0x00
-    #define T3D_APP_HAT_UP          0x01
-    #define T3D_APP_HAT_RIGHT       0x02
-    #define T3D_APP_HAT_DOWN        0x04
-    #define T3D_APP_HAT_LEFT        0x08
-    #define T3D_APP_HAT_RIGHTUP     (T3D_APP_HAT_RIGHT|T3D_APP_HAT_UP)
-    #define T3D_APP_HAT_RIGHTDOWN   (T3D_APP_HAT_RIGHT|T3D_APP_HAT_DOWN)
-    #define T3D_APP_HAT_LEFTUP      (T3D_APP_HAT_LEFT|T3D_APP_HAT_UP)
-    #define T3D_APP_HAT_LEFTDOWN    (T3D_APP_HAT_LEFT|T3D_APP_HAT_DOWN)
+    enum JoyHat : uint8_t
+    {
+        APP_HAT_CENTERED = 0x00,
+        APP_HAT_UP = 0x01,
+        APP_HAT_RIGHT = 0x02,
+        APP_HAT_DOWN = 0x04,
+        APP_HAT_LEFT = 0x08,
+        APP_HAT_RIGHTUP = (APP_HAT_RIGHT|APP_HAT_UP),
+        APP_HAT_RIGHTDOWN = (APP_HAT_RIGHT|APP_HAT_DOWN),
+        APP_HAT_LEFTUP = (APP_HAT_LEFT|APP_HAT_UP),
+        APP_HAT_LEFTDOWN = (APP_HAT_LEFT|APP_HAT_DOWN),
+    };
     
     /**
      * 摇杆 hat 位置变化事件数据
@@ -425,7 +433,7 @@ namespace Tiny3D
         /// 摇杆实例 ID
         AppJoystickID which {0};
         /// joystick hat 索引
-        uint8_t hat {0};
+        JoyHat hat {APP_HAT_CENTERED};
         /// hat 位置值，一般是 T3D_HAT_LEFTUP T3D_HAT_UP T3D_HAT_RIGHTUP 等值
         uint8_t value {0};
         /// 用于字节对齐
@@ -490,7 +498,7 @@ namespace Tiny3D
         /// 手柄实例 ID
         AppJoystickID which {0};
         /// 手柄移动轴索引
-        uint8_t axis {APP_CONTROLLER_AXIS_INVALID};
+        AppGameControllerAxis axis {APP_CONTROLLER_AXIS_INVALID};
         /// 用于字节对齐
         uint8_t padding1 {0};
         uint8_t padding2 {0};
@@ -501,10 +509,10 @@ namespace Tiny3D
         uint16_t padding4 {0};
     };
 
-    enum AppGameControllerButton
+    enum AppGameControllerButton : uint8_t
     {
-        APP_CONTROLLER_BUTTON_INVALID = -1,
-        APP_CONTROLLER_BUTTON_A,
+        APP_CONTROLLER_BUTTON_INVALID = 0xFF,
+        APP_CONTROLLER_BUTTON_A = 0,
         APP_CONTROLLER_BUTTON_B,
         APP_CONTROLLER_BUTTON_X,
         APP_CONTROLLER_BUTTON_Y,
@@ -534,9 +542,9 @@ namespace Tiny3D
         /// 手柄实例 ID
         AppJoystickID which {0};
         /// 手柄按键
-        uint8_t button {0};
+        AppGameControllerButton button {APP_CONTROLLER_BUTTON_INVALID};
         /// 按键状态，TKEY_PRESSED or TKEY_RELEASED
-        uint8_t state {0};
+        KeyState state {TKEY_RELEASED};
         /// 用于字节对齐
         uint8_t padding1 {0};
         uint8_t padding2 {0};
