@@ -468,8 +468,8 @@ namespace Tiny3D
 
     enum AppGameControllerAxis : uint8_t
     {
-        APP_CONTROLLER_AXIS_INVALID = (uint8_t)-1,
-        APP_CONTROLLER_AXIS_LEFTX,
+        APP_CONTROLLER_AXIS_INVALID = 0xFF,
+        APP_CONTROLLER_AXIS_LEFTX = 0,
         APP_CONTROLLER_AXIS_LEFTY,
         APP_CONTROLLER_AXIS_RIGHTX,
         APP_CONTROLLER_AXIS_RIGHTY,
