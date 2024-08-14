@@ -36,7 +36,6 @@
 #include "Resource/T3DShaderManager.h"
 #include "T3DErrorDef.h"
 #include "Kernel/T3DGameObject.h"
-#include "RHI/T3DRHIContext.h"
 #include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderer.h"
 #include "RHI/T3DRHIThread.h"
@@ -766,8 +765,19 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool Agent::processEvents(void *ev)
+    bool Agent::processEvents(const AppEvent &event)
     {
+        if (event.type == APP_WINDOWEVENT)
+        {
+            switch (event.window.event)
+            {
+            case APP_WINDOWEVENT_RESIZED:
+                {
+                    mDefaultWindow->resize(event.window.data1, event.window.data2);
+                }
+                break;
+            }
+        }
         return true;
     }
 

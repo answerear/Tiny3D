@@ -60,7 +60,7 @@ namespace Tiny3D
          */
         bool pollEvents() override;
 
-        bool processEvents(void *ev) override;
+        bool processEvents(const AppEvent &event) override;
 
         /**
          * @brief 应用程序退出释放资源

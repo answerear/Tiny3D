@@ -62,7 +62,7 @@ namespace Tiny3D
 
         void applicationLowMemory() override;
 
-        bool processEvents(void *ev) override;
+        bool processEvents(const AppEvent &event) override;
 
         TResult createImGuiEnv();
 

@@ -32,6 +32,8 @@
 #include <T3DPlatformErrorDef.h>
 #include <T3DPlatform.h>
 #include <T3DNoncopyable.h>
+#include <Application/T3DAppKeyboard.h>
+#include <Application/T3DAppEvents.h>
 #include <Application/T3DApplication.h>
 #include <Application/T3DConsoleApplication.h>
 #include <Application/T3DWindowApplication.h>

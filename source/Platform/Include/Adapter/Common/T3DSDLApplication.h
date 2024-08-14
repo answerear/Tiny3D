@@ -51,10 +51,10 @@ namespace Tiny3D
 
         /**
          * @brief 处理应用程序事件
-         * @param [in] evt : 事件，不同平台不一样定义，自己解析
+         * @param [in] event : 事件，不同平台不一样定义，自己解析
          * @return 返回 false 时表示需要退出程序
          */
-        bool processEvents(void *evt) override;
+        bool processEvents(const AppEvent &event) override;
 
         /**
          * @brief 释放应用程序对象资源

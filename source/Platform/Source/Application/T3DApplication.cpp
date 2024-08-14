@@ -78,7 +78,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Application::processEvents(void *ev)
+    bool Application::processEvents(const AppEvent &event)
     {
         return true;
     }

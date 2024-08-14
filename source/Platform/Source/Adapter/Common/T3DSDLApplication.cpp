@@ -24,6 +24,8 @@
 
 
 #include "Adapter/Common/T3DSDLApplication.h"
+
+#include "T3DAppEvents.h"
 #include "T3DPlatformErrorDef.h"
 #include "T3DApplication.h"
 
@@ -110,10 +112,14 @@ namespace Tiny3D
         bool ret = true;
         SDL_Event ev;
 
+        AppEvent evt;
+        
         while (SDL_PollEvent(&ev) != 0)
         {
-            // ret = processEvents(&ev);
-            ret = T3D_APPLICATION.processEvents(&ev);
+            T3D_ASSERT(sizeof(AppEvent) == sizeof(SDL_Event));
+            memcpy(&evt, &ev, sizeof(AppEvent));
+            
+            ret = T3D_APPLICATION.processEvents(evt);
             
             if (!ret)
             {
@@ -126,45 +132,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool SDLApplication::processEvents(void *evt)
+    bool SDLApplication::processEvents(const AppEvent &event)
     {
         bool ret = true;
-        SDL_Event &ev = *static_cast<SDL_Event *>(evt);
+        // SDL_Event &ev = *static_cast<SDL_Event *>(evt);
         
-        switch (ev.type)
+        switch (event.type)
         {
-        case SDL_QUIT:
+        case APP_QUIT:
             {
                 ret = false;
             }
             break;
-        case SDL_WINDOWEVENT:
+        case APP_WINDOWEVENT:
             {
-                switch (ev.window.event)
+                switch (event.window.event)
                 {
-                case SDL_WINDOWEVENT_FOCUS_GAINED:
+                case APP_WINDOWEVENT_FOCUS_GAINED:
                     if (!mRunInBackground)
                     {
                         T3D_APPLICATION.applicationWillEnterForeground();
                     }
                     break;
-                case SDL_WINDOWEVENT_FOCUS_LOST:
+                case APP_WINDOWEVENT_FOCUS_LOST:
                     if (!mRunInBackground)
                     {
                         T3D_APPLICATION.applicationDidEnterBackground();
                     }
                     break;
-                case SDL_WINDOWEVENT_MINIMIZED:
+                case APP_WINDOWEVENT_MINIMIZED:
                     if (!mRunInBackground)
                     {
                         T3D_APPLICATION.applicationDidEnterBackground();
                     }
                     mState = WindowState::kMinimized;
                     break;
-                case SDL_WINDOWEVENT_MAXIMIZED:
+                case APP_WINDOWEVENT_MAXIMIZED:
                     mState = WindowState::kMaxmized;
                     break;
-                case SDL_WINDOWEVENT_RESTORED:
+                case APP_WINDOWEVENT_RESTORED:
                     if (mState == WindowState::kMinimized && !mRunInBackground)
                     {
                         T3D_APPLICATION.applicationWillEnterForeground();

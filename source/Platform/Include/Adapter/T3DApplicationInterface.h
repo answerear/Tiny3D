@@ -30,6 +30,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Application/T3DAppEvents.h"
 
 
 namespace Tiny3D
@@ -56,7 +57,7 @@ namespace Tiny3D
          * @param [in] evt : 事件，不同平台不一样定义，自己解析
          * @return 返回 false 时表示需要退出程序
          */
-        virtual bool processEvents(void *evt) = 0;
+        virtual bool processEvents(const AppEvent &event) = 0;
 
         /**
          * @brief 释放应用程序对象资源

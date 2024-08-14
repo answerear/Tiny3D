@@ -92,10 +92,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool WindowApplication::processEvents(void *ev)
+    bool WindowApplication::processEvents(const AppEvent &event)
     {
         T3D_ASSERT(mApp != nullptr);
-        return mApp->processEvents(ev);
+        return mApp->processEvents(event);
     }
 
     //--------------------------------------------------------------------------

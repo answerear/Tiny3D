@@ -29,6 +29,7 @@
 
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
+#include "Application/T3DAppEvents.h"
 
 
 namespace Tiny3D
@@ -66,7 +67,7 @@ namespace Tiny3D
          */
         virtual bool pollEvents();
 
-        virtual bool processEvents(void *ev);
+        virtual bool processEvents(const AppEvent &event);
 
         /**
          * @brief 应用程序退出释放资源

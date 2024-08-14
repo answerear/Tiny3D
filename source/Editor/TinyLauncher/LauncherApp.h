@@ -70,7 +70,7 @@ namespace Tiny3D
 
         void destroyImGuiEnv();
         
-        bool processEvents(void *ev) override;
+        bool processEvents(const AppEvent &event) override;
 
         void engineUpdate();
 

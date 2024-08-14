@@ -97,7 +97,7 @@ namespace Tiny3D
 
         void appWillEnterForeground();
 
-        bool processEvents(void *ev);
+        bool processEvents(const AppEvent &event);
      
         const String &getPluginsPath() const { return mPluginsPath; }
 
