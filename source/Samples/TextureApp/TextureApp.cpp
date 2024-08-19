@@ -123,7 +123,7 @@ Texture2DPtr TextureApp::buildTexture()
 {
     ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
     T3D_ASSERT(archive != nullptr);
-    ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/textures/blocks.png");
+    ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/samples/textures/blocks.png");
     T3D_ASSERT(image != nullptr);
     Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
     return texture;

@@ -24,8 +24,6 @@
 
 
 #include "NetworkManager.h"
-
-#include "../TinyEditor/EditorPrerequisites.h"
 #include "proto/NetPackage.pb.h"
 
 
@@ -250,7 +248,7 @@ namespace Tiny3D
         
         if (req.ParseFromArray(data, dataSize))
         {
-            T3D_LOG_INFO(LOG_TAG_EDITOR, "Recv message id [%d]", req.message_id());
+            T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Recv message id [%d]", req.message_id());
             
             switch (req.message_id())
             {
@@ -267,7 +265,7 @@ namespace Tiny3D
                     }
                     else
                     {
-                        T3D_LOG_ERROR(LOG_TAG_EDITOR, "Pack hello failed !");
+                        T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Pack hello failed !");
                     }
                 }
                 break;
@@ -291,7 +289,7 @@ namespace Tiny3D
                     }
                     else
                     {
-                        T3D_LOG_ERROR(LOG_TAG_EDITOR, "Pack create project failed !");
+                        T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Pack create project failed !");
                     }
                 }
                 break;
@@ -315,7 +313,7 @@ namespace Tiny3D
                     }
                     else
                     {
-                        T3D_LOG_ERROR(LOG_TAG_EDITOR, "Pack open project failed !");
+                        T3D_LOG_ERROR(LOG_TAG_LAUNCHER, "Pack open project failed !");
                     }
                 }
                 break;
@@ -333,7 +331,7 @@ namespace Tiny3D
 
     TResult NetworkManager::onSend(TCPConnection *connection, uint32_t seq, const void *data, int32_t dataSize)
     {
-        T3D_LOG_INFO(LOG_TAG_EDITOR, "Send : seq [%u], dataSize [%d]", seq, dataSize);
+        T3D_LOG_INFO(LOG_TAG_LAUNCHER, "Send : seq [%u], dataSize [%d]", seq, dataSize);
         return T3D_OK;
     }
 
