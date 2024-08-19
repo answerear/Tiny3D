@@ -104,8 +104,10 @@ namespace Tiny3D
             shutdown();
         } while (false);
 
+        T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
-        T3D_SAFE_DELETE(mEngine);
+        T3D_SAFE_DELETE(mEditorScene)
+        T3D_SAFE_DELETE(mEngine)
 
         return ret;
     }
@@ -176,6 +178,13 @@ namespace Tiny3D
             if (mOptions.created)
             {
                 // 新建工程
+                ret = mProjectMgr->createProject(mOptions.path, mOptions.name);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                // 通知 launcher ，创建成功
                 ret = mNetworkMgr->createProject(mOptions.path, mOptions.name);
                 if (T3D_FAILED(ret))
                 {
@@ -185,6 +194,13 @@ namespace Tiny3D
             else
             {
                 // 打开工程
+                ret = mProjectMgr->openProject(mOptions.path, mOptions.name);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+
+                // 通知 launcher ，打开成功
                 ret = mNetworkMgr->openProject(mOptions.path, mOptions.name);
                 if (T3D_FAILED(ret))
                 {

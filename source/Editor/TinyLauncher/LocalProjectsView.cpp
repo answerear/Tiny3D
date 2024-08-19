@@ -378,8 +378,8 @@ namespace Tiny3D
 
     void LocalProjectViewBR::onComboLanguageChanged(int32_t lastIndex)
     {
-        ImMessageBox::Buttons buttons;
-        ImMessageBox::Button btnRestart;
+        ImDialogButtons buttons;
+        ImDialogButton btnRestart;
         btnRestart.name = STR(TXT_BTN_RESTART);
         btnRestart.callback =
             [this]()
@@ -390,7 +390,7 @@ namespace Tiny3D
                 app->getAppSettings().languageFileName = languages[mCurrentLanguage];
             };
         buttons.emplace_back(btnRestart);
-        ImMessageBox::Button btnCancel;
+        ImDialogButton btnCancel;
         btnCancel.name = STR(TXT_CANCEL);
         btnCancel.callback =
             [this, lastIndex]()

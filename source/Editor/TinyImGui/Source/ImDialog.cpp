@@ -298,7 +298,7 @@ namespace Tiny3D
             if (isOpened != nullptr && visible != mVisible)
             {
                 // 点 X 关闭了
-                if (msDialogStack.top() == this)
+                if (!msDialogStack.empty() && msDialogStack.top() == this)
                 {
                     msDialogStack.pop();
                 }
@@ -350,7 +350,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImMessageBox::show(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor)
+    TResult ImMessageBox::show(const String &title, const String &message, ShowType type, ImDialogButtons &&buttons, const ImVec4 &txtColor)
     {
         if (ImMessageBox::getInstancePtr() == nullptr)
         {
@@ -371,8 +371,8 @@ namespace Tiny3D
             instance->create(ID_MESSAGE_BOX, title, nullptr, false);
         }
 
-        Buttons buttons;
-        Button button;
+        ImDialogButtons buttons;
+        ImDialogButton button;
         button.name = btnText;
         button.callback = []() {};
         buttons.emplace_back(button);
@@ -381,7 +381,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ImMessageBox::appear(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor)
+    TResult ImMessageBox::appear(const String &title, const String &message, ShowType type, ImDialogButtons &&buttons, const ImVec4 &txtColor)
     {
         if (buttons.size() > 2)
         {
@@ -478,6 +478,125 @@ namespace Tiny3D
             // NO any buttons, do nothing
         }
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImProgressDialog::create(uint32_t id, const String &title, Style style, const ImDialogButton &button, ImWidget *parent, bool hasCloseBtn)
+    {
+        return ImWidget::createInternal(id, title, parent, 3, hasCloseBtn, style, &button);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImProgressDialog::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        T3D_ASSERT(argc == 3);
+        TResult ret = IM_OK;
+
+        do
+        {
+            ret = ImDialog::createInternal(id, name, parent, argc, args);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            // 样式
+            mStyle = va_arg(args, Style);
+            // 按钮
+            mButton = *va_arg(args, ImDialogButton*);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImProgressDialog::onGUIBegin()
+    {
+        ImGui::SetNextWindowSize(getSize());
+
+        return ImDialog::onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImProgressDialog::onGUIBegin(const ImVec2 &size)
+    {
+        return ImProgressDialog::onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImProgressDialog::onGUI()
+    {
+        auto region = ImGui::GetContentRegionAvail();
+
+        switch (mStyle)
+        {
+        case Style::Indeterminate:
+            {
+                ImGui::Spacing();
+                if (mIsInBar)
+                {
+                    if (mText.empty())
+                    {
+                        ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(region.x, 0.0f));                        
+                    }
+                    else
+                    {
+                        ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(region.x, 0.0f), mText.c_str());
+                    }
+                }
+                else
+                {
+                    ImGui::Text(mText.c_str());
+                    ImGui::Spacing();
+                    ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(region.x, 0.0f));
+                }
+            }
+            break;
+        case Style::Determinate:
+            {
+                ImGui::Spacing();
+                ImGui::Text(mText.c_str());
+                ImGui::Spacing();
+                std::stringstream ss;
+                if (mTotal != 0)
+                {
+                    uint32_t step = uint32_t(mFraction * (float)mTotal);
+                    ss << step << "/" << mTotal;
+                }
+                else
+                {
+                    ss << mFraction;
+                }
+                ImGui::ProgressBar(mFraction, ImVec2(region.x, 0.0f), ss.str().c_str());
+            }
+            break;
+        }
+
+        if (!mButton.name.empty())
+        {
+            const float button_w = 80.0f;
+            
+            ImGui::Spacing();
+            float x = (region.x - button_w) * 0.5f;
+            ImGui::SetCursorPosX(x);
+            if (ImGui::Button(mButton.name.c_str(), ImVec2(button_w, 0)))
+            {
+                mButton.callback();
+                close();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImProgressDialog::onGUIEnd()
+    {
+        ImDialog::onGUIEnd();
     }
 
     //--------------------------------------------------------------------------

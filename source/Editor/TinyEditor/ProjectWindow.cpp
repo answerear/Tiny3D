@@ -106,11 +106,31 @@ namespace Tiny3D
 
         do
         {
+            mContextMenu = new ImContextMenu();
+            ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu");
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create asset hierarchy context menu failed ! ERROR [%d]", ret)
+                break;
+            }
+            mContextMenu->setVisible(false);
+
+            auto queryEnableDefault = [](ImWidget*) { return true; };
+            auto queryDisableDefault = [](ImWidget*) { return false; };
+            
+            mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryDisableDefault);
+            
             auto treeNodeClicked = [this](ImTreeNode *node)
             {
                 EDITOR_LOG_INFO("Tree node [%s] clicked ", node->getName().c_str())
                 EventParamHierarchyNodeClicked param(node);
                 sendEvent(kEvtHierarchyNodeClicked, &param);
+            };
+
+            auto treeNodeRClicked = [this](ImTreeNode *node)
+            {
+                EDITOR_LOG_INFO("Tree node [%s] R-Clicked ", node->getName().c_str())
+                mContextMenu->show(this);
             };
 
             auto treeNodeDestroy = [](ImTreeNode *node)
@@ -129,7 +149,8 @@ namespace Tiny3D
             }
 
             ImTreeNode *favoriteRoot = new ImTreeNode(tree);
-            ret = favoriteRoot->createByPath(ICON_NAME_FAVORITE, "Fovorites", treeNodeClicked, tree, treeNodeDestroy);
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+            ret = favoriteRoot->createByPath(ICON_NAME_FAVORITE, "Fovorites", callbacks, tree, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create favarites node failed ! ERROR [%d]", ret)
@@ -139,7 +160,7 @@ namespace Tiny3D
             favoriteRoot->setUserData(assetNode);
 
             ImTreeNode *node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_SEARCH, "All Materials", treeNodeClicked, favoriteRoot, treeNodeDestroy);
+            ret = node->createByPath(ICON_NAME_SEARCH, "All Materials", callbacks, favoriteRoot, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create all material node failed ! ERROR [%d]", ret)
@@ -149,7 +170,7 @@ namespace Tiny3D
             node->setUserData(assetNode);
 
             node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_SEARCH, "All Models", treeNodeClicked, favoriteRoot, treeNodeDestroy);
+            ret = node->createByPath(ICON_NAME_SEARCH, "All Models", callbacks, favoriteRoot, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create all modles node failed ! ERROR [%d]", ret)
@@ -159,7 +180,7 @@ namespace Tiny3D
             node->setUserData(assetNode);
 
             node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_SEARCH, "All Prefabs", treeNodeClicked, favoriteRoot, treeNodeDestroy);
+            ret = node->createByPath(ICON_NAME_SEARCH, "All Prefabs", callbacks, favoriteRoot, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create all prefabs node failed ! ERROR [%d]", ret)
@@ -179,7 +200,7 @@ namespace Tiny3D
             }
 
             ImTreeNode *assetsRoot = new ImTreeNode(tree);
-            ret = assetsRoot->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Assets", treeNodeClicked, tree, treeNodeDestroy);
+            ret = assetsRoot->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Assets", callbacks, tree, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create assets folder node faield ! ERROR [%d]", ret)
@@ -189,7 +210,7 @@ namespace Tiny3D
             assetsRoot->setUserData(assetNode);
 
             node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Scenes", treeNodeClicked, assetsRoot, treeNodeDestroy);
+            ret = node->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Scenes", callbacks, assetsRoot, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create scenes folder node failed ! ERROR [%d]", ret)
@@ -437,6 +458,39 @@ namespace Tiny3D
         EventParamHierarchyNodeClicked *p = static_cast<EventParamHierarchyNodeClicked *>(param);
         ImTreeBarNode *node = static_cast<ImTreeBarNode*>(p->arg1->getUserData());
         mTreeBar->setSelectedNode(node);
+
+#if 0
+        static ImProgressDialog *dlg = nullptr;
+        if (dlg == nullptr)
+        {
+            dlg = new ImProgressDialog();
+            ImDialogButton button;
+            button.name = "Cancal";
+            button.callback = []() {};
+            TResult ret = dlg->create(0x10000, "Progress Demo Dialog", ImProgressDialog::Style::Determinate, button, ImWindow::getFocusedWindow());
+            T3D_ASSERT(T3D_SUCCEEDED(ret));
+            dlg->setSize(ImVec2(512.0f, 0.0f));
+            dlg->setText("Searching...", false);
+            uint32_t total = 100;
+            dlg->setTotal(total);
+            
+            T3D_TIMER_MGR.startTimer(1000, true,
+                [this, total](ID timerID, uint32_t dt)
+                {
+                    static uint32_t step = 0;
+                    dlg->setProgress(step);
+                    step += 10;
+
+                    if (step > total)
+                    {
+                        T3D_TIMER_MGR.stopTimer(timerID);
+                    }
+                });
+        }
+        
+        dlg->show(ImDialog::ShowType::kEnqueueBack);
+#endif
+        
         return true;
     }
 

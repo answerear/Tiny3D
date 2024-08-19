@@ -34,6 +34,7 @@ namespace Tiny3D
 
     const char *ProjectManager::ASSETS = "Assets";
     const char *ProjectManager::SCENES = "Scenes";
+    const char *ProjectManager::TEMP = "Temp";
     
     //--------------------------------------------------------------------------
 
@@ -75,15 +76,15 @@ namespace Tiny3D
                 break;
             }
 
-            // 创建场景文件夹
-            String scenesPath = assetsPath + Dir::getNativeSeparator() + SCENES;
-            if (!Dir::makeDir(scenesPath))
+            // 创建 Temp 文件夹
+            String tempPath = projectPath + Dir::getNativeSeparator() + TEMP;
+            if (!Dir::makeDir(tempPath))
             {
-                EDITOR_LOG_ERROR("Create scenes folder [%s] failed !", scenesPath.c_str());
+                EDITOR_LOG_ERROR("Create temp folder [%s] failed !", tempPath.c_str());
                 ret = T3D_ERR_FAIL;
                 break;
             }
-
+                
             mPath = path;
             mName = name;
             mAssetsPath = assetsPath;

@@ -48,6 +48,8 @@ namespace Tiny3D
 
     protected:
         ImTreeBar::TreeBarNodes mRoots {};
+
+        ImContextMenu *mContextMenu {nullptr};
     };
 
     class AssetThumbView : public ImChildView 

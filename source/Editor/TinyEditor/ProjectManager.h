@@ -56,6 +56,7 @@ namespace Tiny3D
     protected:
         static const char *ASSETS;
         static const char *SCENES;
+        static const char *TEMP;
         
         /// 跟 launcher 通信的套接字
         Socket *mSocket {nullptr};

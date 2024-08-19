@@ -100,47 +100,131 @@ namespace Tiny3D
     };
 
     using OnMessageBoxCB = TFunction<void()>;
+
+    class ImDialogButton
+    {
+    public:
+        ImDialogButton() = default;
+
+        ImDialogButton(const ImDialogButton &other)
+            : name(other.name)
+            , callback(other.callback)
+        {
+        }
+            
+        ImDialogButton(ImDialogButton &&other) noexcept
+        {
+            name = std::move(other.name);
+            callback = std::move(other.callback);
+        }
+
+        ImDialogButton &operator =(const ImDialogButton &other)
+        {
+            name = other.name;
+            callback = other.callback;
+            return *this;
+        }
+            
+        String          name {};
+        OnMessageBoxCB  callback {nullptr};
+    };
+
+    using ImDialogButtons = TArray<ImDialogButton>;
     
     class TINYIMGUI_API ImMessageBox : public ImDialog, public Singleton<ImMessageBox>
     {
     public:
-        struct Button
-        {
-            Button() = default;
-
-            Button(const Button &other)
-                : name(other.name)
-                , callback(other.callback)
-            {
-            }
-            
-            Button(Button &&other) noexcept
-            {
-                name = std::move(other.name);
-                callback = std::move(other.callback);
-            }
-            
-            String          name {};
-            OnMessageBoxCB  callback {nullptr};
-        };
-        
-        using Buttons = TArray<Button>;
-        
         ~ImMessageBox() override = default;
 
-        static TResult show(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor = ImVec4(0, 0, 0, 0));
+        static TResult show(const String &title, const String &message, ShowType type, ImDialogButtons &&buttons, const ImVec4 &txtColor = ImVec4(0, 0, 0, 0));
 
         static TResult show(const String &title, const String &message, const String &btnText, ShowType type, const ImVec4 &txtColor = ImVec4(0, 0, 0, 0));
 
     protected:
-        TResult appear(const String &title, const String &message, ShowType type, Buttons &&buttons, const ImVec4 &txtColor);
+        TResult appear(const String &title, const String &message, ShowType type, ImDialogButtons &&buttons, const ImVec4 &txtColor);
 
         bool onGUIBegin() override;
         
         void onGUI() override;
         
-        String  mMessage {};
-        Buttons mButtons {};
-        ImVec4  mMessageColor {};
+        String          mMessage {};
+        ImDialogButtons mButtons {};
+        ImVec4          mMessageColor {};
+    };
+
+    class TINYIMGUI_API ImProgressDialog : public ImDialog
+    {
+    public:
+        /**
+         * 进度条形式
+         */
+        enum class Style : uint32_t
+        {
+            /// 不确定进度的
+            Indeterminate = 0,
+            /// 明确知道进度的
+            Determinate,
+        };
+        
+        ~ImProgressDialog() override = default;
+
+        /**
+         * @brief 创建进度对话框
+         * @param [in] id : 控件 ID
+         * @param [in] title : 对话框标题
+         * @param [in] style : 样式，see enum class Style
+         * @param [in] button : 按钮
+         * @param [in] parent : 父节点 
+         * @param [in] hasCloseBtn : 是否有关闭按钮，默认有
+         * @return 调用成功返回 IM_OK
+         */
+        TResult create(uint32_t id, const String &title, Style style, const ImDialogButton &button, ImWidget *parent = nullptr, bool hasCloseBtn = true);
+
+        /**
+         * 设置显示在 ProgressBar 上方或者里面的文本，inBar 只有在 Style::Indeterminate 有效。 Style::Determinate 的时候只显示在 ProgressBar 上方
+         * @param [in] text : 文本
+         * @param [in] inBar : 是否显示在 ProgressBar 里面
+         */
+        void setText(const String &text, bool inBar = false) { mText = text; mIsInBar = inBar; }
+        
+        /**
+         * 设置百分比进度，Style::Determinate 下有效
+         * @param [in] fraction : 进度百分比. 此时不用设置总进度，因为总进度就是 1.0
+         */
+        void setProgress(float fraction) { mFraction = fraction; }
+
+        /**
+         * 设置整数总进度，Style::Determinate 下有效。 一般用于知道总数的，例如文件数量等
+         * @param [in] total : 总数量
+         */
+        void setTotal(uint32_t total) { mTotal = total; }
+
+        /**
+         * 设置整数进度，Style::Determinate 下有效。 一般用于知道总数，当前进度到哪个步骤
+         * @param [in] step : 步骤
+         */
+        void setProgress(uint32_t step) { step < mTotal ? mFraction = static_cast<float>(step) / static_cast<float>(mTotal) : mFraction = 1.0f; }
+
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        
+        bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
+        void onGUI() override;
+        void onGUIEnd() override;
+
+    protected:
+        /// 进度条样式
+        Style mStyle {Style::Indeterminate};
+        /// 总数量
+        uint32_t mTotal {0};
+        /// 进度百分比
+        float mFraction {0.0f};
+        /// 对话框按钮
+        ImDialogButton mButton {};
+        /// 显示的文本
+        String mText {};
+        /// 文本是否显示在 ProgressBar 里还是显示在 ProgressBar 上方
+        bool mIsInBar {true};
     };
 }
