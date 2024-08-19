@@ -30,6 +30,7 @@
 #include <ImWidget.h>
 #include <ImWindow.h>
 #include <ImMenu.h>
+#include <ImContextMenu.h>
 #include <ImToolBar.h>
 #include <ImChildView.h>
 #include <ImTabBar.h>

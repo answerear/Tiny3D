@@ -38,6 +38,22 @@ namespace Tiny3D
     class TINYIMGUI_API ImTreeNode : public ImWidget
     {
     public:
+        struct CallbackData
+        {
+            CallbackData() = default;
+            
+            CallbackData(const ImTreeNodeClickedCallback &clk, const ImTreeNodeRClickedCallback &rclk)
+                : clicked(clk), rclicked(rclk)
+            {}
+
+            CallbackData(ImTreeNodeClickedCallback &&clk, ImTreeNodeRClickedCallback &&rclk)
+                : clicked(std::move(clk)), rclicked(std::move(rclk))
+            {}
+            
+            ImTreeNodeClickedCallback clicked {nullptr};
+            ImTreeNodeRClickedCallback rclicked {nullptr};
+        };
+        
         ImTreeNode(ImTreeWidget *tree);
         
         ~ImTreeNode() override;
@@ -46,19 +62,19 @@ namespace Tiny3D
 
         TResult createByTexture(ImTextureID texID, const String &title, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
         
-        TResult createByTexture(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
+        TResult createByTexture(ImTextureID texID, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
 
         TResult createByPath(const String &imageName, const String &title, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
         
-        TResult createByPath(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
+        TResult createByPath(const String &imageName, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
 
         TResult createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
         
-        TResult createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
+        TResult createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
         
         TResult createByPath(const String &collapsedImage, const String &openedImage, const String &title, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
         
-        TResult createByPath(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
+        TResult createByPath(const String &collapsedImage, const String &openedImage, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy = nullptr);
 
         TResult addNode(ImTreeNode *node);
 
@@ -107,6 +123,8 @@ namespace Tiny3D
 
         void fireClickedEvent();
 
+        void fireRClickedEvent();
+
     private:
         TResult addWidget(const String &parentName, ImWidget *widget) override;
 
@@ -137,6 +155,8 @@ namespace Tiny3D
         ImVec2 mTreeWidgetSize {};
         /// 单击回调
         ImTreeNodeClickedCallback mClickedCallback {nullptr};
+        /// 右键单击回调
+        ImTreeNodeRClickedCallback mRClickedCallback {nullptr};
         /// 删除回调
         ImTreeNodeDestroyCallback mDestroyCallback {nullptr};
         /// 是否内部加载图标

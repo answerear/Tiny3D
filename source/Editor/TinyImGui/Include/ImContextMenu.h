@@ -26,44 +26,31 @@
 #pragma once
 
 
-#include "ImPrerequisites.h"
+#include "ImMenu.h"
 
 
 namespace Tiny3D
 {
-    enum TinyImGuiEventID
+    class TINYIMGUI_API ImContextMenu : public ImMenu
     {
-        /// 无效事件
-        kEvtInvalid = 0,
+    public:
+        ~ImContextMenu() override;
 
-        /// 点击菜单项
-        kEvtMenuItemClicked,
-        /// 点击按钮
-        kEvtButtonClicked,
-        /// 左键单击树形控件节点
-        kEvtTreeNodeClicked,
-        /// 右键单击树形控件节点
-        kEvtTreeNodeRClicked,
-        /// 左键单击列表控件列表项
-        kEvtListItemClicked,
-        /// 右键单击列表控件列表项
-        kEvtListItemRClicked,
-        /// 点击树形工具栏节点
-        kEvtTreeBarNodeClicked,
+        WidgetType getWidgetType() const override { return WidgetType::kContextMenu; }
 
-        kEvtApp
+        TResult create(uint32_t id, const String &name);
+        
+        TResult show(ImWidget *parent = nullptr);
+        
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+
+    protected:
+        String mUniqueName {};
+        bool mWillAppear {false};
     };
-
-    /// 按钮点击事件附带的参数
-    using EventParamButtonClicked = EventParamT1<ImWidget*>;
-    /// 树节点左键单击事件附带的参数
-    using EventParamTreeNodeClicked = EventParamT1<ImTreeNode*>;
-    /// 树节点右键单击事件附带参数
-    using EventParamTreeNodeRClicked = EventParamT1<ImTreeNode*>;
-    /// 列表项左键单击事件附带参数
-    using EventParamListItemClicked = EventParamT1<ImListItem*>;
-    /// 列表项右键单击事件附带参数
-    using EventParamListItemRClicked = EventParamT1<ImListItem*>;
-    /// 树形工具栏点击节点事件附带的参数
-    using EventParamTreeBarNodeClicked = EventParamT1<ImTreeBarNode*>;
 }

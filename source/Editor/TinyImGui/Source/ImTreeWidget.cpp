@@ -63,10 +63,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
+    TResult ImTreeNode::createByTexture(ImTextureID texID, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, &clicked, &onDestroy);
+        return ImWidget::createInternal(id, title, parent, 6, texID, nullptr, nullptr, nullptr, &callbacks, &onDestroy);
     }
     
     //--------------------------------------------------------------------------
@@ -79,10 +79,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByPath(const String &imageName, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
+    TResult ImTreeNode::createByPath(const String &imageName, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, &clicked, &onDestroy);
+        return ImWidget::createInternal(id, title, parent, 6, nullptr, &imageName, nullptr, nullptr, &callbacks, &onDestroy);
     }
     
     //--------------------------------------------------------------------------
@@ -95,10 +95,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
+    TResult ImTreeNode::createByTexture(ImTextureID collapsedTexID, ImTextureID openedTexID, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, &clicked, &onDestroy);
+        return ImWidget::createInternal(id, title, parent, 6, collapsedTexID, nullptr, openedTexID, nullptr, &callbacks, &onDestroy);
     }
     
     //--------------------------------------------------------------------------
@@ -111,10 +111,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, const ImTreeNodeClickedCallback &clicked, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
+    TResult ImTreeNode::createByPath(const String &collapsedImage, const String &openedImage, const String &title, const CallbackData &callbacks, ImTreeNode *parent, const ImTreeNodeDestroyCallback &onDestroy)
     {
         uint32_t id = getNewNodeID();
-        return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, &clicked, &onDestroy);
+        return ImWidget::createInternal(id, title, parent, 6, nullptr, &collapsedImage, nullptr, &openedImage, &callbacks, &onDestroy);
     }
     
     //--------------------------------------------------------------------------
@@ -125,7 +125,7 @@ namespace Tiny3D
     //  String* : 折叠状态的图标图像路径
     //  ImTextureID : 展开状态的图标纹理对象
     //  String* : 展开状态的图标图像路径
-    //  ImTreeNodeClickedCallback* : 点击回调函数
+    //  CallbackData* : 除删除外的各种回调函数
     //  ImTreeNodeDestroyCallback* : 删除回调函数
     TResult ImTreeNode::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
     {
@@ -168,10 +168,11 @@ namespace Tiny3D
             }
 
             // clicked callback
-            ImTreeNodeClickedCallback *callback = va_arg(args, ImTreeNodeClickedCallback*);
-            if (callback != nullptr)
+            CallbackData *callbacks = va_arg(args, CallbackData*);
+            if (callbacks != nullptr)
             {
-                mClickedCallback = *callback;
+                mClickedCallback = callbacks->clicked;
+                mRClickedCallback = callbacks->rclicked;
             }
 
             ImTreeNodeDestroyCallback *destroyCallback = va_arg(args, ImTreeNodeDestroyCallback*);
@@ -319,6 +320,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ImTreeNode::fireRClickedEvent()
+    {
+        if (mRClickedCallback != nullptr)
+        {
+            mRClickedCallback(this);
+        }
+        else if (mTreeWidget != nullptr)
+        {
+            EventParamTreeNodeRClicked param(this);
+            mTreeWidget->sendClickedEvent(kEvtTreeNodeRClicked, &param);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ImTreeNode::onGUIBegin(const ImVec2 &size)
     {
         mTreeWidgetSize = size;
@@ -364,9 +380,14 @@ namespace Tiny3D
             PopWidgetID();
         }
 
-        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen())
         {
             fireClickedEvent();
+        }
+        // else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        else if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly|ImGuiHoveredFlags_AllowWhenOverlapped))
+        {
+            fireRClickedEvent();
         }
 
         return ret;
@@ -378,9 +399,17 @@ namespace Tiny3D
     {
         String strID = getUniqueName();
         
-        if (mTreeWidget != nullptr && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+        if (mTreeWidget != nullptr)
         {
-            mTreeWidget->getSelectedNode() = strID;
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen())
+            {
+                mTreeWidget->getSelectedNode() = strID;
+            }
+            // else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            else if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly|ImGuiHoveredFlags_AllowWhenOverlapped))
+            {
+                mTreeWidget->getSelectedNode() = strID;
+            }
         }
 
         drawIconAndText(true);
