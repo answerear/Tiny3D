@@ -111,6 +111,8 @@ namespace Tiny3D
 
     bool MainWindow::onGUIBegin()
     {
+        checkFocused();
+        
         // PushWidgetID();
         //
         // ImGuiIO& io = ImGui::GetIO();
