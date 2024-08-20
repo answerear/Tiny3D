@@ -109,6 +109,10 @@ namespace Tiny3D
         {
             m_pFileHandle = fopen(szFileName, "a+t");
         }
+        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE|E_MODE_TEXT))
+        {
+            m_pFileHandle = fopen(szFileName, "wt");
+        }
 
         m_lSize = 0;
 
