@@ -60,7 +60,9 @@ namespace Tiny3D
 
     bool FileSystemArchive::canWrite() const
     {
-        return ((uint32_t)getAccessMode() & (uint32_t)AccessMode::kRead) == (uint32_t)AccessMode::kRead;
+        uint32_t mode = (uint32_t)getAccessMode();
+        uint32_t writeMode = (uint32_t)AccessMode::kAppend | (uint32_t)AccessMode::kTruncate;
+        return (mode & writeMode) != 0;
     }
 
     //--------------------------------------------------------------------------
