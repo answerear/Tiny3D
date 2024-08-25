@@ -52,6 +52,8 @@ namespace Tiny3D
 
         TResult terminate(int32_t exitCode);
 
+        uint32_t getExitCode() const; 
+
         static ulong_t getCurrentProcessID();
 
         static const String &getCurrentProcessName();

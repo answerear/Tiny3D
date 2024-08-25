@@ -47,6 +47,8 @@ namespace Tiny3D
         virtual TResult wait(uint32_t timeout = -1) = 0;
 
         virtual TResult terminate(int32_t exitCode) = 0;
+
+        virtual uint32_t getExitCode() const = 0;
     };
 }
 

@@ -49,6 +49,8 @@ namespace Tiny3D
         TResult wait(uint32_t timeout) override;
 
         TResult terminate(int32_t exitCode) override;
+
+        uint32_t getExitCode() const override;
         
     protected:
         HANDLE mProcess {nullptr};

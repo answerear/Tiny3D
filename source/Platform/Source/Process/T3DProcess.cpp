@@ -109,6 +109,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    uint32_t Process::getExitCode() const
+    {
+        if (mProcess != nullptr)
+        {
+            return mProcess->getExitCode();
+        }
+
+        return -1;
+    }
+
+    //--------------------------------------------------------------------------
+
     ulong_t Process::getCurrentProcessID()
     {
         return T3D_PLATFORM.getPlatformImpl()->getCurrentProcessID();

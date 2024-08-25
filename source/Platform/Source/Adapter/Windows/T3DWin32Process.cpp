@@ -149,5 +149,19 @@ namespace Tiny3D
         return ret;
     }
 
+    //------------------------------------------    --------------------------------
+
+    uint32_t Win32Process::getExitCode() const
+    {
+        DWORD exitCode = -1;
+        
+        if (mProcess != nullptr)
+        {
+            ::GetExitCodeProcess(mProcess, &exitCode);
+        }
+
+        return exitCode;
+    }
+
     //--------------------------------------------------------------------------
 }
