@@ -30,6 +30,8 @@
 #include <Resource/T3DPrefab.h>
 #include "Component/T3DComponent.h"
 
+#include "Render/T3DBlendState.h"
+
 
 namespace Tiny3D
 {
@@ -262,6 +264,35 @@ namespace Tiny3D
                     if (!prop_value)
                         continue; // cannot serialize, because we cannot retrieve the value
 
+                    if (prop_value.get_type().is_pointer())
+                    {
+                        if (prop_value.convert<void*>() == nullptr)
+                        {
+                            // 空指针，不写
+                            continue;
+                        }
+                    }
+                    else if (prop_value.get_type().is_wrapper() && prop_value.get_type().get_wrapped_type().is_derived_from<Object>())
+                    {
+                        // auto ptype = prop_value.get_type();
+                        // auto wtype = ptype.get_wrapped_type();
+                        auto ok = prop_value.convert(type::get<SmartPtr<Object>>());
+                        // wtype = prop_value.get_type();
+                        auto ptr = prop_value.get_value<SmartPtr<Object>>();
+                        if (ptr == nullptr)
+                        {
+                            // 空智能指针，不写
+                            continue;
+                        }
+                        // int32_t a = 0;
+                        // auto var2 = prop_value.extract_wrapped_value();
+                        // Object *val = var2.get_value<Object*>();
+                        // if (val == nullptr)
+                        // {
+                        //     continue;
+                        // }
+                    }
+                    
                     WriteProperty(writer, prop, prop_value);
                 }
             }
@@ -316,14 +347,14 @@ namespace Tiny3D
                 variant v = var;
                 if (t.is_wrapper())
                 {
-                    v.convert(obj.get_type().get_wrapped_type());
+                    v.convert(obj.get_derived_type().get_wrapped_type());
                     t = v.get_type();
                 }
                 const auto child_props = t.get_properties();
-                //const variant v = var;
-                //if (is_wrapper)
-                //    v.convert(wrapped_type);
-                //auto child_props = is_wrapper ? v.get_type().get_properties() : value_type.get_properties();
+                // const variant v = var;
+                // if (is_wrapper)
+                //     v.convert(wrapped_type);
+                // auto child_props = is_wrapper ? v.get_type().get_properties() : value_type.get_properties();
                 if (!child_props.empty())
                 {
                     WriteObject(writer, v);
@@ -368,19 +399,26 @@ namespace Tiny3D
             }
             else
             {
-                for (auto& item : view)
+                auto kt = view.get_key_type();
+                auto vt = view.get_value_type();
+                for (const auto &item : view)
                 {
+                    auto first = item.first.extract_wrapped_value();
+                    auto second = item.second.extract_wrapped_value();
+                    auto keyType = first.get_type();
+                    auto valueType = second.get_type();
+                    
                     writer.StartObject();
                     writer.Key(key_name.data(), static_cast<rapidjson::SizeType>(key_name.length()), false);
 
                     writer.StartObject();
-                    WriteVariant(writer, item.first);
+                    WriteVariant(writer, first);
                     writer.EndObject();
                 
                     writer.Key(value_name.data(), static_cast<rapidjson::SizeType>(value_name.length()), false);
 
                     writer.StartObject();
-                    WriteVariant(writer, item.second);
+                    WriteVariant(writer, second);
                     writer.EndObject();
                 
                     writer.EndObject();
@@ -444,6 +482,18 @@ namespace Tiny3D
             return ret;
         }
 
+        void convertToSmartPtr(variant &var, const type &propType)
+        {
+            const type varType = var.get_type();
+            if (propType.is_wrapper() && varType.is_pointer() && propType.get_wrapped_type() == varType.get_raw_type() && varType.get_raw_type().is_derived_from<Object>())
+            {
+                bool ok = false;
+                Object *tempObj = var.convert<Object*>(&ok);
+                T3D_ASSERT(ok);
+                var = propType.create({tempObj});
+            }
+        }
+
         TResult ReadValue(const Value &value, const type &klass, variant &obj)
         {
             TResult ret = T3D_OK;
@@ -464,11 +514,12 @@ namespace Tiny3D
                     {
                         const auto& item = array[i];
                         variant var = ReadObject(item);
-                        if (itemType.is_wrapper() && itemType.get_wrapped_type() == var.get_type())
+                        convertToSmartPtr(var, itemType);
+                        bool rval = view.set_value(i, var);
+                        if (!rval)
                         {
-                            var.convert(itemType);
+                            T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Set element [%d] value of array in %s class failed !", i, klass.get_name().data());
                         }
-                        view.set_value(i, var);
                     }
                 }
                 else if (klass.is_associative_container())
@@ -483,10 +534,17 @@ namespace Tiny3D
                         {
                             const auto& item = array[i];
                             variant var = ReadObject(item);
-                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == var.get_type())
-                            {
-                                var.convert(valueType);
-                            }
+                            convertToSmartPtr(var, valueType);
+                            // const type varType = var.get_type();
+                            // if (valueType.is_wrapper() && varType.is_pointer() && valueType.get_wrapped_type() == varType.get_raw_type() && varType.get_raw_type().is_derived_from<Object>())
+                            // {
+                            //     bool ok = false;
+                            //     Object *tempObj = var.convert<Object*>(&ok);
+                            //     T3D_ASSERT(ok);
+                            //     var = valueType.create({tempObj});
+                            //     // bool ok = var.convert(valueType);
+                            //     // T3D_ASSERT(ok);
+                            // }
                             view.insert(var);
                         }
                     }
@@ -500,12 +558,28 @@ namespace Tiny3D
                             const auto& item = array[i];
                             const auto& keyNode = item.FindMember(RTTI_MAP_KEY);
                             variant key = ReadObject(keyNode->value);
+                            convertToSmartPtr(key, keyType);
+                            // const type kt = key.get_type();
+                            // if (keyType.is_wrapper() && kt.is_pointer() && keyType.get_wrapped_type() == kt.get_raw_type() && kt.get_raw_type().is_derived_from<Object>())
+                            // {
+                            //     bool ok = false;
+                            //     Object *tempObj = key.convert<Object*>(&ok);
+                            //     T3D_ASSERT(ok);
+                            //     key = keyType.create({tempObj});
+                            // }
                             const auto& valNode = item.FindMember(RTTI_MAP_VALUE);
                             variant val = ReadObject(valNode->value);
-                            if (valueType.is_wrapper() && valueType.get_wrapped_type() == val.get_type())
-                            {
-                                val.convert(valueType);
-                            }
+                            convertToSmartPtr(val, valueType);
+                            // const type varType = val.get_type();
+                            // if (valueType.is_wrapper() && varType.is_pointer() && valueType.get_wrapped_type() == varType.get_raw_type() && varType.get_raw_type().is_derived_from<Object>())
+                            // {
+                            //     bool ok = false;
+                            //     Object *tempObj = val.convert<Object*>(&ok);
+                            //     T3D_ASSERT(ok);
+                            //     val = valueType.create({tempObj});
+                            //     // bool ok = val.convert(valueType);
+                            //     // T3D_ASSERT(ok);
+                            // }
 
                             view.insert(key, val);
                         }
@@ -531,17 +605,50 @@ namespace Tiny3D
 
                         // property type & value
                         bool isArray = false;
-                        variant prop = ReadObjectRecursively(it->value, isArray);
-                        if (!prop.is_valid() && isArray)
+                        variant val = ReadObjectRecursively(it->value, isArray);
+                        if (!val.is_valid() && isArray)
                         {
                             // 原生数组
-                            prop = klass.get_property_value(name.GetString(), obj);
-                            ReadNativeArray(it->value, prop);
+                            val = klass.get_property_value(name.GetString(), obj);
+                            ReadNativeArray(it->value, val);
+                            bool rval = klass.set_property_value(name.GetString(), obj, val);
+                            if (!rval)
+                            {
+                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, " There is not the corresponding value of property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                            }
                         }
                         else
                         {
-                            bool rval = klass.set_property_value(name.GetString(), obj, prop);
-                            T3D_ASSERT(rval);
+                            const type propType = klass.get_property(name.GetString()).get_type();
+                            convertToSmartPtr(val, propType);
+                            // const type varType = val.get_type();
+                            // if (propType.is_wrapper() && varType.is_pointer() && propType.get_wrapped_type() == varType.get_raw_type() && varType.get_raw_type().is_derived_from<Object>())
+                            // {
+                            //     bool ok = false;
+                            //     Object *tempObj = val.convert<Object*>(&ok);
+                            //     T3D_ASSERT(ok);
+                            //     val = propType.create({tempObj});
+                            //     // bool ok = val.convert(valueType);
+                            //     // T3D_ASSERT(ok);
+                            // }
+                            
+                            // if (val.get_type().is_derived_from<Tiny3D::Object>())
+                            // {
+                            //     type propType = klass.get_property(name.GetString()).get_type();
+                            //     if (propType.is_wrapper())
+                            //     {
+                            //         Object *tempObj = val.convert<Object*>();
+                            //         // val = val.extract_wrapped_value();
+                            //         val = tempObj;
+                            //     }
+                            // }
+                            
+                            bool rval = klass.set_property_value(name.GetString(), obj, val);
+                            if (!rval)
+                            {
+                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, " There is not the corresponding value of property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                                continue;
+                            }
                         }
                     }
                 }
@@ -636,7 +743,7 @@ namespace Tiny3D
                     isArray = true;
                     break;
                 }
-
+                
                 constructor ctor = klass.get_constructor();
                 obj = ctor.invoke();
                 // obj = klass.create();

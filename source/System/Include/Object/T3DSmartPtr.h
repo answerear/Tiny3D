@@ -27,6 +27,8 @@
 #define __T3D_SMART_PTR_H__
 
 
+#include <filesystem>
+
 #include "T3DSystemPrerequisites.h"
 #include <type_traits>
 #include "Object/T3DObject.h"
@@ -70,6 +72,16 @@ namespace Tiny3D
         SmartPtr(Object *obj = nullptr)
         {
             mReferObject = obj;
+
+            if (mReferObject != nullptr)
+            {
+                mReferObject->acquire();
+            }
+        }
+
+        SmartPtr(Object &obj)
+        {
+            mReferObject = std::addressof(obj);
 
             if (mReferObject != nullptr)
             {
@@ -263,6 +275,11 @@ namespace Tiny3D
         {
             return (T*)mReferObject;
         }
+
+        T &getData() const
+        {
+            return static_cast<T&>(*mReferObject);
+        }
     protected:
         /// The refer object
         Object  *mReferObject {nullptr};
@@ -342,17 +359,17 @@ namespace Tiny3D
 
 namespace rttr
 {
-    class type;
+    // class type;
 
     template<typename T>
     struct wrapper_mapper<Tiny3D::SmartPtr<T>>
     {
-        using wrapped_type = decltype(Tiny3D::SmartPtr<T>().get());
+        using wrapped_type = decltype(Tiny3D::SmartPtr<T>().getData());
         using type = Tiny3D::SmartPtr<T>;
 
         static RTTR_INLINE wrapped_type get(const type& obj)
         {
-            return obj.get();
+            return obj.getData();
         }
 
         static RTTR_INLINE type create(const wrapped_type& t)
@@ -363,10 +380,15 @@ namespace rttr
         template<typename U>
         static Tiny3D::SmartPtr<U> convert(const type& source, bool& ok)
         {
-            if (auto p = rttr_cast<typename Tiny3D::SmartPtr<U>::element_type*>(source.get()))
+            if (source.get() == nullptr)
+            {
+                return Tiny3D::SmartPtr<U>::NULL_PTR;
+            }
+            
+            if (auto p = rttr_cast<typename Tiny3D::SmartPtr<U>::element_type*>(&source.getData()))
             {
                 ok = true;
-                return Tiny3D::SmartPtr<U>(p);
+                return Tiny3D::SmartPtr<U>(*p);
             }
             else
             {

@@ -74,13 +74,13 @@ namespace Tiny3D
         }
         
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="getter")
-        RenderStatePtr getRenderState() const
+        const RenderStatePtr &getRenderState() const
         {
             return mRenderState;
         }
 
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="setter")
-        void setRenderState(RenderStatePtr state)
+        void setRenderState(const RenderStatePtr &state)
         {
             mRenderState = state;
         }

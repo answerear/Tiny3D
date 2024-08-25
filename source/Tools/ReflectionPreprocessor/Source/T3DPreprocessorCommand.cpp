@@ -80,7 +80,7 @@ namespace Tiny3D
                 // 显示帮助
                 printHelp();
                 ret = true;
-            }            
+            }
         }
         else if (argc == 4)
         {
@@ -130,7 +130,7 @@ namespace Tiny3D
 
     void PreprocessorCommand::printHelp() const
     {
-        printf("Usage: rp <reflection settings directory> <source directory> <options>]\n");
+        printf("Usage: rp <reflection settings directory> <source directory> [<options>]\n");
         printf("Arguments: \n");
         printf("\t-?                            : Display the help information.\n");
         printf("\treflection settings directory : The directory of 'ReflectionSettings.json' file.\n");

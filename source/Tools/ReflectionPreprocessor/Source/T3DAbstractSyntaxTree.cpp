@@ -411,6 +411,14 @@ namespace Tiny3D
             // Tiny3D::Object 子类，自动注册 转换函数，实现与 SmartPtr 之间的互相转换
             fs << std::endl << "\t" << "// register convert() between class " << name << " and SmartPtr<" << name << ">";
             fs << std::endl << "\t" << "type::register_wrapper_converter_for_base_classes<SmartPtr<" << name << ">>();" << std::endl;
+
+            // SmartPtr<T> 的注册
+            fs << std::endl << "\t" << "// register class SmartPtr<" << name << ">";
+            fs << std::endl << "\t" << "registration::class_<Tiny3D::SmartPtr<" << name << ">>(\"Tiny3D::SmartPtr<" << name << ">\")";
+            fs << std::endl << "\t\t.constructor<Object*>()";
+            fs << std::endl << "\t\t(" << std::endl << "\t\t\t" << "policy::ctor::as_object" << std::endl << "\t\t)";
+            fs << std::endl << "\t\t.constructor<Object&>()";
+            fs << std::endl << "\t\t(" << std::endl << "\t\t\t" << "policy::ctor::as_object" << std::endl << "\t\t);" << std::endl; 
         }
         
         return T3D_OK;
