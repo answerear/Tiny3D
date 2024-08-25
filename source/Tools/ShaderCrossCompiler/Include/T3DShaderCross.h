@@ -67,6 +67,8 @@ namespace Tiny3D
 
         void printVersion();
 
+        void printCommand(int32_t argc, const char *argv[]) const;
+
         bool parse(int32_t argc, const char* argv[], Args& args);
 
         bool readSourceFile(String& content, const String& input);

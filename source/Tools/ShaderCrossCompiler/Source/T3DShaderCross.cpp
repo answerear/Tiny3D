@@ -54,6 +54,8 @@ namespace Tiny3D
         {
             Args args;
 
+            printCommand(argc, argv);
+
             // parse arguments
             ret = parse(argc, argv, args);
             if (!ret)
@@ -458,6 +460,7 @@ namespace Tiny3D
         // render states
         RenderStatePtr state = RenderState::create();
         ret = ret && translate(src.state, state);
+        pass->setRenderState(state);
 
         // program
         ret = ret && translate(src.program, pass);
@@ -873,6 +876,22 @@ namespace Tiny3D
         printf("Shader Cross Compiler Version : %s", CURRENT_VERSION_STR);
     }
 
+    //--------------------------------------------------------------------------
+
+    void ShaderCross::printCommand(int32_t argc, const char* argv[]) const
+    {
+        int i = 0;
+
+        for (i = 1; i < argc; ++i)
+        {
+            if (i > 1)
+                printf(" ");
+            printf(argv[i]);
+        }
+
+        printf("\n");
+    }
+    
     //--------------------------------------------------------------------------
 
     bool ShaderCross::parse(int32_t argc, const char* argv[], Args& args)
