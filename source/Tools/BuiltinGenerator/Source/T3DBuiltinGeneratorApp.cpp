@@ -22,8 +22,9 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "T3DBuiltinGeneratorApp.h"
 
+#include "T3DBuiltinGeneratorApp.h"
+#include "T3DBuiltinGenerator.h"
 
 
 Tiny3D::BuiltinGeneratorApp theApp;
@@ -45,6 +46,24 @@ namespace Tiny3D
                 ret = false;
                 break;
             }
+
+            // 解析命令行参数
+            GeneratorOptions opts;
+            if (!parseCommandList(argc, argv, opts))
+            {
+                BGEN_LOG_ERROR("Parse command line failed !");
+                break;
+            }
+
+            BuiltinGenerator *generator = new BuiltinGenerator();
+            TResult rt = generator->run(opts.outputPath);
+            if (T3D_FAILED(rt))
+            {
+                T3D_SAFE_DELETE(generator);
+                break;
+            }
+            
+            T3D_SAFE_DELETE(generator);
             ret = true;
         } while (false);
         
@@ -80,6 +99,59 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    bool BuiltinGeneratorApp::parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options)
+    {
+        printCommand(argc, argv);
+
+        bool ret = false;
+
+        if (argc == 2)
+        {
+            const char* arg = argv[1];
+            if (arg[0] == '-' && arg[1] == '?')
+            {
+                // 显示帮助
+                printHelp();
+                ret = true;
+            }
+            else
+            {
+                options.outputPath = Dir::formatPath(argv[1]);
+                ret = true;
+            }
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void BuiltinGeneratorApp::printCommand(int32_t argc, char* argv[]) const
+    {
+        int i = 0;
+
+        for (i = 1; i < argc; ++i)
+        {
+            if (i > 1)
+                printf(" ");
+            printf(argv[i]);
+        }
+
+        printf("\n");
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void BuiltinGeneratorApp::printHelp() const
+    {
+        printf("Usage: BuiltinGenerator <output path>\n");
+        printf("Arguments: \n");
+        printf("\t-?         : Display the help information.\n");
+        printf("\toutpu path : The output path of builtin resource.\n");
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
 
@@ -96,10 +168,10 @@ int main(int argc, char *argv[])
     settings.pluginSettings.plugins.push_back("NullRenderer");
     settings.renderSettings.renderer = "NullRenderer";
     TResult ret = theEngine->init(argc, argv, true, false, settings);
-    if (ret == T3D_OK)
+    if (T3D_SUCCEEDED(ret))
         theEngine->run();
 
-    delete theEngine;
+    T3D_SAFE_DELETE(theEngine);
 
     return ret;
 }

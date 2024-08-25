@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * MIT License
+* MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -22,46 +22,27 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_BUILTIN_CAPSULE_H__
+#define __T3D_BUILTIN_CAPSULE_H__
 
-#ifndef __T3D_BUILTIN_GENERATOR_APP_H__
-#define __T3D_BUILTIN_GENERATOR_APP_H__
 
-
-#include "T3DBuiltinGenPrerequisites.h"
+#include "T3DBuiltinMesh.h"
 
 
 namespace Tiny3D
 {
-    struct GeneratorOptions
-    {
-        String outputPath {};
-    };
-    
-    class BuiltinGeneratorApp : public ConsoleApplication
+    class BuiltinCapsule : public BuiltinMesh
     {
     public:
-        BuiltinGeneratorApp() = default;
+        BuiltinCapsule() = default;
 
-        ~BuiltinGeneratorApp() override = default;
-        
-        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
+        ~BuiltinCapsule() override = default;
 
-        void applicationDidEnterBackground() override;
+        TResult build() override;
 
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
-    protected:
-        bool parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options);
-
-        void printHelp() const;
-
-        void printCommand(int32_t argc, char *argv[]) const;
+        TResult save(const String &path) override;
     };
 }
 
 
-#endif  /*__T3D_BUILTIN_GENERATOR_APP_H__*/
+#endif  /*__T3D_BUILTIN_CAPSULE_H__*/

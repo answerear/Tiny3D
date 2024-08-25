@@ -22,46 +22,30 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_BUILTIN_CUBE_H__
+#define __T3D_BUILTIN_CUBE_H__
 
-#ifndef __T3D_BUILTIN_GENERATOR_APP_H__
-#define __T3D_BUILTIN_GENERATOR_APP_H__
 
-
-#include "T3DBuiltinGenPrerequisites.h"
+#include "T3DBuiltinMesh.h"
 
 
 namespace Tiny3D
 {
-    struct GeneratorOptions
-    {
-        String outputPath {};
-    };
-    
-    class BuiltinGeneratorApp : public ConsoleApplication
+    class BuiltinCube : public BuiltinMesh
     {
     public:
-        BuiltinGeneratorApp() = default;
+        BuiltinCube() = default;
 
-        ~BuiltinGeneratorApp() override = default;
-        
-        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
+        ~BuiltinCube() override = default;
 
-        void applicationDidEnterBackground() override;
+        TResult build() override;
 
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
+        TResult save(const String &path) override;
 
     protected:
-        bool parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options);
-
-        void printHelp() const;
-
-        void printCommand(int32_t argc, char *argv[]) const;
+        MeshPtr mMesh {nullptr};
     };
 }
 
 
-#endif  /*__T3D_BUILTIN_GENERATOR_APP_H__*/
+#endif  /*__T3D_BUILTIN_CUBE_H__*/

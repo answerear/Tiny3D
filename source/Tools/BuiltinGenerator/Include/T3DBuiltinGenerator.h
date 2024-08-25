@@ -22,9 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#ifndef __T3D_BUILTIN_GENERATOR_APP_H__
-#define __T3D_BUILTIN_GENERATOR_APP_H__
+#ifndef __T3D_BUILTIN_GENERATOR_H__
+#define __T3D_BUILTIN_GENERATOR_H__
 
 
 #include "T3DBuiltinGenPrerequisites.h"
@@ -32,36 +31,28 @@
 
 namespace Tiny3D
 {
-    struct GeneratorOptions
-    {
-        String outputPath {};
-    };
+    class BuiltinShaders;
     
-    class BuiltinGeneratorApp : public ConsoleApplication
+    class BuiltinGenerator
     {
     public:
-        BuiltinGeneratorApp() = default;
+        BuiltinGenerator() = default;
 
-        ~BuiltinGeneratorApp() override = default;
-        
-        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
+        virtual ~BuiltinGenerator();
 
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
+        TResult run(const String &rootPath);
 
     protected:
-        bool parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options);
+        TResult generateMeshes(const String &rootPath);
 
-        void printHelp() const;
+        TResult generateShaders(const String &rootPath);
 
-        void printCommand(int32_t argc, char *argv[]) const;
+        TResult generateMaterials(const String &rootPath);
+
+    protected:
+        BuiltinShaders *mBuiltinShaders {nullptr};
     };
 }
 
 
-#endif  /*__T3D_BUILTIN_GENERATOR_APP_H__*/
+#endif  /*__T3D_BUILTIN_GENERATOR_H__*/

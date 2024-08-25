@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * MIT License
+* MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -23,45 +23,17 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_BUILTIN_GENERATOR_APP_H__
-#define __T3D_BUILTIN_GENERATOR_APP_H__
-
-
-#include "T3DBuiltinGenPrerequisites.h"
+#include "T3DBuiltinMaterials.h"
 
 
 namespace Tiny3D
 {
-    struct GeneratorOptions
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinMaterials::generate(const String &rootPath)
     {
-        String outputPath {};
-    };
-    
-    class BuiltinGeneratorApp : public ConsoleApplication
-    {
-    public:
-        BuiltinGeneratorApp() = default;
+        return T3D_OK;
+    }
 
-        ~BuiltinGeneratorApp() override = default;
-        
-        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
-
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
-    protected:
-        bool parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options);
-
-        void printHelp() const;
-
-        void printCommand(int32_t argc, char *argv[]) const;
-    };
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_BUILTIN_GENERATOR_APP_H__*/

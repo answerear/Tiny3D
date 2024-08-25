@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * MIT License
+* MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -22,46 +22,34 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_BUILTIN_SHADERS_H__
+#define __T3D_BUILTIN_SHADERS_H__
 
-#ifndef __T3D_BUILTIN_GENERATOR_APP_H__
-#define __T3D_BUILTIN_GENERATOR_APP_H__
 
-
-#include "T3DBuiltinGenPrerequisites.h"
+#include "T3DBuiltinMesh.h"
 
 
 namespace Tiny3D
 {
-    struct GeneratorOptions
-    {
-        String outputPath {};
-    };
-    
-    class BuiltinGeneratorApp : public ConsoleApplication
+    class BuiltinShaders
     {
     public:
-        BuiltinGeneratorApp() = default;
+        BuiltinShaders() = default;
 
-        ~BuiltinGeneratorApp() override = default;
+        ~BuiltinShaders() = default;
+
+        TResult generate(const String &rootPath);
+
+        Shader *getShader(const String &name) const;
         
-        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
-
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
     protected:
-        bool parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options);
+        TResult generateShader(const String &path, const String &outputPath);
+        
+        using Shaders = TMap<String, ShaderPtr>;
 
-        void printHelp() const;
-
-        void printCommand(int32_t argc, char *argv[]) const;
+        Shaders mShaders {};
     };
 }
 
 
-#endif  /*__T3D_BUILTIN_GENERATOR_APP_H__*/
+#endif  /*__T3D_BUILTIN_SHADERS_H__*/

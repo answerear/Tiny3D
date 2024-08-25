@@ -23,45 +23,24 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_BUILTIN_GENERATOR_APP_H__
-#define __T3D_BUILTIN_GENERATOR_APP_H__
-
-
-#include "T3DBuiltinGenPrerequisites.h"
+#include "T3DBuiltinCylinder.h"
 
 
 namespace Tiny3D
 {
-    struct GeneratorOptions
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinCylinder::build()
     {
-        String outputPath {};
-    };
-    
-    class BuiltinGeneratorApp : public ConsoleApplication
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinCylinder::save(const String &path)
     {
-    public:
-        BuiltinGeneratorApp() = default;
+        return T3D_OK;
+    }
 
-        ~BuiltinGeneratorApp() override = default;
-        
-        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
-
-        void applicationDidEnterBackground() override;
-
-        void applicationWillEnterForeground() override;
-
-        void applicationWillTerminate() override;
-
-        void applicationLowMemory() override;
-
-    protected:
-        bool parseCommandList(int32_t argc, char *argv[], GeneratorOptions &options);
-
-        void printHelp() const;
-
-        void printCommand(int32_t argc, char *argv[]) const;
-    };
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_BUILTIN_GENERATOR_APP_H__*/

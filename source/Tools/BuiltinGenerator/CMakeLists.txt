@@ -71,7 +71,7 @@ if (TINY3D_OS_WINDOWS)
         #${PROTOBUF_LIBRARY}
         )
 
-    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
+    #set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
 
     add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
