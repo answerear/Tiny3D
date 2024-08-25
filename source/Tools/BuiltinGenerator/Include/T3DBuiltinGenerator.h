@@ -40,14 +40,14 @@ namespace Tiny3D
 
         virtual ~BuiltinGenerator();
 
-        TResult run(const String &rootPath);
+        TResult run(const String &rootPath, bool reservedTemp);
 
     protected:
-        TResult generateMeshes(const String &rootPath);
+        TResult generateMeshes(const String &rootPath, bool reservedTemp);
 
-        TResult generateShaders(const String &rootPath);
+        TResult generateShaders(const String &rootPath, bool reservedTemp);
 
-        TResult generateMaterials(const String &rootPath);
+        TResult generateMaterials(const String &rootPath, bool reservedTemp);
 
     protected:
         BuiltinShaders *mBuiltinShaders {nullptr};

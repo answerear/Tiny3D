@@ -38,7 +38,7 @@ namespace Tiny3D
 
         ~BuiltinShaders() = default;
 
-        TResult generate(const String &rootPath);
+        TResult generate(const String &rootPath, bool reservedTemp);
 
         Shader *getShader(const String &name) const;
         

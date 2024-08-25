@@ -30,7 +30,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TResult BuiltinShaders::generate(const String &rootPath)
+    TResult BuiltinShaders::generate(const String &rootPath, bool reservedTemp)
     {
         TResult ret = T3D_OK;
 
@@ -57,6 +57,11 @@ namespace Tiny3D
             // 生成临时的 shader 文件
             String searchPath = rootPath + Dir::getNativeSeparator() + "shaders";
             ret = generateShader(searchPath, tempPath);
+
+            if (!reservedTemp)
+            {
+                Dir::removeDir(tempPath, true);
+            }
 
             BGEN_LOG_INFO("Completed generating shaders (%s) !", rootPath.c_str());
         } while (false);
@@ -137,9 +142,9 @@ namespace Tiny3D
                 
                 mShaders.emplace(title, shader);
 
-                archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kTruncate);
-                T3D_ASSERT(archive != nullptr);
-                T3D_SHADER_MGR.saveShader(archive, shader);
+                // archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kTruncate);
+                // T3D_ASSERT(archive != nullptr);
+                // T3D_SHADER_MGR.saveShader(archive, shader);
                 
                 BGEN_LOG_INFO("Completed compiling shader (%s) !", filePath.c_str());
             }

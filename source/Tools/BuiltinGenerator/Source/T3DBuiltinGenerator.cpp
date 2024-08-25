@@ -41,17 +41,29 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinGenerator::run(const String &rootPath)
+    TResult BuiltinGenerator::run(const String &rootPath, bool reservedTemp)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            ret = generateMeshes(rootPath);
+            ret = generateMeshes(rootPath, reservedTemp);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generate meshes failed");
+            }
 
-            ret = generateShaders(rootPath);
-
-            ret = generateMaterials(rootPath);
+            ret = generateShaders(rootPath, reservedTemp);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generate shaders failed");
+            }
+            
+            ret = generateMaterials(rootPath, reservedTemp);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generate materials failed");
+            }
         } while (false);
 
         return ret;
@@ -59,7 +71,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinGenerator::generateMeshes(const String &rootPath)
+    TResult BuiltinGenerator::generateMeshes(const String &rootPath, bool reservedTemp)
     {
         TResult ret = T3D_OK;
 
@@ -119,16 +131,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinGenerator::generateShaders(const String &rootPath)
+    TResult BuiltinGenerator::generateShaders(const String &rootPath, bool reservedTemp)
     {
         T3D_SAFE_DELETE(mBuiltinShaders);
         mBuiltinShaders = new BuiltinShaders();
-        return mBuiltinShaders->generate(rootPath);
+        return mBuiltinShaders->generate(rootPath, reservedTemp);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinGenerator::generateMaterials(const String &rootPath)
+    TResult BuiltinGenerator::generateMaterials(const String &rootPath, bool reservedTemp)
     {
         return T3D_OK;
     }

@@ -56,7 +56,7 @@ namespace Tiny3D
             }
 
             BuiltinGenerator *generator = new BuiltinGenerator();
-            TResult rt = generator->run(opts.outputPath);
+            TResult rt = generator->run(opts.outputPath, opts.reservedTemp);
             if (T3D_FAILED(rt))
             {
                 T3D_SAFE_DELETE(generator);
@@ -108,7 +108,7 @@ namespace Tiny3D
 
         if (argc == 2)
         {
-            const char* arg = argv[1];
+            const char *arg = argv[1];
             if (arg[0] == '-' && arg[1] == '?')
             {
                 // 显示帮助
@@ -117,9 +117,33 @@ namespace Tiny3D
             }
             else
             {
+                // 只有一个参数，就是输出路径
                 options.outputPath = Dir::formatPath(argv[1]);
                 ret = true;
             }
+        }
+        else if (argc == 3)
+        {
+            int32_t i = 1;
+
+            while (i < argc)
+            {
+                const char *arg = argv[i];
+                if (arg[0] == '-' && arg[1] == 't')
+                {
+                    // 保留临时文件夹
+                    options.reservedTemp = true;
+                }
+                else
+                {
+                    options.outputPath = arg;
+                }
+                ++i;
+            }
+        }
+        else
+        {
+            printHelp();
         }
 
         return ret;
@@ -145,10 +169,12 @@ namespace Tiny3D
 
     void BuiltinGeneratorApp::printHelp() const
     {
-        printf("Usage: BuiltinGenerator <output path>\n");
+        printf("Usage: BuiltinGenerator <output path> <options>\n");
         printf("Arguments: \n");
         printf("\t-?         : Display the help information.\n");
-        printf("\toutpu path : The output path of builtin resource.\n");
+        printf("\toutput path : The output path of builtin resource.\n");
+        printf("\toptions :\n");
+        printf("\t\t-t : Reserve the temporary folders for output.\n");
     }
     
     //--------------------------------------------------------------------------

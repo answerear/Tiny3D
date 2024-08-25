@@ -34,7 +34,10 @@ namespace Tiny3D
 {
     struct GeneratorOptions
     {
+        /// 输出路径
         String outputPath {};
+        /// 是否保留临时文件夹
+        bool reservedTemp {false};
     };
     
     class BuiltinGeneratorApp : public ConsoleApplication
