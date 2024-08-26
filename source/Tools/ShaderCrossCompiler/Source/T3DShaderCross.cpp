@@ -197,7 +197,7 @@ namespace Tiny3D
 
         do 
         {
-            String shaderName = mArgs.baseName + ".t3d";
+            String shaderName = mArgs.baseName + "." + Resource::EXT_SHADER;
             ShaderPtr shader = T3D_SHADER_MGR.createShader(shaderName);
 
             ret = translate(*source, shader);

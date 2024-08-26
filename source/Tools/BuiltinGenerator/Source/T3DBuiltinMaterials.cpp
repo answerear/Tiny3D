@@ -37,19 +37,21 @@ namespace Tiny3D
 
         do
         {
-            String name = "Default-Material";
-            Shader *shader = T3D_BUILTIN_SHADERS.getShader(name);
-            MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(name, shader);
+            String title = "Default-Material";
+            String shaderName = title + "." + Resource::EXT_SHADER;
+            Shader *shader = T3D_BUILTIN_SHADERS.getShader(shaderName);
+            String materialName = title + "." + Resource::EXT_MATERIAL;
+            MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(materialName, shader);
             String path = rootPath + Dir::getNativeSeparator() + "materials";
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, "FileSystem", Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive);
             ret = T3D_MATERIAL_MGR.saveMaterial(archive, material);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Save material %s to path %s failed ! ERROR [%d]", path.c_str(), name.c_str(), ret);
+                BGEN_LOG_ERROR("Save material %s to path %s failed ! ERROR [%d]", path.c_str(), materialName.c_str(), ret);
             }
 
-            mMaterials.emplace(name, material);
+            mMaterials.emplace(materialName, material);
         } while (false);
         
         return ret;

@@ -170,7 +170,9 @@ namespace Tiny3D
         
         return material;
 #else
-        MaterialPtr material = T3D_BUILTIN_MATERIALS.getMaterial("Default-Material");
+        String title = "Default-Material";
+        String name = title + "." + Resource::EXT_MATERIAL;
+        MaterialPtr material = T3D_BUILTIN_MATERIALS.getMaterial(name);
         StringArray enableKeywrods;
         enableKeywrods.push_back("");
         StringArray disableKeywords;

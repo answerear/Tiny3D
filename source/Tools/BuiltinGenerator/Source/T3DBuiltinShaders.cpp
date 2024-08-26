@@ -136,11 +136,11 @@ namespace Tiny3D
                 // 读取编译后的 shader
                 ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kRead);
                 T3D_ASSERT(archive != nullptr);
-                String filename = title + ".t3d";
+                String filename = title + "." + Resource::EXT_SHADER;
                 ShaderPtr shader = T3D_SHADER_MGR.loadShader(archive, filename);
                 T3D_ASSERT(shader != nullptr);
                 
-                mShaders.emplace(title, shader);
+                mShaders.emplace(filename, shader);
 
                 // archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kTruncate);
                 // T3D_ASSERT(archive != nullptr);
