@@ -133,12 +133,19 @@ namespace Tiny3D
                 {
                     // 保留临时文件夹
                     options.reservedTemp = true;
+                    ret = true;
                 }
                 else
                 {
                     options.outputPath = arg;
+                    ret = true;
                 }
                 ++i;
+
+                if (!ret)
+                {
+                    break;
+                }
             }
         }
         else
