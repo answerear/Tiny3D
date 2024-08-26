@@ -31,6 +31,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    const char *Resource::EXT_MATERIAL = "tmat";
+    const char *Resource::EXT_TEXTURE = "ttex";
+    const char *Resource::EXT_IMAGE = "timg";
+    const char *Resource::EXT_SHADER = "tshader";
+    const char *Resource::EXT_MESH = "tmesh";
+    const char *Resource::EXT_PREFAB = "tprefab";
+    const char *Resource::EXT_SCENE = "tscene";
+    
+    //--------------------------------------------------------------------------
+
     Resource::Resource()
         : Resource("")
     {

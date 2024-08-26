@@ -47,6 +47,14 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        static const char *EXT_MATERIAL;
+        static const char *EXT_TEXTURE;
+        static const char *EXT_IMAGE;
+        static const char *EXT_SHADER;
+        static const char *EXT_MESH;
+        static const char *EXT_PREFAB;
+        static const char *EXT_SCENE;
+        
         /**
          * \brief 资源类型
          */
