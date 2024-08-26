@@ -35,6 +35,7 @@
 
 // For debug
 // "$(SolutionDir)..\..\assets\builtin\materials\Test.Shader" -t hlsl
+// "$(SolutionDir)..\..\assets\builtin\shaders\Default-Material.shader" -t hlsl -o "$(SolutionDir)..\..\assets\builtin\materials"
 
 
 Tiny3D::ShaderCrossApp theApp;
