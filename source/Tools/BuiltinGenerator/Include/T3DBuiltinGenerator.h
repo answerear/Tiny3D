@@ -32,6 +32,7 @@
 namespace Tiny3D
 {
     class BuiltinShaders;
+    class BuiltinMaterials;
     
     class BuiltinGenerator
     {
@@ -51,6 +52,7 @@ namespace Tiny3D
 
     protected:
         BuiltinShaders *mBuiltinShaders {nullptr};
+        BuiltinMaterials *mBuiltinMaterials {nullptr};
     };
 }
 

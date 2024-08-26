@@ -24,6 +24,7 @@
 
 
 #include "T3DBuiltinMaterials.h"
+#include "T3DBuiltinShaders.h"
 
 
 namespace Tiny3D
@@ -32,7 +33,26 @@ namespace Tiny3D
 
     TResult BuiltinMaterials::generate(const String &rootPath)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String name = "Default-Material";
+            Shader *shader = T3D_BUILTIN_SHADERS.getShader(name);
+            MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(name, shader);
+            String path = rootPath + Dir::getNativeSeparator() + "materials";
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, "FileSystem", Archive::AccessMode::kTruncate);
+            T3D_ASSERT(archive);
+            ret = T3D_MATERIAL_MGR.saveMaterial(archive, material);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Save material %s to path %s failed ! ERROR [%d]", path.c_str(), name.c_str(), ret);
+            }
+
+            mMaterials.emplace(name, material);
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

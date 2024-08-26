@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class BuiltinMaterials
+    class BuiltinMaterials : public Singleton<BuiltinMaterials>
     {
     public:
         BuiltinMaterials() = default;
@@ -39,7 +39,19 @@ namespace Tiny3D
         ~BuiltinMaterials() = default;
 
         TResult generate(const String &rootPath);
+
+        Material *getMaterial(const String &name) const
+        {
+            auto it = mMaterials.find(name);
+            return (it == mMaterials.end() ? nullptr : it->second);
+        }
+    protected:
+        using Materials = TMap<String, MaterialPtr>;
+
+        Materials mMaterials {};
     };
+
+    #define T3D_BUILTIN_MATERIALS   (BuiltinMaterials::getInstance())
 }
 
 

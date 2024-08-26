@@ -37,6 +37,7 @@ namespace Tiny3D
     BuiltinGenerator::~BuiltinGenerator()
     {
         T3D_SAFE_DELETE(mBuiltinShaders);
+        T3D_SAFE_DELETE(mBuiltinMaterials);
     }
 
     //--------------------------------------------------------------------------
@@ -47,12 +48,6 @@ namespace Tiny3D
 
         do
         {
-            ret = generateMeshes(rootPath, reservedTemp);
-            if (T3D_FAILED(ret))
-            {
-                BGEN_LOG_ERROR("Generate meshes failed");
-            }
-
             ret = generateShaders(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
@@ -63,6 +58,12 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Generate materials failed");
+            }
+
+            ret = generateMeshes(rootPath, reservedTemp);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generate meshes failed");
             }
         } while (false);
 
@@ -142,7 +143,12 @@ namespace Tiny3D
 
     TResult BuiltinGenerator::generateMaterials(const String &rootPath, bool reservedTemp)
     {
-        return T3D_OK;
+        if (mBuiltinMaterials == nullptr)
+        {
+            mBuiltinMaterials = new BuiltinMaterials();
+        }
+        
+        return mBuiltinMaterials->generate(rootPath);
     }
 
     //--------------------------------------------------------------------------

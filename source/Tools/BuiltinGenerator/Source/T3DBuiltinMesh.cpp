@@ -24,7 +24,7 @@
 
 
 #include "T3DBuiltinMesh.h"
-
+#include "T3DBuiltinMaterials.h"
 
 namespace Tiny3D
 {
@@ -32,8 +32,9 @@ namespace Tiny3D
 
     MaterialPtr BuiltinMesh::buildMaterial()
     {
+#if 0
         TResult ret;
-    
+
         // vertex & pixel shader keyword
         ShaderKeyword vkeyword;
         vkeyword.addKeyword("-");
@@ -168,6 +169,14 @@ namespace Tiny3D
         material->switchKeywords(enableKeywrods, disableKeywords);
         
         return material;
+#else
+        MaterialPtr material = T3D_BUILTIN_MATERIALS.getMaterial("Default-Material");
+        StringArray enableKeywrods;
+        enableKeywrods.push_back("");
+        StringArray disableKeywords;
+        material->switchKeywords(enableKeywrods, disableKeywords);
+        return material;
+#endif
     }
 
     //--------------------------------------------------------------------------

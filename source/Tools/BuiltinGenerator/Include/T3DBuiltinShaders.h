@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class BuiltinShaders
+    class BuiltinShaders : public Singleton<BuiltinShaders>
     {
     public:
         BuiltinShaders() = default;
@@ -40,7 +40,11 @@ namespace Tiny3D
 
         TResult generate(const String &rootPath, bool reservedTemp);
 
-        Shader *getShader(const String &name) const;
+        Shader *getShader(const String &name) const
+        {
+            auto it = mShaders.find(name);
+            return (it == mShaders.end() ? nullptr : it->second);
+        }
         
     protected:
         TResult generateShader(const String &path, const String &outputPath);
@@ -49,6 +53,8 @@ namespace Tiny3D
 
         Shaders mShaders {};
     };
+
+    #define T3D_BUILTIN_SHADERS (BuiltinShaders::getInstance())
 }
 
 
