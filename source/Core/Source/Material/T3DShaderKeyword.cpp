@@ -84,8 +84,15 @@ namespace Tiny3D
         String name;
         for (const auto &str : mKeys)
         {
-            name += "_";
-            name += str;
+            if (mKeys.size() == 1 && str.empty())
+            {
+                name += str;
+            }
+            else
+            {
+                name += "_";
+                name += str;
+            }
         }
         mHashCode = Hash::hash(name.c_str());
         mName = name;
