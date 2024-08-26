@@ -134,6 +134,8 @@ elseif (TINY3D_OS_MACOSX)
         ${SHADERCONDUCTOR_LIBRARY}
         )
 
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
+    
     # Setup all properties for this Mac OS X project.
 #   set_target_properties(${BIN_NAME}
 #       PROPERTIES
@@ -186,6 +188,8 @@ elseif (TINY3D_OS_LINUX)
         T3DCore
         rttr_core
         )
+
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}

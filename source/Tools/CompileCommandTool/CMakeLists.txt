@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(cct)
+set_project_name(CompileCommandTool)
 
 
 if (MSVC)
@@ -50,6 +50,8 @@ if (TINY3D_OS_WINDOWS)
         ${LIB_NAME}
         )
 
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME cct)
+
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
         RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
@@ -67,6 +69,8 @@ elseif (TINY3D_OS_MACOSX)
     target_link_libraries(
         ${LIB_NAME}
         )
+
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME cct)
 
     # Setup all properties for this Mac OS X project.
 #   set_target_properties(${BIN_NAME}
@@ -113,6 +117,8 @@ elseif (TINY3D_OS_LINUX)
     target_link_libraries(
         ${LIB_NAME}
         )
+
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME cct)
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}

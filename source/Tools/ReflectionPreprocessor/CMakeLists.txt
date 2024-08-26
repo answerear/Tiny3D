@@ -86,6 +86,8 @@ if (TINY3D_OS_WINDOWS)
         ${LLVM_LIB_DIR}/libclang.lib
         )
 
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME rpp)
+
     if (TINY3D_BUILD_RTTR_TOOL)
         add_custom_command(TARGET ${BIN_NAME}
             PRE_LINK
@@ -117,6 +119,8 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
         )
+
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME rpp)
 
     # Setup all properties for this Mac OS X project.
 #   set_target_properties(${BIN_NAME}
@@ -165,6 +169,8 @@ elseif (TINY3D_OS_LINUX)
         T3DPlatform
         T3DLog
         )
+
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME rpp)
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}

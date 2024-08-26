@@ -71,10 +71,10 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 
 
 @rem Generate reflection source by ReflectionPreprocessor.
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System -r
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Math ..\Math -r
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Core ..\Core -r
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Editor\TinyLauncher ..\Editor\TinyLauncher -r
+..\bin\Windows\Debug\rpp.exe .\System ..\System -r
+..\bin\Windows\Debug\rpp.exe .\Math ..\Math -r
+..\bin\Windows\Debug\rpp.exe .\Core ..\Core -r
+..\bin\Windows\Debug\rpp.exe .\Editor\TinyLauncher ..\Editor\TinyLauncher -r
 
 
 @rem ==================== Generate all projects ===================
