@@ -30,8 +30,6 @@
 #include <Resource/T3DPrefab.h>
 #include "Component/T3DComponent.h"
 
-#include "Render/T3DBlendState.h"
-
 
 namespace Tiny3D
 {
