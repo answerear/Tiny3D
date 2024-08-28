@@ -111,6 +111,7 @@ namespace Tiny3D
                 if (T3D_FAILED(ret))
                 {
                     BGEN_LOG_ERROR("Start scc.exe from source file %s failed ! ERROR [%d]", filePath.c_str(), ret);
+                    working = dir.findNextFile();
                     continue;
                 }
 
@@ -119,6 +120,7 @@ namespace Tiny3D
                 if (T3D_FAILED(ret))
                 {
                     BGEN_LOG_ERROR("Wait process exit from source file %s failed ! ERROR [%d]", filePath.c_str(), ret);
+                    working = dir.findNextFile();
                     continue;
                 }
 
@@ -127,6 +129,7 @@ namespace Tiny3D
                 {
                     // 编译出错了，只能退出
                     BGEN_LOG_ERROR("Compile shader %s failed ! ERROR [%d]", filePath.c_str(), ret);
+                    working = dir.findNextFile();
                     continue;
                 }
 

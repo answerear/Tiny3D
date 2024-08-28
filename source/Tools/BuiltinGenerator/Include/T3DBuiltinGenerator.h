@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_BUILTIN_GENERATOR_H__
-#define __T3D_BUILTIN_GENERATOR_H__
+
+#pragma once
 
 
 #include "T3DBuiltinGenPrerequisites.h"
@@ -57,4 +57,3 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_BUILTIN_GENERATOR_H__*/

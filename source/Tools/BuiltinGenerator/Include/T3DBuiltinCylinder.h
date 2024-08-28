@@ -22,8 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_BUILTIN_CYLINDER_H__
-#define __T3D_BUILTIN_CYLINDER_H__
+#pragma once
 
 
 #include "T3DBuiltinMesh.h"
@@ -43,6 +42,3 @@ namespace Tiny3D
         TResult save(const String &path) override;
     };
 }
-
-
-#endif  /*__T3D_BUILTIN_CYLINDER_H__*/

@@ -22,8 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_BUILTIN_MESH_H__
-#define __T3D_BUILTIN_MESH_H__
+#pragma once
 
 
 #include "T3DBuiltinGenPrerequisites.h"
@@ -47,5 +46,3 @@ namespace Tiny3D
     };
 }
 
-
-#endif  /*__T3D_BUILTIN_MESH_H__*/

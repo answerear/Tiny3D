@@ -22,11 +22,11 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_BUILTIN_SHADERS_H__
-#define __T3D_BUILTIN_SHADERS_H__
+
+#pragma once
 
 
-#include "T3DBuiltinMesh.h"
+#include "T3DBuiltinGenPrerequisites.h"
 
 
 namespace Tiny3D
@@ -58,4 +58,3 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_BUILTIN_SHADERS_H__*/
