@@ -18,13 +18,12 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_META_FS_ARCHIVE_PREREQUISITES_H__
-#define __T3D_META_FS_ARCHIVE_PREREQUISITES_H__
+#pragma once
 
 
 #include <Tiny3D.h>
 
-#if defined METAFILESYSTEMARCHIVE_EXPORT
+#if defined METAFSARCHIVE_EXPORT
     #define T3D_METAFSARCHIVE_API        T3D_EXPORT_API
 #else
     #define T3D_METAFSARCHIVE_API        T3D_IMPORT_API
@@ -33,12 +32,10 @@
 
 namespace Tiny3D
 {
-    #define LOG_TAG_METAFS      "MetaFileSystemArchive"
+    #define LOG_TAG_METAFS      "MetaFSArchive"
 
-    class MetaFileSystemArchive;
+    class MetaFSArchive;
 
-    T3D_DECLARE_SMART_PTR(MetaFileSystemArchive);
+    T3D_DECLARE_SMART_PTR(MetaFSArchive);
 }
 
-
-#endif  /*__T3D_META_FS_ARCHIVE_PREREQUISITES_H__*/

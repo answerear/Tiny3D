@@ -25,244 +25,183 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char * const MetaFileSystemArchive::ARCHIVE_TYPE = "MetaFileSystem";
+    const char * const MetaFSArchive::ARCHIVE_TYPE = "MetaFileSystem";
 
     //--------------------------------------------------------------------------
 
-    MetaFileSystemArchivePtr MetaFileSystemArchive::create(const String &name)
+    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode)
     {
-        MetaFileSystemArchivePtr archive = new MetaFileSystemArchive(name);
+        MetaFSArchivePtr archive = new MetaFSArchive(name, mode);
+        // archive->release();
         return archive;
     }
 
     //--------------------------------------------------------------------------
 
-    MetaFileSystemArchive::MetaFileSystemArchive(const String &name)
-        : Archive(name)
+    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode)
+        : Archive(name, mode)
     {
-
+        
     }
 
     //--------------------------------------------------------------------------
 
-    MetaFileSystemArchive::~MetaFileSystemArchive()
+    MetaFSArchive::~MetaFSArchive()
     {
-        clearFileStreamCache();
+        
     }
 
     //--------------------------------------------------------------------------
 
-    ArchivePtr MetaFileSystemArchive::clone() const
+    bool MetaFSArchive::canWrite() const
     {
-        ArchivePtr archive = create(mName);
+        uint32_t mode = (uint32_t)getAccessMode();
+        uint32_t writeMode = (uint32_t)AccessMode::kAppend | (uint32_t)AccessMode::kTruncate;
+        return (mode & writeMode) != 0;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    FileDataStream::EOpenMode MetaFSArchive::getFileOpenMode(AccessMode accMode) const
+    {
+        uint32_t outMode = FileDataStream::E_MODE_NOT_OPEN;
+
+        uint32_t inMode = (uint32_t)accMode;
+
+        if (inMode == (uint32_t)AccessMode::kReadOnly || inMode == (uint32_t)AccessMode::kReadTxtOnly)
+        {
+            outMode |= FileDataStream::E_MODE_READ_ONLY;
+        }
+        else
+        {
+            if (inMode & (uint32_t)AccessMode::kAppend)
+            {
+                outMode |= FileDataStream::E_MODE_APPEND;
+            }
+            else if (inMode & (uint32_t)AccessMode::kTruncate)
+            {
+                outMode |= FileDataStream::E_MODE_TRUNCATE;
+            }
+
+            outMode |= (FileDataStream::E_MODE_READ_ONLY | FileDataStream::E_MODE_WRITE_ONLY);
+        }
+
+        if (inMode & (uint32_t)AccessMode::kText)
+        {
+            outMode |= FileDataStream::E_MODE_TEXT;
+        }
+
+        return (FileDataStream::EOpenMode)outMode;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ArchivePtr MetaFSArchive::clone() const
+    {
+        ArchivePtr archive = create(getName(), getAccessMode());
         return archive;
     }
 
     //--------------------------------------------------------------------------
 
-    String MetaFileSystemArchive::getArchiveType() const
+    String MetaFSArchive::getArchiveType() const
     {
         return ARCHIVE_TYPE;
     }
 
     //--------------------------------------------------------------------------
 
-    String MetaFileSystemArchive::getLocation() const
+    String MetaFSArchive::getPath() const
     {
         return getName();
     }
 
     //--------------------------------------------------------------------------
 
-    bool MetaFileSystemArchive::exists(const String &name) const
+    bool MetaFSArchive::exists(const String &name) const
     {
-        String path = getLocation() + Dir::getNativeSeparator() + name;
+        String path = getPath() + Dir::getNativeSeparator() + name;
         return Dir::exists(path);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFileSystemArchive::read(const String &name, 
-        MemoryDataStream &stream)
+    TResult MetaFSArchive::read(const String &name, const ArchiveReadCallback &callback)
     {
-        String path = getLocation() + Dir::getNativeSeparator() + name;
-        FileDataStream *fs = nullptr;
         TResult ret = T3D_OK;
 
         do 
         {
-            ret = getFileStreamFromCache(name, fs);
-            if (T3D_FAILED(ret))
+            if (callback == nullptr)
             {
+                ret = T3D_ERR_INVALID_PARAM;
+                T3D_LOG_ERROR(LOG_TAG_METAFS, "Read callback is nullptr when reading archive [%s] !", name.c_str());
                 break;
             }
 
-            if (!fs->isOpened())
+            // 打开文件
+            FileDataStream fs;
+            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
+            String path = getPath() + Dir::getNativeSeparator() + name;
+            if (!fs.open(path.c_str(), mode))
             {
-                // 文件没有打开，先打开文件
-                if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
-                {
-                    ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR(LOG_TAG_METAFS, "Open file [%s] from file"
-                         " system failed !", name.c_str());
-                    break;
-                }
-            }
-
-            size_t size = fs->size();
-            uint8_t *data = new uint8_t[size];
-            if (fs->read(data, size) != size)
-            {
-                ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR(LOG_TAG_METAFS, "Read file [%s] from file "
-                    "system failed !", name.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                T3D_LOG_ERROR(LOG_TAG_METAFS, "Open file [%s] from file system failed !", path.c_str());
                 break;
             }
 
-            stream.setBuffer(data, size, false);
-        } while (0);
+            // 读数据
+            ret = callback(fs);
+
+            // 关闭文件
+            fs.close();
+        } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFileSystemArchive::write(const String &name, 
-        const MemoryDataStream &stream)
+    TResult MetaFSArchive::write(const String &name, const ArchiveWriteCallback &callback)
     {
-        String path = getLocation() + Dir::getNativeSeparator() + name;
-        FileDataStream *fs = nullptr;
+        if (!canWrite())
+        {
+            T3D_LOG_ERROR(LOG_TAG_METAFS, "Access mode is not writable ! [%s]", name.c_str());
+            return T3D_ERR_NOT_WRAITABLE_FILE;
+        }
+
         TResult ret = T3D_OK;
 
         do 
         {
-            ret = getFileStreamFromCache(name, fs);
-            if (T3D_FAILED(ret))
+            if (callback == nullptr)
             {
+                ret = T3D_ERR_INVALID_PARAM;
+                T3D_LOG_ERROR(LOG_TAG_METAFS, "Write callback is nullptr when writing archive [%s] !", name.c_str());
                 break;
             }
 
-            if (!fs->isOpened())
+            // 打开文件
+            FileDataStream fs;
+            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
+            String path = getPath() + Dir::getNativeSeparator() + name;
+            if (!fs.open(path.c_str(), mode))
             {
-                // 文件没有打开，先打开文件
-                if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_WRITE))
-                {
-                    ret = T3D_ERR_FILE_NOT_EXIST;
-                    T3D_LOG_ERROR(LOG_TAG_METAFS, "Open file [%s] from file"
-                         " system failed !", name.c_str());
-                    break;
-                }
-            }
-
-            uint8_t *data = nullptr;
-            size_t size = 0;
-            stream.getBuffer(data, size);
-            if (fs->write(data, size) != size)
-            {
-                ret = T3D_ERR_FILE_DATA_MISSING;
-                T3D_LOG_ERROR(LOG_TAG_METAFS, "Write file [%s] from file "
-                    "system failed !", name.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                T3D_LOG_ERROR(LOG_TAG_METAFS, "Open file [%s] from file system failed !", path.c_str());
                 break;
             }
 
-        } while (0);
+            // 写数据
+            ret = callback(fs);
+
+            // 关闭文件
+            fs.close();
+        } while (false);
 
         return ret;
     }
 
     //--------------------------------------------------------------------------
-
-    TResult MetaFileSystemArchive::getFileStreamFromCache(const String &name,
-        FileDataStream *&stream)
-    {
-        TResult ret = T3D_OK;
-
-        do 
-        {
-            auto itr = mFileStreamCache.find(name);
-
-            if (itr != mFileStreamCache.end())
-            {
-                stream = itr->second;
-            }
-            else
-            {
-                if (mFileStreamCache.size() >= MAX_FILE_STREAM_CACHE)
-                {
-                    // 大于可缓存最大文件流数，需要删掉最老的一个，
-                    // 来存放最新打开的文件流
-                    auto itr = mFileIndexCache.begin();
-
-                    auto i = mFileStreamCache.find(itr->second);
-
-                    if (i != mFileStreamCache.end())
-                    {
-                        FileDataStream *fs = i->second;
-
-                        if (fs->isOpened())
-                        {
-                            fs->close();
-                        }
-
-                        mFileStreamCache.erase(i);
-                        mFileIndexCache.erase(itr);
-                        stream = fs;
-                    }
-                }
-                else
-                {
-                    // 没有大于缓存，从空闲缓存链表获取空闲对象
-                    FileDataStream *fs = mFileStreamPool.front();
-                    mFileStreamPool.pop_front();
-                    stream = fs;
-                }
-
-                uint64_t timestamp = DateTime::currentMSecsSinceEpoch();
-                mFileIndexCache.insert(FileIndexCacheValue(timestamp, name));
-                mFileStreamCache.insert(FileStreamCacheValue(name, stream));
-            }
-        } while (0);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void MetaFileSystemArchive::initFileStreamCache()
-    {
-        size_t i = 0;
-        for (i = 0; i < MAX_FILE_STREAM_CACHE; ++i)
-        {
-            FileDataStream *fs = new FileDataStream();
-            mFileStreamPool.push_back(fs);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void MetaFileSystemArchive::clearFileStreamCache()
-    {
-        auto itr = mFileStreamPool.begin();
-
-        while (itr != mFileStreamPool.end())
-        {
-            FileDataStream *fs = *itr;
-            T3D_SAFE_DELETE(fs);
-            ++itr;
-        }
-
-        mFileStreamPool.clear();
-
-        auto i = mFileStreamCache.begin();
-
-        while (i != mFileStreamCache.end())
-        {
-            FileDataStream *fs = i->second;
-            T3D_SAFE_DELETE(fs);
-            ++i;
-        }
-
-        mFileStreamCache.clear();
-    }
 }
 

@@ -22,13 +22,13 @@
 #include "T3DMetaFSArchivePlugin.h"
 
 
-Tiny3D::MetaFileSystemArchivePlugin *gPlugin = nullptr;
+Tiny3D::MetaFSArchivePlugin *gPlugin = nullptr;
 
 extern "C"
 {
     T3D_METAFSARCHIVE_API TResult dllStartPlugin()
     {
-        gPlugin = new Tiny3D::MetaFileSystemArchivePlugin();
+        gPlugin = new Tiny3D::MetaFSArchivePlugin();
         return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 

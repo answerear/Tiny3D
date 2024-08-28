@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(MetaFileSystemArchive)
+set_project_name(MetaFSArchive)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
@@ -91,7 +91,7 @@ else (TINY3D_OS_IOS)
         T3DLog
 		T3DUtils
         T3DMath
-        T3DCore
+        T3DCoreEditor
         rttr_core
         )
 endif (TINY3D_OS_IOS)

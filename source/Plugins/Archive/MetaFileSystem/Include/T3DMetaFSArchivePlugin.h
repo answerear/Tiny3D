@@ -18,8 +18,7 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_META_FS_ARCHIVE_PLUGIN_H__
-#define __T3D_META_FS_ARCHIVE_PLUGIN_H__
+#pragma once
 
 
 #include "T3DMetaFSArchivePrerequisites.h"
@@ -27,55 +26,51 @@
 
 namespace Tiny3D
 {
-    class MetaFileSystemArchiveCreator;
-
     /**
      * @brief 文件档案结构插件
      */
-    class MetaFileSystemArchivePlugin : public Plugin
+    class MetaFSArchivePlugin : public Plugin
     {
     public:
         /**
          * @brief 默认构造函数
          */
-        MetaFileSystemArchivePlugin();
+        MetaFSArchivePlugin();
 
         /**
          * @brief 析构函数
          */
-        virtual ~MetaFileSystemArchivePlugin();
+        virtual ~MetaFSArchivePlugin();
 
         /**
          * @brief 获取插件名称
          */
-        virtual const String &getName() const override;
+        const String &getName() const override;
 
         /**
          * @brief 安装插件
          */
-        virtual TResult install() override;
+        TResult install() override;
 
         /**
          * @brief 启动插件
          */
-        virtual TResult startup() override;
+        TResult startup() override;
 
         /**
          * @brief 关闭插件
          */
-        virtual TResult shutdown() override;
+        TResult shutdown() override;
 
         /**
          * @brief 卸载插件
          */
-        virtual TResult uninstall() override;
+        TResult uninstall() override;
 
     protected:
-        String                          mName;          /**< 插件名称 */
-        MetaFileSystemArchiveCreator    *mFSCreator;    /**< 文件档案结构构建器 */
+        /// 插件名称
+        String                  mName;
     };
 
 }
 
-
-#endif  /*__T3D_META_FS_ARCHIVE_PLUGIN_H__*/
