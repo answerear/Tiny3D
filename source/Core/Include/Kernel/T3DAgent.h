@@ -170,7 +170,9 @@ namespace Tiny3D
 
         TResult unloadPlugins();
 
-        TResult initAssets();
+        TResult initBuiltinAssets();
+
+        TResult releaseBuiltinAssets();
 
         TResult initRenderer();
 
@@ -254,6 +256,8 @@ namespace Tiny3D
         RunnableThread          mRHIThread {};
         RHIThreadPtr            mRHIRunnable {nullptr};
         Event                   mRHIEvent {};
+
+        Texture2DPtr            mDefaultAlbedoTex {nullptr};
         
         bool                    mIsRunning {false};     /**< 引擎是否在运行中 */
     };
