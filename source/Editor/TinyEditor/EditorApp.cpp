@@ -326,8 +326,8 @@ namespace Tiny3D
             //io.ConfigViewportsNoAutoMerge = true;
             //io.ConfigViewportsNoTaskBarIcon = true;
 
-            static String iniPath = Dir::getAppPath() + Dir::getNativeSeparator() + "TinyEditorGUI.ini";
-            io.IniFilename = iniPath.c_str();
+            mIniPath = Dir::getAppPath() + Dir::getNativeSeparator() + "TinyEditorGUI.ini";
+            io.IniFilename = mIniPath.c_str();
 
             // if (!Dir::exists(iniPath.c_str()))
             // {

@@ -116,6 +116,8 @@ namespace Tiny3D
         ImTextureManager    *mTextureMgr {nullptr};
         MainWindow          *mMainWindow {nullptr};
 
+        String mIniPath {};
+
         bool mExitApp {false};
     };
 
