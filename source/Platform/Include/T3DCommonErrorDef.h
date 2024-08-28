@@ -33,23 +33,43 @@ namespace Tiny3D
 {
     enum CommonErrorCode
     {
-        T3D_ERR_NONE                = 0,            /**< 没有错误 */
-        T3D_OK                      = T3D_ERR_NONE, /**< 成功 */
-        T3D_SUCCESS                 = T3D_ERR_NONE, /**< 成功 */
-        T3D_ERR_FAIL                = 0x00000001,   /**< 通用错误 */
-        T3D_ERR_INVALID_POINTER     = 0x00000002,   /**< 空指针或者非法指针 */
-        T3D_ERR_INVALID_TIMERID     = 0x00000003,   /**< 无效定时器ID */
-        T3D_ERR_FILE_NOT_EXIST      = 0x00000004,   /**< 文件不存在 */
-        T3D_ERR_FILE_DATA_MISSING   = 0x00000005,   /**< 文件内容缺失 */
-        T3D_ERR_OUT_OF_BOUND        = 0x00000006,   /**< 数组越界 */
-        T3D_ERR_NOT_FOUND           = 0x00000007,   /**< 没有找到 */
-        T3D_ERR_DUPLICATED_ITEM     = 0x00000008,   /**< 重复元素 */
-        T3D_ERR_SYS_NOT_INIT        = 0x00000009,   /**< 系统没有初始化 */
-        T3D_ERR_INVALID_ID          = 0x0000000A,   /**< 无效ID */
-        T3D_ERR_INVALID_PARAM       = 0x0000000B,   /**< 错误参数 */
-        T3D_ERR_INVALID_SIZE        = 0x0000000C,   /**< 错误大小 */
-        T3D_ERR_TIMEOUT             = 0x0000000D,   /**< 超时 */
-        T3D_ERR_NOT_IMPLEMENT       = 0x0000000E,   
+        /// 没有错误
+        T3D_ERR_NONE = 0,
+        /// 成功
+        T3D_OK = T3D_ERR_NONE,
+        /// 成功
+        T3D_SUCCESS = T3D_ERR_NONE,
+        /// 通用错误
+        T3D_ERR_FAIL,
+        /// 空指针或者非法指针
+        T3D_ERR_INVALID_POINTER,
+        /// 无效定时器ID
+        T3D_ERR_INVALID_TIMERID,
+        /// 文件不存在
+        T3D_ERR_FILE_NOT_EXIST,
+        /// 文件内容缺失
+        T3D_ERR_FILE_DATA_MISSING,
+        /// 复制文件夹失败
+        T3D_ERR_COPY_DIR,
+        /// 复制文件失败
+        T3D_ERR_COPY_FILE,
+        /// 数组越界
+        T3D_ERR_OUT_OF_BOUND,
+        /// 没有找到
+        T3D_ERR_NOT_FOUND,
+        /// 重复元素
+        T3D_ERR_DUPLICATED_ITEM,
+        /// 系统没有初始化
+        T3D_ERR_SYS_NOT_INIT,
+        /// 无效ID
+        T3D_ERR_INVALID_ID,
+        /// 错误参数
+        T3D_ERR_INVALID_PARAM,
+        /// 错误大小
+        T3D_ERR_INVALID_SIZE,
+        /// 超时
+        T3D_ERR_TIMEOUT,
+        T3D_ERR_NOT_IMPLEMENT,
     };
 
     #define T3D_FAILED(ret)         (ret != T3D_OK)

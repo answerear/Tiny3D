@@ -22,15 +22,23 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#define USE_CPP_17
+
 #include "IO/T3DDir.h"
 #include "Adapter/T3DFactoryInterface.h"
 #include "Adapter/T3DDirInterface.h"
 #include "T3DPlatform.h"
 #include "T3DType.h"
 
+#if defined (USE_CPP_17)
+#include <filesystem>
+#endif
+
 
 namespace Tiny3D
 {
+    
+    
     //--------------------------------------------------------------------------
 
     IDir *Dir::sDir = nullptr;
@@ -267,6 +275,10 @@ namespace Tiny3D
 
     bool Dir::makeDir(const String &strDir)
     {
+#if defined (USE_CPP_17)
+        std::error_code ec;
+        return std::filesystem::create_directory(strDir, ec);
+#else
         if (nullptr == sDir)
             sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
 
@@ -276,12 +288,17 @@ namespace Tiny3D
         }
 
         return false;
+#endif
     }
 
     //--------------------------------------------------------------------------
 
     bool Dir::removeDir(const String &strDir, bool force/* = false */)
     {
+#if defined(USE_CPP_17)
+        std::error_code ec;
+        return std::filesystem::remove_all(strDir, ec);
+#else
         if (nullptr == sDir)
             sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
 
@@ -329,12 +346,17 @@ namespace Tiny3D
         }
 
         return ret;
+#endif
     }
 
     //--------------------------------------------------------------------------
 
     bool Dir::remove(const String &strFileName)
     {
+#if defined (USE_CPP_17)
+        std::error_code ec;
+        return std::filesystem::remove(strFileName, ec);
+#else
         if (nullptr == sDir)
             sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
 
@@ -344,12 +366,17 @@ namespace Tiny3D
         }
 
         return false;
+#endif
     }
 
     //--------------------------------------------------------------------------
 
     bool Dir::exists(const String &strPath)
     {
+#if defined (USE_CPP_17)
+        std::error_code ec;
+        return std::filesystem::exists(strPath, ec);
+#else
         if (nullptr == sDir)
             sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
 
@@ -357,8 +384,32 @@ namespace Tiny3D
         {
             return sDir->exists(strPath);
         }
-
+#endif
         return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Dir::copy(const String &srcPath, const String &dstPath, bool overwriteExisting)
+    {
+        std::filesystem::copy_options opts = std::filesystem::copy_options::skip_existing;
+        if (overwriteExisting)
+            opts = std::filesystem::copy_options::overwrite_existing;
+        std::error_code ec;
+        return std::filesystem::copy_file(srcPath, dstPath, opts, ec);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Dir::copyDir(const String &srcPath, const String &dstPath, bool overwriteExisting)
+    {
+        std::filesystem::copy_options opts = std::filesystem::copy_options::skip_existing | std::filesystem::copy_options::recursive;
+        namespace fs = std::filesystem;
+        if (overwriteExisting)
+            opts = fs::copy_options::overwrite_existing | fs::copy_options::recursive;
+        std::error_code ec;
+        fs::copy(srcPath, dstPath, opts, ec);
+        return ec.value() == 0;
     }
 
     //--------------------------------------------------------------------------

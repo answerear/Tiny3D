@@ -164,6 +164,10 @@ namespace Tiny3D
          */
         static bool exists(const String &strPath);
 
+        static bool copy(const String &srcPath, const String &dstPath, bool overwriteExisting);
+
+        static bool copyDir(const String &srcPath, const String &dstPath, bool overwriteExisting);
+
         /**
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径，以对上层透明处理.
          * @return 返回应用程序缓存数据存储路径.
