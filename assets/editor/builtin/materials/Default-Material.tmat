@@ -1,0 +1,81 @@
+{
+    "Magic": "T3D",
+    "Version": "0.0.1",
+    "Object": {
+        "RTTI_Type": "Tiny3D::Material",
+        "RTTI_Value": {
+            "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Default-Material.tmat"
+            },
+            "UUID": {
+                "RTTI_Type": "Tiny3D::UUID",
+                "RTTI_Value": {
+                    "value": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "33ae35c3d19dedc677a35d81e24e6de2"
+                    }
+                }
+            },
+            "Constants": {
+                "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+                "RTTI_Value": [
+                    {
+                        "RTTI_Map_Key": {
+                            "RTTI_Type": "std::string",
+                            "RTTI_Value": "_Color"
+                        },
+                        "RTTI_Map_Value": {
+                            "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                            "RTTI_Value": {
+                                "Data": {
+                                    "RTTI_Type": "Tiny3D::Buffer",
+                                    "RTTI_Value": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "AACAPwAAgD8AAIA/AACAPw=="
+                                    }
+                                },
+                                "DataType": {
+                                    "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                    "RTTI_Value": "DT_COLOR"
+                                },
+                                "Name": {
+                                    "RTTI_Type": "std::string",
+                                    "RTTI_Value": "_Color"
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "Samplers": {
+                "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
+                "RTTI_Value": [
+                    {
+                        "RTTI_Map_Key": {
+                            "RTTI_Type": "std::string",
+                            "RTTI_Value": "white"
+                        },
+                        "RTTI_Map_Value": {
+                            "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                            "RTTI_Value": {
+                                "Name": {
+                                    "RTTI_Type": "std::string",
+                                    "RTTI_Value": "white"
+                                },
+                                "TextureState": {
+                                    "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                    "RTTI_Value": "TT_2D"
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "Shader": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Default-Material.tshader"
+            }
+        }
+    }
+}
