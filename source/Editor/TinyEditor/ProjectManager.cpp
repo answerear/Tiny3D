@@ -84,7 +84,51 @@ namespace Tiny3D
                 ret = T3D_ERR_FAIL;
                 break;
             }
-                
+
+            // 复制 builtin assets 到 temp 文件夹
+            String builtinPath = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "builtin";
+            
+            // textures
+            String srcPath = builtinPath + Dir::getNativeSeparator() + "textures";
+            String dstPath = tempPath + Dir::getNativeSeparator() + "builtin";
+            bool rval = Dir::copyDir(srcPath, dstPath, false);
+            if (!rval)
+            {
+                EDITOR_LOG_ERROR("Copy builtin textures from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                ret = T3D_ERR_COPY_DIR;
+                break;
+            }
+            
+            // shaders
+            srcPath = builtinPath + Dir::getNativeSeparator() + "shaders";
+            rval = Dir::copyDir(srcPath, dstPath, false);
+            if (!rval)
+            {
+                EDITOR_LOG_ERROR("Copy builtin shaders from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                ret = T3D_ERR_COPY_DIR;
+                break;
+            }
+            
+            // materials
+            srcPath = builtinPath + Dir::getNativeSeparator() + "materials";
+            rval = Dir::copyDir(srcPath, dstPath, false);
+            if (!rval)
+            {
+                EDITOR_LOG_ERROR("Copy builtin materials from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                ret = T3D_ERR_COPY_DIR;
+                break;
+            }
+
+            // meshes
+            srcPath = builtinPath + Dir::getNativeSeparator() + "meshes";
+            rval = Dir::copyDir(srcPath, dstPath, false);
+            if (!rval)
+            {
+                EDITOR_LOG_ERROR("Copy builtin meshes from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                ret = T3D_ERR_COPY_DIR;
+                break;
+            }
+            
             mPath = path;
             mName = name;
             mAssetsPath = assetsPath;
