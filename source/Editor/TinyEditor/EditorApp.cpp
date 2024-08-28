@@ -256,6 +256,7 @@ namespace Tiny3D
             settings.renderSettings.title = "Tiny3D Editor";
             settings.pluginSettings.pluginPath = ".";
             settings.pluginSettings.plugins.emplace_back("FileSystemArchiveEditor");
+            settings.pluginSettings.plugins.emplace_back("MetaFSArchive");
             settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
             settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
             
