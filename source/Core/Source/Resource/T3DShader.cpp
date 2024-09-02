@@ -133,6 +133,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Shader::onPostLoad()
+    {
+        for (auto tech : mTechniques)
+        {
+            tech->setShader(this);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Shader::addConstantParam(ShaderConstantParamPtr param)
     {
         TResult ret = T3D_OK;
@@ -183,6 +193,7 @@ namespace Tiny3D
             }
             
             mTechniques.push_back(tech);
+            tech->setShader(this);
         }
 
         return !found;
@@ -197,6 +208,7 @@ namespace Tiny3D
             if ((*itr)->getName() == name)
             {
                 mTechniques.erase(itr);
+                (*itr)->setShader(nullptr);
                 break;
             }
         }

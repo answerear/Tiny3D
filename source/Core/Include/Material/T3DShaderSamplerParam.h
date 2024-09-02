@@ -89,7 +89,7 @@ namespace Tiny3D
 
         ShaderSamplerParam(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
 
-        bool onPostLoad() override;
+        void onPostLoad() override;
         
         String          mName {};
         TEXTURE_TYPE    mTexType {TEXTURE_TYPE::TT_2D};

@@ -24,6 +24,8 @@
 
 
 #include "Resource/T3DMaterial.h"
+
+#include "T3DErrorDef.h"
 #include "Resource/T3DShader.h"
 #include "Resource/T3DShaderManager.h"
 #include "Material/T3DTechniqueInstance.h"
@@ -233,8 +235,8 @@ namespace Tiny3D
             if (mShader == nullptr)
             {
                 // 加载 shader 失败
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader failed !");
-                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader (%s) failed !", mShaderName.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }
 

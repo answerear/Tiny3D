@@ -112,6 +112,10 @@ namespace Tiny3D
         const ShaderTexSamplerBindings &getShaderTexSamplerBindings() const { return mTexSamplerBindings; }
 
         RHIShader *getRHIShader() const { return mRHIShader; }
+
+        void setPass(Pass *pass) { mPass = pass; }
+
+        Pass *getPass() const { return mPass; }
         
     private:
         ShaderVariant() = default;
@@ -157,6 +161,8 @@ namespace Tiny3D
         }
 
     protected:
+        /// 所属 pass
+        Pass *mPass {nullptr};
         /// shader keyword
         ShaderKeyword   *mShaderKeyword {nullptr};
 

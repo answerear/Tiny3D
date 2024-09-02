@@ -63,7 +63,7 @@ namespace Tiny3D
         
         IndexBuffer *getIndexBuffer() const { return mIB; }
 
-        TResult generateRenderResource();
+        TResult generateRenderResource(Archive *archive);
 
     protected:
         SubMesh() = default;

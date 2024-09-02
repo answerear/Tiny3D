@@ -126,23 +126,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool Object::onPreSave()
+    void Object::onPreSave()
     {
-        return true;
+        
     }
 
     //--------------------------------------------------------------------------
 
-    bool Object::onPostSave()
+    void Object::onPostSave()
     {
-        return true;
+        
     }
     
     //--------------------------------------------------------------------------
 
-    bool Object::onPostLoad()
+    void Object::onPostLoad()
     {
-        return true;
+        
     }
     
     //--------------------------------------------------------------------------

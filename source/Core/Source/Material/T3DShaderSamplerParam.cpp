@@ -84,11 +84,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ShaderSamplerParam::onPostLoad()
+    void ShaderSamplerParam::onPostLoad()
     {
         // ArchivePtr archive;
         // mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
-        return true;
     }
 
     //--------------------------------------------------------------------------

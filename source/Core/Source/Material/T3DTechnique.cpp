@@ -154,6 +154,7 @@ namespace Tiny3D
         if (!found)
         {
             mPasses.emplace_back(pass);
+            pass->setTechnique(this);
         }
 
         return !found;
@@ -168,6 +169,7 @@ namespace Tiny3D
             if ((*itr)->getName() == name)
             {
                 mPasses.erase(itr);
+                (*itr)->setTechnique(nullptr);
                 break;
             }
         }
@@ -226,6 +228,16 @@ namespace Tiny3D
         }
 
         return queue;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Technique::onPostLoad()
+    {
+        for (auto pass : mPasses)
+        {
+            pass->setTechnique(this);
+        }
     }
 
     //--------------------------------------------------------------------------

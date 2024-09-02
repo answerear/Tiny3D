@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 #include "Resource/T3DMesh.h"
-
+#include "T3DErrorDef.h"
 #include "Material/T3DPass.h"
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderVariantInstance.h"
@@ -110,7 +110,7 @@ namespace Tiny3D
         
         if (mCreatedFromData)
         {
-            ret = generateRenderResource();
+            ret = generateRenderResource(nullptr);
         }
         
         return ret;
@@ -130,7 +130,7 @@ namespace Tiny3D
                 break;
             }
             
-            ret = generateRenderResource();
+            ret = generateRenderResource(archive);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -154,7 +154,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Mesh::generateRenderResource()
+    TResult Mesh::generateRenderResource(Archive *archive)
     {
         TResult ret = T3D_OK;
 
@@ -165,7 +165,7 @@ namespace Tiny3D
             // 生成子网格的渲染资源
             for (const auto &submesh : mSubMeshes)
             {
-                ret = submesh.second->generateRenderResource();
+                ret = submesh.second->generateRenderResource(archive);
                 if (T3D_FAILED(ret))
                 {
                     break;
@@ -177,6 +177,13 @@ namespace Tiny3D
                     PassInstance *pass = tech->getPassInstances().front();
                     vshader = pass->getCurrentVertexShader()->getShaderVariant();
                 }
+            }
+
+            if (vshader == nullptr)
+            {
+                ret = T3D_ERR_RES_INVALID_SHADER;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid vertex shader to create vertex declaration !");
+                break;
             }
             
             // 创建顶点声明

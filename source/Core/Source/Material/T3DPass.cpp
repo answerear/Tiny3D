@@ -24,6 +24,9 @@
 
 
 #include "Material/T3DPass.h"
+
+#include <d3d11.h>
+
 #include "Material/T3DShaderVariant.h"
 #include "Render/T3DRenderState.h"
 
@@ -217,10 +220,86 @@ namespace Tiny3D
         }
 
         auto rval = vars->insert(ShaderVariantsValue(keyword, variant));
-
+        if (rval.second)
+        {
+            variant->setPass(this);
+        }
+        
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    TResult Pass::removeShaderVariant(const ShaderKeyword &keyword)
+    {
+        TResult ret = T3D_OK;
+
+        const auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
+        if (itr == mKeywords.end())
+        {
+            T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Remove shader variant failed ! Keyword did not exist !");
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        mKeywords.erase(itr);
+
+        auto it = mVertexShaders.find(keyword);
+        if (it != mVertexShaders.end())
+        {
+            mVertexShaders.erase(it);
+            it->second->setPass(nullptr);
+        }
+        
+        it = mPixelShaders.find(keyword);
+        if (it != mPixelShaders.end())
+        {
+            mPixelShaders.erase(it);
+            it->second->setPass(nullptr);
+        }
+        
+        it = mGeometryShaders.find(keyword);
+        if (it != mGeometryShaders.end())
+        {
+            mGeometryShaders.erase(it);
+            it->second->setPass(nullptr);
+        }
+        
+        it = mHullShaders.find(keyword);
+        if (it != mHullShaders.end())
+        {
+            mHullShaders.erase(it);
+            it->second->setPass(nullptr);
+        }
+        
+        it = mDomainShaders.find(keyword);
+        if (it != mDomainShaders.end())
+        {
+            mDomainShaders.erase(it);
+            it->second->setPass(nullptr);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Pass::onPostLoad()
+    {
+        auto setPass = [this](ShaderVariants &shaders)
+        {
+            for (auto shader : shaders)
+            {
+                shader.second->setPass(this);
+            }
+        };
+        
+        setPass(mVertexShaders);
+        setPass(mPixelShaders);
+        setPass(mGeometryShaders);
+        setPass(mHullShaders);
+        setPass(mDomainShaders);
+    }
+
     //--------------------------------------------------------------------------
 }
 

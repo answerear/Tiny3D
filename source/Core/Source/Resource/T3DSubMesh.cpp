@@ -23,6 +23,8 @@
  ******************************************************************************/
 
 #include "Resource/T3DSubMesh.h"
+
+#include "T3DErrorDef.h"
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DVertexDeclaration.h"
 #include "Resource/T3DMaterial.h"
@@ -59,13 +61,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SubMesh::generateRenderResource()
+    TResult SubMesh::generateRenderResource(Archive *archive)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            // TODO: 加载材质资源
+            // 加载材质资源
+            if (archive != nullptr)
+            {
+                mMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, mMaterialName);
+                if (mMaterial == nullptr)
+                {
+                    ret = T3D_ERR_RES_LOAD_FAILED;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load material (%s) failed !", mMaterialName.c_str());
+                    break;
+                }
+            }
             
             // 索引缓冲区
             IndexType indexType;

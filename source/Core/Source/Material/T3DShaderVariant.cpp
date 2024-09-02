@@ -24,8 +24,7 @@
 
 
 #include "Material/T3DShaderVariant.h"
-
-#include "../../../Tools/ShaderCrossCompiler/Include/Parser/SLParserTypes.h"
+#include "Material/T3DPass.h"
 #include "RHI/T3DRHIContext.h"
 #include "Kernel/T3DAgent.h"
 
@@ -75,7 +74,7 @@ namespace Tiny3D
             ret = ctx->compileShader(this);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Compile shader failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Compile shader failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -83,7 +82,7 @@ namespace Tiny3D
             ret = ctx->reflectShaderAllBindings(this, mConstantBindings, mTexSamplerBindings);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Reflect shader all bindings failed !");
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Reflect shader all bindings failed ! ERROR [%d]", ret);
                 break;
             }
 

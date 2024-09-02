@@ -2300,10 +2300,13 @@ namespace Tiny3D
 #else
             UINT shaderCompileFlags = 0;
 #endif
+
+            String sourceName = shader->getPass()->getTechnique()->getShader()->getName();
+            sourceName = shader->getShaderKeyword().getName() + (!shader->getShaderKeyword().getName().empty() ? "-" : "") + profile + "-" + sourceName;
             
             ID3DBlob *shaderBlob = nullptr;
             ID3DBlob *errorBlob = nullptr;
-            HRESULT hr = D3DCompile(bytes, bytesLength, shader->getShaderKeyword().getName().c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", profile.c_str(), shaderCompileFlags, 0, &shaderBlob, &errorBlob);
+            HRESULT hr = D3DCompile(bytes, bytesLength, sourceName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", profile.c_str(), shaderCompileFlags, 0, &shaderBlob, &errorBlob);
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_COMPILE_SHADER;
@@ -2312,7 +2315,7 @@ namespace Tiny3D
                 {
                     error.assign(static_cast<const char *>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
                 }
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader failed ! DX ERROR [%d] (%s)", hr, error.c_str());
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader failed ! (Keyword:%s, Target:%s, ) DX ERROR [%d] (%s)", shader->getShaderKeyword().getName().c_str(), profile.c_str(), hr, error.c_str());
                 D3D_SAFE_RELEASE(shaderBlob);
                 D3D_SAFE_RELEASE(errorBlob);
                 break;

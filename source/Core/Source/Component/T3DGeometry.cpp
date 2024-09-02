@@ -173,7 +173,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool Geometry::onPostLoad()
+    void Geometry::onPostLoad()
     {
         // Archive *archive = nullptr;
         // mMesh = T3D_MESH_MGR.loadMesh(archive, mMeshName);
@@ -181,7 +181,6 @@ namespace Tiny3D
         // {
         //     mSubMesh = mMesh->getSubMesh(mSubMeshName);
         // }
-        return true;
     }
 
     //--------------------------------------------------------------------------

@@ -53,6 +53,10 @@ namespace Tiny3D
 
         TResult compile();
 
+        void setShader(Shader *shader) { mShader = shader; }
+
+        Shader *getShader() const { return mShader; }
+
         bool addTag(const String &key, const String &value);
 
         void removeTag(const String &key);
@@ -145,8 +149,11 @@ namespace Tiny3D
         Technique(const String &name);
 
         uint32_t toRenderQueue(const String &tag);
+
+        void onPostLoad() override;
         
     protected:
+        Shader          *mShader {nullptr};
         String          mName {};
         uint32_t        mLOD {0};
         uint32_t        mRenderQueue {0};

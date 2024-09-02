@@ -44,6 +44,7 @@ namespace Tiny3D
     class T3D_SYSTEM_API Object
     {
         TRTTI_ENABLE()
+        TRTTI_FRIEND
 
         template<typename T>
         friend class SmartPtr;
@@ -92,11 +93,14 @@ namespace Tiny3D
 
         void printDebugInfo();
 
-        virtual bool onPreSave();
+        TFUNCTION()
+        virtual void onPreSave();
 
-        virtual bool onPostSave();
-        
-        virtual bool onPostLoad();
+        TFUNCTION()
+        virtual void onPostSave();
+
+        TFUNCTION()
+        virtual void onPostLoad();
 
     private:
         /// 引用计数

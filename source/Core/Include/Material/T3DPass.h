@@ -53,6 +53,10 @@ namespace Tiny3D
 
         TResult compile();
 
+        void setTechnique(Technique *tech) { mTech = tech; }
+
+        Technique *getTechnique() const { return mTech; }
+
         bool addTag(const String &key, const String &value);
 
         void removeTag(const String &key);
@@ -60,6 +64,8 @@ namespace Tiny3D
         bool getTag(const String &key, String &value) const;
 
         TResult addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant);
+
+        TResult removeShaderVariant(const ShaderKeyword &keyword);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const
@@ -172,8 +178,13 @@ namespace Tiny3D
         }
     protected:
         Pass(const String &name);
+
+        void onPostLoad() override;
         
     protected:
+        /// Pass 所属的 Technique
+        Technique           *mTech {nullptr};
+        
         /// Pass 名称
         String              mName {};
         /// Shader 名称
