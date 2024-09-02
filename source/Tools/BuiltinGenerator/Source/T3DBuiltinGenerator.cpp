@@ -24,6 +24,7 @@
 
 
 #include "T3DBuiltinGenerator.h"
+#include "T3DBuiltinTextures.h"
 #include "T3DBuiltinShaders.h"
 #include "T3DBuiltinMaterials.h"
 #include "T3DBuiltinCube.h"
@@ -48,22 +49,28 @@ namespace Tiny3D
 
         do
         {
+            ret = generateTextures(rootPath, reservedTemp);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generate textures failed ! ERROR [%d]", ret);
+            }
+            
             ret = generateShaders(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate shaders failed");
+                BGEN_LOG_ERROR("Generate shaders failed ! ERROR [%d]", ret);
             }
             
             ret = generateMaterials(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate materials failed");
+                BGEN_LOG_ERROR("Generate materials failed ! ERROR [%d]", ret);
             }
 
             ret = generateMeshes(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate meshes failed");
+                BGEN_LOG_ERROR("Generate meshes failed ! ERROR [%d]", ret);
             }
         } while (false);
 
@@ -149,6 +156,18 @@ namespace Tiny3D
         }
         
         return mBuiltinMaterials->generate(rootPath);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinGenerator::generateTextures(const String &rootPath, bool reservedTemp)
+    {
+        if (mBuiltinTextures == nullptr)
+        {
+            mBuiltinTextures = new BuiltinTextures();
+        }
+
+        return mBuiltinTextures->generate(rootPath);
     }
 
     //--------------------------------------------------------------------------

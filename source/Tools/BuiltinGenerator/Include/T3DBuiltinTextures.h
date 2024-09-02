@@ -41,6 +41,7 @@ namespace Tiny3D
         TResult generate(const String &rootPath);
         
     protected:
+        TResult generateTestTexture(const String &outputPath);
     };
 
     #define T3D_BUILTIN_TEXTURES   (BuiltinTextures::getInstance())

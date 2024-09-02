@@ -31,6 +31,7 @@
 
 namespace Tiny3D
 {
+    class BuiltinTextures;
     class BuiltinShaders;
     class BuiltinMaterials;
     
@@ -50,7 +51,10 @@ namespace Tiny3D
 
         TResult generateMaterials(const String &rootPath, bool reservedTemp);
 
+        TResult generateTextures(const String &rootPath, bool reservedTemp);
+
     protected:
+        BuiltinTextures *mBuiltinTextures {nullptr};
         BuiltinShaders *mBuiltinShaders {nullptr};
         BuiltinMaterials *mBuiltinMaterials {nullptr};
     };
