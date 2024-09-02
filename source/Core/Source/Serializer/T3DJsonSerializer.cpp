@@ -324,6 +324,17 @@ namespace Tiny3D
             type wrapped_type = value_type.is_wrapper() ? value_type.get_wrapped_type() : value_type;
             bool is_wrapper = wrapped_type != value_type;
 
+            bool isObject = false;
+            if (wrapped_type.is_derived_from<Tiny3D::Object>())
+            {
+                isObject = true;
+                auto preSave = wrapped_type.get_method("onPreSave");
+                if (preSave)
+                {
+                    preSave.invoke(var);
+                }
+            }
+
             if (WriteAtomicType(writer, is_wrapper ? wrapped_type : value_type,
                                        is_wrapper ? var.extract_wrapped_value() : var))
             {
@@ -371,6 +382,15 @@ namespace Tiny3D
                 }
             }
 
+            if (isObject)
+            {
+                auto postSave = wrapped_type.get_method("onPostSave");
+                if (postSave)
+                {
+                    postSave.invoke(var);
+                }
+            }
+            
             return true;
         }
 
@@ -655,7 +675,10 @@ namespace Tiny3D
                 {
                     // Tiny3D::Object
                     auto postLoad = klass.get_method("onPostLoad");
-                    postLoad.invoke(obj);
+                    if (postLoad)
+                    {
+                        postLoad.invoke(obj);
+                    }
                 }
 
                 if (mObj != nullptr && klass.is_derived_from<Tiny3D::Component>())
