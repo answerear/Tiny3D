@@ -229,9 +229,10 @@ namespace Tiny3D
             TResult ret = res->onLoad(archive);
             if (T3D_FAILED(ret))
             {
+                res->mState = Resource::State::kUnloaded;
                 removeCache(res);
                 res = nullptr;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", res->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", name.c_str());
                 break;
             }
         } while (false);
