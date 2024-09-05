@@ -22,6 +22,9 @@
  * SOFTWARE.
  ******************************************************************************/
 
+// For debug
+// D:\private\Tiny3D\assets\editor\builtin -t
+
 
 #include "T3DBuiltinGeneratorApp.h"
 #include "T3DBuiltinGenerator.h"

@@ -101,8 +101,13 @@ namespace Tiny3D
 
         // pixel shader
         const String ps =
-            "Texture2D texCube : register(t0);\n"
-            "SamplerState sampler_texCube : register(s0);\n"
+            "#define CONCATENATE(a, b) a##b\n"
+            "#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name);\n"
+            "#define TEX2D_R(name, r) Texture2D name : register(CONCATENATE(t, r)); SamplerState CONCATENATE(sampler, name) : register(CONCATENATE(s, r));\n"
+            "#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv);\n"
+            "//Texture2D texCube : register(t0);\n"
+            "//SamplerState samplertexCube : register(s0);\n"
+            "TEX2D(texCube);\n"
             "struct PS_INPUT\n"
             "{\n"
             "    float4 position : SV_POSITION;\n"
@@ -110,7 +115,8 @@ namespace Tiny3D
             "};\n"
             "float4 main(PS_INPUT input) : SV_Target\n"
             "{\n"
-            "    float4 color = texCube.Sample(sampler_texCube, input.uv);\n"
+            "    //float4 color = texCube.Sample(sampler_texCube, input.uv);\n"
+            "    float4 color = SAMPLE(texCube, input.uv);\n"
             "    //float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);\n"
             "    return color;\n"
             "}";

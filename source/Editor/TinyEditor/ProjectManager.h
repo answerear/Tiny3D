@@ -53,6 +53,8 @@ namespace Tiny3D
 
         const String &getAssetsPath() const { return mAssetsPath; }
 
+        const String &getTempPath() const {return mTempPath; }
+
     protected:
         static const char *ASSETS;
         static const char *SCENES;
@@ -70,6 +72,8 @@ namespace Tiny3D
         String mName {};
         /// Assets 路径
         String mAssetsPath {};
+        /// 工程临时文件路径
+        String mTempPath {};
     };
 
     #define PROJECT_MGR     ProjectManager::getInstance()

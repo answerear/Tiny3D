@@ -32,9 +32,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderSamplerParamPtr ShaderSamplerParam::create(const String &name, TEXTURE_TYPE texType)
+    ShaderSamplerParamPtr ShaderSamplerParam::create(const String &name, const String &texName, TEXTURE_TYPE texType)
     {
-        return new ShaderSamplerParam(name, texType);
+        return new ShaderSamplerParam(name, texName, texType);
     }
     
     //--------------------------------------------------------------------------
@@ -46,8 +46,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ShaderSamplerParam::ShaderSamplerParam(const String &name, TEXTURE_TYPE texType)
+    ShaderSamplerParam::ShaderSamplerParam(const String &name, const String &texName, TEXTURE_TYPE texType)
         : mName(name)
+        , mTexName(texName)
         , mTexType(texType)
     {
         // ArchivePtr archive;
@@ -77,6 +78,7 @@ namespace Tiny3D
     {
         ShaderSamplerParamPtr sampler = new ShaderSamplerParam();
         sampler->mName = mName;
+        sampler->mTexName = mTexName;
         sampler->mTexType = mTexType;
         sampler->mTexture = mTexture;
         return sampler;

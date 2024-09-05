@@ -24,14 +24,12 @@
 
 
 #include "EditorScene.h"
+#include "ProjectManager.h"
 
 
 #define UVN_CAMERA
 #define PERSPECTIVE_CAMERA
-
-#if (T3D_COORDINATION_RH)
-#define USE_COORDINATION_RH
-#endif
+// #define ASSETS_FROM_FILE
 
 const char *SUB_MESH_NAME = "#0";
 
@@ -426,8 +424,13 @@ namespace Tiny3D
 
         // pixel shader
         const String ps =
-            "Texture2D texCube : register(t0);\n"
-            "SamplerState sampler_texCube : register(s0);\n"
+            "#define CONCATENATE(a, b) a##b\n"
+            "#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name);\n"
+            "#define TEX2D_R(name, r) Texture2D name : register(CONCATENATE(t, r)); SamplerState CONCATENATE(sampler, name) : register(CONCATENATE(s, r));\n"
+            "#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv);\n"
+            "//Texture2D texCube : register(t0);\n"
+            "//SamplerState samplertexCube : register(s0);\n"
+            "TEX2D(texCube);\n"
             "struct PS_INPUT\n"
             "{\n"
             "    float4 position : SV_POSITION;\n"
@@ -435,7 +438,8 @@ namespace Tiny3D
             "};\n"
             "float4 main(PS_INPUT input) : SV_Target\n"
             "{\n"
-            "    float4 color = texCube.Sample(sampler_texCube, input.uv);\n"
+            "    //float4 color = texCube.Sample(sampler_texCube, input.uv);\n"
+            "    float4 color = SAMPLE(texCube, input.uv);\n"
             "    //float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);\n"
             "    return color;\n"
             "}";
@@ -512,13 +516,26 @@ namespace Tiny3D
         StringArray enableKeywrods;
         enableKeywrods.push_back("-");
         StringArray disableKeywords;
-        material->switchKeywords(enableKeywrods, disableKeywords);
-        
+        ret = material->switchKeywords(enableKeywrods, disableKeywords);
+
         return material;
     }
 
     MeshPtr EditorScene::buildMesh()
     {
+#if defined (ASSETS_FROM_FILE)
+        String path = PROJECT_MGR.getTempPath() + Dir::getNativeSeparator() + "builtin";
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, "FileSystem", Archive::AccessMode::kRead);
+        T3D_ASSERT(archive != nullptr);
+        MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, "cube.tmesh");
+        StringArray enableKeywrods;
+        enableKeywrods.push_back("");
+        StringArray disableKeywords;
+        for (auto submesh : mesh->getSubMeshes())
+        {
+            submesh.second->getMaterial()->switchKeywords(enableKeywrods, disableKeywords);
+        }
+#else
         // 
         // 正方体顶点定义如下：
         //
@@ -551,7 +568,6 @@ namespace Tiny3D
         Vector3 center(0.0f, 0.0f, 0.0f);
         Vector3 extent(0.5f, 0.5f, 0.5f);
 
-    #if 1
         const uint32_t kVertexCount = 24;
         const uint32_t kIndexCount = 36;
         BoxVertex *vertices = new BoxVertex[kVertexCount];
@@ -566,199 +582,6 @@ namespace Tiny3D
         const Real end3rdQuater = Real(47) / Real(kTexSize);
         const Real start4thQuater = Real(48) / Real(kTexSize);
 
-    #if defined (USE_COORDINATION_RH)
-        // front - V0
-        offset[0] = -extent[0];
-        offset[1] = extent[1];
-        offset[2] = extent[2];
-        vertices[0].position = center + offset;
-        vertices[0].uv = Vector2(0.0f, start2ndQuater);
-        
-        // front - V1
-        offset[0] = -extent[0];
-        offset[1] = -extent[1];
-        offset[2] = extent[2];
-        vertices[1].position = center + offset;
-        vertices[1].uv = Vector2(0.0f, end2ndQuater);
-        
-        // front - V2
-        offset[0] = extent[0];
-        offset[1] = extent[1];
-        offset[2] = extent[2];
-        vertices[2].position = center + offset;
-        vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
-        
-        // front - V3
-        offset[0] = extent[0];
-        offset[1] = -extent[1];
-        offset[2] = extent[2];
-        vertices[3].position = center + offset;
-        vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
-
-        // right - V2
-        offset[0] = extent[0];
-        offset[1] = extent[1];
-        offset[2] = extent[2];
-        vertices[4].position = center + offset;
-        vertices[4].uv = Vector2(start2ndQuater, start2ndQuater);
-        
-        // right - V3
-        offset[0] = extent[0];
-        offset[1] = -extent[1];
-        offset[2] = extent[2];
-        vertices[5].position = center + offset;
-        vertices[5].uv = Vector2(start2ndQuater, end2ndQuater);
-        
-        // right - V4
-        offset[0] = extent[0];
-        offset[1] = extent[1];
-        offset[2] = -extent[2];
-        vertices[6].position = center + offset;
-        vertices[6].uv = Vector2(end2ndQuater, start2ndQuater);
-        
-        // right - V5
-        offset[0] = extent[0];
-        offset[1] = -extent[1];
-        offset[2] = -extent[2];
-        vertices[7].position = center + offset;
-        vertices[7].uv = Vector2(end2ndQuater, end2ndQuater);
-
-        // back - V4
-        offset[0] = extent[0];
-        offset[1] = extent[1];
-        offset[2] = -extent[2];
-        vertices[8].position = center + offset;
-        vertices[8].uv = Vector2(start3rdQuater, start2ndQuater);
-        
-        // back - V5
-        offset[0] = extent[0];
-        offset[1] = -extent[1];
-        offset[2] = -extent[2];
-        vertices[9].position = center + offset;
-        vertices[9].uv = Vector2(start3rdQuater, end2ndQuater);
-
-        // back - V6
-        offset[0] = -extent[0];
-        offset[1] = extent[1];
-        offset[2] = -extent[2];
-        vertices[10].position = center + offset;
-        vertices[10].uv = Vector2(end3rdQuater, start2ndQuater);
-        
-        // back - V7
-        offset[0] = -extent[0];
-        offset[1] = -extent[1];
-        offset[2] = -extent[2];
-        vertices[11].position = center + offset;
-        vertices[11].uv = Vector2(end3rdQuater, end2ndQuater);
-        
-        // left - V6
-        offset[0] = -extent[0];
-        offset[1] = extent[1];
-        offset[2] = -extent[2];
-        vertices[12].position = center + offset;
-        vertices[12].uv = Vector2(start4thQuater, start2ndQuater);
-        
-        // left - V7
-        offset[0] = -extent[0];
-        offset[1] = -extent[1];
-        offset[2] = -extent[2];
-        vertices[13].position = center + offset;
-        vertices[13].uv = Vector2(start4thQuater, end2ndQuater);
-
-        // left - V0
-        offset[0] = -extent[0];
-        offset[1] = extent[1];
-        offset[2] = extent[2];
-        vertices[14].position = center + offset;
-        vertices[14].uv = Vector2(1.0f, start2ndQuater);
-        
-        // left - V1
-        offset[0] = -extent[0];
-        offset[1] = -extent[1];
-        offset[2] = extent[2];
-        vertices[15].position = center + offset;
-        vertices[15].uv = Vector2(1.0f, end2ndQuater);
-
-        // top - V0
-        offset[0] = -extent[0];
-        offset[1] = extent[1];
-        offset[2] = extent[2];
-        vertices[16].position = center + offset;
-        vertices[16].uv = Vector2(0.0f, end1stQuater);
-        
-        // top - V2
-        offset[0] = extent[0];
-        offset[1] = extent[1];
-        offset[2] = extent[2];
-        vertices[17].position = center + offset;
-        vertices[17].uv = Vector2(end1stQuater, end1stQuater);
-
-        // top - V4
-        offset[0] = extent[0];
-        offset[1] = extent[1];
-        offset[2] = -extent[2];
-        vertices[18].position = center + offset;
-        vertices[18].uv = Vector2(end1stQuater, 0.0f);
-
-        // top - V6
-        offset[0] = -extent[0];
-        offset[1] = extent[1];
-        offset[2] = -extent[2];
-        vertices[19].position = center + offset;
-        vertices[19].uv = Vector2(0.0f, 0.0f);
-
-        // bottom - V1
-        offset[0] = -extent[0];
-        offset[1] = -extent[1];
-        offset[2] = extent[2];
-        vertices[20].position = center + offset;
-        vertices[20].uv = Vector2(0.0f, start3rdQuater);
-
-        // bottom - V7
-        offset[0] = -extent[0];
-        offset[1] = -extent[1];
-        offset[2] = -extent[2];
-        vertices[21].position = center + offset;
-        vertices[21].uv = Vector2(0.0f, end3rdQuater);
-
-        // bottom - V3
-        offset[0] = extent[0];
-        offset[1] = -extent[1];
-        offset[2] = extent[2];
-        vertices[22].position = center + offset;
-        vertices[22].uv = Vector2(end1stQuater, start3rdQuater);
-        
-        // bottom - V5
-        offset[0] = extent[0];
-        offset[1] = -extent[1];
-        offset[2] = -extent[2];
-        vertices[23].position = center + offset;
-        vertices[23].uv = Vector2(end1stQuater, end3rdQuater);
-        
-        // Front face
-        indices[0] = 0, indices[1] = 1, indices[2] = 2;
-        indices[3] = 1, indices[4] = 3, indices[5] = 2;
-        
-        // Back
-        indices[6] = 8, indices[7] = 9, indices[8] = 10;
-        indices[9] = 9, indices[10] = 11, indices[11] = 10;
-        
-        // Left
-        indices[12] = 14, indices[13] = 12, indices[14] = 13;
-        indices[15] = 14, indices[16] = 13, indices[17] = 15;
-        
-        // Right
-        indices[18] = 4, indices[19] = 5, indices[20] = 6;
-        indices[21] = 5, indices[22] = 7, indices[23] = 6;
-        
-        // Top
-        indices[24] = 16, indices[25] = 17, indices[26] = 18;
-        indices[27] = 16, indices[28] = 18, indices[29] = 19;
-        
-        // Bottom
-        indices[30] = 20, indices[31] = 21, indices[32] = 22;
-        indices[33] = 22, indices[34] = 21, indices[35] = 23;
-    #else
         // front - V0
         offset[0] = -extent[0];
         offset[1] = extent[1];
@@ -950,51 +773,6 @@ namespace Tiny3D
         // Bottom
         indices[30] = 20, indices[31] = 22, indices[32] = 21;
         indices[33] = 21, indices[34] = 22, indices[35] = 23;
-    #endif
-        
-    #else
-        const uint32_t kVertexCount = 4;
-        const uint32_t kIndexCount = 6;
-        BoxVertex *vertices = new BoxVertex[kVertexCount];
-        uint16_t *indices = new uint16_t[kIndexCount];
-
-        const uint32_t kTexSize = 64;
-
-        const Real end1stQuater = Real(15) / Real(kTexSize);
-        const Real start2ndQuater= Real(16) / Real(kTexSize);
-        const Real end2ndQuater = Real(31) / Real(kTexSize);
-        const Real start3rdQuater = Real(32) / Real(kTexSize);
-        const Real end3rdQuater = Real(47) / Real(kTexSize);
-        const Real start4thQuater = Real(48) / Real(kTexSize);
-        
-        vertices[0].position = Vector3(-0.5f, 0.5f, 0.0f);
-        vertices[0].uv = Vector2(0.0f, start2ndQuater);
-
-        vertices[1].position = Vector3(-0.5f, -0.5f, 0.0f);
-        vertices[1].uv = Vector2(0.0f, end2ndQuater);
-
-        vertices[2].position = Vector3(0.5f, 0.5f, 0.0f);
-        vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
-
-        vertices[3].position = Vector3(0.5f, -0.5f, 0.0f);
-        vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
-
-    #if defined (USE_COORDINATION_RH)
-        indices[0] = 0;
-        indices[1] = 1;
-        indices[2] = 2;
-        indices[3] = 1;
-        indices[4] = 3;
-        indices[5] = 2;
-    #else
-        indices[0] = 0;
-        indices[1] = 2;
-        indices[2] = 1;
-        indices[3] = 1;
-        indices[4] = 2;
-        indices[5] = 3;
-    #endif
-    #endif
         
         // construct mesh resource
         Buffer vertexBuffer;
@@ -1017,6 +795,7 @@ namespace Tiny3D
         subMeshes.emplace(name, submesh);
 
         MeshPtr mesh = T3D_MESH_MGR.createMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+#endif
         return mesh;
     }
 

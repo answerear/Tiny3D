@@ -123,7 +123,7 @@ namespace Tiny3D
 
             for (auto sampler : mSamplers)
             {
-                Texture *tex = T3D_TEXTURE_MGR.loadTexture(archive, sampler.second->getName());
+                Texture *tex = T3D_TEXTURE_MGR.loadTexture(archive, sampler.second->getTexName());
                 sampler.second->setTexture(tex);
             }
         } while (false);
@@ -176,7 +176,7 @@ namespace Tiny3D
     bool Shader::addTechnique(TechniquePtr tech)
     {
         bool found = false;
-        for (const auto t : mTechniques)
+        for (const auto &t : mTechniques)
         {
             if (t->getName() == tech->getName())
             {

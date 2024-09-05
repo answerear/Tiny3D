@@ -356,7 +356,7 @@ namespace Tiny3D
                     break;
                 }
 
-                ShaderSamplerParamPtr param = ShaderSamplerParam::create(src.texture.name, texType);
+                ShaderSamplerParamPtr param = ShaderSamplerParam::create(src.name, src.texture.name, texType);
                 dst->addSamplerParam(param);
             }
             break;

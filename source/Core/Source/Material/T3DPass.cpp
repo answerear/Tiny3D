@@ -178,7 +178,7 @@ namespace Tiny3D
         }
         else
         {
-            T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword duplicated !");
+            T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword (%s) duplicated !", keyword.getName().c_str());
         }
 
         ShaderVariants *vars = nullptr;

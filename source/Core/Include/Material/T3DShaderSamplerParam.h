@@ -45,7 +45,7 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType);
+        static ShaderSamplerParamPtr create(const String &name, const String &texName, TEXTURE_TYPE texType);
 
         static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
 
@@ -57,6 +57,12 @@ namespace Tiny3D
         const String &getName() const
         {
             return mName;
+        }
+
+        TPROPERTY(RTTRFuncName="TextureName", RTTRFuncType="getter")
+        const String &getTexName() const
+        {
+            return mTexName;
         }
         
         TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="getter")
@@ -78,6 +84,12 @@ namespace Tiny3D
             mName = name;
         }
 
+        TPROPERTY(RTTRFuncName="TextureName", RTTRFuncType="setter")
+        void setTexName(const String &texName)
+        {
+            mTexName = texName;
+        }
+
         TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="setter")
         void setTextureType(TEXTURE_TYPE texType)
         {
@@ -85,13 +97,14 @@ namespace Tiny3D
         }
         
     protected:
-        ShaderSamplerParam(const String &name, TEXTURE_TYPE texType);
+        ShaderSamplerParam(const String &name, const String &texName, TEXTURE_TYPE texType);
 
         ShaderSamplerParam(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
 
         void onPostLoad() override;
         
         String          mName {};
+        String          mTexName {};
         TEXTURE_TYPE    mTexType {TEXTURE_TYPE::TT_2D};
         TexturePtr      mTexture {nullptr};
     };

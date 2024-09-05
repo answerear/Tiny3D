@@ -399,7 +399,8 @@ namespace Tiny3D
         for (const auto &binding : shader->getShaderVariant()->getShaderTexSamplerBindings())
         {
             auto itParam = material->getSamplerParams().find(binding.second.texBinding.name);
-
+            T3D_ASSERT(itParam != material->getSamplerParams().end());
+            
             TexturePtr texture = itParam->second->getTexture();
             SamplerState *sampler = texture->getSamplerState();
 

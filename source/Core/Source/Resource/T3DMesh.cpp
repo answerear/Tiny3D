@@ -175,7 +175,8 @@ namespace Tiny3D
                     Material *material = submesh.second->getMaterial();
                     TechniqueInstance *tech = material->getCurrentTechnique();
                     PassInstance *pass = tech->getPassInstances().front();
-                    vshader = pass->getCurrentVertexShader()->getShaderVariant();
+                    // vshader = pass->getCurrentVertexShader()->getShaderVariant();
+                    vshader = pass->getPass()->getVertexShaders().empty() ? nullptr : pass->getPass()->getVertexShaders().begin()->second;
                 }
             }
 

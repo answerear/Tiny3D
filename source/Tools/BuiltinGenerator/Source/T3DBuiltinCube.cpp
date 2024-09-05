@@ -284,7 +284,7 @@ namespace Tiny3D
         SubMeshes subMeshes;
         subMeshes.emplace(name, submesh);
 
-        mMesh = T3D_MESH_MGR.createMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+        mMesh = T3D_MESH_MGR.createMesh("cube.tmesh", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
 
         return T3D_OK;
     }

@@ -132,6 +132,7 @@ namespace Tiny3D
             mPath = path;
             mName = name;
             mAssetsPath = assetsPath;
+            mTempPath = tempPath;
         } while (false);
 
         return ret;
@@ -157,7 +158,15 @@ namespace Tiny3D
             String assetsPath = projectPath + Dir::getNativeSeparator() + ASSETS;
             if (!Dir::exists(assetsPath))
             {
-                EDITOR_LOG_ERROR("Open assets [%s] failed !", assetsPath.c_str());
+                EDITOR_LOG_ERROR("Assets folder [%s] did not exist !", assetsPath.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+
+            String tempPath = projectPath + Dir::getNativeSeparator() + TEMP;
+            if (!Dir::exists(tempPath))
+            {
+                EDITOR_LOG_ERROR("Temporary folder [%s] did not exist ! ", tempPath.c_str());
                 ret = T3D_ERR_FILE_NOT_EXIST;
                 break;
             }
@@ -165,6 +174,7 @@ namespace Tiny3D
             mPath = path;
             mName = name;
             mAssetsPath = assetsPath;
+            mTempPath = tempPath;
         } while (false);
         
         return ret;

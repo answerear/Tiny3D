@@ -23,7 +23,6 @@
  ******************************************************************************/
 
 #include "T3DShaderCrossApp.h"
-
 #include "T3DSCCPrerequisites.h"
 #include "T3DShaderCross.h"
 
@@ -35,7 +34,7 @@
 
 // For debug
 // "$(SolutionDir)..\..\assets\builtin\materials\Test.Shader" -t hlsl
-// "$(SolutionDir)..\..\assets\builtin\shaders\Default-Material.shader" -t hlsl -o "$(SolutionDir)..\..\assets\builtin\materials"
+// "$(SolutionDir)..\..\assets\editor\builtin\shaders\Default-Material.shader" -t hlsl -o "$(SolutionDir)..\..\assets\editor\builtin\materials"
 
 
 Tiny3D::ShaderCrossApp theApp;
