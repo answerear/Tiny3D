@@ -13,7 +13,7 @@
                 "RTTI_Value": {
                     "value": {
                         "RTTI_Type": "std::string",
-                        "RTTI_Value": "33ae35c3d19dedc677a35d81e24e6de2"
+                        "RTTI_Value": "d3f1a1368a6b46aa3a07a574f853cf01"
                     }
                 }
             },
@@ -54,12 +54,16 @@
                     {
                         "RTTI_Map_Key": {
                             "RTTI_Type": "std::string",
-                            "RTTI_Value": "white"
+                            "RTTI_Value": "_MainTex"
                         },
                         "RTTI_Map_Value": {
                             "RTTI_Type": "Tiny3D::ShaderSamplerParam",
                             "RTTI_Value": {
                                 "Name": {
+                                    "RTTI_Type": "std::string",
+                                    "RTTI_Value": "_MainTex"
+                                },
+                                "TextureName": {
                                     "RTTI_Type": "std::string",
                                     "RTTI_Value": "white"
                                 },

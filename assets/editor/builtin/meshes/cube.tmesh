@@ -6,14 +6,14 @@
         "RTTI_Value": {
             "Name": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "Cube"
+                "RTTI_Value": "cube.tmesh"
             },
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
                     "value": {
                         "RTTI_Type": "std::string",
-                        "RTTI_Value": "79466901e62dd5816c9ec0fcba9e81db"
+                        "RTTI_Value": "1aa15a3d2871eada14fcb0e74f1f96f6"
                     }
                 }
             },

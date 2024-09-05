@@ -71,8 +71,13 @@ Shader "Tiny3DBuiltin/Default-Material"
 				   return output;
 				}
 
-				Texture2D texCube : register(t0);
-				SamplerState sampler_texCube : register(s0);
+				#define CONCATENATE(a, b) a##b
+				#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name);
+				#define TEX2D_R(name, r) Texture2D name : register(CONCATENATE(t, r)); SamplerState CONCATENATE(sampler, name) : register(CONCATENATE(s, r));
+				#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv);
+				
+				Texture2D _MainTex : register(t0);
+				SamplerState sampler__MainTex : register(s0);
 				struct PS_INPUT
 				{
 					float4 position : SV_POSITION;
@@ -80,7 +85,7 @@ Shader "Tiny3DBuiltin/Default-Material"
 				};
 				float4 frag(PS_INPUT input) : SV_Target
 				{
-					float4 color = texCube.Sample(sampler_texCube, input.uv);
+					float4 color = _MainTex.Sample(sampler__MainTex, input.uv);
 					//float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);
 					return color;
 				}
