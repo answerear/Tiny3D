@@ -347,7 +347,8 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-        ConstantBuffers cbuffers(shader->getShaderVariant()->getShaderConstantBindings().size());
+        ConstantBuffers cbuffers;
+        cbuffers.reserve(shader->getShaderVariant()->getShaderConstantBindings().size());
         uint32_t i = 0;
         for (const auto &binding : shader->getShaderVariant()->getShaderConstantBindings())
         {
@@ -355,19 +356,27 @@ namespace Tiny3D
             if (itCB == shader->getConstantBuffers().end())
             {
                 // 没有对应名字的常量缓冲区
+                T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not constant buffer : %s !", binding.second.name.c_str());
                 continue;
             }
 
+            if (material->getConstantParams().empty())
+            {
+                T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not constant in material : %s !", material->getName().c_str());
+                continue;
+            }
+            
             Buffer buffer;
             buffer.Data = new uint8_t[binding.second.size];
             buffer.DataSize = binding.second.size;
-                
+
             for (const auto &param : material->getConstantParams())
             {
                 auto itVar = binding.second.variables.find(param.second->getName());
                 if (itVar == binding.second.variables.end())
                 {
                     // 没有对应名字的变量
+                    T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not variable : %s !", param.second->getName().c_str());
                     continue;
                 }
 
