@@ -1026,6 +1026,9 @@ namespace Tiny3D
         texData.setData(data, dataSize);
 
         mDefaultAlbedoTex = T3D_TEXTURE_MGR.createTexture2D("white", w, h, PixelFormat::E_PF_B8G8R8X8, texData);
+
+        SamplerDesc samplerDesc;
+        mDefaultAlbedoTex->setSamplerDesc(samplerDesc);
         
         return T3D_OK;
     }
