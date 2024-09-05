@@ -29,7 +29,7 @@
 
 #define UVN_CAMERA
 #define PERSPECTIVE_CAMERA
-// #define ASSETS_FROM_FILE
+#define ASSETS_FROM_FILE
 
 const char *SUB_MESH_NAME = "#0";
 
