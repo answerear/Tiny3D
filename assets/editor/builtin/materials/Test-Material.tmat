@@ -6,14 +6,14 @@
         "RTTI_Value": {
             "Name": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "Default-Material.tmat"
+                "RTTI_Value": "Test-Material.tmat"
             },
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
                     "value": {
                         "RTTI_Type": "std::string",
-                        "RTTI_Value": "e9b6063de5aef645ac95bcb6384bd231"
+                        "RTTI_Value": "205e42976c95877ebb8576746615e87b"
                     }
                 }
             },
@@ -65,7 +65,7 @@
                                 },
                                 "TextureName": {
                                     "RTTI_Type": "std::string",
-                                    "RTTI_Value": "white"
+                                    "RTTI_Value": "blocks.ttex"
                                 },
                                 "TextureState": {
                                     "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -78,7 +78,7 @@
             },
             "Shader": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "Default-Material.tshader"
+                "RTTI_Value": "Test-Material.tshader"
             }
         }
     }

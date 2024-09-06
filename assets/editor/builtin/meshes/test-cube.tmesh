@@ -6,14 +6,14 @@
         "RTTI_Value": {
             "Name": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "cube.tmesh"
+                "RTTI_Value": "test-cube.tmesh"
             },
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
                     "value": {
                         "RTTI_Type": "std::string",
-                        "RTTI_Value": "ca030c7b96e477b27552c9aa35a5a995"
+                        "RTTI_Value": "b820e6e19a9c4afb2311764f57d1bd45"
                     }
                 }
             },
@@ -41,7 +41,7 @@
                                 },
                                 "Material": {
                                     "RTTI_Type": "std::string",
-                                    "RTTI_Value": "Default-Material.tmat"
+                                    "RTTI_Value": "Test-Material.tmat"
                                 },
                                 "Name": {
                                     "RTTI_Type": "std::string",
