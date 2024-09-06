@@ -370,6 +370,8 @@ namespace Tiny3D
             buffer.Data = new uint8_t[binding.second.size];
             buffer.DataSize = binding.second.size;
 
+            bool hasCBuffer = false;
+
             for (const auto &param : material->getConstantParams())
             {
                 auto itVar = binding.second.variables.find(param.second->getName());
@@ -381,11 +383,20 @@ namespace Tiny3D
                 }
 
                 memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
+                hasCBuffer = true;
             }
 
-            itCB->second->writeData(0, buffer, true);
+            if (hasCBuffer)
+            {
+                itCB->second->writeData(0, buffer, true);
 
-            cbuffers[i++] = itCB->second;
+                // cbuffers[i++] = itCB->second;
+                cbuffers.push_back(itCB->second);
+            }
+            else
+            {
+                buffer.release();
+            }
         }
 
         if (!cbuffers.empty())
