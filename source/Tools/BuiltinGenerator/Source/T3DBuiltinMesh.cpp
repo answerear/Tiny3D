@@ -30,6 +30,14 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+#if !defined (GENERATE_TEST_MESH)
+    const char *MATERIAL_NAME = "Default-Material.tmat";
+#else
+    const char *MATERIAL_NAME = "Test-Material.tmat";
+#endif
+    
+    //--------------------------------------------------------------------------
+
     MaterialPtr BuiltinMesh::buildMaterial()
     {
 #if 0
@@ -176,8 +184,7 @@ namespace Tiny3D
         
         return material;
 #else
-        String title = "Default-Material";
-        String name = title + "." + Resource::EXT_MATERIAL;
+        String name = MATERIAL_NAME;
         MaterialPtr material = T3D_BUILTIN_MATERIALS.getMaterial(name);
         StringArray enableKeywrods;
         enableKeywrods.push_back("");

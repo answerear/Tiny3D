@@ -201,6 +201,7 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
     settings.pluginSettings.plugins.push_back("FileSystemArchive");
+    settings.pluginSettings.plugins.push_back("FreeImageCodec");
     settings.pluginSettings.plugins.push_back("NullRenderer");
     settings.renderSettings.renderer = "NullRenderer";
     TResult ret = theEngine->init(argc, argv, true, false, settings);

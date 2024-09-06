@@ -31,6 +31,11 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     const char *SUB_MESH_NAME = "#0";
+#if !defined (GENERATE_TEST_MESH)
+    const char *MESH_NAME = "cube.tmesh";
+#else
+    const char *MESH_NAME = "test-cube.tmesh";
+#endif
     
     //--------------------------------------------------------------------------
 
@@ -284,8 +289,13 @@ namespace Tiny3D
         SubMeshes subMeshes;
         subMeshes.emplace(name, submesh);
 
-        mMesh = T3D_MESH_MGR.createMesh("cube.tmesh", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
-
+        auto attributes2 = attributes;
+        auto vertexBuffers2 = vertexBuffers;
+        auto strides2 = strides;
+        auto offsets2 = offsets;
+        auto subMeshes2 = subMeshes;
+        mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+        
         return T3D_OK;
     }
 
@@ -297,7 +307,7 @@ namespace Tiny3D
 
         do
         {
-            String filename = path + Dir::getNativeSeparator() + "cube.tmesh";
+            String filename = path + Dir::getNativeSeparator() + MESH_NAME;
             FileDataStream fs;
             if (!fs.open(filename.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY|FileDataStream::EOpenMode::E_MODE_TEXT))
             {

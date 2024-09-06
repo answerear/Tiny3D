@@ -55,6 +55,7 @@ namespace Tiny3D
         printf(fmt, ##__VA_ARGS__); \
         printf("\n");
 
+    #define GENERATE_TEST_MESH
 }
 
 

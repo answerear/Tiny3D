@@ -31,13 +31,21 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+#if !defined (GENERATE_TEST_MESH)
+    const char *MATERIAL_TITLE = "Default-Material";
+#else
+    const char *MATERIAL_TITLE = "Test-Material";
+#endif
+    
+    //--------------------------------------------------------------------------
+
     TResult BuiltinMaterials::generate(const String &rootPath)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            String title = "Default-Material";
+            String title = MATERIAL_TITLE;
             String shaderName = title + "." + Resource::EXT_SHADER;
             Shader *shader = T3D_BUILTIN_SHADERS.getShader(shaderName);
             String materialName = title + "." + Resource::EXT_MATERIAL;
