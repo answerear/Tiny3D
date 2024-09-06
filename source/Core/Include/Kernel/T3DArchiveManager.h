@@ -140,7 +140,7 @@ namespace Tiny3D
             /// 重载 operator < ，用于放入 TMap 等关联容器中
             bool operator <(const Key& other) const
             {
-                return (name < other.name || access < other.access);
+                return name < other.name || (name == other.name && access < other.access);
             }
         };
 
