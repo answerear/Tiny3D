@@ -527,7 +527,7 @@ namespace Tiny3D
         String path = PROJECT_MGR.getTempPath() + Dir::getNativeSeparator() + "builtin";
         ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, "FileSystem", Archive::AccessMode::kRead);
         T3D_ASSERT(archive != nullptr);
-        MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, "cube.tmesh");
+        MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, "test-cube.tmesh");
         StringArray enableKeywrods;
         enableKeywrods.push_back("");
         StringArray disableKeywords;
