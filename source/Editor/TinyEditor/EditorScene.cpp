@@ -24,7 +24,6 @@
 
 
 #include "EditorScene.h"
-#include "ProjectManager.h"
 
 
 #define UVN_CAMERA
@@ -524,7 +523,7 @@ namespace Tiny3D
     MeshPtr EditorScene::buildMesh()
     {
 #if defined (ASSETS_FROM_FILE)
-        String path = PROJECT_MGR.getTempPath() + Dir::getNativeSeparator() + "builtin";
+        String path = PROJECT_MGR->getTempPath() + Dir::getNativeSeparator() + "builtin";
         ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, "FileSystem", Archive::AccessMode::kRead);
         T3D_ASSERT(archive != nullptr);
         MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, "test-cube.tmesh");

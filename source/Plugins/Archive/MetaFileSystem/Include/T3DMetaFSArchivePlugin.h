@@ -69,7 +69,7 @@ namespace Tiny3D
 
     protected:
         /// 插件名称
-        String                  mName;
+        String mName {};
     };
 
 }

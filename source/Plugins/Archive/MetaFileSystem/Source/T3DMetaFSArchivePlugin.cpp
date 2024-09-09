@@ -20,6 +20,7 @@
 
 #include "T3DMetaFSArchivePlugin.h"
 #include "T3DMetaFSArchive.h"
+#include "T3DMetaFSProjectManager.h"
 
 
 namespace Tiny3D
@@ -50,11 +51,20 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::install()
     {
+        ProjectManager *projectMgr = new ProjectManager();
+        T3D_AGENT.getEditor()->setProjectManager(projectMgr);
+        
         return T3D_ARCHIVE_MGR.addArchiveCreator(
             MetaFSArchive::ARCHIVE_TYPE,
-            [](const String &name, Archive::AccessMode mode)
+            [this](const String &name, Archive::AccessMode mode)
             {
-                MetaFSArchivePtr archive = MetaFSArchive::create(name, mode);
+                MetaFSArchivePtr archive;
+                
+                if (T3D_AGENT.getEditor()->getProjectManager()->getProjectPath() == name)
+                {
+                    archive = MetaFSArchive::create(name, mode);
+                }
+                
                 return archive;
             });
     }
@@ -64,7 +74,7 @@ namespace Tiny3D
     TResult MetaFSArchivePlugin::startup()
     {
         TResult ret = T3D_OK;
-
+        
         return ret;
     }
 
@@ -81,6 +91,10 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::uninstall()
     {
+        ProjectManager *projectMgr = static_cast<ProjectManager *>(T3D_AGENT.getEditor()->getProjectManager());
+        T3D_SAFE_DELETE(projectMgr);
+        
+        T3D_AGENT.getEditor()->setProjectManager(nullptr);
         return T3D_ARCHIVE_MGR.removeArchiveCreator(MetaFSArchive::ARCHIVE_TYPE);
     }
 }

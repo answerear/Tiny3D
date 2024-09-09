@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * MIT License
+* MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -25,30 +25,47 @@
 #pragma once
 
 
-#include <Tiny3D.h>
-#include <imgui.h>
-#include <TinyImGui.h>
-#include "Language/Language.h"
+#include "T3DMetaFSArchivePrerequisites.h"
 
-
-#define NS_BEGIN(name)  namespace name {
-#define NS_END    }
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
+    class ProjectManager : public IProjectManager
+    {
+    public:
+        ProjectManager();
 
-    #define LOG_TAG_EDITOR "Editor"
+        ~ProjectManager() override;
 
-    #define EDITOR_LOG_ERROR(fmt, ...)   T3D_LOG_ERROR(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
-    #define EDITOR_LOG_WARNING(fmt, ...) T3D_LOG_WARNING(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
-    #define EDITOR_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
-    #define EDITOR_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
+        TResult createProject(const String &path, const String &name) override;
 
-    #define PROJECT_MGR     (Agent::getInstance().getEditor()->getProjectManager())
-    
-    NS_END
+        TResult openProject(const String &path, const String &name) override;
 
-    class ImGuiImpl;
+        TResult closeProject() override;
+
+        const String &getProjectPath() const override { return mPath; }
+
+        const String &getProjectName() const override { return mName; }
+
+        const String &getAssetsPath() const override { return mAssetsPath; }
+
+        const String &getTempPath() const override {return mTempPath; }
+
+    protected:
+        static const char *ASSETS;
+        static const char *SCENES;
+        static const char *TEMP;
+
+        /// 文件系统监控器
+        FileSystemMonitor *mFSMonitor {nullptr};
+        
+        /// 工程路径
+        String mPath {};
+        /// 工程名称
+        String mName {};
+        /// Assets 路径
+        String mAssetsPath {};
+        /// 工程临时文件路径
+        String mTempPath {};
+    };
 }
-

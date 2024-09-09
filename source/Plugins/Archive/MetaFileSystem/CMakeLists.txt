@@ -13,6 +13,7 @@ if (MSVC)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
+add_definitions(-DT3D_EDITOR)
 
 # Setup project include files path
 include_directories(

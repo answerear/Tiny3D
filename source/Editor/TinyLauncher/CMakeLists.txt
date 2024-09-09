@@ -17,6 +17,8 @@ if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
 endif (MSVC)
 
+add_definitions(-DT3D_EDITOR)
+
 set(TINY3D_TINYIMGUI_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../TinyImGui/Include)
 
 # Setup project include files path

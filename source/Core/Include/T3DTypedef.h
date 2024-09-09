@@ -33,8 +33,6 @@
 namespace Tiny3D
 {
     T3D_DECLARE_SMART_PTR(Object);
-
-    T3D_DECLARE_SMART_PTR(Settings);
     
     T3D_DECLARE_SMART_PTR(ImageCodec);
     T3D_DECLARE_SMART_PTR(ImageCodecBase);

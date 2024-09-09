@@ -33,70 +33,6 @@
 
 namespace Tiny3D
 {
-    // typedef SmartPtr<class TestObject> TestObjectPtr;
-    //
-    // TCLASS()
-    // class T3D_SYSTEM_API TestObject : public Object
-    // {
-    //     TRTTI_ENABLE(Object)
-    //     TRTTI_FRIEND
-    //     
-    // public:
-    //     static TestObjectPtr create()
-    //     {
-    //         return new TestObject();
-    //     }
-    //
-    //     virtual ~TestObject() = default;
-    //
-    //     TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter")
-    //     int getValue() const { return mValue; }
-    //
-    //     TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter")
-    //     void setValue(int val) { mValue = val; }
-    //
-    //     TFUNCTION()
-    //     void aaTest(int aaiVal = 10, const String &aaName = "aaron")
-    //     {
-    //         
-    //     }
-    //     
-    // protected:
-    //     TestObject() = default;
-    //
-    //     int mValue = 10;
-    // };
-    //
-    // /**
-    //  * @brief 有向包围盒类（Oriented Bounding Box）
-    //  */
-    // TCLASS()
-    // template <typename T>
-    // class TTestObb
-    // {
-    //     TRTTI_ENABLE()
-    //     
-    // public:
-    //     TENUM()
-    //     enum BuildOption
-    //     {
-    //         E_BUILD_AABB = 0,       /**< 通过AABB直接构造 */
-    //         E_BUILD_COVARIANCE = 1, /**< 利用协方差矩阵构造 */
-    //     };
-    //     
-    //     /// 默认构造函数
-    //     TTestObb() = default;
-    //     
-    //     TFUNCTION()
-    //     void build(BuildOption option = E_BUILD_AABB)
-    //     {
-    //         BO = option;
-    //     }
-    //
-    //     TPROPERTY()
-    //     BuildOption BO;
-    // };
-    
     TSTRUCT()
     struct T3D_SYSTEM_API UUID
     {
@@ -104,9 +40,6 @@ namespace Tiny3D
         {
             kDefaultLength = 16
         };
-
-        //static String generate(uint32_t len);
-        //static String generate();
 
         static const UUID INVALID;
 
@@ -121,26 +54,12 @@ namespace Tiny3D
         {
             values.low = other.values.low;
             values.high = other.values.high;
-            // TestObj = other.TestObj;
-            // ArrayData = other.ArrayData;
-            // ListData = other.ListData;
-            // ItemData = other.ItemData;
-            // MapData = other.MapData;
-            // MapItemData = other.MapItemData;
-            // TestObb =  other.TestObb;
         }
 
         UUID& operator =(const UUID& other)
         {
             values.low = other.values.low;
             values.high = other.values.high;
-            // TestObj = other.TestObj;
-            // ArrayData = other.ArrayData;
-            // ListData = other.ListData;
-            // ItemData = other.ItemData;
-            // MapData = other.MapData;
-            // MapItemData = other.MapItemData;
-            // TestObb =  other.TestObb;
             return *this;
         }
 
@@ -159,21 +78,6 @@ namespace Tiny3D
         {
             fromString(str);
         }
-
-        //const char *get_value() const
-        //{
-        //    static const size_t len = kDefaultLength * 4;
-        //    static char temp[len+1];
-        //    String str = toString();
-        //    strncpy(temp, str.c_str(), str.length());
-        //    temp[str.length()] = 0;
-        //    return temp;
-        //}
-
-        //void set_value(const char *str)
-        //{
-        //    fromString(str);
-        //}
 
         bool operator ==(const UUID& other) const
         {
@@ -202,62 +106,29 @@ namespace Tiny3D
                 uint64_t    high;
             } values;
         };
+    };
 
-        // TPROPERTY(RTTRFuncName="TestObj", RTTRFuncType="getter")
-        // TestObject *getTestObj() const
-        // {
-        //     return TestObj.get();
-        // }
-        //
-        // TPROPERTY(RTTRFuncName="TestObj", RTTRFuncType="setter")
-        // void setTestObj(TestObject *obj)
-        // {
-        //     TestObj = obj;
-        // }
-        //
-        // TestObjectPtr TestObj;
-        //
-        // TPROPERTY()
-        // TArray<int> ArrayData;
-        //
-        // TPROPERTY()
-        // TList<float> ListData;
-        //
-        // TCLASS()
-        // struct Item
-        // {
-        //     TPROPERTY()
-        //     int key;
-        //
-        //     TPROPERTY()
-        //     int value;
-        //
-        //     TRTTI_ENABLE()
-        // };
-        //
-        // TPROPERTY()
-        // TArray<Item> ItemData;
-        //
-        // TPROPERTY()
-        // TMap<int, int> MapData;
-        //
-        // TCLASS()
-        // struct Data
-        // {
-        //     TPROPERTY()
-        //     int ival;
-        //     
-        //     TPROPERTY()
-        //     float fval;
-        //
-        //     TRTTI_ENABLE()
-        // };
-        //
-        // TPROPERTY()
-        // TMap<String, Data> MapItemData;
+    struct T3D_SYSTEM_API UUIDHash
+    {
+        std::size_t operator()(const UUID& uuid) const
+        {
+            // 使用std::hash来计算每个字节的哈希值，然后将它们组合起来
+            std::size_t hash = 0;
+            for (int i = 0; i < 16; ++i)
+            {
+                hash ^= std::hash<char>()(uuid.bytes[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            }
+            return hash;
+        }
+    };
 
-        // TPROPERTY()
-        // TTestObb<float> TestObb;
+    struct T3D_SYSTEM_API UUIDEqual
+    {
+        bool operator()(const UUID& lhs, const UUID& rhs) const
+        {
+            // 使用std::equal来比较两个UUID是否相等
+            return lhs == rhs;
+        }
     };
 }
 

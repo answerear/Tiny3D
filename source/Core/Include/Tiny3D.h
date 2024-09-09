@@ -135,39 +135,11 @@
 #include <RHI/T3DRHIThread.h>
 #include <RHI/T3DRHICommand.h>
 
-// #include <Render/T3DHardwareBufferManagerBase.h>
-// #include <Render/T3DHardwareBufferManager.h>
-// #include <Render/T3DHardwareBuffer.h>
-// #include <Render/T3DHardwareVertexBuffer.h>
-// #include <Render/T3DHardwareIndexBuffer.h>
-// #include <Render/T3DHardwarePixelBuffer.h>
-// #include <Render/T3DHardwareConstantBuffer.h>
-// #include <Render/T3DVertexArrayObject.h>
-
-// // Bound
-// #include <Bound/T3DBound.h>
-// #include <Bound/T3DSphereBound.h>
-// #include <Bound/T3DAabbBound.h>
-// #include <Bound/T3DObbBound.h>
-// #include <Bound/T3DFrustumBound.h>
-//
-// // Scene Graph
-// #include <Scene/T3DSceneNode.h>
-// #include <Scene/T3DSceneManager.h>
-//
-// // Component
-// #include <Component/T3DComponent.h>
-// #include <Component/T3DComponentCreator.h>
-// #include <Component/T3DAxis.h>
-// #include <Component/T3DBillboard.h>
-// #include <Component/T3DCube.h>
-// #include <Component/T3DCamera.h>
-// #include <Component/T3DLight.h>
-// #include <Component/T3DMesh.h>
-// #include <Component/T3DQuad.h>
-// #include <Component/T3DRenderable.h>
-// #include <Component/T3DGlobe.h>
-// #include <Component/T3DTransform3D.h>
+// Only For Editor
+#if defined(T3D_EDITOR)
+#include <Editor/T3DEditorInterface.h>
+#include <Editor/T3DProjectManagerInterface.h>
+#endif
 
 
 #endif  /*__TINY3D_H__*/

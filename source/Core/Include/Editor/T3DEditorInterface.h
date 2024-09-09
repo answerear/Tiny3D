@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-* MIT License
+ * MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -22,61 +22,27 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
+#ifndef __T3D_EDITOR_INTERFACE_H__
+#define __T3D_EDITOR_INTERFACE_H__
 
 
-#include "EditorPrerequisites.h"
+#include "T3DPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
-
-    class ProjectManager
-        : public EventHandler
-        , public Singleton<ProjectManager>
+    class IProjectManager;
+    
+    class IEditor
     {
     public:
-        ProjectManager();
+        virtual ~IEditor() = default;
 
-        ~ProjectManager() override;
+        virtual void setProjectManager(IProjectManager *projectMgr) = 0;
 
-        TResult createProject(const String &path, const String &name);
-
-        TResult openProject(const String &path, const String &name);
-
-        TResult closeProject();
-
-        const String &getProjectPath() const { return mPath; }
-
-        const String &getProjectName() const { return mName; }
-
-        const String &getAssetsPath() const { return mAssetsPath; }
-
-        const String &getTempPath() const {return mTempPath; }
-
-    protected:
-        static const char *ASSETS;
-        static const char *SCENES;
-        static const char *TEMP;
-        
-        /// 跟 launcher 通信的套接字
-        Socket *mSocket {nullptr};
-
-        /// 文件系统监控器
-        FileSystemMonitor *mFSMonitor {nullptr};
-        
-        /// 工程路径
-        String mPath {};
-        /// 工程名称
-        String mName {};
-        /// Assets 路径
-        String mAssetsPath {};
-        /// 工程临时文件路径
-        String mTempPath {};
+        virtual IProjectManager *getProjectManager() const = 0;
     };
-
-    #define PROJECT_MGR     ProjectManager::getInstance()
-    
-    NS_END
 }
+
+
+#endif    /*__T3D_EDITOR_INTERFACE_H__*/

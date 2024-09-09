@@ -31,9 +31,7 @@ namespace Tiny3D
 
     MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode)
     {
-        MetaFSArchivePtr archive = new MetaFSArchive(name, mode);
-        // archive->release();
-        return archive;
+        return new MetaFSArchive(name, mode);
     }
 
     //--------------------------------------------------------------------------

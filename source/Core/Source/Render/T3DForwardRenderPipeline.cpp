@@ -378,7 +378,7 @@ namespace Tiny3D
                 if (itVar == binding.second.variables.end())
                 {
                     // 没有对应名字的变量
-                    T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not variable : %s !", param.second->getName().c_str());
+                    // T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not variable : %s !", param.second->getName().c_str());
                     continue;
                 }
 

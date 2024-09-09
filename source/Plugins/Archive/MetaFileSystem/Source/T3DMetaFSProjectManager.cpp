@@ -23,13 +23,11 @@
  ******************************************************************************/
 
 
-#include "ProjectManager.h"
+#include "T3DMetaFSProjectManager.h"
 
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
-
     //--------------------------------------------------------------------------
 
     const char *ProjectManager::ASSETS = "Assets";
@@ -62,7 +60,7 @@ namespace Tiny3D
             String projectPath = path + Dir::getNativeSeparator() + name;
             if (!Dir::makeDir(projectPath))
             {
-                EDITOR_LOG_ERROR("Create project folder [%s] failed !", projectPath.c_str());
+                MFS_LOG_ERROR("Create project folder [%s] failed !", projectPath.c_str());
                 ret = T3D_ERR_FAIL;
                 break;
             }
@@ -71,7 +69,7 @@ namespace Tiny3D
             String assetsPath = projectPath + Dir::getNativeSeparator() + ASSETS;
             if (!Dir::makeDir(assetsPath))
             {
-                EDITOR_LOG_ERROR("Create assets folder [%s] failed !", assetsPath.c_str());
+                MFS_LOG_ERROR("Create assets folder [%s] failed !", assetsPath.c_str());
                 ret = T3D_ERR_FAIL;
                 break;
             }
@@ -80,7 +78,7 @@ namespace Tiny3D
             String tempPath = projectPath + Dir::getNativeSeparator() + TEMP;
             if (!Dir::makeDir(tempPath))
             {
-                EDITOR_LOG_ERROR("Create temp folder [%s] failed !", tempPath.c_str());
+                MFS_LOG_ERROR("Create temp folder [%s] failed !", tempPath.c_str());
                 ret = T3D_ERR_FAIL;
                 break;
             }
@@ -94,7 +92,7 @@ namespace Tiny3D
             bool rval = Dir::copyDir(srcPath, dstPath, false);
             if (!rval)
             {
-                EDITOR_LOG_ERROR("Copy builtin textures from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                MFS_LOG_ERROR("Copy builtin textures from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
                 ret = T3D_ERR_COPY_DIR;
                 break;
             }
@@ -104,7 +102,7 @@ namespace Tiny3D
             rval = Dir::copyDir(srcPath, dstPath, false);
             if (!rval)
             {
-                EDITOR_LOG_ERROR("Copy builtin shaders from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                MFS_LOG_ERROR("Copy builtin shaders from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
                 ret = T3D_ERR_COPY_DIR;
                 break;
             }
@@ -114,7 +112,7 @@ namespace Tiny3D
             rval = Dir::copyDir(srcPath, dstPath, false);
             if (!rval)
             {
-                EDITOR_LOG_ERROR("Copy builtin materials from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                MFS_LOG_ERROR("Copy builtin materials from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
                 ret = T3D_ERR_COPY_DIR;
                 break;
             }
@@ -124,12 +122,12 @@ namespace Tiny3D
             rval = Dir::copyDir(srcPath, dstPath, false);
             if (!rval)
             {
-                EDITOR_LOG_ERROR("Copy builtin meshes from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                MFS_LOG_ERROR("Copy builtin meshes from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
                 ret = T3D_ERR_COPY_DIR;
                 break;
             }
             
-            mPath = path;
+            mPath = projectPath;
             mName = name;
             mAssetsPath = assetsPath;
             mTempPath = tempPath;
@@ -150,7 +148,7 @@ namespace Tiny3D
 
             if (!Dir::exists(projectPath))
             {
-                EDITOR_LOG_ERROR("Open project [%s] failed !", projectPath.c_str());
+                MFS_LOG_ERROR("Open project [%s] failed !", projectPath.c_str());
                 ret = T3D_ERR_FILE_NOT_EXIST;
                 break;
             }
@@ -158,7 +156,7 @@ namespace Tiny3D
             String assetsPath = projectPath + Dir::getNativeSeparator() + ASSETS;
             if (!Dir::exists(assetsPath))
             {
-                EDITOR_LOG_ERROR("Assets folder [%s] did not exist !", assetsPath.c_str());
+                MFS_LOG_ERROR("Assets folder [%s] did not exist !", assetsPath.c_str());
                 ret = T3D_ERR_FILE_NOT_EXIST;
                 break;
             }
@@ -166,12 +164,12 @@ namespace Tiny3D
             String tempPath = projectPath + Dir::getNativeSeparator() + TEMP;
             if (!Dir::exists(tempPath))
             {
-                EDITOR_LOG_ERROR("Temporary folder [%s] did not exist ! ", tempPath.c_str());
+                MFS_LOG_ERROR("Temporary folder [%s] did not exist ! ", tempPath.c_str());
                 ret = T3D_ERR_FILE_NOT_EXIST;
                 break;
             }
 
-            mPath = path;
+            mPath = projectPath;
             mName = name;
             mAssetsPath = assetsPath;
             mTempPath = tempPath;
@@ -188,7 +186,5 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    NS_END
 }
 

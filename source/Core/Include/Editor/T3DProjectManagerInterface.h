@@ -22,33 +22,35 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
+#ifndef __T3D_PROJECT_MANAGER_INTERFACE_H__
+#define __T3D_PROJECT_MANAGER_INTERFACE_H__
 
 
-#include <Tiny3D.h>
-#include <imgui.h>
-#include <TinyImGui.h>
-#include "Language/Language.h"
+#include "T3DPrerequisites.h"
 
-
-#define NS_BEGIN(name)  namespace name {
-#define NS_END    }
 
 namespace Tiny3D
 {
-    NS_BEGIN(Editor)
+    class IProjectManager
+    {
+    public:
+        virtual ~IProjectManager() = default;
 
-    #define LOG_TAG_EDITOR "Editor"
+        virtual TResult createProject(const String &path, const String &name) = 0;
 
-    #define EDITOR_LOG_ERROR(fmt, ...)   T3D_LOG_ERROR(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
-    #define EDITOR_LOG_WARNING(fmt, ...) T3D_LOG_WARNING(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
-    #define EDITOR_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
-    #define EDITOR_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
+        virtual TResult openProject(const String &path, const String &name) = 0;
 
-    #define PROJECT_MGR     (Agent::getInstance().getEditor()->getProjectManager())
-    
-    NS_END
+        virtual TResult closeProject() = 0;
 
-    class ImGuiImpl;
+        virtual const String &getProjectPath() const = 0;
+
+        virtual const String &getProjectName() const = 0;
+
+        virtual const String &getAssetsPath() const = 0;
+
+        virtual const String &getTempPath() const = 0;
+    };
 }
 
+
+#endif    /*__T3D_PROJECT_MANAGER_INTERFACE_H__*/

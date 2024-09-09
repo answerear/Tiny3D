@@ -13,6 +13,9 @@ if (MSVC)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
+add_definitions(-DT3D_EDITOR)
+
+
 set(TINY3D_FSARCHIVE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 

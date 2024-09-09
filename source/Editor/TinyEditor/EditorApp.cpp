@@ -26,7 +26,6 @@
 #include "ImGuiImpl.h"
 #include "MainWindow.h"
 #include "T3DEditorInfoDX11.h"
-#include "ProjectManager.h"
 #include "NetworkManager.h"
 #include "EditorScene.h"
 #include "EditorWidgetID.h"
@@ -164,14 +163,22 @@ namespace Tiny3D
             }
 
             // 创建工程管理器
-            mProjectMgr = new ProjectManager();
+            // mProjectMgr = new ProjectManager();
+            T3D_AGENT.setEditor(this);
+
+            // 手动加载 Meta 文件系统插件，不让引擎自动加载，避免没有设置 Editor 之前，插件内部依赖 Editor 对象的操作会出错
+            ret = T3D_AGENT.loadPlugin("MetaFSArchive");
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
 
             // 创建网络管理器
             mNetworkMgr = new NetworkManager();
             ret = mNetworkMgr->startup("127.0.0.1", 5327);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Startup network failed ! ERROR [%d]", ret);
+                EDITOR_LOG_ERROR("Startup network failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -212,7 +219,7 @@ namespace Tiny3D
             ret = createImGuiEnv();
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create ImGui environment failed ! ERROR [%d]", ret);
+                EDITOR_LOG_ERROR("Create ImGui environment failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -228,7 +235,7 @@ namespace Tiny3D
             ret = mMainWindow->create(ID_MAIN_WINDOW, "Main Window", nullptr);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Create main window failed ! ERROR [%d]", ret);
+                EDITOR_LOG_ERROR("Create main window failed ! ERROR [%d]", ret);
                 break;
             }
 
@@ -256,7 +263,7 @@ namespace Tiny3D
             settings.renderSettings.title = "Tiny3D Editor";
             settings.pluginSettings.pluginPath = ".";
             settings.pluginSettings.plugins.emplace_back("FileSystemArchiveEditor");
-            settings.pluginSettings.plugins.emplace_back("MetaFSArchive");
+            // settings.pluginSettings.plugins.emplace_back("MetaFSArchive");
             settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
             settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
             

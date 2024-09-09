@@ -87,6 +87,7 @@ set_project_files(Include\\\\Bound ${TINY3D_CORE_SOURCE_DIR}/Include/Bound/ .inl
 set_project_files(Include\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Include/Component/ .h)
 set_project_files(Include\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Include/Component/ .inl)
 set_project_files(Include\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Include/Serializer/ .h)
+set_project_files(Include\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Include/Editor/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${TINY3D_CORE_SOURCE_DIR}/Source/ .cpp)

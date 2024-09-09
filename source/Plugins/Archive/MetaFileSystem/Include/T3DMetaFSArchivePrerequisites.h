@@ -34,6 +34,11 @@ namespace Tiny3D
 {
     #define LOG_TAG_METAFS      "MetaFSArchive"
 
+    #define MFS_LOG_ERROR(fmt, ...)   T3D_LOG_ERROR(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
+    #define MFS_LOG_WARNING(fmt, ...) T3D_LOG_WARNING(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
+    #define MFS_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
+    #define MFS_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
+    
     class MetaFSArchive;
 
     T3D_DECLARE_SMART_PTR(MetaFSArchive);
