@@ -31,6 +31,7 @@
 
 namespace Tiny3D
 {
+#if defined(T3D_EDITOR)
     class IProjectManager;
     
     class IEditor
@@ -42,6 +43,7 @@ namespace Tiny3D
 
         virtual IProjectManager *getProjectManager() const = 0;
     };
+#endif
 }
 
 

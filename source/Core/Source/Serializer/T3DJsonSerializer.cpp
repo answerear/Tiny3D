@@ -250,6 +250,13 @@ namespace Tiny3D
                 String base64 = base64_encode(buffer->Data, buffer->DataSize);
                 WriteAtomicType(writer, type::get<String>(), base64);
             }
+            else if (className == "Tiny3D::UUID")
+            {
+                // UUID 特殊处理
+                UUID *uuid = obj2.try_convert<UUID>();
+                String str = uuid->toString();
+                WriteAtomicType(writer, type::get<String>(), str);
+            }
             else
             {
                 auto prop_list = obj2.get_derived_type().get_properties();
@@ -605,14 +612,23 @@ namespace Tiny3D
                 }
                 else if (klass == type::get<Tiny3D::Buffer>())
                 {
+                    // Buffer 特殊处理
                     variant var = ReadObject(value);
-                    String& str = var.get_value<String>();
-                    Buffer& buffer = obj.get_value<Buffer>();
+                    String &str = var.get_value<String>();
+                    Buffer &buffer = obj.get_value<Buffer>();
                     String dst = base64_decode(str);
                     T3D_SAFE_DELETE_ARRAY(buffer.Data);
                     buffer.Data = new uint8_t[dst.size()];
                     buffer.DataSize = dst.size();
                     memcpy(buffer.Data, &dst[0], dst.size());
+                }
+                else if (klass == type::get<Tiny3D::UUID>())
+                {
+                    // UUID 特殊处理
+                    variant var = ReadObject(value);
+                    String &str = var.get_value<String>();
+                    UUID &uuid = obj.get_value<UUID>();
+                    uuid.fromString(str);
                 }
                 else
                 {

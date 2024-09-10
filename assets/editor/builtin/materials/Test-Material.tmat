@@ -11,10 +11,8 @@
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
-                    "value": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "205e42976c95877ebb8576746615e87b"
-                    }
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "ad7d44651a5c6ef911fe95afd7cec997"
                 }
             },
             "Constants": {

@@ -31,6 +31,7 @@
 
 namespace Tiny3D
 {
+#if defined (T3D_EDITOR)
     class IProjectManager
     {
     public:
@@ -50,6 +51,7 @@ namespace Tiny3D
 
         virtual const String &getTempPath() const = 0;
     };
+#endif
 }
 
 
