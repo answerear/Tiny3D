@@ -1057,10 +1057,10 @@ namespace Tiny3D
                 itrFile = rval.first;
             }
 
-            if (itrFile->first == "map" || itrFile->first == "T3DShader")
-            {
-                int a = 0;
-            }
+            //if (itrFile->first == "map" || itrFile->first == "T3DShader")
+            //{
+            //    int a = 0;
+            //}
             itrFile->second.push_back(name);
         } while (false);
         

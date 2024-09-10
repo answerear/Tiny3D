@@ -1195,9 +1195,16 @@ namespace Tiny3D
                         String patternEnd = "*, >*";
                         String formalEnd = ", >";
                         String actualEnd = ">";
+                        String patternEnd1 = "*,  >*";
+                        String formalEnd1 = ",  >";
+
                         if (StringUtil::match(param.Type, patternEnd, true))
                         {
                             StringUtil::replaceAll(param.Type, formalEnd, actualEnd);
+                        }
+                        else if (StringUtil::match(param.Type, patternEnd1, true))
+                        {
+                            StringUtil::replaceAll(param.Type, formalEnd1, actualEnd);
                         }
                     }
                     else if (StringUtil::match(param.Type, pattern3, true))
@@ -1490,18 +1497,29 @@ namespace Tiny3D
 
     void ASTTemplate::instantiateTemplate(const StringArray &actuals)
     {
-        if (actuals.size() != TemplateParams.size())
+        if (actuals.size() > TemplateParams.size())
             return;
         
         size_t i = 0;
         for (auto &param : TemplateParams)
         {
-            if (!actuals[i].empty())
+            if (i < actuals.size() && !actuals[i].empty())
             {
                 param.type = actuals[i];
                 param.kind = ASTTemplateParam::Kind::kNonType;
             }
+            else if (i >= actuals.size())
+            {
+                break;
+            }
             
+            i++;
+        }
+
+        size_t count = TemplateParams.size();
+        while (i < count)
+        {
+            TemplateParams.pop_back();
             i++;
         }
 
