@@ -51,7 +51,7 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::install()
     {
-        ProjectManager *projectMgr = new ProjectManager();
+        MFSProjectManager *projectMgr = new MFSProjectManager();
         T3D_AGENT.getEditor()->setProjectManager(projectMgr);
         
         return T3D_ARCHIVE_MGR.addArchiveCreator(
@@ -91,7 +91,7 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::uninstall()
     {
-        ProjectManager *projectMgr = static_cast<ProjectManager *>(T3D_AGENT.getEditor()->getProjectManager());
+        MFSProjectManager *projectMgr = static_cast<MFSProjectManager *>(T3D_AGENT.getEditor()->getProjectManager());
         T3D_SAFE_DELETE(projectMgr);
         
         T3D_AGENT.getEditor()->setProjectManager(nullptr);

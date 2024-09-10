@@ -30,27 +30,28 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char *ProjectManager::ASSETS = "Assets";
-    const char *ProjectManager::SCENES = "Scenes";
-    const char *ProjectManager::TEMP = "Temp";
+    const char *MFSProjectManager::ASSETS = "Assets";
+    const char *MFSProjectManager::SCENES = "Scenes";
+    const char *MFSProjectManager::TEMP = "Temp";
+    const char *MFSProjectManager::MAPPINGS_FILE_NAME = "project.idx";
     
     //--------------------------------------------------------------------------
 
-    ProjectManager::ProjectManager()
+    MFSProjectManager::MFSProjectManager()
     {
         mFSMonitor = new FileSystemMonitor();
     }
     
     //--------------------------------------------------------------------------
 
-    ProjectManager::~ProjectManager()
+    MFSProjectManager::~MFSProjectManager()
     {
         T3D_SAFE_DELETE(mFSMonitor);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ProjectManager::createProject(const String &path, const String &name)
+    TResult MFSProjectManager::createProject(const String &path, const String &name)
     {
         TResult ret = T3D_OK;
 
@@ -138,7 +139,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ProjectManager::openProject(const String &path, const String &name)
+    TResult MFSProjectManager::openProject(const String &path, const String &name)
     {
         TResult ret = T3D_OK;
 
@@ -180,11 +181,150 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ProjectManager::closeProject()
+    TResult MFSProjectManager::closeProject()
     {
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult MFSProjectManager::buildMappings()
+    {
+        TResult ret = T3D_OK;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MFSProjectManager::readMappings()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String filename = mProjectPath + Dir::getNativeSeparator() + MAPPINGS_FILE_NAME;
+            FileDataStream fs;
+
+            // 打開映射文件
+            if (!fs.open(filename.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            {
+                T3D_LOG_ERROR(LOG_TAG_METAFS, "Failed to open file %s !", filename.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+
+            // 从文件读取生成映射对象
+            ret = T3D_SERIALIZER_MGR.deserialize(fs, mMappings);
+            fs.close();
+
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_METAFS, "Failed to deserialize object !");
+                ret = T3D_ERR_DESERIALIZE_OBJECT;
+                break;
+            }
+
+            // 从读取回来的映射文件建立 UUID => Path 的映射关系
+            for (const auto &item : mMappings.paths)
+            {
+                mMappings.uuids.emplace(item.second, item.first);
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MFSProjectManager::writeMappings()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void MFSProjectManager::refresh(const UUID &uuid, const String &path)
+    {
+        if (path.empty())
+            return;
+
+        String oldPath;
+        
+        auto itr = mMappings.uuids.find(uuid);
+        if (itr == mMappings.uuids.end())
+        {
+            // 没有保存过 UUID，可能 UUID 更新了
+            mMappings.uuids.emplace(uuid, path);
+        }
+        else
+        {
+            if (itr->second != path)
+            {
+                // 路径更新了
+                oldPath = itr->second;
+                itr->second = path;
+                mIsDirty = true;
+            }
+        }
+
+        if (!oldPath.empty())
+        {
+            auto it = mMappings.paths.find(oldPath);
+            if (it != mMappings.paths.end())
+            {
+                // 路径映射里面有老的路径，先删除
+                mMappings.paths.erase(oldPath);
+                mIsDirty = true;
+            }
+        }
+
+        auto it = mMappings.paths.find(path);
+        if (it != mMappings.paths.end())
+        {
+            if (uuid != it->second)
+            {
+                // 路径映射里面有路径，并且 UUID 更新了
+                it->second = uuid;
+                mIsDirty = true;
+            }
+        }
+        else
+        {
+            // 路径映射里面没有路径，直接更新 UUID
+            mMappings.paths.emplace(path, uuid);
+            mIsDirty = true;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    const String &MFSProjectManager::getPathByUUID(const UUID &uuid) const
+    {
+        static String empty;
+
+        auto itr = mMappings.uuids.find(uuid);
+        if (itr != mMappings.uuids.end())
+        {
+            return itr->second;
+        }
+
+        return empty;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const UUID &MFSProjectManager::getUUIDByPath(const String &path) const
+    {
+        auto itr = mMappings.paths.find(path);
+        if (itr != mMappings.paths.end())
+        {
+            return itr->second;
+        }
+        
+        return UUID::INVALID;
+    }
+    
     //--------------------------------------------------------------------------
 }
 

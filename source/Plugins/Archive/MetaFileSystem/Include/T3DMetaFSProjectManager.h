@@ -30,12 +30,26 @@
 
 namespace Tiny3D
 {
-    class ProjectManager : public IProjectManager
+    using UUIDMap = TUnorderedMap<UUID, String, UUIDHash, UUIDEqual>;
+    using PathMap = TUnorderedMap<String, UUID>;
+    
+    TSTRUCT()
+    struct Mappings
+    {
+        /// UUID => 文件路径映射表
+        UUIDMap uuids {};
+        
+        /// 文件路径 => UUID 映射表
+        TPROPERTY()
+        PathMap paths {};
+    };
+    
+    class MFSProjectManager : public IProjectManager, public Singleton<MFSProjectManager>
     {
     public:
-        ProjectManager();
+        MFSProjectManager();
 
-        ~ProjectManager() override;
+        ~MFSProjectManager() override;
 
         TResult createProject(const String &path, const String &name) override;
 
@@ -51,11 +65,28 @@ namespace Tiny3D
 
         const String &getTempPath() const override {return mTempPath; }
 
+        void refresh(const UUID &uuid, const String &path);
+
+        const String &getPathByUUID(const UUID &uuid) const;
+
+        const UUID &getUUIDByPath(const String &path) const;
+        
+    protected:
+        /// 扫描对应路径的文件，建立映射关系
+        TResult buildMappings();
+
+        /// 读映射文件
+        TResult readMappings();
+
+        /// 写映射文件
+        TResult writeMappings();
+        
     protected:
         static const char *ASSETS;
         static const char *SCENES;
         static const char *TEMP;
-
+        static const char *MAPPINGS_FILE_NAME;
+        
         /// 文件系统监控器
         FileSystemMonitor *mFSMonitor {nullptr};
         
@@ -67,5 +98,14 @@ namespace Tiny3D
         String mAssetsPath {};
         /// 工程临时文件路径
         String mTempPath {};
+
+        /// 工程根目录
+        String mProjectPath {};
+        /// 映射表
+        Mappings mMappings {};
+        /// 是否刷新而写文件
+        bool mIsDirty {false};
     };
+
+    #define PROJECT_MGR (MFSProjectManager::getInstance())
 }

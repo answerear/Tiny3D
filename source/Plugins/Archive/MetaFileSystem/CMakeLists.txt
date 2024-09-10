@@ -7,6 +7,12 @@
 
 set_project_name(MetaFSArchive)
 
+
+if (TINY3D_METAFSARCHIVE_RTTR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif (TINY3D_METAFSARCHIVE_RTTR)
+
+
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
         add_definitions(-D${LIB_NAME_TOUPPER}_EXPORT -D_USRDLL)
@@ -36,6 +42,8 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
+# Generated source for reflection.
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
 
 #if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})

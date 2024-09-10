@@ -23,7 +23,7 @@
 @mkdir nmake && cd nmake
 
 @rem ==================== System project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -32,7 +32,7 @@
 xcopy compile_commands.json .\System 
 
 @rem ==================== Math project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -41,7 +41,7 @@ xcopy compile_commands.json .\System
 xcopy compile_commands.json .\Math 
 
 @rem ==================== Core project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -49,8 +49,17 @@ xcopy compile_commands.json .\Math
 @rem Copy Core compile commands to the project folder.
 xcopy compile_commands.json .\Core 
 
+@rem ==================== MetaFSArchive project =========================
+@cmake -G "NMake Makefiles" -DTINY3D_METAFSARCHIVE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@if not %ERRORLEVEL% == 0 (
+	@cd ../Projects
+	@goto end
+)
+@rem Copy Core compile commands to the project folder.
+xcopy compile_commands.json .\Plugins\Archive\MetaFileSystem 
+
 @rem ==================== Editor/TinyLauncher project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -66,6 +75,8 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 ..\bin\Windows\Debug\cct.exe .\Math ..\vs2019-x64\Math\Generated
 @mkdir ..\vs2019-x64\Core\Generated
 ..\bin\Windows\Debug\cct.exe .\Core ..\vs2019-x64\Core\Generated
+@mkdir ..\vs2019-x64\Plugins\Archive\MetaFileSystem\Generated
+..\bin\Windows\Debug\cct.exe .\Plugins\Archive\MetaFileSystem ..\..\..\vs2019-x64\Plugins\Archive\MetaFileSystem\Generated
 @mkdir ..\vs2019-x64\Editor\TinyLauncher\Generated
 ..\bin\Windows\Debug\cct.exe .\Editor\TinyLauncher ..\..\vs2019-x64\Editor\TinyLauncher\Generated
 
@@ -74,6 +85,7 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 ..\bin\Windows\Debug\rpp.exe .\System ..\System -r
 ..\bin\Windows\Debug\rpp.exe .\Math ..\Math -r
 ..\bin\Windows\Debug\rpp.exe .\Core ..\Core -r
+..\bin\Windows\Debug\rpp.exe .\Plugins\Archive\MetaFileSystem ..\Plugins\Archive\MetaFileSystem -r
 ..\bin\Windows\Debug\rpp.exe .\Editor\TinyLauncher ..\Editor\TinyLauncher -r
 
 
