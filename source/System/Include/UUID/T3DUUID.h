@@ -67,18 +67,24 @@ namespace Tiny3D
 
         void fromString(const String& str);
 
-        TPROPERTY(RTTRFuncName="value", RTTRFuncType="getter", "Description"="UUID value")
-        String getValue() const
-        {
-            return toString();
-        }
+        TPROPERTY(RTTRFuncName="stringValue", RTTRFuncType="getter", "Description"="UUID string value")
+        String getString() const { return toString(); }
 
-        TPROPERTY(RTTRFuncName="value", RTTRFuncType="setter", "Description"="UUID value")
-        void setValue(String str)
-        {
-            fromString(str);
-        }
+        TPROPERTY(RTTRFuncName="stringValue", RTTRFuncType="setter", "Description"="UUID string value")
+        void setString(String str) { fromString(str); }
 
+        TPROPERTY(RTTRFuncName="lowValue", RTTRFuncType="getter", "Description"="UUID low 64bits value")
+        uint64_t getLowValue() const { return values.low; }
+
+        TPROPERTY(RTTRFuncName="lowValue", RTTRFuncType="setter", "Description"="UUID low 64bits value")
+        void setLowValue(uint64_t val) { values.low = val; }
+
+        TPROPERTY(RTTRFuncName="highValue", RTTRFuncType="getter", "Description"="UUID high 64bits value")
+        uint64_t getHighValue() const { return values.high; }
+
+        TPROPERTY(RTTRFuncName="highValue", RTTRFuncType="setter", "Description"="UUID high 64bits value")
+        void setHighValue(uint64_t val) { values.high = val; }
+        
         bool operator ==(const UUID& other) const
         {
             return (this->values.low == other.values.low 
