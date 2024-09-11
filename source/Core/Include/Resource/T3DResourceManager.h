@@ -167,12 +167,12 @@ namespace Tiny3D
         using ResourcesConstItr = Resources::const_iterator;
         using ResourcesValue = Resources::value_type;
 
-        using ResourcesLookup = TMap<String, Resources>;
+        using ResourcesLookup = TUnorderedMap<String, Resources>;
         using ResourcesLookupItr = ResourcesLookup::iterator;
         using ResourcesLookupConstItr = ResourcesLookup::const_iterator;
         using ResourcesLookupValue = ResourcesLookup::value_type;
 
-        using ResourcesCache = TMap<UUID, ResourcePtr>;
+        using ResourcesCache = TUnorderedMap<UUID, ResourcePtr, UUIDHash, UUIDEqual>;
         using ResourcesCacheItr = ResourcesCache::iterator;
         using ResourcesCacheConstItr = ResourcesCache::const_iterator;
         using ResourcesCacheValue = ResourcesCache::value_type;
