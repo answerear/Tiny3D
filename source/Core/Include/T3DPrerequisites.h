@@ -73,6 +73,7 @@ namespace Tiny3D
 
     #define TXT_DESCRIPTION             "Description"
 
+    
     class Object;
     class ObjectTracer;
 
@@ -228,12 +229,6 @@ namespace Tiny3D
     class RHIShader;
     class RHIThread;
     class RHICommand;
-
-    // Only For Editor
-#if defined(T3D_EDITOR)
-    class IEditor;
-    class IProjectManager;
-#endif
 } // namespace Tiny3D
 
 #endif    /*__T3D_PREREQUISITES_H__*/

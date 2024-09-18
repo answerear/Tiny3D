@@ -108,29 +108,22 @@ namespace Tiny3D
          * \return 返回资源 GUID
          */
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
-        const UUID &getUUID() const
-        {
-            return mUUID;
-        }
+        const UUID &getUUID() const { return mUUID; }
 
         /**
          * \brief 获取资源名称
          * \return 返回资源名称
          */
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
-        const String &getName() const
-        {
-            return mName;
-        }
+        const String &getName() const { return mName; }
+
+        const String &getFilename() const { return mFilename; }
 
         /**
          * \brief 获取资源加载状态
          * \return 返回资源加载状态
          */
-        State getState() const
-        {
-            return mState;
-        }
+        State getState() const { return mState; }
 
     protected:
         Resource();
@@ -179,16 +172,12 @@ namespace Tiny3D
 
     private:
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
-        void setName(const String &name)
-        {
-            mName = name;
-        }
+        void setName(const String &name) { mName = name; }
 
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
-        void setUUID(const UUID &uuid)
-        {
-            mUUID = uuid;
-        }
+        void setUUID(const UUID &uuid) { mUUID = uuid; }
+
+        void setFilename(const String &filename) { mFilename = filename; }
         
     protected:
         /// 资源的 UUID
@@ -197,6 +186,8 @@ namespace Tiny3D
         State               mState = State::kUnloaded;
         /// 资源名称
         String              mName {};
+        /// 資源文件名
+        String              mFilename {};
         /// 异步加载回调
         CompletedCallback   mCompletedCB = nullptr;
     };

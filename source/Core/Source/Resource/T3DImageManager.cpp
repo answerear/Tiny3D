@@ -55,6 +55,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ImagePtr ImageManager::loadImage(Archive *archive, const UUID &uuid)
+    {
+        return smart_pointer_cast<Image>(load(archive, uuid));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImageManager::saveImage(Archive *archive, const String &filename, Image *image)
+    {
+        return save(archive, filename, image);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ImageManager::saveImage(Archive *archive, Image *image)
     {
         return save(archive, image); 
@@ -104,9 +118,9 @@ namespace Tiny3D
 
     TResult ImageManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kImage);
-        Image *image = static_cast<Image*>(res);
-        return T3D_OK;
+        T3D_ASSERT(false);
+        T3D_LOG_WARNING(LOG_TAG_RESOURCE, "ImageManager::saveResource has not implement !");
+        return T3D_ERR_NOT_IMPLEMENT;
     }
 
     //--------------------------------------------------------------------------

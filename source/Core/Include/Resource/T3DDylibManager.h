@@ -73,25 +73,27 @@ namespace Tiny3D
 
     protected:
         /**
-         * @fn  DylibManager();
-         * @brief   構造函數
+         * @brief 构造函数
          */
         DylibManager() = default;
 
         /**
-         * \brief 实现基类函数
+         * @brief 实现基类函数
          */
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
-        ResourcePtr loadResource(Archive *archive, const String &name) override;
+        /**
+         * @brief 实现基类函数
+         */
+        ResourcePtr loadResource(Archive *archive, const String &filename) override;
         
         /**
-         * \brief 实现基类函数
+         * @brief 实现基类函数
          */
-        ResourcePtr loadResource(const String &name, DataStream &stream) override;
+        ResourcePtr loadResource(const String &filename, DataStream &stream) override;
 
         /**
-         * \brief 实现基类函数
+         * @brief 实现基类函数
          */
         TResult saveResource(DataStream &stream, Resource *res) override;
     };

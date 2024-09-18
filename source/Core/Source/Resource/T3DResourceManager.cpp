@@ -34,63 +34,70 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TResult ResourceManager::addResource(ResourcePtr res)
+    // TResult ResourceManager::addResource(ResourcePtr res)
+    // {
+    //     TResult ret = T3D_OK;
+    //
+    //     do
+    //     {
+    //         const auto it = mResourcesCache.find(res->getUUID());
+    //
+    //         if (it != mResourcesCache.end())
+    //         {
+    //             // 已经加过了
+    //             ret = T3D_ERR_DUPLICATED_ITEM;
+    //             break;
+    //         }
+    //
+    //         // 存到缓存池
+    //         mResourcesCache.emplace(res->getUUID(), res);
+    //         
+    //         const auto itr = mResourcesLookup.find(res->getName());
+    //         if (itr != mResourcesLookup.end())
+    //         {
+    //             // 已经有相同名字的资源，加入到链表
+    //             itr->second.push_back(res);
+    //         }
+    //         else
+    //         {
+    //             // 没有对应名字资源，创建个链表存放第一个资源
+    //             auto i = mResourcesLookup.emplace(res->getName(), Resources());
+    //             if (i.second)
+    //             {
+    //                 i.first->second.push_back(res);
+    //             }
+    //         }
+    //     } while (false);
+    //     
+    //     return ret;
+    // }
+
+    //--------------------------------------------------------------------------
+
+    Resource *ResourceManager::lookup(const String &filename) const
     {
-        TResult ret = T3D_OK;
-
-        do
+        Resource *res = nullptr;
+        const auto &it = mResourcesLookup.find(filename);
+        if (it != mResourcesLookup.end())
         {
-            const auto it = mResourcesCache.find(res->getUUID());
-
-            if (it != mResourcesCache.end())
-            {
-                // 已经加过了
-                ret = T3D_ERR_DUPLICATED_ITEM;
-                break;
-            }
-
-            // 存到缓存池
-            mResourcesCache.insert(ResourcesCacheValue(res->getUUID(), res));
-            
-            const auto itr = mResourcesLookup.find(res->getName());
-            if (itr != mResourcesLookup.end())
-            {
-                // 已经有相同名字的资源，加入到链表
-                itr->second.push_back(res);
-            }
-            else
-            {
-                // 没有对应名字资源，创建个链表存放第一个资源
-                auto i = mResourcesLookup.insert(ResourcesLookupValue(res->getName(), Resources()));
-                if (i.second)
-                {
-                    i.first->second.push_back(res);
-                }
-            }
-        } while (false);
-        
-        return ret;
+            res = it->second;
+        }
+        return res;
     }
 
     //--------------------------------------------------------------------------
 
-    Resource *ResourceManager::lookup(const String &name)
+    Resource *ResourceManager::lookup(const UUID &uuid) const
     {
-        ResourcePtr res;
-        const auto it = mResourcesLookup.find(name);
-        
-        if (it != mResourcesLookup.end())
+        Resource *res = nullptr;
+        const auto &it = mResourcesCache.find(uuid);
+        if (it != mResourcesCache.end())
         {
-            if (!it->second.empty())
-            {
-                // 已经加载过了
-                res = it->second.front();
-            }
+            res = it->second;
         }
-        
         return res;
     }
-
+    
     //--------------------------------------------------------------------------
 
     bool ResourceManager::insertCache(const ResourcePtr &resource)
@@ -99,28 +106,27 @@ namespace Tiny3D
 
         do
         {
-            // 插入根据名称查找表
-            const String &name = resource->getName();
-            auto rval = mResourcesLookup.emplace(name, Resources());
-            if (!rval.second)
+            const auto it = mResourcesCache.find(resource->getUUID());
+
+            if (it != mResourcesCache.end())
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Insert resource [%s] to cache failed !", name.c_str());
+                // 已经加过了
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Insert resource [%s] to cache failed ! Already exists !", resource->getName().c_str());
                 ret = false;
                 break;
             }
 
-            rval.first->second.push_back(resource.get());
-
-            // 插入资源缓存池
-            auto rt = mResourcesCache.emplace(resource->getUUID(), resource.get());
-            if (!rt.second)
+            // 存到缓存池
+            mResourcesCache.emplace(resource->getUUID(), resource);
+            
+            if (!resource->getFilename().empty())
             {
-                mResourcesLookup.erase(rval.first);
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
-                    "Insert resource [%s] to cache failed !", name.c_str());
-                ret = false;
-                break;
+                const auto itr = mResourcesLookup.find(resource->getFilename());
+                if (itr == mResourcesLookup.end())
+                {
+                    // 沒緩存，則緩存
+                    mResourcesLookup.emplace(resource->getFilename(), resource);
+                }
             }
         } while (false);
 
@@ -131,48 +137,33 @@ namespace Tiny3D
 
     void ResourceManager::removeCache(const ResourcePtr &resource)
     {
-        do
+        // 从 lookup 移除
+        if (!resource->getFilename().empty())
         {
-            // 从 lookup 移除
-            const auto itr = mResourcesLookup.find(resource->getName());
-            if (itr != mResourcesLookup.end())
-            {
-                for (auto it = itr->second.begin(); it != itr->second.end(); ++it)
-                {
-                    if (resource->getUUID() == (*it)->getUUID())
-                    {
-                        itr->second.erase(it);
-                        break;
-                    }
-                }
-
-                if (itr->second.empty())
-                {
-                    mResourcesLookup.erase(itr);
-                }
-            }
-
-            // 从 cache 移除
-            mResourcesCache.erase(resource->getUUID());
-        } while (false);
+            mResourcesLookup.erase(resource->getFilename());
+        }
+            
+        // 从 cache 移除
+        mResourcesCache.erase(resource->getUUID());
     }
-
+    
     //--------------------------------------------------------------------------
-
+    
     ResourcePtr ResourceManager::createResource(const String &name, int32_t argc, ...)
     {
         ResourcePtr res = nullptr;
 
         do
         {
-            // 查找是否有缓存，如果有，则报错
+            // 查找是否有缓存，如果有，则返回已经存在的
             res = lookup(name);
             if (res != nullptr)
             {
                 // 已经存在了该资源
                 break;
             }
-            
+
+            // 新建资源对象
             va_list args;
             va_start(args, argc);
             res = newResource(name, argc, args);
@@ -190,7 +181,16 @@ namespace Tiny3D
                 break;
             }
 
-            res->onCreate();
+            // 回调通知已创建
+            TResult ret = res->onCreate();
+            if (T3D_FAILED(ret))
+            {
+                res->mState = Resource::State::kUnloaded;
+                removeCache(res);
+                res = nullptr;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Create resource [%s] failed !", name.c_str());
+                break;
+            }
         } while (false);
         
         return res;
@@ -198,21 +198,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::load(Archive *archive, const String &name)
+    ResourcePtr ResourceManager::load(Archive *archive, const String &filename)
     {
         ResourcePtr res = nullptr;
         
         do
         {
             // 查找是否有缓存
-            res = lookup(name);
+            res = lookup(filename);
             if (res != nullptr)
             {
                 // 已经存在了该资源
                 break;
             }
 
-            res = loadResource(archive, name);
+            // 加载资源
+            res = loadResource(archive, filename);
             if (res == nullptr)
             {
                 break;
@@ -225,14 +226,15 @@ namespace Tiny3D
                 res = nullptr;
                 break;
             }
-            
+
+            // 回调通知已加载
             TResult ret = res->onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 res->mState = Resource::State::kUnloaded;
                 removeCache(res);
                 res = nullptr;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", name.c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", filename.c_str());
                 break;
             }
         } while (false);
@@ -242,26 +244,119 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::loadResource(Archive *archive, const String &name)
+    ResourcePtr ResourceManager::loadResource(Archive *archive, const String &filename)
     {
         ResourcePtr res = nullptr;
 
         do
         {
-            TResult ret = archive->read(name, [this, &res, &name](DataStream &stream)
-            {
-                TResult ret = T3D_OK;
-                // 加载 resource 对象
-                res = loadResource(name, stream);
-                if (res == nullptr)
+            TResult ret = archive->read(filename, [this, &res, &filename](DataStream &stream)
                 {
-                    ret = T3D_ERR_RES_LOAD_FAILED;
-                }
-                return ret;
-            });
+                    // 加载 resource 对象
+                    TResult ret = T3D_OK;
+                    res = loadResource(stream);
+                    if (res == nullptr)
+                    {
+                        ret = T3D_ERR_RES_LOAD_FAILED;
+                    }
+                    return ret;
+                });
+            
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", filename.c_str());
+                res = nullptr;
+            }
+
+            res->setFilename(filename);
         } while (false);
 
         return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::load(Archive *archive, const UUID &uuid)
+    {
+        ResourcePtr res = nullptr;
+        
+        do
+        {
+            // 查找是否有缓存
+            res = lookup(uuid);
+            if (res != nullptr)
+            {
+                // 已經存在，直接返回
+                break;
+            }
+
+            // 加载资源
+            res = loadResource(archive, uuid);
+            if (res == nullptr)
+            {
+                break;
+            }
+            
+            // 放到缓存中
+            if (!insertCache(res))
+            {
+                // 失败了，先卸载资源
+                res = nullptr;
+                break;
+            }
+
+            // 回调通知已加载
+            TResult ret = res->onLoad(archive);
+            if (T3D_FAILED(ret))
+            {
+                res->mState = Resource::State::kUnloaded;
+                removeCache(res);
+                res = nullptr;
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed ! UUID : %s", uuid.toString().c_str());
+                break;
+            }
+        } while (false);
+
+        return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::loadResource(Archive *archive, const UUID &uuid)
+    {
+        ResourcePtr res = nullptr;
+
+        do
+        {
+            TResult ret = archive->read(uuid, [this, &res](DataStream &stream)
+                {
+                    // 加载 resource 对象
+                    TResult ret = T3D_OK;
+                    res = loadResource(stream);
+                    if (res == nullptr)
+                    {
+                        ret = T3D_ERR_RES_LOAD_FAILED;
+                    }
+                    return ret;
+                });
+            
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed ! UUID : %s", uuid.toString().c_str());
+                res = nullptr;
+            }
+        } while (false);
+
+        return res;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr ResourceManager::loadResource(DataStream &stream)
+    {
+        T3D_ASSERT(false);
+        T3D_LOG_WARNING(LOG_TAG_RESOURCE, "ResourceManager::loadResource has not implement !");
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -275,20 +370,63 @@ namespace Tiny3D
             if (res == nullptr)
             {
                 ret = T3D_ERR_RES_INVALID_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid resource object !");
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Unload resource failed ! Invalid resource object !");
                 break;
             }
-            
+
+            // 回调通知卸载
             ret = res->onUnload();
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Unload resource [%s] failed !", res->getName().c_str());
                 break;
             }
-            
+
+            // 从缓存中移除
             removeCache(res);
         } while (false);
 
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ResourceManager::save(Archive *archive, const String &filename, Resource *res)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (archive == nullptr || res == nullptr || filename.empty())
+            {
+                // 参数不合法
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource failed ! Invalid param ! archive = %p, res = %p, filename = %s", archive, res, filename.c_str());
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+
+            // 回调通知将要保存
+            ret = res->onSave(archive);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s (%s)] failed !", res->getName().c_str(), res->getUUID().toString().c_str());
+                break;
+            }
+
+            // 保存资源对象
+            ret = archive->write(filename, [this, res](DataStream &stream)
+                {
+                    return saveResource(stream, res);
+                });
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed !", filename.c_str());
+                break;
+            }
+
+            res->setFilename(filename);
+        } while (false);
+        
         return ret;
     }
 
@@ -300,18 +438,32 @@ namespace Tiny3D
 
         do
         {
+            if (archive == nullptr || res == nullptr)
+            {
+                // 参数不合法
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource failed ! Invalid param ! archive = %p, res = %p", archive, res);
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+
+            // 回调通知将要保存
             ret = res->onSave(archive);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed !", res->getName().c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s (%s)] failed ! ", res->getName().c_str(), res->getUUID().toString().c_str());
                 break;
             }
             
             // 保存资源对象
-            ret = archive->write(res->getName(), [this, res](DataStream &stream)
+            ret = archive->write(res->getUUID(), [this, res](DataStream &stream)
+                {
+                    return saveResource(stream, res);
+                });
+            if (T3D_FAILED(ret))
             {
-                return saveResource(stream, res);
-            });
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed ! UUID : %s", res->getName().c_str(), res->getUUID().toString().c_str());
+                break;
+            }
         } while (false);
         
         return ret;
@@ -339,6 +491,8 @@ namespace Tiny3D
                 mResourcesCache.erase(itr);
             }
         }
+
+        mResourcesLookup.clear();
 
         return ret;
     }
@@ -385,42 +539,21 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::getResource(const String &name, UUID uuid /* = UUID::INVALID */) const
+    Resource *ResourceManager::getResource(const String &filename) const
     {
         ResourcePtr res;
 
         do 
         {
-            if (uuid == UUID::INVALID)
+            // 没有指明 UUID，只能到 lookup 去找
+            auto itr = mResourcesLookup.find(filename);
+            if (itr == mResourcesLookup.end())
             {
-                // 没有指明 UUID，只能到 lookup 去找
-                auto itr = mResourcesLookup.find(name);
-                if (itr == mResourcesLookup.end())
-                {
-                    // 没有找到
-                    break;
-                }
-
-                if (itr->second.empty())
-                {
-                    // 空的链表，也是没找到
-                    break;
-                }
+                // 没有找到
+                break;
+            }
                 
-                res = getResource(itr->second.front()->getUUID());
-            }
-            else
-            {
-                // 指明 UUID，直接到 cache 去找
-                auto itr = mResourcesCache.find(uuid);
-                if (itr == mResourcesCache.end())
-                {
-                    // 没找到
-                    break;
-                }
-
-                res = itr->second;
-            }
+            res = itr->second;
         } while (false);
 
         return res;
@@ -428,7 +561,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ResourcePtr ResourceManager::getResource(UUID uuid) const
+    Resource *ResourceManager::getResource(const UUID &uuid) const
     {
         ResourcePtr res;
 

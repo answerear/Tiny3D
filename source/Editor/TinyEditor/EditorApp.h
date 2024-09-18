@@ -38,9 +38,7 @@ namespace Tiny3D
     class NetworkManager;
     class EditorScene;
     
-    class EditorApp
-        : public ImGuiApp
-        , public IEditor
+    class EditorApp : public ImGuiApp
     {
     public:
         EditorApp();
@@ -52,16 +50,6 @@ namespace Tiny3D
         void setEditorRenderer(ImGuiImpl *impl) override;
 
         void exitApp() override;
-
-        void setProjectManager(IProjectManager *projectMgr) override
-        {
-            mProjectMgr = projectMgr;
-        }
-
-        IProjectManager *getProjectManager() const override
-        {
-            return mProjectMgr;
-        }
         
     protected:  /// from Tiny3D::Application
         bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
@@ -121,7 +109,7 @@ namespace Tiny3D
         LanguageManagerPtr mLangMgr {nullptr};
         NetworkManager *mNetworkMgr {nullptr};
         EditorScene *mEditorScene {nullptr};
-        IProjectManager *mProjectMgr {nullptr};
+        ProjectManager *mProjectMgr {nullptr};
         
         StartOptions mOptions {};
 

@@ -135,11 +135,6 @@
 #include <RHI/T3DRHIThread.h>
 #include <RHI/T3DRHICommand.h>
 
-// Only For Editor
-#if defined(T3D_EDITOR)
-#include <Editor/T3DEditorInterface.h>
-#include <Editor/T3DProjectManagerInterface.h>
-#endif
 
 
 #endif  /*__TINY3D_H__*/

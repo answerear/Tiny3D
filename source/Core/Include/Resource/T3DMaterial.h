@@ -296,7 +296,7 @@ namespace Tiny3D
         bool hasTexture(const String &name) const;
 
         TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="getter")
-        const String &getShaderName() const { return mShaderName; }
+        const UUID &getShaderUUID() const { return mShaderUUID; }
 
         TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="getter")
         const ShaderConstantParams &getConstantParams() const { return mConstants; }
@@ -312,7 +312,7 @@ namespace Tiny3D
         Material() : Material("") {}
 
         TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="setter")
-        void setShaderName(const String &name) { mShaderName = name; }
+        void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
 
         TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="setter")
         void setConstantParams(const ShaderConstantParams &params) { mConstants = params; }
@@ -381,8 +381,8 @@ namespace Tiny3D
         ShaderConstantParams    mConstants {};
         /// shader 纹理采样器
         ShaderSamplerParams     mSamplers {};
-        /// 着色器资源名字
-        String                  mShaderName {};
+        /// 着色器资源的 UUID
+        UUID                    mShaderUUID {UUID::INVALID};
         /// 材质对应的着色器对象
         ShaderPtr               mShader {nullptr};
         /// 当前可用的技术对象

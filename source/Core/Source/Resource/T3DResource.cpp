@@ -100,6 +100,10 @@ namespace Tiny3D
     {
         // 克隆就新生成 UUID
         mUUID = UUID::generate();
+        mName = src->getName();
+        mFilename = src->getFilename();
+        mState = src->mState;
+        mCompletedCB = src->mCompletedCB;
     }
 
     //--------------------------------------------------------------------------

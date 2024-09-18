@@ -119,7 +119,7 @@ namespace Tiny3D
          * @brief 从档案读取指定文件到数据流中
          * @param [in] name : 文件名称.
          * @param [in] callback : 读回调.
-         * @return  读成功返回T3D_OK.
+         * @return 读成功返回T3D_OK.
          */
         virtual TResult read(const String &name, const ArchiveReadCallback &callback) = 0;
 
@@ -127,9 +127,25 @@ namespace Tiny3D
          * @brief 写数据流到档案里的指定文件中
          * @param [in] name : 文件名称.
          * @param [in] callback : 写回调.
-         * @return  写成功返回T3D_OK.
+         * @return 写成功返回T3D_OK.
          */
         virtual TResult write(const String &name, const ArchiveWriteCallback &callback) = 0;
+
+        /**
+         * @brief 从档案读取指定UUID的文件到数据流中
+         * @param [in] uuid : 文件的 UUID
+         * @param [in] callback : 读回调 
+         * @return 读成功返回 T3D_OK
+         */
+        virtual TResult read(const UUID &uuid, const ArchiveReadCallback &callback) = 0;
+
+        /**
+         * @brief 写数据流到档案里的指定UUID文件中
+         * @param [in] uuid : 文件的 UUID
+         * @param [in] callback : 写回调
+         * @return 写成功返回 T3D_OK
+         */
+        virtual TResult write(const UUID &uuid, const ArchiveWriteCallback &callback) = 0;
 
     protected:
         /**

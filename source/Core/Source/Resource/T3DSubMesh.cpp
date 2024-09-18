@@ -23,10 +23,8 @@
  ******************************************************************************/
 
 #include "Resource/T3DSubMesh.h"
-
 #include "T3DErrorDef.h"
 #include "Render/T3DRenderResourceManager.h"
-#include "Render/T3DVertexDeclaration.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
 
@@ -47,7 +45,7 @@ namespace Tiny3D
         , mPriType(priType)
         , mIs16Bits(is16Bits)
         , mName(name)
-        , mMaterialName(material->getName())
+        , mMaterialUUID(material->getUUID())
     {
         mIndices.setData(indices.Data, indices.DataSize);
     }
@@ -70,11 +68,11 @@ namespace Tiny3D
             // 加载材质资源
             if (archive != nullptr)
             {
-                mMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, mMaterialName);
+                mMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, mMaterialUUID);
                 if (mMaterial == nullptr)
                 {
                     ret = T3D_ERR_RES_LOAD_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load material (%s) failed !", mMaterialName.c_str());
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load material (%s) failed !", mMaterialUUID.toString().c_str());
                     break;
                 }
             }

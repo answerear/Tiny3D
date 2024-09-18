@@ -36,19 +36,70 @@ namespace Tiny3D
         , public ResourceManager
     {
     public:
+        /**
+         * @brief 创建 shader 管理器对象
+         */
         static ShaderManagerPtr create();
 
+        /**
+         * @brief 创建 shader 对象
+         * @param [in] name : shader 名称
+         * @return 调用成功返回 shader 对象，否则返回 nullptr
+         */
         ShaderPtr createShader(const String &name);
 
-        ShaderPtr loadShader(Archive *archive, const String &name);
+        /**
+         * @brief 根据文件名，加载 shader 对象
+         * @param [in] archive : 从该档案对象中加载 shader 对象
+         * @param [in] filename : shader 文件名
+         * @return 调用成功返回 shader 对象，否则返回 nullptr
+         */
+        ShaderPtr loadShader(Archive *archive, const String &filename);
 
+        /**
+         * @brief 根据 UUID 加载 shader 对象
+         * @param [in] archive : 从该档案对象中加载 shader 对象
+         * @param [in] uuid : 资源的 UUID
+         * @return 调用成功返回 shader 对象，否则返回 nullptr
+         */
+        ShaderPtr loadShader(Archive *archive, const UUID &uuid);
+
+        /**
+         * @brief 把 mesh 对象写到对应文件名的 shader 文件中
+         * @param [in] archive : 保存 shader 文件到该档案对象中
+         * @param [in] filename : shader 文件名
+         * @param [in] shader : 要保存的 shader 对象
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult saveShader(Archive *archive, const String &filename, Shader *shader);
+
+        /**
+         * @brief 把 mesh 对象写到 UUID 对应的 shader 文件中
+         * @param [in] archive : 保存 shader 文件到该档案对象中
+         * @param [in] shader : 要保存的 shader 对象
+         * @return 调用成功返回 T3D_OK
+         */
         TResult saveShader(Archive *archive, Shader *shader);
 
     protected:
+        /**
+         * 重写基类接口
+         */
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
+        /**
+         * 重写基类接口
+         */
         ResourcePtr loadResource(const String &name, DataStream &stream) override;
-        
+
+        /**
+         * 重写基类接口
+         */
+        ResourcePtr loadResource(DataStream &stream) override;
+
+        /**
+         * 重写基类接口
+         */
         TResult saveResource(DataStream &stream, Resource *res) override;
     };
 

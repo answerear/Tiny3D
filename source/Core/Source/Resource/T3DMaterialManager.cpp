@@ -53,6 +53,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    MaterialPtr MaterialManager::loadMaterial(Archive *archive, const UUID &uuid)
+    {
+        return smart_pointer_cast<Material>(load(archive, uuid));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MaterialManager::saveMaterial(Archive *archive, const String &filename, Material *material)
+    {
+        return save(archive, filename, material);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult MaterialManager::saveMaterial(Archive *archive, Material *material)
     {
         return save(archive, material);
@@ -70,6 +84,13 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ResourcePtr MaterialManager::loadResource(const String &name, DataStream &stream)
+    {
+        return loadResource(stream);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr MaterialManager::loadResource(DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Material>(stream);
     }

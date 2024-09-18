@@ -37,6 +37,9 @@ namespace Tiny3D
         , public ResourceManager
     {
     public:
+        /**
+         * 
+         */
         static TextureManagerPtr create();
 
         RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
@@ -55,7 +58,11 @@ namespace Tiny3D
 
         CubemapArrayPtr createCubemapArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
 
-        TexturePtr loadTexture(Archive *archive, const String &name);
+        TexturePtr loadTexture(Archive *archive, const String &filename);
+
+        TexturePtr loadTexture(Archive *archive, const UUID &uuid);
+
+        TResult saveTexture(Archive *archive, const String &filename, Texture *texture);
 
         TResult saveTexture(Archive *archive, Texture *texture);
 
@@ -64,6 +71,8 @@ namespace Tiny3D
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
         ResourcePtr loadResource(const String &name, DataStream &stream) override;
+
+        ResourcePtr loadResource(DataStream &stream) override;
         
         TResult saveResource(DataStream &stream, Resource *res) override;
     };

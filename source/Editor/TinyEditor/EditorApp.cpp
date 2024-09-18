@@ -26,6 +26,7 @@
 #include "ImGuiImpl.h"
 #include "MainWindow.h"
 #include "T3DEditorInfoDX11.h"
+#include "ProjectManager.h"
 #include "NetworkManager.h"
 #include "EditorScene.h"
 #include "EditorWidgetID.h"
@@ -163,8 +164,7 @@ namespace Tiny3D
             }
 
             // 创建工程管理器
-            // mProjectMgr = new ProjectManager();
-            T3D_AGENT.setEditor(this);
+            mProjectMgr = new ProjectManager();
 
             // 手动加载 Meta 文件系统插件，不让引擎自动加载，避免没有设置 Editor 之前，插件内部依赖 Editor 对象的操作会出错
             ret = T3D_AGENT.loadPlugin("MetaFSArchive");

@@ -48,7 +48,7 @@ namespace Tiny3D
         const String &getName() const { return mName; }
 
         TPROPERTY(RTTRFuncName="Material", RTTRFuncType="getter")
-        const String &getMaterialName() const { return mMaterialName; }
+        const UUID &getMaterialUUID() const { return mMaterialUUID; }
 
         TPROPERTY(RTTRFuncName="Indices", RTTRFuncType="getter")
         const Buffer &getIndices() const { return mIndices; }
@@ -74,7 +74,7 @@ namespace Tiny3D
         void setName(const String &name) { mName = name; }
 
         TPROPERTY(RTTRFuncName="Material", RTTRFuncType="setter")
-        void setMaterialName(const String &name) { mMaterialName = name; }
+        void setMaterialUUID(const UUID &uuid) { mMaterialUUID = uuid; }
         
         TPROPERTY(RTTRFuncName="Indices", RTTRFuncType="setter")
         void setIndices(const Buffer &indices)
@@ -104,8 +104,8 @@ namespace Tiny3D
         /// 名称
         String  mName {};
         
-        /// 对应材质名称
-        String  mMaterialName {};
+        /// 对应材质 UUID
+        UUID    mMaterialUUID {UUID::INVALID};
     };
 }
 

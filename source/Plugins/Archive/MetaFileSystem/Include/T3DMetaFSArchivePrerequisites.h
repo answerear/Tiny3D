@@ -38,6 +38,12 @@ namespace Tiny3D
     #define MFS_LOG_WARNING(fmt, ...) T3D_LOG_WARNING(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
     #define MFS_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
     #define MFS_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_METAFS, fmt, ##__VA_ARGS__)
+
+    inline bool archiveCanWrite(uint32_t mode)
+    {
+        uint32_t writeMode = (uint32_t)Archive::AccessMode::kAppend | (uint32_t)Archive::AccessMode::kTruncate;
+        return (mode & writeMode) != 0;
+    }
     
     class MetaFSArchive;
 

@@ -22,29 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_EDITOR_INTERFACE_H__
-#define __T3D_EDITOR_INTERFACE_H__
+
+#include "Editor/T3DMeta.h"
 
 
-#include "T3DPrerequisites.h"
-
-
-namespace Tiny3D
-{
-#if defined(T3D_EDITOR)
-    class IProjectManager;
-    
-    class IEditor
-    {
-    public:
-        virtual ~IEditor() = default;
-
-        virtual void setProjectManager(IProjectManager *projectMgr) = 0;
-
-        virtual IProjectManager *getProjectManager() const = 0;
-    };
-#endif
-}
-
-
-#endif    /*__T3D_EDITOR_INTERFACE_H__*/

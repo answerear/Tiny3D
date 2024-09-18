@@ -31,9 +31,6 @@
 #include "Kernel/T3DSettings.h"
 #include "ImageCodec/T3DImageCodecBase.h"
 
-#if defined(T3D_EDITOR)
-#include "Editor/T3DEditorInterface.h"
-#endif
 
 
 namespace Tiny3D
@@ -155,12 +152,6 @@ namespace Tiny3D
 
         TResult removeImageCodec(ImageCodecBase::FileType type);
 
-#if defined(T3D_EDITOR)
-        void setEditor(IEditor *editor) { mEditor = editor; }
-
-        IEditor *getEditor() const { return mEditor; }
-#endif
-        
     protected:
         TResult initSystem(const String &appPath, uint32_t maxEvent);
         
@@ -221,11 +212,7 @@ namespace Tiny3D
         /// 对象内存跟踪
         ObjectTracer            *mObjTracer {nullptr};
 
-#if defined(T3D_EDITOR)
-        /// 编辑器在引擎中的唯一对象，用于存放编辑器需要的插件等中间对象
-        IEditor                 *mEditor {nullptr};
-#endif
-
+        /// 渲染管线
         RenderPipelinePtr       mRenderPipeline {nullptr};
         /// 默认渲染窗口
         RenderWindowPtr         mDefaultWindow {nullptr};

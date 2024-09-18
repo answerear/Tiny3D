@@ -83,6 +83,16 @@ namespace Tiny3D
         TResult write(const String &name, const ArchiveWriteCallback &callback) override;
 
         /**
+         * 重写 Archieve::read() 接口
+         */
+        TResult read(const UUID &uuid, const ArchiveReadCallback &callback) override;
+
+        /**
+         * 重写 Archieve::write() 接口
+         */
+        TResult write(const UUID &uuid, const ArchiveWriteCallback &callback) override;
+        
+        /**
          * 构造函数
          */
         FileSystemArchive(const String &name, AccessMode mode);

@@ -59,9 +59,10 @@ namespace Tiny3D
 
     Material::Material(const String &name, Shader *shader)
         : Resource(name)
+        , mShaderUUID(shader->getUUID())
         , mShader(shader)
     {
-        mShaderName = shader->getName();
+        
     }
     
     //--------------------------------------------------------------------------
@@ -231,11 +232,11 @@ namespace Tiny3D
                 break;
             }
 
-            mShader = T3D_SHADER_MGR.loadShader(archive, mShaderName);
+            mShader = T3D_SHADER_MGR.loadShader(archive, mShaderUUID);
             if (mShader == nullptr)
             {
                 // 加载 shader 失败
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader (%s) failed !", mShaderName.c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader (%s) failed !", mShaderUUID.toString().c_str());
                 ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }

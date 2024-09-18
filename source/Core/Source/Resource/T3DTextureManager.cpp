@@ -244,16 +244,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TexturePtr TextureManager::loadTexture(Archive *archive, const String &name)
+    TexturePtr TextureManager::loadTexture(Archive *archive, const String &filename)
     {
-        return smart_pointer_cast<Texture>(load(archive, name));
+        return smart_pointer_cast<Texture>(load(archive, filename));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TexturePtr TextureManager::loadTexture(Archive *archive, const UUID &uuid)
+    {
+        return smart_pointer_cast<Texture>(load(archive, uuid));
     }
 
     //--------------------------------------------------------------------------
 
     ResourcePtr TextureManager::loadResource(const String &name, DataStream &stream)
     {
+        return loadResource(stream);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr TextureManager::loadResource(DataStream &stream)
+    {
         return T3D_SERIALIZER_MGR.deserialize<Texture>(stream);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult TextureManager::saveTexture(Archive *archive, const String &filename, Texture *texture)
+    {
+        return save(archive, filename, texture);
     }
 
     //--------------------------------------------------------------------------

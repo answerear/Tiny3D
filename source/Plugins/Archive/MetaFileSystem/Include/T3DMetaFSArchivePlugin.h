@@ -58,6 +58,11 @@ namespace Tiny3D
         TResult startup() override;
 
         /**
+         * @brief 更新插件
+         */
+        void update() override;
+
+        /**
          * @brief 关闭插件
          */
         TResult shutdown() override;
@@ -70,6 +75,11 @@ namespace Tiny3D
     protected:
         /// 插件名称
         String mName {};
+
+        using RootArchives = TUnorderedMap<String, MetaFSArchive*>;
+
+        /// 根路径集合，用于自动检测是否生成 meta 文件
+        RootArchives mRootArchives {};
     };
 
 }

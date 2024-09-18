@@ -51,9 +51,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MeshPtr MeshManager::loadMesh(Archive *archive, const String &name)
+    MeshPtr MeshManager::loadMesh(Archive *archive, const String &filename)
     {
-        return smart_pointer_cast<Mesh>(load(archive, name));
+        return smart_pointer_cast<Mesh>(load(archive, filename));
+    }
+
+    //--------------------------------------------------------------------------
+
+    MeshPtr MeshManager::loadMesh(Archive *archive, const UUID &uuid)
+    {
+        return smart_pointer_cast<Mesh>(load(archive, uuid));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MeshManager::saveMesh(Archive *archive, const String &filename, Mesh *mesh)
+    {
+        return save(archive, filename, mesh);
     }
 
     //--------------------------------------------------------------------------
@@ -79,6 +93,13 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     ResourcePtr MeshManager::loadResource(const String &name, DataStream &stream)
+    {
+        return loadResource(stream);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr MeshManager::loadResource(DataStream &stream)
     {
         return T3D_SERIALIZER_MGR.deserialize<Mesh>(stream);
     }

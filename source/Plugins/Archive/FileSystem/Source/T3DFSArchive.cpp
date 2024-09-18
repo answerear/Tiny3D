@@ -208,5 +208,21 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult FileSystemArchive::read(const UUID &uuid, const ArchiveReadCallback &callback)
+    {
+        T3D_ASSERT(false);
+        return T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FileSystemArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback)
+    {
+        T3D_ASSERT(false);
+        return T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
 }
 

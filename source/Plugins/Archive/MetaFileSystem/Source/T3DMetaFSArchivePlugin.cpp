@@ -20,7 +20,7 @@
 
 #include "T3DMetaFSArchivePlugin.h"
 #include "T3DMetaFSArchive.h"
-#include "T3DMetaFSProjectManager.h"
+// #include "T3DMetaFSProjectManager.h"
 
 
 namespace Tiny3D
@@ -51,18 +51,45 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::install()
     {
-        MFSProjectManager *projectMgr = new MFSProjectManager();
-        T3D_AGENT.getEditor()->setProjectManager(projectMgr);
+        // MFSProjectManager *projectMgr = new MFSProjectManager();
+        // T3D_AGENT.getEditor()->setProjectManager(projectMgr);
         
         return T3D_ARCHIVE_MGR.addArchiveCreator(
             MetaFSArchive::ARCHIVE_TYPE,
             [this](const String &name, Archive::AccessMode mode)
             {
                 MetaFSArchivePtr archive;
+
+                bool shouldMonitor = false;
                 
-                if (T3D_AGENT.getEditor()->getProjectManager()->getProjectPath() == name)
+                if (archiveCanWrite((uint32_t)mode))
                 {
-                    archive = MetaFSArchive::create(name, mode);
+                    // 找出是否已经有启动监控的，子文件夹都在监控中，不重复监控
+                    for (const auto &item : mRootArchives)
+                    {
+                        // 路径不完全相同，并且父路径不在监控中
+                        if (item.first != name && !StringUtil::match(name, item.first))
+                        {
+                            shouldMonitor = true;
+                            break;
+                        }
+                    }
+                }
+                
+                archive = MetaFSArchive::create(name, mode);
+                if (archive != nullptr && shouldMonitor)
+                {
+                    // 启动监控
+                    if (!archive->startMonitor())
+                    {
+                        // 启动失败
+                        archive = nullptr;
+                    }
+                    else
+                    {
+                        // 启动成功过
+                        mRootArchives.emplace(name, archive);
+                    }
                 }
                 
                 return archive;
@@ -80,10 +107,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void MetaFSArchivePlugin::update()
+    {
+        for (const auto &item : mRootArchives)
+        {
+            item.second->update();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult MetaFSArchivePlugin::shutdown()
     {
         TResult ret = T3D_OK;
 
+        for (const auto &item : mRootArchives)
+        {
+            item.second->stopMonitor();
+        }
+        
         return ret;
     }
 
@@ -91,10 +133,10 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::uninstall()
     {
-        MFSProjectManager *projectMgr = static_cast<MFSProjectManager *>(T3D_AGENT.getEditor()->getProjectManager());
-        T3D_SAFE_DELETE(projectMgr);
+        // MFSProjectManager *projectMgr = static_cast<MFSProjectManager *>(T3D_AGENT.getEditor()->getProjectManager());
+        // T3D_SAFE_DELETE(projectMgr);
+        // T3D_AGENT.getEditor()->setProjectManager(nullptr);
         
-        T3D_AGENT.getEditor()->setProjectManager(nullptr);
         return T3D_ARCHIVE_MGR.removeArchiveCreator(MetaFSArchive::ARCHIVE_TYPE);
     }
 }

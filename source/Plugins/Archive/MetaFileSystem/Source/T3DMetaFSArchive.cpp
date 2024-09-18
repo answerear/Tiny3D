@@ -31,7 +31,12 @@ namespace Tiny3D
 
     MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode)
     {
-        return new MetaFSArchive(name, mode);
+        MetaFSArchivePtr archive = new MetaFSArchive(name, mode);
+        if (archive != nullptr && !archive->init())
+        {
+            archive = nullptr;
+        }
+        return archive;
     }
 
     //--------------------------------------------------------------------------
@@ -51,11 +56,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool MetaFSArchive::init()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool MetaFSArchive::canWrite() const
     {
         uint32_t mode = (uint32_t)getAccessMode();
-        uint32_t writeMode = (uint32_t)AccessMode::kAppend | (uint32_t)AccessMode::kTruncate;
-        return (mode & writeMode) != 0;
+        return archiveCanWrite(mode);
+        // uint32_t writeMode = (uint32_t)AccessMode::kAppend | (uint32_t)AccessMode::kTruncate;
+        // return (mode & writeMode) != 0;
     }
 
     //--------------------------------------------------------------------------
@@ -133,7 +146,7 @@ namespace Tiny3D
             if (callback == nullptr)
             {
                 ret = T3D_ERR_INVALID_PARAM;
-                T3D_LOG_ERROR(LOG_TAG_METAFS, "Read callback is nullptr when reading archive [%s] !", name.c_str());
+                MFS_LOG_ERROR("Read callback is nullptr when reading archive [%s] !", name.c_str());
                 break;
             }
 
@@ -144,7 +157,7 @@ namespace Tiny3D
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                T3D_LOG_ERROR(LOG_TAG_METAFS, "Open file [%s] from file system failed !", path.c_str());
+                MFS_LOG_ERROR("Open file [%s] from file system failed !", path.c_str());
                 break;
             }
 
@@ -175,7 +188,7 @@ namespace Tiny3D
             if (callback == nullptr)
             {
                 ret = T3D_ERR_INVALID_PARAM;
-                T3D_LOG_ERROR(LOG_TAG_METAFS, "Write callback is nullptr when writing archive [%s] !", name.c_str());
+                MFS_LOG_ERROR("Write callback is nullptr when writing archive [%s] !", name.c_str());
                 break;
             }
 
@@ -186,7 +199,7 @@ namespace Tiny3D
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                T3D_LOG_ERROR(LOG_TAG_METAFS, "Open file [%s] from file system failed !", path.c_str());
+                MFS_LOG_ERROR("Open file [%s] from file system failed !", path.c_str());
                 break;
             }
 
@@ -200,6 +213,43 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult MetaFSArchive::read(const UUID &uuid, const ArchiveReadCallback &callback)
+    {
+        T3D_ASSERT(false);
+        return T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetaFSArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback)
+    {
+        T3D_ASSERT(false);
+        return T3D_ERR_NOT_IMPLEMENT;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool MetaFSArchive::startMonitor()
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void MetaFSArchive::update()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void MetaFSArchive::stopMonitor()
+    {
+        
+    }
+    
     //--------------------------------------------------------------------------
 }
 

@@ -37,19 +37,68 @@ namespace Tiny3D
         , public ResourceManager
     {
     public:
+        /**
+         * @brief 创建图像资源管理器对象
+         */
         static ImageManagerPtr create();
 
+        /**
+         * @brief 创建图像资源对象
+         * @param [in] name : 图像资源的名称
+         * @param [in] width : 图像宽度 
+         * @param [in] height : 图像高度 
+         * @param [in] format : 图像像素格式
+         * @return 调用成功返回图像对象，否则返回 nullptr
+         */
         ImagePtr createImage(const String &name, uint32_t width, uint32_t height, PixelFormat format);
-        
-        ImagePtr loadImage(Archive *archive, const String &name);
 
+        /**
+         * @brief 根据文件名，加载图像对象
+         * @param [in] archive : 从该档案对象中加载图像对象
+         * @param [in] filename : 图像文件名
+         * @return 调用成功返回图像对象，否则返回 nullptr
+         */
+        ImagePtr loadImage(Archive *archive, const String &filename);
+
+        /**
+         * @brief 根据 UUID 加载图像对象
+         * @param [in] archive : 从该档案对象中加载图像对象
+         * @param [in] uuid : 资源的 UUID
+         * @return 调用成功返回图像对象，否则返回 nullptr
+         */
+        ImagePtr loadImage(Archive *archive, const UUID &uuid);
+
+        /**
+         * @brief 把图像对象写到对应文件名的图像文件中
+         * @param [in] archive : 保存图像文件到该档案对象中
+         * @param [in] filename : 图像文件名
+         * @param [in] image : 要保存的图像对象 
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult saveImage(Archive *archive, const String &filename, Image *image);
+
+        /**
+         * @brief 把图像对象写到 UUID 对应的图像文件中
+         * @param [in] archive : 保存图像文件到该档案对象中
+         * @param [in] image : 要保存的图像对象
+         * @return 调用成功返回 T3D_OK
+         */
         TResult saveImage(Archive *archive, Image *image);
 
     protected:
+        /**
+         * 重写基类接口
+         */
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
+        /**
+         * 重写基类接口 
+         */
         ResourcePtr loadResource(const String &name, DataStream &stream) override;
-        
+
+        /**
+         * 重写基类接口
+         */
         TResult saveResource(DataStream &stream, Resource *res) override;
     };
 

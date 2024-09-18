@@ -50,12 +50,28 @@ namespace Tiny3D
          */
         String getArchiveType() const override;
 
+        /**
+         * 启动监控，自动生成 meta 文件
+         * @return 调用成功返回 true
+         */
+        bool startMonitor();
+
+        /**
+         * 更新
+         */
+        void update();
+
+        /**
+         * 停止监控
+         */
+        void stopMonitor();
+        
     protected:
         /**
          * 重写 Archive::clone() 接口
          */
         ArchivePtr clone() const override;
-
+        
         /**
          * 重写 Archieve::getPath() 接口
          */
@@ -77,6 +93,16 @@ namespace Tiny3D
         TResult write(const String &name, const ArchiveWriteCallback &callback) override;
 
         /**
+         * 重写 Archieve::read() 接口
+         */
+        TResult read(const UUID &uuid, const ArchiveReadCallback &callback) override;
+
+        /**
+         * 重写 Archieve::write() 接口
+         */
+        TResult write(const UUID &uuid, const ArchiveWriteCallback &callback) override;
+        
+        /**
          * 构造函数
          */
         MetaFSArchive(const String &name, AccessMode mode);
@@ -90,5 +116,7 @@ namespace Tiny3D
          * 根据档案访问模式获取文件流打开模式 
          */
         FileDataStream::EOpenMode getFileOpenMode(AccessMode accMode) const;
+
+        bool init();
     };
 }

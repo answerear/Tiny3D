@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_PROJECT_MANAGER_INTERFACE_H__
-#define __T3D_PROJECT_MANAGER_INTERFACE_H__
+#ifndef __T3D_META_H__
+#define __T3D_META_H__
 
 
 #include "T3DPrerequisites.h"
@@ -31,28 +31,41 @@
 
 namespace Tiny3D
 {
-#if defined (T3D_EDITOR)
-    class IProjectManager
+#if defined(T3D_EDITOR)
+
+    TSTRUCT()
+    struct T3D_ENGINE_API Meta
     {
-    public:
-        virtual ~IProjectManager() = default;
+        TENUM()
+        enum Type
+        {
+            kUnknown = 0,
+            kFolder,
+            kDylib,
+            kMaterial,
+            kTexture,
+            kShader,
+            kMesh,
+            kPrefab,
+            kScene,
+        };
 
-        virtual TResult createProject(const String &path, const String &name) = 0;
+        Meta() = default;
 
-        virtual TResult openProject(const String &path, const String &name) = 0;
+        Meta(Type t, const UUID &uid)
+            : type(t)
+            , uuid(uid)
+        {}
 
-        virtual TResult closeProject() = 0;
+        TPROPERTY()
+        Type type {kUnknown};
 
-        virtual const String &getProjectPath() const = 0;
-
-        virtual const String &getProjectName() const = 0;
-
-        virtual const String &getAssetsPath() const = 0;
-
-        virtual const String &getTempPath() const = 0;
+        TPROPERTY()
+        UUID uuid {UUID::INVALID};
     };
+    
 #endif
 }
 
 
-#endif    /*__T3D_PROJECT_MANAGER_INTERFACE_H__*/
+#endif    /*__T3D_META_H__*/

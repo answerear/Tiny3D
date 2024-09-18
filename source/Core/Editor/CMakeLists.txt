@@ -10,9 +10,9 @@ set_project_name(T3DCoreEditor)
 message(STATUS "Generating project : ${BIN_NAME}")
 
 
-if (TINY3D_CORE_RTTR)
+if (TINY3D_CORE_EDITOR_RTTR)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-endif (TINY3D_CORE_RTTR)
+endif (TINY3D_CORE_EDITOR_RTTR)
 
 
 if (MSVC)
@@ -101,10 +101,11 @@ set_project_files(Source\\\\Scene ${TINY3D_CORE_SOURCE_DIR}/Source/Scene/ .cpp)
 set_project_files(Source\\\\Bound ${TINY3D_CORE_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Source/Component/ .cpp)
 set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializer/ .cpp)
+set_project_files(Source\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Source/Editor/ .cpp)
 
 
 # Generated source for reflection.
-set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/../Generated/ .generated.cpp)
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/../Editor/Generated/ .generated.cpp)
 
 # protobuf source files
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.h)

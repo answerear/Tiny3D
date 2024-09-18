@@ -632,6 +632,12 @@ namespace Tiny3D
 
     void Agent::update()
     {
+        // 更新插件
+        for (auto plugin : mPlugins)
+        {
+            plugin.second->update();
+        }
+        
         // 事件系统派发事件
         T3D_EVENT_MGR.dispatchEvent();
 

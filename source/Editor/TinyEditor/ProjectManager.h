@@ -25,61 +25,39 @@
 #pragma once
 
 
-#include "T3DMetaFSArchivePrerequisites.h"
+#include "EditorPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    using UUIDMap = TUnorderedMap<UUID, String, UUIDHash, UUIDEqual>;
-    using PathMap = TUnorderedMap<String, UUID>;
+    NS_BEGIN(Editor)
     
-    TSTRUCT()
-    struct Mappings
-    {
-        /// UUID => 文件路径映射表
-        UUIDMap uuids {};
-        
-        /// 文件路径 => UUID 映射表
-        TPROPERTY()
-        PathMap paths {};
-    };
-    
-    class MFSProjectManager : public IProjectManager, public Singleton<MFSProjectManager>
+    class ProjectManager : public Singleton<ProjectManager>
     {
     public:
-        MFSProjectManager();
+        ProjectManager();
 
-        ~MFSProjectManager() override;
+        ~ProjectManager() override;
 
-        TResult createProject(const String &path, const String &name) override;
+        TResult createProject(const String &path, const String &name);
 
-        TResult openProject(const String &path, const String &name) override;
+        TResult openProject(const String &path, const String &name);
 
-        TResult closeProject() override;
+        TResult closeProject();
 
-        const String &getProjectPath() const override { return mPath; }
+        const String &getProjectPath() const { return mPath; }
 
-        const String &getProjectName() const override { return mName; }
+        const String &getProjectName() const { return mName; }
 
-        const String &getAssetsPath() const override { return mAssetsPath; }
+        const String &getAssetsPath() const { return mAssetsPath; }
 
-        const String &getTempPath() const override {return mTempPath; }
+        const String &getTempPath() const {return mTempPath; }
 
         void refresh(const UUID &uuid, const String &path);
 
         const String &getPathByUUID(const UUID &uuid) const;
 
         const UUID &getUUIDByPath(const String &path) const;
-        
-    protected:
-        /// 扫描对应路径的文件，建立映射关系
-        TResult buildMappings();
-
-        /// 读映射文件
-        TResult readMappings();
-
-        /// 写映射文件
-        TResult writeMappings();
         
     protected:
         static const char *ASSETS;
@@ -101,11 +79,9 @@ namespace Tiny3D
 
         /// 工程根目录
         String mProjectPath {};
-        /// 映射表
-        Mappings mMappings {};
-        /// 是否刷新而写文件
-        bool mIsDirty {false};
     };
 
-    #define PROJECT_MGR (MFSProjectManager::getInstance())
+    #define PROJECT_MGR (ProjectManager::getInstance())
+
+    NS_END
 }

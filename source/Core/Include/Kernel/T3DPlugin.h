@@ -40,37 +40,37 @@ namespace Tiny3D
     {
     public:
         /**
-         * @fn  virtual const String Plugin::&getName() const = 0;
-         * @brief   获取插件名称
-         * @return  The name.
+         * @brief 获取插件名称
+         * @return 返回插件名称.
          */
         virtual const String &getName() const = 0;
 
         /**
-         * @fn  virtual TResult Plugin::install() = 0;
-         * @brief   安装插件
-         * @return  A TResult.
+         * @brief 安装插件
+         * @return 调用成功返回 T3D_OK.
          */
         virtual TResult install() = 0;
 
         /**
-         * @fn  virtual TResult Plugin::startup() = 0;
-         * @brief   启动插件
-         * @return  A TResult.
+         * @brief 启动插件
+         * @return 调用成功返回 T3D_OK.
          */
         virtual TResult startup() = 0;
 
         /**
-         * @fn  virtual TResult Plugin::shutdown() = 0;
-         * @brief   关闭插件
-         * @return  A TResult.
+         * @brief 更新
+         */
+        virtual void update() {}
+
+        /**
+         * @brief 关闭插件
+         * @return 调用成功返回 T3D_OK.
          */
         virtual TResult shutdown() = 0;
 
         /**
-         * @fn  virtual TResult Plugin::uninstall() = 0;
-         * @brief   卸载插件
-         * @return  A TResult.
+         * @brief 卸载插件
+         * @return 调用成功返回 T3D_OK.
          */
         virtual TResult uninstall() = 0;
     };

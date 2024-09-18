@@ -83,7 +83,7 @@ namespace Tiny3D
     TResult DylibManager::saveResource(DataStream &stream, Resource *res)
     {
         T3D_ASSERT(false);
-        return T3D_OK;
+        return T3D_ERR_NOT_IMPLEMENT;
     }
 
     //--------------------------------------------------------------------------

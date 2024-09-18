@@ -95,7 +95,7 @@ set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializ
 
 
 # Generated source for reflection.
-set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/../Generated/ .generated.cpp)
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/../Runtime/Generated/ .generated.cpp)
 
 # protobuf source files
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.h)
