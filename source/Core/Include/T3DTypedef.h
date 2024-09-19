@@ -152,6 +152,10 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIShader);
     T3D_DECLARE_SMART_PTR(RHIThread);
     T3D_DECLARE_SMART_PTR(RHICommand);
+
+#if defined(T3D_EDITOR)
+    T3D_DECLARE_SMART_PTR(Meta);
+#endif
     
 
     using RHIRenderers = TMap<String, RHIRendererPtr>;

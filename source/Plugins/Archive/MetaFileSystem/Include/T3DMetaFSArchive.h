@@ -38,7 +38,7 @@ namespace Tiny3D
         /**
          * 创建对象
          */
-        static MetaFSArchivePtr create(const String &name, AccessMode mode);
+        static MetaFSArchivePtr create(const String &name, AccessMode mode, MetaFSMonitor *monitor);
 
         /**
          * 析构函数
@@ -49,22 +49,6 @@ namespace Tiny3D
          * 重写 Archive::getArchiveType() 接口
          */
         String getArchiveType() const override;
-
-        /**
-         * 启动监控，自动生成 meta 文件
-         * @return 调用成功返回 true
-         */
-        bool startMonitor();
-
-        /**
-         * 更新
-         */
-        void update();
-
-        /**
-         * 停止监控
-         */
-        void stopMonitor();
         
     protected:
         /**
@@ -105,7 +89,7 @@ namespace Tiny3D
         /**
          * 构造函数
          */
-        MetaFSArchive(const String &name, AccessMode mode);
+        MetaFSArchive(const String &name, AccessMode mode, MetaFSMonitor *monitor);
 
         /**
          * 是否可写
@@ -118,5 +102,8 @@ namespace Tiny3D
         FileDataStream::EOpenMode getFileOpenMode(AccessMode accMode) const;
 
         bool init();
+
+    protected:
+        MetaFSMonitorPtr    mFSMonitor {nullptr};
     };
 }

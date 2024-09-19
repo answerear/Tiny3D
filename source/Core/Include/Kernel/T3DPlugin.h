@@ -58,11 +58,6 @@ namespace Tiny3D
         virtual TResult startup() = 0;
 
         /**
-         * @brief 更新
-         */
-        virtual void update() {}
-
-        /**
          * @brief 关闭插件
          * @return 调用成功返回 T3D_OK.
          */

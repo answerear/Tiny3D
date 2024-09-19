@@ -38,6 +38,8 @@ namespace Tiny3D
     const char *Resource::EXT_MESH = "tmesh";
     const char *Resource::EXT_PREFAB = "tprefab";
     const char *Resource::EXT_SCENE = "tscene";
+    const char *Resource::EXT_TXT = "txt";
+    const char *Resource::EXT_BIN = "bin";
     
     //--------------------------------------------------------------------------
 

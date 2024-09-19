@@ -135,6 +135,8 @@
 #include <RHI/T3DRHIThread.h>
 #include <RHI/T3DRHICommand.h>
 
-
+#if defined(T3D_EDITOR)
+#include <Editor/T3DMeta.h>
+#endif
 
 #endif  /*__TINY3D_H__*/

@@ -20,7 +20,7 @@
 
 #include "T3DMetaFSArchivePlugin.h"
 #include "T3DMetaFSArchive.h"
-// #include "T3DMetaFSProjectManager.h"
+#include "T3DMetaFSMonitor.h"
 
 
 namespace Tiny3D
@@ -51,46 +51,51 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::install()
     {
-        // MFSProjectManager *projectMgr = new MFSProjectManager();
-        // T3D_AGENT.getEditor()->setProjectManager(projectMgr);
-        
         return T3D_ARCHIVE_MGR.addArchiveCreator(
             MetaFSArchive::ARCHIVE_TYPE,
             [this](const String &name, Archive::AccessMode mode)
             {
                 MetaFSArchivePtr archive;
 
-                bool shouldMonitor = false;
-                
-                if (archiveCanWrite((uint32_t)mode))
+                do
                 {
+                    MetaFSMonitorPtr monitor;
+                
                     // 找出是否已经有启动监控的，子文件夹都在监控中，不重复监控
-                    for (const auto &item : mRootArchives)
+                    for (const auto &item : mPathMonitors)
                     {
-                        // 路径不完全相同，并且父路径不在监控中
-                        if (item.first != name && !StringUtil::match(name, item.first))
+                        if (item.first == name)
                         {
-                            shouldMonitor = true;
+                            // 完全相同路径
+                            monitor = item.second;
+                            break;
+                        }
+
+                        String::size_type pos = name.find_first_not_of(item.first);
+                        if (pos != String::npos)
+                        {
+                            // 包含了部分路径，name 是其子路径
+                            monitor = item.second;
                             break;
                         }
                     }
-                }
-                
-                archive = MetaFSArchive::create(name, mode);
-                if (archive != nullptr && shouldMonitor)
-                {
-                    // 启动监控
-                    if (!archive->startMonitor())
+                    
+                    if (monitor == nullptr)
                     {
-                        // 启动失败
-                        archive = nullptr;
+                        // 创建监控对象
+                        monitor = MetaFSMonitor::create(name);
+                        TResult ret = monitor->init();
+                        if (T3D_FAILED(ret))
+                        {
+                            MFS_LOG_ERROR("Failed to initialize monitor %s.", name.c_str());
+                            break;
+                        }
+
+                        mPathMonitors.emplace(name, monitor);
                     }
-                    else
-                    {
-                        // 启动成功过
-                        mRootArchives.emplace(name, archive);
-                    }
-                }
+                    
+                    archive = MetaFSArchive::create(name, mode, monitor);
+                } while (false);
                 
                 return archive;
             });
@@ -107,24 +112,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void MetaFSArchivePlugin::update()
-    {
-        for (const auto &item : mRootArchives)
-        {
-            item.second->update();
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult MetaFSArchivePlugin::shutdown()
     {
         TResult ret = T3D_OK;
 
-        for (const auto &item : mRootArchives)
+        for (const auto &item : mPathMonitors)
         {
-            item.second->stopMonitor();
+            item.second->stop();
         }
+
+        for (const auto &archive : mArchives)
+        {
+            T3D_ARCHIVE_MGR.unloadArchive(archive);
+        }
+
+        mArchives.clear();
+        mPathMonitors.clear();
         
         return ret;
     }
@@ -133,10 +136,6 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::uninstall()
     {
-        // MFSProjectManager *projectMgr = static_cast<MFSProjectManager *>(T3D_AGENT.getEditor()->getProjectManager());
-        // T3D_SAFE_DELETE(projectMgr);
-        // T3D_AGENT.getEditor()->setProjectManager(nullptr);
-        
         return T3D_ARCHIVE_MGR.removeArchiveCreator(MetaFSArchive::ARCHIVE_TYPE);
     }
 }

@@ -27,20 +27,28 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
 #if defined(T3D_EDITOR)
 
-    TSTRUCT()
-    struct T3D_ENGINE_API Meta
+    TCLASS()
+    class T3D_ENGINE_API Meta : public Object
     {
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
+        
+    public:
         TENUM()
         enum Type
         {
             kUnknown = 0,
             kFolder,
+            kFile,
+            kTxt,
+            kBin,
             kDylib,
             kMaterial,
             kTexture,
@@ -49,6 +57,16 @@ namespace Tiny3D
             kPrefab,
             kScene,
         };
+
+        static MetaPtr create()
+        {
+            return new Meta();
+        }
+
+        static MetaPtr create(Type t, const UUID uid)
+        {
+            return new Meta(t, uid);
+        }
 
         Meta() = default;
 

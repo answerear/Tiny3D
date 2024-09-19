@@ -54,6 +54,8 @@ namespace Tiny3D
         static const char *EXT_MESH;
         static const char *EXT_PREFAB;
         static const char *EXT_SCENE;
+        static const char *EXT_TXT;
+        static const char *EXT_BIN;
         
         /**
          * \brief 资源类型

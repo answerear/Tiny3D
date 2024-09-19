@@ -19,7 +19,7 @@
 
 
 #include "T3DMetaFSArchive.h"
-
+#include "T3DMetaFSMonitor.h"
 
 namespace Tiny3D
 {
@@ -29,9 +29,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode)
+    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode, MetaFSMonitor *monitor)
     {
-        MetaFSArchivePtr archive = new MetaFSArchive(name, mode);
+        MetaFSArchivePtr archive = new MetaFSArchive(name, mode, monitor);
         if (archive != nullptr && !archive->init())
         {
             archive = nullptr;
@@ -41,8 +41,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode)
+    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode, MetaFSMonitor *monitor)
         : Archive(name, mode)
+        , mFSMonitor(monitor)
     {
         
     }
@@ -109,7 +110,7 @@ namespace Tiny3D
 
     ArchivePtr MetaFSArchive::clone() const
     {
-        ArchivePtr archive = create(getName(), getAccessMode());
+        ArchivePtr archive = create(getName(), getAccessMode(), mFSMonitor);
         return archive;
     }
 
@@ -227,27 +228,6 @@ namespace Tiny3D
     {
         T3D_ASSERT(false);
         return T3D_ERR_NOT_IMPLEMENT;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    bool MetaFSArchive::startMonitor()
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void MetaFSArchive::update()
-    {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    void MetaFSArchive::stopMonitor()
-    {
-        
     }
     
     //--------------------------------------------------------------------------
