@@ -27,16 +27,49 @@
 
 #include "EditorPrerequisites.h"
 
+// #define TEST_SCENE
+
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class EditorScene : public Singleton<EditorScene>
+    T3D_DECLARE_SMART_PTR(EditorScene);
+    
+    class EditorScene
+        : public Singleton<EditorScene>
+        , public Scene
     {
     public:
-        EditorScene() = default;
+        // static EditorScenePtr createEditorScene(const String &name);
+        
+        EditorScene(const String &name);
+        
         ~EditorScene() override;
+
+        void setRuntimeScene(Scene *scene) { mRuntimeScene = scene; }
+
+        Scene *getRuntimeScene() const { return mRuntimeScene; }
+
+        const GameObjectPtr &getRootGameObject() const override;
+
+        const Transform3DPtr &getRootTransform() const override;
+
+        void update() override;
+
+        TResult addCamera(Camera *camera) override;
+
+        TResult removeCamera(Camera *camera) override;
+
+        TResult removeCamera(const UUID &uuid) override;
+
+        TResult removeCamera(const String &name) override;
+
+        const CameraList &getCameras() const override;
+
+        Camera *getEditorCamera() const override;
+
+        GameObject *getEditorGameObject() const override;
 
         void build();
 
@@ -52,6 +85,7 @@ namespace Tiny3D
 
         ImTextureID getGameRT() const { return mGameRT; }
 
+#if defined(TEST_SCENE)
     protected:  // for test
         void buildCamera(Transform3D *parent);
         void buildCube(Transform3D *parent);
@@ -59,6 +93,7 @@ namespace Tiny3D
         MaterialPtr buildMaterial();
         MeshPtr buildMesh();
         void buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
+#endif
         
     protected:
         /// 编辑器场景相机
@@ -73,6 +108,8 @@ namespace Tiny3D
         ImTextureID     mGameRT {nullptr};
         /// 游戏场景根节点
         GameObjectPtr   mRoot {nullptr};
+        /// 运行时的游戏场景
+        Scene           *mRuntimeScene {nullptr};
 
         float mGameRTWidth {1920};
         float mGameRTHeight {1080};

@@ -43,20 +43,6 @@ namespace Tiny3D
         ~Scene() override = default;
 
         Type getType() const override;
-        
-        // const GameObjectList &getRootGameObjects() const { return mRootGameObjects; }
-        //
-        // void addRootGameObject(GameObject *gameObject);
-        //
-        // virtual GameObjectPtr addRootGameObject(const String &name);
-        //
-        // void removeRootGameObject(const String &name);
-        //
-        // void removeRootGameObject(GameObject *gameObject);
-        //
-        // void removeRootGameObject(const UUID &uuid);
-        //
-        // virtual void removeAll();
 
         virtual const GameObjectPtr &getRootGameObject() const { return mRootGameObject; }
 
@@ -73,6 +59,12 @@ namespace Tiny3D
         virtual TResult removeCamera(const String &name);
 
         virtual const CameraList &getCameras() const { return mCameras; }
+
+#if defined(T3D_EDITOR)
+        virtual Camera *getEditorCamera() const { return nullptr; }
+
+        virtual GameObject *getEditorGameObject() const { return nullptr; }
+#endif
         
     protected:
         Scene(const String &name);

@@ -31,10 +31,18 @@
 
 namespace Tiny3D
 {
+#if defined(T3D_EDITOR)
+    using EditorSceneCreator = TFunction<ScenePtr(const String &name)>;
+#endif
+    
     class T3D_ENGINE_API SceneManagerImpl : public ResourceManager
     {
     public:
         virtual ScenePtr createScene(const String &name) = 0;
+
+#if defined(T3D_EDITOR)
+        virtual ScenePtr createEditorScene(const String &name, const EditorSceneCreator &creator) = 0;
+#endif
 
         virtual ScenePtr loadScene(Archive *archive, const String &name) = 0;
 
@@ -53,6 +61,10 @@ namespace Tiny3D
         void setSceneManagerImpl(SceneManagerImpl *impl) { mImpl = impl; }
 
         ScenePtr createScene(const String &name);
+
+#if defined(T3D_EDITOR)
+        ScenePtr createEditorScene(const String &name, const EditorSceneCreator &creator);
+#endif
 
         ScenePtr loadScene(Archive *archive, const String &name);
 
@@ -86,6 +98,10 @@ namespace Tiny3D
         ~BuiltinSceneManager() override = default;
 
         ScenePtr createScene(const String &name) override;
+
+#if defined(T3D_EDITOR)
+        ScenePtr createEditorScene(const String &name, const EditorSceneCreator &creator) override;
+#endif
 
         ScenePtr loadScene(Archive *archive, const String &name) override;
 

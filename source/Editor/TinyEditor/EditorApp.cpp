@@ -62,7 +62,7 @@ namespace Tiny3D
         // T3D_SAFE_DELETE(mNetworkMgr);
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
-        T3D_SAFE_DELETE(mEditorScene)
+        // T3D_SAFE_DELETE(mEditorScene)
         T3D_SAFE_DELETE(mEngine)
         
         app = nullptr;
@@ -106,7 +106,7 @@ namespace Tiny3D
 
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
-        T3D_SAFE_DELETE(mEditorScene)
+        // T3D_SAFE_DELETE(mEditorScene)
         T3D_SAFE_DELETE(mEngine)
 
         return ret;
@@ -227,8 +227,14 @@ namespace Tiny3D
             mTextureMgr = new ImTextureManager();
 
             // 编辑器场景
-            mEditorScene = new EditorScene();
-            mEditorScene->build();
+            // mEditorScene = new EditorScene();
+            // mEditorScene->build();
+            EditorScene *scene = smart_pointer_cast<EditorScene>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
+                [](const String &name)
+                {
+                    return new EditorScene(name);
+                }));
+            scene->build();
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -399,7 +405,7 @@ namespace Tiny3D
         // 删除清理 imgui 环境，此后无法再使用 imgui
         destroyImGuiEnv();
 
-        T3D_SAFE_DELETE(mEditorScene)
+        // T3D_SAFE_DELETE(mEditorScene)
 
         if (mNetworkMgr != nullptr)
         {
@@ -500,46 +506,6 @@ namespace Tiny3D
     void EditorApp::applicationLowMemory()
     {
 
-    }
-
-    //--------------------------------------------------------------------------
-    
-    void EditorApp::buildScene()
-    {
-        // create scene
-        ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
-        T3D_SCENE_MGR.setCurrentScene(scene);
-    
-        // root game object
-        GameObjectPtr go = GameObject::create("TestScene");
-        // scene->addRootGameObject(go);
-        Transform3DPtr root = go->addComponent<Transform3D>();
-        scene->getRootTransform()->addChild(root);
-
-#if 0
-        RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
-        RenderTargetPtr rt = RenderTarget::create(rw);
-#else
-        RenderWindow *rw = T3D_AGENT.getDefaultRenderWindow();
-        RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("RT_Scene", 640, 480, PixelFormat::E_PF_B8G8R8A8);
-        RenderTargetPtr rt = RenderTarget::create(renderTex);
-#endif
-    
-        CameraPtr camera;
-
-        // center camera
-        go = GameObject::create("CenterCamera");
-        Transform3DPtr center = go->addComponent<Transform3D>();
-        root->addChild(center);
-        camera = go->addComponent<Camera>();
-        camera->setOrder(1);
-        Viewport vpCenter {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
-        camera->setViewport(vpCenter);
-        camera->setClearColor(ColorRGB::BLUE);
-        camera->setRenderTarget(rt);
-        scene->addCamera(camera);
-
-        mSceneRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
     }
 
     //--------------------------------------------------------------------------

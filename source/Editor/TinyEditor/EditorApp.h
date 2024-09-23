@@ -67,8 +67,6 @@ namespace Tiny3D
         TResult createImGuiEnv();
 
         void destroyImGuiEnv();
-        
-        void buildScene();
 
         void engineUpdate();
 
@@ -108,7 +106,6 @@ namespace Tiny3D
         Agent *mEngine {nullptr};
         LanguageManagerPtr mLangMgr {nullptr};
         NetworkManager *mNetworkMgr {nullptr};
-        EditorScene *mEditorScene {nullptr};
         ProjectManager *mProjectMgr {nullptr};
         
         StartOptions mOptions {};

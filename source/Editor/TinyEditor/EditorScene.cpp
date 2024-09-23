@@ -40,6 +40,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // EditorScenePtr EditorScene::createEditorScene(const String &name)
+    // {
+    //     return new EditorScene(name);
+    // }
+
+    //--------------------------------------------------------------------------
+
+    EditorScene::EditorScene(const String &name)
+        : Scene(name)
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
     EditorScene::~EditorScene()
     {
         mSceneRT = nullptr;
@@ -49,7 +64,106 @@ namespace Tiny3D
         }
         mSceneTarget = nullptr;
         
-        T3D_SCENE_MGR.unloadScene();
+        // T3D_SCENE_MGR.unloadScene();
+    }
+
+    //--------------------------------------------------------------------------
+
+    const GameObjectPtr &EditorScene::getRootGameObject() const
+    {
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->getRootGameObject();
+        }
+        return GameObjectPtr::NULL_PTR;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Transform3DPtr &EditorScene::getRootTransform() const
+    {
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->getRootTransform();
+        }
+        return Transform3DPtr::NULL_PTR;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorScene::update()
+    {
+        mRootGameObject->update();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorScene::addCamera(Camera *camera)
+    {
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->addCamera(camera);
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorScene::removeCamera(Camera *camera)
+    {
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->removeCamera(camera);
+        }
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult EditorScene::removeCamera(const UUID &uuid)
+    {
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->removeCamera(uuid);
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EditorScene::removeCamera(const String &name)
+    {
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->removeCamera(name);
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const CameraList &EditorScene::getCameras() const
+    {
+        static CameraList cameras;
+        if (mRuntimeScene != nullptr)
+        {
+            return mRuntimeScene->getCameras();
+        }
+        return cameras;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Camera *EditorScene::getEditorCamera() const
+    {
+        return mSceneCamera;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObject *EditorScene::getEditorGameObject() const
+    {
+        return mRootGameObject;
     }
 
     //--------------------------------------------------------------------------
@@ -60,14 +174,14 @@ namespace Tiny3D
         refreshSceneRenderTarget();
         
         // 创建场景
-        ScenePtr scene = T3D_SCENE_MGR.createScene("__Scene__");
-        T3D_SCENE_MGR.setCurrentScene(scene);
+        // ScenePtr scene = T3D_SCENE_MGR.createScene("__Scene__");
+        T3D_SCENE_MGR.setCurrentScene(this);
     
         // 根节点
         GameObjectPtr go = GameObject::create("__SceneRoot__");
         // scene->addRootGameObject(go);
         Transform3DPtr root = go->addComponent<Transform3D>();
-        scene->getRootTransform()->addChild(root);
+        mRootTransform->addChild(root);
 
         // 编辑器内部用的根节点
         go = GameObject::create("__Builtin__");
@@ -89,7 +203,7 @@ namespace Tiny3D
         camera->setViewport(vp);
         camera->setClearColor(ColorRGB(0.133f, 0.231f, 0.329f));
         camera->setRenderTarget(mSceneTarget);
-        scene->addCamera(camera);
+        // scene->addCamera(camera);
 
         // camera for perspective
         camera->setProjectionType(Camera::Projection::kPerspective);
@@ -111,12 +225,14 @@ namespace Tiny3D
         
         mSceneCamera = camera;
 
+#if defined(TEST_SCENE)
         // For test
         // camera
-        // buildCamera(gameNode);
+        buildCamera(gameNode);
 
         // cube
-        // buildCube(gameNode);
+        buildCube(gameNode);
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -195,6 +311,7 @@ namespace Tiny3D
         }
     }
 
+#if defined(TEST_SCENE)
     //--------------------------------------------------------------------------
 
     void EditorScene::buildCamera(Transform3D *parent)
@@ -828,6 +945,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+#endif
     
     NS_END
 }

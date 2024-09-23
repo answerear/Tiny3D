@@ -58,6 +58,21 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
+#if defined(T3D_EDITOR)
+    ScenePtr SceneManager::createEditorScene(const String &name, const EditorSceneCreator &creator)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->createEditorScene(name, creator);
+        }
+
+        return nullptr;
+    }
+
+#endif
+    
+    //--------------------------------------------------------------------------
+
     ScenePtr SceneManager::loadScene(Archive *archive, const String &name)
     {
         if (mImpl != nullptr)
@@ -120,6 +135,16 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
+#if defined(T3D_EDITOR)
+    ScenePtr BuiltinSceneManager::createEditorScene(const String &name, const EditorSceneCreator &creator)
+    {
+        return smart_pointer_cast<Scene>(createResource(name, 1, &creator));
+    }
+
+#endif
+    
+    //--------------------------------------------------------------------------
+
     ScenePtr BuiltinSceneManager::loadScene(Archive *archive, const String &name)
     {
         return smart_pointer_cast<Scene>(load(archive, name));
@@ -136,7 +161,30 @@ namespace  Tiny3D
 
     ResourcePtr BuiltinSceneManager::newResource(const String &name, int32_t argc, va_list args)
     {
+#if defined(T3D_EDITOR)
+        T3D_ASSERT(argc <= 1);
+        ScenePtr scene;
+        if (argc == 1)
+        {
+            EditorSceneCreator *creator = va_arg(args, EditorSceneCreator *);
+            if (creator == nullptr)
+            {
+                scene = nullptr;
+            }
+            else
+            {
+                scene = (*creator)(name);
+            }
+        }
+        else
+        {
+            scene = Scene::create(name);
+        }
+        return scene;
+#else
+        T3D_ASSERT(argc == 0);
         return Scene::create(name);
+#endif
     }
 
     //--------------------------------------------------------------------------

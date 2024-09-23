@@ -123,12 +123,21 @@ namespace Tiny3D
         
         mCameras.clear();
         mRenderQueue.clear();
+
+        GameObjectPtr go;
+        
+#if defined(T3D_EDITOR)
+        Camera *camera = scene->getEditorCamera();
+        mCameras.emplace_back(camera);
+        go = scene->getEditorGameObject();
+        go->frustumCulling(camera, this);
+#endif
         
         for (auto item : scene->getCameras())
         {
             mCameras.emplace_back(item.second);
 
-            GameObjectPtr go = scene->getRootGameObject();
+            go = scene->getRootGameObject();
             uint32_t cullingMask = item.second->getCullingMask();
             uint32_t cameraMask = go->getCameraMask();
             if (cullingMask & cameraMask)

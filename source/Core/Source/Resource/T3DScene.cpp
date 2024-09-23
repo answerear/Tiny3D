@@ -77,82 +77,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    // void Scene::addRootGameObject(GameObject *gameObject)
-    // {
-    //     mRootGameObjects.emplace_back(gameObject);
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // GameObjectPtr Scene::addRootGameObject(const String &name)
-    // {
-    //     return GameObject::create(name);
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // void Scene::removeRootGameObject(const String &name)
-    // {
-    //     for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
-    //     {
-    //         if ((*itr)->getName() == name)
-    //         {
-    //             mRootGameObjects.erase(itr);
-    //             break;
-    //         }
-    //     }
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // void Scene::removeRootGameObject(GameObject *gameObject)
-    // {
-    //     for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
-    //     {
-    //         if ((*itr) == gameObject)
-    //         {
-    //             mRootGameObjects.erase(itr);
-    //             break;
-    //         }
-    //     }
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // void Scene::removeRootGameObject(const UUID &uuid)
-    // {
-    //     for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
-    //     {
-    //         if ((*itr)->getUUID() == uuid)
-    //         {
-    //             mRootGameObjects.erase(itr);
-    //             break;
-    //         }
-    //     }
-    // }
-    //
-    // //--------------------------------------------------------------------------
-    //
-    // void Scene::removeAll()
-    // {
-    //     for (auto itr = mRootGameObjects.rbegin(); itr != mRootGameObjects.rend(); ++itr)
-    //     {
-    //         GameObject::destroy(*itr);
-    //     }
-    //     
-    //     mRootGameObjects.clear();
-    //
-    //     mCameras.clear();
-    // }
-
-    //--------------------------------------------------------------------------
-
     void Scene::update()
     {
-        // for (auto go : mRootGameObjects)
-        // {
-        //     go->update();
-        // }
         mRootGameObject->update();
     }
 

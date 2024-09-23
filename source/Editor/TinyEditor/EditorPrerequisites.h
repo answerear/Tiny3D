@@ -51,5 +51,6 @@ namespace Tiny3D
     NS_END
 
     class ImGuiImpl;
+    class EditorScene;
 }
 
