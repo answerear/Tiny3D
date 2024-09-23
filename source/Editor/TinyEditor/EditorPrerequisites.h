@@ -45,6 +45,9 @@ namespace Tiny3D
     #define EDITOR_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
     #define EDITOR_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
 
+    #define ARCHIVE_TYPE_METAFS     "MetaFileSystem"
+    #define ARCHIVE_TYPE_FS         "FileSystem"
+
     NS_END
 
     class ImGuiImpl;

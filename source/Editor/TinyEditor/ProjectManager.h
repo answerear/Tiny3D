@@ -53,11 +53,9 @@ namespace Tiny3D
 
         const String &getTempPath() const {return mTempPath; }
 
-        void refresh(const UUID &uuid, const String &path);
+        ArchivePtr getAssetsArchive() const { return mAssetsArchive; }
 
-        const String &getPathByUUID(const UUID &uuid) const;
-
-        const UUID &getUUIDByPath(const String &path) const;
+        ArchivePtr getBuiltinArchive() const { return mBuiltinArchive; }
         
     protected:
         static const char *ASSETS;
@@ -77,8 +75,10 @@ namespace Tiny3D
         /// 工程临时文件路径
         String mTempPath {};
 
-        /// 工程根目录
-        String mProjectPath {};
+        /// Assets 档案系统
+        ArchivePtr mAssetsArchive {nullptr};
+        /// Temp 档案系统
+        ArchivePtr mBuiltinArchive {nullptr};
     };
 
     #define PROJECT_MGR (ProjectManager::getInstance())

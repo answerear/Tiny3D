@@ -275,7 +275,7 @@ namespace Tiny3D
                 break;
             }
 
-            T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), "FileSystem", Archive::AccessMode::kRead);
+            T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
 
             mEngine->setRunInBackground(true);
         } while (false);

@@ -129,6 +129,24 @@ namespace Tiny3D
                 ret = T3D_ERR_COPY_DIR;
                 break;
             }
+
+            // Assets 档案系统
+            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            if (mAssetsArchive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load assets fs archive [%s]", assetsPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            // Builtin 资源档案系统
+            mBuiltinArchive = T3D_ARCHIVE_MGR.loadArchive(dstPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            if (mBuiltinArchive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load builtin fs archive [%s]", builtinPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
             
             mPath = projectPath;
             mName = name;
@@ -172,6 +190,25 @@ namespace Tiny3D
                 break;
             }
 
+            // Assets 档案系统
+            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            if (mAssetsArchive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load assets fs archive [%s]", assetsPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            // Builtin 资源档案系统
+            String builtinPath = tempPath + Dir::getNativeSeparator() + "builtin";
+            mBuiltinArchive = T3D_ARCHIVE_MGR.loadArchive(builtinPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            if (mBuiltinArchive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load builtin fs archive [%s]", builtinPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            
             mPath = projectPath;
             mName = name;
             mAssetsPath = assetsPath;
@@ -185,6 +222,10 @@ namespace Tiny3D
 
     TResult ProjectManager::closeProject()
     {
+        mPath.clear();
+        mName.clear();
+        mAssetsPath.clear();
+        mTempPath.clear();
         return T3D_OK;
     }
 
