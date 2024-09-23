@@ -52,25 +52,25 @@ namespace Tiny3D
             ret = generateTextures(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate textures failed ! ERROR [%d]", ret);
+                BGEN_LOG_ERROR("Failed to generate all builtin textures ! ERROR [%d]", ret);
             }
             
             ret = generateShaders(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate shaders failed ! ERROR [%d]", ret);
+                BGEN_LOG_ERROR("Failed to generate all builtin shaders ! ERROR [%d]", ret);
             }
             
             ret = generateMaterials(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate materials failed ! ERROR [%d]", ret);
+                BGEN_LOG_ERROR("Failed to generate all builtin materials ! ERROR [%d]", ret);
             }
 
             ret = generateMeshes(rootPath, reservedTemp);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate meshes failed ! ERROR [%d]", ret);
+                BGEN_LOG_ERROR("Failed to generate all builtin meshes ! ERROR [%d]", ret);
             }
         } while (false);
 

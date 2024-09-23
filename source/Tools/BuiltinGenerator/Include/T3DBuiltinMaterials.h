@@ -45,6 +45,10 @@ namespace Tiny3D
             return (it == mMaterials.end() ? nullptr : it->second);
         }
     protected:
+        TResult generateDefaultMaterial(const String &rootPath);
+        
+        TResult generateTestMaterial(const String &rootPath);
+        
         using Materials = TMap<String, MaterialPtr>;
 
         Materials mMaterials {};

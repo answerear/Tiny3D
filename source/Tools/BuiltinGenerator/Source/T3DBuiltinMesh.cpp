@@ -32,6 +32,7 @@ namespace Tiny3D
 
 #if !defined (GENERATE_TEST_MESH)
     const char *MATERIAL_NAME = "Default-Material.tmat";
+    const char *TEST_MATERIAL_NAME = "Test-Material.tmat";
 #else
     const char *MATERIAL_NAME = "Test-Material.tmat";
 #endif
@@ -192,6 +193,19 @@ namespace Tiny3D
         material->switchKeywords(enableKeywrods, disableKeywords);
         return material;
 #endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    MaterialPtr BuiltinMesh::buildTestMaterial()
+    {
+        String name = TEST_MATERIAL_NAME;
+        MaterialPtr material = T3D_BUILTIN_MATERIALS.getMaterial(name);
+        StringArray enableKeywrods;
+        enableKeywrods.push_back("");
+        StringArray disableKeywords;
+        material->switchKeywords(enableKeywrods, disableKeywords);
+        return material;
     }
 
     //--------------------------------------------------------------------------

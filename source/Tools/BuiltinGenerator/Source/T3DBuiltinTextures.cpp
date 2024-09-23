@@ -37,10 +37,17 @@ namespace Tiny3D
         do
         {
             String outputPath = rootPath + Dir::getNativeSeparator() + "textures";
+
+            // ret = generateWhiteAlbedo(outputPath);
+            // if (T3D_FAILED(ret))
+            // {
+            //     BGEN_LOG_ERROR("Failed to generate white albedo texture in %s ! ERROR [%d]", outputPath.c_str(), ret);
+            // }
+            
             ret = generateTestTexture(outputPath);
             if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Generate test texture to %s failed ! ERROR [%d]", outputPath.c_str(), ret);
+                BGEN_LOG_ERROR("Failed to generate test texture in %s ! ERROR [%d]", outputPath.c_str(), ret);
             }
 
             String searchPath = outputPath;
@@ -48,6 +55,38 @@ namespace Tiny3D
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinTextures::generateWhiteAlbedo(const String &outputPath)
+    {
+        const uint32_t w = 4;
+        const uint32_t h = 4;
+        const uint32_t bytesPerPixel = 4;
+        const uint32_t dataSize = w * h * bytesPerPixel;
+        uint8_t *data = new uint8_t[dataSize];
+        uint32_t i = 0;
+        while (i < dataSize)
+        {
+            data[i++] = 255;
+            data[i++] = 255;
+            data[i++] = 255;
+            data[i++] = 255;
+        }
+        
+        Buffer texData;
+        texData.setData(data, dataSize);
+
+        String name = "white";
+        auto texture = T3D_TEXTURE_MGR.createTexture2D(name, w, h, PixelFormat::E_PF_B8G8R8X8, texData);
+
+        SamplerDesc samplerDesc;
+        texture->setSamplerDesc(samplerDesc);
+
+        String filename = name + "." + Resource::EXT_TEXTURE;
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        return T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
     }
 
     //--------------------------------------------------------------------------
@@ -145,12 +184,13 @@ namespace Tiny3D
         texData.Data = pixels;
         texData.DataSize = dataSize;
 
-        String filename = String("Test") + "." + Resource::EXT_TEXTURE;
-        Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(filename, width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+        String name = "Test";
+        String filename = name + "." + Resource::EXT_TEXTURE;
+        Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, width, height, PixelFormat::E_PF_B8G8R8X8, texData);
         SamplerDesc desc;
         texture->setSamplerDesc(desc);
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kTruncate);
-        return T3D_TEXTURE_MGR.saveTexture(archive, texture);
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        return T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
     }
 
     //--------------------------------------------------------------------------
@@ -185,7 +225,7 @@ namespace Tiny3D
                 {
                     BGEN_LOG_INFO("Begin generating texture (%s) ...", filePath.c_str());
 
-                    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, "FileSystem", Archive::AccessMode::kRead);
+                    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
                     T3D_ASSERT(archive != nullptr);
                     String name = title + "." + ext;
                     ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
@@ -194,12 +234,12 @@ namespace Tiny3D
                     TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image);
                     T3D_ASSERT(texture != nullptr);
 
-                    archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kTruncate);
+                    archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
                     T3D_ASSERT(archive != nullptr);
                     SamplerDesc samplerDesc;
                     texture->setSamplerDesc(samplerDesc);
 
-                    ret = T3D_TEXTURE_MGR.saveTexture(archive, texture);
+                    ret = T3D_TEXTURE_MGR.saveTexture(archive, name, texture);
                     if (T3D_FAILED(ret))
                     {
                         T3D_LOG_ERROR("Failed to generate texture (%s) !", outputPath.c_str());

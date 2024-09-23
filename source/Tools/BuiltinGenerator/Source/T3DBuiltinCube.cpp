@@ -32,9 +32,10 @@ namespace Tiny3D
 
     const char *SUB_MESH_NAME = "#0";
 #if !defined (GENERATE_TEST_MESH)
-    const char *MESH_NAME = "cube.tmesh";
+    const char *MESH_NAME = "cube";
+    const char *TEST_MESH_NAME = "test-cube";
 #else
-    const char *MESH_NAME = "test-cube.tmesh";
+    const char *MESH_NAME = "test-cube";
 #endif
     
     //--------------------------------------------------------------------------
@@ -290,11 +291,23 @@ namespace Tiny3D
         subMeshes.emplace(name, submesh);
 
         auto attributes2 = attributes;
-        auto vertexBuffers2 = vertexBuffers;
+        Buffer vertexBuffer2;
+        vertexBuffer2.setData(vertices, sizeof(BoxVertex) * kVertexCount);
+        Vertices vertexBuffers2(1);
+        vertexBuffers2[0] = vertexBuffer2;
+
+        Buffer indexBuffer2;
+        indexBuffer2.setData(indices, sizeof(uint16_t) * kIndexCount);
+        
         auto strides2 = strides;
         auto offsets2 = offsets;
-        auto subMeshes2 = subMeshes;
         mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+
+        material = buildTestMaterial();
+        submesh = SubMesh::create(name, material, PrimitiveType::kTriangleList, indexBuffer2, true);
+        SubMeshes subMeshes2;
+        subMeshes2.emplace(name, submesh);
+        mTestMesh = T3D_MESH_MGR.createMesh(TEST_MESH_NAME, std::move(attributes2), std::move(vertexBuffers2), std::move(strides2), std::move(offsets2), std::move(subMeshes2));
         
         return T3D_OK;
     }
@@ -307,17 +320,34 @@ namespace Tiny3D
 
         do
         {
-            String filename = path + Dir::getNativeSeparator() + MESH_NAME;
-            FileDataStream fs;
-            if (!fs.open(filename.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY|FileDataStream::EOpenMode::E_MODE_TEXT))
+            // String filename = path + Dir::getNativeSeparator() + MESH_NAME;
+            // FileDataStream fs;
+            // if (!fs.open(filename.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY|FileDataStream::EOpenMode::E_MODE_TEXT))
+            // {
+            //     BGEN_LOG_ERROR("Open file %s failed !", filename.c_str());
+            //     ret = T3D_ERR_FILE_NOT_EXIST;
+            //     break;
+            // }
+            //
+            // T3D_SERIALIZER_MGR.serialize<Mesh>(fs, *mMesh);
+            // fs.close();
+            String filename = String(MESH_NAME) + "." + Resource::EXT_MESH;
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            T3D_ASSERT(archive != nullptr);
+            ret = T3D_MESH_MGR.saveMesh(archive, filename, mMesh);
+            if (T3D_FAILED(ret))
             {
-                BGEN_LOG_ERROR("Open file %s failed !", filename.c_str());
-                ret = T3D_ERR_FILE_NOT_EXIST;
-                break;
+                BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
             }
 
-            T3D_SERIALIZER_MGR.serialize<Mesh>(fs, *mMesh);
-            fs.close();
+            filename = String(TEST_MESH_NAME) + "." + Resource::EXT_MESH;
+            archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            T3D_ASSERT(archive != nullptr);
+            ret = T3D_MESH_MGR.saveMesh(archive, filename, mTestMesh);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
+            }
         } while (false);
         
         return ret;

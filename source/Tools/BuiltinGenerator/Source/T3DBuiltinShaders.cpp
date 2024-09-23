@@ -137,7 +137,7 @@ namespace Tiny3D
                 Dir::parsePath(filePath, path, title, ext);
                 
                 // 读取编译后的 shader
-                ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kRead);
+                ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
                 T3D_ASSERT(archive != nullptr);
                 String filename = title + "." + Resource::EXT_SHADER;
                 ShaderPtr shader = T3D_SHADER_MGR.loadShader(archive, filename);
@@ -145,7 +145,7 @@ namespace Tiny3D
                 
                 mShaders.emplace(filename, shader);
 
-                // archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, "FileSystem", Archive::AccessMode::kTruncate);
+                // archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
                 // T3D_ASSERT(archive != nullptr);
                 // T3D_SHADER_MGR.saveShader(archive, shader);
                 

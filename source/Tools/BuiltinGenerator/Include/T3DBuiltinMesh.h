@@ -43,6 +43,8 @@ namespace Tiny3D
 
     protected:
         virtual MaterialPtr buildMaterial();
+        
+        MaterialPtr buildTestMaterial();
     };
 }
 

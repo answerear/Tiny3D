@@ -56,6 +56,8 @@ namespace Tiny3D
         printf("\n");
 
     // #define GENERATE_TEST_MESH
+
+    #define ARCHIVE_TYPE_FS     "FileSystem" 
 }
 
 

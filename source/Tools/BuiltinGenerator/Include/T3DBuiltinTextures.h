@@ -43,6 +43,8 @@ namespace Tiny3D
     protected:
         TResult generateTestTexture(const String &outputPath);
 
+        TResult generateWhiteAlbedo(const String &outputPath);
+
         TResult generateTexture(const String &path, const String &outputPath);
     };
 

@@ -44,6 +44,7 @@ namespace Tiny3D
 
     protected:
         MeshPtr mMesh {nullptr};
+        MeshPtr mTestMesh {nullptr};
     };
 }
 
