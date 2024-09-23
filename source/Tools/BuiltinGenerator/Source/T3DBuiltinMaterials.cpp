@@ -31,12 +31,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-#if !defined (GENERATE_TEST_MESH)
     const char *MATERIAL_TITLE = "Default-Material";
     const char *TEST_MATERIAL_TITLE = "Test-Material";
-#else
-    const char *MATERIAL_TITLE = "Test-Material";
-#endif
     
     //--------------------------------------------------------------------------
 

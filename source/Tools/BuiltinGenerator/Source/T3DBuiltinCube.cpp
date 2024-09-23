@@ -31,12 +31,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     const char *SUB_MESH_NAME = "#0";
-#if !defined (GENERATE_TEST_MESH)
     const char *MESH_NAME = "cube";
     const char *TEST_MESH_NAME = "test-cube";
-#else
-    const char *MESH_NAME = "test-cube";
-#endif
     
     //--------------------------------------------------------------------------
 
@@ -320,17 +316,6 @@ namespace Tiny3D
 
         do
         {
-            // String filename = path + Dir::getNativeSeparator() + MESH_NAME;
-            // FileDataStream fs;
-            // if (!fs.open(filename.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY|FileDataStream::EOpenMode::E_MODE_TEXT))
-            // {
-            //     BGEN_LOG_ERROR("Open file %s failed !", filename.c_str());
-            //     ret = T3D_ERR_FILE_NOT_EXIST;
-            //     break;
-            // }
-            //
-            // T3D_SERIALIZER_MGR.serialize<Mesh>(fs, *mMesh);
-            // fs.close();
             String filename = String(MESH_NAME) + "." + Resource::EXT_MESH;
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
