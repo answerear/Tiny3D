@@ -198,7 +198,7 @@ namespace Tiny3D
 
         String endOfThis = str.substr(thisLen - patternLen, patternLen);
         if (lowerCase)
-            StringUtil::toLowerCase(endOfThis);
+            toLowerCase(endOfThis);
 
         return (endOfThis == pattern);
     }
@@ -229,8 +229,8 @@ namespace Tiny3D
         String tmpPattern = pattern;
         if (!caseSensitive)
         {
-            StringUtil::toLowerCase(tmpStr);
-            StringUtil::toLowerCase(tmpPattern);
+            toLowerCase(tmpStr);
+            toLowerCase(tmpPattern);
         }
 
         String::const_iterator strIt = tmpStr.begin();
