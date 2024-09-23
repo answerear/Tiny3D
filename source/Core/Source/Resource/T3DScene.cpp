@@ -26,6 +26,7 @@
 #include "Resource/T3DScene.h"
 #include "Kernel/T3DGameObject.h"
 #include "Component/T3DCamera.h"
+#include "Component/T3DTransform3D.h"
 
 
 namespace Tiny3D
@@ -42,7 +43,8 @@ namespace Tiny3D
     Scene::Scene(const String &name)
         : Resource(name)
     {
-        
+        mRootGameObject = GameObject::create("SceneRoot");
+        mRootTransform = mRootGameObject->addComponent<Transform3D>();
     }
 
     //--------------------------------------------------------------------------
@@ -68,81 +70,90 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Scene::addRootGameObject(GameObject *gameObject)
+    const Transform3DPtr &Scene::getRootTransform() const
     {
-        mRootGameObjects.emplace_back(gameObject);
+        return mRootTransform;
     }
 
     //--------------------------------------------------------------------------
 
-    GameObjectPtr Scene::addRootGameObject(const String &name)
-    {
-        return GameObject::create(name);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Scene::removeRootGameObject(const String &name)
-    {
-        for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
-        {
-            if ((*itr)->getName() == name)
-            {
-                mRootGameObjects.erase(itr);
-                break;
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Scene::removeRootGameObject(GameObject *gameObject)
-    {
-        for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
-        {
-            if ((*itr) == gameObject)
-            {
-                mRootGameObjects.erase(itr);
-                break;
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Scene::removeRootGameObject(const UUID &uuid)
-    {
-        for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
-        {
-            if ((*itr)->getUUID() == uuid)
-            {
-                mRootGameObjects.erase(itr);
-                break;
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    void Scene::removeAll()
-    {
-        for (auto itr = mRootGameObjects.rbegin(); itr != mRootGameObjects.rend(); ++itr)
-        {
-            GameObject::destroy(*itr);
-        }
-
-        mRootGameObjects.clear();
-        mCameras.clear();
-    }
+    // void Scene::addRootGameObject(GameObject *gameObject)
+    // {
+    //     mRootGameObjects.emplace_back(gameObject);
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // GameObjectPtr Scene::addRootGameObject(const String &name)
+    // {
+    //     return GameObject::create(name);
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Scene::removeRootGameObject(const String &name)
+    // {
+    //     for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
+    //     {
+    //         if ((*itr)->getName() == name)
+    //         {
+    //             mRootGameObjects.erase(itr);
+    //             break;
+    //         }
+    //     }
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Scene::removeRootGameObject(GameObject *gameObject)
+    // {
+    //     for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
+    //     {
+    //         if ((*itr) == gameObject)
+    //         {
+    //             mRootGameObjects.erase(itr);
+    //             break;
+    //         }
+    //     }
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Scene::removeRootGameObject(const UUID &uuid)
+    // {
+    //     for (auto itr = mRootGameObjects.begin(); itr != mRootGameObjects.end(); ++itr)
+    //     {
+    //         if ((*itr)->getUUID() == uuid)
+    //         {
+    //             mRootGameObjects.erase(itr);
+    //             break;
+    //         }
+    //     }
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Scene::removeAll()
+    // {
+    //     for (auto itr = mRootGameObjects.rbegin(); itr != mRootGameObjects.rend(); ++itr)
+    //     {
+    //         GameObject::destroy(*itr);
+    //     }
+    //     
+    //     mRootGameObjects.clear();
+    //
+    //     mCameras.clear();
+    // }
 
     //--------------------------------------------------------------------------
 
     void Scene::update()
     {
-        for (auto go : mRootGameObjects)
-        {
-            go->update();
-        }
+        // for (auto go : mRootGameObjects)
+        // {
+        //     go->update();
+        // }
+        mRootGameObject->update();
     }
 
     //--------------------------------------------------------------------------
@@ -234,7 +245,13 @@ namespace Tiny3D
 
     TResult Scene::onUnload()
     {
-        removeAll();
+        // removeAll();
+        if (mRootGameObject != nullptr)
+        {
+            GameObject::destroy(mRootGameObject);
+            mRootGameObject = nullptr;
+            mRootTransform = nullptr;
+        }
         
         return Resource::onUnload();
     }

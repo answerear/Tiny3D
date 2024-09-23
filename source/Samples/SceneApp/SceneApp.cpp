@@ -57,9 +57,10 @@ bool SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
-    scene->addRootGameObject(go);
+    // scene->addRootGameObject(go);
     Transform3DPtr root = go->addComponent<Transform3D>();
-
+    scene->getRootTransform()->addChild(root);
+    
     mMesh = buildMesh();
     
     // camera

@@ -89,7 +89,8 @@ namespace Tiny3D
 
         if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
         {
-            mSceneMgr->getCurrentScene()->removeAll();
+            // mSceneMgr->getCurrentScene()->removeAll();
+            mSceneMgr->unloadScene();
         }
         
         GameObject::destroyComponents();

@@ -44,31 +44,35 @@ namespace Tiny3D
 
         Type getType() const override;
         
-        const GameObjectList &getRootGameObjects() const { return mRootGameObjects; }
+        // const GameObjectList &getRootGameObjects() const { return mRootGameObjects; }
+        //
+        // void addRootGameObject(GameObject *gameObject);
+        //
+        // virtual GameObjectPtr addRootGameObject(const String &name);
+        //
+        // void removeRootGameObject(const String &name);
+        //
+        // void removeRootGameObject(GameObject *gameObject);
+        //
+        // void removeRootGameObject(const UUID &uuid);
+        //
+        // virtual void removeAll();
 
-        void addRootGameObject(GameObject *gameObject);
+        virtual const GameObjectPtr &getRootGameObject() const { return mRootGameObject; }
 
-        virtual GameObjectPtr addRootGameObject(const String &name);
-
-        void removeRootGameObject(const String &name);
-
-        void removeRootGameObject(GameObject *gameObject);
-
-        void removeRootGameObject(const UUID &uuid);
-
-        void removeAll();
+        virtual const Transform3DPtr &getRootTransform() const;
 
         virtual void update();
 
-        TResult addCamera(Camera *camera);
+        virtual TResult addCamera(Camera *camera);
 
-        TResult removeCamera(Camera *camera);
+        virtual TResult removeCamera(Camera *camera);
 
-        TResult removeCamera(const UUID &uuid);
+        virtual TResult removeCamera(const UUID &uuid);
 
-        TResult removeCamera(const String &name);
+        virtual TResult removeCamera(const String &name);
 
-        const CameraList &getCameras() const { return mCameras; }
+        virtual const CameraList &getCameras() const { return mCameras; }
         
     protected:
         Scene(const String &name);
@@ -86,7 +90,9 @@ namespace Tiny3D
         
     protected:
         /// 场景根节点对应的 game object
-        GameObjectList  mRootGameObjects {};
+        GameObjectPtr   mRootGameObject { nullptr };
+        /// 根节点
+        Transform3DPtr  mRootTransform {nullptr};
         /// 场景相机列表
         CameraList      mCameras {};
     };

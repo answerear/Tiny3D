@@ -47,9 +47,9 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
-    scene->addRootGameObject(go);
+    // scene->addRootGameObject(go);
     Transform3DPtr root = go->addComponent<Transform3D>();
-
+    scene->getRootTransform()->addChild(root);
     RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
     RenderTargetPtr rt = RenderTarget::create(rw);
     

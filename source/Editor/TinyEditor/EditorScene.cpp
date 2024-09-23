@@ -65,8 +65,9 @@ namespace Tiny3D
     
         // 根节点
         GameObjectPtr go = GameObject::create("__SceneRoot__");
-        scene->addRootGameObject(go);
+        // scene->addRootGameObject(go);
         Transform3DPtr root = go->addComponent<Transform3D>();
+        scene->getRootTransform()->addChild(root);
 
         // 编辑器内部用的根节点
         go = GameObject::create("__Builtin__");
@@ -112,10 +113,10 @@ namespace Tiny3D
 
         // For test
         // camera
-        buildCamera(gameNode);
+        // buildCamera(gameNode);
 
         // cube
-        buildCube(gameNode);
+        // buildCube(gameNode);
     }
 
     //--------------------------------------------------------------------------

@@ -127,16 +127,23 @@ namespace Tiny3D
         for (auto item : scene->getCameras())
         {
             mCameras.emplace_back(item.second);
-            
-            for (auto go : scene->getRootGameObjects())
+
+            GameObjectPtr go = scene->getRootGameObject();
+            uint32_t cullingMask = item.second->getCullingMask();
+            uint32_t cameraMask = go->getCameraMask();
+            if (cullingMask & cameraMask)
             {
-                uint32_t cullingMask = item.second->getCullingMask();
-                uint32_t cameraMask = go->getCameraMask();
-                if (cullingMask & cameraMask)
-                {
-                    go->frustumCulling(item.second, this);
-                }
+                go->frustumCulling(item.second, this);
             }
+            // for (auto go : scene->getRootGameObjects())
+            // {
+            //     uint32_t cullingMask = item.second->getCullingMask();
+            //     uint32_t cameraMask = go->getCameraMask();
+            //     if (cullingMask & cameraMask)
+            //     {
+            //         go->frustumCulling(item.second, this);
+            //     }
+            // }
         }
         
         return T3D_OK;

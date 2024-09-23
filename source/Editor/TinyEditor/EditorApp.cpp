@@ -512,8 +512,9 @@ namespace Tiny3D
     
         // root game object
         GameObjectPtr go = GameObject::create("TestScene");
-        scene->addRootGameObject(go);
+        // scene->addRootGameObject(go);
         Transform3DPtr root = go->addComponent<Transform3D>();
+        scene->getRootTransform()->addChild(root);
 
 #if 0
         RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
