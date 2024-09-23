@@ -6,13 +6,13 @@
         "RTTI_Value": {
             "Name": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "Test-Material.tmat"
+                "RTTI_Value": "Test-Material"
             },
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "ad7d44651a5c6ef911fe95afd7cec997"
+                    "RTTI_Value": "9e010f51915be9a74b41cceeaa9bc866"
                 }
             },
             "Constants": {
@@ -75,8 +75,11 @@
                 ]
             },
             "Shader": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "Test-Material.tshader"
+                "RTTI_Type": "Tiny3D::UUID",
+                "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "8a8f33ad7ff6fe07dc46e04147b0665b"
+                }
             }
         }
     }

@@ -6,13 +6,13 @@
         "RTTI_Value": {
             "Name": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "cube.tmesh"
+                "RTTI_Value": "cube"
             },
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "0dc5203571caf9392b8d82ad4a7e6054"
+                    "RTTI_Value": "e36f4ac84d151e9cc1277618614f2e09"
                 }
             },
             "SubMeshes": {
@@ -38,8 +38,11 @@
                                     "RTTI_Value": true
                                 },
                                 "Material": {
-                                    "RTTI_Type": "std::string",
-                                    "RTTI_Value": "Default-Material.tmat"
+                                    "RTTI_Type": "Tiny3D::UUID",
+                                    "RTTI_Value": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "982c77818f1647396b36ee426adea037"
+                                    }
                                 },
                                 "Name": {
                                     "RTTI_Type": "std::string",

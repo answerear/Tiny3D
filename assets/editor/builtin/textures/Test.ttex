@@ -6,13 +6,13 @@
         "RTTI_Value": {
             "Name": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "Test.ttex"
+                "RTTI_Value": "Test"
             },
             "UUID": {
                 "RTTI_Type": "Tiny3D::UUID",
                 "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "e38faaf21a036b5b16b911aab97acb54"
+                    "RTTI_Value": "fd058c8c01829cc06873d3891c4a5599"
                 }
             },
             "SamplerDesc": {
