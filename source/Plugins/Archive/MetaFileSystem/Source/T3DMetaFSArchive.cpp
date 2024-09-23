@@ -151,6 +151,13 @@ namespace Tiny3D
                 break;
             }
 
+            if (name.empty())
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Empty filename !");
+                break;
+            }
+
             // 打开文件
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
@@ -193,6 +200,13 @@ namespace Tiny3D
                 break;
             }
 
+            if (name.empty())
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Empty filename !");
+                break;
+            }
+
             // 打开文件
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
@@ -218,9 +232,6 @@ namespace Tiny3D
 
     TResult MetaFSArchive::read(const UUID &uuid, const ArchiveReadCallback &callback)
     {
-        // T3D_ASSERT(false);
-        // return T3D_ERR_NOT_IMPLEMENT;
-
         TResult ret = T3D_OK;
 
         do
@@ -234,6 +245,13 @@ namespace Tiny3D
 
             // 找到对应文件名
             String name = mFSMonitor->getPath(uuid);
+            if (name.empty())
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Invalid uuid : %s !", uuid.toString().c_str());
+                break;
+            }
+            
             String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + name;
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
@@ -258,9 +276,6 @@ namespace Tiny3D
 
     TResult MetaFSArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback)
     {
-        // T3D_ASSERT(false);
-        // return T3D_ERR_NOT_IMPLEMENT;
-
         if (!canWrite())
         {
             T3D_LOG_ERROR(LOG_TAG_METAFS, "Access mode is not writable ! (uuid: %s)", uuid.toString().c_str());
@@ -279,7 +294,15 @@ namespace Tiny3D
             }
 
             // 打开文件
-            String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + mFSMonitor->getPath(uuid);
+            String name = mFSMonitor->getPath(uuid);
+            if (name.empty())
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Invalid uuid : %s !", uuid.toString().c_str());
+                break;
+            }
+            
+            String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + name;
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
             if (!fs.open(path.c_str(), mode))
