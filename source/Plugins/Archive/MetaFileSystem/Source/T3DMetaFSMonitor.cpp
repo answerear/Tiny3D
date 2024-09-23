@@ -140,8 +140,14 @@ namespace Tiny3D
                 break;
             }
 
+            if (ext == "meta")
+            {
+                // meta 文件直接跳过
+                break;
+            }
+            
             MetaPtr meta;
-            String metaPath = dir + Dir::getNativeSeparator() + title + ".meta";
+            String metaPath = path + ".meta";
             bool exists = Dir::exists(metaPath);
             if (exists)
             {
@@ -162,7 +168,7 @@ namespace Tiny3D
             else
             {
                 // 不存在，生成 meta
-                String filename = dir + Dir::getNativeSeparator() + title + ext;
+                String filename = dir + Dir::getNativeSeparator() + title + "." + ext;
                 meta = generateFileMeta(filename, metaPath, ext);
                 if (meta == nullptr)
                 {
@@ -292,10 +298,12 @@ namespace Tiny3D
 
     void MetaFSMonitor::addPathLUT(const String &path, const MetaPtr &meta)
     {
-        auto pos = path.find_first_not_of(mRootPath);
+        // auto pos = path.find_first_not_of(mRootPath);
+        auto pos = mRootPath.length() + 1;  // 这里还要跳过 '\' 路径分隔符 
         if (pos != String::npos)
         {
             String relativePath = path.substr(pos);
+            T3D_ASSERT(!relativePath.empty());
             mPathMappings.emplace(relativePath, meta);
             mUUIDMappings.emplace(meta->uuid, relativePath);
         }

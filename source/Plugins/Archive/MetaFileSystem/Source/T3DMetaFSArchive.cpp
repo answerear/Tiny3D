@@ -218,16 +218,85 @@ namespace Tiny3D
 
     TResult MetaFSArchive::read(const UUID &uuid, const ArchiveReadCallback &callback)
     {
-        T3D_ASSERT(false);
-        return T3D_ERR_NOT_IMPLEMENT;
+        // T3D_ASSERT(false);
+        // return T3D_ERR_NOT_IMPLEMENT;
+
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (callback == nullptr)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Write callback is nullptr when reading archive [%s] !", uuid.toString().c_str());
+                break;
+            }
+
+            // 找到对应文件名
+            String name = mFSMonitor->getPath(uuid);
+            String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + name;
+            FileDataStream fs;
+            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
+            if (!fs.open(path.c_str(), mode))
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                MFS_LOG_ERROR("Failed to open file [%s] (uuid:%s) for reading from meta file system !", path.c_str(), uuid.toString().c_str());
+                break;
+            }
+
+            // 读数据
+            ret = callback(fs);
+
+            // 关闭文件
+            fs.close();
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     TResult MetaFSArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback)
     {
-        T3D_ASSERT(false);
-        return T3D_ERR_NOT_IMPLEMENT;
+        // T3D_ASSERT(false);
+        // return T3D_ERR_NOT_IMPLEMENT;
+
+        if (!canWrite())
+        {
+            T3D_LOG_ERROR(LOG_TAG_METAFS, "Access mode is not writable ! (uuid: %s)", uuid.toString().c_str());
+            return T3D_ERR_NOT_WRAITABLE_FILE;
+        }
+        
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (callback == nullptr)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Write callback is nullptr when writing archive (uuid: %s) !", uuid.toString().c_str());
+                break;
+            }
+
+            // 打开文件
+            String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + mFSMonitor->getPath(uuid);
+            FileDataStream fs;
+            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
+            if (!fs.open(path.c_str(), mode))
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                MFS_LOG_ERROR("Failed to open file [%s] (uuid:%s) for writing to meta file system !", path.c_str(), uuid.toString().c_str());
+                break;
+            }
+
+            // 写数据
+            ret = callback(fs);
+
+            // 关闭文件
+            fs.close();
+        } while (false);
+        
+        return ret;
     }
     
     //--------------------------------------------------------------------------

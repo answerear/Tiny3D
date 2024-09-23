@@ -71,8 +71,9 @@ namespace Tiny3D
                             break;
                         }
 
-                        String::size_type pos = name.find_first_not_of(item.first);
-                        if (pos != String::npos)
+                        // String::size_type pos = name.find_first_not_of(item.first);
+                        bool match = StringUtil::match(name, item.first, false);
+                        if (match)
                         {
                             // 包含了部分路径，name 是其子路径
                             monitor = item.second;
