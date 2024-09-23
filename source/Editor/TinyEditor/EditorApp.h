@@ -107,6 +107,8 @@ namespace Tiny3D
         LanguageManagerPtr mLangMgr {nullptr};
         NetworkManager *mNetworkMgr {nullptr};
         ProjectManager *mProjectMgr {nullptr};
+
+        class TestScene *mTestScene {nullptr};
         
         StartOptions mOptions {};
 

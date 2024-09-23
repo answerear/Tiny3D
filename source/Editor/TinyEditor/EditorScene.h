@@ -41,15 +41,15 @@ namespace Tiny3D
         , public Scene
     {
     public:
-        // static EditorScenePtr createEditorScene(const String &name);
+        static EditorScenePtr create(const String &name);
         
         EditorScene(const String &name);
         
         ~EditorScene() override;
 
-        void setRuntimeScene(Scene *scene) { mRuntimeScene = scene; }
+        void setRuntimeScene(Scene *scene) override { mRuntimeScene = scene; }
 
-        Scene *getRuntimeScene() const { return mRuntimeScene; }
+        Scene *getRuntimeScene() const override { return mRuntimeScene; }
 
         const GameObjectPtr &getRootGameObject() const override;
 
@@ -70,6 +70,8 @@ namespace Tiny3D
         Camera *getEditorCamera() const override;
 
         GameObject *getEditorGameObject() const override;
+
+        Transform3D *getEditorRootTransform() const; 
 
         void build();
 

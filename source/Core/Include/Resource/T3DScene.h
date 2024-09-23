@@ -64,6 +64,10 @@ namespace Tiny3D
         virtual Camera *getEditorCamera() const { return nullptr; }
 
         virtual GameObject *getEditorGameObject() const { return nullptr; }
+
+        virtual void setRuntimeScene(Scene *scene) {}
+
+        virtual Scene *getRuntimeScene() const { return nullptr; }
 #endif
         
     protected:

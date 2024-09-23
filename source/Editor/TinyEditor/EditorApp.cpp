@@ -31,6 +31,7 @@
 #include "EditorScene.h"
 #include "EditorWidgetID.h"
 #include "EditorEventDefine.h"
+#include "TestScene.h"
 
 
 Tiny3D::Editor::EditorApp *app = nullptr;
@@ -62,7 +63,7 @@ namespace Tiny3D
         // T3D_SAFE_DELETE(mNetworkMgr);
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
-        // T3D_SAFE_DELETE(mEditorScene)
+        T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mEngine)
         
         app = nullptr;
@@ -106,7 +107,7 @@ namespace Tiny3D
 
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
-        // T3D_SAFE_DELETE(mEditorScene)
+        T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mEngine)
 
         return ret;
@@ -232,9 +233,12 @@ namespace Tiny3D
             EditorScene *scene = smart_pointer_cast<EditorScene>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
                 [](const String &name)
                 {
-                    return new EditorScene(name);
+                    return EditorScene::create(name);
                 }));
             scene->build();
+
+            mTestScene = new TestScene();
+            mTestScene->build(scene);
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -405,7 +409,7 @@ namespace Tiny3D
         // 删除清理 imgui 环境，此后无法再使用 imgui
         destroyImGuiEnv();
 
-        // T3D_SAFE_DELETE(mEditorScene)
+        T3D_SAFE_DELETE(mTestScene)
 
         if (mNetworkMgr != nullptr)
         {

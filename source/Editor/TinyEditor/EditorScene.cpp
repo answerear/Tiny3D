@@ -40,10 +40,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    // EditorScenePtr EditorScene::createEditorScene(const String &name)
-    // {
-    //     return new EditorScene(name);
-    // }
+    EditorScenePtr EditorScene::create(const String &name)
+    {
+        return new EditorScene(name);
+    }
 
     //--------------------------------------------------------------------------
 
@@ -164,6 +164,13 @@ namespace Tiny3D
     GameObject *EditorScene::getEditorGameObject() const
     {
         return mRootGameObject;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Transform3D *EditorScene::getEditorRootTransform() const
+    {
+        return mRootTransform;
     }
 
     //--------------------------------------------------------------------------
@@ -301,7 +308,7 @@ namespace Tiny3D
             {
                 for (auto item : scene->getCameras())
                 {
-                    if (item.second->getGameObject()->getName() != "__SceneCamera__")
+                    // if (item.second->getGameObject()->getName() != "__SceneCamera__")
                     {
                         // 要重新设置 render target ，并且不是编辑器 scene 视图使用的那个 render target
                         item.second->setRenderTarget(mGameTarget);
