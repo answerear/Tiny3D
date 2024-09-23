@@ -143,6 +143,13 @@ namespace  Tiny3D
 
     ResourcePtr BuiltinSceneManager::loadResource(const String &name, DataStream &stream)
     {
+        return loadResource(stream);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ResourcePtr BuiltinSceneManager::loadResource(DataStream &stream)
+    {
         return T3D_SERIALIZER_MGR.deserialize<Scene>(stream);
     }
 

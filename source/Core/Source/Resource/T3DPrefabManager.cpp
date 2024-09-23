@@ -63,9 +63,16 @@ namespace Tiny3D
 
     ResourcePtr PrefabManager::loadResource(const String &name, DataStream &stream)
     {
-        return T3D_SERIALIZER_MGR.deserialize<Prefab>(stream);
+        return loadResource(stream);
     }
 
+    //--------------------------------------------------------------------------
+
+    ResourcePtr PrefabManager::loadResource(DataStream &stream)
+    {
+        return T3D_SERIALIZER_MGR.deserialize<Prefab>(stream);
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult PrefabManager::saveResource(DataStream &stream, Resource *res)

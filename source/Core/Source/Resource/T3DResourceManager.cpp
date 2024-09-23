@@ -119,15 +119,7 @@ namespace Tiny3D
             // 存到缓存池
             mResourcesCache.emplace(resource->getUUID(), resource);
             
-            if (!resource->getFilename().empty())
-            {
-                const auto itr = mResourcesLookup.find(resource->getFilename());
-                if (itr == mResourcesLookup.end())
-                {
-                    // 沒緩存，則緩存
-                    mResourcesLookup.emplace(resource->getFilename(), resource);
-                }
-            }
+            ret = insertLUT(resource);
         } while (false);
 
         return ret;
@@ -147,6 +139,45 @@ namespace Tiny3D
         mResourcesCache.erase(resource->getUUID());
     }
     
+    //--------------------------------------------------------------------------
+
+    
+    bool ResourceManager::insertLUT(const ResourcePtr &resource)
+    {
+        bool ret = false;
+
+        String key;
+        if (!resource->getFilename().empty())
+        {
+            key = resource->getFilename();
+        }
+        else
+        {
+            key = resource->getName();
+        }
+
+        const auto itr = mResourcesLookup.find(resource->getFilename());
+        if (itr == mResourcesLookup.end())
+        {
+            // 沒緩存，則緩存
+            mResourcesLookup.emplace(key, resource);
+            ret = true;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ResourceManager::removeLUT(const String &name)
+    {
+        auto it = mResourcesLookup.find(name);
+        if (it != mResourcesLookup.end())
+        {
+            mResourcesLookup.erase(it);
+        }
+    }
+
     //--------------------------------------------------------------------------
     
     ResourcePtr ResourceManager::createResource(const String &name, int32_t argc, ...)
@@ -254,7 +285,7 @@ namespace Tiny3D
                 {
                     // 加载 resource 对象
                     TResult ret = T3D_OK;
-                    res = loadResource(stream);
+                    res = loadResource(filename, stream);
                     if (res == nullptr)
                     {
                         ret = T3D_ERR_RES_LOAD_FAILED;
@@ -342,7 +373,7 @@ namespace Tiny3D
             
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed ! UUID : %s", uuid.toString().c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource (uuid: %s) failed !", uuid.toString().c_str());
                 res = nullptr;
             }
         } while (false);
@@ -425,6 +456,11 @@ namespace Tiny3D
             }
 
             res->setFilename(filename);
+
+            // 把以资源名称为 key 放在 LUT 里面的对象删掉
+            removeLUT(res->getName());
+            // 重新使用资源文件名作为 key 的资源对象放到 LUT 里
+            insertLUT(res);
         } while (false);
         
         return ret;

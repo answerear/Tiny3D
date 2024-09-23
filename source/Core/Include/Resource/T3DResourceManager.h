@@ -212,6 +212,19 @@ namespace Tiny3D
          */
         void removeCache(const ResourcePtr &resource);
 
+        /**
+         * @brief 把資源對象加入 Lookup Table 中
+         * @param [in] resource : 要加入 LUT 的資源對象
+         * @return 調用成功返回 true
+         */
+        bool insertLUT(const ResourcePtr &resource);
+
+        /**
+         * @brief 从 LUT 中移除资源对象
+         * @param resource : 要从 LUT 移除的资源对象
+         */
+        void removeLUT(const String &name);
+
     protected:        
         /// 资源查找表容器类
         /// String : 文件路径

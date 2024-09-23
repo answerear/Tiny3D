@@ -28,6 +28,8 @@
 #include <prettywriter.h>
 #include <document.h>
 #include <Resource/T3DPrefab.h>
+
+#include "T3DErrorDef.h"
 #include "Component/T3DComponent.h"
 
 
@@ -901,6 +903,8 @@ namespace Tiny3D
             {
                 ParseErrorCode errorCode = doc.GetParseError();
                 size_t errorPos = doc.GetErrorOffset();
+                ret = T3D_ERR_PARSE_STREAM;
+                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Failed to parse json stream (pos:%u) ! ERROR [%d]", errorPos, errorCode);
                 break;
             }
 
@@ -910,6 +914,8 @@ namespace Tiny3D
             auto itr = doc.FindMember(T3D_FILE_MAGIC_KEY);
             if (itr == doc.MemberEnd())
             {
+                ret = T3D_ERR_MISSING_MAGIC;
+                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing magic field !");
                 break;
             }
             String magic = itr->value.GetString();
@@ -917,6 +923,8 @@ namespace Tiny3D
             itr = doc.FindMember(T3D_FILE_VERSION_KEY);
             if (itr == doc.MemberEnd())
             {
+                ret = T3D_ERR_MISSING_VERSION;
+                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing version field !");
                 break;
             }
             String version = itr->value.GetString();
@@ -924,6 +932,8 @@ namespace Tiny3D
             itr = doc.FindMember(T3D_FILE_OBJECT_KEY);
             if (itr == doc.MemberEnd())
             {
+                ret = T3D_ERR_MISSING_OBJECT;
+                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing object contain !");
                 break;
             }
             value = itr->value;

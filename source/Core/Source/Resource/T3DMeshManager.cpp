@@ -94,7 +94,7 @@ namespace Tiny3D
 
     ResourcePtr MeshManager::loadResource(const String &name, DataStream &stream)
     {
-        return loadResource(stream);
+        return T3D_SERIALIZER_MGR.deserialize<Mesh>(stream);
     }
 
     //--------------------------------------------------------------------------

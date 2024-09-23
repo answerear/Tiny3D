@@ -49,11 +49,6 @@ namespace Tiny3D
 
         T3D_ERR_SETTINGS_NOT_FOUND      = T3D_ERR_CORE + 0x0080, /**< 找不到設置項 */
 
-        /// 序列化對象失敗
-        T3D_ERR_SERIALIZE_OBJECT        = T3D_ERR_CORE + 0x00A0,
-        /// 反序列化對象失敗
-        T3D_ERR_DESERIALIZE_OBJECT      = T3D_ERR_CORE + 0x00A1,
-
         T3D_ERR_RES_LOAD_FAILED         = T3D_ERR_CORE + 0x00A0, /**< 加載資源失敗 */
         T3D_ERR_RES_INVALID_TYPE        = T3D_ERR_CORE + 0x00A1, /**< 非法資源類型 */
         T3D_ERR_RES_INVALID_FILETYPE    = T3D_ERR_CORE + 0x00A2, /**< 非法文件類型 */
@@ -85,8 +80,21 @@ namespace Tiny3D
         /**< 应该用同步读接口 */
         T3D_ERR_RENDER_BUFFER_READ_SYNC = T3D_ERR_CORE + 0x0200,
         /**< CPU 无法读取数据 */
-        T3D_ERR_RENDER_BUFFER_CPY_READ  = T3D_ERR_CORE + 0x0201,
-        T3D_ERR_RENDER_WINDOW_ALREADY   = T3D_ERR_CORE + 0x0202,
+        T3D_ERR_RENDER_BUFFER_CPY_READ,
+        T3D_ERR_RENDER_WINDOW_ALREADY,
+
+        /// 序列化對象失敗
+        T3D_ERR_SERIALIZE_OBJECT        = T3D_ERR_CORE + 0x0400,
+        /// 反序列化對象失敗
+        T3D_ERR_DESERIALIZE_OBJECT      = T3D_ERR_CORE + 0x0420,
+        /// 反射无法解析文件
+        T3D_ERR_PARSE_STREAM,
+        /// 没有 magic 字段
+        T3D_ERR_MISSING_MAGIC,
+        /// 没有 version 字段
+        T3D_ERR_MISSING_VERSION,
+        /// 没有 object 内容
+        T3D_ERR_MISSING_OBJECT,
     };
 }
 
