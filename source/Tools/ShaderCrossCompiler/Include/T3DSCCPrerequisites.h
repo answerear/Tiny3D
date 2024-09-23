@@ -57,6 +57,8 @@ namespace Tiny3D
         printf(fmt, ##__VA_ARGS__); \
         printf("\n");
 
+    #define ARCHIVE_TYPE_FS     "FileSystem"
+    
     struct Args
     {
         enum Options

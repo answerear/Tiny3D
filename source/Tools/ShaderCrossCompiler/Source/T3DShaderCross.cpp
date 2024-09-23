@@ -198,7 +198,7 @@ namespace Tiny3D
         do 
         {
             String shaderName = mArgs.baseName + "." + Resource::EXT_SHADER;
-            ShaderPtr shader = T3D_SHADER_MGR.createShader(shaderName);
+            ShaderPtr shader = T3D_SHADER_MGR.createShader(mArgs.baseName);
 
             ret = translate(*source, shader);
             if (!ret)
@@ -206,10 +206,10 @@ namespace Tiny3D
                 break;
             }
 
-            Archive *archive = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, "FileSystem", Archive::AccessMode::kReadTruncate);
-            T3D_SHADER_MGR.saveShader(archive, shader);
+            Archive *archive = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kReadTruncate);
+            T3D_SHADER_MGR.saveShader(archive, shaderName, shader);
 
-            // ArchivePtr arch = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, "FileSystem", Archive::AccessMode::kReadOnly);
+            // ArchivePtr arch = T3D_ARCHIVE_MGR.loadArchive(mOutputDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kReadOnly);
             // ShaderPtr shader1 = T3D_SHADER_MGR.loadShader(arch, shaderName);
             //
             // T3D_SHADER_MGR.saveShader(shader1, archive);
