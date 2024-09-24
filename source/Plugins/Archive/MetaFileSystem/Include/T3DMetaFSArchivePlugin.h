@@ -40,7 +40,7 @@ namespace Tiny3D
         /**
          * @brief 析构函数
          */
-        virtual ~MetaFSArchivePlugin();
+        ~MetaFSArchivePlugin() override;
 
         /**
          * @brief 获取插件名称
@@ -71,15 +71,13 @@ namespace Tiny3D
         /// 插件名称
         String mName {};
 
-        using PathMonitors = TUnorderedMap<String, MetaFSMonitorPtr>;
-
-        /// 根路径集合，用于自动检测是否生成 meta 文件
-        PathMonitors mPathMonitors {};
-
         using Archives = TList<ArchivePtr>;
 
         /// 档案集合
         Archives mArchives {};
+
+        /// 监控管理器
+        MetaFSMonitorManager *mMonitorMgr {nullptr};
     };
 
 }

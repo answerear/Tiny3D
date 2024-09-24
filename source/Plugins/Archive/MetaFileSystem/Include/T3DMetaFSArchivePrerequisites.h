@@ -47,6 +47,7 @@ namespace Tiny3D
     
     class MetaFSArchive;
     class MetaFSMonitor;
+    class MetaFSMonitorManager;
     
     T3D_DECLARE_SMART_PTR(MetaFSArchive);
     T3D_DECLARE_SMART_PTR(MetaFSMonitor);

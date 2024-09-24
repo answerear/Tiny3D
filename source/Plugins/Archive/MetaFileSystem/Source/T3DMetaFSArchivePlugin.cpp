@@ -21,6 +21,7 @@
 #include "T3DMetaFSArchivePlugin.h"
 #include "T3DMetaFSArchive.h"
 #include "T3DMetaFSMonitor.h"
+#include "T3DMetaFSMonitorManager.h"
 
 
 namespace Tiny3D
@@ -51,6 +52,8 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::install()
     {
+        mMonitorMgr = new MetaFSMonitorManager();
+        
         return T3D_ARCHIVE_MGR.addArchiveCreator(
             MetaFSArchive::ARCHIVE_TYPE,
             [this](const String &name, Archive::AccessMode mode)
@@ -59,43 +62,8 @@ namespace Tiny3D
 
                 do
                 {
-                    MetaFSMonitorPtr monitor;
-                
-                    // 找出是否已经有启动监控的，子文件夹都在监控中，不重复监控
-                    for (const auto &item : mPathMonitors)
-                    {
-                        if (item.first == name)
-                        {
-                            // 完全相同路径
-                            monitor = item.second;
-                            break;
-                        }
-
-                        // String::size_type pos = name.find_first_not_of(item.first);
-                        bool match = StringUtil::match(name, item.first, false);
-                        if (match)
-                        {
-                            // 包含了部分路径，name 是其子路径
-                            monitor = item.second;
-                            break;
-                        }
-                    }
-                    
-                    if (monitor == nullptr)
-                    {
-                        // 创建监控对象
-                        monitor = MetaFSMonitor::create(name);
-                        TResult ret = monitor->init();
-                        if (T3D_FAILED(ret))
-                        {
-                            MFS_LOG_ERROR("Failed to initialize monitor %s.", name.c_str());
-                            break;
-                        }
-
-                        mPathMonitors.emplace(name, monitor);
-                    }
-                    
-                    archive = MetaFSArchive::create(name, mode, monitor);
+                    T3D_MFS_MONITOR_MGR.addMonitor(name);
+                    archive = MetaFSArchive::create(name, mode);
                 } while (false);
                 
                 return archive;
@@ -117,10 +85,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        for (const auto &item : mPathMonitors)
-        {
-            item.second->stop();
-        }
+        T3D_MFS_MONITOR_MGR.removeAllMonitors();
 
         for (const auto &archive : mArchives)
         {
@@ -128,7 +93,6 @@ namespace Tiny3D
         }
 
         mArchives.clear();
-        mPathMonitors.clear();
         
         return ret;
     }
@@ -137,6 +101,7 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::uninstall()
     {
+        T3D_SAFE_DELETE(mMonitorMgr);
         return T3D_ARCHIVE_MGR.removeArchiveCreator(MetaFSArchive::ARCHIVE_TYPE);
     }
 }

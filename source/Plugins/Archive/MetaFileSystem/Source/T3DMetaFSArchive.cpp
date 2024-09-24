@@ -20,6 +20,8 @@
 
 #include "T3DMetaFSArchive.h"
 #include "T3DMetaFSMonitor.h"
+#include "T3DMetaFSMonitorManager.h"
+
 
 namespace Tiny3D
 {
@@ -29,9 +31,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode, MetaFSMonitor *monitor)
+    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode)
     {
-        MetaFSArchivePtr archive = new MetaFSArchive(name, mode, monitor);
+        MetaFSArchivePtr archive = new MetaFSArchive(name, mode);
         if (archive != nullptr && !archive->init())
         {
             archive = nullptr;
@@ -41,9 +43,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode, MetaFSMonitor *monitor)
+    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode)
         : Archive(name, mode)
-        , mFSMonitor(monitor)
     {
         
     }
@@ -110,7 +111,7 @@ namespace Tiny3D
 
     ArchivePtr MetaFSArchive::clone() const
     {
-        ArchivePtr archive = create(getName(), getAccessMode(), mFSMonitor);
+        ArchivePtr archive = create(getName(), getAccessMode());
         return archive;
     }
 
@@ -244,15 +245,17 @@ namespace Tiny3D
             }
 
             // 找到对应文件名
-            String name = mFSMonitor->getPath(uuid);
-            if (name.empty())
+            String name;
+            MetaFSMonitor *monitor = nullptr;
+            bool rval = T3D_MFS_MONITOR_MGR.getPathAndMonitor(uuid, name, monitor);
+            if (!rval)
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 MFS_LOG_ERROR("Invalid uuid : %s !", uuid.toString().c_str());
                 break;
             }
             
-            String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + name;
+            String path = monitor->getRootPath() + Dir::getNativeSeparator() + name;
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
             if (!fs.open(path.c_str(), mode))
@@ -294,15 +297,17 @@ namespace Tiny3D
             }
 
             // 打开文件
-            String name = mFSMonitor->getPath(uuid);
-            if (name.empty())
+            String name;
+            MetaFSMonitor *monitor = nullptr;
+            bool rval = T3D_MFS_MONITOR_MGR.getPathAndMonitor(uuid, name, monitor);
+            if (!rval)
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 MFS_LOG_ERROR("Invalid uuid : %s !", uuid.toString().c_str());
                 break;
             }
             
-            String path = mFSMonitor->getRootPath() + Dir::getNativeSeparator() + name;
+            String path = monitor->getRootPath() + Dir::getNativeSeparator() + name;
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
             if (!fs.open(path.c_str(), mode))
