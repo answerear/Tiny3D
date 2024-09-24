@@ -439,7 +439,11 @@ namespace Tiny3D
             }
         }
 
-        T3D_SCENE_MGR.getCurrentScene()->removeCamera(this);
+        Scene *scene = T3D_SCENE_MGR.getCurrentScene();
+        if (scene != nullptr)
+        {
+            scene->removeCamera(this);
+        }
         
         Component::onDestroy();
     }

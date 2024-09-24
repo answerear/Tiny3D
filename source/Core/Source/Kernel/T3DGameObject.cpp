@@ -89,6 +89,7 @@ namespace Tiny3D
     GameObject::GameObject(const String &name)
         : mName(name)
     {
+        mUUID = UUID::generate();
         const ComponentSettings &settings = T3D_AGENT.getSettings().componentSettins;
         int32_t i = 0;
         for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)

@@ -92,24 +92,26 @@ namespace Tiny3D
             // mSceneMgr->getCurrentScene()->removeAll();
             mSceneMgr->unloadScene();
         }
+
+        if (mSceneMgr != nullptr)
+        {
+            // mSceneMgr->unloadScene();
+            mSceneMgr->unloadAllScenes();
+        }
+
+        if (mPrefabMgr != nullptr)
+        {
+            mPrefabMgr->unloadAllResources();
+            
+        }
         
         GameObject::destroyComponents();
         GameObject::destroyGameObjects();
 
         releaseBuiltinAssets();
 
-        if (mPrefabMgr != nullptr)
-        {
-            mPrefabMgr->unloadAllResources();
-            mPrefabMgr = nullptr;
-        }
-
-        if (mSceneMgr != nullptr)
-        {
-            // mSceneMgr->unloadScene();
-            mSceneMgr->unloadAllScenes();
-            mSceneMgr = nullptr;
-        }
+        mSceneMgr = nullptr;
+        mPrefabMgr = nullptr;
 
         if (mMeshMgr != nullptr)
         {
