@@ -22,7 +22,8 @@ if (MSVC)
     )
 endif (MSVC)
 
-    
+add_definitions(-DT3D_EDITOR)
+
 find_package(ShaderConductor)
 
 # Setup project include files path
