@@ -11,6 +11,13 @@ message(STATUS "Generating project : ${BIN_NAME}")
 
 if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
+    
+    add_definitions(
+        /wd4244 # 'conversion' conversion from 'type1' to 'type2', possible loss of data
+        /wd4267 # 'var' : conversion from 'size_t' to 'type', possible loss of data
+        /wd4309 # 'conversion' : truncation of constant value
+        /wd4800 # 'type' : forcing value to bool 'true' or 'false' (performance warning)
+    )
 endif (MSVC)
 
 add_definitions(-DT3D_EDITOR)
