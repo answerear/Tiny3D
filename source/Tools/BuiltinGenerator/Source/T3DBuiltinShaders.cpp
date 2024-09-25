@@ -98,9 +98,8 @@ namespace Tiny3D
                 BGEN_LOG_INFO("Begin compiling shader (%s) ...", filePath.c_str());
                 
                 // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
-                String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
-                    
 #if defined (T3D_OS_WINDOWS)
+                String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
                 String cmdLine =  filePath + " -t hlsl" + " -o " + outputPath;
 #elif defined (T3D_OS_LINUX)
 #elif defined (T3D_OS_MAC)
@@ -110,7 +109,7 @@ namespace Tiny3D
                 ret = process.start(appPath, cmdLine);
                 if (T3D_FAILED(ret))
                 {
-                    BGEN_LOG_ERROR("Start scc.exe from source file %s failed ! ERROR [%d]", filePath.c_str(), ret);
+                    BGEN_LOG_ERROR("Failed to start scc.exe from source file (%s) ! ERROR [%d]", filePath.c_str(), ret);
                     working = dir.findNextFile();
                     continue;
                 }
@@ -119,7 +118,7 @@ namespace Tiny3D
                 ret = process.wait();
                 if (T3D_FAILED(ret))
                 {
-                    BGEN_LOG_ERROR("Wait process exit from source file %s failed ! ERROR [%d]", filePath.c_str(), ret);
+                    BGEN_LOG_ERROR("Failed to wait process exiting from source file (%s) ! ERROR [%d]", filePath.c_str(), ret);
                     working = dir.findNextFile();
                     continue;
                 }
@@ -128,7 +127,7 @@ namespace Tiny3D
                 if (exitCode != 0)
                 {
                     // 编译出错了，只能退出
-                    BGEN_LOG_ERROR("Compile shader %s failed ! ERROR [%d]", filePath.c_str(), ret);
+                    BGEN_LOG_ERROR("Failed to compile shader (%s) ! ERROR [%d]", filePath.c_str(), ret);
                     working = dir.findNextFile();
                     continue;
                 }
