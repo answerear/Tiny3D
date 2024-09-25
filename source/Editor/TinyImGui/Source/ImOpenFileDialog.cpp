@@ -84,7 +84,7 @@ namespace Tiny3D
     {
         String path;
         
-#if defined(T3D_OS_WINDOWS)
+#if defined (T3D_OS_WINDOWS)
         OPENFILENAME ofn;
         char szFile[260] = { 0 };
         // std::ifstream inputFile(HBPEditor::GetLogicHelper().GetRootPath() + "/temp/LastOpenFilePath.txt");
