@@ -166,7 +166,7 @@ namespace Tiny3D
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                MFS_LOG_ERROR("Open file [%s] from file system failed !", path.c_str());
+                MFS_LOG_ERROR("Failed to open file [%s] from meta file system !", path.c_str());
                 break;
             }
 
@@ -215,7 +215,7 @@ namespace Tiny3D
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
-                MFS_LOG_ERROR("Open file [%s] from file system failed !", path.c_str());
+                MFS_LOG_ERROR("Failed to open file [%s] from meta file system !", path.c_str());
                 break;
             }
 
