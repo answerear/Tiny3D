@@ -210,7 +210,7 @@ namespace Tiny3D
             else
             {
                 // 不存在 meta 文件，创建一个
-                meta = Meta::create(Meta::Type::kFolder, UUID::generate());
+                meta = MetaFolder::create(UUID::generate());
 
                 FileDataStream fs;
                 if (fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_READ_WRITE|FileDataStream::EOpenMode::E_MODE_TEXT))
@@ -254,20 +254,47 @@ namespace Tiny3D
                     MFS_LOG_ERROR("Failed to open file %s for reading !", path.c_str());
                     break;
                 }
-                    
-                meta = Meta::create(toMetaType(resource->getType()), resource->getUUID());
+
+                if (ext == Resource::EXT_MATERIAL)
+                {
+                    meta = MetaMaterial::create(resource->getUUID());
+                }
+                else if (ext == Resource::EXT_TEXTURE)
+                {
+                    meta = MetaTexture::create(resource->getUUID());
+                }
+                else if (ext == Resource::EXT_SHADER)
+                {
+                    meta = MetaShader::create(resource->getUUID());
+                }
+                else if (ext == Resource::EXT_MESH)
+                {
+                    meta = MetaMesh::create(resource->getUUID());
+                }
+                else if (ext == Resource::EXT_PREFAB)
+                {
+                    meta = MetaPrefab::create(resource->getUUID());
+                }
+                else if (ext == Resource::EXT_SCENE)
+                {
+                    meta = MetaScene::create(resource->getUUID());
+                }
+            }
+            else if (ext == Resource::EXT_SHADERLAB)
+            {
+                meta = MetaShaderLab::create(UUID::generate(), UUID::INVALID);
             }
             else if (ext == Resource::EXT_TXT)
             {
-                meta = Meta::create(Meta::Type::kTxt, UUID::generate());
+                meta = MetaTxt::create(UUID::generate());
             }
             else if (ext == Resource::EXT_BIN)
             {
-                meta = Meta::create(Meta::Type::kBin, UUID::generate());
+                meta = MetaBin::create(UUID::generate());
             }
             else
             {
-                meta = Meta::create(Meta::Type::kFile, UUID::generate());
+                meta = MetaFile::create(UUID::generate());
             }
 
             FileDataStream fs;
@@ -305,7 +332,7 @@ namespace Tiny3D
             String relativePath = path.substr(pos);
             T3D_ASSERT(!relativePath.empty());
             mPathMappings.emplace(relativePath, meta);
-            mUUIDMappings.emplace(meta->uuid, relativePath);
+            mUUIDMappings.emplace(meta->getUUID(), relativePath);
         }
     }
 
@@ -320,7 +347,7 @@ namespace Tiny3D
             const auto &itr = mPathMappings.find(relativePath);
             if (itr != mPathMappings.end())
             {
-                mUUIDMappings.erase(itr->second->uuid);
+                mUUIDMappings.erase(itr->second->getUUID());
                 mPathMappings.erase(itr);
             }
         }

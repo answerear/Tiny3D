@@ -56,6 +56,7 @@ namespace Tiny3D
         static const char *EXT_SCENE;
         static const char *EXT_TXT;
         static const char *EXT_BIN;
+        static const char *EXT_SHADERLAB;
         
         /**
          * \brief 资源类型

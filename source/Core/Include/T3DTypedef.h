@@ -155,6 +155,19 @@ namespace Tiny3D
 
 #if defined(T3D_EDITOR)
     T3D_DECLARE_SMART_PTR(Meta);
+    T3D_DECLARE_SMART_PTR(MetaFolder);
+    T3D_DECLARE_SMART_PTR(MetaFile);
+    T3D_DECLARE_SMART_PTR(MetaTxt);
+    T3D_DECLARE_SMART_PTR(MetaBin);
+    T3D_DECLARE_SMART_PTR(MetaDylib);
+    T3D_DECLARE_SMART_PTR(MetaMaterial);
+    T3D_DECLARE_SMART_PTR(MetaTexture);
+    T3D_DECLARE_SMART_PTR(MetaShader);
+    T3D_DECLARE_SMART_PTR(MetaMesh);
+    T3D_DECLARE_SMART_PTR(MetaPrefab);
+    T3D_DECLARE_SMART_PTR(MetaScene);
+    T3D_DECLARE_SMART_PTR(MetaShader);
+    T3D_DECLARE_SMART_PTR(MetaShaderLab);
 #endif
     
 

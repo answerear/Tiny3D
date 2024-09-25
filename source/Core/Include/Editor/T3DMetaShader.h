@@ -22,12 +22,11 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_H__
-#define __T3D_META_H__
+#ifndef __T3D_META_SHADER_H__
+#define __T3D_META_SHADER_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "T3DMeta.h"
 
 
 namespace Tiny3D
@@ -35,48 +34,30 @@ namespace Tiny3D
 #if defined(T3D_EDITOR)
 
     TCLASS()
-    class T3D_ENGINE_API Meta : public Object
+    class T3D_ENGINE_API MetaShader : public Meta
     {
-        TRTTI_ENABLE(Object)
+        TRTTI_ENABLE(Meta)
         TRTTI_FRIEND
-        
+
     public:
-        TENUM()
-        enum Type
+        static MetaShaderPtr create(const UUID &uuid)
         {
-            kUnknown = 0,
-            kFolder,
-            kFile,
-            kTxt,
-            kBin,
-            kDylib,
-            kMaterial,
-            kTexture,
-            kShader,
-            kMesh,
-            kPrefab,
-            kScene,
-            kShaderLab,
-        };
+            return new MetaShader(uuid);
+        }
 
-        virtual Type getType() const = 0;
+        Type getType() const override { return kShader; }
 
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
-        const UUID &getUUID() const { return mUUID; }
-
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
-        void setUUID(const UUID &uuid) { mUUID = uuid; }
-        
     protected:
-        Meta() = default;
+        MetaShader() = default;
 
-        Meta(const UUID &uuid) : mUUID(uuid) {}
-
-        UUID mUUID {UUID::INVALID};
+        MetaShader(const UUID &uuid)
+            : Meta(uuid)
+        {
+        }
     };
 
 #endif
 }
 
 
-#endif    /*__T3D_META_H__*/
+#endif    /*__T3D_META_SHADER_H__*/

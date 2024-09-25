@@ -22,61 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_H__
-#define __T3D_META_H__
+
+#include "Editor/T3DMetaTxt.h"
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
-
-
-namespace Tiny3D
-{
-#if defined(T3D_EDITOR)
-
-    TCLASS()
-    class T3D_ENGINE_API Meta : public Object
-    {
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-        
-    public:
-        TENUM()
-        enum Type
-        {
-            kUnknown = 0,
-            kFolder,
-            kFile,
-            kTxt,
-            kBin,
-            kDylib,
-            kMaterial,
-            kTexture,
-            kShader,
-            kMesh,
-            kPrefab,
-            kScene,
-            kShaderLab,
-        };
-
-        virtual Type getType() const = 0;
-
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
-        const UUID &getUUID() const { return mUUID; }
-
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
-        void setUUID(const UUID &uuid) { mUUID = uuid; }
-        
-    protected:
-        Meta() = default;
-
-        Meta(const UUID &uuid) : mUUID(uuid) {}
-
-        UUID mUUID {UUID::INVALID};
-    };
-
-#endif
-}
-
-
-#endif    /*__T3D_META_H__*/

@@ -232,6 +232,19 @@ namespace Tiny3D
 
 #if defined(T3D_EDITOR)
     class Meta;
+    class MetaFolder;
+    class MetaFile;
+    class MetaTxt;
+    class MetaBin;
+    class MetaDylib;
+    class MetaMaterial;
+    class MetaTexture;
+    class MetaShader;
+    class MetaMesh;
+    class MetaPrefab;
+    class MetaScene;
+    class MetaShader;
+    class MetaShaderLab;
 #endif
 } // namespace Tiny3D
 

@@ -137,6 +137,18 @@
 
 #if defined(T3D_EDITOR)
 #include <Editor/T3DMeta.h>
+#include <Editor/T3DMetaBin.h>
+#include <Editor/T3DMetaDylib.h>
+#include <Editor/T3DMetaFile.h>
+#include <Editor/T3DMetaFolder.h>
+#include <Editor/T3DMetaMaterial.h>
+#include <Editor/T3DMetaMesh.h>
+#include <Editor/T3DMetaPrefab.h>
+#include <Editor/T3DMetaScene.h>
+#include <Editor/T3DMetaShader.h>
+#include <Editor/T3DMetaShaderLab.h>
+#include <Editor/T3DMetaTexture.h>
+#include <Editor/T3DMetaTxt.h>
 #endif
 
 #endif  /*__TINY3D_H__*/
