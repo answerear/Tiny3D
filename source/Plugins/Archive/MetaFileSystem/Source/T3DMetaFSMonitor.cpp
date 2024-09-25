@@ -96,40 +96,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Meta::Type MetaFSMonitor::toMetaType(Resource::Type in) const
-    {
-        Meta::Type out = Meta::Type::kUnknown;
-        
-        switch (in)
-        {
-        case Resource::Type::kMaterial:
-            out = Meta::Type::kMaterial;
-            break;
-        case Resource::Type::kTexture:
-            out = Meta::Type::kTexture;
-            break;
-        case Resource::Type::kShader:
-            out = Meta::Type::kShader;
-            break;
-        case Resource::Type::kMesh:
-            out = Meta::Type::kMesh;
-            break;
-        case Resource::Type::kPrefab:
-            out = Meta::Type::kPrefab;
-            break;
-        case Resource::Type::kScene:
-            out = Meta::Type::kScene;
-            break;
-        default:
-            out = Meta::Type::kUnknown;
-            break;
-        }
-
-        return out;
-    }
-
-    //--------------------------------------------------------------------------
-
     void MetaFSMonitor::generateFileMeta(const String &path)
     {
         do
@@ -291,6 +257,10 @@ namespace Tiny3D
             else if (ext == Resource::EXT_BIN)
             {
                 meta = MetaBin::create(UUID::generate());
+            }
+            else if (ext == Resource::EXT_DYLIB)
+            {
+                meta = MetaDylib::create(UUID::generate());
             }
             else
             {

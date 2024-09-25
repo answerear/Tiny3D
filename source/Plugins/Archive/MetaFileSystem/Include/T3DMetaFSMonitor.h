@@ -92,8 +92,6 @@ namespace Tiny3D
 
         void onFileRemoved(const String &path);
 
-        Meta::Type toMetaType(Resource::Type in) const;
-
         void addPathLUT(const String &path, const MetaPtr &meta);
 
         void removePathLUT(const String &path);
