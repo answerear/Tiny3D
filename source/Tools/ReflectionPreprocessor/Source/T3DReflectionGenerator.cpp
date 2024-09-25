@@ -3002,7 +3002,7 @@ namespace Tiny3D
             actualParams.reserve(numOfTemplateArg);
             // 收集模板实参
             uint32_t i = 0;
-            for (i = 0; i < numOfTemplateArg; i++)
+            for (i = 0; i < (uint32_t)numOfTemplateArg; i++)
             {
                 CXType cxArgType = clang_Type_getTemplateArgumentAsType(cxVarType, i);
                 String argName = toString(clang_getTypeSpelling(cxArgType));
