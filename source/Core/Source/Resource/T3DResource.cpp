@@ -41,6 +41,14 @@ namespace Tiny3D
     const char *Resource::EXT_TXT = "txt";
     const char *Resource::EXT_BIN = "bin";
     const char *Resource::EXT_SHADERLAB = "shader";
+
+#if defined (T3D_OS_WINDOWS)
+    const char *Resource::EXT_DYLIB = "dll";
+#elif defined (T3D_OS_OSX) || defined (T3D_OS_IOS)
+    const char *Resource::EXT_DYLIB = "dylib";
+#elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
+    const char *Resource::EXT_DYLIB = "so";
+#endif
     
     //--------------------------------------------------------------------------
 
