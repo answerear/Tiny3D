@@ -367,7 +367,7 @@ namespace Tiny3D
 
             style.WindowMenuButtonPosition = ImGuiDir_None;
             
-#if defined(T3D_OS_WINDOWS)
+#if defined (T3D_OS_WINDOWS)
             EditorInfoDX11 info;
             mEngine->getEditorInfo(&info);
             mImGuiImpl->init(&info);
@@ -541,7 +541,7 @@ namespace Tiny3D
                 {
                     if (event.window.windowID == SDL_GetWindowID(mSDLWindow))
                     {
-#if defined(T3D_OS_WINDOWS)
+#if defined (T3D_OS_WINDOWS)
                         EditorInfoDX11 info;
                         T3D_AGENT.getEditorInfo(&info);
                         mImGuiImpl->refreshInfo(&info);
