@@ -947,7 +947,11 @@ namespace Tiny3D
     {
         Document doc;
         Value value;
-        ReadJsonHeader(stream, doc, value);
+        TResult ret = ReadJsonHeader(stream, doc, value);
+        if (T3D_FAILED(ret))
+        {
+            return RTTRObject();
+        }
         RTTRObjectJsonReader reader;
         return reader.ReadObject(value, false);
     }
@@ -958,7 +962,11 @@ namespace Tiny3D
     {
         Document doc;
         Value value;
-        ReadJsonHeader(stream, doc, value);
+        TResult ret = ReadJsonHeader(stream, doc, value);
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
         RTTRObjectJsonReader reader;
         reader.ReadObject(value, obj, false);
         return T3D_OK;
