@@ -38,7 +38,7 @@ namespace Tiny3D
         /**
          * 创建对象
          */
-        static MetaFSArchivePtr create(const String &name, AccessMode mode);
+        static MetaFSArchivePtr create(const String &name, AccessMode mode, MetaFSMonitor *monitor);
 
         /**
          * 析构函数
@@ -89,7 +89,7 @@ namespace Tiny3D
         /**
          * 构造函数
          */
-        MetaFSArchive(const String &name, AccessMode mode);
+        MetaFSArchive(const String &name, AccessMode mode, MetaFSMonitor *monitor);
 
         /**
          * 是否可写
@@ -102,5 +102,8 @@ namespace Tiny3D
         FileDataStream::EOpenMode getFileOpenMode(AccessMode accMode) const;
 
         bool init();
+
+    protected:
+        MetaFSMonitor *mMonitor {nullptr};
     };
 }

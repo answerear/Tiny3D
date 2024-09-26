@@ -31,17 +31,17 @@ namespace Tiny3D
     public:
         ~MetaFSMonitorManager() override;
 
-        TResult addMonitor(const String &path);
+        MetaFSMonitor *addMonitor(const String &path);
 
         TResult removeMonitor(const String &path);
 
         TResult removeAllMonitors();
 
-        const String &getPath(const UUID &uuid) const;
+        // const String &getPath(const UUID &uuid, MetaFSMonitor *excludeMonitor) const;
+        //
+        // MetaFSMonitor *getMonitor(const UUID &uuid, MetaFSMonitor *excludeMonitor) const;
 
-        MetaFSMonitor *getMonitor(const UUID &uuid) const;
-
-        bool getPathAndMonitor(const UUID &uuid, String &path, MetaFSMonitor *&monitor);
+        bool getPathAndMonitor(const UUID &uuid, MetaFSMonitor *mainMonitor, String &path, MetaFSMonitor *&monitor);
         
     protected:
         using PathMonitors = TUnorderedMap<String, MetaFSMonitorPtr>;

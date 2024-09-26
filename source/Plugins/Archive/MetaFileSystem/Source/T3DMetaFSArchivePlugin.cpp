@@ -62,8 +62,13 @@ namespace Tiny3D
 
                 do
                 {
-                    T3D_MFS_MONITOR_MGR.addMonitor(name);
-                    archive = MetaFSArchive::create(name, mode);
+                    MetaFSMonitor *monitor = T3D_MFS_MONITOR_MGR.addMonitor(name);
+                    if (monitor == nullptr)
+                    {
+                        break;
+                    }
+                    
+                    archive = MetaFSArchive::create(name, mode, monitor);
                 } while (false);
                 
                 return archive;

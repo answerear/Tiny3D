@@ -34,13 +34,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFSMonitorManager::addMonitor(const String &path)
+    MetaFSMonitor *MetaFSMonitorManager::addMonitor(const String &path)
     {
-        TResult ret = T3D_OK;
+        MetaFSMonitorPtr monitor;
 
         do
         {
-            MetaFSMonitorPtr monitor;
+            
                 
             // 找出是否已经有启动监控的，子文件夹都在监控中，不重复监控
             for (const auto &item : mPathMonitors)
@@ -66,8 +66,7 @@ namespace Tiny3D
             {
                 // 创建监控对象
                 monitor = MetaFSMonitor::create(path);
-                ret = monitor->init();
-                if (T3D_FAILED(ret))
+                if (T3D_FAILED(monitor->init()))
                 {
                     MFS_LOG_ERROR("Failed to initialize monitor %s.", path.c_str());
                     break;
@@ -77,7 +76,7 @@ namespace Tiny3D
             }
         } while (false);
         
-        return ret;
+        return monitor;
     }
 
     //--------------------------------------------------------------------------
@@ -105,59 +104,109 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const String &MetaFSMonitorManager::getPath(const UUID &uuid) const
-    {
-        for (const auto &item : mPathMonitors)
-        {
-            const String &path = item.second->getPath(uuid);
-            if (!path.empty())
-            {
-                return path;
-            }
-        }
-
-        static String EMPTY;
-        return EMPTY;
-    }
+    // const String &MetaFSMonitorManager::getPath(const UUID &uuid) const
+    // {
+    //     for (const auto &item : mPathMonitors)
+    //     {
+    //         const String &path = item.second->getPath(uuid);
+    //         if (!path.empty())
+    //         {
+    //             return path;
+    //         }
+    //     }
+    //
+    //     static String EMPTY;
+    //     return EMPTY;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // MetaFSMonitor *MetaFSMonitorManager::getMonitor(const UUID &uuid) const
+    // {
+    //     MetaFSMonitor *monitor = nullptr;
+    //     
+    //     for (const auto &item : mPathMonitors)
+    //     {
+    //         const String &path = item.second->getPath(uuid);
+    //         if (!path.empty())
+    //         {
+    //             monitor = item.second;
+    //             break;
+    //         }
+    //     }
+    //     
+    //     return monitor;
+    // }
 
     //--------------------------------------------------------------------------
 
-    MetaFSMonitor *MetaFSMonitorManager::getMonitor(const UUID &uuid) const
-    {
-        MetaFSMonitor *monitor = nullptr;
-        
-        for (const auto &item : mPathMonitors)
-        {
-            const String &path = item.second->getPath(uuid);
-            if (!path.empty())
-            {
-                monitor = item.second;
-                break;
-            }
-        }
-        
-        return monitor;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool MetaFSMonitorManager::getPathAndMonitor(const UUID &uuid, String &path, MetaFSMonitor *&monitor)
+    bool MetaFSMonitorManager::getPathAndMonitor(const UUID &uuid, MetaFSMonitor *mainMonitor, String &path, MetaFSMonitor *&monitor)
     {
         bool ret = false;
-        monitor = nullptr;
 
-        for (const auto &item : mPathMonitors)
+        // 先启动 monitor 查找
+        Meta *meta = nullptr;
+        bool found = mainMonitor->getPathAndMeta(uuid, path, meta);
+
+        if (meta->getType() == Meta::Type::kShaderLab)
         {
-            const String &p = item.second->getPath(uuid);
-            if (!p.empty())
+            // 是 shader lab
+            MetaShaderLab *metaShaderLab = static_cast<MetaShaderLab *>(meta);
+            path = mainMonitor->getPath(metaShaderLab->getShaderUUID());
+                
+            if (path.empty())
             {
-                monitor = item.second;
-                path = p;
+                // 从 main monitor 里面没找到，只能全局搜
+                for (const auto &item : mPathMonitors)
+                {
+                    if (item.second == mainMonitor)
+                        continue;
+
+                    path = item.second->getPath(metaShaderLab->getShaderUUID());
+                        
+                    if (!path.empty())
+                    {
+                        // 找到了
+                        monitor = item.second;
+                        ret = true;
+                    }
+                }
+            }
+            else
+            {
+                // 找到了
+                monitor = mainMonitor;
                 ret = true;
-                break;
             }
         }
-        
+        else
+        {
+            // 不是 shader lab
+            if (found)
+            {
+                // 找到了
+                monitor = mainMonitor;
+                ret = true;
+            }
+            else
+            {
+                // 没找到，从全局再找一次
+                for (const auto &item : mPathMonitors)
+                {
+                    if (item.second == mainMonitor)
+                        continue;
+
+                    path = item.second->getPath(uuid);
+                    if (!path.empty())
+                    {
+                        // 找到了
+                        monitor = item.second;
+                        ret = true;
+                    }
+                }
+            }
+        }
+
         return ret;
     }
 

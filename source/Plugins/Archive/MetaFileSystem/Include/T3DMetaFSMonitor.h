@@ -44,33 +44,41 @@ namespace Tiny3D
 
         const String &getRootPath() const { return mRootPath; }
 
-        const PathMappings &getPathMappings() const { return mPathMappings; }
-
-        const UUIDMappings &getUUIDMappings() const { return mUUIDMappings; }
-
+        Meta *getMeta(const String &path) const
+        {
+            const auto &it = mPathMappings.find(path);
+            return it != mPathMappings.end() ? it->second : nullptr;
+        }
+        
         Meta *getMeta(const UUID &uuid) const
         {
             Meta *meta = nullptr;
             const auto &it = mUUIDMappings.find(uuid);
             if (it != mUUIDMappings.end())
             {
-                const auto &itr = mPathMappings.find(it->second);
-                meta = itr != mPathMappings.end() ? itr->second : nullptr;
+                meta = getMeta(it->second);
             }
             return meta;
         }
 
-        Meta *getMeta(const String &path) const
-        {
-            const auto &it = mPathMappings.find(path);
-            return it != mPathMappings.end() ? it->second : nullptr;
-        }
-
         const String &getPath(const UUID &uuid) const
         {
-            static String EMPTY;
             const auto &it = mUUIDMappings.find(uuid);
-            return it != mUUIDMappings.end() ? it->second : EMPTY;
+            if (it == mUUIDMappings.end())
+            {
+                return EMPTY;
+            }
+            return it->second;
+        }
+
+        bool getPathAndMeta(const UUID &uuid, String &path, Meta *&meta) const
+        {
+            path = getPath(uuid);
+            if (!path.empty())
+            {
+                meta = getMeta(path);
+            }
+            return !path.empty() && meta != nullptr;
         }
         
     protected:
@@ -97,6 +105,8 @@ namespace Tiny3D
         void removePathLUT(const String &path);
         
     protected:
+        static String EMPTY;
+        
         /// 文件系统监控对象
         FileSystemMonitor *mFSMonitor {nullptr};
         /// 监控的根目录

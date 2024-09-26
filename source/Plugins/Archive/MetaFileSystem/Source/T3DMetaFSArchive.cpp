@@ -31,9 +31,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode)
+    MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode, MetaFSMonitor *monitor)
     {
-        MetaFSArchivePtr archive = new MetaFSArchive(name, mode);
+        MetaFSArchivePtr archive = new MetaFSArchive(name, mode, monitor);
         if (archive != nullptr && !archive->init())
         {
             archive = nullptr;
@@ -43,8 +43,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode)
+    MetaFSArchive::MetaFSArchive(const String &name, AccessMode mode, MetaFSMonitor *monitor)
         : Archive(name, mode)
+        , mMonitor(monitor)
     {
         
     }
@@ -69,8 +70,6 @@ namespace Tiny3D
     {
         uint32_t mode = (uint32_t)getAccessMode();
         return archiveCanWrite(mode);
-        // uint32_t writeMode = (uint32_t)AccessMode::kAppend | (uint32_t)AccessMode::kTruncate;
-        // return (mode & writeMode) != 0;
     }
 
     //--------------------------------------------------------------------------
@@ -111,7 +110,7 @@ namespace Tiny3D
 
     ArchivePtr MetaFSArchive::clone() const
     {
-        ArchivePtr archive = create(getName(), getAccessMode());
+        ArchivePtr archive = create(getName(), getAccessMode(), mMonitor);
         return archive;
     }
 
@@ -247,7 +246,7 @@ namespace Tiny3D
             // 找到对应文件名
             String name;
             MetaFSMonitor *monitor = nullptr;
-            bool rval = T3D_MFS_MONITOR_MGR.getPathAndMonitor(uuid, name, monitor);
+            bool rval = T3D_MFS_MONITOR_MGR.getPathAndMonitor(uuid, mMonitor, name, monitor);
             if (!rval)
             {
                 ret = T3D_ERR_INVALID_PARAM;
@@ -299,7 +298,7 @@ namespace Tiny3D
             // 打开文件
             String name;
             MetaFSMonitor *monitor = nullptr;
-            bool rval = T3D_MFS_MONITOR_MGR.getPathAndMonitor(uuid, name, monitor);
+            bool rval = T3D_MFS_MONITOR_MGR.getPathAndMonitor(uuid, mMonitor, name, monitor);
             if (!rval)
             {
                 ret = T3D_ERR_INVALID_PARAM;

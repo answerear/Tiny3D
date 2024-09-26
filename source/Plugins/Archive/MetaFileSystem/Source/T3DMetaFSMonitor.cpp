@@ -25,6 +25,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    String MetaFSMonitor::EMPTY;
+    
+    //--------------------------------------------------------------------------
+
     MetaFSMonitorPtr MetaFSMonitor::create(const String &rootPath)
     {
         return new MetaFSMonitor(rootPath);
@@ -324,7 +328,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
+    
     TResult MetaFSMonitor::start()
     {
         TResult ret = T3D_OK;
