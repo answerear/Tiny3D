@@ -73,8 +73,6 @@ namespace Tiny3D
 
     TResult BuiltinShaders::generateShader(const String &searchPath, const String &outputPath)
     {
-        TResult ret;
-
         String searchFile = searchPath + Dir::getNativeSeparator() + "*.shader";
         Dir dir;
         bool working = dir.findFile(searchFile);
@@ -94,61 +92,7 @@ namespace Tiny3D
             {
                 // file
                 const String filePath = dir.getFilePath();
-
-                BGEN_LOG_INFO("Begin compiling shader (%s) ...", filePath.c_str());
-                
-                // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
-#if defined (T3D_OS_WINDOWS)
-                String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
-                String cmdLine =  filePath + " -t hlsl" + " -o " + outputPath;
-#elif defined (T3D_OS_LINUX)
-#elif defined (T3D_OS_MAC)
-#endif
-                    
-                Process process;
-                ret = process.start(appPath, cmdLine);
-                if (T3D_FAILED(ret))
-                {
-                    BGEN_LOG_ERROR("Failed to start scc.exe from source file (%s) ! ERROR [%d]", filePath.c_str(), ret);
-                    working = dir.findNextFile();
-                    continue;
-                }
-
-                // 等待编译结束
-                ret = process.wait();
-                if (T3D_FAILED(ret))
-                {
-                    BGEN_LOG_ERROR("Failed to wait process exiting from source file (%s) ! ERROR [%d]", filePath.c_str(), ret);
-                    working = dir.findNextFile();
-                    continue;
-                }
-
-                uint32_t exitCode = process.getExitCode();
-                if (exitCode != 0)
-                {
-                    // 编译出错了，只能退出
-                    BGEN_LOG_ERROR("Failed to compile shader (%s) ! ERROR [%d]", filePath.c_str(), ret);
-                    working = dir.findNextFile();
-                    continue;
-                }
-
-                String path, title, ext;
-                Dir::parsePath(filePath, path, title, ext);
-                
-                // 读取编译后的 shader
-                ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
-                T3D_ASSERT(archive != nullptr);
-                String filename = title + "." + Resource::EXT_SHADER;
-                ShaderPtr shader = T3D_SHADER_MGR.loadShader(archive, filename);
-                T3D_ASSERT(shader != nullptr);
-                
-                mShaders.emplace(filename, shader);
-
-                // archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-                // T3D_ASSERT(archive != nullptr);
-                // T3D_SHADER_MGR.saveShader(archive, shader);
-                
-                BGEN_LOG_INFO("Completed compiling shader (%s) !", filePath.c_str());
+                generateShaderFile(filePath, outputPath);
             }
 
             working = dir.findNextFile();
@@ -157,6 +101,94 @@ namespace Tiny3D
         dir.close();
 
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinShaders::generateShaderFile(const String &filePath, const String &outputPath)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            BGEN_LOG_INFO("Begin compiling shader (%s) ...", filePath.c_str());
+                
+            // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
+#if defined (T3D_OS_WINDOWS)
+            String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
+            String cmdLine =  filePath + " -t hlsl" + " -o " + outputPath;
+#elif defined (T3D_OS_LINUX)
+#elif defined (T3D_OS_MAC)
+#endif
+
+            Process process;
+            ret = process.start(appPath, cmdLine);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to start scc.exe from source file (%s) ! ERROR [%d]", filePath.c_str(), ret);
+                break;
+            }
+
+            // 等待编译结束
+            ret = process.wait();
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to wait process exiting from source file (%s) ! ERROR [%d]", filePath.c_str(), ret);
+                break;
+            }
+
+            uint32_t exitCode = process.getExitCode();
+            if (exitCode != 0)
+            {
+                // 编译出错了，只能退出
+                BGEN_LOG_ERROR("Failed to compile shader (%s) ! ERROR [%d]", filePath.c_str(), ret);
+                break;
+            }
+
+            String path, title, ext;
+            Dir::parsePath(filePath, path, title, ext);
+            
+            // 读取编译后的 shader
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
+            T3D_ASSERT(archive != nullptr);
+            String filename = title + "." + Resource::EXT_SHADER;
+            ShaderPtr shader = T3D_SHADER_MGR.loadShader(archive, filename);
+            T3D_ASSERT(shader != nullptr);
+
+            // 给 shader 生成 meta 文件
+            MetaShaderPtr meta = MetaShader::create(shader->getUUID());
+            String metaName = filename + ".meta";
+            archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            ret = archive->write(metaName, [&meta](DataStream &stream)
+                {
+                    return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                });
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to generate shader meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);
+            }
+
+            // 给 shader lab 的 shader 生成 meta 文件
+            MetaShaderLabPtr metaShaderLab = MetaShaderLab::create(UUID::generate(), shader->getUUID());
+            metaName = title + "." + ext + ".meta";
+            archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            T3D_ASSERT(archive != nullptr);
+            ret = archive->write(metaName, [&metaShaderLab](DataStream &stream)
+                {
+                    return T3D_SERIALIZER_MGR.serialize(stream, metaShaderLab);
+                });
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to generate shader lab meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);
+            }
+
+            // mShaders.emplace(filename, shader);
+            mShaders.emplace(filename, ShaderData(metaShaderLab->getUUID(), shader));
+
+            BGEN_LOG_INFO("Completed compiling shader (%s) !", path.c_str());
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

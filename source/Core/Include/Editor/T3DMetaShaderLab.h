@@ -47,6 +47,12 @@ namespace Tiny3D
 
         Type getType() const override { return kShaderLab; }
 
+        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="getter")
+        const UUID &getShaderUUID() const { return mShaderUUID; }
+
+        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="setter")
+        void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
+
     protected:
         MetaShaderLab() = default;
 

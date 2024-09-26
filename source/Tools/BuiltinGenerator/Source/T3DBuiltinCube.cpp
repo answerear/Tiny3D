@@ -316,6 +316,7 @@ namespace Tiny3D
 
         do
         {
+            // Builtin cube mesh file
             String filename = String(MESH_NAME) + "." + Resource::EXT_MESH;
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
@@ -325,13 +326,38 @@ namespace Tiny3D
                 BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
             }
 
+            // Builtin cube mesh meta file
+            filename = filename + ".meta";
+            ret = archive->write(filename, [this](DataStream &stream)
+                {
+                    MetaMeshPtr meta = MetaMesh::create(mMesh->getUUID());
+                    return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                });
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to generate meta file (%s) for cube mesh ! ERROR [%d]", filename.c_str(), ret);
+            }
+
+            // Builtin cube mesh for testing
             filename = String(TEST_MESH_NAME) + "." + Resource::EXT_MESH;
-            archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-            T3D_ASSERT(archive != nullptr);
+            // archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            // T3D_ASSERT(archive != nullptr);
             ret = T3D_MESH_MGR.saveMesh(archive, filename, mTestMesh);
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
+            }
+
+            // Builtin cube mesh meta file for testing
+            MetaMeshPtr meta = MetaMesh::create(mTestMesh->getUUID());
+            filename = filename + ".meta";
+            ret = archive->write(filename, [&meta](DataStream &stream)
+                {
+                    return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                });
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to generate meta file (%s) for testing cube mesh ! ERROR [%d]", filename.c_str(), ret);
             }
         } while (false);
         

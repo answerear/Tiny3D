@@ -37,12 +37,6 @@ namespace Tiny3D
         do
         {
             String outputPath = rootPath + Dir::getNativeSeparator() + "textures";
-
-            // ret = generateWhiteAlbedo(outputPath);
-            // if (T3D_FAILED(ret))
-            // {
-            //     BGEN_LOG_ERROR("Failed to generate white albedo texture in %s ! ERROR [%d]", outputPath.c_str(), ret);
-            // }
             
             ret = generateTestTexture(outputPath);
             if (T3D_FAILED(ret))
@@ -55,38 +49,6 @@ namespace Tiny3D
         } while (false);
         
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult BuiltinTextures::generateWhiteAlbedo(const String &outputPath)
-    {
-        const uint32_t w = 4;
-        const uint32_t h = 4;
-        const uint32_t bytesPerPixel = 4;
-        const uint32_t dataSize = w * h * bytesPerPixel;
-        uint8_t *data = new uint8_t[dataSize];
-        uint32_t i = 0;
-        while (i < dataSize)
-        {
-            data[i++] = 255;
-            data[i++] = 255;
-            data[i++] = 255;
-            data[i++] = 255;
-        }
-        
-        Buffer texData;
-        texData.setData(data, dataSize);
-
-        String name = "white";
-        auto texture = T3D_TEXTURE_MGR.createTexture2D(name, w, h, PixelFormat::E_PF_B8G8R8X8, texData);
-
-        SamplerDesc samplerDesc;
-        texture->setSamplerDesc(samplerDesc);
-
-        String filename = name + "." + Resource::EXT_TEXTURE;
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-        return T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
     }
 
     //--------------------------------------------------------------------------
@@ -184,13 +146,32 @@ namespace Tiny3D
         texData.Data = pixels;
         texData.DataSize = dataSize;
 
+        // Testing texture
         String name = "Test";
         String filename = name + "." + Resource::EXT_TEXTURE;
         Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, width, height, PixelFormat::E_PF_B8G8R8X8, texData);
         SamplerDesc desc;
         texture->setSamplerDesc(desc);
         ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-        return T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
+        TResult ret = T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Failed to generate testing texture %s ! ERROR [%d]", filename.c_str(), ret);
+        }
+
+        // Testing texture meta file
+        MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
+        filename = filename + ".meta";
+        ret = archive->write(filename, [&meta](DataStream &stream)
+            {
+                return T3D_SERIALIZER_MGR.serialize(stream, meta);
+            });
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Failed to generate testing texture meta %s ! ERROR [%d]", filename.c_str(), ret);
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -221,7 +202,7 @@ namespace Tiny3D
                 String path, title, ext;
                 Dir::parsePath(filePath, path, title, ext);
 
-                if (ext != "ttex")
+                if (ext != "ttex" && ext != "meta")
                 {
                     BGEN_LOG_INFO("Begin generating texture (%s) ...", filePath.c_str());
 
@@ -239,6 +220,7 @@ namespace Tiny3D
                     SamplerDesc samplerDesc;
                     texture->setSamplerDesc(samplerDesc);
 
+                    // Generate texture file
                     ret = T3D_TEXTURE_MGR.saveTexture(archive, name, texture);
                     if (T3D_FAILED(ret))
                     {
@@ -247,6 +229,18 @@ namespace Tiny3D
                     else
                     {
                         BGEN_LOG_INFO("Completed generating texture (%s) !", filePath.c_str());
+                    }
+
+                    // Generate texture meta file
+                    MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
+                    name = name + ".meta";
+                    ret = archive->write(name, [&meta](DataStream &stream)
+                        {
+                            return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                        });
+                    if (T3D_FAILED(ret))
+                    {
+                        BGEN_LOG_ERROR("Failed to generate texture meta (%s) ! ERROR [%d]", outputPath.c_str(), ret);
                     }
                 }
             }

@@ -34,23 +34,47 @@ namespace Tiny3D
     class BuiltinShaders : public Singleton<BuiltinShaders>
     {
     public:
+        struct ShaderData
+        {
+            ShaderData() = default;
+
+            ShaderData(const UUID &uuid, const ShaderPtr &s)
+                : shaderLabUUID(uuid)
+                , shader(s)
+            {}
+            
+            UUID shaderLabUUID {UUID::INVALID};
+            ShaderPtr shader {nullptr};
+        };
+        
         BuiltinShaders() = default;
 
         ~BuiltinShaders() = default;
 
         TResult generate(const String &rootPath, bool reservedTemp);
 
-        Shader *getShader(const String &name) const
+        // Shader *getShader(const String &name) const
+        // {
+        //     auto it = mShaders.find(name);
+        //     return (it == mShaders.end() ? nullptr : it->second);
+        // }
+
+        const ShaderData &getShaderData(const String &name) const
         {
+            static ShaderData dummy;
             auto it = mShaders.find(name);
-            return (it == mShaders.end() ? nullptr : it->second);
+            return (it == mShaders.end() ? dummy : it->second);
         }
         
     protected:
         TResult generateShader(const String &path, const String &outputPath);
-        
-        using Shaders = TMap<String, ShaderPtr>;
 
+        TResult generateShaderFile(const String &path, const String &outputPath);
+        
+        // using Shaders = TMap<String, ShaderPtr>;
+
+        using Shaders = TUnorderedMap<String, ShaderData>;
+        
         Shaders mShaders {};
     };
 
