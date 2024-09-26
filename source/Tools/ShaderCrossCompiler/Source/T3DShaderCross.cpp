@@ -198,7 +198,15 @@ namespace Tiny3D
         do 
         {
             String shaderName = mArgs.baseName + "." + Resource::EXT_SHADER;
-            ShaderPtr shader = T3D_SHADER_MGR.createShader(mArgs.baseName);
+            ShaderPtr shader;
+            if (mArgs.uuid == UUID::INVALID)
+            {
+                shader = T3D_SHADER_MGR.createShader(mArgs.baseName);
+            }
+            else
+            {
+                shader = T3D_SHADER_MGR.createShader(mArgs.baseName, mArgs.uuid);
+            }
 
             ret = translate(*source, shader);
             if (!ret)
@@ -867,6 +875,7 @@ namespace Tiny3D
         printf("      -d : Translate high level shader language to target shader language with debug information.");
         printf("      -b : Output file in binary file format. Default is json file format.");
         printf("      -i : Including file path.");
+        printf("      -u uuid : Assigning UUID to the generated shader.");
     }
 
     //--------------------------------------------------------------------------
@@ -988,6 +997,20 @@ namespace Tiny3D
 
                 ++i;
                 mOutputDir = argv[i];
+            }
+            else if (strcmp(argv[i], "-u") == 0)
+            {
+                // 指定 Shader 的 UUID
+                if (argc - 1 == i)
+                {
+                    // 参数不够
+                    SCC_LOG_ERROR("Missing UUID ! Use -h for help.");
+                    ret = false;
+                    break;
+                }
+
+                ++i;
+                args.uuid.fromString(argv[i]);
             }
             else if (mInputFile.empty())
             {

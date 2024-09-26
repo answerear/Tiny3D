@@ -74,11 +74,18 @@ namespace Tiny3D
             return (flags & options) == flags;
         }
 
-        uint32_t    options {0};        /// 选项
-        uint32_t    optimizeLevel {3};  /// 优化级别，0 to 3
-        String      include {};        /// 包含的头文件目录路径
-        String      target {};         /// 输出目标平台
-        String      baseName {};       /// 输出文件的基本名称
+        /// 选项
+        uint32_t    options {0};
+        /// 优化级别，0 to 3
+        uint32_t    optimizeLevel {3};
+        /// 包含的头文件目录路径
+        String      include {};
+        /// 输出目标平台
+        String      target {};
+        /// 输出文件的基本名称
+        String      baseName {};
+        /// 生成 Shader 的 UUID
+        UUID        uuid {UUID::INVALID};
     };
 
 
