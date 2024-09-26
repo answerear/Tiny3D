@@ -53,15 +53,19 @@ namespace Tiny3D
 
         const String &getTempPath() const {return mTempPath; }
 
-        ArchivePtr getAssetsArchive() const { return mAssetsArchive; }
+    protected:
+        TResult compileAllShaders(const String &tempPath, const String &assetsPath);
 
-        ArchivePtr getBuiltinArchive() const { return mBuiltinArchive; }
+        TResult compileShaders(const String &inputPath, const String &outputPath);
+
+        TResult compileShader(const String &inputPath, const String &outputPath);
+
+        TResult setupBuiltinAssets(const String &tempPath);
         
     protected:
         static const char *ASSETS;
         static const char *SCENES;
         static const char *TEMP;
-        static const char *MAPPINGS_FILE_NAME;
         
         /// 文件系统监控器
         FileSystemMonitor *mFSMonitor {nullptr};
@@ -74,11 +78,15 @@ namespace Tiny3D
         String mAssetsPath {};
         /// 工程临时文件路径
         String mTempPath {};
+        /// shader 编译后临时文件路径
+        String mCompiledShadersPath {};
 
         /// Assets 档案系统
         ArchivePtr mAssetsArchive {nullptr};
         /// Temp 档案系统
         ArchivePtr mBuiltinArchive {nullptr};
+        /// Shaders 编译后存放档案系统
+        ArchivePtr mCompiledShadersArchive {nullptr};
     };
 
     #define PROJECT_MGR (ProjectManager::getInstance())
