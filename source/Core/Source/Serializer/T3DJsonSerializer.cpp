@@ -37,6 +37,14 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    #define T3D_FILE_MAGIC_KEY      "Magic"
+    #define T3D_FILE_MAGIC_VAL      "T3D"
+    #define T3D_FILE_VERSION_KEY    "Version"
+    #define T3D_FILE_VERSION_STR    "0.0.1"
+    #define T3D_FILE_OBJECT_KEY     "Object"
+    
+    //--------------------------------------------------------------------------
+
     class JsonStream
     {
     public:
@@ -462,6 +470,60 @@ namespace Tiny3D
     {
     public:
         variant *mObj {nullptr};
+
+        //--------------------------------------------------------------------------
+    
+        TResult ReadJsonHeader(DataStream &stream, Document &doc, Value &value)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                JsonStream is(stream);
+
+                if (doc.ParseStream(is).HasParseError())
+                {
+                    ParseErrorCode errorCode = doc.GetParseError();
+                    size_t errorPos = doc.GetErrorOffset();
+                    ret = T3D_ERR_PARSE_STREAM;
+                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Failed to parse json stream (pos:%u) ! ERROR [%d]", errorPos, errorCode);
+                    break;
+                }
+
+                T3D_ASSERT(doc.IsObject());
+
+                // Magic
+                auto itr = doc.FindMember(T3D_FILE_MAGIC_KEY);
+                if (itr == doc.MemberEnd())
+                {
+                    ret = T3D_ERR_MISSING_MAGIC;
+                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing magic field !");
+                    break;
+                }
+                String magic = itr->value.GetString();
+                // Version
+                itr = doc.FindMember(T3D_FILE_VERSION_KEY);
+                if (itr == doc.MemberEnd())
+                {
+                    ret = T3D_ERR_MISSING_VERSION;
+                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing version field !");
+                    break;
+                }
+                String version = itr->value.GetString();
+                // Object
+                itr = doc.FindMember(T3D_FILE_OBJECT_KEY);
+                if (itr == doc.MemberEnd())
+                {
+                    ret = T3D_ERR_MISSING_OBJECT;
+                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing object contain !");
+                    break;
+                }
+                value = itr->value;
+            } while (false);
+
+            return ret;
+        }
+    
         
         bool ReadAtomicType(const Value &node, const type &klass, variant &obj)
         {
@@ -855,13 +917,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    #define T3D_FILE_MAGIC_KEY      "Magic"
-    #define T3D_FILE_MAGIC_VAL      "T3D"
-    #define T3D_FILE_VERSION_KEY    "Version"
-    #define T3D_FILE_VERSION_STR    "0.0.1"
-    #define T3D_FILE_OBJECT_KEY     "Object"
-
-
     TResult JsonSerializer::serialize(DataStream &stream, const RTTRObject &obj)
     {
         TResult ret = T3D_OK;
@@ -890,69 +945,17 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    
-    TResult ReadJsonHeader(DataStream &stream, Document &doc, Value &value)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            JsonStream is(stream);
-
-            if (doc.ParseStream(is).HasParseError())
-            {
-                ParseErrorCode errorCode = doc.GetParseError();
-                size_t errorPos = doc.GetErrorOffset();
-                ret = T3D_ERR_PARSE_STREAM;
-                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Failed to parse json stream (pos:%u) ! ERROR [%d]", errorPos, errorCode);
-                break;
-            }
-
-            T3D_ASSERT(doc.IsObject());
-
-            // Magic
-            auto itr = doc.FindMember(T3D_FILE_MAGIC_KEY);
-            if (itr == doc.MemberEnd())
-            {
-                ret = T3D_ERR_MISSING_MAGIC;
-                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing magic field !");
-                break;
-            }
-            String magic = itr->value.GetString();
-            // Version
-            itr = doc.FindMember(T3D_FILE_VERSION_KEY);
-            if (itr == doc.MemberEnd())
-            {
-                ret = T3D_ERR_MISSING_VERSION;
-                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing version field !");
-                break;
-            }
-            String version = itr->value.GetString();
-            // Object
-            itr = doc.FindMember(T3D_FILE_OBJECT_KEY);
-            if (itr == doc.MemberEnd())
-            {
-                ret = T3D_ERR_MISSING_OBJECT;
-                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing object contain !");
-                break;
-            }
-            value = itr->value;
-        } while (false);
-
-        return ret;
-    }
-    //--------------------------------------------------------------------------
 
     RTTRObject JsonSerializer::deserialize(DataStream &stream)
     {
         Document doc;
         Value value;
-        TResult ret = ReadJsonHeader(stream, doc, value);
+        RTTRObjectJsonReader reader;
+        TResult ret = reader.ReadJsonHeader(stream, doc, value);
         if (T3D_FAILED(ret))
         {
             return RTTRObject();
         }
-        RTTRObjectJsonReader reader;
         return reader.ReadObject(value, false);
     }
 
@@ -962,14 +965,14 @@ namespace Tiny3D
     {
         Document doc;
         Value value;
-        TResult ret = ReadJsonHeader(stream, doc, value);
+        RTTRObjectJsonReader reader;
+        TResult ret = reader.ReadJsonHeader(stream, doc, value);
         if (T3D_FAILED(ret))
         {
             return ret;
         }
-        RTTRObjectJsonReader reader;
-        reader.ReadObject(value, obj, false);
-        return T3D_OK;
+        ret = reader.ReadObject(value, obj, false);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
