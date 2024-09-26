@@ -48,6 +48,10 @@ namespace Tiny3D
          */
         ShaderPtr createShader(const String &name);
 
+#if defined (T3D_EDITOR)
+        ShaderPtr createShader(const String &name, const UUID &uuid);
+#endif
+
         /**
          * @brief 根据文件名，加载 shader 对象
          * @param [in] archive : 从该档案对象中加载 shader 对象

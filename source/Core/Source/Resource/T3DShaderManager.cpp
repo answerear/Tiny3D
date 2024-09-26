@@ -47,6 +47,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+#if defined (T3D_EDITOR)
+    ShaderPtr ShaderManager::createShader(const String &name, const UUID &uuid)
+    {
+        return smart_pointer_cast<Shader>(createResource(name, 1, &uuid));
+    }
+#endif
+    
+    //--------------------------------------------------------------------------
+
     ShaderPtr ShaderManager::loadShader(Archive *archive, const String &filename)
     {
         return smart_pointer_cast<Shader>(load(archive, filename));
@@ -77,7 +86,21 @@ namespace Tiny3D
 
     ResourcePtr ShaderManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        return Shader::create(name);
+        ResourcePtr shader;
+        shader = Shader::create(name);
+
+#if defined (T3D_EDITOR)
+        if (argc == 1)
+        {
+            UUID *uuid = va_arg(args, UUID*);
+            rttr::instance inst(*shader);
+            rttr::type t = inst.get_type();
+            bool rval = t.set_property_value("UUID", inst, *uuid);
+            T3D_ASSERT(rval);
+        }
+#endif
+
+        return shader;
     }
 
     //--------------------------------------------------------------------------
