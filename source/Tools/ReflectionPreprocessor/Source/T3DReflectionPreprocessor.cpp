@@ -94,6 +94,10 @@ namespace  Tiny3D
             whitelist.push_back("std::unordered_multiset");
             whitelist.push_back("std::unordered_map");
             whitelist.push_back("std::unordered_multimap");
+            for (const auto klass : opts.WhiteList)
+            {
+                whitelist.push_back(klass);
+            }
             mGenerator->setBuiltinClass(whitelist);
 
             // 设置工程路径

@@ -2825,7 +2825,7 @@ namespace Tiny3D
             auto itr = mHeaderFiles.find(title);
             if (itr == mHeaderFiles.end())
             {
-                RP_LOG_WARNING("Thire is not the header file title [%s] corresponeding the source file [%s] !", title.c_str(), val.first.c_str());
+                RP_LOG_WARNING("Their is not the header file title [%s] corresponeding the source file [%s] !", title.c_str(), val.first.c_str());
                 continue;
             }
 

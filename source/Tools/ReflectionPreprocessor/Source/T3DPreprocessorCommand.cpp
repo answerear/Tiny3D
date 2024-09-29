@@ -82,22 +82,35 @@ namespace Tiny3D
                 ret = true;
             }
         }
-        else if (argc == 4)
+        else if (argc >= 4)
         {
             // ReflectionSettings.json
             options.SettingsPath = Dir::formatPath(argv[1]);
             // 源码根目录
             options.SourcePath = Dir::formatPath(argv[2]);
 
-            const char *arg = argv[3];
-            if (arg[0] == '-' && arg[1] == 'r')
+            int32_t i = 3;
+
+            while (i < argc)
             {
-                options.IsRebuild = true;
+                const char *arg = argv[i];
+                if (arg[0] == '-' && arg[1] == 'r')
+                {
+                    options.IsRebuild = true;
+                }
+                else if (arg[0] == '-' && arg[1] == 'b')
+                {
+                    options.IsRebuild = false;
+                }
+                else if (arg[0] == '-' && arg[1] == 'W')
+                {
+                    ++i;
+                    options.WhiteList = StringUtil::split2(argv[i], ";");
+                }
+                
+                ++i;
             }
-            else if (arg[0] == '-' && arg[1] == 'b')
-            {
-                options.IsRebuild = false;
-            }
+            
             
             ret = true;
         }
@@ -138,6 +151,7 @@ namespace Tiny3D
         printf("\t<options>                     :\n");
         printf("\t\t-r : Re-generate all reflection source files.");
         printf("\t\t-b : Check last generated time before generate reflection source files.");
+        printf("\t\t-W : Classes in white list which are generated reflection source code. Separate by ';' when more than one class.");
     }
 
     //-------------------------------------------------------------------------
