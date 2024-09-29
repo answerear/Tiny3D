@@ -43,6 +43,24 @@ namespace Tiny3D
     using RTTRObject = rttr::instance;
     using RTTRVariant = rttr::variant;
     using RTTRType = rttr::type;
+
+    struct T3D_SYSTEM_API RTTRTypeHash
+    {
+        std::size_t operator()(const RTTRType& type) const
+        {
+            // 使用std::hash来计算每个字节的哈希值，然后将它们组合起来
+            return type.get_id();
+        }
+    };
+
+    struct T3D_SYSTEM_API RTTRTypeEqual
+    {
+        bool operator()(const RTTRType& lhs, const RTTRType& rhs) const
+        {
+            // 使用std::equal来比较两个UUID是否相等
+            return lhs == rhs;
+        }
+    };
 }
 
 
