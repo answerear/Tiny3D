@@ -441,6 +441,11 @@ struct associative_container_mapper<std::unordered_map<K, T>> : detail::associat
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+template<typename K, typename T, typename HASHER, typename KEY_EQ>
+struct associative_container_mapper<std::unordered_map<K, T, HASHER, KEY_EQ>> : detail::associative_container_map_base<std::unordered_map<K, T, HASHER, KEY_EQ>> {};
+
+//////////////////////////////////////////////////////////////////////////////////////
+
 template<typename K>
 struct associative_container_mapper<std::unordered_multiset<K>> : detail::associative_container_key_base_multi<std::unordered_multiset<K>> {};
 
