@@ -492,7 +492,7 @@ namespace Tiny3D
             // TVector3<T>(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
 
             return TRadian<T>(TMath<T>::atan2(fTxy + fTwz, 
-                TMath<T>::ONE - (fTyy + fTzz)));
+                TReal<T>::ONE - (fTyy + fTzz)));
         }
         else
         {
