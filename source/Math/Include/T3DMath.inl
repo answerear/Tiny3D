@@ -52,86 +52,86 @@ namespace Tiny3D
 
     ////////////////////////////////////////////////////////////////////////////
 
-    template <typename T>
-    inline TRadian<T>::TRadian(const TDegree<T> &degree)
-        : mRadian(degree.valueRadians())
-    {
+    // template <typename T>
+    // inline TRadian<T>::TRadian(const TDegree<T> &degree)
+    //     : mRadian(degree.valueRadians())
+    // {
+    //
+    // }
 
-    }
+    // template <typename T>
+    // inline TRadian<T> &TRadian<T>::operator =(const TDegree<T> &degree)
+    // {
+    //     mRadian = degree.valueRadians();
+    //     return *this;
+    // }
 
-    template <typename T>
-    inline TRadian<T> &TRadian<T>::operator =(const TDegree<T> &degree)
-    {
-        mRadian = degree.valueRadians();
-        return *this;
-    }
+    // template <typename T>
+    // inline TRadian<T> TRadian<T>::operator +(const TDegree<T> &degree) const
+    // {
+    //     return TRadian(mRadian + degree.valueRadians());
+    // }
+    //
+    // template <typename T>
+    // inline TRadian<T> TRadian<T>::operator -(const TDegree<T> &degree) const
+    // {
+    //     return TRadian(mRadian - degree.valueRadians());
+    // }
 
-    template <typename T>
-    inline TRadian<T> TRadian<T>::operator +(const TDegree<T> &degree) const
-    {
-        return TRadian(mRadian + degree.valueRadians());
-    }
-
-    template <typename T>
-    inline TRadian<T> TRadian<T>::operator -(const TDegree<T> &degree) const
-    {
-        return TRadian(mRadian - degree.valueRadians());
-    }
-
-    template <typename T>
-    inline TRadian<T> &TRadian<T>::operator +=(const TDegree<T> &degree)
-    {
-        mRadian += degree.valueRadians();
-        return *this;
-    }
-
-    template <typename T>
-    inline TRadian<T> &TRadian<T>::operator -=(const TDegree<T> &degree)
-    {
-        mRadian -= degree.valueRadians();
-        return *this;
-    }
+    // template <typename T>
+    // inline TRadian<T> &TRadian<T>::operator +=(const TDegree<T> &degree)
+    // {
+    //     mRadian += degree.valueRadians();
+    //     return *this;
+    // }
+    //
+    // template <typename T>
+    // inline TRadian<T> &TRadian<T>::operator -=(const TDegree<T> &degree)
+    // {
+    //     mRadian -= degree.valueRadians();
+    //     return *this;
+    // }
 
     ////////////////////////////////////////////////////////////////////////////
-    template <typename T>
-    inline TDegree<T>::TDegree(const TRadian<T> &radian)
-        : mDegree(radian.valueDegrees())
-    {
+    // template <typename T>
+    // inline TDegree<T>::TDegree(const TRadian<T> &radian)
+    //     : mDegree(radian.valueDegrees())
+    // {
+    //
+    // }
 
-    }
+    // template <typename T>
+    // inline TDegree<T> &TDegree<T>::operator =(const TRadian<T> &radian)
+    // {
+    //     mDegree = radian.valueDegrees();
+    //     return *this;
+    // }
 
-    template <typename T>
-    inline TDegree<T> &TDegree<T>::operator =(const TRadian<T> &radian)
-    {
-        mDegree = radian.valueDegrees();
-        return *this;
-    }
-
-    template <typename T>
-    inline TDegree<T> TDegree<T>::operator +(const TRadian<T> &radian) const
-    {
-        return TDegree(mDegree + radian.valueDegrees());
-    }
-
-    template <typename T>
-    inline TDegree<T> TDegree<T>::operator -(const TRadian<T> &radian) const
-    {
-        return TDegree(mDegree - radian.valueDegrees());
-    }
-
-    template <typename T>
-    inline TDegree<T> &TDegree<T>::operator +=(const TRadian<T> &radian)
-    {
-        mDegree += radian.valueDegrees();
-        return *this;
-    }
-
-    template <typename T>
-    inline TDegree<T> &TDegree<T>::operator -=(const TRadian<T> &radian)
-    {
-        mDegree -= radian.valueDegrees();
-        return *this;
-    }
+    // template <typename T>
+    // inline TDegree<T> TDegree<T>::operator +(const TRadian<T> &radian) const
+    // {
+    //     return TDegree(mDegree + radian.valueDegrees());
+    // }
+    //
+    // template <typename T>
+    // inline TDegree<T> TDegree<T>::operator -(const TRadian<T> &radian) const
+    // {
+    //     return TDegree(mDegree - radian.valueDegrees());
+    // }
+    //
+    // template <typename T>
+    // inline TDegree<T> &TDegree<T>::operator +=(const TRadian<T> &radian)
+    // {
+    //     mDegree += radian.valueDegrees();
+    //     return *this;
+    // }
+    //
+    // template <typename T>
+    // inline TDegree<T> &TDegree<T>::operator -=(const TRadian<T> &radian)
+    // {
+    //     mDegree -= radian.valueDegrees();
+    //     return *this;
+    // }
 
     ////////////////////////////////////////////////////////////////////////////
 

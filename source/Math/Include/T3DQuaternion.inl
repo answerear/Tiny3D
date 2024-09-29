@@ -24,6 +24,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TQuaternion<T>::fromAngleAxis(const TRadian<T> &rkRadians, 
         const TVector3<T> &rkAxis)
@@ -36,6 +38,8 @@ namespace Tiny3D
         _z = fSin * rkAxis.z();
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TQuaternion<T>::fromAxis(const TVector3<T> &rkXAxis, 
         const TVector3<T> &rkYAxis, const TVector3<T> &rkZAxis)
@@ -57,6 +61,8 @@ namespace Tiny3D
         fromRotationMatrix(kRot);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TQuaternion<T>::fromAxis(const TVector3<T> *akAxis)
     {
@@ -77,6 +83,8 @@ namespace Tiny3D
         fromRotationMatrix(kRot);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion()
         : _w(1.0)
@@ -87,6 +95,8 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(const TQuaternion &other)
     {
@@ -96,6 +106,8 @@ namespace Tiny3D
         _z = other._z;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(T w, T x, T y, T z)
         : _w(w)
@@ -106,12 +118,16 @@ namespace Tiny3D
 
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(const TMatrix3<T> &rkRot)
     {
         fromRotationMatrix(rkRot);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(const TRadian<T> &rkAngle, 
         const TVector3<T> &rkAxis)
@@ -119,6 +135,8 @@ namespace Tiny3D
         fromAngleAxis(rkAngle, rkAxis);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(const TVector3<T> &rkXAxis, 
         const TVector3<T> &rkYAxis, const TVector3<T> &rkZAxis)
@@ -126,12 +144,16 @@ namespace Tiny3D
         fromAxis(rkXAxis, rkYAxis, rkZAxis);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(const TVector3<T> *akAxis)
     {
         fromAxis(akAxis);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::TQuaternion(T *values)
         : _w(values[0])
@@ -141,18 +163,24 @@ namespace Tiny3D
     {
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::operator const T *() const
     {
         return &_w;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T>::operator T *()
     {
         return &_w;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::operator [](int32_t i) const
     {
@@ -160,6 +188,8 @@ namespace Tiny3D
         return *(&_w + i);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T &TQuaternion<T>::operator [](int32_t i)
     {
@@ -167,23 +197,31 @@ namespace Tiny3D
         return *(&_w + i);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::x() const
     {
         return _x;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T &TQuaternion<T>::x()
     {
         return _x;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::y() const
     {
         return _y;
     }
+
+    //--------------------------------------------------------------------------
 
     template <typename T>
     inline T &TQuaternion<T>::y()
@@ -191,30 +229,40 @@ namespace Tiny3D
         return _y;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::z() const
     {
         return _z;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T &TQuaternion<T>::z()
     {
         return _z;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::w() const
     {
         return _w;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T &TQuaternion<T>::w()
     {
         return _w;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TQuaternion<T>::operator ==(const TQuaternion &other) const
     {
@@ -224,12 +272,16 @@ namespace Tiny3D
             && _z == other._z);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TQuaternion<T>::operator !=(const TQuaternion &other) const
     {
         return !operator ==(other);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> &TQuaternion<T>::operator =(const TQuaternion &other)
     {
@@ -240,6 +292,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::operator +(
         const TQuaternion &other) const
@@ -252,6 +306,8 @@ namespace Tiny3D
         );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::operator -(
         const TQuaternion &other) const
@@ -264,6 +320,8 @@ namespace Tiny3D
         );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::operator *(
         const TQuaternion &other) const
@@ -277,12 +335,16 @@ namespace Tiny3D
         );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::operator *(T scalar) const
     {
         return TQuaternion(_w*scalar, _x*scalar, _y*scalar, _z*scalar);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::operator /(T scalar) const
     {
@@ -295,6 +357,8 @@ namespace Tiny3D
             _z * fInvertScalar);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> &TQuaternion<T>::operator +=(const TQuaternion &other)
     {
@@ -305,6 +369,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> &TQuaternion<T>::operator -=(const TQuaternion &other)
     {
@@ -315,6 +381,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> &TQuaternion<T>::operator *=(const TQuaternion &other)
     {
@@ -326,6 +394,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> &TQuaternion<T>::operator *=(T scalar)
     {
@@ -336,6 +406,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> &TQuaternion<T>::operator /=(T scalar)
     {
@@ -349,12 +421,16 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::operator -() const
     {
         return TQuaternion(-_w, -_x, -_y, -_z);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TQuaternion<T>::operator* (const TVector3<T>& v) const
     {
@@ -369,18 +445,24 @@ namespace Tiny3D
         return v + uv + uuv;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::dot(const TQuaternion &other) const
     {
         return (_x * other._x + _y * other._y + _z * other._z + _w * other._w);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::norm() const
     {
         return _w * _w + _x * _x + _y * _y + _z * _z;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TQuaternion<T>::normalize()
     {
@@ -390,6 +472,8 @@ namespace Tiny3D
         return len;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TQuaternion<T>::inverse() const
     {
@@ -410,15 +494,18 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
-    inline void TQuaternion<T>::toAngleAxis(TDegree<T> &rDegree, 
-        TVector3<T> &rAxis) const
+    inline void TQuaternion<T>::toAngleAxis(TDegree<T> &rDegree, TVector3<T> &rAxis) const
     {
         TRadian<T> rAngle;
         toAngleAxis(rAngle, rAxis);
-        rDegree = rAngle;
+        rDegree = rAngle.valueDegrees();
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TRadian<T> TQuaternion<T>::getPitch(
         bool reprojectAxis /* = true */) const
@@ -447,6 +534,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TRadian<T> TQuaternion<T>::getYaw(bool reprojectAxis) const
     {
@@ -474,6 +563,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TRadian<T> TQuaternion<T>::getRoll(bool reprojectAxis) const
     {
@@ -502,6 +593,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TQuaternion<T>::xAxis() const
     {
@@ -518,6 +611,8 @@ namespace Tiny3D
         return TVector3<T>(TReal<T>::ONE - (fTyy + fTzz), fTxy + fTwz, fTxz - fTwy);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TQuaternion<T>::yAxis() const
     {
@@ -534,6 +629,8 @@ namespace Tiny3D
         return TVector3<T>(fTxy - fTwz, 1.0f - (fTxx + fTzz), fTyz + fTwx);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TQuaternion<T>::zAxis() const
     {
@@ -550,6 +647,8 @@ namespace Tiny3D
         return TVector3<T>(fTxz + fTwy, fTyz - fTwx, 1.0f - (fTxx + fTyy));
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> operator *(T scalar, const TQuaternion<T> &rkQ)
     {
@@ -560,12 +659,18 @@ namespace Tiny3D
             scalar * rkQ.w());
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     const TQuaternion<T> TQuaternion<T>::IDENTITY(1.0, 0.0, 0.0, 0.0);
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     const TQuaternion<T> TQuaternion<T>::ZERO(0.0, 0.0, 0.0, 0.0);
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TQuaternion<T>::fromRotationMatrix(const TMatrix3<T> &rkRot)
     {
@@ -607,6 +712,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TQuaternion<T>::toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const
     {
@@ -632,6 +739,8 @@ namespace Tiny3D
         }
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TQuaternion<T>::toRotationMatrix(TMatrix3<T> &rRot) const
     {
@@ -659,6 +768,23 @@ namespace Tiny3D
         rRot[2][2] = TReal<T>::ONE - (fTxx + fTyy);
     }
 
+    //--------------------------------------------------------------------------
+    
+    template<typename T>
+    void TQuaternion<T>::toAngleAxis(TVector3<T> *aAxis) const
+    {
+        TMatrix3<T> rot;
+        toRotationMatrix(rot);
+        for (int32_t i = 0; i < 3; i++)
+        {
+            aAxis[i][0] = rot[0][i];
+            aAxis[i][1] = rot[1][i];
+            aAxis[i][2] = rot[2][i];
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     TQuaternion<T> &TQuaternion<T>::slerp(const TQuaternion &rkP, 
         const TQuaternion &rkQ, T times, bool shortestPath /* = true */, 
@@ -730,4 +856,6 @@ namespace Tiny3D
 
         return *this;
     }
+
+    //--------------------------------------------------------------------------
 }

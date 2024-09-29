@@ -32,6 +32,8 @@
 
 namespace Tiny3D
 {
+    // template <typename T> struct TDegree;
+    
     /// 弧度类，用于表示弧度
     TSTRUCT()
     template <typename T>
@@ -45,7 +47,7 @@ namespace Tiny3D
         /// 指定实数弧度制的构造函数.
         explicit TRadian(T radian);
         /// 指定角度对象的构造函数
-        TRadian(const TDegree<T> &degree);
+        // TRadian(const TDegree<T> &degree);
         /// 拷贝构造函数
         TRadian(const TRadian &other);
 
@@ -54,7 +56,7 @@ namespace Tiny3D
         /// 重载赋值操作符，从一个弧度对象赋值
         TRadian &operator =(const TRadian &other);
         /// 重载赋值操作符，从一个角度对象赋值
-        TRadian &operator =(const TDegree<T> &degree);
+        // TRadian &operator =(const TDegree<T> &degree);
 
         /// 重载取正数操作符
         const TRadian &operator +() const;
@@ -80,9 +82,9 @@ namespace Tiny3D
         TRadian operator -(const TRadian &other) const;
 
         /// 重载加法操作符，跟另一个角度对象相加
-        TRadian operator +(const TDegree<T> &degree) const;
+        // TRadian operator +(const TDegree<T> &degree) const;
         /// 重载减法操作符，跟另一个角度对象相减
-        TRadian operator -(const TDegree<T> &degree) const;
+        // TRadian operator -(const TDegree<T> &degree) const;
 
         /// 重载加法赋值操作符，跟另一个弧度对象相加
         TRadian &operator +=(const TRadian &other);
@@ -90,9 +92,9 @@ namespace Tiny3D
         TRadian &operator -=(const TRadian &other);
 
         /// 重载加法赋值操作符，跟另一个角度对象相加
-        TRadian &operator +=(const TDegree<T> &degree);
+        // TRadian &operator +=(const TDegree<T> &degree);
         /// 重载减法赋值操作符，跟另一个角度对象相减
-        TRadian &operator -=(const TDegree<T> &degree);
+        // TRadian &operator -=(const TDegree<T> &degree);
 
         /// 重载乘法操作符，跟一个标量相乘
         TRadian operator *(T scalar) const;

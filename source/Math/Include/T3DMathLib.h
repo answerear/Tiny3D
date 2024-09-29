@@ -83,89 +83,89 @@
 
 namespace Tiny3D
 {
-#define __T3D_LOW_PRECISION_FLOAT__         0       // 32位单精度浮点数
-#define __T3D_HIGH_PRECISION_FLOAT__        1       // 64位双精度浮点数
-#define __T3D_LOW_PRECISION_FIX__           2       // 32位定点数
-#define __T3D_HIGH_PRECISION_FIX__          3       // 64位定点数
+    #define __T3D_LOW_PRECISION_FLOAT__         0       // 32位单精度浮点数
+    #define __T3D_HIGH_PRECISION_FLOAT__        1       // 64位双精度浮点数
+    #define __T3D_LOW_PRECISION_FIX__           2       // 32位定点数
+    #define __T3D_HIGH_PRECISION_FIX__          3       // 64位定点数
 
-#define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
+    #define __T3D_REAL_TYPE__   __T3D_LOW_PRECISION_FLOAT__ // 实数的精度类型
 
-#if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
-    typedef fix32_t     Real;
-#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
-    typedef fix64_t     Real;
-#elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
-    typedef float32_t   Real;
-#elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
-    typedef float64_t   Real;
-#endif
-
-
-typedef TDegree<Real>       Degree;
-typedef TRadian<Real>       Radian;
-typedef TMath<Real>         Math;
-
-typedef TSize<size_t>       Size;
-typedef TSize<Real>         RealSize;
-
-typedef TPoint<size_t>      Point;
-typedef TPoint<Real>        RealPoint;
-
-typedef TRect<size_t>       Rect;
-typedef TRect<Real>         RealRect;
-
-typedef TVector2<Real>      Vector2;
-typedef TVector3<Real>      Vector3;
-typedef TVector4<Real>      Vector4;
-typedef TMatrix2<Real>      Matrix2;
-typedef TMatrix3<Real>      Matrix3;
-typedef TMatrix4<Real>      Matrix4;
-typedef TQuaternion<Real>   Quaternion;
-
-typedef TRay<Real>          Ray;
-typedef TTriangle<Real>     Triangle;
-typedef TPlane<Real>        Plane;
-typedef TSphere<Real>       Sphere;
-typedef TAabb<Real>         Aabb;
-typedef TObb<Real>          Obb;
-typedef TFrustum<Real>      Frustum;
-
-typedef TIntrRayTriangle<Real>      IntrRayTriangle;
-typedef TIntrRayPlane<Real>         IntrRayPlane;
-typedef TIntrRaySphere<Real>        IntrRaySphere;
-typedef TIntrRayAabb<Real>          IntrRayAabb;
-typedef TIntrRayObb<Real>           IntrRayObb;
-
-typedef TIntrSphereTriangle<Real>   IntrSphereTriangle;
-typedef TIntrSpherePlane<Real>      IntrSpherePlane;
-typedef TIntrSphereSphere<Real>     IntrSphereSphere;
-typedef TIntrSphereAabb<Real>       IntrSphereAabb;
-typedef TIntrSphereObb<Real>        IntrSphereObb;
-
-typedef TIntrAabbPlane<Real>        IntrAabbPlane;
-typedef TIntrAabbAabb<Real>         IntrAabbAabb;
-typedef TIntrAabbObb<Real>          IntrAabbObb;
-
-typedef TIntrObbPlane<Real>         IntrObbPlane;
-typedef TIntrObbObb<Real>           IntrObbObb;
-
-typedef TIntrFrustumSphere<Real>    IntrFrustumSphere;
-typedef TIntrFrustumAabb<Real>      IntrFrustumAabb;
-typedef TIntrFrustumObb<Real>       IntrFrustumObb;
-
-typedef TIntrPointSphere<Real>      IntrPointSphere;
-typedef TIntrPointAabb<Real>        IntrPointAabb;
-typedef TIntrPointObb<Real>         IntrPointObb;
-typedef TIntrPointFrustum<Real>     IntrPointFrustum;
+    #if __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FIX__
+        using Real = fix32_t;
+    #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FIX__
+        using Real = fix64_t;
+    #elif __T3D_REAL_TYPE__ == __T3D_LOW_PRECISION_FLOAT__
+        using Real = float32_t;
+    #elif __T3D_REAL_TYPE__ == __T3D_HIGH_PRECISION_FLOAT__
+        using Real = float64_t;
+    #endif
 
 
-#define REAL_ZERO           TReal<Real>::ZERO
-#define REAL_HALF           TReal<Real>::HALF
-#define REAL_ONE            TReal<Real>::ONE
-#define REAL_MINUS_ONE      TReal<Real>::MINUS_ONE
-#define REAL_INF            TReal<Real>::INF
-#define REAL_MINUS_INF      TReal<Real>::MINUS_INF
-#define REAL_EPSILON        TReal<Real>::EPSILON
+    using Degree = TDegree<Real>;
+    using Radian = TRadian<Real>;
+    using Math = TMath<Real>;
+
+    using Size = TSize<size_t>;
+    using RealSize = TSize<Real>;
+
+    using Point = TPoint<size_t>;
+    using RealPoint = TPoint<Real>;
+
+    using Rect = TRect<size_t>;
+    using RealRect = TRect<Real>;
+
+    using Vector2 = TVector2<Real>;
+    using Vector3 = TVector3<Real>;
+    using Vector4 = TVector4<Real>;
+    using Matrix2 = TMatrix2<Real>;
+    using Matrix3 = TMatrix3<Real>;
+    using Matrix4 = TMatrix4<Real>;
+    using Quaternion = TQuaternion<Real>;
+
+    using Ray = TRay<Real>;
+    using Triangle = TTriangle<Real>;
+    using Plane = TPlane<Real>;
+    using Sphere = TSphere<Real>;
+    using Aabb = TAabb<Real>;
+    using Obb = TObb<Real>;
+    using Frustum = TFrustum<Real>;
+
+    using IntrRayTriangle = TIntrRayTriangle<Real>;
+    using IntrRayPlane = TIntrRayPlane<Real>;
+    using IntrRaySphere = TIntrRaySphere<Real>;
+    using IntrRayAabb = TIntrRayAabb<Real>;
+    using IntrRayObb = TIntrRayObb<Real>;
+
+    using IntrSphereTriangle = TIntrSphereTriangle<Real>;
+    using IntrSpherePlane = TIntrSpherePlane<Real>;
+    using IntrSphereSphere = TIntrSphereSphere<Real>;
+    using IntrSphereAabb = TIntrSphereAabb<Real>;
+    using IntrSphereObb = TIntrSphereObb<Real>;
+
+    using IntrAabbPlane = TIntrAabbPlane<Real>;
+    using IntrAabbAabb = TIntrAabbAabb<Real>;
+    using IntrAabbObb = TIntrAabbObb<Real>;
+
+    using IntrObbPlane = TIntrObbPlane<Real>;
+    using IntrObbObb = TIntrObbObb<Real>;
+
+    using IntrFrustumSphere = TIntrFrustumSphere<Real>;
+    using IntrFrustumAabb = TIntrFrustumAabb<Real>;
+    using IntrFrustumObb = TIntrFrustumObb<Real>;
+
+    using IntrPointSphere = TIntrPointSphere<Real>;
+    using IntrPointAabb = TIntrPointAabb<Real>;
+    using IntrPointObb = TIntrPointObb<Real>;
+    using IntrPointFrustum = TIntrPointFrustum<Real>;
+
+
+    #define REAL_ZERO           TReal<Real>::ZERO
+    #define REAL_HALF           TReal<Real>::HALF
+    #define REAL_ONE            TReal<Real>::ONE
+    #define REAL_MINUS_ONE      TReal<Real>::MINUS_ONE
+    #define REAL_INF            TReal<Real>::INF
+    #define REAL_MINUS_INF      TReal<Real>::MINUS_INF
+    #define REAL_EPSILON        TReal<Real>::EPSILON
 }
 
 

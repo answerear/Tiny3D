@@ -173,7 +173,7 @@ namespace Tiny3D
     inline void Transform3D::rotate(const Vector3 &axis,
         const Degree &degrees)
     {
-        rotate(axis, Radian(degrees));
+        rotate(axis, Radian(degrees.valueRadians()));
     }
 
     //--------------------------------------------------------------------------
