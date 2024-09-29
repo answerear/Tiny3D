@@ -149,8 +149,8 @@ using UUnorderedMultiset = std::unordered_multiset<T>;
 template <typename K, typename V, typename HASHER = std::hash<K>, typename KEY_EQ = std::equal_to<K>, typename ALLOC = std::allocator<std::pair<const K, V>>>
 using TUnorderedMap = std::unordered_map<K, V, HASHER, KEY_EQ, ALLOC>;
 
-template <typename K, typename V>
-using TUnorderedMultimap = std::unordered_multimap<K, V>;
+template <typename K, typename V, typename HASHER = std::hash<K>, typename KEY_EQ = std::equal_to<K>, typename ALLOC = std::allocator<std::pair<const K, V>>>
+using TUnorderedMultimap = std::unordered_multimap<K, V, HASHER, KEY_EQ, ALLOC>;
 
 template <typename T1, typename T2>
 using TPair = std::pair<T1, T2>;
