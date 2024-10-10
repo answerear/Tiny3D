@@ -46,6 +46,7 @@ bool TextureApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // create scene
     ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
+    scene->init();
     T3D_SCENE_MGR.setCurrentScene(scene);
     
     // root game object
