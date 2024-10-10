@@ -1,16 +1,16 @@
 {
-    "Magic": "T3D",
-    "Version": "0.0.1",
-    "Object": {
-        "RTTI_Type": "Tiny3D::MetaMesh",
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::MetaMesh",
+    "RTTI_Value": {
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
-            "UUID": {
-                "RTTI_Type": "Tiny3D::UUID",
-                "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "8c364c8fcbdd7e7825f55b6582c69079"
-                }
-            }
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "3729ee97aae375a13a53a20f9bb29a27"
         }
+      }
     }
+  }
 }

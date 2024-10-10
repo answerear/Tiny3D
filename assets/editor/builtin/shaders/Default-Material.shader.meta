@@ -1,23 +1,23 @@
 {
-    "Magic": "T3D",
-    "Version": "0.0.1",
-    "Object": {
-        "RTTI_Type": "Tiny3D::MetaShaderLab",
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::MetaShaderLab",
+    "RTTI_Value": {
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
-            "UUID": {
-                "RTTI_Type": "Tiny3D::UUID",
-                "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "c530de715ae64b1bb8c06207edfab6e7"
-                }
-            },
-            "ShaderUUID": {
-                "RTTI_Type": "Tiny3D::UUID",
-                "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "44de14e84652b55e38b07aa66e86941d"
-                }
-            }
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "6e30eee70ef67da29826032aab0abe2c"
         }
+      },
+      "ShaderUUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "15917d8342aa98958c5092c6d11dc971"
+        }
+      }
     }
+  }
 }

@@ -1,16 +1,16 @@
 {
-    "Magic": "T3D",
-    "Version": "0.0.1",
-    "Object": {
-        "RTTI_Type": "Tiny3D::MetaTexture",
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::MetaTexture",
+    "RTTI_Value": {
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
-            "UUID": {
-                "RTTI_Type": "Tiny3D::UUID",
-                "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "5ad303b703bbe480d026e0bab6c46057"
-                }
-            }
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "62c2f23e792cf13004fe4f80ea2ebdcf"
         }
+      }
     }
+  }
 }

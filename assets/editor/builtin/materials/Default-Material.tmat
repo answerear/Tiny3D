@@ -1,86 +1,86 @@
 {
-    "Magic": "T3D",
-    "Version": "0.0.1",
-    "Object": {
-        "RTTI_Type": "Tiny3D::Material",
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::Material",
+    "RTTI_Value": {
+      "Name": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "Default-Material"
+      },
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
-            "Name": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "Default-Material"
-            },
-            "UUID": {
-                "RTTI_Type": "Tiny3D::UUID",
-                "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "2a283e67164e018c9f78c6cd06826d07"
-                }
-            },
-            "Constants": {
-                "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
-                "RTTI_Value": [
-                    {
-                        "RTTI_Map_Key": {
-                            "RTTI_Type": "std::string",
-                            "RTTI_Value": "_Color"
-                        },
-                        "RTTI_Map_Value": {
-                            "RTTI_Type": "Tiny3D::ShaderConstantParam",
-                            "RTTI_Value": {
-                                "Data": {
-                                    "RTTI_Type": "Tiny3D::Buffer",
-                                    "RTTI_Value": {
-                                        "RTTI_Type": "std::string",
-                                        "RTTI_Value": "AACAPwAAgD8AAIA/AACAPw=="
-                                    }
-                                },
-                                "DataType": {
-                                    "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
-                                    "RTTI_Value": "DT_COLOR"
-                                },
-                                "Name": {
-                                    "RTTI_Type": "std::string",
-                                    "RTTI_Value": "_Color"
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            "Samplers": {
-                "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
-                "RTTI_Value": [
-                    {
-                        "RTTI_Map_Key": {
-                            "RTTI_Type": "std::string",
-                            "RTTI_Value": "_MainTex"
-                        },
-                        "RTTI_Map_Value": {
-                            "RTTI_Type": "Tiny3D::ShaderSamplerParam",
-                            "RTTI_Value": {
-                                "Name": {
-                                    "RTTI_Type": "std::string",
-                                    "RTTI_Value": "_MainTex"
-                                },
-                                "TextureName": {
-                                    "RTTI_Type": "std::string",
-                                    "RTTI_Value": "white"
-                                },
-                                "TextureState": {
-                                    "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
-                                    "RTTI_Value": "TT_2D"
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            "Shader": {
-                "RTTI_Type": "Tiny3D::UUID",
-                "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "c530de715ae64b1bb8c06207edfab6e7"
-                }
-            }
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "049fc3b52a481576beaedd7a07a51e16"
         }
+      },
+      "Constants": {
+        "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "_Color"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantParam",
+              "RTTI_Value": {
+                "Data": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AACAPwAAgD8AAIA/AACAPw=="
+                  }
+                },
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_COLOR"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "_Color"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Samplers": {
+        "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "_MainTex"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+              "RTTI_Value": {
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "_MainTex"
+                },
+                "TextureName": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "white"
+                },
+                "TextureState": {
+                  "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                  "RTTI_Value": "TT_2D"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Shader": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "6e30eee70ef67da29826032aab0abe2c"
+        }
+      }
     }
+  }
 }
