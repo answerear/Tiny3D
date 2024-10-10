@@ -25,6 +25,7 @@
 
 #include "T3DAbstractSyntaxTree.h"
 #include "T3DRPErrorCode.h"
+#include "T3DReflectionGenerator.h"
 
 
 namespace Tiny3D
@@ -276,18 +277,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ASTNode::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    void ASTNode::replaceTemplateParams(ASTClassTemplate *klassTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath)
     {
-        replaceChildrenTemplateParams(formals, actuals);
+        replaceChildrenTemplateParams(klassTemplate, formals, actuals, headerPath);
     }
 
     //--------------------------------------------------------------------------
 
-    void ASTNode::replaceChildrenTemplateParams(const StringArray &formals, const StringArray &actuals)
+    void ASTNode::replaceChildrenTemplateParams(ASTClassTemplate *klassTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath)
     {
         for (const auto &val : mChildren)
         {
-            val.second->replaceTemplateParams(formals, actuals);
+            val.second->replaceTemplateParams(klassTemplate, formals, actuals, headerPath);
         }
     }
 
@@ -962,6 +963,15 @@ namespace Tiny3D
                 writer.String(val.Type);
                 writer.Key("Default");
                 writer.String(val.Default);
+                writer.Key("Class");
+                if (val.Klass != nullptr)
+                {
+                    writer.String(val.Klass->getHierarchyName());
+                }
+                else
+                {
+                    writer.String("null");
+                }
                 writer.EndObject();
             }
             writer.EndArray();
@@ -1012,6 +1022,16 @@ namespace Tiny3D
         // Return Type
         writer.Key("Return Type");
         writer.String(RetType);
+
+        writer.Key("Return Class");
+        if (RetKlass != nullptr)
+        {
+            writer.String(RetKlass->getHierarchyName());
+        }
+        else
+        {
+            writer.String("null");
+        }
         
         ASTParameterFunction::dumpProperties(writer);
     }
@@ -1061,11 +1081,12 @@ namespace Tiny3D
         ASTOverloadFunction *function = static_cast<ASTOverloadFunction *>(newNode);
         function->RetType = RetType;
         function->IsConst = IsConst;
+        function->RetKlass = RetKlass;
     }
 
     //--------------------------------------------------------------------------
 
-    void ASTOverloadFunction::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    void ASTOverloadFunction::replaceTemplateParams(ASTClassTemplate *classTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath)
     {
         // size_t i = 0;
         // for (i = 0; i < formals.size(); i++)
@@ -1094,7 +1115,7 @@ namespace Tiny3D
         for (const auto &arg : formals)
         {
             if (!arg.empty() && i < actuals.size())
-            {
+            { 
                 String pattern = "* " + arg + " *";
                 String formal = " " + arg + " ";
                 String actual = " " + actuals[i] + " ";
@@ -1110,6 +1131,14 @@ namespace Tiny3D
                 String pattern5 = "*" + arg + ",*";
                 String formal5 = arg + ",";
                 String actual5 = actuals[i] + ",";
+                String formal6 = arg + " *";
+                String actual6 = actuals[i] + " *";
+                String formal7 = arg + "*";
+                String actual7 = actuals[i] + "*";
+                String formal8 = arg + " &";
+                String actual8 = actuals[i] + " &";
+                String formal9 = arg + "&";
+                String actual9 = actuals[i] + "&";
                 
                 // 查找参数里面的模板类型并替换
                 for (auto &param : Params)
@@ -1133,6 +1162,22 @@ namespace Tiny3D
                     else if (StringUtil::match(param.Type, pattern5, true))
                     {
                         StringUtil::replaceAll(param.Type, formal5, actual5);
+                    }
+                    else if (param.Type == formal6)
+                    {
+                        param.Type = actual6;
+                    }
+                    else if (param.Type == formal7)
+                    {
+                        param.Type = actual7;
+                    }
+                    else if (param.Type == formal8)
+                    {
+                        param.Type = actual8;
+                    }
+                    else if (param.Type == formal9)
+                    {
+                        param.Type = actual9;
                     }
                     else if (param.Type == arg)
                     {
@@ -1160,6 +1205,22 @@ namespace Tiny3D
                 else if (StringUtil::match(RetType, pattern5, true))
                 {
                     StringUtil::replaceAll(RetType, formal5, actual5);
+                }
+                else if (RetType == formal6)
+                {
+                    RetType = actual6;
+                }
+                else if (RetType == formal7)
+                {
+                    RetType = actual7;
+                }
+                else if (RetType == formal8)
+                {
+                    RetType = actual8;
+                }
+                else if (RetType == formal9)
+                {
+                    RetType = actual9;
                 }
                 else if (RetType == arg)
                 {
@@ -1249,7 +1310,46 @@ namespace Tiny3D
             i++;
         }
 
-        replaceChildrenTemplateParams(formals, actuals);
+        auto instantiateClassTemplate = [](ASTStruct *klass, const String &name, const StringArray &formals, const StringArray &actuals, const String &headerPath) -> TResult
+        {
+            String klassName = name;
+            String what1 = "const ";
+            StringUtil::replaceAll(klassName, what1, "");
+            String what2 = "&";
+            StringUtil::replaceAll(klassName, what2, "");
+            String what3 = "*";
+            StringUtil::replaceAll(klassName, what3, "");
+            StringUtil::trim(klassName);
+
+            String::size_type pos = klassName.find_first_of("<");
+            if (pos != String::npos)
+            {
+                klassName.erase(0, pos);
+                klassName.insert(0, klass->getName());
+            }
+            
+            ReflectionGenerator::getInstance().instantiateClassTemplate(static_cast<ASTClassTemplate *>(klass), klassName, formals, actuals, headerPath);
+            return T3D_OK;
+        };
+        
+        for (const auto &param : Params)
+        {
+            if (param.Klass != nullptr && param.Klass->getType() == ASTNode::Type::kClassTemplate && param.Klass != classTemplate)
+            {
+                instantiateClassTemplate(param.Klass, param.Type, formals, actuals, classTemplate->FileInfo.Path);
+            }
+        }
+
+        if (RetKlass != nullptr)
+        {
+            // 返回值也是另外一个类模板，让类模板实例化
+            if (RetKlass->getType() == ASTNode::Type::kClassTemplate && RetKlass != classTemplate /*&& !clang_Cursor_isNull(RetCursor)*/)
+            {
+                instantiateClassTemplate(RetKlass, RetType, formals, actuals, classTemplate->FileInfo.Path);
+            }
+        }
+
+        replaceChildrenTemplateParams(classTemplate, formals, actuals, headerPath);
     }
 
     //--------------------------------------------------------------------------
@@ -1378,7 +1478,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ASTProperty::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    void ASTProperty::replaceTemplateParams(ASTClassTemplate *classTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath)
     {
         for (size_t i = 0; i < formals.size(); i++)
         {
@@ -1390,7 +1490,7 @@ namespace Tiny3D
             }
         }
         
-        replaceChildrenTemplateParams(formals, actuals);
+        replaceChildrenTemplateParams(classTemplate, formals, actuals, headerPath);
     }
 
     //--------------------------------------------------------------------------
@@ -1607,10 +1707,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ASTClassTemplate::replaceTemplateParams(const StringArray &formals, const StringArray &actuals)
+    void ASTClassTemplate::replaceTemplateParams(ASTClassTemplate *klassTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath)
     {
         instantiateTemplate(actuals);
-        replaceChildrenTemplateParams(formals, actuals);
+        replaceChildrenTemplateParams(klassTemplate, formals, actuals, headerPath);
     }
     
     //--------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 
 namespace Tiny3D
 {
-    class ReflectionGenerator : public Noncopyable
+    class ReflectionGenerator : public Singleton<ReflectionGenerator>
     {
     public:
         /// Constructor
@@ -84,6 +84,8 @@ namespace Tiny3D
          * @brief 设置内置类，即不打标签也自动反射的类，主要是用于各种 stl 容器模板
          */
         void setBuiltinClass(const StringList &whitelist);
+
+        TResult instantiateClassTemplate(ASTClassTemplate *klassTemplate, const String &name, const StringArray &formalParams, const StringArray &actualParams, const String &headerPath);
         
     protected:
         String toString(const CXString &s) const
@@ -94,6 +96,17 @@ namespace Tiny3D
             return result;
         }
 
+        struct ASTTypeAlias
+        {
+            ASTTypeAlias()
+            {
+                cxCursor = clang_getNullCursor();
+            }
+            
+            ASTStruct *Klass {nullptr};
+            CXCursor cxCursor;
+        };
+        
         StringList split(const String &str) const;
 
         CXChildVisitResult visitRootChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
@@ -105,6 +118,8 @@ namespace Tiny3D
         CXChildVisitResult visitFunctionChildren(CXCursor cxCursor, CXCursor cxParent, ASTFunction *parent);
 
         CXChildVisitResult visitVariableChildren(CXCursor cxCursor, CXCursor cxParent, ASTProperty *parent);
+
+        CXChildVisitResult visitTypeAliasTemplateDeclChildren(CXCursor cxCursor, CXCursor cxParent, const String &alias);
 
         TResult processClassDeclaration(CXCursor cxCursor, CXCursor cxParent, bool isClass, bool isTemplate);
 
@@ -139,11 +154,17 @@ namespace Tiny3D
         /// 处理包含的头文件
         TResult processInclusionDirective(const String &name, CXCursor cxCursor, CXCursor cxParent);
 
+        TResult processTypeAliasTemplateDecl(CXCursor cxCursor, CXCursor cxParent);
+
         void getASTNodeInfo(CXCursor cxCursor, String &filePath, uint32_t &start, uint32_t &end, uint32_t &column, uint32_t &offset) const;
 
         ASTNode *createNode(const ASTNodeInfo &info) const;
 
         ASTNode *getOrConstructParentNode(CXCursor cxCursor);
+
+        ASTNode *getASTNode(CXCursor cxCursor);
+
+        ASTTypeAlias getASTNode(CXType cxType);
 
         void insertSourceFiles(const String &path, ASTNode *node, bool isTemplate, const StringList &pathes = StringList());
 
@@ -158,7 +179,7 @@ namespace Tiny3D
     protected:
         struct ClientData
         {
-            ASTNode *parent;
+            void *parent;
             ReflectionGenerator *generator;
         };
         
@@ -194,42 +215,55 @@ namespace Tiny3D
 
         typedef std::shared_ptr<FileReflectionInfo> FileReflectionInfoPtr;
 
-        typedef TMap<String, FileReflectionInfoPtr> Files;
-        typedef Files::iterator FilesItr;
-        typedef Files::const_iterator FilesConstItr;
-        typedef Files::value_type FilesValue;
+        using Files = TMap<String, FileReflectionInfoPtr>;
+        using FilesItr = Files::iterator;
+        using FilesConstItr = Files::const_iterator;
+        using FilesValue = Files::value_type;
 
-        typedef TMap<String, ASTNode*> ASTNodeMap;
-        typedef ASTNodeMap::value_type ASTNodeMapValue;
+        using ASTNodeMap = TMap<String, ASTNode*>;
+        using ASTNodeMapValue = ASTNodeMap::value_type;
         
-        typedef TMap<String, ASTNodeMap> SourceFilesMap;
-        typedef SourceFilesMap::value_type SourceFilesMapValue;
+        using SourceFilesMap = TMap<String, ASTNodeMap>;
+        using SourceFilesMapValue = SourceFilesMap::value_type;
 
-        typedef TMap<String, ASTClassTemplate*> ASTClassTemplateMap;
-        typedef ASTClassTemplateMap::value_type ASTClassTemplateMapValue;
+        using ASTClassTemplateMap = TMap<String, ASTClassTemplate*>;
+        using ASTClassTemplateMapValue = ASTClassTemplateMap::value_type;
 
-        typedef TMap<String, ASTOverloadFunction*> ASTFunctionTemplateMap;
-        typedef ASTFunctionTemplateMap::value_type ASTFunctionTemplateMapValue;
+        using ASTFunctionTemplateMap = TMap<String, ASTOverloadFunction*>;
+        using ASTFunctionTemplateMapValue = ASTFunctionTemplateMap::value_type;
 
-        typedef TMap<String, StringList> HeaderFilesMap;
-        typedef HeaderFilesMap::value_type HeaderFilesMapValue;
+        using HeaderFilesMap = TMap<String, StringList>;
+        using HeaderFilesMapValue = HeaderFilesMap::value_type;
 
-        typedef TMap<String, String> ASTWhiteList;
-        typedef ASTWhiteList::iterator ASTWhiteListItr;
-        typedef ASTWhiteList::const_iterator ASTWhiteListConstItr;
-        typedef ASTWhiteList::value_type ASTWhiteListValue;
+        using ASTWhiteList = TMap<String, String>;
+        using ASTWhiteListItr = ASTWhiteList::iterator;
+        using ASTWhiteListConstItr = ASTWhiteList::const_iterator;
+        using ASTWhiteListValue = ASTWhiteList::value_type;
+
+        using ASTTypeAliasMap = TUnorderedMap<String, ASTTypeAlias>;
 
         bool isRTTIFriend(FileReflectionInfoPtr info, uint32_t start, uint32_t end) const;
 
-        ASTWhiteList            mClassWhiteList;    /// 白名单类列表
-        ASTFunctionTemplateMap  mFunctionTemplates; /// 函数模板集合
-        ASTClassTemplateMap     mClassTemplates;    /// 类模板集合
-        SourceFilesMap          mSourceFiles;       /// 源码集合
-        HeaderFilesMap          mHeaderFiles;       /// 项目头文件
-        StringList              mIncludePathes;     /// 项目头文件包含路径
-        Files                   mFiles;             /// 带反射信息的文件集合
-        ASTNode                 *mRoot;             /// AST 根结点
-        String                  mProjectPath;       /// 工程根目录
+        /// 类型别名映射表
+        ASTTypeAliasMap         mTypeAliasMap {};
+        /// 白名单类列表
+        ASTWhiteList            mClassWhiteList {};
+        /// 函数模板集合
+        ASTFunctionTemplateMap  mFunctionTemplates {};
+        /// 类模板集合
+        ASTClassTemplateMap     mClassTemplates {};
+        /// 源码集合
+        SourceFilesMap          mSourceFiles {};
+        /// 项目头文件
+        HeaderFilesMap          mHeaderFiles {};
+        /// 项目头文件包含路径
+        StringList              mIncludePathes {};
+        /// 带反射信息的文件集合
+        Files                   mFiles {};
+        /// AST 根结点
+        ASTNode                 *mRoot {nullptr};
+        /// 工程根目录
+        String                  mProjectPath {};
     };
 }
 

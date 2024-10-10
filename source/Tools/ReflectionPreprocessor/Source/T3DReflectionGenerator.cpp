@@ -186,7 +186,7 @@ namespace Tiny3D
                 [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
                 {
                     ClientData *data = static_cast<ClientData*>(cxData);
-                    return data->generator->visitRootChildren(cxCursor, cxParent, data->parent);
+                    return data->generator->visitRootChildren(cxCursor, cxParent, static_cast<ASTNode*>(data->parent));
                 },
                 &data);
 
@@ -301,6 +301,12 @@ namespace Tiny3D
             {
                 // RP_LOG_INFO("%s : %s", type.c_str(), name.c_str());
                 ret = processInclusionDirective(name, cxCursor, cxParent);
+            }
+            break;
+        case CXCursor_TypeAliasTemplateDecl:
+            {
+                ret = processTypeAliasTemplateDecl(cxCursor, cxParent);
+                cxResult = CXChildVisit_Continue;
             }
             break;
         default:
@@ -532,7 +538,11 @@ namespace Tiny3D
 
         String parentName = toString(clang_getCursorSpelling(cxParent));
         String parentType = toString(clang_getCursorKindSpelling(cxParent.kind));
-        // RP_LOG_INFO("FunctionChildren -- %s : %s (parent %s : %s)", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+
+        if (parent != nullptr)
+        {
+            RP_LOG_INFO("FunctionChildren -- %s : %s (parent %s : %s), parent node : %s", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str(), parent->getHierarchyName().c_str());
+        }
 
         // if (parent != nullptr && cxParent.kind == CXCursor_ParmDecl && clang_isExpression(cxCursor.kind))
         // {
@@ -582,16 +592,42 @@ namespace Tiny3D
                 // ret = T3D_OK;
                 // cxResult = CXChildVisit_Continue;
                 // RP_LOG_INFO("%s : %s (parent %s : %s)", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+                // if (parent != nullptr && parentName == "plane")
+                // {
+                //     CXCursor cxDefine = clang_getCursorDefinition(cxCursor);
+                //     CXCursor cxTemplateDef = clang_getCursorReferenced(cxCursor);
+                //     String tempName = toString(clang_getCursorSpelling(cxTemplateDef));
+                //     CXType cxType = clang_getCursorType(cxTemplateDef);
+                //     cxType = clang_getCanonicalType(cxType);
+                //     // CXCursor cxParam = clang_getTypeDeclaration(cxType);
+                //     ret = instantiateClassTemplate(cxTemplateDef, parent->FileInfo.Path);
+                // }
+            }
+            break;
+        case CXCursor_ClassTemplate:
+            {
+                // CXType cxFieldType = clang_getCursorType(cxCursor);
+                // if (cxFieldType.kind == CXType_Unexposed)
+                // {
+                //     String typeName = toString(clang_getTypeSpelling(cxFieldType));
+                //     int a = 0;
+                // }
             }
             break;
         case CXCursor_VarDecl:
             {
-                ret = instantiateClassTemplate(cxCursor, parent->FileInfo.Path);
+                if (parent != nullptr)
+                {
+                    ret = instantiateClassTemplate(cxCursor, parent->FileInfo.Path);
+                }
             }
             break;
         case CXCursor_DeclRefExpr:
             {
-                ret = instantiateFunctionTemplate(cxCursor);
+                if (parent != nullptr)
+                {
+                    ret = instantiateFunctionTemplate(cxCursor);
+                }
                 // cxResult = CXChildVisit_Continue;
             }
             break;
@@ -638,7 +674,11 @@ namespace Tiny3D
         String name = toString(cxName);
         CXString cxType = clang_getCursorKindSpelling(cxKind);
         String type = toString(cxType);
-
+        String parentName = toString(clang_getCursorSpelling(cxParent));
+        String parentType = toString(clang_getCursorKindSpelling(cxParent.kind));
+        
+        RP_LOG_INFO("VarialbeChildren -- %s : %s (parent %s : %s)", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+        
         switch (cxKind)
         {
         case CXCursor_TemplateRef:
@@ -658,6 +698,48 @@ namespace Tiny3D
         if (T3D_RP_FATAL(ret))
         {
             cxResult = CXChildVisit_Break;
+        }
+
+        return cxResult;
+    }
+
+    //-------------------------------------------------------------------------
+
+    CXChildVisitResult ReflectionGenerator::visitTypeAliasTemplateDeclChildren(CXCursor cxCursor, CXCursor cxParent, const String &aliasName)
+    {
+        CXChildVisitResult cxResult = CXChildVisit_Recurse;
+
+        CXCursorKind cxKind = clang_getCursorKind(cxCursor);
+
+        String name = toString(clang_getCursorSpelling(cxCursor));
+        String type = toString(clang_getCursorKindSpelling(cxKind));
+
+        String parentName = toString(clang_getCursorSpelling(cxParent));
+        String parentType = toString(clang_getCursorKindSpelling(cxParent.kind));
+
+        // RP_LOG_INFO("TypeAliasTemplateDeclChildren -- %s : %s (parent %s : %s)", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str());
+        
+        switch (cxKind)
+        {
+        case CXCursor_TypeRef:
+            {
+                CXCursor cxTypeCursor = clang_getCursorReferenced(cxCursor);
+                
+            }
+            break;
+        case CXCursor_TemplateRef:
+            {
+                CXCursor cxKlassCursor = clang_getCursorReferenced(cxCursor);
+                CXType cxType = clang_getCursorType(cxKlassCursor);
+                String typeName = toString(clang_getTypeSpelling(cxType));
+                String klassName = toString(clang_getCursorSpelling(cxKlassCursor));
+                ASTStruct *klass = static_cast<ASTStruct *>(getASTNode(cxKlassCursor));
+                ASTTypeAlias alias;
+                alias.Klass = klass;
+                alias.cxCursor = cxKlassCursor;
+                mTypeAliasMap.emplace(aliasName, alias);
+            }
+            break;
         }
 
         return cxResult;
@@ -1057,10 +1139,6 @@ namespace Tiny3D
                 itrFile = rval.first;
             }
 
-            //if (itrFile->first == "map" || itrFile->first == "T3DShader")
-            //{
-            //    int a = 0;
-            //}
             itrFile->second.push_back(name);
         } while (false);
         
@@ -1081,6 +1159,30 @@ namespace Tiny3D
             }
         }
         return isFriend;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::processTypeAliasTemplateDecl(CXCursor cxCursor, CXCursor cxParent)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String name = toString(clang_getCursorSpelling(cxCursor));
+
+            ClientData data = {&name, this};
+            clang_visitChildren(cxCursor,
+                [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
+                {
+                    auto *data = static_cast<ClientData*>(cxData);
+                    auto *name = static_cast<String*>(data->parent);
+                    return data->generator->visitTypeAliasTemplateDeclChildren(cxCursor, cxParent, *name);
+                },
+                &data);
+        } while (false);
+
+        return ret;
     }
 
     //-------------------------------------------------------------------------
@@ -1765,6 +1867,7 @@ namespace Tiny3D
             if (parent->getType() == ASTNode::Type::kClassTemplate
                 && isConstructor && clang_CXXConstructor_isCopyConstructor(cxCursor))
             {
+                // 类模版的拷贝构造函数
                 // 函数参数，就是自己的引用
                 String paramType = parent->getHierarchyName();
                 int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
@@ -1794,6 +1897,7 @@ namespace Tiny3D
             else if (parent->getType() == ASTNode::Type::kClassTemplate
                 && isConstructor && clang_CXXConstructor_isMoveConstructor(cxCursor))
             {
+                // 类模版的移动构造函数
                 // 函数参数，就是自己的引用
                 String paramType = parent->getHierarchyName();
                 int32_t numArgs = clang_Cursor_getNumArguments(cxCursor);
@@ -1826,6 +1930,23 @@ namespace Tiny3D
                 CXType cxResultType = clang_getResultType(cxType);
                 overload->RetType = toString(clang_getTypeSpelling(cxResultType));
 
+                if (cxResultType.kind != CXType_Void)
+                {
+                    ASTTypeAlias alias = getASTNode(cxResultType);
+                    overload->RetKlass = alias.Klass;
+                    overload->RetCursor = alias.cxCursor;
+                }
+                
+                // if (overload->RetType == "TArray<TPlane<T>>")
+                // {
+                //     CXType cxCanonicalType = clang_getCanonicalType(cxResultType);
+                //     String retType = toString(clang_getTypeSpelling(cxCanonicalType));
+                //     CXCursor cxDefineCursor = clang_getTypeDeclaration(cxCanonicalType);
+                //     String retName = toString(clang_getCursorSpelling(cxDefineCursor));
+                //     ASTNode *klass = getASTNode(cxDefineCursor);
+                //     T3D_ASSERT(klass != nullptr);
+                // }
+                
                 // CXCursor cxResultCursor = clang_getTypeDeclaration(cxResultType);
                 // instantiateClassTemplate(cxResultCursor);
             
@@ -1839,7 +1960,18 @@ namespace Tiny3D
                     param.Name = toString(clang_getCursorSpelling(cxArg));
                     // 参数类型
                     CXType cxArgType = clang_getArgType(cxType, i);
+                    // if (cxArgType.kind == CXType_LValueReference)
+                    // {
+                    //     CXType cxArgType1 = clang_getPointeeType(cxArgType);
+                    //     CXCursor cxArgCursor = clang_getTypeDeclaration(cxArgType1);
+                    //     String argName = toString(clang_getTypeSpelling(cxArgType1));
+                    //     String argClass = toString(clang_getCursorSpelling(cxArgCursor));
+                    //     int a = 0;
+                    // }
                     param.Type = toString(clang_getTypeSpelling(cxArgType));
+                    ASTTypeAlias alias = getASTNode(cxArgType);
+                    param.Klass = alias.Klass;
+                    param.cxCursor = alias.cxCursor;
                     overload->Params.push_back(param);
 
                     // cxArgType = clang_getCursorType(cxArg);
@@ -1966,7 +2098,7 @@ namespace Tiny3D
             }
         } while (false);
 
-        if (node != nullptr)
+        // if (node != nullptr)
         {
             ClientData data = {node, this};
             clang_visitChildren(
@@ -2668,6 +2800,105 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    ASTNode *ReflectionGenerator::getASTNode(CXCursor cxCursor)
+    {
+        TList<ASTNodeInfo> nodes;
+        CXCursor cxAncestor = cxCursor;
+        CXCursorKind cxAncestorKind = cxCursor.kind;
+        while (!clang_equalCursors(cxAncestor, clang_getNullCursor())
+            && cxAncestorKind != CXCursor_TranslationUnit)
+        {
+            CXString cxAncestorName = clang_getCursorSpelling(cxAncestor);
+            String ancestorName = toString(cxAncestorName);
+            nodes.push_front({ancestorName, cxAncestorKind});
+
+            // T3D_ASSERT(cxAncestorKind == CXCursor_Namespace
+            //     || cxAncestorKind == CXCursor_ClassTemplate
+            //     || cxAncestorKind == CXCursor_ClassTemplatePartialSpecialization
+            //     || cxAncestorKind == CXCursor_ClassDecl
+            //     || cxAncestorKind == CXCursor_StructDecl
+            //     || cxAncestorKind == CXCursor_EnumDecl
+            //     || cxAncestorKind == CXCursor_FunctionTemplate);
+                
+            cxAncestor = clang_getCursorSemanticParent(cxAncestor);
+            cxAncestorKind = clang_getCursorKind(cxAncestor);
+        }
+        
+        // 逐级查找直到对应的 AST 节点
+        ASTNode *n = mRoot;
+        for (const auto &node : nodes)
+        {
+            ASTNode *child = n->getChild(node.name);
+            // T3D_ASSERT(child != nullptr);
+            if (child == nullptr)
+            {
+                n = nullptr;
+                break;
+            }
+            n = child;
+        }
+
+        return n;
+    }
+
+    //-------------------------------------------------------------------------
+
+    ReflectionGenerator::ASTTypeAlias ReflectionGenerator::getASTNode(CXType cxType)
+    {
+        CXCursor cxKlassCursor;
+        CXType cxCanonicalType = clang_getCanonicalType(cxType);
+        ASTNode *klass = nullptr;
+        ASTTypeAlias alias;
+        
+        if (cxType.kind == CXType_LValueReference || cxType.kind == CXType_RValueReference)
+        {
+            CXType cxArgType = clang_getPointeeType(cxCanonicalType);
+            String retType = toString(clang_getTypeSpelling(cxArgType));
+            cxKlassCursor = clang_getTypeDeclaration(cxArgType);
+            klass = getASTNode(cxKlassCursor);
+            alias.Klass = static_cast<ASTStruct *>(klass);
+            alias.cxCursor = cxKlassCursor;
+        }
+        else if (cxType.kind == CXType_Typedef)
+        {
+            CXCursor cxTypedefCursor = clang_getTypeDeclaration(cxType);
+            String aliasName = toString(clang_getCursorSpelling(cxTypedefCursor));
+            CXType cxArgType = clang_getTypedefDeclUnderlyingType(cxTypedefCursor);
+            cxKlassCursor = clang_getTypeDeclaration(cxArgType);
+            klass = getASTNode(cxKlassCursor);
+            alias.Klass = static_cast<ASTStruct *>(klass);
+            alias.cxCursor = cxKlassCursor;
+        }
+        else
+        {
+            CXCursor cxTemp = clang_getTypeDeclaration(cxType);
+            if (clang_getCursorKind(cxTemp) == CXCursor_TypeAliasTemplateDecl)
+            {
+                // CXCursor cxParent = clang_getCursorSemanticParent(cxTemp);
+                // CXCursor cxDefine = clang_getCursorDefinition(cxTemp);
+                // CXType cxArgType = clang_getTypedefDeclUnderlyingType(cxTemp);
+                // cxKlassCursor = clang_getTypeDeclaration(cxArgType);
+                String aliasName = toString(clang_getCursorSpelling(cxTemp));
+                const auto itr = mTypeAliasMap.find(aliasName);
+                if (itr != mTypeAliasMap.end())
+                {
+                    alias = itr->second;
+                }
+            }
+            else
+            {
+                cxKlassCursor = cxTemp;
+                klass = getASTNode(cxKlassCursor);
+                alias.Klass = static_cast<ASTStruct *>(klass);
+                alias.cxCursor = cxKlassCursor;
+            }
+        }
+        
+        return alias;
+    }
+
+    //-------------------------------------------------------------------------
+
     void ReflectionGenerator::insertSourceFiles(const String &path, ASTNode *node, bool isTemplate, const StringList &pathes)
     {
         do
@@ -3054,14 +3285,14 @@ namespace Tiny3D
             templateInstance->setName(name);
 
             // 替换模板实参，变成模板类
-            templateInstance->replaceTemplateParams(formalParams, actualParams);
+            templateInstance->replaceTemplateParams(klassTemplate, formalParams, actualParams, headerPath);
 
             // 加入到导出文件
-            String decl = name;
-            StringUtil::replaceAll(decl, "<", "_");
-            StringUtil::replaceAll(decl, ",", "_");
-            StringUtil::replaceAll(decl, ">", "_");
-            StringUtil::replaceAll(decl, " ", "");
+            // String decl = name;
+            // StringUtil::replaceAll(decl, "<", "_");
+            // StringUtil::replaceAll(decl, ",", "_");
+            // StringUtil::replaceAll(decl, ">", "_");
+            // StringUtil::replaceAll(decl, " ", "");
             StringList pathes;
             pathes.push_back(path);
             pathes.push_back(headerPath);
@@ -3192,12 +3423,21 @@ namespace Tiny3D
                 // 参数类型
                 CXType cxArgType = clang_getArgType(cxType, i);
                 param.Type = toString(clang_getTypeSpelling(cxArgType));
+                ASTTypeAlias alias = getASTNode(cxArgType);
+                param.Klass = alias.Klass;
+                param.cxCursor = alias.cxCursor;
                 functionInstance->Params.push_back(param);
             }
 
             // 返回值
             CXType cxResultType = clang_getResultType(cxType);
             functionInstance->RetType = toString(clang_getTypeSpelling(cxResultType));
+            if (cxResultType.kind != CXType_Void)
+            {
+                ASTTypeAlias alias = getASTNode(cxResultType);
+                functionInstance->RetKlass = alias.Klass;
+                functionInstance->RetCursor = alias.cxCursor;
+            }
 
             function->HasSpecialization = true;
             
@@ -3257,6 +3497,43 @@ namespace Tiny3D
         }
 
         return names;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::instantiateClassTemplate(ASTClassTemplate *klassTemplate, const String &name, const StringArray &formalParams, const StringArray &actualParams, const String &headerPath)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ASTNode *parent = klassTemplate->getParent();
+            T3D_ASSERT(parent != nullptr);
+            
+            const ASTChildren &children = parent->getChildren();
+            const auto itr = children.find(name);
+            if (itr != children.end())
+            {
+                // 已经实例化过了，不实例化了
+                ret = T3D_ERR_DUPLICATED_ITEM;
+                break;
+            }
+
+            ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
+            parent->addChild(name, templateInstance);
+            templateInstance->setName(name);
+
+            // 替换模板实参，变成模板类
+            templateInstance->replaceTemplateParams(klassTemplate, formalParams, actualParams, headerPath);
+
+            // 加入到导出文件
+            StringList pathes;
+            pathes.push_back(headerPath);
+            pathes.push_back(klassTemplate->FileInfo.Path);
+            insertSourceFiles(templateInstance->FileInfo.Path, templateInstance, true, pathes);
+        } while (false);
+        
+        return ret;
     }
 
     //-------------------------------------------------------------------------

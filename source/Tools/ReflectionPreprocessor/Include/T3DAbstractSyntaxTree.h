@@ -194,6 +194,11 @@ namespace Tiny3D
             return getChildRecursively(names);
         }
 
+        /**
+         * @brief 查找指定名称的子节点
+         * @param [in] name : 子节点名称
+         * @return 找到返回子节点对象，否则返回 nullptr
+         */
         ASTNode *findChild(const String &name) const;
 
         /**
@@ -238,7 +243,7 @@ namespace Tiny3D
          * @param [in] formals : 形参
          * @param [in] actuals : 实参
          */
-        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals);
+        virtual void replaceTemplateParams(class ASTClassTemplate *klassTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath);
 
         TList<Specifier>    *Specifiers;        /// 反射属性说明符
 
@@ -261,7 +266,7 @@ namespace Tiny3D
         /**
          * @brief 用实参替换子结点的形参
          */
-        virtual void replaceChildrenTemplateParams(const StringArray &formals, const StringArray &actuals);
+        virtual void replaceChildrenTemplateParams(class ASTClassTemplate *klassTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath);
 
         virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
 
@@ -276,14 +281,14 @@ namespace Tiny3D
     class ASTFileInfo
     {
     public:
-        ASTFileInfo()
-            : StartLine(-1)
-            , EndLine(-1)
-        {}
+        ASTFileInfo() = default;
 
-        String      Path;       /// 文件路径
-        uint32_t    StartLine;  /// 所在文件的起始行号
-        uint32_t    EndLine;    /// 所在文件的结束行号
+        /// 文件路径
+        String      Path {};
+        /// 所在文件的起始行号
+        uint32_t    StartLine {~0U};
+        /// 所在文件的结束行号
+        uint32_t    EndLine {~0U};
     };
 
     typedef std::shared_ptr<ASTFileInfo> ASTFileInfoPtr;
@@ -298,17 +303,17 @@ namespace Tiny3D
             : ASTNode(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kNamespace;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Namespace";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
     };
 
     class ASTStruct;
@@ -323,28 +328,23 @@ namespace Tiny3D
     public:
         ASTStruct(const String &name)
             : ASTNode(name)
-            , RTTIEnabled(false)
-            , ConstructAsPointer(false)
-            , HasDefaultConstructor(false)
-            , HasConstructor(false)
-            , RTTIBaseClasses(nullptr)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kStruct;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Struct";
         }
 
-        virtual TResult generateSourceFile(FileDataStream& fs) const override;
+        TResult generateSourceFile(FileDataStream& fs) const override;
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
 
         /**
          * @brief 是否指定类名的派生类
@@ -352,16 +352,23 @@ namespace Tiny3D
         bool isDerivedOf(const String &name) const;
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
 
     public:
-        ASTBaseClasses      BaseClasses;            /// 基类列表
-        ASTFileInfo         FileInfo;               /// 结构体所在文件信息
-        bool                RTTIEnabled;            /// 是否开启了反射功能
-        bool                ConstructAsPointer;     /// 构造返回指针或者普通对象
-        bool                HasDefaultConstructor;  /// 是否有默认构造函数
-        bool                HasConstructor;         /// 是否有构造函数
-        TList<String>       *RTTIBaseClasses;       /// 反射的基类列表
+        /// 基类列表
+        ASTBaseClasses      BaseClasses {};
+        /// 结构体所在文件信息
+        ASTFileInfo         FileInfo {};
+        /// 是否开启了反射功能
+        bool                RTTIEnabled {false};
+        /// 构造返回指针或者普通对象
+        bool                ConstructAsPointer {false};
+        /// 是否有默认构造函数
+        bool                HasDefaultConstructor {false};
+        /// 是否有构造函数
+        bool                HasConstructor {false};
+        /// 反射的基类列表
+        TList<String>       *RTTIBaseClasses {nullptr};
     };
 
     /**
@@ -373,18 +380,18 @@ namespace Tiny3D
         ASTClass(const String &name)
             : ASTStruct(name)
         {}
-        
-        virtual Type getType() const override
+
+        Type getType() const override
         {
             return Type::kClass;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Class";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
     };
     
     /**
@@ -398,22 +405,22 @@ namespace Tiny3D
             , IsProperty(false)
             , IsGetter(false)
         {}
-
-        virtual Type getType() const override
+        
+        Type getType() const override
         {
             return Type::kFunction;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Function";
         }
 
-        virtual TResult generateSourceFile(FileDataStream &fs) const override;
+        TResult generateSourceFile(FileDataStream &fs) const override;
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
         
     protected:
         virtual TResult generateSourceFileForProperty(FileDataStream &fs) const;
@@ -421,9 +428,12 @@ namespace Tiny3D
         virtual TResult generateSourceFileForFunction(FileDataStream &fs) const;
 
     public:
-        bool                IsProperty;     /// 是否属性函数
-        bool                IsGetter;       /// 是否 Getter 属性函数，当 IsProperty 为 false 时，该字段无效
-        ASTFileInfo         FileInfo;       /// 函数所在文件信息
+        /// 是否属性函数
+        bool                IsProperty {false};
+        /// 是否 Getter 属性函数，当 IsProperty 为 false 时，该字段无效
+        bool                IsGetter {false};
+        /// 函数所在文件信息
+        ASTFileInfo         FileInfo {};
     };
     
     /**
@@ -431,9 +441,21 @@ namespace Tiny3D
      */
     struct ASTFunctionParam
     {
-        String Type;        /// 参数类型
-        String Name;        /// 参数名称
-        String Default;     /// 默认参数
+        ASTFunctionParam()
+        {
+            cxCursor = clang_getNullCursor();
+        }
+        
+        /// 参数类型的 AST 节点对象
+        ASTStruct *Klass {nullptr};
+        /// AST 中类型定义的原始光标
+        CXCursor cxCursor;
+        /// 参数类型
+        String Type {};
+        /// 参数名称
+        String Name {};
+        /// 默认参数
+        String Default {};
     };
 
     #define AST_NO_IMPLEMENTATION(x) { T3D_ASSERT(0); return x; }
@@ -460,7 +482,7 @@ namespace Tiny3D
         AST_NODE_NOT_INSTANTIATE();
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
     };
 
     /**
@@ -478,10 +500,11 @@ namespace Tiny3D
         void cloneProperties(ASTNode *newNode) const override;
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
         
     public:
-        TList<ASTFunctionParam> Params;         /// 函数参数列表
+        /// 函数参数列表
+        TList<ASTFunctionParam> Params {};
     };
 
     /**
@@ -492,33 +515,40 @@ namespace Tiny3D
     public:
         ASTOverloadFunction(const String &name)
             : ASTParameterFunction(name)
-            , IsConst(false)
-        {}
+        {
+            RetCursor = clang_getNullCursor();
+        }
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kOverloadFunction;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Overload Function";
         }
 
         String getPropertyFunctionName() const;
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
 
-        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        void replaceTemplateParams(ASTClassTemplate *classTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath) override;
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
 
     public:
-        String  RetType;        /// 函数返回值类型
-        bool    IsConst;        /// 是否常量函数
+        /// 返回值类型的 AST 节点
+        ASTStruct *RetKlass {nullptr};
+        // 类型光标
+        CXCursor RetCursor;
+        /// 函数返回值类型字符串
+        String  RetType {};
+        /// 是否常量函数
+        bool    IsConst {false};
     };
 
     /**
@@ -531,17 +561,17 @@ namespace Tiny3D
             : ASTOverloadFunction(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kStaticFunction;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Static Function";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
     };
     
     /**
@@ -554,17 +584,17 @@ namespace Tiny3D
             : ASTOverloadFunction(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kInstanceFunction;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Instance Function";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
     };
 
     /**
@@ -575,25 +605,25 @@ namespace Tiny3D
     public:
         ASTConstructor(const String &name)
             : ASTOverloadFunction(name)
-            , IsNormal(true)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kConstructor;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Constructor";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        bool IsNormal;  /// 非标准构造函数（即一般函数）作为其构造函数
+        /// 非标准构造函数（即一般函数）作为其构造函数
+        bool IsNormal {true};
 
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
     };
 
     /**
@@ -606,17 +636,17 @@ namespace Tiny3D
             : ASTOverloadFunction(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kDestructor;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Destructor";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
     };
 
     /**
@@ -629,30 +659,32 @@ namespace Tiny3D
             : ASTNode(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kProperty;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Property";
         }
 
-        virtual TResult generateSourceFile(FileDataStream &fs) const override;
+        TResult generateSourceFile(FileDataStream &fs) const override;
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
 
-        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        void replaceTemplateParams(ASTClassTemplate *classTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath) override;
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
         
     public:
-        String              DataType;       /// 数据类型
-        ASTFileInfo         FileInfo;       /// 属性所在文件信息
+        /// 数据类型
+        String              DataType {};
+        /// 属性所在文件信息
+        ASTFileInfo         FileInfo {};
     };
 
     /**
@@ -665,24 +697,24 @@ namespace Tiny3D
             : ASTNode(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kEnum;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Enumeration";
         }
 
-        virtual TResult generateSourceFile(FileDataStream& fs) const override;
+        TResult generateSourceFile(FileDataStream& fs) const override;
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
         
     public:
-        ASTFileInfo         FileInfo;       /// 枚举所在文件信息
+        ASTFileInfo         FileInfo {};       /// 枚举所在文件信息
     };
 
     /**
@@ -693,28 +725,27 @@ namespace Tiny3D
     public:
         ASTEnumConstant(const String &name)
             : ASTNode(name)
-            , Value(0)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kEnumConstant;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Enumeration Constant";
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream>& writer) const override;
         
     public:
-        uint64_t    Value;
+        uint64_t    Value {0};
     };
 
     /**
@@ -731,13 +762,14 @@ namespace Tiny3D
             kTemplateTemplate,  /// 模板的模板类型参数，template<typename T> class U
         };
 
-        ASTTemplateParam()
-            : kind(Kind::kNone)
-        {}
+        ASTTemplateParam() = default;
 
-        String  type;   /// 数据类型
-        String  name;   /// 模板参数名称
-        Kind    kind;   /// 模板参数类型
+        /// 数据类型
+        String  type {};
+        /// 模板参数名称
+        String  name {};
+           /// 模板参数类型
+        Kind    kind {Kind::kNone};
     };
 
     /**
@@ -746,9 +778,7 @@ namespace Tiny3D
     class ASTTemplate
     {
     public:
-        ASTTemplate()
-            : IsSpecialization(false)
-        {}
+        ASTTemplate() = default;
 
         void instantiateTemplate(const StringArray &actuals);
         
@@ -758,8 +788,10 @@ namespace Tiny3D
         void dumpTemplateProperties(rapidjson::PrettyWriter<JsonStream> &writer) const;
 
     public:
-        TList<ASTTemplateParam> TemplateParams;     /// 模板参数列表
-        bool                    IsSpecialization;   /// 是否特化或实例化
+        /// 模板参数列表
+        TList<ASTTemplateParam> TemplateParams {};
+        /// 是否特化或实例化
+        bool                    IsSpecialization {false};
     };
     
     /**
@@ -772,12 +804,12 @@ namespace Tiny3D
             : ASTStruct(name)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kClassTemplate;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Class Template";
         }
@@ -787,14 +819,14 @@ namespace Tiny3D
             mName = name;
         }
 
-        virtual ASTNode *clone() const override;
+        ASTNode *clone() const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        void cloneProperties(ASTNode *newNode) const override;
 
-        virtual void replaceTemplateParams(const StringArray &formals, const StringArray &actuals) override;
+        void replaceTemplateParams(ASTClassTemplate *klassTemplate, const StringArray &formals, const StringArray &actuals, const String &headerPath) override;
         
     protected:
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
     };
 
     /**
@@ -805,15 +837,14 @@ namespace Tiny3D
     public:
         ASTFunctionTemplate(const String &name)
             : ASTFunction(name)
-            , HasSpecialization(false)
         {}
 
-        virtual Type getType() const override
+        Type getType() const override
         {
             return Type::kFunctionTemplate;
         }
 
-        virtual String getTypeString() const override
+        String getTypeString() const override
         {
             return "Function Template";
         }
@@ -822,22 +853,23 @@ namespace Tiny3D
         {
             mName = name;
         }
-        
-        virtual TResult generateSourceFile(FileDataStream &fs) const override;
 
-        virtual ASTNode *clone() const override;
+        TResult generateSourceFile(FileDataStream &fs) const override;
 
-        virtual void cloneProperties(ASTNode *newNode) const override;
+        ASTNode *clone() const override;
+
+        void cloneProperties(ASTNode *newNode) const override;
         
     protected:
-        virtual TResult generateSourceFileForProperty(FileDataStream &fs) const override;
+        TResult generateSourceFileForProperty(FileDataStream &fs) const override;
 
-        virtual TResult generateSourceFileForFunction(FileDataStream &fs) const override;
+        TResult generateSourceFileForFunction(FileDataStream &fs) const override;
 
-        virtual void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
+        void dumpProperties(rapidjson::PrettyWriter<JsonStream> &writer) const override;
 
     public:
-        bool HasSpecialization;  /// 是否有实例化模板
+        /// 是否有实例化模板
+        bool HasSpecialization {false};
     };
     
     // /**
