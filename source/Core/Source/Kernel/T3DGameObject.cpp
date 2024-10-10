@@ -32,23 +32,27 @@
 #include "Component/T3DComponent.h"
 #include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderPipeline.h"
+#include "Resource/T3DScene.h"
+#include "Resource/T3DSceneManager.h"
 #include "bound/T3DBound.h"
+
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    GameObject::WaitingDestroyComponents GameObject::mWaitingDestroyComponents;
-    GameObject::WaitingDestroyGameObjects GameObject::mWaitingDestroyGameObjects;
+    GameObject::WaitingDestroyComponents GameObject::msWaitingDestroyComponents;
+    GameObject::WaitingDestroyGameObjects GameObject::msWaitingDestroyGameObjects;
+    // GameObject::GameObjects GameObject::msGameObjects;
     
     //--------------------------------------------------------------------------
 
     void GameObject::destroyComponent(Component *component)
     {
-        auto itr = std::find(mWaitingDestroyComponents.begin(), mWaitingDestroyComponents.end(), component);
-        if (itr == mWaitingDestroyComponents.end())
+        auto itr = std::find(msWaitingDestroyComponents.begin(), msWaitingDestroyComponents.end(), component);
+        if (itr == msWaitingDestroyComponents.end())
         {
-            mWaitingDestroyComponents.emplace_back(component);
+            msWaitingDestroyComponents.emplace_back(component);
         }
     }
 
@@ -56,12 +60,12 @@ namespace Tiny3D
 
     void GameObject::destroyComponents()
     {
-        while (!mWaitingDestroyComponents.empty())
+        while (!msWaitingDestroyComponents.empty())
         {
-            Component *component = mWaitingDestroyComponents.front();
+            Component *component = msWaitingDestroyComponents.front();
             component->onDestroy();
             component->setGameObject(nullptr);
-            mWaitingDestroyComponents.pop_front();
+            msWaitingDestroyComponents.pop_front();
         }
     }
 
@@ -69,24 +73,24 @@ namespace Tiny3D
 
     void GameObject::destroyGameObjects()
     {
-        while (!mWaitingDestroyGameObjects.empty())
+        while (!msWaitingDestroyGameObjects.empty())
         {
-            GameObject *go = mWaitingDestroyGameObjects.front();
+            GameObject *go = msWaitingDestroyGameObjects.front();
             go->onDestroy();
-            mWaitingDestroyGameObjects.pop_front();
+            msWaitingDestroyGameObjects.pop_front();
         }
     }
 
     //--------------------------------------------------------------------------
 
-    GameObjectPtr GameObject::create(const String &name)
+    GameObjectPtr GameObject::create(const String &name, bool managed)
     {
-        return new GameObject(name);
+        return new GameObject(name, managed);
     }
 
     //--------------------------------------------------------------------------
 
-    GameObject::GameObject(const String &name)
+    GameObject::GameObject(const String &name, bool managed)
         : mName(name)
     {
         mUUID = UUID::generate();
@@ -95,6 +99,12 @@ namespace Tiny3D
         for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)
         {
             mUpdateComponents.emplace(i, ComponentList());
+        }
+
+        if (managed && T3D_SCENE_MGR.getCurrentScene() != nullptr)
+        {
+            // msGameObjects.emplace(mUUID, this);
+            T3D_SCENE_MGR.getCurrentScene()->addGameObject(this);
         }
     }
 
@@ -194,10 +204,12 @@ namespace Tiny3D
 
     void GameObject::destroyGameObject(GameObject *gameObject)
     {
-        auto itr = std::find(mWaitingDestroyGameObjects.begin(), mWaitingDestroyGameObjects.end(), gameObject);
-        if (itr == mWaitingDestroyGameObjects.end())
+        auto itr = std::find(msWaitingDestroyGameObjects.begin(), msWaitingDestroyGameObjects.end(), gameObject);
+        if (itr == msWaitingDestroyGameObjects.end())
         {
-            mWaitingDestroyGameObjects.emplace_back(gameObject);
+            msWaitingDestroyGameObjects.emplace_back(gameObject);
+            // msGameObjects.erase(gameObject->getUUID());
+            T3D_SCENE_MGR.getCurrentScene()->removeGameObject(gameObject);
         }
     }
 
@@ -209,34 +221,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    
-    ComponentPtr GameObject::addComponent(const RTTRType &type)
+
+    void GameObject::setupHierarchy()
     {
-        ComponentPtr component;
-        
+        TransformNode *node = getComponent<TransformNode>();
+        T3D_ASSERT(node != nullptr);
+        node->setupHierarchy();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void GameObject::putUpdatingQueue(const RTTRType &type, Component *component)
+    {
         do
         {
-            if (!type.is_derived_from<Component>())
-            {
-                // 不是 Component 子类，无法创建 component
-                break;
-            }
-
-            rttr::variant var = type.create();
-            bool ok = false;
-            Component *comp = var.convert<Component*>(&ok);
-            if (!ok)
-            {
-                break;
-            }
-
-            component = comp;
-            component->setGameObject(this);
-
-            // 放入组件对象表里
-            mComponents.emplace(type, component);
-
-            // 放入组件更新队列
             const ComponentSettings &settings = T3D_AGENT.getSettings().componentSettins;
             int32_t i = 0;
             for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)
@@ -256,6 +254,56 @@ namespace Tiny3D
                 // 不在预设序列里面，直接放到乱序更新队列
                 mUpdateComponents2.emplace(type.get_name(), component);
             }
+        } while (false);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::setupComponents()
+    {
+        for (const auto &item : mComponentObjects)
+        {
+            RTTRType type = RTTRType::get_by_name(item.first);
+            mComponents.emplace(type, item.second);
+            item.second->setGameObject(this);
+            putUpdatingQueue(type, item.second);
+            item.second->onStart();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    
+    ComponentPtr GameObject::addComponent(const RTTRType &type)
+    {
+        ComponentPtr component;
+        
+        do
+        {
+            if (!type.is_derived_from<Component>())
+            {
+                // 不是 Component 子类，无法创建 component
+                break;
+            }
+
+            TArray<rttr::argument> args;
+            args.push_back(UUID::generate());
+            rttr::variant var = type.create(args);
+            bool ok = false;
+            Component *comp = var.convert<Component*>(&ok);
+            if (!ok)
+            {
+                break;
+            }
+
+            component = comp;
+            component->setGameObject(this);
+
+            // 放入组件对象表里
+            mComponents.emplace(type, component);
+            mComponentObjects.emplace(type.get_name(), component);
+
+            // 放入组件更新队列
+            putUpdatingQueue(type, component);
             
             component->onStart();
         } while (false);
@@ -273,6 +321,7 @@ namespace Tiny3D
         }
 
         mComponents.clear();
+        mComponentObjects.clear();
         mUpdateComponents.clear();
         mUpdateComponents2.clear();
     }
@@ -293,8 +342,12 @@ namespace Tiny3D
                 break;
             }
 
+            auto it = mComponentObjects.find(type.get_name().data());
+            T3D_ASSERT(it != mComponentObjects.end());
+            
             destroyComponent(itr->second);
             mComponents.erase(itr);
+            mComponentObjects.erase(it);
         } while (false);
         
         return ret;
@@ -320,6 +373,8 @@ namespace Tiny3D
                 destroyComponent(itr->second);
                 mComponents.erase(itr);
             }
+
+            mComponentObjects.erase(type.get_name().data());
         } while (false);
         
         return ret;

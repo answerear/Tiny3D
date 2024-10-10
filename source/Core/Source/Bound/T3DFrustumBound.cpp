@@ -35,9 +35,17 @@ namespace Tiny3D
 
     FrustumBoundPtr FrustumBound::create()
     {
-        return new FrustumBound();
+        return new FrustumBound(UUID::generate());
     }
 
+    //--------------------------------------------------------------------------
+
+    FrustumBound::FrustumBound(const UUID &uuid)
+        : Bound(uuid)
+    {
+        
+    }
+    
     //--------------------------------------------------------------------------
 
     FrustumBound::~FrustumBound()

@@ -35,6 +35,8 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API TransformNode : public Component
     {
+        friend class GameObject;
+        
         TRTTI_ENABLE(Component)
         TRTTI_FRIEND
         
@@ -59,9 +61,9 @@ namespace Tiny3D
         template <typename VisitAction, typename ...Args>
         void reverseVisitAll(VisitAction &&action, Args &&...args);
 
-        virtual TResult addChild(TransformNodePtr node);
+        virtual TResult addChild(TransformNode *node);
 
-        virtual TResult removeChild(TransformNodePtr node);
+        virtual TResult removeChild(TransformNode *node);
 
         virtual TResult removeChild(const UUID &nodeID);
 
@@ -69,33 +71,47 @@ namespace Tiny3D
 
         TResult removeFromParent();
 
-        TransformNodePtr getFirstChild() const;
+        TransformNode *getFirstChild() const;
 
-        TransformNodePtr getLastChild() const;
+        TransformNode  *getLastChild() const;
 
-        TransformNodePtr getChild(const UUID &nodeID) const;
+        TransformNode *getChild(const UUID &nodeID) const;
 
-        TransformNodePtr getChild(const String &name) const;
+        TransformNode *getChild(const String &name) const;
 
-        TransformNodePtr getPrevSibling() const;
+        TransformNode *getPrevSibling() const;
 
-        TransformNodePtr getNextSibling() const;
+        TransformNode *getNextSibling() const;
 
         size_t getChildrenCount() const;
 
-        TransformNodePtr getParent() const;
+        TransformNode *getParent() const;
 
     protected:
-        TransformNode(const UUID &uuid = UUID::INVALID);
+        TransformNode() = default;
+        
+        TransformNode(const UUID &uuid);
 
         TResult cloneProperties(const Component * const src) override;
 
-        virtual void onAttachParent(TransformNodePtr parent);
+        virtual void onAttachParent(TransformNode *parent);
 
-        virtual void onDetachParent(TransformNodePtr parent);
+        virtual void onDetachParent(TransformNode *parent);
 
         void onDestroy() override;
 
+    private:
+        using ChildrenUUID = TList<UUID>;
+
+        TPROPERTY(RTTRFuncName="Children", RTTRFuncType="getter")
+        const ChildrenUUID &getChildrenUUID() const { return mChildrenUUID; }
+
+        TPROPERTY(RTTRFuncName="Children", RTTRFuncType="setter")
+        void setChildrenUUID(const ChildrenUUID &childrenUUID) { mChildrenUUID = childrenUUID; }
+
+        /// 根据父子 UUID 构造层次数，专门给 Scene 在反序列化后调用 
+        void setupHierarchy();
+        
     private:
         /// 子结点数量
         uint32_t            mChildrenCount {0};
@@ -109,6 +125,8 @@ namespace Tiny3D
         TransformNodePtr    mPrevSibling {nullptr};
         /// 后一个兄弟结点
         TransformNodePtr    mNextSibling {nullptr};
+
+        ChildrenUUID        mChildrenUUID {};
     };
 }
 

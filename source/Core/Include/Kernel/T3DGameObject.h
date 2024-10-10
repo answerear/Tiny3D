@@ -35,16 +35,18 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API GameObject : public Object
     {
+        friend class Scene;
+        
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND
         
     public:
-        static GameObjectPtr create(const String &name);
+        static GameObjectPtr create(const String &name, bool managed = true);
 
         static void destroyComponents();
 
         static void destroyGameObjects();
-        
+
         ~GameObject() override = default;
 
         virtual void update();
@@ -197,7 +199,7 @@ namespace Tiny3D
     protected:
         GameObject() : GameObject("") {}
         
-        GameObject(const String &name);
+        GameObject(const String &name, bool managed = true);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name) { mName = name; }
@@ -226,6 +228,8 @@ namespace Tiny3D
             return components;
         }
 
+        void putUpdatingQueue(const RTTRType &type, Component *component);
+
         virtual void onDestroy();
 
         void onUpdate();
@@ -237,6 +241,22 @@ namespace Tiny3D
     private:
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         void setUUID(const UUID &uuid) { mUUID = uuid; }
+
+        using ComponentsSet = TUnorderedMultimap<String, ComponentPtr>;
+
+        TPROPERTY(RTTRFuncName="Components", RTTRFuncType="getter")
+        const ComponentsSet &getAllComponents() const { return mComponentObjects; }
+
+        TPROPERTY(RTTRFuncName="Components", RTTRFuncType="setter")
+        void setAllComponents(const ComponentsSet &components) { mComponentObjects = components; setupComponents(); }
+
+        /// 设置所有相关的组件，模拟 addComponent 行为，用于反序列化后 
+        void setupComponents();
+
+        /// 生成场景树，用于反序列化后
+        void setupHierarchy();
+        
+        ComponentsSet mComponentObjects {};
 
     protected:
         /// 游戏对象 UUID
@@ -250,7 +270,7 @@ namespace Tiny3D
         /// 相机可见掩码
         uint32_t mCameraMask {0x1};
 
-        using Components = TMultimap<RTTRType, ComponentPtr>;
+        using Components = TUnorderedMultimap<RTTRType, ComponentPtr, RTTRTypeHash, RTTRTypeEqual>;
 
         /// 挂在 gameobject 上的组件集合
         Components  mComponents {};
@@ -269,12 +289,12 @@ namespace Tiny3D
         using WaitingDestroyComponents = TList<ComponentPtr>;
         
         /// 等待销毁的 component 列表
-        static WaitingDestroyComponents mWaitingDestroyComponents;
+        static WaitingDestroyComponents msWaitingDestroyComponents;
 
         using WaitingDestroyGameObjects = TList<GameObjectPtr>;
         
         /// 等待销毁的 game object 列表
-        static WaitingDestroyGameObjects mWaitingDestroyGameObjects;
+        static WaitingDestroyGameObjects msWaitingDestroyGameObjects;
     };
 }
 

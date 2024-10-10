@@ -154,13 +154,15 @@ namespace Tiny3D
         void removeScalingChangedCallback(Component *component);
         
     protected:
-        Transform3D();
+        Transform3D() = default;
+        
+        Transform3D(const UUID &uuid);
 
         TResult cloneProperties(const Component * const src) override;
 
-        void onAttachParent(TransformNodePtr parent) override;
+        void onAttachParent(TransformNode *parent) override;
 
-        void onDetachParent(TransformNodePtr parent) override;
+        void onDetachParent(TransformNode *parent) override;
         
         void onDestroy() override;
 

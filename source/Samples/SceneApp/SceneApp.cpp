@@ -75,7 +75,7 @@ bool SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
         pos.x() += 5.0f;
         float val = dist(engine) * 0.0f;
         Degree deg(val);
-        Radian yAngles(deg);
+        Radian yAngles(deg.valueRadians());
         buildCube(root, pos, yAngles);
     }
     
@@ -126,7 +126,7 @@ void SceneApp::buildCamera(Transform3D *parent)
     camera->lookAt(eye, obj, Vector3::UP);
 #else
     xform->setPosition(eye);
-    Radian xAngle(Degree(25.0f));
+    Radian xAngle(Degree(25.0f).valueRadians());
     Radian yAngle(-Math::PI * 0.25f);
     // Radian yAngle(0.0f);
     Radian zAngle(0.0f);

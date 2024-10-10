@@ -197,33 +197,75 @@ namespace Tiny3D
     }
 
     template <typename T>
-    TArray<TVector3<T>> TObb<T>::getAxes() const
+    const TVector3<T> &TObb<T>::getXAxis() const
     {
-        return TArray<TVector3<T>>(mAxis, mAxis+3);
+        return mAxis[0];
     }
 
     template <typename T>
-    void TObb<T>::setAxes(TArray<TVector3<T>> axis)
+    void TObb<T>::setXAxis(const TVector3<T> &axis)
     {
-        for (size_t i = 0; i < 3; i++)
-        {
-            mAxis[i] = axis[i];
-        }
+        mAxis[0] = axis;
     }
 
     template <typename T>
-    TArray<T> TObb<T>::getExtents() const
+    const TVector3<T> &TObb<T>::getYAxis() const
     {
-        return TArray<T>(mExtent, mExtent+3);
+        return mAxis[1];
     }
 
     template <typename T>
-    void TObb<T>::setExtents(TArray<T> extents)
+    void TObb<T>::setYAxis(const TVector3<T> &axis)
     {
-        for (size_t i = 0; i < 3; i++)
-        {
-            mExtent[i] = extents[i];
-        }
+        mAxis[1] = axis;
+    }
+
+    template <typename T>
+    const TVector3<T> &TObb<T>::getZAxis() const
+    {
+        return mAxis[2];
+    }
+
+    template <typename T>
+    void TObb<T>::setZAxis(const TVector3<T> &axis)
+    {
+        mAxis[2] = axis;
+    }
+    
+    template <typename T>
+    const T &TObb<T>::getXExtent() const
+    {
+        return mExtent[0];
+    }
+
+    template <typename T>
+    void TObb<T>::setXExtent(const T &extent)
+    {
+        mExtent[0] = extent;
+    }
+
+    template <typename T>
+    const T &TObb<T>::getYExtent() const
+    {
+        return mExtent[1];
+    }
+
+    template <typename T>
+    void TObb<T>::setYExtent(const T &extent)
+    {
+        mExtent[1] = extent;
+    }
+
+    template <typename T>
+    const T &TObb<T>::getZExtent() const
+    {
+        return mExtent[2];
+    }
+
+    template <typename T>
+    void TObb<T>::setZExtent(const T &extent)
+    {
+        mExtent[2] = extent;
     }
 }
 

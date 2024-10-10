@@ -43,6 +43,12 @@ namespace Tiny3D
         TRTTI_FRIEND
      
     public:
+        // static void addComponent(Component *component);
+        //
+        // static void removeComponent(Component *component);
+        //
+        // static Component *getComponentByUUID(const UUID &uuid);
+        
         virtual ComponentPtr clone() const = 0;
 
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter", "Description"="UUID value")
@@ -59,7 +65,7 @@ namespace Tiny3D
         virtual void onLoadResource(Archive *archive);
 
     protected:
-        Component();
+        Component() = default;
         
         Component(const UUID &uuid);
 
@@ -72,11 +78,18 @@ namespace Tiny3D
 
         virtual void onDestroy();
 
+        void onPostLoad() override;
+
     protected:
         /// 唯一 ID
         UUID    mUUID {UUID::INVALID};
         /// 绑定的 game object
         GameObjectPtr   mGameObject {nullptr};
+
+        using Components = TUnorderedMap<UUID, ComponentPtr, UUIDHash, UUIDEqual>;
+        
+        /// 所有的 components
+        static Components msComponents;
     };
 }
 

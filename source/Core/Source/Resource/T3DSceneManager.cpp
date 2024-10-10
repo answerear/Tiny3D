@@ -34,11 +34,12 @@ namespace  Tiny3D
 
     TResult SceneManagerImpl::unloadScene(ScenePtr &scene)
     {
-#if defined(T3D_EDITOR)
-        return unload(scene->getRuntimeScene());
-#else
+// #if defined(T3D_EDITOR)
+//         return unload(scene->getRuntimeScene());
+// #else
+//         return unload(scene);
+// #endif
         return unload(scene);
-#endif
     }
 
     //--------------------------------------------------------------------------
@@ -105,7 +106,24 @@ namespace  Tiny3D
     {
         if (mImpl != nullptr)
         {
+#if defined (T3D_EDITOR)
+            ScenePtr scene = mCurrentScene->getRuntimeScene();
+            return mImpl->unloadScene(scene);
+#else
             return mImpl->unloadScene(mCurrentScene);
+#endif
+        }
+
+        return T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SceneManager::unloadScene(ScenePtr &scene)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->unloadScene(scene);
         }
 
         return T3D_ERR_NOT_IMPLEMENT;

@@ -31,16 +31,36 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    Component::Component()
-    {
-        mUUID = UUID::generate();
-    }
+    Component::Components Component::msComponents;
     
+    //--------------------------------------------------------------------------
+
+    // void Component::addComponent(Component *component)
+    // {
+    //     msComponents.emplace(component->getUUID(), component);
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void Component::removeComponent(Component *component)
+    // {
+    //     msComponents.erase(component->getUUID());
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // Component *Component::getComponentByUUID(const UUID &uuid)
+    // {
+    //     auto it = msComponents.find(uuid);
+    //     return it != msComponents.end() ? it->second : nullptr;
+    // }
+
     //--------------------------------------------------------------------------
 
     Component::Component(const UUID &uuid)
     {
         mUUID = uuid;
+        msComponents.emplace(mUUID, this);
     }
 
     //--------------------------------------------------------------------------
@@ -76,6 +96,7 @@ namespace Tiny3D
     void Component::onDestroy()
     {
         mGameObject = nullptr;
+        msComponents.erase(mUUID);
     }
 
     //--------------------------------------------------------------------------
@@ -83,6 +104,13 @@ namespace Tiny3D
     void Component::onLoadResource(Archive *archive)
     {
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Component::onPostLoad()
+    {
+        msComponents.emplace(mUUID, this);
     }
 
     //--------------------------------------------------------------------------

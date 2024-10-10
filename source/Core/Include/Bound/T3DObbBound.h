@@ -85,6 +85,8 @@ namespace Tiny3D
     protected:
         ObbBound() = default;
 
+        ObbBound(const UUID &uuid);
+
         bool testSphere(const Sphere &sphere) const override;
 
         bool testAabb(const Aabb &aabb) const override;

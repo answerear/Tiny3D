@@ -304,10 +304,10 @@ namespace Tiny3D
 
     private:
         TPROPERTY(RTTRFuncName="data", RTTRFuncType="getter")
-        TArray<T> getData() const;
+        Buffer getData() const;
 
         TPROPERTY(RTTRFuncName="data", RTTRFuncType="setter")
-        void setData(TArray<T> data);
+        void setData(Buffer data);
         
         union
         {

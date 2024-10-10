@@ -95,8 +95,8 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 @rem Generate reflection source by ReflectionPreprocessor.
 ..\bin\Windows\Debug\rpp.exe .\System ..\System -r
 ..\bin\Windows\Debug\rpp.exe .\Math ..\Math -r
-..\bin\Windows\Debug\rpp.exe .\Core\Runtime ..\Core -r
-..\bin\Windows\Debug\rpp.exe .\Core\Editor ..\Core -r
+..\bin\Windows\Debug\rpp.exe .\Core\Runtime ..\Core -r -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
+..\bin\Windows\Debug\rpp.exe .\Core\Editor ..\Core -r -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
 @rem ..\bin\Windows\Debug\rpp.exe .\Plugins\Archive\MetaFileSystem ..\Plugins\Archive\MetaFileSystem -r
 ..\bin\Windows\Debug\rpp.exe .\Editor\TinyLauncher ..\Editor\TinyLauncher -r
 

@@ -207,10 +207,10 @@ namespace Tiny3D
 
     private:
         TPROPERTY(RTTRFuncName="data", RTTRFuncType="getter")
-        TArray<T> getData() const;
+        Buffer getData() const;
 
         TPROPERTY(RTTRFuncName="data", RTTRFuncType="setter")
-        void setData(TArray<T> data);
+        void setData(Buffer data);
         
         T    mTuples[4];       /// 以行优先存储的矩阵元素
     };

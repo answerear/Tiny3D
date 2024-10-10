@@ -87,9 +87,9 @@ bool TransformationApp::applicationDidFinishLaunching(int32_t argc, char *argv[]
     Vector3 axis;
     Radian radians;
     R.toAxisAngle(axis, radians);
-    degree = radians;
+    degree = radians.valueDegrees();
 
-    Matrix3 Mr(Vector3::UNIT_Z, Radian(Degree(45)));
+    Matrix3 Mr(Vector3::UNIT_Z, Radian(Degree(45).valueRadians()));
     Matrix3 Ms(S[0], S[1], S[2]);
     R = Mr * Ms;
 
@@ -132,8 +132,8 @@ bool TransformationApp::applicationDidFinishLaunching(int32_t argc, char *argv[]
 
     Q1.fromRotationMatrix(R1);
 
-    Matrix3 Ry(Vector3::UNIT_Y, Degree(30));
-    Matrix3 Rx(Vector3::UNIT_X, Degree(30));
+    Matrix3 Ry(Vector3::UNIT_Y, Radian(Degree(30).valueRadians()));
+    Matrix3 Rx(Vector3::UNIT_X, Radian(Degree(30).valueRadians()));
     R = Ry * Rx;
 
 //     Rx.fromEulerAnglesXYZ(Degree(30), Degree(0), Degree(0));

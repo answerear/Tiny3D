@@ -574,7 +574,9 @@ namespace Tiny3D
         void convertToSmartPtr(variant &var, const type &propType)
         {
             const type varType = var.get_type();
-            if (propType.is_wrapper() && varType.is_pointer() && propType.get_wrapped_type() == varType.get_raw_type() && varType.get_raw_type().is_derived_from<Object>())
+            if (propType.is_wrapper() && varType.is_pointer()
+                && (propType.get_wrapped_type() == varType.get_raw_type() || propType.get_wrapped_type().is_base_of(varType.get_raw_type()))
+                && varType.get_raw_type().is_derived_from<Object>())
             {
                 bool ok = false;
                 Object *tempObj = var.convert<Object*>(&ok);
@@ -634,13 +636,17 @@ namespace Tiny3D
                             //     // bool ok = var.convert(valueType);
                             //     // T3D_ASSERT(ok);
                             // }
-                            view.insert(var);
+                            auto rval = view.insert(var);
+                            if (!rval.second)
+                            {
+                                T3D_LOG_WARNING(LOG_TAG_SERIALIZE, "Failed to insert element [%d] in set container (class:%s) !", i, klass.get_name().data());
+                            }
                         }
                     }
                     else
                     {
                         // map
-                        type keyType = view.get_key_type();
+                        const type keyType = view.get_key_type();
                         const type valueType = view.get_value_type();
                         for (size_t i = 0; i < array.Size(); i++)
                         {
@@ -670,7 +676,11 @@ namespace Tiny3D
                             //     // T3D_ASSERT(ok);
                             // }
 
-                            view.insert(key, val);
+                            auto rval = view.insert(key, val);
+                            if (!rval.second)
+                            {
+                                T3D_LOG_WARNING(LOG_TAG_SERIALIZE, "Failed to insert element [%d] in map container (class:%s) !", i, klass.get_name().data());
+                            }
                         }
                     }
                 }
@@ -922,6 +932,7 @@ namespace Tiny3D
         TResult ret = T3D_OK;
         JsonStream os(stream);
         PrettyWriter<JsonStream> writer(os);
+        writer.SetIndent(' ', 2);
 
         writer.StartObject();
         {

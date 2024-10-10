@@ -77,6 +77,8 @@ namespace Tiny3D
     protected:
         Geometry() = default;
 
+        Geometry(const UUID &uuid);
+
         TResult cloneProperties(const Component * const src) override;
 
         void onPostLoad() override;

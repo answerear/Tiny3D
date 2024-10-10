@@ -52,10 +52,12 @@ namespace Tiny3D
 
     void TestScene::build(EditorScene *editorScene)
     {
+        mEditorScene = editorScene;
+        
         // 创建场景
         ScenePtr scene = T3D_SCENE_MGR.createScene("Scene");
         editorScene->setRuntimeScene(scene);
-        mEditorScene = editorScene;
+        scene->init();
     
         // 根节点
         editorScene->getEditorRootTransform()->addChild(scene->getRootTransform());
@@ -67,7 +69,36 @@ namespace Tiny3D
         buildCamera(gameNode);
 
         // cube
+#if 0
         buildCube(gameNode);
+#else
+        String path = PROJECT_MGR.getAssetsPath();
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive != nullptr);
+        
+        String title = "TestScene";
+        String name = title + "." + Resource::EXT_SCENE;
+        archive->write(name, [scene](DataStream &stream)
+            {
+                return T3D_SERIALIZER_MGR.serialize(stream, scene);
+            });
+
+        T3D_SCENE_MGR.unloadScene(scene);
+        
+        archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
+        T3D_ASSERT(archive != nullptr);
+        
+        ScenePtr scene2 = T3D_SCENE_MGR.loadScene(archive, name);
+        T3D_ASSERT(scene2 != nullptr);
+        title = "TestScene2";
+        name = title + "." + Resource::EXT_SCENE;
+        archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive != nullptr);
+        archive->write(name, [scene2](DataStream &stream)
+            {
+                return T3D_SERIALIZER_MGR.serialize(stream, scene2);
+            });
+#endif
     }
 
     //--------------------------------------------------------------------------

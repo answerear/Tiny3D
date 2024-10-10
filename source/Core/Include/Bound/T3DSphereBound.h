@@ -69,6 +69,8 @@ namespace Tiny3D
     protected:
         SphereBound() = default;
 
+        SphereBound(const UUID &uuid);
+
         bool testSphere(const Sphere &sphere) const override;
 
         bool testAabb(const Aabb &aabb) const override; 

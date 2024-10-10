@@ -93,6 +93,8 @@ namespace Tiny3D
     protected:
         Bound() = default;
 
+        Bound(const UUID &uuid);
+
         virtual bool testSphere(const Sphere &sphere) const = 0;
 
         virtual bool testAabb(const Aabb &aabb) const = 0;

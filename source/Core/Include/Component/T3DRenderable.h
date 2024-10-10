@@ -56,6 +56,8 @@ namespace Tiny3D
         
     protected:
         Renderable() = default;
+
+        Renderable(const UUID &uuid);
     };
 }
 

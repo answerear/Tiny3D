@@ -43,7 +43,15 @@ namespace Tiny3D
 
     CameraPtr Camera::create()
     {
-        return new Camera();
+        return new Camera(UUID::generate());
+    }
+    
+    //--------------------------------------------------------------------------
+
+    Camera::Camera(const UUID &uuid)
+        : Component(uuid)
+    {
+        
     }
     
     //--------------------------------------------------------------------------

@@ -235,6 +235,7 @@ namespace Tiny3D
                 {
                     return EditorScene::create(name);
                 }));
+            scene->init();
             scene->build();
 
             mTestScene = new TestScene();

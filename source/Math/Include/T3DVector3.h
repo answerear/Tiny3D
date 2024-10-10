@@ -172,7 +172,7 @@ namespace Tiny3D
         void setY(T y) { _y = y; }
 
         TPROPERTY(RTTRFuncName="z", RTTRFuncType="setter", "Description"="z component")
-        void setZ(T z) { _y = z; }
+        void setZ(T z) { _z = z; }
         
     private:
         T    _x;

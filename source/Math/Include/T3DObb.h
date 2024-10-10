@@ -92,17 +92,41 @@ namespace Tiny3D
 
         void buildByCovariance(const TVector3<T> points[], size_t count);
 
-        TPROPERTY(RTTRFuncName="axis", RTTRFuncType="getter")
-        TArray<TVector3<T>> getAxes() const;
+        TPROPERTY(RTTRFuncName="xAxis", RTTRFuncType="getter", "Description"="X Axis")
+        const TVector3<T> &getXAxis() const;
         
-        TPROPERTY(RTTRFuncName="axis", RTTRFuncTYpe="setter")
-        void setAxes(TArray<TVector3<T>> axis);
+        TPROPERTY(RTTRFuncName="xAxis", RTTRFuncTYpe="setter", "Description"="X Axis")
+        void setXAxis(const TVector3<T> &axis);
 
-        TPROPERTY(RTTRFuncName="extents", RTTRFuncType="getter")
-        TArray<T> getExtents() const;
+        TPROPERTY(RTTRFuncName="yAxis", RTTRFuncType="getter", "Description"="Y Axis")
+        const TVector3<T> &getYAxis() const;
+        
+        TPROPERTY(RTTRFuncName="yAxis", RTTRFuncTYpe="setter", "Description"="Y Axis")
+        void setYAxis(const TVector3<T> &axis);
 
-        TPROPERTY(RTTRFuncName="extents", RTTRFuncType="setter")
-        void setExtents(TArray<T> extents);
+        TPROPERTY(RTTRFuncName="zAxis", RTTRFuncType="getter", "Description"="Z Axis")
+        const TVector3<T> &getZAxis() const;
+        
+        TPROPERTY(RTTRFuncName="zAxis", RTTRFuncTYpe="setter", "Description"="Z Axis")
+        void setZAxis(const TVector3<T> &axis);
+
+        TPROPERTY(RTTRFuncName="xExtent", RTTRFuncType="getter", "Description"="Extent along x-axis")
+        const T &getXExtent() const;
+
+        TPROPERTY(RTTRFuncName="xExtent", RTTRFuncType="setter", "Description"="Extent along x-axis")
+        void setXExtent(const T &extent);
+
+        TPROPERTY(RTTRFuncName="yExtent", RTTRFuncType="getter", "Description"="Extent along y-axis")
+        const T &getYExtent() const;
+
+        TPROPERTY(RTTRFuncName="yExtent", RTTRFuncType="setter", "Description"="Extent along y-axis")
+        void setYExtent(const T &extent);
+
+        TPROPERTY(RTTRFuncName="zExtent", RTTRFuncType="getter", "Description"="Extent along z-axis")
+        const T &getZExtent() const;
+
+        TPROPERTY(RTTRFuncName="zExtent", RTTRFuncType="setter", "Description"="Extent along z-axis")
+        void setZExtent(const T &extent);
         
     private:
         TVector3<T> mCenter;

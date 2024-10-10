@@ -76,6 +76,8 @@ namespace Tiny3D
 
         TResult unloadScene();
 
+        TResult unloadScene(ScenePtr &scene);
+
         TResult unloadAllScenes();
         
     protected:

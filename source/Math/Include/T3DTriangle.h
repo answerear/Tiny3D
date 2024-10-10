@@ -40,29 +40,19 @@ namespace Tiny3D
 
     public:
         TTriangle();
-        TTriangle(const TVector3<T> *vertices);
-        TTriangle(const T *vertices);
+        TTriangle(const TVector3<T> *verts);
+        TTriangle(const T *verts);
 
-        TPROPERTY(RTTRFuncName="vertices", RTTRFuncType="getter")
-        const TVector3<T> *getVertices() const
-        {
-            return mVertices;
-        }
-
-        TVector3<T> *getVertices()
-        {
-            return mVertices;
-        }
-
-        TPROPERTY(RTTRFuncName="vertices", RTTRFuncType="setter")
-        void setVertices(const TVector3<T> *vertices);
-        void setVertices(const T *vertices);
+        void setVertices(const TVector3<T> *verts);
+        
+        void setVertices(const T *verts);
 
         const TVector3<T> &operator [](size_t idx) const;
         TVector3<T> &operator [](size_t idx);
 
-    private:
-        TVector3<T> mVertices[3];
+    protected:
+        TPROPERTY()
+        TVector3<T> vertices[3];
     };
 }
 

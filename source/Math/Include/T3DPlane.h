@@ -90,21 +90,29 @@ namespace Tiny3D
         void normalize();
 
     protected:
-        TPROPERTY(RTTRFuncName="coeff", RTTRFuncType="setter", "Desciption"="Coefficient in plane euqation.")
-        void setCoeff(TArray<T> coeff)
-        {
-            size_t i = 0;
-            for (const auto &c : coeff)
-            {
-                mCoeff[i++] = c;
-            }
-        }
+        TPROPERTY(RTTRFuncName="A", RTTRFuncType="setter", "Description"="Coefficient A in plane euqation.")
+        void setACoeff(const T &coeff) { mCoeff[0] = coeff; }
 
-        TPROPERTY(RTTRFuncName="coeff", RTTRFuncType="getter", "Desciption"="Coefficient in plane euqation.")
-        TArray<T> getCoeff() const
-        {
-            return TArray<T>(mCoeff, mCoeff+4);
-        }
+        TPROPERTY(RTTRFuncName="A", RTTRFuncType="getter", "Description"="Coefficient A in plane euqation.")
+        const T &getACoeff() const { return mCoeff[0]; }
+
+        TPROPERTY(RTTRFuncName="B", RTTRFuncType="setter", "Description"="Coefficient B in plane euqation.")
+        void setBCoeff(const T &coeff) { mCoeff[1] = coeff; }
+
+        TPROPERTY(RTTRFuncName="B", RTTRFuncType="getter", "Description"="Coefficient B in plane euqation.")
+        const T &getBCoeff() const { return mCoeff[1]; }
+
+        TPROPERTY(RTTRFuncName="C", RTTRFuncType="setter", "Description"="Coefficient C in plane euqation.")
+        void setCCoeff(const T &coeff) { mCoeff[2] = coeff; }
+
+        TPROPERTY(RTTRFuncName="C", RTTRFuncType="getter", "Description"="Coefficient C in plane euqation.")
+        const T &getCCoeff() const { return mCoeff[2]; }
+
+        TPROPERTY(RTTRFuncName="D", RTTRFuncType="setter", "Description"="Coefficient D in plane euqation.")
+        void setDCoeff(const T &coeff) { mCoeff[3] = coeff; }
+
+        TPROPERTY(RTTRFuncName="D", RTTRFuncType="getter", "Description"="Coefficient D in plane euqation.")
+        const T &getDCoeff() const { return mCoeff[3]; }
         
         T    mCoeff[4];
     };

@@ -150,6 +150,8 @@ namespace Tiny3D
     protected:
         Camera() = default;
 
+        Camera(const UUID &uuid);
+
         void onStart() override;
 
         void onDestroy() override;

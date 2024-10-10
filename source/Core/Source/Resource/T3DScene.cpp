@@ -43,8 +43,17 @@ namespace Tiny3D
     Scene::Scene(const String &name)
         : Resource(name)
     {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Scene::init()
+    {
         mRootGameObject = GameObject::create("SceneRoot");
         mRootTransform = mRootGameObject->addComponent<Transform3D>();
+        mRootGameObjectUUID = mRootGameObject->getUUID();
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -182,5 +191,63 @@ namespace Tiny3D
         return Resource::onUnload();
     }
 
+    //--------------------------------------------------------------------------
+
+    void Scene::onPostLoad()
+    {
+        // 设置根节点
+        if (mRootGameObjectUUID != UUID::INVALID)
+        {
+            const auto it = mGameObjects.find(mRootGameObjectUUID);
+            if (it != mGameObjects.end())
+            {
+                mRootGameObject = it->second;
+            }
+        }
+
+        // 设置整棵场景树的层级关系
+        for (const auto &item : mGameObjects)
+        {
+            item.second->setupHierarchy();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Scene::addGameObject(GameObject *go)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (go == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Game Object is nullptr !");
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+
+            mGameObjects.emplace(go->getUUID(), go);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Scene::removeGameObject(GameObject *go)
+    {
+        mGameObjects.erase(go->getUUID());
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult Scene::removeGameObject(const UUID &uuid)
+    {
+        mGameObjects.erase(uuid);
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
 }

@@ -550,18 +550,20 @@ namespace Tiny3D
     }
 
     template <typename T>
-    TArray<T> TMatrix2<T>::getData() const
+    Buffer TMatrix2<T>::getData() const
     {
-        return TArray<T>(mTuples, mTuples+4);
+        Buffer data;
+        data.Data = (uint8_t*)mTuples;
+        data.DataSize = sizeof(mTuples);
+        return data;
     }
 
     template <typename T>
-    void TMatrix2<T>::setData(TArray<T> data)
+    void TMatrix2<T>::setData(Buffer data)
     {
-        for (size_t i = 0; i < 4; i++)
-        {
-            mTuples[i] = data[i];
-        }
+        T3D_ASSERT(data.DataSize == sizeof(mTuples));
+        memcpy(mTuples, data.Data, data.DataSize);
+        T3D_SAFE_DELETE_ARRAY(data.Data);
     }
 
     template <typename T>

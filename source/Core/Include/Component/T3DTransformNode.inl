@@ -149,28 +149,28 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    inline TransformNodePtr TransformNode::getFirstChild() const
+    inline TransformNode *TransformNode::getFirstChild() const
     {
         return mFirstChild;
     }
 
     //--------------------------------------------------------------------------
     
-    inline TransformNodePtr TransformNode::getLastChild() const
+    inline TransformNode *TransformNode::getLastChild() const
     {
         return mLastChild;
     }
 
     //--------------------------------------------------------------------------
     
-    inline TransformNodePtr TransformNode::getPrevSibling() const
+    inline TransformNode *TransformNode::getPrevSibling() const
     {
         return mPrevSibling;
     }
 
     //--------------------------------------------------------------------------
     
-    inline TransformNodePtr TransformNode::getNextSibling() const
+    inline TransformNode *TransformNode::getNextSibling() const
     {
         return mNextSibling;
     }
@@ -184,7 +184,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    inline TransformNodePtr TransformNode::getParent() const
+    inline TransformNode *TransformNode::getParent() const
     {
         return mParent;
     }

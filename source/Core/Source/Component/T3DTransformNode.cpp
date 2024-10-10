@@ -32,7 +32,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TransformNode::TransformNode(const UUID& uuid /* = UUID::INVALID */)
+    TransformNode::TransformNode(const UUID& uuid)
         : Component(uuid)
     {
     }
@@ -44,7 +44,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult TransformNode::addChild(TransformNodePtr node)
+    TResult TransformNode::addChild(TransformNode *node)
     {
         T3D_ASSERT(node->getParent() == nullptr);
         
@@ -64,13 +64,15 @@ namespace Tiny3D
 
         node->mParent = this;
         mChildrenCount++;
+        mChildrenUUID.emplace_back(node->getUUID());
+        T3D_ASSERT(mChildrenCount == mChildrenUUID.size());
         node->onAttachParent(this);
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult TransformNode::removeChild(TransformNodePtr node)
+    TResult TransformNode::removeChild(TransformNode *node)
     {
         TResult ret = T3D_OK;
 
@@ -83,33 +85,7 @@ namespace Tiny3D
                 break;
             }
 
-            TransformNode *child = mFirstChild;
-
-            while (child != nullptr)
-            {
-                if (child == node)
-                {
-                    // 找到要删除的，先断开链表前后关系
-                    child->onDetachParent(this);
-                    child->mParent = nullptr;
-                    mChildrenCount--;
-
-                    if (child->mPrevSibling != nullptr)
-                        child->mPrevSibling->mNextSibling = child->mNextSibling;
-                    if (child->mNextSibling != nullptr)
-                        child->mNextSibling->mPrevSibling = child->mPrevSibling;
-
-                    break;
-                }
-
-                child = child->mNextSibling;
-            }
-
-            if (mChildrenCount == 0)
-            {
-                mFirstChild = nullptr;
-                mLastChild = nullptr;
-            }
+            ret = removeChild(node->getUUID());
         } while (false);
 
         return ret;
@@ -152,6 +128,14 @@ namespace Tiny3D
                 child = child->mNextSibling;
             }
 
+            auto it = std::find(mChildrenUUID.begin(), mChildrenUUID.end(), nodeID);
+            if (it != mChildrenUUID.end())
+            {
+                mChildrenUUID.erase(it);
+            }
+
+            T3D_ASSERT(mChildrenCount == mChildrenUUID.size());
+            
             if (mChildrenCount == 0)
             {
                 mFirstChild = nullptr;
@@ -185,6 +169,8 @@ namespace Tiny3D
         mFirstChild = mLastChild = nullptr;
         mChildrenCount = 0;
 
+        mChildrenUUID.clear();
+
         return ret;
     }
 
@@ -204,7 +190,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TransformNodePtr TransformNode::getChild(const UUID &nodeID) const
+    TransformNode *TransformNode::getChild(const UUID &nodeID) const
     {
         TransformNode *child = nullptr;
         TransformNode *temp = mFirstChild;
@@ -225,7 +211,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TransformNodePtr TransformNode::getChild(const String &name) const
+    TransformNode *TransformNode::getChild(const String &name) const
     {
         TransformNode *child = nullptr;
         TransformNode *temp = mFirstChild;
@@ -277,14 +263,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void TransformNode::onAttachParent(TransformNodePtr parent)
+    void TransformNode::onAttachParent(TransformNode *parent)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    void TransformNode::onDetachParent(TransformNodePtr parent)
+    void TransformNode::onDetachParent(TransformNode *parent)
     {
 
     }
@@ -300,6 +286,59 @@ namespace Tiny3D
         }
         
         Component::onDestroy();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TransformNode::setupHierarchy()
+    {
+        size_t i = 0;
+        size_t count = mChildrenUUID.size();
+        TransformNode *prev = nullptr, *next = nullptr;
+        
+        for (auto itr = mChildrenUUID.begin(); itr != mChildrenUUID.end(); ++itr, ++i)
+        {
+            const UUID &uuid = *itr;
+            T3D_ASSERT(uuid != UUID::INVALID);
+            
+            if (i == 0)
+            {
+                // 第一个
+                const auto it = msComponents.find(uuid);
+                if (it != msComponents.end())
+                {
+                    mFirstChild = it->second;
+                    mFirstChild->mParent = this;
+                    mFirstChild->mPrevSibling = nullptr;
+                    mFirstChild->mNextSibling = nullptr;
+                    prev = mFirstChild;
+                }
+            }
+            else if (i == count - 1)
+            {
+                // 最后一个
+                const auto it = msComponents.find(uuid);
+                if (it != msComponents.end())
+                {
+                    mLastChild = it->second;
+                    mLastChild->mParent = this;
+                    mLastChild->mPrevSibling = prev;
+                    mLastChild->mNextSibling = nullptr;
+                }
+            }
+            else
+            {
+                const auto it = msComponents.find(uuid);
+                if (it != msComponents.end())
+                {
+                    TransformNode *node = static_cast<TransformNode*>(it->second.get());
+                    T3D_ASSERT(node->mPrevSibling == nullptr);
+                    node->mPrevSibling = prev;
+                    T3D_ASSERT(node->mNextSibling == nullptr);
+                    prev->mNextSibling = node;
+                }
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

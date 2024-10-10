@@ -66,6 +66,14 @@ namespace Tiny3D
         TResult removeCamera(const String &name) override;
 
         const CameraList &getCameras() const override;
+        
+        TResult addGameObject(GameObject *go) override;
+
+        TResult removeGameObject(GameObject *go) override;
+
+        TResult removeGameObject(const UUID &uuid) override;
+
+        GameObject *getGameObject(const UUID &uuid) const override;
 
         Camera *getEditorCamera() const override;
 

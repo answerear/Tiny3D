@@ -27,6 +27,7 @@
 
 
 #include "Resource/T3DResource.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D
@@ -60,6 +61,18 @@ namespace Tiny3D
 
         virtual const CameraList &getCameras() const { return mCameras; }
 
+        virtual TResult addGameObject(GameObject *go);
+
+        virtual TResult removeGameObject(GameObject *go);
+
+        virtual TResult removeGameObject(const UUID &uuid);
+
+        virtual GameObject *getGameObject(const UUID &uuid) const
+        {
+            const auto it = mGameObjects.find(uuid);
+            return it != mGameObjects.end() ? it->second : nullptr;
+        }
+
 #if defined(T3D_EDITOR)
         virtual Camera *getEditorCamera() const { return nullptr; }
 
@@ -69,6 +82,8 @@ namespace Tiny3D
 
         virtual Scene *getRuntimeScene() const { return nullptr; }
 #endif
+
+        TResult init();
         
     protected:
         Scene(const String &name);
@@ -80,9 +95,25 @@ namespace Tiny3D
         TResult onLoad(Archive *archive) override;
         
         TResult onUnload() override;
+
+        void onPostLoad() override;
         
     private:
+        using GameObjects = TUnorderedMap<UUID, GameObjectPtr, UUIDHash, UUIDEqual>;
+        
         Scene() : Scene("") {}
+
+        TPROPERTY(RTTRFuncName="RootGameObject", RTTRFuncType="getter")
+        const UUID &getRootGameObjectUUID() const { return mRootGameObjectUUID; }
+
+        TPROPERTY(RTTRFuncName="RootGameObject", RTTRFuncType="setter")
+        void setRootGameObjectUUID(const UUID &uuid) { mRootGameObjectUUID = uuid; }
+
+        TPROPERTY(RTTRFuncName="GameObjects", RTTRFuncType="getter")
+        const GameObjects &getGameObjects() const { return mGameObjects; }
+
+        TPROPERTY(RTTRFuncName="GameObjects", RTTRFuncType="setter")
+        void setGameObjects(const GameObjects &gameObjects) { mGameObjects = gameObjects; }
         
     protected:
         /// 场景根节点对应的 game object
@@ -91,6 +122,10 @@ namespace Tiny3D
         Transform3DPtr  mRootTransform {nullptr};
         /// 场景相机列表
         CameraList      mCameras {};
+        /// 场景根节点 game object 对应的 UUID
+        UUID            mRootGameObjectUUID {};
+        /// 所有属于这个场景的 game object
+        GameObjects     mGameObjects {};
     };
 }
 

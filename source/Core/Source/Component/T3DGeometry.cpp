@@ -34,6 +34,14 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    Geometry::Geometry(const UUID &uuid)
+        : Renderable(uuid)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
     ComponentPtr Geometry::clone() const
     {
         GeometryPtr geometry = new Geometry();
@@ -175,6 +183,7 @@ namespace Tiny3D
 
     void Geometry::onPostLoad()
     {
+        Renderable::onPostLoad();
         // Archive *archive = nullptr;
         // mMesh = T3D_MESH_MGR.loadMesh(archive, mMeshName);
         // if (mMesh != nullptr)

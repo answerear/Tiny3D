@@ -28,55 +28,55 @@ namespace Tiny3D
     template <typename T>
     inline TTriangle<T>::TTriangle()
     {
-        mVertices[0] = TReal<T>::ZERO;
-        mVertices[1] = TReal<T>::ZERO;
-        mVertices[2] = TReal<T>::ZERO;
+        vertices[0] = TReal<T>::ZERO;
+        vertices[1] = TReal<T>::ZERO;
+        vertices[2] = TReal<T>::ZERO;
     }
 
     template <typename T>
-    inline TTriangle<T>::TTriangle(const TVector3<T> *vertices)
+    inline TTriangle<T>::TTriangle(const TVector3<T> *verts)
     {
-        mVertices[0] = vertices[0];
-        mVertices[1] = vertices[1];
-        mVertices[2] = vertices[2];
+        vertices[0] = verts[0];
+        vertices[1] = verts[1];
+        vertices[2] = verts[2];
     }
 
     template <typename T>
-    inline TTriangle<T>::TTriangle(const T *vertices)
+    inline TTriangle<T>::TTriangle(const T *verts)
     {
-        mVertices[0] = TVector3<T>(vertices[0], vertices[1], vertices[2]);
-        mVertices[1] = TVector3<T>(vertices[3], vertices[4], vertices[5]);
-        mVertices[2] = TVector3<T>(vertices[6], vertices[7], vertices[8]);
+        vertices[0] = TVector3<T>(verts[0], verts[1], verts[2]);
+        vertices[1] = TVector3<T>(verts[3], verts[4], verts[5]);
+        vertices[2] = TVector3<T>(verts[6], verts[7], verts[8]);
     }
 
     template <typename T>
-    inline void TTriangle<T>::setVertices(const TVector3<T> *vertices)
+    inline void TTriangle<T>::setVertices(const TVector3<T> *verts)
     {
-        mVertices[0] = vertices[0];
-        mVertices[1] = vertices[1];
-        mVertices[2] = vertices[2];
+        vertices[0] = verts[0];
+        vertices[1] = verts[1];
+        vertices[2] = verts[2];
     }
 
     template <typename T>
-    inline void TTriangle<T>::setVertices(const T *vertices)
+    inline void TTriangle<T>::setVertices(const T *verts)
     {
-        mVertices[0] = TVector3<T>(vertices[0], vertices[1], vertices[2]);
-        mVertices[1] = TVector3<T>(vertices[3], vertices[4], vertices[5]);
-        mVertices[2] = TVector3<T>(vertices[6], vertices[7], vertices[8]);
+        vertices[0] = TVector3<T>(verts[0], verts[1], verts[2]);
+        vertices[1] = TVector3<T>(verts[3], verts[4], verts[5]);
+        vertices[2] = TVector3<T>(verts[6], verts[7], verts[8]);
     }
 
     template <typename T>
     inline const TVector3<T> &TTriangle<T>::operator [](size_t idx) const
     {
         T3D_ASSERT(idx < 3);
-        return mVertices[idx];
+        return vertices[idx];
     }
 
     template <typename T>
     inline TVector3<T> &TTriangle<T>::operator [](size_t idx)
     {
         T3D_ASSERT(idx < 3);
-        return mVertices[idx];
+        return vertices[idx];
     }
 }
 

@@ -70,18 +70,54 @@ namespace Tiny3D
         }
 
     protected:
-        TPROPERTY(RTTRFuncName="faces", RTTRFuncType="getter", "Desciption"="Six faces in frustum")
-        TArray<TPlane<T>> getFaces() const { return TArray<TPlane<T>>(mFaces, mFaces+E_MAX_FACE); }
+        // TPROPERTY(RTTRFuncName="faces", RTTRFuncType="getter", "Description"="Six faces in frustum")
+        // TArray<TPlane<T>> getFaces() const { return TArray<TPlane<T>>(mFaces, mFaces+E_MAX_FACE); }
+        //
+        // TPROPERTY(RTTRFuncName="faces", RTTRFuncType="setter", "Description"="Six faces in frustum")
+        // void setFaces(TArray<TPlane<T>> faces)
+        // {
+        //     size_t i = 0;
+        //     for (const auto &face : faces)
+        //     {
+        //         mFaces[i++] = face;
+        //     }
+        // }
 
-        TPROPERTY(RTTRFuncName="faces", RTTRFuncType="setter", "Desciption"="Six faces in frustum")
-        void setFaces(TArray<TPlane<T>> faces)
-        {
-            size_t i = 0;
-            for (const auto &face : faces)
-            {
-                mFaces[i++] = face;
-            }
-        }
+        TPROPERTY(RTTRFuncName="top", RTTRFuncType="getter", "Description"="Top face in frustum")
+        const TPlane<T> &getTop() const { return getFace(E_FACE_TOP); }
+
+        TPROPERTY(RTTRFuncName="top", RTTRFuncType="setter", "Description"="Top face in frustum")
+        void setTop(const TPlane<T> &plane) { setFace(E_FACE_TOP, plane); }
+
+        TPROPERTY(RTTRFuncName="bottom", RTTRFuncType="getter", "Description"="Bottom face in frustum")
+        const TPlane<T> &getBottom() const { return getFace(E_FACE_BOTTOM); }
+
+        TPROPERTY(RTTRFuncName="bottom", RTTRFuncType="setter", "Description"="Bottom face in frustum")
+        void setBottom(const TPlane<T> &plane) { setFace(E_FACE_BOTTOM, plane); }
+
+        TPROPERTY(RTTRFuncName="left", RTTRFuncType="getter", "Description"="Left face in frustum")
+        const TPlane<T> &getLeft() const { return getFace(E_FACE_LEFT); }
+
+        TPROPERTY(RTTRFuncName="left", RTTRFuncType="setter", "Description"="Left face in frustum")
+        void setLeft(const TPlane<T> &plane) { setFace(E_FACE_LEFT, plane); }
+
+        TPROPERTY(RTTRFuncName="right", RTTRFuncType="getter", "Description"="Right face in frustum")
+        const TPlane<T> &getRight() const { return getFace(E_FACE_RIGHT); }
+
+        TPROPERTY(RTTRFuncName="right", RTTRFuncType="setter", "Description"="Right face in frustum")
+        void setRight(const TPlane<T> &plane) { setFace(E_FACE_RIGHT, plane); }
+
+        TPROPERTY(RTTRFuncName="near", RTTRFuncType="getter", "Description"="Near plane in frustum")
+        const TPlane<T> &getNear() const { return getFace(E_FACE_NEAR); }
+
+        TPROPERTY(RTTRFuncName="near", RTTRFuncType="setter", "Description"="Near plane in frustum")
+        void setNear(const TPlane<T> &plane) { setFace(E_FACE_NEAR, plane); }
+
+        TPROPERTY(RTTRFuncName="far", RTTRFuncType="getter", "Description"="Far plane in frustum")
+        const TPlane<T> &getFar() const { return getFace(E_FACE_FAR); }
+
+        TPROPERTY(RTTRFuncName="far", RTTRFuncType="setter", "Description"="Far plane in frustum")
+        void setFar(const TPlane<T> &plane) { setFace(E_FACE_FAR, plane); }
         
         TPlane<T>   mFaces[E_MAX_FACE];
     };

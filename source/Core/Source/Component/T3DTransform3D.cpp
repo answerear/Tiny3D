@@ -33,12 +33,13 @@ namespace Tiny3D
 
     Transform3DPtr Transform3D::create()
     {
-        return new Transform3D();
+        return new Transform3D(UUID::generate());
     }
     
     //--------------------------------------------------------------------------
     
-    Transform3D::Transform3D()
+    Transform3D::Transform3D(const UUID &uuid)
+        : TransformNode(uuid)
     {
         mWorldTransform.setTranslation(mPosition);
         mWorldTransform.setOrientation(mOrientation);
@@ -166,7 +167,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    void Transform3D::onAttachParent(TransformNodePtr parent)
+    void Transform3D::onAttachParent(TransformNode *parent)
     {
         TransformNode::onAttachParent(parent);
 
@@ -175,7 +176,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    void Transform3D::onDetachParent(TransformNodePtr parent)
+    void Transform3D::onDetachParent(TransformNode *parent)
     {
         TransformNode::onDetachParent(parent);
     }

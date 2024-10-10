@@ -304,7 +304,7 @@ void IntersectionApp::testRayObb()
 
     // 构造旋转矩阵
     Matrix3 m;
-    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+    m.fromAxisAngle(Vector3::UNIT_Y, Radian(Degree(30).valueRadians()));
 
     Vector3 points[BoxVerticesCount];
     size_t i = 0;
@@ -424,7 +424,7 @@ void IntersectionApp::testObbPlane()
 {
     // 构造旋转矩阵
     Matrix3 m;
-    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+    m.fromAxisAngle(Vector3::UNIT_Y, Radian(Degree(30).valueRadians()));
 
     Vector3 points[BoxVerticesCount];
     size_t i = 0;
@@ -515,7 +515,7 @@ void IntersectionApp::testFrustumObb()
 
     // 构造旋转矩阵
     Matrix3 m;
-    m.fromAxisAngle(Vector3::UNIT_Y, Degree(30));
+    m.fromAxisAngle(Vector3::UNIT_Y, Radian(Degree(30).valueRadians()));
 
     Vector3 points[BoxVerticesCount];
     size_t i = 0;

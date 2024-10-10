@@ -35,9 +35,17 @@ namespace Tiny3D
 
     AabbBoundPtr AabbBound::create()
     {
-        return new AabbBound();
+        return new AabbBound(UUID::generate());
     }
 
+    //--------------------------------------------------------------------------
+
+    AabbBound::AabbBound(const UUID &uuid)
+        : Bound(uuid)
+    {
+        
+    }
+    
     //--------------------------------------------------------------------------
 
     AabbBound::~AabbBound()
