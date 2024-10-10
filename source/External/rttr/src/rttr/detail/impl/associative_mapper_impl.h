@@ -456,6 +456,11 @@ struct associative_container_mapper<std::unordered_multimap<K, T>> : detail::ass
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+template<typename K, typename T, typename HASHER, typename KEY_EQ>
+struct associative_container_mapper<std::unordered_multimap<K, T, HASHER, KEY_EQ>> : detail::associative_container_base_multi<std::unordered_multimap<K, T, HASHER, KEY_EQ>> {};
+
+//////////////////////////////////////////////////////////////////////////////////////
+
 namespace detail
 {
 
