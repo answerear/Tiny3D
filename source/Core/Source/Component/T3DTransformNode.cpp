@@ -106,6 +106,12 @@ namespace Tiny3D
                 break;
             }
 
+            auto it = std::find(mChildrenUUID.begin(), mChildrenUUID.end(), nodeID);
+            if (it != mChildrenUUID.end())
+            {
+                mChildrenUUID.erase(it);
+            }
+            
             TransformNode *child = mFirstChild;
 
             while (child != nullptr)
@@ -128,12 +134,6 @@ namespace Tiny3D
                 child = child->mNextSibling;
             }
 
-            auto it = std::find(mChildrenUUID.begin(), mChildrenUUID.end(), nodeID);
-            if (it != mChildrenUUID.end())
-            {
-                mChildrenUUID.erase(it);
-            }
-
             T3D_ASSERT(mChildrenCount == mChildrenUUID.size());
             
             if (mChildrenCount == 0)
@@ -141,7 +141,7 @@ namespace Tiny3D
                 mFirstChild = nullptr;
                 mLastChild = nullptr;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }
@@ -279,7 +279,7 @@ namespace Tiny3D
 
     void TransformNode::onDestroy()
     {
-        TransformNode *parent = getParent();
+        TransformNodePtr parent = getParent();
         if (parent != nullptr)
         {
             parent->removeChild(this);
