@@ -52,7 +52,7 @@ namespace Tiny3D
         ::MultiByteToWideChar(CP_ACP, 0, src.c_str(), (int)src.length(), pwcsBuf, wcsLen);
         
         int dstLen = ::WideCharToMultiByte(CP_UTF8, 0, pwcsBuf, -1, nullptr, 0, nullptr, nullptr);
-        String dst(dstLen+1, 0);
+        String dst(dstLen-1, 0);
         ::WideCharToMultiByte(CP_UTF8, 0, pwcsBuf, wcsLen, dst.data(), dstLen, nullptr, nullptr);
 
         T3D_SAFE_DELETE_ARRAY(pwcsBuf);
@@ -70,7 +70,7 @@ namespace Tiny3D
         wszString[wcsLen] = 0;
 
         int dstLen = ::WideCharToMultiByte(CP_ACP, 0, wszString, (int)wcslen(wszString), nullptr, 0, nullptr, nullptr);
-        String dst(dstLen+1, 0);
+        String dst(dstLen-1, 0);
         ::WideCharToMultiByte(CP_ACP, NULL, wszString, (int)wcslen(wszString), dst.data(), dstLen, nullptr, nullptr);
         T3D_SAFE_DELETE_ARRAY(wszString);
         
@@ -82,7 +82,7 @@ namespace Tiny3D
     String Win32Locale::UnicodeToUTF8(const WString &src)
     {
         int dstLen = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, nullptr, 0, nullptr, nullptr);
-        String dst(dstLen+1, 0);
+        String dst(dstLen-1, 0);
         ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, dst.data(), dstLen, nullptr, nullptr);
         return dst;
     }
@@ -92,7 +92,7 @@ namespace Tiny3D
     WString Win32Locale::UTF8ToUnicode(const String &src)
     {
         int dstLen = ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, nullptr, 0);
-        WString dst(dstLen+1, 0);
+        WString dst(dstLen-1, 0);
         ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, dst.data(), dstLen);
         return dst;
     }
