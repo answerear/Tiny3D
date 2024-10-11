@@ -312,6 +312,7 @@ namespace Tiny3D
                     mFirstChild->mPrevSibling = nullptr;
                     mFirstChild->mNextSibling = nullptr;
                     prev = mFirstChild;
+                    mChildrenCount++;
                 }
             }
             else if (i == count - 1)
@@ -324,6 +325,7 @@ namespace Tiny3D
                     mLastChild->mParent = this;
                     mLastChild->mPrevSibling = prev;
                     mLastChild->mNextSibling = nullptr;
+                    mChildrenCount++;
                 }
             }
             else
@@ -336,9 +338,12 @@ namespace Tiny3D
                     node->mPrevSibling = prev;
                     T3D_ASSERT(node->mNextSibling == nullptr);
                     prev->mNextSibling = node;
+                    mChildrenCount++;
                 }
             }
         }
+
+        T3D_ASSERT(mChildrenCount == mChildrenUUID.size());
     }
 
     //--------------------------------------------------------------------------
