@@ -47,6 +47,7 @@ namespace Tiny3D
 
     protected:
         HANDLE mDirHandle {nullptr};
+        OVERLAPPED mOverlapped {};
         String mPath {};
         FSMonitorExts mExcludeExts {};
         FSMonitorExcludes mExcludeFolders {};

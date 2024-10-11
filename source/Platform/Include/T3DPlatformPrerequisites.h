@@ -66,8 +66,9 @@ namespace Tiny3D
 
     enum class FSMonitorAction : uint32_t
     {
+        kNone = 0,
         /// 新增文件或文件夹
-        kAdded = 0,
+        kAdded,
         /// 删除文件或者文件夹
         kRemoved,
         /// 修改文件或文件夹

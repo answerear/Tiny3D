@@ -79,6 +79,9 @@ namespace Tiny3D
                 ret = T3D_ERR_FS_MONITOR_CREATED;
                 break;
             }
+
+            memset(&mOverlapped, 0, sizeof(mOverlapped));
+            mOverlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
         } while (false);
         
         return ret;
@@ -93,26 +96,31 @@ namespace Tiny3D
         do
         {
             const DWORD buffer_size = 1024;
-            char buffer[buffer_size];
-            DWORD bytes_returned = 0;
-            OVERLAPPED overlapped = {0};
+            char buffer[buffer_size] = {0};
+            DWORD bytesReturned = 0;
 
-            while (::ReadDirectoryChangesW(
+            if (!::ReadDirectoryChangesW(
                 mDirHandle,
                 buffer,
                 buffer_size,
                 TRUE,
-                FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION,
-                &bytes_returned,
-                &overlapped,
+                FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME/* | FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION*/,
+                &bytesReturned,
+                &mOverlapped,
                 nullptr))
+            {
+                break;
+            }
+
+            if (GetOverlappedResult(mDirHandle, &mOverlapped, &bytesReturned, TRUE))
             {
                 DWORD offset = 0;
                 FILE_NOTIFY_INFORMATION *info = nullptr;
 
-                do
+                char *p = buffer;
+                while (p < (char*)buffer + bytesReturned)
                 {
-                    info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(buffer + offset);
+                    info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
                     offset += info->NextEntryOffset;
                     WString wstrFilename(info->FileName, info->FileNameLength / sizeof(wchar_t));
                     String path = mPath + Dir::getNativeSeparator() + T3D_LOCALE.UnicodeToUTF8(wstrFilename);
@@ -151,7 +159,7 @@ namespace Tiny3D
                     
                     if (mOnChanged != nullptr)
                     {
-                        FSMonitorAction action = FSMonitorAction::kAdded;
+                        FSMonitorAction action = FSMonitorAction::kNone;
                         
                         switch (info->Action)
                         {
@@ -171,13 +179,23 @@ namespace Tiny3D
                             action = FSMonitorAction::kRenamedNew;
                             break;
                         default:
-                            T3D_ASSERT(0);
+                            // T3D_ASSERT(0);
                             break;
                         }
-                        
-                        mOnChanged(path, action);
+
+                        if (action != FSMonitorAction::kNone)
+                        {
+                            mOnChanged(path, action);
+                        }
                     }
-                } while (info->NextEntryOffset != 0);
+
+                    if (info->NextEntryOffset == 0)
+                    {
+                        break;
+                    }
+                    
+                    p += info->NextEntryOffset;
+                }
             }
 
         } while (false);
