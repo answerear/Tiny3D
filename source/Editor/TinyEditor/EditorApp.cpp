@@ -133,14 +133,7 @@ namespace Tiny3D
 
         do
         {
-            Dir::setCachePathInfo("Tiny3D", "TinyEditor");
-            
-            ret = createEngine(argc, argv);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
+            // 解析命令行参数
             std::stringstream ss;
             for (int32_t i = 0; i < argc; ++i)
             {
@@ -155,6 +148,15 @@ namespace Tiny3D
                 break;
             }
 
+            Dir::setCachePathInfo("Tiny3D", "TinyEditor");
+            
+            // 创建引擎
+            ret = createEngine(argc, argv);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
             // T3D_LOG_INFO(LOG_TAG_EDITOR, "Path:%s, Name:%s, Created: %d", mOptions.path.c_str(), mOptions.name.c_str(), mOptions.created);
             
             // 加载语言文件
@@ -164,8 +166,16 @@ namespace Tiny3D
                 break;
             }
 
-            // 创建工程管理器
-            mProjectMgr = new ProjectManager();
+            // 创建 imgui 环境
+            ret = createImGuiEnv();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create ImGui environment failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            // TinyImGui 单例初始化
+            mTextureMgr = new ImTextureManager();
 
             // 手动加载 Meta 文件系统插件，不让引擎自动加载，避免没有设置 Editor 之前，插件内部依赖 Editor 对象的操作会出错
             ret = T3D_AGENT.loadPlugin("MetaFSArchive");
@@ -174,6 +184,20 @@ namespace Tiny3D
                 break;
             }
 
+            // 编辑器场景
+            // mEditorScene = new EditorScene();
+            // mEditorScene->build();
+            EditorScene *scene = smart_pointer_cast<EditorScene>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
+                [](const String &name)
+                {
+                    return EditorScene::create(name);
+                }));
+            scene->init();
+            scene->build();
+
+            // 创建工程管理器
+            mProjectMgr = new ProjectManager();
+            
             // 创建网络管理器
             mNetworkMgr = new NetworkManager();
             ret = mNetworkMgr->startup("127.0.0.1", 5327);
@@ -215,31 +239,9 @@ namespace Tiny3D
                     break;
                 }
             }
-            
-            // 创建 imgui 环境
-            ret = createImGuiEnv();
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Create ImGui environment failed ! ERROR [%d]", ret);
-                break;
-            }
 
-            // TinyImGui 单例初始化
-            mTextureMgr = new ImTextureManager();
-
-            // 编辑器场景
-            // mEditorScene = new EditorScene();
-            // mEditorScene->build();
-            EditorScene *scene = smart_pointer_cast<EditorScene>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
-                [](const String &name)
-                {
-                    return EditorScene::create(name);
-                }));
-            scene->init();
-            scene->build();
-
-            mTestScene = new TestScene();
-            mTestScene->build(scene);
+            // mTestScene = new TestScene();
+            // mTestScene->build(scene);
 
             // 主窗口
             mMainWindow = new MainWindow();
@@ -403,6 +405,16 @@ namespace Tiny3D
             
         ImWidget::GC();
 
+        if (mProjectMgr != nullptr)
+        {
+            mProjectMgr->closeProject();
+        }
+
+        if (mNetworkMgr != nullptr)
+        {
+            mNetworkMgr->shutdown();
+        }
+        
         mTextureMgr->unloadAllTextures();
 
         T3D_SAFE_DELETE(mTextureMgr);
@@ -411,18 +423,8 @@ namespace Tiny3D
         destroyImGuiEnv();
 
         T3D_SAFE_DELETE(mTestScene)
-
-        if (mNetworkMgr != nullptr)
-        {
-            mNetworkMgr->shutdown();
-        }
         
         T3D_SAFE_DELETE(mNetworkMgr)
-
-        if (mProjectMgr != nullptr)
-        {
-            mProjectMgr->closeProject();
-        }
         T3D_SAFE_DELETE(mProjectMgr)
         
         mLangMgr = nullptr;

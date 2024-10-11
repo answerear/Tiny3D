@@ -61,6 +61,8 @@ namespace Tiny3D
         TResult compileShader(const String &inputPath, const String &outputPath);
 
         TResult setupBuiltinAssets(const String &tempPath);
+
+        TResult createSimpleScene(const String &assetsPath);
         
     protected:
         static const char *ASSETS;

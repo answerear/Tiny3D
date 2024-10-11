@@ -24,6 +24,7 @@
 
 
 #include "ProjectManager.h"
+#include "EditorScene.h"
 
 
 namespace Tiny3D
@@ -118,6 +119,86 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ProjectManager::createSimpleScene(const String &assetsPath)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ScenePtr scene = T3D_SCENE_MGR.createScene("SimpleScene");
+            EDITOR_SCENE.setRuntimeScene(scene);
+            scene->init();
+
+            // 根节点
+            EDITOR_SCENE.getEditorRootTransform()->addChild(scene->getRootTransform());
+
+            Transform3D *gameNode = scene->getRootTransform();
+
+            // render window for render target in camera
+            RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
+            RenderTargetPtr rt = RenderTarget::create(rw);
+
+            // transform node for camera
+            GameObjectPtr go = GameObject::create("Camera");
+            Transform3DPtr xform = go->addComponent<Transform3D>();
+            gameNode->addChild(xform);
+        
+            // camera component
+            CameraPtr camera = go->addComponent<Camera>();
+            camera->setOrder(0);
+            Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+            camera->setViewport(vp);
+            camera->setClearColor(ColorRGB(0.133f, 0.231f, 0.329f));
+            camera->setRenderTarget(rt);
+            Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
+            camera->setAspectRatio(as);
+            T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
+        
+            // camera for perspective
+            camera->setProjectionType(Camera::Projection::kPerspective);
+            camera->setFovY(Radian(Math::PI / 3.0f));
+            camera->setNearPlaneDistance(0.1f);
+            camera->setFarPlaneDistance(1000.0f);
+        
+            // construct camera position & orientation & scaling
+            Vector3 eye(2.0f, 2.0f, -4.0f);
+            Vector3 obj(0.0f, 0.0f, 0.0f);
+            camera->lookAt(eye, obj, Vector3::UP);
+
+            // construct frustum bound
+            auto frustum = go->addComponent<FrustumBound>();
+            T3D_ASSERT(frustum != nullptr);
+
+            String scenePath = assetsPath + Dir::getNativeSeparator() + "Scenes";
+            if (!Dir::makeDir(scenePath))
+            {
+                EDITOR_LOG_ERROR("Failed to create scene directory [%s]", scenePath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(scenePath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s]", scenePath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            String filename = scene->getName() + "." + Resource::EXT_SCENE;
+            ret = T3D_SCENE_MGR.saveScene(archive, filename, scene);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to save scene [%s]", scenePath.c_str());
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ProjectManager::createProject(const String &path, const String &name)
     {
         TResult ret = T3D_OK;
@@ -173,6 +254,14 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Failed to compile shaders !");
+                break;
+            }
+
+            // 创建简单的场景
+            ret = createSimpleScene(assetsPath);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create simple scene !");
                 break;
             }
             
@@ -264,6 +353,11 @@ namespace Tiny3D
 
     TResult ProjectManager::closeProject()
     {
+        ScenePtr scene = EDITOR_SCENE.getRuntimeScene();
+        T3D_SCENE_MGR.unloadScene(scene);
+        
+        EDITOR_SCENE.setRuntimeScene(nullptr);
+        
         mPath.clear();
         mName.clear();
         mAssetsPath.clear();
