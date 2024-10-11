@@ -165,17 +165,17 @@ namespace Tiny3D
             if (exists)
             {
                 // 存在 meta 文件，直接读取
-                FileDataStream fs;
-                if (fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
-                {
-                    meta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
-                    fs.close();
-                }
-                else
-                {
-                    MFS_LOG_ERROR("Failed to open file %s for reading !", metaPath.c_str());
-                    break;
-                }
+                // FileDataStream fs;
+                // if (fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                // {
+                //     meta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
+                //     fs.close();
+                // }
+                // else
+                // {
+                //     MFS_LOG_ERROR("Failed to open file %s for reading !", metaPath.c_str());
+                //     break;
+                // }
             }
             else
             {
@@ -357,17 +357,31 @@ namespace Tiny3D
 
     void MetaFSMonitor::onFileAdded(const String &path)
     {
+        MetaPtr meta;
         String dir, title, ext;
         Dir::parsePath(path, dir, title, ext);
-        String metaPath = dir + Dir::getNativeSeparator() + title + ".meta";
-        MetaPtr meta = generateFileMeta(path, metaPath, ext);
-        if (meta != nullptr)
+        
+        if (path == mRootPath)
         {
-            addPathLUT(path, meta);
+            int a = 0;
+        }
+        else if (std::filesystem::is_directory(path))
+        {
+            generateFolderMeta(path);
         }
         else
         {
-            MFS_LOG_ERROR("Failed to add new file %s corresponding meta file !", path.c_str());
+            // 文件
+            String metaPath = path + ".meta";
+            meta = generateFileMeta(path, metaPath, ext);
+            if (meta != nullptr)
+            {
+                addPathLUT(path, meta);
+            }
+            else
+            {
+                MFS_LOG_ERROR("Failed to add new file %s corresponding meta file !", path.c_str());
+            }
         }
     }
 

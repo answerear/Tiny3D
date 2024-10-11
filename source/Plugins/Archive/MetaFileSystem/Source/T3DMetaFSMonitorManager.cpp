@@ -73,6 +73,13 @@ namespace Tiny3D
                 }
 
                 mPathMonitors.emplace(path, monitor);
+
+                if (T3D_FAILED(monitor->start()))
+                {
+                    MFS_LOG_ERROR("Failed to start monitor %s.", path.c_str());
+                    mPathMonitors.erase(path);
+                    break;
+                }
             }
         } while (false);
         
