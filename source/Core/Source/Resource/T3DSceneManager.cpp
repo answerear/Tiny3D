@@ -102,6 +102,18 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult SceneManager::saveScene(Archive *archive, const String &filename, Scene *scene)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->saveScene(archive, filename, scene);
+        }
+
+        return T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult SceneManager::unloadScene()
     {
         if (mImpl != nullptr)
@@ -177,6 +189,13 @@ namespace  Tiny3D
     TResult BuiltinSceneManager::saveScene(Archive *archive, Scene *scene)
     {
         return save(archive, scene);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinSceneManager::saveScene(Archive *archive, const String &filename, Scene *scene)
+    {
+        return save(archive, filename, scene);
     }
 
     //--------------------------------------------------------------------------
