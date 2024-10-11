@@ -41,14 +41,14 @@ namespace Tiny3D
 
     ProjectManager::ProjectManager()
     {
-        mFSMonitor = new FileSystemMonitor();
+        // mFSMonitor = new FileSystemMonitor();
     }
     
     //--------------------------------------------------------------------------
 
     ProjectManager::~ProjectManager()
     {
-        T3D_SAFE_DELETE(mFSMonitor);
+        // T3D_SAFE_DELETE(mFSMonitor);
     }
 
     //--------------------------------------------------------------------------
@@ -224,7 +224,7 @@ namespace Tiny3D
             }
 
             // Assets 档案系统
-            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTruncate);
             if (mAssetsArchive == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load assets fs archive [%s]", assetsPath.c_str());
@@ -353,9 +353,7 @@ namespace Tiny3D
 
     TResult ProjectManager::closeProject()
     {
-        ScenePtr scene = EDITOR_SCENE.getRuntimeScene();
-        T3D_SCENE_MGR.unloadScene(scene);
-        
+        T3D_SCENE_MGR.unloadScene();
         EDITOR_SCENE.setRuntimeScene(nullptr);
         
         mPath.clear();

@@ -414,7 +414,7 @@ namespace Tiny3D
         {
             mNetworkMgr->shutdown();
         }
-        
+
         mTextureMgr->unloadAllTextures();
 
         T3D_SAFE_DELETE(mTextureMgr);
