@@ -24,11 +24,9 @@
 
 
 #include "Adapter/Windows/T3DWin32FSMonitor.h"
-
 #include "T3DDir.h"
 #include "T3DPlatformErrorDef.h"
 #include "Locale/T3DLocale.h"
-#include "IO/T3DDir.h"
 
 
 namespace Tiny3D
@@ -44,7 +42,7 @@ namespace Tiny3D
 
     Win32FSMonitor::~Win32FSMonitor()
     {
-        cleanup();
+        close();
     }
 
     //--------------------------------------------------------------------------
@@ -112,16 +110,19 @@ namespace Tiny3D
                 break;
             }
 
-            if (GetOverlappedResult(mDirHandle, &mOverlapped, &bytesReturned, TRUE))
+            if (!GetOverlappedResult(mDirHandle, &mOverlapped, &bytesReturned, FALSE))
             {
-                DWORD offset = 0;
-                FILE_NOTIFY_INFORMATION *info = nullptr;
+                break;
+            }
 
+            {
                 char *p = buffer;
-                while (p < (char*)buffer + bytesReturned)
+                FILE_NOTIFY_INFORMATION *info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
+                
+                do
                 {
                     info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
-                    offset += info->NextEntryOffset;
+                    p += info->NextEntryOffset;
                     WString wstrFilename(info->FileName, info->FileNameLength / sizeof(wchar_t));
                     String path = mPath + Dir::getNativeSeparator() + T3D_LOCALE.UnicodeToUTF8(wstrFilename);
 
@@ -188,25 +189,30 @@ namespace Tiny3D
                             mOnChanged(path, action);
                         }
                     }
-
-                    if (info->NextEntryOffset == 0)
-                    {
-                        break;
-                    }
-                    
-                    p += info->NextEntryOffset;
-                }
+                } while (p < buffer + bytesReturned && info->NextEntryOffset != 0);
             }
-
         } while (false);
         
         return ret;
     }
 
-    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------s
 
     void Win32FSMonitor::cleanup()
     {
+        close();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Win32FSMonitor::close()
+    {
+        if (mOverlapped.hEvent != nullptr)
+        {
+            ::CloseHandle(mOverlapped.hEvent);
+            mOverlapped.hEvent = nullptr;
+        }
+        
         if (mDirHandle != nullptr)
         {
             ::CloseHandle(mDirHandle);

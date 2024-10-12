@@ -42,9 +42,12 @@ namespace Tiny3D
         TResult init(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) override;
         
         TResult monitor() override;
-
+        
         void cleanup() override;
 
+    protected:
+        void close();
+        
     protected:
         HANDLE mDirHandle {nullptr};
         OVERLAPPED mOverlapped {};
