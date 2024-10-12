@@ -22,25 +22,22 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
 
-
-#include "DockingWindow.h"
+#include "UIConsoleWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class HierarchyWindow : public DockingWindow
-    {
-    public:
-        HierarchyWindow() = default;
-        ~HierarchyWindow() override = default;
+    //--------------------------------------------------------------------------
 
-    protected:
-        void onGUI() override;
-    };
+    void UIConsoleWindow::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
 
     NS_END
 }

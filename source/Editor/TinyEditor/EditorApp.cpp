@@ -24,12 +24,12 @@
 
 #include "EditorApp.h"
 #include "ImGuiImpl.h"
-#include "MainWindow.h"
+#include "UIMainWindow.h"
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
 #include "NetworkManager.h"
 #include "EditorScene.h"
-#include "EditorWidgetID.h"
+#include "UIEditorWidgetID.h"
 #include "EditorEventDefine.h"
 #include "TestScene.h"
 
@@ -244,7 +244,7 @@ namespace Tiny3D
             // mTestScene->build(scene);
 
             // 主窗口
-            mMainWindow = new MainWindow();
+            mMainWindow = new UIMainWindow();
             ret = mMainWindow->create(ID_MAIN_WINDOW, "Main Window", nullptr);
             if (T3D_FAILED(ret))
             {

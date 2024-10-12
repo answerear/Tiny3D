@@ -23,9 +23,9 @@
  ******************************************************************************/
 
 
-#include "GameWindow.h"
+#include "UIGameWindow.h"
 #include "EditorScene.h"
-#include "EditorWidgetID.h"
+#include "UIEditorWidgetID.h"
 #include "ImErrors.h"
 
 
@@ -35,7 +35,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void GameView::onGUI()
+    void UIGameView::onGUI()
     {
         auto region = ImGui::GetContentRegionAvail();
         EDITOR_SCENE.refreshGameRenderTarget(region);
@@ -100,14 +100,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ImGuiWindowFlags GameWindow::flags() const
+    ImGuiWindowFlags UIGameWindow::flags() const
     {
         return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
     }
 
     //--------------------------------------------------------------------------
     
-    TResult GameWindow::createToolBar()
+    TResult UIGameWindow::createToolBar()
     {
         TResult ret = T3D_OK;
 
@@ -151,13 +151,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GameWindow::createGameView()
+    TResult UIGameWindow::createGameView()
     {
         TResult ret = T3D_OK;
 
         do
         {
-            mGameView = new GameView();
+            mGameView = new UIGameView();
             ret = mGameView->create(ID_GAME_VIEW, "GameView", nullptr);
             if (T3D_FAILED(ret))
             {
@@ -171,7 +171,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GameWindow::onCreate()
+    TResult UIGameWindow::onCreate()
     {
         TResult ret = ImWidget::onCreate();
 
@@ -221,7 +221,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void GameWindow::onGUI()
+    void UIGameWindow::onGUI()
     {
         
     }

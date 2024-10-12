@@ -32,14 +32,14 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class HierarchyWindow;
-    class GameWindow;
-    class SceneWindow;
-    class InspectorWindow;
-    class ProjectWindow;
-    class ConsoleWindow;
+    class UIHierarchyWindow;
+    class UIGameWindow;
+    class UISceneWindow;
+    class UIInspectorWindow;
+    class UIProjectWindow;
+    class UIConsoleWindow;
     
-    class MainWindow : public ImWindow
+    class UIMainWindow : public ImWindow
     {
     public:
 
@@ -62,12 +62,12 @@ namespace Tiny3D
     protected:
         ImMenuBar   *mMenuBar {nullptr};
 
-        HierarchyWindow *mHierarchyWnd {nullptr};
-        GameWindow *mGameWnd {nullptr};
-        SceneWindow *mSceneWnd {nullptr};
-        InspectorWindow *mInspectorWnd {nullptr};
-        ProjectWindow *mProjectWnd {nullptr};
-        ConsoleWindow *mConsoleWnd {nullptr};
+        UIHierarchyWindow *mHierarchyWnd {nullptr};
+        UIGameWindow *mGameWnd {nullptr};
+        UISceneWindow *mSceneWnd {nullptr};
+        UIInspectorWindow *mInspectorWnd {nullptr};
+        UIProjectWindow *mProjectWnd {nullptr};
+        UIConsoleWindow *mConsoleWnd {nullptr};
     };
 
     NS_END

@@ -33,7 +33,7 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
     
-    class MainWindow;
+    class UIMainWindow;
     class ProjectManager;
     class NetworkManager;
     class EditorScene;
@@ -113,7 +113,7 @@ namespace Tiny3D
         StartOptions mOptions {};
 
         ImTextureManager    *mTextureMgr {nullptr};
-        MainWindow          *mMainWindow {nullptr};
+        UIMainWindow          *mMainWindow {nullptr};
 
         String mIniPath {};
 

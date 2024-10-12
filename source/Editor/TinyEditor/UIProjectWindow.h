@@ -25,14 +25,14 @@
 #pragma once
 
 
-#include "DockingWindow.h"
+#include "UIDockingWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class AssetHierarchyView
+    class UIAssetHierarchyView
         : public ImChildView
         , public EventHandler
     {
@@ -52,7 +52,7 @@ namespace Tiny3D
         ImContextMenu *mContextMenu {nullptr};
     };
 
-    class AssetThumbView : public ImChildView 
+    class UIAssetThumbView : public ImChildView 
     {
     public:
         TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
@@ -67,12 +67,12 @@ namespace Tiny3D
         ImGuiChildFlags onGetChildFlags() override;
     };
 
-    class AssetPathBar
+    class UIAssetPathBar
         : public ImChildView
         , public EventHandler
     {
     public:        
-        ~AssetPathBar() override = default;
+        ~UIAssetPathBar() override = default;
 
         TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
         
@@ -95,23 +95,23 @@ namespace Tiny3D
         ImTreeBar   *mTreeBar {nullptr};
     };
     
-    class AssetDetailView : public ImChildView
+    class UIAssetDetailView : public ImChildView
     {
     protected:
         TResult onCreate() override;
     };
 
-    class AssetStatusBar : public ImChildView
+    class UIAssetStatusBar : public ImChildView
     {
     protected:
         ImGuiChildFlags onGetChildFlags() override;
     };
 
-    class ProjectWindow : public DockingWindow
+    class UIProjectWindow : public UIDockingWindow
     {
     public:
-        ProjectWindow() = default;
-        ~ProjectWindow() override = default;
+        UIProjectWindow() = default;
+        ~UIProjectWindow() override = default;
 
     protected:
         TResult onCreate() override;

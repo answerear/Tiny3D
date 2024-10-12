@@ -25,23 +25,21 @@
 #pragma once
 
 
-#include "EditorPrerequisites.h"
+#include "UIDockingWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class DockingWindow : public ImWindow
+    class UIHierarchyWindow : public UIDockingWindow
     {
     public:
-        DockingWindow() = default;
-        ~DockingWindow() override = default;
+        UIHierarchyWindow() = default;
+        ~UIHierarchyWindow() override = default;
 
     protected:
-        bool onGUIBegin() override;
-
-        virtual ImGuiWindowFlags flags() const { return ImGuiWindowFlags_NoCollapse; }
+        void onGUI() override;
     };
 
     NS_END

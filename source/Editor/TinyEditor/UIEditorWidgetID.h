@@ -32,7 +32,7 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
     
-    enum EditorWidgetID
+    enum UIEditorWidgetID
     {
         ID_MAIN_WINDOW = 1,
 

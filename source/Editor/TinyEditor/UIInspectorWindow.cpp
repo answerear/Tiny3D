@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 
-#include "InspectorWindow.h"
+#include "UIInspectorWindow.h"
 
 
 namespace Tiny3D
@@ -32,7 +32,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void InspectorWindow::onGUI()
+    void UIInspectorWindow::onGUI()
     {
         
     }

@@ -23,17 +23,17 @@
  ******************************************************************************/
 
 
-#include "MainWindow.h"
-#include "ConsoleWindow.h"
-#include "HierarchyWindow.h"
-#include "GameWindow.h"
-#include "SceneWindow.h"
+#include "UIMainWindow.h"
+#include "UIConsoleWindow.h"
+#include "UIHierarchyWindow.h"
+#include "UIGameWindow.h"
+#include "UISceneWindow.h"
 #include "ImErrors.h"
-#include "InspectorWindow.h"
-#include "ProjectWindow.h"
+#include "UIInspectorWindow.h"
+#include "UIProjectWindow.h"
 #include "EditorApp.h"
 #include "EditorEventDefine.h"
-#include "EditorWidgetID.h"
+#include "UIEditorWidgetID.h"
 
 
 namespace Tiny3D
@@ -42,7 +42,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::onCreate()
+    TResult UIMainWindow::onCreate()
     {
         TResult ret;
 
@@ -55,7 +55,7 @@ namespace Tiny3D
                 break;
             }
 
-            mHierarchyWnd = new HierarchyWindow();
+            mHierarchyWnd = new UIHierarchyWindow();
             ret = mHierarchyWnd->create(ID_HIERARCHY_WINDOW, "Hierarchy", this);
             if (T3D_FAILED(ret))
             {
@@ -63,7 +63,7 @@ namespace Tiny3D
                 break;
             }
 
-            mGameWnd = new GameWindow();
+            mGameWnd = new UIGameWindow();
             ret = mGameWnd->create(ID_GAME_WINDOW, "Game", this);
             if (T3D_FAILED(ret))
             {
@@ -71,7 +71,7 @@ namespace Tiny3D
                 break;
             }
 
-            mSceneWnd = new SceneWindow();
+            mSceneWnd = new UISceneWindow();
             ret = mSceneWnd->create(ID_SCENE_WINDOW, "Scene", this);
             if (T3D_FAILED(ret))
             {
@@ -79,7 +79,7 @@ namespace Tiny3D
                 break;
             }
 
-            mInspectorWnd = new InspectorWindow();
+            mInspectorWnd = new UIInspectorWindow();
             ret = mInspectorWnd->create(ID_INSPECTOR_WINDOW, "Inspector", this);
             if (T3D_FAILED(ret))
             {
@@ -87,7 +87,7 @@ namespace Tiny3D
                 break;
             }
 
-            mProjectWnd = new ProjectWindow();
+            mProjectWnd = new UIProjectWindow();
             ret = mProjectWnd->create(ID_PROJECT_WINDOW, "Project", this);
             if (T3D_FAILED(ret))
             {
@@ -95,7 +95,7 @@ namespace Tiny3D
                 break;
             }
 
-            mConsoleWnd = new ConsoleWindow();
+            mConsoleWnd = new UIConsoleWindow();
             ret = mConsoleWnd->create(ID_CONSOLE_WINDOW, "Console", this);
             if (T3D_FAILED(ret))
             {
@@ -109,7 +109,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool MainWindow::onGUIBegin()
+    bool UIMainWindow::onGUIBegin()
     {
         checkFocused();
         
@@ -142,7 +142,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void MainWindow::onGUIEnd()
+    void UIMainWindow::onGUIEnd()
     {
         // ImGui::Image(mSceneRT, ImVec2(640, 480));
 
@@ -202,7 +202,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = IM_OK;
         
@@ -257,7 +257,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
 
@@ -396,7 +396,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildAssetsMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildAssetsMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
 
@@ -632,7 +632,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildGameObjectMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildGameObjectMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
 
@@ -715,7 +715,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildComponentMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildComponentMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
 
@@ -800,7 +800,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         auto queryCheck = [](ImWidget *widget)
         {
@@ -941,7 +941,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildHelpMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
+    TResult UIMainWindow::buildHelpMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault)
     {
         TResult ret = T3D_OK;
 
@@ -966,7 +966,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MainWindow::buildMenu()
+    TResult UIMainWindow::buildMenu()
     {
         mMenuBar = new ImMenuBar();
         mMenuBar->create(ID_MAIN_MENU, "Main Menu", this);

@@ -22,22 +22,25 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#pragma once
 
-#include "ConsoleWindow.h"
+
+#include "UIDockingWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    //--------------------------------------------------------------------------
-
-    void ConsoleWindow::onGUI()
+    class UIInspectorWindow : public UIDockingWindow
     {
-        
-    }
+    public:
+        UIInspectorWindow() = default;
+        ~UIInspectorWindow() override = default;
 
-    //--------------------------------------------------------------------------
+    protected:
+        void onGUI() override;
+    };
 
     NS_END
 }

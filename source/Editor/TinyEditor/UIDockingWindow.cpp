@@ -22,25 +22,30 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
 
-
-#include "DockingWindow.h"
+#include "UIDockingWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class ConsoleWindow : public DockingWindow
-    {
-    public:
-        ConsoleWindow() = default;
-        ~ConsoleWindow() override = default;
+    //--------------------------------------------------------------------------
 
-    protected:
-        void onGUI() override;
-    };
+    bool UIDockingWindow::onGUIBegin()
+    {
+        PushWidgetID();
+        if (!ImGui::Begin(getName().c_str(), &mVisible, flags()))
+        {
+            ImGui::End();
+            PopWidgetID();
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
 
     NS_END
 }

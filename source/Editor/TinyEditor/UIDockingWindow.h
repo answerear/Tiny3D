@@ -25,44 +25,24 @@
 #pragma once
 
 
-#include "DockingWindow.h"
+#include "EditorPrerequisites.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class ToolBar;
-
-    class GameView : public ImChildView
+    class UIDockingWindow : public ImWindow
     {
     public:
+        UIDockingWindow() = default;
+        ~UIDockingWindow() override = default;
 
     protected:
-        void onGUI() override;
+        bool onGUIBegin() override;
+
+        virtual ImGuiWindowFlags flags() const { return ImGuiWindowFlags_NoCollapse; }
     };
-    
-    class GameWindow : public DockingWindow
-    {
-    public:
-        GameWindow() = default;
-        ~GameWindow() override = default;
 
-    protected:
-        ImGuiWindowFlags flags() const override;
-
-        TResult onCreate() override;
-        
-        void onGUI() override;
-
-        TResult createToolBar();
-
-        TResult createGameView();
-
-    protected:
-        ImToolBar   *mToolBar {nullptr};
-        GameView    *mGameView {nullptr};
-    };
-    
     NS_END
 }

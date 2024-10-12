@@ -22,23 +22,47 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#pragma once
 
-#include "DockingWindow.h"
+
+#include "UIDockingWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class SceneWindow : public DockingWindow
+    class ToolBar;
+
+    class UIGameView : public ImChildView
     {
     public:
-        SceneWindow() = default;
-        ~SceneWindow() override = default;
 
     protected:
         void onGUI() override;
     };
+    
+    class UIGameWindow : public UIDockingWindow
+    {
+    public:
+        UIGameWindow() = default;
+        ~UIGameWindow() override = default;
 
+    protected:
+        ImGuiWindowFlags flags() const override;
+
+        TResult onCreate() override;
+        
+        void onGUI() override;
+
+        TResult createToolBar();
+
+        TResult createGameView();
+
+    protected:
+        ImToolBar   *mToolBar {nullptr};
+        UIGameView    *mGameView {nullptr};
+    };
+    
     NS_END
 }

@@ -36,6 +36,9 @@ namespace Tiny3D
     {
         kEvtHierarchyNodeClicked = kEvtApp,
 
+        /// 刷新工程文件窗口
+        kEvtRefreshProjectWindow,
+        
         kEvtMax
     };
 

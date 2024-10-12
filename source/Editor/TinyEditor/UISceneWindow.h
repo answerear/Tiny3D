@@ -23,29 +23,24 @@
  ******************************************************************************/
 
 
-#include "DockingWindow.h"
+#pragma  once
+
+#include "UIDockingWindow.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    //--------------------------------------------------------------------------
-
-    bool DockingWindow::onGUIBegin()
+    class UISceneWindow : public UIDockingWindow
     {
-        PushWidgetID();
-        if (!ImGui::Begin(getName().c_str(), &mVisible, flags()))
-        {
-            ImGui::End();
-            PopWidgetID();
-            return false;
-        }
+    public:
+        UISceneWindow() = default;
+        ~UISceneWindow() override = default;
 
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
+    protected:
+        void onGUI() override;
+    };
 
     NS_END
 }
