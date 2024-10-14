@@ -101,7 +101,7 @@ namespace Tiny3D
             while (node != nullptr)
             {
                 TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
-                child->visitActive(action, std::forward<Args>(args)...);
+                child->reverseVisitActive(action, std::forward<Args>(args)...);
                 node = node->getPrevSibling();
             }
 
@@ -121,7 +121,7 @@ namespace Tiny3D
             while (node != nullptr)
             {
                 TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
-                child->visitVisible(action, std::forward<Args>(args)...);
+                child->reverseVisitVisible(action, std::forward<Args>(args)...);
                 node = node->getPrevSibling();
             }
 
@@ -139,7 +139,7 @@ namespace Tiny3D
         while (node != nullptr)
         {
             TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
-            child->visitAll(action, std::forward<Args>(args)...);
+            child->reverseVisitAll(action, std::forward<Args>(args)...);
             node = node->getPrevSibling();
         }
 
