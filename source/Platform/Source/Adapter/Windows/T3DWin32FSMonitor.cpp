@@ -27,6 +27,7 @@
 #include "T3DDir.h"
 #include "T3DPlatformErrorDef.h"
 #include "Locale/T3DLocale.h"
+#include "Thread/T3DRunnableThread.h"
 
 
 namespace Tiny3D
@@ -35,30 +36,26 @@ namespace Tiny3D
 
     Win32FSMonitor::Win32FSMonitor()
     {
-        
+        mChangedQMutex = new Mutex();
     }
 
     //--------------------------------------------------------------------------
 
     Win32FSMonitor::~Win32FSMonitor()
     {
+        T3D_SAFE_DELETE(mChangedQMutex);
         close();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Win32FSMonitor::init(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged)
+    bool Win32FSMonitor::init()
     {
-        TResult ret = T3D_OK;
+        bool ret = true;
 
         do
         {
-            mPath = path;
-            mExcludeExts = excludeExts;
-            mExcludeFolders = excludeFolders;
-            mOnChanged = onChanged;
-            
-            WString wstrPath = T3D_LOCALE.UTF8ToUnicode(path);
+            WString wstrPath = T3D_LOCALE.UTF8ToUnicode(mPath);
             mDirHandle = ::CreateFileW(
                 wstrPath.c_str(),
                 FILE_LIST_DIRECTORY,
@@ -74,12 +71,14 @@ namespace Tiny3D
                 mExcludeExts.clear();
                 mExcludeFolders.clear();
                 mOnChanged = nullptr;
-                ret = T3D_ERR_FS_MONITOR_CREATED;
+                ret = false;
                 break;
             }
 
             memset(&mOverlapped, 0, sizeof(mOverlapped));
-            mOverlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+            mOverlapped.hEvent = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
+
+            mIsRunning = true;
         } while (false);
         
         return ret;
@@ -87,38 +86,67 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Win32FSMonitor::monitor()
+    TResult Win32FSMonitor::startWatching(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            const DWORD buffer_size = 1024;
-            char buffer[buffer_size] = {0};
-            DWORD bytesReturned = 0;
+            mPath = path;
+            mExcludeExts = excludeExts;
+            mExcludeFolders = excludeFolders;
+            mOnChanged = onChanged;
+            
+            mThread = new RunnableThread();
+            T3D_ASSERT(mThread);
+            ret = mThread->start(this, "FileSystemMonitorThread");
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Win32FSMonitor::run()
+    {
+        TResult ret = T3D_OK;
+
+        while (mIsRunning)
+        {
+            const DWORD dwBufferSize = 1024;
+            char buffer[dwBufferSize] = {0};
+            DWORD dwBytesReturned = 0;
 
             if (!::ReadDirectoryChangesW(
                 mDirHandle,
                 buffer,
-                buffer_size,
+                dwBufferSize,
                 TRUE,
                 FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME/* | FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION*/,
-                &bytesReturned,
+                &dwBytesReturned,
                 &mOverlapped,
                 nullptr))
             {
                 break;
             }
 
-            if (!GetOverlappedResult(mDirHandle, &mOverlapped, &bytesReturned, FALSE))
+            if (!GetOverlappedResult(mDirHandle, &mOverlapped, &dwBytesReturned, TRUE))
             {
-                break;
+                if (::GetLastError() == ERROR_OPERATION_ABORTED && !mIsRunning)
+                {
+                    break;
+                }
+                else
+                {
+                    break;
+                }
             }
 
+            char *p = buffer;
+            FILE_NOTIFY_INFORMATION *info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
+
+            if (p < (char *)buffer + dwBytesReturned)
             {
-                char *p = buffer;
-                FILE_NOTIFY_INFORMATION *info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
-                
                 do
                 {
                     info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
@@ -186,19 +214,55 @@ namespace Tiny3D
 
                         if (action != FSMonitorAction::kNone)
                         {
-                            mOnChanged(path, action);
+                            ScopeLock lock(mChangedQMutex);
+                            mChangedItemsQ.emplace_back(action, path);
                         }
                     }
-                } while (p < buffer + bytesReturned && info->NextEntryOffset != 0);
+                } while (p < buffer + dwBytesReturned && info->NextEntryOffset != 0);
             }
-        } while (false);
+        }
         
         return ret;
     }
 
-    //--------------------------------------------------------------------------s
+    //--------------------------------------------------------------------------
 
-    void Win32FSMonitor::cleanup()
+    TResult Win32FSMonitor::stopWatching()
+    {
+        TResult ret = T3D_OK;
+
+        stop();
+        
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult Win32FSMonitor::poll()
+    {
+        ScopeLock lock(mChangedQMutex);
+        while (!mChangedItemsQ.empty())
+        {
+            auto &item = mChangedItemsQ.front();
+            mOnChanged(item.filePath, item.action);
+            mChangedItemsQ.pop_front();
+        }
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Win32FSMonitor::stop()
+    {
+        mIsRunning = false;
+        ::CancelIoEx(mDirHandle, &mOverlapped);
+        mThread->wait();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Win32FSMonitor::exit()
     {
         close();
     }

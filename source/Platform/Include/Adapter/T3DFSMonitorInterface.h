@@ -32,6 +32,19 @@
 
 namespace Tiny3D
 {
+    struct FSChangedItem
+    {
+        FSChangedItem(FSMonitorAction act, const String &path)
+            : action (act)
+            , filePath(path)
+        {}
+            
+        FSMonitorAction action {FSMonitorAction::kAdded};
+        String filePath {};
+    };
+    
+    using ChangedItemQueue = TList<FSChangedItem>;
+    
     class T3D_PLATFORM_API IFSMonitor
     {
         T3D_DECLARE_INTERFACE(IFSMonitor);
@@ -45,17 +58,23 @@ namespace Tiny3D
          * @param [in] onChanged : 发生变化的回调
          * @return 调用成功返回 T3D_OK
          */
-        virtual TResult init(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) = 0;
+        virtual TResult startWatching(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) = 0;
         
         /**
-         * 监控文件系统变化
+         * 轮询监控文件系统变化
          */
-        virtual TResult monitor() = 0;
+        virtual TResult poll() = 0;
 
         /**
-         * 监控结束，清理操作
+         * 停止监控
          */
-        virtual void cleanup() = 0;
+        virtual TResult stopWatching() = 0;
+
+        /**
+         * 获取监控的根路径
+         * @return 返回监控的根路径
+         */
+        virtual const String &getPath() const = 0;
     };
 }
 

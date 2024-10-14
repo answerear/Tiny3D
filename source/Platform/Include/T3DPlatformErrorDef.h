@@ -83,6 +83,8 @@ namespace Tiny3D
         T3D_ERR_SOCKET_NO_SENDBUF,
         /// File System Monitor 创建失败
         T3D_ERR_FS_MONITOR_CREATED,
+        /// File System 监控被中断
+        T3D_ERR_FS_WATCHDOG_OPERATION_ARBORT,
     };
 };
 

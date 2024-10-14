@@ -37,9 +37,7 @@ namespace Tiny3D
     class IFSMonitor;
     class Mutex;
     
-    class T3D_PLATFORM_API FileSystemMonitor
-        : public Noncopyable
-        , public Runnable
+    class T3D_PLATFORM_API FileSystemMonitor : public Noncopyable
     {
     public:
         FileSystemMonitor();
@@ -55,50 +53,13 @@ namespace Tiny3D
         static void poll();
 
     protected:
-        bool init() override;
-        
-        TResult run() override;
-
-        void exit() override;
-
-        void stop() override;
-
-    protected:
-        struct ChangedItem
-        {
-            ChangedItem(FSMonitorAction act, const String &path)
-                : action (act)
-                , filePath(path)
-            {}
-            
-            FSMonitorAction action {FSMonitorAction::kAdded};
-            String filePath {};
-        };
-        
         using Monitors = TMap<String, FileSystemMonitor*>;
-        using ChangedItemQueue = TList<ChangedItem>;
         
         /// 所有监控器
         static Monitors msMonitors;
 
         /// 具体实现的 FileSystemMonitor
         IFSMonitor *mMonitor {nullptr};
-        /// 监控线程
-        RunnableThread *mThread {nullptr};
-        /// 用于异步线程在主线程回调
-        ChangedItemQueue mChangedItemsQ {};
-        /// 回调队列互斥量
-        Mutex *mChangedQMutex {};
-        /// 要监控的路径
-        String mPath {};
-        /// 排除监控的文件扩展名列表
-        FSMonitorExts mExcludeExts {};
-        /// 排除监控文件夹列表
-        FSMonitorExcludes mExcludeFolders {};
-        /// 变化回调
-        FSMonitorOnChanged mOnChanged {nullptr};
-        /// 是否在运行
-        bool mIsRunning {false};
     };
 }
 

@@ -24,6 +24,9 @@
 
 
 #include "IO/T3DFileSystemMonitor.h"
+
+#include <filesystem>
+
 #include "T3DPlatformErrorDef.h"
 #include "Adapter/T3DFSMonitorInterface.h"
 #include "T3DPlatform.h"
@@ -43,7 +46,6 @@ namespace Tiny3D
     FileSystemMonitor::FileSystemMonitor()
     {
         mMonitor = T3D_PLATFORM_FACTORY.createFileSystemMonitor();
-        mChangedQMutex = new Mutex();
     }
 
     //--------------------------------------------------------------------------
@@ -51,25 +53,22 @@ namespace Tiny3D
     FileSystemMonitor::~FileSystemMonitor()
     {
         stopMonitor();
-        T3D_SAFE_DELETE(mChangedQMutex);
-        T3D_SAFE_DELETE(mMonitor);
+        T3D_SAFE_DELETE(mMonitor)
     }
 
     //--------------------------------------------------------------------------
 
     TResult FileSystemMonitor::startMonitor(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged)
     {
-        mPath = path;
-        mExcludeExts = excludeExts;
-        mExcludeFolders = excludeFolders;
-        mOnChanged = onChanged;
-
-        mThread = new RunnableThread();
-        T3D_ASSERT(mThread);
-        TResult ret = mThread->start(this, "FileSystemMonitorThread");
-        if (T3D_SUCCEEDED(ret))
+        TResult ret = T3D_ERR_NOT_IMPLEMENT;
+        
+        if (mMonitor != nullptr)
         {
-            msMonitors.emplace(mPath, this);
+            ret = mMonitor->startWatching(path, excludeExts, excludeExts, onChanged);
+            if (T3D_SUCCEEDED(ret))
+            {
+                msMonitors.emplace(path, this);
+            }
         }
 
         return ret;
@@ -79,47 +78,15 @@ namespace Tiny3D
 
     TResult FileSystemMonitor::stopMonitor()
     {
-        if (mIsRunning)
+        TResult ret = T3D_ERR_NOT_IMPLEMENT;
+        
+        if (mMonitor != nullptr)
         {
-            stop();
-            mThread->wait();
-            T3D_SAFE_DELETE(mThread);
-
-            msMonitors.erase(mPath);
-        }
-
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool FileSystemMonitor::init()
-    {
-        TResult ret = mMonitor->init(mPath, mExcludeExts, mExcludeFolders,
-            [this](const String &path, FSMonitorAction action)
+            ret = mMonitor->stopWatching();
+            if (T3D_SUCCEEDED(ret))
             {
-                ScopeLock lock(mChangedQMutex);
-                mChangedItemsQ.emplace_back(action, path);
-            });
-        mIsRunning = T3D_SUCCEEDED(ret);
-        return mIsRunning;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult FileSystemMonitor::run()
-    {
-        TResult ret = T3D_OK;
-
-        while (mIsRunning)
-        {
-            ret = mMonitor->monitor();
-            if (T3D_FAILED(ret))
-            {
-                break;
+                msMonitors.erase(mMonitor->getPath());
             }
-
-            RunnableThread::sleep(1000);
         }
 
         return ret;
@@ -127,33 +94,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void FileSystemMonitor::exit()
-    {
-        mMonitor->cleanup();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void FileSystemMonitor::stop()
-    {
-        mIsRunning = false;
-    }
-
-    //--------------------------------------------------------------------------
-
     void FileSystemMonitor::update()
     {
-        ScopeLock lock(mChangedQMutex);
-        while (!mChangedItemsQ.empty())
+        if (mMonitor != nullptr)
         {
-            auto &item = mChangedItemsQ.front();
-            mOnChanged(item.filePath, item.action);
-            mChangedItemsQ.pop_front();
+            mMonitor->poll();
         }
     }
 
     //--------------------------------------------------------------------------
-
+    
     void FileSystemMonitor::poll()
     {
         for (auto item : msMonitors)

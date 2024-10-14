@@ -28,32 +28,60 @@
 
 #include "Adapter/T3DFSMonitorInterface.h"
 #include <windows.h>
-
+#include "T3DRunnable.h"
+#include "T3DSyncObject.h"
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Win32FSMonitor : public IFSMonitor
+    class Win32FSMonitor
+        : public IFSMonitor
+        , public Runnable
     {
     public:
         Win32FSMonitor();
 
         ~Win32FSMonitor() override;
 
-        TResult init(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) override;
+        TResult startWatching(const String &path, const FSMonitorExts &excludeExts, const FSMonitorExcludes &excludeFolders, const FSMonitorOnChanged &onChanged) override;
         
-        TResult monitor() override;
-        
-        void cleanup() override;
+        TResult poll() override;
+
+        TResult stopWatching() override;
+
+        const String &getPath() const override { return mPath;}
 
     protected:
         void close();
+
+        bool init() override;
+
+        TResult run() override;
+
+        void stop() override;
+
+        void exit() override;
         
     protected:
         HANDLE mDirHandle {nullptr};
+        HANDLE mStopEvent {nullptr};
         OVERLAPPED mOverlapped {};
+        
+        /// 线程是否在运行
+        bool mIsRunning {false};
+        /// 监控线程
+        RunnableThread *mThread {nullptr};
+        /// 用于异步线程在主线程回调
+        ChangedItemQueue mChangedItemsQ {};
+        /// 回调队列互斥量
+        Mutex *mChangedQMutex {};
+        
+        /// 要监控的路径
         String mPath {};
+        /// 排除监控的文件扩展名列表
         FSMonitorExts mExcludeExts {};
+        /// 排除监控文件夹列表
         FSMonitorExcludes mExcludeFolders {};
+        /// 变化回调
         FSMonitorOnChanged mOnChanged {nullptr};
     };
 }
