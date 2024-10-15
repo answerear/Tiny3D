@@ -931,7 +931,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
         JsonStream os(stream);
-        PrettyWriter<JsonStream> writer(os);
+        PrettyWriter writer(os);
         writer.SetIndent(' ', 2);
 
         writer.StartObject();
