@@ -48,6 +48,8 @@ namespace Tiny3D
     #define ARCHIVE_TYPE_METAFS     "MetaFileSystem"
     #define ARCHIVE_TYPE_FS         "FileSystem"
 
+    // #define TEST_SCENE_ENABLE
+    
     class EditorScene;
     
     NS_END

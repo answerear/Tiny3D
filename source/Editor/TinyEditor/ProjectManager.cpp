@@ -192,6 +192,7 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to save scene [%s]", scenePath.c_str());
                 break;
             }
+
         } while (false);
         
         return ret;
@@ -257,6 +258,7 @@ namespace Tiny3D
                 break;
             }
 
+#if !defined (TEST_SCENE_ENABLE)
             // 创建简单的场景
             ret = createSimpleScene(assetsPath);
             if (T3D_FAILED(ret))
@@ -264,6 +266,7 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to create simple scene !");
                 break;
             }
+#endif
             
             mPath = projectPath;
             mName = name;

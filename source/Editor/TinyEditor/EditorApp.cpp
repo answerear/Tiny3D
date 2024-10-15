@@ -185,8 +185,6 @@ namespace Tiny3D
             }
 
             // 编辑器场景
-            // mEditorScene = new EditorScene();
-            // mEditorScene->build();
             EditorScene *scene = smart_pointer_cast<EditorScene>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
                 [](const String &name)
                 {
@@ -240,8 +238,10 @@ namespace Tiny3D
                 }
             }
 
-            // mTestScene = new TestScene();
-            // mTestScene->build(scene);
+#if defined (TEST_SCENE_ENABLE)
+            mTestScene = new TestScene();
+            mTestScene->build(scene);
+#endif
 
             // 主窗口
             mMainWindow = new UIMainWindow();
