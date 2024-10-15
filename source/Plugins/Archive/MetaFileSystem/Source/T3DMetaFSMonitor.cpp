@@ -139,7 +139,7 @@ namespace Tiny3D
             {
                 // 不存在，生成 meta
                 String filename = dir + Dir::getNativeSeparator() + title + "." + ext;
-                meta = generateFileMeta(filename, metaPath, ext);
+                meta = generateFileMeta(metaPath, dir, title, ext);
                 if (meta == nullptr)
                 {
                     break;
@@ -199,7 +199,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    MetaPtr MetaFSMonitor::generateFileMeta(const String &path, const String &metaPath, const String &ext)
+    MetaPtr MetaFSMonitor::generateFileMeta(const String &metaPath, const String &path, const String &title, const String &ext)
     {
         MetaPtr meta;
 
@@ -212,42 +212,52 @@ namespace Tiny3D
                     || ext == Resource::EXT_PREFAB
                     || ext == Resource::EXT_SCENE)
             {
-                ResourcePtr resource;
-                FileDataStream fs;
-                if (fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
-                {
-                    resource = T3D_SERIALIZER_MGR.deserialize<Resource>(fs);
-                    fs.close();
-                }
-                else
-                {
-                    MFS_LOG_ERROR("Failed to open file %s for reading !", path.c_str());
-                    break;
-                }
+                // ResourcePtr resource;
+                // FileDataStream fs;
+                // if (fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                // {
+                //     resource = T3D_SERIALIZER_MGR.deserialize<Resource>(fs);
+                //     fs.close();
+                // }
+                // else
+                // {
+                //     MFS_LOG_ERROR("Failed to open file %s for reading !", path.c_str());
+                //     break;
+                // }
+
+                ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
+                T3D_ASSERT(archive != nullptr);
+                String filename = title + "." + ext;
 
                 if (ext == Resource::EXT_MATERIAL)
                 {
-                    meta = MetaMaterial::create(resource->getUUID());
+                    MaterialPtr material = T3D_MATERIAL_MGR.loadMaterial(archive, filename);
+                    meta = MetaMaterial::create(material->getUUID());
                 }
                 else if (ext == Resource::EXT_TEXTURE)
                 {
-                    meta = MetaTexture::create(resource->getUUID());
+                    TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(archive, filename);
+                    meta = MetaTexture::create(texture->getUUID());
                 }
                 else if (ext == Resource::EXT_SHADER)
                 {
-                    meta = MetaShader::create(resource->getUUID());
+                    ShaderPtr shader = T3D_SHADER_MGR.loadShader(archive, filename);
+                    meta = MetaShader::create(shader->getUUID());
                 }
                 else if (ext == Resource::EXT_MESH)
                 {
-                    meta = MetaMesh::create(resource->getUUID());
+                    MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, filename);
+                    meta = MetaMesh::create(mesh->getUUID());
                 }
                 else if (ext == Resource::EXT_PREFAB)
                 {
-                    meta = MetaPrefab::create(resource->getUUID());
+                    PrefabPtr prefab = T3D_PREFAB_MGR.loadPrefab(archive, filename);
+                    meta = MetaPrefab::create(prefab->getUUID());
                 }
                 else if (ext == Resource::EXT_SCENE)
                 {
-                    meta = MetaScene::create(resource->getUUID());
+                    ScenePtr scene = T3D_SCENE_MGR.loadScene(archive, filename);
+                    meta = MetaScene::create(scene->getUUID());
                 }
             }
             else if (ext == Resource::EXT_SHADERLAB)
@@ -363,7 +373,7 @@ namespace Tiny3D
         
         if (path == mRootPath)
         {
-            int a = 0;
+            // int a = 0;
         }
         else if (std::filesystem::is_directory(path))
         {
@@ -373,7 +383,7 @@ namespace Tiny3D
         {
             // 文件
             String metaPath = path + ".meta";
-            meta = generateFileMeta(path, metaPath, ext);
+            meta = generateFileMeta(metaPath, dir, title, ext);
             if (meta != nullptr)
             {
                 addPathLUT(path, meta);

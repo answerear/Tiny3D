@@ -90,7 +90,7 @@ namespace Tiny3D
 
         void generateFolderMeta(const String &path);
 
-        MetaPtr generateFileMeta(const String &path, const String &metaPath, const String &ext);
+        MetaPtr generateFileMeta(const String &metaPath, const String &path, const String &title, const String &ext);
 
         void removeFileMeta(const String &path);
 
