@@ -295,8 +295,9 @@ namespace Tiny3D
             
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed !", filename.c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load resource [%s] !", filename.c_str());
                 res = nullptr;
+                break;
             }
 
             res->setFilename(filename);

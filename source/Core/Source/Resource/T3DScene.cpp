@@ -177,16 +177,18 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
+    
     TResult Scene::onUnload()
     {
-        // removeAll();
         if (mRootGameObject != nullptr)
         {
             GameObject::destroy(mRootGameObject);
             mRootGameObject = nullptr;
             mRootTransform = nullptr;
         }
+
+        mGameObjects.clear();
+        mCameras.clear();
         
         return Resource::onUnload();
     }

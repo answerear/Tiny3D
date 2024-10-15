@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-#if defined(T3D_EDITOR)
+#if defined (T3D_EDITOR)
     using EditorSceneCreator = TFunction<ScenePtr(const String &name)>;
 #endif
     
@@ -40,7 +40,7 @@ namespace Tiny3D
     public:
         virtual ScenePtr createScene(const String &name) = 0;
 
-#if defined(T3D_EDITOR)
+#if defined (T3D_EDITOR)
         virtual ScenePtr createEditorScene(const String &name, const EditorSceneCreator &creator) = 0;
 #endif
 
@@ -64,7 +64,7 @@ namespace Tiny3D
 
         ScenePtr createScene(const String &name);
 
-#if defined(T3D_EDITOR)
+#if defined (T3D_EDITOR)
         ScenePtr createEditorScene(const String &name, const EditorSceneCreator &creator);
 #endif
 
@@ -105,7 +105,7 @@ namespace Tiny3D
 
         ScenePtr createScene(const String &name) override;
 
-#if defined(T3D_EDITOR)
+#if defined (T3D_EDITOR)
         ScenePtr createEditorScene(const String &name, const EditorSceneCreator &creator) override;
 #endif
 
