@@ -34,26 +34,20 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    T3D_DECLARE_SMART_PTR(EditorScene);
+    T3D_DECLARE_SMART_PTR(EditorSceneImpl);
     
-    class EditorScene
-        : public Singleton<EditorScene>
-        , public Scene
+    class EditorSceneImpl : public EditorScene
     {
     public:
-        static EditorScenePtr create(const String &name);
+        static EditorSceneImplPtr create(const String &name);
         
-        EditorScene(const String &name);
+        EditorSceneImpl(const String &name);
         
-        ~EditorScene() override;
+        ~EditorSceneImpl() override;
 
-        void setRuntimeScene(Scene *scene) override { mRuntimeScene = scene; }
+        GameObject *getRootGameObject() const override;
 
-        Scene *getRuntimeScene() const override { return mRuntimeScene; }
-
-        const GameObjectPtr &getRootGameObject() const override;
-
-        const Transform3DPtr &getRootTransform() const override;
+        Transform3D *getRootTransform() const override;
 
         void update() override;
 
@@ -74,12 +68,6 @@ namespace Tiny3D
         TResult removeGameObject(const UUID &uuid) override;
 
         GameObject *getGameObject(const UUID &uuid) const override;
-
-        Camera *getEditorCamera() const override;
-
-        GameObject *getEditorGameObject() const override;
-
-        Transform3D *getEditorRootTransform() const; 
 
         void build();
 
@@ -106,8 +94,6 @@ namespace Tiny3D
 #endif
         
     protected:
-        /// 编辑器场景相机
-        CameraPtr       mSceneCamera {nullptr};
         /// 编辑器场景渲染目标
         RenderTargetPtr mSceneTarget {nullptr};
         /// 编辑器场景渲染纹理，给 imgui 用
@@ -118,14 +104,12 @@ namespace Tiny3D
         ImTextureID     mGameRT {nullptr};
         /// 游戏场景根节点
         GameObjectPtr   mRoot {nullptr};
-        /// 运行时的游戏场景
-        Scene           *mRuntimeScene {nullptr};
 
         float mGameRTWidth {1920};
         float mGameRTHeight {1080};
     };
 
-    #define EDITOR_SCENE (EditorScene::getInstance())
+    #define EDITOR_SCENE (*(static_cast<EditorSceneImpl*>(EditorScene::getInstancePtr())))
 
     NS_END
 }

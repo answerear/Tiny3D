@@ -47,6 +47,12 @@ namespace Tiny3D
 
         static void destroyGameObjects();
 
+// #if defined (T3D_DEBUG)
+//         Object *acquire() override;
+//
+//         void release() override;
+// #endif
+
         ~GameObject() override = default;
 
         virtual void update();
@@ -257,7 +263,7 @@ namespace Tiny3D
         void setupHierarchy();
         
         ComponentsSet mComponentObjects {};
-
+        
     protected:
         /// 游戏对象 UUID
         UUID mUUID {};

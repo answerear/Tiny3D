@@ -25,7 +25,7 @@
 
 #include "TestScene.h"
 #include "ProjectManager.h"
-#include "EditorScene.h"
+#include "EditorSceneImpl.h"
 
 
 #define UVN_CAMERA
@@ -50,7 +50,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void TestScene::build(EditorScene *editorScene)
+    void TestScene::build(EditorSceneImpl *editorScene)
     {
         mEditorScene = editorScene;
         
@@ -78,7 +78,7 @@ namespace Tiny3D
         
         String title = "TestScene";
         String name = title + "." + Resource::EXT_SCENE;
-        archive->write(name, [scene](DataStream &stream)
+        archive->write(name, [scene](DataStream &stream, const String &filename)
             {
                 return T3D_SERIALIZER_MGR.serialize(stream, scene);
             });
@@ -94,7 +94,7 @@ namespace Tiny3D
         name = title + "." + Resource::EXT_SCENE;
         archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
         T3D_ASSERT(archive != nullptr);
-        archive->write(name, [scene2](DataStream &stream)
+        archive->write(name, [scene2](DataStream &stream, const String &filename)
             {
                 return T3D_SERIALIZER_MGR.serialize(stream, scene2);
             });
@@ -123,7 +123,6 @@ namespace Tiny3D
         camera->setRenderTarget(rt);
         Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
         camera->setAspectRatio(as);
-        T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
         
         // camera for perspective
         camera->setProjectionType(Camera::Projection::kPerspective);

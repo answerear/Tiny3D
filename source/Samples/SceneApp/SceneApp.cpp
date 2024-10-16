@@ -106,8 +106,6 @@ void SceneApp::buildCamera(Transform3D *parent)
     camera->setViewport(vp);
     camera->setClearColor(ColorRGB::GRAY);
     camera->setRenderTarget(rt);
-
-    T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
     
     // camera for perspective
     camera->setProjectionType(Camera::Projection::kPerspective);

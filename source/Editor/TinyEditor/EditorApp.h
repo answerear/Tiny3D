@@ -36,7 +36,7 @@ namespace Tiny3D
     class UIMainWindow;
     class ProjectManager;
     class NetworkManager;
-    class EditorScene;
+    class EditorSceneImpl;
     
     class EditorApp : public ImGuiApp
     {

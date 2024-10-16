@@ -45,9 +45,9 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        virtual const GameObjectPtr &getRootGameObject() const { return mRootGameObject; }
+        virtual GameObject *getRootGameObject() const { return mRootGameObject; }
 
-        virtual const Transform3DPtr &getRootTransform() const;
+        virtual Transform3D *getRootTransform() const { return mRootTransform; }
 
         virtual void update();
 
@@ -78,6 +78,8 @@ namespace Tiny3D
 
         virtual GameObject *getEditorGameObject() const { return nullptr; }
 
+        virtual Transform3D *getEditorRootTransform() const { return nullptr; }
+
         virtual void setRuntimeScene(Scene *scene) {}
 
         virtual Scene *getRuntimeScene() const { return nullptr; }
@@ -97,6 +99,8 @@ namespace Tiny3D
         TResult onUnload() override;
 
         void onPostLoad() override;
+
+        void onPostInit() override;
 
     private:
         using GameObjects = TUnorderedMap<UUID, GameObjectPtr, UUIDHash, UUIDEqual>;
@@ -127,6 +131,32 @@ namespace Tiny3D
         /// 所有属于这个场景的 game object
         GameObjects     mGameObjects {};
     };
+
+#if defined (T3D_EDITOR)
+    class T3D_ENGINE_API EditorScene : public Scene, public Singleton<EditorScene>
+    {
+    public:
+        Camera *getEditorCamera() const override { return mSceneCamera; }
+
+        GameObject *getEditorGameObject() const override { return mRootGameObject; }
+
+        Transform3D *getEditorRootTransform() const override { return mRootTransform; }
+
+        void setRuntimeScene(Scene *scene) override { mRuntimeScene = scene;}
+
+        Scene *getRuntimeScene() const override { return mRuntimeScene; }
+
+    protected:
+        EditorScene(const String &name) : Scene(name) {}
+        
+        /// 运行时的游戏场景
+        Scene           *mRuntimeScene {nullptr};
+        /// 编辑器场景相机
+        CameraPtr       mSceneCamera {nullptr};
+    };
+
+    #define T3D_EDITOR_SCENE    (EditorScene::getInstance())
+#endif
 }
 
 

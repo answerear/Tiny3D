@@ -1101,7 +1101,7 @@ namespace Tiny3D
             
             ArchivePtr archive = mArchiveMgr->loadArchive(mAppPath, "FileSystem", Archive::AccessMode::kRead);
 #endif
-            ret = archive->read(cfgPath, [this](DataStream &stream)
+            ret = archive->read(cfgPath, [this](DataStream &stream, const String &name)
             {
                 return T3D_SERIALIZER_MGR.deserialize(stream, mSettings);
             });

@@ -19,6 +19,7 @@
 
 #include "TextureApp.h"
 
+
 #define UVN_CAMERA
 #define PERSPECTIVE_CAMERA
 
@@ -84,7 +85,6 @@ void TextureApp::buildCamera(Transform3D *parent)
     camera->setRenderTarget(rt);
     Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
     camera->setAspectRatio(as);
-    T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
     
     // camera for perspective
     camera->setProjectionType(Camera::Projection::kPerspective);
@@ -123,7 +123,7 @@ void TextureApp::buildCube(Transform3D *parent)
 
 Texture2DPtr TextureApp::buildTexture()
 {
-    ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
+    ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_FS, Dir::getAppPath(), Archive::AccessMode::kRead);
     T3D_ASSERT(archive != nullptr);
     ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/samples/textures/blocks.png");
     T3D_ASSERT(image != nullptr);

@@ -814,6 +814,16 @@ namespace Tiny3D
                     mObj = &obj;
                 }
 
+                if (klass.is_derived_from<Tiny3D::Object>())
+                {
+                    // Object
+                    auto onPostInit = klass.get_method("onPostInit");
+                    if (onPostInit)
+                    {
+                        onPostInit.invoke(obj);
+                    }
+                }
+
                 itr = node.FindMember(RTTI_VALUE);
                 if (itr == node.MemberEnd())
                 {
@@ -864,6 +874,16 @@ namespace Tiny3D
                     mObj = &obj;
                 }
 
+                if (klass.is_derived_from<Tiny3D::Object>())
+                {
+                    // Object
+                    auto onPostInit = klass.get_method("onPostInit");
+                    if (onPostInit)
+                    {
+                        onPostInit.invoke(obj);
+                    }
+                }
+                
                 itr = node.FindMember(RTTI_VALUE);
                 if (itr == node.MemberEnd())
                 {

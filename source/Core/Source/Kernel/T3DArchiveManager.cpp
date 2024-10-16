@@ -156,7 +156,8 @@ namespace Tiny3D
     {
         ArchivePtr archive;
 
-        Key key = { name, accessMode };
+        Key key;
+        makeKey(archiveType, name, accessMode, key);
         auto itr = mArchives.find(key);
         if (itr != mArchives.end())
         {
@@ -185,7 +186,9 @@ namespace Tiny3D
         TResult ret = T3D_OK;
 
         // 清理緩存
-        mArchives.erase({archive->getName(), archive->getAccessMode()});
+        Key key;
+        makeKey(archive->getArchiveType(), archive->getName(), archive->getAccessMode(), key);
+        mArchives.erase(key);
         return ret;
     }
 
@@ -260,10 +263,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Archive *ArchiveManager::getArchive(const String &name, Archive::AccessMode mode) const
+    Archive *ArchiveManager::getArchive(const String &achiveType, const String &name, Archive::AccessMode mode) const
     {
         Archive *archive = nullptr;
-        auto itr = mArchives.find({name, mode});
+        Key key;
+        makeKey(achiveType, name, mode, key);
+        auto itr = mArchives.find(key);
 
         if (itr != mArchives.end())
         {
@@ -271,6 +276,14 @@ namespace Tiny3D
         }
 
         return archive;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ArchiveManager::makeKey(const String &archiveType, const String &name, Archive::AccessMode mode, Key &key) const
+    {
+        key.name = archiveType + "#" + name;;
+        key.access = mode;
     }
 
     //--------------------------------------------------------------------------

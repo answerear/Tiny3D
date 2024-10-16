@@ -24,6 +24,9 @@
 #include "../Common/SampleApp.h"
 
 
+#define ARCHIVE_TYPE_FS     "FileSystem"
+
+
 class TextureApp : public SampleWindowApp
 {
 public:

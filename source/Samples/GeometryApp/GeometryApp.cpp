@@ -93,7 +93,6 @@ void GeometryApp::buildCamera(Transform3D *parent)
     camera->setRenderTarget(rt);
     Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
     camera->setAspectRatio(as);
-    T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
     
 #if defined (PERSPECTIVE_CAMERA)
     // camera for perspective

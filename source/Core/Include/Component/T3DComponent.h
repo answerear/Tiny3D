@@ -54,7 +54,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter", "Description"="UUID value")
         const UUID &getUUID() const { return mUUID; }
 
-        GameObjectPtr getGameObject() const { return mGameObject; }
+        GameObject *getGameObject() const { return mGameObject; }
 
         void setGameObject(GameObject *gameObject) { mGameObject = gameObject; }
 

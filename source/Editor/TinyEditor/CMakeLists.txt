@@ -9,6 +9,10 @@ set_project_name(TinyEditor)
 
 message(STATUS "Generating project : ${BIN_NAME}")
 
+if (TINY3D_EDITOR_RTTR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif (TINY3D_EDITOR_RTTR)
+
 if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup ")
     
@@ -57,6 +61,8 @@ set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
 set_project_files(proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/ .pb.h)
 set_project_files(proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/ .pb.cc)
 
+# Generated source for reflection.
+set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
 
 # common header files
 list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/ImGuiImpl.h ${T3D_COMMON_INCLUDE_DIR}/ImGuiApp.h)

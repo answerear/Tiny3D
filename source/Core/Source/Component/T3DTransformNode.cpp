@@ -307,7 +307,7 @@ namespace Tiny3D
                 const auto it = msComponents.find(uuid);
                 if (it != msComponents.end())
                 {
-                    mFirstChild = it->second;
+                    mFirstChild = mLastChild = it->second;
                     mFirstChild->mParent = this;
                     mFirstChild->mPrevSibling = nullptr;
                     mFirstChild->mNextSibling = nullptr;

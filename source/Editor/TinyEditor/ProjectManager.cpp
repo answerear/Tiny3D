@@ -24,7 +24,7 @@
 
 
 #include "ProjectManager.h"
-#include "EditorScene.h"
+#include "EditorSceneImpl.h"
 
 
 namespace Tiny3D
@@ -36,6 +36,7 @@ namespace Tiny3D
     const char *ProjectManager::ASSETS = "Assets";
     const char *ProjectManager::SCENES = "Scenes";
     const char *ProjectManager::TEMP = "Temp";
+    const char *ProjectManager::PROJECT_SETTINGS_NAME = "ProjectSettings.tdat";
     
     //--------------------------------------------------------------------------
 
@@ -152,7 +153,6 @@ namespace Tiny3D
             camera->setRenderTarget(rt);
             Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
             camera->setAspectRatio(as);
-            T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
         
             // camera for perspective
             camera->setProjectionType(Camera::Projection::kPerspective);
@@ -185,6 +185,7 @@ namespace Tiny3D
                 break;
             }
 
+            // 保存场景，作为新生成的场景文件
             String filename = scene->getName() + "." + Resource::EXT_SCENE;
             ret = T3D_SCENE_MGR.saveScene(archive, filename, scene);
             if (T3D_FAILED(ret))
@@ -193,6 +194,8 @@ namespace Tiny3D
                 break;
             }
 
+            // 更新工程设置
+            mProjectSettings.StartupSceneUUID = scene->getUUID();
         } while (false);
         
         return ret;
@@ -272,6 +275,13 @@ namespace Tiny3D
             mName = name;
             mAssetsPath = assetsPath;
             mTempPath = tempPath;
+
+            // 保存工程设置
+            ret = saveProjectSettings();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_WARNING("Failed to save project settings !");
+            }
         } while (false);
 
         return ret;
@@ -347,6 +357,22 @@ namespace Tiny3D
             mName = name;
             mAssetsPath = assetsPath;
             mTempPath = tempPath;
+
+            // 加載工程設置
+            ret = loadProjectSettings();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_WARNING("Failed to load project settings !");
+                break;
+            }
+
+            // 加载启动场景
+            ret = loadStartupScene();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to load startup scene !");
+                break;
+            }
         } while (false);
         
         return ret;
@@ -375,6 +401,88 @@ namespace Tiny3D
         mCompiledShadersArchive = nullptr;
         
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::saveProjectSettings()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s]", mPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            ret = archive->write(PROJECT_SETTINGS_NAME,
+                [this](DataStream &stream, const String &filename)
+                {
+                    return T3D_SERIALIZER_MGR.serialize(stream, mProjectSettings);
+                });
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::loadProjectSettings()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s] !", mPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            ret = archive->read(PROJECT_SETTINGS_NAME,
+                [this](DataStream &stream, const String &filename)
+                {
+                    return T3D_SERIALIZER_MGR.deserialize(stream, mProjectSettings);
+                });
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::loadStartupScene()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s] !", mPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            
+            ScenePtr scene = T3D_SCENE_MGR.loadScene(archive, mProjectSettings.StartupSceneUUID);
+            if (scene == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load scene (uuid: %s) !", mProjectSettings.StartupSceneUUID.toString().c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            
+            // EDITOR_SCENE.setRuntimeScene(scene);
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

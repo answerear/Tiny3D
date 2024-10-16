@@ -26,6 +26,7 @@
 
 
 #include "EditorPrerequisites.h"
+#include "ProjectSettings.h"
 
 
 namespace Tiny3D
@@ -53,6 +54,10 @@ namespace Tiny3D
 
         const String &getTempPath() const {return mTempPath; }
 
+        const ProjectSettings &getProjectSettings() const { return mProjectSettings; }
+
+        ProjectSettings &getProjectSettings() { return mProjectSettings; }
+
     protected:
         TResult compileAllShaders(const String &tempPath, const String &assetsPath);
 
@@ -63,11 +68,18 @@ namespace Tiny3D
         TResult setupBuiltinAssets(const String &tempPath);
 
         TResult createSimpleScene(const String &assetsPath);
+
+        TResult saveProjectSettings();
+
+        TResult loadProjectSettings();
+
+        TResult loadStartupScene();
         
     protected:
         static const char *ASSETS;
         static const char *SCENES;
         static const char *TEMP;
+        static const char *PROJECT_SETTINGS_NAME;
         
         /// 文件系统监控器
         FileSystemMonitor *mFSMonitor {nullptr};
@@ -82,6 +94,9 @@ namespace Tiny3D
         String mTempPath {};
         /// shader 编译后临时文件路径
         String mCompiledShadersPath {};
+
+        /// 工程设置
+        ProjectSettings mProjectSettings {};
 
         /// Assets 档案系统
         ArchivePtr mAssetsArchive {nullptr};

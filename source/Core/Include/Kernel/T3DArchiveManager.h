@@ -109,22 +109,7 @@ namespace Tiny3D
          * @param [in] mode : 档案访问模式.
          * @return 存在对应的档案系统对象则返回对象地址，不存在则返回 nullptr.
          */
-        Archive *getArchive(const String &name, Archive::AccessMode mode) const;
-
-    protected:
-        /**
-         * 构造函数
-         */
-        ArchiveManager() = default;
-
-        /**
-         * 创建档案对象
-         * @param name : 档案名称 
-         * @param archiveType : 档案类型
-         * @param mode : 档案访问模式
-         * @return 调用成功返回档案对象
-         */
-        ArchivePtr create(const String &name, const String &archiveType, Archive::AccessMode mode);
+        Archive *getArchive(const String &arhicveType, const String &name, Archive::AccessMode mode) const;
 
     protected:
         /**
@@ -143,7 +128,24 @@ namespace Tiny3D
                 return name < other.name || (name == other.name && access < other.access);
             }
         };
+        
+        /**
+         * 构造函数
+         */
+        ArchiveManager() = default;
 
+        /**
+         * 创建档案对象
+         * @param name : 档案名称 
+         * @param archiveType : 档案类型
+         * @param mode : 档案访问模式
+         * @return 调用成功返回档案对象
+         */
+        ArchivePtr create(const String &name, const String &archiveType, Archive::AccessMode mode);
+
+        void makeKey(const String &archiveType, const String &name, Archive::AccessMode mode, Key &key) const;
+
+    protected:
         using Creators = TMap<String, ArchiveCreatorNew>;
 
         using Archives = TMap<Key, ArchivePtr>;

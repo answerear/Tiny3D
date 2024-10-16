@@ -28,7 +28,7 @@
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
 #include "NetworkManager.h"
-#include "EditorScene.h"
+#include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "EditorEventDefine.h"
 #include "TestScene.h"
@@ -185,10 +185,10 @@ namespace Tiny3D
             }
 
             // 编辑器场景
-            EditorScene *scene = smart_pointer_cast<EditorScene>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
+            EditorSceneImpl *scene = smart_pointer_cast<EditorSceneImpl>(T3D_SCENE_MGR.createEditorScene("__EditorScene__",
                 [](const String &name)
                 {
-                    return EditorScene::create(name);
+                    return EditorSceneImpl::create(name);
                 }));
             scene->init();
             scene->build();

@@ -100,7 +100,7 @@ namespace Tiny3D
             // 生成 material meta file
             MetaMaterialPtr meta = MetaMaterial::create(material->getUUID());
             String metaName = materialName + ".meta";
-            ret = archive->write(metaName, [&meta](DataStream &stream)
+            ret = archive->write(metaName, [&meta](DataStream &stream, const String &filename)
                 {
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
                 });

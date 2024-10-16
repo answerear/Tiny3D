@@ -24,7 +24,7 @@
 
 
 #include "UIGameWindow.h"
-#include "EditorScene.h"
+#include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "ImErrors.h"
 

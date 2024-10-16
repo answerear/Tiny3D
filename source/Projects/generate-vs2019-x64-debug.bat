@@ -23,7 +23,7 @@
 @mkdir nmake && cd nmake
 
 @rem ==================== System project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -32,7 +32,7 @@
 xcopy compile_commands.json .\System 
 
 @rem ==================== Math project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -41,7 +41,7 @@ xcopy compile_commands.json .\System
 xcopy compile_commands.json .\Math 
 
 @rem ==================== Core runtime project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -50,7 +50,7 @@ xcopy compile_commands.json .\Math
 xcopy compile_commands.json .\Core\Runtime 
 
 @rem ==================== Core editor project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_CORE_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_CORE_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -68,13 +68,23 @@ xcopy compile_commands.json .\Core\Editor
 @rem xcopy compile_commands.json .\Plugins\Archive\MetaFileSystem 
 
 @rem ==================== Editor/TinyLauncher project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
 )
 @rem Copy Editor/TinyLauncher compile commands to the project folder.
 xcopy compile_commands.json .\Editor\TinyLauncher 
+
+
+@rem ==================== Editor/TinyEditor project =========================
+@cmake -G "NMake Makefiles" -DTINY3D_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@if not %ERRORLEVEL% == 0 (
+	@cd ../Projects
+	@goto end
+)
+@rem Copy Editor/TinyEditor compile commands to the project folder.
+xcopy compile_commands.json .\Editor\TinyEditor 
 
 
 @rem =============== Generate ReflectionSettings.json =============
@@ -90,6 +100,8 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 @rem ..\bin\Windows\Debug\cct.exe .\Plugins\Archive\MetaFileSystem ..\..\..\vs2019-x64\Plugins\Archive\MetaFileSystem\Generated
 @mkdir ..\vs2019-x64\Editor\TinyLauncher\Generated
 ..\bin\Windows\Debug\cct.exe .\Editor\TinyLauncher ..\..\vs2019-x64\Editor\TinyLauncher\Generated
+@mkdir ..\vs2019-x64\Editor\TinyEditor\Generated
+..\bin\Windows\Debug\cct.exe .\Editor\TinyEditor ..\..\vs2019-x64\Editor\TinyEditor\Generated
 
 
 @rem Generate reflection source by ReflectionPreprocessor.
@@ -99,6 +111,7 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 ..\bin\Windows\Debug\rpp.exe .\Core\Editor ..\Core -r -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
 @rem ..\bin\Windows\Debug\rpp.exe .\Plugins\Archive\MetaFileSystem ..\Plugins\Archive\MetaFileSystem -r
 ..\bin\Windows\Debug\rpp.exe .\Editor\TinyLauncher ..\Editor\TinyLauncher -r
+..\bin\Windows\Debug\rpp.exe .\Editor\TinyEditor ..\Editor\TinyEditor -r
 
 
 @rem ==================== Generate all projects ===================

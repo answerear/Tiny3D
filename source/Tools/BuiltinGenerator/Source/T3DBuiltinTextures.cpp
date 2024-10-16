@@ -162,7 +162,7 @@ namespace Tiny3D
         // Testing texture meta file
         MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
         filename = filename + ".meta";
-        ret = archive->write(filename, [&meta](DataStream &stream)
+        ret = archive->write(filename, [&meta](DataStream &stream, const String &filename)
             {
                 return T3D_SERIALIZER_MGR.serialize(stream, meta);
             });
@@ -234,7 +234,7 @@ namespace Tiny3D
                     // Generate texture meta file
                     MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
                     name = name + ".meta";
-                    ret = archive->write(name, [&meta](DataStream &stream)
+                    ret = archive->write(name, [&meta](DataStream &stream, const String &filename)
                         {
                             return T3D_SERIALIZER_MGR.serialize(stream, meta);
                         });

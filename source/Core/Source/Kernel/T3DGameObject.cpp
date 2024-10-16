@@ -41,6 +41,28 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+// #if defined (T3D_DEBUG)
+//     Object *GameObject::acquire()
+//     {
+//         if (getName() == "Camera")
+//         {
+//             int a = 0;
+//         }
+//         return Object::acquire();
+//     }
+//
+//     void GameObject::release()
+//     {
+//         if (getName() == "Camera")
+//         {
+//             int a = 0;
+//         }
+//         Object::release();
+//     }
+// #endif
+    
+    //--------------------------------------------------------------------------
+
     GameObject::WaitingDestroyComponents GameObject::msWaitingDestroyComponents;
     GameObject::WaitingDestroyGameObjects GameObject::msWaitingDestroyGameObjects;
     // GameObject::GameObjects GameObject::msGameObjects;

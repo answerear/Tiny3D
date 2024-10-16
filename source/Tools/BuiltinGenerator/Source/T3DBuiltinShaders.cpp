@@ -159,7 +159,7 @@ namespace Tiny3D
             MetaShaderPtr meta = MetaShader::create(shader->getUUID());
             String metaName = filename + ".meta";
             archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-            ret = archive->write(metaName, [&meta](DataStream &stream)
+            ret = archive->write(metaName, [&meta](DataStream &stream, const String &filename)
                 {
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
                 });
@@ -173,7 +173,7 @@ namespace Tiny3D
             metaName = title + "." + ext + ".meta";
             archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
-            ret = archive->write(metaName, [&metaShaderLab](DataStream &stream)
+            ret = archive->write(metaName, [&metaShaderLab](DataStream &stream, const String &filename)
                 {
                     return T3D_SERIALIZER_MGR.serialize(stream, metaShaderLab);
                 });

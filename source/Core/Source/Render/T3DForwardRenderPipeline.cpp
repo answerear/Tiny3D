@@ -126,7 +126,7 @@ namespace Tiny3D
 
         GameObjectPtr go;
         
-#if defined(T3D_EDITOR)
+#if defined (T3D_EDITOR)
         Camera *camera = scene->getEditorCamera();
         mCameras.emplace_back(camera);
         go = scene->getEditorGameObject();

@@ -26,6 +26,7 @@
 #include "ImTextureManager.h"
 
 #include "ImErrors.h"
+#include "../../../Tools/BuiltinGenerator/Include/T3DBuiltinGenPrerequisites.h"
 
 
 namespace Tiny3D
@@ -53,7 +54,7 @@ namespace Tiny3D
                 break;
             }
             
-            ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(Dir::getAppPath(), Archive::AccessMode::kRead);
+            ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_FS, Dir::getAppPath(), Archive::AccessMode::kRead);
             T3D_ASSERT(archive != nullptr);
             ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
             T3D_ASSERT(image != nullptr);

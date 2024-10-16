@@ -78,14 +78,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    const Transform3DPtr &Scene::getRootTransform() const
-    {
-        return mRootTransform;
-    }
-
-    //--------------------------------------------------------------------------
-
+    
     void Scene::update()
     {
         mRootGameObject->update();
@@ -204,6 +197,7 @@ namespace Tiny3D
             if (it != mGameObjects.end())
             {
                 mRootGameObject = it->second;
+                mRootTransform = mRootGameObject->getComponent<Transform3D>();
             }
         }
 
@@ -212,6 +206,15 @@ namespace Tiny3D
         {
             item.second->setupHierarchy();
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Scene::onPostInit()
+    {
+#if defined (T3D_EDITOR)
+        T3D_EDITOR_SCENE.setRuntimeScene(this);
+#endif
     }
 
     //--------------------------------------------------------------------------

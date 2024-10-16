@@ -39,7 +39,7 @@ namespace Tiny3D
         
         ~TestScene() override;
 
-        void build(EditorScene *editorScene);
+        void build(EditorSceneImpl *editorScene);
 
     protected:  // for test
         void buildCamera(Transform3D *parent);
@@ -50,7 +50,7 @@ namespace Tiny3D
         void buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
         
     protected:
-        EditorScene *mEditorScene {nullptr};
+        EditorSceneImpl *mEditorScene {nullptr};
     };
 
     #define TEST_SCENE (TestScene::getInstance())

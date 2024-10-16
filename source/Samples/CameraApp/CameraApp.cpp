@@ -66,7 +66,6 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setViewport(vpCenter);
     camera->setClearColor(ColorRGB::RED);
     camera->setRenderTarget(rt);
-    scene->addCamera(camera);
     
     // left camera
     go = GameObject::create("LeftCamera");
@@ -78,7 +77,6 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setViewport(vpLeft);
     camera->setClearColor(ColorRGB::GREEN);
     camera->setRenderTarget(rt);
-    scene->addCamera(camera);
 
     // right camera
     go = GameObject::create("RightCamera");
@@ -90,7 +88,6 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setViewport(vpRight);
     camera->setClearColor(ColorRGB::BLUE);
     camera->setRenderTarget(rt);
-    scene->addCamera(camera);
 
     return true;
 }

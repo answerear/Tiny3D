@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 
-#include "EditorScene.h"
+#include "EditorSceneImpl.h"
 #include "ProjectManager.h"
 
 
@@ -40,22 +40,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    EditorScenePtr EditorScene::create(const String &name)
+    EditorSceneImplPtr EditorSceneImpl::create(const String &name)
     {
-        return new EditorScene(name);
+        return new EditorSceneImpl(name);
     }
 
     //--------------------------------------------------------------------------
 
-    EditorScene::EditorScene(const String &name)
-        : Scene(name)
+    EditorSceneImpl::EditorSceneImpl(const String &name)
+        : EditorScene(name)
     {
         
     }
     
     //--------------------------------------------------------------------------
 
-    EditorScene::~EditorScene()
+    EditorSceneImpl::~EditorSceneImpl()
     {
         mSceneRT = nullptr;
         if (mSceneTarget != nullptr)
@@ -69,36 +69,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const GameObjectPtr &EditorScene::getRootGameObject() const
+    GameObject *EditorSceneImpl::getRootGameObject() const
     {
         if (mRuntimeScene != nullptr)
         {
             return mRuntimeScene->getRootGameObject();
         }
-        return GameObjectPtr::NULL_PTR;
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    const Transform3DPtr &EditorScene::getRootTransform() const
+    Transform3D *EditorSceneImpl::getRootTransform() const
     {
         if (mRuntimeScene != nullptr)
         {
             return mRuntimeScene->getRootTransform();
         }
-        return Transform3DPtr::NULL_PTR;
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    void EditorScene::update()
+    void EditorSceneImpl::update()
     {
         mRootGameObject->update();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::addCamera(Camera *camera)
+    TResult EditorSceneImpl::addCamera(Camera *camera)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -109,7 +109,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::removeCamera(Camera *camera)
+    TResult EditorSceneImpl::removeCamera(Camera *camera)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -120,7 +120,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::removeCamera(const UUID &uuid)
+    TResult EditorSceneImpl::removeCamera(const UUID &uuid)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -131,7 +131,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::removeCamera(const String &name)
+    TResult EditorSceneImpl::removeCamera(const String &name)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -142,7 +142,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    const CameraList &EditorScene::getCameras() const
+    const CameraList &EditorSceneImpl::getCameras() const
     {
         static CameraList cameras;
         if (mRuntimeScene != nullptr)
@@ -154,7 +154,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::addGameObject(GameObject *go)
+    TResult EditorSceneImpl::addGameObject(GameObject *go)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -166,7 +166,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::removeGameObject(GameObject *go)
+    TResult EditorSceneImpl::removeGameObject(GameObject *go)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -178,7 +178,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult EditorScene::removeGameObject(const UUID &uuid)
+    TResult EditorSceneImpl::removeGameObject(const UUID &uuid)
     {
         if (mRuntimeScene != nullptr)
         {
@@ -190,7 +190,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    GameObject *EditorScene::getGameObject(const UUID &uuid) const
+    GameObject *EditorSceneImpl::getGameObject(const UUID &uuid) const
     {
         GameObject *go = nullptr;
 
@@ -201,31 +201,10 @@ namespace Tiny3D
 
         return go;
     }
-    
-    //--------------------------------------------------------------------------
-
-    Camera *EditorScene::getEditorCamera() const
-    {
-        return mSceneCamera;
-    }
 
     //--------------------------------------------------------------------------
 
-    GameObject *EditorScene::getEditorGameObject() const
-    {
-        return mRootGameObject;
-    }
-
-    //--------------------------------------------------------------------------
-
-    Transform3D *EditorScene::getEditorRootTransform() const
-    {
-        return mRootTransform;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void EditorScene::build()
+    void EditorSceneImpl::build()
     {
         // 生成 scene 使用的 render texture
         refreshSceneRenderTarget();
@@ -294,7 +273,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorScene::refreshSceneRenderTarget()
+    void EditorSceneImpl::refreshSceneRenderTarget()
     {
         RenderWindow *rw = T3D_AGENT.getDefaultRenderWindow();
         const uint32_t width = static_cast<uint32_t>(rw->getDescriptor().Width);
@@ -322,7 +301,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void EditorScene::refreshGameRenderTarget(const ImVec2 &size)
+    void EditorSceneImpl::refreshGameRenderTarget(const ImVec2 &size)
     {
         bool rtIsDirty = false;
         // if (mGameTarget == nullptr
@@ -371,7 +350,7 @@ namespace Tiny3D
 #if defined(TEST_SCENE)
     //--------------------------------------------------------------------------
 
-    void EditorScene::buildCamera(Transform3D *parent)
+    void EditorSceneImpl::buildCamera(Transform3D *parent)
     {
         // render window for render target in camera
         RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
@@ -391,7 +370,6 @@ namespace Tiny3D
         camera->setRenderTarget(rt);
         Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
         camera->setAspectRatio(as);
-        T3D_SCENE_MGR.getCurrentScene()->addCamera(camera);
         
         // camera for perspective
         camera->setProjectionType(Camera::Projection::kPerspective);
@@ -409,7 +387,7 @@ namespace Tiny3D
         T3D_ASSERT(frustum != nullptr);
     }
 
-    void EditorScene::buildCube(Transform3D *parent)
+    void EditorSceneImpl::buildCube(Transform3D *parent)
     {
         // transform node for cube
         GameObjectPtr go = GameObject::create("Cube");
@@ -431,7 +409,7 @@ namespace Tiny3D
         buildAabb(mesh, submesh, bound);
     }
 
-    Texture2DPtr EditorScene::buildTexture()
+    Texture2DPtr EditorSceneImpl::buildTexture()
     {
         const uint32_t width = 64;
         const uint32_t height = 64;
@@ -529,7 +507,7 @@ namespace Tiny3D
         return texture;
     }
 
-    MaterialPtr EditorScene::buildMaterial()
+    MaterialPtr EditorSceneImpl::buildMaterial()
     {
         TResult ret;
         
@@ -696,7 +674,7 @@ namespace Tiny3D
         return material;
     }
 
-    MeshPtr EditorScene::buildMesh()
+    MeshPtr EditorSceneImpl::buildMesh()
     {
 #if defined (ASSETS_FROM_FILE)
         String path = PROJECT_MGR.getTempPath() + Dir::getNativeSeparator() + "builtin";
@@ -975,7 +953,7 @@ namespace Tiny3D
         return mesh;
     }
 
-    void EditorScene::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+    void EditorSceneImpl::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
     {
         const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
         size_t vertexSize = mesh->getVertexStride(attr->getSlot());

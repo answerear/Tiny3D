@@ -46,6 +46,8 @@ namespace Tiny3D
 
         virtual ScenePtr loadScene(Archive *archive, const String &name) = 0;
 
+        virtual ScenePtr loadScene(Archive *archive, const UUID &uuid) = 0;
+
         virtual TResult saveScene(Archive *archive, Scene *scene) = 0;
 
         virtual TResult saveScene(Archive *archive, const String &filename, Scene *scene) = 0;
@@ -69,6 +71,8 @@ namespace Tiny3D
 #endif
 
         ScenePtr loadScene(Archive *archive, const String &name);
+
+        ScenePtr loadScene(Archive *archive, const UUID &uuid);
 
         TResult saveScene(Archive *archive, Scene *scene);
 
@@ -110,6 +114,8 @@ namespace Tiny3D
 #endif
 
         ScenePtr loadScene(Archive *archive, const String &name) override;
+
+        ScenePtr loadScene(Archive *archive, const UUID &uuid) override;
 
         TResult saveScene(Archive *archive, Scene *scene) override;
 

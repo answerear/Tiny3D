@@ -328,7 +328,7 @@ namespace Tiny3D
 
             // Builtin cube mesh meta file
             filename = filename + ".meta";
-            ret = archive->write(filename, [this](DataStream &stream)
+            ret = archive->write(filename, [this](DataStream &stream, const String &filename)
                 {
                     MetaMeshPtr meta = MetaMesh::create(mMesh->getUUID());
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
@@ -351,7 +351,7 @@ namespace Tiny3D
             // Builtin cube mesh meta file for testing
             MetaMeshPtr meta = MetaMesh::create(mTestMesh->getUUID());
             filename = filename + ".meta";
-            ret = archive->write(filename, [&meta](DataStream &stream)
+            ret = archive->write(filename, [&meta](DataStream &stream, const String &filename)
                 {
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
                 });

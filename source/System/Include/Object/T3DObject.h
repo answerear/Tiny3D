@@ -76,6 +76,11 @@ namespace Tiny3D
         }
 
     protected:
+#if defined (T3D_DEBUG)
+        virtual Object *acquire();
+
+        virtual void release();
+#else
         /**
          * @fn  Object Object::*acquire();
          * @brief   持有对象，让对象引用计数加一
@@ -88,10 +93,14 @@ namespace Tiny3D
          * @brief   释放对象，让对象引用计数减一
          */
         void release();
+#endif
 
         void enableThreadSafe(bool enable);
 
         void printDebugInfo();
+
+        TFUNCTION()
+        virtual void onPostInit();
 
         TFUNCTION()
         virtual void onPreSave();

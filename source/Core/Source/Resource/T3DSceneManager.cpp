@@ -90,6 +90,18 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ScenePtr SceneManager::loadScene(Archive *archive, const UUID &uuid)
+    {
+        if (mImpl != nullptr)
+        {
+            return mImpl->loadScene(archive, uuid);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult SceneManager::saveScene(Archive *archive, Scene *scene)
     {
         if (mImpl != nullptr)
@@ -182,6 +194,13 @@ namespace  Tiny3D
     ScenePtr BuiltinSceneManager::loadScene(Archive *archive, const String &name)
     {
         return smart_pointer_cast<Scene>(load(archive, name));
+    }
+
+    //--------------------------------------------------------------------------
+
+    ScenePtr BuiltinSceneManager::loadScene(Archive *archive, const UUID &uuid)
+    {
+        return smart_pointer_cast<Scene>(load(archive, uuid));
     }
 
     //--------------------------------------------------------------------------

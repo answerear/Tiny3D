@@ -34,10 +34,14 @@
 namespace Tiny3D
 {
     /// 档案系统读回调
-    using ArchiveReadCallback = TFunction<TResult(DataStream &)>;
+    /// DataStream : 数据流对象
+    /// String : 文件名
+    using ArchiveReadCallback = TFunction<TResult(DataStream &, const String &)>;
 
     // 档案系统写回调
-    using ArchiveWriteCallback = TFunction<TResult(DataStream &)>;
+    /// DataStream : 数据流对象
+    /// String : 文件名
+    using ArchiveWriteCallback = TFunction<TResult(DataStream &, const String &)>;
     
     /**
      * @brief 档案类，用于档案文件的组织管理，用于隔离文件系统、zip压缩文件的实现细节

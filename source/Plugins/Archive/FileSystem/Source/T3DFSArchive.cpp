@@ -156,7 +156,7 @@ namespace Tiny3D
             }
 
             // 读数据
-            ret = callback(fs);
+            ret = callback(fs, path);
 
             // 关闭文件
             fs.close();
@@ -198,7 +198,7 @@ namespace Tiny3D
             }
 
             // 写数据
-            ret = callback(fs);
+            ret = callback(fs, path);
 
             // 关闭文件
             fs.close();

@@ -281,7 +281,7 @@ namespace Tiny3D
 
         do
         {
-            TResult ret = archive->read(filename, [this, &res, &filename](DataStream &stream)
+            TResult ret = archive->read(filename, [this, &res, &filename](DataStream &stream, const String &name)
                 {
                     // 加载 resource 对象
                     TResult ret = T3D_OK;
@@ -360,7 +360,7 @@ namespace Tiny3D
 
         do
         {
-            TResult ret = archive->read(uuid, [this, &res](DataStream &stream)
+            TResult ret = archive->read(uuid, [this, &res](DataStream &stream, const String &filename)
                 {
                     // 加载 resource 对象
                     TResult ret = T3D_OK;
@@ -369,12 +369,16 @@ namespace Tiny3D
                     {
                         ret = T3D_ERR_RES_LOAD_FAILED;
                     }
+                    else if (!filename.empty())
+                    {
+                        res->setFilename(filename);
+                    }
                     return ret;
                 });
             
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource (uuid: %s) failed !", uuid.toString().c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load resource (uuid: %s) !", uuid.toString().c_str());
                 res = nullptr;
             }
         } while (false);
@@ -446,7 +450,7 @@ namespace Tiny3D
             }
 
             // 保存资源对象
-            ret = archive->write(filename, [this, res](DataStream &stream)
+            ret = archive->write(filename, [this, res](DataStream &stream, const String &name)
                 {
                     return saveResource(stream, res);
                 });
@@ -492,7 +496,7 @@ namespace Tiny3D
             }
             
             // 保存资源对象
-            ret = archive->write(res->getUUID(), [this, res](DataStream &stream)
+            ret = archive->write(res->getUUID(), [this, res](DataStream &stream, const String &name)
                 {
                     return saveResource(stream, res);
                 });

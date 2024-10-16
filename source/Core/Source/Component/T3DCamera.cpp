@@ -404,6 +404,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Camera::updateOrder(uint32_t newOrder)
+    {
+        if (newOrder != mOrder)
+        {
+            if (T3D_SCENE_MGR.getCurrentScene() != nullptr)
+            {
+                T3D_SCENE_MGR.getCurrentScene()->removeCamera(this);
+                mOrder = newOrder;
+                T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
+            }
+            else
+            {
+                mOrder = newOrder;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void Camera::onStart()
     {
         GameObject *go = getGameObject();
@@ -428,7 +447,7 @@ namespace Tiny3D
             mXformNode = getGameObject()->getComponent<Transform3D>();
         }
 
-        // T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
+        T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
     }
 
     //--------------------------------------------------------------------------

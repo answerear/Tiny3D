@@ -69,7 +69,7 @@ namespace Tiny3D
         uint32_t getOrder() const { return mOrder; }
 
         TPROPERTY(RTTRFuncName="Order", RTTRFuncType="setter")
-        void setOrder(uint32_t order) { mOrder = order; }
+        void setOrder(uint32_t order) { updateOrder(order); }
 
         TPROPERTY(RTTRFuncName="Viewport", RTTRFuncType="getter")
         const Viewport &getViewport() const { return mViewport; }
@@ -159,6 +159,8 @@ namespace Tiny3D
         TResult cloneProperties(const Component * const src) override;
 
         void setupRenderTexture(RenderWindow *window);
+
+        void updateOrder(uint32_t newOrder);
         
     protected:
         /// 相机对应的渲染纹理，如果渲染目标是渲染纹理，则直接渲染到渲染目标上，不经过纹理

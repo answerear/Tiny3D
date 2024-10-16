@@ -23,8 +23,7 @@
  ******************************************************************************/
 
 
-#include "UISceneWindow.h"
-#include "EditorSceneImpl.h"
+#include "ProjectSettings.h"
 
 
 namespace Tiny3D
@@ -32,29 +31,9 @@ namespace Tiny3D
     NS_BEGIN(Editor)
 
     //--------------------------------------------------------------------------
-    
-    void UISceneWindow::onGUI()
-    {
-        EDITOR_SCENE.refreshSceneRenderTarget();
 
-        RenderTarget *target = EDITOR_SCENE.getSceneRenderTarget();
 
-        float rtWidth = static_cast<float>(target->getRenderTexture()->getWidth());
-        float rtHeight = static_cast<float>(target->getRenderTexture()->getHeight());
-
-        auto region = ImGui::GetContentRegionAvail();
-        float x = (rtWidth - region.x) * 0.5f;
-        float y = (rtHeight - region.y) * 0.5f;
-        float u0 = x / rtWidth;
-        float v0 = y / rtHeight;
-        float u1 = (x + region.x) / rtWidth;
-        float v1 = (y + region.y) / rtHeight;
-        ImVec2 uv0(u0, v0);
-        ImVec2 uv1(u1, v1);
-        ImGui::Image(EDITOR_SCENE.getSceneRT(), region, uv0, uv1);
-    }
-    
     //--------------------------------------------------------------------------
-    
+
     NS_END
 }
