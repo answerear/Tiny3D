@@ -138,7 +138,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFSArchive::read(const String &name, const ArchiveReadCallback &callback)
+    TResult MetaFSArchive::read(const String &name, const ArchiveReadCallback &callback, void *userData)
     {
         TResult ret = T3D_OK;
 
@@ -170,7 +170,7 @@ namespace Tiny3D
             }
 
             // 读数据
-            ret = callback(fs, name);
+            ret = callback(fs, name, userData);
 
             // 关闭文件
             fs.close();
@@ -181,7 +181,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFSArchive::write(const String &name, const ArchiveWriteCallback &callback)
+    TResult MetaFSArchive::write(const String &name, const ArchiveWriteCallback &callback, void *userData)
     {
         if (!canWrite())
         {
@@ -219,10 +219,16 @@ namespace Tiny3D
             }
 
             // 写数据
-            ret = callback(fs, name);
+            ret = callback(fs, name, userData);
 
             // 关闭文件
             fs.close();
+            
+            if (T3D_SUCCEEDED(ret))
+            {
+                // 写数据成功，则同时生成 meta 文件
+                mMonitor->generateMetaFile(name, userData);
+            }
         } while (false);
 
         return ret;
@@ -230,7 +236,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFSArchive::read(const UUID &uuid, const ArchiveReadCallback &callback)
+    TResult MetaFSArchive::read(const UUID &uuid, const ArchiveReadCallback &callback, void *userData)
     {
         TResult ret = T3D_OK;
 
@@ -265,7 +271,7 @@ namespace Tiny3D
             }
 
             // 读数据
-            ret = callback(fs, name);
+            ret = callback(fs, name, userData);
 
             // 关闭文件
             fs.close();
@@ -276,7 +282,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult MetaFSArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback)
+    TResult MetaFSArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback, void *userData)
     {
         if (!canWrite())
         {
@@ -317,10 +323,16 @@ namespace Tiny3D
             }
 
             // 写数据
-            ret = callback(fs, name);
-
+            ret = callback(fs, name, userData);
+            
             // 关闭文件
             fs.close();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                // 写数据成功，则同时生成 meta 文件
+                monitor->generateMetaFile(name, userData);
+            }
         } while (false);
         
         return ret;

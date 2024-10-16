@@ -169,7 +169,8 @@ namespace Tiny3D
             auto frustum = go->addComponent<FrustumBound>();
             T3D_ASSERT(frustum != nullptr);
 
-            String scenePath = assetsPath + Dir::getNativeSeparator() + "Scenes";
+            const String sceneFolder = "Scenes";
+            String scenePath = assetsPath + Dir::getNativeSeparator() + sceneFolder;
             if (!Dir::makeDir(scenePath))
             {
                 EDITOR_LOG_ERROR("Failed to create scene directory [%s]", scenePath.c_str());
@@ -177,7 +178,7 @@ namespace Tiny3D
                 break;
             }
 
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(scenePath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
             if (archive == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load archive [%s]", scenePath.c_str());
@@ -186,7 +187,7 @@ namespace Tiny3D
             }
 
             // 保存场景，作为新生成的场景文件
-            String filename = scene->getName() + "." + Resource::EXT_SCENE;
+            String filename = sceneFolder + Dir::getNativeSeparator() + scene->getName() + "." + Resource::EXT_SCENE;
             ret = T3D_SCENE_MGR.saveScene(archive, filename, scene);
             if (T3D_FAILED(ret))
             {
@@ -420,10 +421,11 @@ namespace Tiny3D
             }
 
             ret = archive->write(PROJECT_SETTINGS_NAME,
-                [this](DataStream &stream, const String &filename)
+                [this](DataStream &stream, const String &filename, void *userData)
                 {
                     return T3D_SERIALIZER_MGR.serialize(stream, mProjectSettings);
-                });
+                },
+                nullptr);
         } while (false);
         
         return ret;
@@ -446,10 +448,11 @@ namespace Tiny3D
             }
 
             ret = archive->read(PROJECT_SETTINGS_NAME,
-                [this](DataStream &stream, const String &filename)
+                [this](DataStream &stream, const String &filename, void *userData)
                 {
                     return T3D_SERIALIZER_MGR.deserialize(stream, mProjectSettings);
-                });
+                },
+                nullptr);
         } while (false);
 
         return ret;
@@ -463,7 +466,7 @@ namespace Tiny3D
 
         do
         {
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mAssetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
             if (archive == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load archive [%s] !", mPath.c_str());

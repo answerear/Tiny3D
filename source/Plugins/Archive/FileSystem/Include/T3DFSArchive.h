@@ -75,22 +75,22 @@ namespace Tiny3D
         /**
          * 重写 Archieve::read() 接口
          */
-        TResult read(const String &name, const ArchiveReadCallback &callback) override;
+        TResult read(const String &name, const ArchiveReadCallback &callback, void *userData) override;
 
         /**
          * 重写 Archieve::write() 接口
          */
-        TResult write(const String &name, const ArchiveWriteCallback &callback) override;
+        TResult write(const String &name, const ArchiveWriteCallback &callback, void *userData) override;
 
         /**
          * 重写 Archieve::read() 接口
          */
-        TResult read(const UUID &uuid, const ArchiveReadCallback &callback) override;
+        TResult read(const UUID &uuid, const ArchiveReadCallback &callback, void *userData) override;
 
         /**
          * 重写 Archieve::write() 接口
          */
-        TResult write(const UUID &uuid, const ArchiveWriteCallback &callback) override;
+        TResult write(const UUID &uuid, const ArchiveWriteCallback &callback, void *userData) override;
         
         /**
          * 构造函数

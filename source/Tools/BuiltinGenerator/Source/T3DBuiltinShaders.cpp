@@ -159,10 +159,13 @@ namespace Tiny3D
             MetaShaderPtr meta = MetaShader::create(shader->getUUID());
             String metaName = filename + ".meta";
             archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-            ret = archive->write(metaName, [&meta](DataStream &stream, const String &filename)
+            ret = archive->write(metaName,
+                [](DataStream &stream, const String &filename, void *userData)
                 {
+                    MetaShader *meta = static_cast<MetaShader *>(userData);
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                });
+                },
+                meta.get());
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate shader meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);
@@ -173,10 +176,13 @@ namespace Tiny3D
             metaName = title + "." + ext + ".meta";
             archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
-            ret = archive->write(metaName, [&metaShaderLab](DataStream &stream, const String &filename)
+            ret = archive->write(metaName,
+                [](DataStream &stream, const String &filename, void *userData)
                 {
-                    return T3D_SERIALIZER_MGR.serialize(stream, metaShaderLab);
-                });
+                    MetaShaderLab *meta = static_cast<MetaShaderLab *>(userData);
+                    return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                },
+                metaShaderLab.get());
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate shader lab meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);

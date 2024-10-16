@@ -100,10 +100,13 @@ namespace Tiny3D
             // 生成 material meta file
             MetaMaterialPtr meta = MetaMaterial::create(material->getUUID());
             String metaName = materialName + ".meta";
-            ret = archive->write(metaName, [&meta](DataStream &stream, const String &filename)
+            ret = archive->write(metaName,
+                [](DataStream &stream, const String &filename, void *userData)
                 {
+                    MetaMaterial *meta = static_cast<MetaMaterial *>(userData);
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                });
+                },
+                meta.get());
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate material meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);

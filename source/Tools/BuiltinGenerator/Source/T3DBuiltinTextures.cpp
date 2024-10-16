@@ -162,10 +162,13 @@ namespace Tiny3D
         // Testing texture meta file
         MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
         filename = filename + ".meta";
-        ret = archive->write(filename, [&meta](DataStream &stream, const String &filename)
+        ret = archive->write(filename,
+            [](DataStream &stream, const String &filename, void *userData)
             {
+                MetaTexture *meta = static_cast<MetaTexture *>(userData);
                 return T3D_SERIALIZER_MGR.serialize(stream, meta);
-            });
+            },
+            meta.get());
         if (T3D_FAILED(ret))
         {
             BGEN_LOG_ERROR("Failed to generate testing texture meta %s ! ERROR [%d]", filename.c_str(), ret);
@@ -234,10 +237,13 @@ namespace Tiny3D
                     // Generate texture meta file
                     MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
                     name = name + ".meta";
-                    ret = archive->write(name, [&meta](DataStream &stream, const String &filename)
+                    ret = archive->write(name,
+                        [](DataStream &stream, const String &filename, void *userData)
                         {
+                            MetaTexture *meta = static_cast<MetaTexture *>(userData);
                             return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                        });
+                        },
+                        meta.get());
                     if (T3D_FAILED(ret))
                     {
                         BGEN_LOG_ERROR("Failed to generate texture meta (%s) ! ERROR [%d]", outputPath.c_str(), ret);

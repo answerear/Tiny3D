@@ -173,7 +173,7 @@ namespace Tiny3D
             data = nullptr;
 
             ret = true;
-        } while (0);
+        } while (false);
 
 
         if (fs.isOpened())

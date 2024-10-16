@@ -328,11 +328,13 @@ namespace Tiny3D
 
             // Builtin cube mesh meta file
             filename = filename + ".meta";
-            ret = archive->write(filename, [this](DataStream &stream, const String &filename)
+            ret = archive->write(filename,
+                [this](DataStream &stream, const String &filename, void *userData)
                 {
                     MetaMeshPtr meta = MetaMesh::create(mMesh->getUUID());
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                });
+                },
+                nullptr);
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate meta file (%s) for cube mesh ! ERROR [%d]", filename.c_str(), ret);
@@ -351,10 +353,13 @@ namespace Tiny3D
             // Builtin cube mesh meta file for testing
             MetaMeshPtr meta = MetaMesh::create(mTestMesh->getUUID());
             filename = filename + ".meta";
-            ret = archive->write(filename, [&meta](DataStream &stream, const String &filename)
+            ret = archive->write(filename,
+                [](DataStream &stream, const String &filename, void *userData)
                 {
+                    MetaMesh *meta = static_cast<MetaMesh *>(userData);
                     return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                });
+                },
+                meta.get());
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate meta file (%s) for testing cube mesh ! ERROR [%d]", filename.c_str(), ret);

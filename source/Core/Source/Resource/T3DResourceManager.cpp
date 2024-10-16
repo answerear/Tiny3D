@@ -111,13 +111,13 @@ namespace Tiny3D
             if (it != mResourcesCache.end())
             {
                 // 已经加过了
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Insert resource [%s] to cache failed ! Already exists !", resource->getName().c_str());
-                ret = false;
-                break;
+                T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Insert resource [%s] to cache failed ! Already exists !", resource->getName().c_str());
             }
-
-            // 存到缓存池
-            mResourcesCache.emplace(resource->getUUID(), resource);
+            else
+            {
+                // 存到缓存池
+                mResourcesCache.emplace(resource->getUUID(), resource);
+            }
             
             ret = insertLUT(resource);
         } while (false);
@@ -281,7 +281,8 @@ namespace Tiny3D
 
         do
         {
-            TResult ret = archive->read(filename, [this, &res, &filename](DataStream &stream, const String &name)
+            TResult ret = archive->read(filename,
+                [this, &res, &filename](DataStream &stream, const String &name, void *userData)
                 {
                     // 加载 resource 对象
                     TResult ret = T3D_OK;
@@ -291,7 +292,8 @@ namespace Tiny3D
                         ret = T3D_ERR_RES_LOAD_FAILED;
                     }
                     return ret;
-                });
+                },
+                nullptr);
             
             if (T3D_FAILED(ret))
             {
@@ -360,7 +362,8 @@ namespace Tiny3D
 
         do
         {
-            TResult ret = archive->read(uuid, [this, &res](DataStream &stream, const String &filename)
+            TResult ret = archive->read(uuid,
+                [this, &res](DataStream &stream, const String &filename, void *userData)
                 {
                     // 加载 resource 对象
                     TResult ret = T3D_OK;
@@ -374,7 +377,8 @@ namespace Tiny3D
                         res->setFilename(filename);
                     }
                     return ret;
-                });
+                },
+                nullptr);
             
             if (T3D_FAILED(ret))
             {
@@ -450,10 +454,13 @@ namespace Tiny3D
             }
 
             // 保存资源对象
-            ret = archive->write(filename, [this, res](DataStream &stream, const String &name)
+            ret = archive->write(filename,
+                [this](DataStream &stream, const String &name, void *userData)
                 {
+                    Resource *res = static_cast<Resource *>(userData);
                     return saveResource(stream, res);
-                });
+                },
+                res);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed !", filename.c_str());
@@ -496,10 +503,13 @@ namespace Tiny3D
             }
             
             // 保存资源对象
-            ret = archive->write(res->getUUID(), [this, res](DataStream &stream, const String &name)
+            ret = archive->write(res->getUUID(),
+                [this](DataStream &stream, const String &name, void *userData)
                 {
+                    Resource *res = static_cast<Resource *>(userData);
                     return saveResource(stream, res);
-                });
+                },
+                res);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Save resource [%s] failed ! UUID : %s", res->getName().c_str(), res->getUUID().toString().c_str());

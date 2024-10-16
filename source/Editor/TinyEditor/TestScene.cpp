@@ -78,10 +78,13 @@ namespace Tiny3D
         
         String title = "TestScene";
         String name = title + "." + Resource::EXT_SCENE;
-        archive->write(name, [scene](DataStream &stream, const String &filename)
+        archive->write(name,
+            [](DataStream &stream, const String &filename, void *userData)
             {
+                Scene *scene = static_cast<Scene *>(userData);
                 return T3D_SERIALIZER_MGR.serialize(stream, scene);
-            });
+            },
+            scene.get());
 
         T3D_SCENE_MGR.unloadScene(scene);
         
@@ -94,10 +97,12 @@ namespace Tiny3D
         name = title + "." + Resource::EXT_SCENE;
         archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
         T3D_ASSERT(archive != nullptr);
-        archive->write(name, [scene2](DataStream &stream, const String &filename)
+        archive->write(name, [](DataStream &stream, const String &filename, void *userData)
             {
-                return T3D_SERIALIZER_MGR.serialize(stream, scene2);
-            });
+                Scene *scene = static_cast<Scene *>(userData);
+                return T3D_SERIALIZER_MGR.serialize(stream, scene);
+            },
+            scene2.get());
 #endif
     }
 

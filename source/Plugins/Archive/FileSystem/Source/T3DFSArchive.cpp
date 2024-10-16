@@ -131,7 +131,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FileSystemArchive::read(const String &name, const ArchiveReadCallback &callback)
+    TResult FileSystemArchive::read(const String &name, const ArchiveReadCallback &callback, void *userData)
     {
         TResult ret = T3D_OK;
 
@@ -156,7 +156,7 @@ namespace Tiny3D
             }
 
             // 读数据
-            ret = callback(fs, path);
+            ret = callback(fs, path, userData);
 
             // 关闭文件
             fs.close();
@@ -167,7 +167,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FileSystemArchive::write(const String &name, const ArchiveWriteCallback &callback)
+    TResult FileSystemArchive::write(const String &name, const ArchiveWriteCallback &callback, void *userData)
     {
         if (!canWrite())
         {
@@ -198,7 +198,7 @@ namespace Tiny3D
             }
 
             // 写数据
-            ret = callback(fs, path);
+            ret = callback(fs, path, userData);
 
             // 关闭文件
             fs.close();
@@ -209,7 +209,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FileSystemArchive::read(const UUID &uuid, const ArchiveReadCallback &callback)
+    TResult FileSystemArchive::read(const UUID &uuid, const ArchiveReadCallback &callback, void *userData)
     {
         T3D_ASSERT(false);
         return T3D_ERR_NOT_IMPLEMENT;
@@ -217,7 +217,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FileSystemArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback)
+    TResult FileSystemArchive::write(const UUID &uuid, const ArchiveWriteCallback &callback, void *userData)
     {
         T3D_ASSERT(false);
         return T3D_ERR_NOT_IMPLEMENT;

@@ -80,17 +80,19 @@ namespace Tiny3D
             }
             return !path.empty() && meta != nullptr;
         }
+
+        TResult generateMetaFile(const String &name, void *userData);
         
     protected:
         MetaFSMonitor(const String &rootPath);
 
         void generateMeta(const String &path);
 
-        void generateFileMeta(const String &path);
-
         void generateFolderMeta(const String &path);
 
-        MetaPtr generateFileMeta(const String &metaPath, const String &path, const String &title, const String &ext);
+        void generateFileMeta(const String &path);
+
+        MetaPtr generateFileMeta(const String &metaPath, const String &path, const String &title, const String &ext, void *userData = nullptr);
 
         void removeFileMeta(const String &path);
 

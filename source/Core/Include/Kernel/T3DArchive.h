@@ -34,14 +34,16 @@
 namespace Tiny3D
 {
     /// 档案系统读回调
-    /// DataStream : 数据流对象
-    /// String : 文件名
-    using ArchiveReadCallback = TFunction<TResult(DataStream &, const String &)>;
+    /// DataStream & : 数据流对象
+    /// const String & : 文件名
+    /// void * : 用户透传的数据
+    using ArchiveReadCallback = TFunction<TResult(DataStream &, const String &, void *)>;
 
     // 档案系统写回调
-    /// DataStream : 数据流对象
-    /// String : 文件名
-    using ArchiveWriteCallback = TFunction<TResult(DataStream &, const String &)>;
+    /// DataStream & : 数据流对象
+    /// const String & : 文件名
+    /// void * : 用户透传的数据
+    using ArchiveWriteCallback = TFunction<TResult(DataStream &, const String &, void *)>;
     
     /**
      * @brief 档案类，用于档案文件的组织管理，用于隔离文件系统、zip压缩文件的实现细节
@@ -125,7 +127,7 @@ namespace Tiny3D
          * @param [in] callback : 读回调.
          * @return 读成功返回T3D_OK.
          */
-        virtual TResult read(const String &name, const ArchiveReadCallback &callback) = 0;
+        virtual TResult read(const String &name, const ArchiveReadCallback &callback, void *userData) = 0;
 
         /**
          * @brief 写数据流到档案里的指定文件中
@@ -133,7 +135,7 @@ namespace Tiny3D
          * @param [in] callback : 写回调.
          * @return 写成功返回T3D_OK.
          */
-        virtual TResult write(const String &name, const ArchiveWriteCallback &callback) = 0;
+        virtual TResult write(const String &name, const ArchiveWriteCallback &callback, void *userData) = 0;
 
         /**
          * @brief 从档案读取指定UUID的文件到数据流中
@@ -141,7 +143,7 @@ namespace Tiny3D
          * @param [in] callback : 读回调 
          * @return 读成功返回 T3D_OK
          */
-        virtual TResult read(const UUID &uuid, const ArchiveReadCallback &callback) = 0;
+        virtual TResult read(const UUID &uuid, const ArchiveReadCallback &callback, void *userData) = 0;
 
         /**
          * @brief 写数据流到档案里的指定UUID文件中
@@ -149,7 +151,7 @@ namespace Tiny3D
          * @param [in] callback : 写回调
          * @return 写成功返回 T3D_OK
          */
-        virtual TResult write(const UUID &uuid, const ArchiveWriteCallback &callback) = 0;
+        virtual TResult write(const UUID &uuid, const ArchiveWriteCallback &callback, void *userData) = 0;
 
     protected:
         /**

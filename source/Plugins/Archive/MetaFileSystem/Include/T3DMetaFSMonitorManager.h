@@ -37,11 +37,13 @@ namespace Tiny3D
 
         TResult removeAllMonitors();
 
-        // const String &getPath(const UUID &uuid, MetaFSMonitor *excludeMonitor) const;
-        //
-        // MetaFSMonitor *getMonitor(const UUID &uuid, MetaFSMonitor *excludeMonitor) const;
-
         bool getPathAndMonitor(const UUID &uuid, MetaFSMonitor *mainMonitor, String &path, MetaFSMonitor *&monitor);
+
+        MetaFSMonitor *getMonitor(const String &path) const
+        {
+            auto itr = mPathMonitors.find(path);
+            return itr != mPathMonitors.end() ? itr->second : nullptr;
+        }
         
     protected:
         using PathMonitors = TUnorderedMap<String, MetaFSMonitorPtr>;
