@@ -134,6 +134,10 @@ namespace Tiny3D
         {
             mResourcesLookup.erase(resource->getFilename());
         }
+        else
+        {
+            mResourcesLookup.erase(resource->getName());
+        }
             
         // 从 cache 移除
         mResourcesCache.erase(resource->getUUID());
@@ -556,6 +560,16 @@ namespace Tiny3D
 
         do 
         {
+            auto itr = mResourcesCache.begin();
+            while (itr != mResourcesCache.end())
+            {
+                auto itrCur = itr++;
+                if (itrCur->second->getState() == Resource::State::kLoaded && itrCur->second->referCount() == 1)
+                {
+                    itrCur->second->onUnload();
+                    removeCache(itrCur->second);
+                }
+            }
         } while (false);
 
         return ret;
