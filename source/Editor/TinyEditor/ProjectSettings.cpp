@@ -24,6 +24,7 @@
 
 
 #include "ProjectSettings.h"
+#include "ProjectManager.h"
 
 
 namespace Tiny3D
@@ -32,7 +33,76 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    const char *ProjectSettings::PROJECT_SETTINGS_FOLDER = "ProjectSettings";
+    const char *ProjectSettings::PROJECT_SETTINGS_NAME = "ProjectSettings.tasset";
+    
+    //--------------------------------------------------------------------------
 
+    void ProjectSettings::ensure()
+    {
+        String path = PROJECT_MGR.getAssetsPath() + Dir::getNativeSeparator() + PROJECT_SETTINGS_FOLDER;
+        if (!Dir::exists(path))
+        {
+            Dir::makeDir(path);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectSettings::save()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(PROJECT_MGR.getAssetsPath(), ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s]", PROJECT_MGR.getAssetsPath().c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            String filename = String(PROJECT_SETTINGS_FOLDER) + Dir::getNativeSeparator() + String(PROJECT_SETTINGS_NAME);
+            ret = archive->write(filename,
+                [this](DataStream &stream, const String &filename, void *userData)
+                {
+                    return T3D_SERIALIZER_MGR.serialize(stream, *this);
+                },
+                nullptr);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectSettings::load()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(PROJECT_MGR.getAssetsPath(), ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s] !", PROJECT_MGR.getAssetsPath().c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            String filename = String(PROJECT_SETTINGS_FOLDER) + Dir::getNativeSeparator() + String(PROJECT_SETTINGS_NAME);
+            ret = archive->read(filename,
+                [this](DataStream &stream, const String &filename, void *userData)
+                {
+                    return T3D_SERIALIZER_MGR.deserialize(stream, *this);
+                },
+                nullptr);
+        } while (false);
+
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     NS_END

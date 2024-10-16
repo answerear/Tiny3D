@@ -69,17 +69,12 @@ namespace Tiny3D
 
         TResult createSimpleScene(const String &assetsPath);
 
-        TResult saveProjectSettings();
-
-        TResult loadProjectSettings();
-
         TResult loadStartupScene();
         
     protected:
         static const char *ASSETS;
         static const char *SCENES;
         static const char *TEMP;
-        static const char *PROJECT_SETTINGS_NAME;
         
         /// 文件系统监控器
         FileSystemMonitor *mFSMonitor {nullptr};

@@ -38,6 +38,15 @@ namespace Tiny3D
         /// 启动场景的 UUID
         TPROPERTY()
         UUID StartupSceneUUID {};
+
+        void ensure();
+        
+        TResult save();
+
+        TResult load();
+
+        static const char *PROJECT_SETTINGS_FOLDER;
+        static const char *PROJECT_SETTINGS_NAME;
     };
 
     NS_END

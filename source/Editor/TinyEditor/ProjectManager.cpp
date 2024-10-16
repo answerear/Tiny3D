@@ -36,7 +36,6 @@ namespace Tiny3D
     const char *ProjectManager::ASSETS = "Assets";
     const char *ProjectManager::SCENES = "Scenes";
     const char *ProjectManager::TEMP = "Temp";
-    const char *ProjectManager::PROJECT_SETTINGS_NAME = "ProjectSettings.tdat";
     
     //--------------------------------------------------------------------------
 
@@ -277,8 +276,10 @@ namespace Tiny3D
             mAssetsPath = assetsPath;
             mTempPath = tempPath;
 
+            mProjectSettings.ensure();
+            
             // 保存工程设置
-            ret = saveProjectSettings();
+            ret = mProjectSettings.save();
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_WARNING("Failed to save project settings !");
@@ -359,8 +360,10 @@ namespace Tiny3D
             mAssetsPath = assetsPath;
             mTempPath = tempPath;
 
+            mProjectSettings.ensure();
+
             // 加載工程設置
-            ret = loadProjectSettings();
+            ret = mProjectSettings.load();
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_WARNING("Failed to load project settings !");
@@ -402,60 +405,6 @@ namespace Tiny3D
         mCompiledShadersArchive = nullptr;
         
         return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ProjectManager::saveProjectSettings()
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-            if (archive == nullptr)
-            {
-                EDITOR_LOG_ERROR("Failed to load archive [%s]", mPath.c_str());
-                ret = T3D_ERR_RES_LOAD_FAILED;
-                break;
-            }
-
-            ret = archive->write(PROJECT_SETTINGS_NAME,
-                [this](DataStream &stream, const String &filename, void *userData)
-                {
-                    return T3D_SERIALIZER_MGR.serialize(stream, mProjectSettings);
-                },
-                nullptr);
-        } while (false);
-        
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ProjectManager::loadProjectSettings()
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
-            if (archive == nullptr)
-            {
-                EDITOR_LOG_ERROR("Failed to load archive [%s] !", mPath.c_str());
-                ret = T3D_ERR_RES_LOAD_FAILED;
-                break;
-            }
-
-            ret = archive->read(PROJECT_SETTINGS_NAME,
-                [this](DataStream &stream, const String &filename, void *userData)
-                {
-                    return T3D_SERIALIZER_MGR.deserialize(stream, mProjectSettings);
-                },
-                nullptr);
-        } while (false);
-
-        return ret;
     }
 
     //--------------------------------------------------------------------------
