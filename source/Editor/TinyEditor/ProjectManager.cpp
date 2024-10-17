@@ -270,7 +270,7 @@ namespace Tiny3D
                 break;
             }
 #endif
-            
+
             mPath = projectPath;
             mName = name;
             mAssetsPath = assetsPath;
