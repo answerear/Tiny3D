@@ -27,7 +27,6 @@
 
 
 #include "T3DUtilsPrerequisites.h"
-#include "../../../dependencies/sdl2/include/SDL2/SDL_syswm.h"
 // #include "T3DFix32.h"
 // #include "T3DFix64.h"
 
