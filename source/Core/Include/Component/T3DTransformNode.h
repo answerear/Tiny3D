@@ -30,6 +30,10 @@
 #include "Component/T3DComponent.h"
 
 
+#define USE_GENARAL_MULTI_TREE
+
+
+#if !defined (USE_GENARAL_MULTI_TREE)
 namespace Tiny3D
 {
     TCLASS()
@@ -128,10 +132,118 @@ namespace Tiny3D
 
         ChildrenUUID        mChildrenUUID {};
     };
+
 }
 
 
 #include "T3DTransformNode.inl"
+
+#else
+
+namespace Tiny3D
+{
+    TCLASS()
+    class T3D_ENGINE_API TransformNode : public Component, public TreeNode<UUID, TransformNode, TransformNodePtr, UUIDHash, UUIDEqual>
+    {
+        friend class GameObject;
+        TRTTI_ENABLE(Component)
+        TRTTI_FRIEND
+        
+    public:
+        ~TransformNode() override;
+
+        template <typename VisitAction, typename ...Args>
+        void visitActive(const VisitAction &action, Args &...args)
+        {
+            dfs_visit(true,
+                [](TransformNode *node) { return node->getGameObject()->isActive(); },
+                action, args...);
+        }
+        
+        template <typename VisitAction, typename  ...Args>
+        void visitVisible(const VisitAction &action, Args &...args)
+        {
+            dfs_visit(true,
+                [](TransformNode *node) { return node->getGameObject()->isVisible(); },
+                action, args...);
+        }
+
+        template <typename VisitAction, typename ...Args>
+        void visitAll(const VisitAction &action, Args &...args)
+        {
+            dfs_visit(true, nullptr, action, args...);
+        }
+
+        template <typename VisitAction, typename ...Args>
+        void reverseVisitActive(const VisitAction &action, Args &...args)
+        {
+            dfs_visit(false,
+                [](TransformNode *node) { return node->getGameObject()->isActive(); },
+                action, args...);
+        }
+
+        template <typename VisitAction, typename ...Args>
+        void reverseVisitVisible(const VisitAction &action, Args &...args)
+        {
+            dfs_visit(false,
+                [](TransformNode *node) { return node->getGameObject()->isVisible(); },
+                action, args...);
+        }
+
+        template <typename VisitAction, typename ...Args>
+        void reverseVisitAll(const VisitAction &action, Args &...args)
+        {
+            dfs_visit(false, nullptr, action, args...);
+        }
+
+        const UUID &getKey() const override { return getUUID(); }
+        
+        bool addChild(TransformNode *node) override;
+
+        bool removeChild(TransformNode *node) override;
+
+        TransformNodePtr removeChild(const UUID &nodeID) override;
+
+        void removeAllChildren() override;
+
+        void removeFromParent()
+        {
+            if (getParent() != nullptr)
+            {
+                getParent()->removeChild(this);
+            }
+        }
+        
+    protected:
+        TransformNode() = default;
+
+        TransformNode(const UUID &uuid);
+
+        TResult cloneProperties(const Component * const src) override;
+
+        virtual void onAttachParent(TransformNode *parent);
+
+        virtual void onDetachParent(TransformNode *parent);
+
+        void onDestroy() override;
+        
+    private:
+        using ChildrenUUID = TList<UUID>;
+
+        TPROPERTY(RTTRFuncName="Children", RTTRFuncType="getter")
+        const ChildrenUUID &getChildrenUUID() const { return mChildrenUUID; }
+
+        TPROPERTY(RTTRFuncName="Children", RTTRFuncType="setter")
+        void setChildrenUUID(const ChildrenUUID &childrenUUID) { mChildrenUUID = childrenUUID; }
+
+        /// 根据父子 UUID 构造层次数，专门给 Scene 在反序列化后调用 
+        void setupHierarchy();
+
+        ChildrenUUID    mChildrenUUID {};
+    };
+}
+
+#endif
 
 
 #endif  /*__T3D_TRANSFORM_NODE_H__*/

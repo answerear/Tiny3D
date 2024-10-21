@@ -30,6 +30,7 @@
 
 namespace Tiny3D
 {
+#if !defined (USE_GENARAL_MULTI_TREE)
     //--------------------------------------------------------------------------
 
     TransformNode::TransformNode(const UUID& uuid)
@@ -347,6 +348,145 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+#else
+    //--------------------------------------------------------------------------
+
+    TransformNode::TransformNode(const UUID& uuid)
+        : Component(uuid)
+    {
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TransformNode::~TransformNode()
+    {
+        // removeAllChildren();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TransformNode::addChild(TransformNode *node)
+    {
+        return TreeNode::addChild(node, [this](TransformNode *node)
+            {
+                mChildrenUUID.emplace_back(node->getUUID());
+                node->onAttachParent(this);
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool TransformNode::removeChild(TransformNode *node)
+    {
+        return TreeNode::removeChild(node, [this](TransformNode *node)
+            {
+                node->onDetachParent(this);
+                mChildrenUUID.remove(node->getUUID());
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
+    TransformNodePtr TransformNode::removeChild(const UUID &nodeID)
+    {
+        return TreeNode::removeChild(nodeID, [this](TransformNode *node)
+            {
+                node->onDetachParent(this);
+                mChildrenUUID.remove(node->getUUID());
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TransformNode::removeAllChildren()
+    {
+        TreeNode::removeAllChildren([this](TransformNode *node)
+            {
+                node->onDetachParent(this);
+            });
+        mChildrenUUID.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult TransformNode::cloneProperties(const Component * const src)
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            const TransformNode * const node = static_cast<const TransformNode* const>(src);
+            if (node == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid pointer !");
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            // 克隆子结点属性
+            for (auto child : node->mChildren)
+            {
+                TransformNode *newChild = smart_pointer_cast<TransformNode>(child->clone());
+                child->cloneProperties(newChild);
+                addChild(newChild);
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TransformNode::onAttachParent(TransformNode *parent)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TransformNode::onDetachParent(TransformNode *parent)
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TransformNode::onDestroy()
+    {
+        TransformNodePtr parent = getParent();
+        if (parent != nullptr)
+        {
+            parent->removeChild(this);
+        }
+
+        removeAllChildren();
+        
+        Component::onDestroy();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void TransformNode::setupHierarchy()
+    {
+        size_t i = 0;
+        size_t count = mChildrenUUID.size();
+        
+        for (auto itr = mChildrenUUID.begin(); itr != mChildrenUUID.end(); ++itr, ++i)
+        {
+            const UUID &uuid = *itr;
+            T3D_ASSERT(uuid != UUID::INVALID);
+            const auto it = msComponents.find(uuid);
+            if (it != msComponents.end())
+            {
+                T3D_ASSERT(it->second.get()->get_type() != RTTRType::get<TransformNode*>());
+                TransformNodePtr child = smart_pointer_cast<TransformNode>(it->second);
+                TreeNode::addChild(child, [this](TransformNode *node) { node->onAttachParent(this); });
+            }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+#endif
 }
 
 

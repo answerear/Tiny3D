@@ -154,12 +154,10 @@ namespace Tiny3D
 
             if (recursive)
             {
-                TransformNode *child = getFirstChild();
-                while (child != nullptr)
+                for (auto itr = child_begin(); itr != child_end(); ++itr)
                 {
-                    Transform3D *node = static_cast<Transform3D*>(child);
+                    Transform3D *node = static_cast<Transform3D*>(itr->get());
                     node->setDirty(isDirty, recursive);
-                    child = child->getNextSibling();
                 }
             }
         }
