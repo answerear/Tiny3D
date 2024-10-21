@@ -29,6 +29,7 @@
 #include <imgui.h>
 #include <TinyImGui.h>
 #include "Language/Language.h"
+#include "SDL.h"
 
 #define NS_BEGIN(name)  namespace name {
 #define NS_END    }
