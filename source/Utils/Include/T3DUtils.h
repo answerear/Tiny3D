@@ -33,6 +33,7 @@
 #include <T3DCRC.h>
 #include <T3DHash.h>
 #include <T3DBase64.h>
+#include <T3DTree.h>
 
 
 #endif  /*__T3D_UTILS_H__*/
