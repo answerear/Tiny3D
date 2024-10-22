@@ -81,14 +81,12 @@ namespace Tiny3D
                 mOtherChild = child0;
             }
             
-            ret = addChild(child0);
-            if (T3D_FAILED(ret))
+            if (!addChild(child0))
             {
                 break;
             }
             
-            ret = addChild(child1);
-            if (T3D_FAILED(ret))
+            if (!addChild(child1))
             {
                 break;
             }

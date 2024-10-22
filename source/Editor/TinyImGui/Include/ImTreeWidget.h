@@ -126,21 +126,21 @@ namespace Tiny3D
         void fireRClickedEvent();
 
     private:
-        TResult addWidget(const String &parentName, ImWidget *widget) override;
+        bool addWidget(const String &parentName, ImWidget *widget) override;
 
-        TResult addWidget(const UUID &parentUUID, ImWidget *widget) override;
+        bool addWidget(const UUID &parentUUID, ImWidget *widget) override;
 
-        TResult addWidget(uint32_t parentID, ImWidget *widget) override;
+        bool addWidget(uint32_t parentID, ImWidget *widget) override;
         
-        TResult addChild(ImWidget *widget) override;
+        bool addChild(ImWidget *widget) override;
 
-        TResult insertAfterChild(const String &prevName, ImWidget *widget) override;
+        bool insertAfterChild(const String &prevName, ImWidget *widget) override;
 
-        TResult insertAfterChild(const UUID &prevUUID, ImWidget *widget) override;
+        bool insertAfterChild(const UUID &prevUUID, ImWidget *widget) override;
 
-        TResult insertAfterChild(ImWidget *prevWidget, ImWidget *widget) override;
+        bool insertAfterChild(ImWidget *prevWidget, ImWidget *widget) override;
 
-        TResult insertAfterChild(uint32_t prevID, ImWidget *widget) override;
+        bool insertAfterChild(uint32_t prevID, ImWidget *widget) override;
 
     protected:
         /// tree 容器对象

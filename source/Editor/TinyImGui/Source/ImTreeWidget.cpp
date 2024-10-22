@@ -189,7 +189,7 @@ namespace Tiny3D
 
     TResult ImTreeNode::addNode(ImTreeNode *node)
     {
-        return ImTreeNode::addChild(node);
+        return ImTreeNode::addChild(node) ? IM_OK : IM_ERR_FAIL;
     }
 
     //--------------------------------------------------------------------------
@@ -425,49 +425,49 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::addWidget(const String &parentName, ImWidget *widget)
+    bool ImTreeNode::addWidget(const String &parentName, ImWidget *widget)
     {
         return ImWidget::addWidget(parentName, widget);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::addWidget(const UUID &parentUUID, ImWidget *widget)
+    bool ImTreeNode::addWidget(const UUID &parentUUID, ImWidget *widget)
     {
         return ImWidget::addWidget(parentUUID, widget);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::addWidget(uint32_t parentID, ImWidget *widget)
+    bool ImTreeNode::addWidget(uint32_t parentID, ImWidget *widget)
     {
         return ImWidget::addWidget(parentID, widget);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::addChild(ImWidget *widget)
+    bool ImTreeNode::addChild(ImWidget *widget)
     {
         return ImWidget::addChild(widget);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::insertAfterChild(const String &prevName, ImWidget *widget)
+    bool ImTreeNode::insertAfterChild(const String &prevName, ImWidget *widget)
     {
         return ImWidget::insertAfterChild(prevName, widget);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::insertAfterChild(const UUID &prevUUID, ImWidget *widget)
+    bool ImTreeNode::insertAfterChild(const UUID &prevUUID, ImWidget *widget)
     {
         return ImWidget::insertAfterChild(prevUUID, widget);
     }
     
     //--------------------------------------------------------------------------
 
-    TResult ImTreeNode::insertAfterChild(ImWidget *prevWidget, ImWidget *widget)
+    bool ImTreeNode::insertAfterChild(ImWidget *prevWidget, ImWidget *widget)
     {
         return ImWidget::insertAfterChild(prevWidget, widget);
     }
@@ -475,7 +475,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     
-    TResult ImTreeNode::insertAfterChild(uint32_t prevID, ImWidget *widget)
+    bool ImTreeNode::insertAfterChild(uint32_t prevID, ImWidget *widget)
     {
         return ImWidget::insertAfterChild(prevID, widget);
     }

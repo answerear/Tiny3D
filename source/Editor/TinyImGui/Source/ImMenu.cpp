@@ -255,7 +255,7 @@ namespace Tiny3D
 
     TResult ImMenuItemPopup::addItem(ImMenuItem *item)
     {
-        return addChild(item); 
+        return addChild(item) ? IM_OK : IM_ERR_FAIL;
     }
 
     //--------------------------------------------------------------------------
@@ -588,7 +588,7 @@ namespace Tiny3D
 
     TResult ImMenuBar::addMenu(ImMenu *menu)
     {
-        return addChild(menu);
+        return addChild(menu) ? IM_OK : IM_ERR_FAIL;
     }
 
     //--------------------------------------------------------------------------
