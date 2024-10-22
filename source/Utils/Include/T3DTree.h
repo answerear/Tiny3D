@@ -50,6 +50,10 @@ namespace Tiny3D
         using Action = TFunction<void(pointer_t)>;
         using QueryAction = TFunction<bool(pointer_t)>;
 
+        using Children = TList<smart_pointer_t>;
+        using ChildrenItr = typename Children::iterator;
+        using ChildrenMap = TUnorderedMap<key_t, pointer_t, HASHER, KEY_EQ>;
+
         TreeNode() = default;
 
         virtual ~TreeNode()
@@ -75,6 +79,7 @@ namespace Tiny3D
             {
                 mChildren.emplace_back(node);
                 node->mParent = static_cast<pointer_t>(this);
+                node->mSelfItr = std::prev(mChildren.end());
                 mIsDirty = true;
                 if (action != nullptr)
                 {
@@ -82,12 +87,46 @@ namespace Tiny3D
                 }
             }
             
-            return true;
+            return rval.second;
         }
 
         virtual bool addChild(pointer_t node)
         {
             return TreeNode::addChild(node, nullptr);
+        }
+
+        virtual bool insertAfterChild(pointer_t prevNode, pointer_t node, const Action &action)
+        {
+            T3D_ASSERT(node != nullptr);
+
+            auto rval = prevNode->getParent()->mChildrenMap.emplace(node->getKey(), node);
+            if (rval.second)
+            {
+                Children &children = prevNode->getParent()->mChildren;
+                
+                if (prevNode == nullptr)
+                {
+                    // 插入头
+                    children.emplace_front(node);
+                    node->mSelfItr = children.begin();
+                }
+                else
+                {
+                    node->mSelfItr = children.insert(std::next(prevNode->mSelfItr), node);
+                }
+                
+                if (action != nullptr)
+                {
+                    action(node);
+                }
+            }
+            
+            return rval.second;
+        }
+
+        virtual bool insertAfterChild(pointer_t prevNode, pointer_t node)
+        {
+            return insertAfterChild(prevNode, node, nullptr);
         }
 
         virtual bool removeChild(pointer_t node, const Action &action)
@@ -189,6 +228,8 @@ namespace Tiny3D
             return nullptr;
         }
 
+        const Children &getChildren() const { return mChildren; }
+
         size_t getChildrenCount() const { return mChildren.size(); }
 
         size_t getTotalCount() const
@@ -260,12 +301,24 @@ namespace Tiny3D
 
         using child_iterator = typename std::list<smart_pointer_t>::iterator;
 
+        using const_child_iterator = typename std::list<smart_pointer_t>::const_iterator;
+        
         child_iterator child_begin()
         {
             return mChildren.begin();
         }
 
+        const_child_iterator child_begin() const
+        {
+            return mChildren.begin();
+        }
+
         child_iterator child_end()
+        {
+            return mChildren.end();
+        }
+
+        const_child_iterator child_end() const
         {
             return mChildren.end();
         }
@@ -442,8 +495,9 @@ namespace Tiny3D
 
     protected:
         smart_pointer_t mParent {nullptr};
-        TList<smart_pointer_t> mChildren {};
-        TUnorderedMap<key_t, pointer_t, HASHER, KEY_EQ> mChildrenMap {};
+        Children mChildren {};
+        ChildrenMap mChildrenMap {};
+        ChildrenItr mSelfItr {};
         mutable bool mIsDirty {false};
         mutable size_t mTotalCount {0};
     };
