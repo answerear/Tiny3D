@@ -44,6 +44,7 @@ namespace Tiny3D
     Win32FSMonitor::~Win32FSMonitor()
     {
         T3D_SAFE_DELETE(mChangedQMutex);
+        T3D_SAFE_DELETE(mThread);
         close();
     }
 
@@ -96,8 +97,12 @@ namespace Tiny3D
             mExcludeExts = excludeExts;
             mExcludeFolders = excludeFolders;
             mOnChanged = onChanged;
+
+            if (mThread == nullptr)
+            {
+                mThread = new RunnableThread();
+            }
             
-            mThread = new RunnableThread();
             T3D_ASSERT(mThread);
             ret = mThread->start(this, "FileSystemMonitorThread");
         } while (false);

@@ -487,15 +487,15 @@ namespace Tiny3D
 
     void DebugMemManager::printInfo()
     {
-        Win32OutputDebugString("#########################  begin print leak mem  ######################\n");
+        Win32OutputDebugString("#########################  begin print leak mem  ######################\n\n");
 
         Win32OutputDebugString("Max Bytes: %lu\n", mMaxNumBytes);
 
         Win32OutputDebugString("Max Blocks: %u\n", mMaxNumBlocks);
 
-        Win32OutputDebugString("Total Size: %lu\n", mNumBytes);
+        Win32OutputDebugString("Leak Bytes: %lu\n", mNumBytes);
 
-        Win32OutputDebugString("The Number of Block : %u\n", mNumBlocks);
+        Win32OutputDebugString("The Number of Leak Blocks: %u\n", mNumBlocks);
         
         Win32OutputDebugString("The Number of New Calls: %lu\n", mNewCallsCount);
 
@@ -514,31 +514,22 @@ namespace Tiny3D
         static unsigned int uiLeakNum = 0;
         while (pBlock)
         {
-
             uiLeakNum++;
-            Win32OutputDebugString("$$$$$$$$$$$$$$$$  Leak %u  $$$$$$$$$$$$$$$$$\n",uiLeakNum);
-            Win32OutputDebugString("Size: %lu\n", pBlock->size);
-            Win32OutputDebugString("Is Array:%d\n", pBlock->isArray);
+            Win32OutputDebugString("\n$$$$$$$$$$$$$$$$  Begin Leak %u  $$$$$$$$$$$$$$$$$\n",uiLeakNum);
+            Win32OutputDebugString("\tSize: %lu\n", pBlock->size);
+            Win32OutputDebugString("\tIs Array:%d\n", pBlock->isArray);
 
-            // TCHAR szFile[MAX_PATH];
-            // int	  line;
             for (unsigned int i = 0 ; i < pBlock->callStackCount ; i++)
             {
-
-                // if (!getFileAndLine(pBlock->address[i], szFile, line))
-                // {
-                //     break;
-                // }
-                Win32OutputDebugString("%s(%d)\n", pBlock->callstacks[i], pBlock->line[i]);
-		
+                Win32OutputDebugString("\t0x%X\t%s(%d)\n", pBlock->address[i], pBlock->callstacks[i], pBlock->line[i]);
             }
-            Win32OutputDebugString("$$$$$$$$$$$$$$$$$ Leak %d  $$$$$$$$$$$$$$$$$$$\n", uiLeakNum);
+            Win32OutputDebugString("$$$$$$$$$$$$$$$$$ End Leak %d  $$$$$$$$$$$$$$$$$$$\n", uiLeakNum);
             pBlock = pBlock->next;
         }
         
-        Win32OutputDebugString("leak block total num : %d\n", uiLeakNum);
+        // Win32OutputDebugString("\nleak block total num : %d\n", uiLeakNum);
 
-        Win32OutputDebugString("#########################  end print leak mem  ######################\n");
+        Win32OutputDebugString("\n#########################  end print leak mem  ######################\n");
     }
 
     //--------------------------------------------------------------------------
