@@ -80,6 +80,7 @@ namespace Tiny3D
     
     class ProjectManager
         : public EventHandler
+        , public Allocator
         , public Singleton<ProjectManager>
     {
     public:
