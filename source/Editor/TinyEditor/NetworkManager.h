@@ -34,6 +34,7 @@ namespace Tiny3D
 
     class NetworkManager
         : public EventHandler
+        , public Allocator
         , public Singleton<NetworkManager>
     {
     public:

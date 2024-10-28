@@ -41,6 +41,8 @@ namespace Tiny3D
         
     protected:
         TResult onCreate() override;
+
+        void onDestroy() override;
         
         void onGUI() override;
 

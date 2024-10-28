@@ -33,7 +33,9 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class AssetNode : public TreeNode<String, AssetNode>
+    class AssetNode
+        : public TreeNode<String, AssetNode>
+        , public Allocator
     {
     public:
         AssetNode() = default;
@@ -56,7 +58,9 @@ namespace Tiny3D
         MetaPtr mMeta {};
     };
 
-    class ProjectManager : public Singleton<ProjectManager>
+    class ProjectManager
+        : public Allocator
+        , public Singleton<ProjectManager>
     {
     public:
         ProjectManager();

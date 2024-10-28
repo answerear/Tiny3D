@@ -227,6 +227,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void UIAssetHierarchyView::onDestroy()
+    {
+        if (mContextMenu != nullptr)
+        {
+            mContextMenu->destroy();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void UIAssetHierarchyView::onGUI()
     {
         
