@@ -32,13 +32,14 @@
 #include "T3DRunnableThread.h"
 #include "T3DSingleton.h"
 #include "Thread/T3DSyncObject.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class RunnableThread;
     
-    class T3D_PLATFORM_API ThreadManager : public Singleton<ThreadManager>
+    class T3D_PLATFORM_API ThreadManager : public Allocator, public Singleton<ThreadManager>
     {
     public:
         ThreadManager() = default;

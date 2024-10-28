@@ -30,6 +30,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "Window/T3DSysWMInfo.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -38,7 +39,7 @@ namespace Tiny3D
      * @brief 平台窗口抽象类
      * @remarks 不同平台根据接口各自实现具体的操作
      */
-    class IWindow
+    class IWindow : public Allocator
     {
         T3D_DECLARE_INTERFACE(IWindow);
 

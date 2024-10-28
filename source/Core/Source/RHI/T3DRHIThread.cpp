@@ -32,6 +32,8 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    static int32_t g_AddCommandCount = 0;
+
     RHIThreadPtr RHIThread::create()
     {
         return new RHIThread();
@@ -96,7 +98,7 @@ namespace Tiny3D
                 break;
             
             // 循环执行 RHI 命令
-            for (auto command : mCommandLists[mHanldeCommandListIdx])
+            for (auto &command : mCommandLists[mHanldeCommandListIdx])
             {
                 command->execute();
             }
@@ -126,6 +128,7 @@ namespace Tiny3D
 
     TResult RHIThread::addCommand(RHICommand *command)
     {
+        g_AddCommandCount++;
         mCommandLists[mEnqueueCommandListIdx].push_back(RHICommandSafePtr(command));
         return T3D_OK;
     }

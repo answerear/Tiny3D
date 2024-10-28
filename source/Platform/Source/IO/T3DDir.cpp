@@ -68,6 +68,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Dir::exit()
+    {
+        T3D_SAFE_DELETE(sDir)
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Dir::findFile(const String &strPath)
     {
         if (mDir != nullptr)

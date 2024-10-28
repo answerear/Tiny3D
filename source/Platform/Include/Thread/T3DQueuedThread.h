@@ -29,6 +29,7 @@
 #include "Thread/T3DRunnable.h"
 #include "Thread/T3DSyncObject.h"
 #include "Thread/T3DThreadConstant.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

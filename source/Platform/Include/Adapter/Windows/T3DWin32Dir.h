@@ -28,8 +28,10 @@
 
 #include "Adapter/T3DDirInterface.h"
 #include "T3DNoncopyable.h"
+#include "Memory/T3DMemory.h"
 #include <windows.h>
 #include <filesystem>
+
 
 // #define STD_FILESYSTEM
 

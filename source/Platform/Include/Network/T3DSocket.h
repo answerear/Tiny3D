@@ -30,6 +30,7 @@
 #include "T3DNoncopyable.h"
 #include "T3DPlatformErrorDef.h"
 #include "T3DSocketType.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -41,7 +42,7 @@ namespace Tiny3D
     using OnException = TFunction<TResult(Socket*)>;
     using OnDisconnected = TFunction<void(Socket*, TResult)>;
     
-    class T3D_PLATFORM_API Socket : public Noncopyable
+    class T3D_PLATFORM_API Socket : public Allocator, public Noncopyable
     {
         public:
         /**

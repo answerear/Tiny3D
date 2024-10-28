@@ -28,6 +28,7 @@
 
 #include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -42,7 +43,7 @@ namespace Tiny3D
      * @brief 系统类.
      * @note 该类对一些全局的单例创建和释放，为上层提供框架层和系统层统一接口.
      */
-    class T3D_PLATFORM_API Platform : public Singleton<Platform>
+    class T3D_PLATFORM_API Platform : public Allocator, public Singleton<Platform>
     {
     public:
         /**

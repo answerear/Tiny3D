@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_PLATFORM_MACRO_H__
-#define __T3D_PLATFORM_MACRO_H__
+#ifndef __T3D_PLATFORM_PREREQUISITES_H__
+#define __T3D_PLATFORM_PREREQUISITES_H__
 
 
 #if defined T3DPLATFORM_EXPORT
@@ -85,4 +85,4 @@ namespace Tiny3D
 }
  
 
-#endif  /*__T3D_PLATFORM_MACRO_H__*/
+#endif  /*__T3D_PLATFORM_PREREQUISITES_H__*/

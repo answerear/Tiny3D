@@ -27,6 +27,7 @@
 
 
 #include "Adapter/T3DTimeInterface.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

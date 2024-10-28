@@ -34,6 +34,7 @@
 #include "Thread/T3DThreadManager.h"
 #include "T3DPlatformErrorDef.h"
 #include "IO/T3DFileSystemMonitor.h"
+#include "Time/T3DDateTime.h"
 
 
 namespace Tiny3D
@@ -61,6 +62,8 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mConsole);
         T3D_SAFE_DELETE(mLocale);
         T3D_SAFE_DELETE(mThreadMgr);
+        DateTime::exit();
+        Dir::exit();
         T3D_SAFE_DELETE(mPlatform);
         T3D_SAFE_DELETE(mPlatformFactory);
     }

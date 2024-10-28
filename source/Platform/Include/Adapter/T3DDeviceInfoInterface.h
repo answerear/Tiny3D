@@ -29,11 +29,12 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
-    class IDeviceInfo
+    class IDeviceInfo : public Allocator
     {
         T3D_DECLARE_INTERFACE(IDeviceInfo);
 

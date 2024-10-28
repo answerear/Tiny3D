@@ -29,13 +29,14 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class ITimerListener;
 
-    class ITimerService
+    class ITimerService : public Allocator
     {
         T3D_DECLARE_INTERFACE(ITimerService);
 

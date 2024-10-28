@@ -72,8 +72,16 @@ namespace Tiny3D
 
         virtual bool addChild(pointer_t node, const Action &action)
         {
-            T3D_ASSERT(node != nullptr);
-            T3D_ASSERT(node->mParent == nullptr);
+            if (node == nullptr)
+            {
+                return false;
+            }
+            
+            if (node->mParent != nullptr)
+            {
+                return false;
+            }
+            
             auto rval = mChildrenMap.emplace(node->getKey(), node);
             if (rval.second)
             {
@@ -97,22 +105,29 @@ namespace Tiny3D
 
         virtual bool insertAfterChild(pointer_t prevNode, pointer_t node, const Action &action)
         {
-            T3D_ASSERT(node != nullptr);
+            if (node == nullptr)
+            {
+                return false;
+            }
 
-            auto rval = prevNode->getParent()->mChildrenMap.emplace(node->getKey(), node);
+            auto it = mChildrenMap.find(prevNode->getKey());
+            if (it == mChildrenMap.end())
+            {
+                return false;
+            }
+
+            auto rval = mChildrenMap.emplace(node->getKey(), node);
             if (rval.second)
             {
-                Children &children = prevNode->getParent()->mChildren;
-                
                 if (prevNode == nullptr)
                 {
                     // 插入头
-                    children.emplace_front(node);
-                    node->mSelfItr = children.begin();
+                    mChildren.emplace_front(node);
+                    node->mSelfItr = mChildren.begin();
                 }
                 else
                 {
-                    node->mSelfItr = children.insert(std::next(prevNode->mSelfItr), node);
+                    node->mSelfItr = mChildren.insert(std::next(prevNode->mSelfItr), node);
                 }
                 
                 if (action != nullptr)

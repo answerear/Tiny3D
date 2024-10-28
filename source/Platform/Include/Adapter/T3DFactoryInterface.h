@@ -29,6 +29,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -68,7 +69,7 @@ namespace Tiny3D
      * @brief 操作系统适配层工厂接口.
      * @note 不同操作系统平台需要实现继承该类实现具体平台接口
      */
-    class IFactory
+    class IFactory : public Allocator
     {
         T3D_DECLARE_INTERFACE(IFactory);
 

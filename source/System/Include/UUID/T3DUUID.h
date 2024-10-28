@@ -34,7 +34,7 @@
 namespace Tiny3D
 {
     TSTRUCT()
-    struct T3D_SYSTEM_API UUID
+    struct T3D_SYSTEM_API UUID : public Allocator
     {
         enum
         {

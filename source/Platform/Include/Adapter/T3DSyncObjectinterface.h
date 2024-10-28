@@ -29,6 +29,7 @@
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -36,7 +37,7 @@ namespace Tiny3D
     /**
      * \brief 临界区
      */
-    class ICriticalSection
+    class ICriticalSection : public Allocator
     {
         T3D_DECLARE_INTERFACE(ICriticalSection);
 
@@ -60,7 +61,7 @@ namespace Tiny3D
     /**
      * \brief 互斥量
      */
-    class IMutex
+    class IMutex : public Allocator
     {
         T3D_DECLARE_INTERFACE(IMutex);
 
@@ -81,7 +82,7 @@ namespace Tiny3D
         virtual TResult unlock() = 0;
     };
 
-    class IRecursiveMutex
+    class IRecursiveMutex : public Allocator
     {
         T3D_DECLARE_INTERFACE(IRecursiveMutex);
 
@@ -105,7 +106,7 @@ namespace Tiny3D
     /**
      * \brief 信号量
      */
-    class ISemaphore
+    class ISemaphore : public Allocator
     {
         T3D_DECLARE_INTERFACE(ISemaphore);
 
@@ -129,7 +130,7 @@ namespace Tiny3D
     /**
      * \brief 事件
      */
-    class IEvent
+    class IEvent : public Allocator
     {
         T3D_DECLARE_INTERFACE(IEvent);
 
@@ -158,7 +159,7 @@ namespace Tiny3D
     /**
      * \brief 条件变量
      */
-    class IWaitCondition
+    class IWaitCondition : public Allocator
     {
         T3D_DECLARE_INTERFACE(IWaitCondition);
 

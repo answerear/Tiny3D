@@ -28,6 +28,7 @@
 
 #include "Adapter/T3DDeviceInfoInterface.h"
 #include "T3DNoncopyable.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

@@ -32,6 +32,24 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
+    class HierarchyView : public ImChildView
+    {
+    public:
+        void setScene(Scene *scene)
+        {
+            mScene = scene;
+        }
+        
+    protected:
+        bool onGUIBegin(const ImVec2 &size) override;
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+
+    protected:
+        Scene *mScene {nullptr};
+    };
+
     class UIHierarchyWindow : public UIDockingWindow
     {
     public:

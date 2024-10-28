@@ -27,6 +27,7 @@
 
 
 #include "Adapter/T3DLocaleInterface.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

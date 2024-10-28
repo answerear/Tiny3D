@@ -41,7 +41,7 @@ namespace Tiny3D
      * @brief   引擎所有对象基类
      */
     TCLASS()
-    class T3D_SYSTEM_API Object
+    class T3D_SYSTEM_API Object : public Allocator
     {
         TRTTI_ENABLE()
         TRTTI_FRIEND

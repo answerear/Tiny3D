@@ -29,11 +29,12 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
-    class T3D_PLATFORM_API Runnable
+    class T3D_PLATFORM_API Runnable : public Allocator
     {
         friend class RunnableThread;
 

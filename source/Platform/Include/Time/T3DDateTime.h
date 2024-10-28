@@ -29,6 +29,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -39,7 +40,7 @@ namespace Tiny3D
     * @class DateTime
     * @brief 各种时间相关操作的类.
     */
-    class T3D_PLATFORM_API DateTime
+    class T3D_PLATFORM_API DateTime : public Allocator
     {
     public:
         enum class TimeFormat : uint32_t
@@ -173,6 +174,8 @@ namespace Tiny3D
         */
         static DateTime fromSecsSinceEpoch(int64_t sces);
 
+        static void exit();
+
     public:
         /** 返回年 */
         int32_t Year() const { return mYear; }
@@ -200,7 +203,7 @@ namespace Tiny3D
         int32_t mSecond;
         int32_t mMillisecond;
 
-        static ITime    *mTime;
+        static ITime    *msTime;
     };
 }
 

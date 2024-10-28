@@ -39,7 +39,7 @@ namespace Tiny3D
      * @remarks  这里的跟踪当对象数量很大的时候会有一定的性能损耗， 
      *           建议这里在定位完内存问题就关闭掉跟踪.
      */
-    class T3D_SYSTEM_API ObjectTracer : public Singleton<ObjectTracer>
+    class T3D_SYSTEM_API ObjectTracer : public Allocator, public Singleton<ObjectTracer>
     {
         friend class Agent;
         friend class Object;

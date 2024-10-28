@@ -30,6 +30,8 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "Thread/T3DThreadConstant.h"
+#include "Memory/T3DMemory.h"
+
 
 namespace Tiny3D
 {
@@ -38,7 +40,7 @@ namespace Tiny3D
 
     using ThreadRoutine = TFunction<TResult(void*)>;
     
-    class IThread
+    class IThread : public Allocator
     {
         T3D_DECLARE_INTERFACE(IThread);
 

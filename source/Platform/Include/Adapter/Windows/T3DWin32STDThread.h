@@ -28,6 +28,7 @@
 
 #include "T3DNoncopyable.h"
 #include "Adapter/Common/T3DSTDThread.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

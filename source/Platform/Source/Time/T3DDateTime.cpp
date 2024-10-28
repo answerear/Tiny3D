@@ -33,7 +33,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ITime *DateTime::mTime = nullptr;
+    ITime *DateTime::msTime = nullptr;
 
     //--------------------------------------------------------------------------
 
@@ -323,11 +323,20 @@ namespace Tiny3D
 
     ITime *DateTime::getTime()
     {
-        if (mTime == nullptr)
+        if (msTime == nullptr)
         {
-            mTime = T3D_PLATFORM_FACTORY.createPlatformTime();
+            msTime = T3D_PLATFORM_FACTORY.createPlatformTime();
         }
 
-        return mTime;
+        return msTime;
     }
+
+    //--------------------------------------------------------------------------
+
+    void DateTime::exit()
+    {
+        T3D_SAFE_DELETE(msTime);
+    }
+
+    //--------------------------------------------------------------------------
 }

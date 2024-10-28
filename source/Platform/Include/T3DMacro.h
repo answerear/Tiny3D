@@ -44,8 +44,12 @@
     #define snprintf    _snprintf
     #define vsnprintf   _vsnprintf
 
+    #define csrchr     strrchr
+
 	#define T3D_EXPORT_API      __declspec(dllexport)
 	#define T3D_IMPORT_API      __declspec(dllimport)
+
+    #define FORCEINLINE __forceinline
 
 #elif defined T3D_OS_IOS || defined T3D_OS_OSX || defined T3D_OS_LINUX  // iOS or Mac OS x or Linux
 
@@ -60,6 +64,8 @@
 	#define T3D_EXPORT_API
 	#define T3D_IMPORT_API
 
+    #define FORCEINLINE __forceinline
+
 #elif defined T3D_OS_ANDROID    // Android
 
     #ifdef NDK_DEBUG    // debug
@@ -72,6 +78,8 @@
 
 	#define T3D_EXPORT_API      __attribute__ ((visibility ("default")))
 	#define T3D_IMPORT_API
+
+    #define FORCEINLINE __forceinline
 
 #endif
 
@@ -103,30 +111,30 @@
 //        T &operator =(const T &);
 
 #define T3D_SAFE_DELETE(p)  \
-    if (p != nullptr)   \
+    if ((p) != nullptr)   \
     {   \
-        delete p;   \
-        p = nullptr;    \
+        delete (p);   \
+        (p) = nullptr;    \
     }
 
 #define T3D_SAFE_DELETE_ARRAY(p)    \
-    if (p != nullptr)   \
+    if ((p) != nullptr)   \
     {   \
-        delete []p; \
-        p = nullptr;    \
+        delete [](p); \
+        (p) = nullptr;    \
     }
 
 #define T3D_SAFE_RELEASE(p) \
-    if (p != nullptr)   \
+    if ((p) != nullptr)   \
     {   \
-        p->release();   \
-        p = nullptr;    \
+        (p)->release();   \
+        (p) = nullptr;    \
     }
 
 #define T3D_SAFE_ACQUIRE(p) \
-    if (p != nullptr)   \
+    if ((p) != nullptr)   \
     {   \
-        p->acquire();   \
+        (p)->acquire();   \
     }
 
 

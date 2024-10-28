@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class T3D_UTILS_API Hash
+    class T3D_UTILS_API Hash : public Allocator
     {
     public:
         static uint32_t hash(const String &str);

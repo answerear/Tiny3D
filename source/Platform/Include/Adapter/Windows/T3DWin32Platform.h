@@ -29,6 +29,7 @@
 #include "Adapter/T3DPlatformInterface.h"
 #include "T3DNoncopyable.h"
 #include "Adapter/T3DPlatformInterface.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

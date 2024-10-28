@@ -26,10 +26,12 @@
 #define __T3D_WIN32_FS_MONITOR_H__
 
 
-#include "Adapter/T3DFSMonitorInterface.h"
 #include <windows.h>
+#include "Adapter/T3DFSMonitorInterface.h"
 #include "T3DRunnable.h"
 #include "T3DSyncObject.h"
+#include "Memory/T3DMemory.h"
+
 
 namespace Tiny3D
 {

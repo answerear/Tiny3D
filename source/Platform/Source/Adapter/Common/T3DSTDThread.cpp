@@ -22,10 +22,10 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "Adapter/Common/T3DSTDThread.h"
 
 #include "T3DCommonErrorDef.h"
 #include "Thread/T3DRunnable.h"
+#include "Adapter/Common/T3DSTDThread.h"
 
 
 namespace Tiny3D

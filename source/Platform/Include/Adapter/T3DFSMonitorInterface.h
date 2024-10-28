@@ -28,6 +28,7 @@
 
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -45,7 +46,7 @@ namespace Tiny3D
     
     using ChangedItemQueue = TList<FSChangedItem>;
     
-    class T3D_PLATFORM_API IFSMonitor
+    class T3D_PLATFORM_API IFSMonitor : public Allocator
     {
         T3D_DECLARE_INTERFACE(IFSMonitor);
 

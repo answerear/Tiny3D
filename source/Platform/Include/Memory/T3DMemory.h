@@ -22,38 +22,16 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_LOCALE_H__
-#define __T3D_LOCALE_H__
+#ifndef __T3D_MEMORY_H__
+#define __T3D_MEMORY_H__
 
 
-#include "T3DSingleton.h"
-#include "T3DPlatformPrerequisites.h"
-#include "Memory/T3DMemory.h"
+#include "Memory/T3DMemoryManager.h"
 
 
-namespace Tiny3D
-{
-    class ILocale;
-    
-    class T3D_PLATFORM_API Locale : public Allocator, public Singleton<Locale>
-    {
-    public:
-        Locale();
-        ~Locale() override;
+#if defined T3D_USE_CUSTOM_NEW
+// #define new CUSTOM_NEW
+#endif
 
-        String ANSIToUTF8(const String &src);
 
-        String UTF8ToANSI(const String &src);
-
-        String UnicodeToUTF8(const WString &src);
-
-        WString UTF8ToUnicode(const String &src);
-
-    protected:
-        ILocale *mLocale {nullptr};
-    };
-
-    #define T3D_LOCALE  Locale::getInstance() 
-}
-
-#endif  /*__T3D_LOCALE_H__*/
+#endif  /*__T3D_MEMORY_H__*/

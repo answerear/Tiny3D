@@ -33,7 +33,7 @@
 
 namespace Tiny3D
 {
-    class LogItem
+    class LogItem : public Allocator
     {
         friend class Logger;
 
@@ -64,27 +64,7 @@ namespace Tiny3D
 
     protected:
         uint32_t formatContent(const DateTime &dt, const char *filename, 
-            int32_t line, const String &level, const char *tag, 
-            const char *content)
-        {
-            const ulong_t threadID = RunnableThread::getCurrentThreadID();
-            const String strDateTime = dt.toString();
-            std::stringstream ss;
-            ss << strDateTime
-                << "|" << level 
-                << "|" << threadID
-                << "|" << filename
-                << "(" << line
-                << ")|" << tag
-                << "|" << content
-                <<"\n";
-            mContentSize = (uint32_t)ss.str().length();
-            mContentSize = (uint32_t)(mContentSize > sizeof(mContent) - 1 
-                ? sizeof(mContent) - 1 : ss.str().length());
-            memcpy(mContent, ss.str().c_str(), mContentSize);
-            mContent[mContentSize] = 0;
-            return mContentSize;
-        }
+            int32_t line, const String &level, const char *tag, const char *content);
 
     private:
         uint32_t        mContentSize = 0;

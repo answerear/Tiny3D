@@ -30,6 +30,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DNoncopyable.h"
 #include "Thread/T3DRunnable.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -37,7 +38,7 @@ namespace Tiny3D
     class IFSMonitor;
     class Mutex;
     
-    class T3D_PLATFORM_API FileSystemMonitor : public Noncopyable
+    class T3D_PLATFORM_API FileSystemMonitor : public Allocator, public Noncopyable
     {
     public:
         FileSystemMonitor();

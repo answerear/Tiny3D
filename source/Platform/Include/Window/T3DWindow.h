@@ -31,13 +31,14 @@
 #include "T3DPlatformPrerequisites.h"
 #include "Window/T3DSysWMInfo.h"
 #include "T3DNoncopyable.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class IWindow;
 
-    class T3D_PLATFORM_API Window : public Noncopyable
+    class T3D_PLATFORM_API Window : public Allocator, public Noncopyable
     {
     public:
         static const uint32_t WINDOW_FULLSCREEN;            /**< 全屏窗口 */

@@ -42,6 +42,7 @@ namespace Tiny3D
 
     Object::~Object()
     {
+        T3D_SAFE_DELETE(mSyncObject);
 #if T3D_TRACE_OBJECT
         T3D_LOG_INFO("System", "%s - Class : %s, Pointer : 0x%016p", __FUNCTION__, mClsName.c_str(), this);
 #endif

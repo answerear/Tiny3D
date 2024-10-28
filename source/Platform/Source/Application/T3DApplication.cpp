@@ -36,6 +36,7 @@ namespace Tiny3D
     Application::Application()
         : mPlatform(new Platform())
     {
+
     }
 
     //--------------------------------------------------------------------------
@@ -43,6 +44,7 @@ namespace Tiny3D
     Application::~Application()
     {
         T3D_SAFE_DELETE(mPlatform);
+        // CUSTOM_DELETE mPlatform;
     }
 
     //--------------------------------------------------------------------------

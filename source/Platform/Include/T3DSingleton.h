@@ -26,6 +26,8 @@
 #define __T3D_SINGLETON_H__
 
 
+#include <malloc.h>
+
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DNoncopyable.h"

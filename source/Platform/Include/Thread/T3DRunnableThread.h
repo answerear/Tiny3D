@@ -32,6 +32,8 @@
 #include "Thread/T3DSyncObject.h"
 #include "Thread/T3DThreadConstant.h"
 #include "T3DSingleton.h"
+#include "Memory/T3DMemory.h"
+
 
 namespace Tiny3D
 {
@@ -41,7 +43,7 @@ namespace Tiny3D
     /**
      * \brief 可运行线程类
      */
-    class T3D_PLATFORM_API RunnableThread : public Noncopyable
+    class T3D_PLATFORM_API RunnableThread : public Allocator, public Noncopyable
     {
     public:
         /**

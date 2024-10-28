@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class T3D_UTILS_API CRC
+    class T3D_UTILS_API CRC : public Allocator
     {
     public:
         static void initCRCTable();

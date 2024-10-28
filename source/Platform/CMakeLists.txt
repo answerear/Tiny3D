@@ -34,6 +34,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/Include/IO"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include/Locale"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory"
 	"${SDL2_INCLUDE_DIR}"
 	)
 
@@ -88,6 +89,7 @@ set_project_files(Include\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread/ 
 set_project_files(Include\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Include/Process/ .h)
 set_project_files(Include\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Include/Locale/ .h)
 set_project_files(Include\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Include/Network/ .h)
+set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -134,6 +136,7 @@ set_project_files(Source\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Source/Thread/ .c
 set_project_files(Source\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Source/Process/ .cpp)
 set_project_files(Source\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Source/Locale/ .cpp)
 set_project_files(Source\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Source/Network/ .cpp)
+set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows

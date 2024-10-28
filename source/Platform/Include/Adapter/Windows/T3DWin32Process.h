@@ -28,6 +28,7 @@
 
 #include "T3DNoncopyable.h"
 #include "Adapter/T3DProcessInterface.h"
+#include "Memory/T3DMemory.h"
 #include <windows.h>
 
 

@@ -30,13 +30,14 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DSingleton.h"
 #include "Application/T3DAppEvents.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class Platform;
 
-    class T3D_PLATFORM_API Application : public Singleton<Application>
+    class T3D_PLATFORM_API Application : public Allocator, public Singleton<Application>
     {
     public:
         /**

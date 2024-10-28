@@ -31,11 +31,12 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "Application/T3DAppEvents.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
-    class IApplication
+    class IApplication : public Allocator
     {
         T3D_DECLARE_INTERFACE(IApplication);
 

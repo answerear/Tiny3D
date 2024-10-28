@@ -28,6 +28,7 @@
 
 #include "T3DPlatformPrerequisites.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 #if defined (T3D_OS_WINDOWS)

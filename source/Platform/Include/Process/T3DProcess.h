@@ -29,13 +29,14 @@
 #include "T3DMacro.h"
 #include "T3DNoncopyable.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class IProcess;
     
-    class T3D_PLATFORM_API Process : public Noncopyable
+    class T3D_PLATFORM_API Process : public Allocator, public Noncopyable
     {
     public:
         Process();

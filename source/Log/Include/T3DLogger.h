@@ -34,7 +34,7 @@ namespace Tiny3D
     class LogItem;
     class FlushLogCacheJob;
     
-    class T3D_LOG_API Logger : public Singleton<Logger>
+    class T3D_LOG_API Logger : public Allocator, public Singleton<Logger>
     {
         friend class FlushLogCacheJob;
         

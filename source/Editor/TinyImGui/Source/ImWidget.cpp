@@ -1752,14 +1752,11 @@ namespace Tiny3D
         else
         {
             // 没在遍历调用中，直接移除
-            ret = TreeNode::removeChild(widget,
-                [destroy](ImWidget *widget)
-                {
-                    if (destroy)
-                    {
-                        widget->destroy();
-                    }
-                });
+            ret = TreeNode::removeChild(widget, nullptr);
+            if (ret && destroy)
+            {
+                widget->destroy();
+            }
         }
         return ret;
     }

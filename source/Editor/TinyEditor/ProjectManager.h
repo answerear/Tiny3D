@@ -32,7 +32,30 @@
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
-    
+
+    class AssetNode : public TreeNode<String, AssetNode>
+    {
+    public:
+        AssetNode() = default;
+        
+        AssetNode(const String &name);
+
+        ~AssetNode() override = default;
+
+        const String &getKey() const override { return getPath(); }
+
+        const String &getPath() const { return mPath; }
+
+        const String &getName() const { return mName; }
+
+    protected:
+        void buildPath();
+        
+        String mPath {};
+        String mName {};
+        MetaPtr mMeta {};
+    };
+
     class ProjectManager : public Singleton<ProjectManager>
     {
     public:
@@ -70,6 +93,8 @@ namespace Tiny3D
         TResult createSimpleScene(const String &assetsPath);
 
         TResult loadStartupScene();
+
+        TResult populate();
         
     protected:
         static const char *ASSETS;

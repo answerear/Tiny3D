@@ -38,7 +38,9 @@ namespace Tiny3D
     {
     public:
         CheckExpiredFileJob() = default;
-        ~CheckExpiredFileJob() override = default;
+        ~CheckExpiredFileJob() override 
+        {
+        }
     
         void setLogPath(const String &path)
         {
@@ -117,6 +119,7 @@ namespace Tiny3D
         void execute() override
         {
             writeLogFile();
+            mOwner->releaseFlushJob(this);
         }
     
         void abandon() override
@@ -225,6 +228,7 @@ namespace Tiny3D
         {
             FlushLogCacheJob *job = mFlushJobPool.front();
             mFlushJobPool.pop_front();
+            T3D_SAFE_DELETE(job);
         }
     }
 

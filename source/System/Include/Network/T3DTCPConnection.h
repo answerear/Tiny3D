@@ -41,7 +41,7 @@ namespace Tiny3D
     /**
      * TCP 监听者，用于监听 TCP 连接请求
      */
-    class T3D_SYSTEM_API TCPListener : public Noncopyable
+    class T3D_SYSTEM_API TCPListener : public Allocator, public Noncopyable
     {
     public:
         /**

@@ -32,6 +32,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "Thread/T3DThreadConstant.h"
 #include "Thread/T3DSyncObject.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -42,7 +43,7 @@ namespace Tiny3D
     /**
      * \brief 执行 IQueuedJob 任务列表的线程池
      */
-    class T3D_PLATFORM_API QueuedJobPool
+    class T3D_PLATFORM_API QueuedJobPool : public Allocator
     {
         T3D_DECLARE_INTERFACE(QueuedJobPool)
         

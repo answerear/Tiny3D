@@ -34,7 +34,7 @@
 namespace Tiny3D
 {
     TSTRUCT()
-    struct T3D_SYSTEM_API Buffer
+    struct T3D_SYSTEM_API Buffer : public Allocator
     {
         TPROPERTY()
         uint8_t *Data {nullptr};

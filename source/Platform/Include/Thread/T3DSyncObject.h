@@ -31,6 +31,7 @@
 #include "T3DMacro.h"
 #include "T3DNoncopyable.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -44,9 +45,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    class ISyncObject
+    class T3D_PLATFORM_API ISyncObject
     {
     public:
+        virtual ~ISyncObject() = default;
         virtual TResult lock() = 0;
         virtual TResult tryLock(uint32_t timeout) = 0;
         virtual TResult unlock() = 0;
@@ -66,7 +68,7 @@ namespace Tiny3D
         CriticalSection(const CriticalSection &other) = delete;
         CriticalSection &operator=(const CriticalSection &other) = delete;
         
-        virtual ~CriticalSection();
+        ~CriticalSection() override;
 
         TResult lock() override;
 
@@ -92,7 +94,7 @@ namespace Tiny3D
         Mutex(const Mutex &other) = delete;
         Mutex &operator=(const Mutex &other) = delete;
         
-        virtual ~Mutex();
+        ~Mutex() override;
 
         TResult lock() override;
 
@@ -118,7 +120,7 @@ namespace Tiny3D
         RecursiveMutex(const RecursiveMutex &other) = delete;
         RecursiveMutex &operator=(const RecursiveMutex &other) = delete;
         
-        virtual ~RecursiveMutex();
+        ~RecursiveMutex() override;
 
         TResult lock() override;
 
@@ -144,7 +146,7 @@ namespace Tiny3D
         Semaphore(const Semaphore &other) = delete;
         Semaphore &operator=(const Semaphore &other) = delete;
         
-        virtual ~Semaphore();
+        ~Semaphore() override;
 
         TResult lock() override;
 

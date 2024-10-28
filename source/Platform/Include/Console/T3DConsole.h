@@ -28,13 +28,14 @@
 
 #include "T3DSingleton.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class IConsole;
 
-    class T3D_PLATFORM_API Console : public Singleton<Console>
+    class T3D_PLATFORM_API Console : public Allocator, public Singleton<Console>
     {
     public:
         static const uint32_t MAX_CONTENT_SIZE;

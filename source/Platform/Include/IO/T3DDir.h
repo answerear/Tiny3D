@@ -30,13 +30,14 @@
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
 #include "T3DNoncopyable.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
     class IDir;
 
-    class T3D_PLATFORM_API Dir : public Noncopyable
+    class T3D_PLATFORM_API Dir : public Allocator, public Noncopyable
     {
     public:
         /**
@@ -252,6 +253,8 @@ namespace Tiny3D
         static const String &getCompany() { return sCompany; }
         
         static const String &getAppName() { return sAppName; }
+
+        static void exit();
         
     protected:
         IDir    *mDir {nullptr};

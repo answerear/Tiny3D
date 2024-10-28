@@ -28,6 +28,7 @@
 
 
 #include "T3DApplication.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D

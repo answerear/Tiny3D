@@ -32,7 +32,7 @@
 
 namespace Tiny3D
 {
-    class T3D_UTILS_API MD5
+    class T3D_UTILS_API MD5 : public Allocator
     {
     public:
         MD5();

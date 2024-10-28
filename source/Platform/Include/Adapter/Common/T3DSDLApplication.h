@@ -26,6 +26,7 @@
 #define __T3D_SDL_APPLICATION_H__
 
 #include "Adapter/T3DApplicationInterface.h"
+#include "Memory/T3DMemory.h"
 #include <SDL.h>
 
 namespace Tiny3D

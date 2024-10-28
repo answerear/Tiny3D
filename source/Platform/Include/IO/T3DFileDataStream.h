@@ -26,7 +26,6 @@
 #define __T3D_FILE_DATA_STREAM_H__
 
 
-
 #include "IO/T3DDataStream.h"
 
 

@@ -177,6 +177,8 @@ namespace Tiny3D
 
         T3D_LOG_SHUTDOWN();
         T3D_SAFE_DELETE(mLogger);
+
+        MemoryManager::getInstance().exit();
     }
 
     //--------------------------------------------------------------------------
@@ -1299,7 +1301,7 @@ namespace Tiny3D
             {
                 break;
             }
-        } while (0);
+        } while (false);
 
         return ret;
     }

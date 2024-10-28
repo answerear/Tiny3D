@@ -29,6 +29,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "T3DPlatformPrerequisites.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -36,7 +37,7 @@ namespace Tiny3D
     /**
      * \brief 队列化任务工作抽象基类
      */
-    class IQueuedJob
+    class IQueuedJob : public Allocator
     {
         T3D_DECLARE_INTERFACE(IQueuedJob)
 

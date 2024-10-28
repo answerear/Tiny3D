@@ -29,6 +29,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -38,7 +39,7 @@ namespace Tiny3D
      * @brief 操作系统相关平台层的目录树搜索接口类.
      * @note 相关操作系统平台需要继承该接口类实现具体平台相关功能.
      */
-    class IDir
+    class IDir : public Allocator
     {
         T3D_DECLARE_INTERFACE(IDir);
 

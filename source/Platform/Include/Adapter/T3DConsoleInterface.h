@@ -29,6 +29,7 @@
 #include "T3DPlatformPrerequisites.h"
 #include "T3DType.h"
 #include "T3DMacro.h"
+#include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
@@ -37,7 +38,7 @@ namespace Tiny3D
      * @class T3DConsoleAdapterInterface
      * @brief Interface class
      */
-    class IConsole
+    class IConsole : public Allocator
     {
         T3D_DECLARE_INTERFACE(IConsole);
 
