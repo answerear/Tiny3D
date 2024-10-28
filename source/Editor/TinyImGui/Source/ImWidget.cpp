@@ -1276,6 +1276,7 @@ namespace Tiny3D
             {
                 widget->getParent()->removeChild(widget);
             }
+            T3D_SAFE_DELETE(widget);
         }
 
         msWaitingDestroyWidgets.clear();

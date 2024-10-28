@@ -514,7 +514,7 @@ namespace Tiny3D
         bool    mEnable {true};
     };
 #else
-    class TINYIMGUI_API ImWidget : public TreeNode<UUID, ImWidget, ImWidget*, UUIDHash, UUIDEqual>, public Noncopyable
+    class TINYIMGUI_API ImWidget : public TreeNode<UUID, ImWidget, ImWidget*, UUIDHash, UUIDEqual>, public Allocator, public Noncopyable
     {
     public:
         /**
