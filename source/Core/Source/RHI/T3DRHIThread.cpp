@@ -32,8 +32,6 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    static int32_t g_AddCommandCount = 0;
-
     RHIThreadPtr RHIThread::create()
     {
         return new RHIThread();
@@ -128,7 +126,6 @@ namespace Tiny3D
 
     TResult RHIThread::addCommand(RHICommand *command)
     {
-        g_AddCommandCount++;
         mCommandLists[mEnqueueCommandListIdx].push_back(RHICommandSafePtr(command));
         return T3D_OK;
     }
