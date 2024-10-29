@@ -30,7 +30,7 @@
 
 namespace Tiny3D
 {
-    class BuiltinMesh
+    class BuiltinMesh : public Allocator
     {
     public:
         BuiltinMesh() = default;

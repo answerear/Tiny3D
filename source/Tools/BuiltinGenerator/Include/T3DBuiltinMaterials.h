@@ -30,7 +30,7 @@
 
 namespace Tiny3D
 {
-    class BuiltinMaterials : public Singleton<BuiltinMaterials>
+    class BuiltinMaterials : public Allocator, public Singleton<BuiltinMaterials>
     {
     public:
         BuiltinMaterials() = default;

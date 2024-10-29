@@ -39,6 +39,7 @@ namespace Tiny3D
     {
         T3D_SAFE_DELETE(mBuiltinShaders);
         T3D_SAFE_DELETE(mBuiltinMaterials);
+        T3D_SAFE_DELETE(mBuiltinTextures);
     }
 
     //--------------------------------------------------------------------------

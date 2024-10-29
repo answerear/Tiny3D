@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class BuiltinTextures : public Singleton<BuiltinTextures>
+    class BuiltinTextures : public Allocator, public Singleton<BuiltinTextures>
     {
     public:
         BuiltinTextures() = default;

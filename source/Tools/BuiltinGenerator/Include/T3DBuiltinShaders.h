@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class BuiltinShaders : public Singleton<BuiltinShaders>
+    class BuiltinShaders : public Allocator, public Singleton<BuiltinShaders>
     {
     public:
         struct ShaderData

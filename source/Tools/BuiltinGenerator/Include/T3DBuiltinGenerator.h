@@ -35,7 +35,7 @@ namespace Tiny3D
     class BuiltinShaders;
     class BuiltinMaterials;
     
-    class BuiltinGenerator
+    class BuiltinGenerator : public Allocator
     {
     public:
         BuiltinGenerator() = default;
