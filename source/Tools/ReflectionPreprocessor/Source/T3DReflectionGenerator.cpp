@@ -2277,6 +2277,13 @@ namespace Tiny3D
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
             ASTEnum *enumeration = new ASTEnum(name);
+            ASTNode *child = parent->getChild(name);
+            if (child != nullptr)
+            {
+                T3D_SAFE_DELETE(enumeration);
+                break;
+            }
+
             parent->addChild(name, enumeration);
 
             enumeration->FileInfo = std::move(fileInfo);
@@ -3281,6 +3288,13 @@ namespace Tiny3D
             getASTNodeInfo(cxCursor, path, start, end, col, offset);
             
             ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
+            ASTNode *child = parent->getChild(name);
+            if (child != nullptr)
+            {
+                T3D_SAFE_DELETE(templateInstance);
+                break;
+            }
+            
             parent->addChild(name, templateInstance);
             templateInstance->setName(name);
 
@@ -3408,6 +3422,13 @@ namespace Tiny3D
             
             ASTFunctionTemplate *function = new ASTFunctionTemplate(name);
             function->addChild(strUSR, functionInstance);
+            ASTNode *child = parent->getChild(strUSR);
+            if (child != nullptr)
+            {
+                T3D_SAFE_DELETE(function);
+                break;
+            }
+            
             parent->addChild(strUSR, function);
 
             // 实例化函数模板，原函数模板是没有参数的
@@ -3520,6 +3541,12 @@ namespace Tiny3D
             }
 
             ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
+            ASTNode *child = parent->getChild(name);
+            if (child != nullptr)
+            {
+                T3D_SAFE_DELETE(templateInstance);
+                break;
+            }
             parent->addChild(name, templateInstance);
             templateInstance->setName(name);
 

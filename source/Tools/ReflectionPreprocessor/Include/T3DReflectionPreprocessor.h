@@ -34,7 +34,7 @@ namespace Tiny3D
 {
     class ReflectionGenerator;
     
-    class ReflectionPreprocessor
+    class ReflectionPreprocessor : public Allocator
     {
     public:
         ReflectionPreprocessor();

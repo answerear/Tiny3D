@@ -111,6 +111,8 @@ int main(int argc, char *argv[])
     T3D_LOG_SHUTDOWN();
 
     delete logger;
+
+    MemoryManager::getInstance().exit();
     delete platform;
 
     return ret;

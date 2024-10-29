@@ -71,7 +71,7 @@ namespace Tiny3D
     /**
      * @brief AST 语法树结点
      */
-    class ASTNode : public Noncopyable
+    class ASTNode : public Allocator, public Noncopyable
     {
     public:
         /** 结点类型 */

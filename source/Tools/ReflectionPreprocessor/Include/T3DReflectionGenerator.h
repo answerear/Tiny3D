@@ -33,7 +33,7 @@
 
 namespace Tiny3D
 {
-    class ReflectionGenerator : public Singleton<ReflectionGenerator>
+    class ReflectionGenerator : public Allocator, public Singleton<ReflectionGenerator>
     {
     public:
         /// Constructor
