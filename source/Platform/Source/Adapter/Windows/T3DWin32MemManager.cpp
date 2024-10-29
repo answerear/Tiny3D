@@ -501,13 +501,20 @@ namespace Tiny3D
 
         Win32OutputDebugString("The Number of Delete Calls: %lu\n", mDeleteCallsCount);
 
+        Win32OutputDebugString("Memory Distribution:\n");
+
+        for (uint32_t i = 0; i < kRecordNum; i++)
+        {
+            Win32OutputDebugString("\t The Number of Blocks [%u, %u): %d\n", i == 0 ? 0 : (1 << i), 1 << (i+1), mSizeRecord[i]);
+        }
+
         if (mHead)
         {
-            Win32OutputDebugString("Memory Leak: %u\n", mNumBlocks);
+            Win32OutputDebugString("\n------------------ Memory Leak: %u ------------------\n", mNumBlocks);
         }
         else
         {
-            Win32OutputDebugString("No Memory Leak\n");
+            Win32OutputDebugString("\n------------------ No Memory Leak ------------------\n");
         }
         
         Block * pBlock = mHead;
