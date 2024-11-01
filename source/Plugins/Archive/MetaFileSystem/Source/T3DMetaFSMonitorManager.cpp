@@ -154,7 +154,11 @@ namespace Tiny3D
         // 先启动 monitor 查找
         Meta *meta = nullptr;
         bool found = mainMonitor->getPathAndMeta(uuid, path, meta);
-
+        if (!found)
+        {
+            return ret;
+        }
+        
         if (meta->getType() == Meta::Type::kShaderLab)
         {
             // 是 shader lab
