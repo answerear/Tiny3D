@@ -1383,7 +1383,8 @@ namespace Tiny3D
     {
         for (auto widget : mChildren)
         {
-            destroyWidget(widget);
+            // destroyWidget(widget);
+            widget->destroy();
         }
 
         msWaitingDestroyWidgets.emplace_back(this);
@@ -1393,15 +1394,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ImWidget::destroyWidget(ImWidget *child)
-    {
-        for (auto widget : child->getChildren())
-        {
-            destroyWidget(widget);
-        }
-
-        msWaitingDestroyWidgets.emplace_back(child);
-    }
+    // void ImWidget::destroyWidget(ImWidget *child)
+    // {
+    //     for (auto widget : child->getChildren())
+    //     {
+    //         destroyWidget(widget);
+    //     }
+    //
+    //     msWaitingDestroyWidgets.emplace_back(child);
+    // }
 
     //--------------------------------------------------------------------------
 

@@ -909,7 +909,7 @@ namespace Tiny3D
         void PopWidgetID() { ImGui::PopID(); }
 
     private:
-        void destroyWidget(ImWidget *child);
+        // void destroyWidget(ImWidget *child);
 
         struct RemoveWidgetInfo
         {
