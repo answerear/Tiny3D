@@ -48,6 +48,12 @@ namespace Tiny3D
 
         ImGuiChildFlags onGetChildFlags() override;
 
+        TResult populateFavoritesTree(ImTreeWidget *tree, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
+
+        TResult populateAssetsTree(ImTreeWidget *tree, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
+
+        TResult populateAssetsTree(ImTreeWidget *tree, ImTreeNode *uiParent, AssetNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
+        
     protected:
         ImTreeBar::TreeBarNodes mRoots {};
 

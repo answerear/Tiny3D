@@ -655,7 +655,7 @@ namespace Tiny3D
     {
         String path, name;
         Dir::parsePath(mAssetsPath, path, name);
-        mAssetRoot = new AssetNode(name, path);
+        mAssetRoot = new AssetNode(name, path, MetaFolder::create(UUID::generate()));
         AssetNode *child = nullptr;
         return populate(mAssetsPath, mAssetRoot, false, child);
     }
@@ -884,10 +884,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    AssetNode::AssetNode(const String &name, const String &path)
+    AssetNode::AssetNode(const String &name, const String &path, Meta *meta)
         : TreeNode()
         , mPath(path)
         , mMetaName(name)
+        , mMeta(meta)
     {
         String dir, title, ext;
         Dir::parsePath(mMetaName, dir, title, ext);

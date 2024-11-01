@@ -52,6 +52,7 @@ namespace Tiny3D
     // #define TEST_SCENE_ENABLE
     
     class EditorSceneImpl;
+    class AssetNode;
     
     NS_END
 

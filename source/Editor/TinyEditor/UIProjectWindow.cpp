@@ -27,6 +27,7 @@
 #include "UIEditorWidgetID.h"
 #include "ImErrors.h"
 #include "EditorEventDefine.h"
+#include "ProjectManager.h"
 
 
 namespace Tiny3D
@@ -40,14 +41,17 @@ namespace Tiny3D
     #define ICON_NAME_FOLDER            "Editor/icons/d_Folder@32.png"
     #define ICON_NAME_FOLDER_OPENED     "Editor/icons/d_FolderOpened@32.png"
     #define ICON_NAME_PREFAB            "Editor/icons/d_Prefab@64.png"
+    #define ICON_NAME_PREFAB_MODEL      "Editor/icons/d_PrefabModel@64.png"
+    #define ICON_NAME_SCENE             "Editor/icons/d_SceneAsset On@64.png"
 
     //--------------------------------------------------------------------------
 
     class UIAssetNode : public ImTreeBarNode
     {
     public:
-        UIAssetNode(ImTreeNode *node)
+        UIAssetNode(ImTreeNode *node, AssetNode *assetNode)
             : mNode(node)
+            , mAssetNode(assetNode)
         {
             
         }
@@ -94,8 +98,11 @@ namespace Tiny3D
             return static_cast<ImTreeBarNode *>(node->getUserData());
         }
 
+        AssetNode *getAssetNode() const { return mAssetNode; }
+
     protected:
         ImTreeNode *mNode {nullptr};
+        AssetNode *mAssetNode {nullptr};
     };
     
     //--------------------------------------------------------------------------
@@ -144,53 +151,21 @@ namespace Tiny3D
             ret = tree->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "Asset Hierarchy Tree", this);
             if (T3D_FAILED(ret))
             {
-                EDITOR_LOG_ERROR("Create asset hierarchy tree failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Create asset hierarchy tree failed ! ERROR [%d]", ret);
                 break;
             }
 
-            ImTreeNode *favoriteRoot = new ImTreeNode(tree);
             ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
-            ret = favoriteRoot->createByPath(ICON_NAME_FAVORITE, "Fovorites", callbacks, tree, treeNodeDestroy);
+
+            // 收藏树
+            ret = populateFavoritesTree(tree, callbacks, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
-                EDITOR_LOG_ERROR("Create favarites node failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Failed to populate favorites tree ! ERROR [%d]", ret);
                 break;
             }
-            UIAssetNode *assetNode = new UIAssetNode(favoriteRoot);
-            favoriteRoot->setUserData(assetNode);
 
-            ImTreeNode *node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_SEARCH, "All Materials", callbacks, favoriteRoot, treeNodeDestroy);
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Create all material node failed ! ERROR [%d]", ret)
-                break;
-            }
-            assetNode = new UIAssetNode(node);
-            node->setUserData(assetNode);
-
-            node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_SEARCH, "All Models", callbacks, favoriteRoot, treeNodeDestroy);
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Create all modles node failed ! ERROR [%d]", ret)
-                break;
-            }
-            assetNode = new UIAssetNode(node);
-            node->setUserData(assetNode);
-
-            node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_SEARCH, "All Prefabs", callbacks, favoriteRoot, treeNodeDestroy);
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Create all prefabs node failed ! ERROR [%d]", ret)
-                break;
-            }
-            assetNode = new UIAssetNode(node);
-            node->setUserData(assetNode);
-
-            favoriteRoot->expand(true);
-
+            // 分隔用的空行
             ImDummyTreeNode *dummyNode = new ImDummyTreeNode(tree);
             ret = dummyNode->create(tree);
             if (T3D_FAILED(ret))
@@ -199,29 +174,173 @@ namespace Tiny3D
                 break;
             }
 
-            ImTreeNode *assetsRoot = new ImTreeNode(tree);
-            ret = assetsRoot->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Assets", callbacks, tree, treeNodeDestroy);
+            // 资产树
+            ret = populateAssetsTree(tree, callbacks, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
-                EDITOR_LOG_ERROR("Create assets folder node faield ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Failed to populate asset tree ! ERROR [%d]", ret);
                 break;
             }
-            assetNode = new UIAssetNode(assetsRoot);
-            assetsRoot->setUserData(assetNode);
-
-            node = new ImTreeNode(tree);
-            ret = node->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Scenes", callbacks, assetsRoot, treeNodeDestroy);
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Create scenes folder node failed ! ERROR [%d]", ret)
-                break;
-            }
-            assetNode = new UIAssetNode(node);
-            node->setUserData(assetNode);
-            
-            assetsRoot->expand(true);
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetHierarchyView::populateFavoritesTree(ImTreeWidget *tree, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ImTreeNode *favoriteRoot = new ImTreeNode(tree);
+
+            // Favorites
+            ret = favoriteRoot->createByPath(ICON_NAME_FAVORITE, "Favorites", callbacks, tree, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create favorites node failed ! ERROR [%d]", ret)
+                break;
+            }
+            UIAssetNode *assetNode = new UIAssetNode(favoriteRoot, nullptr);
+            favoriteRoot->setUserData(assetNode);
+
+            // All Materials
+            ImTreeNode *node = new ImTreeNode(tree);
+            ret = node->createByPath(ICON_NAME_SEARCH, "All Materials", callbacks, favoriteRoot, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create all material node failed ! ERROR [%d]", ret)
+                break;
+            }
+            assetNode = new UIAssetNode(node, nullptr);
+            node->setUserData(assetNode);
+
+            // All Models
+            node = new ImTreeNode(tree);
+            ret = node->createByPath(ICON_NAME_SEARCH, "All Models", callbacks, favoriteRoot, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create all models node failed ! ERROR [%d]", ret)
+                break;
+            }
+            assetNode = new UIAssetNode(node, nullptr);
+            node->setUserData(assetNode);
+
+            // All Prefabs
+            node = new ImTreeNode(tree);
+            ret = node->createByPath(ICON_NAME_SEARCH, "All Prefabs", callbacks, favoriteRoot, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create all prefabs node failed ! ERROR [%d]", ret)
+                break;
+            }
+            assetNode = new UIAssetNode(node, nullptr);
+            node->setUserData(assetNode);
+
+            favoriteRoot->expand(true);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetHierarchyView::populateAssetsTree(ImTreeWidget *tree, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // ImTreeNode *assetsRoot = new ImTreeNode(tree);
+            // ret = assetsRoot->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Assets", callbacks, tree, onDestroy);
+            // if (T3D_FAILED(ret))
+            // {
+            //     EDITOR_LOG_ERROR("Create assets folder node failed ! ERROR [%d]", ret)
+            //     break;
+            // }
+            // UIAssetNode *assetNode = new UIAssetNode(assetsRoot);
+            // assetsRoot->setUserData(assetNode);
+            //
+            // ImTreeNode *node = new ImTreeNode(tree);
+            // ret = node->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, "Scenes", callbacks, assetsRoot, onDestroy);
+            // if (T3D_FAILED(ret))
+            // {
+            //     EDITOR_LOG_ERROR("Create scenes folder node failed ! ERROR [%d]", ret)
+            //     break;
+            // }
+            // assetNode = new UIAssetNode(node);
+            // node->setUserData(assetNode);
+
+            AssetNode *root = PROJECT_MGR.getAssetRoot();
+            ret = populateAssetsTree(tree, tree, root, callbacks, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_WARNING("Failed to populate assets tree ! ERROR [%d]", ret);
+                break;
+            }
+            
+            // assetsRoot->expand(true);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetHierarchyView::populateAssetsTree(ImTreeWidget *tree, ImTreeNode *uiParent, AssetNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ImTreeNode *uiNode = new ImTreeNode(tree);
+            Meta *meta = node->getMeta();
+            String icon, iconOpened;
+            
+            switch (meta->getType())
+            {
+            case Meta::Type::kFolder:
+                {
+                    icon = ICON_NAME_FOLDER;
+                    iconOpened = ICON_NAME_FOLDER_OPENED;
+                }
+                break;
+            case Meta::Type::kMesh:
+                {
+                    icon = ICON_NAME_PREFAB_MODEL;
+                    iconOpened = ICON_NAME_PREFAB_MODEL;
+                }
+                break;
+            case Meta::Type::kScene:
+                {
+                    icon = ICON_NAME_SCENE;
+                    iconOpened = ICON_NAME_SCENE;
+                }
+                break;
+            }
+            
+            ret = uiNode->createByPath(icon, iconOpened, node->getFilename(), callbacks, uiParent, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create ui node [%s] ! ERROR [%d]", node->getFilename().c_str(), ret);
+                break;
+            }
+
+            UIAssetNode *barNode = new UIAssetNode(uiNode, node);
+            uiNode->setUserData(barNode);
+
+            for (auto child : node->getChildren())
+            {
+                ret = populateAssetsTree(tree, uiNode, child, callbacks, onDestroy);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_WARNING("Failed to populate assets tree for node [%s] ! ERROR [%d]", child->getPath().c_str(), ret);
+                }
+            }
+        } while (false);
+
         return ret;
     }
 

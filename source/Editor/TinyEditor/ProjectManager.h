@@ -44,7 +44,7 @@ namespace Tiny3D
         
         AssetNode(const String &name);
 
-        AssetNode(const String &name, const String &path);
+        AssetNode(const String &name, const String &path, Meta *meta);
 
         ~AssetNode() override = default;
 
