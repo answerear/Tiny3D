@@ -132,7 +132,12 @@ namespace  Tiny3D
         {
 #if defined (T3D_EDITOR)
             ScenePtr scene = mCurrentScene->getRuntimeScene();
-            return mImpl->unloadScene(scene);
+            TResult ret = mImpl->unloadScene(scene);
+            if (T3D_SUCCEEDED(ret))
+            {
+                mCurrentScene->setRuntimeScene(nullptr);
+            }
+            return ret;
 #else
             return mImpl->unloadScene(mCurrentScene);
 #endif
