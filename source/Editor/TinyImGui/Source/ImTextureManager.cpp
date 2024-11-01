@@ -24,9 +24,7 @@
 
 
 #include "ImTextureManager.h"
-
 #include "ImErrors.h"
-#include "../../../Tools/BuiltinGenerator/Include/T3DBuiltinGenPrerequisites.h"
 
 
 namespace Tiny3D
