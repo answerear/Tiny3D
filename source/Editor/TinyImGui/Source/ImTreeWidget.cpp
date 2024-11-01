@@ -254,6 +254,11 @@ namespace Tiny3D
                 mOpenedIconID = nullptr;
             }
         }
+
+        if (mDestroyCallback != nullptr)
+        {
+            mDestroyCallback(this);
+        }
     }
 
     //--------------------------------------------------------------------------
