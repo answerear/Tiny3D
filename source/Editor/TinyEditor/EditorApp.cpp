@@ -105,6 +105,7 @@ namespace Tiny3D
             shutdown();
         } while (false);
 
+        T3D_SAFE_DELETE(mNetworkMgr)
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
@@ -211,6 +212,7 @@ namespace Tiny3D
                 ret = mProjectMgr->createProject(mOptions.path, mOptions.name);
                 if (T3D_FAILED(ret))
                 {
+                    EDITOR_LOG_ERROR("Failed to create project [%s] (name:%s) ! ERROR [%d]", mOptions.path.c_str(), mOptions.name.c_str(), ret);
                     break;
                 }
 
@@ -218,6 +220,7 @@ namespace Tiny3D
                 ret = mNetworkMgr->createProject(mOptions.path, mOptions.name);
                 if (T3D_FAILED(ret))
                 {
+                    EDITOR_LOG_ERROR("Failed to create project for network ! ERROR [%d]", ret);
                     break;
                 }
             }
@@ -227,6 +230,7 @@ namespace Tiny3D
                 ret = mProjectMgr->openProject(mOptions.path, mOptions.name);
                 if (T3D_FAILED(ret))
                 {
+                    EDITOR_LOG_ERROR("Failed to open project [%s] (name:%s) ! ERROR [%d]", mOptions.path.c_str(), mOptions.name.c_str(), ret);
                     break;
                 }
 
@@ -234,6 +238,7 @@ namespace Tiny3D
                 ret = mNetworkMgr->openProject(mOptions.path, mOptions.name);
                 if (T3D_FAILED(ret))
                 {
+                    EDITOR_LOG_ERROR("Failed to open project for network ! ERROR [%d]", ret);
                     break;
                 }
             }
@@ -578,6 +583,8 @@ namespace Tiny3D
         }
 
         ImWidget::endUpdate();
+
+        mProjectMgr->update();
 
         ImGui::EndFrame();
     }
