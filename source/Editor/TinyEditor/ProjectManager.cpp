@@ -49,6 +49,8 @@ namespace Tiny3D
     ProjectManager::~ProjectManager()
     {
         // T3D_SAFE_DELETE(mFSMonitor);
+        closeProject();
+        AssetNode::GC();
     }
 
     //--------------------------------------------------------------------------
@@ -170,7 +172,16 @@ namespace Tiny3D
 
             const String sceneFolder = "Scenes";
             String scenePath = assetsPath + Dir::getNativeSeparator() + sceneFolder;
-            if (!Dir::makeDir(scenePath))
+            // if (!Dir::makeDir(scenePath))
+            // {
+            //     EDITOR_LOG_ERROR("Failed to create scene directory [%s]", scenePath.c_str());
+            //     ret = T3D_ERR_FAIL;
+            //     break;
+            // }
+
+            AssetNode *folderNode = nullptr;
+            ret = makeFolder(mAssetRoot, scenePath, folderNode);
+            if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Failed to create scene directory [%s]", scenePath.c_str());
                 ret = T3D_ERR_FAIL;
@@ -180,7 +191,7 @@ namespace Tiny3D
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
             if (archive == nullptr)
             {
-                EDITOR_LOG_ERROR("Failed to load archive [%s]", scenePath.c_str());
+                EDITOR_LOG_ERROR("Failed to load archive [%s]", assetsPath.c_str());
                 ret = T3D_ERR_FAIL;
                 break;
             }
@@ -190,7 +201,16 @@ namespace Tiny3D
             ret = T3D_SCENE_MGR.saveScene(archive, filename, scene);
             if (T3D_FAILED(ret))
             {
-                EDITOR_LOG_ERROR("Failed to save scene [%s]", scenePath.c_str());
+                EDITOR_LOG_ERROR("Failed to save scene [%s]", filename.c_str());
+                break;
+            }
+
+            AssetNode *node = nullptr;
+            String metaPath = filename + ".meta";
+            ret = addFile(folderNode, metaPath, node);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to add file [%s]", filename.c_str());
                 break;
             }
 
@@ -261,6 +281,21 @@ namespace Tiny3D
                 break;
             }
 
+            mPath = projectPath;
+            mName = name;
+            mAssetsPath = assetsPath;
+            mTempPath = tempPath;
+
+            mProjectSettings.ensure();
+
+            // 构建工程文件树
+            ret = populate();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to populate project tree [%s] !", mAssetsPath.c_str());
+                break;
+            }
+
 #if !defined (TEST_SCENE_ENABLE)
             // 创建简单的场景
             ret = createSimpleScene(assetsPath);
@@ -271,19 +306,14 @@ namespace Tiny3D
             }
 #endif
 
-            mPath = projectPath;
-            mName = name;
-            mAssetsPath = assetsPath;
-            mTempPath = tempPath;
-
-            mProjectSettings.ensure();
-            
             // 保存工程设置
             ret = mProjectSettings.save();
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_WARNING("Failed to save project settings !");
             }
+
+            mAssetRoot->debugOutput();
         } while (false);
 
         return ret;
@@ -370,6 +400,14 @@ namespace Tiny3D
                 break;
             }
 
+            // 构建工程文件树
+            ret = populate();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to populate project tree [%s] !", mAssetsPath.c_str());
+                break;
+            }
+
             // 加载启动场景
             ret = loadStartupScene();
             if (T3D_FAILED(ret))
@@ -377,6 +415,8 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to load startup scene !");
                 break;
             }
+
+            mAssetRoot->debugOutput();
         } while (false);
         
         return ret;
@@ -386,6 +426,12 @@ namespace Tiny3D
 
     TResult ProjectManager::closeProject()
     {
+        if (mAssetRoot != nullptr)
+        {
+            mAssetRoot->destroy();
+            mAssetRoot = nullptr;
+        }
+        
         T3D_SCENE_MGR.unloadScene();
         EDITOR_SCENE.setRuntimeScene(nullptr);
         
@@ -395,14 +441,23 @@ namespace Tiny3D
         mTempPath.clear();
         mCompiledShadersPath.clear();
 
-        T3D_ARCHIVE_MGR.unloadArchive(mAssetsArchive);
-        mAssetsArchive = nullptr;
+        if (mAssetsArchive != nullptr)
+        {
+            T3D_ARCHIVE_MGR.unloadArchive(mAssetsArchive);
+            mAssetsArchive = nullptr;
+        }
 
-        T3D_ARCHIVE_MGR.unloadArchive(mBuiltinArchive);
-        mBuiltinArchive = nullptr;
+        if (mBuiltinArchive != nullptr)
+        {
+            T3D_ARCHIVE_MGR.unloadArchive(mBuiltinArchive);
+            mBuiltinArchive = nullptr;
+        }
 
-        T3D_ARCHIVE_MGR.unloadArchive(mCompiledShadersArchive);
-        mCompiledShadersArchive = nullptr;
+        if (mCompiledShadersArchive != nullptr)
+        {
+            T3D_ARCHIVE_MGR.unloadArchive(mCompiledShadersArchive);
+            mCompiledShadersArchive = nullptr;
+        }
         
         return T3D_OK;
     }
@@ -555,7 +610,7 @@ namespace Tiny3D
             fs.close();
 
             MetaShaderLab *metaShaderLab = (MetaShaderLab*)meta.get();
-            
+
             // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
 #if defined (T3D_OS_WINDOWS)
             String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
@@ -595,7 +650,428 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult ProjectManager::populate()
+    {
+        String path, name;
+        Dir::parsePath(mAssetsPath, path, name);
+        mAssetRoot = new AssetNode(name, path);
+        AssetNode *child = nullptr;
+        return populate(mAssetsPath, mAssetRoot, false, child);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::populate(const String &path, AssetNode *parent, bool generateFolderNode, AssetNode *&node)
+    {
+        // 先生成一个节点
+        String folderMetaFilePath = path + ".meta";
+        TResult ret = T3D_OK;
+
+        if (generateFolderNode)
+        {
+            ret = generateAssetNode(folderMetaFilePath, parent, node);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to generate asset node (%s) ! ERROR [%d]", folderMetaFilePath.c_str(), ret);
+                return ret;
+            }
+        }
+        else
+        {
+            node = parent;
+        }
+
+        // 递归文件夹生成节点
+        String searchPath = path + Dir::getNativeSeparator() + "*.*";
+        Dir dir;
+        bool working = dir.findFile(searchPath);
+
+        using PathSet = TUnorderedMap<String, AssetNode*>;
+        PathSet pathSet;
+
+        auto queryAssetNode = [&pathSet](const String &path, AssetNode *&node) -> bool
+        {
+            bool ret = false;
+            auto it = pathSet.find(path);
+            if (it == pathSet.end())
+            {
+                ret = true;
+            }
+            else
+            {
+                node = it->second;
+            }
+            return ret;
+        };
+
+        while (working)
+        {
+            AssetNode *child = nullptr;
+            String metaPath;
+            
+            if (dir.isDots())
+            {
+                // . or ..
+            }
+            else if (dir.isDirectory())
+            {
+                // directory
+                metaPath = dir.getFilePath() + ".meta";
+                bool noFolderNode = queryAssetNode(metaPath, child);
+                ret = populate(dir.getFilePath(), node, noFolderNode, child);
+            }
+            else
+            {
+                // file
+                const String filePath = dir.getFilePath();
+                if (filePath != folderMetaFilePath)
+                {
+                    String::size_type pos = filePath.length();
+                    if (filePath.at(pos-5) == '.'
+                        && filePath.at(pos-4) == 'm'
+                        && filePath.at(pos-3) == 'e'
+                        && filePath.at(pos-2) == 't'
+                        && filePath.at(pos-1) == 'a')
+                    {
+                        if (queryAssetNode(dir.getFilePath(), child))
+                        {
+                            metaPath = dir.getFilePath();
+                            ret = generateAssetNode(dir.getFilePath(), node, child);
+                        }
+                    }
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to populate ! ERROR [%d]", ret);
+                break;
+            }
+
+            if (child != nullptr)
+            {
+                pathSet.emplace(metaPath, child);
+            }
+            
+            working = dir.findNextFile();
+        }
+
+        dir.close();
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::generateAssetNode(const String &path, AssetNode *parent, AssetNode *&node)
+    {
+        EDITOR_LOG_DEBUG("Path : %s", path.c_str());
+        
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String dir, name;
+            if (!Dir::parsePath(path, dir, name))
+            {
+                ret = T3D_ERR_FAIL;
+                EDITOR_LOG_ERROR("Failed to parse path (%s) ! ERROR [%d]", path.c_str(), ret);
+                break;
+            }
+
+            T3D_ASSERT(parent != nullptr);
+            node = new AssetNode(name);
+            
+            if (!parent->addChild(node))
+            {
+                ret = T3D_ERR_FAIL;
+                EDITOR_LOG_ERROR("Failed to add asset node (%s) ! ERROR [%d]", name.c_str(), ret);
+                T3D_SAFE_DELETE(node);
+                break;
+            }
+
+            if (!node->readMeta())
+            {
+                ret = T3D_ERR_FAIL;
+                EDITOR_LOG_ERROR("Failed to read meta (%s) ! ERROR [%d]", node->getPath().c_str(), ret);
+                T3D_SAFE_DELETE(node);
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::update()
+    {
+        AssetNode::GC();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::makeFolder(AssetNode *parent, const String &path, AssetNode *&node)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 创建文件夹
+            if (!Dir::makeDir(path))
+            {
+                EDITOR_LOG_ERROR("Failed to create folder [%s] !", path.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 创建文件夹对应的 meta 文件
+            MetaFolderPtr meta = MetaFolder::create(UUID::generate());
+            String metaPath = path + ".meta";
+            FileDataStream fs;
+            if (!fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE))
+            {
+                EDITOR_LOG_ERROR("Failed to create meta file [%s] !", metaPath.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+            
+            ret = T3D_SERIALIZER_MGR.serialize(fs, meta);
+            if (T3D_FAILED(ret))
+            {
+                fs.close();
+                EDITOR_LOG_ERROR("Failed to serialize meta file [%s] ! ERROR [%d]", metaPath.c_str(), ret);
+                break;
+            }
+
+            fs.close();
+
+            // 生成文件夹节点
+            ret = generateAssetNode(metaPath, parent, node);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create folder asset node [%s] ! ERROR [%d]",path.c_str(), ret);
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::addFile(AssetNode *parent, const String &path, AssetNode *&node)
+    {
+        return generateAssetNode(path, parent, node);
+    }
+
+    //--------------------------------------------------------------------------
+
+    AssetNode::WaitingForDestroyNodesLUT AssetNode::msWaitingForDestroyNodesLUT;
+    AssetNode::WaitingForDestroyNodes AssetNode::msWaitingForDestroyNodes;
     
+    //--------------------------------------------------------------------------
+
+    AssetNode::AssetNode(const String &name)
+        : TreeNode()
+        , mMetaName(name)
+    {
+        String dir, title, ext;
+        Dir::parsePath(mMetaName, dir, title, ext);
+        mFilename = title;
+    }
+
+    //--------------------------------------------------------------------------
+
+    AssetNode::AssetNode(const String &name, const String &path)
+        : TreeNode()
+        , mPath(path)
+        , mMetaName(name)
+    {
+        String dir, title, ext;
+        Dir::parsePath(mMetaName, dir, title, ext);
+        mFilename = title;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetNode::buildPath() const
+    {
+        if (mIsPathDirty)
+        {
+            const AssetNode *node = this;
+            if (getParent() != nullptr)
+            {
+                const AssetNode *parent = getParent();
+                mPath = mMetaName;
+                while (parent != nullptr)
+                {
+                    mPath = parent->getFilename() + Dir::getNativeSeparator() + mPath;
+                    node = parent;
+                    parent = parent->getParent();
+                }
+
+                mPath = node->getPath() + Dir::getNativeSeparator() + mPath;
+            }
+            
+            mIsPathDirty = false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetNode::addChild(AssetNode *node, const Action &action)
+    {
+        bool ret = TreeNode::addChild(node, action);
+        if (ret)
+        {
+            mIsPathDirty = true;
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetNode::insertAfterChild(AssetNode *prevNode, AssetNode *node, const Action &action)
+    {
+        bool ret = TreeNode::insertAfterChild(prevNode, node, action);
+        if (ret)
+        {
+            mIsPathDirty = true;
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetNode::removeChild(AssetNode *node, const Action &action)
+    {
+        bool ret = TreeNode::removeChild(node, action);
+        if (ret)
+        {
+            mIsPathDirty = true;
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    AssetNode *AssetNode::removeChild(const String &name, bool destroy)
+    {
+        AssetNode *node = TreeNode::removeChild(name);
+        if (destroy)
+        {
+            node->destroy();
+        }
+        return node;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetNode::removeAllChildren(const Action &removeAction, const Action &deleteAction)
+    {
+        TreeNode::removeAllChildren(removeAction, deleteAction);
+        mIsPathDirty = true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetNode::removeAllChildren()
+    {
+        removeAllChildren(nullptr,
+                [](AssetNode *node)
+                {
+                    node->destroy();
+                });
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetNode::putWaitingForDestroyNode(AssetNode *node)
+    {
+        auto it = msWaitingForDestroyNodesLUT.find(node->getPath());
+        if (it == msWaitingForDestroyNodesLUT.end())
+        {
+            msWaitingForDestroyNodesLUT.emplace(node->getPath(), node);
+            msWaitingForDestroyNodes.emplace_back(node);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetNode::GC()
+    {
+        for (auto node : msWaitingForDestroyNodes)
+        {
+            if (node->getParent() != nullptr)
+            {
+                node->getParent()->removeChild(node);
+            }
+            T3D_SAFE_DELETE(node);
+        }
+
+        msWaitingForDestroyNodesLUT.clear();
+        msWaitingForDestroyNodes.clear();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void AssetNode::destroy()
+    {
+        for (auto child : getChildren())
+        {
+            child->destroy();
+        }
+
+        putWaitingForDestroyNode(this);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AssetNode::readMeta()
+    {
+        bool ret = true;
+
+        do
+        {
+            FileDataStream fs;
+            
+            if (!fs.open(getPath().c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            {
+                EDITOR_LOG_ERROR("Failed to open file [%s] !", getPath().c_str());
+                ret = false;
+                break;
+            }
+
+            mMeta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
+            fs.close();
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AssetNode::debugOutput(int32_t depth)
+    {
+        std::stringstream ss;
+        for (int32_t i = 0; i < depth; i++)
+        {
+            ss << "\t";
+        }
+        
+        EDITOR_LOG_DEBUG("%sNode - Path : %s, Filename : %s, MetaName : %s", ss.str().c_str(),
+            getPath().c_str(), getFilename().c_str(), getMetaName().c_str());
+
+        for (auto itr = child_begin(); itr != child_end(); ++itr)
+        {
+            (*itr)->debugOutput(depth + 1);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     NS_END
 }
 

@@ -38,24 +38,65 @@ namespace Tiny3D
         , public Allocator
     {
     public:
+        static void GC();
+        
         AssetNode() = default;
         
         AssetNode(const String &name);
 
+        AssetNode(const String &name, const String &path);
+
         ~AssetNode() override = default;
 
-        const String &getKey() const override { return getPath(); }
+        const String &getKey() const override { return getMetaName(); }
 
-        const String &getPath() const { return mPath; }
+        const String &getPath() const { buildPath(); return mPath; }
 
-        const String &getName() const { return mName; }
+        const String &getFilename() const { return mFilename; }
 
-    protected:
-        void buildPath();
+        const String &getMetaName() const { return mMetaName; }
+
+        Meta *getMeta() const { return mMeta; } 
+
+        AssetNode *removeChild(const String &name, bool destroy);
+
+        void removeAllChildren() override;
+
+        using TreeNode::addChild;
+        using TreeNode::removeChild;
+        using TreeNode::removeAllChildren;
+
+        void destroy();
+
+        bool readMeta();
+
+        void debugOutput(int32_t depth = 0);
         
-        String mPath {};
-        String mName {};
-        MetaPtr mMeta {};
+    protected:
+        void buildPath() const;
+
+        bool addChild(AssetNode *node, const Action &action) override;
+
+        bool insertAfterChild(AssetNode *prevNode, pointer_t node, const Action &action) override;
+
+        bool removeChild(AssetNode *node, const Action &action) override;
+
+        void removeAllChildren(const Action &removeAction, const Action &deleteAction = nullptr) override;
+
+        static void putWaitingForDestroyNode(AssetNode *node);
+        
+    protected:
+        mutable bool mIsPathDirty {true};
+        mutable String mPath {};
+        String mMetaName {};
+        String mFilename {};
+        MetaPtr mMeta {nullptr};
+
+        using WaitingForDestroyNodesLUT = TUnorderedMap<String, AssetNode *>;
+        using WaitingForDestroyNodes = TList<AssetNode *>;
+
+        static WaitingForDestroyNodesLUT msWaitingForDestroyNodesLUT;
+        static WaitingForDestroyNodes msWaitingForDestroyNodes;
     };
 
     class ProjectManager
@@ -73,6 +114,8 @@ namespace Tiny3D
 
         TResult closeProject();
 
+        void update();
+
         const String &getProjectPath() const { return mPath; }
 
         const String &getProjectName() const { return mName; }
@@ -84,6 +127,12 @@ namespace Tiny3D
         const ProjectSettings &getProjectSettings() const { return mProjectSettings; }
 
         ProjectSettings &getProjectSettings() { return mProjectSettings; }
+
+        AssetNode *getAssetRoot() const { return mAssetRoot; }
+
+        TResult makeFolder(AssetNode *parent, const String &path, AssetNode *&node);
+
+        TResult addFile(AssetNode *parent, const String &path, AssetNode *&node);
 
     protected:
         TResult compileAllShaders(const String &tempPath, const String &assetsPath);
@@ -99,6 +148,10 @@ namespace Tiny3D
         TResult loadStartupScene();
 
         TResult populate();
+
+        TResult populate(const String &path, AssetNode *parent, bool generateFolderNode, AssetNode *&node);
+
+        TResult generateAssetNode(const String &path, AssetNode *parent, AssetNode *&node);
         
     protected:
         static const char *ASSETS;
@@ -128,6 +181,8 @@ namespace Tiny3D
         ArchivePtr mBuiltinArchive {nullptr};
         /// Shaders 编译后存放档案系统
         ArchivePtr mCompiledShadersArchive {nullptr};
+
+        AssetNode *mAssetRoot {nullptr};
     };
 
     #define PROJECT_MGR (ProjectManager::getInstance())
