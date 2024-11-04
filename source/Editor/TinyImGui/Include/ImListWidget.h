@@ -74,7 +74,7 @@ namespace Tiny3D
 
         String getUniqueName() const;
 
-        void drawTruncateText(const String &text, float maxWidth);
+        void drawTruncateText(const String &text, const ImVec2 &pos, float maxWidth);
 
         void updateSizeOnIconMode();
 

@@ -232,7 +232,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ImListItem::drawTruncateText(const String &text, float maxWidth)
+    void ImListItem::drawTruncateText(const String &text, const ImVec2 &pos, float maxWidth)
     {
         ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
         ImVec2 ellipsisSize = ImGui::CalcTextSize("...");
@@ -264,6 +264,8 @@ namespace Tiny3D
         }
         else
         {
+            float txtPosX = (maxWidth - textSize.x) * 0.5f + pos.x;
+            ImGui::SetCursorPosX(txtPosX);
             ImGui::Text("%s", text.c_str());
         }
     }
@@ -302,7 +304,7 @@ namespace Tiny3D
             pos.y = startPos.y + imageSize.y + style.ItemSpacing.y;
             pos.x = startPos.x;
             ImGui::SetCursorPos(pos);
-            drawTruncateText(getName(), itemWidth);
+            drawTruncateText(getName(), pos, itemWidth);
             // ImGui::PushTextWrapPos(pos.x + itemWidth);
             // ImVec2 clipRectMin = ImGui::GetCursorScreenPos();
             // ImVec2 clipRectMax = ImVec2(clipRectMin.x + itemWidth - ellipsisSize.x, clipRectMin.y + textSize.y);
