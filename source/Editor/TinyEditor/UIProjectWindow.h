@@ -60,9 +60,11 @@ namespace Tiny3D
         ImContextMenu *mContextMenu {nullptr};
     };
 
-    class UIAssetThumbView : public ImChildView 
+    class UIAssetThumbView : public ImChildView
     {
     public:
+        using ImChildView::create;
+        
         TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
         
     protected:
@@ -81,6 +83,8 @@ namespace Tiny3D
     {
     public:        
         ~UIAssetPathBar() override = default;
+
+        using ImChildView::create;
 
         TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
         
@@ -103,10 +107,22 @@ namespace Tiny3D
         ImTreeBar   *mTreeBar {nullptr};
     };
     
-    class UIAssetDetailView : public ImChildView
+    class UIAssetDetailView
+        : public ImChildView
+        , public EventHandler
     {
     protected:
         TResult onCreate() override;
+
+        void onDestroy() override;
+        
+        bool onClickedHierarchyNode(EventParam *param, TINSTANCE sender);
+
+        TResult populateItems(AssetNode *parent);
+
+        TResult createListItem(AssetNode *node);
+
+        ImListWidget *mListWidget {nullptr};
     };
 
     class UIAssetStatusBar : public ImChildView

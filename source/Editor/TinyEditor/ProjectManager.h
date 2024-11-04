@@ -54,6 +54,8 @@ namespace Tiny3D
 
         const String &getFilename() const { return mFilename; }
 
+        const String &getTitle() const { return mTitle; }
+
         const String &getMetaName() const { return mMetaName; }
 
         Meta *getMeta() const { return mMeta; } 
@@ -69,6 +71,10 @@ namespace Tiny3D
         void destroy();
 
         bool readMeta();
+
+        void setUserData(void *data) { mUserData = data; }
+
+        void *getUserData() const { return mUserData; }
 
         void debugOutput(int32_t depth = 0);
         
@@ -90,7 +96,9 @@ namespace Tiny3D
         mutable String mPath {};
         String mMetaName {};
         String mFilename {};
+        String mTitle {};
         MetaPtr mMeta {nullptr};
+        void *mUserData {nullptr};
 
         using WaitingForDestroyNodesLUT = TUnorderedMap<String, AssetNode *>;
         using WaitingForDestroyNodes = TList<AssetNode *>;

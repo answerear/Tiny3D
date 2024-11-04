@@ -41,8 +41,15 @@ namespace Tiny3D
     #define ICON_NAME_FOLDER            "Editor/icons/d_Folder@32.png"
     #define ICON_NAME_FOLDER_OPENED     "Editor/icons/d_FolderOpened@32.png"
     #define ICON_NAME_PREFAB            "Editor/icons/d_Prefab@64.png"
-    #define ICON_NAME_PREFAB_MODEL      "Editor/icons/d_PrefabModel@64.png"
     #define ICON_NAME_SCENE             "Editor/icons/d_SceneAsset On@64.png"
+    #define ICON_NAME_MATERIAL          "Editor/icons/d_Material@64.png"
+    #define ICON_NAME_MESH              "Editor/icons/d_PrefabModel@64.png"
+    #define ICON_NAME_SHADER            "Editor/icons/d_Shader@64.png"
+    #define ICON_NAME_TEXTURE           "Editor/icons/d_Texture@64.png"
+    #define ICON_NAME_TEXT              "Editor/icons/d_TextAsset@64.png"
+    #define ICON_NAME_DYLIB             "Editor/icons/d_Assembly@64.png"
+    #define ICON_NAME_FILE              "Editor/icons/d_DefaultAsset@64.png"
+    #define ICON_NAME_BIN               ICON_NAME_TEXT
 
     //--------------------------------------------------------------------------
 
@@ -56,7 +63,10 @@ namespace Tiny3D
             
         }
         
-        ~UIAssetNode() override = default;
+        ~UIAssetNode() override
+        {
+            
+        }
 
         const String &getName() const override
         {
@@ -125,13 +135,13 @@ namespace Tiny3D
             auto queryEnableDefault = [](ImWidget*) { return true; };
             auto queryDisableDefault = [](ImWidget*) { return false; };
             
-            mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryDisableDefault);
+            mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryEnableDefault);
             
             auto treeNodeClicked = [this](ImTreeNode *node)
             {
                 EDITOR_LOG_INFO("Tree node [%s] clicked ", node->getName().c_str())
                 EventParamHierarchyNodeClicked param(node);
-                sendEvent(kEvtHierarchyNodeClicked, &param);
+                postEvent(kEvtHierarchyNodeClicked, &param);
             };
 
             auto treeNodeRClicked = [this](ImTreeNode *node)
@@ -143,6 +153,10 @@ namespace Tiny3D
             auto treeNodeDestroy = [](ImTreeNode *node)
             {
                 UIAssetNode *assetNode = static_cast<UIAssetNode*>(node->getUserData());
+                if (assetNode->getAssetNode() != nullptr)
+                {
+                    assetNode->getAssetNode()->setUserData(nullptr);
+                }
                 T3D_SAFE_DELETE(assetNode);
                 node->setUserData(nullptr);
             };
@@ -295,50 +309,38 @@ namespace Tiny3D
 
         do
         {
-            ImTreeNode *uiNode = new ImTreeNode(tree);
             Meta *meta = node->getMeta();
-            String icon, iconOpened;
-            
-            switch (meta->getType())
-            {
-            case Meta::Type::kFolder:
-                {
-                    icon = ICON_NAME_FOLDER;
-                    iconOpened = ICON_NAME_FOLDER_OPENED;
-                }
-                break;
-            case Meta::Type::kMesh:
-                {
-                    icon = ICON_NAME_PREFAB_MODEL;
-                    iconOpened = ICON_NAME_PREFAB_MODEL;
-                }
-                break;
-            case Meta::Type::kScene:
-                {
-                    icon = ICON_NAME_SCENE;
-                    iconOpened = ICON_NAME_SCENE;
-                }
-                break;
-            }
-            
-            ret = uiNode->createByPath(icon, iconOpened, node->getFilename(), callbacks, uiParent, onDestroy);
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Failed to create ui node [%s] ! ERROR [%d]", node->getFilename().c_str(), ret);
-                break;
-            }
 
-            UIAssetNode *barNode = new UIAssetNode(uiNode, node);
-            uiNode->setUserData(barNode);
-
-            for (auto child : node->getChildren())
+            if (meta->getType() == Meta::Type::kFolder)
             {
-                ret = populateAssetsTree(tree, uiNode, child, callbacks, onDestroy);
+                // 文件夹
+                ImTreeNode *uiNode = new ImTreeNode(tree);
+                node->setUserData(uiNode);
+                
+                ret = uiNode->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, node->getFilename(), callbacks, uiParent, onDestroy);
                 if (T3D_FAILED(ret))
                 {
-                    EDITOR_LOG_WARNING("Failed to populate assets tree for node [%s] ! ERROR [%d]", child->getPath().c_str(), ret);
+                    EDITOR_LOG_ERROR("Failed to create ui node [%s] ! ERROR [%d]", node->getFilename().c_str(), ret);
+                    break;
+                }
+
+                UIAssetNode *barNode = new UIAssetNode(uiNode, node);
+                uiNode->setUserData(barNode);
+
+                for (auto child : node->getChildren())
+                {
+                    ret = populateAssetsTree(tree, uiNode, child, callbacks, onDestroy);
+                    if (T3D_FAILED(ret))
+                    {
+                        EDITOR_LOG_WARNING("Failed to populate assets tree for node [%s] ! ERROR [%d]", child->getPath().c_str(), ret);
+                    }
                 }
             }
+            else
+            {
+                // 普通文件
+            }
+            
         } while (false);
 
         return ret;
@@ -631,40 +633,189 @@ namespace Tiny3D
 
         do
         {
-            auto listItemClicked = [](ImListItem *item)
-            {
-                EDITOR_LOG_INFO("List item [%s] clicked ", item->getName().c_str());
-            };
-            
-            ImListWidget *list = new ImListWidget();
-            ret = list->create(ID_PROJECT_ASSET_THUMB_LIST, "AssetThumbList", this);
+            // auto listItemClicked = [](ImListItem *item)
+            // {
+            //     EDITOR_LOG_INFO("List item [%s] clicked ", item->getName().c_str());
+            // };
+            //
+            mListWidget = new ImListWidget();
+            ret = mListWidget->create(ID_PROJECT_ASSET_THUMB_LIST, "AssetThumbList", this);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create asset thumb list failed ! ERROR [%d]", ret)
                 break;
             }
+            //
+            // const int32_t numOfItems = 50;
+            // String postfix = "abcdefghijklmn";
+            // for (int32_t i = 0; i < numOfItems; ++i)
+            // {
+            //     std::stringstream ss;
+            //     ss << i << postfix;
+            //     ImListItem *item = new ImListItem(list);
+            //     ret = item->createByPath(ICON_NAME_PREFAB, ss.str(), listItemClicked, list);
+            //     if (T3D_FAILED(ret))
+            //     {
+            //         EDITOR_LOG_ERROR("Create list item failed ! ERROR [%d]", ret)
+            //         break;
+            //     }
+            // }
+            //
+            // if (T3D_FAILED(ret))
+            // {
+            //     break;
+            // }
 
-            const int32_t numOfItems = 50;
-            String postfix = "abcdefghijklmn";
-            for (int32_t i = 0; i < numOfItems; ++i)
+            ON_MEMBER(kEvtHierarchyNodeClicked, UIAssetDetailView::onClickedHierarchyNode);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIAssetDetailView::onDestroy()
+    {
+        unregisterAllEvent();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIAssetDetailView::onClickedHierarchyNode(EventParam *param, TINSTANCE sender)
+    {
+        if (param != nullptr)
+        {
+            EventParamHierarchyNodeClicked *p = static_cast<EventParamHierarchyNodeClicked *>(param);
+            UIAssetNode *uiAssetNode = static_cast<UIAssetNode *>(p->arg1->getUserData());
+            populateItems(uiAssetNode->getAssetNode());
+        }
+        else
+        {
+            EDITOR_LOG_ERROR("Invalid param for event (kEvtHierarchyNodeClicked) !");
+        }
+        
+        return true;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetDetailView::populateItems(AssetNode *parent)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mListWidget == nullptr)
             {
-                std::stringstream ss;
-                ss << i << postfix;
-                ImListItem *item = new ImListItem(list);
-                ret = item->createByPath(ICON_NAME_PREFAB, ss.str(), listItemClicked, list);
-                if (T3D_FAILED(ret))
-                {
-                    EDITOR_LOG_ERROR("Create list item failed ! ERROR [%d]", ret)
-                    break;
-                }
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
             }
 
-            if (T3D_FAILED(ret))
+            mListWidget->removeAllChildren();
+            
+            for (auto child : parent->getChildren())
             {
-                break;
+                ret = createListItem(child);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_WARNING("Create list item [%s] failed !", child->getPath().c_str());
+                }
             }
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetDetailView::createListItem(AssetNode *node)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto listItemClicked = [](ImListItem *item)
+            {
+                EDITOR_LOG_INFO("List item [%s] clicked ", item->getName().c_str());
+            };
+
+            Meta *meta = node->getMeta();
+
+            String icon;
+
+            switch (meta->getType())
+            {
+            case Meta::Type::kFolder:
+                {
+                    icon = ICON_NAME_FOLDER;
+                }
+                break;
+            case Meta::Type::kFile:
+                {
+                    icon = ICON_NAME_FILE;
+                }
+                break;
+            case Meta::Type::kTxt:
+                {
+                    icon = ICON_NAME_TEXT;
+                }
+                break;
+            case Meta::Type::kBin:
+                {
+                    icon = ICON_NAME_BIN;
+                }
+                break;
+            case Meta::Type::kDylib:
+                {
+                    icon = ICON_NAME_DYLIB;
+                }
+                break;
+            case Meta::Type::kMaterial:
+                {
+                    icon = ICON_NAME_MATERIAL;
+                }
+                break;
+            case Meta::Type::kTexture:
+                {
+                    icon = ICON_NAME_TEXTURE;
+                }
+                break;
+            case Meta::Type::kShader:
+                {
+                    icon = ICON_NAME_SHADER;
+                }
+                break;
+            case Meta::Type::kMesh:
+                {
+                    icon = ICON_NAME_MESH;
+                }
+                break;
+            case Meta::Type::kPrefab:
+                {
+                    icon = ICON_NAME_PREFAB;
+                }
+                break;
+            case Meta::Type::kScene:
+                {
+                    icon = ICON_NAME_SCENE;
+                }
+                break;
+            case Meta::Type::kShaderLab:
+                {
+                    icon = ICON_NAME_SHADER;
+                }
+                break;
+            }
+            
+            ImListItem *item = new ImListItem(mListWidget);
+            ret = item->createByPath(icon, node->getTitle(), listItemClicked, mListWidget);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create list item failed ! ERROR [%d]", ret)
+                break;
+            }
+        } while (false);
+
         return ret;
     }
 

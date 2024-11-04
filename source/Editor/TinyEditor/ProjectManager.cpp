@@ -880,6 +880,8 @@ namespace Tiny3D
         String dir, title, ext;
         Dir::parsePath(mMetaName, dir, title, ext);
         mFilename = title;
+        Dir::parsePath(mFilename, dir, title, ext);
+        mTitle = title;
     }
 
     //--------------------------------------------------------------------------
@@ -893,6 +895,8 @@ namespace Tiny3D
         String dir, title, ext;
         Dir::parsePath(mMetaName, dir, title, ext);
         mFilename = title;
+        Dir::parsePath(mFilename, dir, title, ext);
+        mTitle = title;
     }
 
     //--------------------------------------------------------------------------
