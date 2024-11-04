@@ -210,11 +210,13 @@ namespace Tiny3D
             while (itr != mChildren.rend())
             {
                 auto itrCur = itr++;
-                
+
                 if (removeAction != nullptr)
                 {
                     removeAction(*itrCur);
                 }
+
+                (*itrCur)->mParent = nullptr;
                 
                 if (deleteAction != nullptr)
                 {
@@ -222,8 +224,10 @@ namespace Tiny3D
                 }
             }
 
+            mSelfItr = mChildren.end();
             mChildrenMap.clear();
             mChildren.clear();
+            mIsDirty = true;
         }
 
         virtual void removeAllChildren()
