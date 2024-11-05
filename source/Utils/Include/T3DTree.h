@@ -150,7 +150,7 @@ namespace Tiny3D
             if (node != nullptr)
             {
                 auto itr = mChildrenMap.find(node->getKey());
-                if (itr == mChildrenMap.end())
+                if (itr != mChildrenMap.end())
                 {
                     if (action != nullptr)
                     {
