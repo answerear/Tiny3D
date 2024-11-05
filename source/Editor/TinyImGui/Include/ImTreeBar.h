@@ -71,8 +71,10 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kTreeBar; }
 
-        TResult create(uint32_t id, const String &name, ImWidget *parent, const TreeBarNodes &roots, const ImTreeBarNodeClickedCallback &clickedNode);
+        using ImWidget::create;
 
+        TResult create(uint32_t id, const String &name, ImWidget *parent, const TreeBarNodes &roots, const ImTreeBarNodeClickedCallback &clickedNode);
+        
         /**
          * 设置选中节点
          * @param [in] node : 选中节点对象
@@ -98,7 +100,7 @@ namespace Tiny3D
         using SelectedNodes = TList<ImTreeBarNode*>;
         
         /// 根节点
-        TreeBarNodes mRoots {};
+        // TreeBarNodes mRoots {};
         /// 选中节点
         ImTreeBarNode *mSelectedNode {nullptr};
         /// 选中节点链

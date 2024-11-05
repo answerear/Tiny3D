@@ -38,6 +38,9 @@ namespace Tiny3D
     {
     public:
         const ImTreeBar::TreeBarNodes &getTreeBarRoots() const { return mRoots; }
+
+        // 重新构建资产树
+        TResult rebuild();
         
     protected:
         TResult onCreate() override;
@@ -52,29 +55,20 @@ namespace Tiny3D
 
         TResult populateAssetsTree(ImTreeWidget *tree, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
 
-        TResult populateAssetsTree(ImTreeWidget *tree, ImTreeNode *uiParent, AssetNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
+        TResult populateAssetsTree(ImTreeWidget *tree, ImTreeNode *uiParent, AssetNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy, ImTreeNode *&uiNode);
+
+        void treeNodeClicked(ImTreeNode *node);
+
+        void treeNodeRClicked(ImTreeNode *node);
+
+        void onTreeNodeDestroy(ImTreeNode *node);
         
     protected:
         ImTreeBar::TreeBarNodes mRoots {};
 
         ImContextMenu *mContextMenu {nullptr};
-    };
-
-    class UIAssetThumbView : public ImChildView
-    {
-    public:
-        using ImChildView::create;
-        
-        TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
-        
-    protected:
-        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
-
-        bool onGUIBegin() override;
-        bool onGUIBegin(const ImVec2 &size) override;
-        void onGUIEnd() override;
-        
-        ImGuiChildFlags onGetChildFlags() override;
+        ImTreeWidget *mTreeWidget {nullptr};
+        ImTreeNode *mAssetsRoot {nullptr};
     };
 
     class UIAssetPathBar
@@ -87,6 +81,8 @@ namespace Tiny3D
         using ImChildView::create;
 
         TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
+
+        TResult rebuild();
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -131,7 +127,34 @@ namespace Tiny3D
         ImGuiChildFlags onGetChildFlags() override;
     };
 
-    class UIProjectWindow : public UIDockingWindow
+    
+    class UIAssetThumbView : public ImChildView
+    {
+    public:
+        using ImChildView::create;
+        
+        TResult create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots);
+
+        TResult rebuild();
+        
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+
+        void onDestroy() override;
+        
+        bool onGUIBegin() override;
+        bool onGUIBegin(const ImVec2 &size) override;
+        void onGUIEnd() override;
+        
+        ImGuiChildFlags onGetChildFlags() override;
+
+    protected:
+        UIAssetPathBar *mPathBar {nullptr};
+        UIAssetDetailView *mDetailView {nullptr};
+        UIAssetStatusBar *mStatusBar {nullptr};
+    };
+    
+    class UIProjectWindow : public UIDockingWindow, public EventHandler
     {
     public:
         UIProjectWindow() = default;
@@ -139,11 +162,20 @@ namespace Tiny3D
 
     protected:
         TResult onCreate() override;
+
+        void onDestroy() override;
         
         void onGUI() override;
 
+        bool onApplicationWillEnterForeground(EventParam *param, TINSTANCE sender);
+
+        bool onApplicationFocusGained(EventParam *param, TINSTANCE sender);
+        
     protected:
         ImSplitView *mSplitView {nullptr};
+
+        UIAssetHierarchyView    *mHierarchyView {nullptr};
+        UIAssetThumbView        *mThumbView {nullptr};
     };
 
     NS_END

@@ -124,6 +124,14 @@ namespace Tiny3D
 
         void update();
 
+        void applicationDidEnterBackground();
+
+        void applicationWillEnterForeground();
+
+        void applicationFocusGained();
+
+        void applicationFocusLost();
+
         const String &getProjectPath() const { return mPath; }
 
         const String &getProjectName() const { return mName; }

@@ -110,6 +110,8 @@ namespace Tiny3D
 
         AssetNode *getAssetNode() const { return mAssetNode; }
 
+        ImTreeNode *getTreeNode() const { return mNode; }
+        
     protected:
         ImTreeNode *mNode {nullptr};
         AssetNode *mAssetNode {nullptr};
@@ -137,32 +139,15 @@ namespace Tiny3D
             
             mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryEnableDefault);
             
-            auto treeNodeClicked = [this](ImTreeNode *node)
-            {
-                EDITOR_LOG_INFO("Tree node [%s] clicked ", node->getName().c_str())
-                EventParamHierarchyNodeClicked param(node);
-                postEvent(kEvtHierarchyNodeClicked, &param);
-            };
+            auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
 
-            auto treeNodeRClicked = [this](ImTreeNode *node)
-            {
-                EDITOR_LOG_INFO("Tree node [%s] R-Clicked ", node->getName().c_str())
-                mContextMenu->show(this);
-            };
+            auto treeNodeRClicked = std::bind(&UIAssetHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
 
-            auto treeNodeDestroy = [](ImTreeNode *node)
-            {
-                UIAssetNode *assetNode = static_cast<UIAssetNode*>(node->getUserData());
-                if (assetNode->getAssetNode() != nullptr)
-                {
-                    assetNode->getAssetNode()->setUserData(nullptr);
-                }
-                T3D_SAFE_DELETE(assetNode);
-                node->setUserData(nullptr);
-            };
-            
-            ImTreeWidget *tree = new ImTreeWidget();
-            ret = tree->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "Asset Hierarchy Tree", this);
+            auto treeNodeDestroy = std::bind(&UIAssetHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            T3D_ASSERT(mTreeWidget == nullptr);
+            mTreeWidget = new ImTreeWidget();
+            ret = mTreeWidget->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "Asset Hierarchy Tree", this);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create asset hierarchy tree failed ! ERROR [%d]", ret);
@@ -172,7 +157,7 @@ namespace Tiny3D
             ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
 
             // 收藏树
-            ret = populateFavoritesTree(tree, callbacks, treeNodeDestroy);
+            ret = populateFavoritesTree(mTreeWidget, callbacks, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Failed to populate favorites tree ! ERROR [%d]", ret);
@@ -180,8 +165,8 @@ namespace Tiny3D
             }
 
             // 分隔用的空行
-            ImDummyTreeNode *dummyNode = new ImDummyTreeNode(tree);
-            ret = dummyNode->create(tree);
+            ImDummyTreeNode *dummyNode = new ImDummyTreeNode(mTreeWidget);
+            ret = dummyNode->create(mTreeWidget);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create dummy node failed ! ERROR [%d]", ret)
@@ -189,7 +174,7 @@ namespace Tiny3D
             }
 
             // 资产树
-            ret = populateAssetsTree(tree, callbacks, treeNodeDestroy);
+            ret = populateAssetsTree(mTreeWidget, callbacks, treeNodeDestroy);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Failed to populate asset tree ! ERROR [%d]", ret);
@@ -288,14 +273,13 @@ namespace Tiny3D
             // node->setUserData(assetNode);
 
             AssetNode *root = PROJECT_MGR.getAssetRoot();
-            ret = populateAssetsTree(tree, tree, root, callbacks, onDestroy);
+            T3D_ASSERT(mAssetsRoot == nullptr);
+            ret = populateAssetsTree(tree, tree, root, callbacks, onDestroy, mAssetsRoot);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_WARNING("Failed to populate assets tree ! ERROR [%d]", ret);
                 break;
             }
-            
-            // assetsRoot->expand(true);
         } while (false);
 
         return ret;
@@ -303,7 +287,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult UIAssetHierarchyView::populateAssetsTree(ImTreeWidget *tree, ImTreeNode *uiParent, AssetNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+    TResult UIAssetHierarchyView::populateAssetsTree(ImTreeWidget *tree, ImTreeNode *uiParent, AssetNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy, ImTreeNode *&uiNode)
     {
         TResult ret = T3D_OK;
 
@@ -314,8 +298,7 @@ namespace Tiny3D
             if (meta->getType() == Meta::Type::kFolder)
             {
                 // 文件夹
-                ImTreeNode *uiNode = new ImTreeNode(tree);
-                node->setUserData(uiNode);
+                uiNode = new ImTreeNode(tree);
                 
                 ret = uiNode->createByPath(ICON_NAME_FOLDER, ICON_NAME_FOLDER_OPENED, node->getFilename(), callbacks, uiParent, onDestroy);
                 if (T3D_FAILED(ret))
@@ -326,10 +309,12 @@ namespace Tiny3D
 
                 UIAssetNode *barNode = new UIAssetNode(uiNode, node);
                 uiNode->setUserData(barNode);
-
+                node->setUserData(uiNode);
+                
                 for (auto child : node->getChildren())
                 {
-                    ret = populateAssetsTree(tree, uiNode, child, callbacks, onDestroy);
+                    ImTreeNode *uiChild = nullptr;
+                    ret = populateAssetsTree(tree, uiNode, child, callbacks, onDestroy, uiChild);
                     if (T3D_FAILED(ret))
                     {
                         EDITOR_LOG_WARNING("Failed to populate assets tree for node [%s] ! ERROR [%d]", child->getPath().c_str(), ret);
@@ -372,6 +357,68 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult UIAssetHierarchyView::rebuild()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mAssetsRoot->getParent()->removeChild(mAssetsRoot, true);
+            mAssetsRoot = nullptr;
+
+            auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+
+            auto treeNodeRClicked = std::bind(&UIAssetHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+
+            auto treeNodeDestroy = std::bind(&UIAssetHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+        
+            ret = populateAssetsTree(mTreeWidget, callbacks, treeNodeDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to populate asset tree ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIAssetHierarchyView::treeNodeClicked(ImTreeNode *node)
+    {
+        EDITOR_LOG_INFO("Tree node [%s] clicked ", node->getName().c_str())
+
+        EventParamHierarchyNodeClicked param(node);
+        UIAssetNode *uiAssetNOde = (UIAssetNode *)node->getUserData();
+        postEvent(kEvtHierarchyNodeClicked, &param);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIAssetHierarchyView::treeNodeRClicked(ImTreeNode *node)
+    {
+        EDITOR_LOG_INFO("Tree node [%s] R-Clicked ", node->getName().c_str())
+        mContextMenu->show(this);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIAssetHierarchyView::onTreeNodeDestroy(ImTreeNode *node)
+    {
+        UIAssetNode *assetNode = static_cast<UIAssetNode*>(node->getUserData());
+        if (assetNode->getAssetNode() != nullptr)
+        {
+            assetNode->getAssetNode()->setUserData(nullptr);
+        }
+        T3D_SAFE_DELETE(assetNode);
+        node->setUserData(nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult UIAssetThumbView::create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots)
     {
         return ImWidget::createInternal(id, name, parent, 1, &roots);
@@ -386,25 +433,28 @@ namespace Tiny3D
         do
         {
             ImTreeBar::TreeBarNodes *roots = va_arg(args, ImTreeBar::TreeBarNodes*);
-            
-            UIAssetPathBar *pathBar = new UIAssetPathBar();
-            ret = pathBar->create(ID_PROJECT_PATH_BAR, "Asset Path Bar", nullptr, *roots);
+
+            // 路径栏
+            mPathBar = new UIAssetPathBar();
+            ret = mPathBar->create(ID_PROJECT_PATH_BAR, "Asset Path Bar", nullptr, *roots);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create project asset path bar failed ! ERROR [%d]", ret)
                 break;
             }
 
-            UIAssetDetailView *detailView = new UIAssetDetailView();
-            ret = detailView->create(ID_PROJECT_ASSET_DETAIL_VIEW, "Asset Detail View", nullptr);
+            // 详情视图
+            mDetailView = new UIAssetDetailView();
+            ret = mDetailView->create(ID_PROJECT_ASSET_DETAIL_VIEW, "Asset Detail View", nullptr);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create project asset detail view failed ! ERROR [%d]", ret)
                 break;
             }
 
-            UIAssetStatusBar *statusBar = new UIAssetStatusBar();
-            ret = statusBar->create(ID_PROJECT_STATUS_BAR,  "Asset Status Bar", nullptr);
+            // 状态栏
+            mStatusBar = new UIAssetStatusBar();
+            ret = mStatusBar->create(ID_PROJECT_STATUS_BAR,  "Asset Status Bar", nullptr);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create project asset status bar failed ! ERROR [%d]", ret)
@@ -426,22 +476,31 @@ namespace Tiny3D
             // 工具栏
             item.size.x = 0;
             item.size.y = txtHeight;
-            item.childView = pathBar;
+            item.childView = mPathBar;
             items.emplace_back(item);
             // 详情视图
             item.size.x = item.size.y = 0;
-            item.childView = detailView;
+            item.childView = mDetailView;
             items.emplace_back(item);
             // 状态栏
             item.size.x = 0;
             item.size.y = -txtHeight;   // 负值，停靠下端，上一个 item 自动计算高度
-            item.childView = statusBar;
+            item.childView = mStatusBar;
             items.emplace_back(item);
             
             layout->addWidgets(items);
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIAssetThumbView::onDestroy()
+    {
+        mPathBar = nullptr;
+        mDetailView = nullptr;
+        mStatusBar = nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -485,6 +544,28 @@ namespace Tiny3D
         return ImGuiChildFlags_Border;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetThumbView::rebuild()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (mPathBar != nullptr)
+            {
+                ret = mPathBar->rebuild();
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_WARNING("Failed to rebuild path bar !");
+                    break;
+                }
+            }
+        } while (false);
+
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult UIAssetPathBar::create(uint32_t id, const String &name, ImWidget *parent, const ImTreeBar::TreeBarNodes &roots)
@@ -582,6 +663,20 @@ namespace Tiny3D
         return ImGuiChildFlags_None;
     }
     
+    //--------------------------------------------------------------------------
+
+    TResult UIAssetPathBar::rebuild()
+    {
+        TResult ret = T3D_OK;
+
+        if (mTreeBar != nullptr)
+        {
+            mTreeBar->setSelectedNode(nullptr);
+        }
+        
+        return ret;
+    }
+
     //--------------------------------------------------------------------------
 
     bool UIAssetPathBar::onClickedHierarchyNode(EventParam *param, TINSTANCE sender)
@@ -821,6 +916,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+
+
+    //--------------------------------------------------------------------------
+
     ImGuiChildFlags UIAssetStatusBar::onGetChildFlags()
     {
         return ImGuiChildFlags_Border;
@@ -834,22 +933,25 @@ namespace Tiny3D
 
         do
         {
-            UIAssetHierarchyView *leftView = new UIAssetHierarchyView();
-            ret = leftView->create(ID_PROJECT_ASSET_HIERARCHY_VIEW, "ProjectHierarchyView", nullptr);
+            ON_MEMBER(kEvtAppEnterForeground, UIProjectWindow::onApplicationWillEnterForeground);
+            ON_MEMBER(kEvtAppFocusGained, UIProjectWindow::onApplicationFocusGained);
+            
+            mHierarchyView = new UIAssetHierarchyView();
+            ret = mHierarchyView->create(ID_PROJECT_ASSET_HIERARCHY_VIEW, "ProjectHierarchyView", nullptr);
             if (T3D_FAILED(ret))
             {
                 break;
             }
             
-            UIAssetThumbView *rightView = new UIAssetThumbView();
-            ret = rightView->create(ID_PROJECT_ASSET_THUMB_VIEW, "ProjectThumbView", nullptr, leftView->getTreeBarRoots());
+            mThumbView = new UIAssetThumbView();
+            ret = mThumbView->create(ID_PROJECT_ASSET_THUMB_VIEW, "ProjectThumbView", nullptr, mHierarchyView->getTreeBarRoots());
             if (T3D_FAILED(ret))
             {
                 break;
             }
             
             mSplitView = new ImSplitView();
-            ret = mSplitView->create(ID_PROJECT_WINDOW_SPLIT_VIEW, "ProjectSplitView", 0.3f, leftView, 0.7f, rightView, 0, true, this);
+            ret = mSplitView->create(ID_PROJECT_WINDOW_SPLIT_VIEW, "ProjectSplitView", 0.3f, mHierarchyView, 0.7f, mThumbView, 0, true, this);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -860,10 +962,44 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void UIProjectWindow::onDestroy()
+    {
+        mHierarchyView = nullptr;
+        mThumbView = nullptr;
+        
+        unregisterAllEvent();
+    }
+
+    //--------------------------------------------------------------------------
     
     void UIProjectWindow::onGUI()
     {
         
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool UIProjectWindow::onApplicationWillEnterForeground(EventParam *param, TINSTANCE sender)
+    {
+        if (mHierarchyView != nullptr)
+        {
+            mHierarchyView->rebuild();
+        }
+
+        if (mThumbView != nullptr)
+        {
+            mThumbView->rebuild();
+        }
+        
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIProjectWindow::onApplicationFocusGained(EventParam *param, TINSTANCE sender)
+    {
+        return onApplicationWillEnterForeground(param, sender);
     }
     
     //--------------------------------------------------------------------------

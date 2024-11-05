@@ -812,6 +812,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ProjectManager::applicationDidEnterBackground()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::applicationWillEnterForeground()
+    {
+        mAssetRoot->destroy();
+        populate();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::applicationFocusGained()
+    {
+        mAssetRoot->destroy();
+        populate();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::applicationFocusLost()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ProjectManager::makeFolder(AssetNode *parent, const String &path, AssetNode *&node)
     {
         TResult ret = T3D_OK;

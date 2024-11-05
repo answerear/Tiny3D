@@ -37,6 +37,7 @@ namespace Tiny3D
     class ProjectManager;
     class NetworkManager;
     class EditorSceneImpl;
+    class AppEventProxy;
     
     class EditorApp : public ImGuiApp
     {
@@ -61,6 +62,10 @@ namespace Tiny3D
         void applicationWillTerminate() override;
 
         void applicationLowMemory() override;
+
+        void applicationFocusGained() override;
+
+        void applicationFocusLost() override;
 
         bool processEvents(const AppEvent &event) override;
 
@@ -114,6 +119,8 @@ namespace Tiny3D
 
         ImTextureManager    *mTextureMgr {nullptr};
         UIMainWindow          *mMainWindow {nullptr};
+
+        AppEventProxy   *mAppEventProxy {nullptr};
 
         String mIniPath {};
 

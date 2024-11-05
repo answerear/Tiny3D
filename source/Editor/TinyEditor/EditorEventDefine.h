@@ -34,7 +34,13 @@ namespace Tiny3D
 
     enum AppEventID
     {
-        kEvtHierarchyNodeClicked = kEvtApp,
+        kEvtAppEnterBackground = kEvtApp,
+        kEvtAppEnterForeground,
+
+        kEvtAppFocusGained,
+        kEvtAppFocusLost,
+        
+        kEvtHierarchyNodeClicked,
 
         /// 刷新工程文件窗口
         kEvtRefreshProjectWindow,

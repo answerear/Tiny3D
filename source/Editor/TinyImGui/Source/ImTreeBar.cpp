@@ -59,7 +59,7 @@ namespace Tiny3D
         do
         {
             TreeBarNodes *roots = va_arg(args, TreeBarNodes*);
-            mRoots = *roots;
+            // mRoots = *roots;
             ImTreeBarNodeClickedCallback *nodeCB = va_arg(args, ImTreeBarNodeClickedCallback*);
             mClickedNodeCB = *nodeCB;
         } while (false);

@@ -45,6 +45,20 @@ namespace Tiny3D
     #define IMGUI_DX11_PLUGIN   "ImGuiDX11"
 
     //--------------------------------------------------------------------------
+
+    class AppEventProxy : public EventHandler
+    {
+    public:
+        AppEventProxy() = default;
+        virtual ~AppEventProxy() = default;
+
+        AppEventProxy(const AppEventProxy &rhs) = delete;
+        AppEventProxy &operator=(const AppEventProxy &rhs) = delete;
+        AppEventProxy(AppEventProxy &&rhs) = delete;
+        AppEventProxy &operator=(AppEventProxy &&rhs) = delete;
+    };
+    
+    //--------------------------------------------------------------------------
     
     EditorApp::EditorApp()
     {
@@ -61,9 +75,11 @@ namespace Tiny3D
         // }
         //
         // T3D_SAFE_DELETE(mNetworkMgr);
+        
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
+        T3D_SAFE_DELETE(mAppEventProxy)
         T3D_SAFE_DELETE(mEngine)
         
         app = nullptr;
@@ -109,6 +125,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
+        T3D_SAFE_DELETE(mAppEventProxy)
         T3D_SAFE_DELETE(mEngine)
 
         return ret;
@@ -295,7 +312,9 @@ namespace Tiny3D
 
             T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
 
-            mEngine->setRunInBackground(true);
+            mEngine->setRunInBackground(false);
+
+            mAppEventProxy = new AppEventProxy();
         } while (false);
 
         return ret;
@@ -311,7 +330,7 @@ namespace Tiny3D
         {
             mLangMgr = LanguageManager::create();
             // String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-en-us.txt";
-            String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "Language" + Dir::getNativeSeparator() + "lang-zh-hans.txt";
+            String path = Dir::getAppPath() + Dir::getNativeSeparator() + u8"Editor" + Dir::getNativeSeparator() + u8"Language" + Dir::getNativeSeparator() + u8"lang-zh-hans.txt";
             ret = mLangMgr->init(path);
             if (T3D_FAILED(ret))
             {
@@ -431,7 +450,7 @@ namespace Tiny3D
         
         T3D_SAFE_DELETE(mNetworkMgr)
         T3D_SAFE_DELETE(mProjectMgr)
-        
+        T3D_SAFE_DELETE(mAppEventProxy)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine)
     }
@@ -496,14 +515,18 @@ namespace Tiny3D
     
     void EditorApp::applicationDidEnterBackground()
     {
+        EDITOR_LOG_DEBUG("Application did enter background")
         T3D_AGENT.appDidEnterBackground();
+        PROJECT_MGR.applicationDidEnterBackground();
     }
 
     //--------------------------------------------------------------------------
     
     void EditorApp::applicationWillEnterForeground()
     {
+        EDITOR_LOG_DEBUG("Application will enter foreground")
         T3D_AGENT.appWillEnterForeground();
+        PROJECT_MGR.applicationWillEnterForeground();
     }
 
     //--------------------------------------------------------------------------
@@ -518,6 +541,36 @@ namespace Tiny3D
     void EditorApp::applicationLowMemory()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::applicationFocusGained()
+    {
+        EDITOR_LOG_DEBUG("Application focus gained !")
+        if (mProjectMgr != nullptr)
+        {
+            mProjectMgr->applicationFocusGained();
+        }
+        if (mAppEventProxy != nullptr)
+        {
+            mAppEventProxy->sendEvent(kEvtAppFocusGained, nullptr);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::applicationFocusLost()
+    {
+        EDITOR_LOG_DEBUG("Application focus lost !")
+        if (mProjectMgr != nullptr)
+        {
+            mProjectMgr->applicationFocusLost();
+        }
+        if (mAppEventProxy != nullptr)
+        {
+            mAppEventProxy->sendEvent(kEvtAppFocusLost, nullptr);
+        }
     }
 
     //--------------------------------------------------------------------------
