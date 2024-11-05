@@ -739,6 +739,15 @@ namespace Tiny3D
                             metaPath = dir.getFilePath();
                             ret = generateAssetNode(dir.getFilePath(), node, child);
                         }
+
+                        // 源文件不在，删掉 meta 文件
+                        String originalPath, originalName, ext;
+                        Dir::parsePath(filePath, originalPath, originalName, ext);
+                        originalPath = originalPath + Dir::getNativeSeparator() + originalName;
+                        if (!Dir::exists(originalPath))
+                        {
+                            Dir::remove(filePath);
+                        }
                     }
                 }
             }
