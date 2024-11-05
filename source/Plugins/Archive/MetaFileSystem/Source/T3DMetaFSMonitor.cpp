@@ -422,7 +422,7 @@ namespace Tiny3D
         {
             // int a = 0;
         }
-        else if (std::filesystem::is_directory(path))
+        else if (Dir::isDirectory(path))
         {
             generateFolderMeta(path);
         }
