@@ -343,7 +343,8 @@ namespace Tiny3D
 
     void MetaFSMonitor::removeFileMeta(const String &path)
     {
-        
+        String metaPath = path + ".meta";
+        Dir::remove(metaPath);
     }
 
     //--------------------------------------------------------------------------
