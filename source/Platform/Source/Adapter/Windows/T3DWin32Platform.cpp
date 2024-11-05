@@ -26,6 +26,7 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include "T3DDir.h"
+#include "T3DLocale.h"
 #include "T3DPlatformErrorDef.h"
 
 
@@ -114,7 +115,7 @@ namespace Tiny3D
             char exePath[exePathSize];
             DWORD exePathLength = GetModuleFileName(nullptr, exePath, exePathSize);
 
-            String path(exePath);
+            String path = T3D_LOCALE.ANSIToUTF8(exePath);
             String dir;
             Dir::parsePath(path, dir, mCurrentProcessName);
         }

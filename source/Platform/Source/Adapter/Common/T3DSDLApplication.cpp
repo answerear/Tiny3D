@@ -149,15 +149,17 @@ namespace Tiny3D
                 switch (event.window.event)
                 {
                 case APP_WINDOWEVENT_FOCUS_GAINED:
-                    if (!mRunInBackground)
+                    // if (!mRunInBackground)
                     {
-                        T3D_APPLICATION.applicationWillEnterForeground();
+                        // T3D_APPLICATION.applicationWillEnterForeground();
+                        T3D_APPLICATION.applicationFocusGained();
                     }
                     break;
                 case APP_WINDOWEVENT_FOCUS_LOST:
-                    if (!mRunInBackground)
+                    // if (!mRunInBackground)
                     {
-                        T3D_APPLICATION.applicationDidEnterBackground();
+                        // T3D_APPLICATION.applicationDidEnterBackground();
+                        T3D_APPLICATION.applicationFocusLost();
                     }
                     break;
                 case APP_WINDOWEVENT_MINIMIZED:

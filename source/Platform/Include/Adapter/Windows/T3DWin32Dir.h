@@ -209,84 +209,84 @@ namespace Tiny3D
          * @param [in] strPath : 指定目录文件格式字符串
          * @return 调用成功返回true，失败返回false.
          */
-        virtual bool findFile(const String &strPath) override;
+        bool findFile(const String &strPath) override;
 
         /**
          * @brief 搜索下一个文件.
          * @return 枚举没结束返回true，否则返回false表示枚举结束.
          */
-        virtual bool findNextFile() override;
+        bool findNextFile() override;
 
         /**
          * @brief 结束当前枚举搜索.
          */
-        virtual void close() override;
+        void close() override;
 
         /**
          * @brief 获取枚举目录的完整路径.
          * @return 返回枚举目录的路径，返回类型std::string.
          */
-        virtual String getRoot() const override;
+        String getRoot() const override;
 
         /**
          * @brief 获取当前枚举到的完整文件名.
          * @return 返回当前枚举到的完整文件名，类型std::string.
          */
-        virtual String getFileName() const override;
+        String getFileName() const override;
 
         /**
          * @brief 获取当前枚举到的文件的全路径名，包括完整文件名.
          * @return 返回当前枚举到的文件的全路径名，类型std::string.
          */
-        virtual String getFilePath() const override;
+        String getFilePath() const override;
 
         /**
          * @brief 获取当前枚举到的文件文件名，不包括扩展名.
          * @return 返回当前枚举到的文件文件名，类型std::string.
          */
-        virtual String getFileTitle() const override;
+        String getFileTitle() const override;
 
         /**
          * @brief 获取当前枚举到的文件大小.
          * @return 返回当前枚举到的文件大小.
          */
-        virtual uint32_t getLength() const override;
+        uint32_t getLength() const override;
 
         /**
          * @brief 判断当前枚举到的文件是否点目录，包括'.'和'..' .
          * @return 点目录返回true，否则返回false.
          */
-        virtual bool isDots() const override;
+        bool isDots() const override;
 
         /**
          * @brief 判断当前枚举到的文件是否文件夹.
          * @return 文件返回true，否则返回false.
          */
-        virtual bool isDirectory() const override;
+        bool isDirectory() const override;
 
         /**
          * @brief 获取当前枚举到的文件的创建时间戳.
          * @return 返回文件创建时间戳，该时间是从1970年1月1日到当前的秒数
          */
-        virtual long_t getCreationTime() const override;
+        long_t getCreationTime() const override;
 
         /**
          * @brief 获取当前枚举到的文件的最后访问时间戳.
          * @return 返回文件最后访问时间戳，该时间是从1970年1月1日到当前的秒数
          */
-        virtual long_t getLastAccessTime() const override;
+        long_t getLastAccessTime() const override;
 
         /**
          * @brief 获取当前枚举到的文件的最后修改时间戳.
          * @return 返回文件最后修改时间戳，该时间是从1970年1月1日到当前的秒数
          */
-        virtual long_t getLastWriteTime() const override;
+        long_t getLastWriteTime() const override;
 
-        virtual long_t getCreationTime(const String &filename) const override;
+        long_t getCreationTime(const String &filename) const override;
 
-        virtual long_t getLastAccessTime(const String &filename) const override;
+        long_t getLastAccessTime(const String &filename) const override;
 
-        virtual long_t getLastWriteTime(const String &filename) const override;
+        long_t getLastWriteTime(const String &filename) const override;
         
         /**
          * @brief 创建文件夹.
@@ -294,7 +294,7 @@ namespace Tiny3D
          * @param [in] strDir : 文件夹路径名称
          * @return 调用成功返回true，否则返回false.
          */
-        virtual bool makeDir(const String &strDir) override;
+        bool makeDir(const String &strDir) override;
 
         /**
          * @brief 删除文件夹.
@@ -302,54 +302,61 @@ namespace Tiny3D
          * @param [in] strDir : 文件夹路径名称
          * @return 调用成功返回true，否则返回false.
          */
-        virtual bool removeDir(const String &strDir) override;
+        bool removeDir(const String &strDir) override;
 
         /**
          * @brief 删除文件.
          * @param [in] strFileName : 需要删除文件的名称.
          * @return 调用成功返回true，否则返回false.
          */
-        virtual bool remove(const String &strFileName) override;
+        bool remove(const String &strFileName) override;
 
         /**
          * @brief 判断路径对应的文件是否存在.
          * @param [in] strPath : 完整路径名
          * @return 文件存在返回true，否则返回false.
          */
-        virtual bool exists(const String &strPath) const override;
+        bool exists(const String &strPath) const override;
+
+        /**
+         * @brief 判断是否文件夹
+         * @param [in] path : 完整路径名
+         * @return 返回 true 表示文件夹，否则表示文件
+         */
+        bool isDirectory(const String &path) const override;
 
         /**
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径
          * @return 返回应用程序缓存数据存储路径.
          */
-        virtual String getCachePath() const override;
+        String getCachePath() const override;
 
         /**
         * @brief 获取应用程序路径
         * @return 返回应用程序路径
         */
-        virtual String getAppPath() const override;
+        String getAppPath() const override;
 
         /**
          * @brief 获取程序当前工作路径
          * @return 返回程序当前工作路径
          */
-        virtual String getCurrentPath() const override;
+        String getCurrentPath() const override;
 
         /**
          * @brief 获取应用程序可写路径，不同平台指定对应的路径
          * @return 返回应用程序可写路径.
          */
-        virtual String getWritablePath() const override;
+        String getWritablePath() const override;
 
         /**
          * @brief 获取动态库路径
          * @return 返回动态库路径
          * @remarks 本接口在android上才有效，其他平台跟getAppPath()相同
          */
-        virtual String getLibraryPath() const override;
+        String getLibraryPath() const override;
 
-        virtual char getNativeSeparator() const override;
+        char getNativeSeparator() const override;
 
         bool extractRoot(const String &strFilePath, String &strRoot);
 

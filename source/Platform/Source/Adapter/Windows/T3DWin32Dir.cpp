@@ -33,6 +33,7 @@
 #include <ShlObj.h>
 
 #include "T3DDir.h"
+#include "T3DLocale.h"
 
 
 #pragma warning(disable:4244)
@@ -357,7 +358,7 @@ namespace Tiny3D
 
     bool Win32Dir::findFile(const String &strPath)
     {
-        if (strPath.empty() || strPath == "")
+        if (strPath.empty())
             return false;
 
 #ifdef UNICODE
@@ -365,10 +366,11 @@ namespace Tiny3D
         ::MultiByteToWideChar(CP_UTF8, 0, strPath.c_str(), strPath.length(), wszPath, sizeof(wszPath));
         m_hFindFile = ::FindFirstFile(wszPath, &m_FindFileData);
 #else
-        m_hFindFile = ::FindFirstFile(strPath.c_str(), &m_FindFileData);
+        String path = T3D_LOCALE.UTF8ToANSI(strPath);
+        m_hFindFile = ::FindFirstFile(path.c_str(), &m_FindFileData);
 #endif
 
-        extractRoot(strPath, m_strRoot);
+        extractRoot(path, m_strRoot);
 
         m_bExtractName = false;
 
@@ -428,7 +430,7 @@ namespace Tiny3D
             ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
             String strFilePath(szPath);
 #else
-            String strFilePath = m_FindFileData.cFileName;
+            String strFilePath = T3D_LOCALE.ANSIToUTF8(m_FindFileData.cFileName);
 #endif
             extractFileName(strFilePath, m_strName, m_strTitle);
         }
@@ -448,7 +450,7 @@ namespace Tiny3D
         ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
         String strPath(szPath);
 #else
-        String strPath = m_FindFileData.cFileName;
+        String strPath = T3D_LOCALE.ANSIToUTF8(m_FindFileData.cFileName);
 #endif
 
         if (!m_bExtractName)
@@ -473,7 +475,7 @@ namespace Tiny3D
             ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
             String strFilePath(szPath);
 #else
-            String strFilePath = m_FindFileData.cFileName;
+            String strFilePath = T3D_LOCALE.ANSIToUTF8(m_FindFileData.cFileName);
 #endif
             extractFileName(strFilePath, m_strName, m_strTitle);
         }
@@ -505,7 +507,7 @@ namespace Tiny3D
             ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szPath, sizeof(szPath), nullptr, nullptr);
             String strPath(szPath);
 #else
-            String strPath = m_FindFileData.cFileName;
+            String strPath = T3D_LOCALE.ANSIToUTF8(m_FindFileData.cFileName);
 #endif
             extractFileName(strPath, m_strName, m_strTitle);
         }
@@ -599,7 +601,8 @@ namespace Tiny3D
         ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
         int result = _stat(szFileName, &buffer);
 #else
-        int result = _stat(filename.c_str(), &buffer);
+        String name = T3D_LOCALE.UTF8ToANSI(filename);
+        int result = _stat(name.c_str(), &buffer);
 #endif
         if (result == 0)
         {
@@ -619,7 +622,8 @@ namespace Tiny3D
         ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
         int result = _stat(szFileName, &buffer);
 #else
-        int result = _stat(filename.c_str(), &buffer);
+        String name = T3D_LOCALE.UTF8ToANSI(filename);
+        int result = _stat(name.c_str(), &buffer);
 #endif
         if (result == 0)
         {
@@ -639,7 +643,8 @@ namespace Tiny3D
         ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
         int result = _stat(szFileName, &buffer);
 #else
-        int result = _stat(filename.c_str(), &buffer);
+        String name = T3D_LOCALE.UTF8ToANSI(filename);
+        int result = _stat(name.c_str(), &buffer);
 #endif
         if (result == 0)
         {
@@ -656,7 +661,8 @@ namespace Tiny3D
         if (strDir.empty() || strDir == "")
             return false;
 
-        return (mkdir(strDir.c_str()) == 0);
+        String name = T3D_LOCALE.UTF8ToANSI(strDir);
+        return (mkdir(name.c_str()) == 0);
     }
 
     //--------------------------------------------------------------------------
@@ -666,7 +672,8 @@ namespace Tiny3D
         if (strDir.empty() || strDir == "")
             return false;
 
-        return (rmdir(strDir.c_str()) == 0);
+        String name = T3D_LOCALE.UTF8ToANSI(strDir);
+        return (rmdir(name.c_str()) == 0);
     }
 
     //--------------------------------------------------------------------------
@@ -676,14 +683,29 @@ namespace Tiny3D
         if (strFileName.empty() || strFileName == "")
             return false;
 
-        return (::remove(strFileName.c_str()) == 0);
+        String name = T3D_LOCALE.UTF8ToANSI(strFileName);
+        return (::remove(name.c_str()) == 0);
     }
 
     //--------------------------------------------------------------------------
 
     bool Win32Dir::exists(const String &strPath) const
     {
-        return (::access(strPath.c_str(), 0) == 0);
+        String name = T3D_LOCALE.UTF8ToANSI(strPath);
+        return (::access(name.c_str(), 0) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::isDirectory(const String &path) const
+    {
+        String name = T3D_LOCALE.UTF8ToANSI(path);
+        DWORD attributes = GetFileAttributes(name.c_str());
+        if (attributes == INVALID_FILE_ATTRIBUTES)
+        {
+            return false; // 路径无效
+        }
+        return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0; // 检查是否为目录
     }
 
     //--------------------------------------------------------------------------
@@ -717,7 +739,7 @@ namespace Tiny3D
                     }
                 }
 
-                m_strCachePath = path;
+                m_strCachePath = T3D_LOCALE.ANSIToUTF8(path);
             }
         }
 
@@ -745,7 +767,8 @@ namespace Tiny3D
         ptr--;
         *ptr = 0;
 
-        return String(szBuf);
+        return T3D_LOCALE.ANSIToUTF8(szBuf);
+        // return String(szBuf);
     }
 
     //--------------------------------------------------------------------------
@@ -754,14 +777,14 @@ namespace Tiny3D
     {
         char buff[FILENAME_MAX];
         _getcwd(buff, FILENAME_MAX);
-        return buff;
+        return T3D_LOCALE.ANSIToUTF8(buff);
     }
 
     //--------------------------------------------------------------------------
 
     String Win32Dir::getWritablePath() const
     {
-        return getAppPath() + "\\Save";
+        return getAppPath() + u8"\\Save";
     }
 
     //--------------------------------------------------------------------------

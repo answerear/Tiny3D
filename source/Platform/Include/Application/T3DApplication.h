@@ -92,6 +92,10 @@ namespace Tiny3D
 
         virtual void applicationLowMemory() = 0;
 
+        virtual void applicationFocusGained();
+
+        virtual void applicationFocusLost();
+
     private:
         Platform    *mPlatform;     /// 具体平台系统对象
     };

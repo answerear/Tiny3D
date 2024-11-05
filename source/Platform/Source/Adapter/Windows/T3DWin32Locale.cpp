@@ -70,8 +70,13 @@ namespace Tiny3D
         wszString[wcsLen] = 0;
 
         int dstLen = ::WideCharToMultiByte(CP_ACP, 0, wszString, (int)wcslen(wszString), nullptr, 0, nullptr, nullptr);
-        String dst(dstLen-1, 0);
-        ::WideCharToMultiByte(CP_ACP, NULL, wszString, (int)wcslen(wszString), dst.data(), dstLen, nullptr, nullptr);
+        // String dst(dstLen-1, 0);
+        char *szDst = new char[dstLen+1]; 
+        ::WideCharToMultiByte(CP_ACP, NULL, wszString, (int)wcslen(wszString), szDst, dstLen, nullptr, nullptr);
+        szDst[dstLen] = 0;
+        
+        String dst = szDst;
+        T3D_SAFE_DELETE_ARRAY(szDst);
         T3D_SAFE_DELETE_ARRAY(wszString);
         
         return dst;
@@ -81,10 +86,23 @@ namespace Tiny3D
     
     String Win32Locale::UnicodeToUTF8(const WString &src)
     {
-        int dstLen = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, nullptr, 0, nullptr, nullptr);
-        String dst(dstLen-1, 0);
+#if 0
+        int dstLen = ::WideCharToMultiByte(0, 0, src.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        String dst(dstLen, 0);
         ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, dst.data(), dstLen, nullptr, nullptr);
-        return dst;
+        String ret = dst;
+        return ret;
+#else
+        int dstLen = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        char *szDst = new char[dstLen+1];
+        int result = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, szDst, dstLen, nullptr, nullptr);
+        szDst[dstLen] = 0;
+        String dst = szDst;
+        T3D_SAFE_DELETE_ARRAY(szDst);
+        if (result > 0)
+            return dst;
+        return "";
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -92,8 +110,10 @@ namespace Tiny3D
     WString Win32Locale::UTF8ToUnicode(const String &src)
     {
         int dstLen = ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, nullptr, 0);
-        WString dst(dstLen-1, 0);
-        ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, dst.data(), dstLen);
+        wchar_t *wszDst = new wchar_t[dstLen + 1];
+        ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, wszDst, dstLen);
+        WString dst = wszDst;
+        T3D_SAFE_DELETE_ARRAY(wszDst);
         return dst;
     }
 

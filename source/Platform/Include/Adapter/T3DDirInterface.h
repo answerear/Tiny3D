@@ -160,6 +160,13 @@ namespace Tiny3D
         virtual bool exists(const String &strPath) const = 0;
 
         /**
+         * @brief 判断是否文件夹
+         * @param [in] path : 完整路径名
+         * @return 返回 true 表示文件夹，否则表示文件
+         */
+        virtual bool isDirectory(const String &path) const = 0;
+
+        /**
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径
          * @return 返回应用程序缓存数据存储路径.
          */

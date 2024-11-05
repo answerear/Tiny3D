@@ -165,6 +165,8 @@ namespace Tiny3D
          */
         static bool exists(const String &strPath);
 
+        static bool isDirectory(const String &path);
+
         static bool copy(const String &srcPath, const String &dstPath, bool overwriteExisting);
 
         static bool copyDir(const String &srcPath, const String &dstPath, bool overwriteExisting);

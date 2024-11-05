@@ -24,6 +24,8 @@
 
 #include "IO/T3DFileDataStream.h"
 
+#include "T3DLocale.h"
+
 
 namespace Tiny3D
 {
@@ -54,64 +56,66 @@ namespace Tiny3D
 
     bool FileDataStream::open(const char *szFileName, uint32_t unMode)
     {
+        String filename = T3D_LOCALE.UTF8ToANSI(szFileName);
+        
         if (unMode == E_MODE_READ_ONLY)
         {
-            m_pFileHandle = fopen(szFileName, "rb");
+            m_pFileHandle = fopen(filename.c_str(), "rb");
         }
         else if (unMode == E_MODE_WRITE_ONLY)
         {
-            m_pFileHandle = fopen(szFileName, "wb");
+            m_pFileHandle = fopen(filename.c_str(), "wb");
         }
         else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_APPEND)
                  || unMode == E_MODE_APPEND)
         {
-            m_pFileHandle = fopen(szFileName, "ab");
+            m_pFileHandle = fopen(filename.c_str(), "ab");
         }
         else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE)
             || unMode == E_MODE_TRUNCATE)
         {
-            m_pFileHandle = fopen(szFileName, "wb");
+            m_pFileHandle = fopen(filename.c_str(), "wb");
         }
         else if (unMode == E_MODE_READ_WRITE)
         {
-            m_pFileHandle = fopen(szFileName, "r+b");
+            m_pFileHandle = fopen(filename.c_str(), "r+b");
         }
         else if (unMode == (E_MODE_READ_WRITE|E_MODE_TRUNCATE))
         {
-            m_pFileHandle = fopen(szFileName, "w+b");
+            m_pFileHandle = fopen(filename.c_str(), "w+b");
         }
         else if (unMode == (E_MODE_READ_WRITE|E_MODE_APPEND))
         {
-            m_pFileHandle = fopen(szFileName, "a+b");
+            m_pFileHandle = fopen(filename.c_str(), "a+b");
         }
         else if (unMode == (E_MODE_READ_ONLY|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "r+t");
+            m_pFileHandle = fopen(filename.c_str(), "r+t");
         }
         else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "w+t");
+            m_pFileHandle = fopen(filename.c_str(), "w+t");
         }
         else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_APPEND|E_MODE_TEXT)
                  || unMode == (E_MODE_APPEND|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "a+t");
+            m_pFileHandle = fopen(filename.c_str(), "a+t");
         }
         else if (unMode == (E_MODE_READ_WRITE|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "r+t");
+            m_pFileHandle = fopen(filename.c_str(), "r+t");
         }
         else if (unMode == (E_MODE_READ_WRITE|E_MODE_TRUNCATE|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "w+t");
+            m_pFileHandle = fopen(filename.c_str(), "w+t");
         }
         else if (unMode == (E_MODE_READ_WRITE|E_MODE_APPEND|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "a+t");
+            m_pFileHandle = fopen(filename.c_str(), "a+t");
         }
         else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE|E_MODE_TEXT))
         {
-            m_pFileHandle = fopen(szFileName, "wt");
+            m_pFileHandle = fopen(filename.c_str(), "wt");
         }
 
         m_lSize = 0;

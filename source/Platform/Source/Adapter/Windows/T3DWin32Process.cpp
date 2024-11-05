@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "T3DDir.h"
+#include "T3DLocale.h"
 #include "T3DPlatformErrorDef.h"
 
 
@@ -84,7 +85,9 @@ namespace Tiny3D
             memset(&pi, 0, sizeof(PROCESS_INFORMATION));
 
             String fullCmdList = exePath + " " + cmdList;
-            if (!::CreateProcess(exePath.c_str(), const_cast<char*>(fullCmdList.c_str()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
+            String ascFullCmdList = T3D_LOCALE.UTF8ToANSI(fullCmdList);
+            String ascExePath = T3D_LOCALE.UTF8ToANSI(exePath);
+            if (!::CreateProcess(ascExePath.c_str(), const_cast<char*>(ascFullCmdList.c_str()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
             {
                 DWORD dwError = ::GetLastError();
                 ret = T3D_ERR_PROCESS_CREATED;

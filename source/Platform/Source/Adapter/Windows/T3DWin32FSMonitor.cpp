@@ -157,7 +157,8 @@ namespace Tiny3D
                     info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(p);
                     p += info->NextEntryOffset;
                     WString wstrFilename(info->FileName, info->FileNameLength / sizeof(wchar_t));
-                    String path = mPath + Dir::getNativeSeparator() + T3D_LOCALE.UnicodeToUTF8(wstrFilename);
+                    String filename = T3D_LOCALE.UnicodeToUTF8(wstrFilename);
+                    String path = mPath + Dir::getNativeSeparator() + filename;
 
                     if (!mExcludeExts.empty() || !mExcludeFolders.empty())
                     {

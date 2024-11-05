@@ -25,6 +25,8 @@
 #include "Adapter/Windows/T3DWin32Console.h"
 #include <windows.h>
 
+#include "T3DLocale.h"
+
 
 namespace Tiny3D
 {
@@ -40,6 +42,7 @@ namespace Tiny3D
     void Win32Console::print(const char *pText)
     {
         printf(pText);
-        OutputDebugString(pText);
+        WString text = T3D_LOCALE.UTF8ToUnicode(pText);
+        OutputDebugStringW(text.c_str());
     }
 }
