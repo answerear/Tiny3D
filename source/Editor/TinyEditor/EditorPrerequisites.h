@@ -49,6 +49,21 @@ namespace Tiny3D
     #define ARCHIVE_TYPE_METAFS     "MetaFileSystem"
     #define ARCHIVE_TYPE_FS         "FileSystem"
 
+    #define ICON_NAME_FAVORITE          "Editor/icons/d_Favorite@32.png"
+    #define ICON_NAME_SEARCH            "Editor/icons/d_Search@32.png"
+    #define ICON_NAME_FOLDER            "Editor/icons/d_Folder@32.png"
+    #define ICON_NAME_FOLDER_OPENED     "Editor/icons/d_FolderOpened@32.png"
+    #define ICON_NAME_PREFAB            "Editor/icons/d_Prefab@64.png"
+    #define ICON_NAME_SCENE             "Editor/icons/d_SceneAsset On@64.png"
+    #define ICON_NAME_MATERIAL          "Editor/icons/d_Material@64.png"
+    #define ICON_NAME_MESH              "Editor/icons/d_PrefabModel@64.png"
+    #define ICON_NAME_SHADER            "Editor/icons/d_Shader@64.png"
+    #define ICON_NAME_TEXTURE           "Editor/icons/d_Texture@64.png"
+    #define ICON_NAME_TEXT              "Editor/icons/d_TextAsset@64.png"
+    #define ICON_NAME_DYLIB             "Editor/icons/d_Assembly@64.png"
+    #define ICON_NAME_FILE              "Editor/icons/d_DefaultAsset@64.png"
+    #define ICON_NAME_BIN               ICON_NAME_TEXT
+    
     // #define TEST_SCENE_ENABLE
     
     class EditorSceneImpl;
