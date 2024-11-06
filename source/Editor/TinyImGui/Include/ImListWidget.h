@@ -46,6 +46,8 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kListItem; }
 
+        using ImWidget::create;
+        
         TResult create(const String &title, ImWidget *parent);
 
         TResult createByTexture(ImTextureID texID, const String &title, ImWidget *parent);
