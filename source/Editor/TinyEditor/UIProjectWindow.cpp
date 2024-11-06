@@ -558,7 +558,15 @@ namespace Tiny3D
                 if (T3D_FAILED(ret))
                 {
                     EDITOR_LOG_WARNING("Failed to rebuild path bar !");
-                    break;
+                }
+            }
+
+            if (mDetailView != nullptr)
+            {
+                ret = mDetailView->rebuild();
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_WARNING("Failed to rebuild detail view !");
                 }
             }
         } while (false);
@@ -807,13 +815,16 @@ namespace Tiny3D
             }
 
             mListWidget->removeAllChildren();
-            
-            for (auto child : parent->getChildren())
+
+            if (parent != nullptr)
             {
-                ret = createListItem(child);
-                if (T3D_FAILED(ret))
+                for (auto child : parent->getChildren())
                 {
-                    EDITOR_LOG_WARNING("Create list item [%s] failed !", child->getPath().c_str());
+                    ret = createListItem(child);
+                    if (T3D_FAILED(ret))
+                    {
+                        EDITOR_LOG_WARNING("Create list item [%s] failed !", child->getPath().c_str());
+                    }
                 }
             }
         } while (false);
@@ -916,6 +927,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult UIAssetDetailView::rebuild()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mListWidget->removeAllChildren();
+        } while (false);
+
+        return ret;
+    }
 
 
     //--------------------------------------------------------------------------

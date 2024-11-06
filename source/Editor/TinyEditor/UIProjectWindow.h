@@ -107,6 +107,9 @@ namespace Tiny3D
         : public ImChildView
         , public EventHandler
     {
+    public:
+        TResult rebuild();
+        
     protected:
         TResult onCreate() override;
 
