@@ -46,16 +46,21 @@ namespace Tiny3D
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
-        
+
+        bool onGUIBegin(const ImVec2 &size) override;
         bool onGUIBegin() override;
         void onGUI() override;
         void onGUIEnd() override;
 
         void update() override;
 
+        void update(const ImVec2 &size) override;
+
         bool splitter(bool splitVert, float thickness, float *size0, float *size1, float minSize0, float minSize1, float splitterLongAxisSize = -1.0f);
 
         void initChildrenSize();
+
+        void doLayout(const ImVec2 &size);
         
     protected:
         float mSplitterThickness {4.0f};

@@ -155,7 +155,6 @@ namespace Tiny3D
                 // 不是最后一行
                 T3D_ASSERT(itrItem == mItems.end());    // 只有一个 item 是需要计算的，如果多于一个，则无法计算大小了
                 itrItem = itr;
-                
             }
             else
             {

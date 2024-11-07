@@ -125,10 +125,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ImSplitView::onGUIBegin()
+    void ImSplitView::doLayout(const ImVec2 &size)
     {
-        bool ret = ImChildView::onGUIBegin();
-
         ImGui::PushStyleColor(ImGuiCol_Separator, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
 
         const Children &children = getChildren();
@@ -137,8 +135,8 @@ namespace Tiny3D
         auto child0 = children.front();
         auto child1 = children.back();
 
-        float width = ImGui::GetContentRegionAvail().x;
-        float height = ImGui::GetContentRegionAvail().y;
+        float width = size.x;
+        float height = size.y;
 
         if (mIsFirst || !mResizable)
         {
@@ -192,6 +190,27 @@ namespace Tiny3D
         }
         
         ImGui::PopStyleColor();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImSplitView::onGUIBegin(const ImVec2 &size)
+    {
+        bool ret = ImChildView::onGUIBegin();
+
+        doLayout(size);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImSplitView::onGUIBegin()
+    {
+        bool ret = ImChildView::onGUIBegin();
+
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        doLayout(size);
         
         return ret;
     }
@@ -208,6 +227,28 @@ namespace Tiny3D
     void ImSplitView::onGUIEnd()
     {
         ImChildView::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImSplitView::update(const ImVec2 &size)
+    {
+        if (mVisible && onGUIBegin(size))
+        {
+            onGUI();
+
+            auto child0 = getChildren().front();
+            auto child1 = getChildren().back();
+            child0->update();
+
+            bool isAllChildrenVisible = child0->isVisible() && child1->isVisible();
+            if (mIsHorz && isAllChildrenVisible)
+            {
+                ImGui::SameLine(0, 8.0f);
+            }
+            child1->update();
+            onGUIEnd();
+        }
     }
 
     //--------------------------------------------------------------------------
