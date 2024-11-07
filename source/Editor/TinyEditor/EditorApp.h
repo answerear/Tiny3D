@@ -51,6 +51,8 @@ namespace Tiny3D
         void setEditorRenderer(ImGuiImpl *impl) override;
 
         void exitApp() override;
+
+        ImFont *getFont(int32_t fontSize);
         
     protected:  /// from Tiny3D::Application
         bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
@@ -123,6 +125,9 @@ namespace Tiny3D
         AppEventProxy   *mAppEventProxy {nullptr};
 
         String mIniPath {};
+
+        using FontMap = TUnorderedMap<int32_t, ImFont*>;
+        FontMap mFontMap {};
 
         bool mExitApp {false};
     };

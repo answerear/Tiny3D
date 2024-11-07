@@ -404,7 +404,11 @@ namespace Tiny3D
 #endif
 
             String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "fonts" + Dir::getNativeSeparator() + "arial unicode ms.ttf";
-            io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+            ImFont *font = io.Fonts->AddFontFromFileTTF(path.c_str(), 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+            mFontMap.emplace(16, font);
+            font = io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+            mFontMap.emplace(20, font);
+            io.FontDefault = font;
         } while (false);
 
         return ret;
@@ -416,6 +420,19 @@ namespace Tiny3D
     {
         mEngine->unloadPlugin(IMGUI_DX11_PLUGIN);
         ImGui::DestroyContext();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImFont *EditorApp::getFont(int32_t fontSize)
+    {
+        ImFont *font = nullptr;
+        auto itr = mFontMap.find(fontSize);
+        if (itr != mFontMap.end())
+        {
+            font = itr->second;
+        }
+        return font;
     }
 
     //--------------------------------------------------------------------------
@@ -627,6 +644,7 @@ namespace Tiny3D
         mImGuiImpl->update();
         ImGui::NewFrame();
         ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+
         
         ImWidget::beginUpdate();
         
@@ -636,7 +654,8 @@ namespace Tiny3D
         }
 
         ImWidget::endUpdate();
-
+        
+        
         mProjectMgr->update();
 
         ImGui::EndFrame();

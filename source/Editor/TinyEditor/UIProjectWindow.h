@@ -32,6 +32,48 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// UI 窗口结构：
+    ///
+    /// UIProjectWindow
+    ///     |
+    ///     +-- UIProjectToolBar (top)
+    ///     |
+    ///     +-- SplittView (bottom)
+    ///             |
+    ///             +-- UIAssetHierarchyView (left)
+    ///             |
+    ///             +-- UIAssetThumbView (right)
+    ///                     |
+    ///                     +-- UIVerticalLayout
+    ///                             |
+    ///                             +-- UIAssetPathBar (top)
+    ///                             |
+    ///                             +-- UIAssetDetailView (middle)
+    ///                             |
+    ///                             +-- UIAssetStatusBar (bottom)
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+
+    class UIProjectToolBar : public ImChildView
+    {
+    public:
+
+    protected:
+        TResult onCreate() override;
+
+        bool onGUIBegin(const ImVec2 &size) override;
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+
+    protected:
+        ImTextureID mIconAdd {nullptr};
+        ImTextureID mIconDropdown {nullptr};
+        
+        ImTextureID mIconSearch {nullptr};
+    };
+    
     class UIAssetHierarchyView
         : public ImChildView
         , public EventHandler

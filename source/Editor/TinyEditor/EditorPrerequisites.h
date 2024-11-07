@@ -46,8 +46,8 @@ namespace Tiny3D
     #define EDITOR_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
     #define EDITOR_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
 
-    #define ARCHIVE_TYPE_METAFS     "MetaFileSystem"
-    #define ARCHIVE_TYPE_FS         "FileSystem"
+    #define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
+    #define ARCHIVE_TYPE_FS             "FileSystem"
 
     #define ICON_NAME_FAVORITE          "Editor/icons/d_Favorite@32.png"
     #define ICON_NAME_SEARCH            "Editor/icons/d_Search@32.png"
@@ -63,6 +63,10 @@ namespace Tiny3D
     #define ICON_NAME_DYLIB             "Editor/icons/d_Assembly@64.png"
     #define ICON_NAME_FILE              "Editor/icons/d_DefaultAsset@64.png"
     #define ICON_NAME_BIN               ICON_NAME_TEXT
+
+    #define ICON_NAME_ADD               "Editor/icons/d_CreateAddNew@2x.png"
+    #define ICON_NAME_DROPDOWN          "Editor/icons/dropdown-arrow@2x.png"
+    #define ICON_NAME_SEARCH            "Editor/icons/d_Search@32.png"
     
     // #define TEST_SCENE_ENABLE
     

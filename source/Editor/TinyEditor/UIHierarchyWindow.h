@@ -32,7 +32,19 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class HierarchyView : public ImChildView
+    class UIHierarchyToolBar : public ImChildView
+    {
+    public:
+        UIHierarchyToolBar();
+
+    protected:
+        bool onGUIBegin(const ImVec2 &size) override;
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+    };
+
+    class UIHierarchyView : public ImChildView
     {
     public:
         void setScene(Scene *scene)
