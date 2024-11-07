@@ -51,6 +51,13 @@ namespace Tiny3D
         TResult unloadTexture(ImTextureID texID);
 
         /**
+         * 获取纹理大小
+         * @param texID : 纹理 ID 
+         * @return 返回纹理大小
+         */
+        ImVec2 getTextureSize(ImTextureID texID);
+
+        /**
          * 卸载所有纹理
          */
         void unloadAllTextures();
@@ -60,13 +67,13 @@ namespace Tiny3D
         {
             TextureData() = default;
 
-            TextureData(Texture *tex)
+            TextureData(Texture2D *tex)
                 : texture(tex)
             {
             }
             
-            TexturePtr  texture {nullptr};
-            uint32_t    refCount {0};
+            Texture2DPtr    texture {nullptr};
+            uint32_t        refCount {0};
         };
         
         using Textures = TUnorderedMap<String, TextureData*>;

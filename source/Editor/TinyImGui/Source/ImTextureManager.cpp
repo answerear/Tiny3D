@@ -105,6 +105,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ImVec2 ImTextureManager::getTextureSize(ImTextureID texID)
+    {
+        ImVec2 size(0, 0);
+
+        do
+        {
+            auto itr = mTexToNames.find(texID);
+            if (itr == mTexToNames.end())
+            {
+                break;
+            }
+
+            auto it = mTextures.find(itr->second);
+            if (it == mTextures.end())
+            {
+                break;
+            }
+
+            size.x = (float)it->second->texture->getWidth();
+            size.y = (float)it->second->texture->getHeight();
+        } while (false);
+
+        return size;
+    }
+
+    //--------------------------------------------------------------------------
+
     void ImTextureManager::unloadAllTextures()
     {
         for (auto itr = mTextures.begin(); itr != mTextures.end(); ++itr)
