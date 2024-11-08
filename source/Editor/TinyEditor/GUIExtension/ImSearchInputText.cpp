@@ -89,50 +89,56 @@ namespace Tiny3D
 
         // 获取当前光标位置
         ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-        // cursorPos.x = buttonPos.x + buttonSize.x + spacing * 2.0f;
-
-        // 绘制外框
         ImDrawList* drawList = ImGui::GetWindowDrawList();
-        ImU32 borderColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Border));//IM_COL32(100, 100, 100, 255); // 边框颜色
 
-        // 检查输入框是否获得焦点
+        // 外框颜色
+        ImU32 borderColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Border));
+
+        // 背景颜色
         ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
         color.w = 1.0f;
-        ImU32 bgColor = ImGui::GetColorU32(color);//IM_COL32(0, 0, 0, 255);
-        // 绘制输入框的外框
-        drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), bgColor); // 背景
+        ImU32 bgColor = ImGui::GetColorU32(color);
+
+        // 绘制输入框背景
+        drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), bgColor);
 
         // 绘制图标
         drawList->AddImage(mIconSearch, ImVec2(cursorPos.x + iconPadding, cursorPos.y + (inputSize.y - iconSize.y) * 0.5f), 
                            ImVec2(cursorPos.x + iconPadding + iconSize.x, cursorPos.y + (inputSize.y + iconSize.y) * 0.5f));
 
+        // 调整输入框字体大小
         EditorApp *app = static_cast<EditorApp*>(Application::getInstancePtr());
         ImFont *font = app->getFont(16);
         ImGui::PushFont(font);
 
         // 设置输入框的位置
-        // ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + iconSize.x + iconPadding * 2, cursorPos.y + (inputSize.y - ImGui::GetFontSize()) * 0.5f)); // 输入框位置
         ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + iconSize.x + iconPadding * 2, cursorPos.y)); // 输入框位置
 
         // 设置输入框的宽度，留出边框和内边距
         ImGui::SetNextItemWidth(inputSize.x - (iconSize.x + iconPadding * 2 + innerPadding * 2)); // 设置输入框的宽度
 
-
         // 设置输入框的高度，留出内边距
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(innerPadding, (inputSize.y - ImGui::GetFontSize()) * 0.5f)); // 设置输入框的内边距
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(innerPadding, (inputSize.y - ImGui::GetFontSize()) * 0.5f));
+        // 真实输入框背景颜色
         ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
+        // 真实输入框
         ImGui::InputText(getName().c_str(), inputText, sizeof(inputText), ImGuiInputTextFlags_EnterReturnsTrue);
+        // 恢复颜色
         ImGui::PopStyleColor();
-        ImGui::PopStyleVar(); // 恢复内边距
+        // 恢复内边距
+        ImGui::PopStyleVar();
+        // 恢复字体
         ImGui::PopFont();
 
+        // 判断是否获得焦点、激活状态、mouse over 状态
         bool isFocused = ImGui::IsItemActivated() || ImGui::IsItemHovered() || ImGui::IsItemFocused();
         if (isFocused)
         {
             borderColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgActive));
         }
-        
-        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), borderColor, 5.0f, ImDrawFlags_None, borderThickness); // 边框
+
+        // 绘制输入框的外框
+        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), borderColor, 5.0f, ImDrawFlags_None, borderThickness);
     }
 
     //--------------------------------------------------------------------------
