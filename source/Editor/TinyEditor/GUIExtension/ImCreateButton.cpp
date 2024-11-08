@@ -119,7 +119,7 @@ namespace Tiny3D
             leftSize.y = targetHeight;
             leftSize.x =  leftSize.x * scale;
 
-            targetHeight *= 0.5f;
+            targetHeight *= 0.3f;
             scale = targetHeight / rightSize.y;
             rightSize.y = targetHeight;
             rightSize.x = rightSize.x * scale;
@@ -132,7 +132,7 @@ namespace Tiny3D
             leftSize.x = targetWidth;
             leftSize.y = leftSize.y * scale;
 
-            targetWidth *= 0.5f;
+            targetWidth *= 0.3f;
             scale = targetWidth / rightSize.x;
             rightSize.x = targetWidth;
             rightSize.y = rightSize.y * scale;
