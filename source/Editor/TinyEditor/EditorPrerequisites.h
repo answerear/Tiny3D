@@ -72,6 +72,9 @@ namespace Tiny3D
     
     class EditorSceneImpl;
     class AssetNode;
+
+    class ImCreateButton;
+    class ImSearchInputText;
     
     NS_END
 

@@ -49,11 +49,13 @@ include_directories(
 
 # Setup project header files
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
+set_project_files(include\\\\GUIExtension ${CMAKE_CURRENT_SOURCE_DIR}/GUIExtension/ .h)
 set_project_files(include\\\\Language ${CMAKE_CURRENT_SOURCE_DIR}/Language/ .h)
 
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
+set_project_files(source\\\\GUIExtension ${CMAKE_CURRENT_SOURCE_DIR}/GUIExtension/ .cpp)
 #set_project_files(source\\\\MainEditor ${CMAKE_CURRENT_SOURCE_DIR}/MainEditor/ .cpp)
 
 

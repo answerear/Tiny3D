@@ -67,11 +67,16 @@ namespace Tiny3D
         void onGUI() override;
         void onGUIEnd() override;
 
+        void update() override;
+        void update(const ImVec2 &size) override;
+
+        void updateChildren();
+
     protected:
-        ImTextureID mIconAdd {nullptr};
-        ImTextureID mIconDropdown {nullptr};
-        
-        ImTextureID mIconSearch {nullptr};
+        // ImTextureID mIconAdd {nullptr};
+        // ImTextureID mIconDropdown {nullptr};
+        //
+        // ImTextureID mIconSearch {nullptr};
     };
     
     class UIAssetHierarchyView

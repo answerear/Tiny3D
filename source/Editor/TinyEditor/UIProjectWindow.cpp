@@ -29,10 +29,13 @@
 #include "EditorEventDefine.h"
 #include "ProjectManager.h"
 #include "EditorApp.h"
+#include "GUIExtension/ImGuiExtension.h"
 
 
 namespace Tiny3D
 {
+    using namespace GUIExtension;
+    
     NS_BEGIN(Editor)
 
     //--------------------------------------------------------------------------
@@ -105,12 +108,43 @@ namespace Tiny3D
 
     TResult UIProjectToolBar::onCreate()
     {
-        mIconAdd = IM_TEXTURE_MGR.loadTexture(ICON_NAME_ADD);
-        mIconDropdown = IM_TEXTURE_MGR.loadTexture(ICON_NAME_DROPDOWN);
+        // mIconAdd = IM_TEXTURE_MGR.loadTexture(ICON_NAME_ADD);
+        // mIconDropdown = IM_TEXTURE_MGR.loadTexture(ICON_NAME_DROPDOWN);
+        //
+        // mIconSearch = IM_TEXTURE_MGR.loadTexture(ICON_NAME_SEARCH);
+
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // Create assets button
+            auto clicked = [](ImWidget *button)
+            {
+            };
+            
+            ImCreateButton *button = new ImCreateButton();
+            ret= button->create(ID_PROJECT_TOOLBAR_ADD_BUTTON, ImVec2(40, 20), nullptr,  clicked, this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(button);
+                EDITOR_LOG_ERROR("Failed to create adding button !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // Search input text
+            ImSearchInputText *inputText = new ImSearchInputText();
+            ret = inputText->create(ID_PROEJCT_TOOLBAR_SEARCH_INPUT, ImVec2(400, 20), this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(inputText);
+                EDITOR_LOG_ERROR("Failed to create input text !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+        } while (false);
         
-        mIconSearch = IM_TEXTURE_MGR.loadTexture(ICON_NAME_SEARCH);
-        
-        return T3D_OK;
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -131,161 +165,6 @@ namespace Tiny3D
 
     void UIProjectToolBar::onGUI()
     {
-        auto region = ImGui::GetContentRegionAvail();
-        ImVec2 buttonSize(40, 20);
-        ImVec2 buttonPos = ImGui::GetCursorScreenPos();
-
-        if (ImGui::Button("##AddButton", buttonSize))
-        {
-            
-        }
-
-        ImVec2 margin(0.0f, 0.0f);
-        float spacing = 2.0f;
-        
-        ImVec2 leftSize = IM_TEXTURE_MGR.getTextureSize(mIconAdd);
-        ImVec2 rightSize = IM_TEXTURE_MGR.getTextureSize(mIconDropdown);
-        
-        if (buttonSize.x - margin.x - spacing > buttonSize.y)
-        {
-            // 以高为准，等比缩放，计算宽度
-            float targetHeight = buttonSize.y;
-            float scale = targetHeight / leftSize.y;
-            leftSize.y = targetHeight;
-            leftSize.x =  leftSize.x * scale;
-
-            targetHeight *= 0.5f;
-            scale = targetHeight / rightSize.y;
-            rightSize.y = targetHeight;
-            rightSize.x = rightSize.x * scale;
-        }
-        else
-        {
-            // 以宽为准，计算高度
-            float targetWidth = buttonSize.x - margin.x - spacing;
-            float scale = targetWidth / leftSize.x;
-            leftSize.x = targetWidth;
-            leftSize.y = leftSize.y * scale;
-
-            targetWidth *= 0.5f;
-            scale = targetWidth / rightSize.x;
-            rightSize.x = targetWidth;
-            rightSize.y = rightSize.y * scale;
-        }
-        
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        // 绘制左侧图片
-        ImVec2 leftPos = buttonPos;
-        leftPos.x = buttonPos.x + (buttonSize.x - leftSize.x - rightSize.x - margin.x - spacing) * 0.5f;
-        leftPos.y = buttonPos.y + margin.y;
-        drawList->AddImage(mIconAdd, leftPos, ImVec2(leftPos.x + leftSize.x, leftPos.y + leftSize.y));
-
-        // 绘制右侧图片
-        ImVec2 rightPos = buttonPos;
-        rightPos.x = leftPos.x + leftSize.x + spacing;
-        rightPos.y = buttonPos.y + (buttonSize.y - rightSize.y - margin.y) * 0.5f;
-        drawList->AddImage(mIconDropdown, rightPos, ImVec2(rightPos.x + rightSize.x, rightPos.y + rightSize.y));
-
-        ImGui::SameLine();
-        
-        {
-            // // 输入框的大小
-            // ImVec2 inputSize(200, 20);
-            // ImVec2 iconSize(16, 16); // 图标的大小
-            // float iconPadding = 5.0f;
-            //
-            // // 创建一个缓冲区来存储输入文本
-            // static char inputText[128] = "";
-            //
-            // // 获取当前样式
-            // ImGuiStyle& style = ImGui::GetStyle();
-            //
-            // // 创建一个输入框的 ID
-            // ImGuiID inputId = ImGui::GetID("InputWithIcon");
-            //
-            // // 检查输入框是否获得焦点
-            // bool isFocused = ImGui::IsItemFocused();
-            //
-            // // 设置高亮颜色
-            // ImU32 borderColor = isFocused ? IM_COL32(255, 215, 0, 255) : IM_COL32(100, 100, 100, 255); // 高亮颜色和默认颜色
-            //
-            // // 绘制外框
-            // ImVec2 size = inputSize;
-            // ImVec2 pos = buttonPos; // 获取当前光标位置
-            // pos.x = buttonPos.x + buttonSize.x + spacing * 2.0f;
-            // ImDrawList* drawList = ImGui::GetWindowDrawList();
-            //
-            // // 绘制外框
-            // drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(0, 0, 0, 255)); // 背景
-            // drawList->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y), borderColor, 5.0f); // 边框
-            //
-            // // 绘制图标
-            // drawList->AddImage(mIconSearch, ImVec2(pos.x + 5, pos.y + 5), ImVec2(pos.x + 5 + iconSize.x, pos.y + 5 + iconSize.y));
-            //
-            // ImGui::SetNextItemWidth(inputSize.x - iconSize.x - iconPadding * 2.0f);
-            //
-            // // 设置输入框的位置
-            // ImGui::SetCursorScreenPos(ImVec2(pos.x + iconSize.x + iconPadding * 2.0f, pos.y)); // 输入框位置
-            //
-            // // 创建输入框
-            // ImGui::InputText("##InputWithIcon", inputText, sizeof(inputText));
-
-            // 创建一个缓冲区来存储输入文本
-            static char inputText[128] = "";
-            
-            // 设置输入框的大小
-            ImVec2 inputSize = ImVec2(200, 20); // 输入框的宽度和高度
-            ImVec2 iconSize = ImVec2(16, 16); // 图标大小
-            float iconPadding = 5.0f; // 图标与输入框之间的间隔
-            float borderThickness = 2.0f; // 边框厚度
-            float innerPadding = 4.0f; // 输入框内边距
-
-            // 获取当前光标位置
-            ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-            cursorPos.x = buttonPos.x + buttonSize.x + spacing * 2.0f;
-
-            // 绘制外框
-            ImDrawList* drawList = ImGui::GetWindowDrawList();
-            ImU32 borderColor = IM_COL32(100, 100, 100, 255); // 边框颜色
-
-            // 检查输入框是否获得焦点
-            
-
-            ImU32 bgColor = IM_COL32(0, 0, 0, 255);
-            // 绘制输入框的外框
-            drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), bgColor); // 背景
-
-            // 绘制图标
-            drawList->AddImage(mIconSearch, ImVec2(cursorPos.x + iconPadding, cursorPos.y + (inputSize.y - iconSize.y) * 0.5f), 
-                               ImVec2(cursorPos.x + iconPadding + iconSize.x, cursorPos.y + (inputSize.y + iconSize.y) * 0.5f));
-
-            EditorApp *app = static_cast<EditorApp*>(Application::getInstancePtr());
-            ImFont *font = app->getFont(16);
-            ImGui::PushFont(font);
-
-            // 设置输入框的位置
-            // ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + iconSize.x + iconPadding * 2, cursorPos.y + (inputSize.y - ImGui::GetFontSize()) * 0.5f)); // 输入框位置
-            ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + iconSize.x + iconPadding * 2, cursorPos.y)); // 输入框位置
-
-            // 设置输入框的宽度，留出边框和内边距
-            ImGui::SetNextItemWidth(inputSize.x - (iconSize.x + iconPadding * 2 + innerPadding * 2)); // 设置输入框的宽度
-
-
-            // 设置输入框的高度，留出内边距
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(innerPadding, (inputSize.y - ImGui::GetFontSize()) * 0.5f)); // 设置输入框的内边距
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
-            ImGui::InputText("##InputWithIcon", inputText, sizeof(inputText), ImGuiInputTextFlags_EnterReturnsTrue);
-            ImGui::PopStyleColor();
-            ImGui::PopStyleVar(); // 恢复内边距
-            ImGui::PopFont();
-
-            bool isFocused = ImGui::IsItemActivated() || ImGui::IsItemHovered() || ImGui::IsItemFocused();
-            if (isFocused)
-                borderColor = IM_COL32(200, 200, 200, 255);
-            
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), borderColor, 5.0f, ImDrawFlags_None, borderThickness); // 边框
-        }
         
     }
 
@@ -294,6 +173,71 @@ namespace Tiny3D
     void UIProjectToolBar::onGUIEnd()
     {
         ImChildView::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIProjectToolBar::update()
+    {
+        if (mVisible && onGUIBegin())
+        {
+            onGUI();
+
+            updateChildren();
+            
+            onGUIEnd();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIProjectToolBar::update(const ImVec2 &size)
+    {
+        if (mVisible && onGUIBegin(size))
+        {
+            onGUI();
+
+            updateChildren();
+            
+            onGUIEnd();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIProjectToolBar::updateChildren()
+    {
+        T3D_ASSERT(mChildren.size() == 2);
+
+        auto region = ImGui::GetContentRegionAvail();
+
+        auto itr = mChildren.begin();
+        auto child1 = (*itr);
+        child1->update();
+        const ImVec2 &size1 = child1->getSize();
+        ++itr;
+
+        auto child2 = (*itr);
+        const ImVec2 size2 = child2->getSize();
+        float offset = region.x - size2.x;
+        bool isSizeAdjusted = false;
+        if (region.x <= size1.x + size2.x)
+        {
+            ImGuiStyle &style = ImGui::GetStyle();
+            isSizeAdjusted = true;
+            ImVec2 newSize = size2;
+            newSize.x = region.x - size1.x - style.ItemSpacing.x;
+            child2->setSize(newSize);
+            offset = 0;
+        }
+        
+        ImGui::SameLine(offset);
+
+        child2->update();
+        if (isSizeAdjusted)
+        {
+            child2->setSize(size2);
+        }
     }
 
     //--------------------------------------------------------------------------
