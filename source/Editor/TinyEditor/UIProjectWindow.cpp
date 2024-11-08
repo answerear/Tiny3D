@@ -133,8 +133,14 @@ namespace Tiny3D
             }
 
             // Search input text
+            auto inputTextCallback = [](ImInputText *inputText, const String &text)
+            {
+                EDITOR_LOG_DEBUG("Input text : %s", text.c_str());
+                return 0;
+            };
+            
             ImSearchInputText *inputText = new ImSearchInputText();
-            ret = inputText->create(ID_PROEJCT_TOOLBAR_SEARCH_INPUT, ImVec2(400, 20), this);
+            ret = inputText->create(ID_PROEJCT_TOOLBAR_SEARCH_INPUT, ImVec2(400, 20), 1024, inputTextCallback,  true, this);
             if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(inputText);

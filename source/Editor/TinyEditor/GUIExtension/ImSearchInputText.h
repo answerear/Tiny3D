@@ -32,15 +32,17 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class ImSearchInputText : public ImWidget
+    class ImSearchInputText : public ImInputText
     {
     public:
-        TResult create(uint32_t id, const ImVec2 &size, ImWidget *parent);
-
-        WidgetType getWidgetType() const override { return WidgetType::kInputText; }
+        using ImInputText::create;
+        
+        TResult create(uint32_t id, const ImVec2 &size, int32_t maxNumberOfChars, const ImInputTextCallback &callback, bool callbackEdit, ImWidget *parent);
         
     protected:
         using ImWidget::create;
+
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
 
         TResult onCreate() override;
 
@@ -50,6 +52,7 @@ namespace Tiny3D
 
     protected:
         ImTextureID mIconSearch {nullptr};
+        bool mCallbackEdit {false};
     };
 
     NS_END

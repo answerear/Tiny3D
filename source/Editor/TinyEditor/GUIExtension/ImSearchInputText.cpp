@@ -33,13 +33,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult ImSearchInputText::create(uint32_t id, const ImVec2 &size, ImWidget *parent)
+    TResult ImSearchInputText::create(uint32_t id, const ImVec2 &size, int32_t maxNumberOfChars, const ImInputTextCallback &callback, bool callbackEdit, ImWidget *parent)
     {
-        TResult ret = createInternal(id, "##InputWithIcon", parent, 0);
-        if (T3D_SUCCEEDED(ret))
+        return ImWidget::createInternal(id, "##SearchInputText", parent, 4, maxNumberOfChars, &callback, callbackEdit, &size);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImSearchInputText::createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args)
+    {
+        TResult ret = ImInputText::createInternal(id, name, parent, argc, args);
+
+        do
         {
-            setSize(size);
-        }
+            T3D_ASSERT(argc >= 4);
+
+            mCallbackEdit = va_arg(args, bool);
+            ImVec2 *size = va_arg(args, ImVec2 *);
+            setSize(*size);
+            
+        } while (false);
+
         return ret;
     }
 
@@ -72,14 +86,14 @@ namespace Tiny3D
             IM_TEXTURE_MGR.unloadTexture(mIconSearch);
             mIconSearch = nullptr;
         }
+
+        ImInputText::onDestroy();
     }
 
     //--------------------------------------------------------------------------
 
     void ImSearchInputText::onGUI()
     {
-        static char inputText[128] = "";
-            
         // 设置输入框的大小
         ImVec2 inputSize = getSize(); // 输入框的宽度和高度
         ImVec2 iconSize = ImVec2(16, 16); // 图标大小
@@ -122,7 +136,8 @@ namespace Tiny3D
         // 真实输入框背景颜色
         ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
         // 真实输入框
-        ImGui::InputText(getName().c_str(), inputText, sizeof(inputText), ImGuiInputTextFlags_EnterReturnsTrue);
+        ImGuiInputFlags flags = mCallbackEdit ? ImGuiInputTextFlags_CallbackEdit : ImGuiInputTextFlags_EnterReturnsTrue;
+        ImGui::InputText(getName().c_str(), mText, mMaxNumberOfChars+1, flags, inputTextCallback, this);
         // 恢复颜色
         ImGui::PopStyleColor();
         // 恢复内边距
