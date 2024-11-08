@@ -35,13 +35,14 @@ namespace Tiny3D
     class UIHierarchyToolBar : public ImChildView
     {
     public:
-        UIHierarchyToolBar();
 
     protected:
-        bool onGUIBegin(const ImVec2 &size) override;
-        bool onGUIBegin() override;
-        void onGUI() override;
-        void onGUIEnd() override;
+        TResult onCreate() override;
+        
+        void update(const ImVec2 &size) override;
+        void update() override;
+
+        void updateChildren();
     };
 
     class UIHierarchyView : public ImChildView
@@ -53,6 +54,10 @@ namespace Tiny3D
         }
         
     protected:
+        TResult onCreate() override;
+
+        void onDestroy() override;
+        
         bool onGUIBegin(const ImVec2 &size) override;
         bool onGUIBegin() override;
         void onGUI() override;
@@ -69,6 +74,10 @@ namespace Tiny3D
         ~UIHierarchyWindow() override = default;
 
     protected:
+        TResult onCreate() override;
+
+        void onDestroy() override;
+        
         void onGUI() override;
     };
 

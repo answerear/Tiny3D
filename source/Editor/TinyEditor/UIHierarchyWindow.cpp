@@ -24,11 +24,261 @@
 
 
 #include "UIHierarchyWindow.h"
+#include "GUIExtension/ImGuiExtension.h"
+#include "UIEditorWidgetID.h"
 
 
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyToolBar::onCreate()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            const float kToolBarHeight = 20.0f;
+            // Create game object button
+            auto clickedAdd = [](ImWidget *button)
+            {
+                
+            };
+
+            ImCreateButton *btnAdd = new ImCreateButton();
+            ret= btnAdd->create(ID_HIERARCHY_ADD_BUTTON, ImVec2(40, kToolBarHeight), nullptr,  clickedAdd, this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(btnAdd);
+                EDITOR_LOG_ERROR("Failed to create adding button !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // Search input text
+            auto inputTextCallback = [](ImInputText *inputText, const String &text)
+            {
+                EDITOR_LOG_DEBUG("Input text : %s", text.c_str());
+                return 0;
+            };
+            
+            ImSearchInputText *inputText = new ImSearchInputText();
+            ret = inputText->create(ID_HIERARCHY_SEARCH_INPUT, ImVec2(200, kToolBarHeight), 1024, inputTextCallback,  true, this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(inputText);
+                EDITOR_LOG_ERROR("Failed to create input text !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // Search jump button
+            auto clickedJump = [](ImWidget *button)
+            {
+                
+            };
+            
+            ImImageButton *btnSearch = new ImImageButton();
+            ret = btnSearch->createByPath(ID_HIERARCHY_SEARCH_JUMP_BUTTON, ICON_NAME_SEARCH_JUMP, nullptr, clickedJump, this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_SAFE_DELETE(btnSearch);
+                EDITOR_LOG_ERROR("Failed to create search jump button !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+            btnSearch->setSize(14, 14);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyToolBar::update(const ImVec2 &size)
+    {
+        if (mVisible && onGUIBegin(size))
+        {
+            onGUI();
+
+            updateChildren();
+            
+            onGUIEnd();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyToolBar::update()
+    {
+        if (mVisible && onGUIBegin())
+        {
+            onGUI();
+
+            updateChildren();
+            
+            onGUIEnd();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyToolBar::updateChildren()
+    {
+        T3D_ASSERT(mChildren.size() == 3);
+
+        auto region = ImGui::GetContentRegionAvail();
+        auto itr = mChildren.begin();
+
+        // Add game object button
+        auto child1 = *itr;
+        child1->update();
+        const ImVec2 &size1 = child1->getSize();
+        ++itr;
+
+        auto child2 = *itr;
+        const ImVec2 &size2 = child2->getSize();
+        ++itr;
+        
+        auto child3 = *itr;
+        const ImVec2 &size3 = child3->getSize();
+
+        // 动态计算 input text 的宽度，还要保留原有的大小，后面还原回去
+        const ImGuiStyle &style = ImGui::GetStyle();
+        float offset = region.x - size2.x - size3.x - 2 * style.ItemSpacing.x;
+        bool isSizeAdjusted = false;
+        if (region.x <= size1.x + size2.x + size3.x + 2 * style.ItemSpacing.x)
+        {
+            // 按照原定大小，tool bar 放不下，需要重新调整宽度
+            isSizeAdjusted = true;
+            ImVec2 newSize = size2;
+            newSize.x = region.x - size1.x - size3.x - 2 * style.ItemSpacing.x;
+            child2->setSize(newSize);
+            offset = 0;
+        }
+        
+        ImGui::SameLine(offset);
+
+        // Search input text
+        child2->update();
+
+        if (isSizeAdjusted)
+        {
+            child2->setSize(size2);
+        }
+
+        offset = region.x - size3.x - 2 * style.ItemSpacing.x;
+        ImGui::SameLine(offset, style.ItemSpacing.x);
+
+        // Search jump button
+        child3->update();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::onCreate()
+    {
+        return ImChildView::onCreate();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::onDestroy()
+    {
+        ImChildView::onDestroy();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onGUIBegin(const ImVec2 &size)
+    {
+        return ImChildView::onGUIBegin(size);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onGUIBegin()
+    {
+        return ImChildView::onGUIBegin();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::onGUIEnd()
+    {
+        ImChildView::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyWindow::onCreate()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 工具栏
+            UIHierarchyToolBar *toolbar = new UIHierarchyToolBar();
+            ret = toolbar->create(ID_HIERARCHY_TOOLBAR, "HierarchyToolBar", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create the tool bar of hierarchy window !");
+                break;
+            }
+
+            // 层级视图
+            UIHierarchyView *hierarchy = new UIHierarchyView();
+            ret = hierarchy->create(ID_HIERARCHY_VIEW,"HierarchyView", nullptr);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create the hierarchy view of hierarchy window !");
+                break;
+            }
+
+            // 创建自动布局，上下布局
+            ImVerticalLayout *layout = new ImVerticalLayout();
+            ret = layout->create(ID_HIERARCHY_WINDOW_LAYOUT, "HierarchyWindowLayout", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create the layout of project window ! ERROR [%d]", ret)
+                break;
+            }
+            
+            ImLayout::Items items;
+            ImLayout::Item item;
+            float txtHeight = 40.0f;
+            // 工具栏
+            item.size.x = 0;
+            item.size.y = txtHeight;
+            item.childView = toolbar;
+            items.emplace_back(item);
+            // 层级视图
+            item.size.x = 0;
+            item.size.y = 0;
+            item.childView = hierarchy;
+            items.emplace_back(item);
+
+            layout->addWidgets(items);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyWindow::onDestroy()
+    {
+        UIDockingWindow::onDestroy();
+    }
 
     //--------------------------------------------------------------------------
     
