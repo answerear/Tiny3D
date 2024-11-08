@@ -63,6 +63,9 @@ namespace Tiny3D
         kListItem,
         kListWidget,
         kTreeBar,
+        kInputText,
+        
+        kMaxBuiltinWidget,
     };
 
     using TraverseHierarchyCallback = TFunction<void(ImWidget *, int32_t)>;
