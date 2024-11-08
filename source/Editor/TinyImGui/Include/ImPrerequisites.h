@@ -82,6 +82,7 @@ namespace Tiny3D
     class ImListWidget;
     class ImTreeBar;
     class ImTreeBarNode;
+    class ImInputText;
     
     /// 按钮点击回调
     using ImButtonClickedCallback = TFunction<void(ImWidget*)>;

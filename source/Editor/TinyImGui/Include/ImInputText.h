@@ -25,24 +25,40 @@
 
 #pragma once
 
-#include <ImEventDefine.h>
-#include <ImTextureManager.h>
-#include <ImWidget.h>
-#include <ImWindow.h>
-#include <ImMenu.h>
-#include <ImContextMenu.h>
-#include <ImToolBar.h>
-#include <ImChildView.h>
-#include <ImTabBar.h>
-#include <ImTabItem.h>
-#include <ImDockBar.h>
-#include <ImDockItem.h>
-#include <ImDialog.h>
-#include <ImOpenFileDialog.h>
-#include <ImSplitView.h>
-#include <ImLayout.h>
-#include <ImButton.h>
-#include <ImTreeWidget.h>
-#include <ImListWidget.h>
-#include <ImTreeBar.h>
-#include <ImInputText.h>
+
+#include "ImWidget.h"
+
+
+namespace Tiny3D
+{
+    using ImInputTextCallback = TFunction<int32_t(ImInputText *, const String &)>;
+    
+    class TINYIMGUI_API ImInputText : public ImWidget
+    {
+    public:
+        ~ImInputText() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kInputText; }
+
+        using ImWidget::create;
+        
+        TResult create(uint32_t id, const String &name, int32_t maxNumberOfChars, const ImInputTextCallback &callback, ImWidget *parent);
+        
+    protected:
+        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list&args) override;
+        
+        void onDestroy() override;
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+
+        static int32_t inputTextCallback(ImGuiInputTextCallbackData *data);
+
+        int32_t inputTextCallback();
+
+    protected:
+        char *mText {nullptr};
+        int32_t mMaxNumberOfChars {0};
+        ImInputTextCallback mCallback {nullptr};
+    };
+}
