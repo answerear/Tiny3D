@@ -108,11 +108,6 @@ namespace Tiny3D
 
     TResult UIProjectToolBar::onCreate()
     {
-        // mIconAdd = IM_TEXTURE_MGR.loadTexture(ICON_NAME_ADD);
-        // mIconDropdown = IM_TEXTURE_MGR.loadTexture(ICON_NAME_DROPDOWN);
-        //
-        // mIconSearch = IM_TEXTURE_MGR.loadTexture(ICON_NAME_SEARCH);
-
         TResult ret = T3D_OK;
 
         do
@@ -155,34 +150,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool UIProjectToolBar::onGUIBegin(const ImVec2 &size)
-    {
-        return ImChildView::onGUIBegin(size);
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool UIProjectToolBar::onGUIBegin()
-    {
-        return ImChildView::onGUIBegin();
-    }
-
-    //--------------------------------------------------------------------------
-
-    void UIProjectToolBar::onGUI()
-    {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    void UIProjectToolBar::onGUIEnd()
-    {
-        ImChildView::onGUIEnd();
-    }
-
-    //--------------------------------------------------------------------------
-
     void UIProjectToolBar::update()
     {
         if (mVisible && onGUIBegin())
@@ -216,20 +183,23 @@ namespace Tiny3D
         T3D_ASSERT(mChildren.size() == 2);
 
         auto region = ImGui::GetContentRegionAvail();
-
         auto itr = mChildren.begin();
+
+        // Add asset button
         auto child1 = (*itr);
         child1->update();
         const ImVec2 &size1 = child1->getSize();
         ++itr;
 
+        // 动态计算 input text 的宽度，还要保留原有的大小，后面还原回去
         auto child2 = (*itr);
         const ImVec2 size2 = child2->getSize();
+        const ImGuiStyle &style = ImGui::GetStyle();
         float offset = region.x - size2.x;
         bool isSizeAdjusted = false;
-        if (region.x <= size1.x + size2.x)
+        if (region.x <= size1.x + size2.x + style.ItemSpacing.x)
         {
-            ImGuiStyle &style = ImGui::GetStyle();
+            // 按照原定大小，tool bar 放不下，需要重新调整宽度
             isSizeAdjusted = true;
             ImVec2 newSize = size2;
             newSize.x = region.x - size1.x - style.ItemSpacing.x;
@@ -239,9 +209,12 @@ namespace Tiny3D
         
         ImGui::SameLine(offset);
 
+        // Search input text
         child2->update();
+        
         if (isSizeAdjusted)
         {
+            // 还原回实际大小
             child2->setSize(size2);
         }
     }
@@ -468,6 +441,8 @@ namespace Tiny3D
         {
             mContextMenu->destroy();
         }
+
+        ImChildView::onDestroy();
     }
 
     //--------------------------------------------------------------------------
@@ -630,6 +605,8 @@ namespace Tiny3D
         mPathBar = nullptr;
         mDetailView = nullptr;
         mStatusBar = nullptr;
+
+        ImChildView::onDestroy();
     }
 
     //--------------------------------------------------------------------------
@@ -746,6 +723,8 @@ namespace Tiny3D
     void UIAssetPathBar::onDestroy()
     {
         unregisterAllEvent();
+
+        ImChildView::onDestroy();
     }
 
     //--------------------------------------------------------------------------
@@ -909,6 +888,8 @@ namespace Tiny3D
     void UIAssetDetailView::onDestroy()
     {
         unregisterAllEvent();
+
+        ImChildView::onDestroy();
     }
 
     //--------------------------------------------------------------------------
@@ -1087,38 +1068,48 @@ namespace Tiny3D
             ON_MEMBER(kEvtAppEnterForeground, UIProjectWindow::onApplicationWillEnterForeground);
             ON_MEMBER(kEvtAppFocusGained, UIProjectWindow::onApplicationFocusGained);
 
+            // 工具栏
             UIProjectToolBar *toolbar = new UIProjectToolBar();
             ret = toolbar->create(ID_PROJECT_WINDOW_TOOLBAR, "ProjectToolBar", nullptr);
             if (T3D_FAILED(ret))
             {
+                EDITOR_LOG_ERROR("Failed to create the tool bar of project window ! ERROR [%d]", ret);
                 break;
             }
-            
+
+            // 资产层次结构视图
             mHierarchyView = new UIAssetHierarchyView();
             ret = mHierarchyView->create(ID_PROJECT_ASSET_HIERARCHY_VIEW, "ProjectHierarchyView", nullptr);
             if (T3D_FAILED(ret))
             {
+                EDITOR_LOG_ERROR("Failed to create the hierarchy view of project window ! ERROR [%d]", ret);
                 break;
             }
-            
+
+            // 资产大视图
             mThumbView = new UIAssetThumbView();
             ret = mThumbView->create(ID_PROJECT_ASSET_THUMB_VIEW, "ProjectThumbView", nullptr, mHierarchyView->getTreeBarRoots());
             if (T3D_FAILED(ret))
             {
+                EDITOR_LOG_ERROR("Failed to create the thumb view of project window ! ERROR [%d]", ret);
                 break;
             }
 
+            // 资产视图容器
             ImChildView *containerView = new ImChildView();
             ret = containerView->create(ID_PROJECT_CONTAINER_VIEW, "ContainerView", this);
             if (T3D_FAILED(ret))
             {
+                EDITOR_LOG_ERROR("Failed to create the container view of project window ! ERROR [%d]", ret);
                 break;
             }
-            
+
+            // 用于分割资产层级结构视图和大视图的分割视图
             mSplitView = new ImSplitView();
             ret = mSplitView->create(ID_PROJECT_WINDOW_SPLIT_VIEW, "ProjectSplitView", 0.3f, mHierarchyView, 0.7f, mThumbView, 0, true, containerView);
             if (T3D_FAILED(ret))
             {
+                EDITOR_LOG_ERROR("Failed to create the split view of project window ! ERROR [%d]", ret);
                 break;
             }
 
@@ -1127,7 +1118,7 @@ namespace Tiny3D
             ret = layout->create(ID_PROJECT_WINDOW_LAYOUT, "ProjectWindowLayout", this);
             if (T3D_FAILED(ret))
             {
-                EDITOR_LOG_ERROR("Create project window layout failed ! ERROR [%d]", ret)
+                EDITOR_LOG_ERROR("Failed to create the layout of project window ! ERROR [%d]", ret)
                 break;
             }
 
@@ -1159,6 +1150,8 @@ namespace Tiny3D
         mThumbView = nullptr;
         
         unregisterAllEvent();
+
+        UIDockingWindow::onDestroy();
     }
 
     //--------------------------------------------------------------------------
