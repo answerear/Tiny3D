@@ -213,6 +213,10 @@ namespace Tiny3D
                 getParent()->removeChild(this);
             }
         }
+
+        void setUserData(void *data) { mUserData = data; }
+
+        void *getUserData() const { return mUserData; }
         
     protected:
         TransformNode() = default;
@@ -238,6 +242,8 @@ namespace Tiny3D
 
         /// 根据父子 UUID 构造层次数，专门给 Scene 在反序列化后调用 
         void setupHierarchy();
+
+        void *mUserData {nullptr};
 
         ChildrenUUID    mChildrenUUID {};
     };
