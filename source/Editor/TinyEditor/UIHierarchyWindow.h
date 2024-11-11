@@ -52,6 +52,11 @@ namespace Tiny3D
         {
             mScene = scene;
         }
+
+        void refresh()
+        {
+            populateGameObjectTree();
+        }
         
     protected:
         TResult onCreate() override;
@@ -63,11 +68,18 @@ namespace Tiny3D
         void onGUI() override;
         void onGUIEnd() override;
 
+        TResult populateGameObjectTree();
+
+        void treeNodeClicked(ImTreeNode *node);
+        void treeNodeRClicked(ImTreeNode *node);
+        void onTreeNodeDestroy(ImTreeNode *node);
+        
     protected:
         Scene *mScene {nullptr};
+        ImTreeWidget *mTreeWidget {nullptr};
     };
 
-    class UIHierarchyWindow : public UIDockingWindow
+    class UIHierarchyWindow : public UIDockingWindow, public EventHandler
     {
     public:
         UIHierarchyWindow() = default;
@@ -77,8 +89,11 @@ namespace Tiny3D
         TResult onCreate() override;
 
         void onDestroy() override;
-        
-        void onGUI() override;
+
+        bool onOpenScene(EventParam *param, TINSTANCE sender);
+
+    protected:
+        UIHierarchyView *mHierarchyView {nullptr};
     };
 
     NS_END

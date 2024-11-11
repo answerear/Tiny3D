@@ -275,6 +275,10 @@ namespace Tiny3D
             }
 
             SDL_MaximizeWindow(mSDLWindow);
+
+            // 发个消息，通知打开场景
+            EventParamOpenScene param(T3D_SCENE_MGR.getCurrentScene()->getRuntimeScene());
+            mAppEventProxy->sendEvent(kEvtOpenScene, &param);
             
             // 构建编辑器场景
             // buildScene();

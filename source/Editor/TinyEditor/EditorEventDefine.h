@@ -42,6 +42,9 @@ namespace Tiny3D
         
         kEvtHierarchyNodeClicked,
 
+        /// 打开场景，参数：EventParamOpenScene
+        kEvtOpenScene,
+
         /// 刷新工程文件窗口
         kEvtRefreshProjectWindow,
         
@@ -49,6 +52,7 @@ namespace Tiny3D
     };
 
     using EventParamHierarchyNodeClicked = EventParamT1<ImTreeNode*>;
+    using EventParamOpenScene = EventParamT1<Scene*>;
 
     NS_END
 }

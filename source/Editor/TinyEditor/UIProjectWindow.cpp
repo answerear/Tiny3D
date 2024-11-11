@@ -252,7 +252,7 @@ namespace Tiny3D
             ret = mTreeWidget->create(ID_PROJECT_ASSET_HIERARCHY_TREE, "Asset Hierarchy Tree", this);
             if (T3D_FAILED(ret))
             {
-                EDITOR_LOG_ERROR("Create asset hierarchy tree failed ! ERROR [%d]", ret);
+                EDITOR_LOG_ERROR("Failed to create assets hierarchy tree ! ERROR [%d]", ret);
                 break;
             }
 

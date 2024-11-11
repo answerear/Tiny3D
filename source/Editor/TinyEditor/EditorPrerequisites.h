@@ -68,6 +68,10 @@ namespace Tiny3D
     #define ICON_NAME_DROPDOWN          "Editor/icons/dropdown-arrow@2x.png"
     #define ICON_NAME_SEARCH            "Editor/icons/d_Search@32.png"
     #define ICON_NAME_SEARCH_JUMP       "Editor/icons/d_SearchJump@32.png"
+
+    #define ICON_NAME_GAMEOBJECT        "Editor/icons/d_GameObject@32.png"
+
+    #define ICON_NAME_SCENE_32          "Editor/icons/d_SceneAsset On@32.png"
     
     // #define TEST_SCENE_ENABLE
     

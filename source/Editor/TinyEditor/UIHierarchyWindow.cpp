@@ -24,6 +24,8 @@
 
 
 #include "UIHierarchyWindow.h"
+
+#include "EditorEventDefine.h"
 #include "GUIExtension/ImGuiExtension.h"
 #include "UIEditorWidgetID.h"
 
@@ -190,14 +192,111 @@ namespace Tiny3D
 
     TResult UIHierarchyView::onCreate()
     {
-        return ImChildView::onCreate();
+        TResult ret = T3D_OK;
+
+        do
+        {
+            T3D_ASSERT(mTreeWidget == nullptr);
+            mTreeWidget = new ImTreeWidget();
+            ret = mTreeWidget->create(ID_HIERARCHY_VIEW_TREE, "GameObject Hierarchy Tree", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create game object hierarchy tree ! ERROR [%d]", ret);
+                break;
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
 
     void UIHierarchyView::onDestroy()
     {
+        mTreeWidget = nullptr;
         ImChildView::onDestroy();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::populateGameObjectTree()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+
+            auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+
+            auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+            
+            Transform3D *root = mScene->getRootTransform();
+            root->dfs_visit(true, nullptr,
+                [this, &ret](TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+                {
+                    if (T3D_FAILED(ret))
+                        return;
+
+                    do
+                    {
+                        ImTreeNode *uiParent = nullptr;
+                        String name;
+                        String icon;
+                        if (node->getParent() != nullptr)
+                        {
+                            Transform3D *parent = static_cast<Transform3D *>(node->getParent());
+                            uiParent = static_cast<ImTreeNode *>(parent->getUserData());
+                            name = node->getGameObject()->getName();
+                            icon = ICON_NAME_GAMEOBJECT;
+                        }
+                        else
+                        {
+                            uiParent = mTreeWidget;
+                            name = mScene->getName();
+                            icon = ICON_NAME_SCENE_32;
+                        }
+
+                        ImTreeNode *uiNode = new ImTreeNode(mTreeWidget);
+                        ret = uiNode->createByPath(icon, icon, name, callbacks, uiParent, onDestroy);
+                        if (T3D_FAILED(ret))
+                        {
+                            EDITOR_LOG_ERROR("Failed to create ui node [%s] ! ERROR [%d]", name.c_str(), ret);
+                            break;
+                        }
+
+                        node->setUserData(uiNode);
+                        uiNode->setUserData(node);
+                    } while (false);
+                    
+                },
+                callbacks, treeNodeDestroy);
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::treeNodeClicked(ImTreeNode *node)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::treeNodeRClicked(ImTreeNode *node)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::onTreeNodeDestroy(ImTreeNode *node)
+    {
+        
     }
 
     //--------------------------------------------------------------------------
@@ -236,6 +335,8 @@ namespace Tiny3D
 
         do
         {
+            ON_MEMBER(kEvtOpenScene, UIHierarchyWindow::onOpenScene);
+            
             // 工具栏
             UIHierarchyToolBar *toolbar = new UIHierarchyToolBar();
             ret = toolbar->create(ID_HIERARCHY_TOOLBAR, "HierarchyToolBar", nullptr);
@@ -246,8 +347,8 @@ namespace Tiny3D
             }
 
             // 层级视图
-            UIHierarchyView *hierarchy = new UIHierarchyView();
-            ret = hierarchy->create(ID_HIERARCHY_VIEW,"HierarchyView", nullptr);
+            mHierarchyView = new UIHierarchyView();
+            ret = mHierarchyView->create(ID_HIERARCHY_VIEW,"HierarchyView", nullptr);
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Failed to create the hierarchy view of hierarchy window !");
@@ -274,7 +375,7 @@ namespace Tiny3D
             // 层级视图
             item.size.x = 0;
             item.size.y = 0;
-            item.childView = hierarchy;
+            item.childView = mHierarchyView;
             items.emplace_back(item);
 
             layout->addWidgets(items);
@@ -287,14 +388,18 @@ namespace Tiny3D
 
     void UIHierarchyWindow::onDestroy()
     {
+        unregisterAllEvent();
         UIDockingWindow::onDestroy();
     }
 
     //--------------------------------------------------------------------------
-    
-    void UIHierarchyWindow::onGUI()
+
+    bool UIHierarchyWindow::onOpenScene(EventParam *param, TINSTANCE sender)
     {
-        
+        EventParamOpenScene *p = static_cast<EventParamOpenScene *>(param);
+        mHierarchyView->setScene(p->arg1);
+        mHierarchyView->refresh();
+        return true;
     }
 
     //--------------------------------------------------------------------------
