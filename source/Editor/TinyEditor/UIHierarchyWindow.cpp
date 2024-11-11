@@ -130,6 +130,7 @@ namespace Tiny3D
         T3D_ASSERT(mChildren.size() == 3);
 
         auto region = ImGui::GetContentRegionAvail();
+        ImVec2 startPos = ImGui::GetCursorScreenPos();
         auto itr = mChildren.begin();
 
         // Add game object button
@@ -139,7 +140,8 @@ namespace Tiny3D
         ++itr;
 
         auto child2 = *itr;
-        const ImVec2 &size2 = child2->getSize();
+        ImSearchInputText *inputText = static_cast<ImSearchInputText *>(child2);
+        const ImVec2 &size2 = inputText->getOriginalSize();
         ++itr;
         
         auto child3 = *itr;
@@ -147,30 +149,38 @@ namespace Tiny3D
 
         // 动态计算 input text 的宽度，还要保留原有的大小，后面还原回去
         const ImGuiStyle &style = ImGui::GetStyle();
-        float offset = region.x - size2.x - size3.x - 2 * style.ItemSpacing.x;
+        float offset = region.x - size2.x - size3.x - 3 * style.ItemSpacing.x;
         bool isSizeAdjusted = false;
-        if (region.x <= size1.x + size2.x + size3.x + 2 * style.ItemSpacing.x)
+        if (region.x <= size1.x + size2.x + size3.x + 3 * style.ItemSpacing.x)
         {
             // 按照原定大小，tool bar 放不下，需要重新调整宽度
             isSizeAdjusted = true;
             ImVec2 newSize = size2;
-            newSize.x = region.x - size1.x - size3.x - 2 * style.ItemSpacing.x;
+            newSize.x = region.x - size1.x - size3.x - 3 * style.ItemSpacing.x;
             child2->setSize(newSize);
-            offset = 0;
+            // offset = 0;
         }
         
-        ImGui::SameLine(offset);
+        // ImGui::SameLine(offset, style.ItemSpacing.x);
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        pos.x = startPos.x + (region.x - child2->getSize().x - size3.x - 2 * style.ItemSpacing.x);
+        pos.y = startPos.y;
+        ImGui::SetCursorScreenPos(pos);
 
         // Search input text
         child2->update();
-
+        
         if (isSizeAdjusted)
         {
             child2->setSize(size2);
         }
 
-        offset = region.x - size3.x - 2 * style.ItemSpacing.x;
-        ImGui::SameLine(offset, style.ItemSpacing.x);
+        // offset = region.x - size3.x - 2 * style.ItemSpacing.x;
+        // ImGui::SameLine(offset, style.ItemSpacing.x);
+
+        pos.x = startPos.x + (region.x - size3.x - style.ItemSpacing.x);
+        pos.y = startPos.y;
+        ImGui::SetCursorScreenPos(pos);
 
         // Search jump button
         child3->update();

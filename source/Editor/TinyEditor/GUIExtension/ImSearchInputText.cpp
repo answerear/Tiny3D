@@ -51,6 +51,7 @@ namespace Tiny3D
             mCallbackEdit = va_arg(args, bool);
             ImVec2 *size = va_arg(args, ImVec2 *);
             setSize(*size);
+            mOriginalSize = *size;
             
         } while (false);
 

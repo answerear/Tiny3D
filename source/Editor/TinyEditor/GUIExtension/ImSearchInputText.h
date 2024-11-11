@@ -38,6 +38,8 @@ namespace Tiny3D
         using ImInputText::create;
         
         TResult create(uint32_t id, const ImVec2 &size, int32_t maxNumberOfChars, const ImInputTextCallback &callback, bool callbackEdit, ImWidget *parent);
+
+        const ImVec2 &getOriginalSize() const { return mOriginalSize; }
         
     protected:
         using ImWidget::create;
@@ -52,6 +54,7 @@ namespace Tiny3D
 
     protected:
         ImTextureID mIconSearch {nullptr};
+        ImVec2 mOriginalSize {};
         bool mCallbackEdit {false};
     };
 
