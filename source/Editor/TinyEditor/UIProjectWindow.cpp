@@ -247,12 +247,6 @@ namespace Tiny3D
             // auto queryDisableDefault = [](ImWidget*) { return false; };
             
             // mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryEnableDefault);
-            
-            auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
-
-            auto treeNodeRClicked = std::bind(&UIAssetHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
-
-            auto treeNodeDestroy = std::bind(&UIAssetHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
 
             T3D_ASSERT(mTreeWidget == nullptr);
             mTreeWidget = new ImTreeWidget();
@@ -263,6 +257,12 @@ namespace Tiny3D
                 break;
             }
 
+            const auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+
+            const auto treeNodeRClicked = std::bind(&UIAssetHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+
+            const auto treeNodeDestroy = std::bind(&UIAssetHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+            
             ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
 
             // 收藏树
@@ -532,16 +532,42 @@ namespace Tiny3D
 
     bool UIAssetHierarchyView::onMenuNewFolder(uint32_t id, ImWidget *menuItem)
     {
+        bool ret = true;
         if (mTreeWidget != nullptr)
         {
             ImTreeNode *selection = mTreeWidget->getSelection();
             if (selection != nullptr)
             {
-                EDITOR_LOG_DEBUG("Selection : %s", selection->getName().c_str());
+                // EDITOR_LOG_DEBUG("Selection : %s", selection->getName().c_str());
+                UIAssetNode *uiParent = static_cast<UIAssetNode*>(selection->getUserData());
+                if (uiParent != nullptr && uiParent->getAssetNode() != nullptr)
+                {
+                    AssetNode *parent = uiParent->getAssetNode();
+                    String path = parent->getFullPath() + Dir::getNativeSeparator() + u8"新建文件夹";
+                    AssetNode *node = nullptr;
+                    PROJECT_MGR.makeFolder(parent, path, node);
+
+                    const auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+
+                    const auto treeNodeRClicked = std::bind(&UIAssetHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+
+                    const auto treeNodeDestroy = std::bind(&UIAssetHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+            
+                    ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+
+                    ImTreeNode *uiNode = nullptr;
+                    TResult ret = populateAssetsTree(mTreeWidget, selection, node, callbacks, treeNodeDestroy, uiNode);
+                    if (T3D_FAILED(ret))
+                    {
+                        EDITOR_LOG_ERROR("Failed to populate asset tree ! ERROR [%d]", ret);
+                        PROJECT_MGR.removeFolder(node);
+                        ret = false;
+                    }
+                }
             }
         }
         
-        return true;
+        return ret;
     }
 
     //--------------------------------------------------------------------------

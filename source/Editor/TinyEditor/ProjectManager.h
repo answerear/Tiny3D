@@ -58,6 +58,8 @@ namespace Tiny3D
 
         const String &getMetaName() const { return mMetaName; }
 
+        String getFullPath() const { return getPath() + Dir::getNativeSeparator() + getFilename(); }
+
         Meta *getMeta() const { return mMeta; } 
 
         AssetNode *removeChild(const String &name, bool destroy);
@@ -147,6 +149,8 @@ namespace Tiny3D
         AssetNode *getAssetRoot() const { return mAssetRoot; }
 
         TResult makeFolder(AssetNode *parent, const String &path, AssetNode *&node);
+
+        TResult removeFolder(AssetNode *node);
 
         TResult addFile(AssetNode *parent, const String &path, AssetNode *&node);
 

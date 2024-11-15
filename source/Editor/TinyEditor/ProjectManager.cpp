@@ -899,6 +899,41 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ProjectManager::removeFolder(AssetNode *node)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            String path = node->getFullPath();
+            if (!Dir::removeDir(path))
+            {
+                EDITOR_LOG_ERROR("Failed to delete folder [%s] !", path.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 删除对应的 meta 文件
+            String metaPath = node->getMetaName();
+            if (!Dir::remove(metaPath))
+            {
+                EDITOR_LOG_ERROR("Failed to delete meta file [%s] !", metaPath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 删除节点
+            if (node->getParent() != nullptr)
+            {
+                node->getParent()->removeChild(node);
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ProjectManager::addFile(AssetNode *parent, const String &path, AssetNode *&node)
     {
         return generateAssetNode(path, parent, node);
