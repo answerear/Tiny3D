@@ -57,6 +57,8 @@ namespace Tiny3D
 
         TResult unregisterMenuEvent(uint32_t menuID);
 
+        void unregisterAllMenuEvents();
+
         TResult setMenuItemQueryEnabledHandle(uint32_t menuID, const ImMenuQueryHandle &handle);
 
         TResult setMenuItemQueryCheckedHandle(uint32_t menuID, const ImMenuQueryHandle &handle);

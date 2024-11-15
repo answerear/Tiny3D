@@ -100,9 +100,9 @@ namespace Tiny3D
 
         void onTreeNodeDestroy(ImTreeNode *node);
 
-        bool onMenuNewFolder(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemCreateFolder(uint32_t id, ImWidget *menuItem);
 
-        bool onMenuItemEnabledNewFolder(uint32_t id, ImWidget *menuIem);
+        bool onMenuItemEnabledCreateFolder(uint32_t id, ImWidget *menuIem);
         
     protected:
         ImTreeBar::TreeBarNodes mRoots {};

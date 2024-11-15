@@ -1403,13 +1403,17 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_GAME_OBJECT, STR(TXT_GAMEOBJECT), "", "", nullptr, nullptr, nullptr)
             
         // Create Empty
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_EMPTY, STR(TXT_CREATE_EMPTY), "Ctrl+Shift+N", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_EMPTY, STR(TXT_CREATE_EMPTY), "Ctrl+Shift+N", "")
         // Create Empty Child
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_EMPTY_CHILD, STR(TXT_CREATE_EMPTY_CHILD), "Alt+Shift+N", "", queryDisableDefault, nullptr, nullptr)
         // Create Empty Parent
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_EMPTY_PARENT, STR(TXT_CREATE_EMPTY_PARENT), "Ctrl+Shift+G", "", queryDisableDefault, nullptr, nullptr)
         // 3D Object
-        IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_3D_OBJECT, STR(TXT_3D_OBJECT), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_3D_OBJECT, STR(TXT_3D_OBJECT), "", "", nullptr, nullptr, nullptr)
+        // Cube
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CUBE, STR(TXT_CUBE), "", "")
+        // Sphere
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_SPHERE, STR(TXT_SPHERE), "", "")
         // Effects
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_EFFECTS, STR(TXT_EFFECTS), "", "", queryDisableDefault, nullptr, nullptr)
         // Light
@@ -1956,6 +1960,8 @@ namespace Tiny3D
                 IM_MENU_ITEM(ID_MENU_ITEM_CREATE_EMPTY_CHILD)   // Create Empty Child
                 IM_MENU_ITEM(ID_MENU_ITEM_CREATE_EMPTY_PARENT)  // Create Empty Parent
                 IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_3D_OBJECT) // 3D Object
+                    IM_MENU_ITEM(ID_MENU_ITEM_CUBE) // Cube
+                    IM_MENU_ITEM(ID_MENU_ITEM_SPHERE)   // Sphere
                 IM_MENU_POPUP_END()
                 IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_EFFECTS)   // Effects
                 IM_MENU_POPUP_END()

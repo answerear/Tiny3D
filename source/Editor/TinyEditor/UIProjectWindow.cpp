@@ -227,8 +227,8 @@ namespace Tiny3D
 
         do
         {
-            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuNewFolder);
-            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemEnabledNewFolder);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemCreateFolder);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemEnabledCreateFolder);
             
             mContextMenu = new ImContextMenu();
             ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu", this);
@@ -530,8 +530,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool UIAssetHierarchyView::onMenuNewFolder(uint32_t id, ImWidget *menuItem)
+    bool UIAssetHierarchyView::onMenuItemCreateFolder(uint32_t id, ImWidget *menuItem)
     {
+        T3D_ASSERT(id == ID_MENU_ITEM_FOLDER);
+        
         bool ret = true;
         if (mTreeWidget != nullptr)
         {
@@ -572,7 +574,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool UIAssetHierarchyView::onMenuItemEnabledNewFolder(uint32_t id, ImWidget *menuIem)
+    bool UIAssetHierarchyView::onMenuItemEnabledCreateFolder(uint32_t id, ImWidget *menuIem)
     {
         bool enabled = false;
 

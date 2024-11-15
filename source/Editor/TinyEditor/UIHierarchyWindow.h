@@ -45,7 +45,10 @@ namespace Tiny3D
         void updateChildren();
     };
 
-    class UIHierarchyView : public ImChildView
+    class UIHierarchyView
+        : public ImChildView
+        , public EventHandler
+        , public ImMenuEventHandler
     {
     public:
         void setScene(Scene *scene)
@@ -73,6 +76,12 @@ namespace Tiny3D
         void treeNodeClicked(ImTreeNode *node);
         void treeNodeRClicked(ImTreeNode *node);
         void onTreeNodeDestroy(ImTreeNode *node);
+
+        bool onMenuItemCreateEmpty(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemCreateCube(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemCreateSphere(uint32_t id, ImWidget *menuItem);
+
+        TResult createTreeNode(TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
         
     protected:
         Scene *mScene {nullptr};

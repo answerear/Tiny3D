@@ -34,7 +34,7 @@ namespace Tiny3D
 
     ImMenuEventHandler::~ImMenuEventHandler()
     {
-        ImMenuEventManager::getInstance().unregisterMenuEventHandler(this);
+        unregisterAllMenuEvents();
     }
     
     //--------------------------------------------------------------------------
@@ -49,6 +49,13 @@ namespace Tiny3D
     TResult ImMenuEventHandler::unregisterMenuEvent(uint32_t menuID)
     {
         return ImMenuEventManager::getInstance().unregisterMenuEvent(menuID, this);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImMenuEventHandler::unregisterAllMenuEvents()
+    {
+        ImMenuEventManager::getInstance().unregisterMenuEventHandler(this);
     }
 
     //--------------------------------------------------------------------------
@@ -99,7 +106,7 @@ namespace Tiny3D
 
     bool ImMenuEventManager::onQueryEnabled(ImWidget *menuItem)
     {
-        bool enabled = false;
+        bool enabled = true;
         
         const auto itr = mMenuItemQueryEnabledHandles.find(menuItem->getID());
         if (itr != mMenuItemQueryEnabledHandles.end())

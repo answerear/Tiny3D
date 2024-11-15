@@ -196,6 +196,8 @@ namespace Tiny3D
 
         do
         {
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemCreateEmpty);
+            
             T3D_ASSERT(mTreeWidget == nullptr);
             mTreeWidget = new ImTreeWidget();
             ret = mTreeWidget->create(ID_HIERARCHY_VIEW_TREE, "GameObject Hierarchy Tree", this);
@@ -213,6 +215,8 @@ namespace Tiny3D
 
     void UIHierarchyView::onDestroy()
     {
+        unregisterAllMenuEvents();
+        unregisterAllEvent();
         mTreeWidget = nullptr;
         ImChildView::onDestroy();
     }
@@ -225,11 +229,9 @@ namespace Tiny3D
 
         do
         {
-            auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
-
-            auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
-
-            auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+            const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+            const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+            const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
 
             ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
             
@@ -240,42 +242,7 @@ namespace Tiny3D
                     if (T3D_FAILED(ret))
                         return;
 
-                    do
-                    {
-                        ImTreeNode *uiParent = nullptr;
-                        String name;
-                        String icon;
-                        if (node->getParent() != nullptr)
-                        {
-                            Transform3D *parent = static_cast<Transform3D *>(node->getParent());
-                            uiParent = static_cast<ImTreeNode *>(parent->getUserData());
-                            name = node->getGameObject()->getName();
-                            icon = ICON_NAME_GAMEOBJECT;
-                        }
-                        else
-                        {
-                            uiParent = mTreeWidget;
-                            name = mScene->getName();
-                            icon = ICON_NAME_SCENE_32;
-                        }
-
-                        ImTreeNode *uiNode = new ImTreeNode(mTreeWidget);
-                        ret = uiNode->createByPath(icon, icon, name, callbacks, uiParent, onDestroy);
-                        if (T3D_FAILED(ret))
-                        {
-                            EDITOR_LOG_ERROR("Failed to create ui node [%s] ! ERROR [%d]", name.c_str(), ret);
-                            break;
-                        }
-
-                        node->setUserData(uiNode);
-                        uiNode->setUserData(node);
-
-                        if (mRoot == nullptr)
-                        {
-                            mRoot = uiNode;
-                        }
-                    } while (false);
-                    
+                    ret = createTreeNode(node, callbacks, onDestroy);
                 },
                 callbacks, treeNodeDestroy);
         } while (false);
@@ -304,6 +271,105 @@ namespace Tiny3D
         TransformNode *node = static_cast<TransformNode *>(uiNode->getUserData());
         uiNode->setUserData(nullptr);
         node->setUserData(nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::createTreeNode(TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ImTreeNode *uiParent = nullptr;
+            String name;
+            String icon;
+            if (node->getParent() != nullptr)
+            {
+                Transform3D *parent = static_cast<Transform3D *>(node->getParent());
+                uiParent = static_cast<ImTreeNode *>(parent->getUserData());
+                name = node->getGameObject()->getName();
+                icon = ICON_NAME_GAMEOBJECT;
+            }
+            else
+            {
+                uiParent = mTreeWidget;
+                name = mScene->getName();
+                icon = ICON_NAME_SCENE_32;
+            }
+
+            ImTreeNode *uiNode = new ImTreeNode(mTreeWidget);
+            ret = uiNode->createByPath(icon, icon, name, callbacks, uiParent, onDestroy);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create ui node [%s] ! ERROR [%d]", name.c_str(), ret);
+                break;
+            }
+
+            node->setUserData(uiNode);
+            uiNode->setUserData(node);
+
+            if (mRoot == nullptr)
+            {
+                mRoot = uiNode;
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemCreateEmpty(uint32_t id, ImWidget *menuItem)
+    {
+        if (mTreeWidget != nullptr)
+        {
+            ImTreeNode *selection = mTreeWidget->getSelection();
+            if (selection != nullptr)
+            {
+                GameObjectPtr go = GameObject::create("GameObject");
+
+                if (go != nullptr)
+                {
+                    TransformNode *parent = static_cast<TransformNode*>(selection->getUserData());
+                    
+                    Transform3DPtr node = go->addComponent<Transform3D>();
+                    
+                    if (node != nullptr)
+                    {
+                        parent->addChild(node);
+                        
+                        const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+                        const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+                        const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+                        ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+                    
+                        createTreeNode(node, callbacks, treeNodeDestroy);
+
+                        ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
+                        T3D_ASSERT(uiNode != nullptr);
+                        uiNode->expand(false);
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemCreateCube(uint32_t id, ImWidget *menuItem)
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemCreateSphere(uint32_t id, ImWidget *menuItem)
+    {
+        return true;
     }
 
     //--------------------------------------------------------------------------
