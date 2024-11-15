@@ -119,6 +119,7 @@ namespace Tiny3D
         
         StartOptions mOptions {};
 
+        ImMenuEventManager  *mMenuEventMgr {nullptr};
         ImTextureManager    *mTextureMgr {nullptr};
         UIMainWindow          *mMainWindow {nullptr};
 

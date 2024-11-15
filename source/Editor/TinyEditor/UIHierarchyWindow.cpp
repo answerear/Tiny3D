@@ -269,6 +269,11 @@ namespace Tiny3D
 
                         node->setUserData(uiNode);
                         uiNode->setUserData(node);
+
+                        if (mRoot == nullptr)
+                        {
+                            mRoot = uiNode;
+                        }
                     } while (false);
                     
                 },
@@ -294,9 +299,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void UIHierarchyView::onTreeNodeDestroy(ImTreeNode *node)
+    void UIHierarchyView::onTreeNodeDestroy(ImTreeNode *uiNode)
     {
-        
+        TransformNode *node = static_cast<TransformNode *>(uiNode->getUserData());
+        uiNode->setUserData(nullptr);
+        node->setUserData(nullptr);
     }
 
     //--------------------------------------------------------------------------

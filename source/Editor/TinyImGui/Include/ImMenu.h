@@ -28,9 +28,12 @@
 
 #include "ImWidget.h"
 
+// #define USE_LEGACY_MENU
+
 
 namespace Tiny3D
 {
+#if defined (USE_LEGACY_MENU)
     #define IM_BEGIN_MENU(title) \
         { \
             ImMenu *menu = new ImMenu(); \
@@ -74,7 +77,9 @@ namespace Tiny3D
         }
     
     using EventParamMenuItem = EventParamT1<class ImWidget*>;
-    
+    using ImMenuItemClickedCallback = TFunction<void(ImWidget*)>;
+    using ImMenuItemQueryCallback = TFunction<bool(ImWidget*)>;
+
     /**
      * 菜单项基类
      */
@@ -99,9 +104,6 @@ namespace Tiny3D
         
         virtual Type getType() const = 0;
     };
-
-    using ImMenuItemClickedCallback = TFunction<void(ImWidget*)>;
-    using ImMenuItemQueryCallback = TFunction<bool(ImWidget*)>;
 
     /**
      * 可启用/禁用菜单项
@@ -289,7 +291,133 @@ namespace Tiny3D
     };
 
     using ImMenu = ImMenuItemPopup;
+#else
 
+    #define IM_MENU_ITEM_DATA(type, menuID, title, shortcut, icon_name, query_enabled, query_checked, clicked) \
+        ImMenuItem::addToPool((type), (menuID), (title), (shortcut), (query_enabled), (query_checked), (clicked), (icon_name));
+
+    #define IM_MENU_BEGIN(menubar) \
+        { \
+            ImWidget *parent = menubar;
+    
+    #define IM_MENU_POPUP_BEGIN(menuID) \
+            { \
+                ImMenuItemPopup *item = new ImMenuItemPopup(); \
+                TResult rt = item->create(menuID, #menuID, parent); \
+                T3D_ASSERT(T3D_SUCCEEDED(rt)); \
+                ImWidget *parent = item;
+
+    #define IM_MENU_POPUP_END() \
+            }
+
+    #define IM_MENU_ITEM(menuID) \
+            { \
+                ImMenuItem *item = new ImMenuItem(); \
+                TResult rt = item->create(menuID, #menuID, parent); \
+                T3D_ASSERT(T3D_SUCCEEDED(rt)); \
+            }
+
+    #define IM_MENU_CHECK(menuID) \
+            { \
+                ImMenuItemCheck *item = new ImMenuItemCheck(); \
+                TResult rt = item->create(menuID, #menuID, parent); \
+                T3D_ASSERT(T3D_SUCCEEDED(rt)); \
+            }
+
+    #define IM_MENU_SEPARATOR() \
+            { \
+                ImMenuItemSeparator *item = new ImMenuItemSeparator(); \
+                TResult rt = item->create(ID_MENU_SEPARATOR, "##MenuSeparator", parent); \
+                T3D_ASSERT(T3D_SUCCEEDED(rt)); \
+            }
+
+    #define IM_MENU_END() \
+        }
+    
+    using EventParamMenuItem = EventParamT1<class ImWidget*>;
+    using ImMenuItemClickedCallback = TFunction<void(ImWidget*)>;
+    using ImMenuItemQueryCallback = TFunction<bool(ImWidget*)>;
+    
+    enum class ImMenuItemType : uint32_t
+    {
+        /// 默认值
+        kInvalid = 0,
+        /// 普通菜单项
+        kNormal,
+        /// 弹出菜单项
+        kPopup,
+        /// 可勾选菜单项
+        kCheck,
+        /// 菜单项分隔符
+        kSeparator,
+    };
+    
+    struct ImMenuItemData
+    {
+        ImMenuItemData(ImMenuItemType _type, uint32_t _menuID, const String &_title, const String &_shortcut, const ImMenuItemQueryCallback &_queryEnable, const ImMenuItemQueryCallback &_queryCheck, const ImMenuItemClickedCallback &_clicked, const String &iconName);
+
+        ~ImMenuItemData();
+
+        ImMenuItemType type {ImMenuItemType::kNormal};
+        uint32_t menuID {0};
+        ImTextureID icon {nullptr};
+        String title {};
+        String shortcut {};
+        ImMenuItemQueryCallback queryEnable {nullptr};
+        ImMenuItemQueryCallback queryCheck {nullptr};
+        ImMenuItemClickedCallback clicked {nullptr};
+    };
+    
+    class TINYIMGUI_API ImMenuItem : public ImWidget, public EventHandler
+    {
+    public:
+        static void addToPool(ImMenuItemType type, uint32_t menuID, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &clicked, const String &iconName);
+
+        static void GC();
+
+        ImMenuItem();
+
+        ~ImMenuItem() override;
+
+        WidgetType getWidgetType() const override { return WidgetType::kMenuItem; }
+
+    protected:
+        TResult onCreate() override;
+
+        void onGUI() override;
+        
+    protected:
+        using ImMenuItemsPool = TUnorderedMap<uint32_t, ImMenuItemData>;
+
+        static ImMenuItemsPool msMenuItemsPool;
+
+        uint32_t mMenuID {0};
+        ImMenuItemsPool::iterator mItr {};
+    };
+
+    class TINYIMGUI_API ImMenuItemPopup : public ImMenuItem
+    {
+    protected:
+        bool onGUIBegin() override;
+        void onGUI() override;
+        void onGUIEnd() override;
+    };
+
+    class TINYIMGUI_API ImMenuItemCheck : public ImMenuItem
+    {
+    protected:
+        void onGUI() override;
+    };
+
+    class TINYIMGUI_API ImMenuItemSeparator : public ImMenuItem
+    {
+    protected:
+        void onGUI() override;
+    };
+
+    using ImMenu = ImMenuItem;
+#endif
+    
     /**
      * 菜单栏
      */
@@ -299,10 +427,12 @@ namespace Tiny3D
         ~ImMenuBar() override;
 
         WidgetType getWidgetType() const override { return WidgetType::kMenuBar; }
-        
+
+#if defined (USE_LEGACY_MENU)
         TResult addMenu(ImMenu *menu);
 
         ImMenu *addMenu(uint32_t id, const String &name, ImTextureID icon = nullptr);
+#endif
 
     protected:
         bool onGUIBegin() override;

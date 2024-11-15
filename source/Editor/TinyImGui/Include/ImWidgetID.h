@@ -31,9 +31,9 @@
 
 namespace Tiny3D
 {
-    enum TinyWidgetID
+    enum TinyWidgetID : uint32_t
     {
-        ID_MENU_SEPARATOR = 0x10000000,
-        ID_MESSAGE_BOX = 0x10000001,
+        ID_MENU_SEPARATOR = 0x80000000U,
+        ID_MESSAGE_BOX = 0x80000010U,
     };
 }

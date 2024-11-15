@@ -183,6 +183,8 @@ namespace Tiny3D
         TResult create(uint32_t id, const String &name, ImWidget *parent = nullptr) override;
 
         void update() override;
+
+        ImTreeNode *getSelection() const { return mSelection; }
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -194,6 +196,8 @@ namespace Tiny3D
 
         String &getSelectedNode() { return mSelectedNode; }
 
+        void setSelection(ImTreeNode *selection) { mSelection = selection; }
+
         const ImVec2 &getContentPos() const { return mContentPos; }
 
         uint32_t generateNodeID() { return mNodeID++; }
@@ -204,6 +208,7 @@ namespace Tiny3D
         uint32_t mNodeID {0};
         String  mSelectedNode {};
         ImVec2  mContentPos {};
+        ImTreeNode *mSelection {nullptr};
     };
 
     class TINYIMGUI_API ImDummyTreeNode : public ImTreeNode

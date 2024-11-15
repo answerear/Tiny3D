@@ -71,6 +71,7 @@ namespace Tiny3D
     class UIAssetHierarchyView
         : public ImChildView
         , public EventHandler
+        , public ImMenuEventHandler
     {
     public:
         const ImTreeBar::TreeBarNodes &getTreeBarRoots() const { return mRoots; }
@@ -98,6 +99,10 @@ namespace Tiny3D
         void treeNodeRClicked(ImTreeNode *node);
 
         void onTreeNodeDestroy(ImTreeNode *node);
+
+        bool onMenuNewFolder(uint32_t id, ImWidget *menuItem);
+
+        bool onMenuItemEnabledNewFolder(uint32_t id, ImWidget *menuIem);
         
     protected:
         ImTreeBar::TreeBarNodes mRoots {};

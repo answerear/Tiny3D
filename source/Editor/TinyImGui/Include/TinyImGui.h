@@ -46,3 +46,5 @@
 #include <ImListWidget.h>
 #include <ImTreeBar.h>
 #include <ImInputText.h>
+#include <ImMenuEventHandler.h>
+#include <ImWidgetID.h>

@@ -50,6 +50,7 @@ namespace Tiny3D
 
         void onGUIEnd() override;
 
+#if defined (USE_LEGACY_MENU)
         TResult buildMenu();
         TResult buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
         TResult buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
@@ -58,6 +59,27 @@ namespace Tiny3D
         TResult buildComponentMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
         TResult buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
         TResult buildHelpMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+#else
+        TResult createMenuItemData();
+
+        TResult createFileMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        TResult createEditMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        TResult createAssetMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        TResult createGameObjectMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        TResult createComponentMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        TResult createWindowMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        TResult createHelpMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+        
+        TResult buildMainMenu();
+        TResult buildFileMenu();
+        TResult buildEditMenu();
+        TResult buildAssetMenu();
+        TResult buildGameObjectMenu();
+        TResult buildComponentMenu();
+        TResult buildWindowMenu();
+        TResult buildHelpMenu();
+        
+#endif
         
     protected:
         ImMenuBar   *mMenuBar {nullptr};

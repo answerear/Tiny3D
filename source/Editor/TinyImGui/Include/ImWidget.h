@@ -44,6 +44,7 @@ namespace Tiny3D
         kDialog,
         kMenuBar,
         kMenuItem,
+        kMenu,
         kContextMenu,
         kToolBar,
         kTabBar,

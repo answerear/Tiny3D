@@ -75,7 +75,8 @@ namespace Tiny3D
         // }
         //
         // T3D_SAFE_DELETE(mNetworkMgr);
-        
+
+        T3D_SAFE_DELETE(mMenuEventMgr)
         T3D_SAFE_DELETE(mProjectMgr)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
@@ -264,6 +265,9 @@ namespace Tiny3D
             mTestScene = new TestScene();
             mTestScene->build(scene);
 #endif
+
+            // 菜单事件处理管理器
+            mMenuEventMgr = new ImMenuEventManager();
 
             // 主窗口
             mMainWindow = new UIMainWindow();
@@ -459,6 +463,8 @@ namespace Tiny3D
         {
             mNetworkMgr->shutdown();
         }
+
+        T3D_SAFE_DELETE(mMenuEventMgr);
 
         mTextureMgr->unloadAllTextures();
 

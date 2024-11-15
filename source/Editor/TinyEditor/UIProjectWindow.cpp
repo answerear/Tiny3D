@@ -227,19 +227,22 @@ namespace Tiny3D
 
         do
         {
-            mContextMenu = new ImContextMenu();
-            ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu");
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Create asset hierarchy context menu failed ! ERROR [%d]", ret)
-                break;
-            }
-            mContextMenu->setVisible(false);
-
-            auto queryEnableDefault = [](ImWidget*) { return true; };
-            auto queryDisableDefault = [](ImWidget*) { return false; };
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuNewFolder);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemEnabledNewFolder);
             
-            mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryEnableDefault);
+            // mContextMenu = new ImContextMenu();
+            // ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu");
+            // if (T3D_FAILED(ret))
+            // {
+            //     EDITOR_LOG_ERROR("Create asset hierarchy context menu failed ! ERROR [%d]", ret)
+            //     break;
+            // }
+            // mContextMenu->setVisible(false);
+
+            // auto queryEnableDefault = [](ImWidget*) { return true; };
+            // auto queryDisableDefault = [](ImWidget*) { return false; };
+            
+            // mContextMenu->addItem(ID_MENU_ITEM_FOLDER, STR(TXT_FOLDER), "", queryEnableDefault);
             
             auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
 
@@ -519,6 +522,40 @@ namespace Tiny3D
         }
         T3D_SAFE_DELETE(assetNode);
         node->setUserData(nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIAssetHierarchyView::onMenuNewFolder(uint32_t id, ImWidget *menuItem)
+    {
+        if (mTreeWidget != nullptr)
+        {
+            ImTreeNode *selection = mTreeWidget->getSelection();
+            if (selection != nullptr)
+            {
+                EDITOR_LOG_DEBUG("Selection : %s", selection->getName().c_str());
+            }
+        }
+        
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIAssetHierarchyView::onMenuItemEnabledNewFolder(uint32_t id, ImWidget *menuIem)
+    {
+        bool enabled = false;
+
+        if (mTreeWidget != nullptr)
+        {
+            ImTreeNode *selection = mTreeWidget->getSelection();
+            if (selection != nullptr)
+            {
+                enabled = true;
+            }
+        }
+        
+        return enabled;
     }
 
     //--------------------------------------------------------------------------

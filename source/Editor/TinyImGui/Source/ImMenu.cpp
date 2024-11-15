@@ -27,10 +27,12 @@
 #include "ImErrors.h"
 #include "ImWidgetID.h"
 #include "ImEventDefine.h"
+#include "ImTextureManager.h"
 
 
 namespace Tiny3D
 {
+#if defined (USE_LEGACY_MENU)
     //--------------------------------------------------------------------------
 
     ImMenuItem::~ImMenuItem()
@@ -576,6 +578,190 @@ namespace Tiny3D
     {
         ImMenuItem::onGUIEnd();
     }
+
+    //--------------------------------------------------------------------------
+#else
+    //--------------------------------------------------------------------------
+
+    ImMenuItemData::ImMenuItemData(ImMenuItemType _type, uint32_t _menuID, const String &_title, const String &_shortcut, const ImMenuItemQueryCallback &_queryEnable, const ImMenuItemQueryCallback &_queryCheck, const ImMenuItemClickedCallback &_clicked, const String &iconName)
+        : type(_type), menuID(_menuID), title(_title), shortcut(_shortcut), queryEnable(_queryEnable), queryCheck(_queryCheck), clicked(_clicked)
+    {
+        if (!iconName.empty())
+        {
+            icon = IM_TEXTURE_MGR.loadTexture(iconName);
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ImMenuItemData::~ImMenuItemData()
+    {
+        if (icon != nullptr)
+        {
+            IM_TEXTURE_MGR.unloadTexture(icon);
+            icon = nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImMenuItem::ImMenuItemsPool ImMenuItem::msMenuItemsPool;
+
+    //--------------------------------------------------------------------------
+    
+    void ImMenuItem::addToPool(ImMenuItemType type, uint32_t menuID, const String &title, const String &shortcut, const ImMenuItemQueryCallback &queryEnable, const ImMenuItemQueryCallback &queryCheck, const ImMenuItemClickedCallback &clicked, const String &iconName)
+    {
+        msMenuItemsPool.emplace(menuID, ImMenuItemData(type, menuID, title, shortcut, queryEnable, queryCheck, clicked, iconName));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImMenuItem::GC()
+    {
+        msMenuItemsPool.clear();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ImMenuItem::ImMenuItem()
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
+    ImMenuItem::~ImMenuItem()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ImMenuItem::onCreate()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            uint32_t menuID = getID();
+            mItr = msMenuItemsPool.find(menuID);
+            if (mItr == msMenuItemsPool.end())
+            {
+                IMGUI_LOG_ERROR("Failed to find menu with ID (%d) !", menuID);
+                ret = T3D_ERR_NOT_FOUND;
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ImMenuItem::onGUI()
+    {
+        const ImMenuItemData &data = mItr->second;
+        
+        if (data.icon != nullptr)
+        {
+            // 绘制图标
+            ImGui::Image(data.icon, ImVec2(20, 20));
+            ImGui::SameLine();
+        }
+
+        // 实时获取菜单项状态
+        bool enable = data.queryEnable ? data.queryEnable(this) : true;
+
+        // 菜单项
+        if (ImGui::MenuItem(data.title.c_str(), data.shortcut.empty() ? nullptr : data.shortcut.c_str(), false, enable))
+        {
+            if (data.clicked != nullptr)
+            {
+                data.clicked(this);
+            }
+            else
+            {
+                EventParamMenuItem param;
+                param.arg1 = this;
+                sendEvent(kEvtMenuItemClicked, &param);
+            }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool ImMenuItemPopup::onGUIBegin()
+    {
+        PushWidgetID();
+        const auto &data = mItr->second;
+        bool enable = data.queryEnable ? data.queryEnable(this) : true;
+        bool ret = ImGui::BeginMenu(data.title.c_str(), enable);
+        if (!ret)
+        {
+            PopWidgetID();
+        }
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ImMenuItemPopup::onGUI()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImMenuItemPopup::onGUIEnd()
+    {
+        ImGui::EndMenu();
+        PopWidgetID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImMenuItemCheck::onGUI()
+    {
+        const auto &data = mItr->second;
+        
+        auto callback = [&data, this]()
+        {
+            if (data.clicked != nullptr)
+            {
+                data.clicked(this);
+            }
+            else
+            {
+                EventParamMenuItem param;
+                param.arg1 = this;
+                sendEvent(kEvtMenuItemClicked, &param);
+            }
+        };
+
+        bool enabled = data.queryEnable ? data.queryEnable(this) : true;
+        bool checked = false;
+        
+        if (data.queryCheck != nullptr)
+        {
+            checked = data.queryCheck(this);
+        }
+
+        if (ImGui::MenuItem(data.title.c_str(), data.shortcut.empty() ? nullptr : data.shortcut.c_str(), checked, enabled))
+        {
+            callback();
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ImMenuItemSeparator::onGUI()
+    {
+        ImGui::Separator();
+    }
+    
+    //--------------------------------------------------------------------------
+#endif
     
     //--------------------------------------------------------------------------
 
@@ -585,7 +771,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
+#if defined (USE_LEGACY_MENU)
     TResult ImMenuBar::addMenu(ImMenu *menu)
     {
         return addChild(menu) ? IM_OK : IM_ERR_FAIL;
@@ -605,7 +791,7 @@ namespace Tiny3D
 
         return menu;
     }
-
+#endif
     //--------------------------------------------------------------------------
 
     bool ImMenuBar::onGUIBegin()

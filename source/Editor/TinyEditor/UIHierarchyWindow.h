@@ -77,6 +77,7 @@ namespace Tiny3D
     protected:
         Scene *mScene {nullptr};
         ImTreeWidget *mTreeWidget {nullptr};
+        ImTreeNode *mRoot {nullptr};
     };
 
     class UIHierarchyWindow : public UIDockingWindow, public EventHandler
