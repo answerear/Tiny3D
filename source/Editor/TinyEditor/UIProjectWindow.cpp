@@ -230,14 +230,18 @@ namespace Tiny3D
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuNewFolder);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemEnabledNewFolder);
             
-            // mContextMenu = new ImContextMenu();
-            // ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu");
-            // if (T3D_FAILED(ret))
-            // {
-            //     EDITOR_LOG_ERROR("Create asset hierarchy context menu failed ! ERROR [%d]", ret)
-            //     break;
-            // }
-            // mContextMenu->setVisible(false);
+            mContextMenu = new ImContextMenu();
+            ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create asset hierarchy context menu failed ! ERROR [%d]", ret)
+                break;
+            }
+            mContextMenu->setVisible(false);
+
+            IM_CONTEXT_MENU_BEGIN(mContextMenu)
+                IM_MENU_ITEM(ID_MENU_ITEM_FOLDER)
+            IM_CONTEXT_MENU_END()
 
             // auto queryEnableDefault = [](ImWidget*) { return true; };
             // auto queryDisableDefault = [](ImWidget*) { return false; };
@@ -440,10 +444,10 @@ namespace Tiny3D
 
     void UIAssetHierarchyView::onDestroy()
     {
-        if (mContextMenu != nullptr)
-        {
-            mContextMenu->destroy();
-        }
+        // if (mContextMenu != nullptr)
+        // {
+        //     mContextMenu->destroy();
+        // }
 
         ImChildView::onDestroy();
     }

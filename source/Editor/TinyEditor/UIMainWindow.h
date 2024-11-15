@@ -69,6 +69,8 @@ namespace Tiny3D
         TResult createComponentMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
         TResult createWindowMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
         TResult createHelpMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
+
+        TResult createContextMenuData();
         
         TResult buildMainMenu();
         TResult buildFileMenu();

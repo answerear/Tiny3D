@@ -31,6 +31,13 @@
 
 namespace Tiny3D
 {
+    #define IM_CONTEXT_MENU_BEGIN(menu) \
+        { \
+            ImWidget *parent = menu;
+
+    #define IM_CONTEXT_MENU_END() \
+        }
+
     class TINYIMGUI_API ImContextMenu : public ImMenu
     {
     public:
@@ -38,12 +45,12 @@ namespace Tiny3D
 
         WidgetType getWidgetType() const override { return WidgetType::kContextMenu; }
 
-        TResult create(uint32_t id, const String &name);
+        // TResult create(uint32_t id, const String &name);
         
         TResult show(ImWidget *parent = nullptr);
         
     protected:
-        TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
+        // TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
         
         bool onGUIBegin() override;
         void onGUI() override;

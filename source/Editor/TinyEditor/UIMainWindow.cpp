@@ -1086,6 +1086,13 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to create help menu item data ! ERROR [%d]", ret);
                 break;
             }
+
+            ret = createContextMenuData();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to create context menu data ! ERROR [%d]", ret);
+                break;
+            }
         } while (false);
         
         return ret;
@@ -1588,6 +1595,15 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_USER_MANUAL, STR(TXT_USER_MANUAL), "", "", queryDisableDefault, nullptr, nullptr)
         // API Document
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_API_DOCUMENT, STR(TXT_API_DOCUMENT), "", "", queryDisableDefault, nullptr, nullptr)
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIMainWindow::createContextMenuData()
+    {
+        IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_PROJECT_ASSET_CONTEXT_MENU, "##ProjectContextMenu", "", "", nullptr, nullptr, nullptr)
         
         return T3D_OK;
     }
