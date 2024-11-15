@@ -556,10 +556,10 @@ namespace Tiny3D
                     ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
 
                     ImTreeNode *uiNode = nullptr;
-                    TResult ret = populateAssetsTree(mTreeWidget, selection, node, callbacks, treeNodeDestroy, uiNode);
-                    if (T3D_FAILED(ret))
+                    TResult result = populateAssetsTree(mTreeWidget, selection, node, callbacks, treeNodeDestroy, uiNode);
+                    if (T3D_FAILED(result))
                     {
-                        EDITOR_LOG_ERROR("Failed to populate asset tree ! ERROR [%d]", ret);
+                        EDITOR_LOG_ERROR("Failed to populate asset tree ! ERROR [%d]", result);
                         PROJECT_MGR.removeFolder(node);
                         ret = false;
                     }
