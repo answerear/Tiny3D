@@ -60,7 +60,7 @@ namespace Tiny3D
         scene->init();
     
         // 根节点
-        editorScene->getEditorRootTransform()->addChild(scene->getRootTransform());
+        editorScene->getRuntimeRootTransform()->addChild(scene->getRootTransform());
 
         Transform3D *gameNode = scene->getRootTransform();
 
@@ -69,7 +69,7 @@ namespace Tiny3D
         buildCamera(gameNode);
 
         // cube
-#if 0
+#if 1
         buildCube(gameNode);
 #else
         String path = PROJECT_MGR.getAssetsPath();

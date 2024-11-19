@@ -1411,9 +1411,9 @@ namespace Tiny3D
         // 3D Object
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_3D_OBJECT, STR(TXT_3D_OBJECT), "", "", nullptr, nullptr, nullptr)
         // Cube
-        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CUBE, STR(TXT_CUBE), "", "")
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_CUBE, STR(TXT_CUBE), "", "")
         // Sphere
-        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_SPHERE, STR(TXT_SPHERE), "", "")
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_SPHERE, STR(TXT_SPHERE), "", "")
         // Effects
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_EFFECTS, STR(TXT_EFFECTS), "", "", queryDisableDefault, nullptr, nullptr)
         // Light
@@ -1960,8 +1960,8 @@ namespace Tiny3D
                 IM_MENU_ITEM(ID_MENU_ITEM_CREATE_EMPTY_CHILD)   // Create Empty Child
                 IM_MENU_ITEM(ID_MENU_ITEM_CREATE_EMPTY_PARENT)  // Create Empty Parent
                 IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_3D_OBJECT) // 3D Object
-                    IM_MENU_ITEM(ID_MENU_ITEM_CUBE) // Cube
-                    IM_MENU_ITEM(ID_MENU_ITEM_SPHERE)   // Sphere
+                    IM_MENU_ITEM(ID_MENU_ITEM_CREATE_CUBE) // Cube
+                    IM_MENU_ITEM(ID_MENU_ITEM_CREATE_SPHERE)   // Sphere
                 IM_MENU_POPUP_END()
                 IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_EFFECTS)   // Effects
                 IM_MENU_POPUP_END()

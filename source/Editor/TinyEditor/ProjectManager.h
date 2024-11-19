@@ -114,6 +114,9 @@ namespace Tiny3D
         , public Singleton<ProjectManager>
     {
     public:
+        static const char *BUILTIN_CUBE_MESH_NAME;
+        static const char *BUILTIN_CUBE_SUBMESH_NAME;
+        
         ProjectManager();
 
         ~ProjectManager() override;
@@ -140,7 +143,9 @@ namespace Tiny3D
 
         const String &getAssetsPath() const { return mAssetsPath; }
 
-        const String &getTempPath() const {return mTempPath; }
+        const String &getTempPath() const { return mTempPath; }
+
+        const String &getBuiltinPath() const { return mBuiltinPath; }
 
         const ProjectSettings &getProjectSettings() const { return mProjectSettings; }
 
@@ -189,6 +194,8 @@ namespace Tiny3D
         String mAssetsPath {};
         /// 工程临时文件路径
         String mTempPath {};
+        /// 内置资源路径
+        String mBuiltinPath {};
         /// shader 编译后临时文件路径
         String mCompiledShadersPath {};
 

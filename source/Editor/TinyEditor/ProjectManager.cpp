@@ -36,6 +36,9 @@ namespace Tiny3D
     const char *ProjectManager::ASSETS = "Assets";
     const char *ProjectManager::SCENES = "Scenes";
     const char *ProjectManager::TEMP = "Temp";
+
+    const char *ProjectManager::BUILTIN_CUBE_MESH_NAME = "cube.tmesh";
+    const char *ProjectManager::BUILTIN_CUBE_SUBMESH_NAME = "#0";
     
     //--------------------------------------------------------------------------
 
@@ -114,6 +117,7 @@ namespace Tiny3D
                 break;
             }
 
+            mBuiltinPath = dstPath;
         } while (false);
 
         return ret;
@@ -132,7 +136,7 @@ namespace Tiny3D
             scene->init();
 
             // 根节点
-            EDITOR_SCENE.getEditorRootTransform()->addChild(scene->getRootTransform());
+            EDITOR_SCENE.getRuntimeRootTransform()->addChild(scene->getRootTransform());
 
             Transform3D *gameNode = scene->getRootTransform();
 
@@ -400,6 +404,7 @@ namespace Tiny3D
                 break;
             }
 
+
             // 构建工程文件树
             ret = populate();
             if (T3D_FAILED(ret))
@@ -407,7 +412,8 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to populate project tree [%s] !", mAssetsPath.c_str());
                 break;
             }
-
+            
+#if !defined (TEST_SCENE_ENABLE)
             // 加载启动场景
             ret = loadStartupScene();
             if (T3D_FAILED(ret))
@@ -417,6 +423,7 @@ namespace Tiny3D
             }
 
             mAssetRoot->debugOutput();
+#endif
         } while (false);
         
         return ret;
@@ -485,6 +492,9 @@ namespace Tiny3D
                 ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }
+
+            // 根节点
+            EDITOR_SCENE.getRuntimeRootTransform()->addChild(scene->getRootTransform());
             
             // EDITOR_SCENE.setRuntimeScene(scene);
         } while (false);

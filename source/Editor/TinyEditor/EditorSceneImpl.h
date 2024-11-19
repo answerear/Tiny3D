@@ -69,6 +69,12 @@ namespace Tiny3D
 
         GameObject *getGameObject(const UUID &uuid) const override;
 
+        bool isSceneRoot(TransformNode *node) const override;
+
+        GameObject *getRuntimeRootGameObject() const override;
+
+        Transform3D *getRuntimeRootTransform() const override;
+
         void build();
 
         void refreshSceneRenderTarget();
@@ -103,7 +109,8 @@ namespace Tiny3D
         /// 游戏场景渲染纹理，给 imgui 用
         ImTextureID     mGameRT {nullptr};
         /// 游戏场景根节点
-        GameObjectPtr   mRoot {nullptr};
+        GameObjectPtr   mRuntimeRootGO {nullptr};
+        Transform3DPtr  mRuntimeRootXform {nullptr};
 
         float mGameRTWidth {1920};
         float mGameRTHeight {1080};

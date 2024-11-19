@@ -82,6 +82,9 @@ namespace Tiny3D
         bool onMenuItemCreateSphere(uint32_t id, ImWidget *menuItem);
 
         TResult createTreeNode(TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
+
+        TResult createCube(GameObject *go);
+        void createCubeAABB(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
         
     protected:
         Scene *mScene {nullptr};

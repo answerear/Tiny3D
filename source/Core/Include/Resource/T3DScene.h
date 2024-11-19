@@ -26,6 +26,7 @@
 #define __T3D_SCENE_H__
 
 
+#include "Component/T3DTransformNode.h"
 #include "Resource/T3DResource.h"
 #include "Kernel/T3DGameObject.h"
 
@@ -72,6 +73,8 @@ namespace Tiny3D
             const auto it = mGameObjects.find(uuid);
             return it != mGameObjects.end() ? it->second : nullptr;
         }
+
+        virtual bool isSceneRoot(TransformNode *node) const { return node->getParent() == nullptr; }
 
 #if defined(T3D_EDITOR)
         virtual Camera *getEditorCamera() const { return nullptr; }
@@ -145,6 +148,10 @@ namespace Tiny3D
         void setRuntimeScene(Scene *scene) override { mRuntimeScene = scene;}
 
         Scene *getRuntimeScene() const override { return mRuntimeScene; }
+
+        virtual GameObject *getRuntimeRootGameObject() const = 0;
+
+        virtual Transform3D *getRuntimeRootTransform() const = 0;
 
     protected:
         EditorScene(const String &name) : Scene(name) {}

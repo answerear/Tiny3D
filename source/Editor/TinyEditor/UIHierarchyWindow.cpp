@@ -26,8 +26,10 @@
 #include "UIHierarchyWindow.h"
 
 #include "EditorEventDefine.h"
+#include "EditorSceneImpl.h"
 #include "GUIExtension/ImGuiExtension.h"
 #include "UIEditorWidgetID.h"
+#include "ProjectManager.h"
 
 
 namespace Tiny3D
@@ -197,6 +199,7 @@ namespace Tiny3D
         do
         {
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemCreateEmpty);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemCreateCube);
             
             T3D_ASSERT(mTreeWidget == nullptr);
             mTreeWidget = new ImTreeWidget();
@@ -284,7 +287,8 @@ namespace Tiny3D
             ImTreeNode *uiParent = nullptr;
             String name;
             String icon;
-            if (node->getParent() != nullptr)
+            
+            if (!EDITOR_SCENE.isSceneRoot(node))
             {
                 Transform3D *parent = static_cast<Transform3D *>(node->getParent());
                 uiParent = static_cast<ImTreeNode *>(parent->getUserData());
@@ -362,7 +366,152 @@ namespace Tiny3D
 
     bool UIHierarchyView::onMenuItemCreateCube(uint32_t id, ImWidget *menuItem)
     {
+        do
+        {
+            if (mTreeWidget == nullptr)
+            {
+                EDITOR_LOG_WARNING("Tree widget has not created !");
+                break;
+            }
+
+            ImTreeNode *selection = mTreeWidget->getSelection();
+
+            if (selection == nullptr)
+            {
+                EDITOR_LOG_WARNING("There was no selection !");
+                break;
+            }
+
+            TransformNode *parent = static_cast<TransformNode*>(selection->getUserData());
+            if (parent == nullptr)
+            {
+                EDITOR_LOG_WARNING("The parent of selection is nullptr !");
+                break;
+            }
+
+            // transform node for cube
+            GameObjectPtr go = GameObject::create("Cube");
+            Transform3DPtr node = go->addComponent<Transform3D>();
+
+            if (node == nullptr)
+            {
+                EDITOR_LOG_WARNING("Failed to add Transform3D component !");
+                break;
+            }
+            
+            parent->addChild(node);
+
+            TResult ret = createCube(go);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_WARNING("Failed to create cube ! ERROR [%d]", ret);
+                break;
+            }
+
+            const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+            const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+            const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+
+            createTreeNode(node, callbacks, treeNodeDestroy);
+
+            ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
+            T3D_ASSERT(uiNode != nullptr);
+            uiNode->expand(false);
+
+            GameObject *root = T3D_SCENE_MGR.getCurrentScene()->getEditorGameObject();
+            Transform3D *xform = root->getComponent<Transform3D>();
+            xform->visitAll([](TransformNode *node)
+                { 
+                    EDITOR_LOG_DEBUG("Parent : %s, Node : %s",
+                        node->getParent() ? node->getParent()->getGameObject()->getName().c_str() : "NULL",
+                        node->getGameObject()->getName().c_str());
+                });
+        } while (false);
+
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::createCube(GameObject *go)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // geometry component
+            GeometryPtr geometry = go->addComponent<Geometry>();
+
+            const String &path = PROJECT_MGR.getBuiltinPath();
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            // ArchivePtr archive = PROJECT_MGR.getBuiltinArchive();
+            T3D_ASSERT(archive != nullptr);
+            MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, ProjectManager::BUILTIN_CUBE_MESH_NAME);
+            if (mesh == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load cube mesh assets !");
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            
+            StringArray enableKeywrods;
+            enableKeywrods.push_back("");
+            StringArray disableKeywords;
+            for (auto submesh : mesh->getSubMeshes())
+            {
+                ret = submesh.second->getMaterial()->switchKeywords(enableKeywrods, disableKeywords);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_ERROR("Failed to switch keywords (submesh : %s) ! ERROR [%d]", submesh.second->getName().c_str(), ret);
+                    break;
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to switch keywords ! ERROR [%d]", ret);
+                break;
+            }
+            
+            SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_CUBE_SUBMESH_NAME);
+            geometry->setMeshObject(mesh, submesh);
+
+            // aabb bound component
+            AabbBoundPtr bound = go->addComponent<AabbBound>();
+            createCubeAABB(mesh, submesh, bound);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::createCubeAABB(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+    {
+        const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
+        size_t vertexSize = mesh->getVertexStride(attr->getSlot());
+        size_t offset = mesh->getVertexOffset(attr->getOffset());
+        const Buffer &vertexBuffer = mesh->getVertices()[attr->getSlot()];
+        const Buffer &indexBuffer = submesh->getIndices();
+        size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
+        size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
+        Vector3 *points = new Vector3[pointCount];
+        for (size_t i = 0; i < pointCount; ++i)
+        {
+            int32_t idx = 0;
+            const uint8_t *src = indexBuffer.Data + i * indexSize;
+            memcpy(&idx, src, indexSize);
+            src = vertexBuffer.Data + idx * vertexSize + offset;
+            memcpy(points+i, src, sizeof(Vector3));
+            // Vector3 *srcPos = (Vector3*)src;
+            // T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
+        }
+        Aabb aabb;
+        aabb.build(points, pointCount);
+        T3D_SAFE_DELETE_ARRAY(points);
+        bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
     }
 
     //--------------------------------------------------------------------------

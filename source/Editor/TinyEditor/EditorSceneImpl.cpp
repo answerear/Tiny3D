@@ -40,6 +40,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    #define EDITOR_SCENE_ROOT_NAME      "__@#SceneRoot#@__"
+    #define EDITOR_BUILTIN_ROOT_NAME    "__@#Builtin#@__"
+    #define EDITOR_SCENE_CAMERA_NAME    "__@#SceneCamera#@__"
+    #define EDITOR_GAME_ROOT_NAME       "__@#GameRoot#@__"
+    #define EDITOR_BUILTIN_CAMERA_NAME  "__@#BuiltinCamera#@__"
+    
+    //--------------------------------------------------------------------------
+
     EditorSceneImplPtr EditorSceneImpl::create(const String &name)
     {
         return new EditorSceneImpl(name);
@@ -87,6 +95,27 @@ namespace Tiny3D
             return mRuntimeScene->getRootTransform();
         }
         return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObject *EditorSceneImpl::getRuntimeRootGameObject() const
+    {
+        return mRuntimeRootGO;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Transform3D *EditorSceneImpl::getRuntimeRootTransform() const
+    {
+        return mRuntimeRootXform;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    bool EditorSceneImpl::isSceneRoot(TransformNode *node) const
+    {
+        return node->getParent() == mRuntimeRootXform;
     }
 
     //--------------------------------------------------------------------------
@@ -214,27 +243,28 @@ namespace Tiny3D
         T3D_SCENE_MGR.setCurrentScene(this);
     
         // 根节点
-        GameObjectPtr go = GameObject::create("__@#SceneRoot#@__", false);
+        GameObjectPtr go = GameObject::create(EDITOR_SCENE_ROOT_NAME, false);
         // scene->addRootGameObject(go);
         Transform3DPtr root = go->addComponent<Transform3D>();
         mRootTransform->addChild(root);
 
         // 编辑器内部用的根节点
-        go = GameObject::create("__@#Builtin#@__", false);
+        go = GameObject::create(EDITOR_BUILTIN_ROOT_NAME, false);
         Transform3DPtr builtinNode = go->addComponent<Transform3D>();
         root->addChild(builtinNode);
 
         // 游戏用的根节点
-        go = GameObject::create("__@#Gam#@e__", false);
+        go = GameObject::create(EDITOR_GAME_ROOT_NAME, false);
         Transform3DPtr gameNode = go->addComponent<Transform3D>();
         root->addChild(gameNode);
+        mRuntimeRootXform = gameNode;
 
         // 内置的 scene 相机 
-        go = GameObject::create("__@#SceneCamera#@__", false);
+        go = GameObject::create(EDITOR_BUILTIN_CAMERA_NAME, false);
         Transform3DPtr cameraNode = go->addComponent<Transform3D>();
         builtinNode->addChild(cameraNode);
         CameraPtr camera = go->addComponent<Camera>();
-        camera->setOrder(65535);
+        camera->setOrder(0xFFFFFFFF);
         Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         camera->setViewport(vp);
         camera->setClearColor(ColorRGB(0.133f, 0.231f, 0.329f));
@@ -251,7 +281,7 @@ namespace Tiny3D
         camera->setFarPlaneDistance(1000.0f);
         
         // construct camera position & orientation & scaling
-        Vector3 eye(2.0f, 2.0f, -8.0f);
+        Vector3 eye(2.0f, 2.0f, -4.0f);
         Vector3 obj(0.0f, 0.0f, 0.0f);
         camera->lookAt(eye, obj, Vector3::UP);
         
