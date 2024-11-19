@@ -171,7 +171,7 @@ namespace Tiny3D
             itrItem->size.y = region.y - totalHeight;
             itrItem->size.y = itrItem->size.y / region.y;
 
-            IMGUI_LOG_INFO("Total height : %f, Child view %s size (%f, %f)", totalHeight, itrItem->childView->getName().c_str(), itrItem->size.x, itrItem->size.y)
+            // IMGUI_LOG_INFO("Total height : %f, Child view %s size (%f, %f)", totalHeight, itrItem->childView->getName().c_str(), itrItem->size.x, itrItem->size.y)
         }
     }
 
