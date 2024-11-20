@@ -621,7 +621,8 @@ namespace Tiny3D
                 {
                     if (event.window.windowID == SDL_GetWindowID(mSDLWindow))
                     {
-                        done = true;
+                        // done = true;
+                        exitApp();
                     }
                 }
                 break;
