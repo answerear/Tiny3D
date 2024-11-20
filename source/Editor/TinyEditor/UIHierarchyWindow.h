@@ -77,6 +77,9 @@ namespace Tiny3D
         void treeNodeRClicked(ImTreeNode *node);
         void onTreeNodeDestroy(ImTreeNode *node);
 
+        /// 响应处理场景数据被改动通知
+        bool onModifedScene(EventParam *param, TINSTANCE sender);
+
         /// 查询创建空 game object 菜单状态
         bool onMenuItemEnabledCreateEmpty(uint32_t id, ImWidget *menuItem);
         /// 创建空 game object 菜单响应

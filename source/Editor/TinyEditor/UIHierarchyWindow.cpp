@@ -198,6 +198,8 @@ namespace Tiny3D
 
         do
         {
+            ON_MEMBER(kEvtModifyScene, UIHierarchyView::onModifedScene);
+            
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemCreateEmpty);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemCreateCube);
 
@@ -316,6 +318,8 @@ namespace Tiny3D
             node->setUserData(uiNode);
             uiNode->setUserData(node);
 
+            mTreeWidget->setSelection(uiNode);
+
             if (mRoot == nullptr)
             {
                 mRoot = uiNode;
@@ -341,39 +345,66 @@ namespace Tiny3D
 
     bool UIHierarchyView::onMenuItemCreateEmpty(uint32_t id, ImWidget *menuItem)
     {
-        if (mTreeWidget != nullptr)
+        do
         {
-            ImTreeNode *selection = mTreeWidget->getSelection();
-            if (selection != nullptr)
+            if (mTreeWidget == nullptr)
             {
-                GameObjectPtr go = GameObject::create("GameObject");
-
-                if (go != nullptr)
-                {
-                    TransformNode *parent = static_cast<TransformNode*>(selection->getUserData());
-                    
-                    Transform3DPtr node = go->addComponent<Transform3D>();
-                    
-                    if (node != nullptr)
-                    {
-                        parent->addChild(node);
-                        
-                        const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
-                        const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
-                        const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
-
-                        ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
-                    
-                        createTreeNode(node, callbacks, treeNodeDestroy);
-
-                        ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
-                        T3D_ASSERT(uiNode != nullptr);
-                        uiNode->expand(false);
-                    }
-                }
+                EDITOR_LOG_WARNING("Tree widget has not created !");
+                break;
             }
-        }
-        
+
+            ImTreeNode *selection = mTreeWidget->getSelection();
+
+            if (selection == nullptr)
+            {
+                EDITOR_LOG_WARNING("There was no selection !");
+                break;
+            }
+
+            TransformNode *parent = static_cast<TransformNode*>(selection->getUserData());
+            if (parent == nullptr)
+            {
+                EDITOR_LOG_WARNING("The parent of selection is nullptr !");
+                break;
+            }
+
+            // 创建 game object
+            GameObjectPtr go = GameObject::create("GameObject");
+            if (go == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to create GameObject !");
+                break;
+            }
+
+            // 创建 transform node
+            Transform3DPtr node = go->addComponent<Transform3D>();
+            if (node == nullptr)
+            {
+                EDITOR_LOG_WARNING("Failed to add Transform3D component !");
+                break;
+            }
+
+            parent->addChild(node);
+
+            // 创建层次结构树节点
+            const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+            const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+            const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+                    
+            createTreeNode(node, callbacks, treeNodeDestroy);
+
+            // 展开上层节点，聚焦到该节点
+            ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
+            T3D_ASSERT(uiNode != nullptr);
+            uiNode->expand(false);
+
+            // 通知修改了场景
+            EventParamModifyScene param(true);
+            sendEvent(kEvtModifyScene, &param);
+        } while (false);
+
         return true;
     }
 
@@ -416,10 +447,16 @@ namespace Tiny3D
                 break;
             }
 
-            // transform node for cube
+            // 创建 game object
             GameObjectPtr go = GameObject::create("Cube");
-            Transform3DPtr node = go->addComponent<Transform3D>();
+            if (go == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to create GameObject !");
+                break;
+            }
 
+            // 创建 transform node 组件
+            Transform3DPtr node = go->addComponent<Transform3D>();
             if (node == nullptr)
             {
                 EDITOR_LOG_WARNING("Failed to add Transform3D component !");
@@ -428,6 +465,7 @@ namespace Tiny3D
             
             parent->addChild(node);
 
+            // 加载立方体相关的 geometry 组件
             TResult ret = createCube(go);
             if (T3D_FAILED(ret))
             {
@@ -435,6 +473,7 @@ namespace Tiny3D
                 break;
             }
 
+            // 创建层次结构树节点
             const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
             const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
             const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
@@ -443,9 +482,14 @@ namespace Tiny3D
 
             createTreeNode(node, callbacks, treeNodeDestroy);
 
+            // 展开上层节点，聚焦到该节点
             ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
+
+            // 通知修改了场景
+            EventParamModifyScene param(true);
+            sendEvent(kEvtModifyScene, &param);
         } while (false);
 
         return true;
@@ -564,6 +608,35 @@ namespace Tiny3D
     void UIHierarchyView::onGUIEnd()
     {
         ImChildView::onGUIEnd();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onModifedScene(EventParam *param, TINSTANCE sender)
+    {
+        if (param == nullptr)
+        {
+            return true;
+        }
+        
+        EventParamModifyScene *para = static_cast<EventParamModifyScene *>(param);
+
+        if (mRoot != nullptr)
+        {
+            if (para->arg1)
+            {
+                // 修改了
+                String name = mScene->getName() + "*";
+                mRoot->setName(name);
+            }
+            else
+            {
+                // 保存了
+                mRoot->setName(mScene->getName());
+            }
+        }
+        
+        return true;
     }
 
     //--------------------------------------------------------------------------

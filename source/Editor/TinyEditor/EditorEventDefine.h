@@ -34,25 +34,35 @@ namespace Tiny3D
 
     enum AppEventID
     {
+        /// App 进入后台，参数：nullptr
         kEvtAppEnterBackground = kEvtApp,
+        /// App 进入前台，参数：nullptr
         kEvtAppEnterForeground,
 
+        /// App 获得焦点，参数：nullptr
         kEvtAppFocusGained,
+        /// App 失去焦点，参数：nullptr
         kEvtAppFocusLost,
-        
+
+        /// 层级节点被点击，参数：EventParamHierarchyNodeClicked
         kEvtHierarchyNodeClicked,
 
         /// 打开场景，参数：EventParamOpenScene
         kEvtOpenScene,
-
-        /// 刷新工程文件窗口
-        kEvtRefreshProjectWindow,
+        /// 场景数据被修改或者被保存，参数：EventParamModifiedScene
+        kEvtModifyScene,
         
         kEvtMax
     };
 
+    /// ImTreeNode * : 被点击的节点
     using EventParamHierarchyNodeClicked = EventParamT1<ImTreeNode*>;
+    
+    /// Scene * : 打开的场景对象
     using EventParamOpenScene = EventParamT1<Scene*>;
+    
+    /// bool : true 为设置修改，false 为清除修改
+    using EventParamModifyScene = EventParamT1<bool>;
 
     NS_END
 }
