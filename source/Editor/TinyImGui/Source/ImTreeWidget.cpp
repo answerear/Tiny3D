@@ -385,7 +385,7 @@ namespace Tiny3D
             PopWidgetID();
         }
 
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen())
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)/* && !ImGui::IsItemToggledOpen()*/)
         {
             fireClickedEvent();
         }
@@ -406,15 +406,15 @@ namespace Tiny3D
         
         if (mTreeWidget != nullptr)
         {
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen())
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)/* && !ImGui::IsItemToggledOpen()*/)
             {
-                mTreeWidget->getSelectedNode() = strID;
+                // mTreeWidget->getSelectedNode() = strID;
                 mTreeWidget->setSelection(this);
             }
             // else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
             else if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly|ImGuiHoveredFlags_AllowWhenOverlapped))
             {
-                mTreeWidget->getSelectedNode() = strID;
+                // mTreeWidget->getSelectedNode() = strID;
                 mTreeWidget->setSelection(this);
             }
         }

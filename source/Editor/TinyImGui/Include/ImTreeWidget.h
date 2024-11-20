@@ -37,6 +37,8 @@ namespace Tiny3D
      */
     class TINYIMGUI_API ImTreeNode : public ImWidget
     {
+        friend class ImTreeWidget;
+        
     public:
         struct CallbackData
         {
@@ -185,6 +187,12 @@ namespace Tiny3D
         void update() override;
 
         ImTreeNode *getSelection() const { return mSelection; }
+
+        void setSelection(ImTreeNode *selection)
+        {
+            mSelection = selection;
+            getSelectedNode() = selection->getUniqueName();
+        }
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
@@ -195,8 +203,6 @@ namespace Tiny3D
         void onGUIEnd() override;
 
         String &getSelectedNode() { return mSelectedNode; }
-
-        void setSelection(ImTreeNode *selection) { mSelection = selection; }
 
         const ImVec2 &getContentPos() const { return mContentPos; }
 
