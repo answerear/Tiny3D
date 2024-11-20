@@ -34,7 +34,6 @@
 #include "EditorApp.h"
 #include "EditorEventDefine.h"
 #include "UIEditorWidgetID.h"
-#include "../../Plugins/Renderer/Null/Include/T3DNULLPrerequisites.h"
 
 
 namespace Tiny3D
