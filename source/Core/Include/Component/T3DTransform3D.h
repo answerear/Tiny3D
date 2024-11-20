@@ -137,21 +137,23 @@ namespace Tiny3D
 
         using PositionChangedCallback = TFunction<void(const Vector3&, const Vector3&)>;
         
-        void addPositionChangedCallback(Component *component, PositionChangedCallback callback);
+        void addPositionChangedCallback(Component *component, const PositionChangedCallback &callback);
 
         void removePositionChangedCallback(Component *component);
 
         using OrientationChangedCallback = TFunction<void(const Quaternion&, const Quaternion&)>;
         
-        void addOrientationChangedCallback(Component *component, OrientationChangedCallback callback);
+        void addOrientationChangedCallback(Component *component, const OrientationChangedCallback &callback);
 
         void removeOrientationChangedCallback(Component *component);
 
         using ScalingChangedCallback = TFunction<void(const Vector3&, const Vector3&)>;
 
-        void addScalingChangedCallback(Component *component, ScalingChangedCallback callbak);
+        void addScalingChangedCallback(Component *component, const ScalingChangedCallback &callback);
 
         void removeScalingChangedCallback(Component *component);
+
+        void debugInfo(int32_t tab = 0);
         
     protected:
         Transform3D() = default;

@@ -188,7 +188,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform3D::addPositionChangedCallback(Component *component, PositionChangedCallback callback)
+    void Transform3D::addPositionChangedCallback(Component *component, const PositionChangedCallback &callback)
     {
         mPositionCallbacks.emplace(component, callback);
     }
@@ -202,7 +202,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform3D::addOrientationChangedCallback(Component *component, OrientationChangedCallback callback)
+    void Transform3D::addOrientationChangedCallback(Component *component, const OrientationChangedCallback &callback)
     {
         mOrientationCallbacks.emplace(component, callback);
     }
@@ -216,7 +216,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform3D::addScalingChangedCallback(Component *component, ScalingChangedCallback callback)
+    void Transform3D::addScalingChangedCallback(Component *component, const ScalingChangedCallback &callback)
     {
         mScalingCallbacks.emplace(component, callback);
     }
@@ -255,6 +255,38 @@ namespace Tiny3D
         for (const auto &val : mScalingCallbacks)
         {
             val.second(oldScaling, newScaling);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Transform3D::debugInfo(int32_t tab)
+    {
+        std::stringstream ss;
+        for (int32_t i = 0; i < tab; i++)
+        {
+            ss << "\t";
+        }
+
+        const Transform &worldXform = getLocalToWorldTransform();
+        
+        T3D_LOG_INFO(LOG_TAG_COMPONENT, "%sTransform 3D - %s, "
+            "Local : T (%f, %f, %f), R (%f, %f, %f, %f), S (%f, %f, %f)"
+            "    World : T (%f, %f, %f), R (%f, %f, %f, %f), S (%f, %f, %f)",
+            ss.str().c_str(), getGameObject()->getName().c_str(),
+            mPosition.x(), mPosition.y(), mPosition.z(),
+            mOrientation.x(), mOrientation.y(), mOrientation.z(), mOrientation.w(),
+            mScaling.x(), mScaling.y(), mScaling.z(),
+            worldXform.getTranslation().x(), worldXform.getTranslation().y(), worldXform.getTranslation().z(),
+            worldXform.getOrientation().x(), worldXform.getOrientation().y(), worldXform.getOrientation().z(), worldXform.getOrientation().w(),
+            worldXform.getScaling().x(), worldXform.getScaling().y(), worldXform.getScaling().z());
+
+        tab++;
+        
+        for (auto itr = child_begin(); itr != child_end(); ++itr)
+        {
+            Transform3D *node = static_cast<Transform3D*>(itr->get());
+            node->debugInfo(tab);
         }
     }
 
