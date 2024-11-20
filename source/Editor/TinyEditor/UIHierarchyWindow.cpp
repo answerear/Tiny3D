@@ -200,6 +200,9 @@ namespace Tiny3D
         {
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemCreateEmpty);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemCreateCube);
+
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemEnabledCreateEmpty);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemEnabledCreateCube);
             
             T3D_ASSERT(mTreeWidget == nullptr);
             mTreeWidget = new ImTreeWidget();
@@ -324,6 +327,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool UIHierarchyView::onMenuItemEnabledCreateEmpty(uint32_t id, ImWidget *menuItem)
+    {
+        if (mTreeWidget != nullptr && mTreeWidget->getSelection() != nullptr)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool UIHierarchyView::onMenuItemCreateEmpty(uint32_t id, ImWidget *menuItem)
     {
         if (mTreeWidget != nullptr)
@@ -360,6 +375,18 @@ namespace Tiny3D
         }
         
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemEnabledCreateCube(uint32_t id, ImWidget *menuItem)
+    {
+        if (mTreeWidget != nullptr && mTreeWidget->getSelection() != nullptr)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     //--------------------------------------------------------------------------

@@ -77,8 +77,16 @@ namespace Tiny3D
         void treeNodeRClicked(ImTreeNode *node);
         void onTreeNodeDestroy(ImTreeNode *node);
 
+        /// 查询创建空 game object 菜单状态
+        bool onMenuItemEnabledCreateEmpty(uint32_t id, ImWidget *menuItem);
+        /// 创建空 game object 菜单响应
         bool onMenuItemCreateEmpty(uint32_t id, ImWidget *menuItem);
+        
+        /// 查询创建 cube 菜单状态
+        bool onMenuItemEnabledCreateCube(uint32_t id, ImWidget *menuItem);
+        /// 创建 cube 菜单响应
         bool onMenuItemCreateCube(uint32_t id, ImWidget *menuItem);
+        
         bool onMenuItemCreateSphere(uint32_t id, ImWidget *menuItem);
 
         TResult createTreeNode(TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
