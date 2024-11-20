@@ -187,7 +187,7 @@ namespace Tiny3D
         mutable Matrix4 mProjectMatrix {};
 
         /// 视口矩阵是否需要重新计算标记
-        mutable bool mIsViewDirty {false};
+        mutable bool mIsViewDirty {true};
         /// 投影矩阵是否需要重新计算标记
         mutable bool mIsProjDirty {false};
 

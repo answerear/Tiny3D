@@ -31,7 +31,6 @@
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderWindow.h"
 #include "Component/T3DTransform3D.h"
-#include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DScene.h"
 #include "Resource/T3DSceneManager.h"
 #include "Resource/T3DTextureManager.h"
