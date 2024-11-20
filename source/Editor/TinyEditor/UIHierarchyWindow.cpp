@@ -419,15 +419,6 @@ namespace Tiny3D
             ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
-
-            GameObject *root = T3D_SCENE_MGR.getCurrentScene()->getEditorGameObject();
-            Transform3D *xform = root->getComponent<Transform3D>();
-            xform->visitAll([](TransformNode *node)
-                { 
-                    EDITOR_LOG_DEBUG("Parent : %s, Node : %s",
-                        node->getParent() ? node->getParent()->getGameObject()->getName().c_str() : "NULL",
-                        node->getGameObject()->getName().c_str());
-                });
         } while (false);
 
         return true;
@@ -446,7 +437,6 @@ namespace Tiny3D
 
             const String &path = PROJECT_MGR.getBuiltinPath();
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
-            // ArchivePtr archive = PROJECT_MGR.getBuiltinArchive();
             T3D_ASSERT(archive != nullptr);
             MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, ProjectManager::BUILTIN_CUBE_MESH_NAME);
             if (mesh == nullptr)
