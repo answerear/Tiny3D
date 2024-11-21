@@ -49,6 +49,8 @@ namespace Tiny3D
     protected:
         TResult onCreate() override;
 
+        void onDestroy() override;
+
         bool onGUIBegin() override;
 
         void onGUIEnd() override;
@@ -74,7 +76,8 @@ namespace Tiny3D
         TResult buildWindowMenu();
         TResult buildHelpMenu();
 
-        bool onSave(EventParam *param, TINSTANCE sender);
+        bool onMenuItemSave(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemEnabledSave(uint32_t id, ImWidget *menuItem);
 
     protected:
         ImMenuBar   *mMenuBar {nullptr};

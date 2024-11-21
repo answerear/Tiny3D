@@ -25,6 +25,7 @@
 
 #include "ProjectManager.h"
 #include "EditorSceneImpl.h"
+#include "EditorEventDefine.h"
 
 
 namespace Tiny3D
@@ -233,6 +234,15 @@ namespace Tiny3D
 
         do
         {
+            if (isProjectOpened())
+            {
+                // 工程已经打开了，要先关闭
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            registerAllEvents();
+            
             // 创建工程文件夹
             String projectPath = path + Dir::getNativeSeparator() + name;
             if (!Dir::makeDir(projectPath))
@@ -331,6 +341,15 @@ namespace Tiny3D
 
         do
         {
+            if (isProjectOpened())
+            {
+                // 工程已经打开了，要先关闭
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            registerAllEvents();
+            
             // 工程目录
             String projectPath = path + Dir::getNativeSeparator() + name;
             if (!Dir::exists(projectPath))
@@ -431,6 +450,41 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ProjectManager::saveProject()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (isSceneModified())
+            {
+                // 场景有变化，保存场景
+                ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mAssetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+                if (archive == nullptr)
+                {
+                    EDITOR_LOG_ERROR("Failed to load archive [%s] !", mPath.c_str());
+                    ret = T3D_ERR_RES_LOAD_FAILED;
+                    break;
+                }
+
+                Scene *scene = EDITOR_SCENE.getRuntimeScene();
+                ret = T3D_SCENE_MGR.saveScene(archive, scene);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_ERROR("Failed to save scene (%s) ! ERROR [%d]", scene->getName().c_str(), ret);
+                    break;
+                }
+
+                EventParamModifyScene param(false);
+                sendEvent(kEvtModifyScene, &param);
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ProjectManager::closeProject()
     {
         if (mAssetRoot != nullptr)
@@ -465,6 +519,8 @@ namespace Tiny3D
             T3D_ARCHIVE_MGR.unloadArchive(mCompiledShadersArchive);
             mCompiledShadersArchive = nullptr;
         }
+
+        unregisterAllEvent();
         
         return T3D_OK;
     }
@@ -947,6 +1003,28 @@ namespace Tiny3D
     TResult ProjectManager::addFile(AssetNode *parent, const String &path, AssetNode *&node)
     {
         return generateAssetNode(path, parent, node);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::registerAllEvents()
+    {
+        ON_MEMBER(kEvtModifyScene, ProjectManager::onModifiedScene);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ProjectManager::onModifiedScene(EventParam *param, TINSTANCE sender)
+    {
+        if (param == nullptr)
+        {
+            return true;
+        }
+
+        EventParamModifyScene *para = static_cast<EventParamModifyScene *>(param);
+        setSceneModified(para->arg1);
+        
+        return true;
     }
 
     //--------------------------------------------------------------------------

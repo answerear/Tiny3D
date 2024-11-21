@@ -33,7 +33,9 @@
 #include "UIProjectWindow.h"
 #include "EditorApp.h"
 #include "EditorEventDefine.h"
+#include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
+#include "ProjectManager.h"
 
 
 namespace Tiny3D
@@ -52,6 +54,10 @@ namespace Tiny3D
 
         do
         {
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_SAVE, UIMainWindow::onMenuItemEnabledSave);
+            
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_SAVE, UIMainWindow::onMenuItemSave);
+            
             createMenuItemData();
 
             ret = buildMainMenu();
@@ -110,7 +116,16 @@ namespace Tiny3D
             }
         } while (false);
         
-        return T3D_OK;
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIMainWindow::onDestroy()
+    {
+        unregisterAllMenuEvents();
+        unregisterAllEvent();
+        ImWindow::onDestroy();
     }
 
     //--------------------------------------------------------------------------
@@ -217,7 +232,7 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_OPEN_RECENT_SCENE, STR(TXT_OPEN_RECENT_SCENE), "", "", queryDisableDefault, nullptr, nullptr)
 
         // Save
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SAVE, STR(TXT_SAVE), "Ctrl+S", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_SAVE, STR(TXT_SAVE), "Ctrl+S", "")
         // Save As
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SAVE_AS, STR(TXT_SAVE_AS), "Ctrl+Shift+S", "", queryDisableDefault, nullptr, nullptr)
         // Save As Scene Template
@@ -1242,9 +1257,17 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool UIMainWindow::onSave(EventParam *param, TINSTANCE sender)
+    bool UIMainWindow::onMenuItemSave(uint32_t id, ImWidget *menuItem)
     {
+        PROJECT_MGR.saveProject();
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemEnabledSave(uint32_t id, ImWidget *menuItem)
+    {
+        return PROJECT_MGR.isProjectModified();
     }
 
     //--------------------------------------------------------------------------

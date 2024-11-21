@@ -36,9 +36,7 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(EditorSceneImpl);
     
-    class EditorSceneImpl
-        : public EditorScene
-        , public EventHandler
+    class EditorSceneImpl : public EditorScene
     {
     public:
         static EditorSceneImplPtr create(const String &name);
@@ -91,10 +89,6 @@ namespace Tiny3D
 
         ImTextureID getGameRT() const { return mGameRT; }
 
-        bool isSceneModified() const { return mIsSceneModified; }
-
-        void setSceneModified(bool isModified) { mIsSceneModified = isModified; }
-
     protected:
         bool onModifedScene(EventParam *param, TINSTANCE sender);
         
@@ -124,9 +118,6 @@ namespace Tiny3D
 
         float mGameRTWidth {1920};
         float mGameRTHeight {1080};
-
-        /// 场景是否被修改标记
-        bool mIsSceneModified {false};
     };
 
     #define EDITOR_SCENE (*(static_cast<EditorSceneImpl*>(EditorScene::getInstancePtr())))

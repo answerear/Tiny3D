@@ -97,17 +97,19 @@ namespace Tiny3D
 
     void EditorApp::exitApp()
     {
-        if (EDITOR_SCENE.isSceneModified())
+        if (PROJECT_MGR.isProjectModified())
         {
             // 场景有修改且没保存，则弹窗提示
             ImDialogButtons buttons;
+            
             // Save and Exit
             ImDialogButton btSave;
             btSave.name = STR(TXT_SAVE_EXIT);
             btSave.callback =
                 [this]()
                 {
-                    
+                    PROJECT_MGR.saveProject();
+                    mExitApp = true;
                 };
             buttons.emplace_back(btSave);
             // Exit
@@ -128,7 +130,7 @@ namespace Tiny3D
                     
                 };
             buttons.emplace_back(btnCancel);
-            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_HINT_UNSAVE), ImDialog::ShowType::kEnqueueFront, std::move(buttons), ImVec4(1.0f, 0.788f, 0.055f, 1.0f));
+            ImMessageBox::show(STR(TXT_HINT), STR(TXT_HINT_UNSAVE), ImDialog::ShowType::kEnqueueFront, std::move(buttons), ImVec4(1.0f, 0.788f, 0.055f, 1.0f));
         }
         else
         {

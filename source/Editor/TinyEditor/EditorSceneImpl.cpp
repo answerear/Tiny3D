@@ -59,7 +59,6 @@ namespace Tiny3D
     EditorSceneImpl::EditorSceneImpl(const String &name)
         : EditorScene(name)
     {
-        ON_MEMBER(kEvtModifyScene, EditorSceneImpl::onModifedScene);
     }
     
     //--------------------------------------------------------------------------
@@ -380,20 +379,5 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool EditorSceneImpl::onModifedScene(EventParam *param, TINSTANCE sender)
-    {
-        if (param == nullptr)
-        {
-            return true;
-        }
-
-        EventParamModifyScene *para = static_cast<EventParamModifyScene *>(param);
-        setSceneModified(para->arg1);
-        
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-    
     NS_END
 }

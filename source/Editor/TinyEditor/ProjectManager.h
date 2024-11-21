@@ -110,7 +110,8 @@ namespace Tiny3D
     };
 
     class ProjectManager
-        : public Allocator
+        : public EventHandler
+        , public Allocator
         , public Singleton<ProjectManager>
     {
     public:
@@ -125,8 +126,18 @@ namespace Tiny3D
 
         TResult openProject(const String &path, const String &name);
 
+        TResult saveProject();
+
         TResult closeProject();
 
+        bool isProjectOpened() const { return !mPath.empty(); }
+
+        bool isSceneModified() const { return mIsSceneModified; }
+
+        void setSceneModified(bool modified) { mIsSceneModified = modified; }
+
+        bool isProjectModified() const { return isSceneModified(); }
+        
         void update();
 
         void applicationDidEnterBackground();
@@ -177,6 +188,10 @@ namespace Tiny3D
         TResult populate(const String &path, AssetNode *parent, bool generateFolderNode, AssetNode *&node);
 
         TResult generateAssetNode(const String &path, AssetNode *parent, AssetNode *&node);
+
+        void registerAllEvents();
+
+        bool onModifiedScene(EventParam *param, TINSTANCE sender);
         
     protected:
         static const char *ASSETS;
@@ -210,6 +225,9 @@ namespace Tiny3D
         ArchivePtr mCompiledShadersArchive {nullptr};
 
         AssetNode *mAssetRoot {nullptr};
+
+        /// 场景是否被修改标记
+        bool mIsSceneModified {false};
     };
 
     #define PROJECT_MGR (ProjectManager::getInstance())
