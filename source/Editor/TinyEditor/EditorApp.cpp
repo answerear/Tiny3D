@@ -97,7 +97,44 @@ namespace Tiny3D
 
     void EditorApp::exitApp()
     {
-        mExitApp = true;
+        if (EDITOR_SCENE.isSceneModified())
+        {
+            // 场景有修改且没保存，则弹窗提示
+            ImDialogButtons buttons;
+            // Save and Exit
+            ImDialogButton btSave;
+            btSave.name = STR(TXT_SAVE_EXIT);
+            btSave.callback =
+                [this]()
+                {
+                    
+                };
+            buttons.emplace_back(btSave);
+            // Exit
+            ImDialogButton btnExit;
+            btnExit.name = STR(TXT_EXIT);
+            btnExit.callback =
+                [this]()
+                {
+                    mExitApp = true;
+                };
+            buttons.emplace_back(btnExit);
+            // Cancel
+            ImDialogButton btnCancel;
+            btnCancel.name = STR(TXT_CANCEL);
+            btnCancel.callback =
+                [this]()
+                {
+                    
+                };
+            buttons.emplace_back(btnCancel);
+            ImMessageBox::show(STR(TXT_WARNING), STR(TXT_HINT_UNSAVE), ImDialog::ShowType::kEnqueueFront, std::move(buttons), ImVec4(1.0f, 0.788f, 0.055f, 1.0f));
+        }
+        else
+        {
+            // 没有修改，直接关闭
+            mExitApp = true;
+        }
     }
 
     //--------------------------------------------------------------------------

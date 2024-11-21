@@ -383,7 +383,7 @@ namespace Tiny3D
 
     TResult ImMessageBox::appear(const String &title, const String &message, ShowType type, ImDialogButtons &&buttons, const ImVec4 &txtColor)
     {
-        if (buttons.size() > 2)
+        if (buttons.size() > 3)
         {
             T3D_LOG_ERROR(LOG_TAG_TINYIMGUI, "The number of buttons passed to MessageBox is out of bound !");
             return T3D_ERR_OUT_OF_BOUND;
@@ -439,8 +439,43 @@ namespace Tiny3D
         auto itr = mButtons.begin();
         const float button_w = 80.0f;
         const float button_space = 10.0f;
-        
-        if (mButtons.size() == 2)
+
+        if (mButtons.size() == 3)
+        {
+            float x = (region.x - 3 * button_w - 2 * button_space) * 0.5f;
+            ImGui::SetCursorPosX(x);
+            if (ImGui::Button(itr->name.c_str(), ImVec2(button_w, 0)))
+            {
+                itr->callback();
+                close();
+            }
+
+            ++itr;
+            
+            ImGui::SameLine(0, button_space);
+            
+            x = x + button_w + button_space;
+            ImGui::SetCursorPosX(x);
+            // ImGui::PushItemWidth(-FLT_MIN);
+            if (ImGui::Button(itr->name.c_str(), ImVec2(button_w, 0)))
+            {
+                itr->callback();
+                close();
+            }
+
+            ++itr;
+
+            ImGui::SameLine(0, button_space);
+
+            x = x + button_w + button_space;
+            ImGui::SetCursorPosX(x);
+            if (ImGui::Button(itr->name.c_str(), ImVec2(button_w, 0)))
+            {
+                itr->callback();
+                close();
+            }
+        }
+        else if (mButtons.size() == 2)
         {
             float x = (region.x - 2 * button_w - button_space) * 0.5f;
             ImGui::SetCursorPosX(x);
