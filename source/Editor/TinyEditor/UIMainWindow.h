@@ -39,7 +39,10 @@ namespace Tiny3D
     class UIProjectWindow;
     class UIConsoleWindow;
     
-    class UIMainWindow : public ImWindow
+    class UIMainWindow
+        : public ImWindow
+        , public EventHandler
+        , public ImMenuEventHandler
     {
     public:
 
@@ -50,16 +53,6 @@ namespace Tiny3D
 
         void onGUIEnd() override;
 
-#if defined (USE_LEGACY_MENU)
-        TResult buildMenu();
-        TResult buildFileMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-        TResult buildEditMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-        TResult buildAssetsMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-        TResult buildGameObjectMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-        TResult buildComponentMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-        TResult buildWindowMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-        TResult buildHelpMenu(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
-#else
         TResult createMenuItemData();
 
         TResult createFileMenuItemData(const ImMenuItemQueryCallback &queryEnableDefault, const ImMenuItemQueryCallback &queryDisableDefault);
@@ -80,9 +73,9 @@ namespace Tiny3D
         TResult buildComponentMenu();
         TResult buildWindowMenu();
         TResult buildHelpMenu();
-        
-#endif
-        
+
+        bool onSave(EventParam *param, TINSTANCE sender);
+
     protected:
         ImMenuBar   *mMenuBar {nullptr};
 
