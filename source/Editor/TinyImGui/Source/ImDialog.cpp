@@ -403,12 +403,18 @@ namespace Tiny3D
     bool ImMessageBox::onGUIBegin()
     {
         ImVec2 texSize = ImGui::CalcTextSize(mMessage.c_str());
-        const float dialog_w = 256.0f;
+
+        float dialog_w = 256.0f;
+        
+        if (mButtons.size() == 3)
+        {
+            dialog_w = 300.0f;
+        }
         
         // 设置对话框宽度
         if (texSize.x < dialog_w)
         {
-            ImGui::SetNextWindowSize(ImVec2(256.0f, 0.0f));
+            ImGui::SetNextWindowSize(ImVec2(dialog_w, 0.0f));
         }
         
         return ImDialog::onGUIBegin();
