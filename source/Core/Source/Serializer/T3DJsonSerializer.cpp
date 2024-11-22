@@ -27,8 +27,7 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 #include <prettywriter.h>
 #include <document.h>
-#include <Resource/T3DPrefab.h>
-
+#include "Resource/T3DResource.h"
 #include "T3DErrorDef.h"
 #include "Component/T3DComponent.h"
 
@@ -774,12 +773,16 @@ namespace Tiny3D
                 if (mObj != nullptr && klass.is_derived_from<Tiny3D::Component>())
                 {
                     // Tiny3D::Component in Tiny3D:Prefab
-                    auto addComponent = mObj->get_type().get_method("addCompnentForLoadingResource");
+                    auto addComponent = mObj->get_type().get_method("onAddComponentForLoadingResource");
                     bool ok = false;
                     Component *component = obj.convert<Tiny3D::Component*>(&ok);
-                    if (ok)
+                    if (addComponent.is_valid() && ok)
                     {
-                        addComponent.invoke(mObj, component);
+                        Resource *resource = mObj->convert<Resource*>(&ok);
+                        if (ok)
+                        {
+                            addComponent.invoke(resource, component);
+                        }
                     }
                 }
             } while (false);
@@ -808,9 +811,9 @@ namespace Tiny3D
                 constructor ctor = klass.get_constructor();
                 obj = ctor.invoke();
                 // obj = klass.create();
-                if (!recursively && (klass == type::get<Tiny3D::Prefab>()))
+                if (!recursively && klass.is_derived_from<Tiny3D::Resource>())
                 {
-                    // prefab
+                    // Resource
                     mObj = &obj;
                 }
 
@@ -868,9 +871,8 @@ namespace Tiny3D
                 constructor ctor = klass.get_constructor();
                 obj = ctor.invoke();
                 // obj = klass.create();
-                if (!recursively && (klass == type::get<Tiny3D::Prefab>()))
+                if (!recursively && klass.is_derived_from<Tiny3D::Resource>())
                 {
-                    // prefab
                     mObj = &obj;
                 }
 

@@ -148,8 +148,6 @@ namespace Tiny3D
     
     bool ResourceManager::insertLUT(const ResourcePtr &resource)
     {
-        bool ret = false;
-
         String key;
         if (!resource->getFilename().empty())
         {
@@ -165,10 +163,9 @@ namespace Tiny3D
         {
             // 沒緩存，則緩存
             mResourcesLookup.emplace(key, resource);
-            ret = true;
         }
 
-        return ret;
+        return true;
     }
 
     //--------------------------------------------------------------------------

@@ -62,11 +62,17 @@ namespace Tiny3D
         
         SubMesh *getSubMeshObject() const { return mSubMesh; }
         
-        TPROPERTY(RTTRFuncName="Mesh", RTTRFuncType="getter")
-        const String &getMesh() const { return mMeshName; }
+        // TPROPERTY(RTTRFuncName="Mesh", RTTRFuncType="getter")
+        // const String &getMesh() const { return mMeshName; }
+        //
+        // TPROPERTY(RTTRFuncName="Mesh", RTTRFuncType="setter")
+        // void setMesh(const String &name) { mMeshName = name; }
 
-        TPROPERTY(RTTRFuncName="Mesh", RTTRFuncType="setter")
-        void setMesh(const String &name) { mMeshName = name; }
+        TPROPERTY(RTTRFuncName="MeshUUID", RTTRFuncType="getter")
+        const UUID &getMeshUUID() const { return mMeshUUID; }
+
+        TPROPERTY(RTTRFuncName="MeshUUID", RTTRFuncType="setter")
+        void setMeshUUID(const UUID &uuid) { mMeshUUID = uuid; }
 
         TPROPERTY(RTTRFuncName="SubMesh", RTTRFuncType="getter")
         const String &getSubMesh() const { return mSubMeshName; }
@@ -86,10 +92,13 @@ namespace Tiny3D
         void onLoadResource(Archive *archive) override;
         
     protected:
-        String  mMeshName {};
+        /// Mesh 资源的 UUID
+        UUID mMeshUUID {};
+        /// Sub Mesh 的名称
         String  mSubMeshName {};
-
+        /// Mesh 对象
         MeshPtr mMesh {nullptr};
+        /// Sub Mesh 对象
         SubMesh *mSubMesh {nullptr};
     };
 }

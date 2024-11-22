@@ -475,6 +475,10 @@ namespace Tiny3D
 
         if (ret)
         {
+            ShaderKeyword kw;
+            kw.addKeyword("");
+            kw.generate();
+            pass->setCurrentKeyword(kw);
             tech->addPass(pass);
         }
 

@@ -72,7 +72,7 @@ namespace Tiny3D
                 if (mMaterial == nullptr)
                 {
                     ret = T3D_ERR_RES_LOAD_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load material (%s) failed !", mMaterialUUID.toString().c_str());
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load material (%s) !", mMaterialUUID.toString().c_str());
                     break;
                 }
             }

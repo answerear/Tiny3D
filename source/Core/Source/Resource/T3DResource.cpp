@@ -25,6 +25,7 @@
 
 #include "Resource/T3DResource.h"
 #include "Kernel/T3DArchive.h"
+#include "Component/T3DComponent.h"
 
 
 namespace Tiny3D
@@ -94,6 +95,14 @@ namespace Tiny3D
     TResult Resource::onLoad(Archive *archive)
     {
         mState = State::kLoaded;
+
+        for (auto component : mNeedToLoadResourceComponents)
+        {
+            component->onLoadResource(archive);
+        }
+
+        mNeedToLoadResourceComponents.clear();
+        
         return T3D_OK;
     }
 
@@ -115,6 +124,13 @@ namespace Tiny3D
         mFilename = src->getFilename();
         mState = src->mState;
         mCompletedCB = src->mCompletedCB;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Resource::onAddComponentForLoadingResource(Component *component)
+    {
+        
     }
 
     //--------------------------------------------------------------------------

@@ -105,6 +105,8 @@ namespace Tiny3D
 
         void onPostInit() override;
 
+        void onAddComponentForLoadingResource(Component *component) override;
+
     private:
         using GameObjects = TUnorderedMap<UUID, GameObjectPtr, UUIDHash, UUIDEqual>;
         

@@ -68,7 +68,7 @@ namespace Tiny3D
             }
 
             const Geometry * const other = static_cast<const Geometry * const>(src);
-            mMeshName = other->mMeshName;
+            mMeshUUID = other->mMeshUUID;
             mSubMeshName = other->mSubMeshName;
 
             mMesh = other->mMesh;
@@ -166,6 +166,8 @@ namespace Tiny3D
         {
             mMesh = nullptr;
             mSubMesh = nullptr;
+            mMeshUUID = UUID::INVALID;
+            mSubMeshName = "";
         }
         else
         {
@@ -175,6 +177,8 @@ namespace Tiny3D
             {
                 mMesh = mesh;
                 mSubMesh = submesh;
+                mMeshUUID = mMesh->getUUID();
+                mSubMeshName = mSubMesh->getName();
             }
         }
     }
@@ -196,10 +200,27 @@ namespace Tiny3D
 
     void Geometry::onLoadResource(Archive *archive)
     {
-        mMesh = T3D_MESH_MGR.loadMesh(archive, mMeshName);
         if (mMesh != nullptr)
         {
-            mSubMesh = mMesh->getSubMesh(mSubMeshName);
+            if (mMesh->getUUID() != mMeshUUID)
+            {
+                T3D_MESH_MGR.unload(mMesh);
+                mMesh = nullptr;
+            }
+        }
+
+        if (mMesh == nullptr)
+        {
+            mMesh = T3D_MESH_MGR.loadMesh(archive, mMeshUUID);
+
+            if (mMesh != nullptr)
+            {
+                mSubMesh = mMesh->getSubMesh(mSubMeshName);
+            }
+            else
+            {
+                T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Failed to load mesh (%s) !", mMeshUUID.toString().c_str());
+            }
         }
     }
 

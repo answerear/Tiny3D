@@ -153,12 +153,51 @@ namespace Tiny3D
 
         // 先启动 monitor 查找
         Meta *meta = nullptr;
-        bool found = mainMonitor->getPathAndMeta(uuid, path, meta);
-        if (!found)
+        ret = mainMonitor->getPathAndMeta(uuid, path, meta);
+        if (!ret)
         {
-            return ret;
+            // 从 main monitor 里面没找到，只能全局搜
+            for (const auto &item : mPathMonitors)
+            {
+                if (item.second == mainMonitor)
+                    continue;
+
+                ret = item.second->getPathAndMeta(uuid, path, meta);
+                if (ret)
+                {
+                    monitor = item.second;
+                    break;
+                }
+                // path = item.second->getPath(uuid);
+                // if (!path.empty())
+                // {
+                //     // 找到了
+                //     monitor = item.second;
+                //     ret = true;
+                //     break;
+                // }
+            }
         }
-        
+        else
+        {
+            monitor = mainMonitor;
+        }
+
+        if (ret)
+        {
+            T3D_ASSERT(meta != nullptr);
+
+            if (meta->getType() == Meta::Type::kShaderLab)
+            {
+                monitor = nullptr;
+                
+                // shader lab ，再搜一遍找到转换后的 shader
+                MetaShaderLab *metaShaderLab = static_cast<MetaShaderLab *>(meta);
+                ret = getPathAndMonitor(metaShaderLab->getShaderUUID(), mainMonitor, path, monitor);
+            }
+        }
+
+#if 0
         if (meta->getType() == Meta::Type::kShaderLab)
         {
             // 是 shader lab
@@ -180,6 +219,7 @@ namespace Tiny3D
                         // 找到了
                         monitor = item.second;
                         ret = true;
+                        break;
                     }
                 }
             }
@@ -193,31 +233,32 @@ namespace Tiny3D
         else
         {
             // 不是 shader lab
-            if (found)
+            // if (found)
             {
                 // 找到了
-                monitor = mainMonitor;
+                // monitor = mainMonitor;
                 ret = true;
             }
-            else
-            {
-                // 没找到，从全局再找一次
-                for (const auto &item : mPathMonitors)
-                {
-                    if (item.second == mainMonitor)
-                        continue;
-
-                    path = item.second->getPath(uuid);
-                    if (!path.empty())
-                    {
-                        // 找到了
-                        monitor = item.second;
-                        ret = true;
-                    }
-                }
-            }
+            // else
+            // {
+            //     // 没找到，从全局再找一次
+            //     for (const auto &item : mPathMonitors)
+            //     {
+            //         if (item.second == mainMonitor)
+            //             continue;
+            //     
+            //         path = item.second->getPath(uuid);
+            //         if (!path.empty())
+            //         {
+            //             // 找到了
+            //             monitor = item.second;
+            //             ret = true;
+            //             break;
+            //         }
+            //     }
+            // }
         }
-
+#endif
         return ret;
     }
 

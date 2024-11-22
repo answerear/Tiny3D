@@ -44,7 +44,11 @@ namespace Tiny3D
         : mTechInstance(parent)
         , mPass(pass)
     {
-        
+        if (mPass != nullptr)
+        {
+            mCurrentKeyword = pass->getCurrentKeyword();
+            switchKeyword(mCurrentKeyword);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -110,6 +114,20 @@ namespace Tiny3D
                 break;
             }
 
+            ret = switchKeyword(kw);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PassInstance::switchKeyword(const ShaderKeyword &kw)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
             // vertex shader
             ShaderVariantInstancePtr currentVS = mCurrentVS;
             ret = switchShaderVariants(kw, mPass->getVertexShaders(), currentVS);

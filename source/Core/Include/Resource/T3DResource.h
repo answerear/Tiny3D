@@ -174,6 +174,13 @@ namespace Tiny3D
          */
         virtual TResult onUnload();
 
+        /**
+         * @brief 需要加载资源的组件的回调
+         * @param component : 要加载资源的组件对象
+         */
+        TFUNCTION()
+        virtual void onAddComponentForLoadingResource(Component *component);
+
     private:
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name) { mName = name; }
@@ -194,6 +201,12 @@ namespace Tiny3D
         String              mFilename {};
         /// 异步加载回调
         CompletedCallback   mCompletedCB = nullptr;
+
+        /// Component* : 组件对象
+        using NeedToLoadResourceComponents = TSet<Component*>;
+        
+        /// 需要在 onLoad 完去加载资源的 component 列表
+        NeedToLoadResourceComponents mNeedToLoadResourceComponents {};
     };
 }
 

@@ -91,6 +91,18 @@ namespace Tiny3D
             mRenderState = state;
         }
 
+        TPROPERTY(RTTRFuncName="CurrentKeyword", RTTRFuncType="getter")
+        const ShaderKeyword &getCurrentKeyword() const
+        {
+            return mCurrentKeyword;
+        }
+
+        TPROPERTY(RTTRFuncName="CurrentKeyword", RTTRFuncType="setter")
+        void setCurrentKeyword(const ShaderKeyword &keyword)
+        {
+            mCurrentKeyword = keyword;
+        }
+
         TPROPERTY(RTTRFuncName="Keywords", RTTRFuncType="getter")
         const ShaderKeywords &getShaderKeywords() const
         {
@@ -140,7 +152,7 @@ namespace Tiny3D
         {
             mTags = tags;
         }
-
+        
         TPROPERTY(RTTRFuncName="Keywords", RTTRFuncType="setter")
         void getShaderKeywords(const ShaderKeywords &keywords)
         {
@@ -193,6 +205,9 @@ namespace Tiny3D
         ShaderLabTags       mTags {};
         /// 渲染状态
         RenderStatePtr      mRenderState {nullptr};
+
+        /// 当前的宏
+        ShaderKeyword       mCurrentKeyword {};
         
         /// 本 pass 着色器用到的所有宏
         ShaderKeywords      mKeywords {};

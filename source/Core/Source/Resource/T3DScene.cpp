@@ -27,6 +27,7 @@
 #include "Kernel/T3DGameObject.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DTransform3D.h"
+#include "Component/T3DGeometry.h"
 
 
 namespace Tiny3D
@@ -254,5 +255,16 @@ namespace Tiny3D
         return T3D_OK;
     }
     
+    //--------------------------------------------------------------------------
+
+    void Scene::onAddComponentForLoadingResource(Component *component)
+    {
+        if (RTTRType::get<Geometry>() == component->get_type())
+        {
+            // geometry 组件才需要加载 mesh 资源
+            mNeedToLoadResourceComponents.emplace(component);
+        }
+    }
+
     //--------------------------------------------------------------------------
 }

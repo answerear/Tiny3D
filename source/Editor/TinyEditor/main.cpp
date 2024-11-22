@@ -23,6 +23,13 @@
  ******************************************************************************/
 
 
+/// For Test
+/// [Open Project]
+/// -p D:\private -n TestProj -o
+/// [Create Project]
+/// -p D:\private -n TestProj -c
+
+
 #include "EditorApp.h"
 
 

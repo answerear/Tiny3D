@@ -59,7 +59,8 @@ namespace Tiny3D
         PassInstance(TechniqueInstance *parent, PassPtr pass);
 
         TResult switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant);
-        
+
+        TResult switchKeyword(const ShaderKeyword &keyword);
     protected:
         /// pass instance 所属的 technique instancee
         TechniqueInstance   *mTechInstance {nullptr};
