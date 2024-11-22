@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "f6d68fbd9a82d37635311993dc18faf1"
+          "RTTI_Value": "8169ce60148f01e6b4f0e1d50d312ddf"
         }
       },
       "Constants": {
@@ -78,7 +78,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "6f8741b73cb0345142c285a8e3e1db82"
+          "RTTI_Value": "7464543e7d14179ee843c64888f5ef7f"
         }
       }
     }
