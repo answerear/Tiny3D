@@ -100,13 +100,13 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool ResourceManager::insertCache(const ResourcePtr &resource)
+    bool ResourceManager::insertCache(const UUID &uuid, const ResourcePtr &resource)
     {
         bool ret = true;
 
         do
         {
-            const auto it = mResourcesCache.find(resource->getUUID());
+            const auto it = mResourcesCache.find(uuid);
 
             if (it != mResourcesCache.end())
             {
@@ -116,8 +116,10 @@ namespace Tiny3D
             else
             {
                 // 存到缓存池
-                mResourcesCache.emplace(resource->getUUID(), resource);
+                mResourcesCache.emplace(uuid, resource);
             }
+
+            mResToUUIDMap.emplace(resource.get(), uuid);
             
             ret = insertLUT(resource);
         } while (false);
@@ -138,9 +140,11 @@ namespace Tiny3D
         {
             mResourcesLookup.erase(resource->getName());
         }
+
+        auto itr = mResToUUIDMap.find(resource.get());
             
         // 从 cache 移除
-        mResourcesCache.erase(resource->getUUID());
+        mResourcesCache.erase(itr->second);
     }
     
     //--------------------------------------------------------------------------
@@ -206,7 +210,7 @@ namespace Tiny3D
             }
 
             // 放到缓存中
-            if (!insertCache(res))
+            if (!insertCache(res->getUUID(), res))
             {
                 // 失败了，先卸载资源
                 res = nullptr;
@@ -252,7 +256,7 @@ namespace Tiny3D
             }
             
             // 放到缓存中
-            if (!insertCache(res))
+            if (!insertCache(res->getUUID(), res))
             {
                 // 失败了，先卸载资源
                 res = nullptr;
@@ -333,7 +337,7 @@ namespace Tiny3D
             }
             
             // 放到缓存中
-            if (!insertCache(res))
+            if (!insertCache(uuid, res))
             {
                 // 失败了，先卸载资源
                 res = nullptr;
@@ -588,10 +592,10 @@ namespace Tiny3D
 
             // 克隆对象
             ResourcePtr dst = src->clone();
-            if (!insertCache(dst))
-            {
-                break;
-            }
+            // if (!insertCache(dst))
+            // {
+            //     break;
+            // }
 
             res = dst;
         } while (false);

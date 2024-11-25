@@ -204,7 +204,7 @@ namespace Tiny3D
          * @param [in] resource : 要加入緩存池的資源對象
          * @return 調用成功返回 true 
          */
-        bool insertCache(const ResourcePtr &resource);
+        bool insertCache(const UUID &uuid, const ResourcePtr &resource);
 
         /**
          * @brief 从缓存池中移除资源对象
@@ -221,7 +221,6 @@ namespace Tiny3D
 
         /**
          * @brief 从 LUT 中移除资源对象
-         * @param resource : 要从 LUT 移除的资源对象
          */
         void removeLUT(const String &name);
 
@@ -232,12 +231,20 @@ namespace Tiny3D
         using ResourcesLookup = TUnorderedMap<String, Resource*>;
         
         /// 资源缓存池类
+        /// UUID : 资源的 UUID
+        /// ResourcePtr : 资源对象
+        /// UUIDHash : 资源哈希函数对象
+        /// UUIDEqual : 资源相等比较函数对象
         using ResourcesCache = TUnorderedMap<UUID, ResourcePtr, UUIDHash, UUIDEqual>;
 
+        using ResToUUIDMap = TUnorderedMap<Resource*, UUID>;
+
         /// 资源查找表，从文件加载过的，不再加载，避免重复读取文件加载
-        ResourcesLookup mResourcesLookup;
+        ResourcesLookup mResourcesLookup {};
         /// 资源缓存池
-        ResourcesCache mResourcesCache;
+        ResourcesCache mResourcesCache {};
+        /// 资源对象到 UUID 的映射
+        ResToUUIDMap mResToUUIDMap {}; 
     };
 }
 
