@@ -204,7 +204,6 @@ namespace Tiny3D
         {
             if (mMesh->getUUID() != mMeshUUID)
             {
-                T3D_MESH_MGR.unload(mMesh);
                 mMesh = nullptr;
             }
         }
