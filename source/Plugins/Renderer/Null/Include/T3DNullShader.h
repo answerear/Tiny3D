@@ -22,7 +22,9 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
+
+#ifndef __T3D_NULL_SHADER_H__
+#define __T3D_NULL_SHADER_H__
 
 
 #include "T3DNullPrerequisites.h"
@@ -114,3 +116,6 @@ namespace Tiny3D
         NullComputeShader() = default;
     };
 }
+
+
+#endif  /*__T3D_NULL_SHADER_H__*/

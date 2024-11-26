@@ -23,8 +23,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_WINDOW_H__
-#define __T3D_D3D11_WINDOW_H__
+#ifndef __T3D_NULL_WINDOW_H__
+#define __T3D_NULL_WINDOW_H__
 
 
 #include "T3DNullPrerequisites.h"
