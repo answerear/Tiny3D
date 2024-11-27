@@ -480,6 +480,26 @@ namespace Tiny3D
             kw.generate();
             pass->setCurrentKeyword(kw);
             tech->addPass(pass);
+
+            auto reflectShader = [](const ShaderVariants &shaders)
+            {
+                bool ret = true;
+                for (auto item : shaders)
+                {
+                    if (T3D_FAILED(item.second->reflect()))
+                    {
+                        ret = false;
+                        break;
+                    }
+                }
+                return ret;
+            };
+
+            ret = reflectShader(pass->getVertexShaders());
+            ret = ret && reflectShader(pass->getPixelShaders());
+            ret = ret && reflectShader(pass->getGeometryShaders());
+            ret = ret && reflectShader(pass->getHullShaders());
+            ret = ret && reflectShader(pass->getDomainShaders());
         }
 
         return ret;

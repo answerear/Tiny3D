@@ -28,12 +28,12 @@
 
 
 // For debug
-// "$(SolutionDir)..\..\..\assets\scripts\BuiltinBox.material" -t hlsl -m 50
-// BuiltinBox.material BuiltinConstant.constant BuiltinProgram.program -t hlsl -m 50 -O3 -p $(SolutionDir)..\..\..\assets\scripts\
-// materials/BuiltinNoTexture.material program/BuiltinConstant.constant program/BuiltinProgram.program -t hlsl -m 50 -O3 -b -p $(SolutionDir)..\..\..\assets\builtin
+//// "$(SolutionDir)..\..\..\assets\scripts\BuiltinBox.material" -t hlsl -m 50
+//// BuiltinBox.material BuiltinConstant.constant BuiltinProgram.program -t hlsl -m 50 -O3 -p $(SolutionDir)..\..\..\assets\scripts\
+//// materials/BuiltinNoTexture.material program/BuiltinConstant.constant program/BuiltinProgram.program -t hlsl -m 50 -O3 -b -p $(SolutionDir)..\..\..\assets\builtin
 
 // For debug
-// "$(SolutionDir)..\..\assets\builtin\materials\Test.Shader" -t hlsl
+//// "$(SolutionDir)..\..\assets\builtin\materials\Test.Shader" -t hlsl
 // "$(SolutionDir)..\..\assets\editor\builtin\shaders\Default-Material.shader" -t hlsl -o "$(SolutionDir)..\..\assets\editor\builtin\materials"
 
 
@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
     settings.pluginSettings.plugins.push_back("FileSystemArchiveEditor");
-    settings.pluginSettings.plugins.push_back("NullRendererEditor");
-    settings.renderSettings.renderer = "NullRenderer";
+    settings.pluginSettings.plugins.push_back("NullD3D11Renderer");
+    settings.renderSettings.renderer = RHIRenderer::NULL_DIRECT3D11;
     settings.logSettings.tag = LOG_TAG;
     TResult ret = theEngine->init(argc, argv, true, false, settings);
     if (ret == T3D_OK)
