@@ -407,7 +407,7 @@ namespace Tiny3D
                 itCB->second->writeData(0, buffer, true);
 
                 // cbuffers[i++] = itCB->second;
-                cbuffers.push_back(itCB->second);
+                cbuffers.emplace_back(itCB->second);
             }
             else
             {
