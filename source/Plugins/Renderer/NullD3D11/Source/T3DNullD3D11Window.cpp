@@ -22,25 +22,65 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#include "T3DNullD3D11Window.h"
+#include "T3DNullD3D11Error.h"
+#include "T3DNullD3D11Renderer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+    NullD3D11WindowPtr NullD3D11Window::create()
+    {
+        NullD3D11WindowPtr window = new NullD3D11Window();
+        return window;
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullD3D11Window::NullD3D11Window()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    NullD3D11Window::~NullD3D11Window()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullD3D11Window::swapBuffers()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullD3D11Window::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
+        Real depth, uint32_t stencil)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullD3D11Window::resize(uint32_t w, uint32_t h)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *NullD3D11Window::getNativeObject() const
+    {
+        return nullptr;
+    }
 
     //--------------------------------------------------------------------------
 }
+
+

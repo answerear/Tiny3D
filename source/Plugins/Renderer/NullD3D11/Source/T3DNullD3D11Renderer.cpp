@@ -22,25 +22,78 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#include "T3DNullD3D11Renderer.h"
+#include "T3DNullD3D11Context.h"
+#include "T3DNullD3D11Window.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+    NullD3D11RendererPtr NullD3D11Renderer::create()
+    {
+        return new NullD3D11Renderer();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    NullD3D11Renderer::NullD3D11Renderer()
+    {
+        mName = NULL_DIRECT3D11;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    NullD3D11Renderer::~NullD3D11Renderer()
+    {
+        cleanup();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult NullD3D11Renderer::init()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            mContext = NullD3D11Context::create();
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullD3D11Renderer::destroy()
+    {
+        TResult ret = T3D_OK;
+
+        do 
+        {
+            cleanup();
+        } while (0);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NullD3D11Renderer::getEditorInfo(void *info, RenderWindow *window)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void NullD3D11Renderer::cleanup()
+    {
+        mContext = nullptr;
+    }
 
     //--------------------------------------------------------------------------
 }
+
+

@@ -22,25 +22,59 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#ifndef __T3D_NULLD3D11_PLUGIN_H__
+#define __T3D_NULLD3D11_PLUGIN_H__
+
+
+#include "T3DNullD3D11Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class NullD3D11Plugin : public Plugin
+    {
+    public:
+        /**
+         * @brief 默认构造函数
+         */
+        NullD3D11Plugin();
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+        /**
+         * @brief 析构函数
+         */
+        virtual ~NullD3D11Plugin();
 
-    //--------------------------------------------------------------------------
+        /**
+         * @brief 获取插件名称
+         */
+        virtual const String &getName() const override;
+
+        /**
+         * @brief 安装插件
+         */
+        virtual TResult install() override;
+
+        /**
+         * @brief 启动插件
+         */
+        virtual TResult startup() override;
+
+        /**
+         * @brief 关闭插件
+         */
+        virtual TResult shutdown() override;
+
+        /**
+         * @brief 卸载插件
+         */
+        virtual TResult uninstall() override;
+
+    protected:
+        String                  mName;
+        RHIRendererPtr          mRenderer;
+    };
 }
+
+
+#endif  /*__T3D_NULLD3D11_PLUGIN_H__*/

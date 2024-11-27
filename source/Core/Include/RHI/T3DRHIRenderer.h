@@ -35,16 +35,28 @@ namespace Tiny3D
     class T3D_ENGINE_API RHIRenderer : public Object
     {
     public:
-        static const char * const NULLRENDERER;/**< 空渲染器 */
-        static const char * const REFERENCE3D;  /**< The reference 3D */
-        static const char * const DIRECT3D9;    /**< Direct3D9 渲染器 */
-        static const char * const DIRECT3D11;   /**< Direct3D11 渲染器 */
-        static const char * const DIRECT3D12;   /**< Direct3D12 渲染器 */
-        static const char * const OPENGL3;      /**< OpenGL 3.x 渲染器 */
-        static const char * const OPENGLES2;    /**< OpenGL ES 2 渲染器 */
-        static const char * const OPENGLES3;    /**< OpenGL ES 3 渲染器 */
-        static const char * const VULKAN;       /**< Vulkan 渲染器 */
-        static const char * const METAL;        /**< Metal 渲染器 */
+        /// 空渲染器
+        static const char * const NULLRENDERER;
+        /// The reference 3D
+        static const char * const REFERENCE3D;
+        /// Direct3D9 渲染器
+        static const char * const DIRECT3D9;
+        /// 窗口模式下的 Direct3D11 渲染器
+        static const char * const DIRECT3D11;
+        /// 控制台模式下的 D3D11
+        static const char * const NULL_DIRECT3D11;
+        /// Direct3D12 渲染器
+        static const char * const DIRECT3D12;
+        /// OpenGL 3.x 渲染器
+        static const char * const OPENGL3;
+        /// OpenGL ES 2 渲染器
+        static const char * const OPENGLES2;
+        /// OpenGL ES 3 渲染器
+        static const char * const OPENGLES3;
+        /// Vulkan 渲染器
+        static const char * const VULKAN;
+        /// Metal 渲染器
+        static const char * const METAL;
 
         /**
          * @fn  virtual TResult Renderer::init() = 0;

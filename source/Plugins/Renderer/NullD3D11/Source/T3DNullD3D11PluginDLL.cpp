@@ -22,25 +22,30 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#include "T3DNullD3D11Plugin.h"
 
 
-namespace Tiny3D
+Tiny3D::NullD3D11Plugin *gPlugin = nullptr;
+
+extern "C"
 {
-    //--------------------------------------------------------------------------
+    T3D_NULLD3D11_API TResult dllStartPlugin()
+    {
+        gPlugin = new Tiny3D::NullD3D11Plugin();
+        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
+    }
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+    T3D_NULLD3D11_API TResult dllStopPlugin()
+    {
+        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 
-    //--------------------------------------------------------------------------
+        if (ret == Tiny3D::T3D_OK)
+        {
+            delete gPlugin;
+            gPlugin = nullptr;
+        }
+
+        return ret;
+    }
 }

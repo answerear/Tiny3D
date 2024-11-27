@@ -1,0 +1,93 @@
+﻿/*******************************************************************************
+ * MIT License
+ *
+ * Copyright (c) 2024 Answer Wong
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
+
+#ifndef __T3D_NULLD3D11_MAPPING_H__
+#define __T3D_NULLD3D11_MAPPING_H__
+
+
+#include "T3DNullD3D11Prerequisites.h"
+
+
+namespace Tiny3D
+{
+    class NullD3D11Mapping
+    {
+    public:
+        static const char * const POSITION;     /**< The position */
+        static const char * const BLENDWEIGHT;  /**< The blendweight */
+        static const char * const BLENDINDICES; /**< The blendindices */
+        static const char * const NORMAL;       /**< The normal */
+        static const char * const COLOR;        /**< The color */
+        static const char * const TEXCOORD;     /**< The texcoord */
+        static const char * const TANGENT;      /**< The tangent */
+        static const char * const BINORMAL;     /**< The binormal */
+        
+        static DXGI_FORMAT get(PixelFormat src);
+
+        static D3D11_USAGE get(Usage src);
+
+        static UINT get(uint32_t accMode);
+        
+        static D3D11_TEXTURE1D_DESC get(const PixelBuffer1DDesc &src);
+        
+        static D3D11_TEXTURE2D_DESC get(const PixelBuffer2DDesc &src);
+
+        static D3D11_TEXTURE3D_DESC get(const PixelBuffer3DDesc &src);
+
+        static D3D_SRV_DIMENSION get(TEXTURE_TYPE texType);
+
+        static TEXTURE_TYPE get(D3D_SRV_DIMENSION srvDim);
+
+        static D3D11_BLEND get(BlendFactor factor);
+
+        static D3D11_BLEND_OP get(BlendOperation op);
+
+        static uint8_t get(BlendColorWriteMask mask);
+
+        static D3D11_COMPARISON_FUNC get(CompareFunction func);
+
+        static D3D11_STENCIL_OP get(StencilOp op);
+
+        static D3D11_FILL_MODE get(PolygonMode mode);
+
+        static D3D11_CULL_MODE get(CullingMode mode);
+
+        static D3D11_TEXTURE_ADDRESS_MODE get(TextureAddressMode mode);
+
+        static D3D11_FILTER get(FilterOptions minFilter, FilterOptions magFilter, FilterOptions mipFilter, bool comparison = false);
+
+        static const char *get(VertexAttribute::Semantic semantic);
+
+        static DXGI_FORMAT get(VertexAttribute::Type type);
+
+        static TResult get(Usage usage, uint32_t mode, D3D11_USAGE &d3dUsage, uint32_t &d3dAccessFlag);
+        
+        static DXGI_FORMAT get(IndexType idxType);
+
+        static D3D11_PRIMITIVE_TOPOLOGY get(PrimitiveType primitive);
+    };
+}
+
+
+#endif    /*__T3D_NULLD3D11_MAPPING_H__*/

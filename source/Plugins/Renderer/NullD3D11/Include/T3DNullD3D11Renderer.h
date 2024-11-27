@@ -22,25 +22,38 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+#ifndef __T3D_NULLD3D11_RENDERER_H__
+#define __T3D_NULLD3D11_RENDERER_H__
+
+
+#include "T3DNullD3D11Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class NullD3D11Renderer
+        : public RHIRenderer
+        , public Singleton<NullD3D11Renderer>
+    {
+    public:
+        static NullD3D11RendererPtr create();
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL3 = "OpenGL 3.x";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+        ~NullD3D11Renderer() override;
+        
+        TResult init() override;
+        
+        TResult destroy() override;
 
-    //--------------------------------------------------------------------------
+        void getEditorInfo(void *info, RenderWindow *window) override;
+        
+    protected:
+        NullD3D11Renderer();
+        
+        void cleanup();
+    };
+
+    #define NULL_RENDERER      (NullD3D11Renderer::getInstance())
 }
+
+
+#endif    /*__T3D_NULLD3D11_RENDERER_H__*/
