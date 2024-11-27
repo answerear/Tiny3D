@@ -191,8 +191,8 @@ namespace Tiny3D
     using ShaderLabTags = TMap<String, String>;
     using ShaderLabTagsValue = ShaderLabTags::value_type;
 
-    using ShaderConstantParams = TMap<String, ShaderConstantParamPtr>;
-    using ShaderSamplerParams = TMap<String, ShaderSamplerParamPtr>;
+    using ShaderConstantParams = TUnorderedMap<String, ShaderConstantParamPtr>;
+    using ShaderSamplerParams = TUnorderedMap<String, ShaderSamplerParamPtr>;
 
     using CBuffers = TMap<String, ConstantBufferPtr>;
     
