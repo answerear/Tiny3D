@@ -74,7 +74,7 @@ namespace Tiny3D
             ret = ctx->compileShader(this);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Compile shader failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to compile shader ! ERROR [%d]", ret);
                 break;
             }
 
@@ -82,7 +82,7 @@ namespace Tiny3D
             ret = ctx->reflectShaderAllBindings(this, mConstantBindings, mTexSamplerBindings);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Reflect shader all bindings failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to reflect shader for all bindings ! ERROR [%d]", ret);
                 break;
             }
 
@@ -114,6 +114,58 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+#if defined (T3D_EDITOR)
+    TResult ShaderVariant::reflect()
+    {
+        TResult ret = T3D_OK;
+        char *code = nullptr;
+        size_t bytesCode = 0;
+        
+        do
+        {
+            RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
+
+            bool isCompiled = hasCompiled();
+            if (!isCompiled)
+            {
+                // 备份 shader 源码
+                code = new char[mBytesCodeSize];
+                bytesCode = mBytesCodeSize;
+                memcpy(code, mBytesCode, bytesCode);
+            }
+            
+
+            // 编译 shader
+            ret = ctx->compileShader(this);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to compile shader ! ERROR [%d]", ret);
+                break;
+            }
+
+            // 反射获取对应的绑定关系
+            ret = ctx->reflectShaderAllBindings(this, mConstantBindings, mTexSamplerBindings);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to reflect shader for all bindings ! ERROR [%d]", ret);
+                break;
+            }
+
+            if (!isCompiled)
+            {
+                // 还原 shader 源码
+                copyCode(code, bytesCode);
+            }
+        } while (false);
+
+        T3D_SAFE_DELETE(code);
+
+        return ret;
+    }
+#endif
 
     //--------------------------------------------------------------------------
 }

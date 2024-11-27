@@ -152,7 +152,7 @@ namespace Tiny3D
         {
             ret = T3D_ERR_DUPLICATED_ITEM;
         }
-        
+
         return ret;
     }
 

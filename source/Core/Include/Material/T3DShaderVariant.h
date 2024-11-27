@@ -107,6 +107,14 @@ namespace Tiny3D
             mHasCompiled = false;
         }
 
+#if defined (T3D_EDITOR)
+        /**
+         * 通过反射获取 shader 信息
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult reflect();
+#endif
+
         const ShaderConstantBindings &getShaderConstantBindings() const { return mConstantBindings; }
 
         const ShaderTexSamplerBindings &getShaderTexSamplerBindings() const { return mTexSamplerBindings; }
