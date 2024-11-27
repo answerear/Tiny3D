@@ -32,7 +32,7 @@
 
 namespace Tiny3D
 {
-    enum R3DErrorCode : int32_t
+    enum D3D11ErrorCode : int32_t
     {
         /**< 窗口已经创建 */
         T3D_ERR_D3D11_WINDOW_ALREADY = T3D_ERR_RENDERER,

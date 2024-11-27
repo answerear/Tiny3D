@@ -2357,7 +2357,7 @@ namespace Tiny3D
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_SHADER_REFLECTION;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Reflect shadef failed ! DX ERROR [%d]", hr);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Reflect shader failed ! DX ERROR [%d]", hr);
                 D3D_SAFE_RELEASE(pShaderBlob);
                 break;
             }
