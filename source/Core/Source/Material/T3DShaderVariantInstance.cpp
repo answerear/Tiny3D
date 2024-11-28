@@ -52,18 +52,18 @@ namespace Tiny3D
             buffer.DataSize = binding.second.size;
             buffer.Data = new uint8_t[buffer.DataSize];
             
-            Material *material = getPassInstance()->getTechInstance()->getMaterial();
-            for (const auto &param : material->getConstantParams())
-            {
-                auto itVar = binding.second.variables.find(param.second->getName());
-                if (itVar == binding.second.variables.end())
-                {
-                    // 没有对应名字的变量
-                    continue;
-                }
-
-                memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
-            }
+            // Material *material = getPassInstance()->getTechInstance()->getMaterial();
+            // for (const auto &param : material->getConstantParams())
+            // {
+            //     auto itVar = binding.second.variables.find(param.second->getName());
+            //     if (itVar == binding.second.variables.end())
+            //     {
+            //         // 没有对应名字的变量
+            //         continue;
+            //     }
+            //
+            //     memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
+            // }
 
             ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(buffer, MemoryType::kVRAM, Usage::kDynamic, CPUAccessMode::kCPUWrite);
             mConstantBuffers.emplace(binding.first, cbuffer);
