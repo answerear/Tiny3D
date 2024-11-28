@@ -37,6 +37,13 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    ShaderConstantParamPtr ShaderConstantParam::create(const String &name, uint32_t dataSize, DATA_TYPE dataType)
+    {
+        return new ShaderConstantParam(name, dataSize, dataType);
+    }
+    
+    //--------------------------------------------------------------------------
+
     ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, DATA_TYPE dataType)
         : mDataType(dataType)
         , mName(name)
@@ -49,9 +56,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ShaderConstantParam::ShaderConstantParam(const String &name, uint32_t dataSize, DATA_TYPE dataType)
+        : mDataType(dataType)
+        , mName(name)
+    {
+        mData.Data = new uint8_t[dataSize];
+        mData.DataSize = dataSize;
+        memset(mData.Data, 0, dataSize);
+    }
+    
+    //--------------------------------------------------------------------------
+
     ShaderConstantParam::~ShaderConstantParam()
     {
-        
+        mData.release();
     }
 
     //--------------------------------------------------------------------------

@@ -76,6 +76,8 @@ namespace Tiny3D
          */
         static ShaderConstantParamPtr create(const String &name, const void* data, uint32_t dataSize, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
 
+        static ShaderConstantParamPtr create(const String &name, uint32_t dataSize, DATA_TYPE dataType);
+
         /**
          * \brief Destructor
          */
@@ -165,6 +167,8 @@ namespace Tiny3D
          * \param [in] dataType : 数据类型
          */
         ShaderConstantParam(const String &name, const void* data, uint32_t dataSize, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
+
+        ShaderConstantParam(const String &name, uint32_t dataSize, DATA_TYPE dataType = DATA_TYPE::DT_FLOAT);
         
         /// 数据
         Buffer      mData {};
