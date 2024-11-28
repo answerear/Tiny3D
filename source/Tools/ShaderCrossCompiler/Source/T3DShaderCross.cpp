@@ -469,10 +469,9 @@ namespace Tiny3D
         RenderStatePtr state = RenderState::create();
         ret = ret && translate(src.state, state);
         pass->setRenderState(state);
-
+        
         // program
         ret = ret && translate(src.program, pass);
-
         if (ret)
         {
             ShaderKeyword kw;
@@ -480,7 +479,7 @@ namespace Tiny3D
             kw.generate();
             pass->setCurrentKeyword(kw);
             tech->addPass(pass);
-
+        
             auto reflectShader = [](const ShaderVariants &shaders)
             {
                 bool ret = true;
@@ -494,7 +493,7 @@ namespace Tiny3D
                 }
                 return ret;
             };
-
+        
             ret = reflectShader(pass->getVertexShaders());
             ret = ret && reflectShader(pass->getPixelShaders());
             ret = ret && reflectShader(pass->getGeometryShaders());
