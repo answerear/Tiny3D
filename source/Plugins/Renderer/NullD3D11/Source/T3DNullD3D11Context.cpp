@@ -619,15 +619,21 @@ namespace Tiny3D
                             D3D11_SHADER_VARIABLE_DESC variableDesc;
                             pVariableReflection->GetDesc(&variableDesc);
 
+                            // 常量类型
+                            ID3D11ShaderReflectionType *d3dSRType = pVariableReflection->GetType();
+                            D3D11_SHADER_TYPE_DESC d3dSRTypeDesc;
+                            d3dSRType->GetDesc(&d3dSRTypeDesc);
+
                             ShaderVariableBinding varBinding;
                             varBinding.name = variableDesc.Name;
                             varBinding.offset = variableDesc.StartOffset;
                             varBinding.size = variableDesc.Size;
+                            varBinding.type = NullD3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns);
                             size += varBinding.size;
                             constBinding.variables.emplace(varBinding.name, varBinding);
 
-                            T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s",
-                                constBinding.name.c_str(), varBinding.name.c_str());
+                            T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s, cbuffer binding point : %u, data type : %u, size : %u, offset : %u, row : %u, col : %u",
+                                constBinding.name.c_str(), varBinding.name.c_str(), constBinding.binding, varBinding.type, varBinding.size, varBinding.offset, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns);
                         }
 
                         constBinding.size = size;
