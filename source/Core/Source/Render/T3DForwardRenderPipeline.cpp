@@ -372,13 +372,13 @@ namespace Tiny3D
             if (itCB == shader->getConstantBuffers().end())
             {
                 // 没有对应名字的常量缓冲区
-                T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not constant buffer : %s !", binding.second.name.c_str());
+                T3D_LOG_WARNING(LOG_TAG_RENDER, "No constant buffer : %s !", binding.second.name.c_str());
                 continue;
             }
 
             if (material->getConstantParams().empty())
             {
-                T3D_LOG_WARNING(LOG_TAG_RENDER, "There is not constant in material : %s !", material->getName().c_str());
+                T3D_LOG_WARNING(LOG_TAG_RENDER, "No constant variables in material : %s !", material->getName().c_str());
                 continue;
             }
             
