@@ -86,6 +86,8 @@ namespace Tiny3D
         static DXGI_FORMAT get(IndexType idxType);
 
         static D3D11_PRIMITIVE_TOPOLOGY get(PrimitiveType primitive);
+
+        static ShaderConstantParam::DATA_TYPE get(D3D_SHADER_VARIABLE_TYPE d3dType, uint32_t rows, uint32_t cols);
     };
 }
 
