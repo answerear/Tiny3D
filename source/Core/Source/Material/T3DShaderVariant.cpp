@@ -27,6 +27,8 @@
 #include "Material/T3DPass.h"
 #include "RHI/T3DRHIContext.h"
 #include "Kernel/T3DAgent.h"
+#include "Material/T3DTechnique.h"
+#include "Resource/T3DShader.h"
 
 
 namespace Tiny3D
@@ -159,6 +161,27 @@ namespace Tiny3D
                 // 还原 shader 源码
                 copyCode(code, bytesCode);
             }
+
+            // 根据反射信息，生成 constant param
+            T3D_ASSERT(mPass != nullptr);
+            T3D_ASSERT(mPass->getTechnique() != nullptr);
+            Shader *shader = mPass->getTechnique()->getShader();
+            T3D_ASSERT(shader != nullptr);
+
+            for (auto binding : mConstantBindings)
+            {
+                for (auto varBinding : binding.second.variables)
+                {
+                    auto itr = shader->getConstantParams().find(varBinding.first);;
+                    if (itr == shader->getConstantParams().end())
+                    {
+                        // 没有添加过，则添加
+                        ShaderConstantParamPtr param = ShaderConstantParam::create(varBinding.second.name, varBinding.second.size, varBinding.second.type);
+                        shader->addConstantParam(param);
+                    }
+                }
+            }
+            
         } while (false);
 
         T3D_SAFE_DELETE(code);

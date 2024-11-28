@@ -27,6 +27,7 @@
 
 
 #include "Kernel/T3DConstant.h"
+#include "Material/T3DShaderConstantParam.h"
 
 
 namespace Tiny3D
@@ -37,11 +38,13 @@ namespace Tiny3D
     struct ShaderVariableBinding
     {
         /// 名称
-        String      name;
+        String      name {};
         /// 变量在缓冲区中的偏移
-        uint32_t    offset;
+        uint32_t    offset {0};
         /// 变量大小
-        uint32_t    size;
+        uint32_t    size {0};
+        /// 变量类型
+        ShaderConstantParam::DATA_TYPE type {ShaderConstantParam::DATA_TYPE::DT_FLOAT};
     };
 
     using ShaderVariableBindings = TMap<String, ShaderVariableBinding>;
