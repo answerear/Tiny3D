@@ -758,6 +758,63 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    ShaderConstantParam::DATA_TYPE NullD3D11Mapping::get(D3D_SHADER_VARIABLE_TYPE d3dType, uint32_t rows, uint32_t cols)
+    {
+        ShaderConstantParam::DATA_TYPE type = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+
+        switch (d3dType)
+        {
+        case D3D_SVT_BOOL:
+            type = ShaderConstantParam::DATA_TYPE::DT_BOOL;
+            break;
+        case D3D_SVT_INT:
+            type = ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+            break;
+        case D3D_SVT_FLOAT:
+            {
+                type = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                if (rows == 4 && cols == 4)
+                {
+                    // Matrix4
+                    type = ShaderConstantParam::DATA_TYPE::DT_MATRIX4;
+                }
+                else if (rows == 4 && cols == 1 || rows == 1 && cols == 4)
+                {
+                    // Vector4
+                    type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                }
+            }
+            break;
+        case D3D_SVT_UINT:
+            break;
+        case D3D_SVT_UINT8:
+            break;
+        case D3D_SVT_DOUBLE:
+            break;
+        case D3D_SVT_INT16:
+            break;
+        case D3D_SVT_UINT16:
+            break;
+        case D3D_SVT_FLOAT16:
+            break;
+        case D3D_SVT_INT64:
+            break;
+        case D3D_SVT_UINT64:
+            break;
+        case D3D11_SVT_STRUCTURED_BUFFER:
+        case D3D11_SVT_RWSTRUCTURED_BUFFER:
+            {
+                type = ShaderConstantParam::DATA_TYPE::DT_STRUCT;
+            }
+            break;
+            
+        }
+
+        return type;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 
 
