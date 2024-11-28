@@ -168,8 +168,8 @@ namespace Tiny3D
         {
             if ((*itr)->getName() == name)
             {
-                mPasses.erase(itr);
                 (*itr)->setTechnique(nullptr);
+                mPasses.erase(itr);
                 break;
             }
         }
