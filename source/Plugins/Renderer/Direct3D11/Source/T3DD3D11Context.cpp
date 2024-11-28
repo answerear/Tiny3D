@@ -2303,7 +2303,7 @@ namespace Tiny3D
 
             String sourceName = shader->getPass()->getTechnique()->getShader()->getName();
             sourceName = shader->getShaderKeyword().getName() + (!shader->getShaderKeyword().getName().empty() ? "-" : "") + profile + "-" + sourceName;
-            
+
             ID3DBlob *shaderBlob = nullptr;
             ID3DBlob *errorBlob = nullptr;
             HRESULT hr = D3DCompile(bytes, bytesLength, sourceName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", profile.c_str(), shaderCompileFlags, 0, &shaderBlob, &errorBlob);
@@ -2381,12 +2381,12 @@ namespace Tiny3D
                 {
                 case D3D_SIT_CBUFFER:   // 常量缓冲区
                     {
-                        if (strncmp(bindDesc.Name, TINY3D_CBUFFER_PER_DRAW, TINY3D_CBUFFER_PER_DRAW_LEN) == 0
-                            || strncmp(bindDesc.Name, TINY3D_CBUFFER_PER_FRAME, TINY3D_CBUFFER_PER_FRAME_LEN) == 0)
-                        {
-                            // 这里跳开两个 cbuffer ，这两个 cbuffer 内部使用，不反射给外部使用
-                            break;
-                        }
+                        // if (strncmp(bindDesc.Name, TINY3D_CBUFFER_PER_DRAW, TINY3D_CBUFFER_PER_DRAW_LEN) == 0
+                        //     || strncmp(bindDesc.Name, TINY3D_CBUFFER_PER_FRAME, TINY3D_CBUFFER_PER_FRAME_LEN) == 0)
+                        // {
+                        //     // 这里跳开两个 cbuffer ，这两个 cbuffer 内部使用，不反射给外部使用
+                        //     break;
+                        // }
                     
                         ShaderConstantBinding constBinding;
                         constBinding.name = bindDesc.Name;
@@ -2409,10 +2409,16 @@ namespace Tiny3D
                             D3D11_SHADER_VARIABLE_DESC variableDesc;
                             pVariableReflection->GetDesc(&variableDesc);
 
+                            // 常量类型
+                            ID3D11ShaderReflectionType *d3dSRType = pVariableReflection->GetType();
+                            D3D11_SHADER_TYPE_DESC d3dSRTypeDesc;
+                            d3dSRType->GetDesc(&d3dSRTypeDesc);
+                            
                             ShaderVariableBinding varBinding;
                             varBinding.name = variableDesc.Name;
                             varBinding.offset = variableDesc.StartOffset;
                             varBinding.size = variableDesc.Size;
+                            varBinding.type = D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns);
                             size += varBinding.size;
                             constBinding.variables.emplace(varBinding.name, varBinding);
 
