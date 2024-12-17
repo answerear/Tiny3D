@@ -65,19 +65,18 @@ namespace Tiny3D
         ~RHIContext() override;
 
         /**
-         * \brief 设置世界变换矩阵
-         * \param [in] mat : 物体到世界的变换矩阵
-         * \return 调用成功返回 T3D_OK
-         */
-        virtual TResult setWorldTransform(const Matrix4 &mat) = 0;
-
-        /**
          * \brief 设置视图变换矩阵和投影变换矩阵
          * \param [in] viewMat : 视图变换矩阵
          * \param [in] projMat : 投影变换矩阵
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) = 0;
+
+        const Matrix4 &getViewMatrix() const { return mViewMatrix; }
+
+        const Matrix4 &getProjMatrix() const { return mProjMatrix; }
+
+        const Matrix4 &getProjViewMatrix() const { return mProjViewMatrix; }
 
         /**
          * \brief 创建 RHI 渲染窗口
@@ -297,11 +296,10 @@ namespace Tiny3D
         /**
          * \brief 设置 vs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
          * \brief 创建 RHI 像素着色器对象
@@ -336,11 +334,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ps 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
@@ -375,11 +372,10 @@ namespace Tiny3D
         /**
          * \brief 设置 hs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setHSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
         
         /**
          * \brief 创建 RHI 域着色器
@@ -414,11 +410,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ds 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setDSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
         
         /**
          * \brief 创建 RHI 几何着色器
@@ -453,11 +448,10 @@ namespace Tiny3D
         /**
          * \brief 设置 gs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setGSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
         
         /**
          * \brief 创建 RHI 计算着色器
@@ -492,11 +486,10 @@ namespace Tiny3D
         /**
          * \brief 设置 cs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) = 0;
+        virtual TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
          * \brief 编译着色器
@@ -508,11 +501,11 @@ namespace Tiny3D
         /**
          * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
          * \param [in] shader : 要反射的着色器
-         * \param [out] constantBindings : 绑定的常量缓冲区信息
-         * \param [out] texSamplerBindings : 绑定的纹理采样信息
+         * \param [out] constantParams : 绑定的常量缓冲区信息
+         * \param [out] samplerParams : 绑定的纹理采样信息
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings &texSamplerBindings) = 0;
+        virtual TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) = 0;
 
         /**
          * \brief 设置渲染图元类型
@@ -610,6 +603,14 @@ namespace Tiny3D
 
     protected:
         RHIContext();
+
+    protected:
+        /// 投影变换矩阵
+        Matrix4 mProjMatrix {false};
+        /// 视口变换矩阵
+        Matrix4 mViewMatrix {false};
+        /// 投影和视口变换的联合变换
+        Matrix4 mProjViewMatrix {false};
     };
 }
 

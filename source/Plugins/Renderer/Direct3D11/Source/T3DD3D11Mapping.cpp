@@ -766,10 +766,22 @@ namespace Tiny3D
         switch (d3dType)
         {
         case D3D_SVT_BOOL:
-            type = ShaderConstantParam::DATA_TYPE::DT_BOOL;
+            {
+                type = ShaderConstantParam::DATA_TYPE::DT_BOOL;
+                if (rows > 1 || cols > 1)
+                {
+                    type = ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY;
+                }
+            }
             break;
         case D3D_SVT_INT:
-            type = ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+            {
+                type = ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+                if (rows > 1 || cols > 1)
+                {
+                    type = ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY;
+                }
+            }
             break;
         case D3D_SVT_FLOAT:
             {
@@ -783,6 +795,10 @@ namespace Tiny3D
                 {
                     // Vector4
                     type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                }
+                else
+                {
+                    type = ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY;
                 }
             }
             break;
@@ -808,7 +824,6 @@ namespace Tiny3D
                 type = ShaderConstantParam::DATA_TYPE::DT_STRUCT;
             }
             break;
-            
         }
 
         return type;

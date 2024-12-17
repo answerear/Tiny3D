@@ -36,6 +36,11 @@
 //// "$(SolutionDir)..\..\assets\builtin\materials\Test.Shader" -t hlsl
 // "$(SolutionDir)..\..\assets\editor\builtin\shaders\Default-Material.shader" -t hlsl -o "$(SolutionDir)..\..\assets\editor\builtin\materials"
 
+// To hlsl for Samples
+// vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\GeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders" -N
+// pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\GeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders" -N
+
+
 
 Tiny3D::ShaderCrossApp theApp;
 

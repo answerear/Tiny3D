@@ -36,6 +36,41 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(ShaderCompiler);
 
+    struct Args
+    {
+        enum Options
+        {
+            /// 输出版本号
+            OPT_PRINT_VERSION = (1 << 0),
+            /// 输出帮助信息
+            OPT_PRINT_HELP = (1 << 1),
+            /// 转换到目标平台着色器语言时是否输出调试信息
+            OPT_ENABLE_DEBUG_INFO = (1 << 2),
+            /// 是否输出二进制文件，还是 json 文件
+            OPT_BINARY_FILE = (1 << 3),
+            /// 输入的是否 native shader，也就是是原生的 hlsl、glsl 之类的，而非 shader lab
+            OPT_NATIVE_SHADER = (1 << 4),
+        };
+
+        bool hasOptions(uint32_t flags) const
+        {
+            return (flags & options) == flags;
+        }
+
+        /// 选项
+        uint32_t    options {0};
+        /// 优化级别，0 to 3
+        uint32_t    optimizeLevel {3};
+        /// 包含的头文件目录路径
+        String      include {};
+        /// 输出目标平台
+        String      target {};
+        /// 输出文件的基本名称
+        String      baseName {};
+        /// 生成 Shader 的 UUID
+        UUID        uuid {UUID::INVALID};
+    };
+    
     class ShaderCompiler : public Object
     {
     public:
@@ -46,6 +81,8 @@ namespace Tiny3D
         // bool compile(Script::ShaderSystem::Shader *source, const String &inputPath, const String &outputDir, const Args args);
 
         bool compile(const String &code, PassPtr pass, const String& inputPath, const String& outputDir, const Args& args);
+
+        bool compile(const String &code, const String &inputPath, const String &outputDir, const Args& args);
         
     protected:
         static const String kVertex;
@@ -148,6 +185,12 @@ namespace Tiny3D
         void generateShaderSnippets(const String& source, const ProgramParameters& params, ShaderSnippets& snippets);
 
         bool compileShaderSnippet(const ShaderSnippet &snippet, PassPtr pass);
+
+        bool compileShaderSnippet(const ShaderSnippet &snippet);
+
+        using CompilePostProcessor = TFunction<void(const String&, ShaderKeyword &&, SHADER_STAGE)>;
+        
+        bool compileShaderSnippet(const ShaderSnippet &snippet, const CompilePostProcessor &postProcessor);
 
         void fixSpirVCrossForHLSLSemantics(String& content);
 

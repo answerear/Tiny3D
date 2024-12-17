@@ -259,7 +259,7 @@ namespace Tiny3D
         RHIThreadPtr            mRHIRunnable {nullptr};
         Event                   mRHIEvent {};
 
-        Texture2DPtr            mDefaultAlbedoTex {nullptr};
+        // Texture2DPtr            mDefaultAlbedoTex {nullptr};
         
         bool                    mIsRunning {false};     /**< 引擎是否在运行中 */
     };

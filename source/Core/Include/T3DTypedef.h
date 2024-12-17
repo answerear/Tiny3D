@@ -63,7 +63,9 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SubMesh);
 
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
+    T3D_DECLARE_SMART_PTR(ShaderConstantValue);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
+    T3D_DECLARE_SMART_PTR(ShaderSamplerValue);
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
     T3D_DECLARE_SMART_PTR(ShaderVariant);
@@ -176,7 +178,9 @@ namespace Tiny3D
     using RHIRenderersConstItr = RHIRenderers::const_iterator;
     using RHIRenderersValue = RHIRenderers::value_type;
 
-    using FloatArray = TArray<float>;
+    using BoolArray = TArray<bool>;
+    using IntArray = TArray<int32_t>;
+    using FloatArray = TArray<float32_t>;
     using ColorArray = TArray<ColorRGBA>;
     using Vector4Array = TArray<Vector4>;
     using Matrix4Array = TArray<Matrix4>;
@@ -192,10 +196,13 @@ namespace Tiny3D
     using ShaderLabTagsValue = ShaderLabTags::value_type;
 
     using ShaderConstantParams = TUnorderedMap<String, ShaderConstantParamPtr>;
+    using ShaderConstantValues = TUnorderedMap<String, ShaderConstantValuePtr>;
     using ShaderSamplerParams = TUnorderedMap<String, ShaderSamplerParamPtr>;
+    using ShaderSamplerValues = TUnorderedMap<String, ShaderSamplerValuePtr>;
 
-    using CBuffers = TMap<String, ConstantBufferPtr>;
-    
+    using ConstBuffers = TArray<Buffer>;
+    using Textures = TArray<TexturePtr>;
+
     using GameObjectList = TList<GameObjectPtr>;
     using CameraList = TMultimap<uint32_t, Camera *>;
 

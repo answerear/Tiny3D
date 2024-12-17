@@ -52,10 +52,12 @@ namespace Tiny3D
         Type getType() const override;
 
         TResult compile();
+
+        TResult reflect();
         
         bool isKeywordEnable(const String &keyword) const;
-
-        TResult addConstantParam(ShaderConstantParamPtr param);
+        
+        TResult addConstantValue(ShaderConstantValuePtr value);
 
         TResult addSamplerParam(ShaderSamplerParamPtr param);
 
@@ -82,44 +84,26 @@ namespace Tiny3D
 
         TechniquePtr getSupportTechnique() const { return mSupportTechnique; }
 
-        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="getter")
-        const ShaderConstantParams &getConstantParams() const
-        {
-            return mConstants;
-        }
-
         TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="getter")
-        const ShaderSamplerParams &getSamplerParams() const
-        {
-            return mSamplers;
-        }
+        const ShaderSamplerParams &getSamplerParams() const { return mSamplers; }
 
         TPROPERTY(RTTRFuncName="Techniques", RTTRFuncType="getter")
-        const Techniques &getTechniques() const
-        {
-            return mTechniques;
-        }
+        const Techniques &getTechniques() const { return mTechniques; }
 
+        TPROPERTY(RTTRFuncName="ConstantValues", RTTRFuncType="getter")
+        const ShaderConstantValues &getConstantValues() const { return mConstantValues; }
+        
     private:
         Shader() = default;
 
-        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="setter")
-        void setConstantParams(const ShaderConstantParams &params)
-        {
-            mConstants = params;
-        }
-
         TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="setter")
-        void setSamplerParams(const ShaderSamplerParams &params)
-        {
-            mSamplers = params;
-        }
+        void setSamplerParams(const ShaderSamplerParams &params) { mSamplers = params; }
 
         TPROPERTY(RTTRFuncName="Techniques", RTTRFuncType="setter")
-        void setTechniques(const Techniques &techniques)
-        {
-            mTechniques = techniques;
-        }
+        void setTechniques(const Techniques &techniques) { mTechniques = techniques; }
+
+        TPROPERTY(RTTRFuncName="ConstantValues", RTTRFuncType="setter")
+        void setConstantValues(const ShaderConstantValues &values) { mConstantValues = values; }
 
     protected:
         Shader(const String &name);
@@ -131,8 +115,8 @@ namespace Tiny3D
         void onPostLoad() override;
         
     protected:
-        /// shader 常量
-        ShaderConstantParams    mConstants {};
+        /// shader 常量初始值
+        ShaderConstantValues    mConstantValues {};
         /// shader 采样器
         ShaderSamplerParams     mSamplers {};
         /// 所有可用的技术对象

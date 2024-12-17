@@ -74,6 +74,7 @@ namespace Tiny3D
                 ret = shader.second->compile();
                 if (T3D_FAILED(ret))
                 {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader [%s] ! ERROR [%d]", shader.first.getName().c_str(), ret);
                     break;
                 }
             }
@@ -89,48 +90,116 @@ namespace Tiny3D
             ret = compileShader(mVertexShaders);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile vertex shaders !");
                 break;
             }
 
-            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling vertex shader !");
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling vertex shaders !");
 
             // 编译 hull shader
             ret = compileShader(mHullShaders);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile hull shaders !");
                 break;
             }
 
-            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling hull shader !");
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling hull shaders !");
             
             // 编译 domain shader
             ret = compileShader(mDomainShaders);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile domain shaders !");
                 break;
             }
 
-            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling domain shader !");
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling domain shaders !");
             
             // 编译 gemometry shader
             ret = compileShader(mGeometryShaders);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile geometry shaders !");
                 break;
             }
 
-            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling geometry shader !");
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling geometry shaders !");
             
             // 编译 pixel shader
             ret = compileShader(mPixelShaders);
             if (T3D_FAILED(ret))
             {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile pixel shaders !");
                 break;
             }
 
-            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compling pixel shader !");
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling pixel shaders !");
             
             T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling technique !");
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Pass::reflect()
+    {
+        auto reflectShader = [](const ShaderVariants &shaders)
+        {
+            TResult ret = T3D_OK;
+            
+            for (auto shader : shaders)
+            {
+                ret = shader.second->reflect();
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            return ret;
+        };
+        
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ret = reflectShader(mVertexShaders);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect vertex shader !");
+                break;
+            }
+
+            ret = reflectShader(mHullShaders);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect hull shader !");
+                break;
+            }
+
+            ret = reflectShader(mDomainShaders);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect domain shader !");
+                break;
+            }
+
+            ret = reflectShader(mGeometryShaders);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect geometry shader !");
+                break;
+            }
+
+            ret = reflectShader(mPixelShaders);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect pixel shader !");
+                break;
+            }
         } while (false);
 
         return ret;

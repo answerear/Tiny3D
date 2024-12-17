@@ -42,13 +42,6 @@ namespace Tiny3D
         TResult swapBackBuffer(D3D11RenderWindow *renderWindow);
 
         /**
-         * \brief 设置世界变换矩阵
-         * \param [in] mat : 物体到世界的变换矩阵
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setWorldTransform(const Matrix4 &mat) override;
-
-        /**
          * \brief 设置视图变换矩阵和投影变换矩阵
          * \param [in] viewMat : 视图变换矩阵
          * \param [in] projMat : 投影变换矩阵
@@ -301,11 +294,10 @@ namespace Tiny3D
         /**
          * \brief 设置 vs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) override;
+        TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         
         /**
          * \brief 创建 RHI 像素着色器对象
@@ -340,11 +332,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ps 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) override;
+        TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
@@ -379,11 +370,10 @@ namespace Tiny3D
         /**
          * \brief 设置 hs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) override;
+        TResult setHSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         
         /**
          * \brief 创建 RHI 域着色器
@@ -418,11 +408,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ds 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) override;
+        TResult setDSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         
         /**
          * \brief 创建 RHI 几何着色器
@@ -457,11 +446,10 @@ namespace Tiny3D
         /**
          * \brief 设置 gs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) override;
+        TResult setGSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         
         /**
          * \brief 创建 RHI 计算着色器
@@ -496,11 +484,10 @@ namespace Tiny3D
         /**
          * \brief 设置 cs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
-         * \param [in] numOfSamplers : 第三个参数像采样器的数量
          * \param [in] samplers : 纹理采样器对象数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers) override;
+        TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         /**
          * \brief 编译着色器
@@ -512,11 +499,11 @@ namespace Tiny3D
         /**
          * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
          * \param [in] shader : 要反射的着色器
-         * \param [out] constantBindings : 绑定的常量缓冲区信息
-         * \param [out] texSamplerBindings : 绑定的纹理采样信息
+         * \param [out] constantParams : 绑定的常量缓冲区信息
+         * \param [out] samplerParams : 绑定的纹理采样信息
          * \return 调用成功返回 T3D_OK
          */
-        TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings &texSamplerBindings) override;
+        TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
 
         /**
          * \brief 设置渲染图元类型
@@ -641,7 +628,7 @@ namespace Tiny3D
 
         using SetSamplerState = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11SamplerState * const *);
         
-        TResult setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const * samplers);
+        TResult setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, const Samplers &samplers);
 
         using SetShaderResources = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11ShaderResourceView * const *);
         
@@ -663,25 +650,6 @@ namespace Tiny3D
         {
             Vector3 position;
             Vector2 uv;
-        };
-
-        /**
-         * \brief 用于每帧更新的 cbuffer
-         */
-        struct CBufferPerFrame
-        {
-            Matrix4 matrixV {false};
-            Matrix4 matrixP {false};
-            Matrix4 matrixVP {false};
-        };
-
-        /**
-         * \brief 用于每个物体更新的 cbuffer
-         */
-        struct CBufferPerDraw
-        {
-            Matrix4 objectToWorld {false};
-            Matrix4 worldToObject {false};
         };
 
         struct BackUpDX11State
@@ -741,14 +709,6 @@ namespace Tiny3D
         /// 用于 blit 的 rasterizer state
         ID3D11RasterizerState   *mBlitRState {nullptr};
 
-        /// 内部使用每帧更新的常量缓冲区，用于存放 view & projection matrix
-        ID3D11Buffer        *mPerFrameCBuffer {nullptr};
-        /// 内部使用每个绘制更新的常量缓冲区，用于存放 world matrix
-        ID3D11Buffer        *mPerDrawCBuffer {nullptr};
-
-        CBufferPerDraw      mCBufferPerDraw {};
-        CBufferPerFrame     mCBufferPerFrame {};
-        
         RenderWindowPtr     mCurrentRenderWindow {nullptr};
         RenderTexturePtr    mCurrentRenderTexture {nullptr};
 

@@ -107,17 +107,17 @@ namespace Tiny3D
             mHasCompiled = false;
         }
 
-#if defined (T3D_EDITOR)
         /**
          * 通过反射获取 shader 信息
          * @return 调用成功返回 T3D_OK
          */
         TResult reflect();
-#endif
 
-        const ShaderConstantBindings &getShaderConstantBindings() const { return mConstantBindings; }
+        TPROPERTY(RTTRFuncName="ShaderConstantParams", RTTRFuncType="getter")
+        const ShaderConstantParams &getShaderConstantParams() const { return mConstantParams; }
 
-        const ShaderTexSamplerBindings &getShaderTexSamplerBindings() const { return mTexSamplerBindings; }
+        TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="getter")
+        const ShaderSamplerParams &getShaderSamplerParams() const { return mSamplerParams; }
 
         RHIShader *getRHIShader() const { return mRHIShader; }
 
@@ -152,6 +152,12 @@ namespace Tiny3D
         {
             setSourceCode(&code[0], code.length());
         }
+
+        TPROPERTY(RTTRFuncName="ShaderConstantParams", RTTRFuncType="setter")
+        void setShaderConstantParams(const ShaderConstantParams &params) { mConstantParams = params; }
+
+        TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="setter")
+        void setShaderSamplerParams(const ShaderSamplerParams &params) { mSamplerParams = params; }
         
     protected:
         ShaderVariant(ShaderKeyword &&key, const String &code);
@@ -184,11 +190,12 @@ namespace Tiny3D
         size_t          mBytesCodeCapacity {0};
         /// 是否编译
         bool            mHasCompiled {false};
+
+        /// 常量信息
+        ShaderConstantParams    mConstantParams {};
         
-        /// 常量绑定关系
-        ShaderConstantBindings      mConstantBindings {};
         /// 纹理和纹理采样绑定关系
-        ShaderTexSamplerBindings    mTexSamplerBindings {};
+        ShaderSamplerParams     mSamplerParams {};
 
         /// RHI 着色器对象
         RHIShaderPtr    mRHIShader {nullptr};

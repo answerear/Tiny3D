@@ -80,13 +80,16 @@ namespace Tiny3D
                 break;
             }
 
-            // 反射获取对应的绑定关系
-            ret = ctx->reflectShaderAllBindings(this, mConstantBindings, mTexSamplerBindings);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to reflect shader for all bindings ! ERROR [%d]", ret);
-                break;
-            }
+            // if (mConstantParams.empty() && mTexSamplerBindings.empty())
+            // {
+            //     // 反射获取对应的绑定关系
+            //     ret = ctx->reflectShaderAllBindings(this, mConstantParams, mTexSamplerBindings);
+            //     if (T3D_FAILED(ret))
+            //     {
+            //         T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to reflect shader for all bindings ! ERROR [%d]", ret);
+            //         break;
+            //     }
+            // }
 
             switch (mShaderStage)
             {
@@ -119,7 +122,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-#if defined (T3D_EDITOR)
     TResult ShaderVariant::reflect()
     {
         TResult ret = T3D_OK;
@@ -137,19 +139,18 @@ namespace Tiny3D
                 code = new char[mBytesCodeSize];
                 bytesCode = mBytesCodeSize;
                 memcpy(code, mBytesCode, bytesCode);
-            }
-            
 
-            // 编译 shader
-            ret = ctx->compileShader(this);
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to compile shader ! ERROR [%d]", ret);
-                break;
+                // 编译 shader
+                ret = ctx->compileShader(this);
+                if (T3D_FAILED(ret))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to compile shader ! ERROR [%d]", ret);
+                    break;
+                }
             }
 
             // 反射获取对应的绑定关系
-            ret = ctx->reflectShaderAllBindings(this, mConstantBindings, mTexSamplerBindings);
+            ret = ctx->reflectShaderAllBindings(this, mConstantParams, mSamplerParams);
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to reflect shader for all bindings ! ERROR [%d]", ret);
@@ -163,24 +164,24 @@ namespace Tiny3D
             }
 
             // 根据反射信息，生成 constant param
-            T3D_ASSERT(mPass != nullptr);
-            T3D_ASSERT(mPass->getTechnique() != nullptr);
-            Shader *shader = mPass->getTechnique()->getShader();
-            T3D_ASSERT(shader != nullptr);
-
-            for (auto binding : mConstantBindings)
-            {
-                for (auto varBinding : binding.second.variables)
-                {
-                    auto itr = shader->getConstantParams().find(varBinding.first);;
-                    if (itr == shader->getConstantParams().end())
-                    {
-                        // 没有添加过，则添加
-                        ShaderConstantParamPtr param = ShaderConstantParam::create(varBinding.second.name, varBinding.second.size, varBinding.second.type);
-                        shader->addConstantParam(param);
-                    }
-                }
-            }
+            // T3D_ASSERT(mPass != nullptr);
+            // T3D_ASSERT(mPass->getTechnique() != nullptr);
+            // Shader *shader = mPass->getTechnique()->getShader();
+            // T3D_ASSERT(shader != nullptr);
+            //
+            // for (auto binding : mConstantBindings)
+            // {
+            //     for (auto varBinding : binding.second.variables)
+            //     {
+            //         auto itr = shader->getConstantParams().find(varBinding.first);;
+            //         if (itr == shader->getConstantParams().end())
+            //         {
+            //             // 没有添加过，则添加
+            //             ShaderConstantParamPtr param = ShaderConstantParam::create(varBinding.second.name, varBinding.second.size, varBinding.second.type);
+            //             shader->addConstantParam(param);
+            //         }
+            //     }
+            // }
             
         } while (false);
 
@@ -188,7 +189,6 @@ namespace Tiny3D
 
         return ret;
     }
-#endif
 
     //--------------------------------------------------------------------------
 }

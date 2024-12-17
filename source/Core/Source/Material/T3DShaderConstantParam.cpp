@@ -30,55 +30,118 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderConstantParamPtr ShaderConstantParam::create(const String &name, const void* data, uint32_t dataSize, DATA_TYPE dataType)
+    ShaderConstantParamPtr ShaderConstantParam::create(const String &cbufferName, const String &name, uint32_t bindingPoint, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType)
     {
-        return new ShaderConstantParam(name, data, dataSize, dataType);
+        return new ShaderConstantParam(cbufferName, name, bindingPoint, dataSize, dataOffset, dataType);
     }
     
     //--------------------------------------------------------------------------
 
-    ShaderConstantParamPtr ShaderConstantParam::create(const String &name, uint32_t dataSize, DATA_TYPE dataType)
-    {
-        return new ShaderConstantParam(name, dataSize, dataType);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    ShaderConstantParam::ShaderConstantParam(const String &name, const void *data, uint32_t dataSize, DATA_TYPE dataType)
+    ShaderConstantParam::ShaderConstantParam(const String &cbufferName, const String &name, uint32_t bindingPoint, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType)
         : mDataType(dataType)
+        , mDataSize(dataSize)
+        , mDataOffset(dataOffset)
+        , mBindingPoint(bindingPoint)
         , mName(name)
+        , mCBufferName(cbufferName)
     {
-        if (data != nullptr)
-        {
-            mData.setData(data, dataSize);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-
-    ShaderConstantParam::ShaderConstantParam(const String &name, uint32_t dataSize, DATA_TYPE dataType)
-        : mDataType(dataType)
-        , mName(name)
-    {
-        mData.Data = new uint8_t[dataSize];
-        mData.DataSize = dataSize;
-        memset(mData.Data, 0, dataSize);
     }
     
     //--------------------------------------------------------------------------
 
     ShaderConstantParam::~ShaderConstantParam()
     {
-        mData.release();
     }
 
     //--------------------------------------------------------------------------
 
     ShaderConstantParamPtr ShaderConstantParam::clone() const
     {
-        return ShaderConstantParam::create(mName, mData.Data, mData.DataSize, mDataType);
+        return create(mCBufferName, mName, mBindingPoint, mDataSize, mDataOffset, mDataType);
     }
 
+    //--------------------------------------------------------------------------
+
+    ShaderConstantValuePtr ShaderConstantValue::create(const String &name, ShaderConstantParam::DATA_TYPE dataType)
+    {
+        return new ShaderConstantValue(name, dataType);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderConstantValue::ShaderConstantValue(const String &name, ShaderConstantParam::DATA_TYPE type)
+        : mName(name)
+        , mDataType(type)
+    {
+        switch (mDataType)
+        {
+        case ShaderConstantParam::DATA_TYPE::DT_FLOAT:
+            {
+                mValue.DataSize = sizeof(float32_t);
+                mValue.Data = new uint8_t[mValue.DataSize];
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_BOOL:
+            {
+                mValue.DataSize = sizeof(bool);
+                mValue.Data = new uint8_t[mValue.DataSize];
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_INTEGER:
+            {
+                mValue.DataSize = sizeof(int32_t);
+                mValue.Data = new uint8_t[mValue.DataSize];
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_COLOR:
+            {
+                mValue.DataSize = sizeof(ColorRGBA);
+                mValue.Data = new uint8_t[mValue.DataSize];
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_VECTOR4:
+            {
+                mValue.DataSize = sizeof(Vector4);
+                mValue.Data = new uint8_t[mValue.DataSize];
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_MATRIX4:
+            {
+                mValue.DataSize = sizeof(Matrix4);
+                mValue.Data = new uint8_t[mValue.DataSize];
+            }
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderConstantValue::~ShaderConstantValue()
+    {
+        mValue.release();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderConstantValuePtr ShaderConstantValue::clone() const
+    {
+        ShaderConstantValuePtr newValue = create(getName(), getDataType());
+
+        if (newValue != nullptr)
+        {
+            if (getDataType() == ShaderConstantParam::DATA_TYPE::DT_STRUCT)
+            {
+                newValue->setData(mValue.Data, (uint32_t)mValue.DataSize);
+            }
+            else
+            {
+                memcpy(newValue->mValue.Data, mValue.Data, mValue.DataSize);
+            }
+        }
+        
+        return newValue;
+    }
+    
     //--------------------------------------------------------------------------
 }
 

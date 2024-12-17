@@ -43,14 +43,14 @@ namespace Tiny3D
         do
         {
             // default meterial
-            ret = generateMaterial(MATERIAL_TITLE, rootPath);
+            ret = generateMaterial(MATERIAL_TITLE, rootPath, "white.ttex");
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate default material !");
             }
 
             // test material
-            ret = generateMaterial(TEST_MATERIAL_TITLE, rootPath);
+            ret = generateMaterial(TEST_MATERIAL_TITLE, rootPath, "Test.ttex");
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate test material !");
@@ -62,7 +62,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinMaterials::generateMaterial(const String &title, const String &rootPath)
+    TResult BuiltinMaterials::generateMaterial(const String &title, const String &rootPath, const String &texName)
     {
         TResult ret = T3D_OK;
 
@@ -79,6 +79,9 @@ namespace Tiny3D
             String path = rootPath + Dir::getNativeSeparator() + "materials";
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive);
+
+            TexturePtr texture = T3D_TEXTURE_MGR.getResource(texName);
+            material->setTexture("_MainTex", texture->getUUID());
             
             // 这里 hook ，用反射去修改引用的 shader uuid
             rttr::instance inst(*material);

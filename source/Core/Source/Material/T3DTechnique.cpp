@@ -73,12 +73,35 @@ namespace Tiny3D
                 ret = pass->compile();
                 if (T3D_FAILED(ret))
                 {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile pass [%s] ! ERROR [%d]", pass->getName().c_str(), ret);
                     break;
                 }
             }
             T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling technique !");
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Technique::reflect()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            for (auto pass : mPasses)
+            {
+                ret = pass->reflect();
+                if (T3D_FAILED(ret))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect pass [%s] ! ERROR [%d]", pass->getName().c_str(), ret);
+                    break;
+                }
+            }
+        } while (false);
+
         return ret;
     }
 

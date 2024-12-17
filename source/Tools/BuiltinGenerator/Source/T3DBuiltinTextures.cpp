@@ -37,6 +37,12 @@ namespace Tiny3D
         do
         {
             String outputPath = rootPath + Dir::getNativeSeparator() + "textures";
+
+            ret = generateDefaultAlbedo(outputPath);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to generate default albedo in %s ! ERROR [%d]", outputPath.c_str(), ret);
+            }
             
             ret = generateTestTexture(outputPath);
             if (T3D_FAILED(ret))
@@ -51,6 +57,60 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinTextures::generateDefaultAlbedo(const String &outputPath)
+    {
+        const uint32_t w = 4;
+        const uint32_t h = 4;
+        const uint32_t bytesPerPixel = 4;
+        const uint32_t dataSize = w * h * bytesPerPixel;
+        uint8_t *data = new uint8_t[dataSize];
+        uint32_t i = 0;
+        while (i < dataSize)
+        {
+            data[i++] = 255;
+            data[i++] = 255;
+            data[i++] = 255;
+            data[i++] = 255;
+        }
+        
+        Buffer texData;
+        texData.setData(data, dataSize);
+
+        String name = "white";
+        String filename = name + "." + Resource::EXT_TEXTURE;
+        
+        TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, w, h, PixelFormat::E_PF_B8G8R8X8, texData);
+
+        SamplerDesc samplerDesc;
+        texture->setSamplerDesc(samplerDesc);
+
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        TResult ret = T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Failed to generate default albedo texture %s ! ERROR [%d]", filename.c_str(), ret);
+        }
+
+        // Texture meta file
+        MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
+        filename = filename + ".meta";
+        ret = archive->write(filename,
+            [](DataStream &stream, const String &filename, void *userData)
+            {
+                MetaTexture *meta = static_cast<MetaTexture *>(userData);
+                return T3D_SERIALIZER_MGR.serialize(stream, meta);
+            },
+            meta.get());
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Failed to generate default albedo texture meta %s ! ERROR [%d]", filename.c_str(), ret);
+        }
+        
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult BuiltinTextures::generateTestTexture(const String &outputPath)

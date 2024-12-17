@@ -26,6 +26,7 @@
 #define __T3D_MATERIAL_H__
 
 
+#include "T3DShader.h"
 #include "Resource/T3DResource.h"
 #include "Material/T3DShaderConstantParam.h"
 #include "Material/T3DShaderSamplerParam.h"
@@ -288,21 +289,18 @@ namespace Tiny3D
         void setMatrixArray(const String &name, const Matrix4Array &values);
 
         Matrix4Array getMatrixArray(const String &name) const;
+        
+        void setTexture(const String &name, const UUID &uuid);
 
-        void setTexture(const String &name, Texture *value);
-
-        Texture *getTexture(const String &name) const;
+        const UUID &getTexture(const String &name) const;
 
         bool hasTexture(const String &name) const;
 
         TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="getter")
         const UUID &getShaderUUID() const { return mShaderUUID; }
 
-        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="getter")
-        const ShaderConstantParams &getConstantParams() const { return mConstants; }
-
-        TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="getter")
-        const ShaderSamplerParams &getSamplerParams() const { return mSamplers; }
+        TPROPERTY(RTTRFuncName="SamplerValues", RTTRFuncType="getter")
+        const ShaderSamplerValues &getSamplerValues() const { return mSamplerValues; }
 
         ShaderPtr getShader() const { return mShader; }
 
@@ -314,52 +312,14 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="setter")
         void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
 
-        TPROPERTY(RTTRFuncName="Constants", RTTRFuncType="setter")
-        void setConstantParams(const ShaderConstantParams &params) { mConstants = params; }
+        TPROPERTY(RTTRFuncName="SamplerValues", RTTRFuncType="setter")
+        void setSamplerValues(const ShaderSamplerValues &values) { mSamplerValues = values; }
 
-        TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="setter")
-        void setSamplerParams(const ShaderSamplerParams &params) { mSamplers = params; }
-        
-        template <typename T>
-        void setValue(const String &name, const void *data)
-        {
-            auto itr = mConstants.find(name);
-            if (itr != mConstants.end())
-            {
-                itr->second->setData(&data);
-            }
-        }
-        
-        template <typename T>
-        T getValue(const String &name) const
-        {
-            T value {};
-            auto itr = mConstants.find(name);
-            if (itr != mConstants.end() && itr->second->getDataSize() == sizeof(int32_t))
-            {
-                memcpy(&value, itr->second->getData(), itr->second->getDataSize());
-            }
-            return value;
-        }
+        TPROPERTY(RTTRFuncName="ConstantValues", RTTRFuncType="getter")
+        const ShaderConstantValues &getConstantValues() const { return mConstantValues; }
 
-        template <typename T>
-        TArray<T> getValues(const String &name) const
-        {
-            auto itr = mConstants.find(name);
-            if (itr != mConstants.end())
-            {
-                return TArray<T>((T*)itr->second->getData(), (T*)(itr->second->getData()) + itr->second->getDataSize());
-            }
-
-            return TArray<T>();
-        }
-
-        template <typename T>
-        bool hasValue(const String &name) const
-        {
-            auto itr = mConstants.find(name);
-            return (itr != mConstants.end() && itr->second->getDataSize() == sizeof(T));
-        }
+        TPROPERTY(RTTRFuncName="ConstantValues", RTTRFuncType="setter")
+        void setConstantValues(const ShaderConstantValues &values) { mConstantValues = values; }
         
     protected:
         Material(const String &name);
@@ -374,13 +334,50 @@ namespace Tiny3D
         
         TResult onLoad(Archive *archive) override;
 
-        TResult init();
+        TResult init(bool shouldRefelect, Archive *archive);
 
+        template <typename T>
+        bool hasValue(const String &name) const
+        {
+            const auto itr = mConstantValues.find(name);
+            return (itr != mConstantValues.end() && sizeof(T) == itr->second->getDataSize());
+        }
+        
+        template <typename Value_t, typename ShaderSetValue_t, typename TechniqueSetValue_t>
+        void setValue(const String &name, const Value_t &value, ShaderSetValue_t setShaderConstantValue, TechniqueSetValue_t setTechniqueConstantValue)
+        {
+            const auto itr = mConstantValues.find(name);
+            if (itr != mConstantValues.end())
+            {
+                (itr->second->*setShaderConstantValue)(value);
+            }
+
+            if (mCurTechnique != nullptr)
+            {
+                (mCurTechnique->*setTechniqueConstantValue)(name, value);
+            }
+        }
+
+        template <typename Value_t, typename SahderGetValue_t>
+        Value_t getValue(const String &name, SahderGetValue_t getShaderContantValue) const
+        {
+            const auto itr = mConstantValues.find(name);
+            if (itr != mConstantValues.end())
+            {
+                return (itr->second->*getShaderContantValue)();
+            }
+            return Value_t {};
+        }
+
+        void setShaderConstantValue(ShaderConstantValue *constValue);
+
+        void setShaderSamplerValue(Archive *archive, ShaderSamplerValue *samplerValue);
+        
     protected:
-        /// shader 常量
-        ShaderConstantParams    mConstants {};
-        /// shader 纹理采样器
-        ShaderSamplerParams     mSamplers {};
+        /// shader 纹理采样器的数据
+        ShaderSamplerValues      mSamplerValues {};
+        /// shader 常量缓冲区的数据
+        ShaderConstantValues    mConstantValues {};
         /// 着色器资源的 UUID
         UUID                    mShaderUUID {UUID::INVALID};
         /// 材质对应的着色器对象

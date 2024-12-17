@@ -29,6 +29,7 @@
 
 #include "T3DSCCPrerequisites.h"
 #include "SLParserTypes.h"
+#include "T3DShaderCompiler.h"
 
 
 namespace shaderlab
@@ -69,11 +70,15 @@ namespace Tiny3D
 
         void printCommand(int32_t argc, const char *argv[]) const;
 
-        bool parse(int32_t argc, const char* argv[], Args& args);
+        bool parse(int32_t argc, const char *argv[], Args &args);
 
-        bool readSourceFile(String& content, const String& input);
+        bool readSourceFile(String &content, const String &input);
 
         bool compile(shaderlab::SLShader *source);
+
+        bool compileShaderLab(const String &content);
+
+        bool compileNativeShader(const String &content);
 
         bool translate(const shaderlab::SLShader& src, ShaderPtr dst);
 

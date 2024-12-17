@@ -34,6 +34,8 @@ const char *SUB_MESH_NAME = "#0";
 
 TextureApp theApp;
 
+extern const char *SAMPLE_VERTEX_SHADER;
+extern const char *SAMPLE_PIXEL_SHADER;
 
 TextureApp::TextureApp()
 {
@@ -143,84 +145,13 @@ MaterialPtr TextureApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs =
-        "//cbuffer ConstantBuffer : register(b0)\n"
-        "//{\n"
-        "//   float4x4 modelMatrix;\n"
-        "//   float4x4 viewMatrix;\n"
-        "//   float4x4 projectionMatrix;\n"
-        "//}\n"
-        "cbuffer Tiny3DPerDraw : register(b0)\n"
-        "{\n"
-        "   row_major float4x4 tiny3d_ObjectToWorld;\n"
-        "   row_major float4x4 tiny3d_WorldToObject;\n"
-        "}\n"
-        "\n"
-        "cbuffer Tiny3DPerFrame : register(b1)\n"
-        "{\n"
-        "   row_major float4x4 tiny3d_MatrixV;\n"
-        "   row_major float4x4 tiny3d_MatrixP;\n"
-        "   row_major float4x4 tiny3d_MatrixVP;\n"
-        "}\n"
-        "\n"
-        "static float4x4 tiny3d_MatrixMVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);\n"
-        "static float4x4 tiny3d_MatrixMV = mul(tiny3d_MatrixV, tiny3d_ObjectToWorld);\n"
-        "\n"
-        "#define TINY3D_MATRIX_M    tiny3d_ObjectToWorld\n"
-        "#define TINY3D_MATRIX_V    tiny3d_MatrixV\n"
-        "#define TINY3D_MATRIX_P    tiny3d_MatrixP\n"
-        "#define TINY3D_MATRIX_VP   tiny3d_MatrixVP\n"
-        "#define TINY3D_MATRIX_MV   tiny3d_MatrixMV\n"
-        "#define TINY3D_MATRIX_MVP  tiny3d_MatrixMVP\n"
-        "\n"
-        "struct VertexInput\n"
-        "{\n"
-        "   float3 position : POSITION;\n"
-        "   float2 uv : TEXCOORD0;\n"
-        "};\n"
-        "struct VertexOutput\n"
-        "{\n"
-        "   float4 position : SV_POSITION;\n"
-        "   float2 uv : TEXCOORD0;\n"
-        "};\n"
-        "VertexOutput main(VertexInput input)\n"
-        "{\n"
-        "   VertexOutput output;\n"
-        "   //float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);\n"
-        "   //float4 viewPosition = mul(viewMatrix, worldPosition);\n"
-        "   //float4 clipPosition = mul(projectionMatrix, viewPosition);\n"
-        "   //output.position = clipPosition;\n"
-        "   //row_major float4x4 MVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);\n"
-        "   output.position = mul(TINY3D_MATRIX_MVP, float4(input.position, 1.0f));\n"
-        "   //output.position = float4(input.position, 1.0);\n"
-        "   output.uv = input.uv;\n"
-        "   return output;\n"
-        "}\n";
+    const String vs = SAMPLE_VERTEX_SHADER;
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps =
-        "#define CONCATENATE(a, b) a##b\n"
-        "#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name);\n"
-        "#define TEX2D_R(name, r) Texture2D name : register(CONCATENATE(t, r)); SamplerState CONCATENATE(sampler, name) : register(CONCATENATE(s, r));\n"
-        "#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv);\n"
-        "//Texture2D texCube : register(t0);\n"
-        "//SamplerState samplertexCube : register(s0);\n"
-        "TEX2D(texCube);\n"
-        "struct PS_INPUT\n"
-        "{\n"
-        "    float4 position : SV_POSITION;\n"
-        "    float2 uv : TEXCOORD0;\n"
-        "};\n"
-        "float4 main(PS_INPUT input) : SV_Target\n"
-        "{\n"
-        "    //float4 color = texCube.Sample(sampler_texCube, input.uv);\n"
-        "    float4 color = SAMPLE(texCube, input.uv);\n"
-        "    //float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);\n"
-        "    return color;\n"
-        "}";
+    const String ps = SAMPLE_PIXEL_SHADER;
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
@@ -265,8 +196,8 @@ MaterialPtr TextureApp::buildMaterial()
     // sampler state
     SamplerDesc samplerDesc;
     texture->setSamplerDesc(samplerDesc);
-    ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
-    shader->addSamplerParam(sampler);
+    // ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
+    // shader->addSamplerParam(sampler);
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
@@ -274,6 +205,7 @@ MaterialPtr TextureApp::buildMaterial()
     enableKeywrods.push_back("-");
     StringArray disableKeywords;
     material->switchKeywords(enableKeywrods, disableKeywords);
+    material->setTexture(texSamplerName, texture->getUUID());
     
     return material;
 }

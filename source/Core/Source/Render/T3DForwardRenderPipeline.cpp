@@ -201,6 +201,10 @@ namespace Tiny3D
 
                         TechniqueInstancePtr tech = material->getCurrentTechnique();
 
+                        material->setMatrix("tiny3d_MatrixV", ctx->getViewMatrix());
+                        material->setMatrix("tiny3d_MatrixP", ctx->getProjMatrix());
+                        material->setMatrix("tiny3d_MatrixVP", ctx->getProjViewMatrix());
+
                         // 遍历渲染每个 Pass
                         for (auto pass : tech->getPassInstances())
                         {
@@ -266,7 +270,10 @@ namespace Tiny3D
                                 if (xformNode != nullptr)
                                 {
                                     const Transform &xform = xformNode->getLocalToWorldTransform();
-                                    ctx->setWorldTransform(xform.getAffineMatrix());
+                                    // ctx->setWorldTransform(xform.getAffineMatrix());
+                                    material->setMatrix("tiny3d_ObjectToWorld", xform.getAffineMatrix());
+                                    Matrix4 matWorld2Obj = xform.getAffineMatrix().inverse();
+                                    material->setMatrix("tiny3d_WorldToObject", matWorld2Obj);
                                 }
                                 
                                 // 设置渲染图元类型
@@ -363,6 +370,7 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
+#if 0
         ConstantBuffers cbuffers;
         cbuffers.reserve(shader->getShaderVariant()->getShaderConstantBindings().size());
         uint32_t i = 0;
@@ -419,7 +427,15 @@ namespace Tiny3D
         {
             (ctx->*setCBuffer)(0, cbuffers);
         }
-
+#else
+        uint32_t startSlot = 0;
+        shader->setupConstantBuffers(startSlot);
+        
+        if (!shader->getConstantBuffers().empty())
+        {
+            (ctx->*setCBuffer)(startSlot, shader->getConstantBuffers());
+        }
+#endif
         return T3D_OK;
     }
 
@@ -432,6 +448,7 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
+#if 0
         for (const auto &binding : shader->getShaderVariant()->getShaderTexSamplerBindings())
         {
             auto itParam = material->getSamplerParams().find(binding.second.texBinding.name);
@@ -456,6 +473,16 @@ namespace Tiny3D
             //     binding.second.texBinding.texType;
             // }
         }
+#else
+        if (!shader->getSamplers().empty())
+        {
+            uint32_t startSlot = shader->getSamplerStartSlot();
+            (ctx->*setSamplerState)(startSlot, shader->getSamplers());
+
+            startSlot = shader->getPixelBufferStartSlot();
+            (ctx->*setPixelBuffer)(startSlot, shader->getPixelBuffers());
+        }
+#endif
         
         return T3D_OK;
     }

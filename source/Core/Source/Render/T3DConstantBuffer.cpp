@@ -33,15 +33,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ConstantBufferPtr ConstantBuffer::create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+    ConstantBufferPtr ConstantBuffer::create(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new ConstantBuffer(buffer, memType, usage, accMode);
+        return new ConstantBuffer(name, binding, buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    ConstantBuffer::ConstantBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+    ConstantBuffer::ConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
         : RenderBuffer(buffer, memType, usage, accMode)
+        , mName(name)
+        , mBinding(binding)
     {
         
     }

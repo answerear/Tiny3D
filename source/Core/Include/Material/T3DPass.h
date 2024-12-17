@@ -53,6 +53,12 @@ namespace Tiny3D
 
         TResult compile();
 
+        /**
+         * @brief 反射 shader 信息
+         * @return 调用成功返回 T3D_OK
+         */
+        TResult reflect();
+
         void setTechnique(Technique *tech) { mTech = tech; }
 
         Technique *getTechnique() const { return mTech; }

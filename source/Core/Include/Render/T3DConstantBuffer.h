@@ -35,18 +35,25 @@ namespace Tiny3D
     class T3D_ENGINE_API ConstantBuffer : public RenderBuffer
     {
     public:
-        static ConstantBufferPtr create(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static ConstantBufferPtr create(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
         
         ~ConstantBuffer() override = default;
 
         Type getType() const override;
+
+        const String &getName() const { return mName; }
+
+        uint32_t getBinding() const { return mBinding; }
         
     protected:
-        ConstantBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        ConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
 
         bool onLoad() override;
 
         bool onUnload() override;
+
+        String  mName {};
+        uint32_t mBinding {0};
     };
 }
 

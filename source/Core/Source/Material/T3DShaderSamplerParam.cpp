@@ -32,39 +32,20 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ShaderSamplerParamPtr ShaderSamplerParam::create(const String &name, const String &texName, TEXTURE_TYPE texType)
+    ShaderSamplerParamPtr ShaderSamplerParam::create(const String &name)
     {
-        return new ShaderSamplerParam(name, texName, texType);
+        return new ShaderSamplerParam(name);
     }
     
     //--------------------------------------------------------------------------
 
-    ShaderSamplerParamPtr ShaderSamplerParam::create(const String &name, TEXTURE_TYPE texType, TexturePtr texture)
-    {
-        return new ShaderSamplerParam(name, texType, texture);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ShaderSamplerParam::ShaderSamplerParam(const String &name, const String &texName, TEXTURE_TYPE texType)
+    ShaderSamplerParam::ShaderSamplerParam(const String &name)
         : mName(name)
-        , mTexName(texName)
-        , mTexType(texType)
     {
         // ArchivePtr archive;
         // mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
     }
 
-    //--------------------------------------------------------------------------
-
-    ShaderSamplerParam::ShaderSamplerParam(const String &name, TEXTURE_TYPE texType, TexturePtr texture)
-        : mName(name)
-        , mTexType(texType)
-        , mTexture(texture)
-    {
-        
-    }
-    
     //--------------------------------------------------------------------------
 
     ShaderSamplerParam::~ShaderSamplerParam()
@@ -78,9 +59,9 @@ namespace Tiny3D
     {
         ShaderSamplerParamPtr sampler = new ShaderSamplerParam();
         sampler->mName = mName;
-        sampler->mTexName = mTexName;
         sampler->mTexType = mTexType;
-        sampler->mTexture = mTexture;
+        sampler->mTexBinding = mTexBinding;
+        sampler->mSamplerBinding = mSamplerBinding;
         return sampler;
     }
 
@@ -90,6 +71,28 @@ namespace Tiny3D
     {
         // ArchivePtr archive;
         // mTexture = T3D_TEXTURE_MGR.loadTexture(archive, mName);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderSamplerValuePtr ShaderSamplerValue::create(const String &name)
+    {
+        return new ShaderSamplerValue(name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderSamplerValue::ShaderSamplerValue(const String &name)
+        : mName(name)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderSamplerValue::~ShaderSamplerValue()
+    {
+        
     }
 
     //--------------------------------------------------------------------------

@@ -53,6 +53,8 @@ namespace Tiny3D
 
         TResult compile();
 
+        TResult reflect();
+
         void setShader(Shader *shader) { mShader = shader; }
 
         Shader *getShader() const { return mShader; }

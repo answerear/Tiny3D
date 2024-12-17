@@ -26,9 +26,11 @@
 #include "Resource/T3DMaterial.h"
 
 #include "T3DErrorDef.h"
+#include "Material/T3DPass.h"
 #include "Resource/T3DShader.h"
 #include "Resource/T3DShaderManager.h"
 #include "Material/T3DTechniqueInstance.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -126,42 +128,146 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Material::setTexture(const String &name, Texture *value)
+    void Material::setTexture(const String &name, const UUID &uuid)
     {
-        auto itr = mSamplers.find(name);
-        if (itr != mSamplers.end())
+        const auto itr = mSamplerValues.find(name);
+        if (itr != mSamplerValues.end())
         {
-            // TODO
-            // itr->second->setTextureType(value);
+            itr->second->setTextureUUID(uuid);
+        }
+
+        if (mCurTechnique != nullptr)
+        {
+            mCurTechnique->setTexture(name, uuid);
         }
     }
 
     //--------------------------------------------------------------------------
 
-    Texture *Material::getTexture(const String &name) const
+    const UUID &Material::getTexture(const String &name) const
     {
-        // TextureState *texState;
-        Texture *texture = nullptr;
-        auto itr = mSamplers.find(name);
-        if (itr != mSamplers.end())
+        const auto itr = mSamplerValues.find(name);
+        if (itr != mSamplerValues.end())
         {
-            // TODO
-            // texState = itr->second->getTextureState();
+            return itr->second->getTextureUUID();
         }
-        return texture;
+        return UUID::INVALID;
     }
 
     //--------------------------------------------------------------------------
 
     bool Material::hasTexture(const String &name) const
     {
-        const auto itr = mSamplers.find(name);
-        return (itr != mSamplers.end());
+        const auto itr = mSamplerValues.find(name);
+        return (itr != mSamplerValues.end());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Material::init()
+    void Material::setShaderConstantValue(ShaderConstantValue *constValue)
+    {
+        T3D_ASSERT(mCurTechnique != nullptr);
+        
+        switch (constValue->getDataType())
+        {
+        case ShaderConstantParam::DATA_TYPE::DT_FLOAT:
+            {
+                /// 浮点数
+                mCurTechnique->setFloat(constValue->getName(), constValue->getFloat());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY:
+            {
+                /// 浮点数组
+                mCurTechnique->setFloatArray(constValue->getName(), constValue->getFloatArray());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_BOOL:
+            {
+                /// 布尔值
+                mCurTechnique->setBool(constValue->getName(), constValue->getBool());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY:
+            {
+                /// 布尔数组
+                mCurTechnique->setBoolArray(constValue->getName(), constValue->getBoolArray());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_INTEGER:
+            {
+                /// 整型
+                mCurTechnique->setInteger(constValue->getName(), constValue->getInteger());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY:
+            {
+                /// 整型数组
+                mCurTechnique->setIntArray(constValue->getName(), constValue->getIntArray());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_COLOR:
+            {
+                /// 颜色
+                mCurTechnique->setColor(constValue->getName(), constValue->getColor());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY:
+            {
+                /// 颜色数组
+                mCurTechnique->setColorArray(constValue->getName(), constValue->getColorArray());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_VECTOR4:
+            {
+                /// 4D 向量
+                mCurTechnique->setVector(constValue->getName(), constValue->getVector());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY:
+            {
+                /// 4D 向量数组
+                mCurTechnique->setVectorArray(constValue->getName(), constValue->getVectorArray());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_MATRIX4:
+            {
+                /// 4D 方阵
+                mCurTechnique->setMatrix(constValue->getName(), constValue->getMatrix());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY:
+            {
+                /// 4D 方阵数组
+                mCurTechnique->setMatrixArray(constValue->getName(), constValue->getMatrixArray());
+            }
+            break;
+        case ShaderConstantParam::DATA_TYPE::DT_STRUCT:
+            {
+                /// 结构体
+                mCurTechnique->setData(constValue->getName(), constValue->getData(), constValue->getDataSize());
+            }
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Material::setShaderSamplerValue(Archive *archive, ShaderSamplerValue *samplerValue)
+    {
+        if (archive != nullptr)
+        {
+            TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(archive, samplerValue->getTextureUUID());
+            T3D_ASSERT(texture);
+        }
+
+        T3D_ASSERT(mCurTechnique != nullptr);
+        mCurTechnique->setTexture(samplerValue->getName(), samplerValue->getTextureUUID());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Material::init(bool shouldReflect, Archive *archive)
     {
         TResult ret;
 
@@ -170,28 +276,69 @@ namespace Tiny3D
             ret = mShader->compile();
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Compile shader failed !");
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader (%s) ! ERROR [%d]", mShader->getName().c_str(), ret);
                 break;
+            }
+
+            if (shouldReflect)
+            {
+                ret = mShader->reflect();
+                if (T3D_FAILED(ret))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect shader (%s) ! ERROR [%d]", mShader->getName().c_str(), ret);
+                    break;
+                }
+
+                auto initShaderParams = [this](const ShaderVariants &shaderVariants)
+                {
+                    for (const auto &shaderVariant : shaderVariants)
+                    {
+                        // 添加常量，并设置常量初始值
+                        for (const auto &param : shaderVariant.second->getShaderConstantParams())
+                        {
+                            ShaderConstantValuePtr constValue = ShaderConstantValue::create(param.first, param.second->getDataType());
+                            uint8_t *data = new uint8_t[param.second->getDataSize()];
+                            memset(data, 0, param.second->getDataSize());
+                            constValue->setData(data, param.second->getDataSize());
+                            T3D_SAFE_DELETE_ARRAY(data);
+
+                            mConstantValues.emplace(constValue->getName(), constValue);
+                        }
+
+                        // 添加纹理采样器
+                        for (const auto &param : shaderVariant.second->getShaderSamplerParams())
+                        {
+                            ShaderSamplerValuePtr samplerValue = ShaderSamplerValue::create(param.first);
+                            mSamplerValues.emplace(samplerValue->getName(), samplerValue);
+                        }
+                    }
+                };
+                
+                for (const auto &tech : mShader->getTechniques())
+                {
+                    for (const auto &pass : tech->getPasses())
+                    {
+                        initShaderParams(pass->getVertexShaders());
+                        initShaderParams(pass->getPixelShaders());
+                        initShaderParams(pass->getDomainShaders());
+                        initShaderParams(pass->getHullShaders());
+                        initShaderParams(pass->getGeometryShaders());
+                    }
+                }
             }
 
             mCurTechnique = TechniqueInstance::create(this, mShader->getSupportTechnique());
 
-            // 清除 constant 、sampler数据
-            mConstants.clear();
-            mSamplers.clear();
-
-            // 复制一份 constant 数据
-            for (auto value : mShader->getConstantParams())
+            // 设置 shader constant buffer 值
+            for (const auto &item : mConstantValues)
             {
-                ShaderConstantParamPtr param = value.second->clone();
-                mConstants.emplace(value.first, param);
+                setShaderConstantValue(item.second);
             }
 
-            // 复制一份 sampler 数据
-            for (auto value : mShader->getSamplerParams())
+            // 档案对象非空，则需要加载纹理资源
+            for (const auto &item : mSamplerValues)
             {
-                ShaderSamplerParamPtr param = value.second->clone();
-                mSamplers.emplace(value.first, param);
+                setShaderSamplerValue(archive, item.second);
             }
         } while (false);
 
@@ -212,7 +359,7 @@ namespace Tiny3D
                 break;
             }
 
-            ret = init();
+            ret = init(true, nullptr);
         } while (false);
 
         return ret;
@@ -241,11 +388,15 @@ namespace Tiny3D
                 break;
             }
 
-            ret = init();
+            ret = init(false, archive);
         } while (false);
         
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+    
 
     //--------------------------------------------------------------------------
 }

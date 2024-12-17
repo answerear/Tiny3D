@@ -35,69 +35,69 @@ namespace Tiny3D
     /**
      * \brief 着色器变量绑定信息
      */
-    struct ShaderVariableBinding
-    {
-        /// 名称
-        String      name {};
-        /// 变量在缓冲区中的偏移
-        uint32_t    offset {0};
-        /// 变量大小
-        uint32_t    size {0};
-        /// 变量类型
-        ShaderConstantParam::DATA_TYPE type {ShaderConstantParam::DATA_TYPE::DT_FLOAT};
-    };
-
-    using ShaderVariableBindings = TMap<String, ShaderVariableBinding>;
+    // struct ShaderVariableBinding
+    // {
+    //     /// 名称
+    //     String      name {};
+    //     /// 变量在缓冲区中的偏移
+    //     uint32_t    offset {0};
+    //     /// 变量大小
+    //     uint32_t    size {0};
+    //     /// 变量类型
+    //     ShaderConstantParam::DATA_TYPE type {ShaderConstantParam::DATA_TYPE::DT_FLOAT};
+    // };
+    //
+    // using ShaderVariableBindings = TMap<String, ShaderVariableBinding>;
 
     /**
      * \brief 着色器常量绑定信息
      */
-    struct ShaderConstantBinding
-    {
-        /// 名称
-        String      name {};
-        /// 绑定点
-        uint32_t    binding {0};
-        /// 缓冲区大小
-        uint32_t    size {0};
-        /// 常量缓冲区包含的变量列表
-        ShaderVariableBindings  variables;
-    };
+    // struct ShaderConstantBinding
+    // {
+    //     /// 名称
+    //     String      name {};
+    //     /// 绑定点
+    //     uint32_t    binding {0};
+    //     /// 缓冲区大小
+    //     uint32_t    size {0};
+    //     /// 常量缓冲区包含的变量列表
+    //     ShaderVariableBindings  variables;
+    // };
 
     /**
      * \brief 着色器纹理绑定信息
      */
-    struct ShaderTextureBinding
-    {
-        /// 名称
-        String          name {};
-        /// 绑定点
-        uint32_t        binding {0};
-        /// 绑定数量，用于纹理数组
-        uint32_t        bindingCount {0};
-        /// 纹理类型
-        TEXTURE_TYPE    texType {TEXTURE_TYPE::TT_2D};
-    };
+    // struct ShaderTextureBinding
+    // {
+    //     /// 名称
+    //     String          name {};
+    //     /// 绑定点
+    //     uint32_t        binding {0};
+    //     /// 绑定数量，用于纹理数组
+    //     uint32_t        bindingCount {0};
+    //     /// 纹理类型
+    //     TEXTURE_TYPE    texType {TEXTURE_TYPE::TT_2D};
+    // };
 
     /**
      * \brief 着色器纹理采样器绑定信息
      */
-    struct ShaderSamplerBinding
-    {
-        /// 名称
-        String      name {};
-        /// 绑定点
-        uint32_t    binding {0};
-    };
+    // struct ShaderSamplerBinding
+    // {
+    //     /// 名称
+    //     String      name {};
+    //     /// 绑定点
+    //     uint32_t    binding {0};
+    // };
+    //
+    // struct ShaderTexSamplerBinding
+    // {
+    //     ShaderTextureBinding    texBinding {};
+    //     ShaderSamplerBinding    samplerBinding {};
+    // };
 
-    struct ShaderTexSamplerBinding
-    {
-        ShaderTextureBinding    texBinding {};
-        ShaderSamplerBinding    samplerBinding {};
-    };
-
-    using ShaderConstantBindings = TMap<String, ShaderConstantBinding>;
-    using ShaderTexSamplerBindings = TMap<String, ShaderTexSamplerBinding>;
+    // using ShaderConstantBindings = TMap<String, ShaderConstantBinding>;
+    // using ShaderTexSamplerBindings = TMap<String, ShaderTexSamplerBinding>;
 }
 
 

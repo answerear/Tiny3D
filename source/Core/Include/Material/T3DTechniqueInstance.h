@@ -46,6 +46,34 @@ namespace Tiny3D
 
         TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys);
 
+        void setBool(const String &name, bool value);
+
+        void setBoolArray(const String &name, const BoolArray &values);
+
+        void setFloat(const String &name, float32_t value);
+
+        void setFloatArray(const String &name, const FloatArray &values);
+
+        void setInteger(const String &name, int32_t value);
+
+        void setIntArray(const String &name, const IntArray &values);
+
+        void setColor(const String &name, const ColorRGBA &value);
+
+        void setColorArray(const String &name, const ColorArray &values);
+        
+        void setVector(const String &name, const Vector4 &value);
+
+        void setVectorArray(const String &name, const Vector4Array &values);
+
+        void setMatrix(const String &name, const Matrix4 &value);
+
+        void setMatrixArray(const String &name, const Matrix4Array &values);
+
+        void setData(const String &name, const void *data, uint32_t dataSize);
+
+        void setTexture(const String &name, const UUID &uuid);
+        
     protected:
         TechniqueInstance(Material *parent, TechniquePtr tech);
         

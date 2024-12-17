@@ -392,7 +392,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ConstantBufferPtr RenderBufferManager::loadConstantBuffer(const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    ConstantBufferPtr RenderBufferManager::loadConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -401,11 +401,11 @@ namespace  Tiny3D
         }
 
         return loadBuffer<ConstantBuffer>(mCBufferCache, uid,
-            [](const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode)
             {
-                return ConstantBuffer::create(buffer, memType, usage, accMode);
+                return ConstantBuffer::create(name, binding, buffer, memType, usage, accMode);
             },
-            buffer, memType, usage, accMode);
+            name, binding, buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------

@@ -173,9 +173,8 @@ namespace Tiny3D
 
         // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
 
-        for (size_t i = 0; i < snippets.size(); i++)
+        for (const ShaderSnippet &snippet : snippets)
         {
-            ShaderSnippet snippet = snippets[i];
             ret = ret && compileShaderSnippet(snippet, pass);
         }
         
@@ -183,6 +182,41 @@ namespace Tiny3D
     }
 
 #endif
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderCompiler::compile(const String &code, const String &inputPath, const String &outputDir, const Args &args)
+    {
+        bool ret = true;
+
+        mArgs = args;
+        mInputPath = inputPath;
+        mOutputDir = outputDir;
+
+        // shader code
+        const String &source = code;
+
+        // parse pragma
+        TArray<PragmaParam> pragmaParams;
+        parsePragmaArgs(source, "#pragma ", pragmaParams);
+
+        // program params
+        ProgramParameters programParams;
+        programParams.setPragmaParams(pragmaParams);
+
+        // generate snippet
+        ShaderSnippets snippets;
+        generateShaderSnippets(source, programParams, snippets);
+
+        // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
+
+        for (const ShaderSnippet &snippet : snippets)
+        {
+            ret = ret && compileShaderSnippet(snippet);
+        }
+        
+        return ret;
+    }
 
     //--------------------------------------------------------------------------
 
@@ -342,6 +376,50 @@ namespace Tiny3D
 
     bool ShaderCompiler::compileShaderSnippet(const ShaderSnippet &snippet, PassPtr pass)
     {
+        return compileShaderSnippet(snippet, [&pass](const String &content, ShaderKeyword &&keyword, SHADER_STAGE shaderType)
+            {
+                ShaderVariantPtr shaderVariant = ShaderVariant::create(std::move(keyword), content);
+                shaderVariant->setShaderStage(shaderType);
+                pass->addShaderVariant(shaderVariant->getShaderKeyword(), shaderVariant);
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderCompiler::compileShaderSnippet(const ShaderSnippet &snippet)
+    {
+        return compileShaderSnippet(snippet, [this, &snippet](const String &content, ShaderKeyword &&keyword, SHADER_STAGE shaderType)
+            {
+                do
+                {
+                    String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
+                    if (!keyword.getKeys().empty())
+                    {
+                        outputPath = outputPath + "_" + keyword.getName() + "_" + snippet.stage + "." + mArgs.target;
+                    }
+                    else
+                    {
+                        outputPath = outputPath + "_" + snippet.stage + "." + mArgs.target;
+                    }
+                    
+                    FileDataStream fs;
+                    if (!fs.open(outputPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_WRITE_ONLY))
+                    {
+                        SCC_LOG_ERROR("Failed to open file (%s) !", outputPath.c_str());
+                        break;
+                    }
+
+                    fs.write((void*)content.data(), content.size());
+                    fs.close();
+
+                } while (false);
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderCompiler::compileShaderSnippet(const ShaderSnippet &snippet, const CompilePostProcessor &postProcessor)
+    {
         bool ret = true;
 
         do 
@@ -471,9 +549,10 @@ namespace Tiny3D
                     // 所以这里做一次替换，以修复转出来的 hlsl 错误的 Semantic 修饰
                     fixSpirVCrossForHLSLSemantics(content);
                 }
-                ShaderVariantPtr shaderVariant = ShaderVariant::create(std::move(keyword), content);
-                shaderVariant->setShaderStage(shaderType);
-                pass->addShaderVariant(shaderVariant->getShaderKeyword(), shaderVariant);
+                if (postProcessor != nullptr)
+                {
+                    postProcessor(content, std::move(keyword), shaderType);
+                }
             }
 
             DestroyBlob(result.errorWarningMsg);
@@ -508,5 +587,7 @@ namespace Tiny3D
             p0 = endPos + 1;
         }
     }
+
+    //--------------------------------------------------------------------------
 }
 

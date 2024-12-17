@@ -417,13 +417,14 @@ namespace Tiny3D
         const String texSamplerName = "texCube";
         Texture2DPtr texture = buildTexture();
         // sampler state
-        SamplerDesc samplerDesc;
-        texture->setSamplerDesc(samplerDesc);
-        ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
-        shader->addSamplerParam(sampler);
+        // SamplerDesc samplerDesc;
+        // texture->setSamplerDesc(samplerDesc);
+        // ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
+        // shader->addSamplerParam(sampler);
         
         // material
         MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
+        material->setTexture(texSamplerName, texture->getUUID());
         StringArray enableKeywrods;
         enableKeywrods.push_back("-");
         StringArray disableKeywords;

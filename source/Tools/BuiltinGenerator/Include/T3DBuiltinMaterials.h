@@ -45,7 +45,7 @@ namespace Tiny3D
             return (it == mMaterials.end() ? nullptr : it->second);
         }
     protected:
-        TResult generateMaterial(const String &title, const String &rootPath);
+        TResult generateMaterial(const String &title, const String &rootPath, const String &texName);
         
         // TResult generateDefaultMaterial(const String &rootPath);
         //

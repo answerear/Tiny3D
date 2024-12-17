@@ -24,11 +24,14 @@
 
 
 #include "Material/T3DShaderVariantInstance.h"
+
+#include "Material/T3DShaderSamplerParam.h"
 #include "Material/T3DShaderVariant.h"
-#include "Material/T3DPassInstance.h"
-#include "Material/T3DTechniqueInstance.h"
+#include "Render/T3DConstantBuffer.h"
+#include "Render/T3DPixelBuffer.h"
 #include "Render/T3DRenderResourceManager.h"
-#include "Resource/T3DMaterial.h"
+#include "Resource/T3DTexture.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -46,30 +49,188 @@ namespace Tiny3D
         : mPassInstance(parent)
         , mShaderVariant(shaderVariant)
     {
-        for (const auto &binding : mShaderVariant->getShaderConstantBindings())
+        struct CBufferInfo
         {
-            Buffer buffer;
-            buffer.DataSize = binding.second.size;
-            buffer.Data = new uint8_t[buffer.DataSize];
-            
-            // Material *material = getPassInstance()->getTechInstance()->getMaterial();
-            // for (const auto &param : material->getConstantParams())
-            // {
-            //     auto itVar = binding.second.variables.find(param.second->getName());
-            //     if (itVar == binding.second.variables.end())
-            //     {
-            //         // 没有对应名字的变量
-            //         continue;
-            //     }
-            //
-            //     memcpy(buffer.Data + itVar->second.offset, param.second->getData(), itVar->second.size);
-            // }
+            CBufferInfo() = default;
 
-            ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(buffer, MemoryType::kVRAM, Usage::kDynamic, CPUAccessMode::kCPUWrite);
-            mConstantBuffers.emplace(binding.first, cbuffer);
+            CBufferInfo(const String &n, uint32_t s) : name(n), size(s) {}
+
+            String      name {};
+            uint32_t    size {0};
+        };
+        
+        TMap<uint32_t, CBufferInfo> cbuffers;  // 常量缓冲区数量以及每个缓冲区的大小
+
+        // 统计缓冲区数量和计算每个缓冲区的大小
+        for (const auto &item : mShaderVariant->getShaderConstantParams())
+        {
+            uint32_t bp = item.second->getBindingPoint();
+            auto itr = cbuffers.find(bp);
+            if (itr == cbuffers.end())
+            {
+                // 没有，插入一个
+                CBufferInfo info(item.second->getCBufferName(), item.second->getDataSize());
+                cbuffers.emplace(bp, info);
+            }
+            else
+            {
+                itr->second.size += item.second->getDataSize();
+            }
+        }
+
+        // 根据收集和计算的缓冲区信息，创建缓冲区数据和RHI缓冲区对象
+        for (const auto &item : cbuffers)
+        {
+            // 创建缓冲区数据，用于读写
+            Buffer buffer;
+            buffer.DataSize = item.second.size;
+            buffer.Data = new uint8_t[buffer.DataSize];
+            mConstBuffers.emplace_back(buffer);
+
+            // 创建 RHI 相关缓冲区对象
+            ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(item.second.name, item.first, buffer, MemoryType::kVRAM, Usage::kDynamic, CPUAccessMode::kCPUWrite);
+            mConstantBuffers.emplace_back(cbuffer);
+
+            // 创建 LUT，用于快速查找
+            mConstBuffersLUT.emplace(item.second.name, buffer);
+        }
+
+        T3D_ASSERT(mConstantBuffers.size() == mConstBuffers.size());
+
+        // 预分配纹理、纹理采样器、像素缓冲对象大小
+        mTextures.resize(mShaderVariant->getShaderSamplerParams().size());
+        mSamplers.resize(mShaderVariant->getShaderSamplerParams().size());
+        mPixelBuffers.resize(mShaderVariant->getShaderSamplerParams().size());
+
+        // 以防万一 sampler start index 不是 0 开始，先找出最小的 index ，作为 start index
+        uint32_t startIdx = std::numeric_limits<uint32_t>::max();
+        TMap<uint32_t, ShaderSamplerParamPtr> samplers;
+        for (const auto &item : mShaderVariant->getShaderSamplerParams())
+        {
+            uint32_t index = item.second->getSamplerBinding();
+            samplers.emplace(index, item.second);
+            startIdx = std::min(startIdx, index);
+        }
+
+        // 记录 samplers 起始索引
+        mSamplerStartSlot = startIdx;
+
+        // 建立 sampler LUT
+        for (const auto &item : samplers)
+        {
+            TexLUTItem itemLUT;
+            itemLUT.samplerIndex = item.first;
+            mTexturesLUT.emplace(item.second->getName(), itemLUT);
+        }
+
+        // 以防万一 sampler start index 不是 0 开始，先找出最小的 index ，作为 start index
+        startIdx = std::numeric_limits<uint32_t>::max();
+        samplers.clear();
+        for (const auto &item : mShaderVariant->getShaderSamplerParams())
+        {
+            uint32_t index = item.second->getTexBinding();
+            samplers.emplace(index, item.second);
+            startIdx = std::min(startIdx, index);
+        }
+
+        // 记录 pixel buffers 起始索引
+        mPixelBufferStartSlot = startIdx;
+
+        // 建立 pixel buffer LUT
+        for (const auto &item : samplers)
+        {
+            const auto itr = mTexturesLUT.find(item.second->getName());
+            T3D_ASSERT(itr != mTexturesLUT.end());
+            itr->second.pixelBufferIndex = item.first;
         }
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ShaderVariantInstance::setupConstantBuffers(uint32_t &startSlot)
+    {
+        T3D_ASSERT(mConstantBuffers.size() == mConstBuffers.size());
+
+        startSlot = std::numeric_limits<uint32_t>::max();
+        
+        for (size_t i = 0; i < mConstBuffers.size(); ++i)
+        {
+            const auto &buffer = mConstBuffers[i];
+            const auto &cbuffer = mConstantBuffers[i];
+            cbuffer->writeData(0, buffer, true);
+            if (cbuffer->getBinding() < startSlot)
+            {
+                startSlot = cbuffer->getBinding();
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderVariantInstance::getConstantBufferInfo(const String &name, uint8_t *&data, uint32_t &dataSize) const
+    {
+        bool ret = false;
+
+        const auto it = mShaderVariant->getShaderConstantParams().find(name);
+        if (it != mShaderVariant->getShaderConstantParams().end())
+        {
+            const auto itr = mConstBuffersLUT.find(it->second->getCBufferName());
+            if (itr != mConstBuffersLUT.end())
+            {
+                uint32_t offset = it->second->getDataOffset();
+                dataSize = it->second->getDataSize();
+                T3D_ASSERT(offset + dataSize <= itr->second.DataSize);
+                data = itr->second.Data + offset;
+                ret = true;
+            }
+        }
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ShaderVariantInstance::setTexture(const String &name, const UUID &uuid)
+    {
+        const auto itr = mTexturesLUT.find(name);
+        if (itr != mTexturesLUT.end())
+        {
+            // 获取纹理
+            TexturePtr texture = static_cast<Texture*>(T3D_TEXTURE_MGR.getResource(uuid));
+            if (texture != nullptr)
+            {
+                // 设置纹理
+                uint32_t index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
+                mTextures[index] = texture;
+
+                // 设置像素缓冲区
+                mPixelBuffers[index] = texture->getPixelBuffer();
+            
+                // 设置纹理采样器
+                index = itr->second.samplerIndex - mSamplerStartSlot;
+                mSamplers[index] = texture->getSamplerState();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture *ShaderVariantInstance::getTexture(const String &name) const
+    {
+        Texture *texture = nullptr;
+        
+        const auto itr = mTexturesLUT.find(name);
+        if (itr != mTexturesLUT.end())
+        {
+            uint32_t index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
+            texture = mTextures[index]; 
+        }
+
+        return texture;
+    }
+    
     //--------------------------------------------------------------------------
 }
 

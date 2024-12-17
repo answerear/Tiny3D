@@ -54,13 +54,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setWorldTransform(const Matrix4 &mat)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult NullContext::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
         return T3D_OK;
@@ -278,7 +271,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setVSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return T3D_OK;
     }
@@ -313,7 +306,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setPSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return T3D_OK;
     }
@@ -347,7 +340,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setHSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return T3D_OK;
     }
@@ -382,7 +375,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setDSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return T3D_OK;
     }
@@ -417,7 +410,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setGSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return T3D_OK;
     }
@@ -452,7 +445,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult NullContext::setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult NullContext::setCSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return T3D_OK;
     }
@@ -467,7 +460,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings &texSamplerBindings)
+    TResult NullContext::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
     {
         return T3D_OK;
     }

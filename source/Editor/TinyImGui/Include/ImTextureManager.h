@@ -76,11 +76,11 @@ namespace Tiny3D
             uint32_t        refCount {0};
         };
         
-        using Textures = TUnorderedMap<String, TextureData*>;
+        using TextureCache = TUnorderedMap<String, TextureData*>;
         using TextureToNames = TUnorderedMap<ImTextureID, String>;
 
         /// 所有加载的纹理缓存，方便复用
-        Textures        mTextures {};
+        TextureCache    mTextures {};
         /// 用于卸载时候，根据 imgui 纹理对象，查找到对应的纹理名称
         TextureToNames  mTexToNames {};
     };

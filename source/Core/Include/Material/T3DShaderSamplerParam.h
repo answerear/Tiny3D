@@ -45,68 +45,92 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static ShaderSamplerParamPtr create(const String &name, const String &texName, TEXTURE_TYPE texType);
-
-        static ShaderSamplerParamPtr create(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
+        static ShaderSamplerParamPtr create(const String &name);
 
         ~ShaderSamplerParam() override;
 
         ShaderSamplerParamPtr clone() const;
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
-        const String &getName() const
-        {
-            return mName;
-        }
-
-        TPROPERTY(RTTRFuncName="TextureName", RTTRFuncType="getter")
-        const String &getTexName() const
-        {
-            return mTexName;
-        }
+        const String &getName() const { return mName; }
         
         TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="getter")
-        TEXTURE_TYPE getTextureType() const
-        {
-            return mTexType;
-        }
+        TEXTURE_TYPE getTextureType() const { return mTexType; }
 
-        TexturePtr getTexture() const { return mTexture; }
+        TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="setter")
+        void setTextureType(TEXTURE_TYPE texType) { mTexType = texType; }
+        
+        TPROPERTY(RTTRFuncName="SamplerBinding", RTTRFuncType="getter")
+        uint32_t getSamplerBinding() const { return mSamplerBinding; }
 
-        void setTexture(Texture *tex) { mTexture = tex; }
+        TPROPERTY(RTTRFuncName="SamplerBinding", RTTRFuncType="setter")
+        void setSamplerBinding(uint32_t binding) { mSamplerBinding = binding; }
+
+        TPROPERTY(RTTRFuncName="TexBinding", RTTRFuncType="getter")
+        uint32_t getTexBinding() const { return mTexBinding; }
+
+        TPROPERTY(RTTRFuncName="TexBinding", RTTRFuncType="setter")
+        void setTexBinding(uint32_t binding) { mTexBinding = binding; }
         
     private:
         ShaderSamplerParam() = default;
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
-        void setName(const String &name)
-        {
-            mName = name;
-        }
-
-        TPROPERTY(RTTRFuncName="TextureName", RTTRFuncType="setter")
-        void setTexName(const String &texName)
-        {
-            mTexName = texName;
-        }
-
-        TPROPERTY(RTTRFuncName="TextureState", RTTRFuncType="setter")
-        void setTextureType(TEXTURE_TYPE texType)
-        {
-            mTexType = texType;
-        }
+        void setName(const String &name) { mName = name; }
         
     protected:
-        ShaderSamplerParam(const String &name, const String &texName, TEXTURE_TYPE texType);
-
-        ShaderSamplerParam(const String &name, TEXTURE_TYPE texType, TexturePtr texture);
+        ShaderSamplerParam(const String &name);
 
         void onPostLoad() override;
-        
+
+        /// 采样参数名称
         String          mName {};
-        String          mTexName {};
+        /// 纹理类型
         TEXTURE_TYPE    mTexType {TEXTURE_TYPE::TT_2D};
-        TexturePtr      mTexture {nullptr};
+        /// 纹理绑定点
+        uint32_t        mTexBinding {0};
+        /// 采样器绑定点
+        uint32_t        mSamplerBinding {0};
+    };
+
+    TCLASS()
+    class T3D_ENGINE_API ShaderSamplerValue
+        : public Object
+        , public Noncopyable
+    {
+        TRTTI_ENABLE(Object)
+        TRTTI_FRIEND
+
+    public:
+        static ShaderSamplerValuePtr create(const String &name);
+
+        ~ShaderSamplerValue() override;
+
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
+        const String &getName() const { return mName; }
+
+        TPROPERTY(RTTRFuncName="TextureUUID", RTTRFuncType="getter")
+        const UUID &getTextureUUID() const { return mTextureUUID; }
+
+        TPROPERTY(RTTRFuncName="TextureUUID", RTTRFuncType="setter")
+        void setTextureUUID(const UUID &uuid) { mTextureUUID = uuid; }
+
+        Texture *getTexture() const { return mTexture; }
+        
+    protected:
+        ShaderSamplerValue(const String &name);
+
+        ShaderSamplerValue() = default;
+
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
+        void setName(const String &name) { mName = name; }
+        
+        /// 采样器名称
+        String mName {};
+        /// 纹理的 UUID
+        UUID mTextureUUID {UUID::INVALID};
+        /// 纹理对象
+        TexturePtr mTexture {nullptr};
     };
 }
 

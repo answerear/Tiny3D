@@ -74,10 +74,16 @@ namespace Tiny3D
             for (auto tech : mTechniques)
             {
                 ret = tech->compile();
-                if (mSupportTechnique == nullptr && T3D_SUCCEEDED(ret))
+                if (T3D_FAILED(ret))
                 {
-                    mSupportTechnique = tech;
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader [%s] ! ERROR [%d]", getName().c_str(), ret);
                     break;
+                }
+
+                if (mSupportTechnique == nullptr)
+                {
+                    // 先设置第一个 technique 为支持的 technique ，临时使用
+                    mSupportTechnique = tech;
                 }
             }
 
@@ -87,6 +93,28 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult Shader::reflect()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            for (auto tech : mTechniques)
+            {
+                ret = tech->reflect();
+                if (T3D_FAILED(ret))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to reflect shader technique [%s] ! ERROR [%d]", tech->getName().c_str(), ret);
+                    break;
+                }
+            }
+        } while (false);
+
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     bool Shader::isKeywordEnable(const String &keyword) const
@@ -121,11 +149,11 @@ namespace Tiny3D
                 break;
             }
 
-            for (auto sampler : mSamplers)
-            {
-                Texture *tex = T3D_TEXTURE_MGR.loadTexture(archive, sampler.second->getTexName());
-                sampler.second->setTexture(tex);
-            }
+            // for (auto sampler : mSamplers)
+            // {
+            //     Texture *tex = T3D_TEXTURE_MGR.loadTexture(archive, sampler.second->getTexName());
+            //     sampler.second->setTexture(tex);
+            // }
         } while (false);
         
         return ret;
@@ -143,11 +171,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult Shader::addConstantParam(ShaderConstantParamPtr param)
+    TResult Shader::addConstantValue(ShaderConstantValuePtr value)
     {
         TResult ret = T3D_OK;
 
-        auto rval = mConstants.emplace(param->getName(), param);
+        auto rval = mConstantValues.emplace(value->getName(), value);
         if (!rval.second)
         {
             ret = T3D_ERR_DUPLICATED_ITEM;

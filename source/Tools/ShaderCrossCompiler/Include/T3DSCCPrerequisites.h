@@ -58,37 +58,6 @@ namespace Tiny3D
         printf("\n");
 
     #define ARCHIVE_TYPE_FS     "FileSystem"
-    
-    struct Args
-    {
-        enum Options
-        {
-            OPT_PRINT_VERSION = (1 << 0),       /// 输出版本号
-            OPT_PRINT_HELP = (1 << 1),          /// 输出帮助信息
-            OPT_ENABLE_DEBUG_INFO = (1 << 2),   /// 转换到目标平台着色器语言时是否输出调试信息
-            OPT_BINARY_FILE = (1 << 3),         /// 是否输出二进制文件，还是 json 文件
-        };
-
-        bool hasOptions(uint32_t flags) const
-        {
-            return (flags & options) == flags;
-        }
-
-        /// 选项
-        uint32_t    options {0};
-        /// 优化级别，0 to 3
-        uint32_t    optimizeLevel {3};
-        /// 包含的头文件目录路径
-        String      include {};
-        /// 输出目标平台
-        String      target {};
-        /// 输出文件的基本名称
-        String      baseName {};
-        /// 生成 Shader 的 UUID
-        UUID        uuid {UUID::INVALID};
-    };
-
-
 }
 
 

@@ -129,7 +129,9 @@ namespace Tiny3D
     
     // Material
     class ShaderConstantParam;
+    class ShaderConstantValue;
     class ShaderSamplerParam;
+    class ShaderSamplerValue;
     class ShaderVariant;
     class Technique;
     class Pass;

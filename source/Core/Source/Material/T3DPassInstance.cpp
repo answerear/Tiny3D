@@ -70,7 +70,7 @@ namespace Tiny3D
             if (itr == shaderVariants.end())
             {
                 // 着色器里面没有对应的 keyword
-                T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Could not find shader variant when switch keyword !");
+                T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Could not find shader variant when switch keyword (%s) !", keyword.getName().c_str());
                 break;
             }
 

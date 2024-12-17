@@ -108,7 +108,7 @@ namespace Tiny3D
         GameObject::destroyComponents();
         GameObject::destroyGameObjects();
 
-        releaseBuiltinAssets();
+        // releaseBuiltinAssets();
 
         mSceneMgr = nullptr;
         mPrefabMgr = nullptr;
@@ -343,11 +343,11 @@ namespace Tiny3D
             }
 
             // 初始化内置资产
-            ret = initBuiltinAssets();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
+            // ret = initBuiltinAssets();
+            // if (T3D_FAILED(ret))
+            // {
+            //     break;
+            // }
             
             mIsRunning = true;
 
@@ -418,11 +418,11 @@ namespace Tiny3D
             }
 
             // 初始化内置资产
-            ret = initBuiltinAssets();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
+            // ret = initBuiltinAssets();
+            // if (T3D_FAILED(ret))
+            // {
+            //     break;
+            // }
 
             mIsRunning = true;
 
@@ -1011,42 +1011,42 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult Agent::initBuiltinAssets()
-    {
-        const uint32_t w = 4;
-        const uint32_t h = 4;
-        const uint32_t bytesPerPixel = 4;
-        const uint32_t dataSize = w * h * bytesPerPixel;
-        uint8_t *data = new uint8_t[dataSize];
-        uint32_t i = 0;
-        while (i < dataSize)
-        {
-            data[i++] = 255;
-            data[i++] = 255;
-            data[i++] = 255;
-            data[i++] = 255;
-        }
-        
-        Buffer texData;
-        texData.setData(data, dataSize);
-
-        mDefaultAlbedoTex = T3D_TEXTURE_MGR.createTexture2D("white", w, h, PixelFormat::E_PF_B8G8R8X8, texData);
-
-        SamplerDesc samplerDesc;
-        mDefaultAlbedoTex->setSamplerDesc(samplerDesc);
-        
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Agent::releaseBuiltinAssets()
-    {
-        T3D_TEXTURE_MGR.unload(mDefaultAlbedoTex);
-        mDefaultAlbedoTex = nullptr;
-        
-        return T3D_OK;
-    }
+    // TResult Agent::initBuiltinAssets()
+    // {
+    //     const uint32_t w = 4;
+    //     const uint32_t h = 4;
+    //     const uint32_t bytesPerPixel = 4;
+    //     const uint32_t dataSize = w * h * bytesPerPixel;
+    //     uint8_t *data = new uint8_t[dataSize];
+    //     uint32_t i = 0;
+    //     while (i < dataSize)
+    //     {
+    //         data[i++] = 255;
+    //         data[i++] = 255;
+    //         data[i++] = 255;
+    //         data[i++] = 255;
+    //     }
+    //     
+    //     Buffer texData;
+    //     texData.setData(data, dataSize);
+    //
+    //     mDefaultAlbedoTex = T3D_TEXTURE_MGR.createTexture2D("white", w, h, PixelFormat::E_PF_B8G8R8X8, texData);
+    //
+    //     SamplerDesc samplerDesc;
+    //     mDefaultAlbedoTex->setSamplerDesc(samplerDesc);
+    //     
+    //     return T3D_OK;
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // TResult Agent::releaseBuiltinAssets()
+    // {
+    //     T3D_TEXTURE_MGR.unload(mDefaultAlbedoTex);
+    //     mDefaultAlbedoTex = nullptr;
+    //     
+    //     return T3D_OK;
+    // }
 
     //--------------------------------------------------------------------------
 

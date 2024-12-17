@@ -22,20 +22,22 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#include "Material/T3DTechnique.h"
+#include "Material/T3DTechniqueInstance.h"
 namespace  Tiny3D
 {
     //--------------------------------------------------------------------------
 
     inline void Material::setInteger(const String &name, int32_t value)
     {
-        setValue<int32_t>(name, &value);
+        setValue(name, value, &ShaderConstantValue::setInteger, &TechniqueInstance::setInteger);
     }
 
     //--------------------------------------------------------------------------
 
     inline int32_t Material::getInteger(const String &name) const
     {
-        return getValue<int32_t>(name);
+        return getValue<int32_t>(name, &ShaderConstantValue::getInteger);
     }
     
     //--------------------------------------------------------------------------
@@ -49,14 +51,14 @@ namespace  Tiny3D
 
     inline void Material::setFloat(const String &name, float32_t value)
     {
-        setValue<float32_t>(name, &value);
+        setValue(name, value, &ShaderConstantValue::setFloat, &TechniqueInstance::setFloat);
     }
 
     //--------------------------------------------------------------------------
 
     inline float32_t Material::getFloat(const String &name) const
     {
-        return getValue<float32_t>(name);
+        return getValue<float32_t>(name, &ShaderConstantValue::getFloat);
     }
 
     //--------------------------------------------------------------------------
@@ -65,33 +67,33 @@ namespace  Tiny3D
     {
         return hasValue<float32_t>(name);
     }
-
+    
     //--------------------------------------------------------------------------
 
     inline void Material::setFloatArray(const String &name, const FloatArray &values)
     {
-        setValue<float32_t>(name, values.data());
+        setValue(name, values, &ShaderConstantValue::setFloatArray, &TechniqueInstance::setFloatArray);
     }
 
     //--------------------------------------------------------------------------
 
     inline FloatArray Material::getFloatArray(const String &name) const
     {
-        return getValues<float_t>(name);
+        return getValue<FloatArray>(name, &ShaderConstantValue::getFloatArray);
     }
 
     //--------------------------------------------------------------------------
 
     inline void Material::setColor(const String &name, const ColorRGBA &value)
     {
-        setValue<ColorRGBA>(name, &value);
+        setValue(name, value, &ShaderConstantValue::setColor, &TechniqueInstance::setColor);
     }
 
     //--------------------------------------------------------------------------
 
     inline ColorRGBA Material::getColor(const String &name) const
     {
-        return getValue<ColorRGBA>(name);
+        return getValue<ColorRGBA>(name, &ShaderConstantValue::getColor);
     }
 
     //--------------------------------------------------------------------------
@@ -105,28 +107,28 @@ namespace  Tiny3D
 
     inline void Material::setColorArray(const String &name, const ColorArray &values)
     {
-        setValue<uint8_t>(name, values.data());
+        setValue(name, values, &ShaderConstantValue::setColorArray, &TechniqueInstance::setColorArray);
     }
 
     //--------------------------------------------------------------------------
 
     inline ColorArray Material::getColorArray(const String &name) const
     {
-        return getValues<ColorRGBA>(name);
+        return getValue<ColorArray>(name, &ShaderConstantValue::getColorArray);
     }
 
     //--------------------------------------------------------------------------
 
     inline void Material::setVector(const String &name, const Vector4 &value)
     {
-        setValue<Vector4>(name, &value);
+        setValue(name, value, &ShaderConstantValue::setVector, &TechniqueInstance::setVector);
     }
 
     //--------------------------------------------------------------------------
 
     inline Vector4 Material::getVector(const String &name) const
     {
-        return getValue<Vector4>(name);
+        return getValue<Vector4>(name, &ShaderConstantValue::getVector);
     }
 
     //--------------------------------------------------------------------------
@@ -140,48 +142,50 @@ namespace  Tiny3D
 
     inline void Material::setVectorArray(const String &name, const Vector4Array &values)
     {
-        setValue<Vector4>(name, values.data());
+        setValue(name, values, &ShaderConstantValue::setVectorArray, &TechniqueInstance::setVectorArray);
     }
-
+    
     //--------------------------------------------------------------------------
-
+    
     inline Vector4Array Material::getVectorArray(const String &name) const
     {
-        return getValues<Vector4>(name);
+        return getValue<Vector4Array>(name, &ShaderConstantValue::getVectorArray);
     }
     
     //--------------------------------------------------------------------------
-
+    
     inline void Material::setMatrix(const String &name, const Matrix4 &value)
     {
-        setValue<Matrix4>(name, &value);
-    }
-
-    //--------------------------------------------------------------------------
-
-    inline Matrix4 Material::getMatrix(const String &name) const
-    {
-        return getValue<Matrix4>(name);
+        setValue(name, value, &ShaderConstantValue::setMatrix, &TechniqueInstance::setMatrix);
     }
     
     //--------------------------------------------------------------------------
-
+    
+    inline Matrix4 Material::getMatrix(const String &name) const
+    {
+        return getValue<Matrix4>(name, &ShaderConstantValue::getMatrix);
+    }
+    
+    //--------------------------------------------------------------------------
+    
     inline bool Material::hasMatrix(const String &name) const
     {
         return hasValue<Matrix4>(name);
     }
     
     //--------------------------------------------------------------------------
-
+    
     inline void Material::setMatrixArray(const String &name, const Matrix4Array &values)
     {
-        setValue<Matrix4>(name, values.data());
+        setValue(name, values, &ShaderConstantValue::setMatrixArray, &TechniqueInstance::setMatrixArray);
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    inline Matrix4Array Material::getMatrixArray(const String &name) const
+    {
+        return getValue<Matrix4Array>(name, &ShaderConstantValue::getMatrixArray);
     }
 
     //--------------------------------------------------------------------------
-
-    inline Matrix4Array Material::getMatrixArray(const String &name) const
-    {
-        return getValues<Matrix4>(name);
-    }
 }

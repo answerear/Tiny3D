@@ -24,6 +24,9 @@
 
 
 #include "T3DShaderCross.h"
+
+#include <complex>
+
 #include "SLParser.h"
 #include "T3DShaderCompiler.h"
 
@@ -100,9 +103,6 @@ namespace Tiny3D
                 break;
             }
 
-            // 解析 Shader Lab 语法，解析出 shader 来
-            auto source = ParseShaderLab(content.c_str(), content.size());
-
             // 记录参数
             mArgs = args;
 
@@ -121,8 +121,49 @@ namespace Tiny3D
                 mArgs.baseName = title;
             }
 
+            if (args.hasOptions(Args::Options::OPT_NATIVE_SHADER))
+            {
+                // 交叉编译原生着色器
+                ret = compileNativeShader(content);
+            }
+            else
+            {
+                // 交叉编译 shader lab
+                ret = compileShaderLab(content);
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderCross::compileShaderLab(const String &content)
+    {
+        bool ret = false;
+
+        do
+        {
+            // 解析 Shader Lab 语法，解析出 native shader
+            auto source = ParseShaderLab(content.c_str(), content.size());
+
             // 处理源数据
             ret = compile(source);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ShaderCross::compileNativeShader(const String &content)
+    {
+        bool ret = false;
+
+        do
+        {
+            ShaderCompilerPtr compiler = ShaderCompiler::create();
+            ret = compiler->compile(content, mInputFile, mOutputDir, mArgs);
         } while (false);
 
         return ret;
@@ -284,41 +325,59 @@ namespace Tiny3D
         {
         case SLPropValue::kColor:
             {
-                Buffer buffer;
-                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_COLOR;
-                buffer.setData(src.value, sizeof(ColorRGBA));
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
-                dst->addConstantParam(param);
+                // dst->addConstantInitData(src.name, src.value, sizeof(ColorRGBA));
+                // ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_COLOR;
+                // Buffer buffer;
+                // buffer.setData(src.value, sizeof(ColorRGBA));
+                // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
+                // dst->addConstantParam(param);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_COLOR);
+                ColorRGBA color(src.value[0], src.value[1], src.value[2], src.value[3]);
+                constValue->setColor(color);
+                dst->addConstantValue(constValue);
             }
             break;
         case SLPropValue::kVector:
             {
-                Buffer buffer;
-                buffer.setData(src.value, sizeof(Vector4));
-                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
-                dst->addConstantParam(param);
+                // dst->addConstantInitData(src.name, src.value, sizeof(Vector4));
+                // ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                // Buffer buffer;
+                // buffer.setData(src.value, sizeof(Vector4));
+                // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
+                // dst->addConstantParam(param);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_VECTOR4);
+                Vector4 vector(src.value[0], src.value[1], src.value[2], src.value[3]);
+                constValue->setVector(vector);
+                dst->addConstantValue(constValue);
             }
             break;
         case SLPropValue::kFloat:
             {
-                Buffer buffer;
-                buffer.setData(&src.value[0], sizeof(float32_t));
-                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
-                dst->addConstantParam(param);
+                // dst->addConstantInitData(src.name, src.value, sizeof(float32_t));
+                // ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                // Buffer buffer;
+                // buffer.setData(&src.value[0], sizeof(float32_t));
+                // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
+                // dst->addConstantParam(param);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+                constValue->setFloat(src.value[0]);
+                dst->addConstantValue(constValue);
             }
             break;
         case SLPropValue::kRange:
             {
+                // dst->addConstantInitData(src.name, src.value, sizeof(float32_t));
                 // val->set_value(src.value[0]);
                 // val->set_lower(src.value[1]);
                 // val->set_upper(src.value[2]);
-                Buffer buffer;
-                buffer.setData(&src.value[0], sizeof(float32_t));
-                ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
-                ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
-                dst->addConstantParam(param);
+                // ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                // Buffer buffer;
+                // buffer.setData(&src.value[0], sizeof(float32_t));
+                // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
+                // dst->addConstantParam(param);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+                constValue->setFloat(src.value[0]);
+                dst->addConstantValue(constValue);
             }
             break;
         case SLPropValue::kTexture:
@@ -364,7 +423,8 @@ namespace Tiny3D
                     break;
                 }
 
-                ShaderSamplerParamPtr param = ShaderSamplerParam::create(src.name, src.texture.name, texType);
+                ShaderSamplerParamPtr param = ShaderSamplerParam::create(src.name);
+                param->setTextureType(texType);
                 dst->addSamplerParam(param);
             }
             break;
@@ -899,6 +959,7 @@ namespace Tiny3D
         printf("      -b : Output file in binary file format. Default is json file format.");
         printf("      -i : Including file path.");
         printf("      -u uuid : Assigning UUID to the generated shader.");
+        printf("      -N : The input shader is native shader, such as hlsl, glsl, metal. It is not shader lab.");
     }
 
     //--------------------------------------------------------------------------
@@ -1034,6 +1095,11 @@ namespace Tiny3D
 
                 ++i;
                 args.uuid.fromString(argv[i]);
+            }
+            else if (strcmp(argv[i], "-N") == 0)
+            {
+                // 原生 shader ，不是 shader lab
+                args.options |= Args::OPT_NATIVE_SHADER;
             }
             else if (mInputFile.empty())
             {

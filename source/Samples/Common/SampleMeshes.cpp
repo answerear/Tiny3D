@@ -1,5 +1,5 @@
-﻿/*******************************************************************************
-* MIT License
+/*******************************************************************************
+ * MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -23,32 +23,6 @@
  ******************************************************************************/
 
 
-#pragma once
-
-
-#include "T3DBuiltinGenPrerequisites.h"
-
-
-namespace Tiny3D
-{
-    class BuiltinTextures : public Allocator, public Singleton<BuiltinTextures>
-    {
-    public:
-        BuiltinTextures() = default;
-
-        ~BuiltinTextures() = default;
-
-        TResult generate(const String &rootPath);
-        
-    protected:
-        TResult generateDefaultAlbedo(const String &outputPath);
-        
-        TResult generateTestTexture(const String &outputPath);
-        
-        TResult generateTexture(const String &path, const String &outputPath);
-    };
-
-    #define T3D_BUILTIN_TEXTURES   (BuiltinTextures::getInstance())
-}
+#include <Tiny3D.h>
 
 

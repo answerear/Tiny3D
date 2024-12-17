@@ -68,8 +68,6 @@ namespace Tiny3D
         mCurrentRenderWindow = nullptr;
         mCurrentRenderTexture = nullptr;
 
-        D3D_SAFE_RELEASE(mPerDrawCBuffer)
-        D3D_SAFE_RELEASE(mPerFrameCBuffer)
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
         D3D_SAFE_RELEASE(mBlitVS)
@@ -157,40 +155,40 @@ namespace Tiny3D
 
     void D3D11Context::setupInternalCBuffers()
     {
-        // constant buffer per frame
-        D3D11_BUFFER_DESC d3dDesc;
-        memset(&d3dDesc, 0, sizeof(d3dDesc));
-        d3dDesc.Usage = D3D11_USAGE_DYNAMIC;
-        d3dDesc.ByteWidth = sizeof(CBufferPerFrame);
-        d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        d3dDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        
-        // 创建顶点缓冲区子资源数据
-        D3D11_SUBRESOURCE_DATA initData;
-        memset(&initData, 0, sizeof(initData));
-        initData.pSysMem = &mCBufferPerFrame;
-        initData.SysMemPitch = 0;
-        initData.SysMemSlicePitch = 0;
-
-        ID3D11Buffer *pD3DBuffer = nullptr;
-        HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
-        T3D_ASSERT(SUCCEEDED(hr));
-        mPerFrameCBuffer = pD3DBuffer;
-
-        // constant buffer per draw
-        memset(&d3dDesc, 0, sizeof(d3dDesc));
-        d3dDesc.Usage = D3D11_USAGE_DYNAMIC;
-        d3dDesc.ByteWidth = sizeof(CBufferPerDraw);
-        d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        d3dDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-        memset(&initData, 0, sizeof(initData));
-        initData.pSysMem = &mCBufferPerDraw;
-        initData.SysMemPitch = 0;
-        initData.SysMemSlicePitch = 0;
-        hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
-        T3D_ASSERT(SUCCEEDED(hr));
-        mPerDrawCBuffer = pD3DBuffer;
+        // // constant buffer per frame
+        // D3D11_BUFFER_DESC d3dDesc;
+        // memset(&d3dDesc, 0, sizeof(d3dDesc));
+        // d3dDesc.Usage = D3D11_USAGE_DYNAMIC;
+        // d3dDesc.ByteWidth = sizeof(CBufferPerFrame);
+        // d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        // d3dDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        //
+        // // 创建顶点缓冲区子资源数据
+        // D3D11_SUBRESOURCE_DATA initData;
+        // memset(&initData, 0, sizeof(initData));
+        // initData.pSysMem = &mCBufferPerFrame;
+        // initData.SysMemPitch = 0;
+        // initData.SysMemSlicePitch = 0;
+        //
+        // ID3D11Buffer *pD3DBuffer = nullptr;
+        // HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+        // T3D_ASSERT(SUCCEEDED(hr));
+        // mPerFrameCBuffer = pD3DBuffer;
+        //
+        // // constant buffer per draw
+        // memset(&d3dDesc, 0, sizeof(d3dDesc));
+        // d3dDesc.Usage = D3D11_USAGE_DYNAMIC;
+        // d3dDesc.ByteWidth = sizeof(CBufferPerDraw);
+        // d3dDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        // d3dDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        //
+        // memset(&initData, 0, sizeof(initData));
+        // initData.pSysMem = &mCBufferPerDraw;
+        // initData.SysMemPitch = 0;
+        // initData.SysMemSlicePitch = 0;
+        // hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+        // T3D_ASSERT(SUCCEEDED(hr));
+        // mPerDrawCBuffer = pD3DBuffer;
     }
 
     //--------------------------------------------------------------------------
@@ -433,15 +431,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setWorldTransform(const Matrix4 &mat)
-    {
-        mCBufferPerDraw.objectToWorld = mat;
-        mCBufferPerDraw.worldToObject = mat.inverse();
-        Buffer buffer;
-        buffer.setData(&mCBufferPerDraw, sizeof(mCBufferPerDraw));
-        
-        return setConstantBuffer(0, buffer, mPerDrawCBuffer);
-    }
+    // TResult D3D11Context::setWorldTransform(const Matrix4 &mat)
+    // {
+    //     mCBufferPerDraw.objectToWorld = mat;
+    //     mCBufferPerDraw.worldToObject = mat.inverse();
+    //     Buffer buffer;
+    //     buffer.setData(&mCBufferPerDraw, sizeof(mCBufferPerDraw));
+    //     
+    //     return setConstantBuffer(0, buffer, mPerDrawCBuffer);
+    // }
 
     //--------------------------------------------------------------------------
 
@@ -453,13 +451,17 @@ namespace Tiny3D
             0.0f, 0.0f, 0.5f, 0.5f,
             0.0f, 0.0f, 0.0f, 1.0f
             );
-        mCBufferPerFrame.matrixV = viewMat;
-        mCBufferPerFrame.matrixP = conversionMat * projMat;
-        mCBufferPerFrame.matrixVP = mCBufferPerFrame.matrixP * mCBufferPerFrame.matrixV;
-        Buffer buffer;
-        buffer.setData(&mCBufferPerFrame, sizeof(CBufferPerFrame));
-
-        return setConstantBuffer(1, buffer, mPerFrameCBuffer);
+        mViewMatrix = viewMat;
+        mProjMatrix = conversionMat * projMat;
+        mProjViewMatrix = mProjMatrix * mViewMatrix;
+        return T3D_OK;
+        // mCBufferPerFrame.matrixV = viewMat;
+        // mCBufferPerFrame.matrixP = conversionMat * projMat;
+        // mCBufferPerFrame.matrixVP = mCBufferPerFrame.matrixP * mCBufferPerFrame.matrixV;
+        // Buffer buffer;
+        // buffer.setData(&mCBufferPerFrame, sizeof(CBufferPerFrame));
+        //
+        // return setConstantBuffer(1, buffer, mPerFrameCBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -1856,9 +1858,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setVSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setVSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        return setSamplers(&ID3D11DeviceContext::VSSetSamplers, startSlot, numOfSamplers, samplers);
+        return setSamplers(&ID3D11DeviceContext::VSSetSamplers, startSlot, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -1934,9 +1936,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setPSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setPSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        return setSamplers(&ID3D11DeviceContext::PSSetSamplers, startSlot, numOfSamplers, samplers);
+        return setSamplers(&ID3D11DeviceContext::PSSetSamplers, startSlot, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -2011,9 +2013,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setHSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setHSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        return setSamplers(&ID3D11DeviceContext::HSSetSamplers, startSlot, numOfSamplers, samplers);
+        return setSamplers(&ID3D11DeviceContext::HSSetSamplers, startSlot, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -2089,9 +2091,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setDSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setDSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        return setSamplers(&ID3D11DeviceContext::DSSetSamplers, startSlot, numOfSamplers, samplers);
+        return setSamplers(&ID3D11DeviceContext::DSSetSamplers, startSlot, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -2167,9 +2169,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setGSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setGSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        return setSamplers(&ID3D11DeviceContext::GSSetSamplers, startSlot, numOfSamplers, samplers);;
+        return setSamplers(&ID3D11DeviceContext::GSSetSamplers, startSlot, samplers);;
     }
 
     //--------------------------------------------------------------------------
@@ -2245,9 +2247,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setCSSamplers(uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const *samplers)
+    TResult D3D11Context::setCSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        return setSamplers(&ID3D11DeviceContext::CSSetSamplers, startSlot, numOfSamplers, samplers);
+        return setSamplers(&ID3D11DeviceContext::CSSetSamplers, startSlot, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -2331,12 +2333,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantBindings &constantBindings, ShaderTexSamplerBindings &texSamplerBindings)
+    TResult D3D11Context::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
     {
         TResult ret = T3D_OK;
 
         do
         {
+            auto getOriginalName = [](const String &cbufferName, const String &cname, String &originalCBufferName, String &originalCName)
+            {
+                if (cbufferName.empty() || cname.empty())
+                {
+                    return false;
+                }
+
+                String::size_type offset = 0, count = 0;
+                
+                if (cbufferName == "type_Globals")
+                {
+                    // 全局常量缓冲区，全局常量缓冲区的常量命名是以 "_Globals" 开头的
+                    offset = 4;
+                    count =  cbufferName.size() - offset;
+                }
+                else
+                {
+                    // 非全局的，这个命名规则不一样
+                    offset = 5;
+                    count =  cbufferName.size() - offset;
+                }
+
+                // 提取原始的常量缓冲区名称
+                originalCBufferName = cbufferName.substr(offset, count);
+
+                // 提取原始的常量名称
+                offset = originalCBufferName.size() + 1;
+                count = cname.size() - offset;
+                originalCName = cname.substr(offset, count);
+
+                return true;
+            };
+            
             // 创建 shader 字节码 D3D11 对象
             size_t bytesLength = 0;
             const char *bytes = shader->getBytesCode(bytesLength);
@@ -2387,10 +2422,10 @@ namespace Tiny3D
                         //     // 这里跳开两个 cbuffer ，这两个 cbuffer 内部使用，不反射给外部使用
                         //     break;
                         // }
-                    
-                        ShaderConstantBinding constBinding;
-                        constBinding.name = bindDesc.Name;
-                        constBinding.binding = bindDesc.BindPoint;
+
+                        // ShaderConstantBinding constBinding;
+                        // constBinding.name = bindDesc.Name;
+                        // constBinding.binding = bindDesc.BindPoint;
 
                         uint32_t size = 0;
                     
@@ -2413,53 +2448,79 @@ namespace Tiny3D
                             ID3D11ShaderReflectionType *d3dSRType = pVariableReflection->GetType();
                             D3D11_SHADER_TYPE_DESC d3dSRTypeDesc;
                             d3dSRType->GetDesc(&d3dSRTypeDesc);
-                            
-                            ShaderVariableBinding varBinding;
-                            varBinding.name = variableDesc.Name;
-                            varBinding.offset = variableDesc.StartOffset;
-                            varBinding.size = variableDesc.Size;
-                            varBinding.type = D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns);
-                            size += varBinding.size;
-                            constBinding.variables.emplace(varBinding.name, varBinding);
 
-                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s",
-                                constBinding.name.c_str(), varBinding.name.c_str());
+                            String cbufferName, cname;
+                            bool rval = getOriginalName(bindDesc.Name, variableDesc.Name, cbufferName, cname);
+                            T3D_ASSERT(rval);
+                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns));
+                            constantParams.emplace(param->getName(), param);
+                            
+                            // ShaderVariableBinding varBinding;
+                            // varBinding.name = variableDesc.Name;
+                            // varBinding.offset = variableDesc.StartOffset;
+                            // varBinding.size = variableDesc.Size;
+                            // varBinding.type = D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns);
+                            // size += varBinding.size;
+                            // constBinding.variables.emplace(varBinding.name, varBinding);
+
+                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s, type : %u, size : %u, offset : %u", param->getCBufferName().c_str(), param->getName().c_str(), param->getDataType(), param->getDataSize(), param->getDataOffset());
                         }
 
-                        constBinding.size = size;
-                        constantBindings.emplace(constBinding.name, constBinding);
+                        // constBinding.size = size;
+                        // constantBindings.emplace(constBinding.name, constBinding);
                     }
                     break;
                 case D3D_SIT_TEXTURE:   // 纹理
                     {
                         String name = bindDesc.Name;
 
-                        auto itr = texSamplerBindings.find(name);
-                        if (itr == texSamplerBindings.end())
+                        // auto itr = texSamplerBindings.find(name);
+                        // if (itr == texSamplerBindings.end())
+                        // {
+                        //     // 没有，则新建一个
+                        //     ShaderTexSamplerBinding texSamplerBinding;
+                        //     texSamplerBinding.texBinding.name = name;
+                        //     texSamplerBinding.texBinding.binding = bindDesc.BindPoint;
+                        //     texSamplerBinding.texBinding.bindingCount = bindDesc.BindCount;
+                        //     texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
+                        //
+                        //     texSamplerBindings.emplace(name, texSamplerBinding);
+                        //
+                        //     T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - New (name:%s). texture name : %s, binding point : %d, binding count : %d, texture type : %d",
+                        //         name.c_str(), texSamplerBinding.texBinding.name.c_str(), texSamplerBinding.texBinding.binding, texSamplerBinding.texBinding.bindingCount, texSamplerBinding.texBinding.texType);
+                        // }
+                        // else
+                        // {
+                        //     // 已有，用已有的
+                        //     ShaderTexSamplerBinding &texSamplerBinding = itr->second;
+                        //     texSamplerBinding.texBinding.name = name;
+                        //     texSamplerBinding.texBinding.binding = bindDesc.BindPoint;
+                        //     texSamplerBinding.texBinding.bindingCount = bindDesc.BindCount;
+                        //     texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
+                        //     T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Already exists (name:%s). texture name : %s, binding point : %d, binding count : %d, texture type : %d",
+                        //         name.c_str(), texSamplerBinding.texBinding.name.c_str(), texSamplerBinding.texBinding.binding, texSamplerBinding.texBinding.bindingCount, texSamplerBinding.texBinding.texType);
+                        // }
+
+                        ShaderSamplerParamPtr param;
+                        const auto itr = samplerParams.find(name);
+                        if (itr == samplerParams.end())
                         {
-                            // 没有，则新建一个
-                            ShaderTexSamplerBinding texSamplerBinding;
-                            texSamplerBinding.texBinding.name = name;
-                            texSamplerBinding.texBinding.binding = bindDesc.BindPoint;
-                            texSamplerBinding.texBinding.bindingCount = bindDesc.BindCount;
-                            texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
-
-                            texSamplerBindings.emplace(name, texSamplerBinding);
-
-                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - New (name:%s). texture name : %s, binding point : %d, binding count : %d, texture type : %d",
-                                name.c_str(), texSamplerBinding.texBinding.name.c_str(), texSamplerBinding.texBinding.binding, texSamplerBinding.texBinding.bindingCount, texSamplerBinding.texBinding.texType);
+                            // 没有，新建一个
+                            param = ShaderSamplerParam::create(name);
+                            samplerParams.emplace(name, param);
                         }
                         else
                         {
-                            // 已有，用已有的
-                            ShaderTexSamplerBinding &texSamplerBinding = itr->second;
-                            texSamplerBinding.texBinding.name = name;
-                            texSamplerBinding.texBinding.binding = bindDesc.BindPoint;
-                            texSamplerBinding.texBinding.bindingCount = bindDesc.BindCount;
-                            texSamplerBinding.texBinding.texType = D3D11Mapping::get(bindDesc.Dimension);
-                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Already exists (name:%s). texture name : %s, binding point : %d, binding count : %d, texture type : %d",
-                                name.c_str(), texSamplerBinding.texBinding.name.c_str(), texSamplerBinding.texBinding.binding, texSamplerBinding.texBinding.bindingCount, texSamplerBinding.texBinding.texType);
+                            // 已有，更新信息
+                            param = itr->second;
                         }
+
+                        T3D_ASSERT(param != nullptr);
+
+                        param->setTexBinding(bindDesc.BindPoint);
+                        param->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
+
+                        T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Name:%s, texture binding point : %d, texture type : %d", param->getName().c_str(), param->getTexBinding(), param->getTextureType());
                     }
                     break;
                 case D3D_SIT_SAMPLER:   // 纹理采样器
@@ -2475,27 +2536,47 @@ namespace Tiny3D
                         }
 
                         String key = name.substr(7);
-                        auto itr = texSamplerBindings.find(key);
-                        if (itr == texSamplerBindings.end())
-                        {
-                            // 没有，则新建一个
-                            ShaderTexSamplerBinding texSamplerBinding;
-                            texSamplerBinding.samplerBinding.name = name;
-                            texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
+                        // auto itr = texSamplerBindings.find(key);
+                        // if (itr == texSamplerBindings.end())
+                        // {
+                        //     // 没有，则新建一个
+                        //     ShaderTexSamplerBinding texSamplerBinding;
+                        //     texSamplerBinding.samplerBinding.name = name;
+                        //     texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
+                        //
+                        //     texSamplerBindings.emplace(key, texSamplerBinding);
+                        //     T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - New (name:%s, key:%s). sampler name : %s, binding point : %d",
+                        //         name.c_str(), key.c_str(), texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
+                        // }
+                        // else
+                        // {
+                        //     // 已有，用已有的
+                        //     ShaderTexSamplerBinding &texSamplerBinding = itr->second;
+                        //     texSamplerBinding.samplerBinding.name = name;
+                        //     texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
+                        //     T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Already exists (name:%s, key:%s). sampler name : %s, binding point : %d",
+                        //         name.c_str(), key.c_str(), texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
+                        // }
 
-                            texSamplerBindings.emplace(key, texSamplerBinding);
-                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - New (name:%s, key:%s). sampler name : %s, binding point : %d",
-                                name.c_str(), key.c_str(), texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
+                        ShaderSamplerParamPtr param;
+                        const auto itr = samplerParams.find(key);
+                        if (itr == samplerParams.end())
+                        {
+                            // 没有，新建一个
+                            param = ShaderSamplerParam::create(key);
+                            samplerParams.emplace(key, param);
                         }
                         else
                         {
-                            // 已有，用已有的
-                            ShaderTexSamplerBinding &texSamplerBinding = itr->second;
-                            texSamplerBinding.samplerBinding.name = name;
-                            texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
-                            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Already exists (name:%s, key:%s). sampler name : %s, binding point : %d",
-                                name.c_str(), key.c_str(), texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
+                            // 已有，更新信息
+                            param = itr->second;
                         }
+
+                        T3D_ASSERT(param != nullptr);
+
+                        param->setSamplerBinding(bindDesc.BindPoint);
+
+                        T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Name:%s, sampler binding point : %d", param->getName().c_str(), param->getSamplerBinding());
                     }
                     break;
                 }
@@ -2845,7 +2926,7 @@ namespace Tiny3D
                     // unmap buffer
                     mD3DDeviceContext->Unmap(pD3DResource, 0);
 
-                    buffer.release();
+                    //buffer.release();
                 } while (false);
 
                 return ret;
@@ -2968,29 +3049,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, SamplerState * const * samplers)
+    TResult D3D11Context::setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, const Samplers &samplers)
     {
-        using D3D11Samplers = TArray<D3D11SamplerStatePtr>;
-        D3D11Samplers d3dSamplers(numOfSamplers);
-        for (uint32_t i = 0; i< numOfSamplers; ++i)
+        auto lambda = [this](SetSamplerState setSamplerState, uint32_t startSlot, const Samplers &samplers)
         {
-            d3dSamplers[i] = smart_pointer_cast<D3D11SamplerState>(samplers[i]->getRHIState());
-        }
-        
-        auto lambda = [this](SetSamplerState setSamplerState, uint32_t startSlot, uint32_t numOfSamplers, const D3D11Samplers &samplers)
-        {
-            TArray<ID3D11SamplerState*> d3dSamplers(numOfSamplers);
-            for (uint32_t i = 0; i < numOfSamplers; ++i)
+            using D3D11Samplers = TArray<ID3D11SamplerState*>;
+            D3D11Samplers d3dSamplers(samplers.size());
+            for (uint32_t i = 0; i< samplers.size(); ++i)
             {
-                const auto &sampler = samplers[i];
-                d3dSamplers[i] = sampler->D3DSamplerState;
+                d3dSamplers[i] = ((D3D11SamplerState*)samplers[i]->getRHIState().get())->D3DSamplerState;
             }
-            
-            (mD3DDeviceContext->*setSamplerState)(startSlot, numOfSamplers, d3dSamplers.data());
+
+            (mD3DDeviceContext->*setSamplerState)(startSlot, (UINT)d3dSamplers.size(), d3dSamplers.data());
             return T3D_OK;
         };
         
-        return ENQUEUE_UNIQUE_COMMAND(lambda, setSamplerState, startSlot, numOfSamplers, d3dSamplers);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, setSamplerState, startSlot, samplers);
     }
     
     //--------------------------------------------------------------------------
