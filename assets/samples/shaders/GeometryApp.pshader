@@ -1,0 +1,22 @@
+#pragma fragment frag
+#pragma target 4.0
+
+#define CONCATENATE(a, b) a##b
+#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name);
+#define TEX2D_R(name, r) Texture2D name : register(CONCATENATE(t, r)); SamplerState CONCATENATE(sampler, name) : register(CONCATENATE(s, r));
+#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv);
+//Texture2D texCube : register(t0);
+//SamplerState samplertexCube : register(s0);
+TEX2D(texCube);
+struct PS_INPUT
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD0;
+};
+float4 frag(PS_INPUT input) : SV_Target
+{
+    //float4 color = texCube.Sample(sampler_texCube, input.uv);
+    float4 color = SAMPLE(texCube, input.uv);
+    //float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);
+    return color;
+}
