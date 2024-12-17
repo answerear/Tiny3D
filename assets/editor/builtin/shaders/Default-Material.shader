@@ -23,19 +23,30 @@ Shader "Tiny3DBuiltin/Default-Material"
 				#pragma fragment frag
 				#pragma target 4.0
 				
-				cbuffer Tiny3DPerDraw : register(b0)
-				{
-				   row_major float4x4 tiny3d_ObjectToWorld;
-				   row_major float4x4 tiny3d_WorldToObject;
-				}
+				//cbuffer Tiny3DPerDraw : register(b0)
+				//{
+				//   row_major float4x4 tiny3d_ObjectToWorld;
+				//   row_major float4x4 tiny3d_WorldToObject;
+				//}
+
+				//cbuffer Tiny3DPerFrame : register(b1)
+				//{
+				//   row_major float4x4 tiny3d_MatrixV;
+				//   row_major float4x4 tiny3d_MatrixP;
+				//   row_major float4x4 tiny3d_MatrixVP;
+				//}
 
 				cbuffer Tiny3DPerFrame : register(b1)
 				{
-				   row_major float4x4 tiny3d_MatrixV;
-				   row_major float4x4 tiny3d_MatrixP;
-				   row_major float4x4 tiny3d_MatrixVP;
+					float4x4 tiny3d_MatrixV;
+					float4x4 tiny3d_MatrixP;
+					float4x4 tiny3d_MatrixVP;
 				}
 
+				row_major float4x4 tiny3d_ObjectToWorld;
+				row_major float4x4 tiny3d_WorldToObject;
+				float4 objectPos;
+				
 				static float4x4 tiny3d_MatrixMVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);
 				static float4x4 tiny3d_MatrixMV = mul(tiny3d_MatrixV, tiny3d_ObjectToWorld);
 
