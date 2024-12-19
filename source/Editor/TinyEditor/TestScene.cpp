@@ -155,11 +155,16 @@ namespace Tiny3D
         // xform->setPosition(0.0f, 0.0f, 200.0f);
         // xform->setScaling(100.0f, 100.0f, 100.0f);
     #endif
+
+        // material
+        MaterialPtr material = buildMaterial();
+        
+        // mesh & submesh
+        MeshPtr mesh = buildMesh(material->getUUID());
+        SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
         
         // geometry component
         GeometryPtr geometry = go->addComponent<Geometry>();
-        MeshPtr mesh = buildMesh();
-        SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
         geometry->setMeshObject(mesh, submesh);
         
         // aabb bound component
@@ -271,7 +276,7 @@ namespace Tiny3D
         
         // vertex & pixel shader keyword
         ShaderKeyword vkeyword;
-        vkeyword.addKeyword("-");
+        vkeyword.addKeyword("");
         vkeyword.generate();
         ShaderKeyword pkeyword(vkeyword);
         
@@ -417,23 +422,23 @@ namespace Tiny3D
         const String texSamplerName = "texCube";
         Texture2DPtr texture = buildTexture();
         // sampler state
-        // SamplerDesc samplerDesc;
-        // texture->setSamplerDesc(samplerDesc);
+        SamplerDesc samplerDesc;
+        texture->setSamplerDesc(samplerDesc);
         // ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
         // shader->addSamplerParam(sampler);
         
         // material
         MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
-        material->setTexture(texSamplerName, texture->getUUID());
         StringArray enableKeywrods;
-        enableKeywrods.push_back("-");
+        enableKeywrods.push_back("");
         StringArray disableKeywords;
         ret = material->switchKeywords(enableKeywrods, disableKeywords);
-
+        material->setTexture(texSamplerName, texture->getUUID());
+        
         return material;
     }
 
-    MeshPtr TestScene::buildMesh()
+    MeshPtr TestScene::buildMesh(const Tiny3D::UUID &materialUUID)
     {
 #if defined (ASSETS_FROM_FILE)
         String path = PROJECT_MGR.getTempPath() + Dir::getNativeSeparator() + "builtin";
@@ -446,7 +451,9 @@ namespace Tiny3D
         StringArray disableKeywords;
         for (auto submesh : mesh->getSubMeshes())
         {
-            submesh.second->getMaterial()->switchKeywords(enableKeywrods, disableKeywords);
+            Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+            T3D_ASSERT(material != nullptr);
+            material->switchKeywords(enableKeywrods, disableKeywords);
         }
 #else
         // 
@@ -702,8 +709,8 @@ namespace Tiny3D
         indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
         
         String name = SUB_MESH_NAME;
-        MaterialPtr material = buildMaterial();
-        SubMeshPtr submesh = SubMesh::create(name, material, PrimitiveType::kTriangleList, indexBuffer, true);
+        // MaterialPtr material = buildMaterial();
+        SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
         SubMeshes subMeshes;
         subMeshes.emplace(name, submesh);
 

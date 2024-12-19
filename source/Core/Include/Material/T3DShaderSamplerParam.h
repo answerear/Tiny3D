@@ -106,6 +106,8 @@ namespace Tiny3D
 
         ~ShaderSamplerValue() override;
 
+        ShaderSamplerValuePtr clone() const;
+
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const { return mName; }
 

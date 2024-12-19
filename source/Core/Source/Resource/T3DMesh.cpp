@@ -33,6 +33,7 @@
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DVertexDeclaration.h"
 #include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 
 
 namespace Tiny3D
@@ -172,7 +173,17 @@ namespace Tiny3D
                 }
                 if (vshader == nullptr)
                 {
-                    Material *material = submesh.second->getMaterial();
+                    Material *material = nullptr;
+                    
+                    if (archive != nullptr)
+                    {
+                        material = T3D_MATERIAL_MGR.loadMaterial(archive, submesh.second->getMaterialUUID());
+                    }
+                    else
+                    {
+                        material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+                    }
+                    
                     TechniqueInstance *tech = material->getCurrentTechnique();
                     PassInstance *pass = tech->getPassInstances().front();
                     // vshader = pass->getCurrentVertexShader()->getShaderVariant();

@@ -375,7 +375,7 @@ namespace Tiny3D
         
     protected:
         /// shader 纹理采样器的数据
-        ShaderSamplerValues      mSamplerValues {};
+        ShaderSamplerValues     mSamplerValues {};
         /// shader 常量缓冲区的数据
         ShaderConstantValues    mConstantValues {};
         /// 着色器资源的 UUID

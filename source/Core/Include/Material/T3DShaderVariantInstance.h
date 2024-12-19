@@ -39,6 +39,8 @@ namespace Tiny3D
 
         ~ShaderVariantInstance() override = default;
 
+        ShaderVariantInstancePtr clone(PassInstance *parent) const;
+
         PassInstance *getPassInstance() const { return mPassInstance; }
 
         ShaderVariantPtr getShaderVariant() const { return mShaderVariant; }
@@ -53,7 +55,7 @@ namespace Tiny3D
 
         uint32_t getPixelBufferStartSlot() const { return mPixelBufferStartSlot; }
 
-        TResult setupConstantBuffers(uint32_t &startSlot);
+        TResult updateConstantBuffers(uint32_t &startSlot);
 
         void setBool(const String &name, bool value);
 
@@ -126,7 +128,11 @@ namespace Tiny3D
         bool hasTexture(const String &name) const;
         
     protected:
+        ShaderVariantInstance() = default;
+        
         ShaderVariantInstance(PassInstance *parent, ShaderVariantPtr shaderVariant);
+
+        TResult cloneProperties(PassInstance *parent, const ShaderVariantInstance * const src);
 
         bool getConstantBufferInfo(const String &name, uint8_t *&data, uint32_t &dataSize) const;
         

@@ -31,6 +31,7 @@
 #include "Resource/T3DShaderManager.h"
 #include "Material/T3DTechniqueInstance.h"
 #include "Resource/T3DTextureManager.h"
+#include "Material/T3DPassInstance.h"
 
 
 namespace Tiny3D
@@ -96,6 +97,31 @@ namespace Tiny3D
     {
         Resource::cloneProperties(src);
         const Material *material = static_cast<const Material*>(src);
+
+        // constant values
+        for (const auto &item : material->getConstantValues())
+        {
+            ShaderConstantValuePtr constValue = item.second->clone();
+            mConstantValues.emplace(item.first, constValue);
+        }
+
+        // texture sampler values
+        for (const auto &item : material->getSamplerValues())
+        {
+            ShaderSamplerValuePtr samplerValue = item.second->clone();
+            mSamplerValues.emplace(item.first, samplerValue);
+        }
+
+        // shader uuid
+        mShaderUUID = material->getShaderUUID();
+
+        // shader
+        mShader = material->getShader();
+
+        if (material->getCurrentTechnique() != nullptr)
+        {
+            mCurTechnique = material->getCurrentTechnique()->clone(this);
+        }
     }
 
     //--------------------------------------------------------------------------

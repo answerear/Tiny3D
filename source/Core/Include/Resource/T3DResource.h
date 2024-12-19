@@ -129,6 +129,8 @@ namespace Tiny3D
          */
         State getState() const { return mState; }
 
+        bool isCloned() const { return mIsCloned; }
+        
     protected:
         Resource();
 
@@ -194,13 +196,15 @@ namespace Tiny3D
         /// 资源的 UUID
         UUID                mUUID {};
         /// 资源状态
-        State               mState = State::kUnloaded;
+        State               mState {State::kUnloaded};
         /// 资源名称
         String              mName {};
         /// 資源文件名
         String              mFilename {};
         /// 异步加载回调
-        CompletedCallback   mCompletedCB = nullptr;
+        CompletedCallback   mCompletedCB {nullptr};
+        /// 是否克隆出来的对象
+        bool mIsCloned {false};
 
         /// Component* : 组件对象
         using NeedToLoadResourceComponents = TSet<Component*>;

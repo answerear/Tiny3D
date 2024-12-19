@@ -274,6 +274,12 @@ namespace Tiny3D
                                     material->setMatrix("tiny3d_ObjectToWorld", xform.getAffineMatrix());
                                     Matrix4 matWorld2Obj = xform.getAffineMatrix().inverse();
                                     material->setMatrix("tiny3d_WorldToObject", matWorld2Obj);
+
+                                    uint32_t startSlot = 0;
+                                    if (vertexShader != nullptr)
+                                    {
+                                        vertexShader->updateConstantBuffers(startSlot);
+                                    }
                                 }
                                 
                                 // 设置渲染图元类型
@@ -429,7 +435,7 @@ namespace Tiny3D
         }
 #else
         uint32_t startSlot = 0;
-        shader->setupConstantBuffers(startSlot);
+        shader->updateConstantBuffers(startSlot);
         
         if (!shader->getConstantBuffers().empty())
         {

@@ -52,12 +52,55 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TechniqueInstancePtr TechniqueInstance::clone(Material *material) const
+    {
+        TechniqueInstancePtr newInstance = new TechniqueInstance();
+
+        if (T3D_FAILED(newInstance->cloneProperties(material, this)))
+        {
+            newInstance = nullptr;
+        }
+        
+        return newInstance;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult TechniqueInstance::cloneProperties(Material *material, const TechniqueInstance * const src)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (material == nullptr)
+            {
+                mMaterial = material;
+            }
+            else
+            {
+                mMaterial = src->getMaterial();
+            }
+
+            mTechnique = src->getTechnique();
+
+            for (const auto &srcInst : src->getPassInstances())
+            {
+                PassInstancePtr dstInst = srcInst->clone(this);
+                mPassInstances.emplace_back(dstInst);
+            }
+        } while (false);
+        
+        return ret;
+    }
+ 
+    //--------------------------------------------------------------------------
     
     TResult TechniqueInstance::switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys)
     {
         TResult ret = T3D_OK;
 
-        for (auto instance : mPassInstances)
+        for (const auto &instance : mPassInstances)
         {
             ret = instance->switchKeywords(enableKeys, disableKeys);
             if (T3D_FAILED(ret))
@@ -69,6 +112,24 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult TechniqueInstance::switchKeywords(const ShaderKeyword &keyword)
+    {
+        TResult ret = T3D_OK;
+
+        for (const auto &instance : mPassInstances)
+        {
+            ret = instance->switchKeyword(keyword);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        }
+
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     void TechniqueInstance::setBool(const String &name, bool value)

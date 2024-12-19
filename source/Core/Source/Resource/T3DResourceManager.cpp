@@ -120,8 +120,12 @@ namespace Tiny3D
             }
 
             mResToUUIDMap.emplace(resource.get(), uuid);
-            
-            ret = insertLUT(resource);
+
+            if (!resource->isCloned())
+            {
+                // 不是克隆出来的，才能放到 LUT 里面，否则只能通过 UUID 查找
+                ret = insertLUT(resource);
+            }
         } while (false);
 
         return ret;
@@ -132,19 +136,25 @@ namespace Tiny3D
     void ResourceManager::removeCache(const ResourcePtr &resource)
     {
         // 从 lookup 移除
-        if (!resource->getFilename().empty())
+        if (!resource->isCloned())
         {
-            mResourcesLookup.erase(resource->getFilename());
-        }
-        else
-        {
-            mResourcesLookup.erase(resource->getName());
+            // 不是克隆出来的，LUT 里面才有对应资源
+            if (!resource->getFilename().empty())
+            {
+                mResourcesLookup.erase(resource->getFilename());
+            }
+            else
+            {
+                mResourcesLookup.erase(resource->getName());
+            }
         }
 
         auto itr = mResToUUIDMap.find(resource.get());
-            
-        // 从 cache 移除
-        mResourcesCache.erase(itr->second);
+        if (itr != mResToUUIDMap.end())
+        {
+            // 从 cache 移除
+            mResourcesCache.erase(itr->second);
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -592,10 +602,12 @@ namespace Tiny3D
 
             // 克隆对象
             ResourcePtr dst = src->clone();
-            // if (!insertCache(dst))
-            // {
-            //     break;
-            // }
+            dst->mIsCloned = true;  // 设置克隆标记
+            
+            if (!insertCache(dst->getUUID(), dst))
+            {
+                break;
+            }
 
             res = dst;
         } while (false);

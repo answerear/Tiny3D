@@ -52,6 +52,60 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    PassInstancePtr PassInstance::clone(TechniqueInstance *parent) const
+    {
+        PassInstancePtr newInstance = new PassInstance();
+
+        if (newInstance != nullptr && T3D_FAILED(newInstance->cloneProperties(parent, this)))
+        {
+            newInstance = nullptr;
+        }
+        
+        return newInstance;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PassInstance::cloneProperties(TechniqueInstance *parent, const PassInstance *const src)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (parent != nullptr)
+            {
+                mTechInstance = parent;
+            }
+            else
+            {
+                mTechInstance = src->getTechInstance();
+            }
+
+            mPass = src->getPass();
+            mCurrentKeyword = src->getCurrentKeyword();
+
+            auto cloneShaderVariantInstance = [this](ShaderVariantInstance *src)
+            {
+                ShaderVariantInstancePtr dst;
+                if (src != nullptr)
+                {
+                    dst = src->clone(this);
+                }
+                return dst;
+            };
+            
+            mCurrentVS = cloneShaderVariantInstance(src->getCurrentVertexShader());
+            mCurrentPS = cloneShaderVariantInstance(src->getCurrentPixelShader());
+            mCurrentGS = cloneShaderVariantInstance(src->getCurrentGeometryShader());
+            mCurrentHS = cloneShaderVariantInstance(src->getCurrentHullShader());
+            mCurrentDS = cloneShaderVariantInstance(src->getCurrentDomainShader());
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
     
     TResult PassInstance::switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant)
     {
@@ -174,6 +228,8 @@ namespace Tiny3D
             mCurrentDS = currentDS;
             mCurrentGS = currentGS;
             mCurrentPS = currentPS;
+
+            mCurrentKeyword = kw;
         } while (false);
 
         return ret;

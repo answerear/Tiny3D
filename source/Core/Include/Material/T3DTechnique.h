@@ -74,57 +74,33 @@ namespace Tiny3D
         bool getPass(const String &name, PassPtr &pass) const;
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
-        const String &getName() const
-        {
-            return mName;
-        }
+        const String &getName() const { return mName; }
         
         TPROPERTY(RTTRFuncName="LOD", RTTRFuncType="getter")
-        uint32_t getLOD() const
-        {
-            return mLOD;
-        }
+        uint32_t getLOD() const { return mLOD; }
 
         TPROPERTY(RTTRFuncName="LOD", RTTRFuncType="setter")
-        void setLOD(uint32_t LOD)
-        {
-            mLOD = LOD;
-        }
+        void setLOD(uint32_t LOD) { mLOD = LOD; }
 
         uint32_t getRenderQueue() const { return mRenderQueue; }
 
         TPROPERTY(RTTRFuncName="Tags", RTTRFuncType="getter")
-        const ShaderLabTags &getTags() const
-        {
-            return mTags;
-        }
+        const ShaderLabTags &getTags() const { return mTags; }
 
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="getter")
-        RenderStatePtr getRenderState() const
-        {
-            return mRenderState;
-        }
+        RenderStatePtr getRenderState() const { return mRenderState; }
 
         TPROPERTY(RTTRFuncName="RenderState", RTTRFuncType="setter")
-        void setRenderState(RenderStatePtr state)
-        {
-            mRenderState = state;
-        }
+        void setRenderState(RenderStatePtr state) { mRenderState = state; }
 
         TPROPERTY(RTTRFuncName="Passes", RTTRFuncType="getter")
-        const Passes &getPasses() const
-        {
-            return mPasses;
-        }
+        const Passes &getPasses() const { return mPasses; }
         
     private:
         Technique() : Technique("") {}
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
-        void setName(const String &name)
-        {
-            mName = name;
-        }
+        void setName(const String &name) { mName = name; }
 
         TPROPERTY(RTTRFuncName="Tags", RTTRFuncType="setter")
         void setTags(const ShaderLabTags &tags)
@@ -142,10 +118,7 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="Passes", RTTRFuncType="setter")
-        void setPasses(const Passes &passes)
-        {
-            mPasses = passes;
-        }
+        void setPasses(const Passes &passes) { mPasses = passes; }
         
     protected:
         Technique(const String &name);

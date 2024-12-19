@@ -40,7 +40,7 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static SubMeshPtr create(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits);
+        static SubMeshPtr create(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits);
 
         ~SubMesh() override;
 
@@ -59,7 +59,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="PrimitiveType", RTTRFuncType="getter")
         PrimitiveType getPrimitiveType() const { return mPriType; }
 
-        Material    *getMaterial() const { return mMaterial; }
+        // Material    *getMaterial() const { return mMaterial; }
         
         IndexBuffer *getIndexBuffer() const { return mIB; }
 
@@ -68,7 +68,7 @@ namespace Tiny3D
     protected:
         SubMesh() = default;
 
-        SubMesh(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits);
+        SubMesh(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name) { mName = name; }
@@ -77,10 +77,7 @@ namespace Tiny3D
         void setMaterialUUID(const UUID &uuid) { mMaterialUUID = uuid; }
         
         TPROPERTY(RTTRFuncName="Indices", RTTRFuncType="setter")
-        void setIndices(const Buffer &indices)
-        {
-            mIndices.setData(indices.Data, indices.DataSize);
-        }
+        void setIndices(const Buffer &indices) { mIndices.setData(indices.Data, indices.DataSize); }
         
         TPROPERTY(RTTRFuncName="Is16Bits", RTTRFuncType="setter")
         void enable16Bits(bool is16Bits) { mIs16Bits = is16Bits; }
@@ -89,8 +86,6 @@ namespace Tiny3D
         void setPrimitiveType(PrimitiveType priType) { mPriType = priType; }
 
     protected:
-        /// 材质对象
-        MaterialPtr     mMaterial {nullptr};
         /// 渲染用的 index buffer
         IndexBufferPtr  mIB {nullptr};
 

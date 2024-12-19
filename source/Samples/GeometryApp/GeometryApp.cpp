@@ -150,11 +150,16 @@ void GeometryApp::buildCube(Transform3D *parent)
     // xform->setPosition(0.0f, 0.0f, 200.0f);
     // xform->setScaling(100.0f, 100.0f, 100.0f);
 #endif
+
+    // material
+    MaterialPtr material = buildMaterial();
     
+    // mesh & submesh
+    MeshPtr mesh = buildMesh(material->getUUID());
+    SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
+
     // geometry component
     GeometryPtr geometry = go->addComponent<Geometry>();
-    MeshPtr mesh = buildMesh();
-    SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
     geometry->setMeshObject(mesh, submesh);
     
     // aabb bound component
@@ -267,7 +272,7 @@ MaterialPtr GeometryApp::buildMaterial()
     
     // vertex & pixel shader keyword
     ShaderKeyword vkeyword;
-    vkeyword.addKeyword("-");
+    vkeyword.addKeyword("");
     vkeyword.generate();
     ShaderKeyword pkeyword(vkeyword);
     
@@ -349,7 +354,7 @@ MaterialPtr GeometryApp::buildMaterial()
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
     StringArray enableKeywrods;
-    enableKeywrods.push_back("-");
+    enableKeywrods.push_back("");
     StringArray disableKeywords;
     material->switchKeywords(enableKeywrods, disableKeywords);
     material->setTexture(texSamplerName, texture->getUUID());
@@ -358,7 +363,7 @@ MaterialPtr GeometryApp::buildMaterial()
 }
 
 
-MeshPtr GeometryApp::buildMesh()
+MeshPtr GeometryApp::buildMesh(const Tiny3D::UUID &materialUUID)
 {
     // 
     // 正方体顶点定义如下：
@@ -852,8 +857,7 @@ MeshPtr GeometryApp::buildMesh()
     indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
     
     String name = SUB_MESH_NAME;
-    MaterialPtr material = buildMaterial();
-    SubMeshPtr submesh = SubMesh::create(name, material, PrimitiveType::kTriangleList, indexBuffer, true);
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 

@@ -46,7 +46,7 @@ namespace Tiny3D
         void buildCube(Transform3D *parent);
         Texture2DPtr buildTexture();
         MaterialPtr buildMaterial();
-        MeshPtr buildMesh();
+        MeshPtr buildMesh(const Tiny3D::UUID &materialUUID);
         void buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
         
     protected:

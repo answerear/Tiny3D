@@ -25,9 +25,11 @@
 
 #include "Component/T3DGeometry.h"
 #include "Kernel/T3DArchive.h"
+#include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DMesh.h"
 #include "Resource/T3DSubMesh.h"
 #include "Resource/T3DMeshManager.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
@@ -38,6 +40,31 @@ namespace Tiny3D
         : Renderable(uuid)
     {
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    Geometry::~Geometry()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Geometry::onDestroy()
+    {
+        if (!mIsDynamicBatch && mMaterial != nullptr)
+        {
+            // 不是动态合批，要自己卸载掉
+            T3D_MATERIAL_MGR.unload(mMaterial);
+            mMaterial = nullptr;
+        }
+        else
+        {
+            mMaterial = nullptr;
+        }
+
+        Renderable::onDestroy();
     }
 
     //--------------------------------------------------------------------------
@@ -82,11 +109,7 @@ namespace Tiny3D
 
     Material *Geometry::getMaterial()
     {
-        if (mMesh != nullptr && mSubMesh != nullptr)
-        {
-            return mSubMesh->getMaterial();
-        }
-        return nullptr;
+        return mMaterial;
     }
 
     //--------------------------------------------------------------------------
@@ -168,6 +191,12 @@ namespace Tiny3D
             mSubMesh = nullptr;
             mMeshUUID = UUID::INVALID;
             mSubMeshName = "";
+
+            if (!mIsDynamicBatch && mMaterial != nullptr)
+            {
+                T3D_MATERIAL_MGR.unload(mMaterial);
+                mMaterial = nullptr;
+            }
         }
         else
         {
@@ -179,6 +208,8 @@ namespace Tiny3D
                 mSubMesh = submesh;
                 mMeshUUID = mMesh->getUUID();
                 mSubMeshName = mSubMesh->getName();
+
+                generateRenderMaterial();
             }
         }
     }
@@ -204,6 +235,12 @@ namespace Tiny3D
         {
             if (mMesh->getUUID() != mMeshUUID)
             {
+                if (!mIsDynamicBatch && mMaterial != nullptr)
+                {
+                    T3D_MATERIAL_MGR.unload(mMaterial);
+                    mMaterial = nullptr;
+                }
+                
                 mMesh = nullptr;
             }
         }
@@ -215,11 +252,40 @@ namespace Tiny3D
             if (mMesh != nullptr)
             {
                 mSubMesh = mMesh->getSubMesh(mSubMeshName);
+
+                if (mSubMesh != nullptr && archive != nullptr)
+                {
+                    // 加载出来的，那就顺便把材质加载一下
+                    T3D_MATERIAL_MGR.loadMaterial(archive, mSubMesh->getMaterialUUID());
+                }
+
+                generateRenderMaterial();
             }
             else
             {
                 T3D_LOG_ERROR(LOG_TAG_COMPONENT, "Failed to load mesh (%s) !", mMeshUUID.toString().c_str());
             }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Geometry::generateRenderMaterial()
+    {
+        Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(mSubMesh->getMaterialUUID()));
+        T3D_ASSERT(material != nullptr);
+        
+        mIsDynamicBatch = false;
+
+        if (mIsDynamicBatch)
+        {
+            // 动态合批，直接使用 submesh 的材质即可
+            mMaterial = material;
+        }
+        else
+        {
+            // 不合批，生成一个新材质
+            mMaterial = T3D_MATERIAL_MGR.clone(material);
         }
     }
 

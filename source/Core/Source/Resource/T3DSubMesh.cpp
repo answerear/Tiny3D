@@ -33,19 +33,18 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SubMeshPtr SubMesh::create(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+    SubMeshPtr SubMesh::create(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits)
     {
-        return new SubMesh(name, material, priType, indices, is16Bits);
+        return new SubMesh(name, materialUUID, priType, indices, is16Bits);
     }
 
     //--------------------------------------------------------------------------
 
-    SubMesh::SubMesh(const String &name, Material *material, PrimitiveType priType, const Buffer &indices, bool is16Bits)
-        : mMaterial(material)
-        , mPriType(priType)
+    SubMesh::SubMesh(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+        : mPriType(priType)
         , mIs16Bits(is16Bits)
         , mName(name)
-        , mMaterialUUID(material->getUUID())
+        , mMaterialUUID(materialUUID)
     {
         mIndices.setData(indices.Data, indices.DataSize);
     }
@@ -66,16 +65,16 @@ namespace Tiny3D
         do
         {
             // 加载材质资源
-            if (archive != nullptr)
-            {
-                mMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, mMaterialUUID);
-                if (mMaterial == nullptr)
-                {
-                    ret = T3D_ERR_RES_LOAD_FAILED;
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load material (%s) !", mMaterialUUID.toString().c_str());
-                    break;
-                }
-            }
+            // if (archive != nullptr)
+            // {
+            //     mMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, mMaterialUUID);
+            //     if (mMaterial == nullptr)
+            //     {
+            //         ret = T3D_ERR_RES_LOAD_FAILED;
+            //         T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load material (%s) !", mMaterialUUID.toString().c_str());
+            //         break;
+            //     }
+            // }
             
             // 索引缓冲区
             IndexType indexType;

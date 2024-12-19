@@ -45,7 +45,7 @@ namespace Tiny3D
     Pass::Pass(const String &name)
         : mName(name)
     {
-        
+        mCurrentKeyword.generate();
     }
 
     //--------------------------------------------------------------------------

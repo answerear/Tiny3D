@@ -96,6 +96,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    ShaderSamplerValuePtr ShaderSamplerValue::clone() const
+    {
+        ShaderSamplerValuePtr sampler = create(mName);
+
+        if (sampler != nullptr)
+        {
+            sampler->mTextureUUID = mTextureUUID;
+            sampler->mTexture = mTexture;
+        }
+        
+        return sampler;
+    }
+    //--------------------------------------------------------------------------
 }
 
 

@@ -171,10 +171,6 @@ namespace Tiny3D
 
         TResult unloadPlugins();
 
-        TResult initBuiltinAssets();
-
-        TResult releaseBuiltinAssets();
-
         TResult initRenderer();
 
         TResult initSceneManager();

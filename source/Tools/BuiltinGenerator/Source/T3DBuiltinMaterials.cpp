@@ -50,7 +50,7 @@ namespace Tiny3D
             }
 
             // test material
-            ret = generateMaterial(TEST_MATERIAL_TITLE, rootPath, "Test.ttex");
+            ret = generateMaterial(TEST_MATERIAL_TITLE, rootPath, "blocks.ttex");
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate test material !");

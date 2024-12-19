@@ -63,8 +63,12 @@ bool SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // scene->addRootGameObject(go);
     Transform3DPtr root = go->addComponent<Transform3D>();
     scene->getRootTransform()->addChild(root);
-    
-    mMesh = buildMesh();
+
+    // material
+    mMaterial = buildMaterial();
+
+    // mesh
+    mMesh = buildMesh(mMaterial->getUUID());
     
     // camera
     buildCamera(root);
@@ -88,6 +92,7 @@ bool SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 void SceneApp::applicationWillTerminate() 
 {
     mMesh = nullptr;
+    mMaterial = nullptr;
 }
 
 void SceneApp::buildCamera(Transform3D *parent)
@@ -154,10 +159,11 @@ void SceneApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &
     Radian zAngles(0.0f);
     xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
     
+    // submesh
+    SubMesh *submesh = mMesh->getSubMesh(SUB_MESH_NAME);
+
     // geometry component
     GeometryPtr geometry = go->addComponent<Geometry>();
-    
-    SubMesh *submesh = mMesh->getSubMesh(SUB_MESH_NAME);
     geometry->setMeshObject(mMesh, submesh);
     
     // aabb bound component
@@ -270,7 +276,7 @@ MaterialPtr SceneApp::buildMaterial()
     
     // vertex & pixel shader keyword
     ShaderKeyword vkeyword;
-    vkeyword.addKeyword("-");
+    vkeyword.addKeyword("");
     vkeyword.generate();
     ShaderKeyword pkeyword(vkeyword);
     
@@ -353,7 +359,7 @@ MaterialPtr SceneApp::buildMaterial()
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
     StringArray enableKeywrods;
-    enableKeywrods.push_back("-");
+    enableKeywrods.push_back("");
     StringArray disableKeywords;
     material->switchKeywords(enableKeywrods, disableKeywords);
     material->setTexture(texSamplerName, texture->getUUID());
@@ -362,7 +368,7 @@ MaterialPtr SceneApp::buildMaterial()
 }
 
 
-MeshPtr SceneApp::buildMesh()
+MeshPtr SceneApp::buildMesh(const Tiny3D::UUID &materialUUID)
 {
     // 
     // 正方体顶点定义如下：
@@ -652,8 +658,7 @@ MeshPtr SceneApp::buildMesh()
     indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
     
     String name = SUB_MESH_NAME;
-    MaterialPtr material = buildMaterial();
-    SubMeshPtr submesh = SubMesh::create(name, material, PrimitiveType::kTriangleList, indexBuffer, true);
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 

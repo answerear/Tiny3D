@@ -40,12 +40,18 @@ namespace Tiny3D
 
         virtual ~PassInstance() = default;
 
+        PassInstancePtr clone(TechniqueInstance *parent) const;
+
         TechniqueInstance *getTechInstance() const { return mTechInstance; }
 
         PassPtr getPass() const { return mPass; }
 
+        const ShaderKeyword &getCurrentKeyword() const { return mCurrentKeyword; }
+
         TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys);
-        
+
+        TResult switchKeyword(const ShaderKeyword &keyword);
+
         ShaderVariantInstance *getCurrentVertexShader() const { return mCurrentVS; }
 
         ShaderVariantInstance *getCurrentHullShader() const { return mCurrentHS; }
@@ -85,11 +91,13 @@ namespace Tiny3D
         void setTexture(const String &name, const UUID &uuid);
         
     protected:
+        PassInstance() = default;
+        
         PassInstance(TechniqueInstance *parent, PassPtr pass);
 
-        TResult switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant);
+        TResult cloneProperties(TechniqueInstance *parent, const PassInstance * const src);
 
-        TResult switchKeyword(const ShaderKeyword &keyword);
+        TResult switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant);
 
         template <typename Value_t, typename ShaderSetValue_t>
         void setValue(ShaderVariantInstance *shader, const String &name, const Value_t &value, ShaderSetValue_t shaderSetValue)

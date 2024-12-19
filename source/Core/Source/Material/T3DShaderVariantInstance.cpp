@@ -147,7 +147,100 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ShaderVariantInstance::setupConstantBuffers(uint32_t &startSlot)
+    ShaderVariantInstancePtr ShaderVariantInstance::clone(PassInstance *parent) const
+    {
+        ShaderVariantInstancePtr newInstance = new ShaderVariantInstance();
+
+        if (newInstance != nullptr && T3D_FAILED(newInstance->cloneProperties(parent, this)))
+        {
+            newInstance = nullptr;
+        }
+
+        return newInstance;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ShaderVariantInstance::cloneProperties(PassInstance *parent, const ShaderVariantInstance *const src)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (parent != nullptr)
+            {
+                mPassInstance = parent;
+            }
+            else
+            {
+                mPassInstance = src->getPassInstance();
+            }
+
+            mShaderVariant = src->getShaderVariant();
+
+            // 复制常量缓冲区及其数据
+            auto itrBuf = src->mConstBuffers.begin();
+            auto itrCBuf = src->getConstantBuffers().begin();
+            while (itrBuf != src->mConstBuffers.end() && itrCBuf != src->getConstantBuffers().end())
+            {
+                // 创建缓冲区数据，用于读写
+                Buffer buffer;
+                buffer.DataSize = itrBuf->DataSize;
+                buffer.Data = new uint8_t[buffer.DataSize];
+                mConstBuffers.emplace_back(buffer);
+
+                // 创建 RHI 相关缓冲区对象
+                ConstantBuffer *cb = *itrCBuf;
+                ConstantBufferPtr cbuffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(cb->getName(), cb->getBinding(), buffer, cb->getMemoryType(), cb->getUsage(), (CPUAccessMode)cb->getCPUAccessMode());
+                mConstantBuffers.emplace_back(cbuffer);
+
+                // 创建 LUT，用于快速查找
+                mConstBuffersLUT.emplace(cb->getName(), buffer);
+                
+                ++itrBuf;
+                ++itrCBuf;
+            }
+
+            // samplers 起始索引
+            mSamplerStartSlot = src->getSamplerStartSlot();
+
+            // pixel buffers 起始索引
+            mPixelBufferStartSlot = src->getPixelBufferStartSlot();
+
+            // 纹理
+            for (const auto &texture : src->mTextures)
+            {
+                mTextures.emplace_back(texture);
+            }
+
+            // 纹理 LUT
+            for (const auto &item : src->mTexturesLUT)
+            {
+                TexLUTItem itemLUT;
+                itemLUT.samplerIndex = item.second.samplerIndex;
+                itemLUT.pixelBufferIndex = item.second.pixelBufferIndex;
+                mTexturesLUT.emplace(item.first, itemLUT);
+            }
+
+            // 纹理采样器
+            for (const auto &sampler : src->getSamplers())
+            {
+                mSamplers.emplace_back(sampler);
+            }
+
+            // 像素缓冲区
+            for (const auto &pb : src->getPixelBuffers())
+            {
+                mPixelBuffers.emplace_back(pb);
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ShaderVariantInstance::updateConstantBuffers(uint32_t &startSlot)
     {
         T3D_ASSERT(mConstantBuffers.size() == mConstBuffers.size());
 
@@ -158,10 +251,7 @@ namespace Tiny3D
             const auto &buffer = mConstBuffers[i];
             const auto &cbuffer = mConstantBuffers[i];
             cbuffer->writeData(0, buffer, true);
-            if (cbuffer->getBinding() < startSlot)
-            {
-                startSlot = cbuffer->getBinding();
-            }
+            startSlot = std::min(startSlot, cbuffer->getBinding());
         }
 
         return T3D_OK;

@@ -522,7 +522,9 @@ namespace Tiny3D
             StringArray disableKeywords;
             for (auto submesh : mesh->getSubMeshes())
             {
-                ret = submesh.second->getMaterial()->switchKeywords(enableKeywrods, disableKeywords);
+                Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+                T3D_ASSERT(material != nullptr);
+                ret = material->switchKeywords(enableKeywrods, disableKeywords);
                 if (T3D_FAILED(ret))
                 {
                     EDITOR_LOG_ERROR("Failed to switch keywords (submesh : %s) ! ERROR [%d]", submesh.second->getName().c_str(), ret);

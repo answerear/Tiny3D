@@ -111,11 +111,16 @@ void TextureApp::buildCube(Transform3D *parent)
     GameObjectPtr go = GameObject::create("Cube");
     Transform3DPtr xform = go->addComponent<Transform3D>();
     parent->addChild(xform);
+
+    // material
+    MaterialPtr material = buildMaterial();
+    
+    // mesh & submesh
+    MeshPtr mesh = buildMesh(material->getUUID());
+    SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
     
     // geometry component
     GeometryPtr geometry = go->addComponent<Geometry>();
-    MeshPtr mesh = buildMesh();
-    SubMesh *submesh = mesh->getSubMesh(SUB_MESH_NAME);
     geometry->setMeshObject(mesh, submesh);
     
     // aabb bound component
@@ -140,7 +145,7 @@ MaterialPtr TextureApp::buildMaterial()
     
     // vertex & pixel shader keyword
     ShaderKeyword vkeyword;
-    vkeyword.addKeyword("-");
+    vkeyword.addKeyword("");
     vkeyword.generate();
     ShaderKeyword pkeyword(vkeyword);
     
@@ -202,7 +207,7 @@ MaterialPtr TextureApp::buildMaterial()
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
     StringArray enableKeywrods;
-    enableKeywrods.push_back("-");
+    enableKeywrods.push_back("");
     StringArray disableKeywords;
     material->switchKeywords(enableKeywrods, disableKeywords);
     material->setTexture(texSamplerName, texture->getUUID());
@@ -211,7 +216,7 @@ MaterialPtr TextureApp::buildMaterial()
 }
 
 
-MeshPtr TextureApp::buildMesh()
+MeshPtr TextureApp::buildMesh(const Tiny3D::UUID &materialUUID)
 {
     // 
     // 正方体顶点定义如下：
@@ -456,8 +461,7 @@ MeshPtr TextureApp::buildMesh()
     indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
     
     String name = SUB_MESH_NAME;
-    MaterialPtr material = buildMaterial();
-    SubMeshPtr submesh = SubMesh::create(name, material, PrimitiveType::kTriangleList, indexBuffer, true);
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 

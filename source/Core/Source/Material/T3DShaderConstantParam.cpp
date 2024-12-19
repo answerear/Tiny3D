@@ -129,14 +129,7 @@ namespace Tiny3D
 
         if (newValue != nullptr)
         {
-            if (getDataType() == ShaderConstantParam::DATA_TYPE::DT_STRUCT)
-            {
-                newValue->setData(mValue.Data, (uint32_t)mValue.DataSize);
-            }
-            else
-            {
-                memcpy(newValue->mValue.Data, mValue.Data, mValue.DataSize);
-            }
+            memcpy(newValue->mValue.Data, mValue.Data, mValue.DataSize);
         }
         
         return newValue;

@@ -38,7 +38,7 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        ~Geometry() override = default;
+        ~Geometry() override;
 
         ComponentPtr clone() const override;
 
@@ -90,6 +90,11 @@ namespace Tiny3D
         void onPostLoad() override;
 
         void onLoadResource(Archive *archive) override;
+
+        void onDestroy() override;
+
+        /// 生成渲染用的材质
+        void generateRenderMaterial();
         
     protected:
         /// Mesh 资源的 UUID
@@ -100,6 +105,10 @@ namespace Tiny3D
         MeshPtr mMesh {nullptr};
         /// Sub Mesh 对象
         SubMesh *mSubMesh {nullptr};
+        /// 渲染使用的材质
+        MaterialPtr mMaterial {nullptr};
+        /// 是否动态合批
+        bool mIsDynamicBatch {false};
     };
 }
 

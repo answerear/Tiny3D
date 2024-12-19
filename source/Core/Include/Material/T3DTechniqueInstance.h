@@ -38,6 +38,8 @@ namespace Tiny3D
 
         virtual ~TechniqueInstance() = default;
 
+        TechniqueInstancePtr clone(Material *material) const;
+
         Material *getMaterial() const { return mMaterial; }
         
         TechniquePtr getTechnique() const { return mTechnique; }
@@ -45,6 +47,8 @@ namespace Tiny3D
         const PassInstances &getPassInstances() const { return mPassInstances; }
 
         TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKeys);
+
+        TResult switchKeywords(const ShaderKeyword &keywrod);
 
         void setBool(const String &name, bool value);
 
@@ -75,7 +79,11 @@ namespace Tiny3D
         void setTexture(const String &name, const UUID &uuid);
         
     protected:
+        TechniqueInstance() = default;
+        
         TechniqueInstance(Material *parent, TechniquePtr tech);
+
+        TResult cloneProperties(Material *material, const TechniqueInstance * const src);
         
     protected:
         /// Technique instance 所属的 material

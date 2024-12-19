@@ -46,10 +46,11 @@ protected:
     
     Tiny3D::Texture2DPtr buildTexture();
     Tiny3D::MaterialPtr buildMaterial();
-    Tiny3D::MeshPtr buildMesh();
+    Tiny3D::MeshPtr buildMesh(const Tiny3D::UUID &materialUUID);
     void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
 
     Tiny3D::MeshPtr mMesh {nullptr};
+    Tiny3D::MaterialPtr mMaterial {nullptr};
 };
 
 
