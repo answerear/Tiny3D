@@ -7,13 +7,13 @@
 //   float4x4 viewMatrix;
 //   float4x4 projectionMatrix;
 //}
-cbuffer Tiny3DPerDraw : register(b0)
+cbuffer Tiny3DPerDraw
 {
    row_major float4x4 tiny3d_ObjectToWorld;
    row_major float4x4 tiny3d_WorldToObject;
 }
 
-cbuffer Tiny3DPerFrame : register(b1)
+cbuffer Tiny3DPerFrame
 {
    row_major float4x4 tiny3d_MatrixV;
    row_major float4x4 tiny3d_MatrixP;
