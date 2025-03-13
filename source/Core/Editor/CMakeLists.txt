@@ -100,6 +100,7 @@ set_project_files(Source\\\\ImageCodec ${TINY3D_CORE_SOURCE_DIR}/Source/ImageCod
 set_project_files(Source\\\\Scene ${TINY3D_CORE_SOURCE_DIR}/Source/Scene/ .cpp)
 set_project_files(Source\\\\Bound ${TINY3D_CORE_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Source/Component/ .cpp)
+set_project_files(Source\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Source/Light/ .cpp)
 set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializer/ .cpp)
 set_project_files(Source\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Source/Editor/ .cpp)
 

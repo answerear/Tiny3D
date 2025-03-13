@@ -93,6 +93,11 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(AabbBound);
     T3D_DECLARE_SMART_PTR(ObbBound);
     T3D_DECLARE_SMART_PTR(FrustumBound);
+
+    T3D_DECLARE_SMART_PTR(Light);
+    T3D_DECLARE_SMART_PTR(PointLight);
+    T3D_DECLARE_SMART_PTR(SpotLight);
+    T3D_DECLARE_SMART_PTR(DirectionalLight);
     
     T3D_DECLARE_SMART_PTR(RenderContext);
     T3D_DECLARE_SMART_PTR(RenderPipeline);

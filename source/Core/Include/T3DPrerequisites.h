@@ -160,6 +160,12 @@ namespace Tiny3D
     class AabbBound;
     class ObbBound;
     class FrustumBound;
+
+    // Light
+    class Light;
+    class DirectionalLight;
+    class PointLight;
+    class SpotLight;
     
     // Render
     class RenderContext;
