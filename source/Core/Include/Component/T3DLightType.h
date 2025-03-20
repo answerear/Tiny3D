@@ -22,35 +22,33 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_POINT_LIGHT_H__
-#define __T3D_POINT_LIGHT_H__
+#ifndef __T3D_LIGHT_TYPE_H__
+#define __T3D_LIGHT_TYPE_H__
 
 
-#include "Component/T3DLight.h"
+#include "Component/T3DComponent.h"
+#include "Kernel/T3DConstant.h"
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API PointLight : public Light
+    /**
+     * 光照类型
+     */
+    TENUM()
+    enum class LightType : uint32_t
     {
-        TRTTI_ENABLE(Light)
-        TRTTI_FRIEND
-        
-    public:
-        static PointLightPtr create();
-        
-        ~PointLight() override = default;
-
-        ComponentPtr clone() const override;
-
-        LightType getLightType() const override { return LightType::kPoint; }
-        
-    protected:
-        PointLight() = default;
-
-        PointLight(const UUID &uuid);
+        /// 无光照
+        kNone = 0,
+        /// 环境光
+        kAmbient,
+        /// 平行光
+        kDirectional,
+        /// 点光源
+        kPoint,
+        /// 聚光灯
+        kSpot,
     };
 }
 
 
-#endif  /*__T3D_POINT_LIGHT_H__*/
+#endif  /*__T3D_LIGHT_TYPE_H__*/

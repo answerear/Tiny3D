@@ -163,6 +163,7 @@ namespace Tiny3D
 
     // Light
     class Light;
+    class AmbientLight;
     class DirectionalLight;
     class PointLight;
     class SpotLight;

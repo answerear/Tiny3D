@@ -22,35 +22,57 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_POINT_LIGHT_H__
-#define __T3D_POINT_LIGHT_H__
 
+#include "Component/T3DAmbientLight.h"
 
-#include "Component/T3DLight.h"
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API PointLight : public Light
+    //--------------------------------------------------------------------------
+
+    AmbientLightPtr AmbientLight::create()
     {
-        TRTTI_ENABLE(Light)
-        TRTTI_FRIEND
-        
-    public:
-        static PointLightPtr create();
-        
-        ~PointLight() override = default;
+        return new AmbientLight(UUID::generate());
+    }
+    
+    //--------------------------------------------------------------------------
 
-        ComponentPtr clone() const override;
-
-        LightType getLightType() const override { return LightType::kPoint; }
+    AmbientLight::AmbientLight(const UUID &uuid)
+        : Light(uuid)
+    {
         
-    protected:
-        PointLight() = default;
+    }
 
-        PointLight(const UUID &uuid);
-    };
+    //--------------------------------------------------------------------------
+
+    ComponentPtr AmbientLight::clone() const
+    {
+        AmbientLightPtr light = create();
+
+        TResult ret = light->cloneProperties(this);
+        if (T3D_FAILED(ret))
+        {
+            light = nullptr;
+        }
+
+        return light;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult AmbientLight::cloneProperties(const Component *const src)
+    {
+        TResult ret = Light::cloneProperties(src);
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        const AmbientLight *srcLight = static_cast<const AmbientLight *>(src);
+        mIntensity = srcLight->getIntensity();
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_POINT_LIGHT_H__*/

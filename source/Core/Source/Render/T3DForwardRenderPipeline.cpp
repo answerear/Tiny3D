@@ -28,23 +28,21 @@
 #include "Material/T3DTechnique.h"
 #include "Material/T3DPass.h"
 #include "Material/T3DPassInstance.h"
-#include "Material/T3DShaderVariant.h"
 #include "Material/T3DShaderVariantInstance.h"
 #include "Component/T3DCamera.h"
+#include "Component/T3DLight.h"
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransform3D.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
 #include "RHI/T3DRHIContext.h"
-#include "Render/T3DConstantBuffer.h"
 #include "Resource/T3DScene.h"
 #include "Resource/T3DMaterial.h"
-#include "Resource/T3DShader.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DRenderState.h"
-#include "Render/T3DPixelBuffer.h"
+#include "Component/T3DAmbientLight.h"
 
 
 
@@ -109,9 +107,53 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::removeRenderable(Renderable *renderable)
     {
+        // TODO:
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::addLight(Light *light)
+    {
+        if (light == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid light when adding light !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+        
+        const auto itr = mLights.find(light->getUUID());
+        if (itr != mLights.end())
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Light in game object [%s] already exists when adding light !", light->getGameObject()->getName().c_str());
+            return T3D_ERR_DUPLICATED_ITEM;
+        }
+
+        mLights.emplace(light->getUUID(), light);
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::removeLight(Light *light)
+    {
+        if (light == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid light when removing light !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        const auto itr = mLights.find(light->getUUID());
+        if (itr == mLights.end())
+        {
+            return T3D_ERR_NOT_FOUND;
+        }
+        
+        mLights.erase(itr);
+        
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult ForwardRenderPipeline::cull(Scene *scene)
@@ -124,6 +166,8 @@ namespace Tiny3D
         mCameras.clear();
         mRenderQueue.clear();
 
+        int32_t visitTimes = 0;
+        
         GameObjectPtr go;
         
 #if defined (T3D_EDITOR)
@@ -144,15 +188,14 @@ namespace Tiny3D
             {
                 go->frustumCulling(item.second, this);
             }
-            // for (auto go : scene->getRootGameObjects())
-            // {
-            //     uint32_t cullingMask = item.second->getCullingMask();
-            //     uint32_t cameraMask = go->getCameraMask();
-            //     if (cullingMask & cameraMask)
-            //     {
-            //         go->frustumCulling(item.second, this);
-            //     }
-            // }
+
+            if (visitTimes == 0)
+            {
+                // 添加光源，只做一次
+                go->setupLights(this);
+            }
+
+            visitTimes++;
         }
         
         return T3D_OK;
@@ -201,9 +244,8 @@ namespace Tiny3D
 
                         TechniqueInstancePtr tech = material->getCurrentTechnique();
 
-                        material->setMatrix("tiny3d_MatrixV", ctx->getViewMatrix());
-                        material->setMatrix("tiny3d_MatrixP", ctx->getProjMatrix());
-                        material->setMatrix("tiny3d_MatrixVP", ctx->getProjViewMatrix());
+                        // 设置 material 对应的矩阵
+                        setupMatrices(ctx, material);
 
                         // 遍历渲染每个 Pass
                         for (auto pass : tech->getPassInstances())
@@ -221,66 +263,16 @@ namespace Tiny3D
                                 setupRenderState(ctx, renderState);
                             }
 
-                            ShaderVariantInstance *vertexShader = pass->getCurrentVertexShader();
-                            ShaderVariantInstance *hullShader = pass->getCurrentHullShader();
-                            ShaderVariantInstance *domainShader = pass->getCurrentDomainShader();
-                            ShaderVariantInstance *geometryShader = pass->getCurrentGeometryShader();
-                            ShaderVariantInstance *pixelShader = pass->getCurrentPixelShader();
+                            // 设置光照
+                            setupLights(ctx, material);
                             
-                            // 设置 shader 常量
-                            setupShaderConstants(ctx, &RHIContext::setVSConstantBuffers, material, vertexShader);
-                            setupShaderConstants(ctx, &RHIContext::setHSConstantBuffers, material, hullShader);
-                            setupShaderConstants(ctx, &RHIContext::setDSConstantBuffers, material, domainShader);
-                            setupShaderConstants(ctx, &RHIContext::setGSConstantBuffers, material, geometryShader);
-                            setupShaderConstants(ctx, &RHIContext::setPSConstantBuffers, material, pixelShader);
-
-                            // 设置 shader 使用的纹理和纹理采样
-                            setupShaderTexSamplers(ctx, &RHIContext::setVSSamplers, &RHIContext::setVSPixelBuffers, material, vertexShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setHSSamplers, &RHIContext::setHSPixelBuffers, material, hullShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setDSSamplers, &RHIContext::setDSPixelBuffers, material, domainShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setGSSamplers, &RHIContext::setGSPixelBuffers, material, geometryShader);
-                            setupShaderTexSamplers(ctx, &RHIContext::setPSSamplers, &RHIContext::setPSPixelBuffers, material, pixelShader);
-                            
-                            // 设置各 pipeline stage 的 shader
-                            if (vertexShader != nullptr)
-                            {
-                                ctx->setVertexShader(vertexShader->getShaderVariant());
-                            }
-                            if (hullShader != nullptr)
-                            {
-                                ctx->setHullShader(hullShader->getShaderVariant());
-                            }
-                            if (domainShader != nullptr)
-                            {
-                                ctx->setDomainShader(domainShader->getShaderVariant());
-                            }
-                            if (geometryShader != nullptr)
-                            {
-                                ctx->setGeometryShader(geometryShader->getShaderVariant());
-                            }
-                            if (pixelShader != nullptr)
-                            {
-                                ctx->setPixelShader(pixelShader->getShaderVariant());
-                            }
+                            // 设置着色器
+                            setupShaders(ctx, material, pass);
 
                             for (auto renderable : renderables)
                             {
                                 // 设置渲染对象的世界变换
-                                Transform3DPtr xformNode = renderable->getGameObject()->getComponent<Transform3D>();
-                                if (xformNode != nullptr)
-                                {
-                                    const Transform &xform = xformNode->getLocalToWorldTransform();
-                                    // ctx->setWorldTransform(xform.getAffineMatrix());
-                                    material->setMatrix("tiny3d_ObjectToWorld", xform.getAffineMatrix());
-                                    Matrix4 matWorld2Obj = xform.getAffineMatrix().inverse();
-                                    material->setMatrix("tiny3d_WorldToObject", matWorld2Obj);
-
-                                    uint32_t startSlot = 0;
-                                    if (vertexShader != nullptr)
-                                    {
-                                        vertexShader->updateConstantBuffers(startSlot);
-                                    }
-                                }
+                                setupWorldMatrix(ctx, renderable, material, pass);
                                 
                                 // 设置渲染图元类型
                                 ctx->setPrimitiveType(renderable->getPrimitiveType());
@@ -338,6 +330,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ForwardRenderPipeline::setupMatrices(RHIContext *ctx, Material *material)
+    {
+        material->setMatrix("tiny3d_MatrixV", ctx->getViewMatrix());
+        material->setMatrix("tiny3d_MatrixP", ctx->getProjMatrix());
+        material->setMatrix("tiny3d_MatrixVP", ctx->getProjViewMatrix());
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
+    {
+        for (const auto &item : mLights)
+        {
+            switch (item.second->getLightType())
+            {
+            case LightType::kAmbient:
+                {
+                    AmbientLight *light = static_cast<AmbientLight *>(item.second);
+                    ColorRGBA color = light->getColor();
+                    color.alpha() = light->getIntensity();
+                    material->setColor("tiny3d_AmbientLight", color);
+                }
+                break;
+            case LightType::kDirectional:
+                break;
+            case LightType::kPoint:
+                break;
+            case LightType::kSpot:
+                break;
+            default:
+                break;
+            }
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ForwardRenderPipeline::setupRenderState(RHIContext *ctx, RenderState *renderState)
     {
         if (renderState != nullptr)
@@ -367,6 +398,77 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupWorldMatrix(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass)
+    {
+        Transform3DPtr xformNode = renderable->getGameObject()->getComponent<Transform3D>();
+        if (xformNode != nullptr)
+        {
+            const Transform &xform = xformNode->getLocalToWorldTransform();
+            // ctx->setWorldTransform(xform.getAffineMatrix());
+            material->setMatrix("tiny3d_ObjectToWorld", xform.getAffineMatrix());
+            Matrix4 matWorld2Obj = xform.getAffineMatrix().inverse();
+            material->setMatrix("tiny3d_WorldToObject", matWorld2Obj);
+
+            uint32_t startSlot = 0;
+            ShaderVariantInstance *vertexShader = pass->getCurrentVertexShader();
+            if (vertexShader != nullptr)
+            {
+                vertexShader->updateConstantBuffers(startSlot);
+            }
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupShaders(RHIContext *ctx, Material *material, PassInstance *pass)
+    {
+        ShaderVariantInstance *vertexShader = pass->getCurrentVertexShader();
+        ShaderVariantInstance *hullShader = pass->getCurrentHullShader();
+        ShaderVariantInstance *domainShader = pass->getCurrentDomainShader();
+        ShaderVariantInstance *geometryShader = pass->getCurrentGeometryShader();
+        ShaderVariantInstance *pixelShader = pass->getCurrentPixelShader();
+        
+        // 设置 shader 常量
+        setupShaderConstants(ctx, &RHIContext::setVSConstantBuffers, material, vertexShader);
+        setupShaderConstants(ctx, &RHIContext::setHSConstantBuffers, material, hullShader);
+        setupShaderConstants(ctx, &RHIContext::setDSConstantBuffers, material, domainShader);
+        setupShaderConstants(ctx, &RHIContext::setGSConstantBuffers, material, geometryShader);
+        setupShaderConstants(ctx, &RHIContext::setPSConstantBuffers, material, pixelShader);
+
+        // 设置 shader 使用的纹理和纹理采样
+        setupShaderTexSamplers(ctx, &RHIContext::setVSSamplers, &RHIContext::setVSPixelBuffers, material, vertexShader);
+        setupShaderTexSamplers(ctx, &RHIContext::setHSSamplers, &RHIContext::setHSPixelBuffers, material, hullShader);
+        setupShaderTexSamplers(ctx, &RHIContext::setDSSamplers, &RHIContext::setDSPixelBuffers, material, domainShader);
+        setupShaderTexSamplers(ctx, &RHIContext::setGSSamplers, &RHIContext::setGSPixelBuffers, material, geometryShader);
+        setupShaderTexSamplers(ctx, &RHIContext::setPSSamplers, &RHIContext::setPSPixelBuffers, material, pixelShader);
+        
+        // 设置各 pipeline stage 的 shader
+        if (vertexShader != nullptr)
+        {
+            ctx->setVertexShader(vertexShader->getShaderVariant());
+        }
+        if (hullShader != nullptr)
+        {
+            ctx->setHullShader(hullShader->getShaderVariant());
+        }
+        if (domainShader != nullptr)
+        {
+            ctx->setDomainShader(domainShader->getShaderVariant());
+        }
+        if (geometryShader != nullptr)
+        {
+            ctx->setGeometryShader(geometryShader->getShaderVariant());
+        }
+        if (pixelShader != nullptr)
+        {
+            ctx->setPixelShader(pixelShader->getShaderVariant());
+        }
+
+        return T3D_OK;
+    }
     //--------------------------------------------------------------------------
 
     TResult ForwardRenderPipeline::setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader)

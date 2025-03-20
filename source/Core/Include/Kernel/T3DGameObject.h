@@ -59,6 +59,8 @@ namespace Tiny3D
 
         virtual void frustumCulling(Camera *camera, RenderPipeline *pipeline) const;
 
+        virtual void setupLights(RenderPipeline *pipeline) const;
+
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
         const UUID &getUUID() const { return mUUID; }
 

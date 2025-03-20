@@ -78,6 +78,13 @@
 #include <Component/T3DRenderable.h>
 #include <Component/T3DGeometry.h>
 
+// Light
+#include <Component/T3DLight.h>
+#include <Component/T3DAmbientLight.h>
+#include <Component/T3DDirectionalLight.h>
+#include <Component/T3DPointLight.h>
+#include <Component/T3DSpotLight.h>
+
 // Bound
 #include <Bound/T3DBound.h>
 #include <Bound/T3DSphereBound.h>

@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_POINT_LIGHT_H__
-#define __T3D_POINT_LIGHT_H__
+#ifndef __T3D_AMBIENT_LIGHT_H__
+#define __T3D_AMBIENT_LIGHT_H__
 
 
 #include "Component/T3DLight.h"
@@ -31,26 +31,44 @@
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API PointLight : public Light
+    class T3D_ENGINE_API AmbientLight : public Light
     {
         TRTTI_ENABLE(Light)
         TRTTI_FRIEND
         
     public:
-        static PointLightPtr create();
+        static AmbientLightPtr create();
         
-        ~PointLight() override = default;
+        ~AmbientLight() override = default;
 
         ComponentPtr clone() const override;
 
-        LightType getLightType() const override { return LightType::kPoint; }
+        LightType getLightType() const override { return LightType::kAmbient; }
+
+        /**
+         * @brief 获取光照强度
+         */
+        TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="getter")
+        float getIntensity() const { return mIntensity; }
+
+        /**
+         * @brief 设置光照强度
+         */
+        TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="setter")
+        void setIntensity(float intensity) { mIntensity = intensity; }
         
     protected:
-        PointLight() = default;
+        AmbientLight() = default;
 
-        PointLight(const UUID &uuid);
+        AmbientLight(const UUID &uuid);
+
+        TResult cloneProperties(const Component * const src) override;
+        
+    protected:
+        /// 光照强度
+        float mIntensity {0.5f};
     };
 }
 
 
-#endif  /*__T3D_POINT_LIGHT_H__*/
+#endif  /*__T3D_AMBIENT_LIGHT_H__*/

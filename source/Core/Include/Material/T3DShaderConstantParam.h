@@ -278,7 +278,7 @@ namespace Tiny3D
 
         void setColor(const ColorRGBA &value)
         {
-            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_COLOR);
+            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_COLOR || mDataType == ShaderConstantParam::DATA_TYPE::DT_VECTOR4);
             *(ColorRGBA *)mValue.Data = value;
         }
 

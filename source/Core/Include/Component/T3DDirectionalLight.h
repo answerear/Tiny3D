@@ -43,6 +43,8 @@ namespace Tiny3D
         ~DirectionalLight() override = default;
 
         ComponentPtr clone() const override;
+
+        LightType getLightType() const override { return LightType::kDirectional; }
         
     protected:
         DirectionalLight() = default;

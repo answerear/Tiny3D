@@ -30,6 +30,7 @@
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransformNode.h"
 #include "Component/T3DComponent.h"
+#include "Component/T3DLight.h"
 #include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderPipeline.h"
 #include "Resource/T3DScene.h"
@@ -204,6 +205,25 @@ namespace Tiny3D
                 }
             },
             camera, frustum, pipeline);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::setupLights(RenderPipeline *pipeline) const
+    {
+        TransformNodePtr node = getComponent<TransformNode>();
+        if (node != nullptr)
+        {
+            node->visitVisible([](TransformNode *node, RenderPipeline *pipeline)
+            {
+                GameObject *go = node->getGameObject();
+                Light *light = go->getComponent<Light>();
+                if (light != nullptr)
+                {
+                    pipeline->addLight(light);
+                }
+            }, pipeline);
         }
     }
 

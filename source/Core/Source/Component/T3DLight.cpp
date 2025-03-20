@@ -37,4 +37,20 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult Light::cloneProperties(const Component * const src)
+    {
+        TResult ret = Component::cloneProperties(src);
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+        
+        const Light *srcLight = static_cast<const Light*>(src);
+        mColor = srcLight->getColor();
+        
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
 }

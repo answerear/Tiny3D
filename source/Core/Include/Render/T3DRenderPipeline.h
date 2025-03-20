@@ -62,6 +62,10 @@ namespace Tiny3D
         virtual TResult addRenderable(Camera *camera, Renderable *renderable) = 0;
 
         virtual TResult removeRenderable(Renderable *renderable) = 0;
+
+        virtual TResult addLight(Light *light) = 0;
+
+        virtual TResult removeLight(Light *light) = 0;
     };
 
     #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 

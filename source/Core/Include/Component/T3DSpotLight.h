@@ -42,6 +42,8 @@ namespace Tiny3D
         ~SpotLight() override = default;
 
         ComponentPtr clone() const override;
+
+        LightType getLightType() const override { return LightType::kSpot; }
         
     protected:
         SpotLight() = default;

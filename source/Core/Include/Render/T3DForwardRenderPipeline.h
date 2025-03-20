@@ -28,6 +28,7 @@
 
 
 #include "T3DRenderPipeline.h"
+#include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderConstantParam.h"
 #include "Material/T3DShaderVariantInstance.h"
 
@@ -47,27 +48,41 @@ namespace Tiny3D
 
         TResult removeRenderable(Renderable *renderable) override;
 
+        TResult addLight(Light *light) override;
+
+        TResult removeLight(Light *light) override;
+
     protected:
+        TResult setupMatrices(RHIContext *ctx, Material *material);
+
+        TResult setupLights(RHIContext *ctx, Material *material);
+        
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
 
+        TResult setupShaders(RHIContext *ctx, Material *material, PassInstance *pass);
+
+        TResult setupWorldMatrix(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass);
+
         using SetCBuffer = TResult (RHIContext::*)(uint32_t, const ConstantBuffers &);
-        
+
         TResult setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader);
 
         using SetSamplerState = TResult (RHIContext::*)(uint32_t, const Samplers &);
         using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, const PixelBuffers &);
-        
+
         TResult setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader);
-        
+
     protected:
+        using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
         using Renderables = TList<Renderable*>;
         using RenderGroup = TMap<Material*, Renderables>;
         using RenderQueue = TMap<uint32_t, RenderGroup>;
         using CameraRenderQueue = TMap<Camera*, RenderQueue>;
         using Cameras = TList<Camera*>;
-        
+
         CameraRenderQueue mRenderQueue {};
         Cameras mCameras {};
+        Lights mLights {};
     };
 }
 

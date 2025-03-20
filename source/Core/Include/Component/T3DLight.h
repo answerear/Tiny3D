@@ -27,7 +27,8 @@
 
 
 #include "Component/T3DComponent.h"
-#include "Kernel/T3DConstant.h"
+#include "Component/T3DLightType.h"
+
 
 namespace Tiny3D
 {
@@ -37,19 +38,37 @@ namespace Tiny3D
         TRTTI_ENABLE(Component)
         TRTTI_FRIEND
         
-    public:
+    public:        
         ~Light() override = default;
+
+        virtual LightType getLightType() const = 0;
+
+        /**
+         * 获取光照颜色
+         */
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="getter")
+        const ColorRGBA& getColor() const { return mColor; }
+
+        /**
+         * 设置光照颜色
+         */
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="setter")
+        void setColor(const ColorRGBA &color) { mColor = color; }
         
     protected:
         Light() = default;
 
         Light(const UUID &uuid);
 
+        TResult cloneProperties(const Component * const src) override;
+
     protected:
         /// 光照颜色
-        ColorRGBA mColor;
+        ColorRGBA mColor { ColorRGBA::WHITE };
     };
 }
 
 
 #endif  /*__T3D_LIGHT_H__*/
+
+
