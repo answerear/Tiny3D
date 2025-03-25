@@ -22,35 +22,33 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_LIGHT_TYPE_H__
+#define __T3D_LIGHT_TYPE_H__
 
-#include "Component/T3DLight.h"
+
+#include "Kernel/T3DConstant.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    Light::Light(const UUID &uuid)
-        : Component(uuid)
+    /**
+     * 光照类型
+     */
+    TENUM()
+    enum class LightType : uint32_t
     {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult Light::cloneProperties(const Component * const src)
-    {
-        TResult ret = Component::cloneProperties(src);
-        if (T3D_FAILED(ret))
-        {
-            return ret;
-        }
-        
-        const Light *srcLight = static_cast<const Light*>(src);
-        mColor = srcLight->getColor();
-        
-        return T3D_OK;
-    }
-    
-    //--------------------------------------------------------------------------
+        /// 无光照
+        kNone = 0,
+        /// 环境光
+        kAmbient,
+        /// 平行光
+        kDirectional,
+        /// 点光源
+        kPoint,
+        /// 聚光灯
+        kSpot,
+    };
 }
+
+
+#endif  /*__T3D_LIGHT_TYPE_H__*/

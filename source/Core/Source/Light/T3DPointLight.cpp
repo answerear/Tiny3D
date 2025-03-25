@@ -22,53 +22,32 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_LIGHT_H__
-#define __T3D_LIGHT_H__
 
-
-#include "Component/T3DComponent.h"
-#include "Component/T3DLightType.h"
+#include "Light/T3DPointLight.h"
 
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API Light : public Component
+    //--------------------------------------------------------------------------
+
+    PointLightPtr PointLight::create()
     {
-        TRTTI_ENABLE(Component)
-        TRTTI_FRIEND
-        
-    public:        
-        ~Light() override = default;
+        return new PointLight(UUID::generate());
+    }
+    //--------------------------------------------------------------------------
 
-        virtual LightType getLightType() const = 0;
+    PointLight::PointLight(const UUID &uuid)
+        : Light(uuid)
+    {}
 
-        /**
-         * 获取光照颜色
-         */
-        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="getter")
-        const ColorRGBA& getColor() const { return mColor; }
+    //--------------------------------------------------------------------------
 
-        /**
-         * 设置光照颜色
-         */
-        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="setter")
-        void setColor(const ColorRGBA &color) { mColor = color; }
-        
-    protected:
-        Light() = default;
+    ComponentPtr PointLight::clone() const
+    {
+        PointLightPtr light = create();
 
-        Light(const UUID &uuid);
-
-        TResult cloneProperties(const Component * const src) override;
-
-    protected:
-        /// 光照颜色
-        ColorRGBA mColor { ColorRGBA::WHITE };
-    };
+        return light;
+    }
+    
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_LIGHT_H__*/
-
-

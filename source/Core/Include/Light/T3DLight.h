@@ -22,36 +22,53 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_DIRECTIONAL_LIGHT_H__
-#define __T3D_DIRECTIONAL_LIGHT_H__
+#ifndef __T3D_LIGHT_H__
+#define __T3D_LIGHT_H__
 
 
-#include "T3DTypedef.h"
-#include "Component/T3DLight.h"
+#include "Component/T3DComponent.h"
+#include "Light/T3DLightType.h"
+
 
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API DirectionalLight : public Light
+    class T3D_ENGINE_API Light : public Component
     {
-        TRTTI_ENABLE(Light)
+        TRTTI_ENABLE(Component)
         TRTTI_FRIEND
         
-    public:
-        static DirectionalLightPtr create();
-        
-        ~DirectionalLight() override = default;
+    public:        
+        ~Light() override = default;
 
-        ComponentPtr clone() const override;
+        virtual LightType getLightType() const = 0;
 
-        LightType getLightType() const override { return LightType::kDirectional; }
+        /**
+         * 获取光照颜色
+         */
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="getter")
+        const ColorRGBA& getColor() const { return mColor; }
+
+        /**
+         * 设置光照颜色
+         */
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="setter")
+        void setColor(const ColorRGBA &color) { mColor = color; }
         
     protected:
-        DirectionalLight() = default;
+        Light() = default;
 
-        DirectionalLight(const UUID &uuid);
+        Light(const UUID &uuid);
+
+        TResult cloneProperties(const Component * const src) override;
+
+    protected:
+        /// 光照颜色
+        ColorRGBA mColor { ColorRGBA::WHITE };
     };
 }
 
 
-#endif  /*__T3D_DIRECTIONAL_LIGHT_H__*/
+#endif  /*__T3D_LIGHT_H__*/
+
+

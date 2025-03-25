@@ -22,53 +22,35 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_AMBIENT_LIGHT_H__
-#define __T3D_AMBIENT_LIGHT_H__
 
+#include "Light/T3DLight.h"
 
-#include "Component/T3DLight.h"
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API AmbientLight : public Light
+    //--------------------------------------------------------------------------
+
+    Light::Light(const UUID &uuid)
+        : Component(uuid)
     {
-        TRTTI_ENABLE(Light)
-        TRTTI_FRIEND
         
-    public:
-        static AmbientLightPtr create();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Light::cloneProperties(const Component * const src)
+    {
+        TResult ret = Component::cloneProperties(src);
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
         
-        ~AmbientLight() override = default;
-
-        ComponentPtr clone() const override;
-
-        LightType getLightType() const override { return LightType::kAmbient; }
-
-        /**
-         * @brief 获取光照强度
-         */
-        TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="getter")
-        float getIntensity() const { return mIntensity; }
-
-        /**
-         * @brief 设置光照强度
-         */
-        TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="setter")
-        void setIntensity(float intensity) { mIntensity = intensity; }
+        const Light *srcLight = static_cast<const Light*>(src);
+        mColor = srcLight->getColor();
         
-    protected:
-        AmbientLight() = default;
-
-        AmbientLight(const UUID &uuid);
-
-        TResult cloneProperties(const Component * const src) override;
-        
-    protected:
-        /// 光照强度
-        float mIntensity {0.5f};
-    };
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_AMBIENT_LIGHT_H__*/

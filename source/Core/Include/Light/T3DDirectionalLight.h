@@ -22,32 +22,36 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_DIRECTIONAL_LIGHT_H__
+#define __T3D_DIRECTIONAL_LIGHT_H__
 
-#include "Component/T3DPointLight.h"
 
+#include "T3DTypedef.h"
+#include "Light/T3DLight.h"
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    PointLightPtr PointLight::create()
+    TCLASS()
+    class T3D_ENGINE_API DirectionalLight : public Light
     {
-        return new PointLight(UUID::generate());
-    }
-    //--------------------------------------------------------------------------
+        TRTTI_ENABLE(Light)
+        TRTTI_FRIEND
+        
+    public:
+        static DirectionalLightPtr create();
+        
+        ~DirectionalLight() override = default;
 
-    PointLight::PointLight(const UUID &uuid)
-        : Light(uuid)
-    {}
+        ComponentPtr clone() const override;
 
-    //--------------------------------------------------------------------------
+        LightType getLightType() const override { return LightType::kDirectional; }
+        
+    protected:
+        DirectionalLight() = default;
 
-    ComponentPtr PointLight::clone() const
-    {
-        PointLightPtr light = create();
-
-        return light;
-    }
-    
-    //--------------------------------------------------------------------------
+        DirectionalLight(const UUID &uuid);
+    };
 }
+
+
+#endif  /*__T3D_DIRECTIONAL_LIGHT_H__*/

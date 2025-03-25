@@ -86,6 +86,8 @@ set_project_files(Include\\\\Bound ${TINY3D_CORE_SOURCE_DIR}/Include/Bound/ .h)
 set_project_files(Include\\\\Bound ${TINY3D_CORE_SOURCE_DIR}/Include/Bound/ .inl)
 set_project_files(Include\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Include/Component/ .h)
 set_project_files(Include\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Include/Component/ .inl)
+set_project_files(Include\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Include/Light/ .h)
+set_project_files(Include\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Include/Light/ .inl)
 set_project_files(Include\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Include/Serializer/ .h)
 set_project_files(Include\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Include/Editor/ .h)
 

@@ -22,33 +22,35 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_LIGHT_TYPE_H__
-#define __T3D_LIGHT_TYPE_H__
 
+#include "Light/T3DDirectionalLight.h"
 
-#include "Component/T3DComponent.h"
-#include "Kernel/T3DConstant.h"
 
 namespace Tiny3D
 {
-    /**
-     * 光照类型
-     */
-    TENUM()
-    enum class LightType : uint32_t
+    //--------------------------------------------------------------------------
+
+    DirectionalLightPtr DirectionalLight::create()
     {
-        /// 无光照
-        kNone = 0,
-        /// 环境光
-        kAmbient,
-        /// 平行光
-        kDirectional,
-        /// 点光源
-        kPoint,
-        /// 聚光灯
-        kSpot,
-    };
+        return new DirectionalLight(UUID::generate());
+    }
+    
+    //--------------------------------------------------------------------------
+
+    DirectionalLight::DirectionalLight(const UUID &uuid)
+        : Light(uuid)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    ComponentPtr DirectionalLight::clone() const
+    {
+        DirectionalLightPtr light = create();
+
+        return light;
+    }
+    
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_LIGHT_TYPE_H__*/

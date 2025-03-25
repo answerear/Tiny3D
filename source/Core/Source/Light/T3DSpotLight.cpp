@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 
-#include "Component/T3DSpotLight.h"
+#include "Light/T3DSpotLight.h"
 
 
 namespace Tiny3D

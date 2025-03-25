@@ -23,21 +23,21 @@
  ******************************************************************************/
 
 
-#include "Component/T3DDirectionalLight.h"
+#include "Light/T3DAmbientLight.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    DirectionalLightPtr DirectionalLight::create()
+    AmbientLightPtr AmbientLight::create()
     {
-        return new DirectionalLight(UUID::generate());
+        return new AmbientLight(UUID::generate());
     }
     
     //--------------------------------------------------------------------------
 
-    DirectionalLight::DirectionalLight(const UUID &uuid)
+    AmbientLight::AmbientLight(const UUID &uuid)
         : Light(uuid)
     {
         
@@ -45,12 +45,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr DirectionalLight::clone() const
+    ComponentPtr AmbientLight::clone() const
     {
-        DirectionalLightPtr light = create();
+        AmbientLightPtr light = create();
+
+        TResult ret = light->cloneProperties(this);
+        if (T3D_FAILED(ret))
+        {
+            light = nullptr;
+        }
 
         return light;
     }
     
+    //--------------------------------------------------------------------------
+
+    TResult AmbientLight::cloneProperties(const Component *const src)
+    {
+        TResult ret = Light::cloneProperties(src);
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        const AmbientLight *srcLight = static_cast<const AmbientLight *>(src);
+        mIntensity = srcLight->getIntensity();
+
+        return T3D_OK;
+    }
+
     //--------------------------------------------------------------------------
 }

@@ -22,35 +22,36 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_POINT_LIGHT_H__
-#define __T3D_POINT_LIGHT_H__
+#ifndef __T3D_SPOT_LIGHT_H__
+#define __T3D_SPOT_LIGHT_H__
 
 
-#include "Component/T3DLight.h"
+#include "Light/T3DLight.h"
+
 
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API PointLight : public Light
+    class T3D_ENGINE_API SpotLight : public Light
     {
         TRTTI_ENABLE(Light)
         TRTTI_FRIEND
         
     public:
-        static PointLightPtr create();
+        static SpotLightPtr create();
         
-        ~PointLight() override = default;
+        ~SpotLight() override = default;
 
         ComponentPtr clone() const override;
 
-        LightType getLightType() const override { return LightType::kPoint; }
+        LightType getLightType() const override { return LightType::kSpot; }
         
     protected:
-        PointLight() = default;
+        SpotLight() = default;
 
-        PointLight(const UUID &uuid);
+        SpotLight(const UUID &uuid);
     };
 }
 
 
-#endif  /*__T3D_POINT_LIGHT_H__*/
+#endif  /*__T3D_SPOT_LIGHT_H__*/
