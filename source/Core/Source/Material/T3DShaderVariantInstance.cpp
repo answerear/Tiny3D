@@ -187,6 +187,7 @@ namespace Tiny3D
                 Buffer buffer;
                 buffer.DataSize = itrBuf->DataSize;
                 buffer.Data = new uint8_t[buffer.DataSize];
+                memcpy(buffer.Data, itrBuf->Data, buffer.DataSize);
                 mConstBuffers.emplace_back(buffer);
 
                 // 创建 RHI 相关缓冲区对象

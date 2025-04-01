@@ -30,7 +30,7 @@
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransformNode.h"
 #include "Component/T3DComponent.h"
-#include "Component/T3DLight.h"
+#include "Light/T3DLight.h"
 #include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderPipeline.h"
 #include "Resource/T3DScene.h"

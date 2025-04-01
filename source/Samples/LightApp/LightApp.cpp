@@ -73,6 +73,11 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // material
     mMaterial = buildMaterial();
 
+    // Setup ambient light
+    ColorRGBA color = ambient->getColor();
+    color.alpha() = ambient->getIntensity();
+    mMaterial->setColor("tiny3d_AmbientLight", color);
+
     // mesh
     mMesh = buildMesh(mMaterial->getUUID());
     

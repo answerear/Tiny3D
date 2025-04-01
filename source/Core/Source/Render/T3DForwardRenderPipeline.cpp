@@ -30,7 +30,7 @@
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderVariantInstance.h"
 #include "Component/T3DCamera.h"
-#include "Component/T3DLight.h"
+#include "Light/T3DLight.h"
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransform3D.h"
 #include "Kernel/T3DGameObject.h"
@@ -42,7 +42,7 @@
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DRenderState.h"
-#include "Component/T3DAmbientLight.h"
+#include "Light/T3DAmbientLight.h"
 
 
 
@@ -263,8 +263,8 @@ namespace Tiny3D
                                 setupRenderState(ctx, renderState);
                             }
 
-                            // 设置光照
-                            setupLights(ctx, material);
+                            // // 设置光照
+                            // setupLights(ctx, material);
                             
                             // 设置着色器
                             setupShaders(ctx, material, pass);
@@ -340,32 +340,32 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
-    {
-        for (const auto &item : mLights)
-        {
-            switch (item.second->getLightType())
-            {
-            case LightType::kAmbient:
-                {
-                    AmbientLight *light = static_cast<AmbientLight *>(item.second);
-                    ColorRGBA color = light->getColor();
-                    color.alpha() = light->getIntensity();
-                    material->setColor("tiny3d_AmbientLight", color);
-                }
-                break;
-            case LightType::kDirectional:
-                break;
-            case LightType::kPoint:
-                break;
-            case LightType::kSpot:
-                break;
-            default:
-                break;
-            }
-        }
-        return T3D_OK;
-    }
+    // TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
+    // {
+    //     for (const auto &item : mLights)
+    //     {
+    //         switch (item.second->getLightType())
+    //         {
+    //         case LightType::kAmbient:
+    //             {
+    //                 AmbientLight *light = static_cast<AmbientLight *>(item.second);
+    //                 ColorRGBA color = light->getColor();
+    //                 color.alpha() = light->getIntensity();
+    //                 material->setColor("tiny3d_AmbientLight", color);
+    //             }
+    //             break;
+    //         case LightType::kDirectional:
+    //             break;
+    //         case LightType::kPoint:
+    //             break;
+    //         case LightType::kSpot:
+    //             break;
+    //         default:
+    //             break;
+    //         }
+    //     }
+    //     return T3D_OK;
+    // }
 
     //--------------------------------------------------------------------------
 
