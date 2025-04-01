@@ -34,8 +34,7 @@ const char *SUB_MESH_NAME = "#0";
 
 LightApp theApp;
 
-extern const char *SAMPLE_VERTEX_SHADER;
-extern const char *SAMPLE_PIXEL_SHADER;
+extern const char *SAMPLE_LIT_VERTEX_SHADER;
 extern const char *SAMPLE_LIT_PIXEL_SHADER;
 
 LightApp::LightApp()
@@ -292,7 +291,7 @@ MaterialPtr LightApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = SAMPLE_VERTEX_SHADER;
+    const String vs = SAMPLE_LIT_VERTEX_SHADER;
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
@@ -397,15 +396,18 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     struct BoxVertex
     {
         Vector3 position {};
+        Vector3 normal {};
         Vector2 uv {};
     };
     
     // vertex attributes
     VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
-    VertexAttribute attrUV(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
-    VertexAttributes attributes(2);
+    VertexAttribute attrNormal(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+    VertexAttribute attrUV(0, sizeof(Vector3) * 2, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+    VertexAttributes attributes(3);
     attributes[0] = attrPos;
-    attributes[1] = attrUV;
+    attributes[1] = attrNormal;
+    attributes[2] = attrUV;
 
     // vertices & indices
     Vector3 offset;
@@ -427,12 +429,13 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     const Real start3rdQuater = Real(32) / Real(kTexSize);
     const Real end3rdQuater = Real(47) / Real(kTexSize);
     const Real start4thQuater = Real(48) / Real(kTexSize);
-    
+
     // front - V0
     offset[0] = -extent[0];
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[0].position = center + offset;
+    vertices[0].normal = Vector3::FORWARD;
     vertices[0].uv = Vector2(0.0f, start2ndQuater);
     
     // front - V1
@@ -440,6 +443,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[1].position = center + offset;
+    vertices[1].normal = Vector3::FORWARD;
     vertices[1].uv = Vector2(0.0f, end2ndQuater);
     
     // front - V2
@@ -447,6 +451,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[2].position = center + offset;
+    vertices[2].normal = Vector3::FORWARD;
     vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
     
     // front - V3
@@ -454,6 +459,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[3].position = center + offset;
+    vertices[3].normal = Vector3::FORWARD;
     vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
 
     // right - V2
@@ -461,6 +467,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[4].position = center + offset;
+    vertices[4].normal = Vector3::RIGHT;
     vertices[4].uv = Vector2(start2ndQuater, start2ndQuater);
     
     // right - V3
@@ -468,6 +475,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[5].position = center + offset;
+    vertices[5].normal = Vector3::RIGHT;
     vertices[5].uv = Vector2(start2ndQuater, end2ndQuater);
     
     // right - V4
@@ -475,6 +483,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[6].position = center + offset;
+    vertices[6].normal = Vector3::RIGHT;
     vertices[6].uv = Vector2(end2ndQuater, start2ndQuater);
     
     // right - V5
@@ -482,6 +491,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[7].position = center + offset;
+    vertices[7].normal = Vector3::RIGHT;
     vertices[7].uv = Vector2(end2ndQuater, end2ndQuater);
 
     // back - V4
@@ -489,6 +499,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[8].position = center + offset;
+    vertices[8].normal = -Vector3::FORWARD;
     vertices[8].uv = Vector2(start3rdQuater, start2ndQuater);
     
     // back - V5
@@ -496,6 +507,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[9].position = center + offset;
+    vertices[9].normal = -Vector3::FORWARD;
     vertices[9].uv = Vector2(start3rdQuater, end2ndQuater);
 
     // back - V6
@@ -503,6 +515,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[10].position = center + offset;
+    vertices[10].normal = -Vector3::FORWARD;
     vertices[10].uv = Vector2(end3rdQuater, start2ndQuater);
     
     // back - V7
@@ -510,6 +523,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[11].position = center + offset;
+    vertices[11].normal = -Vector3::FORWARD;
     vertices[11].uv = Vector2(end3rdQuater, end2ndQuater);
     
     // left - V6
@@ -517,6 +531,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[12].position = center + offset;
+    vertices[12].normal = -Vector3::RIGHT;
     vertices[12].uv = Vector2(start4thQuater, start2ndQuater);
     
     // left - V7
@@ -524,6 +539,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[13].position = center + offset;
+    vertices[13].normal = -Vector3::RIGHT;
     vertices[13].uv = Vector2(start4thQuater, end2ndQuater);
 
     // left - V0
@@ -531,6 +547,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[14].position = center + offset;
+    vertices[14].normal = -Vector3::RIGHT;
     vertices[14].uv = Vector2(1.0f, start2ndQuater);
     
     // left - V1
@@ -538,6 +555,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[15].position = center + offset;
+    vertices[15].normal = -Vector3::RIGHT;
     vertices[15].uv = Vector2(1.0f, end2ndQuater);
 
     // top - V0
@@ -545,6 +563,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[16].position = center + offset;
+    vertices[16].normal = Vector3::UP;
     vertices[16].uv = Vector2(0.0f, end1stQuater);
     
     // top - V2
@@ -552,6 +571,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[17].position = center + offset;
+    vertices[17].normal = Vector3::UP;
     vertices[17].uv = Vector2(end1stQuater, end1stQuater);
 
     // top - V4
@@ -559,6 +579,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[18].position = center + offset;
+    vertices[18].normal = Vector3::UP;
     vertices[18].uv = Vector2(end1stQuater, 0.0f);
 
     // top - V6
@@ -566,6 +587,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[19].position = center + offset;
+    vertices[19].normal = Vector3::UP;
     vertices[19].uv = Vector2(0.0f, 0.0f);
 
     // bottom - V1
@@ -573,6 +595,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[20].position = center + offset;
+    vertices[20].normal = -Vector3::UP;
     vertices[20].uv = Vector2(0.0f, start3rdQuater);
 
     // bottom - V7
@@ -580,6 +603,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[21].position = center + offset;
+    vertices[21].normal = -Vector3::UP;
     vertices[21].uv = Vector2(0.0f, end3rdQuater);
 
     // bottom - V3
@@ -587,6 +611,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[22].position = center + offset;
+    vertices[22].normal = -Vector3::UP;
     vertices[22].uv = Vector2(end1stQuater, start3rdQuater);
     
     // bottom - V5
@@ -594,6 +619,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[23].position = center + offset;
+    vertices[23].normal = -Vector3::UP;
     vertices[23].uv = Vector2(end1stQuater, end3rdQuater);
     
     // Front face
