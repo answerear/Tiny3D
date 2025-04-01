@@ -165,6 +165,7 @@ namespace Tiny3D
         
         mCameras.clear();
         mRenderQueue.clear();
+        mLights.clear();
 
         int32_t visitTimes = 0;
         
