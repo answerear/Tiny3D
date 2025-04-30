@@ -61,7 +61,7 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(1.0f);
+    ambient->setIntensity(0.5f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -73,13 +73,14 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     go = GameObject::create("DirectionLight");
     Transform3DPtr node = go->addComponent<Transform3D>();
     Vector3 lightPos(2.0f, 2.0f, -4.0f);
-    Vector3 lightDir = Vector3::ZERO - lightPos;
-    lightDir.normalize();
-    Vector3 right = Vector3::UP.cross(lightDir);
-    right.normalize();
-    Vector3 up = lightDir.cross(right);
-    up.normalize();
-    Quaternion q(right, up, lightDir);
+    Quaternion q(Vector3::UNIT_X, Vector3::UNIT_Y, Vector3::UNIT_Z);
+    // Vector3 lightDir = Vector3::UNIT_Z;//Vector3::ZERO - lightPos;
+    // lightDir.normalize();
+    // Vector3 right = Vector3::UP.cross(lightDir);
+    // right.normalize();
+    // Vector3 up = lightDir.cross(right);
+    // up.normalize();
+    // Quaternion q(right, up, lightDir);
     node->setOrientation(q);
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
@@ -95,7 +96,9 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
     // Setup directional light color
     mMaterial->setColor("tiny3d_LightColor", light->getColor());
-    mMaterial->setVector("tiny3d_LightDir", Vector4(-lightDir, 0.0f));
+    const Matrix4 &mat = node->getLocalTransform().getAffineMatrix();
+    Vector3 lightDir(mat[0][2], mat[1][2], mat[2][2]);
+    mMaterial->setVector("tiny3d_LightDir", Vector4(lightDir, 0.0f));
 
     // mesh
     mMesh = buildMesh(mMaterial->getUUID());
@@ -109,11 +112,11 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
     for (int32_t i = 0; i < kMaxCubes; ++i)
     {
-        pos.x() += 5.0f;
         float val = dist(engine) * 0.0f;
         Degree deg(val);
         Radian yAngles(deg.valueRadians());
         buildCube(root, pos, yAngles);
+        pos.x() += 5.0f;
     }
     
     return true;
@@ -215,6 +218,7 @@ Texture2DPtr LightApp::buildTexture()
         uint32_t i = 0;
         for (uint32_t x = 0; x < width; ++x)
         {
+#if 1
             if (x < 16 && y < 16)
             {
                 // top, blue
@@ -284,6 +288,14 @@ Texture2DPtr LightApp::buildTexture()
                 // R
                 lines[i++] = 0;
             }
+#else
+            // B
+            lines[i++] = 255;
+            // G
+            lines[i++] = 255;
+            // R
+            lines[i++] = 255;
+#endif
             
             // A
             lines[i++] = 255;
@@ -455,7 +467,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[0].position = center + offset;
-    vertices[0].normal = Vector3::FORWARD;
+    vertices[0].normal = -Vector3::FORWARD;
     vertices[0].uv = Vector2(0.0f, start2ndQuater);
     
     // front - V1
@@ -463,7 +475,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[1].position = center + offset;
-    vertices[1].normal = Vector3::FORWARD;
+    vertices[1].normal = -Vector3::FORWARD;
     vertices[1].uv = Vector2(0.0f, end2ndQuater);
     
     // front - V2
@@ -471,7 +483,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = -extent[2];
     vertices[2].position = center + offset;
-    vertices[2].normal = Vector3::FORWARD;
+    vertices[2].normal = -Vector3::FORWARD;
     vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
     
     // front - V3
@@ -479,7 +491,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = -extent[2];
     vertices[3].position = center + offset;
-    vertices[3].normal = Vector3::FORWARD;
+    vertices[3].normal = -Vector3::FORWARD;
     vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
 
     // right - V2
@@ -519,7 +531,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[8].position = center + offset;
-    vertices[8].normal = -Vector3::FORWARD;
+    vertices[8].normal = Vector3::FORWARD;
     vertices[8].uv = Vector2(start3rdQuater, start2ndQuater);
     
     // back - V5
@@ -527,7 +539,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[9].position = center + offset;
-    vertices[9].normal = -Vector3::FORWARD;
+    vertices[9].normal = Vector3::FORWARD;
     vertices[9].uv = Vector2(start3rdQuater, end2ndQuater);
 
     // back - V6
@@ -535,7 +547,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = extent[1];
     offset[2] = extent[2];
     vertices[10].position = center + offset;
-    vertices[10].normal = -Vector3::FORWARD;
+    vertices[10].normal = Vector3::FORWARD;
     vertices[10].uv = Vector2(end3rdQuater, start2ndQuater);
     
     // back - V7
@@ -543,7 +555,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     offset[1] = -extent[1];
     offset[2] = extent[2];
     vertices[11].position = center + offset;
-    vertices[11].normal = -Vector3::FORWARD;
+    vertices[11].normal = Vector3::FORWARD;
     vertices[11].uv = Vector2(end3rdQuater, end2ndQuater);
     
     // left - V6
@@ -646,15 +658,15 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     indices[0] = 0, indices[1] = 2, indices[2] = 1;
     indices[3] = 1, indices[4] = 2, indices[5] = 3;
     
-    // Back
+    // Right
     indices[6] = 4, indices[7] = 6, indices[8] = 5;
     indices[9] = 5, indices[10] = 6, indices[11] = 7;
     
-    // Left
+    // Back
     indices[12] = 8, indices[13] = 10, indices[14] = 9;
     indices[15] = 9, indices[16] = 10, indices[17] = 11;
     
-    // Right
+    // Left
     indices[18] = 12, indices[19] = 14, indices[20] = 13;
     indices[21] = 13, indices[22] = 14, indices[23] = 15;
     
