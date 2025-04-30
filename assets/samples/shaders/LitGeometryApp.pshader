@@ -10,19 +10,23 @@
 TEX2D(texCube);
 
 float4 tiny3d_AmbientLight;
+float4 tiny3d_LightDir;
+float4 tiny3d_LightColor;
 
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+	float4 worldNormal : COLOR0;
     float2 uv : TEXCOORD0;
 };
 
 float4 frag(PS_INPUT input) : SV_Target
 {
-    //float4 color = texCube.Sample(sampler_texCube, input.uv);
-    float4 color = SAMPLE(texCube, input.uv);
-	float3 ambient = tiny3d_AmbientLight.rgb * tiny3d_AmbientLight.a;
-	color = color * float4(ambient, 1.0f);
-    //float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);
+	float4 ambient = float4(tiny3d_AmbientLight.rgb * tiny3d_AmbientLight.a, 1.0);
+    float4 worldLightDir = normalize(tiny3d_LightDir);
+	float4 diffuse = max(0, dot(input.worldNormal, worldLightDir)) * tiny3d_LightColor;
+	float4 color = SAMPLE(texCube, input.uv);
+	color = ambient * diffuse * color;
+    
     return color;
 }

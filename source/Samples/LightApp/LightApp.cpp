@@ -61,7 +61,7 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.5f);
+    ambient->setIntensity(1.0f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -69,13 +69,33 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Transform3DPtr root = go->addComponent<Transform3D>();
     scene->getRootTransform()->addChild(root);
 
+    // directional light
+    go = GameObject::create("DirectionLight");
+    Transform3DPtr node = go->addComponent<Transform3D>();
+    Vector3 lightPos(2.0f, 2.0f, -4.0f);
+    Vector3 lightDir = Vector3::ZERO - lightPos;
+    lightDir.normalize();
+    Vector3 right = Vector3::UP.cross(lightDir);
+    right.normalize();
+    Vector3 up = lightDir.cross(right);
+    up.normalize();
+    Quaternion q(right, up, lightDir);
+    node->setOrientation(q);
+    root->addChild(node);
+    DirectionalLightPtr light = go->addComponent<DirectionalLight>();
+    light->setColor(ColorRGB::WHITE);
+
     // material
     mMaterial = buildMaterial();
 
-    // Setup ambient light
+    // Setup ambient light color & intensity
     ColorRGBA color = ambient->getColor();
     color.alpha() = ambient->getIntensity();
     mMaterial->setColor("tiny3d_AmbientLight", color);
+
+    // Setup directional light color
+    mMaterial->setColor("tiny3d_LightColor", light->getColor());
+    mMaterial->setVector("tiny3d_LightDir", Vector4(-lightDir, 0.0f));
 
     // mesh
     mMesh = buildMesh(mMaterial->getUUID());
