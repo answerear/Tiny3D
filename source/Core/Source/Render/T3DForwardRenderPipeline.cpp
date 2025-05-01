@@ -211,7 +211,7 @@ namespace Tiny3D
         {
             Transform3D *xformCamera = camera->getGameObject()->getComponent<Transform3D>();
             Vector4 cameraWorldPos(xformCamera->getLocalToWorldTransform().getTranslation(), 1.0f);
-            
+
             // 设置渲染目标为相机对应纹理
             RenderTexturePtr rt = camera->getRenderTexture();
             if (rt == nullptr)

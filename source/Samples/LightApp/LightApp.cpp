@@ -61,7 +61,7 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.0f);
+    ambient->setIntensity(1.0f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -74,17 +74,13 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Transform3DPtr node = go->addComponent<Transform3D>();
     Vector3 lightPos(2.0f, 2.0f, -4.0f);
     Quaternion q(Vector3::UNIT_X, Vector3::UNIT_Y, Vector3::UNIT_Z);
-    // Vector3 lightDir = Vector3::UNIT_Z;//Vector3::ZERO - lightPos;
-    // lightDir.normalize();
-    // Vector3 right = Vector3::UP.cross(lightDir);
-    // right.normalize();
-    // Vector3 up = lightDir.cross(right);
-    // up.normalize();
-    // Quaternion q(right, up, lightDir);
     node->setOrientation(q);
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
     light->setColor(ColorRGB::WHITE);
+    light->setDiffuseIntensity(1.0f);
+    light->setSpecularIntensity(1.0f);
+    light->setSpecularShininess(32.0f);
 
     // material
     mMaterial = buildMaterial();
@@ -214,7 +210,7 @@ Texture2DPtr LightApp::buildTexture()
         uint32_t i = 0;
         for (uint32_t x = 0; x < width; ++x)
         {
-#if 0
+#if 1
             if (x < 16 && y < 16)
             {
                 // top, blue
