@@ -90,15 +90,13 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     mMaterial = buildMaterial();
 
     // Setup ambient light color & intensity
-    ColorRGBA color = ambient->getColor();
-    color.alpha() = ambient->getIntensity();
-    mMaterial->setColor("tiny3d_AmbientLight", color);
+    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+    mMaterial->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
 
     // Setup directional light color
-    mMaterial->setColor("tiny3d_LightColor", light->getColor());
-    const Matrix4 &mat = node->getLocalTransform().getAffineMatrix();
-    Vector3 lightDir(mat[0][2], mat[1][2], mat[2][2]);
-    mMaterial->setVector("tiny3d_LightDir", Vector4(lightDir, 0.0f));
+    // 這裡只是設置材質有該兩項變量，具體值，引擎會幫助動態計算和設置
+    mMaterial->setColor("tiny3d_LightColor", ColorRGB::WHITE);
+    mMaterial->setVector("tiny3d_LightDir", Vector4::ZERO);
 
     // mesh
     mMesh = buildMesh(mMaterial->getUUID());

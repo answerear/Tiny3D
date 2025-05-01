@@ -55,7 +55,7 @@ namespace Tiny3D
     protected:
         TResult setupMatrices(RHIContext *ctx, Material *material);
 
-        // TResult setupLights(RHIContext *ctx, Material *material);
+        TResult setupLights(RHIContext *ctx, Material *material);
         
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
 
