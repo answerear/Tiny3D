@@ -38,7 +38,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     AmbientLight::AmbientLight(const UUID &uuid)
-        : Light(uuid)
+        : IndirectLight(uuid)
     {
         
     }
@@ -49,12 +49,16 @@ namespace Tiny3D
     {
         AmbientLightPtr light = create();
 
-        TResult ret = light->cloneProperties(this);
-        if (T3D_FAILED(ret))
+        if (light != nullptr)
         {
-            light = nullptr;
+            TResult ret = light->cloneProperties(this);
+            
+            if (T3D_FAILED(ret))
+            {
+                light = nullptr;
+            }
         }
-
+        
         return light;
     }
     
@@ -63,6 +67,7 @@ namespace Tiny3D
     TResult AmbientLight::cloneProperties(const Component *const src)
     {
         TResult ret = Light::cloneProperties(src);
+        
         if (T3D_FAILED(ret))
         {
             return ret;

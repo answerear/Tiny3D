@@ -26,14 +26,14 @@
 #define __T3D_AMBIENT_LIGHT_H__
 
 
-#include "Light/T3DLight.h"
+#include "Light/T3DIndirectLight.h"
 
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API AmbientLight : public Light
+    class T3D_ENGINE_API AmbientLight : public IndirectLight
     {
-        TRTTI_ENABLE(Light)
+        TRTTI_ENABLE(IndirectLight)
         TRTTI_FRIEND
         
     public:

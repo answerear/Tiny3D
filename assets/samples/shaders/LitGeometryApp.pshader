@@ -9,9 +9,11 @@
 
 TEX2D(texCube);
 
+float4 tiny3d_CameraWorldPos;
 float4 tiny3d_AmbientLight;
 float4 tiny3d_LightDir;
 float4 tiny3d_LightColor;
+float4 tiny3d_LightParams; // x - diffuse intensity, y - specular intensity, z - specular shininess
 
 struct PS_INPUT
 {
@@ -22,11 +24,24 @@ struct PS_INPUT
 
 float4 frag(PS_INPUT input) : SV_Target
 {
+	// ambient
 	float3 ambient = tiny3d_AmbientLight.rgb * tiny3d_AmbientLight.a;
     float3 worldLightDir = normalize(-tiny3d_LightDir.xyz);
-	float3 diffuse = max(0, dot(input.worldNormal, worldLightDir)) * tiny3d_LightColor.xyz;
+
+	// diffuse
+	float3 diffuse = max(0, dot(input.worldNormal, worldLightDir)) * tiny3d_LightColor.rgb * tiny3d_LightParams.x;
+
+	// specular
+	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.position.xyz);
+	float3 reflectDir = reflect(-worldLightDir, input.worldNormal);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), tiny3d_LightParams.z);
+	float3 specular = tiny3d_LightParams.y * spec * tiny3d_LightColor.rgb;
+
+	// texture
 	float4 color = SAMPLE(texCube, input.uv);
-	color = float4((ambient + diffuse), 1.0f) * color;
+
+	// final
+	color = float4((ambient + diffuse + specular), 1.0f) * color;
     
     return color;
 }

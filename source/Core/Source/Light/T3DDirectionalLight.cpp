@@ -38,7 +38,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     DirectionalLight::DirectionalLight(const UUID &uuid)
-        : Light(uuid)
+        : LocalLight(uuid)
     {
         
     }
@@ -48,6 +48,15 @@ namespace Tiny3D
     ComponentPtr DirectionalLight::clone() const
     {
         DirectionalLightPtr light = create();
+        
+        if (light != nullptr)
+        {
+            TResult ret = light->cloneProperties(this);
+            if (T3D_FAILED(ret))
+            {
+                light = nullptr;
+            }
+        }
 
         return light;
     }

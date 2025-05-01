@@ -22,36 +22,32 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_DIRECTIONAL_LIGHT_H__
-#define __T3D_DIRECTIONAL_LIGHT_H__
+#ifndef __T3D_INDIRECT_LIGHT_H__
+#define __T3D_INDIRECT_LIGHT_H__
 
 
-#include "T3DTypedef.h"
-#include "Light/T3DLocalLight.h"
+#include "Light/T3DLight.h"
+
 
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API DirectionalLight : public LocalLight
+    class T3D_ENGINE_API IndirectLight : public Light
     {
-        TRTTI_ENABLE(LocalLight)
+        TRTTI_ENABLE(Light)
         TRTTI_FRIEND
         
-    public:
-        static DirectionalLightPtr create();
-        
-        ~DirectionalLight() override = default;
+    public:        
+        ~IndirectLight() override = default;
 
-        ComponentPtr clone() const override;
-
-        LightType getLightType() const override { return LightType::kDirectional; }
-        
     protected:
-        DirectionalLight() = default;
+        IndirectLight() = default;
 
-        DirectionalLight(const UUID &uuid);
+        IndirectLight(const UUID &uuid);
     };
 }
 
 
-#endif  /*__T3D_DIRECTIONAL_LIGHT_H__*/
+#endif  /*__T3D_INDIRECT_LIGHT_H__*/
+
+

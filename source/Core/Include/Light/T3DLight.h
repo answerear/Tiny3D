@@ -61,7 +61,7 @@ namespace Tiny3D
         Light(const UUID &uuid);
 
         TResult cloneProperties(const Component * const src) override;
-
+        
     protected:
         /// 光照颜色
         ColorRGBA mColor { ColorRGBA::WHITE };

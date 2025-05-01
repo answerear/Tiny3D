@@ -22,36 +22,42 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_DIRECTIONAL_LIGHT_H__
-#define __T3D_DIRECTIONAL_LIGHT_H__
 
-
-#include "T3DTypedef.h"
 #include "Light/T3DLocalLight.h"
+
 
 namespace Tiny3D
 {
-    TCLASS()
-    class T3D_ENGINE_API DirectionalLight : public LocalLight
+    //--------------------------------------------------------------------------
+
+    LocalLight::LocalLight(const UUID &uuid)
+        : Light(uuid)
     {
-        TRTTI_ENABLE(LocalLight)
-        TRTTI_FRIEND
         
-    public:
-        static DirectionalLightPtr create();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult LocalLight::cloneProperties(const Component * const src)
+    {
+        TResult ret = Light::cloneProperties(src);
         
-        ~DirectionalLight() override = default;
-
-        ComponentPtr clone() const override;
-
-        LightType getLightType() const override { return LightType::kDirectional; }
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
         
-    protected:
-        DirectionalLight() = default;
+        const LocalLight *srcLight = static_cast<const LocalLight*>(src);
 
-        DirectionalLight(const UUID &uuid);
-    };
+        // diffuse intensity
+        mDiffuseIntensity = srcLight->getDiffuseIntensity();
+        // specular intensity
+        mSpecularIntensity = srcLight->getSpecularIntensity();
+        // specular shininess
+        mSpecularShininess = srcLight->getSpecularShininess();
+        
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_DIRECTIONAL_LIGHT_H__*/

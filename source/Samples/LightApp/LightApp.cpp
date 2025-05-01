@@ -61,7 +61,7 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.5f);
+    ambient->setIntensity(0.0f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -89,14 +89,12 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // material
     mMaterial = buildMaterial();
 
-    // Setup ambient light color & intensity
     // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+    mMaterial->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
     mMaterial->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
-
-    // Setup directional light color
-    // 這裡只是設置材質有該兩項變量，具體值，引擎會幫助動態計算和設置
     mMaterial->setColor("tiny3d_LightColor", ColorRGB::WHITE);
     mMaterial->setVector("tiny3d_LightDir", Vector4::ZERO);
+    mMaterial->setVector("tiny3d_LightParams", Vector4::ZERO);
 
     // mesh
     mMesh = buildMesh(mMaterial->getUUID());
@@ -216,7 +214,7 @@ Texture2DPtr LightApp::buildTexture()
         uint32_t i = 0;
         for (uint32_t x = 0; x < width; ++x)
         {
-#if 1
+#if 0
             if (x < 16 && y < 16)
             {
                 // top, blue

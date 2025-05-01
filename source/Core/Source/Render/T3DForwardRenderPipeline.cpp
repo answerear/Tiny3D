@@ -209,6 +209,9 @@ namespace Tiny3D
         // 先逐个渲染到纹理，然后最后按照顺序把渲染到纹理 blit 到渲染窗口
         for (auto camera : mCameras)
         {
+            Transform3D *xformCamera = camera->getGameObject()->getComponent<Transform3D>();
+            Vector4 cameraWorldPos(xformCamera->getLocalToWorldTransform().getTranslation(), 1.0f);
+            
             // 设置渲染目标为相机对应纹理
             RenderTexturePtr rt = camera->getRenderTexture();
             if (rt == nullptr)
@@ -248,6 +251,12 @@ namespace Tiny3D
                         // 设置 material 对应的矩阵
                         setupMatrices(ctx, material);
 
+                        // 设置光照
+                        setupLights(ctx, material);
+
+                        // 设置相机世界位置
+                        material->setVector("tiny3d_CameraWorldPos", cameraWorldPos);
+
                         // 遍历渲染每个 Pass
                         for (auto pass : tech->getPassInstances())
                         {
@@ -263,9 +272,6 @@ namespace Tiny3D
                                 renderState = tech->getTechnique()->getRenderState();
                                 setupRenderState(ctx, renderState);
                             }
-
-                            // // 设置光照
-                            setupLights(ctx, material);
                             
                             // 设置着色器
                             setupShaders(ctx, material, pass);
@@ -360,12 +366,17 @@ namespace Tiny3D
                 {
                     // 设置方向光
                     DirectionalLight *light = static_cast<DirectionalLight *>(item.second);
+                    // 颜色
                     const ColorRGBA &color = light->getColor();
                     material->setColor("tiny3d_LightColor", color);
+                    // 方向
                     Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
                     Vector4 dir(mat[2][0], mat[2][1], mat[2][2], 0.0f);
                     material->setVector("tiny3d_LightDir", dir);
+                    // 漫反射强度、高光强度、高光发光值
+                    Vector4 params(light->getDiffuseIntensity(), light->getSpecularIntensity(), light->getSpecularShininess(), 0.0f);
+                    material->setVector("tiny3d_LightParams", params);
                 }
                 break;
             case LightType::kPoint:
