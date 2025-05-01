@@ -85,13 +85,6 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // material
     mMaterial = buildMaterial();
 
-    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
-    mMaterial->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
-    mMaterial->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
-    mMaterial->setColor("tiny3d_LightColor", ColorRGB::WHITE);
-    mMaterial->setVector("tiny3d_LightDir", Vector4::ZERO);
-    mMaterial->setVector("tiny3d_LightParams", Vector4::ZERO);
-
     // mesh
     mMesh = buildMesh(mMaterial->getUUID());
     
@@ -397,6 +390,13 @@ MaterialPtr LightApp::buildMaterial()
     StringArray disableKeywords;
     material->switchKeywords(enableKeywrods, disableKeywords);
     material->setTexture(texSamplerName, texture->getUUID());
+    
+    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+    material->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
+    material->setColor("tiny3d_LightColor", ColorRGB::WHITE);
+    material->setVector("tiny3d_LightDir", Vector4::ZERO);
+    material->setVector("tiny3d_LightParams", Vector4::ZERO);
     
     return material;
 }
