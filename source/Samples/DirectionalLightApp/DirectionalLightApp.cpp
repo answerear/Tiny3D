@@ -22,7 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "LightApp.h"
+#include "DirectionalLightApp.h"
 #include <random>
 
 
@@ -32,20 +32,20 @@ using namespace Tiny3D;
 
 const char *SUB_MESH_NAME = "#0";
 
-LightApp theApp;
+DirectionalLightApp theApp;
 
 extern const char *SAMPLE_LIT_VERTEX_SHADER;
 extern const char *SAMPLE_LIT_PIXEL_SHADER;
 
-LightApp::LightApp()
+DirectionalLightApp::DirectionalLightApp()
 {
 }
 
-LightApp::~LightApp()
+DirectionalLightApp::~DirectionalLightApp()
 {
 }
 
-bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -108,13 +108,13 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     return true;
 }
 
-void LightApp::applicationWillTerminate() 
+void DirectionalLightApp::applicationWillTerminate() 
 {
     mMesh = nullptr;
     mMaterial = nullptr;
 }
 
-void LightApp::buildCamera(Transform3D *parent)
+void DirectionalLightApp::buildCamera(Transform3D *parent)
 {
     // render window for render target in camera
     RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
@@ -163,7 +163,7 @@ void LightApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
-void LightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
+void DirectionalLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
 {
     static int index = 0;
     std::stringstream ss;
@@ -190,7 +190,7 @@ void LightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &
     buildAabb(mMesh, submesh, bound);
 }
 
-Texture2DPtr LightApp::buildTexture()
+Texture2DPtr DirectionalLightApp::buildTexture()
 {
     const uint32_t width = 64;
     const uint32_t height = 64;
@@ -298,7 +298,7 @@ Texture2DPtr LightApp::buildTexture()
 }
 
 
-MaterialPtr LightApp::buildMaterial()
+MaterialPtr DirectionalLightApp::buildMaterial()
 {
     TResult ret;
     
@@ -403,7 +403,7 @@ MaterialPtr LightApp::buildMaterial()
 }
 
 
-MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
+MeshPtr DirectionalLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
 {
     // 
     // 正方体顶点定义如下：
@@ -728,7 +728,7 @@ MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     return mesh;
 }
 
-void LightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+void DirectionalLightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
 {
     const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
     size_t vertexSize = mesh->getVertexStride(attr->getSlot());

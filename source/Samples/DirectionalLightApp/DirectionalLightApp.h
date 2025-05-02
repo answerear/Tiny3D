@@ -22,18 +22,18 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __LIGHT_APP_H__
-#define __LIGHT_APP_H__
+#ifndef __DIRECTIONAL_LIGHT_APP_H__
+#define __DIRECTIONAL_LIGHT_APP_H__
 
 
 #include "../Common/SampleApp.h"
 
 
-class LightApp : public SampleWindowApp
+class DirectionalLightApp : public SampleWindowApp
 {
 public:
-    LightApp();
-    ~LightApp() override;
+    DirectionalLightApp();
+    ~DirectionalLightApp() override;
 
 protected:  /// from Tiny3D::Application
     bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
@@ -54,4 +54,4 @@ protected:
 };
 
 
-#endif  /*__LIGHT_APP_H__*/
+#endif  /*__DIRECTIONAL_LIGHT_APP_H__*/
