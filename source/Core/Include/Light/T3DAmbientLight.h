@@ -46,6 +46,18 @@ namespace Tiny3D
         LightType getLightType() const override { return LightType::kAmbient; }
 
         /**
+         * 获取光照颜色
+         */
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="getter")
+        const ColorRGB& getColor() const { return mColor; }
+
+        /**
+         * 设置光照颜色
+         */
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="setter")
+        void setColor(const ColorRGB &color) { mColor = color; }
+        
+        /**
          * @brief 获取光照强度
          */
         TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="getter")
@@ -65,6 +77,8 @@ namespace Tiny3D
         TResult cloneProperties(const Component * const src) override;
         
     protected:
+        /// 光照颜色
+        ColorRGB mColor { ColorRGB::WHITE };
         /// 光照强度
         float mIntensity {0.5f};
     };

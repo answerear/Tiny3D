@@ -48,9 +48,6 @@ namespace Tiny3D
         
         const Light *srcLight = static_cast<const Light*>(src);
 
-        // color
-        mColor = srcLight->getColor();
-        
         return T3D_OK;
     }
     

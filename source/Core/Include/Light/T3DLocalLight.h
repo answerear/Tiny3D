@@ -39,6 +39,18 @@ namespace Tiny3D
         
     public:        
         ~LocalLight() override = default;
+
+        /**
+         * 获取漫反射光照颜色
+         */
+        TPROPERTY(RTTRFuncName="DiffuseColor", RTTRFuncType="getter")
+        const ColorRGB& getDiffuseColor() const { return mDiffuseColor; }
+
+        /**
+         * 设置漫反射光照颜色
+         */
+        TPROPERTY(RTTRFuncName="DiffuseColor", RTTRFuncType="setter")
+        void setDiffuseColor(const ColorRGB &color) { mDiffuseColor = color; }
         
         /**
          * 获取漫反射强度
@@ -53,25 +65,37 @@ namespace Tiny3D
         void setDiffuseIntensity(float intensity) { mDiffuseIntensity = intensity; }
 
         /**
-         * 获取高光强度
+         * 获取漫反射光照颜色
+         */
+        TPROPERTY(RTTRFuncName="SpecularColor", RTTRFuncType="getter")
+        const ColorRGB& getSpecularColor() const { return mDiffuseColor; }
+
+        /**
+         * 设置漫反射光照颜色
+         */
+        TPROPERTY(RTTRFuncName="SpecularColor", RTTRFuncType="setter")
+        void setSpecularColor(const ColorRGB &color) { mDiffuseColor = color; }
+
+        /**
+         * 获取镜面反射强度
          */
         TPROPERTY(RTTRFuncName="SpecularIntensity", RTTRFuncType="getter")
         float getSpecularIntensity() const { return mSpecularIntensity; }
 
         /**
-         * 设置高光强度
+         * 设置镜面反射强度
          */
         TPROPERTY(RTTRFuncName="SpecularIntensity", RTTRFuncType="setter")
         void setSpecularIntensity(float intensity) { mSpecularIntensity = intensity; }
 
         /**
-         * 获取高光发光值 (shininess)
+         * 获取镜面反射发光值 (shininess)
          */
         TPROPERTY(RTTRFuncName="SpecularShininess", RTTRFuncType="getter")
         float getSpecularShininess() const { return mSpecularShininess; }
 
         /**
-         * 设置高光发光值 (shininess)
+         * 设置镜面反射发光值 (shininess)
          */
         TPROPERTY(RTTRFuncName="SpecularShininess", RTTRFuncType="setter")
         void setSpecularShininess(float shininess) { mSpecularShininess = shininess; }
@@ -84,11 +108,15 @@ namespace Tiny3D
         TResult cloneProperties(const Component * const src) override;
 
     protected:
+        /// 光照漫反射颜色
+        ColorRGB mDiffuseColor { ColorRGB::WHITE };
         /// 漫反射强度
         float mDiffuseIntensity { 1.0f };
-        /// 高光强度
+        /// 镜面反射颜色
+        ColorRGB mSpecularColor { ColorRGB::WHITE };
+        /// 镜面反射强度
         float mSpecularIntensity { 1.0f };
-        /// 高光发光值 (shininess)
+        /// 镜面反射发光值 (shininess)
         float mSpecularShininess { 0.0f };
     };
 }

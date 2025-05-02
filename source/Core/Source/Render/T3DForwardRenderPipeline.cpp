@@ -366,15 +366,16 @@ namespace Tiny3D
                 {
                     // 设置方向光
                     DirectionalLight *light = static_cast<DirectionalLight *>(item.second);
-                    // 颜色
-                    const ColorRGBA &color = light->getColor();
-                    material->setColor("tiny3d_LightColor", color);
                     // 方向
                     Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
                     Vector4 dir(mat[2][0], mat[2][1], mat[2][2], 0.0f);
                     material->setVector("tiny3d_LightDir", dir);
-                    // 漫反射强度、高光强度、高光发光值
+                    // 漫反射颜色
+                    material->setColor("tiny3d_LightDiffuseColor", light->getDiffuseColor());
+                    // 镜面反射颜色
+                    material->setColor("tiny3d_LightSpecularColor", light->getSpecularColor());
+                    // 漫反射强度、镜面反射强度、镜面反射发光值
                     Vector4 params(light->getDiffuseIntensity(), light->getSpecularIntensity(), light->getSpecularShininess(), 0.0f);
                     material->setVector("tiny3d_LightParams", params);
                 }

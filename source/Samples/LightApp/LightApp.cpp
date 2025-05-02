@@ -77,8 +77,9 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     node->setOrientation(q);
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
-    light->setColor(ColorRGB::WHITE);
+    light->setDiffuseColor(ColorRGB::WHITE);
     light->setDiffuseIntensity(1.0f);
+    light->setSpecularColor(ColorRGB::WHITE);
     light->setSpecularIntensity(1.0f);
     light->setSpecularShininess(32.0f);
 

@@ -42,18 +42,6 @@ namespace Tiny3D
         ~Light() override = default;
 
         virtual LightType getLightType() const = 0;
-
-        /**
-         * 获取光照颜色
-         */
-        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="getter")
-        const ColorRGBA& getColor() const { return mColor; }
-
-        /**
-         * 设置光照颜色
-         */
-        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="setter")
-        void setColor(const ColorRGBA &color) { mColor = color; }
         
     protected:
         Light() = default;
@@ -61,10 +49,6 @@ namespace Tiny3D
         Light(const UUID &uuid);
 
         TResult cloneProperties(const Component * const src) override;
-        
-    protected:
-        /// 光照颜色
-        ColorRGBA mColor { ColorRGBA::WHITE };
     };
 }
 
