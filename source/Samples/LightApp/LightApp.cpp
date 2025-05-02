@@ -61,7 +61,7 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(1.0f);
+    ambient->setIntensity(0.2f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -78,7 +78,7 @@ bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
     light->setDiffuseColor(ColorRGB::WHITE);
-    light->setDiffuseIntensity(1.0f);
+    light->setDiffuseIntensity(0.5f);
     light->setSpecularColor(ColorRGB::WHITE);
     light->setSpecularIntensity(1.0f);
     light->setSpecularShininess(32.0f);
@@ -130,7 +130,7 @@ void LightApp::buildCamera(Transform3D *parent)
     camera->setOrder(0);
     Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
     camera->setViewport(vp);
-    camera->setClearColor(ColorRGB::GRAY);
+    camera->setClearColor(ColorRGB::BLACK);
     camera->setRenderTarget(rt);
     
     // camera for perspective
