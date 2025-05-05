@@ -2298,7 +2298,7 @@ namespace Tiny3D
             const char *bytes = shader->getBytesCode(bytesLength);
 
 #if defined (T3D_DEBUG)
-            UINT shaderCompileFlags = D3DCOMPILE_DEBUG;
+            UINT shaderCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_OPTIMIZATION_LEVEL0;
 #else
             UINT shaderCompileFlags = 0;
 #endif
@@ -2452,7 +2452,7 @@ namespace Tiny3D
                             String cbufferName, cname;
                             bool rval = getOriginalName(bindDesc.Name, variableDesc.Name, cbufferName, cname);
                             T3D_ASSERT(rval);
-                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns));
+                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns, d3dSRTypeDesc.Elements));
                             constantParams.emplace(param->getName(), param);
                             
                             // ShaderVariableBinding varBinding;

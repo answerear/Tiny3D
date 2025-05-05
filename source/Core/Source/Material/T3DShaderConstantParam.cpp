@@ -62,56 +62,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ShaderConstantValuePtr ShaderConstantValue::create(const String &name, ShaderConstantParam::DATA_TYPE dataType)
+    ShaderConstantValuePtr ShaderConstantValue::create(const String &name, ShaderConstantParam::DATA_TYPE dataType, size_t dataSize)
     {
-        return new ShaderConstantValue(name, dataType);
+        return new ShaderConstantValue(name, dataType, dataSize);
     }
 
     //--------------------------------------------------------------------------
 
-    ShaderConstantValue::ShaderConstantValue(const String &name, ShaderConstantParam::DATA_TYPE type)
+    ShaderConstantValue::ShaderConstantValue(const String &name, ShaderConstantParam::DATA_TYPE type, size_t dataSize)
         : mName(name)
         , mDataType(type)
     {
-        switch (mDataType)
-        {
-        case ShaderConstantParam::DATA_TYPE::DT_FLOAT:
-            {
-                mValue.DataSize = sizeof(float32_t);
-                mValue.Data = new uint8_t[mValue.DataSize];
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_BOOL:
-            {
-                mValue.DataSize = sizeof(bool);
-                mValue.Data = new uint8_t[mValue.DataSize];
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_INTEGER:
-            {
-                mValue.DataSize = sizeof(int32_t);
-                mValue.Data = new uint8_t[mValue.DataSize];
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_COLOR:
-            {
-                mValue.DataSize = sizeof(ColorRGBA);
-                mValue.Data = new uint8_t[mValue.DataSize];
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_VECTOR4:
-            {
-                mValue.DataSize = sizeof(Vector4);
-                mValue.Data = new uint8_t[mValue.DataSize];
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_MATRIX4:
-            {
-                mValue.DataSize = sizeof(Matrix4);
-                mValue.Data = new uint8_t[mValue.DataSize];
-            }
-            break;
-        }
+        mValue.DataSize = dataSize;
+        mValue.Data = new uint8_t[mValue.DataSize];
     }
 
     //--------------------------------------------------------------------------
@@ -125,7 +88,7 @@ namespace Tiny3D
 
     ShaderConstantValuePtr ShaderConstantValue::clone() const
     {
-        ShaderConstantValuePtr newValue = create(getName(), getDataType());
+        ShaderConstantValuePtr newValue = create(getName(), getDataType(), mValue.DataSize);
 
         if (newValue != nullptr)
         {

@@ -22,7 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "DirectionalLightApp.h"
+#include "PointLightApp.h"
 #include <random>
 
 
@@ -32,20 +32,20 @@ using namespace Tiny3D;
 
 const char *SUB_MESH_NAME = "#0";
 
-DirectionalLightApp theApp;
+PointLightApp theApp;
 
-extern const char *SAMPLE_DIRECTIONAL_LIT_VERTEX_SHADER;
-extern const char *SAMPLE_DIRECTIONAL_LIT_PIXEL_SHADER;
+extern const char *SAMPLE_POINT_LIT_VERTEX_SHADER;
+extern const char *SAMPLE_POINT_LIT_PIXEL_SHADER;
 
-DirectionalLightApp::DirectionalLightApp()
+PointLightApp::PointLightApp()
 {
 }
 
-DirectionalLightApp::~DirectionalLightApp()
+PointLightApp::~PointLightApp()
 {
 }
 
-bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+bool PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -61,7 +61,7 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.2f);
+    ambient->setIntensity(0.5f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -70,18 +70,20 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     scene->getRootTransform()->addChild(root);
 
     // directional light
-    go = GameObject::create("DirectionLight");
+    go = GameObject::create("PointLight");
     Transform3DPtr node = go->addComponent<Transform3D>();
-    Vector3 lightPos(2.0f, 2.0f, -4.0f);
-    Quaternion q(Vector3::UNIT_X, Vector3::UNIT_Y, Vector3::UNIT_Z);
-    node->setOrientation(q);
+    Vector3 lightPos(-2.0f, -2.0f, -4.0f);
+    node->setPosition(lightPos);
     root->addChild(node);
-    DirectionalLightPtr light = go->addComponent<DirectionalLight>();
+    PointLightPtr light = go->addComponent<PointLight>();
     light->setDiffuseColor(ColorRGB::WHITE);
-    light->setDiffuseIntensity(0.5f);
+    light->setDiffuseIntensity(1.0f);
     light->setSpecularColor(ColorRGB::WHITE);
     light->setSpecularIntensity(1.0f);
     light->setSpecularShininess(32.0f);
+    light->setAttenuationConstant(1.0f);
+    light->setAttenuationLinear(0.09f);
+    light->setAttenuationQuadratic(0.032f);
 
     // material
     mMaterial = buildMaterial();
@@ -108,13 +110,13 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     return true;
 }
 
-void DirectionalLightApp::applicationWillTerminate() 
+void PointLightApp::applicationWillTerminate() 
 {
     mMesh = nullptr;
     mMaterial = nullptr;
 }
 
-void DirectionalLightApp::buildCamera(Transform3D *parent)
+void PointLightApp::buildCamera(Transform3D *parent)
 {
     // render window for render target in camera
     RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
@@ -163,7 +165,7 @@ void DirectionalLightApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
-void DirectionalLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
+void PointLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
 {
     static int index = 0;
     std::stringstream ss;
@@ -190,7 +192,7 @@ void DirectionalLightApp::buildCube(Transform3D *parent, const Vector3 &pos, con
     buildAabb(mMesh, submesh, bound);
 }
 
-Texture2DPtr DirectionalLightApp::buildTexture()
+Texture2DPtr PointLightApp::buildTexture()
 {
     const uint32_t width = 64;
     const uint32_t height = 64;
@@ -298,7 +300,7 @@ Texture2DPtr DirectionalLightApp::buildTexture()
 }
 
 
-MaterialPtr DirectionalLightApp::buildMaterial()
+MaterialPtr PointLightApp::buildMaterial()
 {
     TResult ret;
     
@@ -309,13 +311,13 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = SAMPLE_DIRECTIONAL_LIT_VERTEX_SHADER;
+    const String vs = SAMPLE_POINT_LIT_VERTEX_SHADER;
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps = SAMPLE_DIRECTIONAL_LIT_PIXEL_SHADER;
+    const String ps = SAMPLE_POINT_LIT_PIXEL_SHADER;
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
@@ -396,14 +398,17 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
     material->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
     material->setColor("tiny3d_LightColor", ColorRGB::WHITE);
-    material->setVector("tiny3d_LightDir", Vector4::ZERO);
-    material->setVector("tiny3d_LightParams", Vector4::ZERO);
+    material->setVector("tiny3d_LightPos", Vector4::ZERO);
+    Vector4Array values;
+    values.push_back(Vector4::ZERO);
+    values.push_back(Vector4::ZERO);
+    material->setVectorArray("tiny3d_LightParams", values);
     
     return material;
 }
 
 
-MeshPtr DirectionalLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
+MeshPtr PointLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
 {
     // 
     // 正方体顶点定义如下：
@@ -728,7 +733,7 @@ MeshPtr DirectionalLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     return mesh;
 }
 
-void DirectionalLightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+void PointLightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
 {
     const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
     size_t vertexSize = mesh->getVertexStride(attr->getSlot());

@@ -34,7 +34,7 @@ namespace Tiny3D
     TCLASS()
     class T3D_ENGINE_API PointLight : public LocalLight
     {
-        TRTTI_ENABLE(Light)
+        TRTTI_ENABLE(LocalLight)
         TRTTI_FRIEND
         
     public:
@@ -45,11 +45,50 @@ namespace Tiny3D
         ComponentPtr clone() const override;
 
         LightType getLightType() const override { return LightType::kPoint; }
+
+        /**
+         * 获取衰减常量系数
+         */
+        float getAttenuationConstant() const { return mAttenuation.x(); }
+
+        /**
+         * 设置衰减常量系数
+         */
+        void setAttenuationConstant(float value) { mAttenuation.x() = value; }
+
+        /**
+         * 获取衰减一次系数
+         */
+        float getAttenuationLinear() const { return mAttenuation.y(); }
+
+        /**
+         * 设置衰减一次系数
+         */
+        void setAttenuationLinear(float value) { mAttenuation.y() = value; }
+
+        /**
+         * 获取衰减二次系数
+         */
+        float getAttenuationQuadratic() const { return mAttenuation.z(); }
+
+        /**
+         * 设置衰减二次系数
+         */
+        void setAttenuationQuadratic(float value) { mAttenuation.z() = value; }
         
     protected:
         PointLight() = default;
 
         PointLight(const UUID &uuid);
+
+        TPROPERTY(RTTRFuncName="Attenuation", RTTRFuncType="getter");
+        const Vector3 &getAttenuation() const { return mAttenuation; }
+
+        TPROPERTY(RTTRFuncName="Attenuation", RTTRFuncType="setter");
+        void setAttenuation(const Vector3 &value) { mAttenuation = value; }
+
+    protected:
+        Vector3 mAttenuation { Vector3::ZERO };
     };
 }
 

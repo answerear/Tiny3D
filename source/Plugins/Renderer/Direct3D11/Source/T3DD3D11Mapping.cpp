@@ -759,7 +759,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    ShaderConstantParam::DATA_TYPE D3D11Mapping::get(D3D_SHADER_VARIABLE_TYPE d3dType, uint32_t rows, uint32_t cols)
+    ShaderConstantParam::DATA_TYPE D3D11Mapping::get(D3D_SHADER_VARIABLE_TYPE d3dType, uint32_t rows, uint32_t cols, uint32_t numOfElements)
     {
         ShaderConstantParam::DATA_TYPE type = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
 
@@ -768,7 +768,7 @@ namespace Tiny3D
         case D3D_SVT_BOOL:
             {
                 type = ShaderConstantParam::DATA_TYPE::DT_BOOL;
-                if (rows > 1 || cols > 1)
+                if (numOfElements > 1)
                 {
                     type = ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY;
                 }
@@ -777,7 +777,7 @@ namespace Tiny3D
         case D3D_SVT_INT:
             {
                 type = ShaderConstantParam::DATA_TYPE::DT_INTEGER;
-                if (rows > 1 || cols > 1)
+                if (numOfElements > 1)
                 {
                     type = ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY;
                 }
@@ -790,13 +790,21 @@ namespace Tiny3D
                 {
                     // Matrix4
                     type = ShaderConstantParam::DATA_TYPE::DT_MATRIX4;
+                    if (numOfElements > 1)
+                    {
+                        type = ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY;
+                    }
                 }
                 else if (rows == 4 && cols == 1 || rows == 1 && cols == 4)
                 {
                     // Vector4
                     type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                    if (numOfElements > 1)
+                    {
+                        type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY;
+                    }
                 }
-                else
+                else if (numOfElements > 1)
                 {
                     type = ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY;
                 }

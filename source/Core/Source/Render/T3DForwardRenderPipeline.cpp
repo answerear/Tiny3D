@@ -44,6 +44,7 @@
 #include "Render/T3DRenderState.h"
 #include "Light/T3DAmbientLight.h"
 #include "Light/T3DDirectionalLight.h"
+#include "Light/T3DPointLight.h"
 
 
 namespace Tiny3D
@@ -381,6 +382,32 @@ namespace Tiny3D
                 }
                 break;
             case LightType::kPoint:
+                {
+                    // 设置点光源
+                    PointLight *light = static_cast<PointLight *>(item.second);
+
+                    // 光源位置
+                    Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
+                    Vector4 lightPos(pos[0], pos[1], pos[2], 1.0f);
+                    material->setVector("tiny3d_LightPos", lightPos);
+                    // 漫反射颜色
+                    material->setColor("tiny3d_LightDiffuseColor", light->getDiffuseColor());
+                    // 镜面反射颜色
+                    material->setColor("tiny3d_LightSpecularColor", light->getSpecularColor());
+                    // 漫反射强度、镜面反射强度、镜面反射发光值
+                    Vector4 params[2];
+                    params[0].x() = light->getDiffuseIntensity(); // 漫反射强度
+                    params[0].y() = light->getSpecularIntensity(); // 镜面反射强度
+                    params[0].z() = light->getSpecularShininess(); // 镜面反射发光值
+                    params[0].w() = 0.0f;
+                    params[1].x() = light->getAttenuationConstant(); // 衰减常量系数
+                    params[1].y() = light->getAttenuationLinear(); // 衰减一次系数
+                    params[1].z() = light->getAttenuationQuadratic(); // 衰减二次系数
+                    params[1].w() = 0.0f;
+                    Vector4Array paramsArray(params, params+2);
+                    material->setVectorArray("tiny3d_LightParams", paramsArray);
+                }
                 break;
             case LightType::kSpot:
                 break;

@@ -191,7 +191,7 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
-        static ShaderConstantValuePtr create(const String &name, ShaderConstantParam::DATA_TYPE dataType);
+        static ShaderConstantValuePtr create(const String &name, ShaderConstantParam::DATA_TYPE dataType, size_t dataSize);
         
         ~ShaderConstantValue() override;
 
@@ -364,7 +364,7 @@ namespace Tiny3D
         void setValue(const Buffer &value) { mValue = value; }
         
     protected:
-        ShaderConstantValue(const String &name, ShaderConstantParam::DATA_TYPE type);
+        ShaderConstantValue(const String &name, ShaderConstantParam::DATA_TYPE type, size_t dataSize);
         
         /// 名字
         String  mName {};

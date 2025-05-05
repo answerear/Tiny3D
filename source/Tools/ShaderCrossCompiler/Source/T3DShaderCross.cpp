@@ -331,7 +331,7 @@ namespace Tiny3D
                 // buffer.setData(src.value, sizeof(ColorRGBA));
                 // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 // dst->addConstantParam(param);
-                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_COLOR);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_COLOR, sizeof(ColorRGBA));
                 ColorRGBA color(src.value[0], src.value[1], src.value[2], src.value[3]);
                 constValue->setColor(color);
                 dst->addConstantValue(constValue);
@@ -345,7 +345,7 @@ namespace Tiny3D
                 // buffer.setData(src.value, sizeof(Vector4));
                 // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 // dst->addConstantParam(param);
-                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_VECTOR4);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_VECTOR4, sizeof(Vector4));
                 Vector4 vector(src.value[0], src.value[1], src.value[2], src.value[3]);
                 constValue->setVector(vector);
                 dst->addConstantValue(constValue);
@@ -359,7 +359,7 @@ namespace Tiny3D
                 // buffer.setData(&src.value[0], sizeof(float32_t));
                 // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 // dst->addConstantParam(param);
-                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_FLOAT, sizeof(float));
                 constValue->setFloat(src.value[0]);
                 dst->addConstantValue(constValue);
             }
@@ -375,7 +375,7 @@ namespace Tiny3D
                 // buffer.setData(&src.value[0], sizeof(float32_t));
                 // ShaderConstantParamPtr param = ShaderConstantParam::create(src.name, buffer.Data, buffer.DataSize, dataType);
                 // dst->addConstantParam(param);
-                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_FLOAT);
+                ShaderConstantValuePtr constValue = ShaderConstantValue::create(src.name, ShaderConstantParam::DATA_TYPE::DT_FLOAT, sizeof(float));
                 constValue->setFloat(src.value[0]);
                 dst->addConstantValue(constValue);
             }

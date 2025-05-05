@@ -322,7 +322,7 @@ namespace Tiny3D
                         // 添加常量，并设置常量初始值
                         for (const auto &param : shaderVariant.second->getShaderConstantParams())
                         {
-                            ShaderConstantValuePtr constValue = ShaderConstantValue::create(param.first, param.second->getDataType());
+                            ShaderConstantValuePtr constValue = ShaderConstantValue::create(param.first, param.second->getDataType(), param.second->getDataSize());
                             uint8_t *data = new uint8_t[param.second->getDataSize()];
                             memset(data, 0, param.second->getDataSize());
                             constValue->setData(data, param.second->getDataSize());
