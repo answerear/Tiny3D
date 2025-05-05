@@ -46,6 +46,7 @@ struct VertexOutput
 {
    float4 position : SV_POSITION;
    float3 worldNormal : COLOR0;
+   float3 worldPos : COLOR1;
    float2 uv : TEXCOORD0;
 };
 VertexOutput vert(VertexInput input)
@@ -53,6 +54,7 @@ VertexOutput vert(VertexInput input)
    VertexOutput output;
    output.position = mul(TINY3D_MATRIX_MVP, float4(input.position, 1.0f));
    output.worldNormal = normalize(mul((float3x3)TINY3D_MATRIX_M, input.normal));
+   output.worldPos = mul(TINY3D_MATRIX_M, float4(input.position, 1.0f)).xyz;
    output.uv = input.uv;
    return output;
 };

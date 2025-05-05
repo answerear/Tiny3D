@@ -348,6 +348,39 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult ForwardRenderPipeline::setupLightParams(Material *material, LocalLight *light)
+    {
+        // 漫反射颜色
+        material->setColor("tiny3d_LightDiffuseColor", light->getDiffuseColor());
+        // 镜面反射颜色
+        material->setColor("tiny3d_LightSpecularColor", light->getSpecularColor());
+        // 漫反射强度、镜面反射强度、镜面反射发光值
+        Vector4 params[2];
+        params[0].x() = light->getDiffuseIntensity(); // 漫反射强度
+        params[0].y() = light->getSpecularIntensity(); // 镜面反射强度
+        params[0].z() = light->getSpecularShininess(); // 镜面反射发光值
+        params[0].w() = 0.0f;
+        if (light->getLightType() == LightType::kDirectional)
+        {
+            // 平行光
+        }
+        else if (light->getLightType() == LightType::kPoint)
+        {
+            // 点光源
+            PointLight *pointLight = static_cast<PointLight *>(light);
+            params[1].x() = pointLight->getAttenuationConstant(); // 衰减常量系数
+            params[1].y() = pointLight->getAttenuationLinear(); // 衰减一次系数
+            params[1].z() = pointLight->getAttenuationQuadratic(); // 衰减二次系数
+            params[1].w() = 0.0f;
+        }
+        
+        Vector4Array paramsArray(params, params+2);
+        material->setVectorArray("tiny3d_LightParams", paramsArray);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
     {
         for (const auto &item : mLights)
@@ -371,14 +404,10 @@ namespace Tiny3D
                     Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
                     Vector4 dir(mat[2][0], mat[2][1], mat[2][2], 0.0f);
-                    material->setVector("tiny3d_LightDir", dir);
-                    // 漫反射颜色
-                    material->setColor("tiny3d_LightDiffuseColor", light->getDiffuseColor());
-                    // 镜面反射颜色
-                    material->setColor("tiny3d_LightSpecularColor", light->getSpecularColor());
-                    // 漫反射强度、镜面反射强度、镜面反射发光值
-                    Vector4 params(light->getDiffuseIntensity(), light->getSpecularIntensity(), light->getSpecularShininess(), 0.0f);
-                    material->setVector("tiny3d_LightParams", params);
+                    material->setVector("tiny3d_LightPos", dir);
+
+                    // 光源参数
+                    setupLightParams(material, light);
                 }
                 break;
             case LightType::kPoint:
@@ -391,22 +420,9 @@ namespace Tiny3D
                     const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
                     Vector4 lightPos(pos[0], pos[1], pos[2], 1.0f);
                     material->setVector("tiny3d_LightPos", lightPos);
-                    // 漫反射颜色
-                    material->setColor("tiny3d_LightDiffuseColor", light->getDiffuseColor());
-                    // 镜面反射颜色
-                    material->setColor("tiny3d_LightSpecularColor", light->getSpecularColor());
-                    // 漫反射强度、镜面反射强度、镜面反射发光值
-                    Vector4 params[2];
-                    params[0].x() = light->getDiffuseIntensity(); // 漫反射强度
-                    params[0].y() = light->getSpecularIntensity(); // 镜面反射强度
-                    params[0].z() = light->getSpecularShininess(); // 镜面反射发光值
-                    params[0].w() = 0.0f;
-                    params[1].x() = light->getAttenuationConstant(); // 衰减常量系数
-                    params[1].y() = light->getAttenuationLinear(); // 衰减一次系数
-                    params[1].z() = light->getAttenuationQuadratic(); // 衰减二次系数
-                    params[1].w() = 0.0f;
-                    Vector4Array paramsArray(params, params+2);
-                    material->setVectorArray("tiny3d_LightParams", paramsArray);
+                
+                    // 光源参数
+                    setupLightParams(material, light);
                 }
                 break;
             case LightType::kSpot:

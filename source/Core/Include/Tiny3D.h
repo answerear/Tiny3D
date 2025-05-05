@@ -80,7 +80,9 @@
 
 // Light
 #include <Light/T3DLight.h>
+#include <Light/T3DIndirectLight.h>
 #include <Light/T3DAmbientLight.h>
+#include <Light/T3DLocalLight.h>
 #include <Light/T3DDirectionalLight.h>
 #include <Light/T3DPointLight.h>
 #include <Light/T3DSpotLight.h>

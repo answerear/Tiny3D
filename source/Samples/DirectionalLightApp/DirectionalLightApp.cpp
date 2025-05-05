@@ -34,8 +34,8 @@ const char *SUB_MESH_NAME = "#0";
 
 DirectionalLightApp theApp;
 
-extern const char *SAMPLE_DIRECTIONAL_LIT_VERTEX_SHADER;
-extern const char *SAMPLE_DIRECTIONAL_LIT_PIXEL_SHADER;
+extern const char *SAMPLE_POINT_LIT_VERTEX_SHADER;
+extern const char *SAMPLE_POINT_LIT_PIXEL_SHADER;
 
 DirectionalLightApp::DirectionalLightApp()
 {
@@ -61,7 +61,7 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.2f);
+    ambient->setIntensity(0.5f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -72,13 +72,21 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     // directional light
     go = GameObject::create("DirectionLight");
     Transform3DPtr node = go->addComponent<Transform3D>();
-    Vector3 lightPos(2.0f, 2.0f, -4.0f);
-    Quaternion q(Vector3::UNIT_X, Vector3::UNIT_Y, Vector3::UNIT_Z);
+    Vector3 obj(0.0f, 5.0f, 0.0f);
+    Vector3 dir = Vector3::ZERO - obj;
+    dir.normalize();
+    Vector3 right = Vector3::UP.cross(dir);
+    right.normalize();
+    Vector3 up = dir.cross(right);
+    up.normalize();
+    Matrix3 mat(right, up, dir, true);
+    // mat.fromEulerAnglesYXZ(Radian(Math::PI * 0.25f), Radian(0.0f), Radian(0.0f));
+    Quaternion q(mat);
     node->setOrientation(q);
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
     light->setDiffuseColor(ColorRGB::WHITE);
-    light->setDiffuseIntensity(0.5f);
+    light->setDiffuseIntensity(1.0f);
     light->setSpecularColor(ColorRGB::WHITE);
     light->setSpecularIntensity(1.0f);
     light->setSpecularShininess(32.0f);
@@ -309,13 +317,13 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = SAMPLE_DIRECTIONAL_LIT_VERTEX_SHADER;
+    const String vs = SAMPLE_POINT_LIT_VERTEX_SHADER;
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps = SAMPLE_DIRECTIONAL_LIT_PIXEL_SHADER;
+    const String ps = SAMPLE_POINT_LIT_PIXEL_SHADER;
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
@@ -396,8 +404,11 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
     material->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
     material->setColor("tiny3d_LightColor", ColorRGB::WHITE);
-    material->setVector("tiny3d_LightDir", Vector4::ZERO);
-    material->setVector("tiny3d_LightParams", Vector4::ZERO);
+    material->setVector("tiny3d_LightPos", Vector4::ZERO);
+    Vector4Array values;
+    values.push_back(Vector4::ZERO);
+    values.push_back(Vector4::ZERO);
+    material->setVectorArray("tiny3d_LightParams", values);
     
     return material;
 }
