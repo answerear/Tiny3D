@@ -11,15 +11,17 @@ TEX2D(texCube);
 
 float4 tiny3d_CameraWorldPos;
 float4 tiny3d_AmbientLight;
-float4 tiny3d_LightDir;
+float4 tiny3d_LightPos;
 float4 tiny3d_LightDiffuseColor;
 float4 tiny3d_LightSpecularColor;
-float4 tiny3d_LightParams; // x - diffuse intensity, y - specular intensity, z - specular shininess
+ // [0].x - diffuse intensity, [0].y - specular intensity, [0].z - specular shininess, [0].w - reserved
+ // [1].x - constant for point lit, [1].y - linear for point lit, [1].z - quadratic for point lit, [1].w - reserved
+float4 tiny3d_LightParams[2];
 
 struct PS_INPUT
 {
-    float4 position : SV_POSITION;
 	float3 worldNormal : COLOR0;
+	float3 worldPos : COLOR1;
     float2 uv : TEXCOORD0;
 };
 
@@ -27,19 +29,39 @@ float4 frag(PS_INPUT input) : SV_Target
 {
 	// ambient
 	float3 ambient = tiny3d_AmbientLight.rgb * tiny3d_AmbientLight.a;
-    float3 worldLightDir = normalize(-tiny3d_LightDir.xyz);
+
+	// calculate direction of light
+	float3 lightDir;
+	float attenuation;
+	if (tiny3d_LightPos.w != 0.0)
+	{
+		// w 非 0，则光源有位置，点光源
+ 		lightDir = normalize(tiny3d_LightPos.xyz - input.worldPos.xyz);
+		// calculate attenuation of light
+		float dist = length(tiny3d_LightPos.xyz - input.worldPos.xyz);
+		float constant = tiny3d_LightParams[1].x;
+		float lin = tiny3d_LightParams[1].y;
+		float quadratic = tiny3d_LightParams[1].z;
+		attenuation = 1.0f / (constant + lin * dist + quadratic * dist * dist);
+	}
+	else
+	{
+		// 方向光
+		lightDir = tiny3d_LightPos.xyz;
+		attenuation = 1.0;
+	}
 
 	// diffuse
-	float diffuseIntensity = tiny3d_LightParams.x;
-	float3 diffuse = max(0, dot(input.worldNormal, worldLightDir)) * tiny3d_LightDiffuseColor.rgb * diffuseIntensity;
+	float diffuseIntensity = tiny3d_LightParams[0].x;
+	float3 diffuse = max(0, dot(input.worldNormal, lightDir)) * tiny3d_LightDiffuseColor.rgb * diffuseIntensity * attenuation;
 
 	// specular
-	float specularIntensity = tiny3d_LightParams.y;
-	float shininess = tiny3d_LightParams.z;
-	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.position.xyz);
-	float3 reflectDir = reflect(-worldLightDir, input.worldNormal);
+	float specularIntensity = tiny3d_LightParams[0].y;
+	float shininess = tiny3d_LightParams[0].z;
+	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.worldPos.xyz);
+	float3 reflectDir = reflect(-lightDir, input.worldNormal);
 	float gloss = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-	float3 specular = specularIntensity * gloss * tiny3d_LightSpecularColor.rgb;
+	float3 specular = specularIntensity * gloss * tiny3d_LightSpecularColor.rgb * attenuation;
 
 	// texture
 	float4 color = SAMPLE(texCube, input.uv);

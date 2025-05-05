@@ -39,10 +39,6 @@
 // To hlsl for Samples
 // Unlit vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\GeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Unlit pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\GeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
-// DirectionalLit vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\DirectionalLitGeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
-// DirectionalLit pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\DirectionalLitGeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
-// PointLit vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\PointLitGeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
-// PointLit pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\PointLitGeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Lit vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\LitGeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Lit pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\LitGeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 

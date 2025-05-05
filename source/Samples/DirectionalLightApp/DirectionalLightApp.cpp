@@ -34,8 +34,8 @@ const char *SUB_MESH_NAME = "#0";
 
 DirectionalLightApp theApp;
 
-extern const char *SAMPLE_POINT_LIT_VERTEX_SHADER;
-extern const char *SAMPLE_POINT_LIT_PIXEL_SHADER;
+extern const char *SAMPLE_LIT_VERTEX_SHADER;
+extern const char *SAMPLE_LIT_PIXEL_SHADER;
 
 DirectionalLightApp::DirectionalLightApp()
 {
@@ -317,13 +317,13 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = SAMPLE_POINT_LIT_VERTEX_SHADER;
+    const String vs = SAMPLE_LIT_VERTEX_SHADER;
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps = SAMPLE_POINT_LIT_PIXEL_SHADER;
+    const String ps = SAMPLE_LIT_PIXEL_SHADER;
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
