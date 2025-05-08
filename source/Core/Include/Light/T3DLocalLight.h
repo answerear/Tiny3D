@@ -43,14 +43,14 @@ namespace Tiny3D
         /**
          * 获取漫反射光照颜色
          */
-        TPROPERTY(RTTRFuncName="DiffuseColor", RTTRFuncType="getter")
-        const ColorRGB& getDiffuseColor() const { return mDiffuseColor; }
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="getter")
+        const ColorRGB& getColor() const { return mColor; }
 
         /**
          * 设置漫反射光照颜色
          */
-        TPROPERTY(RTTRFuncName="DiffuseColor", RTTRFuncType="setter")
-        void setDiffuseColor(const ColorRGB &color) { mDiffuseColor = color; }
+        TPROPERTY(RTTRFuncName="Color", RTTRFuncType="setter")
+        void setColor(const ColorRGB &color) { mColor = color; }
         
         /**
          * 获取漫反射强度
@@ -63,18 +63,6 @@ namespace Tiny3D
          */
         TPROPERTY(RTTRFuncName="DiffuseIntensity", RTTRFuncType="setter")
         void setDiffuseIntensity(float intensity) { mDiffuseIntensity = intensity; }
-
-        /**
-         * 获取漫反射光照颜色
-         */
-        TPROPERTY(RTTRFuncName="SpecularColor", RTTRFuncType="getter")
-        const ColorRGB& getSpecularColor() const { return mDiffuseColor; }
-
-        /**
-         * 设置漫反射光照颜色
-         */
-        TPROPERTY(RTTRFuncName="SpecularColor", RTTRFuncType="setter")
-        void setSpecularColor(const ColorRGB &color) { mDiffuseColor = color; }
 
         /**
          * 获取镜面反射强度
@@ -108,12 +96,10 @@ namespace Tiny3D
         TResult cloneProperties(const Component * const src) override;
 
     protected:
-        /// 光照漫反射颜色
-        ColorRGB mDiffuseColor { ColorRGB::WHITE };
+        /// 光照颜色
+        ColorRGB mColor { ColorRGB::WHITE };
         /// 漫反射强度
         float mDiffuseIntensity { 1.0f };
-        /// 镜面反射颜色
-        ColorRGB mSpecularColor { ColorRGB::WHITE };
         /// 镜面反射强度
         float mSpecularIntensity { 1.0f };
         /// 镜面反射发光值 (shininess)

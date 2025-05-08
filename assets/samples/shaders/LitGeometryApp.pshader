@@ -9,65 +9,144 @@
 
 TEX2D(texCube);
 
-float4 tiny3d_CameraWorldPos;
-float4 tiny3d_AmbientLight;
-float4 tiny3d_LightPos;
-float4 tiny3d_LightDiffuseColor;
-float4 tiny3d_LightSpecularColor;
- // [0].x - diffuse intensity, [0].y - specular intensity, [0].z - specular shininess, [0].w - reserved
- // [1].x - constant for point lit, [1].y - linear for point lit, [1].z - quadratic for point lit, [1].w - reserved
-float4 tiny3d_LightParams[2];
+#define T3D_MAX_POINT_LIGHTS	4	// 点光源支持的数量
+#define T3D_MAX_SPOT_LIGHTS		4	// 聚光灯支持的数量
+
+
+cbuffer tiny3d_LightParams
+{
+	// 环境光
+	float4 tiny3d_AmbientLight;	// rgb - 环境光颜色, a - 强度
+
+	// 平行光，只允许一个
+	float4 tiny3d_DirLightColor;	// rgb - 颜色, a - diffuse 强度
+	float4 tiny3d_DirLightDir;		// xyz - 方向, w - specular 强度
+
+	// 点光源
+	float4 tiny3d_PointLightColor[T3D_MAX_POINT_LIGHTS];	// rgb - 颜色, a - diffuse 强度
+	float4 tiny3d_PointLightPos[T3D_MAX_POINT_LIGHTS];		// xyz - 位置, w - specular 强度
+	float4 tiny3d_PointLightAttenuation[T3D_MAX_POINT_LIGHTS];	// x - 衰减常量项, y - 衰减一次项, z - 衰减二次项, w - padding
+
+	// 聚光灯
+	float4 tiny3d_SpotLightColor[T3D_MAX_SPOT_LIGHTS];			// rgb - 颜色, a - diffuse 强度
+	float4 tiny3d_SpotLightPos[T3D_MAX_SPOT_LIGHTS];			// xyz - 位置, w - specular 强度
+	float4 tiny3d_SpotLightDir[T3D_MAX_SPOT_LIGHTS];			// xyz - 方向, w - cutoff
+	float4 tiny3d_SpotLightAttenuation[T3D_MAX_SPOT_LIGHTS];	// x - 衰减常量项, y - 衰减一次项, z - 衰减二次项, w - outer cutoff
+}
+
+cbuffer tiny3d_CameraParams
+{
+	float4 tiny3d_CameraWorldPos;	// 相机世界位置
+}
+
+cbuffer tiny3d_ObjectParams
+{
+	float4 tiny3d_ObjectSmoothness;	// x - 物体光滑度, yzw - padding
+}
 
 struct PS_INPUT
 {
-	float3 worldNormal : COLOR0;
-	float3 worldPos : COLOR1;
+	float3 worldNormal : NORMAL;
+	float3 worldPos : COLOR0;
     float2 uv : TEXCOORD0;
 };
 
+// 计算衰减值
+float calcLightAttenuation(float3 lightPos, float3 pos, float attenuationConstant, float attenuationLinear, float attenuationQuadratic)
+{
+	float distance = length(lightPos - pos);
+	float attenuation = 1.0 / (attenuationConstant + attenuationLinear * distance + attenuationQuadratic * distance * distance);
+	return attenuation;
+}
+
+// 计算漫反射
+float calcuateDiffuse(float3 normal, float3 lightDir)
+{
+	return max(0, dot(normal, lightDir));
+}
+
+// 计算镜面反射
+float calculateSpecular(float3 viewDir, float3 normal, float3 lightDir, float smoothness)
+{
+	float shininess = smoothness * 128.0;
+	float3 reflectDir = reflect(-lightDir, normal);
+	return pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+}
+
+// 计算方向光
+float3 calcDirectionalLight(float3 normal, float3 viewDir, float3 albedo, float3 lightDir, float3 lightColor, float diffuseIntensity, float specularIntensity, float smoothness)
+{
+	// 漫反射系数
+	float diffuse = calcuateDiffuse(normal, lightDir);
+
+	// 镜面反射系数
+	float specular = calculateSpecular(viewDir, normal, lightDir, smoothness);
+
+	// 最终颜色
+	return (diffuse * diffuseIntensity + specular * specularIntensity) * lightColor * albedo;
+}
+
+// 计算点光源
+float3 calcPointLight(float3 pos, float3 normal, float3 viewDir, float3 albedo, float3 lightPos, float3 lightColor, float diffuseIntensity, float specularIntensity, float3 attenuation, float smoothness)
+{
+	// 计算衰减值
+	float att = calcLightAttenuation(lightPos, pos, attenuation.x, attenuation.y, attenuation.z);
+
+	// 计算光源方向
+	float3 lightDir = normalize(lightPos - pos);
+
+	// 漫反射系数
+	float diffuse = calcuateDiffuse(normal, lightDir);
+
+	// 镜面反射系数
+	float specular = calculateSpecular(viewDir, normal, lightDir, smoothness);
+
+	// 最终颜色
+	return (diffuse * diffuseIntensity + specular * specularIntensity) * lightColor * albedo * att;
+}
+
+// 计算聚光灯
+
 float4 frag(PS_INPUT input) : SV_Target
 {
-	// ambient
+	// 物体的光滑度
+	float smoothness = tiny3d_ObjectSmoothness.x;
+
+	// 计算环境光
 	float3 ambient = tiny3d_AmbientLight.rgb * tiny3d_AmbientLight.a;
 
-	// calculate direction of light
-	float3 lightDir;
-	float attenuation;
-	if (tiny3d_LightPos.w != 0.0)
+	// 计算观察方向的反方向，从表面指向相机
+	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.worldPos);
+
+	// 物体表面纹理
+	float4 albedo = SAMPLE(texCube, input.uv);
+
+	// 计算方向光
+	float3 color = float3(0, 0, 0);
+	float diffuseIntensity = tiny3d_DirLightColor.a;
+	float specularIntensity = tiny3d_DirLightDir.w;
+	float3 lightDir = tiny3d_DirLightDir.xyz;
+	float3 lightColor = tiny3d_DirLightColor.rgb;
+	float3 dirColor = calcDirectionalLight(input.worldNormal, viewDir, albedo.rgb, lightDir, lightColor, diffuseIntensity, specularIntensity, smoothness);
+	color += dirColor;
+
+	// 计算点光源
+	[unroll]
+	for (int i = 0; i < T3D_MAX_POINT_LIGHTS; i++)
 	{
-		// w 非 0，则光源有位置，点光源
- 		lightDir = normalize(tiny3d_LightPos.xyz - input.worldPos.xyz);
-		// calculate attenuation of light
-		float dist = length(tiny3d_LightPos.xyz - input.worldPos.xyz);
-		float constant = tiny3d_LightParams[1].x;
-		float lin = tiny3d_LightParams[1].y;
-		float quadratic = tiny3d_LightParams[1].z;
-		attenuation = 1.0f / (constant + lin * dist + quadratic * dist * dist);
-	}
-	else
-	{
-		// 方向光
-		lightDir = tiny3d_LightPos.xyz;
-		attenuation = 1.0;
+		diffuseIntensity = tiny3d_PointLightColor[i].a;
+		specularIntensity = tiny3d_PointLightPos[i].w;
+		float3 lightPos = tiny3d_PointLightPos[i].xyz;
+		lightColor = tiny3d_PointLightColor[i].rgb;
+		float3 pointColor = calcPointLight(input.worldPos, input.worldNormal, viewDir, albedo.rgb, lightPos, lightColor, diffuseIntensity, specularIntensity, tiny3d_PointLightAttenuation[i].xyz, smoothness);
+		color += pointColor;
 	}
 
-	// diffuse
-	float diffuseIntensity = tiny3d_LightParams[0].x;
-	float3 diffuse = max(0, dot(input.worldNormal, lightDir)) * tiny3d_LightDiffuseColor.rgb * diffuseIntensity * attenuation;
+	// 计算聚光灯
 
-	// specular
-	float specularIntensity = tiny3d_LightParams[0].y;
-	float shininess = tiny3d_LightParams[0].z;
-	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.worldPos.xyz);
-	float3 reflectDir = reflect(-lightDir, input.worldNormal);
-	float gloss = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-	float3 specular = specularIntensity * gloss * tiny3d_LightSpecularColor.rgb * attenuation;
 
-	// texture
-	float4 color = SAMPLE(texCube, input.uv);
-
-	// final
-	color = float4((ambient + diffuse + specular), 1.0f) * color;
+	// 最后把环境光算上
+	float4 finalColor = float4(ambient * albedo.rgb + color, 1.0f);
     
-    return color;
+    return finalColor;
 }

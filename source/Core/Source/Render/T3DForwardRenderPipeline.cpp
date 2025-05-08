@@ -45,6 +45,7 @@
 #include "Light/T3DAmbientLight.h"
 #include "Light/T3DDirectionalLight.h"
 #include "Light/T3DPointLight.h"
+#include "Light/T3DSpotLight.h"
 
 
 namespace Tiny3D
@@ -348,41 +349,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupLightParams(Material *material, LocalLight *light)
-    {
-        // 漫反射颜色
-        material->setColor("tiny3d_LightDiffuseColor", light->getDiffuseColor());
-        // 镜面反射颜色
-        material->setColor("tiny3d_LightSpecularColor", light->getSpecularColor());
-        // 漫反射强度、镜面反射强度、镜面反射发光值
-        Vector4 params[2];
-        params[0].x() = light->getDiffuseIntensity(); // 漫反射强度
-        params[0].y() = light->getSpecularIntensity(); // 镜面反射强度
-        params[0].z() = light->getSpecularShininess(); // 镜面反射发光值
-        params[0].w() = 0.0f;
-        if (light->getLightType() == LightType::kDirectional)
-        {
-            // 平行光
-        }
-        else if (light->getLightType() == LightType::kPoint)
-        {
-            // 点光源
-            PointLight *pointLight = static_cast<PointLight *>(light);
-            params[1].x() = pointLight->getAttenuationConstant(); // 衰减常量系数
-            params[1].y() = pointLight->getAttenuationLinear(); // 衰减一次系数
-            params[1].z() = pointLight->getAttenuationQuadratic(); // 衰减二次系数
-            params[1].w() = 0.0f;
-        }
-        
-        Vector4Array paramsArray(params, params+2);
-        material->setVectorArray("tiny3d_LightParams", paramsArray);
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
     {
+        int32_t pointLightCount = 0;
+        int32_t spotLightCount = 0;
+        
         for (const auto &item : mLights)
         {
             switch (item.second->getLightType())
@@ -400,37 +371,110 @@ namespace Tiny3D
                 {
                     // 设置方向光
                     DirectionalLight *light = static_cast<DirectionalLight *>(item.second);
-                    // 方向
+
+                    // 颜色和漫反射强度
+                    ColorRGBA color = light->getColor();
+                    color.alpha() = light->getDiffuseIntensity();
+                    material->setColor("tiny3d_DirLightColor", color);
+                    // 方向和镜面反射强度
                     Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
-                    Vector4 dir(mat[2][0], mat[2][1], mat[2][2], 0.0f);
-                    material->setVector("tiny3d_LightPos", dir);
-
-                    // 光源参数
-                    setupLightParams(material, light);
+                    float specularIntensity = light->getDiffuseIntensity();
+                    Vector4 dir(mat[2][0], mat[2][1], mat[2][2], specularIntensity);
+                    material->setVector("tiny3d_DirLightDir", dir);
                 }
                 break;
             case LightType::kPoint:
                 {
+                    if (pointLightCount >= kMaxPointLights)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_RENDER, "Too many point lights in scene !");
+                        continue;
+                    }
+                
                     // 设置点光源
                     PointLight *light = static_cast<PointLight *>(item.second);
 
-                    // 光源位置
+                    // 颜色和漫反射强度
+                    ColorRGBA &lightColor = mPointLightColor[pointLightCount];
+                    lightColor.red() = light->getColor().red();
+                    lightColor.green() = light->getColor().green();
+                    lightColor.blue() = light->getColor().blue();
+                    lightColor.alpha() = light->getDiffuseIntensity();
+
+                    // 位置和镜面反射强度
+                    Vector4f &lightPos = mPointLightPos[pointLightCount];
                     Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
-                    Vector4 lightPos(pos[0], pos[1], pos[2], 1.0f);
-                    material->setVector("tiny3d_LightPos", lightPos);
+                    lightPos[0] = pos[0];
+                    lightPos[1] = pos[1];
+                    lightPos[2] = pos[2];
+                    lightPos[3] = light->getSpecularIntensity();
                 
-                    // 光源参数
-                    setupLightParams(material, light);
+                    // 光源衰减参数
+                    Vector4f &lightAttenuation = mPointLightAttenuation[pointLightCount];
+                    lightAttenuation[0] = light->getAttenuationConstant();
+                    lightAttenuation[1] = light->getAttenuationLinear();
+                    lightAttenuation[2] = light->getAttenuationQuadratic();
+                    lightAttenuation[3] = 0.0f;
+                    pointLightCount++;
                 }
                 break;
             case LightType::kSpot:
+                {
+                    if (spotLightCount >= kMaxSpotLights)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_RENDER, "Too many spot lights in scene !");
+                        continue;
+                    }
+
+                    // 设置聚光灯
+                    SpotLight *light = static_cast<SpotLight *>(item.second);
+
+                    // 颜色和漫反射强度
+                    ColorRGBA &lightColor = mSpotLightColor[spotLightCount];
+                    lightColor.red() = light->getColor().red();
+                    lightColor.green() = light->getColor().green();
+                    lightColor.blue() = light->getColor().blue();
+                    lightColor.alpha() = light->getDiffuseIntensity();
+
+                    // 位置和镜面反射强度
+                    Vector4f &lightPos = mSpotLightPos[spotLightCount];
+                    Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
+                    lightPos[0] = pos[0];
+                    lightPos[1] = pos[1];
+                    lightPos[2] = pos[2];
+                    lightPos[3] = light->getSpecularIntensity();
+
+                    // 方向和切角 cos 值
+                    Vector4f &lightDir = mSpotLightDir[spotLightCount];
+                    const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
+                    lightDir[0] = mat[2][0];
+                    lightDir[1] = mat[2][1];
+                    lightDir[2] = mat[2][2];
+
+                    // 光源衰减参数
+                
+                    spotLightCount++;
+                }
                 break;
             default:
                 break;
             }
         }
+
+        // 点光源
+        material->setColorArray("tiny3d_PointLightColor", mPointLightColor);
+        material->setVectorArray("tiny3d_PointLightPos", mPointLightPos);
+        material->setVectorArray("tiny3d_PointLightAttenuation", mPointLightAttenuation);
+
+        // 聚光灯
+        material->setColorArray("tiny3d_SpotLightColor", mSpotLightColor);
+        material->setVectorArray("tiny3d_SpotLightPos", mSpotLightPos);
+        material->setVectorArray("tiny3d_SpotLightDir", mSpotLightDir);
+        material->setVectorArray("tiny3d_SpotLightAttenuation", mSpotLightAttenuation);
+        
         return T3D_OK;
     }
 

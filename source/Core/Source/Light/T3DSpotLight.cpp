@@ -38,7 +38,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     SpotLight::SpotLight(const UUID &uuid)
-        : Light(uuid)
+        : LocalLight(uuid)
     {
         
     }

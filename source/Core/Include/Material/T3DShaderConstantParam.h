@@ -286,14 +286,14 @@ namespace Tiny3D
 
         void setColorArray(const ColorArray &values)
         {
-            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY);
+            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY || mDataType == ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY);
             T3D_ASSERT(mValue.DataSize == sizeof(ColorRGBA) * values.size());
             memcpy(mValue.Data, values.data(), sizeof(ColorRGBA) * values.size());
         }
 
         ColorArray getColorArray() const
         {
-            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY);
+            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY || mDataType == ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY);
             T3D_ASSERT(mValue.DataSize > sizeof(ColorRGBA));
             return ColorArray((ColorRGBA*)mValue.Data, (ColorRGBA *)((uint8_t*)mValue.Data + mValue.DataSize));
         }

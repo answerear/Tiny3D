@@ -45,8 +45,8 @@ struct VertexInput
 struct VertexOutput
 {
    float4 position : SV_POSITION;
-   float3 worldNormal : COLOR0;
-   float3 worldPos : COLOR1;
+   float3 worldNormal : NORMAL;
+   float3 worldPos : COLOR0;
    float2 uv : TEXCOORD0;
 };
 VertexOutput vert(VertexInput input)

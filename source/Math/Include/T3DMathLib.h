@@ -117,6 +117,7 @@ namespace Tiny3D
     using Vector2 = TVector2<Real>;
     using Vector3 = TVector3<Real>;
     using Vector4 = TVector4<Real>;
+    using Vector4f = TVector4<float32_t>;
     using Matrix2 = TMatrix2<Real>;
     using Matrix3 = TMatrix3<Real>;
     using Matrix4 = TMatrix4<Real>;

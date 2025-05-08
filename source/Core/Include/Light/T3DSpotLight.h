@@ -26,13 +26,13 @@
 #define __T3D_SPOT_LIGHT_H__
 
 
-#include "Light/T3DLight.h"
+#include "Light/T3DLocalLight.h"
 
 
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API SpotLight : public Light
+    class T3D_ENGINE_API SpotLight : public LocalLight
     {
         TRTTI_ENABLE(Light)
         TRTTI_FRIEND

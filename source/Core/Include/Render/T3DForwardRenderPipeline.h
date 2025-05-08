@@ -57,8 +57,6 @@ namespace Tiny3D
 
         TResult setupLights(RHIContext *ctx, Material *material);
 
-        TResult setupLightParams(Material *material, LocalLight *light);
-        
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
 
         TResult setupShaders(RHIContext *ctx, Material *material, PassInstance *pass);
@@ -82,9 +80,24 @@ namespace Tiny3D
         using CameraRenderQueue = TMap<Camera*, RenderQueue>;
         using Cameras = TList<Camera*>;
 
+        enum LightParam
+        {
+            kMaxPointLights = 4,
+            kMaxSpotLights = 4,
+        };
+
         CameraRenderQueue mRenderQueue {};
         Cameras mCameras {};
         Lights mLights {};
+
+        ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};  // 点光源颜色 + 漫反射强度
+        Vector4Array mPointLightPos {kMaxPointLights, Vector4f::ZERO}; // 点光源位置 + 镜面反射强度
+        Vector4Array mPointLightAttenuation {kMaxPointLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)}; // 点光源衰减参数
+
+        ColorArray mSpotLightColor {kMaxSpotLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)}; // 聚光灯颜色 + 漫反射强度
+        Vector4Array mSpotLightPos {kMaxSpotLights, Vector4f::ZERO}; // 聚光灯位置 + 镜面反射强度
+        Vector4Array mSpotLightDir {kMaxSpotLights, Vector4f::ZERO}; // 聚光灯方向 + 切角 cos 值
+        Vector4Array mSpotLightAttenuation {kMaxSpotLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)}; // 聚光灯衰减参数 + 外切角 cos 值
     };
 }
 

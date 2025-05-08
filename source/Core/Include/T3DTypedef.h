@@ -190,7 +190,7 @@ namespace Tiny3D
     using IntArray = TArray<int32_t>;
     using FloatArray = TArray<float32_t>;
     using ColorArray = TArray<ColorRGBA>;
-    using Vector4Array = TArray<Vector4>;
+    using Vector4Array = TArray<Vector4f>;
     using Matrix4Array = TArray<Matrix4>;
     
     using Passes = TList<PassPtr>;

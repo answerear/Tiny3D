@@ -85,9 +85,8 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     node->setOrientation(q);
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
-    light->setDiffuseColor(ColorRGB::WHITE);
+    light->setColor(ColorRGB::WHITE);
     light->setDiffuseIntensity(1.0f);
-    light->setSpecularColor(ColorRGB::WHITE);
     light->setSpecularIntensity(1.0f);
     light->setSpecularShininess(32.0f);
 
@@ -401,14 +400,26 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     material->setTexture(texSamplerName, texture->getUUID());
     
     // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+    // Camera
     material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
-    material->setColor("tiny3d_AmbientLight", ColorRGB::WHITE);
-    material->setColor("tiny3d_LightColor", ColorRGB::WHITE);
-    material->setVector("tiny3d_LightPos", Vector4::ZERO);
-    Vector4Array values;
-    values.push_back(Vector4::ZERO);
-    values.push_back(Vector4::ZERO);
-    material->setVectorArray("tiny3d_LightParams", values);
+    // Object
+    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // Ambient
+    material->setColor("tiny3d_AmbientLight", ColorRGB::BLACK);
+    // Directional light
+    material->setColor("tiny3d_DirLightColor", ColorRGB::BLACK);
+    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+    // Point lights
+    ColorArray colors(4, ColorRGBA::BLACK);
+    material->setColorArray("tiny3d_PointLightColor", colors);
+    Vector4Array values(4, Vector4::ZERO);
+    material->setVectorArray("tiny3d_PointLightPos", values);
+    material->setVectorArray("tiny3d_PointLightAttenuation", values);
+    // Spot lights
+    material->setColorArray("tiny3d_SpotLightColor", colors);
+    material->setVectorArray("tiny3d_SpotLightPos", values);
+    material->setVectorArray("tiny3d_SpotLightDir", values);
+    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
     
     return material;
 }
