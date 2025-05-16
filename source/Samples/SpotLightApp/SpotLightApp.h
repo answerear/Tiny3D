@@ -1,5 +1,5 @@
-﻿/*******************************************************************************
- * MIT License
+/*******************************************************************************
+* MIT License
  *
  * Copyright (c) 2024 Answer Wong
  *
@@ -22,40 +22,36 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __SPOT_LIGHT_APP_H__
+#define __SPOT_LIGHT_APP_H__
 
-#include "Light/T3DLocalLight.h"
+
+#include "../Common/SampleApp.h"
 
 
-namespace Tiny3D
+class SpotLightApp : public SampleWindowApp
 {
-    //--------------------------------------------------------------------------
+public:
+    SpotLightApp();
+    ~SpotLightApp() override;
 
-    LocalLight::LocalLight(const UUID &uuid)
-        : Light(uuid)
-    {
-        
-    }
+protected:  /// from Tiny3D::Application
+    bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
-    //--------------------------------------------------------------------------
+    void applicationWillTerminate() override;
 
-    TResult LocalLight::cloneProperties(const Component * const src)
-    {
-        TResult ret = Light::cloneProperties(src);
-        
-        if (T3D_FAILED(ret))
-        {
-            return ret;
-        }
-        
-        const LocalLight *srcLight = static_cast<const LocalLight*>(src);
-
-        // diffuse intensity
-        mDiffuseIntensity = srcLight->getDiffuseIntensity();
-        // specular intensity
-        mSpecularIntensity = srcLight->getSpecularIntensity();
-        
-        return T3D_OK;
-    }
+protected:
+    void buildCamera(Tiny3D::Transform3D *parent);
+    void buildCube(Tiny3D::Transform3D *parent, const Tiny3D::Vector3 &pos, const Tiny3D::Radian &yAngles);
     
-    //--------------------------------------------------------------------------
-}
+    Tiny3D::Texture2DPtr buildTexture();
+    Tiny3D::MaterialPtr buildMaterial();
+    Tiny3D::MeshPtr buildMesh(const Tiny3D::UUID &materialUUID);
+    void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
+
+    Tiny3D::MeshPtr mMesh {nullptr};
+    Tiny3D::MaterialPtr mMaterial {nullptr};
+};
+
+
+#endif  /*__SPOT_LIGHT_APP_H__*/

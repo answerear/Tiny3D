@@ -46,7 +46,34 @@ namespace Tiny3D
     {
         PointLightPtr light = create();
 
+        if (light != nullptr)
+        {
+            if (T3D_FAILED(light->cloneProperties(this)))
+            {
+                light = nullptr;
+            }
+        }
+
         return light;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult PointLight::cloneProperties(const Component * const src)
+    {
+        TResult ret = LocalLight::cloneProperties(src);
+        
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+        
+        const PointLight *srcLight = static_cast<const PointLight*>(src);
+
+        // attenuation
+        mAttenuation = srcLight->mAttenuation;
+        
+        return T3D_OK;
     }
     
     //--------------------------------------------------------------------------

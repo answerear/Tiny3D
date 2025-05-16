@@ -72,23 +72,13 @@ bool DirectionalLightApp::applicationDidFinishLaunching(int32_t argc, char *argv
     // directional light
     go = GameObject::create("DirectionLight");
     Transform3DPtr node = go->addComponent<Transform3D>();
-    Vector3 obj(0.0f, 5.0f, 0.0f);
-    Vector3 dir = Vector3::ZERO - obj;
-    dir.normalize();
-    Vector3 right = Vector3::UP.cross(dir);
-    right.normalize();
-    Vector3 up = dir.cross(right);
-    up.normalize();
-    Matrix3 mat(right, up, dir, true);
-    // mat.fromEulerAnglesYXZ(Radian(Math::PI * 0.25f), Radian(0.0f), Radian(0.0f));
-    Quaternion q(mat);
+    Quaternion q(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
     node->setOrientation(q);
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
     light->setColor(ColorRGB::WHITE);
     light->setDiffuseIntensity(1.0f);
     light->setSpecularIntensity(1.0f);
-    light->setSpecularShininess(32.0f);
 
     // material
     mMaterial = buildMaterial();
@@ -415,7 +405,7 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     Vector4Array values(4, Vector4::ZERO);
     material->setVectorArray("tiny3d_PointLightPos", values);
     material->setVectorArray("tiny3d_PointLightAttenuation", values);
-    // Spot lights
+    // Spotlights
     material->setColorArray("tiny3d_SpotLightColor", colors);
     material->setVectorArray("tiny3d_SpotLightPos", values);
     material->setVectorArray("tiny3d_SpotLightDir", values);

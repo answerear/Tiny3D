@@ -81,6 +81,8 @@ namespace Tiny3D
 
         PointLight(const UUID &uuid);
 
+        TResult cloneProperties(const Component * const src) override;
+
         TPROPERTY(RTTRFuncName="Attenuation", RTTRFuncType="getter");
         const Vector3 &getAttenuation() const { return mAttenuation; }
 

@@ -49,7 +49,41 @@ namespace Tiny3D
     {
         SpotLightPtr light = create();
 
+        if (light != nullptr)
+        {
+            TResult ret = light->cloneProperties(this);
+            if (T3D_FAILED(ret))
+            {
+                light = nullptr;
+            }
+        }
+        
         return light;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult SpotLight::cloneProperties(const Component * const src)
+    {
+        TResult ret = LocalLight::cloneProperties(src);
+        
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+        
+        const SpotLight *srcLight = static_cast<const SpotLight*>(src);
+
+        // attenuation
+        mAttenuation = srcLight->mAttenuation;
+
+        // cutoff angle
+        mCutoffAngle = srcLight->mCutoffAngle;
+
+        // inner cutoff angle
+        mInnerCutoffAngle = srcLight->mInnerCutoffAngle;
+        
+        return T3D_OK;
     }
     
     //--------------------------------------------------------------------------

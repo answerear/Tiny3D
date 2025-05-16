@@ -75,18 +75,6 @@ namespace Tiny3D
          */
         TPROPERTY(RTTRFuncName="SpecularIntensity", RTTRFuncType="setter")
         void setSpecularIntensity(float intensity) { mSpecularIntensity = intensity; }
-
-        /**
-         * 获取镜面反射发光值 (shininess)
-         */
-        TPROPERTY(RTTRFuncName="SpecularShininess", RTTRFuncType="getter")
-        float getSpecularShininess() const { return mSpecularShininess; }
-
-        /**
-         * 设置镜面反射发光值 (shininess)
-         */
-        TPROPERTY(RTTRFuncName="SpecularShininess", RTTRFuncType="setter")
-        void setSpecularShininess(float shininess) { mSpecularShininess = shininess; }
         
     protected:
         LocalLight() = default;
@@ -102,8 +90,6 @@ namespace Tiny3D
         float mDiffuseIntensity { 1.0f };
         /// 镜面反射强度
         float mSpecularIntensity { 1.0f };
-        /// 镜面反射发光值 (shininess)
-        float mSpecularShininess { 0.0f };
     };
 }
 

@@ -380,7 +380,7 @@ namespace Tiny3D
                     Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
                     float specularIntensity = light->getDiffuseIntensity();
-                    Vector4 dir(mat[2][0], mat[2][1], mat[2][2], specularIntensity);
+                    Vector4 dir(mat[0][2], mat[1][2], mat[2][2], specularIntensity);
                     material->setVector("tiny3d_DirLightDir", dir);
                 }
                 break;
@@ -450,11 +450,17 @@ namespace Tiny3D
                     // 方向和切角 cos 值
                     Vector4f &lightDir = mSpotLightDir[spotLightCount];
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
-                    lightDir[0] = mat[2][0];
-                    lightDir[1] = mat[2][1];
+                    lightDir[0] = mat[0][2];
+                    lightDir[1] = mat[1][2];
                     lightDir[2] = mat[2][2];
+                    lightDir[3] = Math::cos(light->getInnerCutoffAngle());
 
                     // 光源衰减参数
+                    Vector4f &attenuation = mSpotLightAttenuation[spotLightCount];
+                    attenuation[0] = light->getAttenuationConstant();
+                    attenuation[1] = light->getAttenuationLinear();
+                    attenuation[2] = light->getAttenuationQuadratic();
+                    attenuation[3] = Math::cos(light->getCutoffAngle());
                 
                     spotLightCount++;
                 }

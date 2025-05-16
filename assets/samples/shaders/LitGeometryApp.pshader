@@ -60,7 +60,7 @@ float calcLightAttenuation(float3 lightPos, float3 pos, float attenuationConstan
 }
 
 // 计算漫反射
-float calcuateDiffuse(float3 normal, float3 lightDir)
+float calculateDiffuse(float3 normal, float3 lightDir)
 {
 	return max(0, dot(normal, lightDir));
 }
@@ -77,10 +77,10 @@ float calculateSpecular(float3 viewDir, float3 normal, float3 lightDir, float sm
 float3 calcDirectionalLight(float3 normal, float3 viewDir, float3 albedo, float3 lightDir, float3 lightColor, float diffuseIntensity, float specularIntensity, float smoothness)
 {
 	// 漫反射系数
-	float diffuse = calcuateDiffuse(normal, lightDir);
+	float diffuse = calculateDiffuse(normal, -lightDir);
 
 	// 镜面反射系数
-	float specular = calculateSpecular(viewDir, normal, lightDir, smoothness);
+	float specular = calculateSpecular(viewDir, normal, -lightDir, smoothness);
 
 	// 最终颜色
 	return (diffuse * diffuseIntensity + specular * specularIntensity) * lightColor * albedo;
@@ -96,7 +96,7 @@ float3 calcPointLight(float3 pos, float3 normal, float3 viewDir, float3 albedo, 
 	float3 lightDir = normalize(lightPos - pos);
 
 	// 漫反射系数
-	float diffuse = calcuateDiffuse(normal, lightDir);
+	float diffuse = calculateDiffuse(normal, lightDir);
 
 	// 镜面反射系数
 	float specular = calculateSpecular(viewDir, normal, lightDir, smoothness);
@@ -106,6 +106,27 @@ float3 calcPointLight(float3 pos, float3 normal, float3 viewDir, float3 albedo, 
 }
 
 // 计算聚光灯
+float3 calcSpotLight(float3 pos, float3 normal, float3 viewDir, float3 albedo, float3 lightPos, float3 lightDir, float3 lightColor, float diffuseIntensity, float specularIntensity, float3 attenuation, float smoothness, float cutoff, float outerCutoff)
+{
+	// 计算衰减值
+	float att = calcLightAttenuation(lightPos, pos, attenuation.x, attenuation.y, attenuation.z);
+
+	// 计算光源和片段的方向
+	float3 dir = normalize(lightPos - pos);
+
+	float theta = dot(dir, -lightDir);	// 片段指向光源方向和光方向的夹角
+	float epsilon = cutoff - outerCutoff;	// 切光角和外切光角的差
+	float intensity = clamp((theta - outerCutoff) / epsilon, 0.0f, 1.0f);	// 根据切光角的差值，获取光照强度
+
+	// 漫反射系数
+	float diffuse = calculateDiffuse(normal, dir) * intensity;
+
+	// 镜面反射系数
+	float specular = calculateSpecular(viewDir, normal, dir, smoothness) * intensity;
+
+	// 最终颜色
+	return (diffuse * diffuseIntensity + specular * specularIntensity) * lightColor * albedo * att;
+}
 
 float4 frag(PS_INPUT input) : SV_Target
 {
@@ -130,9 +151,10 @@ float4 frag(PS_INPUT input) : SV_Target
 	float3 dirColor = calcDirectionalLight(input.worldNormal, viewDir, albedo.rgb, lightDir, lightColor, diffuseIntensity, specularIntensity, smoothness);
 	color += dirColor;
 
+	int i = 0;
 	// 计算点光源
 	[unroll]
-	for (int i = 0; i < T3D_MAX_POINT_LIGHTS; i++)
+	for (i = 0; i < T3D_MAX_POINT_LIGHTS; i++)
 	{
 		diffuseIntensity = tiny3d_PointLightColor[i].a;
 		specularIntensity = tiny3d_PointLightPos[i].w;
@@ -143,7 +165,19 @@ float4 frag(PS_INPUT input) : SV_Target
 	}
 
 	// 计算聚光灯
-
+	[unroll]
+	for (i = 0; i < T3D_MAX_SPOT_LIGHTS; i++)
+	{
+		diffuseIntensity = tiny3d_SpotLightColor[i].a;
+		specularIntensity = tiny3d_SpotLightPos[i].w;
+		float3 lightPos = tiny3d_SpotLightPos[i].xyz;
+		float3 lightDir = tiny3d_SpotLightDir[i].xyz;
+		lightColor = tiny3d_SpotLightColor[i].rgb;
+		float cutoff = tiny3d_SpotLightDir[i].w;
+		float outerCutoff = tiny3d_SpotLightAttenuation[i].w;
+		float3 spotColor = calcSpotLight(input.worldPos, input.worldNormal, viewDir, albedo.rgb, lightPos, lightDir, lightColor, diffuseIntensity, specularIntensity, tiny3d_SpotLightAttenuation[i].xyz, smoothness, cutoff, outerCutoff);
+		color += spotColor;
+	}
 
 	// 最后把环境光算上
 	float4 finalColor = float4(ambient * albedo.rgb + color, 1.0f);

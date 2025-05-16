@@ -22,7 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "PointLightApp.h"
+#include "SpotLightApp.h"
 #include <random>
 
 
@@ -32,20 +32,20 @@ using namespace Tiny3D;
 
 const char *SUB_MESH_NAME = "#0";
 
-PointLightApp theApp;
+SpotLightApp theApp;
 
 extern const char *SAMPLE_LIT_VERTEX_SHADER;
 extern const char *SAMPLE_LIT_PIXEL_SHADER;
 
-PointLightApp::PointLightApp()
+SpotLightApp::SpotLightApp()
 {
 }
 
-PointLightApp::~PointLightApp()
+SpotLightApp::~SpotLightApp()
 {
 }
 
-bool PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+bool SpotLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -69,20 +69,27 @@ bool PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Transform3DPtr root = go->addComponent<Transform3D>();
     scene->getRootTransform()->addChild(root);
 
-    // point light
-    go = GameObject::create("PointLight");
+    // spotlight
+    go = GameObject::create("Spotlight");
     Transform3DPtr node = go->addComponent<Transform3D>();
-    Vector3 lightPos(-2.0f, -2.0f, -4.0f);
-    // Vector3 lightPos(0.0f, 5.0f, 0.0f);
+    // spotlight position
+    Vector3 lightPos(0.0f, 5.0f, 0.0f);
     node->setPosition(lightPos);
+    // spotlight direction
+    Quaternion q(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
+    node->setOrientation(q);
     root->addChild(node);
-    PointLightPtr light = go->addComponent<PointLight>();
+    
+    SpotLightPtr light = go->addComponent<SpotLight>();
     light->setColor(ColorRGB::WHITE);
     light->setDiffuseIntensity(1.0f);
     light->setSpecularIntensity(1.0f);
     light->setAttenuationConstant(1.0f);
     light->setAttenuationLinear(0.09f);
     light->setAttenuationQuadratic(0.032f);
+    Degree deg(10.0f);
+    light->setCutoffAngle(deg * 0.5f);
+    light->setInnerCutoffAngle(deg * 0.5f * 0.8f);
 
     // material
     mMaterial = buildMaterial();
@@ -109,13 +116,13 @@ bool PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     return true;
 }
 
-void PointLightApp::applicationWillTerminate() 
+void SpotLightApp::applicationWillTerminate() 
 {
     mMesh = nullptr;
     mMaterial = nullptr;
 }
 
-void PointLightApp::buildCamera(Transform3D *parent)
+void SpotLightApp::buildCamera(Transform3D *parent)
 {
     // render window for render target in camera
     RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
@@ -164,7 +171,7 @@ void PointLightApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
-void PointLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
+void SpotLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
 {
     static int index = 0;
     std::stringstream ss;
@@ -191,7 +198,7 @@ void PointLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Rad
     buildAabb(mMesh, submesh, bound);
 }
 
-Texture2DPtr PointLightApp::buildTexture()
+Texture2DPtr SpotLightApp::buildTexture()
 {
     const uint32_t width = 64;
     const uint32_t height = 64;
@@ -299,7 +306,7 @@ Texture2DPtr PointLightApp::buildTexture()
 }
 
 
-MaterialPtr PointLightApp::buildMaterial()
+MaterialPtr SpotLightApp::buildMaterial()
 {
     TResult ret;
     
@@ -400,12 +407,12 @@ MaterialPtr PointLightApp::buildMaterial()
     // Object
     material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
     // Ambient
-    material->setColor("tiny3d_AmbientLight", ColorRGB::BLACK);
+    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
     // Directional light
-    material->setColor("tiny3d_DirLightColor", ColorRGB::BLACK);
+    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
     material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
     // Point lights
-    ColorArray colors(4, ColorRGBA::BLACK);
+    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
     material->setColorArray("tiny3d_PointLightColor", colors);
     Vector4Array values(4, Vector4::ZERO);
     material->setVectorArray("tiny3d_PointLightPos", values);
@@ -420,7 +427,7 @@ MaterialPtr PointLightApp::buildMaterial()
 }
 
 
-MeshPtr PointLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
+MeshPtr SpotLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
 {
     // 
     // 正方体顶点定义如下：
@@ -745,7 +752,7 @@ MeshPtr PointLightApp::buildMesh(const Tiny3D::UUID &materialUUID)
     return mesh;
 }
 
-void PointLightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+void SpotLightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
 {
     const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
     size_t vertexSize = mesh->getVertexStride(attr->getSlot());

@@ -22,7 +22,7 @@ add_subdirectory(GeometryApp)
 add_subdirectory(SceneApp)
 add_subdirectory(DirectionalLightApp)
 add_subdirectory(PointLightApp)
-#add_subdirectory(PlatformApp)
+add_subdirectory(SpotLightApp)
 #add_subdirectory(FrameworkApp)
 add_subdirectory(TextureApp)
 
