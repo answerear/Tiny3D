@@ -1,0 +1,807 @@
+﻿/*******************************************************************************
+ * MIT License
+ *
+ * Copyright (c) 2024 Answer Wong
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
+
+#include "LightApp.h"
+#include <random>
+
+
+// #define UVN_CAMERA
+
+using namespace Tiny3D;
+
+const char *SUB_MESH_NAME = "#0";
+
+LightApp theApp;
+
+extern const char *SAMPLE_LIT_VERTEX_SHADER;
+extern const char *SAMPLE_LIT_PIXEL_SHADER;
+
+LightApp::LightApp()
+{
+}
+
+LightApp::~LightApp()
+{
+}
+
+bool LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+{
+    std::random_device rd;
+    std::mt19937 engine(rd());
+
+    // 创建 0 到 1 之间的浮点数分布
+    std::uniform_real_distribution<float> dist(0.0, 1.0);
+    
+    // create scene
+    ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
+    scene->init();
+    T3D_SCENE_MGR.setCurrentScene(scene);
+
+    // add ambient light to the root of scene
+    AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
+    ambient->setColor(ColorRGB::WHITE);
+    ambient->setIntensity(0.5f);
+    
+    // root game object
+    GameObjectPtr go = GameObject::create("TestScene");
+    // scene->addRootGameObject(go);
+    Transform3DPtr root = go->addComponent<Transform3D>();
+    scene->getRootTransform()->addChild(root);
+
+    // directional light
+    go = GameObject::create("DirectionLight");
+    Transform3DPtr node = go->addComponent<Transform3D>();
+    Quaternion q(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
+    node->setOrientation(q);
+    root->addChild(node);
+    DirectionalLightPtr light = go->addComponent<DirectionalLight>();
+    light->setColor(ColorRGB::WHITE);
+    light->setDiffuseIntensity(1.0f);
+    light->setSpecularIntensity(1.0f);
+
+    // point light
+    go = GameObject::create("PointLight");
+    node = go->addComponent<Transform3D>();
+    Vector3 lightPos(-2.0f, -2.0f, -4.0f);
+    // Vector3 lightPos(0.0f, 5.0f, 0.0f);
+    node->setPosition(lightPos);
+    root->addChild(node);
+    PointLightPtr pointLight = go->addComponent<PointLight>();
+    pointLight->setColor(ColorRGB::WHITE);
+    pointLight->setDiffuseIntensity(1.0f);
+    pointLight->setSpecularIntensity(1.0f);
+    pointLight->setAttenuationConstant(1.0f);
+    pointLight->setAttenuationLinear(0.09f);
+    pointLight->setAttenuationQuadratic(0.032f);
+    
+    // spotlight
+    go = GameObject::create("Spotlight");
+    node = go->addComponent<Transform3D>();
+    // spotlight position
+    lightPos = Vector3(0.0f, 5.0f, 0.0f);
+    node->setPosition(lightPos);
+    // spotlight direction
+    q.fromAngleAxis(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
+    node->setOrientation(q);
+    root->addChild(node);
+    
+    SpotLightPtr spotLight = go->addComponent<SpotLight>();
+    spotLight->setColor(ColorRGB::WHITE);
+    spotLight->setDiffuseIntensity(1.0f);
+    spotLight->setSpecularIntensity(1.0f);
+    spotLight->setAttenuationConstant(1.0f);
+    spotLight->setAttenuationLinear(0.09f);
+    spotLight->setAttenuationQuadratic(0.032f);
+    Degree deg(10.0f);
+    spotLight->setCutoffAngle(deg * 0.5f);
+    spotLight->setInnerCutoffAngle(deg * 0.5f * 0.8f);
+
+    // material
+    mMaterial = buildMaterial();
+
+    // mesh
+    mMesh = buildMesh(mMaterial->getUUID());
+    
+    // camera
+    buildCamera(root);
+
+    // cube
+    const int32_t kMaxCubes = 5;
+    Vector3 pos(-10.0f, 0.0f, 0.0f);
+
+    for (int32_t i = 0; i < kMaxCubes; ++i)
+    {
+        float val = dist(engine) * 0.0f;
+        Degree deg(val);
+        Radian yAngles(deg.valueRadians());
+        buildCube(root, pos, yAngles);
+        pos.x() += 5.0f;
+    }
+    
+    return true;
+}
+
+void LightApp::applicationWillTerminate() 
+{
+    mMesh = nullptr;
+    mMaterial = nullptr;
+}
+
+void LightApp::buildCamera(Transform3D *parent)
+{
+    // render window for render target in camera
+    RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
+    RenderTargetPtr rt = RenderTarget::create(rw);
+
+    // transform node for camera
+    GameObjectPtr go = GameObject::create("Camera");
+    Transform3DPtr xform = go->addComponent<Transform3D>();
+    parent->addChild(xform);
+    
+    // camera component
+    CameraPtr camera = go->addComponent<Camera>();
+    camera->setOrder(0);
+    Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+    camera->setViewport(vp);
+    camera->setClearColor(ColorRGB::BLACK);
+    camera->setRenderTarget(rt);
+    
+    // camera for perspective
+    camera->setProjectionType(Camera::Projection::kPerspective);
+    camera->setFovY(Radian(Math::PI / 3.0f));
+    // camera->setFovY(Radian(Math::PI * 0.5f));
+    Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
+    camera->setAspectRatio(as);
+    camera->setNearPlaneDistance(0.1f);
+    camera->setFarPlaneDistance(10.0f);
+    
+    // construct camera position & orientation & scaling
+
+    Vector3 eye(2.0f, 2.0f, -4.0f);
+
+#if defined (UVN_CAMERA)
+    Vector3 obj(0.0f, 0.0f, 0.0f);
+    camera->lookAt(eye, obj, Vector3::UP);
+#else
+    xform->setPosition(eye);
+    Radian xAngle(Degree(25.0f).valueRadians());
+    Radian yAngle(-Math::PI * 0.25f);
+    // Radian yAngle(0.0f);
+    Radian zAngle(0.0f);
+    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+#endif
+
+    // construct frustum bound
+    auto frustum = go->addComponent<FrustumBound>();
+    T3D_ASSERT(frustum != nullptr);
+}
+
+void LightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
+{
+    static int index = 0;
+    std::stringstream ss;
+    ss << "Cube#" << index;
+    
+    // transform node for cube
+    GameObjectPtr go = GameObject::create(ss.str());
+    Transform3DPtr xform = go->addComponent<Transform3D>();
+    parent->addChild(xform);
+    xform->setPosition(pos);
+    Radian xAngles(0.0f);
+    Radian zAngles(0.0f);
+    xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
+    
+    // submesh
+    SubMesh *submesh = mMesh->getSubMesh(SUB_MESH_NAME);
+
+    // geometry component
+    GeometryPtr geometry = go->addComponent<Geometry>();
+    geometry->setMeshObject(mMesh, submesh);
+    
+    // aabb bound component
+    AabbBoundPtr bound = go->addComponent<AabbBound>();
+    buildAabb(mMesh, submesh, bound);
+}
+
+Texture2DPtr LightApp::buildTexture()
+{
+    const uint32_t width = 64;
+    const uint32_t height = 64;
+    uint32_t pitch = Image::calcPitch(width, 32);
+    const uint32_t dataSize = pitch * height;
+    uint8_t *pixels = new uint8_t[dataSize];
+    
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        uint8_t *lines = pixels + pitch * y;
+        uint32_t i = 0;
+        for (uint32_t x = 0; x < width; ++x)
+        {
+#if 1
+            if (x < 16 && y < 16)
+            {
+                // top, blue
+                // B
+                lines[i++] = 196;
+                // G
+                lines[i++] = 114;
+                // R
+                lines[i++] = 68;
+            }
+            else if (x < 16 && y >= 16 && y < 32)
+            {
+                // front, orange
+                // B
+                lines[i++] = 49;
+                // G
+                lines[i++] = 125;
+                // R
+                lines[i++] = 237;
+            }
+            else if (x >= 16 && x < 32 && y >= 16 && y < 32)
+            {
+                // right, green
+                // B
+                lines[i++] = 71;
+                // G
+                lines[i++] = 173;
+                // R
+                lines[i++] = 112;
+            }
+            else if (x >= 32 && x < 48 && y >= 16 && y < 32)
+            {
+                // back, yellow
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 192;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x >= 48 && x < 64 && y >= 16 && y <32)
+            {
+                // left, red
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x < 16 && y >= 32 && y < 48)
+            {
+                // bottom, purple
+                // B
+                lines[i++] = 160;
+                // G
+                lines[i++] = 48;
+                // R
+                lines[i++] = 112;
+            }
+            else
+            {
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 0;
+            }
+#else
+            // B
+            lines[i++] = 255;
+            // G
+            lines[i++] = 255;
+            // R
+            lines[i++] = 255;
+#endif
+            
+            // A
+            lines[i++] = 255;
+        }
+    }
+    
+    Buffer texData;
+    texData.Data = pixels;
+    texData.DataSize = dataSize;
+    
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+    
+    return texture;
+}
+
+
+MaterialPtr LightApp::buildMaterial()
+{
+    TResult ret;
+    
+    // vertex & pixel shader keyword
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("");
+    vkeyword.generate();
+    ShaderKeyword pkeyword(vkeyword);
+    
+    // vertex shader
+    const String vs = SAMPLE_LIT_VERTEX_SHADER;
+    
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    vshader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // pixel shader
+    const String ps = SAMPLE_LIT_PIXEL_SHADER;
+    
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
+    pshader->setShaderStage(SHADER_STAGE::kPixel);
+
+    // render state
+    RenderStatePtr renderState = RenderState::create();
+
+    // blend state
+    BlendDesc blendDesc;
+    renderState->setBlendDesc(blendDesc);
+
+    // depth & stencil state
+    DepthStencilDesc depthStencilDesc;
+    renderState->setDepthStencilDesc(depthStencilDesc);
+
+    // rasterizer state
+    RasterizerDesc rasterizeDesc;
+    renderState->setRasterizerDesc(rasterizeDesc);
+    
+    // pass
+    PassPtr pass = Pass::create("0");
+    ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
+    pass->setRenderState(renderState);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+
+    // technique
+    TechniquePtr tech = Technique::create("Default-Technique");
+    bool rval = tech->addPass(pass);
+    T3D_ASSERT(rval);
+
+    // shader
+    ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
+    rval = shader->addTechnique(tech);
+    T3D_ASSERT(rval);
+
+    // // constants
+    // ShaderConstantParams constants;
+    //
+    // // model matrix
+    // Matrix4 modelMatrix(false);
+    // const String modelMatrixName = "modelMatrix";
+    // ShaderConstantParamPtr matrixParam = ShaderConstantParam::create(modelMatrixName, &modelMatrix, sizeof(modelMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    // shader->addConstantParam(matrixParam);
+    //
+    // // view matrix
+    // Matrix4 viewMatrix(false);
+    // const String viewMatrixName = "viewMatrix";
+    // matrixParam = ShaderConstantParam::create(viewMatrixName, &viewMatrix, sizeof(viewMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    // shader->addConstantParam(matrixParam);
+    //
+    // // projection matrix
+    // Matrix4 projMatrix(false);
+    // const String projMatrixName = "projectionMatrix";
+    // matrixParam = ShaderConstantParam::create(projMatrixName, &projMatrix, sizeof(projMatrix), ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+    // shader->addConstantParam(matrixParam);
+    
+    // samplers
+    ShaderSamplerParams samplers;
+    const String texSamplerName = "texCube";
+    Texture2DPtr texture = buildTexture();
+    // sampler state
+    SamplerDesc samplerDesc;
+    texture->setSamplerDesc(samplerDesc);
+    // ShaderSamplerParamPtr sampler = ShaderSamplerParam::create(texSamplerName, TEXTURE_TYPE::TT_2D, texture);
+    // shader->addSamplerParam(sampler);
+    
+    // material
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
+    StringArray enableKeywrods;
+    enableKeywrods.push_back("");
+    StringArray disableKeywords;
+    material->switchKeywords(enableKeywrods, disableKeywords);
+    material->setTexture(texSamplerName, texture->getUUID());
+    
+    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+
+    // Camera
+    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+    // Object
+    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // Ambient
+    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    // Directional light
+    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+    // Point lights
+    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setColorArray("tiny3d_PointLightColor", colors);
+    Vector4Array values(4, Vector4::ZERO);
+    material->setVectorArray("tiny3d_PointLightPos", values);
+    material->setVectorArray("tiny3d_PointLightAttenuation", values);
+    // Spot lights
+    material->setColorArray("tiny3d_SpotLightColor", colors);
+    material->setVectorArray("tiny3d_SpotLightPos", values);
+    material->setVectorArray("tiny3d_SpotLightDir", values);
+    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    
+    return material;
+}
+
+
+MeshPtr LightApp::buildMesh(const Tiny3D::UUID &materialUUID)
+{
+    // 
+    // 正方体顶点定义如下：
+    //
+    //           v6-------v4
+    //          /|       /|
+    //         / |      / |
+    //        v0-------v2 |
+    //        |  v7----|--v5
+    //        | /      | /
+    //        |/       |/
+    //        v1-------v3
+    //
+
+    struct BoxVertex
+    {
+        Vector3 position {};
+        Vector3 normal {};
+        Vector2 uv {};
+    };
+    
+    // vertex attributes
+    VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    VertexAttribute attrNormal(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+    VertexAttribute attrUV(0, sizeof(Vector3) * 2, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+    VertexAttributes attributes(3);
+    attributes[0] = attrPos;
+    attributes[1] = attrNormal;
+    attributes[2] = attrUV;
+
+    // vertices & indices
+    Vector3 offset;
+    Vector2 uv(0.5f, 0.5f);
+    Vector3 center(0.0f, 0.0f, 0.0f);
+    Vector3 extent(0.5f, 0.5f, 0.5f);
+
+#if 1
+    const uint32_t kVertexCount = 24;
+    const uint32_t kIndexCount = 36;
+    BoxVertex *vertices = new BoxVertex[kVertexCount];
+    uint16_t *indices = new uint16_t[kIndexCount];
+
+    const uint32_t kTexSize = 64;
+
+    const Real end1stQuater = Real(15) / Real(kTexSize);
+    const Real start2ndQuater= Real(16) / Real(kTexSize);
+    const Real end2ndQuater = Real(31) / Real(kTexSize);
+    const Real start3rdQuater = Real(32) / Real(kTexSize);
+    const Real end3rdQuater = Real(47) / Real(kTexSize);
+    const Real start4thQuater = Real(48) / Real(kTexSize);
+
+    // front - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[0].position = center + offset;
+    vertices[0].normal = -Vector3::FORWARD;
+    vertices[0].uv = Vector2(0.0f, start2ndQuater);
+    
+    // front - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[1].position = center + offset;
+    vertices[1].normal = -Vector3::FORWARD;
+    vertices[1].uv = Vector2(0.0f, end2ndQuater);
+    
+    // front - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[2].position = center + offset;
+    vertices[2].normal = -Vector3::FORWARD;
+    vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
+    
+    // front - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[3].position = center + offset;
+    vertices[3].normal = -Vector3::FORWARD;
+    vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
+
+    // right - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[4].position = center + offset;
+    vertices[4].normal = Vector3::RIGHT;
+    vertices[4].uv = Vector2(start2ndQuater, start2ndQuater);
+    
+    // right - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[5].position = center + offset;
+    vertices[5].normal = Vector3::RIGHT;
+    vertices[5].uv = Vector2(start2ndQuater, end2ndQuater);
+    
+    // right - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[6].position = center + offset;
+    vertices[6].normal = Vector3::RIGHT;
+    vertices[6].uv = Vector2(end2ndQuater, start2ndQuater);
+    
+    // right - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[7].position = center + offset;
+    vertices[7].normal = Vector3::RIGHT;
+    vertices[7].uv = Vector2(end2ndQuater, end2ndQuater);
+
+    // back - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[8].position = center + offset;
+    vertices[8].normal = Vector3::FORWARD;
+    vertices[8].uv = Vector2(start3rdQuater, start2ndQuater);
+    
+    // back - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[9].position = center + offset;
+    vertices[9].normal = Vector3::FORWARD;
+    vertices[9].uv = Vector2(start3rdQuater, end2ndQuater);
+
+    // back - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[10].position = center + offset;
+    vertices[10].normal = Vector3::FORWARD;
+    vertices[10].uv = Vector2(end3rdQuater, start2ndQuater);
+    
+    // back - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[11].position = center + offset;
+    vertices[11].normal = Vector3::FORWARD;
+    vertices[11].uv = Vector2(end3rdQuater, end2ndQuater);
+    
+    // left - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[12].position = center + offset;
+    vertices[12].normal = -Vector3::RIGHT;
+    vertices[12].uv = Vector2(start4thQuater, start2ndQuater);
+    
+    // left - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[13].position = center + offset;
+    vertices[13].normal = -Vector3::RIGHT;
+    vertices[13].uv = Vector2(start4thQuater, end2ndQuater);
+
+    // left - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[14].position = center + offset;
+    vertices[14].normal = -Vector3::RIGHT;
+    vertices[14].uv = Vector2(1.0f, start2ndQuater);
+    
+    // left - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[15].position = center + offset;
+    vertices[15].normal = -Vector3::RIGHT;
+    vertices[15].uv = Vector2(1.0f, end2ndQuater);
+
+    // top - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[16].position = center + offset;
+    vertices[16].normal = Vector3::UP;
+    vertices[16].uv = Vector2(0.0f, end1stQuater);
+    
+    // top - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[17].position = center + offset;
+    vertices[17].normal = Vector3::UP;
+    vertices[17].uv = Vector2(end1stQuater, end1stQuater);
+
+    // top - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[18].position = center + offset;
+    vertices[18].normal = Vector3::UP;
+    vertices[18].uv = Vector2(end1stQuater, 0.0f);
+
+    // top - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[19].position = center + offset;
+    vertices[19].normal = Vector3::UP;
+    vertices[19].uv = Vector2(0.0f, 0.0f);
+
+    // bottom - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[20].position = center + offset;
+    vertices[20].normal = -Vector3::UP;
+    vertices[20].uv = Vector2(0.0f, start3rdQuater);
+
+    // bottom - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[21].position = center + offset;
+    vertices[21].normal = -Vector3::UP;
+    vertices[21].uv = Vector2(0.0f, end3rdQuater);
+
+    // bottom - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[22].position = center + offset;
+    vertices[22].normal = -Vector3::UP;
+    vertices[22].uv = Vector2(end1stQuater, start3rdQuater);
+    
+    // bottom - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[23].position = center + offset;
+    vertices[23].normal = -Vector3::UP;
+    vertices[23].uv = Vector2(end1stQuater, end3rdQuater);
+    
+    // Front face
+    indices[0] = 0, indices[1] = 2, indices[2] = 1;
+    indices[3] = 1, indices[4] = 2, indices[5] = 3;
+    
+    // Right
+    indices[6] = 4, indices[7] = 6, indices[8] = 5;
+    indices[9] = 5, indices[10] = 6, indices[11] = 7;
+    
+    // Back
+    indices[12] = 8, indices[13] = 10, indices[14] = 9;
+    indices[15] = 9, indices[16] = 10, indices[17] = 11;
+    
+    // Left
+    indices[18] = 12, indices[19] = 14, indices[20] = 13;
+    indices[21] = 13, indices[22] = 14, indices[23] = 15;
+    
+    // Top
+    indices[24] = 16, indices[25] = 19, indices[26] = 18;
+    indices[27] = 18, indices[28] = 17, indices[29] = 16;
+    
+    // Bottom
+    indices[30] = 20, indices[31] = 22, indices[32] = 21;
+    indices[33] = 21, indices[34] = 22, indices[35] = 23;
+#else
+    const uint32_t kVertexCount = 4;
+    const uint32_t kIndexCount = 6;
+    BoxVertex *vertices = new BoxVertex[kVertexCount];
+    uint16_t *indices = new uint16_t[kIndexCount];
+
+    const uint32_t kTexSize = 64;
+
+    const Real end1stQuater = Real(15) / Real(kTexSize);
+    const Real start2ndQuater= Real(16) / Real(kTexSize);
+    const Real end2ndQuater = Real(31) / Real(kTexSize);
+    const Real start3rdQuater = Real(32) / Real(kTexSize);
+    const Real end3rdQuater = Real(47) / Real(kTexSize);
+    const Real start4thQuater = Real(48) / Real(kTexSize);
+    
+    vertices[0].position = Vector3(-0.5f, 0.5f, 0.0f);
+    vertices[0].uv = Vector2(0.0f, start2ndQuater);
+
+    vertices[1].position = Vector3(-0.5f, -0.5f, 0.0f);
+    vertices[1].uv = Vector2(0.0f, end2ndQuater);
+
+    vertices[2].position = Vector3(0.5f, 0.5f, 0.0f);
+    vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
+
+    vertices[3].position = Vector3(0.5f, -0.5f, 0.0f);
+    vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
+
+    indices[0] = 0;
+    indices[1] = 2;
+    indices[2] = 1;
+    indices[3] = 1;
+    indices[4] = 2;
+    indices[5] = 3;
+#endif
+    
+    // construct mesh resource
+    Buffer vertexBuffer;
+    vertexBuffer.Data = (uint8_t*)vertices;
+    vertexBuffer.DataSize = sizeof(BoxVertex) * kVertexCount;
+    Vertices vertexBuffers(1);
+    vertexBuffers[0] = vertexBuffer;
+    
+    VertexStrides strides(1, sizeof(BoxVertex));
+    VertexOffsets offsets(1, 0);
+    
+    Buffer indexBuffer;
+    indexBuffer.Data = (uint8_t*)indices;
+    indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
+    
+    String name = SUB_MESH_NAME;
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
+    SubMeshes subMeshes;
+    subMeshes.emplace(name, submesh);
+
+    MeshPtr mesh = T3D_MESH_MGR.createMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+    return mesh;
+}
+
+void LightApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+{
+    const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    size_t vertexSize = mesh->getVertexStride(attr->getSlot());
+    size_t offset = mesh->getVertexOffset(attr->getOffset());
+    const Buffer &vertexBuffer = mesh->getVertices()[attr->getSlot()];
+    const Buffer &indexBuffer = submesh->getIndices();
+    size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
+    size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
+    Vector3 *points = new Vector3[pointCount];
+    for (size_t i = 0; i < pointCount; ++i)
+    {
+        int32_t idx = 0;
+        const uint8_t *src = indexBuffer.Data + i * indexSize;
+        memcpy(&idx, src, indexSize);
+        src = vertexBuffer.Data + idx * vertexSize + offset;
+        memcpy(points+i, src, sizeof(Vector3));
+        // Vector3 *srcPos = (Vector3*)src;
+        // T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
+    }
+    Aabb aabb;
+    aabb.build(points, pointCount);
+    T3D_SAFE_DELETE_ARRAY(points);
+    bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
+}
+
+
