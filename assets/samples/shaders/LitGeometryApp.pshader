@@ -9,6 +9,7 @@
 
 TEX2D(texCube);
 
+#define BLINN_PHONG
 #define T3D_MAX_POINT_LIGHTS	4	// 点光源支持的数量
 #define T3D_MAX_SPOT_LIGHTS		4	// 聚光灯支持的数量
 
@@ -69,8 +70,13 @@ float calculateDiffuse(float3 normal, float3 lightDir)
 float calculateSpecular(float3 viewDir, float3 normal, float3 lightDir, float smoothness)
 {
 	float shininess = smoothness * 128.0;
+#if defined (BLINN_PHONG)
+	float3 halfDir = normalize(lightDir + viewDir);
+	return pow(max(dot(viewDir, halfDir), 0.0), shininess);
+#else
 	float3 reflectDir = reflect(-lightDir, normal);
 	return pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+#endif
 }
 
 // 计算方向光
