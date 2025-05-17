@@ -453,14 +453,14 @@ namespace Tiny3D
                     lightDir[0] = mat[0][2];
                     lightDir[1] = mat[1][2];
                     lightDir[2] = mat[2][2];
-                    lightDir[3] = Math::cos(light->getInnerCutoffAngle());
+                    lightDir[3] = Math::cos(light->getInnerCutoffAngle() * 0.5f);
 
                     // 光源衰减参数
                     Vector4f &attenuation = mSpotLightAttenuation[spotLightCount];
                     attenuation[0] = light->getAttenuationConstant();
                     attenuation[1] = light->getAttenuationLinear();
                     attenuation[2] = light->getAttenuationQuadratic();
-                    attenuation[3] = Math::cos(light->getCutoffAngle());
+                    attenuation[3] = Math::cos(light->getCutoffAngle() * 0.5f);
                 
                     spotLightCount++;
                 }

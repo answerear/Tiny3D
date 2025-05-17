@@ -88,8 +88,8 @@ bool SpotLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     light->setAttenuationLinear(0.09f);
     light->setAttenuationQuadratic(0.032f);
     Degree deg(10.0f);
-    light->setCutoffAngle(deg * 0.5f);
-    light->setInnerCutoffAngle(deg * 0.5f * 0.8f);
+    light->setCutoffAngle(deg);
+    light->setInnerCutoffAngle(deg * 0.8f);
 
     // material
     mMaterial = buildMaterial();
