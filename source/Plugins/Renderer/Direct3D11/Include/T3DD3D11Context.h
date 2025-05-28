@@ -600,7 +600,7 @@ namespace Tiny3D
 
         TResult clearColor(RenderTexture *texture, const ColorRGB &color);
 
-        TResult clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil);
+        // TResult clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil);
         
         TResult clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil);
 
@@ -628,7 +628,7 @@ namespace Tiny3D
 
         TResult createRenderWindow(D3D11RenderWindow *pD3DRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality);
 
-        TResult setRenderTarget(RenderWindow *renderWindow);
+        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil);
 
         TResult setRenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil);
 

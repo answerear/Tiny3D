@@ -68,9 +68,9 @@ namespace Tiny3D
         mSceneRT = nullptr;
         if (mSceneTarget != nullptr)
         {
-            T3D_TEXTURE_MGR.unload(mSceneTarget->getRenderTexture());
+            mSceneTarget->releaseAllResources();
+            mSceneTarget = nullptr;
         }
-        mSceneTarget = nullptr;
         
         // T3D_SCENE_MGR.unloadScene();
     }
@@ -314,7 +314,7 @@ namespace Tiny3D
         {
             if (mSceneTarget != nullptr)
             {
-                T3D_TEXTURE_MGR.unload(mSceneTarget->getRenderTexture());
+                mSceneTarget->releaseAllResources();
                 mSceneTarget = nullptr;
             }
             

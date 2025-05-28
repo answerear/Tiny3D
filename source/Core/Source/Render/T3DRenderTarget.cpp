@@ -81,7 +81,7 @@ namespace Tiny3D
             mRenderTexture = nullptr;
         }
 
-        if (mRenderTexture != nullptr)
+        if (mDepthStencil != nullptr)
         {
             T3D_TEXTURE_MGR.unload(mDepthStencil);
             mDepthStencil = nullptr;

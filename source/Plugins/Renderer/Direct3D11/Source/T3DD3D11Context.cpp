@@ -930,10 +930,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow)
+    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow());
-        D3D11PixelBuffer2D *pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(renderWindow->getRHIDepthStencilTex());
+        D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
+        if (pD3DDepthStencil != nullptr)
+        {
+            pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
+        }
         auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
         {
             backupRenderState();
@@ -954,7 +958,7 @@ namespace Tiny3D
         if (T3D_SUCCEEDED(ret))
         {
             mCurrentRenderWindow = renderWindow;
-            mCurrentDepthStencil = renderWindow->getRHIDepthStencilTex();
+            mCurrentDepthStencil = depthStencil;
         }
         
         return ret;
@@ -1005,7 +1009,7 @@ namespace Tiny3D
         {
         case RenderTarget::Type::E_RT_WINDOW:
             {
-                ret = setRenderTarget(renderTarget->getRenderWindow());
+                ret = setRenderTarget(renderTarget->getRenderWindow(), renderTarget->getDepthStencil());
             }
             break;
         case RenderTarget::Type::E_RT_TEXTURE:
@@ -1144,19 +1148,6 @@ namespace Tiny3D
         }
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Context::clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil)
-    {
-        D3D11PixelBuffer2D *pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(window->getRHIDepthStencilTex());
-        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const Real &depth, uint8_t stencil)
-        {
-            mD3DDeviceContext->ClearDepthStencilView(pD3DDepthStencil->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
-            return T3D_OK;
-        };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DDepthStencil), depth, stencil);
     }
 
     //--------------------------------------------------------------------------
