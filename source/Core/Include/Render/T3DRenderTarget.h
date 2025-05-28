@@ -53,9 +53,9 @@ namespace Tiny3D
             E_RT_MAX
         };
 
-        static RenderTargetPtr create(RenderWindowPtr renderWindow);
+        static RenderTargetPtr create(RenderWindow *renderWindow, RenderTexture *depthStencil = nullptr);
 
-        static RenderTargetPtr create(RenderTexturePtr renderTexture);
+        static RenderTargetPtr create(RenderTexture *renderTexture, RenderTexture *depthStencil = nullptr);
 
         ~RenderTarget() override;
         
@@ -65,15 +65,21 @@ namespace Tiny3D
 
         RenderTexturePtr getRenderTexture() const { return mRenderTexture; }
 
-    protected:
-        RenderTarget(RenderWindowPtr renderWindow);
+        RenderTexturePtr getDepthStencil() const { return mDepthStencil; }
 
-        RenderTarget(RenderTexturePtr renderTexture);
+        void releaseAllResources();
+
+    protected:
+        RenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil);
+
+        RenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil);
 
         /// 渲染窗口，渲染窗口和渲染纹理只能二选一
         RenderWindowPtr     mRenderWindow {nullptr};
         /// 渲染纹理，渲染纹理和渲染窗口只能二选一
         RenderTexturePtr    mRenderTexture {nullptr};
+        /// 深度模板纹理，用于渲染目标
+        RenderTexturePtr    mDepthStencil {nullptr};
     };
 }
 

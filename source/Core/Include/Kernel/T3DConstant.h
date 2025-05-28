@@ -49,6 +49,15 @@ namespace Tiny3D
         E_PF_B8G8R8A8,
         E_PF_R8G8B8X8,
         E_PF_B8G8R8X8,
+        
+        /// 24位无符号归一化深度 + 8位模板
+        E_PF_D24_UNORM_S8_UINT,
+        /// 32位浮点深度 + 8位模板 + 24位未用
+        E_PF_D32_FLOAT_S8X24_UINT,
+        /// 32位浮点深度，无模板
+        E_PF_D32_FLOAT,
+        /// 16位无符号归一化深度，无模板，精度较低
+        E_PF_D16_UNORM,
     };
 
     TENUM()

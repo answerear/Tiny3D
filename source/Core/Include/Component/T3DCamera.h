@@ -27,6 +27,7 @@
 
 
 #include "Component/T3DComponent.h"
+#include "Render/T3DRenderTarget.h"
 #include "Render/T3DViewport.h"
 
 
@@ -59,11 +60,13 @@ namespace Tiny3D
 
         TResult lookAt(const Vector3 &eye, const Vector3 &obj, const Vector3 &up);
 
-        RenderTargetPtr getRenderTarget() const { return mRenderTarget; }
+        RenderTarget *getRenderTarget() const { return mRenderTarget; }
 
         void setRenderTarget(RenderTargetPtr target);
 
-        RenderTexturePtr getRenderTexture() const { return mRenderTexture; }
+        RenderTarget *getSrcRenderTarget() const { return mSrcRenderTarget;}
+
+        RenderTexturePtr getRenderTexture() const { return mSrcRenderTarget->getRenderTexture(); }
 
         TPROPERTY(RTTRFuncName="Order", RTTRFuncType="getter")
         uint32_t getOrder() const { return mOrder; }
@@ -164,7 +167,7 @@ namespace Tiny3D
         
     protected:
         /// 相机对应的渲染纹理，如果渲染目标是渲染纹理，则直接渲染到渲染目标上，不经过纹理
-        RenderTexturePtr    mRenderTexture {nullptr};
+        RenderTargetPtr     mSrcRenderTarget {nullptr};
         /// 相机对应的渲染目标
         RenderTargetPtr     mRenderTarget {nullptr};
         

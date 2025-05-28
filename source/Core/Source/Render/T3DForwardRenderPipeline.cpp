@@ -215,11 +215,11 @@ namespace Tiny3D
             Vector4 cameraWorldPos(xformCamera->getLocalToWorldTransform().getTranslation(), 1.0f);
 
             // 设置渲染目标为相机对应纹理
-            RenderTexturePtr rt = camera->getRenderTexture();
+            RenderTarget *rt = camera->getSrcRenderTarget();
             if (rt == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Invalid render texture in camera [%s] when rendering !", camera->getGameObject()->getName().c_str());
-                continue;
+                // 直接渲染到屏幕窗口上，而不是渲染到紋理
+                rt = camera->getRenderTarget();
             }
             ctx->setRenderTarget(rt);
             
@@ -318,15 +318,16 @@ namespace Tiny3D
             // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
             if (camera->getRenderTarget()->getRenderTexture() != camera->getRenderTexture())
             {
+                T3D_ASSERT(rt->getType() == RenderTarget::Type::E_RT_TEXTURE);
                 const Viewport &vp = camera->getViewport();
-                Real left = Real(rt->getWidth()) * vp.Left;
-                Real top = Real(rt->getHeight()) * vp.Top;
-                Real width = Real(rt->getWidth()) * vp.Width;
-                Real height = Real(rt->getHeight()) * vp.Height;
+                Real left = Real(rt->getRenderTexture()->getWidth()) * vp.Left;
+                Real top = Real(rt->getRenderTexture()->getHeight()) * vp.Top;
+                Real width = Real(rt->getRenderTexture()->getWidth()) * vp.Width;
+                Real height = Real(rt->getRenderTexture()->getHeight()) * vp.Height;
                 Vector3 offset(left, top, 0.0f);
                 Vector3 box(width, height, 0.0f);
                 
-                ctx->blit(rt, camera->getRenderTarget(), offset, box, offset);
+                ctx->blit(rt->getRenderTexture(), camera->getRenderTarget(), offset, box, offset);
                 // ctx->blit(rt, camera->getRenderTarget());
             }
 
@@ -709,6 +710,13 @@ namespace Tiny3D
         }
 #endif
         
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupShadowMap()
+    {
         return T3D_OK;
     }
 

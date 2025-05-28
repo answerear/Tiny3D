@@ -67,6 +67,7 @@ namespace Tiny3D
     {
         mCurrentRenderWindow = nullptr;
         mCurrentRenderTexture = nullptr;
+        mCurrentDepthStencil = nullptr;
 
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
@@ -623,130 +624,159 @@ namespace Tiny3D
                     HRESULT hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
                     if (FAILED(hr))
                     {
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to check multiple sample quality levels ! DX ERROR [%d]", hr);
                         break;
                     }
-                
+                    
                     uMSAAQuality = uNumQuality - 1;
                 }
-
-                // 创建颜色纹理资源
-                D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
-                texDesc.SampleDesc.Count = uMSAACount;
-                texDesc.SampleDesc.Quality = uMSAAQuality;
-                texDesc.Usage = D3D11Mapping::get(buffer->getUsage()); // 设置纹理用途
-                texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
-                texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
-                texDesc.MiscFlags = 0; // 设置其他标志
-
-                HRESULT hr = mD3DDevice->CreateTexture2D(&texDesc, nullptr, &d3dPixelBuffer->D3DTexture);
-                if (FAILED(hr))
+                
+                bool isColorRT = true;
+                if (buffer->getDescriptor().format >= PixelFormat::E_PF_D24_UNORM_S8_UINT)
                 {
-                    // 错误
-                    ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create color texture failed when create render texture ! DX ERROR [%d]", hr);
-                    break;
+                    isColorRT = false;
                 }
 
-                if (uMSAACount > 1)
+                if (isColorRT)
                 {
-                    // 创建 MSAA 解析后的纹理
-                    D3D11_TEXTURE2D_DESC texResolvDesc = texDesc;  
-                    texResolvDesc.SampleDesc.Count = 1;
-                    texResolvDesc.SampleDesc.Quality = 0;
-                    hr = mD3DDevice->CreateTexture2D(&texResolvDesc, nullptr, &d3dPixelBuffer->D3DResolveTex);
+                    // 创建颜色纹理资源
+                    
+                    // 创建颜色纹理资源
+                    D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
+                    texDesc.SampleDesc.Count = uMSAACount;
+                    texDesc.SampleDesc.Quality = uMSAAQuality;
+                    texDesc.Usage = D3D11Mapping::get(buffer->getUsage()); // 设置纹理用途
+                    texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
+                    texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
+                    texDesc.MiscFlags = 0; // 设置其他标志
+
+                    HRESULT hr = mD3DDevice->CreateTexture2D(&texDesc, nullptr, &d3dPixelBuffer->D3DTexture);
                     if (FAILED(hr))
                     {
                         // 错误
                         ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create resolved color texture failed when create render texture ! DX ERROR [%d]", hr);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create color texture when create render texture ! DX ERROR [%d]", hr);
+                        break;
+                    }
+
+                    if (uMSAACount > 1)
+                    {
+                        // 创建 MSAA 解析后的纹理
+                        D3D11_TEXTURE2D_DESC texResolvDesc = texDesc;  
+                        texResolvDesc.SampleDesc.Count = 1;
+                        texResolvDesc.SampleDesc.Quality = 0;
+                        hr = mD3DDevice->CreateTexture2D(&texResolvDesc, nullptr, &d3dPixelBuffer->D3DResolveTex);
+                        if (FAILED(hr))
+                        {
+                            // 错误
+                            ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create resolved color texture when create render texture ! DX ERROR [%d]", hr);
+                            break;
+                        }
+                    }
+                    
+                    // 创建渲染目标视图
+                    D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+                    memset(&rtvDesc, 0, sizeof(rtvDesc));
+                    rtvDesc.Format = texDesc.Format;
+                    if (uMSAACount == 1)
+                    {
+                        // 没开 MSAA
+                        rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+                    }
+                    else
+                    {
+                        // 开了 MSAA
+                        rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+                    }
+                    
+                    hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, &rtvDesc, &d3dPixelBuffer->D3DRTView);
+                    if (FAILED(hr))
+                    {
+                        // 错误
+                        ret = T3D_ERR_D3D11_CREATE_RENDER_TARGET_VIEW;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create RTV when create render texture ! DX ERROR [%d]", hr);
+                        break;
+                    }
+
+                    // 创建着色器资源视图
+                    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+                    memset(&srvDesc, 0, sizeof(srvDesc));
+                    srvDesc.Format = texDesc.Format;
+                    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                    srvDesc.Texture2D.MostDetailedMip = 0;
+                    srvDesc.Texture2D.MipLevels = 1;
+                    ID3D11Texture2D *pD3DTex = nullptr;
+                    if (uMSAACount == 1)
+                    {
+                        // 没开 MSAA
+                        pD3DTex = d3dPixelBuffer->D3DTexture;
+                    }
+                    else
+                    {
+                        // 开了 MSAA
+                        pD3DTex = d3dPixelBuffer->D3DResolveTex;
+                    }
+                    hr = mD3DDevice->CreateShaderResourceView(pD3DTex, &srvDesc, &d3dPixelBuffer->D3DSRView);
+                    if (FAILED(hr))
+                    {
+                        // 错误
+                        ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create SRV when create render texture ! DX ERROR [%d]", hr);
                         break;
                     }
                 }
-                
-                // 创建渲染目标视图
-                D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-                memset(&rtvDesc, 0, sizeof(rtvDesc));
-                rtvDesc.Format = texDesc.Format;
-                if (uMSAACount == 1)
-                {
-                    // 没开 MSAA
-                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-                }
                 else
                 {
-                    // 开了 MSAA
-                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
-                }
-                
-                hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, &rtvDesc, &d3dPixelBuffer->D3DRTView);
-                if (FAILED(hr))
-                {
-                    // 错误
-                    ret = T3D_ERR_D3D11_CREATE_RENDER_TARGET_VIEW;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateRenderTargetView failed when create render texture ! DX ERROR [%d]", hr);
-                    break;
-                }
+                    // 創建深度模板緩衝紋理
+                    // 创建 depth & stencil 纹理
+                    D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(buffer->getDescriptor());
+                    depthStencilDesc.SampleDesc.Count = uMSAACount;
+                    depthStencilDesc.SampleDesc.Quality = uMSAAQuality;
+                    depthStencilDesc.Format = D3D11Mapping::get(buffer->getDescriptor().format);
+                    depthStencilDesc.Usage = D3D11Mapping::get(buffer->getUsage());
+                    depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+                    depthStencilDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode());
+                    depthStencilDesc.MiscFlags = 0;
+                    
+                    HRESULT hr = mD3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &d3dPixelBuffer->D3DTexture);
+                    if (FAILED(hr))
+                    {
+                        // 错误
+                        ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth & stencil texture failed when create render texture ! DX ERROR [%d]", hr);
+                        break;
+                    }
+                    
+                    // 创建 depth & stencil 视图
+                    D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+                    memset(&dsvDesc, 0, sizeof(dsvDesc));
+                    dsvDesc.Format = depthStencilDesc.Format;
+                    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+                    dsvDesc.Texture2D.MipSlice = 0;
+                    hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DTexture, &dsvDesc, &d3dPixelBuffer->D3DDSView);
+                    if (FAILED(hr))
+                    {
+                        // 错误
+                        ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_VIEW;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilView failed when create render texture ! DX ERROR [%d]", hr);
+                        break;
+                    }
 
-                // 创建着色器资源视图
-                D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-                memset(&srvDesc, 0, sizeof(srvDesc));
-                srvDesc.Format = texDesc.Format;
-                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-                srvDesc.Texture2D.MostDetailedMip = 0;
-                srvDesc.Texture2D.MipLevels = 1;
-                ID3D11Texture2D *pD3DTex = nullptr;
-                if (uMSAACount == 1)
-                {
-                    // 没开 MSAA
-                    pD3DTex = d3dPixelBuffer->D3DTexture;
-                }
-                else
-                {
-                    // 开了 MSAA
-                    pD3DTex = d3dPixelBuffer->D3DResolveTex;
-                }
-                hr = mD3DDevice->CreateShaderResourceView(pD3DTex, &srvDesc, &d3dPixelBuffer->D3DSRView);
-                if (FAILED(hr))
-                {
-                    // 错误
-                    ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateShaderResourceView failed when create render texture ! DX ERROR [%d]", hr);
-                    break;
-                }
-                
-                // 创建 depth & stencil 纹理
-                D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(buffer->getDescriptor());
-                depthStencilDesc.SampleDesc.Count = uMSAACount;
-                depthStencilDesc.SampleDesc.Quality = uMSAAQuality;
-                depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-                depthStencilDesc.Usage = D3D11Mapping::get(buffer->getUsage());
-                depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-                depthStencilDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode());
-                depthStencilDesc.MiscFlags = 0;
-
-                hr = mD3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &d3dPixelBuffer->D3DDSTexture);
-                if (FAILED(hr))
-                {
-                    // 错误
-                    ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth & stencil texture failed when create render texture ! DX ERROR [%d]", hr);
-                    break;
-                }
-
-                // 创建 depth & stencil 视图
-                D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-                memset(&dsvDesc, 0, sizeof(dsvDesc));
-                dsvDesc.Format = depthStencilDesc.Format;
-                dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;//D3D11_DSV_DIMENSION_TEXTURE2D;
-                dsvDesc.Texture2D.MipSlice = 0;
-                hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DDSTexture, &dsvDesc, &d3dPixelBuffer->D3DDSView);
-                if (FAILED(hr))
-                {
-                    // 错误
-                    ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_VIEW;
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilView failed when create render texture ! DX ERROR [%d]", hr);
-                    break;
+                    // D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+                    // memset(&srvDesc, 0, sizeof(srvDesc));
+                    // srvDesc.Format = depthStencilDesc.Format;
+                    // srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                    // srvDesc.Texture2D.MostDetailedMip = 0;
+                    // srvDesc.Texture2D.MipLevels = 1;
+                    // hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
+                    // if (FAILED(hr))
+                    // {
+                    //     // 错误
+                    //     ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                    //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create SRV when create render texture ! DX ERROR [%d]", hr);
+                    //     break;
+                    // }
                 }
             } while (false);
             
@@ -787,38 +817,38 @@ namespace Tiny3D
                 break;
             }
             
-            // 创建 DepthStencilView
-            D3D11_TEXTURE2D_DESC d3dTexDesc;
-            memset(&d3dTexDesc, 0, sizeof(d3dTexDesc));
-            d3dTexDesc.Width = w;
-            d3dTexDesc.Height = h;
-            d3dTexDesc.MipLevels = 1;
-            d3dTexDesc.ArraySize = 1;
-            d3dTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-            
-            d3dTexDesc.SampleDesc.Count = MSAACount;
-            d3dTexDesc.SampleDesc.Quality = MSAAQuality;
-            
-            d3dTexDesc.Usage = D3D11_USAGE_DEFAULT;
-            d3dTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-            d3dTexDesc.CPUAccessFlags = 0;
-            d3dTexDesc.MiscFlags = 0;
-
-            hr = mD3DDevice->CreateTexture2D(&d3dTexDesc, nullptr, &pD3DRenderWindow->D3DDSBuffer);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_CREATE_FAILED;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
-                break;
-            }
-            
-            hr = mD3DDevice->CreateDepthStencilView(pD3DRenderWindow->D3DDSBuffer, nullptr, &pD3DRenderWindow->D3DDSView);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_CREATE_FAILED;
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth stencil view failed ! DX ERROR [%d]", hr);
-                break;
-            }
+            // // 创建 DepthStencilView
+            // D3D11_TEXTURE2D_DESC d3dTexDesc;
+            // memset(&d3dTexDesc, 0, sizeof(d3dTexDesc));
+            // d3dTexDesc.Width = w;
+            // d3dTexDesc.Height = h;
+            // d3dTexDesc.MipLevels = 1;
+            // d3dTexDesc.ArraySize = 1;
+            // d3dTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            //
+            // d3dTexDesc.SampleDesc.Count = MSAACount;
+            // d3dTexDesc.SampleDesc.Quality = MSAAQuality;
+            //
+            // d3dTexDesc.Usage = D3D11_USAGE_DEFAULT;
+            // d3dTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+            // d3dTexDesc.CPUAccessFlags = 0;
+            // d3dTexDesc.MiscFlags = 0;
+            //
+            // hr = mD3DDevice->CreateTexture2D(&d3dTexDesc, nullptr, &pD3DRenderWindow->D3DDSBuffer);
+            // if (FAILED(hr))
+            // {
+            //     ret = T3D_ERR_D3D11_CREATE_FAILED;
+            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create texture 2D failed ! DX ERROR [%d]", hr);
+            //     break;
+            // }
+            //
+            // hr = mD3DDevice->CreateDepthStencilView(pD3DRenderWindow->D3DDSBuffer, nullptr, &pD3DRenderWindow->D3DDSView);
+            // if (FAILED(hr))
+            // {
+            //     ret = T3D_ERR_D3D11_CREATE_FAILED;
+            //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth stencil view failed ! DX ERROR [%d]", hr);
+            //     break;
+            // }
         } while (false);
 
         return ret;
@@ -875,40 +905,56 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void D3D11Context::backupRenderState()
+    {
+        mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
+        mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+        mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+        mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
+        mD3DDeviceContext->RSGetState(&mBackupState.RS);
+        mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
+        mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
+        mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
+        mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
+        mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
+        mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
+        mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
+        mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
+        mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
+        mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
+        mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
+        mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
+        mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+    }
+
+    //--------------------------------------------------------------------------
     
     TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow)
     {
-        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow().get());
-        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow)
+        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow());
+        D3D11PixelBuffer2D *pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(renderWindow->getRHIDepthStencilTex());
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
         {
-            mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
-            mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-            mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
-            mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
-            mD3DDeviceContext->RSGetState(&mBackupState.RS);
-            mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
-            mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
-            mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
-            mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
-            mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
-            mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
-            mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
-            mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
-            mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
-            mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
-            mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
-            mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
-            mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+            backupRenderState();
+            if (pD3DDepthStencil != nullptr)
+            {
+                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DDepthStencil->D3DDSView);                
+            }
+            else
+            {
+                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, nullptr);
+            }
             
-            mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DRenderWindow->D3DDSView);
             return T3D_OK;
         };
         
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil));
         
         if (T3D_SUCCEEDED(ret))
         {
             mCurrentRenderWindow = renderWindow;
+            mCurrentDepthStencil = renderWindow->getRHIDepthStencilTex();
         }
         
         return ret;
@@ -916,40 +962,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setRenderTarget(RenderTexture *renderTexture)
+    TResult D3D11Context::setRenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil)
     {
         D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(renderTexture->getPixelBuffer()->getRHIResource().get());
-        
-        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer)
+        D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
+        if (depthStencil != nullptr)
         {
-            mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
-            mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-            mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
-            mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
-            mD3DDeviceContext->RSGetState(&mBackupState.RS);
-            mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
-            mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
-            mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
-            mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
-            mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
-            mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
-            mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
-            mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
-            mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
-            mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
-            mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
-            mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
-            mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
-            
-            mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DPixelBuffer->D3DDSView);
+            pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
+        }
+        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
+        {
+            backupRenderState();
+            if (pD3DDepthStencil != nullptr)
+            {
+                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DDepthStencil->D3DDSView);                
+            }
+            else
+            {
+                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, nullptr);
+            }
             return T3D_OK;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), D3D11PixelBuffer2DPtr(pD3DDepthStencil));
         
         if (T3D_SUCCEEDED(ret))
         {
             mCurrentRenderTexture = renderTexture;
+            mCurrentDepthStencil = depthStencil;
         }
 
         return ret;
@@ -970,8 +1010,11 @@ namespace Tiny3D
             break;
         case RenderTarget::Type::E_RT_TEXTURE:
             {
-                ret = setRenderTarget(renderTarget->getRenderTexture());
+                ret = setRenderTarget(renderTarget->getRenderTexture(), renderTarget->getDepthStencil());
             }
+            break;
+        default:
+            T3D_ASSERT(false);
             break;
         }
         
@@ -984,6 +1027,7 @@ namespace Tiny3D
     {
         mCurrentRenderWindow = nullptr;
         mCurrentRenderTexture = nullptr;
+        mCurrentDepthStencil = nullptr;
 
         auto lambda = [this]()
         { 
@@ -1056,7 +1100,7 @@ namespace Tiny3D
 
     TResult D3D11Context::clearColor(RenderWindow *window, const ColorRGB &color)
     {
-        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
+        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow());
         auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const ColorRGB &color)
         {
             float clr[4];
@@ -1093,17 +1137,10 @@ namespace Tiny3D
     TResult D3D11Context::clearDepthStencil(Real depth, uint32_t stencil)
     {
         TResult ret = T3D_OK;
-
-        if (mCurrentRenderWindow == nullptr && mCurrentRenderTexture == nullptr)
-            return ret;
-
-        if (mCurrentRenderTexture != nullptr)
+        
+        if (mCurrentDepthStencil != nullptr)
         {
-            ret = clearDepthStencil(mCurrentRenderTexture, depth, static_cast<uint8_t>(stencil));
-        }
-        else if (mCurrentRenderWindow != nullptr)
-        {
-            ret = clearDepthStencil(mCurrentRenderWindow, depth, static_cast<uint8_t>(stencil));
+            ret = clearDepthStencil(mCurrentDepthStencil, depth, static_cast<uint8_t>(stencil));
         }
 
         return ret;
@@ -1113,13 +1150,13 @@ namespace Tiny3D
 
     TResult D3D11Context::clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil)
     {
-        D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(window->getRHIRenderWindow().get());
-        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const Real &depth, uint8_t stencil)
+        D3D11PixelBuffer2D *pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(window->getRHIDepthStencilTex());
+        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const Real &depth, uint8_t stencil)
         {
-            mD3DDeviceContext->ClearDepthStencilView(pD3DRenderWindow->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
+            mD3DDeviceContext->ClearDepthStencilView(pD3DDepthStencil->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DDepthStencil), depth, stencil);
     }
 
     //--------------------------------------------------------------------------
@@ -2333,7 +2370,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
+    TResult D3D11Context::reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
     {
         TResult ret = T3D_OK;
 
@@ -2689,14 +2726,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blit(RenderTargetPtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult D3D11Context::blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult D3D11Context::blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         TResult ret = T3D_OK;
 
@@ -2704,8 +2741,8 @@ namespace Tiny3D
         {
         case RenderTarget::Type::E_RT_WINDOW:
             {
-                D3D11RenderWindow *pDst = static_cast<D3D11RenderWindow*>(dst->getRenderWindow()->getRHIRenderWindow().get());
-                auto lambda = [this](const TextureSafePtr &pSrc, const D3D11RenderWindowSafePtr &pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
+                D3D11RenderWindow *pDst = static_cast<D3D11RenderWindow*>(dst->getRenderWindow()->getRHIRenderWindow());
+                auto lambda = [this](const TexturePtr &pSrc, const D3D11RenderWindowPtr &pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
                 {
                     TResult ret = T3D_OK;
 
@@ -2764,14 +2801,14 @@ namespace Tiny3D
                     return ret;
                 };
 
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda, TextureSafePtr(src), D3D11RenderWindowSafePtr(pDst), srcOffset, size, dstOffset);
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), D3D11RenderWindowPtr(pDst), srcOffset, size, dstOffset);
             }
             break;
         case RenderTarget::Type::E_RT_TEXTURE:
             {
                 D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(dst->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
 
-                auto lambda = [this](const TextureSafePtr &pSrc, const D3D11PixelBuffer2DSafePtr &pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
+                auto lambda = [this](const TexturePtr &pSrc, const D3D11PixelBuffer2DPtr &pDst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
                 {
                     TResult ret = T3D_OK;
 
@@ -2830,7 +2867,7 @@ namespace Tiny3D
                     return ret;
                 };
 
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda, TextureSafePtr(src), D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), srcOffset, size, dstOffset);
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), D3D11PixelBuffer2DPtr(pD3DPixelBuffer), srcOffset, size, dstOffset);
             }
             break;
         }
@@ -2840,21 +2877,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blit(RenderTargetPtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult D3D11Context::blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::blit(TexturePtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult D3D11Context::blit(Texture *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset, size_t size, size_t dstOffset)
+    TResult D3D11Context::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
     {
         return T3D_OK;
     }

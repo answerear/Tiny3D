@@ -57,10 +57,10 @@ namespace Tiny3D
     
     Camera::~Camera() 
     {
-        if (mRenderTexture != nullptr)
+        if (mSrcRenderTarget != nullptr)
         {
-            T3D_TEXTURE_MGR.unload(mRenderTexture);
-            mRenderTexture = nullptr;
+            mSrcRenderTarget->releaseAllResources();
+            mSrcRenderTarget = nullptr;
         }
     }
 
@@ -290,10 +290,10 @@ namespace Tiny3D
     {
         if (target != mRenderTarget)
         {
-            if (mRenderTexture != nullptr)
+            if (mSrcRenderTarget != nullptr)
             {
-                T3D_TEXTURE_MGR.unload(mRenderTexture);
-                mRenderTexture = nullptr;
+                mSrcRenderTarget->releaseAllResources();
+                mSrcRenderTarget = nullptr;
             }
 
             if (target != nullptr)
@@ -311,7 +311,7 @@ namespace Tiny3D
                 case RenderTarget::Type::E_RT_TEXTURE:
                     {
                         // 渲染目标本来就是渲染纹理，则不创建了渲染纹理，直接绘制到渲染纹理上
-                        mRenderTexture = target->getRenderTexture();
+                        mSrcRenderTarget = target;
                     }
                     break;
                 default:
@@ -398,7 +398,16 @@ namespace Tiny3D
             format = PixelFormat::E_PF_B8G8R8;
             break;
         }
-        mRenderTexture = T3D_TEXTURE_MGR.createRenderTexture(name, desc.Width, desc.Height, format, 1, desc.MSAA.Count, desc.MSAA.Quality);
+
+        // 顏色紋理
+        RenderTexturePtr renderTexture = T3D_TEXTURE_MGR.createRenderTexture(name, desc.Width, desc.Height, format, 1, desc.MSAA.Count, desc.MSAA.Quality);
+
+        // 深度模板紋理
+        name = name + "_DS";
+        RenderTexturePtr depthTexture = T3D_TEXTURE_MGR.createRenderTexture(name, desc.Width, desc.Height, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, desc.MSAA.Count, desc.MSAA.Quality);
+
+        // 設置原始渲染目標
+        mSrcRenderTarget = RenderTarget::create(renderTexture, depthTexture);
     }
 
     //--------------------------------------------------------------------------

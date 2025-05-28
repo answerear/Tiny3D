@@ -27,36 +27,39 @@
 #include "Render/T3DRenderTexture.h"
 #include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderTarget.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderTargetPtr RenderTarget::create(RenderWindowPtr renderWindow)
+    RenderTargetPtr RenderTarget::create(RenderWindow *renderWindow, RenderTexture *depthStencil)
     {
-        return new RenderTarget(renderWindow);
+        return new RenderTarget(renderWindow, depthStencil);
     }
     
     //--------------------------------------------------------------------------
 
-    RenderTargetPtr RenderTarget::create(RenderTexturePtr renderTexture)
+    RenderTargetPtr RenderTarget::create(RenderTexture *renderTexture, RenderTexture *depthStencil)
     {
-        return new RenderTarget(renderTexture);
+        return new RenderTarget(renderTexture, depthStencil);
     }
     
     //--------------------------------------------------------------------------
     
-    RenderTarget::RenderTarget(RenderWindowPtr renderWindow)
+    RenderTarget::RenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil)
         : mRenderWindow(renderWindow)
+        , mDepthStencil(depthStencil)
     {
 
     }
     
     //--------------------------------------------------------------------------
 
-    RenderTarget::RenderTarget(RenderTexturePtr renderTexture)
+    RenderTarget::RenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil)
         : mRenderTexture(renderTexture)
+        , mDepthStencil(depthStencil)
     {
         
     }
@@ -66,6 +69,23 @@ namespace Tiny3D
     RenderTarget::~RenderTarget()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RenderTarget::releaseAllResources()
+    {
+        if (mRenderTexture != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(mRenderTexture);
+            mRenderTexture = nullptr;
+        }
+
+        if (mRenderTexture != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(mDepthStencil);
+            mDepthStencil = nullptr;
+        }   
     }
 
     //--------------------------------------------------------------------------

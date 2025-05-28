@@ -62,20 +62,6 @@ namespace Tiny3D
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
         
         /**
-         * \brief 设置当前渲染窗口
-         * \param [in] renderWindow : 渲染窗口
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setRenderTarget(RenderWindow *renderWindow) override;
-
-        /**
-         * \brief 设置当前渲染紋理
-         * \param [in] renderTexture : 渲染紋理
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setRenderTarget(RenderTexture *renderTexture) override;
-
-        /**
          * \brief 设置当前渲染目标
          * \param [in] renderTarget : 渲染目标
          * \return 调用成功返回 T3D_OK
@@ -474,7 +460,7 @@ namespace Tiny3D
          * \param [out] samplerParams : 绑定的纹理采样信息
          * \return 调用成功返回 T3D_OK
          */
-        TResult reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
+        TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
 
         /**
          * \brief 设置渲染图元类型
@@ -515,7 +501,7 @@ namespace Tiny3D
          * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
          * \return 调用成功返回 T3D_OK
          */
-        TResult blit(RenderTargetPtr src, RenderTargetPtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
+        TResult blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
 
         /**
          * \brief 从源纹理传输图像数据到目标渲染目标，其中 src 和 dst 维度要相同
@@ -526,7 +512,7 @@ namespace Tiny3D
          * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
          * \return 调用成功返回 T3D_OK
          */
-        TResult blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
+        TResult blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
 
         /**
          * \brief 从源渲染目标传输图像数据到目标纹理
@@ -537,7 +523,7 @@ namespace Tiny3D
          * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
          * \return 调用成功返回 T3D_OK
          */
-        TResult blit(RenderTargetPtr src, TexturePtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
+        TResult blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
 
         /**
          * \brief 从源纹理传输图像数据到目标纹理
@@ -548,7 +534,7 @@ namespace Tiny3D
          * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
          * \return 调用成功返回 T3D_OK
          */
-        TResult blit(TexturePtr src, TexturePtr dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
+        TResult blit(Texture *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
 
         /**
          * \brief 从源缓冲区复制整个缓冲区数据到目标缓冲区
@@ -559,7 +545,7 @@ namespace Tiny3D
          * \param [in] dstOffset : 目标缓冲区起始偏移
          * \return 调用成功返回 T3D_OK
          */
-        TResult copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
+        TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
 
         /**
          * \brief 写 GPU 缓冲区，在写完之前 buffer 不能释放，写完之后，内部会去释放 buffer 空间。 调用本接口，renderBuffer 必须绑定 CPUAccessWrite

@@ -72,6 +72,8 @@ namespace Tiny3D
 
         TResult setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader);
 
+        TResult setupShadowMap();
+        
     protected:
         using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
         using Renderables = TList<Renderable*>;

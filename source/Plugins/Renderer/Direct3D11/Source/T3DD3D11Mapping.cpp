@@ -43,7 +43,7 @@ namespace Tiny3D
 
     DXGI_FORMAT D3D11Mapping::get(PixelFormat src)
     {
-        DXGI_FORMAT dst;
+        DXGI_FORMAT dst = DXGI_FORMAT_UNKNOWN;
         switch (src)
         {
         case PixelFormat::E_PF_PALETTE8:
@@ -75,6 +75,18 @@ namespace Tiny3D
             break;
         case PixelFormat::E_PF_B8G8R8X8:
             dst = DXGI_FORMAT_B8G8R8X8_UNORM;
+            break;
+        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+            dst = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            break;
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            dst = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+            break;
+        case PixelFormat::E_PF_D32_FLOAT:
+            dst = DXGI_FORMAT_D32_FLOAT;
+            break;
+        case PixelFormat::E_PF_D16_UNORM:
+            dst = DXGI_FORMAT_D16_UNORM;
             break;
         }
         return dst;

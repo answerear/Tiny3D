@@ -75,20 +75,6 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setRenderTarget(RenderWindow *renderWindow)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult NullContext::setRenderTarget(RenderTexture *renderTexture)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult NullContext::setRenderTarget(RenderTarget *renderTarget)
     {
         return T3D_OK;
@@ -460,7 +446,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::reflectShaderAllBindings(ShaderVariantPtr shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
+    TResult NullContext::reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
     {
         return T3D_OK;
     }
@@ -495,35 +481,35 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::blit(RenderTargetPtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult NullContext::blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::blit(TexturePtr src, RenderTargetPtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult NullContext::blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::blit(RenderTargetPtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult NullContext::blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::blit(TexturePtr src, TexturePtr dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
+    TResult NullContext::blit(Texture *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)
     {
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::copyBuffer(RenderBufferPtr src, RenderBufferPtr dst, size_t srcOffset, size_t size, size_t dstOffset)
+    TResult NullContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
     {
         return T3D_OK;
     }

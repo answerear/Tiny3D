@@ -30,6 +30,7 @@
 #include "RHI/T3DRHIRenderer.h"
 #include "RHI/T3DRHIRenderWindow.h"
 #include "RHI/T3DRHIContext.h"
+#include "Resource/T3DTextureManager.h"
 
 
 namespace Tiny3D
@@ -132,6 +133,9 @@ namespace Tiny3D
             mDesc = desc;
 
             mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
+
+            // mRHIDepthStencilTex = T3D_TEXTURE_MGR.createRenderTexture("", desc.Width, desc.Height, PixelFormat::E_PF_D24_UNORM_S8_UINT);
+   
             // mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
             //
             // ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);

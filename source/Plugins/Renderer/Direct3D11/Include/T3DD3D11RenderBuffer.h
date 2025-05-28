@@ -114,16 +114,17 @@ namespace Tiny3D
         ~D3D11PixelBuffer2D() override;
 
         void *getNativeObject() const override;
-        
+
+        /// 紋理對象
         ID3D11Texture2D             *D3DTexture {nullptr};
+        /// 紋理資源對象，方便 shader 訪問
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
-
-        // 用于 render texture 的
+        /// 用于 render texture 的
         ID3D11RenderTargetView      *D3DRTView {nullptr};
-        ID3D11Texture2D             *D3DDSTexture {nullptr};
-        ID3D11DepthStencilView      *D3DDSView {nullptr};
-
+        /// 解決 MSAA 後的紋理，通常用於 render texture
         ID3D11Texture2D             *D3DResolveTex {nullptr};
+        /// 只有用於 depth stencil 的時候才有值
+        ID3D11DepthStencilView      *D3DDSView {nullptr};
     protected:
         D3D11PixelBuffer2D() = default;
     };

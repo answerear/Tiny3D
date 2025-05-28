@@ -56,7 +56,9 @@ namespace Tiny3D
 
         const RenderWindowDesc &getDescriptor() const { return mDesc; }
 
-        RHIRenderWindowPtr getRHIRenderWindow() const { return mRHIRenderWindow; }
+        RHIRenderWindow *getRHIRenderWindow() const { return mRHIRenderWindow; }
+
+        RHIPixelBuffer2D *getRHIDepthStencilTex() const { return mRHIDepthStencilTex; }
 
         const String &getName() const { return mName; }
 
@@ -76,6 +78,7 @@ namespace Tiny3D
         RenderWindowDesc    mDesc {};
         String              mName {};
         RHIRenderWindowPtr  mRHIRenderWindow {nullptr};
+        RHIPixelBuffer2DPtr mRHIDepthStencilTex {nullptr};
     };
 
     class T3D_ENGINE_API NullRenderWindow : public RenderWindow
