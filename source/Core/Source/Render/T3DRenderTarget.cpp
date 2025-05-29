@@ -104,6 +104,8 @@ namespace Tiny3D
             }
         }
 
+        mNumOfTextures = 0;
+
         if (mDepthStencil != nullptr)
         {
             T3D_TEXTURE_MGR.unload(mDepthStencil);

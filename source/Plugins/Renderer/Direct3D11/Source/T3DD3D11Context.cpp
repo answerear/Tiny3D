@@ -1040,7 +1040,11 @@ namespace Tiny3D
             }
             
             UINT uNumOfRTViews = static_cast<UINT>(pD3DRTViews.size());
-            ID3D11RenderTargetView * const * ppD3DRTViews = &pD3DRTViews[0];
+            ID3D11RenderTargetView * const * ppD3DRTViews = nullptr;
+            if (uNumOfRTViews > 0)
+            {
+                ppD3DRTViews = &pD3DRTViews[0];
+            }
             
             if (pD3DDepthStencil != nullptr)
             {
@@ -1114,18 +1118,34 @@ namespace Tiny3D
             if (mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
             {
                 // 渲染窗口
-                width = Real(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Width);
-                height = Real(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Height);
+                width = static_cast<Real>(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Width);
+                height = static_cast<Real>(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Height);
             }
             else
             {
                 // 渲染纹理
-                width = Real(mCurrentRenderTarget->getRenderTexture()->getWidth());
-                height = Real(mCurrentRenderTarget->getRenderTexture()->getHeight());
+                if (mCurrentRenderTarget->getNumOfRenderTextures() > 0)
+                {
+                    // 获取颜色纹理大小
+                    width = static_cast<Real>(mCurrentRenderTarget->getRenderTexture()->getWidth());
+                    height = static_cast<Real>(mCurrentRenderTarget->getRenderTexture()->getHeight());
+                }
+                else if (mCurrentRenderTarget->getDepthStencil() != nullptr)
+                {
+                    // 只有深度纹理
+                    width = static_cast<Real>(mCurrentRenderTarget->getDepthStencil()->getWidth());
+                    height = static_cast<Real>(mCurrentRenderTarget->getDepthStencil()->getHeight());
+                }
+                else
+                {
+                    T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "D3D11Context::setViewport: no color texture and depth stencil texture !");
+                    return T3D_OK;
+                }
             }
         }
         else
         {
+            T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "D3D11Context::setViewport: no render target");
             return T3D_OK;
         }
         
@@ -1160,7 +1180,10 @@ namespace Tiny3D
         }
         else
         {
-            ret = clearColor(mCurrentRenderTarget->getRenderTextures(), mCurrentRenderTarget->getNumOfRenderTextures(), color);
+            if (mCurrentRenderTarget->getNumOfRenderTextures() > 0)
+            {
+                ret = clearColor(mCurrentRenderTarget->getRenderTextures(), mCurrentRenderTarget->getNumOfRenderTextures(), color);
+            }
         }
 
         return ret;
