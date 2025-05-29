@@ -42,7 +42,7 @@ namespace Tiny3D
          */
         static TextureManagerPtr create();
 
-        RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
+        RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, bool shaderReadable = false);
 
         Texture1DPtr createTexture1D(const String &name, uint32_t width, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1);
 

@@ -72,6 +72,8 @@ namespace Tiny3D
         PixelFormat format {PixelFormat::E_PF_UNKNOWN};
         TPROPERTY()
         Buffer  buffer {};
+        TPROPERTY()
+        bool    shaderReadable {false};
     };
 
     TSTRUCT()
@@ -91,6 +93,8 @@ namespace Tiny3D
         MultisamplerDesc    sampleDesc {};
         TPROPERTY()
         Buffer  buffer {};
+        TPROPERTY()
+        bool    shaderReadable {false};
     };
 
     TSTRUCT()
@@ -107,6 +111,8 @@ namespace Tiny3D
         PixelFormat format {PixelFormat::E_PF_UNKNOWN};
         TPROPERTY()
         Buffer  buffer {};
+        TPROPERTY()
+        bool    shaderReadable {false};
     };
 }
 

@@ -32,23 +32,23 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
     {
-        return new RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality);
+        return new RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
     }
     
     //--------------------------------------------------------------------------
     
-    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
-        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, Buffer{})
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, Buffer{}, shaderReadable)
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
-        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data)
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, bool shaderReadable)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data, shaderReadable)
     {
         
     }
@@ -71,7 +71,7 @@ namespace Tiny3D
 
     ResourcePtr RenderTexture::clone() const
     {
-        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality);
+        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality, mDesc.shaderReadable);
         texture->cloneProperties(this);
         return texture;
     }

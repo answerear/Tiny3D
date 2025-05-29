@@ -632,7 +632,8 @@ namespace Tiny3D
                 }
                 
                 bool isColorRT = true;
-                if (buffer->getDescriptor().format >= PixelFormat::E_PF_D24_UNORM_S8_UINT)
+                if (buffer->getDescriptor().format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
+                    && buffer->getDescriptor().format <= PixelFormat::E_PF_D16_UNORM)
                 {
                     isColorRT = false;
                 }
@@ -729,13 +730,66 @@ namespace Tiny3D
                 else
                 {
                     // 創建深度模板緩衝紋理
+                    UINT uBindFlags = D3D11_BIND_DEPTH_STENCIL;
+                    DXGI_FORMAT d3dTexFormat = DXGI_FORMAT_UNKNOWN;
+                    DXGI_FORMAT d3dDSVFormat = DXGI_FORMAT_UNKNOWN;
+                    DXGI_FORMAT d3dSRVFormat = DXGI_FORMAT_UNKNOWN;
+                    D3D11_SRV_DIMENSION srvDimension = D3D11_SRV_DIMENSION_UNKNOWN;
+   
+                    if (buffer->getDescriptor().shaderReadable)
+                    {
+                        // 纹理需要在 shader 中读取
+                        uBindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
+                        switch (buffer->getDescriptor().format)
+                        {
+                        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+                            d3dTexFormat = DXGI_FORMAT_R24G8_TYPELESS;
+                            d3dSRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+                            break;
+                        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+                            d3dTexFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+                            d3dSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+                            break;
+                        case PixelFormat::E_PF_D32_FLOAT:
+                            d3dTexFormat = DXGI_FORMAT_R32_TYPELESS;
+                            d3dSRVFormat = DXGI_FORMAT_R32_FLOAT;
+                            break;
+                        case PixelFormat::E_PF_D16_UNORM:
+                            d3dTexFormat = DXGI_FORMAT_R16_TYPELESS;
+                            d3dSRVFormat = DXGI_FORMAT_R16_UNORM;
+                            break;
+                        default:
+                            T3D_ASSERT(false);
+                            break;
+                        }
+
+                        // 给后续创建 SRV 用
+                        d3dDSVFormat = D3D11Mapping::get(buffer->getDescriptor().format);
+
+                        if (uMSAACount > 1)
+                        {
+                            srvDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+                        }
+                        else
+                        {
+                            srvDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                        }
+                    }
+                    else
+                    {
+                        // 纹理不需要在 shader 中读取，后续不创建 SRV
+                        d3dTexFormat = D3D11Mapping::get(buffer->getDescriptor().format);
+                        d3dDSVFormat = d3dTexFormat;
+                    }
+                    
                     // 创建 depth & stencil 纹理
                     D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(buffer->getDescriptor());
                     depthStencilDesc.SampleDesc.Count = uMSAACount;
                     depthStencilDesc.SampleDesc.Quality = uMSAAQuality;
-                    depthStencilDesc.Format = D3D11Mapping::get(buffer->getDescriptor().format);
+                    depthStencilDesc.Format = d3dTexFormat;
                     depthStencilDesc.Usage = D3D11Mapping::get(buffer->getUsage());
-                    depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+                    depthStencilDesc.BindFlags = uBindFlags;
                     depthStencilDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode());
                     depthStencilDesc.MiscFlags = 0;
                     
@@ -744,39 +798,50 @@ namespace Tiny3D
                     {
                         // 错误
                         ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create depth & stencil texture failed when create render texture ! DX ERROR [%d]", hr);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to craeteDepthStencilTexture when create render texture for depth & stencil ! DX ERROR [%d]", hr);
                         break;
                     }
-                    
-                    // 创建 depth & stencil 视图
+
+                    D3D11_DSV_DIMENSION dsvDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+                    if (uMSAACount > 1)
+                    {
+                        dsvDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+                    }
+   
+                    // 创建 DSV
                     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
                     memset(&dsvDesc, 0, sizeof(dsvDesc));
-                    dsvDesc.Format = depthStencilDesc.Format;
-                    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+                    dsvDesc.Format = d3dDSVFormat;
+                    dsvDesc.ViewDimension = dsvDimension;
                     dsvDesc.Texture2D.MipSlice = 0;
                     hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DTexture, &dsvDesc, &d3dPixelBuffer->D3DDSView);
                     if (FAILED(hr))
                     {
                         // 错误
                         ret = T3D_ERR_D3D11_CREATE_DEPTH_STENCIL_VIEW;
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "CreateDepthStencilView failed when create render texture ! DX ERROR [%d]", hr);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create DSV when create render texture for depth & stencil ! DX ERROR [%d]", hr);
                         break;
                     }
 
-                    // D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-                    // memset(&srvDesc, 0, sizeof(srvDesc));
-                    // srvDesc.Format = depthStencilDesc.Format;
-                    // srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-                    // srvDesc.Texture2D.MostDetailedMip = 0;
-                    // srvDesc.Texture2D.MipLevels = 1;
-                    // hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
-                    // if (FAILED(hr))
-                    // {
-                    //     // 错误
-                    //     ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
-                    //     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create SRV when create render texture ! DX ERROR [%d]", hr);
-                    //     break;
-                    // }
+                    if (buffer->getDescriptor().shaderReadable)
+                    {
+                        // 创建 SRV
+                        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+                        memset(&srvDesc, 0, sizeof(srvDesc));
+                        srvDesc.Format = d3dSRVFormat;
+                        srvDesc.ViewDimension = srvDimension;
+                        srvDesc.Texture2D.MostDetailedMip = 0;
+                        srvDesc.Texture2D.MipLevels = 1;
+                        hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
+                        if (FAILED(hr))
+                        {
+                            // 错误
+                            ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create SRV when create render texture for depth & stencil ! DX ERROR [%d]", hr);
+                            break;
+                        }
+                    }
+                    
                 }
             } while (false);
             

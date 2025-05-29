@@ -41,10 +41,10 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
     {
-        return smart_pointer_cast<RenderTexture>(createResource(name, 7,
-            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality));
+        return smart_pointer_cast<RenderTexture>(createResource(name, 8,
+            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable));
     }
 
     //--------------------------------------------------------------------------
@@ -227,14 +227,15 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
-                T3D_ASSERT(argc == 7);
+                T3D_ASSERT(argc == 8);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
                 uint32_t mipmaps = va_arg(args, uint32_t);
                 uint32_t MSAACount = va_arg(args, uint32_t);
                 uint32_t MSAAQuality = va_arg(args, uint32_t);
-                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality);
+                bool shaderReadable = va_arg(args, bool);
+                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
             }
             break;
         }

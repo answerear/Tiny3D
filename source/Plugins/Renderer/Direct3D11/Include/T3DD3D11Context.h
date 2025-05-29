@@ -59,6 +59,7 @@ namespace Tiny3D
         /**
          * \brief 创建 RHI 渲染纹理
          * \param [in] buffer : 引擎渲染纹理
+         * \param [in] shaderReadable : 在 shader 中是否可读
          * \return 调用成功返回新建的 RHI 对象
          */
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;

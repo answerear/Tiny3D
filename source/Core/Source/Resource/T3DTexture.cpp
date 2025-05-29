@@ -161,7 +161,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Texture2D::Texture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
+    Texture2D::Texture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, bool shaderReadable)
         : Texture(name)
     {
         mDesc.width = width;
@@ -172,6 +172,7 @@ namespace Tiny3D
         mDesc.sampleDesc.Count = MSAACount;
         mDesc.sampleDesc.Quality = MSAAQuality;
         mDesc.buffer = data;
+        mDesc.shaderReadable = shaderReadable;
     }
 
     //--------------------------------------------------------------------------
@@ -183,7 +184,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Texture2D::Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    Texture2D::Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
         : Texture(name)
     {
         T3D_ASSERT(image != nullptr);
@@ -196,7 +197,7 @@ namespace Tiny3D
         mDesc.sampleDesc.Count = MSAACount;
         mDesc.sampleDesc.Quality = MSAAQuality;
         mDesc.buffer.setData(image->getData(), image->getSize());
-        
+        mDesc.shaderReadable = shaderReadable;
         mImage = image;
     }
 

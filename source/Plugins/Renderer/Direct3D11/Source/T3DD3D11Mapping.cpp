@@ -80,7 +80,7 @@ namespace Tiny3D
             dst = DXGI_FORMAT_D24_UNORM_S8_UINT;
             break;
         case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
-            dst = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+            dst = DXGI_FORMAT_D32_FLOAT_S8X24_UINT; 
             break;
         case PixelFormat::E_PF_D32_FLOAT:
             dst = DXGI_FORMAT_D32_FLOAT;
