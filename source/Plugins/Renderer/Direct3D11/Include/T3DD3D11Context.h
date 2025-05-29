@@ -599,7 +599,7 @@ namespace Tiny3D
         
         TResult clearColor(RenderWindow *window, const ColorRGB &color);
 
-        TResult clearColor(RenderTexture *texture, const ColorRGB &color);
+        TResult clearColor(const RenderTexturePtr *textures, uint32_t numOfTextures, const ColorRGB &color);
 
         // TResult clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil);
         
@@ -631,7 +631,7 @@ namespace Tiny3D
 
         TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil);
 
-        TResult setRenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil);
+        TResult setRenderTarget(const RenderTexturePtr *renderTexture, uint32_t numOfTextures, RenderTexture *depthStencil);
 
         void backupRenderState();
         
@@ -702,9 +702,8 @@ namespace Tiny3D
         /// 用于 blit 的 rasterizer state
         ID3D11RasterizerState   *mBlitRState {nullptr};
 
-        RenderWindowPtr     mCurrentRenderWindow {nullptr};
-        RenderTexturePtr    mCurrentRenderTexture {nullptr};
-        RenderTexturePtr    mCurrentDepthStencil {nullptr};
+        /// 当前渲染目标，调用 SetRenderTarget 设置进来
+        RenderTargetPtr     mCurrentRenderTarget {nullptr};
 
         BackUpDX11State     mBackupState {};
     };

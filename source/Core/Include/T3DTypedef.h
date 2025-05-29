@@ -225,6 +225,8 @@ namespace Tiny3D
     using PixelBuffers = TArray<PixelBufferPtr>;
     using ConstantBuffers = TArray<ConstantBufferPtr>;
     using Samplers = TArray<SamplerStatePtr>;
+
+    using RenderTextures = TArray<RenderTexture*>;
 }
 
 

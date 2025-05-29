@@ -41,7 +41,7 @@ namespace Tiny3D
     {
         enum
         {
-            kMaxRenderTarget = 8
+            kMaxRenderTarget = T3D_MAX_RENDER_TARGET
         };
 
         TSTRUCT()

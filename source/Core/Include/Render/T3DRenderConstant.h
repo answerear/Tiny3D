@@ -31,6 +31,8 @@
 
 namespace Tiny3D
 {
+    const uint32_t T3D_MAX_RENDER_TARGET = 8;
+    
     /**
      * @enum    BlendFactor
      * @brief   混合因子

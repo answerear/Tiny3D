@@ -47,6 +47,13 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    RenderTargetPtr RenderTarget::create(const RenderTextures &renderTextures, RenderTexture *depthStencil)
+    {
+        return new RenderTarget(renderTextures, depthStencil);
+    }
+    
+    //--------------------------------------------------------------------------
     
     RenderTarget::RenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil)
         : mRenderWindow(renderWindow)
@@ -58,10 +65,23 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     RenderTarget::RenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil)
-        : mRenderTexture(renderTexture)
-        , mDepthStencil(depthStencil)
+        : mDepthStencil(depthStencil)
+        , mNumOfTextures(1)
     {
-        
+        mRenderTextures[0] = renderTexture;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    RenderTarget::RenderTarget(const RenderTextures &renderTextures, RenderTexture *depthStencil)
+        : mDepthStencil(depthStencil)
+    {
+        for (size_t i = 0; i < renderTextures.size(); ++i)
+        {
+            mRenderTextures[i] = renderTextures[i];
+        }
+
+        mNumOfTextures = static_cast<uint32_t>(renderTextures.size());
     }
     
     //--------------------------------------------------------------------------
@@ -75,10 +95,13 @@ namespace Tiny3D
 
     void RenderTarget::releaseAllResources()
     {
-        if (mRenderTexture != nullptr)
+        for (RenderTexturePtr &rt : mRenderTextures)
         {
-            T3D_TEXTURE_MGR.unload(mRenderTexture);
-            mRenderTexture = nullptr;
+            if (rt != nullptr)
+            {
+                T3D_TEXTURE_MGR.unload(rt);
+                rt = nullptr;
+            }
         }
 
         if (mDepthStencil != nullptr)

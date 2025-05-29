@@ -28,6 +28,7 @@
 
 
 #include "T3DPrerequisites.h"
+#include "T3DRenderConstant.h"
 #include "T3DTypedef.h"
 #include "Render/T3DViewport.h"
 //#include "RHI/T3DRHIRenderer.h"
@@ -57,15 +58,23 @@ namespace Tiny3D
 
         static RenderTargetPtr create(RenderTexture *renderTexture, RenderTexture *depthStencil = nullptr);
 
+        static RenderTargetPtr create(const RenderTextures &renderTextures, RenderTexture *depthStencil = nullptr);
+
         ~RenderTarget() override;
         
         Type getType() const;
 
-        RenderWindowPtr getRenderWindow() const { return mRenderWindow; }
+        const RenderWindowPtr &getRenderWindow() const { return mRenderWindow; }
 
-        RenderTexturePtr getRenderTexture() const { return mRenderTexture; }
+        const RenderTexturePtr &getRenderTexture(uint32_t index) const { return mRenderTextures[index]; }
+
+        const RenderTexturePtr &getRenderTexture() const { return mRenderTextures[0];}
 
         RenderTexturePtr getDepthStencil() const { return mDepthStencil; }
+
+        uint32_t getNumOfRenderTextures() const { return mNumOfTextures; }
+
+        const RenderTexturePtr *getRenderTextures() const { return mRenderTextures; }
 
         void releaseAllResources();
 
@@ -74,12 +83,16 @@ namespace Tiny3D
 
         RenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil);
 
+        RenderTarget(const RenderTextures &renderTextures, RenderTexture *depthStencil);
+
         /// 渲染窗口，渲染窗口和渲染纹理只能二选一
         RenderWindowPtr     mRenderWindow {nullptr};
         /// 渲染纹理，渲染纹理和渲染窗口只能二选一
-        RenderTexturePtr    mRenderTexture {nullptr};
+        RenderTexturePtr    mRenderTextures[T3D_MAX_RENDER_TARGET] {nullptr};
         /// 深度模板纹理，用于渲染目标
         RenderTexturePtr    mDepthStencil {nullptr};
+        /// 实际使用的渲染纹理数量
+        uint32_t mNumOfTextures {0};
     };
 }
 

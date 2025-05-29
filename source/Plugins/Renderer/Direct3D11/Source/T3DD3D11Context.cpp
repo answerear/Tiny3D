@@ -65,9 +65,7 @@ namespace Tiny3D
 
     D3D11Context::~D3D11Context()
     {
-        mCurrentRenderWindow = nullptr;
-        mCurrentRenderTexture = nullptr;
-        mCurrentDepthStencil = nullptr;
+        mCurrentRenderTarget = nullptr;
 
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
@@ -1018,50 +1016,45 @@ namespace Tiny3D
             return T3D_OK;
         };
         
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil));
-        
-        if (T3D_SUCCEEDED(ret))
-        {
-            mCurrentRenderWindow = renderWindow;
-            mCurrentDepthStencil = depthStencil;
-        }
-        
-        return ret;
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setRenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil)
+    TResult D3D11Context::setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil)
     {
-        D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(renderTexture->getPixelBuffer()->getRHIResource().get());
+        RenderTextures textures(renderTextures, renderTextures + numOfTextures);
         D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
         if (depthStencil != nullptr)
         {
             pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
         }
-        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
+        auto lambda = [this](const RenderTextures &textures, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
         {
             backupRenderState();
+            TArray<ID3D11RenderTargetView*> pD3DRTViews(textures.size());
+   
+            for (size_t i = 0; i < textures.size(); ++i)
+            {
+                pD3DRTViews[i] = static_cast<D3D11PixelBuffer2D*>(textures[i]->getPixelBuffer()->getRHIResource().get())->D3DRTView;
+            }
+            
+            UINT uNumOfRTViews = static_cast<UINT>(pD3DRTViews.size());
+            ID3D11RenderTargetView * const * ppD3DRTViews = &pD3DRTViews[0];
+            
             if (pD3DDepthStencil != nullptr)
             {
-                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, pD3DDepthStencil->D3DDSView);                
+                mD3DDeviceContext->OMSetRenderTargets(uNumOfRTViews, ppD3DRTViews, pD3DDepthStencil->D3DDSView);                
             }
             else
             {
-                mD3DDeviceContext->OMSetRenderTargets(1, &pD3DPixelBuffer->D3DRTView, nullptr);
+                mD3DDeviceContext->OMSetRenderTargets(uNumOfRTViews, ppD3DRTViews, nullptr);
             }
+            
             return T3D_OK;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), D3D11PixelBuffer2DPtr(pD3DDepthStencil));
-        
-        if (T3D_SUCCEEDED(ret))
-        {
-            mCurrentRenderTexture = renderTexture;
-            mCurrentDepthStencil = depthStencil;
-        }
-
-        return ret;
+        return ENQUEUE_UNIQUE_COMMAND(lambda, textures, D3D11PixelBuffer2DPtr(pD3DDepthStencil));
     }
 
     //--------------------------------------------------------------------------
@@ -1079,12 +1072,17 @@ namespace Tiny3D
             break;
         case RenderTarget::Type::E_RT_TEXTURE:
             {
-                ret = setRenderTarget(renderTarget->getRenderTexture(), renderTarget->getDepthStencil());
+                ret = setRenderTarget(renderTarget->getRenderTextures(), renderTarget->getNumOfRenderTextures(), renderTarget->getDepthStencil());
             }
             break;
         default:
             T3D_ASSERT(false);
             break;
+        }
+
+        if (T3D_SUCCEEDED(ret))
+        {
+            mCurrentRenderTarget = renderTarget;
         }
         
         return ret;
@@ -1094,9 +1092,7 @@ namespace Tiny3D
 
     TResult D3D11Context::resetRenderTarget()
     {
-        mCurrentRenderWindow = nullptr;
-        mCurrentRenderTexture = nullptr;
-        mCurrentDepthStencil = nullptr;
+        mCurrentRenderTarget = nullptr;
 
         auto lambda = [this]()
         { 
@@ -1113,15 +1109,20 @@ namespace Tiny3D
     {
         Real width, height;
         
-        if (mCurrentRenderTexture != nullptr)
+        if (mCurrentRenderTarget != nullptr)
         {
-            width = Real(mCurrentRenderTexture->getWidth());
-            height = Real(mCurrentRenderTexture->getHeight());
-        }
-        else if (mCurrentRenderWindow != nullptr)
-        {
-            width = Real(mCurrentRenderWindow->getDescriptor().Width);
-            height = Real(mCurrentRenderWindow->getDescriptor().Height);
+            if (mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
+            {
+                // 渲染窗口
+                width = Real(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Width);
+                height = Real(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Height);
+            }
+            else
+            {
+                // 渲染纹理
+                width = Real(mCurrentRenderTarget->getRenderTexture()->getWidth());
+                height = Real(mCurrentRenderTarget->getRenderTexture()->getHeight());
+            }
         }
         else
         {
@@ -1150,16 +1151,16 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        if (mCurrentRenderWindow == nullptr && mCurrentRenderTexture == nullptr)
+        if (mCurrentRenderTarget == nullptr)
             return ret;
 
-        if (mCurrentRenderTexture != nullptr)
+        if (mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
         {
-            ret = clearColor(mCurrentRenderTexture, color);
+            ret = clearColor(mCurrentRenderTarget->getRenderWindow(), color);
         }
-        else if (mCurrentRenderWindow != nullptr)
+        else
         {
-            ret = clearColor(mCurrentRenderWindow, color);
+            ret = clearColor(mCurrentRenderTarget->getRenderTextures(), mCurrentRenderTarget->getNumOfRenderTextures(), color);
         }
 
         return ret;
@@ -1185,20 +1186,29 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearColor(RenderTexture *texture, const ColorRGB &color)
+    TResult D3D11Context::clearColor(const RenderTexturePtr *textures, uint32_t numOfTextures, const ColorRGB &color)
     {
-        D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
-        auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer, const ColorRGB &color)
+        using D3D11PixelBuffers = TArray<D3D11PixelBuffer2DPtr>;
+        D3D11PixelBuffers pixelBuffers(T3D_MAX_RENDER_TARGET);
+        for (uint32_t i = 0; i < numOfTextures; ++i)
+        {
+            pixelBuffers[i] = smart_pointer_cast<D3D11PixelBuffer2D>(textures[i]->getPixelBuffer()->getRHIResource());
+        }
+        
+        auto lambda = [this](const D3D11PixelBuffers &pD3DPixelBuffers, uint32_t numOfTextures, const ColorRGB &color)
         {
             float clr[4];
             clr[0] = color.red();
             clr[1] = color.green();
             clr[2] = color.blue();
             clr[3] = 1.0f;
-            mD3DDeviceContext->ClearRenderTargetView(pD3DPixelBuffer->D3DRTView, clr);
+            for (uint32_t i = 0; i < numOfTextures; ++i)
+            {
+                mD3DDeviceContext->ClearRenderTargetView(pD3DPixelBuffers[i]->D3DRTView, clr);
+            }
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), color);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, pixelBuffers, numOfTextures, color);
     }
 
     //--------------------------------------------------------------------------
@@ -1207,9 +1217,9 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
         
-        if (mCurrentDepthStencil != nullptr)
+        if (mCurrentRenderTarget != nullptr && mCurrentRenderTarget->getDepthStencil() != nullptr)
         {
-            ret = clearDepthStencil(mCurrentDepthStencil, depth, static_cast<uint8_t>(stencil));
+            ret = clearDepthStencil(mCurrentRenderTarget->getDepthStencil(), depth, static_cast<uint8_t>(stencil));
         }
 
         return ret;
@@ -2729,8 +2739,7 @@ namespace Tiny3D
 
     TResult D3D11Context::reset()
     {
-        mCurrentRenderWindow = nullptr;
-        mCurrentRenderTexture = nullptr;
+        mCurrentRenderTarget = nullptr;
 
         auto lambda = [this]()
         { 

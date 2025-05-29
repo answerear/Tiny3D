@@ -29,7 +29,7 @@ namespace Tiny3D
 
     inline RenderTarget::Type RenderTarget::getType() const
     {
-        return mRenderTexture != nullptr ? Type::E_RT_TEXTURE: Type::E_RT_WINDOW;
+        return mRenderWindow != nullptr ? Type::E_RT_WINDOW : Type::E_RT_TEXTURE;
     }
 
     //--------------------------------------------------------------------------
