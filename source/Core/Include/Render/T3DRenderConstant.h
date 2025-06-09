@@ -32,6 +32,50 @@
 namespace Tiny3D
 {
     const uint32_t T3D_MAX_RENDER_TARGET = 8;
+
+    namespace ShaderLab
+    {
+        /// ShaderLab内置标签 - 渲染队列 - Queue
+        const char *const kBuiltinTagQueue = "Queue";
+        /// ShaderLab内置标签 - 光照模式 - LightMode
+        const char *const kBuiltinTagLightMode = "LightMode";
+
+        const char *const kBuiltinQueueBkgndStr = "Background";
+        const char *const kBuiltinQueueGeometryStr = "Geometry";
+        const char *const kBuiltinQueueAlphaTestStr = "AlphaTest";
+        const char *const kBuiltinQueueTransparentStr = "Transparent";
+        const char *const kBuiltinQueueOverlayStr = "Overlay";
+
+        const char *const kBuiltinLightModeNoneStr = "None";
+        const char *const kBuiltinLightModeShadowCasterStr = "ShadowCaster";
+        const char *const kBuiltinLightModeForwardBaseStr = "ForwardBase";
+        const char *const kBuiltinLightModeForwardAddStr = "ForwardAdd";
+
+        enum BuiltinQueueValue : uint32_t
+        {
+            /// 背景物体，通常在场景的最底层渲染。
+            kBuiltinQueueBkgnd = 0,
+            /// 几何体，默认的渲染队列，适用于大多数不透明物体。
+            kBuiltinQueueGeometry = 2000,
+            /// 用于透明裁剪的物体，通常用于带有 alpha 测试的材质。
+            kBuiltinQueueAlphaTest = 2450,
+            /// 透明物体，通常在不透明物体之后渲染。
+            kBuiltinQueueTransparent = 3000,
+            /// 用于 UI 元素和其他覆盖物体，通常在所有其他物体之后渲染。
+            kBuiltinQueueOverlay = 4000,
+        };
+
+        enum BuiltinLightModeValue : uint32_t
+        {
+            kBuiltinLightModeNone = static_cast<uint32_t>(-1),
+            /// 阴影投射器，用于计算阴影贴图。
+            kBuiltinLightModeShadowCaster = 0x10000,
+            /// 前向渲染的基类，用于计算光照。
+            kBuiltinLightModeForwardBase,
+            /// 前向渲染的附加类，用于计算光照。
+            kBuiltinLightModeForwardAdd,
+        };
+    }
     
     /**
      * @enum    BlendFactor

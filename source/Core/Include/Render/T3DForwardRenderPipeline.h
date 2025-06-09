@@ -53,6 +53,15 @@ namespace Tiny3D
         TResult removeLight(Light *light) override;
 
     protected:
+        using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
+        using Renderables = TList<Renderable*>;
+        using RenderGroup = TMap<Material*, Renderables>;
+        using RenderQueue = TMap<uint32_t, RenderGroup>;
+        using CameraRenderQueue = TMap<Camera*, RenderQueue>;
+        using Cameras = TList<Camera*>;
+        
+        TResult setupBatch();
+        
         TResult setupMatrices(RHIContext *ctx, Material *material);
 
         TResult setupLights(RHIContext *ctx, Material *material);
@@ -72,16 +81,15 @@ namespace Tiny3D
 
         TResult setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader);
 
-        TResult setupShadowMap();
+        TResult renderShadowMap(RHIContext *ctx, Camera *camera);
+
+        TResult renderForward(RHIContext *ctx, Camera *camera);
+        
+        TResult renderShadowCasterPass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables);
+
+        TResult renderForwardBasePass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables);
         
     protected:
-        using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
-        using Renderables = TList<Renderable*>;
-        using RenderGroup = TMap<Material*, Renderables>;
-        using RenderQueue = TMap<uint32_t, RenderGroup>;
-        using CameraRenderQueue = TMap<Camera*, RenderQueue>;
-        using Cameras = TList<Camera*>;
-
         enum LightParam
         {
             kMaxPointLights = 4,

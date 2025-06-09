@@ -66,6 +66,22 @@ namespace Tiny3D
         virtual TResult addLight(Light *light) = 0;
 
         virtual TResult removeLight(Light *light) = 0;
+
+        /**
+         * 开启或关闭动态合批
+         * @param enabled 开关
+         */
+        void enableDynamicBatch(bool enabled) { mDynamicBatchEnabled = enabled; }
+
+        bool isDynamicBatchEnabled() const { return mDynamicBatchEnabled; }
+
+        void setMaxNumOfVertexInMethForDynamicBatch(uint32_t num) { mMaxNumOfVertexInMethForDynamicBatch = num; }
+
+        uint32_t getMaxNumOfVertexInMethForDynamicBatch() const { return mMaxNumOfVertexInMethForDynamicBatch; }
+
+    protected:
+        bool mDynamicBatchEnabled {false};
+        uint32_t mMaxNumOfVertexInMethForDynamicBatch {0};
     };
 
     #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 

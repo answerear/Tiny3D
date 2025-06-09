@@ -13,10 +13,13 @@ Shader "Tiny3DBuiltin/Default-Material"
 
 		SubShader
 		{
-			Tags { "RenderType"="Opaque" "PerformanceChecks"="False" }
+			Tags { "Queue"="Opaque" "PerformanceChecks"="False" }
 			
 			Pass
 			{
+				Name "FORWARD"
+				Tags { "LightMode" = "ForwardBase" }
+				
 				CGPROGRAM
 				
 				#pragma vertex vert

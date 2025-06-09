@@ -337,17 +337,19 @@ MaterialPtr PointLightApp::buildMaterial()
     renderState->setRasterizerDesc(rasterizeDesc);
     
     // pass
-    PassPtr pass = Pass::create("0");
+    PassPtr pass = Pass::create("ForwardBase");
     ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
     T3D_ASSERT(T3D_SUCCEEDED(ret));
+    pass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
     ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
-    pass->setRenderState(renderState);
     T3D_ASSERT(T3D_SUCCEEDED(ret));
+    pass->setRenderState(renderState);
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
     bool rval = tech->addPass(pass);
     T3D_ASSERT(rval);
+    tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
 
     // shader
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");

@@ -36,7 +36,7 @@ namespace Tiny3D
     public:
         static TechniqueInstancePtr create(Material *parent, TechniquePtr tech);
 
-        virtual ~TechniqueInstance() = default;
+        ~TechniqueInstance() override;
 
         TechniqueInstancePtr clone(Material *material) const;
 

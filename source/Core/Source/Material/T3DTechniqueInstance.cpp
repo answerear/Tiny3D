@@ -47,10 +47,17 @@ namespace Tiny3D
         for (const auto &pass : tech->getPasses())
         {
             PassInstancePtr instance = PassInstance::create(this, pass);
-            mPassInstances.emplace_back(instance);
+            mPassInstances.emplace(pass->getLightMode(), instance);
         }
     }
 
+    //--------------------------------------------------------------------------
+
+    TechniqueInstance::~TechniqueInstance()
+    {
+        mPassInstances.clear();
+    }
+    
     //--------------------------------------------------------------------------
 
     TechniqueInstancePtr TechniqueInstance::clone(Material *material) const
@@ -86,8 +93,8 @@ namespace Tiny3D
 
             for (const auto &srcInst : src->getPassInstances())
             {
-                PassInstancePtr dstInst = srcInst->clone(this);
-                mPassInstances.emplace_back(dstInst);
+                PassInstancePtr dstInst = srcInst.second->clone(this);
+                mPassInstances.emplace(srcInst.first, dstInst);
             }
         } while (false);
         
@@ -102,7 +109,7 @@ namespace Tiny3D
 
         for (const auto &instance : mPassInstances)
         {
-            ret = instance->switchKeywords(enableKeys, disableKeys);
+            ret = instance.second->switchKeywords(enableKeys, disableKeys);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -120,7 +127,7 @@ namespace Tiny3D
 
         for (const auto &instance : mPassInstances)
         {
-            ret = instance->switchKeyword(keyword);
+            ret = instance.second->switchKeyword(keyword);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -136,7 +143,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setBool(name, value);
+            pass.second->setBool(name, value);
         }
     }
 
@@ -146,7 +153,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setBoolArray(name, values);
+            pass.second->setBoolArray(name, values);
         }
     }
 
@@ -156,7 +163,7 @@ namespace Tiny3D
     {
         for (auto pass : mPassInstances)
         {
-            pass->setFloat(name, value);
+            pass.second->setFloat(name, value);
         }
     }
 
@@ -166,7 +173,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setFloatArray(name, values);
+            pass.second->setFloatArray(name, values);
         }
     }
 
@@ -176,7 +183,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setInteger(name, value);
+            pass.second->setInteger(name, value);
         }
     }
 
@@ -186,7 +193,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setIntArray(name, values);
+            pass.second->setIntArray(name, values);
         }
     }
 
@@ -196,7 +203,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setColor(name, value);
+            pass.second->setColor(name, value);
         }
     }
 
@@ -206,7 +213,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setColorArray(name, values);
+            pass.second->setColorArray(name, values);
         }
     }
 
@@ -216,7 +223,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setVector(name, value);
+            pass.second->setVector(name, value);
         }
     }
 
@@ -226,7 +233,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setVectorArray(name, values);
+            pass.second->setVectorArray(name, values);
         }
     }
 
@@ -236,7 +243,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setMatrix(name, value);
+            pass.second->setMatrix(name, value);
         }
     }
 
@@ -246,7 +253,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setMatrixArray(name, values);
+            pass.second->setMatrixArray(name, values);
         }
     }
     
@@ -256,7 +263,7 @@ namespace Tiny3D
     {
         for (const auto pass : mPassInstances)
         {
-            pass->setData(name, data, dataSize);
+            pass.second->setData(name, data, dataSize);
         }
     }
 
@@ -266,7 +273,7 @@ namespace Tiny3D
     {
         for (const auto &pass : mPassInstances)
         {
-            pass->setTexture(name, uuid);
+            pass.second->setTexture(name, uuid);
         }
     }
     

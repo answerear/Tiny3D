@@ -208,6 +208,27 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::render(RHIContext *ctx)
     {
+#if 1
+        TResult ret = T3D_OK;
+        for (const auto &camera : mCameras)
+        {
+            // 渲染阴影贴图
+            ret = renderShadowMap(ctx, camera);
+            if (T3D_FAILED(ret))
+            {
+                continue;
+            }
+
+            // 前向渲染
+            ret = renderForward(ctx, camera);
+            if (T3D_FAILED(ret))
+            {
+                continue;
+            }
+        }
+
+        return ret;
+#else
         // 先逐个渲染到纹理，然后最后按照顺序把渲染到纹理 blit 到渲染窗口
         for (auto camera : mCameras)
         {
@@ -334,6 +355,147 @@ namespace Tiny3D
             // 重置所有状态
             ctx->reset();
         }
+        return T3D_OK;
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::renderShadowMap(RHIContext *ctx, Camera *camera)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::renderForward(RHIContext *ctx, Camera *camera)
+    {
+        Transform3D *xformCamera = camera->getGameObject()->getComponent<Transform3D>();
+        Vector4 cameraWorldPos(xformCamera->getLocalToWorldTransform().getTranslation(), 1.0f);
+
+        // 设置渲染目标为相机对应纹理
+        RenderTarget *rt = camera->getSrcRenderTarget();
+        if (rt == nullptr)
+        {
+            // 直接渲染到屏幕窗口上，而不是渲染到紋理
+            rt = camera->getRenderTarget();
+        }
+        ctx->setRenderTarget(rt);
+        
+        // 设置 viewport
+        ctx->setViewport(camera->getViewport());
+
+        // 设置 view matrix & projection matrix
+        ctx->setViewProjectionTransform(camera->getViewMatrix(), camera->getProjectionMatrix());
+
+        // 清除 color
+        ctx->clearColor(camera->getClearColor());
+        
+        // 清除 depth buffer、stencil buffer
+        ctx->clearDepthStencil(camera->getClearDepth(), camera->getClearStencil());
+
+        const auto itr = mRenderQueue.find(camera);
+
+        if (itr != mRenderQueue.end())
+        {
+            for (auto itemQueue : itr->second)
+            {
+                const RenderGroup &group = itemQueue.second;
+
+                for (auto itemGroup : group)
+                {
+                    Material *material = itemGroup.first;
+                    const Renderables &renderables = itemGroup.second;
+
+                    TechniqueInstancePtr tech = material->getCurrentTechnique();
+
+                    // 设置 material 对应的矩阵
+                    setupMatrices(ctx, material);
+
+                    // 设置光照
+                    setupLights(ctx, material);
+
+                    // 设置相机世界位置
+                    material->setVector("tiny3d_CameraWorldPos", cameraWorldPos);
+
+                    const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+                    if (itrPass == tech->getPassInstances().end())
+                    {
+                        continue;
+                    }
+                    
+                    PassInstance *pass = itrPass->second;
+                    if (pass == nullptr)
+                    {
+                        continue;
+                    }
+
+                    RenderState *renderState = pass->getPass()->getRenderState();
+                    if (renderState == nullptr)
+                    {
+                        // pass 没有设置 render state，使用 technique 的 render state
+                        renderState = tech->getTechnique()->getRenderState();
+                    }
+
+                    // 设置对应的渲染状态
+                    setupRenderState(ctx, renderState);
+
+                    // 设置着色器
+                    setupShaders(ctx, material, pass);
+
+                    for (const auto &renderable : renderables)
+                    {
+                        // 设置渲染对象的世界变换
+                        setupWorldMatrix(ctx, renderable, material, pass);
+
+                        // 设置渲染图元类型
+                        ctx->setPrimitiveType(renderable->getPrimitiveType());
+
+                        // 设置 vertex declaration
+                        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
+
+                        // 设置 vertex buffer
+                        ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
+
+                        IndexBuffer *ib = renderable->getIndexBuffer();
+                        if (ib != nullptr)
+                        {
+                            // 需要索引缓冲区，设置 index buffer
+                            ctx->setIndexBuffer(ib);
+                            // render
+                            ctx->render(ib->getIndexCount(), 0, 0);
+                        }
+                        else
+                        {
+                            VertexBuffer *vb = renderable->getVertexBuffers().front();
+
+                            // 没有索引缓冲区，直接 render
+                            ctx->render(vb->getVertexCount(), 0);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 把相机渲染纹理渲染到相机对应的渲染目标上
+        // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
+        if (camera->getRenderTarget()->getRenderTexture() != camera->getRenderTexture())
+        {
+            T3D_ASSERT(rt->getType() == RenderTarget::Type::E_RT_TEXTURE);
+            const Viewport &vp = camera->getViewport();
+            Real left = Real(rt->getRenderTexture()->getWidth()) * vp.Left;
+            Real top = Real(rt->getRenderTexture()->getHeight()) * vp.Top;
+            Real width = Real(rt->getRenderTexture()->getWidth()) * vp.Width;
+            Real height = Real(rt->getRenderTexture()->getHeight()) * vp.Height;
+            Vector3 offset(left, top, 0.0f);
+            Vector3 box(width, height, 0.0f);
+            
+            ctx->blit(rt->getRenderTexture(), camera->getRenderTarget(), offset, box, offset);
+            // ctx->blit(rt, camera->getRenderTarget());
+        }
+
+        // 重置所有状态
+        ctx->reset();
         
         return T3D_OK;
     }
@@ -715,8 +877,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupShadowMap()
+    TResult ForwardRenderPipeline::renderShadowCasterPass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables)
     {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::renderForwardBasePass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables)
+    {
+
+        
         return T3D_OK;
     }
 

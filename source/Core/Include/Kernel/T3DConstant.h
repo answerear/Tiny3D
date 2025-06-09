@@ -86,8 +86,6 @@ namespace Tiny3D
         kTriangleList,      /**< 三角形列表图元 */
         kTriangleStrip,     /**< 三角形带图元 */
     };
-
-    #define SHADER_TAG_QUEUE        "Queue"
 }
 
 

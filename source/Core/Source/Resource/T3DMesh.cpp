@@ -185,7 +185,27 @@ namespace Tiny3D
                     }
                     
                     TechniqueInstance *tech = material->getCurrentTechnique();
-                    PassInstance *pass = tech->getPassInstances().front();
+                    PassInstance *pass = nullptr;
+                    
+                    // 先找前向渲染的 pass 里面的 shader
+                    auto itr = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+                    if (itr == tech->getPassInstances().end())
+                    {
+                        // 没有找到，说明不是内置的材质，只能找第0号的 pass
+                        itr = tech->getPassInstances().find(0);
+                        if (itr == tech->getPassInstances().end())
+                        {
+                            // 还没找到，只能找 pass instances 中第一个 pass
+                            itr = tech->getPassInstances().begin();
+                        }
+                    }
+                    if (itr == tech->getPassInstances().end())
+                    {
+                        // 还是没有找到 pass，只能跳出了
+                        break;
+                    }
+
+                    pass = itr->second;
                     // vshader = pass->getCurrentVertexShader()->getShaderVariant();
                     vshader = pass->getPass()->getVertexShaders().empty() ? nullptr : pass->getPass()->getVertexShaders().begin()->second;
                 }

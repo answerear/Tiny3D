@@ -194,7 +194,7 @@ namespace Tiny3D
     using Matrix4Array = TArray<Matrix4>;
     
     using Passes = TList<PassPtr>;
-    using PassInstances = TList<PassInstancePtr>;
+    using PassInstances = TUnorderedMap<uint32_t, PassInstancePtr>;
 
     using ShaderKeywords = TList<ShaderKeyword>;
     using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;

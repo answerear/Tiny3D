@@ -30,6 +30,8 @@
 #include "Resource/T3DResource.h"
 #include "Material/T3DShaderConstantParam.h"
 #include "Material/T3DShaderSamplerParam.h"
+#include "Material/T3DTechnique.h"
+#include "Material/T3DTechniqueInstance.h"
 
 
 /**

@@ -24,9 +24,6 @@
 
 
 #include "Material/T3DPass.h"
-
-#include <d3d11.h>
-
 #include "Material/T3DShaderVariant.h"
 #include "Render/T3DRenderState.h"
 
@@ -210,6 +207,10 @@ namespace Tiny3D
     bool Pass::addTag(const String &key, const String &value)
     {
         auto rval = mTags.emplace(key, value);
+        if (rval.second)
+        {
+            toTagValue(key, rval.first->second);
+        }
         return rval.second;
     }
     
@@ -218,6 +219,7 @@ namespace Tiny3D
     void Pass::removeTag(const String &key)
     {
         mTags.erase(key);
+        resetTagValue(key);
     }
     
     //--------------------------------------------------------------------------
@@ -234,6 +236,64 @@ namespace Tiny3D
         return ret;
     }
     
+    //--------------------------------------------------------------------------
+
+    bool Pass::setTag(const String &key, const String &value)
+    {
+        const auto itr = mTags.find(key);
+        if (itr == mTags.end())
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Set tag failed ! Key (%s) did not exist ! Use addTag() to add tags !", key.c_str());
+            return false;
+        }
+
+        itr->second = value;
+        toTagValue(key, itr->second);
+        
+        return true;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void Pass::toTagValues()
+    {
+        for (auto &kv : mTags)
+        {
+            toTagValue(kv.first, kv.second);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Pass::toTagValue(const String &key, const String &value)
+    {
+        if (key == ShaderLab::kBuiltinTagLightMode)
+        {
+            if (ShaderLab::kBuiltinLightModeShadowCasterStr == value)
+            {
+                mLightMode = ShaderLab::kBuiltinLightModeShadowCaster;
+            }
+            else if (ShaderLab::kBuiltinLightModeForwardBaseStr == value)
+            {
+                mLightMode = ShaderLab::kBuiltinLightModeForwardBase;
+            }
+            else if (ShaderLab::kBuiltinLightModeForwardAddStr == value)
+            {
+                mLightMode = ShaderLab::kBuiltinLightModeForwardAdd;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Pass::resetTagValue(const String &key)
+    {
+        if (key == ShaderLab::kBuiltinTagLightMode)
+        {
+            mLightMode = ShaderLab::kBuiltinLightModeNone;
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     TResult Pass::addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant)

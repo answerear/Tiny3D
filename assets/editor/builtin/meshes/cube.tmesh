@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "f8d520d550aa3b56145fd38878d5a37f"
+          "RTTI_Value": "c1a4c679b792617a88e7be5cebac1eca"
         }
       },
       "SubMeshes": {
@@ -41,7 +41,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "939ab4cc59f96cb4042baa49ce1fcb80"
+                    "RTTI_Value": "be2bf4e4de3ba363949cbd6c59fb75ca"
                   }
                 },
                 "Name": {

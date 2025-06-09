@@ -22,8 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "Material/T3DTechnique.h"
-#include "Material/T3DTechniqueInstance.h"
+
 namespace  Tiny3D
 {
     //--------------------------------------------------------------------------

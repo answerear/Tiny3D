@@ -110,9 +110,9 @@ namespace Tiny3D
     bool Technique::addTag(const String &key, const String &value)
     {
         auto rval = mTags.emplace(key, value);
-        if (key == SHADER_TAG_QUEUE)
+        if (rval.second)
         {
-            mRenderQueue = toRenderQueue(value);
+            toTagValue(key, rval.first->second);
         }
         return rval.second;
     }
@@ -122,10 +122,7 @@ namespace Tiny3D
     void Technique::removeTag(const String &key)
     {
         mTags.erase(key);
-        if (key == SHADER_TAG_QUEUE)
-        {
-            mRenderQueue = -1;
-        }
+        resetTagValue(key);
     }
     
     //--------------------------------------------------------------------------
@@ -151,11 +148,8 @@ namespace Tiny3D
         if (itr != mTags.end())
         {
             itr->second = value;
+            toTagValue(key, value);
             ret = true;
-            if (key == SHADER_TAG_QUEUE)
-            {
-                mRenderQueue = toRenderQueue(value);
-            }
         }
         return ret;
     }
@@ -217,42 +211,53 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    uint32_t Technique::toRenderQueue(const String &tag)
+    void Technique::toTagValues()
     {
-        uint32_t queue = -1;
+        for (auto &kv : mTags)
+        {
+            toTagValue(kv.first, kv.second);
+        }
+    }
+    
+    //--------------------------------------------------------------------------
 
-        if (tag == "Background")
+    void Technique::toTagValue(const String &key, const String &value)
+    {
+        if (key == ShaderLab::kBuiltinTagQueue)
         {
-            queue = 1000;
+            if (ShaderLab::kBuiltinQueueBkgndStr == value)
+            {
+                mRenderQueue = ShaderLab::kBuiltinQueueBkgnd;
+            }
+            else if (ShaderLab::kBuiltinQueueGeometryStr == value)
+            {
+                mRenderQueue = ShaderLab::kBuiltinQueueGeometry;
+            }
+            else if (ShaderLab::kBuiltinQueueAlphaTestStr == value)
+            {
+                mRenderQueue = ShaderLab::kBuiltinQueueAlphaTest;
+            }
+            else if (ShaderLab::kBuiltinQueueTransparentStr == value)
+            {
+                mRenderQueue = ShaderLab::kBuiltinQueueTransparent;
+            }
+            else if (ShaderLab::kBuiltinQueueOverlayStr == value)
+            {
+                mRenderQueue = ShaderLab::kBuiltinQueueOverlay;
+            }
         }
-        else if (tag == "Geometry")
-        {
-            queue = 2000;
-        }
-        else if (tag == "GeometryLast")
-        {
-            queue = 2449;
-        }
-        else if (tag == "AlphaTest")
-        {
-            queue = 2450;
-        }
-        else if (tag == "Transparent")
-        {
-            queue = 3000;
-        }
-        else if (tag == "Overlay")
-        {
-            queue = 4000;
-        }
-        else
-        {
-            queue = std::stoul(tag);
-        }
-
-        return queue;
     }
 
+    //--------------------------------------------------------------------------
+
+    void Technique::resetTagValue(const String& key)
+    {
+        if (key == ShaderLab::kBuiltinTagQueue)
+        {
+            mRenderQueue = ShaderLab::kBuiltinQueueGeometry;
+        }
+    }
+    
     //--------------------------------------------------------------------------
 
     void Technique::onPostLoad()

@@ -29,6 +29,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Material/T3DShaderVariant.h"
+#include "Render/T3DRenderConstant.h"
 
 
 namespace Tiny3D
@@ -68,6 +69,10 @@ namespace Tiny3D
         void removeTag(const String &key);
         
         bool getTag(const String &key, String &value) const;
+
+        bool setTag(const String &key, const String &value);
+
+        uint32_t getLightMode() const { return mLightMode; }
 
         TResult addShaderVariant(const ShaderKeyword &keyword, ShaderVariantPtr variant);
 
@@ -157,6 +162,7 @@ namespace Tiny3D
         void setTags(const ShaderLabTags &tags)
         {
             mTags = tags;
+            toTagValues();
         }
         
         TPROPERTY(RTTRFuncName="Keywords", RTTRFuncType="setter")
@@ -198,6 +204,12 @@ namespace Tiny3D
         Pass(const String &name);
 
         void onPostLoad() override;
+
+        void toTagValues();
+        
+        void toTagValue(const String &key, const String &value);
+
+        void resetTagValue(const String &key);
         
     protected:
         /// Pass 所属的 Technique
@@ -211,6 +223,9 @@ namespace Tiny3D
         ShaderLabTags       mTags {};
         /// 渲染状态
         RenderStatePtr      mRenderState {nullptr};
+
+        /// 光照模式 - LightMode
+        uint32_t            mLightMode {ShaderLab::kBuiltinLightModeNone};
 
         /// 当前的宏
         ShaderKeyword       mCurrentKeyword {};

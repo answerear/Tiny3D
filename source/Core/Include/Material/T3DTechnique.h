@@ -28,7 +28,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
-#include "Kernel/T3DConstant.h"
+#include "Render/T3DRenderConstant.h"
 
 
 namespace Tiny3D
@@ -106,15 +106,7 @@ namespace Tiny3D
         void setTags(const ShaderLabTags &tags)
         {
             mTags = tags;
-            const auto itr = mTags.find(SHADER_TAG_QUEUE);
-            if (itr != mTags.end())
-            {
-                mRenderQueue = toRenderQueue(itr->second);
-            }
-            else
-            {
-                mRenderQueue = -1;
-            }
+            toTagValues();
         }
 
         TPROPERTY(RTTRFuncName="Passes", RTTRFuncType="setter")
@@ -123,7 +115,11 @@ namespace Tiny3D
     protected:
         Technique(const String &name);
 
-        uint32_t toRenderQueue(const String &tag);
+        void toTagValues();
+
+        void toTagValue(const String &key, const String &value);
+
+        void resetTagValue(const String &key);
 
         void onPostLoad() override;
         
@@ -131,7 +127,7 @@ namespace Tiny3D
         Shader          *mShader {nullptr};
         String          mName {};
         uint32_t        mLOD {0};
-        uint32_t        mRenderQueue {0};
+        uint32_t        mRenderQueue {ShaderLab::kBuiltinQueueGeometry};
         ShaderLabTags   mTags {};
         /// 渲染状态
         RenderStatePtr  mRenderState {nullptr};
