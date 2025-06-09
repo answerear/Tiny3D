@@ -46,6 +46,8 @@
 #include "Light/T3DDirectionalLight.h"
 #include "Light/T3DPointLight.h"
 #include "Light/T3DSpotLight.h"
+#include "Resource/T3DTextureManager.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -55,6 +57,45 @@ namespace Tiny3D
     ForwardRenderPipelinePtr ForwardRenderPipeline::create()
     {
         return new ForwardRenderPipeline();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ForwardRenderPipeline::ForwardRenderPipeline()
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    ForwardRenderPipeline::~ForwardRenderPipeline()
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::init()
+    {
+        mShadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 2048, 2048, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
+        if (mShadowMap == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create shadow map !");
+            return T3D_ERR_RENDER_CRATE_SHADOWMAP;
+        }
+        
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::destroy()
+    {
+        if (mShadowMap != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(mShadowMap);
+            mShadowMap = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -363,6 +404,8 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::renderShadowMap(RHIContext *ctx, Camera *camera)
     {
+        // 只对平行光计算阴影贴图
+        
         return T3D_OK;
     }
 
@@ -871,22 +914,6 @@ namespace Tiny3D
             (ctx->*setPixelBuffer)(startSlot, shader->getPixelBuffers());
         }
 #endif
-        
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ForwardRenderPipeline::renderShadowCasterPass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult ForwardRenderPipeline::renderForwardBasePass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables)
-    {
-
         
         return T3D_OK;
     }

@@ -40,6 +40,10 @@ namespace Tiny3D
     public:
         static ForwardRenderPipelinePtr create();
 
+        ~ForwardRenderPipeline() override;
+
+        TResult init() override;
+        
         TResult cull(Scene *scene) override;
         
         TResult render(RHIContext *ctx) override;
@@ -52,6 +56,8 @@ namespace Tiny3D
 
         TResult removeLight(Light *light) override;
 
+        void destroy();
+
     protected:
         using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
         using Renderables = TList<Renderable*>;
@@ -59,6 +65,8 @@ namespace Tiny3D
         using RenderQueue = TMap<uint32_t, RenderGroup>;
         using CameraRenderQueue = TMap<Camera*, RenderQueue>;
         using Cameras = TList<Camera*>;
+
+        ForwardRenderPipeline();
         
         TResult setupBatch();
         
@@ -85,10 +93,6 @@ namespace Tiny3D
 
         TResult renderForward(RHIContext *ctx, Camera *camera);
         
-        TResult renderShadowCasterPass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables);
-
-        TResult renderForwardBasePass(RHIContext *ctx, Camera *camera, PassInstance *pass, const Renderables &renderables);
-        
     protected:
         enum LightParam
         {
@@ -96,18 +100,31 @@ namespace Tiny3D
             kMaxSpotLights = 4,
         };
 
+        /// 渲染队列
         CameraRenderQueue mRenderQueue {};
+        /// 场景中所有相机
         Cameras mCameras {};
+        /// 场景中所有光源
         Lights mLights {};
 
-        ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};  // 点光源颜色 + 漫反射强度
-        Vector4Array mPointLightPos {kMaxPointLights, Vector4f::ZERO}; // 点光源位置 + 镜面反射强度
-        Vector4Array mPointLightAttenuation {kMaxPointLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)}; // 点光源衰减参数
+        /// 阴影贴图
+        RenderTexturePtr mShadowMap {nullptr};
 
-        ColorArray mSpotLightColor {kMaxSpotLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)}; // 聚光灯颜色 + 漫反射强度
-        Vector4Array mSpotLightPos {kMaxSpotLights, Vector4f::ZERO}; // 聚光灯位置 + 镜面反射强度
-        Vector4Array mSpotLightDir {kMaxSpotLights, Vector4f::ZERO}; // 聚光灯方向 + 切角 cos 值
-        Vector4Array mSpotLightAttenuation {kMaxSpotLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)}; // 聚光灯衰减参数 + 外切角 cos 值
+        /// 点光源颜色 + 漫反射强度
+        ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};
+        /// 点光源位置 + 镜面反射强度
+        Vector4Array mPointLightPos {kMaxPointLights, Vector4f::ZERO};
+        /// 点光源衰减参数
+        Vector4Array mPointLightAttenuation {kMaxPointLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)};
+
+        /// 聚光灯颜色 + 漫反射强度
+        ColorArray mSpotLightColor {kMaxSpotLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};
+        /// 聚光灯位置 + 镜面反射强度
+        Vector4Array mSpotLightPos {kMaxSpotLights, Vector4f::ZERO};
+        /// 聚光灯方向 + 切角 cos 值
+        Vector4Array mSpotLightDir {kMaxSpotLights, Vector4f::ZERO};
+        /// 聚光灯衰减参数 + 外切角 cos 值
+        Vector4Array mSpotLightAttenuation {kMaxSpotLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)};
     };
 }
 

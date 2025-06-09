@@ -177,6 +177,8 @@ namespace Tiny3D
 
         TResult initRenderThread();
 
+        void stopRenderThread();
+
         void renderOneFrame(const PreEngineRender &preRender, const PostEngineRender &postRender);
 
         void update();

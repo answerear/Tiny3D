@@ -75,12 +75,7 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
-        if (mRHIRunnable != nullptr)
-        {
-            mRHIRunnable->stop();
-            mRHIThread.wait();
-            mRHIRunnable = nullptr;
-        }
+        stopRenderThread();
 
         // mRenderPipeline->detachAllRenderTargets();
         
@@ -322,13 +317,7 @@ namespace Tiny3D
             {
                 break;
             }
-
-            ret = initRenderThread();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
+            
             if (autoCreateWindow)
             {
                 // 创建渲染窗口
@@ -386,12 +375,6 @@ namespace Tiny3D
 
             // 初始化渲染器
             ret = initRenderer();
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-
-            ret = initRenderThread();
             if (T3D_FAILED(ret))
             {
                 break;
@@ -975,7 +958,6 @@ namespace Tiny3D
     TResult Agent::initManagers()
     {
         mAssignableObjMgr = AssignableObjectManager::create();
-        mRenderPipeline = ForwardRenderPipeline::create();
         mArchiveMgr = ArchiveManager::create();
         mImageCodec = ImageCodec::create();
         mSerializerMgr = SerializerManager::create();
@@ -991,7 +973,8 @@ namespace Tiny3D
         mSceneMgr = SceneManager::create();
         mSceneMgr->setSceneManagerImpl(BuiltinSceneManager::create());
         mImageMgr = ImageManager::create();
-        
+        mRenderPipeline = ForwardRenderPipeline::create();
+
         return T3D_OK;
     }
     
@@ -1147,6 +1130,13 @@ namespace Tiny3D
 
         if (mActiveRHIRenderer != renderer)
         {
+            if (mRenderPipeline != nullptr)
+            {
+                mRenderPipeline->destroy();
+            }
+
+            stopRenderThread();
+            
             if (mActiveRHIRenderer != nullptr)
             {
                 mActiveRHIRenderer->destroy();
@@ -1157,6 +1147,24 @@ namespace Tiny3D
             if (ret == T3D_OK)
             {
                 mActiveRHIRenderer = renderer;
+            }
+
+            ret = initRenderThread();
+            if (T3D_FAILED(ret))
+            {
+                mActiveRHIRenderer = nullptr;
+                return ret;
+            }
+
+            if (mRenderPipeline != nullptr)
+            {
+                ret = mRenderPipeline->init();
+                if (T3D_FAILED(ret))
+                {
+                    stopRenderThread();
+                    mActiveRHIRenderer = nullptr;
+                    return ret;
+                }
             }
         }
 
@@ -1270,6 +1278,18 @@ namespace Tiny3D
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::stopRenderThread()
+    {
+        if (mRHIRunnable != nullptr)
+        {
+            mRHIRunnable->stop();
+            mRHIThread.wait();
+            mRHIRunnable = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------

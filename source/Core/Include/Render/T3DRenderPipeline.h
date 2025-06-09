@@ -45,6 +45,8 @@ namespace Tiny3D
             DEFAULT_ORDER = 0xFFFFFFFF,
         };
 
+        virtual TResult init() = 0;
+
         /**
          * \brief 场景物体遍历和剔除
          * \param [in] scene : 场景对象
@@ -67,6 +69,8 @@ namespace Tiny3D
 
         virtual TResult removeLight(Light *light) = 0;
 
+        virtual void destroy() = 0;
+
         /**
          * 开启或关闭动态合批
          * @param enabled 开关
@@ -78,6 +82,7 @@ namespace Tiny3D
         void setMaxNumOfVertexInMethForDynamicBatch(uint32_t num) { mMaxNumOfVertexInMethForDynamicBatch = num; }
 
         uint32_t getMaxNumOfVertexInMethForDynamicBatch() const { return mMaxNumOfVertexInMethForDynamicBatch; }
+        
 
     protected:
         bool mDynamicBatchEnabled {false};
