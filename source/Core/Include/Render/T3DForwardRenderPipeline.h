@@ -40,8 +40,6 @@ namespace Tiny3D
     public:
         static ForwardRenderPipelinePtr create();
 
-        ~ForwardRenderPipeline() override;
-
         TResult init() override;
         
         TResult cull(Scene *scene) override;
@@ -56,7 +54,7 @@ namespace Tiny3D
 
         TResult removeLight(Light *light) override;
 
-        void destroy();
+        void destroy() override;
 
     protected:
         using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
@@ -65,8 +63,6 @@ namespace Tiny3D
         using RenderQueue = TMap<uint32_t, RenderGroup>;
         using CameraRenderQueue = TMap<Camera*, RenderQueue>;
         using Cameras = TList<Camera*>;
-
-        ForwardRenderPipeline();
         
         TResult setupBatch();
         
@@ -106,6 +102,9 @@ namespace Tiny3D
         Cameras mCameras {};
         /// 场景中所有光源
         Lights mLights {};
+
+        /// 重要的平行光
+        DirectionalLight *mImportantDirLight {nullptr};
 
         /// 阴影贴图
         RenderTexturePtr mShadowMap {nullptr};

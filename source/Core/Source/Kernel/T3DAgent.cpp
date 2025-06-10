@@ -77,6 +77,12 @@ namespace Tiny3D
     {
         stopRenderThread();
 
+        if (mRenderPipeline != nullptr)
+        {
+            mRenderPipeline->destroy();
+            mRenderPipeline = nullptr;
+        }
+
         // mRenderPipeline->detachAllRenderTargets();
         
         mDefaultWindow = nullptr;
