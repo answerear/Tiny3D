@@ -295,6 +295,10 @@ namespace Tiny3D
         TFUNCTION()
         void QDUDecomposition(TMatrix3 &rQ, TVector3<T> &rD, TVector3<T> &rU) const;
 
+        void lookAt_LH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up);
+
+        void lookAt_RH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up);
+
     public:
         static const TMatrix3 ZERO;
         static const TMatrix3 IDENTITY;

@@ -1576,6 +1576,46 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TMatrix3<T>::lookAt_LH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up)
+    {
+        // 这里使用左手系，所以相机空间里相机是看向 z 轴方向
+        TVector3<T> N = at - eye;
+        N.normalize();
+        TVector3<T> V = up;
+        V.normalize();
+        TVector3<T> U = V.cross(N);
+        U.normalize();
+        V = N.cross(U);
+        V.normalize();
+
+        setColumn(0, U);
+        setColumn(1, V);
+        setColumn(2, N);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TMatrix3<T>::lookAt_RH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up)
+    {
+        // 这里使用右手系，所以相机空间里相机是看向 -z 轴方向
+        TVector3<T> N = eye - at;
+        N.normalize();
+        TVector3<T> V = up;
+        V.normalize();
+        TVector3<T> U = V.cross(N);
+        U.normalize();
+        V = N.cross(U);
+        V.normalize();
+
+        setColumn(0, U);
+        setColumn(1, V);
+        setColumn(2, N);
+    }
+    
+    //--------------------------------------------------------------------------
     
     template <typename T>
     inline Buffer TMatrix3<T>::getData() const

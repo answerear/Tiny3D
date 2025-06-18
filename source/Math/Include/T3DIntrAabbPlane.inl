@@ -95,10 +95,10 @@ namespace Tiny3D
             maxD += n.z() * mBox->getMinZ();
         }
 
-        if (minD >= -mPlane->getDistance())
+        if (minD >= mPlane->getDistance())
             return 1;
 
-        if (maxD <= -mPlane->getDistance())
+        if (maxD <= mPlane->getDistance())
             return -1;
 
         return 0;

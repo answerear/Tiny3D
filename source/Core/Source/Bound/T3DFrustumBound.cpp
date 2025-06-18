@@ -195,7 +195,16 @@ namespace Tiny3D
         //              top     :   0 < V * (row3 - row1)   a=m30-m10, b=m31-m11, c=m32-m12, d=m33-m13
         //              near    :   0 < V * row2            a=m20,     b=m21,     c=m22,     d=m23
         //              far     :   0 < V * (row3 - row2)   a=m30-m20, b=m31-m21, c=m32-m22, d=m33-m23
-        //
+        //      2、在OpenGL里，V'在这个空间里，则符合下面的不等式规则
+        //              -w' < x' < w'
+        //              -w' < y' < w'
+        //              -w' < z' < w'
+        //              left    :   0 < V * (row3 + row0)   a=m30+m00, b=m31+m01, c=m32+m02, d=m33+m03
+        //              right   :   0 < V * (row3 - row0)   a=m30-m00, b=m31-m01, c=m32-m02, d=m33-m03
+        //              bottom  :   0 < V * (row3 + row1)   a=m30+m10, b=m31+m11, c=m32+m12, d=m33+m13
+        //              top     :   0 < V * (row3 - row1)   a=m30-m10, b=m31-m11, c=m32-m12, d=m33-m13
+        //              near    :   0 < V * (row3 + row2)   a=m30+m20, b=m31+m21, c=m32+m22, d=m33+m23
+        //              far     :   0 < V * (row3 - row2)   a=m30-m20, b=m31-m21, c=m32-m22, d=m33-m23
 
         Plane plane[E_MAX_FACE];
 
@@ -232,10 +241,14 @@ namespace Tiny3D
         plane[E_FACE_TOP].normalize();
 
         // Near
-        plane[E_FACE_NEAR][0] = m[2][0];
-        plane[E_FACE_NEAR][1] = m[2][1];
-        plane[E_FACE_NEAR][2] = m[2][2];
-        plane[E_FACE_NEAR][3] = m[2][3];
+        // plane[E_FACE_NEAR][0] = m[2][0];
+        // plane[E_FACE_NEAR][1] = m[2][1];
+        // plane[E_FACE_NEAR][2] = m[2][2];
+        // plane[E_FACE_NEAR][3] = m[2][3];
+        plane[E_FACE_FAR][0] = m[3][0] + m[2][0];
+        plane[E_FACE_FAR][1] = m[3][1] + m[2][1];
+        plane[E_FACE_FAR][2] = m[3][2] + m[2][2];
+        plane[E_FACE_FAR][3] = m[3][3] + m[2][3];
         plane[E_FACE_NEAR].normalize();
 
         // Far

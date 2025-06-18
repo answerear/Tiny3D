@@ -40,7 +40,7 @@ namespace Tiny3D
         mCoeff[0] = rkNormal[0];
         mCoeff[1] = rkNormal[1];
         mCoeff[2] = rkNormal[2];
-        mCoeff[3] = fDistance;
+        mCoeff[3] = -fDistance;
     }
 
     template <typename T>
@@ -166,7 +166,7 @@ namespace Tiny3D
     template <typename T>
     inline T TPlane<T>::getDistance() const
     {
-        return mCoeff[3];
+        return -mCoeff[3];
     }
 
     template <typename T>

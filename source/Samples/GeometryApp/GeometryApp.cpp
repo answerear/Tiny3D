@@ -128,7 +128,7 @@ void GeometryApp::buildCamera(Transform3D *parent)
     Radian xAngle(Degree(-25.0f));
     Radian yAngle(Math::PI * 0.25f);
 #else
-    Radian xAngle(Degree(25.0f));
+    Radian xAngle(Degree(25.0f).valueRadians());
     Radian yAngle(-Math::PI * 0.25f);
 #endif
     Radian zAngle(0.0f);

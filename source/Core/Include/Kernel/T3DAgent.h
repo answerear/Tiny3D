@@ -32,7 +32,14 @@
 #include "ImageCodec/T3DImageCodecBase.h"
 
 
-
+/**
+ * \brief   T3D引擎代理类
+ * \remarks 引擎一些规范
+ *      1. 基于左手坐标系
+ *      2. 矩阵 x 列向量的方式计算
+ *      3. NDC 空间 z 轴范围是 [-1, 1]
+ *      4. 纹理空间：原点位于纹理左下角， x 正向向右，y 正向向上
+ */
 namespace Tiny3D
 {
     // using PollEvents = TFunction<bool()>;

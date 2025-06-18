@@ -90,34 +90,18 @@ namespace Tiny3D
             // 构造相机的三个坐标轴，U(x)，V(y)，N(z)
 #if (T3D_COORDINATION_RH)
             // 这里使用右手系，所以相机空间里相机是看向 -z 轴方向
-            Vector3 N = eye - obj;
-            N.normalize();
-            Vector3 V = up;
-            V.normalize();
-            Vector3 U = V.cross(N);
-            U.normalize();
-            V = N.cross(U);
-            V.normalize();
+            Matrix3 mat;
+            mat.lookAt_RH(eye, obj, up);
 #else
             // 这里使用左手系，所以相机空间里相机是看向 z 轴方向
-            Vector3 N = obj - eye;
-            N.normalize();
-            Vector3 V = up;
-            V.normalize();
-            Vector3 U = V.cross(N);
-            U.normalize();
-            V = N.cross(U);
-            V.normalize();
+            Matrix3 mat;
+            mat.lookAt_LH(eye, obj, up);
 #endif
             
             // 设置相机位置
             xform->setPosition(eye);
 
             // 设置相机朝向
-            Matrix3 mat;
-            mat.setColumn(0, U);
-            mat.setColumn(1, V);
-            mat.setColumn(2, N);
             Quaternion orientation;
             orientation.fromRotationMatrix(mat);
             xform->setOrientation(orientation);
@@ -161,13 +145,7 @@ namespace Tiny3D
             invertS[1][1] = REAL_ONE / scale.y();
             invertS[2][2] = REAL_ONE / scale.z();
 
-#if (T3D_COORDINATION_RH)
             mViewMatrix = invertS * invertR * invertT;
-#else
-            Matrix4 matFlipZ(false);
-            matFlipZ[2][2] = -1.0f;
-            mViewMatrix = matFlipZ * invertS * invertR * invertT;
-#endif
             mIsViewDirty = false;
         }
         
@@ -225,14 +203,20 @@ namespace Tiny3D
                 const Radian radian = mFovY * REAL_HALF;
                 const Real m11 = REAL_ONE / Math::tan(radian);
                 const Real m00 = m11 / mAspectRatio;
+#if (T3D_COORDINATION_RH)
                 const Real m22 = -(mFar + mNear) / (mFar - mNear);
+                const Real m32 = -REAL_ONE;
+#else
+                const Real m22 = (mFar + mNear) / (mFar - mNear);
+                const Real m32 = REAL_ONE;
+#endif
                 const Real m23 = - 2 * mFar * mNear / (mFar - mNear);
 
                 mProjectMatrix.make(
                     m00, REAL_ZERO, REAL_ZERO, REAL_ZERO,
                     REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
                     REAL_ZERO, REAL_ZERO, m22, m23,
-                    REAL_ZERO, REAL_ZERO, -REAL_ONE, REAL_ZERO);
+                    REAL_ZERO, REAL_ZERO, m32, REAL_ZERO);
             }
             else
             {
@@ -268,7 +252,11 @@ namespace Tiny3D
                 Real w = mAspectRatio * h;
                 const Real m00 = 2.0f / w;
                 const Real m11 = 2.0f / h;
+#if (T3D_COORDINATION_RH)
                 const Real m22 = -2.0f / (mFar - mNear);
+#else
+                const Real m22 = 2.0f / (mFar - mNear);
+#endif
                 const Real m23 = -(mFar + mNear) / (mFar - mNear);
         
                 mProjectMatrix.make(
