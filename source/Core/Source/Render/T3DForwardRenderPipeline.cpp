@@ -63,12 +63,15 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::init()
     {
-        mShadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 2048, 2048, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
-        if (mShadowMap == nullptr)
+        RenderTexturePtr shadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 2048, 2048, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
+        if (shadowMap == nullptr)
         {
             T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create shadow map !");
             return T3D_ERR_RENDER_CRATE_SHADOWMAP;
         }
+
+        RenderTexture *colorRT = nullptr;
+        mShadowMapRT = RenderTarget::create(colorRT, shadowMap);
         
         return T3D_OK;
     }
@@ -77,10 +80,10 @@ namespace Tiny3D
 
     void ForwardRenderPipeline::destroy()
     {
-        if (mShadowMap != nullptr)
+        if (mShadowMapRT != nullptr)
         {
-            T3D_TEXTURE_MGR.unload(mShadowMap);
-            mShadowMap = nullptr;
+            mShadowMapRT->releaseAllResources();
+            mShadowMapRT = nullptr;
         }
     }
 
@@ -158,6 +161,16 @@ namespace Tiny3D
         }
 
         mLights.emplace(light->getUUID(), light);
+
+        
+        if (mImportantDirLight == nullptr)
+        {
+            if (light->getLightType() == LightType::kDirectional)
+            {
+                // 取第一个方向光作为重要方向光，以产生阴影
+                mImportantDirLight = static_cast<DirectionalLight*>(light);
+            }
+        }
         
         return T3D_OK;
     }
@@ -263,6 +276,32 @@ namespace Tiny3D
     TResult ForwardRenderPipeline::renderShadowMap(RHIContext *ctx, Camera *camera)
     {
         // 只对平行光计算阴影贴图
+        ctx->setRenderTarget(mShadowMapRT);
+
+        ctx->clearDepth(1.0f);
+        
+        if (mImportantDirLight == nullptr)
+        {
+            // 没有平行光
+            ctx->reset();
+            return T3D_OK;
+        }
+
+        const Real kShadowDistance = 15.0f;
+        
+        Transform3D *node = mImportantDirLight->getGameObject()->getComponent<Transform3D>();
+        const Matrix4 &lightMat = node->getLocalToWorldTransform().getAffineMatrix();
+        Vector3 lightDir(lightMat[2][0], lightMat[2][1], lightMat[2][2]);
+        Vector3 lightPos = node->getLocalToWorldTransform().getTranslation();
+        lightPos = lightPos - lightDir * kShadowDistance;
+        Vector3 targetPos = lightPos + lightDir * kShadowDistance * Real(2.0f);
+
+        // 把相机放到光源位置，构造 View Matrix
+        Matrix3 UVN;
+        UVN.lookAt_LH(lightPos, targetPos, Vector3::UP);
+        Matrix4 viewMat = UVN;
+        
+        ctx->reset();
         
         return T3D_OK;
     }

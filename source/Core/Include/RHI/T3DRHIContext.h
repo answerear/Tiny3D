@@ -135,6 +135,13 @@ namespace Tiny3D
         virtual TResult clearColor(const ColorRGB &color) = 0;
 
         /**
+         * @brief 用指定深度值填充渲染目标的 depth buffer
+         * @param depth : 深度值
+         * @return 调用成功返回 T3D_OK
+         */
+        virtual TResult clearDepth(Real depth) = 0;
+
+        /**
          * \brief 用指定深度值和模板值填充渲染目标的 depth buffer 和 stencil buffer
          * \param [in] depth : 深度值
          * \param [in] stencil : 模板值

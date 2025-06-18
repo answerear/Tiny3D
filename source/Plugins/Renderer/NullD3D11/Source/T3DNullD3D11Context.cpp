@@ -113,6 +113,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullD3D11Context::clearDepth(Real depth)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
     
     TResult NullD3D11Context::clearDepthStencil(Real depth, uint32_t stencil)
     {

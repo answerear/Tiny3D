@@ -107,7 +107,7 @@ namespace Tiny3D
         DirectionalLight *mImportantDirLight {nullptr};
 
         /// 阴影贴图
-        RenderTexturePtr mShadowMap {nullptr};
+        RenderTargetPtr mShadowMapRT {nullptr};
 
         /// 点光源颜色 + 漫反射强度
         ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};

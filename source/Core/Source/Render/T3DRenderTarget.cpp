@@ -66,9 +66,16 @@ namespace Tiny3D
 
     RenderTarget::RenderTarget(RenderTexture *renderTexture, RenderTexture *depthStencil)
         : mDepthStencil(depthStencil)
-        , mNumOfTextures(1)
     {
-        mRenderTextures[0] = renderTexture;
+        if (renderTexture != nullptr)
+        {
+            mRenderTextures[0] = renderTexture;
+            mNumOfTextures = 1;
+        }
+        else
+        {
+            mNumOfTextures = 0;
+        }
     }
     
     //--------------------------------------------------------------------------
