@@ -245,10 +245,10 @@ namespace Tiny3D
         // plane[E_FACE_NEAR][1] = m[2][1];
         // plane[E_FACE_NEAR][2] = m[2][2];
         // plane[E_FACE_NEAR][3] = m[2][3];
-        plane[E_FACE_FAR][0] = m[3][0] + m[2][0];
-        plane[E_FACE_FAR][1] = m[3][1] + m[2][1];
-        plane[E_FACE_FAR][2] = m[3][2] + m[2][2];
-        plane[E_FACE_FAR][3] = m[3][3] + m[2][3];
+        plane[E_FACE_NEAR][0] = m[3][0] + m[2][0];
+        plane[E_FACE_NEAR][1] = m[3][1] + m[2][1];
+        plane[E_FACE_NEAR][2] = m[3][2] + m[2][2];
+        plane[E_FACE_NEAR][3] = m[3][3] + m[2][3];
         plane[E_FACE_NEAR].normalize();
 
         // Far
