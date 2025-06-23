@@ -24,6 +24,7 @@ add_subdirectory(DirectionalLightApp)
 add_subdirectory(PointLightApp)
 add_subdirectory(SpotLightApp)
 add_subdirectory(LightApp)
+add_subdirectory(ShadowApp)
 add_subdirectory(TextureApp)
 
 if (TINY3D_OS_DESKTOP)
