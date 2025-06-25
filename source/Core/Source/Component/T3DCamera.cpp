@@ -200,6 +200,7 @@ namespace Tiny3D
                 // p_gl_rh = M_dx2gl * P_dx_rh
                 
                 // 这里使用 OpenGL RH 作为透视投影矩阵
+#if 0
                 const Radian radian = mFovY * REAL_HALF;
                 const Real m11 = REAL_ONE / Math::tan(radian);
                 const Real m00 = m11 / mAspectRatio;
@@ -217,6 +218,13 @@ namespace Tiny3D
                     REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
                     REAL_ZERO, REAL_ZERO, m22, m23,
                     REAL_ZERO, REAL_ZERO, m32, REAL_ZERO);
+#else
+#if (T3D_COORDINATION_RH)
+                mProjectMatrix.perspective_RH(mFovY, mAspectRatio, mNear, mFar);
+#else
+                mProjectMatrix.perspective_LH(mFovY, mAspectRatio, mNear, mFar);
+#endif
+#endif
             }
             else
             {
@@ -250,6 +258,7 @@ namespace Tiny3D
                 // 这里使用 OpenGL RH 作为正交投影矩阵
                 Real h = mOrthographicSize * 2.0f;
                 Real w = mAspectRatio * h;
+#if 0
                 const Real m00 = 2.0f / w;
                 const Real m11 = 2.0f / h;
 #if (T3D_COORDINATION_RH)
@@ -264,6 +273,13 @@ namespace Tiny3D
                     REAL_ZERO, m11, REAL_ZERO, REAL_ZERO,
                     REAL_ZERO, REAL_ZERO, m22, m23,
                     REAL_ZERO, REAL_ZERO, REAL_ZERO, REAL_ONE);
+#else
+#if (T3D_COORDINATION_RH)
+                mProjectMatrix.orthographic_RH(w, h, mNear, mFar);
+#else
+                mProjectMatrix.orthographic_LH(w, h, mNear, mFar);
+#endif
+#endif
             }
             
             mIsProjDirty = false;
