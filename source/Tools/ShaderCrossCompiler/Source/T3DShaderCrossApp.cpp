@@ -41,6 +41,7 @@
 // Unlit pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\GeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Lit vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\LitGeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Lit pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\LitGeometryApp.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
+// Shadow vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\ShadowPass.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 
 
 

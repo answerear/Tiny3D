@@ -36,6 +36,7 @@ ShadowApp theApp;
 
 extern const char *SAMPLE_LIT_VERTEX_SHADER;
 extern const char *SAMPLE_LIT_PIXEL_SHADER;
+extern const char *SHADOW_VERTEX_SHADER;
 
 ShadowApp::ShadowApp()
 {
@@ -332,24 +333,6 @@ Texture2DPtr ShadowApp::buildTexture()
 MaterialPtr ShadowApp::buildMaterial()
 {
     TResult ret;
-    
-    // vertex & pixel shader keyword
-    ShaderKeyword vkeyword;
-    vkeyword.addKeyword("");
-    vkeyword.generate();
-    ShaderKeyword pkeyword(vkeyword);
-    
-    // vertex shader
-    const String vs = SAMPLE_LIT_VERTEX_SHADER;
-    
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
-    vshader->setShaderStage(SHADER_STAGE::kVertex);
-
-    // pixel shader
-    const String ps = SAMPLE_LIT_PIXEL_SHADER;
-    
-    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
-    pshader->setShaderStage(SHADER_STAGE::kPixel);
 
     // render state
     RenderStatePtr renderState = RenderState::create();
@@ -365,23 +348,61 @@ MaterialPtr ShadowApp::buildMaterial()
     // rasterizer state
     RasterizerDesc rasterizeDesc;
     renderState->setRasterizerDesc(rasterizeDesc);
-    
-    // pass
-    PassPtr pass = Pass::create("ForwardBase");
-    ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret));
-    pass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
-    ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret));
-    pass->setRenderState(renderState);
 
-    // technique
+    //---------------- shodow pass ------------------
+    // keyword for shadow pass
+    ShaderKeyword shadowVKeyword;
+    shadowVKeyword.addKeyword("");
+    shadowVKeyword.generate();
+    ShaderKeyword shadowPKeyword(shadowVKeyword);
+
+    // vertex shader for shadow pass
+    const String shadowVS = SHADOW_VERTEX_SHADER;
+    ShaderVariantPtr shadowVShader = ShaderVariant::create(std::move(shadowVKeyword), shadowVS);
+    shadowVShader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // shadow pass
+    PassPtr shadowPass = Pass::create("ShadowCaster");
+    ret = shadowPass->addShaderVariant(shadowVShader->getShaderKeyword(), shadowVShader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    shadowPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeShadowCasterStr);
+    shadowPass->setRenderState(renderState);
+
+    // ----------------- forward pass ------------------
+    // vertex & pixel shader keyword for forward pass
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("");
+    vkeyword.generate();
+    ShaderKeyword pkeyword(vkeyword);
+    
+    // vertex shader for forward pass
+    const String vs = SAMPLE_LIT_VERTEX_SHADER;    
+    ShaderVariantPtr forwardVShader = ShaderVariant::create(std::move(vkeyword), vs);
+    forwardVShader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // pixel shader for forward pass
+    const String ps = SAMPLE_LIT_PIXEL_SHADER;
+    ShaderVariantPtr forwardPShader = ShaderVariant::create(std::move(pkeyword), ps);
+    forwardPShader->setShaderStage(SHADER_STAGE::kPixel);
+
+    // forward pass
+    PassPtr forwardPass = Pass::create("ForwardBase");
+    ret = forwardPass->addShaderVariant(forwardVShader->getShaderKeyword(), forwardVShader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    ret = forwardPass->addShaderVariant(forwardPShader->getShaderKeyword(), forwardPShader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    forwardPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
+    forwardPass->setRenderState(renderState);
+
+    //-------------------- technique -------------------
     TechniquePtr tech = Technique::create("Default-Technique");
-    bool rval = tech->addPass(pass);
+    bool rval = tech->addPass(forwardPass);
+    T3D_ASSERT(rval);
+    rval = tech->addPass(shadowPass);
     T3D_ASSERT(rval);
     tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
 
-    // shader
+    //--------------------- shader -------------------
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
     rval = shader->addTechnique(tech);
     T3D_ASSERT(rval);
