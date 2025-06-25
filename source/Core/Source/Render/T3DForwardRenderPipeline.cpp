@@ -63,7 +63,7 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::init()
     {
-        RenderTexturePtr shadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 2048, 2048, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
+        RenderTexturePtr shadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 1280, 720, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
         if (shadowMap == nullptr)
         {
             T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create shadow map !");
@@ -287,19 +287,123 @@ namespace Tiny3D
             return T3D_OK;
         }
 
-        const Real kShadowDistance = 15.0f;
+        Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+        ctx->setViewport(vp);
         
+        // 构造光源的范围
+        const Real kShadowDistance = 15.0f;
+
+        const Real kTwo = 2 * REAL_ONE;
+
         Transform3D *node = mImportantDirLight->getGameObject()->getComponent<Transform3D>();
         const Matrix4 &lightMat = node->getLocalToWorldTransform().getAffineMatrix();
-        Vector3 lightDir(lightMat[2][0], lightMat[2][1], lightMat[2][2]);
+        Vector3 lightDir(lightMat[0][2], lightMat[1][2], lightMat[2][2]);
         Vector3 lightPos = node->getLocalToWorldTransform().getTranslation();
         lightPos = lightPos - lightDir * kShadowDistance;
-        Vector3 targetPos = lightPos + lightDir * kShadowDistance * Real(2.0f);
+        Vector3 targetPos = lightPos + lightDir * kShadowDistance * kTwo;
 
         // 把相机放到光源位置，构造 View Matrix
-        Matrix3 UVN;
-        UVN.lookAt_LH(lightPos, targetPos, Vector3::UP);
-        Matrix4 viewMat = UVN;
+        Matrix4 matView;
+#if (T3D_COORDINATION_RH)
+        matView.lookAt_RH(lightPos, targetPos, Vector3::UP);
+#else
+        matView.lookAt_LH(lightPos, targetPos, Vector3::UP);
+#endif
+
+        // 平型光，使用正交投影，构造 Projection Matrix
+        Real w = kShadowDistance * kTwo;//static_cast<Real>(mShadowMapRT->getDepthStencil()->getWidth());
+        Real h = kShadowDistance * kTwo;//static_cast<Real>(mShadowMapRT->getDepthStencil()->getHeight());
+        Real zNear = 0.1f;
+        Real zFar = kShadowDistance * kTwo;
+        Matrix4 matProj;
+#if (T3D_COORDINATION_RH)
+        matProj.orthographic_RH(w, h, zNear, zFar);
+#else
+        matProj.orthographic_LH(w, h, zNear, zFar);
+#endif
+
+        // 設置 view matrix & projection matrix
+        ctx->setViewProjectionTransform(matView, matProj);
+
+        const auto itr = mRenderQueue.find(camera);
+
+        if (itr != mRenderQueue.end())
+        {
+            for (auto itemQueue : itr->second)
+            {
+                const RenderGroup &group = itemQueue.second;
+
+                for (auto itemGroup : group)
+                {
+                    Material *material = itemGroup.first;
+                    const Renderables &renderables = itemGroup.second;
+
+                    TechniqueInstancePtr tech = material->getCurrentTechnique();
+
+                    // 设置 material 对应的矩阵
+                    setupMatrices(ctx, material);
+
+                    // 设置光照
+                    setupLights(ctx, material);
+
+                    const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeShadowCaster);
+                    if (itrPass == tech->getPassInstances().end())
+                    {
+                        continue;
+                    }
+                    
+                    PassInstance *pass = itrPass->second;
+                    if (pass == nullptr)
+                    {
+                        continue;
+                    }
+
+                    RenderState *renderState = pass->getPass()->getRenderState();
+                    if (renderState == nullptr)
+                    {
+                        // pass 没有设置 render state，使用 technique 的 render state
+                        renderState = tech->getTechnique()->getRenderState();
+                    }
+
+                    // 设置对应的渲染状态
+                    setupRenderState(ctx, renderState);
+
+                    // 设置着色器
+                    setupShaders(ctx, material, pass);
+
+                    for (const auto &renderable : renderables)
+                    {
+                        // 设置渲染对象的世界变换
+                        setupWorldMatrix(ctx, renderable, material, pass);
+
+                        // 设置渲染图元类型
+                        ctx->setPrimitiveType(renderable->getPrimitiveType());
+
+                        // 设置 vertex declaration
+                        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
+
+                        // 设置 vertex buffer
+                        ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
+
+                        IndexBuffer *ib = renderable->getIndexBuffer();
+                        if (ib != nullptr)
+                        {
+                            // 需要索引缓冲区，设置 index buffer
+                            ctx->setIndexBuffer(ib);
+                            // render
+                            ctx->render(ib->getIndexCount(), 0, 0);
+                        }
+                        else
+                        {
+                            VertexBuffer *vb = renderable->getVertexBuffers().front();
+
+                            // 没有索引缓冲区，直接 render
+                            ctx->render(vb->getVertexCount(), 0);
+                        }
+                    }
+                }
+            }
+        }
         
         ctx->reset();
         
