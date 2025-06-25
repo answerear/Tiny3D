@@ -221,6 +221,30 @@ namespace Tiny3D
         TFUNCTION()
         TVector4<T> transformAffine(const TVector4<T>& v) const;
 
+        /// 左手系透视投影变换.
+        TFUNCTION()
+        void perspective_LH(const TRadian<T> &fovY, T aspect, T zNear, T zFar);
+
+        /// 右手系透视投影变换.
+        TFUNCTION()
+        void perspective_RH(const TRadian<T> &fovY, T aspect, T zNear, T zFar);
+
+        /// 左手系正交投影变换.
+        TFUNCTION()
+        void orthographic_LH(T width, T height, T zNear, T zFar);
+
+        /// 右手系正交投影变换.
+        TFUNCTION()
+        void orthographic_RH(T width, T height, T zNear, T zFar);
+
+        /// 左手系观察变换.
+        TFUNCTION()
+        void lookAt_LH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up);
+
+        /// 右手系观察变换.
+        TFUNCTION()
+        void lookAt_RH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up);
+
         static const TMatrix4 ZERO;      /// 零矩阵
         static const TMatrix4 IDENTITY;  /// 单位矩阵
 

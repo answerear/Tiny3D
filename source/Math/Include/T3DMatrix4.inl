@@ -893,4 +893,172 @@ namespace Tiny3D
         memcpy(mTuples, data.Data, data.DataSize);
         T3D_SAFE_DELETE_ARRAY(data.Data);
     }
+
+    template <typename T>
+    void TMatrix4<T>::perspective_LH(const TRadian<T> &fovY, T aspect, T zNear, T zFar)
+    {
+        // P_dx_lh = | 1/(aspectRatio*tan(fov*0.5)) 0                0              0                      |
+        //           | 0                            1/tan(fov * 0.5) 0              0                      |
+        //           | 0                            0                far/(far-near) -(far*near)/(far-near) |
+        //           | 0                            0                1              0                      |
+        //
+        // P_gl_lh = | 1/(aspectRatio*tan(fov*0.5)) 0              0                     0                        |
+        //           | 0                            1/tan(fov*0.5) 0                     0                        |
+        //           | 0                            0              (far+near)/(far-near) -(2*far*near)/(far-near) |
+        //           | 0                            0              1                     0                        |
+        //
+        // O_dx_lh = M_gl2dx * O_gl_lh
+        // O_dx_rh = M_gl2dx * O_gl_rh
+        // O_gl_lh = M_dx2gl * O_dx_lh
+        // O_gl_rh = M_dx2gl * O_dx_rh
+        
+        // 这里使用 OpenGL LH 作为透视投影矩阵
+        const T half(0.5f);
+        const T one(1.0f);
+        const TRadian<T> radian = fovY * half;
+        const T m11 = one / TMath<T>::tan(radian);
+        const T m00 = m11 / aspect;
+        const T m22 = (zFar + zNear) / (zFar - zNear);
+        const T m23 = - 2 * zFar * zNear / (zFar - zNear);
+
+        m4x4[0][0] = m00; m4x4[0][1] = 0; m4x4[0][2] = 0; m4x4[0][3] = 0;
+        m4x4[1][0] = 0; m4x4[1][1] = m11; m4x4[1][2] = 0; m4x4[1][3] = 0;
+        m4x4[2][0] = 0; m4x4[2][1] = 0; m4x4[2][2] = m22; m4x4[2][3] = m23;
+        m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = one; m4x4[3][3] = 0;
+    }
+
+    template <typename T>
+    void TMatrix4<T>::perspective_RH(const TRadian<T> &fovY, T aspect, T zNear, T zFar)
+    {
+        // P_dx_rh = | 1/(aspectRatio*tan(fov/0.5)) 0                0               0                      |
+        //           | 0                            1/tan(fov / 0.5) 0               0                      |
+        //           | 0                            0                -far/(far-near) -(far*near)/(far-near) |
+        //           | 0                            0                -1              0                      |
+        //
+        // P_gl_rh = | 1/(aspectRatio*tan(fov*0.5)) 0              0                      0                      |
+        //           | 0                            1/tan(fov*0.5) 0                      0                      |
+        //           | 0                            0              -(far+near)/(far-near) -2*far*near/(far-near) |
+        //           | 0                            0              -1                     0                      |
+        //
+        // O_dx_lh = M_gl2dx * O_gl_lh
+        // O_dx_rh = M_gl2dx * O_gl_rh
+        // O_gl_lh = M_dx2gl * O_dx_lh
+        // O_gl_rh = M_dx2gl * O_dx_rh
+        
+        // 这里使用 OpenGL RH 作为透视投影矩阵
+        const T half(0.5f);
+        const T one(1.0f);
+        const TRadian<T> radian = fovY * half;
+        const T m11 = one / TMath<T>::tan(radian);
+        const T m00 = m11 / aspect;
+        const T m22 = -(zFar + zNear) / (zFar - zNear);
+        const T m32 = -one;
+        const T m23 = - 2 * zFar * zNear / (zFar - zNear);
+
+        m4x4[0][0] = m00; m4x4[0][1] = 0; m4x4[0][2] = 0; m4x4[0][3] = 0;
+        m4x4[1][0] = 0; m4x4[1][1] = m11; m4x4[1][2] = 0; m4x4[1][3] = 0;
+        m4x4[2][0] = 0; m4x4[2][1] = 0; m4x4[2][2] = m22; m4x4[2][3] = m23;
+        m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = -one; m4x4[3][3] = 0;
+    }
+
+
+    template <typename T>
+    void TMatrix4<T>::orthographic_LH(T width, T height, T zNear, T zFar)
+    {
+        // O_dx_lh = | 2/width 0        0            0                |
+        //           | 0       2/height 0            0                |
+        //           | 0       0        1/(far-near) -near/(far-near) |
+        //           | 0       0        0            1                |
+        //
+        // O_gl_lh = | 2/width 0        0            0                      |
+        //           | 0       2/height 0            0                      |
+        //           | 0       0        2/(far-near) -(far+near)/(far-near) |
+        //           | 0       0        0            1                      |
+        //
+        // O_dx_lh = M_gl2dx * O_gl_lh
+        // O_dx_rh = M_gl2dx * O_gl_rh
+        // O_gl_lh = M_dx2gl * O_dx_lh
+        // O_gl_rh = M_dx2gl * O_dx_rh
+        
+        // 这里使用 OpenGL LH 作为正交投影矩阵
+        const T one(1.0f);
+        const T two(2.0f);
+        const T m00 = two / width;
+        const T m11 = two / height;
+        const T m22 = two / (zFar - zNear);
+        const T m23 = -(zFar + zNear) / (zFar - zNear);
+        
+        m4x4[0][0] = m00; m4x4[0][1] = 0; m4x4[0][2] = 0; m4x4[0][3] = 0;
+        m4x4[1][0] = 0; m4x4[1][1] = m11; m4x4[1][2] = 0; m4x4[1][3] = 0;
+        m4x4[2][0] = 0; m4x4[2][1] = 0; m4x4[2][2] = m22; m4x4[2][3] = m23;
+        m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = one;
+    }
+
+    template <typename T>
+    void TMatrix4<T>::orthographic_RH(T width, T height, T zNear, T zFar)
+    {
+        // O_dx_rh = | 2/width 0        0             0                |
+        //           | 0       2/height 0             0                |
+        //           | 0       0        -1/(far-near) -near/(far-near) |
+        //           | 0       0        0             1                |
+        //
+        // O_gl_rh = | 2/width 0        0             0                      |
+        //           | 0       2/height 0             0                      |
+        //           | 0       0        -2/(far-near) -(far+near)/(far-near) |
+        //           | 0       0        0             1                      |
+        //
+        // O_dx_lh = M_gl2dx * O_gl_lh
+        // O_dx_rh = M_gl2dx * O_gl_rh
+        // O_gl_lh = M_dx2gl * O_dx_lh
+        // O_gl_rh = M_dx2gl * O_dx_rh
+        
+        // 这里使用 OpenGL RH 作为正交投影矩阵
+        const T one(1.0f);
+        const T two(2.0f);
+        const T m00 = two / width;
+        const T m11 = two / height;
+        const T m22 = -two / (zFar - zNear);
+        const T m23 = -(zFar + zNear) / (zFar - zNear);
+        
+        m4x4[0][0] = m00; m4x4[0][1] = 0; m4x4[0][2] = 0; m4x4[0][3] = 0;
+        m4x4[1][0] = 0; m4x4[1][1] = m11; m4x4[1][2] = 0; m4x4[1][3] = 0;
+        m4x4[2][0] = 0; m4x4[2][1] = 0; m4x4[2][2] = m22; m4x4[2][3] = m23;
+        m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = one;
+    }
+
+    template<typename T>
+    void TMatrix4<T>::lookAt_LH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up)
+    {
+        TVector3<T> N = at - eye;
+        N.normalize();
+        TVector3<T> V = up;
+        V.normalize();
+        TVector3<T> U = V.cross(N);
+        U.normalize();
+        V = N.cross(U);
+        V.normalize();
+
+        m4x4[0][0] = U.x(); m4x4[0][1] = U.y(); m4x4[0][2] = U.z(); m4x4[0][3] = -U.dot(eye);
+        m4x4[1][0] = V.x(); m4x4[1][1] = V.y(); m4x4[1][2] = V.z(); m4x4[1][3] = -V.dot(eye);
+        m4x4[2][0] = N.x(); m4x4[2][1] = N.y(); m4x4[2][2] = N.z(); m4x4[2][3] = -N.dot(eye);
+        m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = 1;
+    }
+
+    template <typename T>
+    void TMatrix4<T>::lookAt_RH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up)
+    {
+        TVector3<T> N = eye - at;
+        N.normalize();
+        TVector3<T> V = up;
+        V.normalize();
+        TVector3<T> U = V.cross(N);
+        U.normalize();
+        V = N.cross(U);
+        V.normalize();
+
+        m4x4[0][0] = U.x(); m4x4[0][1] = U.y(); m4x4[0][2] = U.z(); m4x4[0][3] = -U.dot(eye);
+        m4x4[1][0] = V.x(); m4x4[1][1] = V.y(); m4x4[1][2] = V.z(); m4x4[1][3] = -V.dot(eye);
+        m4x4[2][0] = N.x(); m4x4[2][1] = N.y(); m4x4[2][2] = N.z(); m4x4[2][3] = -N.dot(eye);
+        m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = 1;
+    }
 }
