@@ -3029,26 +3029,29 @@ namespace Tiny3D
                     
                     switch (renderBuffer->getRHIResource()->getResourceType())
                     {
-                    case RenderResource::Type::kVertexBuffer:   /// 顶点缓冲
+                    case RHIResource::ResourceType::kVertexBuffer:   /// 顶点缓冲
                         pD3DResource = smart_pointer_cast<D3D11VertexBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
                         break;
-                    case RenderResource::Type::kIndexBuffer:    /// 索引缓冲
+                    case RHIResource::ResourceType::kIndexBuffer:    /// 索引缓冲
                         pD3DResource = smart_pointer_cast<D3D11IndexBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
                         break;
-                    case RenderResource::Type::kPixelBuffer1D: /// 像素缓冲
+                    case RHIResource::ResourceType::kPixelBuffer1D: /// 像素缓冲
                         pD3DResource = smart_pointer_cast<D3D11PixelBuffer1D>(renderBuffer->getRHIResource())->D3DTexture;
                         break;
-                    case RenderResource::Type::kPixelBuffer2D:
+                    case RHIResource::ResourceType::kPixelBuffer2D:
                         pD3DResource = smart_pointer_cast<D3D11PixelBuffer2D>(renderBuffer->getRHIResource())->D3DTexture;
                         break;
-                    case RenderResource::Type::kPixelBuffer3D:
+                    case RHIResource::ResourceType::kPixelBuffer3D:
                         pD3DResource = smart_pointer_cast<D3D11PixelBuffer3D>(renderBuffer->getRHIResource())->D3DTexture;
                         break;
-                    case RenderResource::Type::kPixelBufferCubemap:
+                    case RHIResource::ResourceType::kPixelBufferCubemap:
                         pD3DResource = smart_pointer_cast<D3D11PixelBuffer2D>(renderBuffer->getRHIResource())->D3DTexture;
                         break;
-                    case RenderResource::Type::kConstantBuffer: /// 常量缓冲
+                    case RHIResource::ResourceType::kConstantBuffer: /// 常量缓冲
                         pD3DResource = smart_pointer_cast<D3D11ConstantBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
+                        break;
+                    default:
+                        T3D_ASSERT(false);
                         break;
                     }
 
@@ -3072,12 +3075,33 @@ namespace Tiny3D
                     mD3DDeviceContext->Unmap(pD3DResource, 0);
 
                     //buffer.release();
+                    if (T3D_RHI_THREAD.isRunning() && renderBuffer->getRHIResource()->getResourceType() == RHIResource::ResourceType::kConstantBuffer)
+                    {
+                        buffer.release();
+                    }
                 } while (false);
 
                 return ret;
             };
 
-            ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
+            if (T3D_RHI_THREAD.isRunning())
+            {
+                if (renderBuffer->getRHIResource()->getResourceType() == RHIResource::ResourceType::kConstantBuffer)
+                {
+                    Buffer newBuf;
+                    newBuf.setData(buffer.Data, buffer.DataSize);
+                    ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), newBuf, discardWholeBuffer);
+                }
+                else
+                {
+                    ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
+                }
+            }
+            else
+            {
+                ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
+            }
+            
             if (T3D_FAILED(ret))
             {
                 break;
