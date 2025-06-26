@@ -341,7 +341,7 @@ namespace Tiny3D
                     TechniqueInstancePtr tech = material->getCurrentTechnique();
 
                     // 设置 material 对应的矩阵
-                    setupMatrices(ctx, material);
+                    setupShadowPassMatrices(ctx, material);
 
                     // 设置光照
                     setupLights(ctx, material);
@@ -454,7 +454,7 @@ namespace Tiny3D
                     TechniqueInstancePtr tech = material->getCurrentTechnique();
 
                     // 设置 material 对应的矩阵
-                    setupMatrices(ctx, material);
+                    setupForwardPassMatrices(ctx, material);
 
                     // 设置光照
                     setupLights(ctx, material);
@@ -546,7 +546,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupMatrices(RHIContext *ctx, Material *material)
+    TResult ForwardRenderPipeline::setupForwardPassMatrices(RHIContext *ctx, Material *material)
     {
         material->setMatrix("tiny3d_MatrixV", ctx->getViewMatrix());
         material->setMatrix("tiny3d_MatrixP", ctx->getProjMatrix());
@@ -554,6 +554,14 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupShadowPassMatrices(RHIContext *ctx, Material *material)
+    {
+        material->setMatrix("tiny3d_lightSpaceVP", ctx->getProjViewMatrix());
+        return T3D_OK;
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)

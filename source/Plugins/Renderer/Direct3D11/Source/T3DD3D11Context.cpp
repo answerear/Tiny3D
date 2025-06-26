@@ -3075,32 +3075,12 @@ namespace Tiny3D
                     mD3DDeviceContext->Unmap(pD3DResource, 0);
 
                     //buffer.release();
-                    if (T3D_RHI_THREAD.isRunning() && renderBuffer->getRHIResource()->getResourceType() == RHIResource::ResourceType::kConstantBuffer)
-                    {
-                        buffer.release();
-                    }
                 } while (false);
 
                 return ret;
             };
 
-            if (T3D_RHI_THREAD.isRunning())
-            {
-                if (renderBuffer->getRHIResource()->getResourceType() == RHIResource::ResourceType::kConstantBuffer)
-                {
-                    Buffer newBuf;
-                    newBuf.setData(buffer.Data, buffer.DataSize);
-                    ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), newBuf, discardWholeBuffer);
-                }
-                else
-                {
-                    ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
-                }
-            }
-            else
-            {
-                ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
-            }
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
             
             if (T3D_FAILED(ret))
             {

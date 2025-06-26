@@ -65,8 +65,10 @@ namespace Tiny3D
         using Cameras = TList<Camera*>;
         
         TResult setupBatch();
+
+        TResult setupShadowPassMatrices(RHIContext *ctx, Material *material);
         
-        TResult setupMatrices(RHIContext *ctx, Material *material);
+        TResult setupForwardPassMatrices(RHIContext *ctx, Material *material);
 
         TResult setupLights(RHIContext *ctx, Material *material);
 
