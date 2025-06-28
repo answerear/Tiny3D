@@ -92,20 +92,6 @@ namespace Tiny3D
          * \return 调用成功返回新建的 RHI 对象
          */
         virtual RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) = 0;
-        
-        // /**
-        //  * \brief 设置当前渲染窗口
-        //  * \param [in] renderWindow : 渲染窗口
-        //  * \return 调用成功返回 T3D_OK
-        //  */
-        // virtual TResult setRenderTarget(RenderWindow *renderWindow) = 0;
-        //
-        // /**
-        //  * \brief 设置当前渲染紋理
-        //  * \param [in] renderTexture : 渲染紋理
-        //  * \return 调用成功返回 T3D_OK
-        //  */
-        // virtual TResult setRenderTarget(RenderTexture *renderTexture) = 0;
 
         /**
          * \brief 设置当前渲染目标

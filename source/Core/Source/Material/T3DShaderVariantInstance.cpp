@@ -51,8 +51,6 @@ namespace Tiny3D
     {
         struct CBufferInfo
         {
-            CBufferInfo() = default;
-
             CBufferInfo(const String &n, uint32_t s) : name(n), size(s) {}
 
             String      name {};
@@ -97,44 +95,47 @@ namespace Tiny3D
 
         T3D_ASSERT(mConstantBuffers.size() == mConstBuffers.size());
 
-        // 预分配纹理、纹理采样器、像素缓冲对象大小
-        mTextures.resize(mShaderVariant->getShaderSamplerParams().size());
-        mSamplers.resize(mShaderVariant->getShaderSamplerParams().size());
-        mPixelBuffers.resize(mShaderVariant->getShaderSamplerParams().size());
-
         // 以防万一 sampler start index 不是 0 开始，先找出最小的 index ，作为 start index
         uint32_t startIdx = std::numeric_limits<uint32_t>::max();
+        uint32_t maxIdx = std::numeric_limits<uint32_t>::min();
         TMap<uint32_t, ShaderSamplerParamPtr> samplers;
         for (const auto &item : mShaderVariant->getShaderSamplerParams())
         {
             uint32_t index = item.second->getSamplerBinding();
             samplers.emplace(index, item.second);
             startIdx = std::min(startIdx, index);
+            maxIdx = std::max(maxIdx, index);
         }
 
         // 记录 samplers 起始索引
         mSamplerStartSlot = startIdx;
+        uint32_t samplerCount = maxIdx - startIdx + 1;
 
         // 建立 sampler LUT
+        uint32_t texCount = 0;
         for (const auto &item : samplers)
         {
             TexLUTItem itemLUT;
             itemLUT.samplerIndex = item.first;
+            itemLUT.textureIndex = texCount++;
             mTexturesLUT.emplace(item.second->getName(), itemLUT);
         }
 
-        // 以防万一 sampler start index 不是 0 开始，先找出最小的 index ，作为 start index
+        // 以防万一 texture start index 不是 0 开始，先找出最小的 index ，作为 start index
         startIdx = std::numeric_limits<uint32_t>::max();
+        maxIdx = std::numeric_limits<uint32_t>::min();
         samplers.clear();
         for (const auto &item : mShaderVariant->getShaderSamplerParams())
         {
             uint32_t index = item.second->getTexBinding();
             samplers.emplace(index, item.second);
             startIdx = std::min(startIdx, index);
+            maxIdx = std::max(maxIdx, index);
         }
 
         // 记录 pixel buffers 起始索引
         mPixelBufferStartSlot = startIdx;
+        uint32_t pbCount = maxIdx - startIdx + 1;
 
         // 建立 pixel buffer LUT
         for (const auto &item : samplers)
@@ -142,6 +143,20 @@ namespace Tiny3D
             const auto itr = mTexturesLUT.find(item.second->getName());
             T3D_ASSERT(itr != mTexturesLUT.end());
             itr->second.pixelBufferIndex = item.first;
+        }
+
+        // 预分配纹理、纹理采样器、像素缓冲对象大小
+        if (texCount > 0)
+        {
+            mTextures.resize(texCount, nullptr);
+            if (samplerCount > 0)
+            {
+                mSamplers.resize(samplerCount, nullptr);
+            }
+            if (pbCount > 0)
+            {
+                mPixelBuffers.resize(pbCount, nullptr);
+            }
         }
     }
 
@@ -220,6 +235,7 @@ namespace Tiny3D
                 TexLUTItem itemLUT;
                 itemLUT.samplerIndex = item.second.samplerIndex;
                 itemLUT.pixelBufferIndex = item.second.pixelBufferIndex;
+                itemLUT.textureIndex = item.second.textureIndex;
                 mTexturesLUT.emplace(item.first, itemLUT);
             }
 
@@ -293,10 +309,12 @@ namespace Tiny3D
             if (texture != nullptr)
             {
                 // 设置纹理
-                uint32_t index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
+                // uint32_t index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
+                uint32_t index = itr->second.textureIndex;
                 mTextures[index] = texture;
 
                 // 设置像素缓冲区
+                index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
                 mPixelBuffers[index] = texture->getPixelBuffer();
             
                 // 设置纹理采样器
@@ -315,7 +333,8 @@ namespace Tiny3D
         const auto itr = mTexturesLUT.find(name);
         if (itr != mTexturesLUT.end())
         {
-            uint32_t index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
+            // uint32_t index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
+            uint32_t index = itr->second.textureIndex;
             texture = mTextures[index]; 
         }
 

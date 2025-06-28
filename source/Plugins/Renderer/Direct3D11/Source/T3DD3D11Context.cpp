@@ -971,24 +971,24 @@ namespace Tiny3D
 
     void D3D11Context::backupRenderState()
     {
-        mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
-        mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-        mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
-        mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
-        mD3DDeviceContext->RSGetState(&mBackupState.RS);
-        mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
-        mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
-        mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
-        mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
-        mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
-        mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
-        mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
-        mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
-        mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
-        mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
-        mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
-        mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
-        mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+        // mD3DDeviceContext->OMGetRenderTargets(1, &mBackupState.RenderTargetView, &mBackupState.DepthStencilView);
+        // mBackupState.ScissorRectsCount = mBackupState.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+        // mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+        // mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
+        // mD3DDeviceContext->RSGetState(&mBackupState.RS);
+        // mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
+        // mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
+        // mD3DDeviceContext->PSGetShaderResources(0, 1, &mBackupState.PSShaderResource);
+        // mD3DDeviceContext->PSGetSamplers(0, 1, &mBackupState.PSSampler);
+        // mBackupState.PSInstancesCount = mBackupState.VSInstancesCount = mBackupState.GSInstancesCount = 256;
+        // mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
+        // mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
+        // mD3DDeviceContext->VSGetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
+        // mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
+        // mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
+        // mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
+        // mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
+        // mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
     }
 
     //--------------------------------------------------------------------------
@@ -1023,7 +1023,11 @@ namespace Tiny3D
 
     TResult D3D11Context::setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil)
     {
-        RenderTextures textures(renderTextures, renderTextures + numOfTextures);
+        RenderTextures textures(numOfTextures, nullptr);
+        for (uint32_t i = 0; i < numOfTextures; ++i)
+        {
+            textures[i] = renderTextures[i];
+        }
         D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
         if (depthStencil != nullptr)
         {
@@ -2785,47 +2789,98 @@ namespace Tiny3D
         mCurrentRenderTarget = nullptr;
 
         auto lambda = [this]()
-        { 
-            // mD3DDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
-            // mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, -1);
-            // mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
-            // mD3DDeviceContext->RSSetState(nullptr);
-            // mD3DDeviceContext->VSSetSamplers(0, 0, nullptr);
-
+        {
             // Restore modified DX state
-            mD3DDeviceContext->OMSetRenderTargets(1, &mBackupState.RenderTargetView, mBackupState.DepthStencilView);
-            D3D_SAFE_RELEASE(mBackupState.RenderTargetView);
-            D3D_SAFE_RELEASE(mBackupState.DepthStencilView);
-            mD3DDeviceContext->RSSetScissorRects(mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
-            mD3DDeviceContext->RSSetViewports(mBackupState.ViewportsCount, mBackupState.Viewports);
-            mD3DDeviceContext->RSSetState(mBackupState.RS); if (mBackupState.RS) mBackupState.RS->Release();
-            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask);
-            D3D_SAFE_RELEASE(mBackupState.BlendState);
-            mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef);
-            D3D_SAFE_RELEASE(mBackupState.DepthStencilState);
-            mD3DDeviceContext->PSSetShaderResources(0, 1, &mBackupState.PSShaderResource);
-            D3D_SAFE_RELEASE(mBackupState.PSShaderResource);
-            mD3DDeviceContext->PSSetSamplers(0, 1, &mBackupState.PSSampler);
-            D3D_SAFE_RELEASE(mBackupState.PSSampler);
-            mD3DDeviceContext->PSSetShader(mBackupState.PS, mBackupState.PSInstances, mBackupState.PSInstancesCount);
-            D3D_SAFE_RELEASE(mBackupState.PS);
-            for (UINT i = 0; i < mBackupState.PSInstancesCount; i++)
-                D3D_SAFE_RELEASE(mBackupState.PSInstances[i]);
-            mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount);
-            D3D_SAFE_RELEASE(mBackupState.VS);
-            mD3DDeviceContext->VSSetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
-            D3D_SAFE_RELEASE(mBackupState.VSConstantBuffer);
-            mD3DDeviceContext->GSSetShader(mBackupState.GS, mBackupState.GSInstances, mBackupState.GSInstancesCount);
-            D3D_SAFE_RELEASE(mBackupState.GS);
-            for (UINT i = 0; i < mBackupState.VSInstancesCount; i++)
-                D3D_SAFE_RELEASE(mBackupState.VSInstances[i]);
-            mD3DDeviceContext->IASetPrimitiveTopology(mBackupState.PrimitiveTopology);
-            mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset);
-            D3D_SAFE_RELEASE(mBackupState.IndexBuffer);
-            mD3DDeviceContext->IASetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
-            D3D_SAFE_RELEASE(mBackupState.VertexBuffer);
-            mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout);
-            D3D_SAFE_RELEASE(mBackupState.InputLayout);
+            // mD3DDeviceContext->OMSetRenderTargets(1, &mBackupState.RenderTargetView, mBackupState.DepthStencilView);
+            // D3D_SAFE_RELEASE(mBackupState.RenderTargetView);
+            // D3D_SAFE_RELEASE(mBackupState.DepthStencilView);
+            // mD3DDeviceContext->RSSetScissorRects(mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+            // mD3DDeviceContext->RSSetViewports(mBackupState.ViewportsCount, mBackupState.Viewports);
+            // mD3DDeviceContext->RSSetState(mBackupState.RS); if (mBackupState.RS) mBackupState.RS->Release();
+            // mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask);
+            // D3D_SAFE_RELEASE(mBackupState.BlendState);
+            // mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef);
+            // D3D_SAFE_RELEASE(mBackupState.DepthStencilState);
+            // mD3DDeviceContext->PSSetShaderResources(0, 1, &mBackupState.PSShaderResource);
+            // D3D_SAFE_RELEASE(mBackupState.PSShaderResource);
+            // mD3DDeviceContext->PSSetSamplers(0, 1, &mBackupState.PSSampler);
+            // D3D_SAFE_RELEASE(mBackupState.PSSampler);
+            // mD3DDeviceContext->PSSetShader(mBackupState.PS, mBackupState.PSInstances, mBackupState.PSInstancesCount);
+            // D3D_SAFE_RELEASE(mBackupState.PS);
+            // for (UINT i = 0; i < mBackupState.PSInstancesCount; i++)
+            //     D3D_SAFE_RELEASE(mBackupState.PSInstances[i]);
+            // mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount);
+            // D3D_SAFE_RELEASE(mBackupState.VS);
+            // mD3DDeviceContext->VSSetConstantBuffers(0, 1, &mBackupState.VSConstantBuffer);
+            // D3D_SAFE_RELEASE(mBackupState.VSConstantBuffer);
+            // mD3DDeviceContext->GSSetShader(mBackupState.GS, mBackupState.GSInstances, mBackupState.GSInstancesCount);
+            // D3D_SAFE_RELEASE(mBackupState.GS);
+            // for (UINT i = 0; i < mBackupState.VSInstancesCount; i++)
+            //     D3D_SAFE_RELEASE(mBackupState.VSInstances[i]);
+            // mD3DDeviceContext->IASetPrimitiveTopology(mBackupState.PrimitiveTopology);
+            // mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset);
+            // D3D_SAFE_RELEASE(mBackupState.IndexBuffer);
+            // mD3DDeviceContext->IASetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
+            // D3D_SAFE_RELEASE(mBackupState.VertexBuffer);
+            // mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout);
+            // D3D_SAFE_RELEASE(mBackupState.InputLayout);
+
+            // 解绑所有渲染目标和深度模板
+            ID3D11RenderTargetView* nullRTV[ D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ] = { nullptr };
+            mD3DDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTV, nullptr);
+
+            // 解绑所有着色器资源（PS、VS、GS、HS、DS、CS）
+            ID3D11ShaderResourceView* nullSRVs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
+            mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            mD3DDeviceContext->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            mD3DDeviceContext->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            mD3DDeviceContext->HSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            mD3DDeviceContext->DSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+
+            // 解绑所有着色器
+            mD3DDeviceContext->VSSetShader(nullptr, nullptr, 0);
+            mD3DDeviceContext->PSSetShader(nullptr, nullptr, 0);
+            mD3DDeviceContext->GSSetShader(nullptr, nullptr, 0);
+            mD3DDeviceContext->HSSetShader(nullptr, nullptr, 0);
+            mD3DDeviceContext->DSSetShader(nullptr, nullptr, 0);
+            mD3DDeviceContext->CSSetShader(nullptr, nullptr, 0);
+
+            // 解绑所有常量缓冲区
+            ID3D11Buffer* nullCBs[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
+            mD3DDeviceContext->VSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            mD3DDeviceContext->PSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            mD3DDeviceContext->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            mD3DDeviceContext->HSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            mD3DDeviceContext->DSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            mD3DDeviceContext->CSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+
+            // 解绑所有采样器
+            ID3D11SamplerState* nullSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = { nullptr };
+            mD3DDeviceContext->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            mD3DDeviceContext->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            mD3DDeviceContext->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            mD3DDeviceContext->HSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            mD3DDeviceContext->DSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            mD3DDeviceContext->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+
+            // 解绑输入布局
+            mD3DDeviceContext->IASetInputLayout(nullptr);
+
+            // 解绑顶点缓冲区和索引缓冲区
+            ID3D11Buffer* nullVBs[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
+            UINT zeroStrides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
+            UINT zeroOffsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
+            mD3DDeviceContext->IASetVertexBuffers(0, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT, nullVBs, zeroStrides, zeroOffsets);
+            mD3DDeviceContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
+
+            // 重置拓扑为默认（通常是三角形列表）
+            mD3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            // 重置光栅化状态、混合状态、深度模板状态为默认（如果你有默认状态对象）
+            mD3DDeviceContext->RSSetState(nullptr);
+            mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+            mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
             return T3D_OK;
         };
 
@@ -3203,10 +3258,13 @@ namespace Tiny3D
         auto lambda = [this](SetSamplerState setSamplerState, uint32_t startSlot, const Samplers &samplers)
         {
             using D3D11Samplers = TArray<ID3D11SamplerState*>;
-            D3D11Samplers d3dSamplers(samplers.size());
+            D3D11Samplers d3dSamplers(samplers.size(), nullptr);
             for (uint32_t i = 0; i< samplers.size(); ++i)
             {
-                d3dSamplers[i] = ((D3D11SamplerState*)samplers[i]->getRHIState().get())->D3DSamplerState;
+                if (samplers[i] != nullptr)
+                {
+                    d3dSamplers[i] = ((D3D11SamplerState*)samplers[i]->getRHIState().get())->D3DSamplerState;
+                }
             }
 
             (mD3DDeviceContext->*setSamplerState)(startSlot, (UINT)d3dSamplers.size(), d3dSamplers.data());
@@ -3222,26 +3280,29 @@ namespace Tiny3D
     {
         auto lambda = [this](SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers)
         {
-            TArray<ID3D11ShaderResourceView*> d3dSRViews(buffers.size());
+            TArray<ID3D11ShaderResourceView*> d3dSRViews(buffers.size(), nullptr);
         
             for (uint32_t i = 0 ; i < buffers.size(); ++i)
             {
                 const auto &buffer = buffers[i];
-                
-                switch (buffer->getRHIResource()->getResourceType())
+
+                if (buffer != nullptr)
                 {
-                case RHIResource::ResourceType::kPixelBuffer1D:
-                    d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer1D>(buffers[i]->getRHIResource())->D3DSRView;
-                    break;
-                case RHIResource::ResourceType::kPixelBuffer2D:
-                    d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer2D>(buffers[i]->getRHIResource())->D3DSRView;
-                    break;
-                case RHIResource::ResourceType::kPixelBuffer3D:
-                    d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer3D>(buffers[i]->getRHIResource())->D3DSRView;
-                    break;
-                case RHIResource::ResourceType::kPixelBufferCubemap:
-                    d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer2D>(buffers[i]->getRHIResource())->D3DSRView;
-                    break;
+                    switch (buffer->getRHIResource()->getResourceType())
+                    {
+                    case RHIResource::ResourceType::kPixelBuffer1D:
+                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer1D>(buffers[i]->getRHIResource())->D3DSRView;
+                        break;
+                    case RHIResource::ResourceType::kPixelBuffer2D:
+                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer2D>(buffers[i]->getRHIResource())->D3DSRView;
+                        break;
+                    case RHIResource::ResourceType::kPixelBuffer3D:
+                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer3D>(buffers[i]->getRHIResource())->D3DSRView;
+                        break;
+                    case RHIResource::ResourceType::kPixelBufferCubemap:
+                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer2D>(buffers[i]->getRHIResource())->D3DSRView;
+                        break;
+                    }    
                 }
             }
             

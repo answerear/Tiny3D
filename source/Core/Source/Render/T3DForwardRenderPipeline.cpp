@@ -72,6 +72,8 @@ namespace Tiny3D
 
         RenderTexture *colorRT = nullptr;
         mShadowMapRT = RenderTarget::create(colorRT, shadowMap);
+        SamplerDesc samplerDesc;
+        shadowMap->setSamplerDesc(samplerDesc);
         
         return T3D_OK;
     }
@@ -325,6 +327,9 @@ namespace Tiny3D
         // 設置 view matrix & projection matrix
         ctx->setViewProjectionTransform(matView, matProj);
 
+        // 经过平台重新计算的 view matrix & projection matrix , 存起来后续 forward pass 使用
+        mLightSpaceMatrix = ctx->getProjViewMatrix();
+
         const auto itr = mRenderQueue.find(camera);
 
         if (itr != mRenderQueue.end())
@@ -453,6 +458,9 @@ namespace Tiny3D
 
                     TechniqueInstancePtr tech = material->getCurrentTechnique();
 
+                    // 设置 shadow map 纹理
+                    material->setTexture("shadowMap", mShadowMapRT->getDepthStencil()->getUUID());
+
                     // 设置 material 对应的矩阵
                     setupForwardPassMatrices(ctx, material);
 
@@ -551,6 +559,7 @@ namespace Tiny3D
         material->setMatrix("tiny3d_MatrixV", ctx->getViewMatrix());
         material->setMatrix("tiny3d_MatrixP", ctx->getProjMatrix());
         material->setMatrix("tiny3d_MatrixVP", ctx->getProjViewMatrix());
+        material->setMatrix("tiny3d_MatrixLightSpaceVP", mLightSpaceMatrix);
         return T3D_OK;
     }
 
@@ -558,7 +567,7 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::setupShadowPassMatrices(RHIContext *ctx, Material *material)
     {
-        material->setMatrix("tiny3d_lightSpaceVP", ctx->getProjViewMatrix());
+        material->setMatrix("tiny3d_MatrixLightSpaceVP", ctx->getProjViewMatrix());
         return T3D_OK;
     }
     

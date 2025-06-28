@@ -4,10 +4,10 @@
 
 cbuffer Tiny3DPerFrame
 {
-   row_major float4x4 tiny3d_lightSpaceVP;
+   row_major float4x4 tiny3d_MatrixLightSpaceVP;
 }
 
-#define TINY3D_MATRIX_LIGHTSPACE tiny3d_lightSpaceVP
+#define TINY3D_MATRIX_LIGHTSPACE tiny3d_MatrixLightSpaceVP
 
 struct VertexInput
 {

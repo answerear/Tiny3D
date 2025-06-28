@@ -34,9 +34,11 @@ const char *SUB_MESH_NAME = "#0";
 
 ShadowApp theApp;
 
-extern const char *SAMPLE_LIT_VERTEX_SHADER;
-extern const char *SAMPLE_LIT_PIXEL_SHADER;
+// extern const char *SAMPLE_LIT_VERTEX_SHADER;
+// extern const char *SAMPLE_LIT_PIXEL_SHADER;
 extern const char *SHADOW_VERTEX_SHADER;
+extern const char *FORWARD_VERTEX_SHADER;
+extern const char *FORWARD_PIXEL_SHADER;
 
 ShadowApp::ShadowApp()
 {
@@ -381,12 +383,12 @@ MaterialPtr ShadowApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader for forward pass
-    const String vs = SAMPLE_LIT_VERTEX_SHADER;    
+    const String vs = FORWARD_VERTEX_SHADER;    
     ShaderVariantPtr forwardVShader = ShaderVariant::create(std::move(vkeyword), vs);
     forwardVShader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader for forward pass
-    const String ps = SAMPLE_LIT_PIXEL_SHADER;
+    const String ps = FORWARD_PIXEL_SHADER;
     ShaderVariantPtr forwardPShader = ShaderVariant::create(std::move(pkeyword), ps);
     forwardPShader->setShaderStage(SHADER_STAGE::kPixel);
 

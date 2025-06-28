@@ -111,6 +111,8 @@ namespace Tiny3D
         /// 阴影贴图
         RenderTargetPtr mShadowMapRT {nullptr};
 
+        Matrix4 mLightSpaceMatrix { false};
+
         /// 点光源颜色 + 漫反射强度
         ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};
         /// 点光源位置 + 镜面反射强度

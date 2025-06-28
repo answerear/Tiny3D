@@ -173,6 +173,7 @@ namespace Tiny3D
         {
             uint32_t samplerIndex {0};
             uint32_t pixelBufferIndex {0};
+            uint32_t textureIndex {0};
         };
         
         /// String : 纹理采样器名称
