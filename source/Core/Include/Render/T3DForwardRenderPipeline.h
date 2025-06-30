@@ -92,7 +92,7 @@ namespace Tiny3D
         TResult renderForward(RHIContext *ctx, Camera *camera);
         
     protected:
-        enum LightParam
+        enum LightParam : uint32_t
         {
             kMaxPointLights = 4,
             kMaxSpotLights = 4,
@@ -110,7 +110,8 @@ namespace Tiny3D
 
         /// 阴影贴图
         RenderTargetPtr mShadowMapRT {nullptr};
-
+        
+        /// 平行光空间矩阵
         Matrix4 mLightSpaceMatrix { false};
 
         /// 点光源颜色 + 漫反射强度

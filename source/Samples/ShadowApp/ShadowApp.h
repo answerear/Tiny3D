@@ -45,6 +45,8 @@ protected:
     void buildCube(Tiny3D::Transform3D *parent, const Tiny3D::Vector3 &pos, const Tiny3D::Radian &yAngles);
 
     Tiny3D::ShaderPtr buildShader();
+    Tiny3D::PassPtr buildShadowPass();
+    Tiny3D::PassPtr buildForwardPass();
     
     Tiny3D::Texture2DPtr buildCubeTexture();
     Tiny3D::MaterialPtr buildCubeMaterial(Tiny3D::Shader *shader);
