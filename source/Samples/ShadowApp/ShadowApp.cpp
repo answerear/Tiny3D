@@ -238,6 +238,8 @@ PassPtr ShadowApp::buildShadowPass()
 
     // rasterizer state
     RasterizerDesc rasterizeDesc;
+    rasterizeDesc.DepthBias = 1000.0f;
+    rasterizeDesc.SlopeScaledDepthBias = 1.0f;
     renderState->setRasterizerDesc(rasterizeDesc);
     pass->setRenderState(renderState);
 
