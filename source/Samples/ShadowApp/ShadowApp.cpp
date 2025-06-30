@@ -294,7 +294,7 @@ PassPtr ShadowApp::buildForwardPass()
 
 ShaderPtr ShadowApp::buildShader()
 {
-    //---------------- shodow pass ------------------
+    //---------------- shadow pass ------------------
     PassPtr shadowPass = buildShadowPass();
 
     // ----------------- forward pass ------------------
