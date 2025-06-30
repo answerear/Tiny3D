@@ -125,14 +125,18 @@ bool ShadowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // spotLight->setCutoffAngle(deg);
     // spotLight->setInnerCutoffAngle(deg * 0.8f);
 
+    // shader
+    ShaderPtr shader = buildShader();
+    
     // cube & plane material
-    mMaterial = buildMaterial();
+    mCubeMaterial = buildCubeMaterial(shader);
+    mPlaneMaterial = buildPlaneMaterial(shader);
 
     // cube mesh
-    mCubeMesh = buildCubeMesh(mMaterial->getUUID());
+    mCubeMesh = buildCubeMesh(mCubeMaterial->getUUID());
 
     // plane mesh
-    mPlaneMesh = buildPlaneMesh(mMaterial->getUUID());
+    mPlaneMesh = buildPlaneMesh(mPlaneMaterial->getUUID());
     
     // camera
     buildCamera(root);
@@ -150,7 +154,8 @@ void ShadowApp::applicationWillTerminate()
 {
     mCubeMesh = nullptr;
     mPlaneMesh = nullptr;
-    mMaterial = nullptr;
+    mCubeMaterial = nullptr;
+    mPlaneMaterial = nullptr;
 }
 
 void ShadowApp::buildCamera(Transform3D *parent)
@@ -202,6 +207,87 @@ void ShadowApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
+ShaderPtr ShadowApp::buildShader()
+{
+    TResult ret;
+
+    // render state
+    RenderStatePtr renderState = RenderState::create();
+
+    // blend state
+    BlendDesc blendDesc;
+    renderState->setBlendDesc(blendDesc);
+
+    // depth & stencil state
+    DepthStencilDesc depthStencilDesc;
+    renderState->setDepthStencilDesc(depthStencilDesc);
+
+    // rasterizer state
+    RasterizerDesc rasterizeDesc;
+    renderState->setRasterizerDesc(rasterizeDesc);
+
+    //---------------- shodow pass ------------------
+    // keyword for shadow pass
+    ShaderKeyword shadowVKeyword;
+    shadowVKeyword.addKeyword("");
+    shadowVKeyword.generate();
+    ShaderKeyword shadowPKeyword(shadowVKeyword);
+
+    // vertex shader for shadow pass
+    const String shadowVS = SHADOW_VERTEX_SHADER;
+    ShaderVariantPtr shadowVShader = ShaderVariant::create(std::move(shadowVKeyword), shadowVS);
+    shadowVShader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // shadow pass
+    PassPtr shadowPass = Pass::create("ShadowCaster");
+    ret = shadowPass->addShaderVariant(shadowVShader->getShaderKeyword(), shadowVShader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    shadowPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeShadowCasterStr);
+    shadowPass->setRenderState(renderState);
+
+    // ----------------- forward pass ------------------
+    // vertex & pixel shader keyword for forward pass
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("");
+    vkeyword.generate();
+    ShaderKeyword pkeyword(vkeyword);
+    
+    // vertex shader for forward pass
+    const String vs = FORWARD_VERTEX_SHADER;    
+    ShaderVariantPtr forwardVShader = ShaderVariant::create(std::move(vkeyword), vs);
+    forwardVShader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // pixel shader for forward pass
+    const String ps = FORWARD_PIXEL_SHADER;
+    ShaderVariantPtr forwardPShader = ShaderVariant::create(std::move(pkeyword), ps);
+    forwardPShader->setShaderStage(SHADER_STAGE::kPixel);
+
+    // forward pass
+    PassPtr forwardPass = Pass::create("ForwardBase");
+    ret = forwardPass->addShaderVariant(forwardVShader->getShaderKeyword(), forwardVShader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    ret = forwardPass->addShaderVariant(forwardPShader->getShaderKeyword(), forwardPShader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    forwardPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
+    forwardPass->setRenderState(renderState);
+
+    //-------------------- technique -------------------
+    TechniquePtr tech = Technique::create("Default-Technique");
+    bool rval = tech->addPass(forwardPass);
+    T3D_ASSERT(rval);
+    rval = tech->addPass(shadowPass);
+    T3D_ASSERT(rval);
+    tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
+
+    //--------------------- shader -------------------
+    ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
+    rval = shader->addTechnique(tech);
+    T3D_ASSERT(rval);
+
+    return shader;
+}
+
+
 void ShadowApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
 {
     static int index = 0;
@@ -229,7 +315,7 @@ void ShadowApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian 
     buildAabb(mCubeMesh, submesh, bound);
 }
 
-Texture2DPtr ShadowApp::buildTexture()
+Texture2DPtr ShadowApp::buildCubeTexture()
 {
     const uint32_t width = 64;
     const uint32_t height = 64;
@@ -243,7 +329,7 @@ Texture2DPtr ShadowApp::buildTexture()
         uint32_t i = 0;
         for (uint32_t x = 0; x < width; ++x)
         {
-#if 0
+#if 1
             if (x < 16 && y < 16)
             {
                 // top, blue
@@ -336,94 +422,18 @@ Texture2DPtr ShadowApp::buildTexture()
     return texture;
 }
 
-
-MaterialPtr ShadowApp::buildMaterial()
+MaterialPtr ShadowApp::buildCubeMaterial(Tiny3D::Shader *shader)
 {
-    TResult ret;
-
-    // render state
-    RenderStatePtr renderState = RenderState::create();
-
-    // blend state
-    BlendDesc blendDesc;
-    renderState->setBlendDesc(blendDesc);
-
-    // depth & stencil state
-    DepthStencilDesc depthStencilDesc;
-    renderState->setDepthStencilDesc(depthStencilDesc);
-
-    // rasterizer state
-    RasterizerDesc rasterizeDesc;
-    renderState->setRasterizerDesc(rasterizeDesc);
-
-    //---------------- shodow pass ------------------
-    // keyword for shadow pass
-    ShaderKeyword shadowVKeyword;
-    shadowVKeyword.addKeyword("");
-    shadowVKeyword.generate();
-    ShaderKeyword shadowPKeyword(shadowVKeyword);
-
-    // vertex shader for shadow pass
-    const String shadowVS = SHADOW_VERTEX_SHADER;
-    ShaderVariantPtr shadowVShader = ShaderVariant::create(std::move(shadowVKeyword), shadowVS);
-    shadowVShader->setShaderStage(SHADER_STAGE::kVertex);
-
-    // shadow pass
-    PassPtr shadowPass = Pass::create("ShadowCaster");
-    ret = shadowPass->addShaderVariant(shadowVShader->getShaderKeyword(), shadowVShader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret));
-    shadowPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeShadowCasterStr);
-    shadowPass->setRenderState(renderState);
-
-    // ----------------- forward pass ------------------
-    // vertex & pixel shader keyword for forward pass
-    ShaderKeyword vkeyword;
-    vkeyword.addKeyword("");
-    vkeyword.generate();
-    ShaderKeyword pkeyword(vkeyword);
-    
-    // vertex shader for forward pass
-    const String vs = FORWARD_VERTEX_SHADER;    
-    ShaderVariantPtr forwardVShader = ShaderVariant::create(std::move(vkeyword), vs);
-    forwardVShader->setShaderStage(SHADER_STAGE::kVertex);
-
-    // pixel shader for forward pass
-    const String ps = FORWARD_PIXEL_SHADER;
-    ShaderVariantPtr forwardPShader = ShaderVariant::create(std::move(pkeyword), ps);
-    forwardPShader->setShaderStage(SHADER_STAGE::kPixel);
-
-    // forward pass
-    PassPtr forwardPass = Pass::create("ForwardBase");
-    ret = forwardPass->addShaderVariant(forwardVShader->getShaderKeyword(), forwardVShader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret));
-    ret = forwardPass->addShaderVariant(forwardPShader->getShaderKeyword(), forwardPShader);
-    T3D_ASSERT(T3D_SUCCEEDED(ret));
-    forwardPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
-    forwardPass->setRenderState(renderState);
-
-    //-------------------- technique -------------------
-    TechniquePtr tech = Technique::create("Default-Technique");
-    bool rval = tech->addPass(forwardPass);
-    T3D_ASSERT(rval);
-    rval = tech->addPass(shadowPass);
-    T3D_ASSERT(rval);
-    tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
-
-    //--------------------- shader -------------------
-    ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
-    rval = shader->addTechnique(tech);
-    T3D_ASSERT(rval);
-    
     // samplers
     ShaderSamplerParams samplers;
     const String texSamplerName = "texCube";
-    Texture2DPtr texture = buildTexture();
+    Texture2DPtr texture = buildCubeTexture();
     // sampler state
     SamplerDesc samplerDesc;
     texture->setSamplerDesc(samplerDesc);
     
     // material
-    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Cube-Material", shader);
     StringArray enableKeywrods;
     enableKeywrods.push_back("");
     StringArray disableKeywords;
@@ -806,6 +816,157 @@ void ShadowApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
     aabb.build(points, pointCount);
     T3D_SAFE_DELETE_ARRAY(points);
     bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
+}
+
+Texture2DPtr ShadowApp::buildPlaneTexture()
+{
+    const uint32_t width = 64;
+    const uint32_t height = 64;
+    uint32_t pitch = Image::calcPitch(width, 32);
+    const uint32_t dataSize = pitch * height;
+    uint8_t *pixels = new uint8_t[dataSize];
+    
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        uint8_t *lines = pixels + pitch * y;
+        uint32_t i = 0;
+        for (uint32_t x = 0; x < width; ++x)
+        {
+#if 0
+            if (x < 16 && y < 16)
+            {
+                // top, blue
+                // B
+                lines[i++] = 196;
+                // G
+                lines[i++] = 114;
+                // R
+                lines[i++] = 68;
+            }
+            else if (x < 16 && y >= 16 && y < 32)
+            {
+                // front, orange
+                // B
+                lines[i++] = 49;
+                // G
+                lines[i++] = 125;
+                // R
+                lines[i++] = 237;
+            }
+            else if (x >= 16 && x < 32 && y >= 16 && y < 32)
+            {
+                // right, green
+                // B
+                lines[i++] = 71;
+                // G
+                lines[i++] = 173;
+                // R
+                lines[i++] = 112;
+            }
+            else if (x >= 32 && x < 48 && y >= 16 && y < 32)
+            {
+                // back, yellow
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 192;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x >= 48 && x < 64 && y >= 16 && y <32)
+            {
+                // left, red
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x < 16 && y >= 32 && y < 48)
+            {
+                // bottom, purple
+                // B
+                lines[i++] = 160;
+                // G
+                lines[i++] = 48;
+                // R
+                lines[i++] = 112;
+            }
+            else
+            {
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 0;
+            }
+#else
+            // B
+            lines[i++] = 255;
+            // G
+            lines[i++] = 255;
+            // R
+            lines[i++] = 255;
+#endif
+            
+            // A
+            lines[i++] = 255;
+        }
+    }
+    
+    Buffer texData;
+    texData.Data = pixels;
+    texData.DataSize = dataSize;
+    
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("texturePlane", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+    
+    return texture;
+}
+
+MaterialPtr ShadowApp::buildPlaneMaterial(Tiny3D::Shader *shader)
+{    
+    // samplers
+    ShaderSamplerParams samplers;
+    const String texSamplerName = "texCube";
+    Texture2DPtr texture = buildPlaneTexture();
+    // sampler state
+    SamplerDesc samplerDesc;
+    texture->setSamplerDesc(samplerDesc);
+    
+    // material
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Plane-Material", shader);
+    StringArray enableKeywrods;
+    enableKeywrods.push_back("");
+    StringArray disableKeywords;
+    material->switchKeywords(enableKeywrods, disableKeywords);
+    material->setTexture(texSamplerName, texture->getUUID());
+    
+    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+
+    // Camera
+    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+    // Object
+    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // Ambient
+    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    // Directional light
+    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+    // Point lights
+    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setColorArray("tiny3d_PointLightColor", colors);
+    Vector4Array values(4, Vector4::ZERO);
+    material->setVectorArray("tiny3d_PointLightPos", values);
+    material->setVectorArray("tiny3d_PointLightAttenuation", values);
+    // Spot lights
+    material->setColorArray("tiny3d_SpotLightColor", colors);
+    material->setVectorArray("tiny3d_SpotLightPos", values);
+    material->setVectorArray("tiny3d_SpotLightDir", values);
+    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    
+    return material;
 }
 
 MeshPtr ShadowApp::buildPlaneMesh(const Tiny3D::UUID &materialUUID)

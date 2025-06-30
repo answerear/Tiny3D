@@ -43,19 +43,24 @@ protected:  /// from Tiny3D::Application
 protected:
     void buildCamera(Tiny3D::Transform3D *parent);
     void buildCube(Tiny3D::Transform3D *parent, const Tiny3D::Vector3 &pos, const Tiny3D::Radian &yAngles);
+
+    Tiny3D::ShaderPtr buildShader();
     
-    Tiny3D::Texture2DPtr buildTexture();
-    Tiny3D::MaterialPtr buildMaterial();
+    Tiny3D::Texture2DPtr buildCubeTexture();
+    Tiny3D::MaterialPtr buildCubeMaterial(Tiny3D::Shader *shader);
     Tiny3D::MeshPtr buildCubeMesh(const Tiny3D::UUID &materialUUID);
     void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
 
+    Tiny3D::Texture2DPtr buildPlaneTexture();
+    Tiny3D::MaterialPtr buildPlaneMaterial(Tiny3D::Shader *shader);
     Tiny3D::MeshPtr buildPlaneMesh(const Tiny3D::UUID &materialUUID);
     void buildPlane(Tiny3D::Transform3D *parent);
 
     Tiny3D::MeshPtr mCubeMesh {nullptr};
     Tiny3D::MeshPtr mPlaneMesh {nullptr};
     
-    Tiny3D::MaterialPtr mMaterial {nullptr};
+    Tiny3D::MaterialPtr mCubeMaterial {nullptr};
+    Tiny3D::MaterialPtr mPlaneMaterial {nullptr};
 };
 
 
