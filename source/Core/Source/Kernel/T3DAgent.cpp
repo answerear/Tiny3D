@@ -232,6 +232,9 @@ namespace Tiny3D
             mAppPath = Dir::getAppPath();
 #endif
 
+            // 初始化 CRC 表
+            CRC::initCRCTable();
+
             // 初始化应用程序框架，这个需要放在最前面，否则平台相关接口均不能用
             ret = initApplication();
             if (T3D_FAILED(ret))
