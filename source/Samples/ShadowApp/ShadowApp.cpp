@@ -89,41 +89,41 @@ bool ShadowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     light->setSpecularIntensity(1.0f);
 
     // point light
-    // go = GameObject::create("PointLight");
-    // node = go->addComponent<Transform3D>();
-    // Vector3 lightPos(-2.0f, -2.0f, -4.0f);
-    // // Vector3 lightPos(0.0f, 5.0f, 0.0f);
-    // node->setPosition(lightPos);
-    // root->addChild(node);
-    // PointLightPtr pointLight = go->addComponent<PointLight>();
-    // pointLight->setColor(ColorRGB::WHITE);
-    // pointLight->setDiffuseIntensity(1.0f);
-    // pointLight->setSpecularIntensity(1.0f);
-    // pointLight->setAttenuationConstant(1.0f);
-    // pointLight->setAttenuationLinear(0.09f);
-    // pointLight->setAttenuationQuadratic(0.032f);
-    //
-    // // spotlight
-    // go = GameObject::create("Spotlight");
-    // node = go->addComponent<Transform3D>();
-    // // spotlight position
-    // lightPos = Vector3(0.0f, 5.0f, 0.0f);
-    // node->setPosition(lightPos);
-    // // spotlight direction
-    // q.fromAngleAxis(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
-    // node->setOrientation(q);
-    // root->addChild(node);
-    //
-    // SpotLightPtr spotLight = go->addComponent<SpotLight>();
-    // spotLight->setColor(ColorRGB::WHITE);
-    // spotLight->setDiffuseIntensity(1.0f);
-    // spotLight->setSpecularIntensity(1.0f);
-    // spotLight->setAttenuationConstant(1.0f);
-    // spotLight->setAttenuationLinear(0.09f);
-    // spotLight->setAttenuationQuadratic(0.032f);
-    // Degree deg(10.0f);
-    // spotLight->setCutoffAngle(deg);
-    // spotLight->setInnerCutoffAngle(deg * 0.8f);
+    go = GameObject::create("PointLight");
+    node = go->addComponent<Transform3D>();
+    Vector3 lightPos(-2.0f, -2.0f, -4.0f);
+    // Vector3 lightPos(0.0f, 5.0f, 0.0f);
+    node->setPosition(lightPos);
+    root->addChild(node);
+    PointLightPtr pointLight = go->addComponent<PointLight>();
+    pointLight->setColor(ColorRGB::WHITE);
+    pointLight->setDiffuseIntensity(1.0f);
+    pointLight->setSpecularIntensity(1.0f);
+    pointLight->setAttenuationConstant(1.0f);
+    pointLight->setAttenuationLinear(0.09f);
+    pointLight->setAttenuationQuadratic(0.032f);
+    
+    // spotlight
+    go = GameObject::create("Spotlight");
+    node = go->addComponent<Transform3D>();
+    // spotlight position
+    lightPos = Vector3(0.0f, 5.0f, 0.0f);
+    node->setPosition(lightPos);
+    // spotlight direction
+    q.fromAngleAxis(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
+    node->setOrientation(q);
+    root->addChild(node);
+    
+    SpotLightPtr spotLight = go->addComponent<SpotLight>();
+    spotLight->setColor(ColorRGB::WHITE);
+    spotLight->setDiffuseIntensity(1.0f);
+    spotLight->setSpecularIntensity(1.0f);
+    spotLight->setAttenuationConstant(1.0f);
+    spotLight->setAttenuationLinear(0.09f);
+    spotLight->setAttenuationQuadratic(0.032f);
+    Degree deg(10.0f);
+    spotLight->setCutoffAngle(deg);
+    spotLight->setInnerCutoffAngle(deg * 0.8f);
 
     // shader
     ShaderPtr shader = buildShader();
