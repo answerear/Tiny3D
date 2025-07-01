@@ -238,8 +238,8 @@ PassPtr ShadowApp::buildShadowPass()
 
     // rasterizer state
     RasterizerDesc rasterizeDesc;
-    rasterizeDesc.DepthBias = 1000.0f;
-    rasterizeDesc.SlopeScaledDepthBias = 1.0f;
+    rasterizeDesc.DepthBias = 50.0f;
+    rasterizeDesc.SlopeScaledDepthBias = 2.5f;
     renderState->setRasterizerDesc(rasterizeDesc);
     pass->setRenderState(renderState);
 
@@ -294,13 +294,13 @@ PassPtr ShadowApp::buildForwardPass()
 
 ShaderPtr ShadowApp::buildShader()
 {
-    //---------------- shadow pass ------------------
+    // shadow pass
     PassPtr shadowPass = buildShadowPass();
 
-    // ----------------- forward pass ------------------
+    // forward pass
     PassPtr forwardPass = buildForwardPass();
 
-    //-------------------- technique -------------------
+    // technique
     TechniquePtr tech = Technique::create("Default-Technique");
     bool rval = tech->addPass(forwardPass);
     T3D_ASSERT(rval);
@@ -308,7 +308,7 @@ ShaderPtr ShadowApp::buildShader()
     T3D_ASSERT(rval);
     tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
 
-    //--------------------- shader -------------------
+    // shader 
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
     rval = shader->addTechnique(tech);
     T3D_ASSERT(rval);

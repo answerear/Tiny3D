@@ -74,6 +74,9 @@ namespace Tiny3D
         
         TPROPERTY()
         Real                MaxLOD {FLT_MAX};
+
+        TPROPERTY()
+        bool                IsComparison {false};
     };
 
     template class T3D_ENGINE_API RenderStateResource<SamplerDesc, RHISamplerState>;

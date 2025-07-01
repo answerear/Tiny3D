@@ -63,7 +63,7 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::init()
     {
-        RenderTexturePtr shadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 1280, 720, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
+        RenderTexturePtr shadowMap = T3D_TEXTURE_MGR.createRenderTexture("__@$ShadowMap$@__", 2048, 2048, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, true);
         if (shadowMap == nullptr)
         {
             T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create shadow map !");
@@ -73,6 +73,14 @@ namespace Tiny3D
         RenderTexture *colorRT = nullptr;
         mShadowMapRT = RenderTarget::create(colorRT, shadowMap);
         SamplerDesc samplerDesc;
+        samplerDesc.MinFilter = FilterOptions::kLinear;
+        samplerDesc.MagFilter = FilterOptions::kLinear;
+        samplerDesc.MipFilter = FilterOptions::kPoint;
+        samplerDesc.AddressU = TextureAddressMode::kBorder;
+        samplerDesc.AddressV = TextureAddressMode::kBorder;
+        samplerDesc.AddressW = TextureAddressMode::kBorder;
+        samplerDesc.CompareFunc = CompareFunction::kLessEqual;
+        samplerDesc.IsComparison = true;
         shadowMap->setSamplerDesc(samplerDesc);
         
         return T3D_OK;

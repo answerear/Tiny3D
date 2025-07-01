@@ -1452,7 +1452,7 @@ namespace Tiny3D
         const SamplerDesc &desc = state->getStateDesc();
         D3D11_SAMPLER_DESC d3dDesc;
         memset(&d3dDesc, 0, sizeof(d3dDesc));
-        d3dDesc.Filter = D3D11Mapping::get(desc.MinFilter,desc.MagFilter, desc.MipFilter);
+        d3dDesc.Filter = D3D11Mapping::get(desc.MinFilter,desc.MagFilter, desc.MipFilter, desc.IsComparison);
         d3dDesc.AddressU = D3D11Mapping::get(desc.AddressU); // 设置U方向寻址模式为环绕
         d3dDesc.AddressV = D3D11Mapping::get(desc.AddressV); // 设置V方向寻址模式为环绕
         d3dDesc.AddressW = D3D11Mapping::get(desc.AddressW); // 设置W方向寻址模式为环绕
