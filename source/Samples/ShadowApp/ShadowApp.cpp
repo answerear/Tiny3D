@@ -144,15 +144,16 @@ bool ShadowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // cube
     // buildCube(root, Vector3(0, 0.5f, 0), Radian(0.0f));
     const int32_t kMaxCubes = 5;
-    Vector3 pos(-10.0f, 0.5f, 0.0f);
+    const Real kStep = 5.0f;
+    Vector3 pos(-floor(kMaxCubes * 0.5f) * kStep, 0.5f, 0.0f);
 
     for (int32_t i = 0; i < kMaxCubes; ++i)
     {
-        pos.x() += 5.0f;
-        float val = dist(engine) * 0.0f;
+        float val = (pos.x() / kStep) * 30.0f;
         Degree deg(val);
         Radian yAngles(deg.valueRadians());
         buildCube(root, pos, yAngles);
+        pos.x() += kStep;
     }
 
     // plane
@@ -1100,7 +1101,7 @@ void ShadowApp::buildPlane(Transform3D *parent)
     Radian yAngles(0.0f);
     Radian zAngles(0.0f);
     xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
-    xform->setScaling(Vector3(2.0f, 1.0f, 2.0f));
+    xform->setScaling(Vector3(3.0f, 3.0f, 3.0f));
     
     // submesh
     SubMesh *submesh = mPlaneMesh->getSubMesh(SUB_MESH_NAME);
@@ -1109,6 +1110,3 @@ void ShadowApp::buildPlane(Transform3D *parent)
     GeometryPtr geometry = go->addComponent<Geometry>();
     geometry->setMeshObject(mPlaneMesh, submesh);
 }
-
-
-
