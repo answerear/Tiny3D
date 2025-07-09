@@ -4,20 +4,19 @@
 
 **Prerequisites**
 
-- Windows 10
+- Windows 10 or later
 - Visual Studio 2019
-- Windows SDK 10.0.19042
+- Windows SDK 10.0.19042 or later
 - Python 3
-- Python pandas
+
+**Setup Environment**
+
+Run the script **<setup_env.bat>** in directory **<$(Root)/source/Projects>**
 
 **Build**
 
-command : 
-
-- pip install pandas
-- pip install openpyxl
-
-Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/source/Projects>** for debug, and run the script **<generate-vs2019-x64.bat>** in the same directory for release.
+1. Run the script **<start_vsenv.bat>** in directory **<$(Root)/source/Projects>**
+2. Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/source/Projects>** for debug, and run the script **<generate-vs2019-x64.bat>** in the same directory for release.
 
 ## Mac OS X
 
