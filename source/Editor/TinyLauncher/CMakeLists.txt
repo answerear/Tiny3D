@@ -28,6 +28,8 @@ add_definitions(-DT3D_EDITOR)
 
 set(TINY3D_TINYIMGUI_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../TinyImGui/Include)
 
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/Language")
+
 # Setup project include files path
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
