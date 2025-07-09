@@ -8,8 +8,14 @@
 - Visual Studio 2019
 - Windows SDK 10.0.19042
 - Python 3
+- Python pandas
 
 **Build**
+
+command : 
+
+- pip install pandas
+- pip install openpyxl
 
 Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/source/Projects>** for debug, and run the script **<generate-vs2019-x64.bat>** in the same directory for release.
 
