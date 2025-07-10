@@ -95,24 +95,28 @@ if (TINY3D_OS_WINDOWS)
         LINK_PRIVATE TinyImGui
         )
     
-    # 在生成工程前，先产生语言文件，并移动到对应文件夹下
-    #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor")
-    #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/editor" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language")
-    #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/fonts")
-    #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/fonts")
-    execute_process(COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/generate-language.bat")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-en-us.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-zh-hans.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-en-us.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language/lang-en-us.txt")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-en-us.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language/lang-en-us.txt")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language/lang-zh-hans.txt")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language/lang-zh-hans.txt")
-    #execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial unicode ms.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/fonts/arial unicode ms.ttf")
-    #execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial unicode ms.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/fonts/arial unicode ms.ttf")
-    
+    if (TINY3D_COPY_RESOURCE)
+        # 在生成工程前，先产生语言文件，并移动到对应文件夹下
+        message(STATUS "Editor runtime debug dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
+        message(STATUS "Editor runtime release dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
+        #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor")
+        #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/editor" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language")
+        #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/fonts")
+        #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/fonts")
+        execute_process(COMMAND cmd /c "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/generate-language.bat")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-en-us.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-zh-hans.h" "${CMAKE_CURRENT_SOURCE_DIR}/Language/Language.h")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-en-us.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language/lang-en-us.txt")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-en-us.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language/lang-en-us.txt")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language/lang-zh-hans.txt")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Editor/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language/lang-zh-hans.txt")
+        #execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial unicode ms.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/fonts/arial unicode ms.ttf")
+        #execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial unicode ms.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/fonts/arial unicode ms.ttf")
+    endif (TINY3D_COPY_RESOURCE)
+
     #add_custom_command(TARGET ${BIN_NAME}
     #    PRE_BUILD
     #    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Language"

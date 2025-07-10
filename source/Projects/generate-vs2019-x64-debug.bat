@@ -5,7 +5,7 @@
 @rmdir /Q /S lib
 @rmdir /Q /S bin
 @mkdir vs2019-x64 && cd vs2019-x64
-@cmake -G "Visual Studio 16 2019" -DTINY3D_BUILD_RTTR_TOOL=ON -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "Visual Studio 16 2019" -DTINY3D_BUILD_RTTR_TOOL=ON -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -23,7 +23,7 @@
 @mkdir nmake && cd nmake
 
 @rem ==================== System project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR  -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -32,7 +32,7 @@
 xcopy compile_commands.json .\System 
 
 @rem ==================== Math project =======================
-@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR  -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -41,7 +41,7 @@ xcopy compile_commands.json .\System
 xcopy compile_commands.json .\Math 
 
 @rem ==================== Core runtime project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR  -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -50,7 +50,7 @@ xcopy compile_commands.json .\Math
 xcopy compile_commands.json .\Core\Runtime 
 
 @rem ==================== Core editor project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_CORE_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_CORE_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR  -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -68,7 +68,7 @@ xcopy compile_commands.json .\Core\Editor
 @rem xcopy compile_commands.json .\Plugins\Archive\MetaFileSystem 
 
 @rem ==================== Editor/TinyLauncher project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_EDITOR_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_EDITOR_RTTR  -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -78,7 +78,7 @@ xcopy compile_commands.json .\Editor\TinyLauncher
 
 
 @rem ==================== Editor/TinyEditor project =========================
-@cmake -G "NMake Makefiles" -DTINY3D_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "NMake Makefiles" -DTINY3D_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR  -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=Debug ../
 @if not %ERRORLEVEL% == 0 (
 	@cd ../Projects
 	@goto end
@@ -116,7 +116,7 @@ xcopy compile_commands.json .\Editor\TinyEditor
 
 @rem ==================== Generate all projects ===================
 @cd ../vs2019-x64
-@cmake -G "Visual Studio 16 2019" -DTINY3D_BUILD_RTTR_TOOL=OFF -DCMAKE_BUILD_TYPE=Debug ../
+@cmake -G "Visual Studio 16 2019" -DTINY3D_BUILD_RTTR_TOOL=OFF -DTINY3D_COPY_RESOURCE=ON -DCMAKE_BUILD_TYPE=Debug ../
 
 
 @if %ERRORLEVEL% == 0 (
