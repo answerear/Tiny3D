@@ -42,6 +42,7 @@ namespace Tiny3D
     const char *Resource::EXT_TXT = "txt";
     const char *Resource::EXT_BIN = "bin";
     const char *Resource::EXT_SHADERLAB = "shader";
+    const char *Resource::EXT_ANIMATION = "tani";
 
 #if defined (T3D_OS_WINDOWS)
     const char *Resource::EXT_DYLIB = "dll";

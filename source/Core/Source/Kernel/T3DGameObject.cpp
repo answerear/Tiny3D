@@ -28,7 +28,7 @@
 #include "Bound/T3DFrustumBound.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
-#include "Component/T3DTransformNode.h"
+#include "Component/T3DTransform3D.h"
 #include "Component/T3DComponent.h"
 #include "Light/T3DLight.h"
 #include "Kernel/T3DAgent.h"
@@ -111,6 +111,18 @@ namespace Tiny3D
         return new GameObject(name, managed);
     }
 
+    //--------------------------------------------------------------------------
+
+    GameObjectPtr GameObject::createWithTransform(const String &name, bool managed)
+    {
+        GameObjectPtr go = create(name, managed);
+        if (go != nullptr)
+        {
+            go->addComponent<Transform3D>();
+        }
+        return go;
+    }
+    
     //--------------------------------------------------------------------------
 
     GameObject::GameObject(const String &name, bool managed)
