@@ -13,6 +13,11 @@
 
 Run the script **<setup_env.bat>** in directory **<$(Root)/source/Projects>**
 
+**Install graphics tools for debug (Win 10 or later) :** 
+
+1. Open PowerShell with administrator
+2. Input the follow command : Add-WindowsCapability -Online -Name "Graphics.Tools~~~~0.0.1.0"
+
 **Build**
 
 1. Run the script **<start_vsenv.bat>** in directory **<$(Root)/source/Projects>**
