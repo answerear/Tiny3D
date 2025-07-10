@@ -60,6 +60,7 @@
 #include <Resource/T3DMesh.h>
 #include <Resource/T3DMeshManager.h>
 #include <Resource/T3DSubMesh.h>
+#include <Resource/T3DSkeletalAnimation.h>
 
 // Material
 #include <Material/T3DPass.h>

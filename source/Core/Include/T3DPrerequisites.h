@@ -126,6 +126,10 @@ namespace Tiny3D
     class Mesh;
     class MeshManager;
     class SubMesh;
+    class SkinnedMesh;
+    class SkeletalAnimation;
+    class AnimationManager;
+    class BoneNode;
     
     // Material
     class ShaderConstantParam;

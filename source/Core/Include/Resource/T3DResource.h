@@ -58,6 +58,7 @@ namespace Tiny3D
         static const char *EXT_BIN;
         static const char *EXT_SHADERLAB;
         static const char *EXT_DYLIB;
+        static const char *EXT_ANIMATION;
         
         /**
          * \brief 资源类型
@@ -79,6 +80,10 @@ namespace Tiny3D
             kShader,
             /// 网格数据
             kMesh,
+            /// 蒙皮网格数据
+            kSkinnedMesh,
+            /// 骨骼动画数据
+            kSkeletalAnimation,
             /// 预制件
             kPrefab,
             /// 场景
