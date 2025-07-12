@@ -225,19 +225,34 @@ namespace Tiny3D
         /// 当前使用的 RHI 渲染器
         RHIRendererPtr          mActiveRHIRenderer {nullptr};
 
+        /// 文件管理器
         ArchiveManagerPtr       mArchiveMgr {nullptr};
+        /// 序列化管理器
         SerializerManagerPtr    mSerializerMgr {nullptr};
+        /// 动态库管理器
         DylibManagerPtr         mDylibMgr {nullptr};
+        /// 网格管理器
         MeshManagerPtr          mMeshMgr {nullptr};
+        /// 动画管理器
+        AnimationManagerPtr     mAnimationMgr {nullptr};
+        /// 预制体管理器
         PrefabManagerPtr        mPrefabMgr {nullptr};
+        /// 着色器管理器
         ShaderManagerPtr        mShaderMgr {nullptr};
+        /// 材质管理器
         MaterialManagerPtr      mMaterialMgr {nullptr};
+        /// 纹理管理器
         TextureManagerPtr       mTextureMgr {nullptr};
+        /// 场景管理器
         SceneManagerPtr         mSceneMgr {nullptr};
+        /// 图像编码器
         ImageCodecPtr           mImageCodec {nullptr};
+        /// 图像管理器
         ImageManagerPtr         mImageMgr {nullptr};
-
+        
+        /// 渲染状态管理器
         RenderStateManagerPtr   mRenderStateMgr {nullptr};
+        /// 渲染缓冲区管理器
         RenderBufferManagerPtr  mRenderBufferMgr {nullptr};
 
         /// 安装的插件列表
@@ -259,15 +274,18 @@ namespace Tiny3D
         /// 游戏项目路径，用于资源读写
         String                  mProjectPath {};
 
-        Settings                mSettings {};           /**< 引擎配置项 */
+        /// 引擎配置项
+        Settings                mSettings {};
 
+        /// 渲染线程
         RunnableThread          mRHIThread {};
+        /// 渲染线程执行对象
         RHIThreadPtr            mRHIRunnable {nullptr};
+        /// 通知渲染线程的事件
         Event                   mRHIEvent {};
-
-        // Texture2DPtr            mDefaultAlbedoTex {nullptr};
         
-        bool                    mIsRunning {false};     /**< 引擎是否在运行中 */
+        /// 引擎是否在运行中
+        bool                    mIsRunning {false};
     };
 
     #define T3D_AGENT   Agent::getInstance()

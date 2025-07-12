@@ -33,10 +33,25 @@
 namespace Tiny3D
 {
     T3D_DECLARE_SMART_PTR(Object);
+
+    // Kernel
+    T3D_DECLARE_SMART_PTR(GameObject);
+    T3D_DECLARE_SMART_PTR(SceneObject);
+    T3D_DECLARE_SMART_PTR(Plugin);
+    T3D_DECLARE_SMART_PTR(Archive);
+    T3D_DECLARE_SMART_PTR(ArchiveManager);
+
+    // Serializer
+    T3D_DECLARE_SMART_PTR(Serializer);
+    T3D_DECLARE_SMART_PTR(BinSerializer);
+    T3D_DECLARE_SMART_PTR(JsonSerializer);
+    T3D_DECLARE_SMART_PTR(SerializerManager);
     
+    // Image
     T3D_DECLARE_SMART_PTR(ImageCodec);
     T3D_DECLARE_SMART_PTR(ImageCodecBase);
-    
+
+    // Resource
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);
     T3D_DECLARE_SMART_PTR(Prefab);
@@ -64,8 +79,17 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SkinnedMesh);
     T3D_DECLARE_SMART_PTR(SkeletalAnimation);
     T3D_DECLARE_SMART_PTR(AnimationManager);
-    T3D_DECLARE_SMART_PTR(BoneNode);
 
+    // Skeletal Animation
+    T3D_DECLARE_SMART_PTR(BoneNode);
+    T3D_DECLARE_SMART_PTR(Keyframe);
+    T3D_DECLARE_SMART_PTR(KfTranslation);
+    T3D_DECLARE_SMART_PTR(KfOrientation);
+    T3D_DECLARE_SMART_PTR(KfScaling);
+    T3D_DECLARE_SMART_PTR(KfScaling);
+    T3D_DECLARE_SMART_PTR(AnimationClip);
+
+    // Material
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
     T3D_DECLARE_SMART_PTR(ShaderConstantValue);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
@@ -77,14 +101,13 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(PassInstance);
     T3D_DECLARE_SMART_PTR(TechniqueInstance);
 
+    // Scene
     T3D_DECLARE_SMART_PTR(Scene);
     T3D_DECLARE_SMART_PTR(SceneManager);
     T3D_DECLARE_SMART_PTR(SceneManagerImpl);
     T3D_DECLARE_SMART_PTR(BuiltinSceneManager);
-    
-    T3D_DECLARE_SMART_PTR(GameObject);
-    T3D_DECLARE_SMART_PTR(SceneObject);
-    
+
+    // Component
     T3D_DECLARE_SMART_PTR(Component);
     T3D_DECLARE_SMART_PTR(Camera);
     T3D_DECLARE_SMART_PTR(TransformNode);
@@ -92,12 +115,14 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Renderable);
     T3D_DECLARE_SMART_PTR(Geometry);
 
+    // Bound
     T3D_DECLARE_SMART_PTR(Bound);
     T3D_DECLARE_SMART_PTR(SphereBound);
     T3D_DECLARE_SMART_PTR(AabbBound);
     T3D_DECLARE_SMART_PTR(ObbBound);
     T3D_DECLARE_SMART_PTR(FrustumBound);
 
+    // Light
     T3D_DECLARE_SMART_PTR(Light);
     T3D_DECLARE_SMART_PTR(IndirectLight);
     T3D_DECLARE_SMART_PTR(AmbientLight);
@@ -105,7 +130,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(PointLight);
     T3D_DECLARE_SMART_PTR(SpotLight);
     T3D_DECLARE_SMART_PTR(DirectionalLight);
-    
+
+    // Render
     T3D_DECLARE_SMART_PTR(RenderContext);
     T3D_DECLARE_SMART_PTR(RenderPipeline);
     T3D_DECLARE_SMART_PTR(ForwardRenderPipeline);
@@ -137,14 +163,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderWindow);
     T3D_DECLARE_SMART_PTR(NullRenderWindow);
 
-    T3D_DECLARE_SMART_PTR(Archive);
-    T3D_DECLARE_SMART_PTR(ArchiveManager);
-
-    T3D_DECLARE_SMART_PTR(Serializer);
-    T3D_DECLARE_SMART_PTR(BinSerializer);
-    T3D_DECLARE_SMART_PTR(JsonSerializer);
-    T3D_DECLARE_SMART_PTR(SerializerManager);
-    
+    // RHI
     T3D_DECLARE_SMART_PTR(RHIRenderer);
     T3D_DECLARE_SMART_PTR(RHIContext);
     T3D_DECLARE_SMART_PTR(RHIResource);
@@ -231,6 +250,11 @@ namespace Tiny3D
     using Samplers = TArray<SamplerStatePtr>;
 
     using RenderTextures = TArray<RenderTexture*>;
+
+    using TranslationTrack = TArray<KfTranslation>;
+    using OrientationTrack = TArray<KfOrientation>;
+    using ScalingTrack = TArray<KfScaling>;
+    using AnimationClips = TMap<String, AnimationClipPtr>;
 }
 
 

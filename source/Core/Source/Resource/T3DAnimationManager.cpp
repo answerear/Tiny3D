@@ -39,9 +39,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    SkeletalAnimationPtr AnimationManager::createSkeletalAnimation(const String &name)
+    SkeletalAnimationPtr AnimationManager::createSkeletalAnimation(const String &name, const AnimationClips &clips)
     {
-        return smart_pointer_cast<SkeletalAnimation>(createResource(name, 0));
+        return smart_pointer_cast<SkeletalAnimation>(createResource(name, 1, &clips));
     }
 
     //--------------------------------------------------------------------------
@@ -76,7 +76,9 @@ namespace Tiny3D
 
     ResourcePtr AnimationManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        return SkeletalAnimation::create(name);
+        T3D_ASSERT(argc == 1);
+        AnimationClips *clips = va_arg(args, AnimationClips*);
+        return SkeletalAnimation::create(name, *clips);
     }
 
     //--------------------------------------------------------------------------

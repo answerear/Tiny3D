@@ -84,8 +84,6 @@ namespace Tiny3D
     class Plugin;
     class Archive;
     class ArchiveManager;
-    class ImageCodecBase;
-    class ImageCodec;
     
     struct Transform;
     struct Settings;
@@ -129,7 +127,14 @@ namespace Tiny3D
     class SkinnedMesh;
     class SkeletalAnimation;
     class AnimationManager;
+
+    // Skeletal Animation
     class BoneNode;
+    class Keyframe;
+    class KfTranslation;
+    class KfOrientation;
+    class KfScaling;
+    class AnimationClip;
     
     // Material
     class ShaderConstantParam;

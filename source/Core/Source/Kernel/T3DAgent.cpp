@@ -50,6 +50,7 @@
 #include "ImageCodec/T3DImageCodec.h"
 #include "ImageCodec/T3DImageCodecBase.h"
 #include "Resource/T3DImageManager.h"
+#include "Resource/T3DAnimationManager.h"
 
 
 namespace Tiny3D
@@ -142,6 +143,12 @@ namespace Tiny3D
         {
             mImageMgr->unloadAllResources();
             mImageMgr = nullptr;
+        }
+
+        if (mAnimationMgr != nullptr)
+        {
+            mAnimationMgr->unloadAllResources();
+            mAnimationMgr = nullptr;
         }
 
         if (mArchiveMgr != nullptr)
@@ -975,6 +982,7 @@ namespace Tiny3D
         mRenderBufferMgr = RenderBufferManager::create();
         mDylibMgr = DylibManager::create();
         mMeshMgr = MeshManager::create();
+        mAnimationMgr = AnimationManager::create();
         mPrefabMgr = PrefabManager::create();
         mShaderMgr = ShaderManager::create();
         mTextureMgr = TextureManager::create();
