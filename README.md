@@ -23,6 +23,9 @@ Run the script **<setup_env.bat>** in directory **<$(Root)/source/Projects>**
 1. Run the script **<start_vsenv.bat>** in directory **<$(Root)/source/Projects>**
 2. Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/source/Projects>** for debug, and run the script **<generate-vs2019-x64.bat>** in the same directory for release.
 
+**Remarks**
+If you run the samples code in visual studio and exception occur in startup, you should install "Graphics Tools".
+
 ## Mac OS X
 
 **Prerequisites**
