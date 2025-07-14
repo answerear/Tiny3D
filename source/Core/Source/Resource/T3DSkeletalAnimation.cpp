@@ -23,89 +23,12 @@
  ******************************************************************************/
 
 #include "Resource/T3DSkeletalAnimation.h"
-#include "T3DErrorDef.h"
+#include "Animation/T3DKeyframe.h"
+#include "Animation/T3DAnimationClip.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    Keyframe::Keyframe(uint32_t time)
-        : mTime(time)
-    {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    KfTranslationPtr KfTranslation::create(uint32_t time, const Vector3 &translation)
-    {
-        return new KfTranslation(time, translation);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    KfTranslation::KfTranslation(uint32_t time, const Vector3 &translation)
-        : Keyframe(time)
-        , mTranslation(translation)
-    {
-        
-    }
-    
-    //--------------------------------------------------------------------------
-
-    KfOrientationPtr KfOrientation::create(uint32_t time, const Quaternion &orientation)
-    {
-        return new KfOrientation(time, orientation);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    KfOrientation::KfOrientation(uint32_t time, const Quaternion &orientation)
-        : Keyframe(time)
-        , mOrientation(orientation)
-    {
-        
-    }
-    //--------------------------------------------------------------------------
-
-    KfScalingPtr KfScaling::create(uint32_t time, const Vector3 &scaling)
-    {
-        return new KfScaling(time, scaling);
-    }
-
-    //--------------------------------------------------------------------------
-
-    KfScaling::KfScaling(uint32_t time, const Vector3 &scaling)
-        : Keyframe(time)
-        , mScaling(scaling)
-    {
-        
-    }
-    
-    //--------------------------------------------------------------------------
-
-    AnimationClipPtr AnimationClip::create(const String &name, uint32_t duration,
-        const TranslationTrack &translationTrack, const OrientationTrack &orientationTrack,
-        const ScalingTrack &scalingTrack)
-    {
-        return new AnimationClip(name, duration, translationTrack, orientationTrack, scalingTrack);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    AnimationClip::AnimationClip(const String &name, uint32_t duration,
-        const TranslationTrack &translationTrack, const OrientationTrack &orientationTrack,
-        const ScalingTrack &scalingTrack)
-        : mName(name)
-        , mDuration(duration)
-        , mTranslationTrack(translationTrack)
-        , mOrientationTrack(orientationTrack)
-        , mScalingTrack(scalingTrack)
-    {
-        
-    }
-
     //--------------------------------------------------------------------------
 
     SkeletalAnimationPtr SkeletalAnimation::create(const String &name)

@@ -37,7 +37,7 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建东海数据资源管理器对象
+         * @brief 创建东动画数据资源管理器对象
          */
         static AnimationManagerPtr create();
 

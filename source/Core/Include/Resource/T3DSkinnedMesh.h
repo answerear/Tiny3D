@@ -31,110 +31,6 @@
 
 namespace Tiny3D
 {
-    TCLASS()
-    class BoneNode : public Object
-    {
-        TRTTI_ENABLE(Object)
-        TRTTI_FRIEND
-
-    public:
-        static BoneNodePtr create(const String &name, uint16_t parentIndex,
-            const Vector3 &translation, const Quaternion &rotation,
-            const Vector3 &scaling, const Matrix4 &offsetMatrix);
-
-        /**
-         * \brief 析构函数
-         */
-        ~BoneNode() override = default;
-
-        TPROPERTY(RTTRFuncName="ParentIndex", RTTRFuncType="getter")
-        uint16_t getParentIndex() const
-        {
-            return mParentIndex;
-        }
-
-        TPROPERTY(RTTRFuncName="Translation", RTTRFuncType="getter")
-        const Vector3 &getTranslation() const
-        {
-            return mTranslation;
-        }
-
-        TPROPERTY(RTTRFuncName="Rotation", RTTRFuncType="getter")
-        const Quaternion &getRotation() const
-        {
-            return mRotation;
-        }
-
-        TPROPERTY(RTTRFuncName="Scaling", RTTRFuncType="getter")
-        const Vector3 &getScaling() const
-        {
-            return mScaling;
-        }
-
-        TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="getter")
-        const Matrix4 &getOffsetMatrix() const
-        {
-            return mOffsetMatrix;
-        }
-
-    protected:
-        BoneNode() = default;
-        
-        BoneNode(const String &name, uint16_t parentIndex,
-            const Vector3 &translation, const Quaternion &rotation,
-            const Vector3 &scaling, const Matrix4 &offsetMatrix);
-
-    private:
-        TPROPERTY(RTTRFuncName="ParentIndex", RTTRFuncType="setter")
-        void setParent(uint16_t parentIndex)
-        {
-            mParentIndex = parentIndex;
-        }
-
-        TPROPERTY(RTTRFuncName="Translation", RTTRFuncType="setter")
-        void setTranslation(const Vector3 &translation)
-        {
-            mTranslation = translation;
-        }
-
-        TPROPERTY(RTTRFuncName="Rotation", RTTRFuncType="setter")
-        void setRotation(const Quaternion &rotation)
-        {
-            mRotation = rotation;
-        }
-
-        TPROPERTY(RTTRFuncName="Scaling", RTTRFuncType="setter")
-        void setScaling(const Vector3 &scaling)
-        {
-            mScaling = scaling;
-        }
-        
-        TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="setter")
-        void setOffsetMatrix(const Matrix4 &offsetMatrix)
-        {
-            mOffsetMatrix = offsetMatrix;
-        }
-        
-    protected:
-        /// 骨骼名称
-        String mName {"#Bone"};
-        
-        /// 父骨骼索引
-        uint16_t mParentIndex {0xFFFF};
-
-        /// 父骨骼空间下的位置
-        Vector3 mTranslation {};
-        /// 父骨骼空间下的旋转
-        Quaternion mRotation {};
-        /// 父骨骼空间下的缩放
-        Vector3 mScaling {1.0f, 1.0f, 1.0f};
-
-        /// 骨骼偏移矩阵
-        Matrix4 mOffsetMatrix {false};
-    };
-
-    using Bones = TArray<BoneNodePtr>;
-    
     /**
      * \brief 蒙皮网格资源
      */
@@ -168,6 +64,11 @@ namespace Tiny3D
             return mBones;
         }
 
+        SkeletalAnimation *getSkeletalAnimation() const
+        {
+            return mSkeletalAni;
+        }
+
     protected:
         SkinnedMesh() = default;
         
@@ -183,7 +84,7 @@ namespace Tiny3D
         
         TResult onLoad(Archive *archive) override;
 
-        TResult generateRenderResource(Archive *archive);
+        TResult generateRenderResource(Archive *archive) override;
 
     private:
         TPROPERTY(RTTRFuncName="SkeletalAnimationUUID", RTTRFuncType="setter")

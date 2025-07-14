@@ -147,7 +147,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="VertexOffsets", RTTRFuncType="setter")
         void setVertexOffsets(const VertexOffsets &offsets) { mVertexOffsets = offsets; }
 
-        TResult generateRenderResource(Archive *archive);
+        virtual TResult generateRenderResource(Archive *archive);
         
     protected:
         /// 顶点定义

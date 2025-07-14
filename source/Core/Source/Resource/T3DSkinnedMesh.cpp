@@ -25,30 +25,12 @@
 #include "Resource/T3DSkinnedMesh.h"
 #include "T3DErrorDef.h"
 #include "Resource/T3DSkeletalAnimation.h"
+#include "Resource/T3DAnimationManager.h"
+#include "Animation/T3DBoneNode.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
-
-    BoneNodePtr BoneNode::create(const String &name, uint16_t parentIndex, const Vector3 &translation, const Quaternion &rotation, const Vector3 &scaling, const Matrix4 &offsetMatrix)
-    {
-        return new BoneNode(name, parentIndex, translation, rotation, scaling, offsetMatrix);
-    }
-
-    //--------------------------------------------------------------------------
-
-    BoneNode::BoneNode(const String &name, uint16_t parentIndex, const Vector3 &translation, const Quaternion &rotation, const Vector3 &scaling, const Matrix4 &offsetMatrix)
-        : mName(name)
-        , mParentIndex(parentIndex)
-        , mTranslation(translation)
-        , mRotation(rotation)
-        , mScaling(scaling)
-        , mOffsetMatrix(offsetMatrix)
-    {
-        
-    }
-
     //--------------------------------------------------------------------------
 
     SkinnedMeshPtr SkinnedMesh::create(const String &name)
@@ -154,7 +136,7 @@ namespace Tiny3D
 
         do
         {
-            
+            mSkeletalAni = T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, mSkeletalAniUUID);
         } while (false);
         
         return ret;

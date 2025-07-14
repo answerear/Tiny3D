@@ -60,16 +60,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult AnimationManager::saveSkeletalAnimation(Archive *archive, const String &filename, SkeletalAnimation *animation)
+    TResult AnimationManager::saveSkeletalAnimation(Archive *archive, const String &filename, SkeletalAnimation *skeletalAni)
     {
-        return save(archive, filename, animation);
+        return save(archive, filename, skeletalAni);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult AnimationManager::saveSkeletalAnimation(Archive *archive, SkeletalAnimation *animation)
+    TResult AnimationManager::saveSkeletalAnimation(Archive *archive, SkeletalAnimation *skeletalAni)
     {
-        return save(archive, animation);
+        return save(archive, skeletalAni);
     }
 
     //--------------------------------------------------------------------------

@@ -81,6 +81,7 @@ set_project_files(Include\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Include/Compone
 set_project_files(Include\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Include/Light/ .h)
 set_project_files(Include\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Include/Light/ .inl)
 set_project_files(Include\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Include/Serializer/ .h)
+set_project_files(Include\\\\Animation ${TINY3D_CORE_SOURCE_DIR}/Include/Animation/ .h)
 
 # Setup source files for this project.
 set_project_files(Source ${TINY3D_CORE_SOURCE_DIR}/Source/ .cpp)
@@ -95,6 +96,7 @@ set_project_files(Source\\\\Bound ${TINY3D_CORE_SOURCE_DIR}/Source/Bound/ .cpp)
 set_project_files(Source\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Source/Component/ .cpp)
 set_project_files(Source\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Source/Light/ .cpp)
 set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializer/ .cpp)
+set_project_files(Source\\\\Animation ${TINY3D_CORE_SOURCE_DIR}/Source/Animation/ .cpp)
 
 
 # Generated source for reflection.
