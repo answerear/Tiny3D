@@ -24,7 +24,6 @@
 
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Animation/T3DKeyframe.h"
-#include "Animation/T3DAnimationClip.h"
 
 
 namespace Tiny3D

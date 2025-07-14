@@ -26,6 +26,7 @@ add_subdirectory(SpotLightApp)
 add_subdirectory(LightApp)
 add_subdirectory(ShadowApp)
 add_subdirectory(TextureApp)
+add_subdirectory(SkeletalAnimationApp)
 
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(TransformationApp)

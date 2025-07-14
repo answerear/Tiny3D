@@ -61,6 +61,7 @@
 #include <Resource/T3DMeshManager.h>
 #include <Resource/T3DSubMesh.h>
 #include <Resource/T3DSkeletalAnimation.h>
+#include <Resource/T3DSkinnedMesh.h>
 
 // Material
 #include <Material/T3DPass.h>
