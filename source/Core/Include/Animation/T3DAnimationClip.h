@@ -42,9 +42,7 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
-        static AnimationClipPtr create(const String &name, uint32_t duration,
-            const TranslationTrack &translationTrack, const OrientationTrack &orientationTrack,
-            const ScalingTrack &scalingTrack);
+        static AnimationClipPtr create(const String &name, uint32_t duration, AnimationTracks &&tracks);
 
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const { return mName; }
@@ -52,14 +50,8 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Duration", RTTRFuncType="getter")
         uint32_t getDuration() const { return mDuration; }
 
-        TPROPERTY(RTTRFuncName="TranslationTrack", RTTRFuncType="getter")
-        const TranslationTrack &getTranslationTrack() const { return mTranslationTrack; }
-
-        TPROPERTY(RTTRFuncName="OrientationTrack", RTTRFuncType="getter")
-        const OrientationTrack &getOrientationTrack() const { return mOrientationTrack; }
-
-        TPROPERTY(RTTRFuncName="ScalingTrack", RTTRFuncType="getter")
-        const ScalingTrack &getScalingTrack() const { return mScalingTrack; }
+        TPROPERTY(RTTRFuncName="Tracks", RTTRFuncType="getter")
+        const AnimationTracks &getTracks() const { return mTracks; }
 
     private:
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
@@ -68,21 +60,13 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Duration", RTTRFuncType="setter")
         void setDuration(uint32_t duration) { mDuration = duration; }
 
-        TPROPERTY(RTTRFuncName="TranslationTrack", RTTRFuncType="setter")
-        void setTranslationTrack(const TranslationTrack &track) { mTranslationTrack = track; }
+        TPROPERTY(RTTRFuncName="Tracks", RTTRFuncType="setter")
+        void setTracks(const AnimationTracks &tracks) { mTracks = tracks; }
 
-        TPROPERTY(RTTRFuncName="OrientationTrack", RTTRFuncType="setter")
-        void setOrientationTrack(const OrientationTrack &track) { mOrientationTrack = track; }
-
-        TPROPERTY(RTTRFuncName="ScalingTrack", RTTRFuncType="setter")
-        void setScalingTrack(const ScalingTrack &track) { mScalingTrack = track; }
-        
     protected:
         AnimationClip() = default;
 
-        AnimationClip(const String &name, uint32_t duration,
-            const TranslationTrack &translationTrack, const OrientationTrack &orientationTrack,
-            const ScalingTrack &scalingTrack);
+        AnimationClip(const String &name, uint32_t duration, AnimationTracks &&tracks);
         
         /// 动画片段名称
         String mName {};
@@ -90,14 +74,8 @@ namespace Tiny3D
         /// 动画时长
         uint32_t mDuration {0};
 
-        /// 骨骼动画平移数据
-        TranslationTrack mTranslationTrack {};
-
-        /// 骨骼动画旋转数据
-        OrientationTrack  mOrientationTrack {};
-
-        /// 骨骼动画缩放数据
-        ScalingTrack mScalingTrack {};
+        /// 骨骼动画轨道数据
+        AnimationTracks mTracks {};
     };
 }
 

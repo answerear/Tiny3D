@@ -43,7 +43,11 @@ namespace Tiny3D
     public:
         static SkinnedMeshPtr create(const String &name);
 
-        static SkinnedMeshPtr create(const String &name, SkeletalAnimation *skeletalAni, const Bones &bones);
+        static SkinnedMeshPtr create(const String &name,
+            VertexAttributes &&attributes, Vertices &&vertices,
+            VertexStrides &&strides, VertexOffsets &&offsets,
+            SubMeshes &&submeshes, SkeletalAnimation *skeletalAni,
+            Bones &&bones);
 
         /**
          * \brief 析构函数
@@ -74,7 +78,10 @@ namespace Tiny3D
         
         SkinnedMesh(const String &name);
 
-        SkinnedMesh(const String &name, SkeletalAnimation *skeletalAni, const Bones &bones);
+        SkinnedMesh(const String &name, VertexAttributes &&attributes,
+            Vertices &&vertices, VertexStrides &&strides,
+            VertexOffsets &&offsets, SubMeshes &&submeshes,
+            SkeletalAnimation *skeletalAni, Bones &&bones);
         
         ResourcePtr clone() const override;
 

@@ -63,6 +63,12 @@
 #include <Resource/T3DSkeletalAnimation.h>
 #include <Resource/T3DSkinnedMesh.h>
 
+// Skeletal Animation
+#include <Animation/T3DBoneNode.h>
+#include <Animation/T3DKeyframe.h>
+#include <Animation/T3DAnimationTrack.h>
+#include <Animation/T3DAnimationClip.h>
+
 // Material
 #include <Material/T3DPass.h>
 #include <Material/T3DTechnique.h>

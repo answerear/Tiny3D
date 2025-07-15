@@ -86,6 +86,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(KfTranslation);
     T3D_DECLARE_SMART_PTR(KfOrientation);
     T3D_DECLARE_SMART_PTR(KfScaling);
+    T3D_DECLARE_SMART_PTR(AnimationTrack);
     T3D_DECLARE_SMART_PTR(AnimationClip);
 
     // Material
@@ -250,9 +251,10 @@ namespace Tiny3D
 
     using RenderTextures = TArray<RenderTexture*>;
 
-    using TranslationTrack = TArray<KfTranslation>;
-    using OrientationTrack = TArray<KfOrientation>;
-    using ScalingTrack = TArray<KfScaling>;
+    using TranslationTrack = TArray<KfTranslationPtr>;
+    using OrientationTrack = TArray<KfOrientationPtr>;
+    using ScalingTrack = TArray<KfScalingPtr>;
+    using AnimationTracks = TMap<String, AnimationTrackPtr>;
     using AnimationClips = TMap<String, AnimationClipPtr>;
     using Bones = TArray<BoneNodePtr>;
 }

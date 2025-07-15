@@ -25,6 +25,7 @@
 
 #include "Resource/T3DMeshManager.h"
 #include "Resource/T3DMesh.h"
+#include "Resource/T3DSkinnedMesh.h"
 #include "Serializer/T3DSerializerManager.h"
 
 
@@ -79,15 +80,48 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    SkinnedMeshPtr MeshManager::createSkinnedMesh(const String &name,
+        VertexAttributes &&attributes, Vertices &&vertices,
+        VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
+        SkeletalAnimation *skeletalAni, const Bones &&bones)
+    {
+        VertexAttributes attrs = std::move(attributes);
+        Vertices verts = std::move(vertices);
+        VertexStrides vstrides = std::move(strides);
+        VertexOffsets voffsets = std::move(offsets);
+        SubMeshes subs = std::move(submeshes);
+        Bones nodes = std::move(bones);
+        return smart_pointer_cast<SkinnedMesh>(createResource(name, 7, &attrs, &verts, &vstrides, &voffsets, &subs, skeletalAni, &nodes));
+    }
+
+    //--------------------------------------------------------------------------
+
     ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 5);
-        VertexAttributes *attributes = va_arg(args, VertexAttributes*);
-        Vertices *vertices = va_arg(args, Vertices*);
-        VertexStrides *strides = va_arg(args, VertexStrides*);
-        VertexOffsets *offsets = va_arg(args, VertexOffsets*);
-        SubMeshes *submeshes = va_arg(args, SubMeshes*);
-        return Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes));
+        T3D_ASSERT(argc == 5 || argc == 7);
+        if (argc == 5)
+        {
+            // Mesh
+            VertexAttributes *attributes = va_arg(args, VertexAttributes*);
+            Vertices *vertices = va_arg(args, Vertices*);
+            VertexStrides *strides = va_arg(args, VertexStrides*);
+            VertexOffsets *offsets = va_arg(args, VertexOffsets*);
+            SubMeshes *submeshes = va_arg(args, SubMeshes*);
+            return Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes));
+        }
+        else
+        {
+            // Skinned Mesh
+            VertexAttributes *attributes = va_arg(args, VertexAttributes*);
+            Vertices *vertices = va_arg(args, Vertices*);
+            VertexStrides *strides = va_arg(args, VertexStrides*);
+            VertexOffsets *offsets = va_arg(args, VertexOffsets*);
+            SubMeshes *submeshes = va_arg(args, SubMeshes*);
+            SkeletalAnimation *skeletalAni = va_arg(args, SkeletalAnimation*);
+            Bones *bones = va_arg(args, Bones*);
+            return SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeletalAni, std::move(*bones));
+        }
+        
     }
 
     //--------------------------------------------------------------------------

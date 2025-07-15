@@ -86,6 +86,11 @@ namespace Tiny3D
          */
         TResult saveMesh(Archive *archive, Mesh *mesh);
 
+        SkinnedMeshPtr createSkinnedMesh(const String &name,
+            VertexAttributes &&attributes, Vertices &&vertices,
+            VertexStrides &&strides, VertexOffsets &&offsets,
+            SubMeshes &&submeshes, SkeletalAnimation *skeletalAni, const Bones &&bones);
+
     protected:
         /**
          * 重写基类接口

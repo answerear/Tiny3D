@@ -134,6 +134,7 @@ namespace Tiny3D
     class KfTranslation;
     class KfOrientation;
     class KfScaling;
+    class AnimationTrack;
     class AnimationClip;
     
     // Material

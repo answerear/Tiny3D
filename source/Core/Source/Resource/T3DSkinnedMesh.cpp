@@ -40,9 +40,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SkinnedMeshPtr SkinnedMesh::create(const String &name, SkeletalAnimation *skeletalAni, const Bones &bones)
+    SkinnedMeshPtr SkinnedMesh::create(const String &name,
+        VertexAttributes &&attributes, Vertices &&vertices,
+        VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
+        SkeletalAnimation *skeletalAni, Bones &&bones)
     {
-        return new SkinnedMesh(name, skeletalAni, bones);
+        return new SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeletalAni, std::move(bones));
     }
 
     //--------------------------------------------------------------------------
@@ -62,10 +65,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SkinnedMesh::SkinnedMesh(const String &name, SkeletalAnimation *skeletalAni, const Bones &bones)
-        : Mesh(name)
+    SkinnedMesh::SkinnedMesh(const String &name, VertexAttributes &&attributes,
+        Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets,
+        SubMeshes &&submeshes, SkeletalAnimation *skeletalAni, Bones &&bones)
+        : Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes))
         , mSkeletalAniUUID(skeletalAni->getUUID())
-        , mBones(bones)
+        , mBones(std::move(bones))
         , mSkeletalAni(skeletalAni)
     {
         

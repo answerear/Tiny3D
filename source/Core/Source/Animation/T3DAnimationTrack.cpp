@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 
-#include "Animation/T3DAnimationClip.h"
+#include "Animation/T3DAnimationTrack.h"
 #include "Animation/T3DKeyframe.h"
 
 
@@ -31,17 +31,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    AnimationClipPtr AnimationClip::create(const String &name, uint32_t duration, AnimationTracks &&tracks)
+    AnimationTrackPtr AnimationTrack::create(const TranslationTrack &trackT, const OrientationTrack &trackO, const ScalingTrack &trackS)
     {
-        return new AnimationClip(name, duration, std::move(tracks));
+        return new AnimationTrack(trackT, trackO, trackS);
     }
-    
+
     //--------------------------------------------------------------------------
 
-    AnimationClip::AnimationClip(const String &name, uint32_t duration, AnimationTracks &&tracks)
-        : mName(name)
-        , mDuration(duration)
-        , mTracks(std::move(tracks))
+    AnimationTrack::AnimationTrack(const TranslationTrack &trackT, const OrientationTrack &trackO, const ScalingTrack &trackS)
+        : mTranslationTrack(trackT)
+        , mOrientationTrack(trackO)
+        , mScalingTrack(trackS)
     {
         
     }

@@ -32,7 +32,7 @@
 namespace Tiny3D
 {
     TCLASS()
-    class BoneNode : public Object
+    class T3D_ENGINE_API BoneNode : public Object
     {
         TRTTI_ENABLE(Object)
         TRTTI_FRIEND
