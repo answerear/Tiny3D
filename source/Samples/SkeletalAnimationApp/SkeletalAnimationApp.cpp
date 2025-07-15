@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -24,11 +24,20 @@
 
 #include "SkeletalAnimationApp.h"
 
+#include "Resource/T3DAnimationManager.h"
+
 #define UVN_CAMERA
 
 using namespace Tiny3D;
 
 const char *SUB_MESH_NAME = "#0";
+
+const float kOneBoneLength = 4.0f;
+const char *kUpperArmName = "UpperArm";
+const char *kForeArmName = "ForeArm";
+const char *kPalmName = "Palm";
+const char *kAnimationArm = "Arm";
+const char *kArmRotateLeft = "RotateLeft";
 
 SkeletalAnimationApp theApp;
 
@@ -453,19 +462,25 @@ MaterialPtr SkeletalAnimationApp::buildArmMaterial(Tiny3D::Shader *shader)
 
 MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
 {
-    // 
-    // 正方体顶点定义如下：
+    // 顶点数据排列如下：
+    // Back Face  Right Face  Forward Face  Left Face
+    // 6-----7    14-----15   22-----23     30-----31
+    // |     |     |     |     |     |       |     |
+    // |     |     |     |     |     |       |     |
+    // 4-----5    12-----13   20-----21     28-----29
+    // |     |     |     |     |     |       |     |
+    // |     |     |     |     |     |       |     |
+    // 3-----2    10-----11   18-----19     26-----27
+    // |     |     |     |     |     |       |     |
+    // |     |     |     |     |     |       |     |
+    // 0-----1     8-----9    16-----17     24-----25
     //
-    //           v6-------v4
-    //          /|       /|
-    //         / |      / |
-    //        v0-------v2 |
-    //        |  v7----|--v5
-    //        | /      | /
-    //        |/       |/
-    //        v1-------v3
-    //
-
+    // Top Face   Bottom Face
+    // 35-----34  37-----36
+    //  |     |    |     |
+    //  |     |    |     |
+    // 32-----33  38-----39
+    
     struct BoxVertex
     {
         Vector3 position {};
@@ -494,7 +509,7 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
         int32_t idx = i & 0x1; // i % 2
         int32_t j = i >> 1; // i / 2;
         vertices[i].position.x() = idx == 0 ? -0.5f : 0.5f;
-        vertices[i].position.y() = 4.0f * static_cast<float>(j);
+        vertices[i].position.y() = kOneBoneLength * static_cast<float>(j);
         vertices[i].position.z() = -0.5f;
         vertices[i].normal = -Vector3::FORWARD;
         vertices[i].uv = Vector2(0.5f, 0.5f);
@@ -506,7 +521,7 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
         int32_t idx = i & 0x1; // i % 2
         int32_t j = i >> 1; // i / 2;
         vertices[i + 8].position.x() = 0.5f;
-        vertices[i + 8].position.y() = 4.0f * static_cast<float>(j);
+        vertices[i + 8].position.y() = kOneBoneLength * static_cast<float>(j);
         vertices[i + 8].position.z() = idx == 0 ? -0.5f : 0.5f;
         vertices[i + 8].normal = Vector3::RIGHT;
         vertices[i + 8].uv = Vector2(0.5f, 0.5f);
@@ -518,7 +533,7 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
         int32_t idx = i & 0x1; // i % 2
         int32_t j = i >> 1; // i / 2;
         vertices[i + 16].position.x() = idx == 0 ? 0.5f : -0.5f;
-        vertices[i + 16].position.y() = 4.0f * static_cast<float>(j);
+        vertices[i + 16].position.y() = kOneBoneLength * static_cast<float>(j);
         vertices[i + 16].position.z() = 0.5f;
         vertices[i + 16].normal = Vector3::FORWARD;
         vertices[i + 16].uv = Vector2(0.5f, 0.5f);
@@ -530,7 +545,7 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
         int32_t idx = i & 0x1; // i % 2
         int32_t j = i >> 1; // i / 2;
         vertices[i + 24].position.x() = -0.5f;
-        vertices[i + 24].position.y() = 4.0f * static_cast<float>(j);
+        vertices[i + 24].position.y() = kOneBoneLength * static_cast<float>(j);
         vertices[i + 24].position.z() = idx == 0 ? 0.5f : -0.5f;
         vertices[i + 24].normal = -Vector3::RIGHT;
         vertices[i + 24].uv = Vector2(0.5f, 0.5f);
@@ -647,9 +662,84 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 
-    MeshPtr mesh = T3D_MESH_MGR.createMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+    Bones bones;
+    SkeletalAnimationPtr skeletalAni = buildArmSkeletalAnimation(bones);
+    
+    MeshPtr mesh = T3D_MESH_MGR.createSkinnedMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes), skeletalAni, std::move(bones));
     return mesh;
 }
+
+void SkeletalAnimationApp::buildAnimationTracks(const String &name, const Radian &targetAngle, uint32_t duration, AnimationTracks &tracks)
+{
+    TranslationTrack trackT;
+    OrientationTrack trackO;
+    ScalingTrack trackS;
+    
+    const uint32_t steps = duration / 2; // 一半帧弯曲，一半帧恢復
+    
+    uint32_t i = 0;
+    
+    // Upper Arm
+    Radian angle;
+    Radian stepAngle = targetAngle / static_cast<float>(steps);
+    // 弯曲
+    for (i = 0; i < steps; i++)
+    {
+        Quaternion orientation(angle, Vector3::FORWARD);
+        KfOrientationPtr keyframe = KfOrientation::create(i * 1000, orientation);
+        trackO.push_back(keyframe);
+        angle += stepAngle;
+    }
+    // 恢复
+    for (i = 1; i < steps; i++)
+    {
+        angle -= stepAngle;
+        Quaternion orientation(angle, Vector3::FORWARD);
+        KfOrientationPtr keyframe = KfOrientation::create((i + steps) * 1000, orientation);
+        trackO.push_back(keyframe);
+    }
+    AnimationTrackPtr track = AnimationTrack::create(trackT, trackO, trackS);
+    tracks.emplace(name, track);
+}
+
+SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation(Bones &bones)
+{
+    // bones hierarchy and offset matrices
+    Matrix4 offsetMatrix;
+    Vector3 pos = Vector3::ZERO;
+    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
+    BoneNodePtr bone = BoneNode::create(kUpperArmName, -1, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
+    bones.emplace_back(bone);
+    pos.y() += kOneBoneLength;
+    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
+    bone = BoneNode::create(kForeArmName, 0, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
+    bones.emplace_back(bone);
+    pos.y() += kOneBoneLength;
+    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
+    bone = BoneNode::create(kPalmName, 1, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
+    bones.emplace_back(bone);
+
+    // animation clips
+    AnimationTracks tracks;
+
+    const uint32_t duration = 8;
+    
+    // Upper Arm, 15°
+    buildAnimationTracks(kUpperArmName, Radian(Math::HALF_PI / 6.0f), duration, tracks);
+    
+    // Fore Arm, 30°
+    buildAnimationTracks(kForeArmName, Radian(Math::HALF_PI / 3.0f), duration, tracks);
+
+    // Palm, 45°
+    buildAnimationTracks(kPalmName, Radian(Math::HALF_PI / 3.0f), duration, tracks);
+    
+    // duration
+    AnimationClipPtr clip = AnimationClip::create(kArmRotateLeft, duration * 1000, std::move(tracks));
+    AnimationClips clips;
+    clips.emplace(kArmRotateLeft, clip);
+    return T3D_ANIMATION_MGR.createSkeletalAnimation(kAnimationArm, clips);
+}
+
 
 void SkeletalAnimationApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
 {

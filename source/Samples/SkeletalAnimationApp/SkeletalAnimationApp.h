@@ -52,7 +52,9 @@ protected:
     Tiny3D::Texture2DPtr buildArmTexture();
     Tiny3D::MaterialPtr buildArmMaterial(Tiny3D::Shader *shader);
     Tiny3D::MeshPtr buildArmMesh(const Tiny3D::UUID &materialUUID);
-
+    Tiny3D::SkeletalAnimationPtr buildArmSkeletalAnimation(Tiny3D::Bones &bones);
+    void buildAnimationTracks(const String &name, const Tiny3D::Radian &targetAngle, uint32_t duration, Tiny3D::AnimationTracks &tracks);
+    
     Tiny3D::Texture2DPtr buildPlaneTexture();
     Tiny3D::MaterialPtr buildPlaneMaterial(Tiny3D::Shader *shader);
     Tiny3D::MeshPtr buildPlaneMesh(const Tiny3D::UUID &materialUUID);
