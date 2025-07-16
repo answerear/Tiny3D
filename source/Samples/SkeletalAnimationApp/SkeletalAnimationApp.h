@@ -61,7 +61,7 @@ protected:
 
     void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
 
-    Tiny3D::MeshPtr mCubeMesh {nullptr};
+    Tiny3D::SkinnedMeshPtr mCubeMesh {nullptr};
     Tiny3D::MeshPtr mPlaneMesh {nullptr};
     
     Tiny3D::MaterialPtr mCubeMaterial {nullptr};

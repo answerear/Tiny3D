@@ -300,7 +300,7 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     SubMesh *submesh = mCubeMesh->getSubMesh(SUB_MESH_NAME);
 
     // geometry component
-    GeometryPtr geometry = go->addComponent<Geometry>();
+    SkinnedGeometryPtr geometry = go->addComponent<SkinnedGeometry>();
     geometry->setMeshObject(mCubeMesh, submesh);
     
     // aabb bound component
@@ -731,7 +731,7 @@ SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation(Bones &bone
     buildAnimationTracks(kForeArmName, Radian(Math::HALF_PI / 3.0f), duration, tracks);
 
     // Palm, 45°
-    buildAnimationTracks(kPalmName, Radian(Math::HALF_PI / 3.0f), duration, tracks);
+    buildAnimationTracks(kPalmName, Radian(Math::HALF_PI / 2.0f), duration, tracks);
     
     // duration
     AnimationClipPtr clip = AnimationClip::create(kArmRotateLeft, duration * 1000, std::move(tracks));
