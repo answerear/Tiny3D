@@ -26,7 +26,6 @@
 #include "T3DErrorDef.h"
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Resource/T3DAnimationManager.h"
-#include "Animation/T3DBoneNode.h"
 
 
 namespace Tiny3D

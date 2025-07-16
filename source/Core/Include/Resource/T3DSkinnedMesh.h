@@ -27,6 +27,7 @@
 
 
 #include "Resource/T3DMesh.h"
+#include "Animation/T3DBoneNode.h"
 
 
 namespace Tiny3D

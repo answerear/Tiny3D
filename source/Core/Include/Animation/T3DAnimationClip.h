@@ -26,8 +26,7 @@
 #define __T3D_ANIMATION_CLIP_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "Animation/T3DAnimationTrack.h"
 
 
 namespace Tiny3D

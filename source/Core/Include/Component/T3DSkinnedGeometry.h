@@ -22,69 +22,45 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_SKINNED_GEOMETRY_H__
+#define __T3D_SKINNED_GEOMETRY_H__
 
-#include "Object/T3DObjectTracer.h"
-#include <sstream>
+
+#include "Component/T3DGeometry.h"
 
 
 namespace Tiny3D
 {
-    ObjectTracer::ObjectTracer(bool enabled /* = false */)
-        : mIsEnabled(enabled)
-        , mStream(nullptr)
+    TCLASS()
+    class T3D_ENGINE_API SkinnedGeometry : public Geometry
     {
+        TRTTI_ENABLE(Geometry)
+        TRTTI_FRIEND
+        
+    public:
+        ~SkinnedGeometry() override;
 
-    }
+        ComponentPtr clone() const override;
+        
+    protected:
+        SkinnedGeometry() = default;
 
-    ObjectTracer::~ObjectTracer()
-    {
+        SkinnedGeometry(const UUID &uuid);
 
-    }
+        TResult cloneProperties(const Component * const src) override;
 
-    void ObjectTracer::dumpMemoryInfo() const
-    {
-        if (mIsEnabled)
-        {
-            printInfo("Dump memory leak =================================>\n");
+        void onPostLoad() override;
 
-            std::stringstream ss;
+        void onLoadResource(Archive *archive) override;
 
-            int32_t i = 0;
+        void onDestroy() override;
 
-            for (auto itr = mObjects.begin(); itr != mObjects.end(); ++itr)
-            {
-                Object *obj = *itr;
-
-                ss.str("");
-                ss << "Leak Object #" << i << ": " << typeid(*obj).name() << " ReferCount : " << obj->referCount() << "\n";
-                printInfo(ss.str());
-                i++;
-            }
-
-            ss.str("");
-
-            ss << "Total leak objects " << mObjects.size();
-        }
-    }
-
-    void ObjectTracer::dumpMemoryInfo(FileDataStream &fs) const
-    {
-        mStream = &fs;
-        dumpMemoryInfo();
-        mStream = nullptr;
-    }
-
-    void ObjectTracer::printInfo(const String &str) const
-    {
-        if (mStream != nullptr)
-        {
-            DataStream &stream = *mStream;
-            stream << str;
-        }
-        else
-        {
-            T3D_CONSOLE.print(str.c_str());
-        }
-    }
+        /// 生成渲染用的材质
+        void generateRenderMaterial() override;
+        
+    protected:
+    };
 }
 
+
+#endif  /*__T3D_SKINNED_GEOMETRY_H__*/

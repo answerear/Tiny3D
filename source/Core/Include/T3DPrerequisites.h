@@ -163,6 +163,7 @@ namespace Tiny3D
     class Transform3D;
     class Renderable;
     class Geometry;
+    class SkinnedGeometry;
 
     // Bound
     class Bound;

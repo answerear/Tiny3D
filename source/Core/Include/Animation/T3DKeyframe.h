@@ -52,7 +52,7 @@ namespace Tiny3D
         uint32_t getTime() const { return mTime; }
 
     private:
-        TPROPERTY(RTTRFuncName="Type", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="Time", RTTRFuncType="setter")
         void setTime(uint32_t time) { mTime = time; }
         
     protected:

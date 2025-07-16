@@ -22,117 +22,86 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "Resource/T3DSkeletalAnimation.h"
-#include "Animation/T3DAnimationClip.h"
+
+#include "Component/T3DSkinnedGeometry.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SkeletalAnimationPtr SkeletalAnimation::create(const String &name)
-    {
-        return new SkeletalAnimation(name);
-    }
-
-    //--------------------------------------------------------------------------
-
-    SkeletalAnimationPtr SkeletalAnimation::create(const String &name, const AnimationClips &clips)
-    {
-        return new SkeletalAnimation(name, clips);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    SkeletalAnimation::~SkeletalAnimation()
-    {
-
-    }
-    
-    //--------------------------------------------------------------------------
-
-    SkeletalAnimation::SkeletalAnimation(const String &name)
-        : Resource(name)
+    SkinnedGeometry::SkinnedGeometry(const UUID &uuid)
+        : Geometry(uuid)
     {
         
     }
 
     //--------------------------------------------------------------------------
 
-    SkeletalAnimation::SkeletalAnimation(const String &name, const AnimationClips &clips)
-        : Resource(name)
-        , mAnimationClips(clips)
+    SkinnedGeometry::~SkinnedGeometry()
     {
         
     }
-    
-    //--------------------------------------------------------------------------
-
-    Resource::Type SkeletalAnimation::getType() const
-    {
-        return Type::kSkeletalAnimation;
-    }
 
     //--------------------------------------------------------------------------
-    
-    ResourcePtr SkeletalAnimation::clone() const
-    {
-        SkeletalAnimationPtr ani = create(getName());
-        ani->cloneProperties(this);
-        return ani;
-    }
-    
-    //--------------------------------------------------------------------------
 
-    void SkeletalAnimation::cloneProperties(const Resource *const src)
+    void SkinnedGeometry::onDestroy()
     {
-        const SkeletalAnimation *mesh = static_cast<const SkeletalAnimation*>(src);
+        Geometry::onDestroy();
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SkeletalAnimation::onCreate()
+    ComponentPtr SkinnedGeometry::clone() const
     {
-        TResult ret = Resource::onCreate();
-        
-        return ret;
+        SkinnedGeometryPtr geometry = new SkinnedGeometry();
+        TResult ret = geometry->cloneProperties(this);
+        if (T3D_FAILED(ret))
+        {
+            geometry = nullptr;
+        }
+        return geometry;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult SkeletalAnimation::onLoad(Archive *archive)
+    TResult SkinnedGeometry::cloneProperties(const Component *const src)
     {
         TResult ret;
 
         do
         {
-            ret = Resource::onLoad(archive);
+            ret = Geometry::cloneProperties(src);
             if (T3D_FAILED(ret))
             {
                 break;
             }
-            
-            ret = generateRenderResource(archive);
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
+
+            const SkinnedGeometry * const other = static_cast<const SkinnedGeometry * const>(src);
         } while (false);
+
         return ret;
     }
 
     //--------------------------------------------------------------------------
-    
-    TResult SkeletalAnimation::generateRenderResource(Archive *archive)
-    {
-        TResult ret = T3D_OK;
 
-        do
-        {
-            
-        } while (false);
-        
-        return ret;
+    void SkinnedGeometry::onPostLoad()
+    {
+        Geometry::onPostLoad();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SkinnedGeometry::onLoadResource(Archive *archive)
+    {
+        Geometry::onLoadResource(archive);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SkinnedGeometry::generateRenderMaterial()
+    {
+        Geometry::generateRenderMaterial();
     }
 
     //--------------------------------------------------------------------------

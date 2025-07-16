@@ -114,6 +114,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Transform3D);
     T3D_DECLARE_SMART_PTR(Renderable);
     T3D_DECLARE_SMART_PTR(Geometry);
+    T3D_DECLARE_SMART_PTR(SkinnedGeometry);
 
     // Bound
     T3D_DECLARE_SMART_PTR(Bound);

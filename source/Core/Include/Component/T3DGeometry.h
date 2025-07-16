@@ -94,7 +94,7 @@ namespace Tiny3D
         void onDestroy() override;
 
         /// 生成渲染用的材质
-        void generateRenderMaterial();
+        virtual void generateRenderMaterial();
         
     protected:
         /// Mesh 资源的 UUID
