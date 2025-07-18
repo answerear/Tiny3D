@@ -136,6 +136,7 @@ namespace Tiny3D
     class KfScaling;
     class AnimationTrack;
     class AnimationClip;
+    class AnimationPlayer;
     
     // Material
     class ShaderConstantParam;

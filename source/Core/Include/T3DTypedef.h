@@ -88,6 +88,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(KfScaling);
     T3D_DECLARE_SMART_PTR(AnimationTrack);
     T3D_DECLARE_SMART_PTR(AnimationClip);
+    T3D_DECLARE_SMART_PTR(AnimationPlayer);
 
     // Material
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);

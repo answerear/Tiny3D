@@ -22,60 +22,37 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SKINNED_GEOMETRY_H__
-#define __T3D_SKINNED_GEOMETRY_H__
+#ifndef __T3D_ANIMATION_PLAYER_H__
+#define __T3D_ANIMATION_PLAYER_H__
 
 
-#include "Component/T3DGeometry.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
+    /**
+     * @brief 骨骼动画片段
+     */
     TCLASS()
-    class T3D_ENGINE_API SkinnedGeometry : public Geometry
+    class T3D_ENGINE_API AnimationPlayer : public Object
     {
-        TRTTI_ENABLE(Geometry)
+        TRTTI_ENABLE(Object)
         TRTTI_FRIEND
-        
+
     public:
-        ~SkinnedGeometry() override;
+        static AnimationPlayerPtr create(SkinnedGeometry *geometry);
 
-        ComponentPtr clone() const override;
+        TResult playClip(const String &clipName, bool isOnce = false);
         
     protected:
-        SkinnedGeometry() = default;
+        AnimationPlayer(SkinnedGeometry *geometry);
 
-        SkinnedGeometry(const UUID &uuid);
-
-        TResult cloneProperties(const Component * const src) override;
-
-        void onPostLoad() override;
-
-        void onLoadResource(Archive *archive) override;
-
-        void onStart() override;
-
-        void onUpdate() override;
-
-        void onDestroy() override;
-        
-        /// 生成渲染用的材质
-        void generateRenderMaterial() override;
-
-        // 插值函数
-        uint32_t interpolateTranslation(uint32_t time, const TranslationTrack &track, Vector3 &translation);
-
-        uint32_t interpolateOrientation(uint32_t time, const OrientationTrack &track, Quaternion &orientation);
-
-        uint32_t interpolateScaling(uint32_t time, const ScalingTrack &track, Vector3 &scaling);
-        
     protected:
-        /// 动画开始时间戳
-        int64_t mStartTimestamp {0};
-
-        
+        SkinnedGeometryPtr mSkinnedGeometry {nullptr};
     };
 }
 
 
-#endif  /*__T3D_SKINNED_GEOMETRY_H__*/
+#endif    /*__T3D_ANIMATION_PLAYER_H__*/
