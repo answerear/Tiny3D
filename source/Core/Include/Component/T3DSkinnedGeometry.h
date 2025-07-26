@@ -73,7 +73,7 @@ namespace Tiny3D
         /// 动画开始时间戳
         int64_t mStartTimestamp {0};
 
-        
+        AnimationPlayerPtr mAnimationPlayer {nullptr};
     };
 }
 

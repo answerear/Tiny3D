@@ -27,6 +27,7 @@
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Resource/T3DSkinnedMesh.h"
 #include "Animation/T3DAnimationClip.h"
+#include "Animation/T3DAnimationPlayer.h"
 
 
 namespace Tiny3D
@@ -36,14 +37,14 @@ namespace Tiny3D
     SkinnedGeometry::SkinnedGeometry(const UUID &uuid)
         : Geometry(uuid)
     {
-        
+        mAnimationPlayer = AnimationPlayer::create(this);
     }
 
     //--------------------------------------------------------------------------
 
     SkinnedGeometry::~SkinnedGeometry()
     {
-        
+        mAnimationPlayer = nullptr;
     }
 
     //--------------------------------------------------------------------------

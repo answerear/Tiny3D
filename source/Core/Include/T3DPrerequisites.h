@@ -70,6 +70,7 @@ namespace Tiny3D
     #define LOG_TAG_RESOURCE            "Resource"
     #define LOG_TAG_COMPONENT           "Component"
     #define LOG_TAG_SERIALIZE           "Serialize"
+    #define LOG_TAG_ANIMATION           "Animation"
 
     #define TXT_DESCRIPTION             "Description"
 

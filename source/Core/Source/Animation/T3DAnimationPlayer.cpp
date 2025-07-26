@@ -31,6 +31,14 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    const ID AnimationPlayer::INVALID_ID = T3D_INVALID_ID;
+
+    //--------------------------------------------------------------------------
+    
+    ID AnimationPlayer::msGeneratedID = INVALID_ID;
+    
+    //--------------------------------------------------------------------------
+
     AnimationPlayerPtr AnimationPlayer::create(SkinnedGeometry *geometry)
     {
         return new AnimationPlayer(geometry);
@@ -46,6 +54,80 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ID AnimationPlayer::playClip(const String &clipName, bool isBlending, bool isLoop)
+    {
+        TResult ret = INVALID_ID;
 
+        do
+        {
+            if (mSkinnedGeometry == nullptr)
+            {
+                ret = T3D_ERR_SYS_NOT_INIT;
+                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkinnedGeometry is nullptr.");
+                break;
+            }
+
+            if (clipName.empty())
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "clipName is empty.");
+                break;
+            }
+
+            if (isBlending)
+            {
+                // 混合当前动画，作为过渡
+            }
+            else
+            {
+                // 直接停掉当前动画，并且播放新动画
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID AnimationPlayer::playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop)
+    {
+        return INVALID_ID;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID AnimationPlayer::playClips(const StringArray &clipNames)
+    {
+        return INVALID_ID;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult AnimationPlayer::stopPlayback(ID playbackID)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult AnimationPlayer::pausePlayback(ID playbackID)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult AnimationPlayer::resumePlayback(ID playbackID)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::update(uint32_t dt)
+    {
+        
+    }
+    
     //--------------------------------------------------------------------------
 }
