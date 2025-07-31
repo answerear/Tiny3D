@@ -30,6 +30,10 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    const uint16_t BoneNode::kInvalidIndex = 0xFFFF;
+    
+    //--------------------------------------------------------------------------
+
     BoneNodePtr BoneNode::create(const String &name, uint16_t parentIndex,
         const Vector3 &translation, const Quaternion &rotation,
         const Vector3 &scaling, const Matrix4 &offsetMatrix)

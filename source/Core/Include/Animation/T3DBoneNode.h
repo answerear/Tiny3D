@@ -38,6 +38,8 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        static const uint16_t kInvalidIndex;
+        
         static BoneNodePtr create(const String &name, uint16_t parentIndex,
             const Vector3 &translation, const Quaternion &rotation,
             const Vector3 &scaling, const Matrix4 &offsetMatrix);
@@ -46,6 +48,9 @@ namespace Tiny3D
          * \brief 析构函数
          */
         ~BoneNode() override = default;
+
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
+        const String &getName() const { return mName; }
 
         TPROPERTY(RTTRFuncName="ParentIndex", RTTRFuncType="getter")
         uint16_t getParentIndex() const
@@ -120,7 +125,7 @@ namespace Tiny3D
         String mName {"#Bone"};
         
         /// 父骨骼索引
-        uint16_t mParentIndex {0xFFFF};
+        uint16_t mParentIndex {kInvalidIndex};
 
         /// 父骨骼空间下的位置
         Vector3 mTranslation {};
