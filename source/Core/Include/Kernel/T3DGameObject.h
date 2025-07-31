@@ -87,6 +87,8 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="getter")
         uint32_t getCameraMask() const { return mCameraMask; }
 
+        TransformNode *getTransformNode() const { return mTransformNode; }
+
         static void destroy(GameObject *gameObject);
 
         /**
@@ -279,6 +281,9 @@ namespace Tiny3D
         bool mIsActive {true};
         /// 相机可见掩码
         uint32_t mCameraMask {0x1};
+
+        /// 用于记录结点对象，方便快速访问
+        TransformNode *mTransformNode {nullptr};
 
         using Components = TUnorderedMultimap<RTTRType, ComponentPtr, RTTRTypeHash, RTTRTypeEqual>;
 

@@ -339,6 +339,12 @@ namespace Tiny3D
                 break;
             }
 
+            if (mTransformNode != nullptr)
+            {
+                // transform node 子类，不能重复添加
+                break;
+            }
+
             TArray<rttr::argument> args;
             args.push_back(UUID::generate());
             rttr::variant var = type.create(args);
@@ -355,6 +361,11 @@ namespace Tiny3D
             // 放入组件对象表里
             mComponents.emplace(type, component);
             mComponentObjects.emplace(type.get_name(), component);
+
+            if (type.is_derived_from<TransformNode>())
+            {
+                mTransformNode = static_cast<TransformNode*>(comp);
+            }
 
             // 放入组件更新队列
             putUpdatingQueue(type, component);
@@ -378,6 +389,8 @@ namespace Tiny3D
         mComponentObjects.clear();
         mUpdateComponents.clear();
         mUpdateComponents2.clear();
+
+        mTransformNode = nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -398,6 +411,11 @@ namespace Tiny3D
 
             auto it = mComponentObjects.find(type.get_name().data());
             T3D_ASSERT(it != mComponentObjects.end());
+
+            if (itr->second == mTransformNode)
+            {
+                mTransformNode = nullptr;
+            }
             
             destroyComponent(itr->second);
             mComponents.erase(itr);
@@ -424,6 +442,11 @@ namespace Tiny3D
             
             for (auto itr = range.first; itr != range.second; ++itr)
             {
+                if (itr->second == mTransformNode)
+                {
+                    mTransformNode = nullptr;
+                }
+                
                 destroyComponent(itr->second);
                 mComponents.erase(itr);
             }
