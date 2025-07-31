@@ -305,7 +305,8 @@ namespace Tiny3D
 
         const Real kTwo = 2 * REAL_ONE;
 
-        Transform3D *node = mImportantDirLight->getGameObject()->getComponent<Transform3D>();
+        // Transform3D *node = mImportantDirLight->getGameObject()->getComponent<Transform3D>();
+        Transform3D *node = static_cast<Transform3D *>(mImportantDirLight->getGameObject()->getTransformNode());
         const Matrix4 &lightMat = node->getLocalToWorldTransform().getAffineMatrix();
         Vector3 lightDir(lightMat[0][2], lightMat[1][2], lightMat[2][2]);
         Vector3 lightPos = node->getLocalToWorldTransform().getTranslation();
@@ -427,7 +428,8 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::renderForward(RHIContext *ctx, Camera *camera)
     {
-        Transform3D *xformCamera = camera->getGameObject()->getComponent<Transform3D>();
+        // Transform3D *xformCamera = camera->getGameObject()->getComponent<Transform3D>();
+        Transform3D *xformCamera = static_cast<Transform3D *>(camera->getGameObject()->getTransformNode());
         Vector4 cameraWorldPos(xformCamera->getLocalToWorldTransform().getTranslation(), 1.0f);
 
         // 设置渲染目标为相机对应纹理
@@ -609,7 +611,8 @@ namespace Tiny3D
                     color.alpha() = light->getDiffuseIntensity();
                     material->setColor("tiny3d_DirLightColor", color);
                     // 方向和镜面反射强度
-                    Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
                     const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
                     float specularIntensity = light->getDiffuseIntensity();
                     Vector4 dir(mat[0][2], mat[1][2], mat[2][2], specularIntensity);
@@ -636,7 +639,8 @@ namespace Tiny3D
 
                     // 位置和镜面反射强度
                     Vector4f &lightPos = mPointLightPos[pointLightCount];
-                    Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
                     const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
                     lightPos[0] = pos[0];
                     lightPos[1] = pos[1];
@@ -672,7 +676,8 @@ namespace Tiny3D
 
                     // 位置和镜面反射强度
                     Vector4f &lightPos = mSpotLightPos[spotLightCount];
-                    Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
+                    Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
                     const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
                     lightPos[0] = pos[0];
                     lightPos[1] = pos[1];
@@ -751,7 +756,8 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::setupWorldMatrix(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass)
     {
-        Transform3DPtr xformNode = renderable->getGameObject()->getComponent<Transform3D>();
+        // Transform3DPtr xformNode = renderable->getGameObject()->getComponent<Transform3D>();
+        Transform3D *xformNode = static_cast<Transform3D *>(renderable->getGameObject()->getTransformNode());
         if (xformNode != nullptr)
         {
             const Transform &xform = xformNode->getLocalToWorldTransform();

@@ -158,7 +158,8 @@ namespace Tiny3D
         GameObject *go = getGameObject();
         T3D_ASSERT(go != nullptr);
         
-        Transform3D *xform = go->getComponent<Transform3D>();
+        // Transform3D *xform = go->getComponent<Transform3D>();
+        Transform3D *xform = static_cast<Transform3D *>(go->getTransformNode());
         if (xform != nullptr)
         {
             const Transform &transform = xform->getLocalToWorldTransform();

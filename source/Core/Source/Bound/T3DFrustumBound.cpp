@@ -266,7 +266,8 @@ namespace Tiny3D
     void FrustumBound::onStart()
     {
         Bound::onStart();
-        mXformNode = getGameObject()->getComponent<Transform3D>();
+        // mXformNode = getGameObject()->getComponent<Transform3D>();
+        mXformNode = static_cast<Transform3D *>(getGameObject()->getTransformNode());
     }
 
     //--------------------------------------------------------------------------

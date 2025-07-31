@@ -79,7 +79,8 @@ namespace Tiny3D
                 break;
             }
 
-            Transform3D *xform = getGameObject()->getComponent<Transform3D>();
+            // Transform3D *xform = getGameObject()->getComponent<Transform3D>();
+            Transform3D *xform = static_cast<Transform3D *>(getGameObject()->getTransformNode());
             if (xform == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;
@@ -440,7 +441,8 @@ namespace Tiny3D
         GameObject *go = getGameObject();
         if (go != nullptr)
         {
-            Transform3D *xform = go->getComponent<Transform3D>();
+            // Transform3D *xform = go->getComponent<Transform3D>();
+            Transform3D *xform = static_cast<Transform3D *>(go->getTransformNode());
             xform->addPositionChangedCallback(this, [this](const Vector3&, const Vector3&)
                 {
                     mIsViewDirty = true;
@@ -456,7 +458,8 @@ namespace Tiny3D
                     mIsViewDirty = true;
                 });
 
-            mXformNode = getGameObject()->getComponent<Transform3D>();
+            // mXformNode = getGameObject()->getComponent<Transform3D>();
+            mXformNode = static_cast<Transform3D *>(getGameObject()->getTransformNode());
         }
 
         T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
@@ -469,7 +472,8 @@ namespace Tiny3D
         GameObject *go = getGameObject();
         if (go != nullptr)
         {
-            Transform3D *xform = go->getComponent<Transform3D>();
+            // Transform3D *xform = go->getComponent<Transform3D>();
+            Transform3D *xform = static_cast<Transform3D *>(go->getTransformNode());
             if (xform != nullptr)
             {
                 xform->removePositionChangedCallback(this);

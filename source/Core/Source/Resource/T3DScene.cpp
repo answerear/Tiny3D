@@ -198,7 +198,8 @@ namespace Tiny3D
             if (it != mGameObjects.end())
             {
                 mRootGameObject = it->second;
-                mRootTransform = mRootGameObject->getComponent<Transform3D>();
+                // mRootTransform = mRootGameObject->getComponent<Transform3D>();
+                mRootTransform = static_cast<Transform3D *>(mRootGameObject->getTransformNode());
             }
         }
 
