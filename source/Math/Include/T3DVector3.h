@@ -138,6 +138,8 @@ namespace Tiny3D
         TFUNCTION("Description"="Normalize the vector")
         T normalize();
 
+        TVector3 &lerp(const TVector3 &start, const TVector3 &end, T t);
+        
         /// 零向量
         static const TVector3 ZERO;
         /// 单位缩放向量

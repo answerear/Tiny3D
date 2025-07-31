@@ -329,6 +329,15 @@ namespace Tiny3D
     }
 
     template <typename T>
+    inline TVector3<T> &TVector3<T>::lerp(const TVector3 &start, const TVector3 &end, T t)
+    {
+        if (t < 0.0f) t = 0.0f;
+        if (t > 1.0f) t = 1.0f;
+        *this = start * (1.0f - t) + end * t;
+        return *this;
+    }
+    
+    template <typename T>
     inline TVector3<T> operator *(T scalar, const TVector3<T> &rkV)
     {
         return TVector3<T>(scalar * rkV.x(), scalar * rkV.y(), scalar * rkV.z());
