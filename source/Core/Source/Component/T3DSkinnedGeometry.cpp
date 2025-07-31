@@ -24,10 +24,10 @@
 
 
 #include "Component/T3DSkinnedGeometry.h"
-#include "Resource/T3DSkeletalAnimation.h"
-#include "Resource/T3DSkinnedMesh.h"
-#include "Animation/T3DAnimationClip.h"
 #include "Animation/T3DAnimationPlayer.h"
+#include "Resource/T3DSkinnedMesh.h"
+#include "T3DErrorDef.h"
+#include "Component/T3DTransform3D.h"
 
 
 namespace Tiny3D
@@ -52,61 +52,13 @@ namespace Tiny3D
     void SkinnedGeometry::onStart()
     {
         Geometry::onStart();
-
-        mStartTimestamp = DateTime::currentMSecsSinceEpoch();
     }
 
     //--------------------------------------------------------------------------
 
     void SkinnedGeometry::onUpdate()
     {
-        SkinnedMesh *skinnedMesh = smart_pointer_cast<SkinnedMesh>(mMesh);
         
-        // 更新动画
-        SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
-        const AnimationClips &clips = skeletalAni->getAnimationClips();
-        if (clips.size() > 0)
-        {
-            AnimationClip *clip = clips.begin()->second;
-            if (clip != nullptr)
-            {
-                const AnimationTracks &tracks = clip->getTracks();
-
-                int64_t currentTS = DateTime::currentMSecsSinceEpoch();
-                uint32_t elapsed = static_cast<uint32_t>((currentTS - mStartTimestamp) % clip->getDuration());
-                
-                for (const auto &it : tracks)
-                {
-                    AnimationTrack *track = it.second;
-                    const TranslationTrack &trackT = track->getTranslationTrack();
-                    const OrientationTrack &trackO = track->getOrientationTrack();
-                    const ScalingTrack &trackS = track->getScalingTrack();
-                }
-            }
-        }
-
-        // CPU 蒙皮
-    }
-
-    //--------------------------------------------------------------------------
-
-    uint32_t SkinnedGeometry::interpolateTranslation(uint32_t time, const TranslationTrack &track, Vector3 &translation)
-    {
-        return 0;
-    }
-
-    //--------------------------------------------------------------------------
-
-    uint32_t SkinnedGeometry::interpolateOrientation(uint32_t time, const OrientationTrack &track, Quaternion &orientation)
-    {
-        return 0;
-    }
-    
-    //--------------------------------------------------------------------------
-
-    uint32_t SkinnedGeometry::interpolateScaling(uint32_t time, const ScalingTrack &track, Vector3 &scaling)
-    {
-        return 0;
     }
 
     //--------------------------------------------------------------------------
@@ -168,6 +120,56 @@ namespace Tiny3D
     void SkinnedGeometry::generateRenderMaterial()
     {
         Geometry::generateRenderMaterial();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SkinnedGeometry::populateAllChildren()
+    {
+        GameObject *root = getGameObject();
+
+        SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(getMeshObject());
+        if (skinnedMesh == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren failed. Skinned Mesh is nullptr !");
+            return T3D_ERR_RES_INVALID_OBJECT;
+        }
+
+        using GameObjects = TArray<GameObjectPtr>;
+        GameObjects gameObjects(skinnedMesh->getBones().size(), nullptr);
+
+        // 先构建所有 game object 对象
+        for (size_t i = 0; i < skinnedMesh->getBones().size(); i++)
+        {
+            const auto &bone = skinnedMesh->getBones()[i];
+            GameObjectPtr go = GameObject::create(bone->getName());
+            Transform3DPtr xform = smart_pointer_cast<Transform3D>(go->addComponent<Transform3D>());
+            xform->setPosition(bone->getTranslation());
+            xform->setOrientation(bone->getRotation());
+            xform->setScaling(bone->getScaling());
+            gameObjects[i] = go;
+        }
+
+        // 根据骨骼层级结构来构建 game object 层级结构
+        for (size_t i = 0; i < skinnedMesh->getBones().size(); i++)
+        {
+            const auto &bone = skinnedMesh->getBones()[i];
+            GameObjectPtr go = gameObjects[i];
+            Transform3D *node = static_cast<Transform3D *>(go->getTransformNode());
+            uint16_t parentIdx = bone->getParentIndex();
+            if (parentIdx != BoneNode::kInvalidIndex)
+            {
+                GameObjectPtr parentGO = gameObjects[parentIdx];
+                Transform3D *parentNode = static_cast<Transform3D *>(parentGO->getTransformNode());
+                parentNode->addChild(node);
+            }
+            else
+            {
+                root->getTransformNode()->addChild(node);
+            }
+        }
+        
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

@@ -91,15 +91,33 @@ namespace Tiny3D
 
         /**
          * @brief 驱动动画更新
-         * @param dt 时间增量，单位为毫秒
          */
-        void update(uint32_t dt);
+        void update();
+
+        /**
+         * @brief 是否在播放中
+         * @return 播放中返回 true，否则返回 false 
+         */
+        bool isPlaying() const { return mIsPlaying; }
         
-    protected:
+    protected:        
         AnimationPlayer(SkinnedGeometry *geometry);
 
         ID generateID() const { return ++msGeneratedID; }
-        
+
+        // 插值函数，返回当前帧号
+        uint32_t interpolateTranslation(uint32_t startFrame, uint32_t time, const TranslationTrack &track, Vector3 &translation);
+
+        // 插值函数，返回当前帧号
+        uint32_t interpolateOrientation(uint32_t startFrame, uint32_t time, const OrientationTrack &track, Quaternion &orientation);
+
+        // 插值函数，返回当前帧号
+        uint32_t interpolateScaling(uint32_t startFrame, uint32_t time, const ScalingTrack &track, Vector3 &scaling);
+
+        Real getInterplationTime(Keyframe *kf0, Keyframe *kf1, uint32_t time) const;
+
+        void updateBones();
+
     private:
         static ID msGeneratedID;
         
@@ -109,6 +127,19 @@ namespace Tiny3D
 
         /// 当前播放实例ID
         ID mCurrentPlaybackID {INVALID_ID};
+
+        /// 动画开始时间戳
+        int64_t mStartTimestamp {0};
+
+        /// 平移轨道当前帧号
+        uint32_t mCurrentFrameT {0};
+        /// 旋转轨道当前帧号
+        uint32_t mCurrentFrameO {0};
+        /// 缩放轨道当前帧号
+        uint32_t mCurrentFrameS {0};
+
+        /// 是否在播放中
+        bool mIsPlaying {false};
     };
 }
 

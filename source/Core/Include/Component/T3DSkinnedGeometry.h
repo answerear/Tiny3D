@@ -41,6 +41,12 @@ namespace Tiny3D
         ~SkinnedGeometry() override;
 
         ComponentPtr clone() const override;
+
+        /**
+         * @brief 生成所有子 game object
+         * @return 
+         */
+        TResult populateAllChildren();
         
     protected:
         SkinnedGeometry() = default;
@@ -61,18 +67,8 @@ namespace Tiny3D
         
         /// 生成渲染用的材质
         void generateRenderMaterial() override;
-
-        // 插值函数
-        uint32_t interpolateTranslation(uint32_t time, const TranslationTrack &track, Vector3 &translation);
-
-        uint32_t interpolateOrientation(uint32_t time, const OrientationTrack &track, Quaternion &orientation);
-
-        uint32_t interpolateScaling(uint32_t time, const ScalingTrack &track, Vector3 &scaling);
         
     protected:
-        /// 动画开始时间戳
-        int64_t mStartTimestamp {0};
-
         AnimationPlayerPtr mAnimationPlayer {nullptr};
     };
 }
