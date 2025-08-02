@@ -34,6 +34,48 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    template <typename keyframes_t>
+    bool getKeyframe(uint32_t startFrame, uint32_t time, const keyframes_t &keyframes, Keyframe *&frame0, Keyframe *&frame1, uint32_t &frame)
+    {
+        bool found = false;
+        uint32_t i = startFrame;
+        
+        while (i < keyframes.size())
+        {
+            Keyframe *current = keyframes[i];
+            Keyframe *next = nullptr;
+            if (i + 1 < keyframes.size())
+            {
+                next = keyframes[i+1];
+
+                if (time >= current->getTime() && time < next->getTime())
+                {
+                    // 位于两个关键帧之间
+                    frame = i;
+                    frame0 = current;
+                    frame1 = next;
+                    found = true;
+                    break;
+                }
+            }
+            else
+            {
+                // 最后一帧，直接用最后一帧的数据
+                frame = i;
+                frame0 = current;
+                frame1 = nullptr;
+                found = true;
+                break;
+            }
+            
+            i++;
+        }
+
+        return found;
+    }
+    
+    //--------------------------------------------------------------------------
+
     const ID AnimationPlayer::INVALID_ID = T3D_INVALID_ID;
 
     //--------------------------------------------------------------------------
@@ -181,48 +223,6 @@ namespace Tiny3D
 
             // CPU 蒙皮
         } while (false);
-    }
-    
-    //--------------------------------------------------------------------------
-
-    template <typename keyframes_t>
-    bool getKeyframe(uint32_t startFrame, uint32_t time, const keyframes_t &keyframes, Keyframe *&frame0, Keyframe *&frame1, uint32_t &frame)
-    {
-        bool found = false;
-        uint32_t i = startFrame;
-        
-        while (i < keyframes.size())
-        {
-            Keyframe *current = keyframes[i];
-            Keyframe *next = nullptr;
-            if (i + 1 < keyframes.size())
-            {
-                next = keyframes[i+1];
-
-                if (time >= current->getTime() && time < next->getTime())
-                {
-                    // 位于两个关键帧之间
-                    frame = i;
-                    frame0 = current;
-                    frame1 = next;
-                    found = true;
-                    break;
-                }
-            }
-            else
-            {
-                // 最后一帧，直接用最后一帧的数据
-                frame = i;
-                frame0 = current;
-                frame1 = nullptr;
-                found = true;
-                break;
-            }
-            
-            i++;
-        }
-
-        return found;
     }
     
     //--------------------------------------------------------------------------

@@ -41,7 +41,7 @@ namespace Tiny3D
         static const ID INVALID_ID;
         
         static AnimationPlayerPtr create(SkinnedGeometry *geometry);
-
+        
         /**
          * @brief 播放动画片段
          * @param clipName 动画片段名称
@@ -123,7 +123,7 @@ namespace Tiny3D
         
     protected:
         /// 蒙皮几何体
-        SkinnedGeometryPtr mSkinnedGeometry {nullptr};
+        SkinnedGeometry *mSkinnedGeometry {nullptr};
 
         /// 当前播放实例ID
         ID mCurrentPlaybackID {INVALID_ID};
