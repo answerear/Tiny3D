@@ -339,7 +339,8 @@ namespace Tiny3D
                 break;
             }
 
-            if (mTransformNode != nullptr)
+            bool isDerivedFromTransformNode = type.is_derived_from<TransformNode>();
+            if (isDerivedFromTransformNode && mTransformNode != nullptr)
             {
                 // transform node 子类，不能重复添加
                 break;
@@ -362,7 +363,7 @@ namespace Tiny3D
             mComponents.emplace(type, component);
             mComponentObjects.emplace(type.get_name(), component);
 
-            if (type.is_derived_from<TransformNode>())
+            if (isDerivedFromTransformNode)
             {
                 mTransformNode = static_cast<TransformNode*>(comp);
             }
