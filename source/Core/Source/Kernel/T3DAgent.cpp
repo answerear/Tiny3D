@@ -76,6 +76,11 @@ namespace Tiny3D
     
     Agent::~Agent()
     {
+        // if (mObjTracer != nullptr)
+        // {
+        //     mObjTracer->dumpMemoryInfo();
+        // }
+        
         stopRenderThread();
 
         if (mRenderPipeline != nullptr)
@@ -110,6 +115,11 @@ namespace Tiny3D
         GameObject::destroyComponents();
         GameObject::destroyGameObjects();
 
+        // if (mObjTracer != nullptr)
+        // {
+        //     mObjTracer->dumpMemoryInfo();
+        // }
+        
         // releaseBuiltinAssets();
 
         mSceneMgr = nullptr;
@@ -162,9 +172,19 @@ namespace Tiny3D
         mRenderBufferMgr = nullptr;
         mRenderWindows.clear();
 
+        // if (mObjTracer != nullptr)
+        // {
+        //     mObjTracer->dumpMemoryInfo();
+        // }
+        
         // 卸载所有插件
         unloadPlugins();
 
+        // if (mObjTracer != nullptr)
+        // {
+        //     mObjTracer->dumpMemoryInfo();
+        // }
+        
         if (mDylibMgr != nullptr)
         {
             mDylibMgr->unloadAllResources();
