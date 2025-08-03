@@ -41,12 +41,22 @@ namespace Tiny3D
         ~SkinnedGeometry() override;
 
         ComponentPtr clone() const override;
-
+    
         /**
          * @brief 生成所有子 game object
          * @return 
          */
         TResult populateAllChildren();
+
+        const BoneGameObjects &getAllBones() const { return mAllBones; }
+
+        TPROPERTY(RTTRFuncName="DefaultClip", RTTRFuncType="getter")
+        const String &getDefaultClipName() const { return mDefaultClipName; }
+
+        TPROPERTY(RTTRFuncName="DefaultClip", RTTRFuncType="setter")
+        void setDefaultClipName(const String &name) { mDefaultClipName = name; }
+
+        bool play(const String &clipName);
         
     protected:
         SkinnedGeometry() = default;
@@ -70,6 +80,10 @@ namespace Tiny3D
         
     protected:
         AnimationPlayerPtr mAnimationPlayer {nullptr};
+
+        BoneGameObjects mAllBones {};
+
+        String mDefaultClipName {};
     };
 }
 

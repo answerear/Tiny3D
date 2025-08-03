@@ -258,6 +258,7 @@ namespace Tiny3D
     using ScalingTrack = TArray<KfScalingPtr>;
     using AnimationTracks = TMap<String, AnimationTrackPtr>;
     using AnimationClips = TMap<String, AnimationClipPtr>;
+    using BoneGameObjects = TUnorderedMap<String, GameObject*>;
     using Bones = TArray<BoneNodePtr>;
 }
 

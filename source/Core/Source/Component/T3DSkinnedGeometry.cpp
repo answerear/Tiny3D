@@ -58,7 +58,8 @@ namespace Tiny3D
 
     void SkinnedGeometry::onUpdate()
     {
-        
+        T3D_ASSERT(mAnimationPlayer != nullptr);
+        mAnimationPlayer->update();
     }
 
     //--------------------------------------------------------------------------
@@ -96,6 +97,7 @@ namespace Tiny3D
             }
 
             const SkinnedGeometry * const other = static_cast<const SkinnedGeometry * const>(src);
+            mDefaultClipName = other->mDefaultClipName;
         } while (false);
 
         return ret;
@@ -113,6 +115,8 @@ namespace Tiny3D
     void SkinnedGeometry::onLoadResource(Archive *archive)
     {
         Geometry::onLoadResource(archive);
+
+        populateAllChildren();
     }
 
     //--------------------------------------------------------------------------
@@ -138,6 +142,8 @@ namespace Tiny3D
         using GameObjects = TArray<GameObjectPtr>;
         GameObjects gameObjects(skinnedMesh->getBones().size(), nullptr);
 
+        mAllBones.clear();
+
         // 先构建所有 game object 对象
         for (size_t i = 0; i < skinnedMesh->getBones().size(); i++)
         {
@@ -148,6 +154,7 @@ namespace Tiny3D
             xform->setOrientation(bone->getRotation());
             xform->setScaling(bone->getScaling());
             gameObjects[i] = go;
+            mAllBones.emplace(bone->getName(), go);
         }
 
         // 根据骨骼层级结构来构建 game object 层级结构
@@ -170,6 +177,17 @@ namespace Tiny3D
         }
         
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SkinnedGeometry::play(const String &clipName)
+    {
+        T3D_ASSERT(mAnimationPlayer != nullptr);
+
+        mAnimationPlayer->playClip(clipName, false, false);
+
+        return true;
     }
 
     //--------------------------------------------------------------------------

@@ -28,6 +28,7 @@
 #include "Component/T3DSkinnedGeometry.h"
 #include "Resource/T3DSkinnedMesh.h"
 #include "Resource/T3DSkeletalAnimation.h"
+#include "Component/T3DTransform3D.h"
 
 
 namespace Tiny3D
@@ -123,6 +124,7 @@ namespace Tiny3D
             mCurrentFrameT = 0;
             mCurrentFrameO = 0;
             mCurrentFrameS = 0;
+            mIsPlaying = true;
         } while (false);
         
         return ret;
@@ -174,6 +176,8 @@ namespace Tiny3D
                 // 没有播放动画
                 break;
             }
+
+            const BoneGameObjects &bones = mSkinnedGeometry->getAllBones();
             
             SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
         
@@ -195,28 +199,53 @@ namespace Tiny3D
                         elapsed = clip->getDuration();
                         mIsPlaying = false;
                     }
+
+                    T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
                 
                     for (const auto &it : tracks)
                     {
                         AnimationTrack *track = it.second;
 
-                        // 平移
+                        // 差值计算平移
                         const TranslationTrack &trackT = track->getTranslationTrack();
                         Vector3 translation;
                         mCurrentFrameT = interpolateTranslation(mCurrentFrameT, elapsed, trackT, translation);
 
-                        // 旋转
+                        // 差值计算旋转
                         const OrientationTrack &trackO = track->getOrientationTrack();
                         Quaternion orientation;
                         mCurrentFrameO = interpolateOrientation(mCurrentFrameO, elapsed, trackO, orientation);
 
-                        // 缩放
+                        // 差值计算缩放
                         const ScalingTrack &trackS = track->getScalingTrack();
                         Vector3 scaling;
                         mCurrentFrameS = interpolateScaling(mCurrentFrameS, elapsed, trackS, scaling);
 
-                        it.first;
-                        
+                        // 更新对应骨骼的 RTS
+                        const auto itr = bones.find(it.first);
+                        if (itr == bones.end())
+                        {
+                            // 没有对应的骨骼，这里要报错了
+                            T3D_LOG_ERROR(LOG_TAG_ANIMATION,
+                                "Could not find the corresponding bone [%s] in skinned geometry hierarchy !",
+                                it.first.c_str());
+                            continue;
+                        }
+
+                        Transform3D *xform = static_cast<Transform3D *>(itr->second->getTransformNode());
+                        xform->setPosition(translation);
+                        xform->setOrientation(orientation);
+                        xform->setScaling(scaling);
+
+                        Matrix3 matR;
+                        orientation.toRotationMatrix(matR);
+                        Radian xAngle, yAngle, zAngle;
+                        matR.toEulerAnglesYXZ(xAngle, yAngle, zAngle);
+                        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
+                            it.first.c_str(),
+                            translation.x(), translation.y(), translation.z(),
+                            xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+                            scaling.x(), scaling.y(), scaling.z());
                     }
                 }
             }

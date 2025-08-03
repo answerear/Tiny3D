@@ -302,6 +302,9 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     // geometry component
     SkinnedGeometryPtr geometry = go->addComponent<SkinnedGeometry>();
     geometry->setMeshObject(mCubeMesh, submesh);
+    geometry->populateAllChildren();
+    geometry->setDefaultClipName(kArmRotateLeft);
+    geometry->play(kArmRotateLeft);
     
     // aabb bound component
     AabbBoundPtr bound = go->addComponent<AabbBound>();

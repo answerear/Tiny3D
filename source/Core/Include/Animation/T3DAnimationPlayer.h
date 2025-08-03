@@ -119,7 +119,7 @@ namespace Tiny3D
         void updateBones();
 
     private:
-        static ID msGeneratedID;
+        static ID msGeneratedID;    
         
     protected:
         /// 蒙皮几何体
