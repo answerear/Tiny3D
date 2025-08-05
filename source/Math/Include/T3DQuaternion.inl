@@ -858,4 +858,14 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline String TQuaternion<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "(" << _w << ", " << _x << ", " << _y << ", " << _z << ")";
+        return ss.str();
+    }
+    
+    //--------------------------------------------------------------------------
 }

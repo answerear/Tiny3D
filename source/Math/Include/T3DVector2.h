@@ -137,6 +137,8 @@ namespace Tiny3D
         TFUNCTION("Description"="Calculate the perpendicular vector (y,-x).")
         TVector2 perp() const;
 
+        String getDebugString() const;
+
         static const TVector2 ZERO;              /// 零向量
         static const TVector2 UNIT_X;            /// X轴单位向量
         static const TVector2 UNIT_Y;            /// Y轴单位向量

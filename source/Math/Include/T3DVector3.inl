@@ -336,6 +336,14 @@ namespace Tiny3D
         *this = start * (1.0f - t) + end * t;
         return *this;
     }
+
+    template <typename T>
+    inline String TVector3<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "(" << _x << ", " << _y << ", " << _z << ")";
+        return ss.str();
+    }
     
     template <typename T>
     inline TVector3<T> operator *(T scalar, const TVector3<T> &rkV)

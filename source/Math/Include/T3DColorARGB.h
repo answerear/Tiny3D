@@ -113,6 +113,13 @@ namespace Tiny3D
         float32_t blue() const    { return mBlue; }
         float32_t &blue()         { return mBlue; }
 
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "(" << mAlpha << ", " << mRed << ", " << mGreen << ", " << mBlue << ")"; 
+            return ss.str();
+        }
+
     private:
         TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="setter", "Description"="alpha")
         void setAlpha(float32_t a) { mAlpha = a; }

@@ -271,5 +271,15 @@ namespace Tiny3D
         mSphere.setCenter(center);
         mSphere.setRadius(radius);
     }
+
+    template<typename T>
+    String TAabb<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "X: [" << mMinX << ", " << mMaxX << "] ";
+        ss << "Y: [" << mMinY << ", " << mMaxY << "] ";
+        ss << "Z: [" << mMinZ << ", " << mMaxZ << "]";
+        return ss.str();
+    }
 }
 

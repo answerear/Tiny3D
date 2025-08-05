@@ -139,6 +139,8 @@ namespace Tiny3D
         T normalize();
 
         TVector3 &lerp(const TVector3 &start, const TVector3 &end, T t);
+
+        String getDebugString() const;
         
         /// 零向量
         static const TVector3 ZERO;

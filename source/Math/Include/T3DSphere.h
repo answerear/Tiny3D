@@ -108,6 +108,8 @@ namespace Tiny3D
         TFUNCTION()
         bool contains(const TVector3<T> &point) const;
 
+        String getDebugString() const;
+
     protected:
         /// Welzl最小包围球算法生成包围球
         void buildByWelzl(const TVector3<T> points[], size_t count);

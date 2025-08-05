@@ -313,6 +313,14 @@ namespace Tiny3D
         return fLength;
     }
 
+    template<typename T>
+    inline String TVector4<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "(" << _x << ", " << _y << ", " << _z << ", " << _w << ")";
+        return ss.str();
+    }
+
     template <typename T>
     const TVector4<T> TVector4<T>::ZERO(0.0, 0.0, 0.0, 0.0);
 }

@@ -69,6 +69,19 @@ namespace Tiny3D
             return mFaces[face];
         }
 
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "Frustum -";
+            ss << " Top: " << mFaces[Face::E_FACE_TOP].getDebugString();
+            ss << " Bottom: " << mFaces[Face::E_FACE_BOTTOM].getDebugString();
+            ss << " Left: " << mFaces[Face::E_FACE_LEFT].getDebugString();
+            ss << " Right: " << mFaces[Face::E_FACE_RIGHT].getDebugString();
+            ss << " Near: " << mFaces[Face::E_FACE_NEAR].getDebugString();
+            ss << " Far: " << mFaces[Face::E_FACE_FAR].getDebugString();
+            return ss.str();
+        }
+        
     protected:
         // TPROPERTY(RTTRFuncName="faces", RTTRFuncType="getter", "Description"="Six faces in frustum")
         // TArray<TPlane<T>> getFaces() const { return TArray<TPlane<T>>(mFaces, mFaces+E_MAX_FACE); }

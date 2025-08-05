@@ -110,6 +110,8 @@ namespace Tiny3D
         TFUNCTION()
         void setParam(const TVector3<T> &vMin, const TVector3<T> &vMax);
 
+        String getDebugString() const;
+
     private:
         T   mMinX;
         T   mMaxX;

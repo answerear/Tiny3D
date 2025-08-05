@@ -198,6 +198,8 @@ namespace Tiny3D
         TFUNCTION()
         void eigendecomposition(TMatrix2 &rRot, TMatrix2 &rDiag) const;
 
+        String getDebugString(bool newlinw = false) const;
+
         static const TMatrix2 ZERO;      /// 零矩阵
         static const TMatrix2 IDENTITY;  /// 单位矩阵
 

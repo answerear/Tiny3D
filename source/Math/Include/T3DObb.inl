@@ -267,5 +267,19 @@ namespace Tiny3D
     {
         mExtent[2] = extent;
     }
+
+    template<typename T>
+    inline String TObb<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "Obb -";
+        ss << " Center : " << mCenter.getDebugString();
+        ss << " Axis : " << mAxis[0].getDebugString();
+        ss << ", " << mAxis[1].getDebugString();
+        ss << ", " << mAxis[2].getDebugString();
+        ss << " Extention : " << mExtent[0] << ", " << mExtent[1] << ", " << mExtent[2];
+        return ss.str();
+    }
+ 
 }
 

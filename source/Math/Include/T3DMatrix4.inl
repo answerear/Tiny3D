@@ -24,6 +24,8 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::makeIdentity()
     {
@@ -45,6 +47,8 @@ namespace Tiny3D
         m4x4[3][3] = TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::makeZero()
     {
@@ -54,6 +58,8 @@ namespace Tiny3D
         m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = m4x4[3][3] = TReal<T>::ZERO;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::make(
         T m00, T m01, T m02, T m03,
@@ -79,7 +85,8 @@ namespace Tiny3D
         m4x4[3][3] = m33;
     }
 
-
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator =(const TMatrix4 &other)
     {
@@ -87,6 +94,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator =(const TMatrix3<T> &rkMat)
     {
@@ -96,11 +105,15 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4()
     {
         makeIdentity();
     }
+
+    //--------------------------------------------------------------------------
     
     template <typename T>
     inline TMatrix4<T>::TMatrix4(bool isZero)
@@ -111,12 +124,16 @@ namespace Tiny3D
             makeIdentity();
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(const TMatrix4 &other)
     {
         memcpy(mTuples, other.mTuples, sizeof(mTuples));
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(
         T m00, T m01, T m02, T m03, 
@@ -130,6 +147,8 @@ namespace Tiny3D
             m30, m31, m32, m33);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(const TMatrix3<T> &rkMat)
     {
@@ -139,6 +158,8 @@ namespace Tiny3D
         m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = TReal<T>::ZERO;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(const TQuaternion<T> &rkRot)
     {
@@ -150,6 +171,8 @@ namespace Tiny3D
         m4x4[3][0] = m4x4[3][1] = m4x4[3][2] = TReal<T>::ZERO;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(const TVector3<T> &rkPos)
     {
@@ -159,6 +182,8 @@ namespace Tiny3D
         m4x4[3][0] = TReal<T>::ZERO, m4x4[3][1] = TReal<T>::ZERO, m4x4[3][2] = TReal<T>::ZERO, m4x4[3][3] = TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(T m00, T m11, T m22, T m33)
     {
@@ -168,6 +193,8 @@ namespace Tiny3D
         m4x4[3][0] = TReal<T>::ZERO, m4x4[3][1] = TReal<T>::ZERO, m4x4[3][2] = TReal<T>::ZERO, m4x4[3][3] = m33;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T>::TMatrix4(const TVector3<T> &X, const TVector3<T> &Y, const TVector3<T> &Z)
     {
@@ -189,6 +216,8 @@ namespace Tiny3D
     //    return mTuples;
     //}
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline const T *TMatrix4<T>::operator [](size_t row) const
     {
@@ -196,6 +225,8 @@ namespace Tiny3D
         return m4x4[row];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T *TMatrix4<T>::operator [](size_t row)
     {
@@ -203,60 +234,80 @@ namespace Tiny3D
         return m4x4[row];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T TMatrix4<T>::operator ()(size_t row, size_t col) const
     {
         return m4x4[row][col];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline T &TMatrix4<T>::operator ()(size_t row, size_t col)
     {
         return m4x4[row][col];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline int32_t TMatrix4<T>::compareArrays(const TMatrix4 &other) const
     {
         return memcmp(mTuples, other.mTuples, sizeof(mTuples));
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::operator ==(const TMatrix4 &other) const
     {
         return compareArrays(other) == 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::operator !=(const TMatrix4 &other) const
     {
         return compareArrays(other) != 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::operator <(const TMatrix4 &other) const
     {
         return compareArrays(other) < 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::operator <=(const TMatrix4 &other) const
     {
         return compareArrays(other) <= 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::operator >(const TMatrix4 &other) const
     {
         return compareArrays(other) > 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::operator >=(const TMatrix4 &other) const
     {
         return compareArrays(other) >= 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::operator +(const TMatrix4 &other) const
     {
@@ -268,6 +319,8 @@ namespace Tiny3D
         );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::operator -(const TMatrix4 &other) const
     {
@@ -279,6 +332,8 @@ namespace Tiny3D
         );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::operator *(const TMatrix4 &other) const
     {
@@ -305,6 +360,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::operator *(T scalar) const
     {
@@ -316,6 +373,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::operator /(T scalar) const
     {
@@ -330,6 +389,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::operator -() const
     {
@@ -341,6 +402,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator +=(const TMatrix4 &other)
     {
@@ -367,6 +430,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator -=(const TMatrix4 &other)
     {
@@ -393,6 +458,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator *=(T scalar)
     {
@@ -404,6 +471,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> &TMatrix4<T>::operator /=(T scalar)
     {
@@ -419,6 +488,8 @@ namespace Tiny3D
         return *this;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector4<T> TMatrix4<T>::operator *(const TVector4<T> &rkV) const
     {
@@ -430,6 +501,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TMatrix4<T>::operator *(const TVector3<T> &rkV) const
     {
@@ -451,6 +524,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::transpose() const
     {
@@ -462,12 +537,16 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::isAffine() const
     {
         return m4x4[3][0] == TReal<T>::ZERO && m4x4[3][1] == TReal<T>::ZERO && m4x4[3][2] == TReal<T>::ZERO && m4x4[3][3] == TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline bool TMatrix4<T>::hasScale() const
     {
@@ -484,6 +563,8 @@ namespace Tiny3D
         return false;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> TMatrix4<T>::concatenateAffine(const TMatrix4 &other) const
     {
@@ -508,6 +589,8 @@ namespace Tiny3D
             TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ONE);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::extractMatrix(TMatrix3<T> &m3x3) const
     {
@@ -522,6 +605,8 @@ namespace Tiny3D
         m3x3[2][2] = m4x4[2][2];
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TQuaternion<T> TMatrix4<T>::extractQuaternion() const
     {
@@ -530,12 +615,16 @@ namespace Tiny3D
         return TQuaternion<T>(m3x3);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TMatrix4<T>::extractTranslation() const
     {
         return TVector3<T>(m4x4[0][3], m4x4[1][3], m4x4[2][3]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::decomposition(TVector3<T> &position, TVector3<T> &scale, TQuaternion<T> &orientation) const
     {
@@ -552,6 +641,8 @@ namespace Tiny3D
         position = TVector3<T>(m4x4[0][3], m4x4[1][3], m4x4[2][3]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::makeTranslate(const TVector3<T> &position)
     {
@@ -561,6 +652,8 @@ namespace Tiny3D
         m4x4[3][0] = TReal<T>::ZERO, m4x4[3][1] = TReal<T>::ZERO, m4x4[3][2] = TReal<T>::ZERO, m4x4[3][3] = TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::makeTranslate(T tx, T ty, T tz)
     {
@@ -570,6 +663,8 @@ namespace Tiny3D
         m4x4[3][0] = TReal<T>::ZERO, m4x4[3][1] = TReal<T>::ZERO, m4x4[3][2] = TReal<T>::ZERO, m4x4[3][3] = TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::setScale(const TVector3<T> &scale)
     {
@@ -578,6 +673,8 @@ namespace Tiny3D
         m4x4[2][2] = scale.z();
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline void TMatrix4<T>::setTranslate(const TVector3<T> &position)
     {
@@ -586,6 +683,8 @@ namespace Tiny3D
         m4x4[2][3] = position.z();
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector3<T> TMatrix4<T>::transformAffine(const TVector3<T> &v) const
     {
@@ -597,6 +696,8 @@ namespace Tiny3D
             m4x4[2][0] * v.x() + m4x4[2][1] * v.y() + m4x4[2][2] * v.z() + m4x4[2][3]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector4<T> TMatrix4<T>::transformAffine(const TVector4<T> &v) const
     {
@@ -609,6 +710,8 @@ namespace Tiny3D
             v.w());
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TMatrix4<T> operator *(T scalar, const TMatrix4<T> &rkM)
     {
@@ -620,6 +723,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline TVector4<T> operator *(const TVector4<T> &rkV, const TMatrix4<T> &rkM)
     {
@@ -631,6 +736,8 @@ namespace Tiny3D
             );
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     const TMatrix4<T> TMatrix4<T>::ZERO(
         0.0, 0.0, 0.0, 0.0,
@@ -646,6 +753,8 @@ namespace Tiny3D
         0.0, 0.0, 0.0, 1.0
     );
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     inline static T MINOR(const TMatrix4<T>& m,
         const size_t r0, const size_t r1, const size_t r2,
@@ -656,6 +765,8 @@ namespace Tiny3D
             m[r0][c2] * (m[r1][c0] * m[r2][c1] - m[r2][c0] * m[r1][c1]);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     TMatrix4<T> TMatrix4<T>::inverse() const
     {
@@ -719,6 +830,8 @@ namespace Tiny3D
             d30, d31, d32, d33);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     TMatrix4<T> TMatrix4<T>::inverseAffine() const
     {
@@ -768,7 +881,8 @@ namespace Tiny3D
             0.0, 0.0, 0.0, 1.0);
     }
 
-    //-----------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     TMatrix4<T> TMatrix4<T>::adjoint() const
     {
@@ -793,6 +907,8 @@ namespace Tiny3D
             MINOR(*this, 0, 1, 2, 0, 1, 2));
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     T TMatrix4<T>::determinant() const
     {
@@ -803,6 +919,8 @@ namespace Tiny3D
             m4x4[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::makeTransform(const TVector3<T> &position, const TVector3<T> &scale, const TQuaternion<T> &orientation)
     {
@@ -837,6 +955,8 @@ namespace Tiny3D
         m4x4[3][3] = TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::makeInverseTransform(const TVector3<T>& position, const TVector3<T>& scale, const TQuaternion<T>& orientation)
     {
@@ -877,6 +997,8 @@ namespace Tiny3D
         m4x4[3][3] = TReal<T>::ONE;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     Buffer TMatrix4<T>::getData() const
     {
@@ -886,6 +1008,8 @@ namespace Tiny3D
         return data;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::setData(Buffer data)
     {
@@ -894,6 +1018,8 @@ namespace Tiny3D
         T3D_SAFE_DELETE_ARRAY(data.Data);
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::perspective_LH(const TRadian<T> &fovY, T aspect, T zNear, T zFar)
     {
@@ -927,6 +1053,8 @@ namespace Tiny3D
         m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = one; m4x4[3][3] = 0;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::perspective_RH(const TRadian<T> &fovY, T aspect, T zNear, T zFar)
     {
@@ -961,7 +1089,8 @@ namespace Tiny3D
         m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = -one; m4x4[3][3] = 0;
     }
 
-
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::orthographic_LH(T width, T height, T zNear, T zFar)
     {
@@ -994,6 +1123,8 @@ namespace Tiny3D
         m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = one;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::orthographic_RH(T width, T height, T zNear, T zFar)
     {
@@ -1026,6 +1157,8 @@ namespace Tiny3D
         m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = one;
     }
 
+    //--------------------------------------------------------------------------
+    
     template<typename T>
     void TMatrix4<T>::lookAt_LH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up)
     {
@@ -1044,6 +1177,8 @@ namespace Tiny3D
         m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = 1;
     }
 
+    //--------------------------------------------------------------------------
+    
     template <typename T>
     void TMatrix4<T>::lookAt_RH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up)
     {
@@ -1061,4 +1196,46 @@ namespace Tiny3D
         m4x4[2][0] = N.x(); m4x4[2][1] = N.y(); m4x4[2][2] = N.z(); m4x4[2][3] = -N.dot(eye);
         m4x4[3][0] = 0; m4x4[3][1] = 0; m4x4[3][2] = 0; m4x4[3][3] = 1;
     }
+
+    //--------------------------------------------------------------------------
+
+    template<typename T>
+    String TMatrix4<T>::getDebugString(bool newline) const
+    {
+        std::stringstream ss;
+
+        if (newline)
+        {
+            for (int32_t row = 0; row < 4; row++)
+            {
+                for (int32_t col = 0; col < 4; col++)
+                {
+                    ss << m4x4[row][col];
+                    if (col != 3)
+                    {
+                        ss << " ";
+                    }
+                    else
+                    {
+                        ss << std::endl;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int32_t i = 0; i < 16; i++)
+            {
+                ss << mTuples[i];
+                if (i != 15)
+                {
+                    ss << " ";
+                }
+            }
+        }
+
+        return ss.str();
+    }
+
+    //--------------------------------------------------------------------------
 }

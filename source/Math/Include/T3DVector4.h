@@ -133,6 +133,8 @@ namespace Tiny3D
         TFUNCTION("Description"="Normalize the vector")
         T normalize();
 
+        String getDebugString() const;
+
         static const TVector4 ZERO;      /// 零向量
 
     private:

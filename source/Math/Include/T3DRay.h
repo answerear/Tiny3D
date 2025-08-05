@@ -96,6 +96,13 @@ namespace Tiny3D
             mDirection = direction;
         }
 
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "Origin : " << mOrigin.getDebugString() << " Direction : " << mDirection.getDebugString();
+            return ss.str();
+        }
+
     private:
         TVector3<T> mOrigin;        /// 原点
         TVector3<T> mDirection;     /// 方向

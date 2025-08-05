@@ -89,6 +89,8 @@ namespace Tiny3D
         TFUNCTION()
         void normalize();
 
+        String getDebugString() const;
+        
     protected:
         TPROPERTY(RTTRFuncName="A", RTTRFuncType="setter", "Description"="Coefficient A in plane euqation.")
         void setACoeff(const T &coeff) { mCoeff[0] = coeff; }

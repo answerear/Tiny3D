@@ -147,6 +147,13 @@ namespace Tiny3D
             height /= scale;
             return *this;
         }
+
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "(" << width << ", " << height << ")";
+            return ss.str();
+        }
     };
 
     //--------------------------------------------------------------------------
@@ -261,6 +268,13 @@ namespace Tiny3D
             x /= scale;
             y /= scale;
             return *this;
+        }
+
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "(" << x << ", " << y << ")";
+            return ss.str();
         }
     };
 
@@ -403,6 +417,13 @@ namespace Tiny3D
             top -= offset.y;
             bottom -= offset.y;
             return *this;
+        }
+
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "(" << left << ", " << top << "), (" << right << ", " << bottom << ")";
+            return ss.str();
         }
     };
 }

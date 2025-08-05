@@ -1616,6 +1616,46 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    template<typename T>
+    String TMatrix3<T>::getDebugString(bool newline) const
+    {
+        std::stringstream ss;
+        
+        if (newline)
+        {
+            for (int32_t row = 0; row < 3; row++)
+            {
+                for (int32_t col = 0; col < 3; col++)
+                {
+                    ss << m3x3[row][col];
+                    if (col != 2)
+                    {
+                        ss << " ";
+                    }
+                    else
+                    {
+                        ss << std::endl;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int32_t i = 0; i < 9; i++)
+            {
+                ss << mTuples[i];
+                if (i != 8)
+                {
+                    ss << " ";
+                }
+            }
+        }
+
+        return ss.str();
+    }
+
+    //--------------------------------------------------------------------------
     
     template <typename T>
     inline Buffer TMatrix3<T>::getData() const

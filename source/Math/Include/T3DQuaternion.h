@@ -203,6 +203,8 @@ namespace Tiny3D
         TQuaternion &slerp(const TQuaternion &rkP, const TQuaternion &rkQ, 
             T times, bool shortestPath = true, T epsilon = TReal<T>::EPSILON);
 
+        String getDebugString() const;
+        
         static const TQuaternion IDENTITY;       /// 单位四元数
         static const TQuaternion ZERO;           /// 零四元数
 

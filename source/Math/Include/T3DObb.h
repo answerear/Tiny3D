@@ -87,6 +87,8 @@ namespace Tiny3D
         TFUNCTION()
         void setExtent(int32_t idx, T fExtent);
 
+        String getDebugString() const;
+
     protected:
         void buildByAABB(const TVector3<T> points[], size_t count);
 

@@ -50,6 +50,8 @@ namespace Tiny3D
         const TVector3<T> &operator [](size_t idx) const;
         TVector3<T> &operator [](size_t idx);
 
+        String getDebugString() const;
+        
     protected:
         TPROPERTY()
         TVector3<T> vertices[3];

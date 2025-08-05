@@ -78,5 +78,16 @@ namespace Tiny3D
         T3D_ASSERT(idx < 3);
         return vertices[idx];
     }
+
+    template <typename T>
+    inline String TTriangle<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "Triangle -";
+        ss << " V0 : " << vertices[0].getDebugString();
+        ss << " V1 : " << vertices[1].getDebugString();
+        ss << " V2 : " << vertices[2].getDebugString();
+        return ss.str();
+    }
 }
 

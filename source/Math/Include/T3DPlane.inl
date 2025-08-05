@@ -181,4 +181,13 @@ namespace Tiny3D
         mCoeff[2] /= length;
         mCoeff[3] /= length;
     }
+
+    template<typename T>
+    inline String TPlane<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "A : " << mCoeff[0] << " B : " << mCoeff[1] << " C : " << mCoeff[2] << " D : " << mCoeff[3];
+        return ss.str();
+    }
+
 }

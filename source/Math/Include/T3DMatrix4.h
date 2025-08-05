@@ -245,6 +245,8 @@ namespace Tiny3D
         TFUNCTION()
         void lookAt_RH(const TVector3<T> &eye, const TVector3<T> &at, const TVector3<T> &up);
 
+        String getDebugString(bool newline = false) const;
+
         static const TMatrix4 ZERO;      /// 零矩阵
         static const TMatrix4 IDENTITY;  /// 单位矩阵
 

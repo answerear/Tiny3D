@@ -370,4 +370,13 @@ namespace Tiny3D
         mCenter = center;
         mRadius = radius;
     }
+
+    template<typename T>
+    String TSphere<T>::getDebugString() const
+    {
+        std::stringstream ss;
+        ss << "Center : " << mCenter.getDebugString() << " Radius : " << mRadius;
+        return ss.str();
+    }
+
 }

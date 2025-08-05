@@ -212,6 +212,13 @@ namespace Tiny3D
                 | (mBlue & RGB444_BLUE_MASK);
         }
 
+        String getDebugString() const
+        {
+            std::stringstream ss;
+            ss << "(" << mAlpha << ", " << mRed << ", " << mGreen << ", " << mBlue << ")";
+            return ss.str();
+        }
+
     private:
         TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="setter", "Description"="alpha")
         void setAlpha(uint8_t a) { mAlpha = a; }
