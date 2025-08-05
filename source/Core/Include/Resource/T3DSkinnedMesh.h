@@ -74,6 +74,10 @@ namespace Tiny3D
             return mSkeletalAni;
         }
 
+#if defined (T3D_DEBUG)
+        String getDebugInfo() const override;
+#endif
+
     protected:
         SkinnedMesh() = default;
         
@@ -105,7 +109,15 @@ namespace Tiny3D
         void setBones(const Bones &bones)
         {
             mBones = bones;
+#if defined (T3D_DEBUG)
+            mIsBonesDirty = true;
+#endif
         }
+
+#if defined (T3D_DEBUG)
+        void populateBoneHierarchy() const;
+        void clearJoints() const;
+#endif
         
     protected:
         /// 骨骼动画数据资源 UUID
@@ -116,6 +128,27 @@ namespace Tiny3D
 
         /// 骨骼动画数据对象
         SkeletalAnimationPtr mSkeletalAni {nullptr};
+
+    private:
+#if defined (T3D_DEBUG)
+        mutable bool mIsBonesDirty {true};
+
+        using JointChildren = TArray<uint16_t>;
+        
+        struct JointNode
+        {
+            JointNode() = default;
+            
+            uint16_t joint {BoneNode::kInvalidIndex};
+            JointChildren children {};
+        };
+
+        using Joints = TArray<JointNode*>;
+        mutable Joints mJoints {};
+        mutable uint16_t mJointRootIdx {BoneNode::kInvalidIndex};
+
+        String getBoneDebugString(JointNode *node, int32_t tabCount) const;
+#endif
     };
 }
 

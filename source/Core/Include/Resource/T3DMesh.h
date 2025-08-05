@@ -119,6 +119,10 @@ namespace Tiny3D
         uint32_t getVertexStride(uint32_t slot) const { return mVertexStrides[slot]; }
 
         uint32_t getVertexOffset(uint32_t slot) const { return mVertexOffsets[slot]; }
+
+#if defined(T3D_DEBUG)
+        virtual String getDebugInfo() const;
+#endif
         
     protected:
         Mesh() = default;

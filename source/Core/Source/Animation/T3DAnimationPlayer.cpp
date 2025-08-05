@@ -240,7 +240,7 @@ namespace Tiny3D
                         Matrix3 matR;
                         orientation.toRotationMatrix(matR);
                         Radian xAngle, yAngle, zAngle;
-                        matR.toEulerAnglesYXZ(xAngle, yAngle, zAngle);
+                        matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
                         T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
                             it.first.c_str(),
                             translation.x(), translation.y(), translation.z(),

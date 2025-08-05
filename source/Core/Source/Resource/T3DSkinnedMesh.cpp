@@ -26,6 +26,8 @@
 #include "T3DErrorDef.h"
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Resource/T3DAnimationManager.h"
+#include "Animation/T3DAnimationClip.h"
+#include "Animation/T3DAnimationTrack.h"
 
 
 namespace Tiny3D
@@ -146,5 +148,138 @@ namespace Tiny3D
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+#if defined (T3D_DEBUG)
+    String SkinnedMesh::getDebugInfo() const
+    {
+        if (mIsBonesDirty)
+        {
+            populateBoneHierarchy();
+            mIsBonesDirty = false;
+        }
+
+        String bones = getBoneDebugString(mJoints[mJointRootIdx], 0);
+
+        std::stringstream ss;
+        ss << std::endl << bones;
+
+        ss << "Animation (" << mSkeletalAni->getName() << ") Data : " << std::endl;
+
+        const AnimationClips &clips = mSkeletalAni->getAnimationClips();
+        
+        for (const auto &item : clips)
+        {
+            ss << "\tAnimation Clip (" << item.second->getName() << ") - Duration : " << item.second->getDuration() << std::endl;
+            for (const auto &track : item.second->getTracks())
+            {
+                ss << "\t\tTrack : " << track.first << std::endl;
+                ss << "\t\t\tTranslation :" << std::endl;
+                for (const auto &kfTranslation : track.second->getTranslationTrack())
+                {
+                    const Vector3 &translation = kfTranslation->getTranslation();
+                    ss << "\t\t\t\tTime : " << kfTranslation->getTime() << " - " << translation.getDebugString() << std::endl;
+                }
+
+                ss << "\t\t\tRotation :" << std::endl;
+                for (const auto &kfOrienetation : track.second->getOrientationTrack())
+                {
+                    const Quaternion &orientation = kfOrienetation->getOrientation();
+                    Matrix3 matR;
+                    orientation.toRotationMatrix(matR);
+                    Radian xAngle, yAngle, zAngle;
+                    matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+                    ss << "\t\t\t\tTime : " << kfOrienetation->getTime() << " - (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")" << std::endl;
+                }
+                ss << "\t\t\tScaling :" << std::endl;
+                for (const auto &kfScaling : track.second->getScalingTrack())
+                {
+                    const Vector3 &scaling = kfScaling->getScaling();
+                    ss << "\t\t\t\tTime : " << kfScaling->getTime() << " - " << scaling.getDebugString() << std::endl;
+                }
+            }
+        }
+
+        return ss.str();
+    }
+
+    void SkinnedMesh::populateBoneHierarchy() const
+    {
+        clearJoints();
+
+        uint16_t index = 0;
+        mJoints.resize(mBones.size(), nullptr);
+        
+        for (const auto &bone : mBones)
+        {
+            JointNode *node = new JointNode();
+            node->joint = index;
+            
+            uint16_t parentIdx = bone->getParentIndex();
+            if (parentIdx == BoneNode::kInvalidIndex)
+            {
+                mJointRootIdx = index;
+            }
+
+            mJoints[index] = node;
+            index++;
+        }
+
+        index = 0;
+        
+        for (const auto &bone : mBones)
+        {
+            JointNode *node = mJoints[index];
+
+            uint16_t parentIdx = bone->getParentIndex();
+            if (parentIdx != BoneNode::kInvalidIndex)
+            {
+                mJoints[parentIdx]->children.emplace_back(index);
+            }
+            
+            index++;
+        }
+    }
+
+    void SkinnedMesh::clearJoints() const
+    {
+        for (auto &joint : mJoints)
+        {
+            T3D_SAFE_DELETE(joint);
+        }
+
+        mJoints.clear();
+    }
+
+    String SkinnedMesh::getBoneDebugString(JointNode *node, int32_t tabCount) const
+    {
+        std::stringstream ss;
+        for (int32_t i = 0; i < tabCount; i++)
+        {
+            ss << "\t";
+        }
+
+        BoneNode *bone = mBones[node->joint];
+        
+        ss << "Bone - name : " << bone->getName();
+        ss << " T : " << bone->getTranslation().getDebugString();
+        const Quaternion &orientation = bone->getRotation();
+        Matrix3 matR;
+        orientation.toRotationMatrix(matR);
+        Radian xAngle, yAngle, zAngle;
+        matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+        ss << " R : (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")";
+        ss << bone->getScaling().getDebugString();
+        ss << std::endl;
+        for (const auto child : node->children)
+        {
+            ss << getBoneDebugString(mJoints[child], tabCount + 1);
+        }
+        
+        return ss.str();
+    }
+
+#endif
+    
     //--------------------------------------------------------------------------
 }
