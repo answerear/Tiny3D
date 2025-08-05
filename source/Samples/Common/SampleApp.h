@@ -30,6 +30,8 @@
 
 #define LOG_TAG_APP     "APP"
 
+#define APP_LOG_DEBUG(fmt, ...)  T3D_LOG_DEBUG(LOG_TAG_APP, fmt, ##__VA_ARGS__)
+
 
 class SampleApp
 {

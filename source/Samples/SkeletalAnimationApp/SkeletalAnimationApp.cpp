@@ -669,6 +669,9 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     SkeletalAnimationPtr skeletalAni = buildArmSkeletalAnimation(bones);
     
     MeshPtr mesh = T3D_MESH_MGR.createSkinnedMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes), skeletalAni, std::move(bones));
+#if defined (T3D_DEBUG)
+    APP_LOG_DEBUG("Mesh (%s) Data :\n%s", mesh->getName().c_str(), mesh->getDebugInfo().c_str());
+#endif
     return mesh;
 }
 
@@ -693,8 +696,11 @@ void SkeletalAnimationApp::buildAnimationTracks(const String &name, const Radian
         trackO.push_back(keyframe);
         angle += stepAngle;
     }
+    Quaternion orientation(angle, Vector3::FORWARD);
+    KfOrientationPtr keyframe = KfOrientation::create(i * 1000, orientation);
+    trackO.push_back(keyframe);
     // 恢复
-    for (i = 1; i < steps; i++)
+    for (i = 1; i <= steps; i++)
     {
         angle -= stepAngle;
         Quaternion orientation(angle, Vector3::FORWARD);
