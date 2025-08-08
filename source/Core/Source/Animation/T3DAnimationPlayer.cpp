@@ -233,19 +233,28 @@ namespace Tiny3D
                         }
 
                         Transform3D *xform = static_cast<Transform3D *>(itr->second->getTransformNode());
-                        xform->setPosition(translation);
-                        xform->setOrientation(orientation);
-                        xform->setScaling(scaling);
+                        if (mCurrentFrameT != static_cast<uint32_t>(-1))
+                        {
+                            xform->setPosition(translation);
+                        }
+                        if (mCurrentFrameO != static_cast<uint32_t>(-1))
+                        {
+                            xform->setOrientation(orientation);
+                        }
+                        if (mCurrentFrameS != static_cast<uint32_t>(-1))
+                        {
+                            xform->setScaling(scaling);
+                        }
 
                         Matrix3 matR;
-                        orientation.toRotationMatrix(matR);
+                        xform->getOrientation().toRotationMatrix(matR);
                         Radian xAngle, yAngle, zAngle;
                         matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
                         T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
                             it.first.c_str(),
-                            translation.x(), translation.y(), translation.z(),
+                            xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
                             xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-                            scaling.x(), scaling.y(), scaling.z());
+                            xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
                     }
                 }
             }
@@ -268,7 +277,7 @@ namespace Tiny3D
 
     uint32_t AnimationPlayer::interpolateTranslation(uint32_t startFrame, uint32_t time, const TranslationTrack &track, Vector3 &translation)
     {
-        uint32_t currentFrame = 0;
+        uint32_t currentFrame = static_cast<uint32_t>(-1);
         Keyframe *kf0 = nullptr, *kf1 = nullptr;
         
         if (getKeyframe(startFrame, time, track, kf0, kf1, currentFrame))
@@ -296,7 +305,7 @@ namespace Tiny3D
 
     uint32_t AnimationPlayer::interpolateOrientation(uint32_t startFrame, uint32_t time, const OrientationTrack &track, Quaternion &orientation)
     {
-        uint32_t currentFrame = 0;
+        uint32_t currentFrame = static_cast<uint32_t>(-1);
         Keyframe *kf0 = nullptr, *kf1 = nullptr;
 
         if (getKeyframe(startFrame, time, track, kf0, kf1, currentFrame))
@@ -324,7 +333,7 @@ namespace Tiny3D
 
     uint32_t AnimationPlayer::interpolateScaling(uint32_t startFrame, uint32_t time, const ScalingTrack &track, Vector3 &scaling)
     {
-        uint32_t currentFrame = 0;
+        uint32_t currentFrame = static_cast<uint32_t>(-1);
         Keyframe *kf0 = nullptr, *kf1 = nullptr;
 
         if (getKeyframe(startFrame, time, track, kf0, kf1, currentFrame))
