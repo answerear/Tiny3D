@@ -269,7 +269,7 @@ namespace Tiny3D
         Radian xAngle, yAngle, zAngle;
         matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
         ss << " R : (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")";
-        ss << bone->getScaling().getDebugString();
+        ss << " S : " << bone->getScaling().getDebugString();
         ss << std::endl;
         for (const auto child : node->children)
         {

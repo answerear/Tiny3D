@@ -653,10 +653,10 @@ namespace Tiny3D
     inline TQuaternion<T> operator *(T scalar, const TQuaternion<T> &rkQ)
     {
         return TQuaternion<T>(
+            scalar * rkQ.w(),
             scalar * rkQ.x(), 
             scalar * rkQ.y(), 
-            scalar * rkQ.z(), 
-            scalar * rkQ.w());
+            scalar * rkQ.z());
     }
 
     //--------------------------------------------------------------------------
@@ -817,7 +817,7 @@ namespace Tiny3D
 
         T fCos = rkP.dot(rkQ);
         TQuaternion rkT;
-
+        
         // Do we need to invert rotation?
         if (fCos < TReal<T>::ZERO && shortestPath)
         {
@@ -828,7 +828,7 @@ namespace Tiny3D
         {
             rkT = rkQ;
         }
-
+        
         if (TMath<T>::abs(fCos) < TReal<T>::ONE - epsilon)
         {
             // Standard case (slerp)
@@ -837,7 +837,9 @@ namespace Tiny3D
             T fInvSin = TReal<T>::ONE / fSin;
             T fCoeff0 = TMath<T>::sin((TReal<T>::ONE - times) * fAngle) * fInvSin;
             T fCoeff1 = TMath<T>::sin(times * fAngle) * fInvSin;
-            *this = fCoeff0 * rkP + fCoeff1 * rkT;
+            TQuaternion t = fCoeff0 * rkP + fCoeff1 * rkT;
+            t.normalize();
+            *this = t;
         }
         else
         {
