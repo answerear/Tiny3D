@@ -229,7 +229,10 @@ namespace Tiny3D
                 const auto &buffer = mVertices[i];
                 const uint32_t vertexSize = mVertexStrides[i];
                 const uint32_t vertexCount = buffer.DataSize / vertexSize;
-                mVBuffers[i] = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(vertexSize, vertexCount, buffer, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+                bool isDynamic = isDynamicVertices();
+                Usage usage = isDynamic ? Usage::kDynamic : Usage::kImmutable;
+                CPUAccessMode access = isDynamic ? CPUAccessMode::kCPUWrite : CPUAccessMode::kCPUNone;
+                mVBuffers[i] = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(vertexSize, vertexCount, buffer, MemoryType::kVRAM, usage, access);
             }
         } while (false);
         

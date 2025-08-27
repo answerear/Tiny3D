@@ -152,6 +152,8 @@ namespace Tiny3D
         void setVertexOffsets(const VertexOffsets &offsets) { mVertexOffsets = offsets; }
 
         virtual TResult generateRenderResource(Archive *archive);
+
+        virtual bool isDynamicVertices() const { return false; }
         
     protected:
         /// 顶点定义

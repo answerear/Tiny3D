@@ -397,6 +397,16 @@ namespace Tiny3D
             posOffset += posStride;
             normalOffset += normalStride;
         }
+
+        if (posSlot == normalSlot)
+        {
+            vbos[posSlot]->writeData(0, dstPosVerts, true);
+        }
+        else
+        {
+            vbos[posSlot]->writeData(0, dstPosVerts, true);
+            vbos[normalSlot]->writeData(0, dstNormalVerts, true);
+        }
     }
 
     //--------------------------------------------------------------------------

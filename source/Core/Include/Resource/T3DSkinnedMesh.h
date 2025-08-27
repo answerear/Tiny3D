@@ -114,6 +114,8 @@ namespace Tiny3D
 #endif
         }
 
+        bool isDynamicVertices() const override { return true; }
+
 #if defined (T3D_DEBUG)
         void populateBoneHierarchy() const;
         void clearJoints() const;
