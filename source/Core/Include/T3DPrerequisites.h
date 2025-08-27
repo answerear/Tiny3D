@@ -138,6 +138,7 @@ namespace Tiny3D
     class AnimationTrack;
     class AnimationClip;
     class AnimationPlayer;
+    class AnimationPlayerMgr;
     
     // Material
     class ShaderConstantParam;

@@ -22,27 +22,51 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_CONFIG_H__
-#define __T3D_CONFIG_H__
+#ifndef __T3D_ANIMATION_PLAYER_MGR_H__
+#define __T3D_ANIMATION_PLAYER_MGR_H__
 
 
 #include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-    #define T3D_MAX_MULTIPLE_RENDER_TARGETS     8
+    class T3D_ENGINE_API AnimationPlayerMgr final
+        : public Singleton<AnimationPlayerMgr>
+        , public Object 
+    {
+    public:
+        static AnimationPlayerMgrPtr create();
 
-    #define T3D_MAX_SIMULTANEOUS_LIGHTS         8
+        ~AnimationPlayerMgr() override;
 
-#if !defined (T3D_ENABLE_RHI_THREAD)
-    #define T3D_ENABLE_RHI_THREAD               0
-#endif
+        TResult addPlayer(AnimationPlayer *player);
 
-    #define T3D_COORDINATION_RH                 0
+        TResult removePlayer(AnimationPlayer *player);
 
-    #define T3D_MAX_BLEND_BONES                 4
+        TResult deletePlayer(AnimationPlayer *player);
+
+        void removeAllPlayers();
+        
+        void update();
+        
+    protected:
+        AnimationPlayerMgr();
+
+        void skinning();
+
+        void deleteAllPlayers();
+
+    protected:
+        AnimationPlayers    mPlayers {};
+
+        using WaitingForRemoveAnimationPlayers = TArray<AnimationPlayerPtr>;
+        WaitingForRemoveAnimationPlayers mWaitingRemovePlayers {};
+    };
+
+    #define T3D_ANIMATION_PLAYER_MGR    (AnimationPlayerMgr::getInstance())
 }
 
 
-#endif    /*__T3D_CONFIG_H__*/
+#endif    /*__T3D_ANIMATION_PLAYER_MGR_H__*/

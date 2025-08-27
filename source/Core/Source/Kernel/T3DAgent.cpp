@@ -35,6 +35,7 @@
 #include "Resource/T3DPrefabManager.h"
 #include "Resource/T3DShaderManager.h"
 #include "T3DErrorDef.h"
+#include "Animation/T3DAnimationPlayerMgr.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderer.h"
@@ -80,6 +81,11 @@ namespace Tiny3D
         // {
         //     mObjTracer->dumpMemoryInfo();
         // }
+
+        if (mAniPlayerMgr != nullptr)
+        {
+            mAniPlayerMgr->removeAllPlayers();
+        }
         
         stopRenderThread();
 
@@ -194,6 +200,7 @@ namespace Tiny3D
         mImageCodec = nullptr;
         mSerializerMgr = nullptr;
         mArchiveMgr = nullptr;
+        mAniPlayerMgr = nullptr;
         
         T3D_SAFE_DELETE(mEventMgr);
 
@@ -660,6 +667,12 @@ namespace Tiny3D
         mRHIEvent.wait();
 #endif
 
+        // 更新动画
+        if (mAniPlayerMgr != nullptr)
+        {
+            mAniPlayerMgr->update();
+        }
+        
         // 异步赋值
         mAssignableObjMgr->assign();
 
@@ -994,6 +1007,7 @@ namespace Tiny3D
     TResult Agent::initManagers()
     {
         mAssignableObjMgr = AssignableObjectManager::create();
+        mAniPlayerMgr = AnimationPlayerMgr::create();
         mArchiveMgr = ArchiveManager::create();
         mImageCodec = ImageCodec::create();
         mSerializerMgr = SerializerManager::create();

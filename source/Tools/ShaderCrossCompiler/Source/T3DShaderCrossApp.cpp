@@ -44,6 +44,8 @@
 // Shadow pass vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\ShadowPass.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Forward pass vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\ForwardPass.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 // Forward pass pixel shader : "$(SolutionDir)..\..\assets\Samples\shaders\ForwardPass.pshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
+// Skin Shadow pass vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\SkinShadowPass.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
+// Skin Forward pass vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\SkinForwardPass.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
 
 
 Tiny3D::ShaderCrossApp theApp;

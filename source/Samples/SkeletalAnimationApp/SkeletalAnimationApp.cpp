@@ -43,8 +43,10 @@ SkeletalAnimationApp theApp;
 
 // extern const char *SAMPLE_LIT_VERTEX_SHADER;
 // extern const char *SAMPLE_LIT_PIXEL_SHADER;
-extern const char *SHADOW_VERTEX_SHADER;
 extern const char *FORWARD_VERTEX_SHADER;
+extern const char *SHADOW_VERTEX_SHADER;
+extern const char *SKIN_SHADOW_VERTEX_SHADER;
+extern const char *SKIN_FORWARD_VERTEX_SHADER;
 extern const char *FORWARD_PIXEL_SHADER;
 
 SkeletalAnimationApp::SkeletalAnimationApp()
@@ -89,11 +91,12 @@ bool SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *arg
     light->setDiffuseIntensity(1.0f);
     light->setSpecularIntensity(1.0f);
 
-    // shader
-    ShaderPtr shader = buildShader();
-    
-    // cube & plane material
+    // cube shader & material
+    ShaderPtr shader = buildShader("Cube-Shader", SKIN_FORWARD_VERTEX_SHADER, SKIN_SHADOW_VERTEX_SHADER);
     mCubeMaterial = buildArmMaterial(shader);
+    
+    // plane shader & material
+    shader = buildShader("Plane-Shader", FORWARD_VERTEX_SHADER, SHADOW_VERTEX_SHADER);
     mPlaneMaterial = buildPlaneMaterial(shader);
 
     // cube mesh
@@ -171,7 +174,7 @@ void SkeletalAnimationApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
-PassPtr SkeletalAnimationApp::buildShadowPass()
+PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs)
 {
     // keyword for shadow pass
     ShaderKeyword vkeyword;
@@ -179,7 +182,6 @@ PassPtr SkeletalAnimationApp::buildShadowPass()
     vkeyword.generate();
 
     // vertex shader for shadow pass
-    const String vs = SHADOW_VERTEX_SHADER;
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
@@ -210,7 +212,7 @@ PassPtr SkeletalAnimationApp::buildShadowPass()
     return pass;
 }
 
-PassPtr SkeletalAnimationApp::buildForwardPass()
+PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs)
 {
     // vertex & pixel shader keyword for forward pass
     ShaderKeyword vkeyword;
@@ -218,8 +220,7 @@ PassPtr SkeletalAnimationApp::buildForwardPass()
     vkeyword.generate();
     ShaderKeyword pkeyword(vkeyword);
     
-    // vertex shader for forward pass
-    const String vs = FORWARD_VERTEX_SHADER;    
+    // vertex shader for forward pass 
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
@@ -256,13 +257,13 @@ PassPtr SkeletalAnimationApp::buildForwardPass()
 }
 
 
-ShaderPtr SkeletalAnimationApp::buildShader()
+ShaderPtr SkeletalAnimationApp::buildShader(const String &name, const String &forwardVS, const String &shadowVS)
 {
     // shadow pass
-    PassPtr shadowPass = buildShadowPass();
+    PassPtr shadowPass= buildShadowPass(shadowVS);
 
     // forward pass
-    PassPtr forwardPass = buildForwardPass();
+    PassPtr forwardPass = buildForwardPass(forwardVS);
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
@@ -273,7 +274,7 @@ ShaderPtr SkeletalAnimationApp::buildShader()
     tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
 
     // shader 
-    ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
+    ShaderPtr shader = T3D_SHADER_MGR.createShader(name);
     rval = shader->addTechnique(tech);
     T3D_ASSERT(rval);
 
@@ -473,7 +474,7 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     // 4-----5    12-----13   20-----21     28-----29
     // |     |     |     |     |     |       |     |
     // |     |     |     |     |     |       |     |
-    // 3-----2    10-----11   18-----19     26-----27
+    // 2-----3    10-----11   18-----19     26-----27
     // |     |     |     |     |     |       |     |
     // |     |     |     |     |     |       |     |
     // 0-----1     8-----9    16-----17     24-----25
@@ -489,16 +490,40 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
         Vector3 position {};
         Vector3 normal {};
         Vector2 uv {};
+        float weight[T3D_MAX_BLEND_BONES] {0.0f};
+        uint8_t indices[T3D_MAX_BLEND_BONES] {0xFF};
     };
     
     // vertex attributes
-    VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
-    VertexAttribute attrNormal(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
-    VertexAttribute attrUV(0, sizeof(Vector3) * 2, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
-    VertexAttributes attributes(3);
-    attributes[0] = attrPos;
-    attributes[1] = attrNormal;
-    attributes[2] = attrUV;
+    VertexAttributes attributes(5);
+
+    uint32_t attribIdx = 0;
+    // position
+    uint32_t offset = 0;
+    VertexAttribute attrPos(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    offset += sizeof(Vector3);
+    attributes[attribIdx] = attrPos;
+    attribIdx++;
+    // normal
+    VertexAttribute attrNormal(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+    offset += sizeof(Vector3);
+    attributes[attribIdx] = attrNormal;
+    attribIdx++;
+    // uv
+    VertexAttribute attrUV(0, offset, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+    offset += sizeof(Vector2);
+    attributes[attribIdx] = attrUV;
+    attribIdx++;
+    // blend weights
+    VertexAttribute attrWeights(0, offset, VertexAttribute::Type::E_VAT_FLOAT4, VertexAttribute::Semantic::E_VAS_BLENDWEIGHT, 0);
+    offset += sizeof(float) * T3D_MAX_BLEND_BONES;
+    attributes[attribIdx] = attrWeights;
+    attribIdx++;
+    // blend indices
+    VertexAttribute attrIndices(0, offset, VertexAttribute::Type::E_VAT_UBYTE4, VertexAttribute::Semantic::E_VAS_BLENDINDICES, 0);
+    offset += sizeof(uint32_t) * T3D_MAX_BLEND_BONES;
+    attributes[attribIdx] = attrIndices;
+    attribIdx++;
 
     // vertices & indices
     const uint32_t kVertexCount = 40;
@@ -554,6 +579,42 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
         vertices[i + 24].uv = Vector2(0.5f, 0.5f);
     }
 
+    // 骨骼权重和索引
+    for (int32_t i = 0; i < 4; i++)
+    {
+        int32_t idx = 8 * i;
+        vertices[idx].weight[0] = 1.0f; vertices[idx].weight[1] = vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 0; vertices[idx].indices[1] = vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = 1.0f; vertices[idx].weight[1] = vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 0; vertices[idx].indices[1] = vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = vertices[idx].weight[1] = 0.5f; vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 0; vertices[idx].indices[1] = 1; vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = vertices[idx].weight[1] = 0.5f; vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 0; vertices[idx].indices[1] = 1; vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = vertices[idx].weight[1] = 0.5f; vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 1; vertices[idx].indices[1] = 2; vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = vertices[idx].weight[1] = 0.5f; vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 1; vertices[idx].indices[1] = 2; vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = 1.0f; vertices[idx].weight[1] = vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 2; vertices[idx].indices[1] = vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+
+        idx++;
+        vertices[idx].weight[0] = 1.0f; vertices[idx].weight[1] = vertices[idx].weight[2] = vertices[idx].weight[3] = 0.0f;
+        vertices[idx].indices[0] = 2; vertices[idx].indices[1] = vertices[idx].indices[2] = vertices[idx].indices[3] = -1;
+    }
+    
     float top = 3.0f * 4.0f;
     
     // Top
@@ -572,6 +633,12 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     vertices[35].position = Vector3(-0.5f, top, 0.5f);
     vertices[35].normal = Vector3::UP;
     vertices[35].uv = Vector2(0.5f, 0.5f);
+
+    for (int32_t i = 32; i < 36; i++)
+    {
+        vertices[i].weight[0] = 1.0f; vertices[i].weight[1] = vertices[i].weight[2] = vertices[i].weight[3] = 0.0f;
+        vertices[i].indices[0] = 2; vertices[i].indices[1] = vertices[i].indices[2] = vertices[i].indices[3] = -1;
+    }
     
     // Bottom
     vertices[36].position = Vector3(-0.5f, 0.0f, -0.5f);
@@ -589,6 +656,12 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     vertices[39].position = Vector3(-0.5f, 0.0f, 0.5f);
     vertices[39].normal = -Vector3::UP;
     vertices[39].uv = Vector2(0.5f, 0.5f);
+
+    for (int32_t i = 36; i < 40; i++)
+    {
+        vertices[i].weight[0] = 1.0f; vertices[i].weight[1] = vertices[i].weight[2] = vertices[i].weight[3] = 0.0f;
+        vertices[i].indices[0] = 0; vertices[i].indices[1] = vertices[i].indices[2] = vertices[i].indices[3] = -1;
+    }
     
     // Back bottom face
     indices[0] = 0; indices[1] = 2; indices[2] = 3;

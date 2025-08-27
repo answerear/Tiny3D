@@ -89,6 +89,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(AnimationTrack);
     T3D_DECLARE_SMART_PTR(AnimationClip);
     T3D_DECLARE_SMART_PTR(AnimationPlayer);
+    T3D_DECLARE_SMART_PTR(AnimationPlayerMgr);
 
     // Material
     T3D_DECLARE_SMART_PTR(ShaderConstantParam);
@@ -258,8 +259,11 @@ namespace Tiny3D
     using ScalingTrack = TArray<KfScalingPtr>;
     using AnimationTracks = TMap<String, AnimationTrackPtr>;
     using AnimationClips = TMap<String, AnimationClipPtr>;
-    using BoneGameObjects = TUnorderedMap<String, GameObject*>;
+    using BoneGameObjectsMap = TUnorderedMap<String, GameObject*>;
+    using BoneGameObjects = TArray<GameObject*>;
     using Bones = TArray<BoneNodePtr>;
+
+    using AnimationPlayers = TUnorderedMap<AnimationPlayer*, AnimationPlayerPtr>;
 }
 
 

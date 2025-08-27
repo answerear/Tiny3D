@@ -48,7 +48,9 @@ namespace Tiny3D
          */
         TResult populateAllChildren();
 
-        const BoneGameObjects &getAllBones() const { return mAllBones; }
+        const BoneGameObjectsMap &getAllBones() const { return mAllBones; }
+
+        const BoneGameObjects &getBoneGameObjects() const { return mBoneGameObjects; }
 
         TPROPERTY(RTTRFuncName="DefaultClip", RTTRFuncType="getter")
         const String &getDefaultClipName() const { return mDefaultClipName; }
@@ -81,7 +83,8 @@ namespace Tiny3D
     protected:
         AnimationPlayerPtr mAnimationPlayer {nullptr};
 
-        BoneGameObjects mAllBones {};
+        BoneGameObjectsMap mAllBones {};
+        BoneGameObjects mBoneGameObjects {};
 
         String mDefaultClipName {};
     };

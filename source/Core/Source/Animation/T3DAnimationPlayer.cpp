@@ -29,6 +29,9 @@
 #include "Resource/T3DSkinnedMesh.h"
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Component/T3DTransform3D.h"
+#include "Render/T3DVertexBuffer.h"
+#include "T3DConfig.h"
+#include "Animation/T3DAnimationPlayerMgr.h"
 
 
 namespace Tiny3D
@@ -125,6 +128,8 @@ namespace Tiny3D
             mCurrentFrameO = 0;
             mCurrentFrameS = 0;
             mIsPlaying = true;
+
+            T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
         } while (false);
         
         return ret;
@@ -167,7 +172,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void AnimationPlayer::update()
+    void AnimationPlayer::updateAnimation()
     {
         do
         {
@@ -177,92 +182,223 @@ namespace Tiny3D
                 break;
             }
 
-            const BoneGameObjects &bones = mSkinnedGeometry->getAllBones();
-            
-            SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
-        
-            // 更新动画
-            SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
-            const AnimationClips &clips = skeletalAni->getAnimationClips();
-            if (clips.size() > 0)
-            {
-                AnimationClip *clip = clips.begin()->second;
-                if (clip != nullptr)
-                {
-                    const AnimationTracks &tracks = clip->getTracks();
-
-                    int64_t currentTS = DateTime::currentMSecsSinceEpoch();
-                    uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
-
-                    if (elapsed >= clip->getDuration())
-                    {
-                        elapsed = clip->getDuration();
-                        mIsPlaying = false;
-                    }
-
-                    T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
-                
-                    for (const auto &it : tracks)
-                    {
-                        AnimationTrack *track = it.second;
-
-                        // 差值计算平移
-                        const TranslationTrack &trackT = track->getTranslationTrack();
-                        Vector3 translation;
-                        mCurrentFrameT = interpolateTranslation(mCurrentFrameT, elapsed, trackT, translation);
-
-                        // 差值计算旋转
-                        const OrientationTrack &trackO = track->getOrientationTrack();
-                        Quaternion orientation;
-                        mCurrentFrameO = interpolateOrientation(mCurrentFrameO, elapsed, trackO, orientation);
-
-                        // 差值计算缩放
-                        const ScalingTrack &trackS = track->getScalingTrack();
-                        Vector3 scaling;
-                        mCurrentFrameS = interpolateScaling(mCurrentFrameS, elapsed, trackS, scaling);
-
-                        // 更新对应骨骼的 RTS
-                        const auto itr = bones.find(it.first);
-                        if (itr == bones.end())
-                        {
-                            // 没有对应的骨骼，这里要报错了
-                            T3D_LOG_ERROR(LOG_TAG_ANIMATION,
-                                "Could not find the corresponding bone [%s] in skinned geometry hierarchy !",
-                                it.first.c_str());
-                            continue;
-                        }
-
-                        Transform3D *xform = static_cast<Transform3D *>(itr->second->getTransformNode());
-                        if (mCurrentFrameT != static_cast<uint32_t>(-1))
-                        {
-                            xform->setPosition(translation);
-                        }
-                        if (mCurrentFrameO != static_cast<uint32_t>(-1))
-                        {
-                            xform->setOrientation(orientation);
-                        }
-                        if (mCurrentFrameS != static_cast<uint32_t>(-1))
-                        {
-                            xform->setScaling(scaling);
-                        }
-
-                        Matrix3 matR;
-                        xform->getOrientation().toRotationMatrix(matR);
-                        Radian xAngle, yAngle, zAngle;
-                        matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-                        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
-                            it.first.c_str(),
-                            xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
-                            xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-                            xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
-                    }
-                }
-            }
-
-            // CPU 蒙皮
+            updateBones();
         } while (false);
     }
     
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::updateBones()
+    {
+        const BoneGameObjectsMap &bones = mSkinnedGeometry->getAllBones();
+            
+        SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
+    
+        // 更新动画
+        SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
+        const AnimationClips &clips = skeletalAni->getAnimationClips();
+        if (clips.size() > 0)
+        {
+            AnimationClip *clip = clips.begin()->second;
+            if (clip != nullptr)
+            {
+                const AnimationTracks &tracks = clip->getTracks();
+
+                int64_t currentTS = DateTime::currentMSecsSinceEpoch();
+                uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
+
+                if (elapsed >= clip->getDuration())
+                {
+                    elapsed = clip->getDuration();
+                    T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
+                    mIsPlaying = false;
+                }
+
+                T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
+            
+                for (const auto &it : tracks)
+                {
+                    AnimationTrack *track = it.second;
+
+                    // 差值计算平移
+                    const TranslationTrack &trackT = track->getTranslationTrack();
+                    Vector3 translation;
+                    mCurrentFrameT = interpolateTranslation(mCurrentFrameT, elapsed, trackT, translation);
+
+                    // 差值计算旋转
+                    const OrientationTrack &trackO = track->getOrientationTrack();
+                    Quaternion orientation;
+                    mCurrentFrameO = interpolateOrientation(mCurrentFrameO, elapsed, trackO, orientation);
+
+                    // 差值计算缩放
+                    const ScalingTrack &trackS = track->getScalingTrack();
+                    Vector3 scaling;
+                    mCurrentFrameS = interpolateScaling(mCurrentFrameS, elapsed, trackS, scaling);
+
+                    // 更新对应骨骼的 RTS
+                    const auto itr = bones.find(it.first);
+                    if (itr == bones.end())
+                    {
+                        // 没有对应的骨骼，这里要报错了
+                        T3D_LOG_ERROR(LOG_TAG_ANIMATION,
+                            "Could not find the corresponding bone [%s] in skinned geometry hierarchy !",
+                            it.first.c_str());
+                        continue;
+                    }
+
+                    Transform3D *xform = static_cast<Transform3D *>(itr->second->getTransformNode());
+                    if (mCurrentFrameT != static_cast<uint32_t>(-1))
+                    {
+                        xform->setPosition(translation);
+                    }
+                    if (mCurrentFrameO != static_cast<uint32_t>(-1))
+                    {
+                        xform->setOrientation(orientation);
+                    }
+                    if (mCurrentFrameS != static_cast<uint32_t>(-1))
+                    {
+                        xform->setScaling(scaling);
+                    }
+
+                    Matrix3 matR;
+                    xform->getOrientation().toRotationMatrix(matR);
+                    Radian xAngle, yAngle, zAngle;
+                    matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+                    T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
+                        it.first.c_str(),
+                        xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
+                        xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+                        xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::skinning()
+    {
+        CPUSkinning();
+    }
+    
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::CPUSkinning()
+    {
+        // CPU 蒙皮
+        SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
+
+        const VertexBuffers &vbos = skinnedMesh->getVertexBuffers();
+        const Vertices &vertices = skinnedMesh->getVertices();
+        T3D_ASSERT(vertices.size() == vbos.size());
+        
+        // 位置属性
+        const VertexAttribute *posAttrib = skinnedMesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
+        uint32_t posSlot = posAttrib->getSlot();
+        T3D_ASSERT(posSlot < vbos.size());
+        uint32_t posStride = skinnedMesh->getVertexStride(posSlot);
+        
+        // 法线属性
+        const VertexAttribute *normalAttrib = skinnedMesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+        uint32_t normalSlot = normalAttrib->getSlot();
+        T3D_ASSERT(normalSlot < vbos.size());
+        uint32_t normalStride = skinnedMesh->getVertexStride(normalSlot);
+
+        // 骨骼混合权重属性
+        const VertexAttribute *bwAttrib = skinnedMesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_BLENDWEIGHT, 0);
+        T3D_ASSERT(bwAttrib != nullptr);
+        uint32_t bwSlot = bwAttrib->getSlot();
+        T3D_ASSERT(bwSlot < vbos.size());
+        uint32_t bwStride = skinnedMesh->getVertexStride(bwSlot);
+        uint32_t bwOffset = bwAttrib->getOffset();
+        
+            
+        // 骨骼混合索引属性
+        const VertexAttribute *biAttrib = skinnedMesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_BLENDINDICES, 0);
+        uint32_t biSlot = biAttrib->getSlot();
+        T3D_ASSERT(biSlot < vbos.size());
+        uint32_t biStride = skinnedMesh->getVertexStride(biSlot);
+        uint32_t biOffset = biAttrib->getOffset();
+
+        // 从 vertices 获取原始顶点数据，然后经过蒙皮，写到 vbo 里面
+        const Buffer &srcPosVerts = vertices[posSlot];
+        const Buffer &srcNormalVerts = vertices[normalSlot];
+        const Buffer &srcBWVerts = vertices[bwSlot];
+        const Buffer &srcBIVerts = vertices[biSlot];
+        
+        const Buffer &dstPosVerts = vbos[posSlot]->getBuffer();
+        const Buffer &dstNormalVerts = vbos[normalSlot]->getBuffer();
+
+        const auto getBoneMatrix = [](const Bones &bones, const BoneGameObjects &boneGameObjects, uint8_t boneIndex)
+        {
+            if (boneIndex == 0xFF)
+            {
+                return Matrix4::ZERO;
+            }
+            
+            const BoneNodePtr &bone = bones[boneIndex];
+            const Matrix4 &matOffset = bone->getOffsetMatrix();
+            Transform3D *xform = static_cast<Transform3D *>(boneGameObjects[boneIndex]->getTransformNode());
+            const Matrix4 &matBoneMatrix = xform->getLocalToWorldTransform().getAffineMatrix();
+            Matrix4 mat = matBoneMatrix * matOffset;
+            return mat;
+        };
+        
+        size_t vertexCount = vertices[0].DataSize / skinnedMesh->getVertexStride(0);
+        size_t posOffset = posAttrib->getOffset(), normalOffset = normalAttrib->getOffset();
+        for (size_t i = 0; i < vertexCount; i++)
+        {
+            // 位置
+            T3D_ASSERT(posOffset < srcPosVerts.DataSize);
+            Vector3 *srcPos = (Vector3 *)(srcPosVerts.Data + posOffset);
+            
+            Vector4 srcPos1(srcPos->x(), srcPos->y(), srcPos->z(), 1);
+            Vector4 pos;
+
+            // 法线
+            T3D_ASSERT(normalOffset < srcNormalVerts.DataSize);
+            Vector3 *srcNormal = (Vector3 *)(srcNormalVerts.Data + normalOffset);
+            
+            Vector4 srcNormal1(srcNormal->x(), srcNormal->y(), srcNormal->z(), 0);
+            Vector4 normal;
+
+            // 混合权重
+            T3D_ASSERT(bwOffset < srcBWVerts.DataSize);
+            float *srcWeight = (float *)(srcBWVerts.Data + bwOffset);
+
+            // 混合索引
+            T3D_ASSERT(biOffset < srcBIVerts.DataSize);
+            uint8_t *srcIndex = (uint8_t *)(srcBIVerts.Data + biOffset);
+
+            for (uint32_t idx = 0; idx < T3D_MAX_BLEND_BONES; idx++)
+            {
+                float blendWeight = srcWeight[idx];
+                uint8_t blendIdx = srcIndex[idx];
+                
+                // 混合计算位置
+                pos += getBoneMatrix(skinnedMesh->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * srcPos1 * blendWeight;
+
+                // 混合计算法线
+                normal += getBoneMatrix(skinnedMesh->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * (srcNormal1) * blendWeight;
+            }
+
+            T3D_ASSERT(posOffset < dstPosVerts.DataSize);
+            Vector3 *dstPos = (Vector3 *)(dstPosVerts.Data + posOffset);
+            dstPos->x() = pos.x();
+            dstPos->y() = pos.y();
+            dstPos->z() = pos.z();
+
+            T3D_ASSERT(normalOffset < dstNormalVerts.DataSize);
+            Vector3 *dstNormal = (Vector3 *)(dstNormalVerts.Data + normalOffset);
+            dstNormal->x() = normal.x();
+            dstNormal->y() = normal.y();
+            dstNormal->z() = normal.z();
+
+            posOffset += posStride;
+            normalOffset += normalStride;
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     Real AnimationPlayer::getInterplationTime(Keyframe *kf0, Keyframe *kf1, uint32_t time) const

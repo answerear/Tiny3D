@@ -92,7 +92,9 @@ namespace Tiny3D
         /**
          * @brief 驱动动画更新
          */
-        void update();
+        void updateAnimation();
+
+        void skinning();
 
         /**
          * @brief 是否在播放中
@@ -117,6 +119,8 @@ namespace Tiny3D
         Real getInterplationTime(Keyframe *kf0, Keyframe *kf1, uint32_t time) const;
 
         void updateBones();
+
+        void CPUSkinning();
 
     private:
         static ID msGeneratedID;    

@@ -59,7 +59,7 @@ namespace Tiny3D
     void SkinnedGeometry::onUpdate()
     {
         T3D_ASSERT(mAnimationPlayer != nullptr);
-        mAnimationPlayer->update();
+        mAnimationPlayer->updateAnimation();
     }
 
     //--------------------------------------------------------------------------
@@ -139,8 +139,8 @@ namespace Tiny3D
             return T3D_ERR_RES_INVALID_OBJECT;
         }
 
-        using GameObjects = TArray<GameObjectPtr>;
-        GameObjects gameObjects(skinnedMesh->getBones().size(), nullptr);
+        mBoneGameObjects.clear();
+        mBoneGameObjects.resize(skinnedMesh->getBones().size(), nullptr);
 
         mAllBones.clear();
 
@@ -153,7 +153,7 @@ namespace Tiny3D
             xform->setPosition(bone->getTranslation());
             xform->setOrientation(bone->getRotation());
             xform->setScaling(bone->getScaling());
-            gameObjects[i] = go;
+            mBoneGameObjects[i] = go;
             mAllBones.emplace(bone->getName(), go);
         }
 
@@ -161,12 +161,12 @@ namespace Tiny3D
         for (size_t i = 0; i < skinnedMesh->getBones().size(); i++)
         {
             const auto &bone = skinnedMesh->getBones()[i];
-            GameObjectPtr go = gameObjects[i];
+            GameObjectPtr go = mBoneGameObjects[i];
             Transform3D *node = static_cast<Transform3D *>(go->getTransformNode());
             uint16_t parentIdx = bone->getParentIndex();
             if (parentIdx != BoneNode::kInvalidIndex)
             {
-                GameObjectPtr parentGO = gameObjects[parentIdx];
+                GameObjectPtr parentGO = mBoneGameObjects[parentIdx];
                 Transform3D *parentNode = static_cast<Transform3D *>(parentGO->getTransformNode());
                 parentNode->addChild(node);
             }

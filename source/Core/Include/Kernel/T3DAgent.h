@@ -225,6 +225,8 @@ namespace Tiny3D
         /// 当前使用的 RHI 渲染器
         RHIRendererPtr          mActiveRHIRenderer {nullptr};
 
+        /// 动画播放器管理器
+        AnimationPlayerMgrPtr   mAniPlayerMgr {nullptr};
         /// 文件管理器
         ArchiveManagerPtr       mArchiveMgr {nullptr};
         /// 序列化管理器
