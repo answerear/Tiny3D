@@ -232,7 +232,8 @@ namespace Tiny3D
                 bool isDynamic = isDynamicVertices();
                 Usage usage = isDynamic ? Usage::kDynamic : Usage::kImmutable;
                 CPUAccessMode access = isDynamic ? CPUAccessMode::kCPUWrite : CPUAccessMode::kCPUNone;
-                mVBuffers[i] = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(vertexSize, vertexCount, buffer, MemoryType::kVRAM, usage, access);
+                MemoryType memType = isDynamic ? MemoryType::kBoth : MemoryType::kVRAM;
+                mVBuffers[i] = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(vertexSize, vertexCount, buffer, memType, usage, access);
             }
         } while (false);
         

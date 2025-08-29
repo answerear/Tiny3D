@@ -214,7 +214,7 @@ namespace Tiny3D
                     mIsPlaying = false;
                 }
 
-                T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
+                // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
             
                 for (const auto &it : tracks)
                 {
@@ -307,17 +307,24 @@ namespace Tiny3D
     void AnimationPlayer::skinning()
     {
 #if defined (T3D_DEBUG)
-        static int32_t frameCount = 0;
-        if (frameCount % 10 == 0)
+        int64_t currentTS = DateTime::currentMSecsSinceEpoch();
+        uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
+        static int32_t frameCount = 1;
+        if (elapsed / 20 == frameCount)
         {
             GameObject *go = mSkinnedGeometry->getGameObject();
+            T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Frame : %d", frameCount);
             debugBoneHierarchy(go->getTransformNode());
+            // T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
+            // mIsPlaying = false;
+            CPUSkinning();
+            
+            frameCount++;
         }
         
-        frameCount++;
 #endif
         
-        CPUSkinning();
+        
     }
     
     //--------------------------------------------------------------------------
@@ -372,7 +379,7 @@ namespace Tiny3D
         {
             if (boneIndex == 0xFF)
             {
-                return Matrix4::ZERO;
+                return Matrix4::IDENTITY;
             }
             
             const BoneNodePtr &bone = bones[boneIndex];

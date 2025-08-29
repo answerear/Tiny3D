@@ -39,7 +39,10 @@ namespace Tiny3D
         , mUsage(usage)
         , mAccessMode(accMode)
     {
-        
+        if (memType == MemoryType::kBoth)
+        {
+            mBuffer.setData(buffer.Data, buffer.DataSize);
+        }
     }
 
     //--------------------------------------------------------------------------
