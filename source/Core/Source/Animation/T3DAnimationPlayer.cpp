@@ -207,9 +207,9 @@ namespace Tiny3D
                 int64_t currentTS = DateTime::currentMSecsSinceEpoch();
                 uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
 
-                if (elapsed >= clip->getDuration())
+                if (elapsed >= /*clip->getDuration()*/1000)
                 {
-                    elapsed = clip->getDuration();
+                    elapsed = 1000;//clip->getDuration();
                     T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
                     mIsPlaying = false;
                 }
@@ -260,15 +260,17 @@ namespace Tiny3D
                         xform->setScaling(scaling);
                     }
 
-                    Matrix3 matR;
-                    xform->getOrientation().toRotationMatrix(matR);
-                    Radian xAngle, yAngle, zAngle;
-                    matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-                    T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
-                        it.first.c_str(),
-                        xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
-                        xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-                        xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
+#if defined (T3D_DEBUG)
+                    // Matrix3 matR;
+                    // xform->getOrientation().toRotationMatrix(matR);
+                    // Radian xAngle, yAngle, zAngle;
+                    // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+                    // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
+                    //     it.first.c_str(),
+                    //     xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
+                    //     xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+                    //     xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
+#endif
                 }
             }
         }
@@ -276,8 +278,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+#if defined (T3D_DEBUG)
+    void debugBoneHierarchy(TransformNode *node)
+    {
+        Transform3D *xform = static_cast<Transform3D *>(node);
+        const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
+        const Quaternion &ori = xform->getLocalToWorldTransform().getOrientation();
+        const Vector3 &scaling = xform->getLocalToWorldTransform().getScaling();
+
+        Matrix3 matR;
+        ori.toRotationMatrix(matR);
+        Radian xAngle, yAngle, zAngle;
+        matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, World Translation : %s, Euler Angle : (%f, %f, %f), Scaling : %s, Matrix : %s",
+            xform->getGameObject()->getName().c_str(),
+            pos.getDebugString().c_str(),
+            xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+            scaling.getDebugString().c_str(),
+            xform->getLocalToWorldTransform().getAffineMatrix().getDebugString().c_str());
+
+        for (const auto child : xform->getChildren())
+        {
+            debugBoneHierarchy(child.get());
+        }
+    };
+#endif
+
     void AnimationPlayer::skinning()
     {
+#if defined (T3D_DEBUG)
+        static int32_t frameCount = 0;
+        if (frameCount % 10 == 0)
+        {
+            GameObject *go = mSkinnedGeometry->getGameObject();
+            debugBoneHierarchy(go->getTransformNode());
+        }
+        
+        frameCount++;
+#endif
+        
         CPUSkinning();
     }
     
@@ -400,10 +439,12 @@ namespace Tiny3D
 
         if (posSlot == normalSlot)
         {
+            // 顶点和法线是同一个 VBO
             vbos[posSlot]->writeData(0, dstPosVerts, true);
         }
         else
         {
+            // 顶点和法线不是同一个 VBO
             vbos[posSlot]->writeData(0, dstPosVerts, true);
             vbos[normalSlot]->writeData(0, dstNormalVerts, true);
         }

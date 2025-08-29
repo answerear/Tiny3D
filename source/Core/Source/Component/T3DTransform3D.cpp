@@ -119,10 +119,10 @@ namespace Tiny3D
         {
             TransformNode *node = getParent();
 
-            while (node != nullptr)
-            {
-                node = node->getParent();
-            }
+            // while (node != nullptr)
+            // {
+            //     node = node->getParent();
+            // }
 
             if (node != nullptr)
             {
