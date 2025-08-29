@@ -42,8 +42,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform::applyTransform(const Transform &xform1,
-    const Transform &xform2)
+    void Transform::applyTransform(const Transform &xform1, const Transform &xform2)
     {
         applyTransform(xform1, xform2.getTranslation(), xform2.getOrientation(), xform2.getScaling());
     }
