@@ -56,7 +56,16 @@ namespace Tiny3D
 
     Mesh::~Mesh()
     {
-
+        T3D_ASSERT(mVertices.size() == mVBuffers.size());
+        for (size_t i = 0; i < mVertices.size(); i++)
+        {
+            auto &vertices = mVertices[i];
+            auto &vbo = mVBuffers[i];
+            if (vertices.Data != vbo->getBuffer().Data)
+            {
+                vertices.release();
+            }
+        }
     }
     
     //--------------------------------------------------------------------------

@@ -34,14 +34,20 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     RenderBuffer::RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
-        : mBuffer(buffer)
-        , mMemoryType(memType)
+        : mMemoryType(memType)
         , mUsage(usage)
         , mAccessMode(accMode)
     {
         if (memType == MemoryType::kBoth)
         {
-            mBuffer.setData(buffer.Data, buffer.DataSize);
+            mBuffer.DataSize = buffer.DataSize;
+            mBuffer.Data = new uint8_t[mBuffer.DataSize];
+            memcpy(mBuffer.Data, buffer.Data, buffer.DataSize);
+        }
+        else
+        {
+            mBuffer.Data = buffer.Data;
+            mBuffer.DataSize = buffer.DataSize;
         }
     }
 

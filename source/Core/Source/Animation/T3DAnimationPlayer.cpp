@@ -207,9 +207,9 @@ namespace Tiny3D
                 int64_t currentTS = DateTime::currentMSecsSinceEpoch();
                 uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
 
-                if (elapsed >= /*clip->getDuration()*/1000)
+                if (elapsed >= clip->getDuration())
                 {
-                    elapsed = 1000;//clip->getDuration();
+                    elapsed = clip->getDuration();
                     T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
                     mIsPlaying = false;
                 }
@@ -260,17 +260,17 @@ namespace Tiny3D
                         xform->setScaling(scaling);
                     }
 
-#if defined (T3D_DEBUG)
-                    // Matrix3 matR;
-                    // xform->getOrientation().toRotationMatrix(matR);
-                    // Radian xAngle, yAngle, zAngle;
-                    // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-                    // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
-                    //     it.first.c_str(),
-                    //     xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
-                    //     xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-                    //     xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
-#endif
+// #if defined (T3D_DEBUG)
+//                     Matrix3 matR;
+//                     xform->getOrientation().toRotationMatrix(matR);
+//                     Radian xAngle, yAngle, zAngle;
+//                     matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+//                     T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
+//                         it.first.c_str(),
+//                         xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
+//                         xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+//                         xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
+// #endif
                 }
             }
         }
@@ -290,12 +290,16 @@ namespace Tiny3D
         ori.toRotationMatrix(matR);
         Radian xAngle, yAngle, zAngle;
         matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, World Translation : %s, Euler Angle : (%f, %f, %f), Scaling : %s, Matrix : %s",
+        const Quaternion &localOri = xform->getLocalTransform().getOrientation();
+        localOri.toRotationMatrix(matR);
+        Radian xLocal, yLocal, zLocal;
+        matR.toEulerAnglesZXY(zLocal, xLocal, yLocal);
+        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s - World Translation : %s, Euler Angle : (%f, %f, %f) - Local Translation : %s, Euler Angle : (%f, %f, %f)",
             xform->getGameObject()->getName().c_str(),
             pos.getDebugString().c_str(),
             xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-            scaling.getDebugString().c_str(),
-            xform->getLocalToWorldTransform().getAffineMatrix().getDebugString().c_str());
+            xform->getLocalTransform().getTranslation().getDebugString().c_str(),
+            xLocal.valueDegrees(), yLocal.valueDegrees(), zLocal.valueDegrees());
 
         for (const auto child : xform->getChildren())
         {
@@ -306,31 +310,33 @@ namespace Tiny3D
 
     void AnimationPlayer::skinning()
     {
-#if defined (T3D_DEBUG)
-        int64_t currentTS = DateTime::currentMSecsSinceEpoch();
-        uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
-        static int32_t frameCount = 1;
-        if (elapsed / 20 == frameCount)
-        {
-            GameObject *go = mSkinnedGeometry->getGameObject();
-            T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Frame : %d", frameCount);
-            debugBoneHierarchy(go->getTransformNode());
-            // T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
-            // mIsPlaying = false;
-            CPUSkinning();
-            
-            frameCount++;
-        }
-        
-#endif
-        
-        
+        CPUSkinning();
     }
     
     //--------------------------------------------------------------------------
 
     void AnimationPlayer::CPUSkinning()
     {
+#if defined (T3D_DEBUG)
+        int64_t currentTS = DateTime::currentMSecsSinceEpoch();
+        uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
+        static uint32_t frameCount = 0;
+        constexpr uint32_t divisor = 1000;
+        uint32_t t = elapsed / divisor;
+        bool isDebugOutput = false;
+        if (t > frameCount)
+        {
+            GameObject *go = mSkinnedGeometry->getGameObject();
+            T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Frame : %d", frameCount);
+            debugBoneHierarchy(go->getTransformNode());
+            // T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
+            // mIsPlaying = false;
+            // CPUSkinning();
+            isDebugOutput = true;
+            frameCount = t;
+        }
+#endif
+        
         // CPU 蒙皮
         SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
 
@@ -375,6 +381,9 @@ namespace Tiny3D
         const Buffer &dstPosVerts = vbos[posSlot]->getBuffer();
         const Buffer &dstNormalVerts = vbos[normalSlot]->getBuffer();
 
+        T3D_ASSERT(srcPosVerts.Data != dstPosVerts.Data);
+        T3D_ASSERT(srcPosVerts.DataSize == dstPosVerts.DataSize);
+
         const auto getBoneMatrix = [](const Bones &bones, const BoneGameObjects &boneGameObjects, uint8_t boneIndex)
         {
             if (boneIndex == 0xFF)
@@ -414,7 +423,7 @@ namespace Tiny3D
 
             // 混合索引
             T3D_ASSERT(biOffset < srcBIVerts.DataSize);
-            uint8_t *srcIndex = (uint8_t *)(srcBIVerts.Data + biOffset);
+            uint8_t *srcIndex = srcBIVerts.Data + biOffset;
 
             for (uint32_t idx = 0; idx < T3D_MAX_BLEND_BONES; idx++)
             {
@@ -455,6 +464,8 @@ namespace Tiny3D
             vbos[posSlot]->writeData(0, dstPosVerts, true);
             vbos[normalSlot]->writeData(0, dstNormalVerts, true);
         }
+
+
     }
 
     //--------------------------------------------------------------------------

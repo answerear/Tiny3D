@@ -807,10 +807,10 @@ SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation(Bones &bone
     const uint32_t duration = 8;
     
     // Upper Arm, 15°
-    buildAnimationTracks(kUpperArmName, Radian(Math::HALF_PI / 6.0f), duration, tracks);
+    buildAnimationTracks(kUpperArmName, Radian(Math::PI / 12.0f), duration, tracks);
     
     // Fore Arm, 30°
-    buildAnimationTracks(kForeArmName, Radian(Math::HALF_PI / 3.0f), duration, tracks);
+    buildAnimationTracks(kForeArmName, Radian(Math::PI / 6.0f), duration, tracks);
 
     // Palm, 45°
     buildAnimationTracks(kPalmName, Radian(Math::HALF_PI / 2.0f), duration, tracks);
