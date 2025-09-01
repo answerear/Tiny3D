@@ -1024,7 +1024,7 @@ MeshPtr SkeletalAnimationApp::buildPlaneMesh(const Tiny3D::UUID &materialUUID)
     QuadVertex *vertices = new QuadVertex[kVertexCount];
     uint16_t *indices = new uint16_t[kIndexCount];
 
-    float scale = 5.0f;
+    float scale = 8.0f;
 
     // vertex #0
     vertices[0].position = Vector3(1, 0, 1) * scale;
