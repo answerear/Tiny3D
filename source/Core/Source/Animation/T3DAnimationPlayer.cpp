@@ -317,25 +317,22 @@ namespace Tiny3D
 
     void AnimationPlayer::CPUSkinning()
     {
-#if defined (T3D_DEBUG)
-        int64_t currentTS = DateTime::currentMSecsSinceEpoch();
-        uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
-        static uint32_t frameCount = 0;
-        constexpr uint32_t divisor = 1000;
-        uint32_t t = elapsed / divisor;
-        bool isDebugOutput = false;
-        if (t > frameCount)
-        {
-            GameObject *go = mSkinnedGeometry->getGameObject();
-            T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Frame : %d", frameCount);
-            debugBoneHierarchy(go->getTransformNode());
-            // T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
-            // mIsPlaying = false;
-            // CPUSkinning();
-            isDebugOutput = true;
-            frameCount = t;
-        }
-#endif
+// #if defined (T3D_DEBUG)
+//         int64_t currentTS = DateTime::currentMSecsSinceEpoch();
+//         uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
+//         static uint32_t frameCount = 0;
+//         constexpr uint32_t divisor = 1000;
+//         uint32_t t = elapsed / divisor;
+//         bool isDebugOutput = false;
+//         if (t > frameCount)
+//         {
+//             GameObject *go = mSkinnedGeometry->getGameObject();
+//             T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Frame : %d", frameCount);
+//             debugBoneHierarchy(go->getTransformNode());
+//             isDebugOutput = true;
+//             frameCount = t;
+//         }
+// #endif
         
         // CPU 蒙皮
         SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
@@ -449,8 +446,21 @@ namespace Tiny3D
             dstNormal->y() = normal.y();
             dstNormal->z() = normal.z();
 
+// #if defined (T3D_DEBUG)
+//             if (isDebugOutput)
+//             {
+//                 T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Vertex - Index %u, pos (%s), dst pos (%s), weight (%f, %f, %f, %f), index (%d, %d, %d, %d)", i,
+//                     srcPos->getDebugString().c_str(),
+//                     dstPos->getDebugString().c_str(),
+//                     srcWeight[0], srcWeight[1], srcWeight[2], srcWeight[3],
+//                     srcIndex[0], srcIndex[1], srcIndex[2], srcIndex[3]);
+//             }
+// #endif
+
             posOffset += posStride;
             normalOffset += normalStride;
+            bwOffset += bwStride;
+            biOffset += biStride;
         }
 
         if (posSlot == normalSlot)
