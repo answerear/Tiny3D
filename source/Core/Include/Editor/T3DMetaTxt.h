@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaTxtPtr create(const UUID &uuid)
         {
-            return new MetaTxt(uuid);
+            return T3D_NEW MetaTxt(uuid);
         }
 
         Type getType() const override { return kTxt; }

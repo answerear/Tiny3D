@@ -79,7 +79,7 @@ namespace Tiny3D
 
     PixelBuffer2DPtr PixelBuffer2D::create(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, bool isRenderTexture)
     {
-        return new PixelBuffer2D(desc, memType, usage, accMode, isRenderTexture);
+        return T3D_NEW PixelBuffer2D(desc, memType, usage, accMode, isRenderTexture);
     }
 
     //--------------------------------------------------------------------------

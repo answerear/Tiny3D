@@ -34,7 +34,7 @@ namespace Tiny3D
 
     RHIThreadPtr RHIThread::create()
     {
-        return new RHIThread();
+        return T3D_NEW RHIThread();
     }
     
     //--------------------------------------------------------------------------

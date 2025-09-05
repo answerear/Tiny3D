@@ -36,7 +36,7 @@ namespace Tiny3D
 
     Win32FSMonitor::Win32FSMonitor()
     {
-        mChangedQMutex = new Mutex();
+        mChangedQMutex = T3D_NEW Mutex();
     }
 
     //--------------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace Tiny3D
 
             if (mThread == nullptr)
             {
-                mThread = new RunnableThread();
+                mThread = T3D_NEW RunnableThread();
             }
             
             T3D_ASSERT(mThread);

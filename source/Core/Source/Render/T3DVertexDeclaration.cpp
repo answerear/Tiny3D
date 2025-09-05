@@ -36,7 +36,7 @@ namespace Tiny3D
 
     VertexDeclarationPtr VertexDeclaration::create(const VertexAttributes &attributes, ShaderVariant *vertexShader)
     {
-        return new VertexDeclaration(attributes, vertexShader);
+        return T3D_NEW VertexDeclaration(attributes, vertexShader);
     }
 
     //--------------------------------------------------------------------------

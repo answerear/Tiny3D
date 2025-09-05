@@ -186,7 +186,7 @@ namespace Tiny3D
     template <typename T>
     void TSphere<T>::buildByWelzl(const TVector3<T> points[], size_t count)
     {
-        TVector3<T> **ptr = new TVector3<T>*[count];
+        TVector3<T> **ptr = T3D_POD_NEW_ARRAY(TVector3<T>*, count);
 
         size_t i = 0;
         for (i = 0; i < count; ++i)
@@ -196,7 +196,7 @@ namespace Tiny3D
 
         *this = recurseMinSphere(ptr, count);
 
-        delete []ptr;
+        T3D_POD_SAFE_DELETE_ARRAY(ptr);
 
         for (i = 0; i < count; ++i)
         {

@@ -32,7 +32,7 @@
 namespace Tiny3D
 {
 
-    class T3D_FRAMEWORK_API EventManager : public Singleton<EventManager>
+    class T3D_FRAMEWORK_API EventManager : public Allocator, public Singleton<EventManager>
     {
         friend class EventHandler;
 

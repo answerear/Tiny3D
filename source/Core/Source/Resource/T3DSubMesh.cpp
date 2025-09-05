@@ -35,7 +35,7 @@ namespace Tiny3D
 
     SubMeshPtr SubMesh::create(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits)
     {
-        return new SubMesh(name, materialUUID, priType, indices, is16Bits);
+        return T3D_NEW SubMesh(name, materialUUID, priType, indices, is16Bits);
     }
 
     //--------------------------------------------------------------------------

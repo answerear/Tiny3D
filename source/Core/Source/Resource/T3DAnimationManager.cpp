@@ -34,7 +34,7 @@ namespace Tiny3D
 
     AnimationManagerPtr AnimationManager::create()
     {
-        return new AnimationManager();
+        return T3D_NEW AnimationManager();
     }
     
     //--------------------------------------------------------------------------

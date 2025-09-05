@@ -35,7 +35,7 @@ namespace  Tiny3D
 
     DepthStencilStatePtr DepthStencilState::create(const DepthStencilDesc &desc, uint32_t hash)
     {
-        return new DepthStencilState(hash, desc);
+        return T3D_NEW DepthStencilState(hash, desc);
     }
     
     //--------------------------------------------------------------------------

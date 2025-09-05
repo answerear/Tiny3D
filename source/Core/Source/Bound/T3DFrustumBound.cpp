@@ -35,7 +35,7 @@ namespace Tiny3D
 
     FrustumBoundPtr FrustumBound::create()
     {
-        return new FrustumBound(UUID::generate());
+        return T3D_NEW FrustumBound(UUID::generate());
     }
 
     //--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ namespace Tiny3D
 
     ComponentPtr FrustumBound::clone() const
     {
-        FrustumBoundPtr newObj = new FrustumBound();
+        FrustumBoundPtr newObj = T3D_NEW FrustumBound();
         if (T3D_FAILED(newObj->cloneProperties(this)))
         {
             newObj = nullptr;

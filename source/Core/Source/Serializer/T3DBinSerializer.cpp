@@ -31,7 +31,7 @@ namespace Tiny3D
 
     BinSerializerPtr BinSerializer::create()
     {
-        return new BinSerializer();
+        return T3D_NEW BinSerializer();
     }
 
     //--------------------------------------------------------------------------

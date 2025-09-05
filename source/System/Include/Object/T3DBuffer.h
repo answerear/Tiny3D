@@ -46,8 +46,8 @@ namespace Tiny3D
         {
             if (DataSize < dataSize)
             {
-                T3D_SAFE_DELETE_ARRAY(Data);
-                Data = new uint8_t[dataSize];
+                T3D_POD_SAFE_DELETE_ARRAY(Data);
+                Data = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
             }
             DataSize = dataSize;
             memcpy(Data, data, DataSize);
@@ -55,7 +55,7 @@ namespace Tiny3D
         
         void release()
         {
-            T3D_SAFE_DELETE_ARRAY(Data);
+            T3D_POD_SAFE_DELETE_ARRAY(Data);
         }
     };
 }

@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaMaterialPtr create(const UUID &uuid)
         {
-            return new MetaMaterial(uuid);
+            return T3D_NEW MetaMaterial(uuid);
         }
 
         Type getType() const override { return kMaterial; }

@@ -44,126 +44,126 @@ namespace Tiny3D
 
     IPlatform *Win32Factory::createPlatform()
     {
-        return new Win32Platform();
+        return T3D_NEW Win32Platform();
     }
     
     //--------------------------------------------------------------------------
 
     IApplication *Win32Factory::createPlatformApplication()
     {
-        return new SDLApplication();
+        return T3D_NEW SDLApplication();
     }
 
     //--------------------------------------------------------------------------
 
     IWindow *Win32Factory::createPlatformWindow()
     {
-        return new SDLDesktopWindow();
+        return T3D_NEW SDLDesktopWindow();
     }
 
     //--------------------------------------------------------------------------
 
     ITime *Win32Factory::createPlatformTime()
     {
-        return new Win32Time();
+        return T3D_NEW Win32Time();
     }
 
     //--------------------------------------------------------------------------
 
     ITimerService *Win32Factory::createPlatformTimerService()
     {
-        return new TimerService();
+        return T3D_NEW TimerService();
     }
 
     //--------------------------------------------------------------------------
 
     IDir *Win32Factory::createPlatformDir()
     {
-        return new Win32Dir();
+        return T3D_NEW Win32Dir();
     }
 
     //--------------------------------------------------------------------------
 
     IDeviceInfo *Win32Factory::createPlatformDeviceInfo()
     {
-        return new Win32DeviceInfo();
+        return T3D_NEW Win32DeviceInfo();
     }
 
     //--------------------------------------------------------------------------
 
     IConsole *Win32Factory::createPlatformConsole()
     {
-        return new Win32Console();
+        return T3D_NEW Win32Console();
     }
 
     //--------------------------------------------------------------------------
 
     IThread *Win32Factory::createPlatformThread()
     {
-        return new Win32Thread();
+        return T3D_NEW Win32Thread();
     }
 
     //--------------------------------------------------------------------------
     
     ICriticalSection *Win32Factory::createPlatformCriticalSection()
     {
-        return new Win32CriticalSection();
+        return T3D_NEW Win32CriticalSection();
     }
 
     //--------------------------------------------------------------------------
     
     IMutex *Win32Factory::createPlatformMutex()
     {
-        return new Win32Mutex();
+        return T3D_NEW Win32Mutex();
     }
 
     //--------------------------------------------------------------------------
 
     IRecursiveMutex *Win32Factory::createPlatformRecursiveMutex()
     {
-        return new Win32RecursiveMutex();
+        return T3D_NEW Win32RecursiveMutex();
     }
 
     //--------------------------------------------------------------------------
     
     ISemaphore *Win32Factory::createPlatformSemaphore()
     {
-        return new Win32Semaphore();
+        return T3D_NEW Win32Semaphore();
     }
 
     //--------------------------------------------------------------------------
     
     IEvent *Win32Factory::createPlatformEvent()
     {
-        return new Win32Event();
+        return T3D_NEW Win32Event();
     }
 
     //--------------------------------------------------------------------------
     
     IWaitCondition *Win32Factory::createPlatformWaitCondition()
     {
-        return new Win32WaitCondition();
+        return T3D_NEW Win32WaitCondition();
     }
     
     //--------------------------------------------------------------------------
 
     IProcess *Win32Factory::createPlatformProcess()
     {
-        return new Win32Process();
+        return T3D_NEW Win32Process();
     }
     
     //--------------------------------------------------------------------------
 
     ILocale *Win32Factory::createPlatformLocale()
     {
-        return new Win32Locale();
+        return T3D_NEW Win32Locale();
     }
 
     //--------------------------------------------------------------------------
 
     IFSMonitor *Win32Factory::createFileSystemMonitor()
     {
-        return new Win32FSMonitor();
+        return T3D_NEW Win32FSMonitor();
     }
 
     //--------------------------------------------------------------------------
@@ -177,7 +177,7 @@ namespace Tiny3D
 
     IFactory *createPlatformFactory()
     {
-        return new Win32Factory();
+        return T3D_NEW Win32Factory();
     }
 
     //--------------------------------------------------------------------------

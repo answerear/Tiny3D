@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaPrefabPtr create(const UUID &uuid)
         {
-            return new MetaPrefab(uuid);
+            return T3D_NEW MetaPrefab(uuid);
         }
 
         Type getType() const override { return kPrefab; }

@@ -32,7 +32,7 @@ namespace Tiny3D
 
     ShaderConstantParamPtr ShaderConstantParam::create(const String &cbufferName, const String &name, uint32_t bindingPoint, uint32_t dataSize, uint32_t dataOffset, DATA_TYPE dataType)
     {
-        return new ShaderConstantParam(cbufferName, name, bindingPoint, dataSize, dataOffset, dataType);
+        return T3D_NEW ShaderConstantParam(cbufferName, name, bindingPoint, dataSize, dataOffset, dataType);
     }
     
     //--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ namespace Tiny3D
 
     ShaderConstantValuePtr ShaderConstantValue::create(const String &name, ShaderConstantParam::DATA_TYPE dataType, size_t dataSize)
     {
-        return new ShaderConstantValue(name, dataType, dataSize);
+        return T3D_NEW ShaderConstantValue(name, dataType, dataSize);
     }
 
     //--------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace Tiny3D
         , mDataType(type)
     {
         mValue.DataSize = dataSize;
-        mValue.Data = new uint8_t[mValue.DataSize];
+        mValue.Data = T3D_POD_NEW_ARRAY(uint8_t, mValue.DataSize);
     }
 
     //--------------------------------------------------------------------------

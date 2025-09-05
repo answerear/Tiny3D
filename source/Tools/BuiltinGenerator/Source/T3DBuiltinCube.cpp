@@ -71,8 +71,8 @@ namespace Tiny3D
 
         const uint32_t kVertexCount = 24;
         const uint32_t kIndexCount = 36;
-        BoxVertex *vertices = new BoxVertex[kVertexCount];
-        uint16_t *indices = new uint16_t[kIndexCount];
+        BoxVertex *vertices = T3D_POD_NEW_ARRAY(BoxVertex, kVertexCount);
+        uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
 
         // front - V0
         offset[0] = -extent[0];

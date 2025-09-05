@@ -34,7 +34,7 @@ namespace Tiny3D
 
     NullWindowPtr NullWindow::create()
     {
-        NullWindowPtr window = new NullWindow();
+        NullWindowPtr window = T3D_NEW NullWindow();
         return window;
     }
 

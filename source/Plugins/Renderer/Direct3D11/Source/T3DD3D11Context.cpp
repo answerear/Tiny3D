@@ -45,7 +45,7 @@ namespace Tiny3D
 
     D3D11ContextPtr D3D11Context::create()
     {
-        D3D11ContextPtr ctx = new D3D11Context();
+        D3D11ContextPtr ctx = T3D_NEW D3D11Context();
         if (ctx && T3D_FAILED(ctx->init()))
         {
             ctx = nullptr;

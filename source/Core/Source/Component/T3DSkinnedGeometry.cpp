@@ -73,7 +73,7 @@ namespace Tiny3D
 
     ComponentPtr SkinnedGeometry::clone() const
     {
-        SkinnedGeometryPtr geometry = new SkinnedGeometry();
+        SkinnedGeometryPtr geometry = T3D_NEW SkinnedGeometry();
         TResult ret = geometry->cloneProperties(this);
         if (T3D_FAILED(ret))
         {

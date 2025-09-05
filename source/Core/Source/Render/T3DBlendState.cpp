@@ -37,7 +37,7 @@ namespace  Tiny3D
 
     BlendStatePtr BlendState::create(const BlendDesc &desc, uint32_t hash)
     {
-        return new BlendState(hash, desc);
+        return T3D_NEW BlendState(hash, desc);
     }
     
     //--------------------------------------------------------------------------

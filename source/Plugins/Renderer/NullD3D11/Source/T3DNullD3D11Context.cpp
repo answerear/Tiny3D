@@ -35,7 +35,7 @@ namespace Tiny3D
 
     NullD3D11ContextPtr NullD3D11Context::create()
     {
-        NullD3D11ContextPtr renderer = new NullD3D11Context();
+        NullD3D11ContextPtr renderer = T3D_NEW NullD3D11Context();
         // renderer->release();
         return renderer;
     }

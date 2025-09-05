@@ -68,14 +68,14 @@ namespace Tiny3D
 
     ImagePtr Image::create(const String &name)
     {
-        return new Image(name);
+        return T3D_NEW Image(name);
     }
     
     //--------------------------------------------------------------------------
 
     ImagePtr Image::create(const String &name, uint32_t width, uint32_t height, PixelFormat format)
     {
-        return new Image(name, width, height,format);
+        return T3D_NEW Image(name, width, height,format);
     }
     
     //--------------------------------------------------------------------------
@@ -97,7 +97,7 @@ namespace Tiny3D
         mBPP = getBPP(format);
         mPitch = calcPitch();
         mDataSize = mHeight * mPitch;
-        mData = new uint8_t[mDataSize];
+        mData = T3D_POD_NEW_ARRAY(uint8_t, mDataSize);
         memset(mData, 0, mDataSize);
     }
 
@@ -105,7 +105,7 @@ namespace Tiny3D
     
     Image::~Image()
     {
-        T3D_SAFE_DELETE_ARRAY(mData);
+        T3D_POD_SAFE_DELETE_ARRAY(mData);
     }
 
     //--------------------------------------------------------------------------
@@ -281,7 +281,7 @@ namespace Tiny3D
         if (isEmpty())
         {
             // 空图像，给空图像创建并且复制数据
-            mData = new uint8_t[image.mDataSize];
+            mData = T3D_POD_NEW_ARRAY(uint8_t, image.mDataSize);
             mDataSize = image.mDataSize;
             memcpy(mData, image.mData, image.mDataSize);
             mWidth = image.mWidth;

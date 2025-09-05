@@ -32,7 +32,7 @@ namespace Tiny3D
 
     LanguageManagerPtr LanguageManager::create()
     {
-        return new LanguageManager();
+        return T3D_NEW LanguageManager();
     }
 
     //--------------------------------------------------------------------------

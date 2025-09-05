@@ -90,7 +90,7 @@ namespace Tiny3D
 
     AnimationPlayerPtr AnimationPlayer::create(SkinnedGeometry *geometry)
     {
-        return new AnimationPlayer(geometry);
+        return T3D_NEW AnimationPlayer(geometry);
     }
     
     //--------------------------------------------------------------------------

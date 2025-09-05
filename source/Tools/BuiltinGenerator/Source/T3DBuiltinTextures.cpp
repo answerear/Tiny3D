@@ -65,7 +65,7 @@ namespace Tiny3D
         const uint32_t h = 4;
         const uint32_t bytesPerPixel = 4;
         const uint32_t dataSize = w * h * bytesPerPixel;
-        uint8_t *data = new uint8_t[dataSize];
+        uint8_t *data = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
         uint32_t i = 0;
         while (i < dataSize)
         {
@@ -119,7 +119,7 @@ namespace Tiny3D
         const uint32_t height = 64;
         uint32_t pitch = Image::calcPitch(width, 32);
         const uint32_t dataSize = pitch * height;
-        uint8_t *pixels = new uint8_t[dataSize];
+        uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
         
         for (uint32_t y = 0; y < height; ++y)
         {

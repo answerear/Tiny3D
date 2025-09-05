@@ -40,14 +40,14 @@ namespace Tiny3D
 
     MaterialPtr Material::create(const String &name)
     {
-        return new Material(name);
+        return T3D_NEW Material(name);
     }
 
     //--------------------------------------------------------------------------
 
     MaterialPtr Material::create(const String &name, Shader *shader)
     {
-        return new Material(name, shader);
+        return T3D_NEW Material(name, shader);
     }
     
     //--------------------------------------------------------------------------
@@ -323,10 +323,10 @@ namespace Tiny3D
                         for (const auto &param : shaderVariant.second->getShaderConstantParams())
                         {
                             ShaderConstantValuePtr constValue = ShaderConstantValue::create(param.first, param.second->getDataType(), param.second->getDataSize());
-                            uint8_t *data = new uint8_t[param.second->getDataSize()];
+                            uint8_t *data = T3D_POD_NEW_ARRAY(uint8_t, param.second->getDataSize());
                             memset(data, 0, param.second->getDataSize());
                             constValue->setData(data, param.second->getDataSize());
-                            T3D_SAFE_DELETE_ARRAY(data);
+                            T3D_POD_SAFE_DELETE_ARRAY(data);
 
                             mConstantValues.emplace(constValue->getName(), constValue);
                         }

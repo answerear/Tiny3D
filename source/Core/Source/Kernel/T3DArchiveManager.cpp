@@ -32,7 +32,7 @@ namespace Tiny3D
 
     ArchiveManagerPtr ArchiveManager::create()
     {
-        return new ArchiveManager();
+        return T3D_NEW ArchiveManager();
     }
     
     //--------------------------------------------------------------------------

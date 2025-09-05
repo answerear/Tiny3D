@@ -112,7 +112,7 @@ namespace  Tiny3D
 
     RenderStateManagerPtr RenderStateManager::create()
     {
-        return new RenderStateManager();
+        return T3D_NEW RenderStateManager();
     }
     
     //--------------------------------------------------------------------------
@@ -235,7 +235,7 @@ namespace  Tiny3D
 
     RenderBufferManagerPtr RenderBufferManager::create()
     {
-        return new RenderBufferManager();
+        return T3D_NEW RenderBufferManager();
     }
     
     //--------------------------------------------------------------------------
@@ -484,7 +484,7 @@ namespace  Tiny3D
 
     RenderTargetManagerPtr RenderTargetManager::create()
     {
-        return new RenderTargetManager();
+        return T3D_NEW RenderTargetManager();
     }
 
     //--------------------------------------------------------------------------

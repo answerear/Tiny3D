@@ -94,7 +94,7 @@ namespace Tiny3D
         {
             if (mSyncObject == nullptr)
             {
-                mSyncObject = new CriticalSection();
+                mSyncObject = T3D_NEW CriticalSection();
             }
             ScopeLock lock(mSyncObject);
             mIsThreadSafe = true;

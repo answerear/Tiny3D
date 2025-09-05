@@ -76,7 +76,7 @@ namespace Tiny3D
 
     Texture1DPtr Texture1D::create(const String &name, uint32_t width, PixelFormat format, uint32_t mipmaps, const Buffer &data)
     {
-        return new Texture1D(name, width, format, mipmaps, data);
+        return T3D_NEW Texture1D(name, width, format, mipmaps, data);
     }
 
     //--------------------------------------------------------------------------
@@ -156,7 +156,7 @@ namespace Tiny3D
     
     Texture2DPtr Texture2D::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
     {
-        return new Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+        return T3D_NEW Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
     }
 
     //--------------------------------------------------------------------------
@@ -179,7 +179,7 @@ namespace Tiny3D
 
     Texture2DPtr Texture2D::create(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
     {
-        return new Texture2D(name, image, mipmaps, MSAACount, MSAAQuality);
+        return T3D_NEW Texture2D(name, image, mipmaps, MSAACount, MSAAQuality);
     }
 
     //--------------------------------------------------------------------------
@@ -287,7 +287,7 @@ namespace Tiny3D
 
     Texture2DArrayPtr Texture2DArray::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
     {
-        return new Texture2DArray(name, width, height, format, arraySize, mipmaps, MSAACount, MSAAQuality, data);
+        return T3D_NEW Texture2DArray(name, width, height, format, arraySize, mipmaps, MSAACount, MSAAQuality, data);
     }
 
     //--------------------------------------------------------------------------
@@ -354,7 +354,7 @@ namespace Tiny3D
 
     Texture3DPtr Texture3D::create(const String &name, uint32_t width, uint32_t height, uint32_t depth, PixelFormat format, uint32_t mipmaps, const Buffer &data)
     {
-        return new Texture3D(name, width, height, depth, format, mipmaps, data);
+        return T3D_NEW Texture3D(name, width, height, depth, format, mipmaps, data);
     }
 
     //--------------------------------------------------------------------------
@@ -434,7 +434,7 @@ namespace Tiny3D
 
     CubemapPtr Cubemap::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
     {
-        return new Cubemap(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+        return T3D_NEW Cubemap(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
     }
 
     //--------------------------------------------------------------------------
@@ -501,7 +501,7 @@ namespace Tiny3D
 
     CubemapArrayPtr CubemapArray::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
     {
-        return new CubemapArray(name, width, height, format, arraySize, mipmaps, MSAACount, MSAAQuality, data);
+        return T3D_NEW CubemapArray(name, width, height, format, arraySize, mipmaps, MSAACount, MSAAQuality, data);
     }
 
     //--------------------------------------------------------------------------

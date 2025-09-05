@@ -33,7 +33,7 @@ namespace Tiny3D
 
     MetaFSArchivePtr MetaFSArchive::create(const String &name, AccessMode mode, MetaFSMonitor *monitor)
     {
-        MetaFSArchivePtr archive = new MetaFSArchive(name, mode, monitor);
+        MetaFSArchivePtr archive = T3D_NEW MetaFSArchive(name, mode, monitor);
         if (archive != nullptr && !archive->init())
         {
             archive = nullptr;

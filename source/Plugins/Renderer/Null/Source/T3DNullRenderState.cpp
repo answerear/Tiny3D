@@ -32,7 +32,7 @@ namespace Tiny3D
 
     NullBlendStatePtr NullBlendState::create()
     {
-        return new NullBlendState();
+        return T3D_NEW NullBlendState();
     }
 
     //--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ namespace Tiny3D
 
     NullRasterizerStatePtr NullRasterizerState::create()
     {
-        return new NullRasterizerState();
+        return T3D_NEW NullRasterizerState();
     }
     
     //--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace Tiny3D
 
     NullDepthStencilStatePtr NullDepthStencilState::create()
     {
-        return new NullDepthStencilState();
+        return T3D_NEW NullDepthStencilState();
     }
 
     //--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace Tiny3D
 
     NullSamplerStatePtr NullSamplerState::create()
     {
-        return new NullSamplerState();
+        return T3D_NEW NullSamplerState();
     }
 
     //--------------------------------------------------------------------------

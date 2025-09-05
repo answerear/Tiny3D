@@ -45,7 +45,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    class T3D_PLATFORM_API ISyncObject
+    class T3D_PLATFORM_API ISyncObject : public Allocator
     {
     public:
         virtual ~ISyncObject() = default;

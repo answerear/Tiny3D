@@ -49,7 +49,7 @@ namespace Tiny3D
     public:
         static SmartPtr<Object_t> create(Descriptor_t *desc, MemoryType memType, Usage usage, uint32_t accMode)
         {
-            return new Object_t(desc, memType, usage, accMode);
+            return T3D_NEW Object_t(desc, memType, usage, accMode);
         }
 
         const Descriptor_t &getDescriptor() const { return *mDesc; }

@@ -51,12 +51,9 @@ namespace Tiny3D
         bool mEnable {false};
     };
 
-    class T3D_PLATFORM_API Allocator
+    struct T3D_PLATFORM_API Allocator
     {
-    public:
         Allocator() = default;
-    
-        ~Allocator() = default;
     
         void *operator new(size_t size);
     
@@ -86,6 +83,30 @@ namespace Tiny3D
     
         void operator delete[](void *addr, size_t size, const std::nothrow_t &) noexcept;
     };
+
+    template <typename T>
+    T *New()
+    {
+        return static_cast<T*>(MemoryManager::getInstance().allocate(sizeof(T), 0, false));
+    }
+
+    template <typename T>
+    T *NewArray(size_t n)
+    {
+        return static_cast<T*>(MemoryManager::getInstance().allocate(sizeof(T) * n, 0, true));
+    }
+
+    template <typename T>
+    void Delete(T *ptr)
+    {
+        MemoryManager::getInstance().deallocate((uint8_t*)ptr, 0, false);
+    }
+
+    template <typename T>
+    void DeleteArray(T *ptr)
+    {
+        MemoryManager::getInstance().deallocate((uint8_t*)ptr, 0, true);
+    }
 }
 
 #if defined (T3D_USE_CUSTOM_NEW)

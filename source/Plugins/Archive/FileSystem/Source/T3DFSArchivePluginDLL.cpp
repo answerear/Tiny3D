@@ -33,7 +33,7 @@ extern "C"
 {
     T3D_FSARCHIVE_API TResult dllStartPlugin()
     {
-        gPlugin = new Tiny3D::FileSystemArchivePlugin();
+        gPlugin = T3D_NEW Tiny3D::FileSystemArchivePlugin();
         return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 

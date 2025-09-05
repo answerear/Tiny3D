@@ -26,7 +26,9 @@
 
 namespace Tiny3D
 {
-    class MetaFSMonitorManager : public Singleton<MetaFSMonitorManager>
+    class MetaFSMonitorManager
+        : public Allocator
+        , public Singleton<MetaFSMonitorManager>
     {
     public:
         ~MetaFSMonitorManager() override;

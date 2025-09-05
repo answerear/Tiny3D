@@ -35,7 +35,7 @@ namespace Tiny3D
 
     ShaderManagerPtr ShaderManager::create()
     {
-        return new ShaderManager();
+        return T3D_NEW ShaderManager();
     }
 
     //--------------------------------------------------------------------------

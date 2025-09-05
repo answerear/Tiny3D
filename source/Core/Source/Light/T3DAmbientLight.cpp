@@ -32,7 +32,7 @@ namespace Tiny3D
 
     AmbientLightPtr AmbientLight::create()
     {
-        return new AmbientLight(UUID::generate());
+        return T3D_NEW AmbientLight(UUID::generate());
     }
     
     //--------------------------------------------------------------------------

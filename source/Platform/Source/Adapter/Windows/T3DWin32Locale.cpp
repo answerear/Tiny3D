@@ -47,7 +47,7 @@ namespace Tiny3D
     String Win32Locale::ANSIToUTF8(const String &src)
     {
         int wcsLen = ::MultiByteToWideChar(CP_ACP, 0, src.c_str(), -1, nullptr, 0);
-        wchar_t *pwcsBuf = new wchar_t[wcsLen + 1]; 
+        wchar_t *pwcsBuf = T3D_POD_NEW_ARRAY(wchar_t, wcsLen + 1); 
         ZeroMemory(pwcsBuf, wcsLen * sizeof(wchar_t));
         ::MultiByteToWideChar(CP_ACP, 0, src.c_str(), (int)src.length(), pwcsBuf, wcsLen);
         
@@ -55,7 +55,7 @@ namespace Tiny3D
         String dst(dstLen-1, 0);
         ::WideCharToMultiByte(CP_UTF8, 0, pwcsBuf, wcsLen, dst.data(), dstLen, nullptr, nullptr);
 
-        T3D_SAFE_DELETE_ARRAY(pwcsBuf);
+        T3D_POD_SAFE_DELETE_ARRAY(pwcsBuf);
         
         return dst;
     }
@@ -65,19 +65,19 @@ namespace Tiny3D
     String Win32Locale::UTF8ToANSI(const String &src)
     {
         int wcsLen = ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.length(), nullptr, 0);
-        wchar_t *wszString = new wchar_t[wcsLen + 1];
+        wchar_t *wszString = T3D_POD_NEW_ARRAY(wchar_t, wcsLen + 1);
         ::MultiByteToWideChar(CP_UTF8, NULL, src.c_str(), (int)src.length(), wszString, wcsLen);
         wszString[wcsLen] = 0;
 
         int dstLen = ::WideCharToMultiByte(CP_ACP, 0, wszString, (int)wcslen(wszString), nullptr, 0, nullptr, nullptr);
         // String dst(dstLen-1, 0);
-        char *szDst = new char[dstLen+1]; 
+        char *szDst = T3D_POD_NEW_ARRAY(char, dstLen+1); 
         ::WideCharToMultiByte(CP_ACP, NULL, wszString, (int)wcslen(wszString), szDst, dstLen, nullptr, nullptr);
         szDst[dstLen] = 0;
         
         String dst = szDst;
-        T3D_SAFE_DELETE_ARRAY(szDst);
-        T3D_SAFE_DELETE_ARRAY(wszString);
+        T3D_POD_SAFE_DELETE_ARRAY(szDst);
+        T3D_POD_SAFE_DELETE_ARRAY(wszString);
         
         return dst;
     }
@@ -94,11 +94,11 @@ namespace Tiny3D
         return ret;
 #else
         int dstLen = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, nullptr, 0, nullptr, nullptr);
-        char *szDst = new char[dstLen+1];
+        char *szDst = T3D_POD_NEW_ARRAY(char, dstLen+1);
         int result = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), -1, szDst, dstLen, nullptr, nullptr);
         szDst[dstLen] = 0;
         String dst = szDst;
-        T3D_SAFE_DELETE_ARRAY(szDst);
+        T3D_POD_SAFE_DELETE_ARRAY(szDst);
         if (result > 0)
             return dst;
         return "";
@@ -110,10 +110,10 @@ namespace Tiny3D
     WString Win32Locale::UTF8ToUnicode(const String &src)
     {
         int dstLen = ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, nullptr, 0);
-        wchar_t *wszDst = new wchar_t[dstLen + 1];
+        wchar_t *wszDst = T3D_POD_NEW_ARRAY(wchar_t, dstLen + 1);
         ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), -1, wszDst, dstLen);
         WString dst = wszDst;
-        T3D_SAFE_DELETE_ARRAY(wszDst);
+        T3D_POD_SAFE_DELETE_ARRAY(wszDst);
         return dst;
     }
 

@@ -215,7 +215,7 @@ namespace Tiny3D
         mStrategy.unExpired = 7;
         mStrategy.unMaxCacheSize = 50;
         mStrategy.unMaxCacheTime = 1000 * 5;
-        mQueuedJobPool = new QueuedJobPoolDefault();
+        mQueuedJobPool = T3D_NEW QueuedJobPoolDefault();
     }
 
     //--------------------------------------------------------------------------
@@ -338,7 +338,7 @@ namespace Tiny3D
         String name = getFileName(filename);
 
         /// 生成一条日志项
-        LogItem *item = new LogItem(toLevelString(level), name.c_str(), line, tag, content);
+        LogItem *item = T3D_NEW LogItem(toLevelString(level), name.c_str(), line, tag, content);
 
         /// 输出到控制台
         if (mIsOutputConsole)
@@ -521,7 +521,7 @@ namespace Tiny3D
 
     void Logger::commitCheckExpiredTask()
     {
-        mQueuedJobPool->addQueuedJob(new CheckExpiredFileJob());
+        mQueuedJobPool->addQueuedJob(T3D_NEW CheckExpiredFileJob());
     }
 
     //--------------------------------------------------------------------------
@@ -543,7 +543,7 @@ namespace Tiny3D
         ScopeLock lock(&mCSFlushJobPool);
         if (mFlushJobPool.empty())
         {
-            job = new FlushLogCacheJob(this, mAppID, mTag, getLogPath(), mFileStream);
+            job = T3D_NEW FlushLogCacheJob(this, mAppID, mTag, getLogPath(), mFileStream);
         }
         else
         {

@@ -112,7 +112,7 @@ namespace Tiny3D
 
         if (SDL_MUSTLOCK(buffer))
         {
-            T3D_SAFE_DELETE_ARRAY(mFramebuffer);
+            T3D_POD_SAFE_DELETE_ARRAY(mFramebuffer);
         }
 
         if (mSDLIconSurface != nullptr)
@@ -242,7 +242,7 @@ namespace Tiny3D
                 SDL_GetWindowSize(mSDLWindow, &w, &h);
                 SDL_Surface *frontbuffer = SDL_GetWindowSurface(mSDLWindow);
                 mFramebufferSize = frontbuffer->pitch * h;
-                mFramebuffer = new uint8_t[mFramebufferSize];
+                mFramebuffer = T3D_POD_NEW_ARRAY(uint8_t, mFramebufferSize);
             }
         }
         else

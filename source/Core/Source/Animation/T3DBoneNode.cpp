@@ -38,7 +38,7 @@ namespace Tiny3D
         const Vector3 &translation, const Quaternion &rotation,
         const Vector3 &scaling, const Matrix4 &offsetMatrix)
     {
-        return new BoneNode(name, parentIndex, translation, rotation, scaling, offsetMatrix);
+        return T3D_NEW BoneNode(name, parentIndex, translation, rotation, scaling, offsetMatrix);
     }
 
     //--------------------------------------------------------------------------

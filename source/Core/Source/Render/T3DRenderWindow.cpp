@@ -39,7 +39,7 @@ namespace Tiny3D
     
     RenderWindowPtr RenderWindow::create(const String &name, const RenderWindowDesc &desc) 
     {
-        RenderWindowPtr window = new RenderWindow(name);
+        RenderWindowPtr window = T3D_NEW RenderWindow(name);
         if (window != nullptr)
         {
             TResult ret = window->init(desc);
@@ -83,7 +83,7 @@ namespace Tiny3D
                 break;
             }
 
-            mWindow = new Window();
+            mWindow = T3D_NEW Window();
 
             // 创建窗口
             void *externalWnd = desc.externalHandle;

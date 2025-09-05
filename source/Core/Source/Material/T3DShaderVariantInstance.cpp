@@ -40,7 +40,7 @@ namespace Tiny3D
 
     ShaderVariantInstancePtr ShaderVariantInstance::create(PassInstance *parent, ShaderVariantPtr shaderVariant)
     {
-        return new ShaderVariantInstance(parent, shaderVariant);
+        return T3D_NEW ShaderVariantInstance(parent, shaderVariant);
     }
 
     //--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace Tiny3D
             // 创建缓冲区数据，用于读写
             Buffer buffer;
             buffer.DataSize = item.second.size;
-            buffer.Data = new uint8_t[buffer.DataSize];
+            buffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
             mConstBuffers.emplace_back(buffer);
 
             // 创建 RHI 相关缓冲区对象
@@ -164,7 +164,7 @@ namespace Tiny3D
 
     ShaderVariantInstancePtr ShaderVariantInstance::clone(PassInstance *parent) const
     {
-        ShaderVariantInstancePtr newInstance = new ShaderVariantInstance();
+        ShaderVariantInstancePtr newInstance = T3D_NEW ShaderVariantInstance();
 
         if (newInstance != nullptr && T3D_FAILED(newInstance->cloneProperties(parent, this)))
         {
@@ -201,7 +201,7 @@ namespace Tiny3D
                 // 创建缓冲区数据，用于读写
                 Buffer buffer;
                 buffer.DataSize = itrBuf->DataSize;
-                buffer.Data = new uint8_t[buffer.DataSize];
+                buffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
                 memcpy(buffer.Data, itrBuf->Data, buffer.DataSize);
                 mConstBuffers.emplace_back(buffer);
 

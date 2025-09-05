@@ -37,7 +37,7 @@ namespace Tiny3D
 
     DylibManagerPtr DylibManager::create()
     {
-        DylibManagerPtr mgr = new DylibManager();
+        DylibManagerPtr mgr = T3D_NEW DylibManager();
         return mgr;
     }
 

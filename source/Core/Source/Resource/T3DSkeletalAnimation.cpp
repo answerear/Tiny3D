@@ -32,14 +32,14 @@ namespace Tiny3D
 
     SkeletalAnimationPtr SkeletalAnimation::create(const String &name)
     {
-        return new SkeletalAnimation(name);
+        return T3D_NEW SkeletalAnimation(name);
     }
 
     //--------------------------------------------------------------------------
 
     SkeletalAnimationPtr SkeletalAnimation::create(const String &name, const AnimationClips &clips)
     {
-        return new SkeletalAnimation(name, clips);
+        return T3D_NEW SkeletalAnimation(name, clips);
     }
     
     //--------------------------------------------------------------------------

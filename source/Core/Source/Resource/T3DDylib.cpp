@@ -54,7 +54,7 @@ namespace Tiny3D
 
     DylibPtr Dylib::create(const String &name)
     {
-        DylibPtr dylib = new Dylib(name);
+        DylibPtr dylib = T3D_NEW Dylib(name);
         // dylib->release();
         return dylib;
     }

@@ -35,7 +35,7 @@ namespace  Tiny3D
 
     RasterizerStatePtr RasterizerState::create(const RasterizerDesc &desc, uint32_t hash)
     {
-        return new RasterizerState(hash, desc);
+        return T3D_NEW RasterizerState(hash, desc);
     }
 
     //--------------------------------------------------------------------------

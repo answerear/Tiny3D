@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    class T3D_FRAMEWORK_API EventParam
+    class T3D_FRAMEWORK_API EventParam : public Allocator
     {
         T3D_DECLARE_INTERFACE(EventParam);
 
@@ -52,7 +52,7 @@ namespace Tiny3D
         
         EventParamT1(T1 a1) : arg1(a1) {}
 
-        EventParam *clone() override { return new EventParamT1(arg1); }
+        EventParam *clone() override { return T3D_NEW EventParamT1(arg1); }
         
         T1 arg1 {};
     };
@@ -65,7 +65,7 @@ namespace Tiny3D
         
         EventParamT2(T1 a1, T2 a2) : arg1(a1), arg2(a2) {}
 
-        EventParam *clone() override { return new EventParamT2(arg1, arg2); }
+        EventParam *clone() override { return T3D_NEW EventParamT2(arg1, arg2); }
         
         T1 arg1 {};
         T2 arg2 {};
@@ -80,7 +80,7 @@ namespace Tiny3D
         
         EventParamT3(T1 a1, T2 a2, T3 a3) : arg1(a1), arg2(a2), arg3(a3) {}
 
-        EventParam *clone() override { return new EventParamT3(arg1, arg2, arg3); }
+        EventParam *clone() override { return T3D_NEW EventParamT3(arg1, arg2, arg3); }
         
         T1 arg1 {};
         T2 arg2 {};
@@ -95,7 +95,7 @@ namespace Tiny3D
         
         EventParamT4(T1 a1, T2 a2, T3 a3, T4 a4) : arg1(a1), arg2(a2), arg3(a3), arg4(a4) {}
 
-        EventParam *clone() override { return new EventParamT4(arg1, arg2, arg3, arg4); }
+        EventParam *clone() override { return T3D_NEW EventParamT4(arg1, arg2, arg3, arg4); }
         
         T1 arg1 {};
         T2 arg2 {};

@@ -34,7 +34,7 @@ namespace Tiny3D
 
     RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
     {
-        return new RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
+        return T3D_NEW RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
     }
     
     //--------------------------------------------------------------------------

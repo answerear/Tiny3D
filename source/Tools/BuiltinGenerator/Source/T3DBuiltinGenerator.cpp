@@ -88,7 +88,7 @@ namespace Tiny3D
         Dir::makeDir(meshPath);
 
         // Cube
-        BuiltinMesh *mesh = new BuiltinCube();
+        BuiltinMesh *mesh = T3D_NEW BuiltinCube();
         ret = mesh->build();
         if (T3D_FAILED(ret))
         {
@@ -111,7 +111,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mesh);
 
         // Cylinder
-        mesh = new BuiltinCylinder();
+        mesh = T3D_NEW BuiltinCylinder();
         ret = mesh->build();
         if (T3D_FAILED(ret))
         {
@@ -143,7 +143,7 @@ namespace Tiny3D
     TResult BuiltinGenerator::generateShaders(const String &rootPath, bool reservedTemp)
     {
         T3D_SAFE_DELETE(mBuiltinShaders);
-        mBuiltinShaders = new BuiltinShaders();
+        mBuiltinShaders = T3D_NEW BuiltinShaders();
         return mBuiltinShaders->generate(rootPath, reservedTemp);
     }
 
@@ -153,7 +153,7 @@ namespace Tiny3D
     {
         if (mBuiltinMaterials == nullptr)
         {
-            mBuiltinMaterials = new BuiltinMaterials();
+            mBuiltinMaterials = T3D_NEW BuiltinMaterials();
         }
         
         return mBuiltinMaterials->generate(rootPath);
@@ -165,7 +165,7 @@ namespace Tiny3D
     {
         if (mBuiltinTextures == nullptr)
         {
-            mBuiltinTextures = new BuiltinTextures();
+            mBuiltinTextures = T3D_NEW BuiltinTextures();
         }
 
         return mBuiltinTextures->generate(rootPath);

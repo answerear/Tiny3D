@@ -50,7 +50,7 @@ namespace Tiny3D
         }
 
         mOwner = pool;
-        mThread = new RunnableThread();
+        mThread = T3D_NEW RunnableThread();
         return mThread->start(this, threadName, stackSize, priority);
     }
 

@@ -622,7 +622,7 @@ namespace Tiny3D
             mEventHandlers.push_back(handler);
         }
 
-        return new _TINSTANCE(handler, (int32_t)slot);
+        return T3D_NEW _TINSTANCE(handler, (int32_t)slot);
     }
 
     //--------------------------------------------------------------------------

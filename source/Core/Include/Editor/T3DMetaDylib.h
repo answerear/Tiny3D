@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaDylibPtr create(const UUID &uuid)
         {
-            return new MetaDylib(uuid);
+            return T3D_NEW MetaDylib(uuid);
         }
 
         Type getType() const override { return kDylib; }

@@ -35,7 +35,7 @@ namespace Tiny3D
 
     PassInstancePtr PassInstance::create(TechniqueInstance *parent, PassPtr pass)
     {
-        return new PassInstance(parent, pass);
+        return T3D_NEW PassInstance(parent, pass);
     }
 
     //--------------------------------------------------------------------------
@@ -55,7 +55,7 @@ namespace Tiny3D
 
     PassInstancePtr PassInstance::clone(TechniqueInstance *parent) const
     {
-        PassInstancePtr newInstance = new PassInstance();
+        PassInstancePtr newInstance = T3D_NEW PassInstance();
 
         if (newInstance != nullptr && T3D_FAILED(newInstance->cloneProperties(parent, this)))
         {

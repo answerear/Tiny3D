@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
     Dir::setCachePathInfo("Tiny3D", "Tiny3D");
     
-    Agent *theEngine = new Agent();
+    Agent *theEngine = T3D_NEW Agent();
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
     settings.pluginSettings.plugins.push_back("FileSystemArchiveEditor");
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
     if (ret == T3D_OK)
         theEngine->run();
 
-    delete theEngine;
+    T3D_SAFE_DELETE(theEngine);
 
     return ret;
 }

@@ -315,7 +315,7 @@ namespace Tiny3D
         }
         while (!eof() && c != 0);
 
-        s = new char[nSize+1];
+        s = T3D_POD_NEW_ARRAY(char, nSize+1);
         memcpy(s, str.c_str(), nSize);
 
         return *this;

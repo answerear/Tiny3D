@@ -50,7 +50,7 @@ namespace Tiny3D
 
     FreeImageCodecPtr FreeImageCodec::create()
     {
-        FreeImageCodecPtr codec = new FreeImageCodec();
+        FreeImageCodecPtr codec = T3D_NEW FreeImageCodec();
         // codec->release();
         return codec;
     }
@@ -204,7 +204,7 @@ namespace Tiny3D
                 break;
             }
 
-            data = new uint8_t[size];
+            data = T3D_POD_NEW_ARRAY(uint8_t, size);
             memcpy(data, temp, size);
         } while (0);
 
@@ -329,7 +329,7 @@ namespace Tiny3D
 
                 uint32_t dstPitch = srcPitch;
                 size_t imageSize = (size_t)dstPitch * height;
-                uint8_t *dst = new uint8_t[imageSize];
+                uint8_t *dst = T3D_POD_NEW_ARRAY(uint8_t, imageSize);
 
                 switch (bpp)
                 {

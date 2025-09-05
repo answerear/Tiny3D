@@ -33,7 +33,7 @@ namespace Tiny3D
 
     SerializerManagerPtr SerializerManager::create()
     {
-        SerializerManagerPtr mgr = new SerializerManager();
+        SerializerManagerPtr mgr = T3D_NEW SerializerManager();
         // mgr->release();
         return mgr;
     }

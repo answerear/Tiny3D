@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
 
     Dir::setCachePathInfo("Tiny3D", "Tiny3D");
     
-    Platform* platform = new Platform();
-    Logger *logger = new Logger();
+    Platform* platform = T3D_NEW Platform();
+    Logger *logger = T3D_NEW Logger();
     T3D_LOG_STARTUP(1000, LOG_TAG, true, true);
 
     int ret = 0;
@@ -110,10 +110,10 @@ int main(int argc, char *argv[])
     
     T3D_LOG_SHUTDOWN();
 
-    delete logger;
+    T3D_SAFE_DELETE(logger);
 
     MemoryManager::getInstance().exit();
-    delete platform;
+    T3D_SAFE_DELETE(platform);
 
     return ret;
 }

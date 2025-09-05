@@ -117,10 +117,24 @@
         (p) = nullptr;    \
     }
 
+#define T3D_POD_SAFE_DELETE(p)  \
+    if ((p) != nullptr)   \
+    {   \
+        Delete(p);   \
+        (p) = nullptr;    \
+    }
+
 #define T3D_SAFE_DELETE_ARRAY(p)    \
     if ((p) != nullptr)   \
     {   \
         delete [](p); \
+        (p) = nullptr;    \
+    }
+
+#define T3D_POD_SAFE_DELETE_ARRAY(p)    \
+    if ((p) != nullptr)   \
+    {   \
+        DeleteArray(p); \
         (p) = nullptr;    \
     }
 

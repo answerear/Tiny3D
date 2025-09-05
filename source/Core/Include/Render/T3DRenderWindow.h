@@ -84,7 +84,7 @@ namespace Tiny3D
     class T3D_ENGINE_API NullRenderWindow : public RenderWindow
     {
     public:
-        static NullRenderWindowPtr create(const String &name) { return new NullRenderWindow(name); }
+        static NullRenderWindowPtr create(const String &name) { return T3D_NEW NullRenderWindow(name); }
 
         /**
          * @brief 双缓冲中交换离屏缓存到显示缓存，显示出图像

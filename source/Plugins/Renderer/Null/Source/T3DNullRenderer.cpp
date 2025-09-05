@@ -35,7 +35,7 @@ namespace Tiny3D
 
     NullRendererPtr NullRenderer::create()
     {
-        return new NullRenderer();
+        return T3D_NEW NullRenderer();
     }
     
     //--------------------------------------------------------------------------

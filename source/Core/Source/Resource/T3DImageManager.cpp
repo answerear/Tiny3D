@@ -36,7 +36,7 @@ namespace Tiny3D
 
     ImageManagerPtr ImageManager::create()
     {
-        return new ImageManager();
+        return T3D_NEW ImageManager();
     }
 
     //--------------------------------------------------------------------------

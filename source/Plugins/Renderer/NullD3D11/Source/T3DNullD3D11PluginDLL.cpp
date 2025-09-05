@@ -32,7 +32,7 @@ extern "C"
 {
     T3D_NULLD3D11_API TResult dllStartPlugin()
     {
-        gPlugin = new Tiny3D::NullD3D11Plugin();
+        gPlugin = T3D_NEW Tiny3D::NullD3D11Plugin();
         return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 
@@ -42,8 +42,7 @@ extern "C"
 
         if (ret == Tiny3D::T3D_OK)
         {
-            delete gPlugin;
-            gPlugin = nullptr;
+            T3D_SAFE_DELETE(gPlugin);
         }
 
         return ret;

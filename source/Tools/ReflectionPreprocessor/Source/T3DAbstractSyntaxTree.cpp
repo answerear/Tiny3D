@@ -251,7 +251,7 @@ namespace Tiny3D
 
     ASTNode *ASTNode::clone() const
     {
-        ASTNode *node = new ASTNode(getName());
+        ASTNode *node = T3D_NEW ASTNode(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -296,7 +296,7 @@ namespace Tiny3D
 
     ASTNode *ASTNamespace::clone() const
     {
-        ASTNode *node = new ASTNamespace(getName());
+        ASTNode *node = T3D_NEW ASTNamespace(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -429,7 +429,7 @@ namespace Tiny3D
 
     ASTNode *ASTStruct::clone() const
     {
-        ASTNode *node = new ASTStruct(getName());
+        ASTNode *node = T3D_NEW ASTStruct(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -512,7 +512,7 @@ namespace Tiny3D
 
     ASTNode *ASTClass::clone() const
     {
-        ASTNode *node = new ASTClass(getName());
+        ASTNode *node = T3D_NEW ASTClass(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -906,7 +906,7 @@ namespace Tiny3D
 
     ASTNode *ASTFunction::clone() const
     {
-        ASTNode *node = new ASTFunction(getName());
+        ASTNode *node = T3D_NEW ASTFunction(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1066,7 +1066,7 @@ namespace Tiny3D
 
     ASTNode *ASTOverloadFunction::clone() const
     {
-        ASTNode *node = new ASTOverloadFunction(getName());
+        ASTNode *node = T3D_NEW ASTOverloadFunction(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1356,7 +1356,7 @@ namespace Tiny3D
 
     ASTNode *ASTStaticFunction::clone() const
     {
-        ASTNode *node = new ASTStaticFunction(getName());
+        ASTNode *node = T3D_NEW ASTStaticFunction(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1366,7 +1366,7 @@ namespace Tiny3D
 
     ASTNode *ASTInstanceFunction::clone() const
     {
-        ASTNode *node = new ASTInstanceFunction(getName());
+        ASTNode *node = T3D_NEW ASTInstanceFunction(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1387,7 +1387,7 @@ namespace Tiny3D
 
     ASTNode *ASTConstructor::clone() const
     {
-        ASTNode *node = new ASTConstructor(getName());
+        ASTNode *node = T3D_NEW ASTConstructor(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1397,7 +1397,7 @@ namespace Tiny3D
 
     ASTNode *ASTDestructor::clone() const
     {
-        ASTNode *node = new ASTDestructor(getName());
+        ASTNode *node = T3D_NEW ASTDestructor(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1459,7 +1459,7 @@ namespace Tiny3D
 
     ASTNode *ASTProperty::clone() const
     {
-        ASTNode *node = new ASTProperty(getName());
+        ASTNode *node = T3D_NEW ASTProperty(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1548,7 +1548,7 @@ namespace Tiny3D
 
     ASTNode *ASTEnum::clone() const
     {
-        ASTNode *node = new ASTEnum(getName());
+        ASTNode *node = T3D_NEW ASTEnum(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1577,7 +1577,7 @@ namespace Tiny3D
 
     ASTNode *ASTEnumConstant::clone() const
     {
-        ASTNode *node = new ASTEnumConstant(getName());
+        ASTNode *node = T3D_NEW ASTEnumConstant(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1690,7 +1690,7 @@ namespace Tiny3D
 
     ASTNode *ASTClassTemplate::clone() const
     {
-        ASTNode *node = new ASTClassTemplate(getName());
+        ASTNode *node = T3D_NEW ASTClassTemplate(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1953,7 +1953,7 @@ namespace Tiny3D
 
     ASTNode *ASTFunctionTemplate::clone() const
     {
-        ASTNode *node = new ASTFunctionTemplate(getName());
+        ASTNode *node = T3D_NEW ASTFunctionTemplate(getName());
         cloneProperties(node);
         cloneChildren(node);
         return node;
@@ -1980,7 +1980,7 @@ namespace Tiny3D
     //
     // ASTNode *ASTOverloadFunctionTemplate::clone() const
     // {
-    //     ASTNode *node = new ASTOverloadFunctionTemplate(getName());
+    //     ASTNode *node = T3D_NEW ASTOverloadFunctionTemplate(getName());
     //     cloneProperties(node);
     //     cloneChildren(node);
     //     return node;
@@ -2015,7 +2015,7 @@ namespace Tiny3D
     //
     // ASTNode *ASTStaticFunctionTemplate::clone() const
     // {
-    //     ASTNode *node = new ASTStaticFunctionTemplate(getName());
+    //     ASTNode *node = T3D_NEW ASTStaticFunctionTemplate(getName());
     //     cloneProperties(node);
     //     cloneChildren(node);
     //     return node;
@@ -2042,7 +2042,7 @@ namespace Tiny3D
     //
     // ASTNode *ASTInstanceFunctionTemplate::clone() const
     // {
-    //     ASTNode *node = new ASTInstanceFunctionTemplate(getName());
+    //     ASTNode *node = T3D_NEW ASTInstanceFunctionTemplate(getName());
     //     cloneProperties(node);
     //     cloneChildren(node);
     //     return node;
@@ -2069,7 +2069,7 @@ namespace Tiny3D
     //
     // ASTNode *ASTConstructorTemplate::clone() const
     // {
-    //     ASTNode *node = new ASTConstructorTemplate(getName());
+    //     ASTNode *node = T3D_NEW ASTConstructorTemplate(getName());
     //     cloneProperties(node);
     //     cloneChildren(node);
     //     return node;

@@ -36,7 +36,7 @@ namespace Tiny3D
 
     FileSystemArchivePtr FileSystemArchive::create(const String &name, AccessMode mode)
     {
-        FileSystemArchivePtr archive = new FileSystemArchive(name, mode);
+        FileSystemArchivePtr archive = T3D_NEW FileSystemArchive(name, mode);
         // archive->release();
         return archive;
     }

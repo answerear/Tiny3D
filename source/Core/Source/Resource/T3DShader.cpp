@@ -36,7 +36,7 @@ namespace Tiny3D
 
     ShaderPtr Shader::create(const String &name)
     {
-        return new Shader(name);
+        return T3D_NEW Shader(name);
     }
 
     //--------------------------------------------------------------------------

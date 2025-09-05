@@ -35,7 +35,7 @@ namespace Tiny3D
 
     AabbBoundPtr AabbBound::create()
     {
-        return new AabbBound(UUID::generate());
+        return T3D_NEW AabbBound(UUID::generate());
     }
 
     //--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ namespace Tiny3D
 
     ComponentPtr AabbBound::clone() const
     {
-        AabbBoundPtr newObj = new AabbBound();
+        AabbBoundPtr newObj = T3D_NEW AabbBound();
         if (T3D_FAILED(newObj->cloneProperties(this)))
         {
             newObj = nullptr;

@@ -36,21 +36,21 @@ namespace Tiny3D
 
     RenderTargetPtr RenderTarget::create(RenderWindow *renderWindow, RenderTexture *depthStencil)
     {
-        return new RenderTarget(renderWindow, depthStencil);
+        return T3D_NEW RenderTarget(renderWindow, depthStencil);
     }
     
     //--------------------------------------------------------------------------
 
     RenderTargetPtr RenderTarget::create(RenderTexture *renderTexture, RenderTexture *depthStencil)
     {
-        return new RenderTarget(renderTexture, depthStencil);
+        return T3D_NEW RenderTarget(renderTexture, depthStencil);
     }
     
     //--------------------------------------------------------------------------
 
     RenderTargetPtr RenderTarget::create(const RenderTextures &renderTextures, RenderTexture *depthStencil)
     {
-        return new RenderTarget(renderTextures, depthStencil);
+        return T3D_NEW RenderTarget(renderTextures, depthStencil);
     }
     
     //--------------------------------------------------------------------------

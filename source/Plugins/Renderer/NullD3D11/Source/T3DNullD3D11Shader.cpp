@@ -32,7 +32,7 @@ namespace Tiny3D
 
     NullD3D11VertexShaderPtr NullD3D11VertexShader::create()
     {
-        return new NullD3D11VertexShader();
+        return T3D_NEW NullD3D11VertexShader();
     }
 
     //--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ namespace Tiny3D
 
     NullD3D11HullShaderPtr NullD3D11HullShader::create()
     {
-        return new NullD3D11HullShader();
+        return T3D_NEW NullD3D11HullShader();
     }
 
     //--------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace Tiny3D
 
     NullD3D11DomainShaderPtr NullD3D11DomainShader::create()
     {
-        return new NullD3D11DomainShader();
+        return T3D_NEW NullD3D11DomainShader();
     }
 
     //--------------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace Tiny3D
 
     NullD3D11GeometryShaderPtr NullD3D11GeometryShader::create()
     {
-        return new NullD3D11GeometryShader();
+        return T3D_NEW NullD3D11GeometryShader();
     }
 
     //--------------------------------------------------------------------------
@@ -114,7 +114,7 @@ namespace Tiny3D
 
     NullD3D11PixelShaderPtr NullD3D11PixelShader::create()
     {
-        return new NullD3D11PixelShader();
+        return T3D_NEW NullD3D11PixelShader();
     }
 
     //--------------------------------------------------------------------------
@@ -134,7 +134,7 @@ namespace Tiny3D
 
     NullD3D11ComputeShaderPtr NullD3D11ComputeShader::create()
     {
-        return new NullD3D11ComputeShader();
+        return T3D_NEW NullD3D11ComputeShader();
     }
 
     //--------------------------------------------------------------------------

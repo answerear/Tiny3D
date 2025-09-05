@@ -73,7 +73,7 @@ namespace Tiny3D
     #define DEFAULT_ROOT_NAME    "___###ASTRoot###___"
     
     ReflectionGenerator::ReflectionGenerator()
-        : mRoot(new ASTNode(DEFAULT_ROOT_NAME))
+        : mRoot(T3D_NEW ASTNode(DEFAULT_ROOT_NAME))
     {
     }
     
@@ -798,7 +798,7 @@ namespace Tiny3D
             if (itr == mFiles.end())
             {
                 // 该文件第一次解析，缓存起来
-                info.reset(new FileReflectionInfo());
+                info.reset(T3D_NEW FileReflectionInfo());
                 mFiles.insert(FilesValue(path, info));
             }
             else
@@ -959,7 +959,7 @@ namespace Tiny3D
             if (itrFile == mFiles.end())
             {
                 // 该文件第一次解析，缓存起来
-                info.reset(new FileReflectionInfo());
+                info.reset(T3D_NEW FileReflectionInfo());
                 mFiles.insert(FilesValue(path, info));
             }
             else
@@ -1061,7 +1061,7 @@ namespace Tiny3D
                 break;
             }
 
-            RTTISwitchPtr sw(new RTTISwitch());
+            RTTISwitchPtr sw(T3D_NEW RTTISwitch());
             sw->enabled = true;
             sw->baseClasses = std::move(baseClasses);
 
@@ -1089,7 +1089,7 @@ namespace Tiny3D
             if (itrFile == mFiles.end())
             {
                 // 该文件第一次解析，缓存起来
-                info.reset(new FileReflectionInfo());
+                info.reset(T3D_NEW FileReflectionInfo());
                 mFiles.insert(FilesValue(path, info));
             }
             else
@@ -1299,15 +1299,15 @@ namespace Tiny3D
             ASTStruct *klass = nullptr;
             if (isTemplate)
             {
-                klass = new ASTClassTemplate(name);
+                klass = T3D_NEW ASTClassTemplate(name);
             }
             else if (isClass)
             {
-                klass = new ASTClass(name);
+                klass = T3D_NEW ASTClass(name);
             }
             else
             {
-                klass = new ASTStruct(name);
+                klass = T3D_NEW ASTStruct(name);
             }
             klass->FileInfo.Path = path;
             klass->FileInfo.StartLine = start;
@@ -1399,9 +1399,9 @@ namespace Tiny3D
             if (!klass->HasConstructor && !clang_CXXRecord_isAbstract(cxCursor))
             {
                 // 没有任何构造函数，并且非抽象类，添加默认构造函数
-                ASTFunction *function = new ASTFunction(name);
+                ASTFunction *function = T3D_NEW ASTFunction(name);
                 klass->addChild(name, function);
-                ASTConstructor *constructor = new ASTConstructor(name);
+                ASTConstructor *constructor = T3D_NEW ASTConstructor(name);
                 function->addChild(name, constructor);
             }
         } while (false);
@@ -1807,7 +1807,7 @@ namespace Tiny3D
             if (isConstructor || asConstructor)
             {
                 // 构造函数
-                overload = new ASTConstructor(name);
+                overload = T3D_NEW ASTConstructor(name);
 
                 if (asConstructor)
                 {
@@ -1823,17 +1823,17 @@ namespace Tiny3D
             else if (clang_CXXMethod_isStatic(cxCursor))
             {
                 // 静态函数
-                overload = new ASTStaticFunction(name);
+                overload = T3D_NEW ASTStaticFunction(name);
             }
             else if (isCXXMember)
             {
                 // 成员函数
-                overload = new ASTInstanceFunction(name);
+                overload = T3D_NEW ASTInstanceFunction(name);
             }
             else
             {
                 // 普通函数
-                overload = new ASTOverloadFunction(name);
+                overload = T3D_NEW ASTOverloadFunction(name);
             }
 
             overload->IsConst = (clang_CXXMethod_isConst(cxCursor) == 1);
@@ -2044,12 +2044,12 @@ namespace Tiny3D
                 if (isTemplate)
                 {
                     // 模板函数
-                    function = new ASTFunctionTemplate(funcName);
+                    function = T3D_NEW ASTFunctionTemplate(funcName);
                 }
                 else
                 {
                     // 非模板函数
-                    function = new ASTFunction(funcName);
+                    function = T3D_NEW ASTFunction(funcName);
                 }
                 parent->addChild(funcName, function);
                 parent = function;
@@ -2276,7 +2276,7 @@ namespace Tiny3D
             // 构造枚举结点并加到父结点上
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
-            ASTEnum *enumeration = new ASTEnum(name);
+            ASTEnum *enumeration = T3D_NEW ASTEnum(name);
             ASTNode *child = parent->getChild(name);
             if (child != nullptr)
             {
@@ -2341,7 +2341,7 @@ namespace Tiny3D
             // 构造枚举常量结点并加到父结点上            
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
-            ASTEnumConstant *constant = new ASTEnumConstant(name);
+            ASTEnumConstant *constant = T3D_NEW ASTEnumConstant(name);
             constant->Value = clang_getEnumConstantDeclUnsignedValue(cxCursor);
             parent->addChild(name, constant);
         } while (false);
@@ -2426,7 +2426,7 @@ namespace Tiny3D
             // 构造属性结点并加到父结点上
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
-            ASTProperty *property = new ASTProperty(name);
+            ASTProperty *property = T3D_NEW ASTProperty(name);
             property->DataType = toString(clang_getTypeSpelling(clang_getCursorType(cxCursor)));
             property->Specifiers = &itrSpec->second;
             parent->addChild(name, property);
@@ -2716,18 +2716,18 @@ namespace Tiny3D
         {
         case CXCursor_Namespace:
             {
-                node = new ASTNamespace(info.name);
+                node = T3D_NEW ASTNamespace(info.name);
             }
             break;
         case CXCursor_ClassDecl:
             {
-                // node = new ASTClass(info.name);
+                // node = T3D_NEW ASTClass(info.name);
                 // node->HaveRTTI = true;
             }
             break;
         case CXCursor_StructDecl:
             {
-                // node = new ASTStruct(info.name);
+                // node = T3D_NEW ASTStruct(info.name);
                 // node->HaveRTTI = true;
             }
             break;
@@ -3420,7 +3420,7 @@ namespace Tiny3D
             }
             name += ">";
             
-            ASTFunctionTemplate *function = new ASTFunctionTemplate(name);
+            ASTFunctionTemplate *function = T3D_NEW ASTFunctionTemplate(name);
             function->addChild(strUSR, functionInstance);
             ASTNode *child = parent->getChild(strUSR);
             if (child != nullptr)

@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaFolderPtr create(const UUID &uuid)
         {
-            return new MetaFolder(uuid);
+            return T3D_NEW MetaFolder(uuid);
         }
 
         Type getType() const override { return kFolder; }

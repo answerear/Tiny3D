@@ -35,7 +35,7 @@ namespace Tiny3D
 
     IndexBufferPtr IndexBuffer::create(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
     {
-        return new IndexBuffer(idxType, idxCount, buffer, memType, usage, accMode);
+        return T3D_NEW IndexBuffer(idxType, idxCount, buffer, memType, usage, accMode);
     }
 
     //--------------------------------------------------------------------------

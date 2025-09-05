@@ -41,7 +41,7 @@ namespace Tiny3D
         if (memType == MemoryType::kBoth)
         {
             mBuffer.DataSize = buffer.DataSize;
-            mBuffer.Data = new uint8_t[mBuffer.DataSize];
+            mBuffer.Data = T3D_POD_NEW_ARRAY(uint8_t, mBuffer.DataSize);
             memcpy(mBuffer.Data, buffer.Data, buffer.DataSize);
         }
         else

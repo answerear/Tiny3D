@@ -35,7 +35,7 @@ namespace Tiny3D
 
     D3D11RenderWindowPtr D3D11RenderWindow::create(RenderWindow *renderWindow)
     {
-        D3D11RenderWindowPtr window = new D3D11RenderWindow();
+        D3D11RenderWindowPtr window = T3D_NEW D3D11RenderWindow();
         if (window && !window->init(renderWindow))
         {
             window = nullptr;

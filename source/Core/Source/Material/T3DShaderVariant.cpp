@@ -37,14 +37,14 @@ namespace Tiny3D
 
     ShaderVariantPtr ShaderVariant::create(ShaderKeyword &&keyword, const String &code)
     {
-        return new ShaderVariant(std::move(keyword), code);
+        return T3D_NEW ShaderVariant(std::move(keyword), code);
     }
 
     //--------------------------------------------------------------------------
 
     ShaderVariant::ShaderVariant(ShaderKeyword &&key, const String &code)
     {
-        mShaderKeyword = new ShaderKeyword(std::move(key));
+        mShaderKeyword = T3D_NEW ShaderKeyword(std::move(key));
         mShaderKeyword->generate();
         setSourceCode(code.c_str(), code.length());
     }
@@ -54,6 +54,7 @@ namespace Tiny3D
     ShaderVariant::~ShaderVariant()
     {
         T3D_SAFE_DELETE(mShaderKeyword);
+        T3D_POD_SAFE_DELETE_ARRAY(mBytesCode);
     }
 
     //--------------------------------------------------------------------------
@@ -136,7 +137,7 @@ namespace Tiny3D
             if (!isCompiled)
             {
                 // 备份 shader 源码
-                code = new char[mBytesCodeSize];
+                code = T3D_POD_NEW_ARRAY(char, mBytesCodeSize);
                 bytesCode = mBytesCodeSize;
                 memcpy(code, mBytesCode, bytesCode);
 
@@ -185,7 +186,7 @@ namespace Tiny3D
             
         } while (false);
 
-        T3D_SAFE_DELETE(code);
+        T3D_POD_SAFE_DELETE_ARRAY(code);
 
         return ret;
     }

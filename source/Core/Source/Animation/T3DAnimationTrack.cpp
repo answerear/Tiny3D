@@ -33,7 +33,7 @@ namespace Tiny3D
 
     AnimationTrackPtr AnimationTrack::create(const TranslationTrack &trackT, const OrientationTrack &trackO, const ScalingTrack &trackS)
     {
-        return new AnimationTrack(trackT, trackO, trackS);
+        return T3D_NEW AnimationTrack(trackT, trackO, trackS);
     }
 
     //--------------------------------------------------------------------------

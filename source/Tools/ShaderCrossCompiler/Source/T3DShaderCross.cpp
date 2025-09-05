@@ -42,7 +42,7 @@ namespace Tiny3D
 
     ShaderCrossPtr ShaderCross::create()
     {
-        ShaderCrossPtr ptr = new ShaderCross();
+        ShaderCrossPtr ptr = T3D_NEW ShaderCross();
         // ptr->release();
         return ptr;
     }
@@ -197,7 +197,7 @@ namespace Tiny3D
 
             // 读取文件
             size_t size = (size_t)fs.size();
-            data = new uint8_t[size];
+            data = T3D_POD_NEW_ARRAY(uint8_t, size);
             size_t bytesOfRead = fs.read(data, size);
             if (size != bytesOfRead)
             {
@@ -210,8 +210,7 @@ namespace Tiny3D
 
             content.assign((const char*)data, size);
 
-            delete []data;
-            data = nullptr;
+            T3D_POD_SAFE_DELETE_ARRAY(data);
 
             ret = true;
         } while (false);
@@ -222,10 +221,7 @@ namespace Tiny3D
             fs.close();
         }
 
-        if (data != nullptr)
-        {
-            delete []data;
-        }
+        T3D_POD_SAFE_DELETE_ARRAY(data);
 
         return ret;
     }

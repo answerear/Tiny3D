@@ -37,7 +37,7 @@ namespace  Tiny3D
     //-------------------------------------------------------------------------
     
     ReflectionPreprocessor::ReflectionPreprocessor()
-        : mGenerator(new ReflectionGenerator())
+        : mGenerator(T3D_NEW ReflectionGenerator())
     {
         
     }

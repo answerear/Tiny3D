@@ -32,7 +32,7 @@ namespace Tiny3D
 
     PointLightPtr PointLight::create()
     {
-        return new PointLight(UUID::generate());
+        return T3D_NEW PointLight(UUID::generate());
     }
     //--------------------------------------------------------------------------
 

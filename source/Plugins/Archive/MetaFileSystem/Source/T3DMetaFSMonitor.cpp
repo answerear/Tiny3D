@@ -31,13 +31,13 @@ namespace Tiny3D
 
     MetaFSMonitorPtr MetaFSMonitor::create(const String &rootPath)
     {
-        return new MetaFSMonitor(rootPath);
+        return T3D_NEW MetaFSMonitor(rootPath);
     }
     
     //--------------------------------------------------------------------------
 
     MetaFSMonitor::MetaFSMonitor(const String &rootPath)
-        : mFSMonitor(new FileSystemMonitor())
+        : mFSMonitor(T3D_NEW FileSystemMonitor())
         , mRootPath(rootPath)
     {
         

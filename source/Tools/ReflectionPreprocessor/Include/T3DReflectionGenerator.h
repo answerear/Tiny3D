@@ -183,7 +183,7 @@ namespace Tiny3D
             ReflectionGenerator *generator;
         };
         
-        struct RTTISwitch
+        struct RTTISwitch : public Allocator
         {
             RTTISwitch()
                 : enabled(false)
@@ -200,7 +200,7 @@ namespace Tiny3D
         typedef TMap<uint32_t, bool> RTTIFriends;
         typedef RTTIFriends::value_type RTTIFriendsValue;
         
-        struct FileReflectionInfo
+        struct FileReflectionInfo : public Allocator
         {
             FileReflectionInfo() = default;
             

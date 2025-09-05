@@ -33,7 +33,7 @@ namespace Tiny3D
 
     NullContextPtr NullContext::create()
     {
-        NullContextPtr renderer = new NullContext();
+        NullContextPtr renderer = T3D_NEW NullContext();
         // renderer->release();
         return renderer;
     }

@@ -51,7 +51,7 @@ namespace Tiny3D
     {
         if (reallocate)
         {
-            m_pBuffer = new uint8_t[m_lSize];
+            m_pBuffer = T3D_POD_NEW_ARRAY(uint8_t, m_lSize);
             memcpy(m_pBuffer, pBuffer, m_lSize);
             m_bCreated = true;
         }
@@ -70,7 +70,7 @@ namespace Tiny3D
     {
         if (unCapacity > 0)
         {
-            m_pBuffer = new uchar_t[unCapacity];
+            m_pBuffer = T3D_POD_NEW_ARRAY(uchar_t, unCapacity);
         }
     }
 
@@ -87,7 +87,7 @@ namespace Tiny3D
     {
         if (m_bCreated)
         {
-            T3D_SAFE_DELETE_ARRAY(m_pBuffer);
+            T3D_POD_SAFE_DELETE_ARRAY(m_pBuffer);
         }
     }
 
@@ -199,9 +199,9 @@ namespace Tiny3D
     {
         if (reallocate)
         {
-            T3D_SAFE_DELETE_ARRAY(m_pBuffer);
+            T3D_POD_SAFE_DELETE_ARRAY(m_pBuffer);
             m_lSize = bufSize;
-            m_pBuffer = new uint8_t[m_lSize];
+            m_pBuffer = T3D_POD_NEW_ARRAY(uint8_t, m_lSize);
             memcpy(m_pBuffer, buffer, m_lSize);
             m_lCapacity = bufSize;
         }
@@ -229,8 +229,8 @@ namespace Tiny3D
     {
         if (m_bCreated)
         {
-            T3D_SAFE_DELETE_ARRAY(m_pBuffer);
-            m_pBuffer = new uchar_t[other.m_lCapacity];
+            T3D_POD_SAFE_DELETE_ARRAY(m_pBuffer);
+            m_pBuffer = T3D_POD_NEW_ARRAY(uchar_t, other.m_lCapacity);
             memcpy(m_pBuffer, other.m_pBuffer, other.m_lCapacity);
         }
         else

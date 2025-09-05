@@ -46,11 +46,11 @@ namespace Tiny3D
         mPlatformFactory = createPlatformFactory();
         mPlatform = mPlatformFactory->createPlatform();
         Dir::getNativeSeparator();
-        mThreadMgr = new ThreadManager();
-        mConsole = new Console();
-        mLocale = new Locale();
-        mDeviceInfo = new DeviceInfo();
-        mTimerMgr = new TimerManager();
+        mThreadMgr = T3D_NEW ThreadManager();
+        mConsole = T3D_NEW Console();
+        mLocale = T3D_NEW Locale();
+        mDeviceInfo = T3D_NEW DeviceInfo();
+        mTimerMgr = T3D_NEW TimerManager();
     }
 
     //--------------------------------------------------------------------------

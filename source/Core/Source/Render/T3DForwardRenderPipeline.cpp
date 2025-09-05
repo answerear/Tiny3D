@@ -56,7 +56,7 @@ namespace Tiny3D
 
     ForwardRenderPipelinePtr ForwardRenderPipeline::create()
     {
-        return new ForwardRenderPipeline();
+        return T3D_NEW ForwardRenderPipeline();
     }
 
     //--------------------------------------------------------------------------

@@ -99,7 +99,7 @@ namespace Tiny3D
 
             if (isRunning())
             {
-                command_type *cmd = new command_type(std::move(args)..., action);
+                command_type *cmd = T3D_NEW command_type(std::move(args)..., action);
                 ret = addCommand(cmd);
             }
             else

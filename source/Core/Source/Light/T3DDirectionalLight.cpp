@@ -32,7 +32,7 @@ namespace Tiny3D
 
     DirectionalLightPtr DirectionalLight::create()
     {
-        return new DirectionalLight(UUID::generate());
+        return T3D_NEW DirectionalLight(UUID::generate());
     }
     
     //--------------------------------------------------------------------------

@@ -42,7 +42,7 @@ namespace Tiny3D
 
     CameraPtr Camera::create()
     {
-        return new Camera(UUID::generate());
+        return T3D_NEW Camera(UUID::generate());
     }
     
     //--------------------------------------------------------------------------
@@ -332,7 +332,7 @@ namespace Tiny3D
 
     ComponentPtr Camera::clone() const
     {
-        CameraPtr camera = new Camera();
+        CameraPtr camera = T3D_NEW Camera();
         TResult ret = camera->cloneProperties(this);
         if (T3D_FAILED(ret))
         {

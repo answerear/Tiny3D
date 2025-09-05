@@ -46,7 +46,7 @@ namespace Tiny3D
         template<typename T>
         void setObject(const String &name, T *src, T dst)
         {
-            AssignableObjectPtr obj = new AssignableObject<T>(src, dst);
+            AssignableObjectPtr obj = T3D_NEW AssignableObject<T>(src, dst);
             mAssignableObjects[name] = obj;
         }
 

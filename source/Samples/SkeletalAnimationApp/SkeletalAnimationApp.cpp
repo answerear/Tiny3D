@@ -318,7 +318,7 @@ Texture2DPtr SkeletalAnimationApp::buildArmTexture()
     const uint32_t height = 64;
     uint32_t pitch = Image::calcPitch(width, 32);
     const uint32_t dataSize = pitch * height;
-    uint8_t *pixels = new uint8_t[dataSize];
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
     
     for (uint32_t y = 0; y < height; ++y)
     {
@@ -528,8 +528,8 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     // vertices & indices
     const uint32_t kVertexCount = 40;
     const uint32_t kIndexCount = 84;
-    BoxVertex *vertices = new BoxVertex[kVertexCount];
-    uint16_t *indices = new uint16_t[kIndexCount];
+    BoxVertex *vertices = T3D_POD_NEW_ARRAY(BoxVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
 
     // Back
     for (int32_t i = 0; i < 8; i++)
@@ -832,7 +832,7 @@ void SkeletalAnimationApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bo
     const Buffer &indexBuffer = submesh->getIndices();
     size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
     size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
-    Vector3 *points = new Vector3[pointCount];
+    Vector3 *points = T3D_POD_NEW_ARRAY(Vector3, pointCount);
     for (size_t i = 0; i < pointCount; ++i)
     {
         int32_t idx = 0;
@@ -845,7 +845,7 @@ void SkeletalAnimationApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bo
     }
     Aabb aabb;
     aabb.build(points, pointCount);
-    T3D_SAFE_DELETE_ARRAY(points);
+    T3D_POD_SAFE_DELETE_ARRAY(points);
     bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
 }
 
@@ -855,7 +855,7 @@ Texture2DPtr SkeletalAnimationApp::buildPlaneTexture()
     const uint32_t height = 64;
     uint32_t pitch = Image::calcPitch(width, 32);
     const uint32_t dataSize = pitch * height;
-    uint8_t *pixels = new uint8_t[dataSize];
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
     
     for (uint32_t y = 0; y < height; ++y)
     {
@@ -1021,8 +1021,8 @@ MeshPtr SkeletalAnimationApp::buildPlaneMesh(const Tiny3D::UUID &materialUUID)
     // vertices & indices
     const uint32_t kVertexCount = 4;
     const uint32_t kIndexCount = 6;
-    QuadVertex *vertices = new QuadVertex[kVertexCount];
-    uint16_t *indices = new uint16_t[kIndexCount];
+    QuadVertex *vertices = T3D_POD_NEW_ARRAY(QuadVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
 
     float scale = 8.0f;
 

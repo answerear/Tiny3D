@@ -71,7 +71,7 @@ namespace Tiny3D
 
     ComponentPtr Geometry::clone() const
     {
-        GeometryPtr geometry = new Geometry();
+        GeometryPtr geometry = T3D_NEW Geometry();
         TResult ret = geometry->cloneProperties(this);
         if (T3D_FAILED(ret))
         {

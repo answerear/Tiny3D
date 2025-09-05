@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaTexturePtr create(const UUID &uuid)
         {
-            return new MetaTexture(uuid);
+            return T3D_NEW MetaTexture(uuid);
         }
 
         Type getType() const override { return kTexture; }

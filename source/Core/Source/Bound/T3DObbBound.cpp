@@ -33,7 +33,7 @@ namespace Tiny3D
 
     ObbBoundPtr ObbBound::create()
     {
-        return new ObbBound(UUID::generate());
+        return T3D_NEW ObbBound(UUID::generate());
     }
 
     //--------------------------------------------------------------------------
@@ -62,7 +62,7 @@ namespace Tiny3D
 
     ComponentPtr ObbBound::clone() const
     {
-        ObbBoundPtr newObj = new ObbBound();
+        ObbBoundPtr newObj = T3D_NEW ObbBound();
         if (T3D_FAILED(newObj->cloneProperties(this)))
         {
             newObj = nullptr;

@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaFilePtr create(const UUID &uuid)
         {
-            return new MetaFile(uuid);
+            return T3D_NEW MetaFile(uuid);
         }
 
         Type getType() const override { return kFile; }

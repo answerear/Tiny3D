@@ -690,8 +690,8 @@ namespace Tiny3D
                     String &str = var.get_value<String>();
                     Buffer &buffer = obj.get_value<Buffer>();
                     String dst = base64_decode(str);
-                    T3D_SAFE_DELETE_ARRAY(buffer.Data);
-                    buffer.Data = new uint8_t[dst.size()];
+                    T3D_POD_SAFE_DELETE_ARRAY(buffer.Data);
+                    buffer.Data = T3D_POD_NEW_ARRAY(uint8_t, dst.size());
                     buffer.DataSize = dst.size();
                     memcpy(buffer.Data, &dst[0], dst.size());
                 }
@@ -944,7 +944,7 @@ namespace Tiny3D
 
     JsonSerializerPtr JsonSerializer::create()
     {
-        return new JsonSerializer();
+        return T3D_NEW JsonSerializer();
     }
 
     //--------------------------------------------------------------------------

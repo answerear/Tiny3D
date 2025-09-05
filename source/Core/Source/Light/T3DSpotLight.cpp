@@ -32,7 +32,7 @@ namespace Tiny3D
 
     SpotLightPtr SpotLight::create()
     {
-        return new SpotLight(UUID::generate());
+        return T3D_NEW SpotLight(UUID::generate());
     }
     
     //--------------------------------------------------------------------------

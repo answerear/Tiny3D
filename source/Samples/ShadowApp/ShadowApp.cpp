@@ -362,7 +362,7 @@ Texture2DPtr ShadowApp::buildCubeTexture()
     const uint32_t height = 64;
     uint32_t pitch = Image::calcPitch(width, 32);
     const uint32_t dataSize = pitch * height;
-    uint8_t *pixels = new uint8_t[dataSize];
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
     
     for (uint32_t y = 0; y < height; ++y)
     {
@@ -548,8 +548,8 @@ MeshPtr ShadowApp::buildCubeMesh(const Tiny3D::UUID &materialUUID)
 #if 1
     const uint32_t kVertexCount = 24;
     const uint32_t kIndexCount = 36;
-    BoxVertex *vertices = new BoxVertex[kVertexCount];
-    uint16_t *indices = new uint16_t[kIndexCount];
+    BoxVertex *vertices = T3D_POD_NEW_ARRAY(BoxVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
 
     const uint32_t kTexSize = 64;
 
@@ -778,8 +778,8 @@ MeshPtr ShadowApp::buildCubeMesh(const Tiny3D::UUID &materialUUID)
 #else
     const uint32_t kVertexCount = 4;
     const uint32_t kIndexCount = 6;
-    BoxVertex *vertices = new BoxVertex[kVertexCount];
-    uint16_t *indices = new uint16_t[kIndexCount];
+    BoxVertex *vertices = T3D_POD_NEW_ARRAY(BoxVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
 
     const uint32_t kTexSize = 64;
 
@@ -842,7 +842,7 @@ void ShadowApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
     const Buffer &indexBuffer = submesh->getIndices();
     size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
     size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
-    Vector3 *points = new Vector3[pointCount];
+    Vector3 *points = T3D_POD_NEW_ARRAY(Vector3, pointCount);
     for (size_t i = 0; i < pointCount; ++i)
     {
         int32_t idx = 0;
@@ -855,7 +855,7 @@ void ShadowApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
     }
     Aabb aabb;
     aabb.build(points, pointCount);
-    T3D_SAFE_DELETE_ARRAY(points);
+    T3D_POD_SAFE_DELETE_ARRAY(points);
     bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
 }
 
@@ -865,7 +865,7 @@ Texture2DPtr ShadowApp::buildPlaneTexture()
     const uint32_t height = 64;
     uint32_t pitch = Image::calcPitch(width, 32);
     const uint32_t dataSize = pitch * height;
-    uint8_t *pixels = new uint8_t[dataSize];
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
     
     for (uint32_t y = 0; y < height; ++y)
     {
@@ -1031,8 +1031,8 @@ MeshPtr ShadowApp::buildPlaneMesh(const Tiny3D::UUID &materialUUID)
     // vertices & indices
     const uint32_t kVertexCount = 4;
     const uint32_t kIndexCount = 6;
-    QuadVertex *vertices = new QuadVertex[kVertexCount];
-    uint16_t *indices = new uint16_t[kIndexCount];
+    QuadVertex *vertices = T3D_POD_NEW_ARRAY(QuadVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
 
     float scale = 5.0f;
 

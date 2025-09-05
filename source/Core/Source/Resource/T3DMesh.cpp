@@ -42,14 +42,14 @@ namespace Tiny3D
 
     MeshPtr Mesh::create(const String &name)
     {
-        return new Mesh(name);
+        return T3D_NEW Mesh(name);
     }
 
     //--------------------------------------------------------------------------
 
     MeshPtr Mesh::create(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes)
     {
-        return new Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes));
+        return T3D_NEW Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes));
     }
     
     //--------------------------------------------------------------------------

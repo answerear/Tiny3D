@@ -33,14 +33,14 @@ namespace Tiny3D
 
     PrefabPtr Prefab::create(const String &name)
     {
-        return new Prefab(name);
+        return T3D_NEW Prefab(name);
     }
 
     //--------------------------------------------------------------------------
 
     Prefab::~Prefab()
     {
-        T3D_SAFE_DELETE(mObject);
+        T3D_POD_SAFE_DELETE(mObject);
     }
 
     //--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace Tiny3D
     void Prefab::cloneProperties(const Resource *const src)
     {
         const Prefab *prefab = static_cast<const Prefab*>(src);
-        mObject = new RTTRObject(*prefab->mObject);
+        mObject = T3D_NEW RTTRObject(*prefab->mObject);
     }
 
     //--------------------------------------------------------------------------

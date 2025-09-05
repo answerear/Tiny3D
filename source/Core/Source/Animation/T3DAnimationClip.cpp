@@ -32,7 +32,7 @@ namespace Tiny3D
 
     AnimationClipPtr AnimationClip::create(const String &name, uint32_t duration, AnimationTracks &&tracks)
     {
-        return new AnimationClip(name, duration, std::move(tracks));
+        return T3D_NEW AnimationClip(name, duration, std::move(tracks));
     }
     
     //--------------------------------------------------------------------------

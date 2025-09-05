@@ -35,7 +35,7 @@ namespace  Tiny3D
 
     SamplerStatePtr SamplerState::create(const SamplerDesc &desc, uint32_t hash)
     {
-        return new SamplerState(hash, desc);
+        return T3D_NEW SamplerState(hash, desc);
     }
 
     //--------------------------------------------------------------------------

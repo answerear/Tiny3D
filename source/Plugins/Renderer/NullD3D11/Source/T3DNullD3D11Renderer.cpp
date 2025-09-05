@@ -34,7 +34,7 @@ namespace Tiny3D
 
     NullD3D11RendererPtr NullD3D11Renderer::create()
     {
-        return new NullD3D11Renderer();
+        return T3D_NEW NullD3D11Renderer();
     }
     
     //--------------------------------------------------------------------------

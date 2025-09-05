@@ -34,7 +34,7 @@ namespace Tiny3D
 
     TechniquePtr Technique::create(const String &name)
     {
-        return new Technique(name);
+        return T3D_NEW Technique(name);
     }
 
     //--------------------------------------------------------------------------

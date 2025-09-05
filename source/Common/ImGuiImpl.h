@@ -27,7 +27,7 @@
 
 namespace Tiny3D
 {
-    class ImGuiImpl
+    class ImGuiImpl : public Allocator
     {
     public:
         ImGuiImpl(const ImGuiImpl &) = delete;

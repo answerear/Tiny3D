@@ -36,7 +36,7 @@ namespace Tiny3D
 
     TextureManagerPtr TextureManager::create()
     {
-        return new TextureManager();
+        return T3D_NEW TextureManager();
     }
     
     //--------------------------------------------------------------------------

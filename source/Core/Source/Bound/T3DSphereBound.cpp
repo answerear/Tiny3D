@@ -33,7 +33,7 @@ namespace Tiny3D
 
     SphereBoundPtr SphereBound::create()
     {
-        return new SphereBound();
+        return T3D_NEW SphereBound();
     }
 
     //--------------------------------------------------------------------------
@@ -61,7 +61,7 @@ namespace Tiny3D
 
     ComponentPtr SphereBound::clone() const
     {
-        SphereBoundPtr newObj = new SphereBound();
+        SphereBoundPtr newObj = T3D_NEW SphereBound();
         if (T3D_FAILED(newObj->cloneProperties(this)))
         {
             newObj = nullptr;

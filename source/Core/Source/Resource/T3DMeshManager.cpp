@@ -35,7 +35,7 @@ namespace Tiny3D
 
     MeshManagerPtr MeshManager::create()
     {
-        return new MeshManager();
+        return T3D_NEW MeshManager();
     }
     
     //--------------------------------------------------------------------------

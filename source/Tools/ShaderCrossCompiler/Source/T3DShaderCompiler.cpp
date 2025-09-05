@@ -103,7 +103,7 @@ namespace Tiny3D
 
     ShaderCompilerPtr ShaderCompiler::create()
     {
-        ShaderCompilerPtr compiler = new ShaderCompiler();
+        ShaderCompilerPtr compiler = T3D_NEW ShaderCompiler();
         // compiler->release();
         return compiler;
     }
@@ -485,7 +485,7 @@ namespace Tiny3D
                 // path = outPath + name;
             };
 
-            ShaderConductor::MacroDefine* defines = new ShaderConductor::MacroDefine[snippet.defines.size()];
+            ShaderConductor::MacroDefine* defines = T3D_NEW ShaderConductor::MacroDefine[snippet.defines.size()];
             ShaderKeyword keyword;
             generateDefinesAndPath(snippet, defines, keyword);
             keyword.generate();

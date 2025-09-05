@@ -80,7 +80,7 @@ namespace Tiny3D
             for (uint32_t i = 0; i < numOfQueuedThreads && isOK; ++i)
             {
                 // 创建 QueuedThread
-                QueuedThread *thread = new QueuedThread();
+                QueuedThread *thread = T3D_NEW QueuedThread();
                 std::stringstream ss;
                 ss << name << " " << i;
                 // 通过 QueuedThread 创建真正的线程

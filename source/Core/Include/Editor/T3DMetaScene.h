@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaScenePtr create(const UUID &uuid)
         {
-            return new MetaScene(uuid);
+            return T3D_NEW MetaScene(uuid);
         }
 
         Type getType() const override { return kScene; }

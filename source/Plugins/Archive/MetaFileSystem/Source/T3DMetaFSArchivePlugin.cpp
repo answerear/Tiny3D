@@ -52,7 +52,7 @@ namespace Tiny3D
 
     TResult MetaFSArchivePlugin::install()
     {
-        mMonitorMgr = new MetaFSMonitorManager();
+        mMonitorMgr = T3D_NEW MetaFSMonitorManager();
         
         return T3D_ARCHIVE_MGR.addArchiveCreator(
             MetaFSArchive::ARCHIVE_TYPE,

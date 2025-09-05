@@ -44,13 +44,13 @@ TResult SampleWindowApp::go(int32_t argc, char *argv[])
 {
     TResult ret;
 
-    Tiny3D::Agent *theEngine = new Tiny3D::Agent();
+    Tiny3D::Agent *theEngine = T3D_NEW Tiny3D::Agent();
 
     ret = theEngine->init(argc, argv, true, true);
     if (ret == T3D_OK)
         theEngine->run();
 
-    delete theEngine;
+    T3D_SAFE_DELETE(theEngine);
 
     return ret;
 }
@@ -96,7 +96,7 @@ TResult SampleConsoleApp::go(int32_t argc, char *argv[])
 {
     TResult ret;
 
-    Tiny3D::Agent *theEngine = new Tiny3D::Agent();
+    Tiny3D::Agent *theEngine = T3D_NEW Tiny3D::Agent();
 
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
@@ -107,7 +107,7 @@ TResult SampleConsoleApp::go(int32_t argc, char *argv[])
     if (ret == T3D_OK)
         theEngine->run();
 
-    delete theEngine;
+    T3D_SAFE_DELETE(theEngine);
 
     return ret;
 }

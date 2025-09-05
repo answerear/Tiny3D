@@ -34,7 +34,7 @@ namespace Tiny3D
 
     NullD3D11WindowPtr NullD3D11Window::create()
     {
-        NullD3D11WindowPtr window = new NullD3D11Window();
+        NullD3D11WindowPtr window = T3D_NEW NullD3D11Window();
         return window;
     }
 

@@ -33,7 +33,7 @@ namespace Tiny3D
 
     AnimationPlayerMgrPtr AnimationPlayerMgr::create()
     {
-        return new AnimationPlayerMgr();
+        return T3D_NEW AnimationPlayerMgr();
     }
 
     //--------------------------------------------------------------------------

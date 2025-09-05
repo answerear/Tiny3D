@@ -44,7 +44,7 @@ namespace Tiny3D
         TResult ImGuiDX11Plugin::install()
         {
             ImGuiApp *app = static_cast<ImGuiApp *>(ImGuiApp::getInstancePtr());
-            mImGuiImpl = new ImGuiImplDX11();
+            mImGuiImpl = T3D_NEW ImGuiImplDX11();
             app->setEditorRenderer(mImGuiImpl);
             return T3D_OK;
         }

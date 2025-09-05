@@ -46,7 +46,7 @@ namespace  Tiny3D
 
     SceneManagerPtr SceneManager::create()
     {
-        return new SceneManager();
+        return T3D_NEW SceneManager();
     }
 
     //--------------------------------------------------------------------------
@@ -174,7 +174,7 @@ namespace  Tiny3D
 
     BuiltinSceneManagerPtr BuiltinSceneManager::create()
     {
-        return new BuiltinSceneManager();
+        return T3D_NEW BuiltinSceneManager();
     }
 
     //--------------------------------------------------------------------------

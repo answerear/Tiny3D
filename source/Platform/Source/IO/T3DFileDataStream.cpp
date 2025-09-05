@@ -44,7 +44,7 @@ namespace Tiny3D
 
     FileDataStream::~FileDataStream()
     {
-        T3D_SAFE_DELETE_ARRAY(m_pData);
+        T3D_POD_SAFE_DELETE_ARRAY(m_pData);
 
         if (isOpened())
         {
@@ -260,7 +260,7 @@ namespace Tiny3D
             if (m_pData == nullptr)
             {
                 long_t s = size();
-                m_pData = new uint8_t[s];
+                m_pData = T3D_POD_NEW_ARRAY(uint8_t, s);
                 uint32_t pos = ftell(m_pFileHandle);
                 fseek(m_pFileHandle, 0, SEEK_SET);
                 bytesOfRead = fread(m_pData, 1, s, m_pFileHandle);

@@ -973,7 +973,7 @@ namespace Tiny3D
     {
         TResult ret = T3D_ERR_FAIL;
 
-        mLogger = new Logger();
+        mLogger = T3D_NEW Logger();
 
         if (mLogger != nullptr)
         {
@@ -990,7 +990,7 @@ namespace Tiny3D
 
     TResult Agent::initEventSystem(uint32_t maxEvent)
     {
-        mEventMgr = new EventManager(maxEvent);
+        mEventMgr = T3D_NEW EventManager(maxEvent);
         return T3D_OK;
     }
 
@@ -998,7 +998,7 @@ namespace Tiny3D
 
     TResult Agent::initObjectTracer()
     {
-        mObjTracer = new ObjectTracer(true);
+        mObjTracer = T3D_NEW ObjectTracer(true);
         return T3D_OK;
     }
     

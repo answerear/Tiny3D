@@ -81,12 +81,12 @@ namespace Tiny3D
         
         if (mSockListener == nullptr)
         {
-            mSockListener = new Socket();
+            mSockListener = T3D_NEW Socket();
             mSockListener->setOnAcceptedCallback(
                 [this](Socket *sockListener, Socket *sockClient)
                 {
                     mSockClient = nullptr;
-                    TCPConnection *connection = new TCPConnection(sockClient);
+                    TCPConnection *connection = T3D_NEW TCPConnection(sockClient);
                     callOnAccepted(connection);
                 });
         }
@@ -163,7 +163,7 @@ namespace Tiny3D
     {
         if (mSockClient == nullptr)
         {
-            mSockClient = new Socket();
+            mSockClient = T3D_NEW Socket();
         }
         
         mSockListener->accept(*mSockClient);
@@ -237,7 +237,7 @@ namespace Tiny3D
 
     TCPConnection::TCPConnection()
     {
-        mSocket = new Socket();
+        mSocket = T3D_NEW Socket();
         setupCallbacks();
         
         enqueue(this);
@@ -657,8 +657,8 @@ namespace Tiny3D
     {
         if (mIsSendBufDirty)
         {
-            T3D_SAFE_DELETE_ARRAY(mSendBuffer);
-            mSendBuffer = new uint8_t[mSendBufferCapacity];
+            T3D_POD_SAFE_DELETE_ARRAY(mSendBuffer);
+            mSendBuffer = T3D_POD_NEW_ARRAY(uint8_t, mSendBufferCapacity);
             mSendBufferSize = 0;
             mIsSendBufDirty = false;
         }
@@ -670,7 +670,7 @@ namespace Tiny3D
     {
         if (mIsRecvBufDirty)
         {
-            mRecvBuffer = new uint8_t[mRecvBufferCapacity];
+            mRecvBuffer = T3D_POD_NEW_ARRAY(uint8_t, mRecvBufferCapacity);
             mRecvBufferSize = 0;
             mIsRecvBufDirty = false;
         }

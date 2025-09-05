@@ -34,7 +34,7 @@ namespace  Tiny3D
 
     RenderStatePtr RenderState::create()
     {
-        return new RenderState();
+        return T3D_NEW RenderState();
     }
 
     //--------------------------------------------------------------------------

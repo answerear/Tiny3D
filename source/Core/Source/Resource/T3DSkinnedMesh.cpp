@@ -36,7 +36,7 @@ namespace Tiny3D
 
     SkinnedMeshPtr SkinnedMesh::create(const String &name)
     {
-        return new SkinnedMesh(name);
+        return T3D_NEW SkinnedMesh(name);
     }
 
     //--------------------------------------------------------------------------
@@ -46,7 +46,7 @@ namespace Tiny3D
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
         SkeletalAnimation *skeletalAni, Bones &&bones)
     {
-        return new SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeletalAni, std::move(bones));
+        return T3D_NEW SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeletalAni, std::move(bones));
     }
 
     //--------------------------------------------------------------------------
@@ -212,7 +212,7 @@ namespace Tiny3D
         
         for (const auto &bone : mBones)
         {
-            JointNode *node = new JointNode();
+            JointNode *node = T3D_NEW JointNode();
             node->joint = index;
             
             uint16_t parentIdx = bone->getParentIndex();

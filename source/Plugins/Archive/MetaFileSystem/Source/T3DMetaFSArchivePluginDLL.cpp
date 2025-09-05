@@ -28,7 +28,7 @@ extern "C"
 {
     T3D_METAFSARCHIVE_API TResult dllStartPlugin()
     {
-        gPlugin = new Tiny3D::MetaFSArchivePlugin();
+        gPlugin = T3D_NEW Tiny3D::MetaFSArchivePlugin();
         return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
     }
 
@@ -37,8 +37,7 @@ extern "C"
         TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
         if (ret == Tiny3D::T3D_OK)
         {
-            delete gPlugin;
-            gPlugin = nullptr;
+            T3D_SAFE_DELETE(gPlugin);
         }
         return ret;
     }

@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaBinPtr create(const UUID &uuid)
         {
-            return new MetaBin(uuid);
+            return T3D_NEW MetaBin(uuid);
         }
 
         Type getType() const override { return kBin; }

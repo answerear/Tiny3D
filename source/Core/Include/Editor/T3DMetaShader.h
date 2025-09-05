@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaShaderPtr create(const UUID &uuid)
         {
-            return new MetaShader(uuid);
+            return T3D_NEW MetaShader(uuid);
         }
 
         Type getType() const override { return kShader; }

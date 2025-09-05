@@ -34,7 +34,7 @@ namespace Tiny3D
 
     MaterialManagerPtr MaterialManager::create()
     {
-        return new MaterialManager();
+        return T3D_NEW MaterialManager();
     }
     
     //--------------------------------------------------------------------------

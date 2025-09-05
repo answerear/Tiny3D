@@ -30,7 +30,20 @@
 
 
 #if defined T3D_USE_CUSTOM_NEW
+#define T3D_NEW new
+#define T3D_DELETE delete
+#define T3D_POD_NEW(T) New<T>()
+#define T3D_POD_NEW_ARRAY(T, size) NewArray<T>(size)
+#define T3D_POD_DELETE(ptr) Delete(ptr)
+#define T3D_POD_DELETE_ARRAY(ptr) DeleteArray(ptr)
 // #define new CUSTOM_NEW
+#else
+#define T3D_NEW new
+#define T3D_DELETE delete
+#define T3D_POD_NEW(T) new T
+#define T3D_POD_NEW_ARRAY(T, size) new T[size]
+#define T3D_POD_DELETE(ptr) delete ptr
+#define T3D_POD_DELETE_ARRAY(ptr) delete[] ptr
 #endif
 
 

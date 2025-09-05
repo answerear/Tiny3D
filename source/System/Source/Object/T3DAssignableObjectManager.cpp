@@ -32,6 +32,6 @@ namespace Tiny3D
 {
     AssignableObjectManagerPtr AssignableObjectManager::create()
     {
-        return new AssignableObjectManager();
+        return T3D_NEW AssignableObjectManager();
     }
 }

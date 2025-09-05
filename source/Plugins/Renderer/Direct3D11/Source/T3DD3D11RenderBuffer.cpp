@@ -33,7 +33,7 @@ namespace Tiny3D
 
     D3D11VertexDeclarationPtr D3D11VertexDeclaration::create()
     {
-        return new D3D11VertexDeclaration();
+        return T3D_NEW D3D11VertexDeclaration();
     }
     
     //--------------------------------------------------------------------------
@@ -54,7 +54,7 @@ namespace Tiny3D
 
     D3D11VertexBufferPtr D3D11VertexBuffer::create()
     {
-        return new D3D11VertexBuffer();
+        return T3D_NEW D3D11VertexBuffer();
     }
     //--------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ namespace Tiny3D
 
     D3D11IndexBufferPtr D3D11IndexBuffer::create()
     {
-        return new D3D11IndexBuffer();
+        return T3D_NEW D3D11IndexBuffer();
     }
 
     //--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace Tiny3D
     
     D3D11ConstantBufferPtr D3D11ConstantBuffer::create()
     {
-        return new D3D11ConstantBuffer();
+        return T3D_NEW D3D11ConstantBuffer();
     }
 
     //--------------------------------------------------------------------------
@@ -116,7 +116,7 @@ namespace Tiny3D
 
     D3D11PixelBuffer1DPtr D3D11PixelBuffer1D::create()
     {
-        return new D3D11PixelBuffer1D();
+        return T3D_NEW D3D11PixelBuffer1D();
     }
     
     //--------------------------------------------------------------------------
@@ -137,7 +137,7 @@ namespace Tiny3D
 
     D3D11PixelBuffer2DPtr D3D11PixelBuffer2D::create()
     {
-        return new D3D11PixelBuffer2D();
+        return T3D_NEW D3D11PixelBuffer2D();
     }
 
     //--------------------------------------------------------------------------

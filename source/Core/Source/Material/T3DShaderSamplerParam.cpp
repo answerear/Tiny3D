@@ -34,7 +34,7 @@ namespace Tiny3D
 
     ShaderSamplerParamPtr ShaderSamplerParam::create(const String &name)
     {
-        return new ShaderSamplerParam(name);
+        return T3D_NEW ShaderSamplerParam(name);
     }
     
     //--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace Tiny3D
 
     ShaderSamplerParamPtr ShaderSamplerParam::clone() const
     {
-        ShaderSamplerParamPtr sampler = new ShaderSamplerParam();
+        ShaderSamplerParamPtr sampler = T3D_NEW ShaderSamplerParam();
         sampler->mName = mName;
         sampler->mTexType = mTexType;
         sampler->mTexBinding = mTexBinding;
@@ -77,7 +77,7 @@ namespace Tiny3D
 
     ShaderSamplerValuePtr ShaderSamplerValue::create(const String &name)
     {
-        return new ShaderSamplerValue(name);
+        return T3D_NEW ShaderSamplerValue(name);
     }
 
     //--------------------------------------------------------------------------

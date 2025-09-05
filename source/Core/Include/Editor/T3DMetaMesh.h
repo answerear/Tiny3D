@@ -42,7 +42,7 @@ namespace Tiny3D
     public:
         static MetaMeshPtr create(const UUID &uuid)
         {
-            return new MetaMesh(uuid);
+            return T3D_NEW MetaMesh(uuid);
         }
 
         Type getType() const override { return kMesh; }

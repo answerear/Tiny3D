@@ -133,7 +133,7 @@ namespace Tiny3D
         {
             if (mShaderKeyword == nullptr)
             {
-                mShaderKeyword = new ShaderKeyword(keyword);
+                mShaderKeyword = T3D_NEW ShaderKeyword(keyword);
             }
             else
             {
@@ -166,8 +166,8 @@ namespace Tiny3D
         {
             if (mBytesCodeCapacity < codeSize || mBytesCodeCapacity == 0)
             {
-                T3D_SAFE_DELETE_ARRAY(mBytesCode);
-                mBytesCode = new char[codeSize];
+                T3D_POD_SAFE_DELETE_ARRAY(mBytesCode);
+                mBytesCode = T3D_POD_NEW_ARRAY(char, codeSize);
                 mBytesCodeCapacity = codeSize;
             }
             memcpy(mBytesCode, code, codeSize);

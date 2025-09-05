@@ -34,7 +34,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Application::Application()
-        : mPlatform(new Platform())
+        : mPlatform(T3D_NEW Platform())
     {
 
     }

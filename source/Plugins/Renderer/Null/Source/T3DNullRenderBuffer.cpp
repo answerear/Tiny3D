@@ -32,7 +32,7 @@ namespace Tiny3D
 
     NullVertexDeclarationPtr NullVertexDeclaration::create()
     {
-        return new NullVertexDeclaration();
+        return T3D_NEW NullVertexDeclaration();
     }
     
     //--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ namespace Tiny3D
 
     NullVertexBufferPtr NullVertexBuffer::create()
     {
-        return new NullVertexBuffer();
+        return T3D_NEW NullVertexBuffer();
     }
     //--------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ namespace Tiny3D
 
     NullIndexBufferPtr NullIndexBuffer::create()
     {
-        return new NullIndexBuffer();
+        return T3D_NEW NullIndexBuffer();
     }
 
     //--------------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace Tiny3D
     
     NullConstantBufferPtr NullConstantBuffer::create()
     {
-        return new NullConstantBuffer();
+        return T3D_NEW NullConstantBuffer();
     }
 
     //--------------------------------------------------------------------------
@@ -115,7 +115,7 @@ namespace Tiny3D
 
     NullPixelBuffer1DPtr NullPixelBuffer1D::create()
     {
-        return new NullPixelBuffer1D();
+        return T3D_NEW NullPixelBuffer1D();
     }
     
     //--------------------------------------------------------------------------
@@ -136,7 +136,7 @@ namespace Tiny3D
 
     NullPixelBuffer2DPtr NullPixelBuffer2D::create()
     {
-        return new NullPixelBuffer2D();
+        return T3D_NEW NullPixelBuffer2D();
     }
 
     //--------------------------------------------------------------------------

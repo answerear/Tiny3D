@@ -36,7 +36,7 @@ namespace Tiny3D
 
     ScenePtr Scene::create(const String &name)
     {
-        return new Scene(name);
+        return T3D_NEW Scene(name);
     }
 
     //--------------------------------------------------------------------------

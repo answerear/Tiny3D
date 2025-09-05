@@ -40,7 +40,7 @@ namespace Tiny3D
 
     KfTranslationPtr KfTranslation::create(uint32_t time, const Vector3 &translation)
     {
-        return new KfTranslation(time, translation);
+        return T3D_NEW KfTranslation(time, translation);
     }
     
     //--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace Tiny3D
 
     KfOrientationPtr KfOrientation::create(uint32_t time, const Quaternion &orientation)
     {
-        return new KfOrientation(time, orientation);
+        return T3D_NEW KfOrientation(time, orientation);
     }
     
     //--------------------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace Tiny3D
 
     KfScalingPtr KfScaling::create(uint32_t time, const Vector3 &scaling)
     {
-        return new KfScaling(time, scaling);
+        return T3D_NEW KfScaling(time, scaling);
     }
 
     //--------------------------------------------------------------------------

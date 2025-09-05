@@ -35,7 +35,7 @@ namespace Tiny3D
 
     TechniqueInstancePtr TechniqueInstance::create(Material *parent, TechniquePtr tech)
     {
-        return new TechniqueInstance(parent, tech);
+        return T3D_NEW TechniqueInstance(parent, tech);
     }
 
     //--------------------------------------------------------------------------
@@ -62,7 +62,7 @@ namespace Tiny3D
 
     TechniqueInstancePtr TechniqueInstance::clone(Material *material) const
     {
-        TechniqueInstancePtr newInstance = new TechniqueInstance();
+        TechniqueInstancePtr newInstance = T3D_NEW TechniqueInstance();
 
         if (T3D_FAILED(newInstance->cloneProperties(material, this)))
         {

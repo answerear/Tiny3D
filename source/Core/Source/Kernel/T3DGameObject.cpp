@@ -108,7 +108,7 @@ namespace Tiny3D
 
     GameObjectPtr GameObject::create(const String &name, bool managed)
     {
-        return new GameObject(name, managed);
+        return T3D_NEW GameObject(name, managed);
     }
 
     //--------------------------------------------------------------------------

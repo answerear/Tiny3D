@@ -35,7 +35,7 @@ namespace Tiny3D
 
     PrefabManagerPtr PrefabManager::create()
     {
-        return new PrefabManager();
+        return T3D_NEW PrefabManager();
     }
     
     //--------------------------------------------------------------------------
