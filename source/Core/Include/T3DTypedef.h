@@ -32,6 +32,8 @@
 
 namespace Tiny3D
 {
+    enum class MemoryType : uint32_t;
+    
     T3D_DECLARE_SMART_PTR(Object);
 
     // Kernel

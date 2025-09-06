@@ -464,6 +464,7 @@ MeshPtr TextureApp::buildMesh(const Tiny3D::UUID &materialUUID)
     
     String name = SUB_MESH_NAME;
     SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
+    indexBuffer.release();
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 

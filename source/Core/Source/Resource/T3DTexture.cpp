@@ -119,7 +119,7 @@ namespace Tiny3D
                 break;
             }
 
-            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
         } while (false);
         return ret;
     }
@@ -137,7 +137,7 @@ namespace Tiny3D
             {
                 break;
             }
-            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
         } while (false);
         
         return ret;
@@ -229,7 +229,7 @@ namespace Tiny3D
                 break;
             }
 
-            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
         } while (false);
         
         return ret;
@@ -248,7 +248,7 @@ namespace Tiny3D
             {
                 break;
             }
-            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kBoth, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
         } while (false);
         
         return ret;
