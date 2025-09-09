@@ -41,6 +41,8 @@ const char *kPalmName = "Palm";
 const char *kAnimationArm = "Arm";
 const char *kArmRotateLeft = "RotateLeft";
 
+const char *DEFINE_GPU_SKIN = "T3D_GPU_SKIN";
+
 SkeletalAnimationApp theApp;
 
 // extern const char *SAMPLE_LIT_VERTEX_SHADER;
@@ -96,15 +98,11 @@ bool SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *arg
     light->setSpecularIntensity(1.0f);
 
     // cube shader & material
-#if defined (USE_GPU_SKIN)
-    ShaderPtr shader = buildShader("Cube-Shader", GPU_SKIN_FORWARD_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER);
-#else
-    ShaderPtr shader = buildShader("Cube-Shader", SKIN_FORWARD_VERTEX_SHADER, SKIN_SHADOW_VERTEX_SHADER);
-#endif
+    ShaderPtr shader = buildShader("Cube-Shader", SKIN_FORWARD_VERTEX_SHADER, SKIN_SHADOW_VERTEX_SHADER, GPU_SKIN_FORWARD_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER);
     mCubeMaterial = buildArmMaterial(shader);
     
     // plane shader & material
-    shader = buildShader("Plane-Shader", FORWARD_VERTEX_SHADER, SHADOW_VERTEX_SHADER);
+    shader = buildShader("Plane-Shader", FORWARD_VERTEX_SHADER, SHADOW_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER);
     mPlaneMaterial = buildPlaneMaterial(shader);
 
     // cube mesh
@@ -182,20 +180,31 @@ void SkeletalAnimationApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
-PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs)
+PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs, const String &vs4GPU)
 {
-    // keyword for shadow pass
-    ShaderKeyword vkeyword;
-    vkeyword.addKeyword("");
-    vkeyword.generate();
+    // CPU_SKIN keyword for shadow pass
+    ShaderKeyword keyCPUSkin;
+    keyCPUSkin.addKeyword("");
+    keyCPUSkin.generate();
 
     // vertex shader for shadow pass
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // GPU_SKIN keyword for shadow pass
+    ShaderKeyword keyGPUSkin;
+    keyGPUSkin.addKeyword(DEFINE_GPU_SKIN);
+    keyGPUSkin.generate();
+
+    // GPU skin vertex shader for shadow pass
+    ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU);
+    vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
 
     // shadow pass
     PassPtr pass = Pass::create("ShadowCaster");
     TResult ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    ret = pass->addShaderVariant(vshader4GPU->getShaderKeyword(), vshader4GPU);
     T3D_ASSERT(T3D_SUCCEEDED(ret));
     pass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeShadowCasterStr);
 
@@ -220,17 +229,26 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs)
     return pass;
 }
 
-PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs)
+PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs, const String &vs4GPU)
 {
     // vertex & pixel shader keyword for forward pass
-    ShaderKeyword vkeyword;
-    vkeyword.addKeyword("");
-    vkeyword.generate();
-    ShaderKeyword pkeyword(vkeyword);
+    ShaderKeyword keyCPUSkin;
+    keyCPUSkin.addKeyword("");
+    keyCPUSkin.generate();
+    ShaderKeyword pkeyword(keyCPUSkin);
     
     // vertex shader for forward pass 
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
+
+    // GPU_SKIN keyword for forward pass
+    ShaderKeyword keyGPUSkin;
+    keyGPUSkin.addKeyword(DEFINE_GPU_SKIN);
+    keyGPUSkin.generate();
+
+    // GPU skin vertex shader for forward pass
+    ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU);
+    vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader for forward pass
     const String ps = FORWARD_PIXEL_SHADER;
@@ -240,6 +258,8 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs)
     // forward pass
     PassPtr pass = Pass::create("ForwardBase");
     TResult ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    pass->addShaderVariant(vshader4GPU->getShaderKeyword(), vshader4GPU);
     T3D_ASSERT(T3D_SUCCEEDED(ret));
     ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
     T3D_ASSERT(T3D_SUCCEEDED(ret));
@@ -265,13 +285,13 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs)
 }
 
 
-ShaderPtr SkeletalAnimationApp::buildShader(const String &name, const String &forwardVS, const String &shadowVS)
+ShaderPtr SkeletalAnimationApp::buildShader(const String &name, const String &forwardVS, const String &shadowVS, const String &forwardVS4GPU, const String &shadowVS4GPU)
 {
     // shadow pass
-    PassPtr shadowPass= buildShadowPass(shadowVS);
+    PassPtr shadowPass= buildShadowPass(shadowVS, shadowVS4GPU);
 
     // forward pass
-    PassPtr forwardPass = buildForwardPass(forwardVS);
+    PassPtr forwardPass = buildForwardPass(forwardVS, forwardVS4GPU);
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
@@ -444,10 +464,19 @@ MaterialPtr SkeletalAnimationApp::buildArmMaterial(Tiny3D::Shader *shader)
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Cube-Material", shader);
+// #if defined (USE_GPU_SKIN)
+//     StringArray enableKeywrods;
+//     enableKeywrods.push_back("GPU_SKIN");
+//     StringArray disableKeywords;
+//     disableKeywords.push_back("");
+//     material->switchKeywords(enableKeywrods, disableKeywords);
+// #else
     StringArray enableKeywrods;
     enableKeywrods.push_back("");
     StringArray disableKeywords;
+    disableKeywords.push_back(DEFINE_GPU_SKIN);
     material->switchKeywords(enableKeywrods, disableKeywords);
+// #endif
     material->setTexture(texSamplerName, texture->getUUID());
     
     // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置

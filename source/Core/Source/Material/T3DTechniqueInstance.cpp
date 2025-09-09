@@ -114,6 +114,7 @@ namespace Tiny3D
             {
                 break;
             }
+            mEnabledKeywords = enableKeys;
         }
         
         return ret;

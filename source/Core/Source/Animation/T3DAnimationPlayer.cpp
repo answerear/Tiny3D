@@ -129,8 +129,38 @@ namespace Tiny3D
             mCurrentFrameO = 0;
             mCurrentFrameS = 0;
             mIsPlaying = true;
-            mIsGPUSkinning = isGPUSkinning;
 
+            if (mIsGPUSkinning != isGPUSkinning)
+            {
+                // 切换 GPU 还是 CPU 蒙皮
+                mIsGPUSkinning = isGPUSkinning;
+
+                const String kwGPUSkin = "T3D_GPU_SKIN";
+                Material *material = mSkinnedGeometry->getMaterial();
+                StringArray enabledKeywrods = material->getEnabledKeywords();
+                StringArray disabledKeywords = material->getDisabledKeywords();
+                if (mIsGPUSkinning)
+                {
+                    enabledKeywrods.emplace_back(kwGPUSkin);
+                    const auto it = std::find(disabledKeywords.begin(), disabledKeywords.end(), kwGPUSkin);
+                    if (it != disabledKeywords.end())
+                    {
+                        disabledKeywords.erase(it);
+                    }
+                }
+                else
+                {
+                    disabledKeywords.emplace_back(kwGPUSkin);
+                    const auto it = std::find(enabledKeywrods.begin(), enabledKeywrods.end(), kwGPUSkin);
+                    if (it != enabledKeywrods.end())
+                    {
+                        enabledKeywrods.erase(it);
+                    }
+                }
+            
+                material->switchKeywords(enabledKeywrods, disabledKeywords);
+            }
+            
             T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
         } while (false);
         

@@ -241,6 +241,16 @@ namespace Tiny3D
 
         bool isKeywordEnable(const String &keyword) const;
 
+        const StringArray &getEnabledKeywords() const
+        {
+            return mCurTechnique != nullptr ? mCurTechnique->getEnabledKeywords() : StringUtil::kEmptyStringArray;
+        }
+
+        const StringArray &getDisabledKeywords() const
+        {
+            return mCurTechnique != nullptr ? mCurTechnique->getDisabledKeywords() : StringUtil::kEmptyStringArray;
+        }
+
         /**
          * \brief 设置整型数据
          * \param name 

@@ -50,6 +50,10 @@ namespace Tiny3D
 
         TResult switchKeywords(const ShaderKeyword &keywrod);
 
+        const StringArray &getEnabledKeywords() const { return mEnabledKeywords; }
+
+        const StringArray &getDisabledKeywords() const { return mDisabledKeywords; }
+
         void setBool(const String &name, bool value);
 
         void setBoolArray(const String &name, const BoolArray &values);
@@ -93,6 +97,10 @@ namespace Tiny3D
         TechniquePtr    mTechnique {nullptr};
         /// pass instance
         PassInstances   mPassInstances {};
+        /// All enabled keywords
+        StringArray     mEnabledKeywords {};
+        /// All disabled keywords
+        StringArray     mDisabledKeywords {};
     };
 }
 
