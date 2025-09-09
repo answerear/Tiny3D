@@ -84,7 +84,7 @@ namespace Tiny3D
         String name;
         for (const auto &str : mKeys)
         {
-            if (mKeys.size() == 1 && str.empty())
+            if (mKeys.size() == 1)
             {
                 name += str;
             }
