@@ -471,31 +471,7 @@ MaterialPtr SkeletalAnimationApp::buildArmMaterial(Tiny3D::Shader *shader)
     material->switchKeywords(enableKeywrods, disableKeywords);
     material->setTexture(texSamplerName, texture->getUUID());
     
-    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
-
-    // Camera
-    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
-    // Object
-    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
-    // Ambient
-    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-    // Directional light
-    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
-    // Point lights
-    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-    material->setColorArray("tiny3d_PointLightColor", colors);
-    Vector4Array values(4, Vector4::ZERO);
-    material->setVectorArray("tiny3d_PointLightPos", values);
-    material->setVectorArray("tiny3d_PointLightAttenuation", values);
-    // Spot lights
-    material->setColorArray("tiny3d_SpotLightColor", colors);
-    material->setVectorArray("tiny3d_SpotLightPos", values);
-    material->setVectorArray("tiny3d_SpotLightDir", values);
-    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
-    // bone matrices
-    Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
-    material->setMatrixArray("tiny3d_BoneMatrices", matrices);
+    initMaterialData(material);
     
     return material;
 }
@@ -1012,31 +988,7 @@ MaterialPtr SkeletalAnimationApp::buildPlaneMaterial(Tiny3D::Shader *shader)
     material->switchKeywords(enableKeywrods, disableKeywords);
     material->setTexture(texSamplerName, texture->getUUID());
     
-    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
-
-    // Camera
-    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
-    // Object
-    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
-    // Ambient
-    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-    // Directional light
-    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
-    // Point lights
-    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-    material->setColorArray("tiny3d_PointLightColor", colors);
-    Vector4Array values(4, Vector4::ZERO);
-    material->setVectorArray("tiny3d_PointLightPos", values);
-    material->setVectorArray("tiny3d_PointLightAttenuation", values);
-    // Spot lights
-    material->setColorArray("tiny3d_SpotLightColor", colors);
-    material->setVectorArray("tiny3d_SpotLightPos", values);
-    material->setVectorArray("tiny3d_SpotLightDir", values);
-    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
-    // bone matrices
-    Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
-    material->setMatrixArray("tiny3d_BoneMatrices", matrices);
+    initMaterialData(material);
     
     return material;
 }
@@ -1143,3 +1095,31 @@ void SkeletalAnimationApp::buildPlane(Transform3D *parent)
     geometry->setMeshObject(mPlaneMesh, submesh);
 }
 
+void SkeletalAnimationApp::initMaterialData(Tiny3D::Material *material)
+{
+    // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
+
+    // Camera
+    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+    // Object
+    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // Ambient
+    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    // Directional light
+    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+    // Point lights
+    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setColorArray("tiny3d_PointLightColor", colors);
+    Vector4Array values(4, Vector4::ZERO);
+    material->setVectorArray("tiny3d_PointLightPos", values);
+    material->setVectorArray("tiny3d_PointLightAttenuation", values);
+    // Spot lights
+    material->setColorArray("tiny3d_SpotLightColor", colors);
+    material->setVectorArray("tiny3d_SpotLightPos", values);
+    material->setVectorArray("tiny3d_SpotLightDir", values);
+    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    // bone matrices
+    Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
+    material->setMatrixArray("tiny3d_BoneMatrices", matrices);
+}
