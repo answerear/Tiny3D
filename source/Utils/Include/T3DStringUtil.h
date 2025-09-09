@@ -37,6 +37,9 @@ namespace Tiny3D
     class T3D_UTILS_API StringUtil
     {
     public:
+        static StringArray kEmptyStringArray;
+        static StringList kEmptyStringList;
+        
         /**
          * @brief 合并字符串
          * @param [in] strings : 要合并的字符串数组

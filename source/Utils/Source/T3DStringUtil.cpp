@@ -29,6 +29,11 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    StringArray StringUtil::kEmptyStringArray;
+    StringList StringUtil::kEmptyStringList;
+    
+    //--------------------------------------------------------------------------
+
     String StringUtil::merge(const StringArray& strings, const String& delims)
     {
         if (!strings.empty())
