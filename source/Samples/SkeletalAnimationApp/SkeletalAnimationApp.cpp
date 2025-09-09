@@ -464,19 +464,11 @@ MaterialPtr SkeletalAnimationApp::buildArmMaterial(Tiny3D::Shader *shader)
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Cube-Material", shader);
-// #if defined (USE_GPU_SKIN)
-//     StringArray enableKeywrods;
-//     enableKeywrods.push_back("GPU_SKIN");
-//     StringArray disableKeywords;
-//     disableKeywords.push_back("");
-//     material->switchKeywords(enableKeywrods, disableKeywords);
-// #else
     StringArray enableKeywrods;
     enableKeywrods.push_back("");
     StringArray disableKeywords;
     disableKeywords.push_back(DEFINE_GPU_SKIN);
     material->switchKeywords(enableKeywrods, disableKeywords);
-// #endif
     material->setTexture(texSamplerName, texture->getUUID());
     
     // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
@@ -501,6 +493,9 @@ MaterialPtr SkeletalAnimationApp::buildArmMaterial(Tiny3D::Shader *shader)
     material->setVectorArray("tiny3d_SpotLightPos", values);
     material->setVectorArray("tiny3d_SpotLightDir", values);
     material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    // bone matrices
+    Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
+    material->setMatrixArray("tiny3d_BoneMatrices", matrices);
     
     return material;
 }
@@ -1039,6 +1034,9 @@ MaterialPtr SkeletalAnimationApp::buildPlaneMaterial(Tiny3D::Shader *shader)
     material->setVectorArray("tiny3d_SpotLightPos", values);
     material->setVectorArray("tiny3d_SpotLightDir", values);
     material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    // bone matrices
+    Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
+    material->setMatrixArray("tiny3d_BoneMatrices", matrices);
     
     return material;
 }
