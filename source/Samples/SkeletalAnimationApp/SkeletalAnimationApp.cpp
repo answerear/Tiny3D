@@ -338,7 +338,7 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
 #else
     geometry->setGPUSkinning(false);
 #endif
-    geometry->play(kArmRotateLeft);
+    geometry->play(kArmRotateLeft, true);
     
     // aabb bound component
     AabbBoundPtr bound = go->addComponent<AabbBound>();
