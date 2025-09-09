@@ -42,6 +42,8 @@ namespace Tiny3D
     #define T3D_COORDINATION_RH                 0
 
     #define T3D_MAX_BLEND_BONES                 4
+
+    #define T3D_MAX_BONE_MATRICES               512 
 }
 
 

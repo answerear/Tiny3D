@@ -98,6 +98,7 @@ namespace Tiny3D
 
             const SkinnedGeometry * const other = static_cast<const SkinnedGeometry * const>(src);
             mDefaultClipName = other->mDefaultClipName;
+            mIsGPUSkinning = other->mIsGPUSkinning;
         } while (false);
 
         return ret;
@@ -185,7 +186,7 @@ namespace Tiny3D
     {
         T3D_ASSERT(mAnimationPlayer != nullptr);
 
-        mAnimationPlayer->playClip(clipName, false, false);
+        mAnimationPlayer->playClip(clipName, false, false, mIsGPUSkinning);
 
         return true;
     }

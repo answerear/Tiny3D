@@ -330,14 +330,14 @@ namespace Tiny3D
 
         void setMatrixArray(const Matrix4Array &values)
         {
-            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY);
             T3D_ASSERT(mValue.DataSize == sizeof(Matrix4) * values.size());
             memcpy(mValue.Data, values.data(), sizeof(Matrix4) * values.size());
         }
 
         Matrix4Array getMatrixArray() const
         {
-            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_MATRIX4);
+            T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY);
             T3D_ASSERT(mValue.DataSize > sizeof(Matrix4));
             return Matrix4Array((Matrix4*)mValue.Data, (Matrix4*)((uint8_t*)mValue.Data + mValue.DataSize));
         }

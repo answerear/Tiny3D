@@ -32,6 +32,7 @@
 #include "Render/T3DVertexBuffer.h"
 #include "T3DConfig.h"
 #include "Animation/T3DAnimationPlayerMgr.h"
+#include "Resource/T3DMaterial.h"
 
 
 namespace Tiny3D
@@ -98,12 +99,12 @@ namespace Tiny3D
     AnimationPlayer::AnimationPlayer(SkinnedGeometry *geometry)
         : mSkinnedGeometry(geometry)
     {
-        
+        T3D_ASSERT(mSkinnedGeometry != nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    ID AnimationPlayer::playClip(const String &clipName, bool isBlending, bool isLoop)
+    ID AnimationPlayer::playClip(const String &clipName, bool isBlending, bool isLoop, bool isGPUSkinning)
     {
         TResult ret = INVALID_ID;
 
@@ -128,6 +129,7 @@ namespace Tiny3D
             mCurrentFrameO = 0;
             mCurrentFrameS = 0;
             mIsPlaying = true;
+            mIsGPUSkinning = isGPUSkinning;
 
             T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
         } while (false);
@@ -137,14 +139,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID AnimationPlayer::playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop)
+    ID AnimationPlayer::playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop, bool isGPUSkinning)
     {
         return INVALID_ID;
     }
 
     //--------------------------------------------------------------------------
 
-    ID AnimationPlayer::playClips(const StringArray &clipNames)
+    ID AnimationPlayer::playClips(const StringArray &clipNames, bool isGPUSkinning)
     {
         return INVALID_ID;
     }
@@ -310,7 +312,14 @@ namespace Tiny3D
 
     void AnimationPlayer::skinning()
     {
-        CPUSkinning();
+        if (mIsGPUSkinning)
+        {
+            GPUSkinning();
+        }
+        else
+        {
+            CPUSkinning();
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -474,8 +483,27 @@ namespace Tiny3D
             vbos[posSlot]->writeData(0, dstPosVerts, true);
             vbos[normalSlot]->writeData(0, dstNormalVerts, true);
         }
+    }
 
+    //--------------------------------------------------------------------------
 
+    void AnimationPlayer::GPUSkinning()
+    {
+        T3D_ASSERT(mSkinnedGeometry != nullptr);
+        SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
+        const Bones &bones = skinnedMesh->getBones();
+        Material *material = mSkinnedGeometry->getMaterial();
+        T3D_ASSERT(material != nullptr);
+        const auto &transforms = mSkinnedGeometry->getBoneGameObjects();
+        Matrix4 matrices[T3D_MAX_BONE_MATRICES] = { Matrix4::IDENTITY };
+        for (int32_t i = 0; i < bones.size(); i++)
+        {
+            const Matrix4 &mat = static_cast<Transform3D *>(transforms[i]->getTransformNode())->getLocalToWorldTransform().getAffineMatrix();
+            const Matrix4 &matOffset = bones[i]->getOffsetMatrix();
+            matrices[i] = mat * matOffset;
+        }
+        Matrix4Array matrixArray(matrices, matrices+T3D_MAX_BONE_MATRICES);
+        material->setMatrixArray("tiny3d_BoneMatrices", matrixArray);
     }
 
     //--------------------------------------------------------------------------

@@ -58,6 +58,12 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="DefaultClip", RTTRFuncType="setter")
         void setDefaultClipName(const String &name) { mDefaultClipName = name; }
 
+        TPROPERTY(RTTRFuncName="GPUSkinning", RTTRFuncType="getter")
+        bool isGPUSkinning() const { return mIsGPUSkinning; }
+
+        TPROPERTY(RTTRFuncName="GPUSkinning", RTTRFuncType="setter")
+        void setGPUSkinning(bool isGPUSkinning) { mIsGPUSkinning = isGPUSkinning; }
+
         bool play(const String &clipName);
         
     protected:
@@ -81,12 +87,19 @@ namespace Tiny3D
         void generateRenderMaterial() override;
         
     protected:
+        /// 动画播放器
         AnimationPlayerPtr mAnimationPlayer {nullptr};
 
+        /// 所有骨骼游戏对象，按照骨骼名称做一个映射
         BoneGameObjectsMap mAllBones {};
+        /// 所有骨骼游戏对象，按照骨骼索引做一个映射
         BoneGameObjects mBoneGameObjects {};
 
+        /// 默认动画剪辑名称
         String mDefaultClipName {};
+        
+        /// 是否 GPU 蒙皮
+        bool mIsGPUSkinning {false};
     };
 }
 

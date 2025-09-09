@@ -47,9 +47,10 @@ namespace Tiny3D
          * @param clipName 动画片段名称
          * @param isBlending 是否启用混合。 启用后，会把当前正在播放的动画和将要播放的动画进行混合以作过渡
          * @param isLoop 是否循环播放，默认为false
+         * @param isGPUSkinning 是否使用GPU蒙皮
          * @return 调用失败返回 AnimationPlayer::INVALID_ID. 成功返回一个实例ID，该ID可用于停止播放
          */
-        ID playClip(const String &clipName, bool isBlending, bool isLoop = false);
+        ID playClip(const String &clipName, bool isBlending, bool isLoop = false, bool isGPUSkinning = false);
 
         /**
          * @brief 混合播放两个动画片段
@@ -57,16 +58,18 @@ namespace Tiny3D
          * @param toClipName 目标动画片段名称
          * @param toClipStartedMS 目标动画开始播放的时间点，单位为毫秒
          * @param isLoop 目标动画是否循环播放，默认为false
+         * @param isGPUSkinning 是否使用GPU蒙皮
          * @return 调用失败返回 AnimationPlayer::INVALID_ID. 成功返回一个实例ID，该ID可用于停止播放
          */
-        ID playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop = false);
+        ID playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop = false, bool isGPUSkinning = false);
         
         /**
          * @brief 同时混合播放多个动画片段，只播放一次。 当最长时间的 clip 播放完成后，混合播放结束。
          * @param clipNames 动画片段名称数组
+         * @param isGPUSkinning 是否使用GPU蒙皮
          * @return 调用失败返回 AnimationPlayer::INVALID_ID. 成功返回一个实例ID，该ID可用于停止播放
          */
-        ID playClips(const StringArray &clipNames);
+        ID playClips(const StringArray &clipNames, bool isGPUSkinning = false);
 
         /**
          * @brief 停止播放
@@ -122,8 +125,10 @@ namespace Tiny3D
 
         void CPUSkinning();
 
+        void GPUSkinning();
+
     private:
-        static ID msGeneratedID;    
+        static ID msGeneratedID;
         
     protected:
         /// 蒙皮几何体
@@ -144,6 +149,8 @@ namespace Tiny3D
 
         /// 是否在播放中
         bool mIsPlaying {false};
+        /// 是否使用GPU蒙皮
+        bool mIsGPUSkinning {false};
     };
 }
 
