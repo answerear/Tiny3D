@@ -28,6 +28,8 @@
 
 #define UVN_CAMERA
 
+#define USE_GPU_SKIN
+
 using namespace Tiny3D;
 
 const char *SUB_MESH_NAME = "#0";
@@ -48,6 +50,8 @@ extern const char *SHADOW_VERTEX_SHADER;
 extern const char *SKIN_SHADOW_VERTEX_SHADER;
 extern const char *SKIN_FORWARD_VERTEX_SHADER;
 extern const char *FORWARD_PIXEL_SHADER;
+extern const char *GPU_SKIN_SHADOW_VERTEX_SHADER;
+extern const char *GPU_SKIN_FORWARD_VERTEX_SHADER;
 
 SkeletalAnimationApp::SkeletalAnimationApp()
 {
@@ -92,7 +96,11 @@ bool SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *arg
     light->setSpecularIntensity(1.0f);
 
     // cube shader & material
+#if defined (USE_GPU_SKIN)
+    ShaderPtr shader = buildShader("Cube-Shader", GPU_SKIN_FORWARD_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER);
+#else
     ShaderPtr shader = buildShader("Cube-Shader", SKIN_FORWARD_VERTEX_SHADER, SKIN_SHADOW_VERTEX_SHADER);
+#endif
     mCubeMaterial = buildArmMaterial(shader);
     
     // plane shader & material
@@ -305,6 +313,11 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     geometry->setMeshObject(mCubeMesh, submesh);
     geometry->populateAllChildren();
     geometry->setDefaultClipName(kArmRotateLeft);
+#if defined (USE_GPU_SKIN)
+    geometry->setGPUSkinning(true);
+#else
+    geometry->setGPUSkinning(false);
+#endif
     geometry->play(kArmRotateLeft);
     
     // aabb bound component
