@@ -128,13 +128,16 @@ namespace Tiny3D
             mCurrentFrameT = 0;
             mCurrentFrameO = 0;
             mCurrentFrameS = 0;
+            
             mIsPlaying = true;
+            mIsLoop = isLoop;
 
             if (mIsGPUSkinning != isGPUSkinning)
             {
                 // 切换 GPU 还是 CPU 蒙皮
                 mIsGPUSkinning = isGPUSkinning;
 
+                // 通过 shader 变体来控制使用 GPU 蒙皮还是 CPU 蒙皮
                 const String kwGPUSkin = "T3D_GPU_SKIN";
                 Material *material = mSkinnedGeometry->getMaterial();
                 StringArray enabledKeywrods = material->getEnabledKeywords();
@@ -241,9 +244,8 @@ namespace Tiny3D
 
                 if (elapsed >= clip->getDuration())
                 {
+                    // 设置时间为动画的持续时间
                     elapsed = clip->getDuration();
-                    T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
-                    mIsPlaying = false;
                 }
 
                 // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
@@ -303,6 +305,24 @@ namespace Tiny3D
 //                         xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
 //                         xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
 // #endif
+                }
+
+                if (elapsed >= clip->getDuration())
+                {
+                    if (mIsLoop)
+                    {
+                        // 重置播放时间
+                        mStartTimestamp = DateTime::currentMSecsSinceEpoch();
+                        mCurrentFrameT = 0;
+                        mCurrentFrameO = 0;
+                        mCurrentFrameS = 0;
+                    }
+                    else
+                    {
+                        // 停止播放
+                        T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
+                        mIsPlaying = false;
+                    }
                 }
             }
         }

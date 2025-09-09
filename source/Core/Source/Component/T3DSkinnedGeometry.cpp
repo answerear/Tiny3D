@@ -182,11 +182,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool SkinnedGeometry::play(const String &clipName)
+    bool SkinnedGeometry::play(const String &clipName, bool isLoop)
     {
         T3D_ASSERT(mAnimationPlayer != nullptr);
 
-        mAnimationPlayer->playClip(clipName, false, false, mIsGPUSkinning);
+        mAnimationPlayer->playClip(clipName, false, isLoop, mIsGPUSkinning);
 
         return true;
     }

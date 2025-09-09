@@ -149,6 +149,8 @@ namespace Tiny3D
 
         /// 是否在播放中
         bool mIsPlaying {false};
+        /// 是否循环播放
+        bool mIsLoop {false};
         /// 是否使用GPU蒙皮
         bool mIsGPUSkinning {false};
     };

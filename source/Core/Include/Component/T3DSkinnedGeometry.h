@@ -64,7 +64,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="GPUSkinning", RTTRFuncType="setter")
         void setGPUSkinning(bool isGPUSkinning) { mIsGPUSkinning = isGPUSkinning; }
 
-        bool play(const String &clipName);
+        bool play(const String &clipName, bool isLoop);
         
     protected:
         SkinnedGeometry() = default;
