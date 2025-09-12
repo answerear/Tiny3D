@@ -40,18 +40,14 @@ include_directories(
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
 	"${FBXSDK_INCLUDE_DIR}"
-    "${PROTOBUF_INCLUDE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
 
 # Setup project header files
 set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.h)
 
 
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
-set_project_files(protobuf ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/ .pb.cc)
 
 
 if (TINY3D_OS_WINDOWS)
@@ -73,9 +69,10 @@ if (TINY3D_OS_WINDOWS)
 		T3DCore
         rttr_core
 		${FBXSDK_LIBRARY}
-		${PROTOBUF_LIBRARY}
 		)
 
+    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME mconv)
+    
 	add_custom_command(TARGET ${BIN_NAME}
 		PRE_LINK
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
@@ -112,7 +109,6 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DCore
         LINK_PRIVATE rttr_core
-        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         LINK_PRIVATE ${FBXSDK_LIBRARY}
         LINK_PRIVATE ${Iconv_LIBRARIES}
         LINK_PRIVATE ${ZLIB_LIBRARIES}

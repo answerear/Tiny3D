@@ -18,8 +18,7 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_CONVERTER_COMMAND_H__
-#define __T3D_CONVERTER_COMMAND_H__
+#pragma once
 
 
 #include "T3DConverterPrerequisites.h"
@@ -27,9 +26,9 @@
 
 namespace Tiny3D
 {
-    class ConverterOptions;
+    struct ConverterOptions;
 
-    class ConverterCommand
+    class ConverterCommand : public Allocator
     {
     public:
         bool parse(int32_t argc, char *argv[], ConverterOptions &options);
@@ -43,7 +42,3 @@ namespace Tiny3D
         bool parseVertexShared(const char *argv) const;
     };
 }
-
-
-#endif  /*__T3D_CONVERTER_COMMAND_H__*/
-

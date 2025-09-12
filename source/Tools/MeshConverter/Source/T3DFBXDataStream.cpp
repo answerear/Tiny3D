@@ -82,14 +82,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    int FbxDataStream::Write(const void *pData, int size)
+    size_t FbxDataStream::Write(const void *pData, FbxUInt64 size)
     {
         return mStream.write((void *)pData, size);
     }
 
     //--------------------------------------------------------------------------
 
-    int FbxDataStream::Read(void *pData, int size) const
+    size_t FbxDataStream::Read(void *pData, FbxUInt64 size) const
     {
         return mStream.read(pData, size);
     }
@@ -135,14 +135,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    long FbxDataStream::GetPosition() const
+    FbxInt64 FbxDataStream::GetPosition() const
     {
         return mStream.tell();
     }
 
     //--------------------------------------------------------------------------
 
-    void FbxDataStream::SetPosition(long pPosition)
+    void FbxDataStream::SetPosition(FbxInt64 pPosition)
     {
         mStream.seek(pPosition, false);
     }

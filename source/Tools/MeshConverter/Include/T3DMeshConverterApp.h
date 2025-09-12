@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#ifndef __T3D_MESH_CONVERTER_H__
-#define __T3D_MESH_CONVERTER_H__
+#pragma once
 
 
 #include "T3DConverterPrerequisites.h"
@@ -27,16 +25,22 @@
 
 namespace Tiny3D
 {
-    class MeshConverter
+    class MeshConverterApp : public ConsoleApplication
     {
     public:
-        MeshConverter();
-        virtual ~MeshConverter();
+        MeshConverterApp();
+        
+        ~MeshConverterApp() override;
 
-        TResult execute(int32_t argc, char *argv[]);
+        bool applicationDidFinishLaunching(int32_t argc, char* argv[]) override;
+
+        void applicationDidEnterBackground() override;
+
+        void applicationWillEnterForeground() override;
+
+        void applicationWillTerminate() override;
+
+        void applicationLowMemory() override;
     };
 }
-
-
-#endif  /*__T3D_MESH_CONVERTER_H__*/
 

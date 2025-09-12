@@ -18,41 +18,22 @@
  ******************************************************************************/
 
 
-#include "T3DOGREReader.h"
+#pragma once
+
+
+#include "T3DConverterPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class Importer;
 
-    OGREReaderPtr OGREReader::create()
+    T3D_DECLARE_SMART_PTR(Importer);
+    
+    class Importer : public Object
     {
-        OGREReaderPtr reader = new OGREReader();
-        // reader->release();
-        return reader;
-    }
-
-    //--------------------------------------------------------------------------
-
-    OGREReader::OGREReader()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    OGREReader::~OGREReader()
-    {
-
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult OGREReader::parse(DataStream &stream, Model *model)
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
+    public:
+        virtual TResult run(const String &path, Resource *resource) = 0;
+    };
 }
 

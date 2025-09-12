@@ -18,32 +18,44 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_OGRE_READER_H__
-#define __T3D_OGRE_READER_H__
+#pragma once
 
 
-#include "T3DConverterPrerequisites.h"
+#include "T3DImporter.h"
 
 
 namespace Tiny3D
 {
-    class OGREReader;
+    class FBXImporter;
 
-    T3D_DECLARE_SMART_PTR(OGREReader);
-
-    class OGREReader : public ModelReader
+    T3D_DECLARE_SMART_PTR(FBXImporter);
+    
+    class FBXImporter : public Importer
     {
     public:
-        static OGREReaderPtr create();
+        static FBXImporterPtr create();
 
-        virtual ~OGREReader();
+        virtual ~FBXImporter();
 
     protected:
-        OGREReader();
+        FBXImporter();
 
-        virtual TResult parse(DataStream &stream, Model *model) override;
+        TResult run(const String &path, Resource *resource) override;
+
+        /**
+         * 初始化 FBX SDK 对象
+         * @return T3D_OK 成功
+         */
+        TResult initFbxObjects();
+
+        /**
+         * 释放 FBX SDK 对象
+         * @return T3D_OK 成功
+         */
+        TResult destroyFbxObjects();
+        
+    protected:
+        FbxManager *mFbxManager {nullptr};
     };
 }
 
-
-#endif  /*__T3D_OGRE_READER_H__*/

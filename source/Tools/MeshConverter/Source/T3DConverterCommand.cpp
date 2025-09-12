@@ -40,11 +40,10 @@ namespace Tiny3D
         bool bShowHelp = false;
         String ext;
 
-        int i = 0;
-        for (i = 1; i < argc; ++i)
+        for (int32_t i = 1; i < argc; ++i)
         {
             const char *arg = argv[i];
-            int len = strlen(arg);
+            size_t len = strlen(arg);
             if (len > 1 && arg[0] == '-')
             {
                 if (arg[1] == '?')
@@ -53,65 +52,77 @@ namespace Tiny3D
                 }
                 else if (arg[1] == 'v')
                 {
-                    options.mVerbose = true;
+                    options.verbose = true;
+                }
+                else if (arg[1] == 't')
+                {
+                    options.isTxt = true;
                 }
                 else if (arg[1] == 'i')
                 {
-                    options.mSrcFileType = parseFileType(argv[++i]);
+                    options.srcFileType = parseFileType(argv[++i]);
                 }
                 else if (arg[1] == 'o')
                 {
-                    options.mDstFileType = parseFileType(argv[++i]);
+                    options.dstFileType = parseFileType(argv[++i]);
                     ext = argv[i];
                 }
                 else if (arg[1] == 'b')
                 {
-                    options.mBoundType = parseBoundType(argv[++i]);
+                    options.boundType = parseBoundType(argv[++i]);
                 }
                 else if (arg[1] == 'm')
                 {
-                    options.mHasVertexShared = parseVertexShared(argv[++i]);
-                }
-                else if (arg[1] == 'f')
-                {
-                    options.mExtraPath = argv[++i];
+                    options.extraPath = argv[++i];
                 }
             }
-            else if (options.mSrcPath.length() == 0)
+            else if (options.srcPath.empty())
             {
-                options.mSrcPath = arg;
+                options.srcPath = arg;
             }
-            else if (options.mDstPath.length() == 0)
+            else if (options.dstPath.empty())
             {
-                options.mDstPath = arg;
+                options.dstPath = arg;
             }
         }
 
-        if (bShowHelp || options.mSrcPath.length() == 0)
+        if (bShowHelp || options.srcPath.empty())
         {
             printHelp();
             return false;
         }
 
-        if (options.mDstPath.length() == 0)
+        if (options.srcFileType == MeshFileType::kAuto)
         {
-            const String &srcPath = options.mSrcPath;
-            int pos = srcPath.rfind('.');
-            options.mDstPath = srcPath.substr(0, pos);
-
-            switch (options.mDstFileType)
+            const String srcPath = options.srcPath;
+            String::size_type pos = srcPath.rfind('.');
+            if (pos != String::npos)
             {
-            case MeshFileType::FBX:
-                options.mDstPath += ".fbx";
+                ext = srcPath.substr(pos + 1);
+                options.srcFileType = parseFileType(ext.c_str());
+            }
+        }
+
+        if (options.dstPath.empty())
+        {
+            const String &srcPath = options.srcPath;
+            String::size_type pos = srcPath.rfind('.');
+            options.dstPath = srcPath.substr(0, pos);
+
+            switch (options.dstFileType)
+            {
+            case MeshFileType::kFbx:
+                options.dstPath += ".fbx";
                 break;
-            case MeshFileType::OGRE:
-                options.mDstPath += ".mesh";
+            case MeshFileType::kOgre:
+                options.dstPath += ".mesh";
                 break;
-            case MeshFileType::T3B:
-                options.mDstPath += ".t3d";
+            case MeshFileType::kTMesh:
+                options.dstPath += Resource::EXT_MESH;
                 break;
-            case MeshFileType::T3T:
-                options.mDstPath += ".t3d";
+            case MeshFileType::kAuto:
+            default:
+                T3D_ASSERT(false);
                 break;
             }
         }
@@ -139,43 +150,47 @@ namespace Tiny3D
 
     void ConverterCommand::printHelp() const
     {
-        printf("Usage: mesh-conv.exe [options] <input> [<output>]\n");
+        printf("Version : %s\n", MCONV_VERSION_STR);
+        printf("Usage : ");
+        printf("  mconv.exe [options] <input> [<output>]\n");
+        printf("    <input>  : The filename of the file to convert.\n");
+        printf("    <output> : The filename of the converted file.\n");
         printf("\n");
-        printf("Options:\n");
-        printf("-?       : Display this help information.\n");
-        printf("-i <type>: Set the type of the input file to <type>\n");
-        printf("\t<type> : This type should be \"FBX\" (fbx), \"OGRE\" (mesh).\n");
-        printf("-o <type>: Set the type of the output file to <type>\n");
-        printf("\t<type> : This type should be \"t3b\" (Tiny3D binary), \"t3t\" (Tiny3D text).\n");
-        printf("-b <type>: Set the type of the bounding box to <type>\n");
-        printf("\t<type> : This type should be \"sphere\" or \"AABB\".\n");
-        printf("-m <type>: This type should control file mode.\n");
-        printf("\t<type> : This type should be \"shared\" or \"original\".\n");
-        printf("\t              shared - Merge different meshes in one *.fbx file into one model file and all meshes share one vertex buffer.\n");
-        printf("\t              original - Maintain meshes original structure.\n");
-        printf("-f <filename>: This option is material file when input file type is OGRE.\n");
-        printf("-v       : Verbose: print additional progress information\n");
+        printf("    Options:\n");
+        printf("      -? : Display this help information.\n");
+        printf("      -i <type> : Set the type of the input file to <type>. The valid values is below\n");
+        printf("          \"FBX\" - FBX(.fbx) file\n");
+        printf("          \"OGRE\" - OGRE(*.mesh) file.\n");
+        printf("          \"tmesh\" - Tiny3D mesh or skinned mesh (*.tmesh) file\n");
+        printf("          \"tskel\" - Tiny3D skeleton (*.tskel) file\n");
+        printf("          \"tani\" - Tiny3D animation (*.tani) file\n");
+        printf("      -o <type> : Set the type of the output file to <type>. The valid values is below\n");
+        printf("          \"FBX\" - FBX(.fbx) file\n");
+        printf("          \"OGRE\" - OGRE(*.mesh) file.\n");
+        printf("          \"tmesh\" - Tiny3D mesh or skinned mesh (*.tmesh) file\n");
+        printf("          \"tskel\" - Tiny3D skeleton (*.tskel) file\n");
+        printf("          \"tani\" - Tiny3D animation (*.tani) file\n");
+        printf("      -t : Set the type of the output file to text or binary. Default is binary. It only take effect when output Tiny3D file.\n");
+        printf("      -b <type> : Set the type of the bounding box to <type>. The valid values is below\n");
+        printf("          \"sphere\" - Sphere Bounding Volume\n");
+        printf("          \"AABB\" - Axis Aligned Bounding Box\n");
+        printf("      -m <filename> : Set the material file when input file type is OGRE.\n");
+        printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
-        printf("<input>  : The filename of the file to convert.\n");
-        printf("<output> : The filename of the converted file.\n");
-        printf("\n");
-//         printf("<type>   : FBX, T3B (binary) or T3T (text).\n");
     }
 
     //--------------------------------------------------------------------------
 
     MeshFileType ConverterCommand::parseFileType(const char *argv) const
     {
-        MeshFileType type = MeshFileType::FBX;
+        MeshFileType type = MeshFileType::kFbx;
 
         if (stricmp(argv, "fbx") == 0)
-            type = MeshFileType::FBX;
+            type = MeshFileType::kFbx;
         else if (stricmp(argv, "ogre") == 0)
-            type = MeshFileType::OGRE;
-        else if (stricmp(argv, "t3b") == 0)
-            type = MeshFileType::T3B;
-        else if (stricmp(argv, "t3t") == 0)
-            type = MeshFileType::T3T;
+            type = MeshFileType::kOgre;
+        else if (stricmp(argv, "tmesh") == 0)
+            type = MeshFileType::kTMesh;
 
         return type;
     }
@@ -184,32 +199,16 @@ namespace Tiny3D
 
     BoundType ConverterCommand::parseBoundType(const char *argv) const
     {
-        BoundType type = BoundType::SPHERE;
+        BoundType type = BoundType::kSphere;
 
         if (stricmp(argv, "sphere") == 0)
-            type = BoundType::SPHERE;
+            type = BoundType::kSphere;
         else if (stricmp(argv, "aabb") == 0)
-            type = BoundType::AABB;
+            type = BoundType::kAabb;
 
         return type;
     }
 
     //--------------------------------------------------------------------------
-
-    bool ConverterCommand::parseVertexShared(const char *argv) const
-    {
-        bool hasVertexShared = false;
-
-        if (stricmp(argv, "shared") == 0)
-        {
-            hasVertexShared = true;
-        }
-        else if (stricmp(argv, "original") == 0)
-        {
-            hasVertexShared = false;
-        }
-
-        return hasVertexShared;
-    }
 }
 

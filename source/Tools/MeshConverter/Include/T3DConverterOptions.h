@@ -18,8 +18,7 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_CONVERTER_OPTIONS_H__
-#define __T3D_CONVERTER_OPTIONS_H__
+#pragma once
 
 
 #include "T3DConverterPrerequisites.h"
@@ -27,30 +26,27 @@
 
 namespace Tiny3D
 {
-    class ConverterOptions
+    struct ConverterOptions : Allocator
     {
-    public:
-        ConverterOptions()
-            : mSrcFileType(MeshFileType::FBX)
-            , mDstFileType(MeshFileType::T3T)
-            , mBoundType(BoundType::AABB)
-            , mHasVertexShared(false)
-            , mVerbose(true)
-        {}
+        /// 输入文件全路径
+        String  srcPath {};
+        /// 输出文件全路径
+        String  dstPath {};
+        /// 附加文件全路径，在 ogre 模型时是指 material 文件
+        String  extraPath {};
 
-        String  mSrcPath;
-        String  mDstPath;
-        String  mExtraPath;
+        /// 源文件类型
+        MeshFileType    srcFileType {MeshFileType::kAuto};
+        /// 目标文件类型
+        MeshFileType    dstFileType {MeshFileType::kAuto};
+        /// 包围盒类型
+        BoundType       boundType {BoundType::kAabb};
 
-        MeshFileType    mSrcFileType;
-        MeshFileType    mDstFileType;
-        BoundType       mBoundType;
-
-        bool    mHasVertexShared;
-        bool    mVerbose;
+        /// 输出格式是文本还是二进制，只对 Tiny3D 格式有效
+        bool    isTxt {false};
+        /// 是否有顶点共享
+        bool    hasVertexShared {false};
+        /// 是否输出详细信息
+        bool    verbose {true};
     };
 }
-
-
-#endif  /*__T3D_CONVERTER_OPTIONS_H__*/
-

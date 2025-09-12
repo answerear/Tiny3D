@@ -23,7 +23,7 @@ message(STATUS "Looking for FBX SDK ...")
 #endif (MSVC)
 
 if (WIN32)
-    set (FBXSDK_LIB_SUFFIXES "prebuilt/Windows/${MSVC_CXX_ARCHITECTURE_ID}")
+    set (FBXSDK_LIB_SUFFIXES "prebuilt/Windows/${MSVC_CXX_ARCHITECTURE_ID}/${CMAKE_BUILD_TYPE}")
 elseif (APPLE AND NOT IOS)
     set (FBXSDK_LIB_SUFFIXES "prebuilt/OSX")
 elseif (UNIX AND NOT APPLE)

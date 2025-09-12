@@ -17,11 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
-#ifndef __T3D_FBX_DATA_STREAM_H__
-#define __T3D_FBX_DATA_STREAM_H__
-
-
+#pragma once
 
 #include "T3DConverterPrerequisites.h"
 
@@ -33,33 +29,33 @@ namespace Tiny3D
     public:
         FbxDataStream(DataStream &stream, FbxManager *manager, bool readable);
 
-        virtual ~FbxDataStream();
+        ~FbxDataStream() override;
 
-        virtual EState GetState() override;
+        EState GetState() override;
 
-        virtual bool Open(void *pStreamData) override;
+        bool Open(void *pStreamData) override;
 
-        virtual bool Close() override;
+        bool Close() override;
 
-        virtual bool Flush() override;
+        bool Flush() override;
 
-        virtual int Write(const void *pData, int size) override;
+        size_t Write(const void *pData, FbxUInt64 size) override;
 
-        virtual int Read(void *pData, int size) const override;
+        size_t Read(void *pData, FbxUInt64 size) const override;
 
-        virtual int GetReaderID() const override;
+        int GetReaderID() const override;
 
-        virtual int GetWriterID() const override;
+        int GetWriterID() const override;
 
-        virtual void Seek(const FbxInt64 &pOffset, const FbxFile::ESeekPos &pSeekPos) override;
+        void Seek(const FbxInt64 &pOffset, const FbxFile::ESeekPos &pSeekPos) override;
 
-        virtual long GetPosition() const override;
+        FbxInt64 GetPosition() const override;
 
-        virtual void SetPosition(long pPosition) override;
+        void SetPosition(FbxInt64 pPosition) override;
 
-        virtual int GetError() const override;
+        int GetError() const override;
 
-        virtual void ClearError() override;
+        void ClearError() override;
 
     protected:
         DataStream &mStream;
@@ -67,5 +63,3 @@ namespace Tiny3D
         int mWriterID;
     };
 }
-
-#endif  /*__T3D_FBX_DATA_STREAM_H__*/

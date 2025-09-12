@@ -17,12 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#ifndef __T3D_CONVERTER_PREREQUISITES_H__
-#define __T3D_CONVERTER_PREREQUISITES_H__
+#pragma once
 
 
 #include <Tiny3D.h>
-
 #include <fbxsdk.h>
 
 
@@ -50,22 +48,29 @@ namespace Tiny3D
         printf(fmt, ##__VA_ARGS__); \
         printf("\n");
 
-    enum MeshFileType
+    enum class MeshFileType : uint32_t
     {
-        AUTO = 0,       /**< 根据扩展名自动判断文件格式 */
-        FBX = 0x10,     /**< FBX 格式 */
-        OGRE = 0x20,    /**< OGRE 格式 */
-        T3B = 0x40,     /**< Tiny3D 二进制格式 */
-        T3T = 0x41,     /**< Tiny3D 文本格式 */
+        /// 根据扩展名自动判断文件格式
+        kAuto = 0,
+        /// FBX 格式
+        kFbx = 0x10,
+        /// OGRE 格式
+        kOgre = 0x20,
+        /// Tiny3D Mesh 和 SkinnedMesh 格式
+        kTMesh = 0x40,
+        /// Tiny3D Skeleton 格式
+        kTSkel = 0x80,
+        /// Tiny3D Animation 格式
+        kTAni = 0x100,
     };
 
     enum class BoundType : uint32_t
     {
-        SPHERE = 0,
-        AABB
+        kSphere = 0,
+        kAabb
     };
+
+    #define MCONV_VERSION       0x00001000
+    #define MCONV_VERSION_STR   "0.0.1" 
 }
-
-
-#endif  /*__T3D_CONVERTER_PREREQUISITES_H__*/
 

@@ -18,32 +18,22 @@
  ******************************************************************************/
 
 
-#include "T3DMeshConverterApp.h"
-
-// For debug
-// Text : -i FBX -o t3t -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx 
-// Binary : -i FBX -o t3b -b sphere -m shared $(SolutionDir)..\..\..\assets\models\tortoise.fbx
+#pragma once
 
 
-int main(int argc, char *argv[])
+#include "T3DConverterPrerequisites.h"
+
+
+namespace Tiny3D
 {
-    using namespace Tiny3D;
+    enum MConvErrorCode : TResult
+    {
+        T3D_ERR_MCONV_BASE = T3D_ERR_USER,
 
-    Dir::setCachePathInfo("Tiny3D", "Tiny3D");
-    
-    Agent *theEngine = T3D_NEW Agent();
-    Settings settings;
-    settings.pluginSettings.pluginPath = ".";
-    settings.pluginSettings.plugins.push_back("FileSystemArchiveEditor");
-    settings.pluginSettings.plugins.push_back("FreeImageCodecEditor");
-    settings.pluginSettings.plugins.push_back("NullRendererEditor");
-    settings.renderSettings.renderer = "NullRenderer";
-    TResult ret = theEngine->init(argc, argv, true, false, settings);
-    if (T3D_SUCCEEDED(ret))
-        theEngine->run();
-
-    T3D_SAFE_DELETE(theEngine);
-
-    return ret;
+        /// FBX SDK 初始化失败
+        T3D_ERR_FBX_SDK_CREATE_FAILED,
+        /// 加载 FBX 插件 DLL 失败
+        T3D_ERR_FBX_PLUGIN_LOAD_FAILED,
+    };
 }
 
