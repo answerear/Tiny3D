@@ -112,7 +112,7 @@ if (TINY3D_OS_WINDOWS)
         execute_process(COMMAND ${CMAKE_COMMAND} -E rename "${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/LanguageGenerator/Launcher/lang-zh-hans.txt" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Launcher/Language/lang-zh-hans.txt")
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial unicode ms.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Launcher/fonts/arial unicode ms.ttf")
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/fonts/arial unicode ms.ttf" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Launcher/fonts/arial unicode ms.ttf")
-    endif (NOT TINY3D_COPY_RESOURCE)
+    endif (TINY3D_COPY_RESOURCE)
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
