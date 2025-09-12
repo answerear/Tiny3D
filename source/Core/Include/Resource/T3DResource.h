@@ -59,6 +59,7 @@ namespace Tiny3D
         static const char *EXT_SHADERLAB;
         static const char *EXT_DYLIB;
         static const char *EXT_ANIMATION;
+        static const char *EXT_SKELETON;
         
         /**
          * \brief 资源类型
@@ -82,6 +83,8 @@ namespace Tiny3D
             kMesh,
             /// 蒙皮网格数据
             kSkinnedMesh,
+            /// 骨架数据
+            kSkeleton,
             /// 骨骼动画数据
             kSkeletalAnimation,
             /// 预制件

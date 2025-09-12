@@ -58,10 +58,12 @@
 #include <Resource/T3DScene.h>
 #include <Resource/T3DSceneManager.h>
 #include <Resource/T3DMesh.h>
+#include <Resource/T3DSkinnedMesh.h>
 #include <Resource/T3DMeshManager.h>
+#include <Resource/T3DSkeleton.h>
+#include <Resource/T3DSkeletonManager.h>
 #include <Resource/T3DSubMesh.h>
 #include <Resource/T3DSkeletalAnimation.h>
-#include <Resource/T3DSkinnedMesh.h>
 
 // Skeletal Animation
 #include <Animation/T3DBoneNode.h>

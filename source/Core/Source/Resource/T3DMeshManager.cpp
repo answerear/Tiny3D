@@ -25,6 +25,7 @@
 
 #include "Resource/T3DMeshManager.h"
 #include "Resource/T3DMesh.h"
+#include "Resource/T3DSkeleton.h"
 #include "Resource/T3DSkinnedMesh.h"
 #include "Serializer/T3DSerializerManager.h"
 
@@ -83,22 +84,23 @@ namespace Tiny3D
     SkinnedMeshPtr MeshManager::createSkinnedMesh(const String &name,
         VertexAttributes &&attributes, Vertices &&vertices,
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        SkeletalAnimation *skeletalAni, const Bones &&bones)
+        Skeleton *skeleton, SkeletalAnimation *skeletalAni)
     {
         VertexAttributes attrs = std::move(attributes);
         Vertices verts = std::move(vertices);
         VertexStrides vstrides = std::move(strides);
         VertexOffsets voffsets = std::move(offsets);
         SubMeshes subs = std::move(submeshes);
-        Bones nodes = std::move(bones);
-        return smart_pointer_cast<SkinnedMesh>(createResource(name, 7, &attrs, &verts, &vstrides, &voffsets, &subs, skeletalAni, &nodes));
+        return smart_pointer_cast<SkinnedMesh>(createResource(name, 7, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni));
     }
 
     //--------------------------------------------------------------------------
 
     ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
+        ResourcePtr res;
         T3D_ASSERT(argc == 5 || argc == 7);
+        
         if (argc == 5)
         {
             // Mesh
@@ -107,7 +109,7 @@ namespace Tiny3D
             VertexStrides *strides = va_arg(args, VertexStrides*);
             VertexOffsets *offsets = va_arg(args, VertexOffsets*);
             SubMeshes *submeshes = va_arg(args, SubMeshes*);
-            return Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes));
+            res = Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes));
         }
         else
         {
@@ -117,11 +119,12 @@ namespace Tiny3D
             VertexStrides *strides = va_arg(args, VertexStrides*);
             VertexOffsets *offsets = va_arg(args, VertexOffsets*);
             SubMeshes *submeshes = va_arg(args, SubMeshes*);
+            Skeleton *skeleton = va_arg(args, Skeleton*);
             SkeletalAnimation *skeletalAni = va_arg(args, SkeletalAnimation*);
-            Bones *bones = va_arg(args, Bones*);
-            return SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeletalAni, std::move(*bones));
+            res = SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeleton, skeletalAni);
         }
         
+        return res;
     }
 
     //--------------------------------------------------------------------------

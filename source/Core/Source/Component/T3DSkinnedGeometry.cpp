@@ -28,6 +28,7 @@
 #include "Resource/T3DSkinnedMesh.h"
 #include "T3DErrorDef.h"
 #include "Component/T3DTransform3D.h"
+#include "Resource/T3DSkeleton.h"
 
 
 namespace Tiny3D
@@ -140,15 +141,17 @@ namespace Tiny3D
             return T3D_ERR_RES_INVALID_OBJECT;
         }
 
+        const Bones &bones = skinnedMesh->getSkeleton()->getBones();
+        
         mBoneGameObjects.clear();
-        mBoneGameObjects.resize(skinnedMesh->getBones().size(), nullptr);
+        mBoneGameObjects.resize(bones.size(), nullptr);
 
         mAllBones.clear();
 
         // 先构建所有 game object 对象
-        for (size_t i = 0; i < skinnedMesh->getBones().size(); i++)
+        for (size_t i = 0; i < bones.size(); i++)
         {
-            const auto &bone = skinnedMesh->getBones()[i];
+            const auto &bone = bones[i];
             GameObjectPtr go = GameObject::create(bone->getName());
             Transform3DPtr xform = smart_pointer_cast<Transform3D>(go->addComponent<Transform3D>());
             xform->setPosition(bone->getTranslation());
@@ -159,9 +162,9 @@ namespace Tiny3D
         }
 
         // 根据骨骼层级结构来构建 game object 层级结构
-        for (size_t i = 0; i < skinnedMesh->getBones().size(); i++)
+        for (size_t i = 0; i < bones.size(); i++)
         {
-            const auto &bone = skinnedMesh->getBones()[i];
+            const auto &bone = bones[i];
             GameObjectPtr go = mBoneGameObjects[i];
             Transform3D *node = static_cast<Transform3D *>(go->getTransformNode());
             uint16_t parentIdx = bone->getParentIndex();

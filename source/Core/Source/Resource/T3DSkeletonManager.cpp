@@ -23,117 +23,89 @@
  ******************************************************************************/
 
 
-#include "Resource/T3DResource.h"
-#include "Kernel/T3DArchive.h"
-#include "Component/T3DComponent.h"
+#include "Resource/T3DSkeletonManager.h"
+#include "Resource/T3DSkeleton.h"
+#include "Serializer/T3DSerializerManager.h"
 
 
 namespace Tiny3D
-{
+{   
     //--------------------------------------------------------------------------
 
-    const char *Resource::EXT_MATERIAL = "tmat";
-    const char *Resource::EXT_TEXTURE = "ttex";
-    const char *Resource::EXT_IMAGE = "timg";
-    const char *Resource::EXT_SHADER = "tshader";
-    const char *Resource::EXT_MESH = "tmesh";
-    const char *Resource::EXT_PREFAB = "tprefab";
-    const char *Resource::EXT_SCENE = "tscene";
-    const char *Resource::EXT_TXT = "txt";
-    const char *Resource::EXT_BIN = "bin";
-    const char *Resource::EXT_SHADERLAB = "shader";
-    const char *Resource::EXT_ANIMATION = "tani";
-    const char *Resource::EXT_SKELETON = "tskel";
-
-#if defined (T3D_OS_WINDOWS)
-    const char *Resource::EXT_DYLIB = "dll";
-#elif defined (T3D_OS_OSX) || defined (T3D_OS_IOS)
-    const char *Resource::EXT_DYLIB = "dylib";
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
-    const char *Resource::EXT_DYLIB = "so";
-#endif
-    
-    //--------------------------------------------------------------------------
-
-    Resource::Resource()
-        : Resource("")
+    SkeletonManagerPtr SkeletonManager::create()
     {
+        return T3D_NEW SkeletonManager();
     }
     
     //--------------------------------------------------------------------------
 
-    Resource::Resource(const String &strName)
-        : mState(State::kUnloaded)
-        , mName(strName)
-        , mCompletedCB(nullptr)
+    SkeletonPtr SkeletonManager::createSkeleton(const String &name, Bones &&bones)
     {
-        mUUID = UUID::generate();
+        Bones data = std::move(bones);
+        return smart_pointer_cast<Skeleton>(createResource(name, 1, &data));
     }
 
     //--------------------------------------------------------------------------
 
-    Resource::~Resource()
+    SkeletonPtr SkeletonManager::loadSkeleton(Archive *archive, const String &filename)
     {
-        T3D_ASSERT(getState() == State::kUnloaded);
+        return smart_pointer_cast<Skeleton>(load(archive, filename));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onCreate()
+    SkeletonPtr SkeletonManager::loadSkeleton(Archive *archive, const UUID &uuid)
     {
-        mState = State::kLoaded;
-        return T3D_OK;
+        return smart_pointer_cast<Skeleton>(load(archive, uuid));
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onSave(Archive *archive)
+    TResult SkeletonManager::saveSkeleton(Archive *archive, const String &filename, Skeleton *skeleton)
     {
-        return T3D_OK;
+        return save(archive, filename, skeleton);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onLoad(Archive *archive)
+    TResult SkeletonManager::saveSkeleton(Archive *archive, Skeleton *skeleton)
     {
-        mState = State::kLoaded;
-
-        for (auto component : mNeedToLoadResourceComponents)
-        {
-            component->onLoadResource(archive);
-        }
-
-        mNeedToLoadResourceComponents.clear();
-        
-        return T3D_OK;
+        return save(archive, skeleton);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Resource::onUnload()
+    ResourcePtr SkeletonManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        mState = State::kUnloaded;
-        return T3D_OK;
+        T3D_ASSERT(argc == 1);
+        // Skeleton
+        Bones *bones = va_arg(args, Bones*);
+        return Skeleton::create(name, std::move(*bones));
     }
 
     //--------------------------------------------------------------------------
 
-    void Resource::cloneProperties(const Resource *const src)
+    ResourcePtr SkeletonManager::loadResource(const String &name, DataStream &stream)
     {
-        // 克隆就新生成 UUID
-        mUUID = UUID::generate();
-        mName = src->getName();
-        mFilename = src->getFilename();
-        mState = src->mState;
-        mCompletedCB = src->mCompletedCB;
+        return T3D_SERIALIZER_MGR.deserialize<Skeleton>(stream);
     }
 
     //--------------------------------------------------------------------------
 
-    void Resource::onAddComponentForLoadingResource(Component *component)
+    ResourcePtr SkeletonManager::loadResource(DataStream &stream)
     {
-        
+        return T3D_SERIALIZER_MGR.deserialize<Skeleton>(stream);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult SkeletonManager::saveResource(DataStream &stream, Resource *res)
+    {
+        T3D_ASSERT(res->getType() == Resource::Type::kSkeleton);
+        Skeleton *skeleton = static_cast<Skeleton*>(res);
+        return T3D_SERIALIZER_MGR.serialize(stream, skeleton);
     }
 
     //--------------------------------------------------------------------------
 }
+

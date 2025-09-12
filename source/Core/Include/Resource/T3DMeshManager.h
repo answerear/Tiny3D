@@ -89,7 +89,8 @@ namespace Tiny3D
         SkinnedMeshPtr createSkinnedMesh(const String &name,
             VertexAttributes &&attributes, Vertices &&vertices,
             VertexStrides &&strides, VertexOffsets &&offsets,
-            SubMeshes &&submeshes, SkeletalAnimation *skeletalAni, const Bones &&bones);
+            SubMeshes &&submeshes, Skeleton *skeleton,
+            SkeletalAnimation *skeletalAni);
 
     protected:
         /**

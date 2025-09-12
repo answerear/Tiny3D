@@ -79,6 +79,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(MeshManager);
     T3D_DECLARE_SMART_PTR(SubMesh);
     T3D_DECLARE_SMART_PTR(SkinnedMesh);
+    T3D_DECLARE_SMART_PTR(Skeleton);
+    T3D_DECLARE_SMART_PTR(SkeletonManager);
     T3D_DECLARE_SMART_PTR(SkeletalAnimation);
     T3D_DECLARE_SMART_PTR(AnimationManager);
 

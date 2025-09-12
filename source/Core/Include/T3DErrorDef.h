@@ -31,7 +31,7 @@
 
 namespace Tiny3D
 {
-    enum CoreErrorCode
+    enum CoreErrorCode : TResult
     {
         /// 解析 XML 出錯
         T3D_ERR_CFG_FILE_PARSING_XML    = T3D_ERR_CORE + 0x0000,

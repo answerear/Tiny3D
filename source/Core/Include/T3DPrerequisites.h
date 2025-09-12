@@ -126,6 +126,8 @@ namespace Tiny3D
     class MeshManager;
     class SubMesh;
     class SkinnedMesh;
+    class Skeleton;
+    class SkeletonManager;
     class SkeletalAnimation;
     class AnimationManager;
 

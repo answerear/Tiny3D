@@ -33,6 +33,7 @@
 #include "T3DConfig.h"
 #include "Animation/T3DAnimationPlayerMgr.h"
 #include "Resource/T3DMaterial.h"
+#include "Resource/T3DSkeleton.h"
 
 
 namespace Tiny3D
@@ -487,10 +488,10 @@ namespace Tiny3D
                 uint8_t blendIdx = srcIndex[idx];
                 
                 // 混合计算位置
-                pos += getBoneMatrix(skinnedMesh->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * srcPos1 * blendWeight;
+                pos += getBoneMatrix(skinnedMesh->getSkeleton()->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * srcPos1 * blendWeight;
 
                 // 混合计算法线
-                normal += getBoneMatrix(skinnedMesh->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * (srcNormal1) * blendWeight;
+                normal += getBoneMatrix(skinnedMesh->getSkeleton()->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * (srcNormal1) * blendWeight;
             }
 
             T3D_ASSERT(posOffset < dstPosVerts.DataSize);
@@ -541,7 +542,7 @@ namespace Tiny3D
     {
         T3D_ASSERT(mSkinnedGeometry != nullptr);
         SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
-        const Bones &bones = skinnedMesh->getBones();
+        const Bones &bones = skinnedMesh->getSkeleton()->getBones();
         Material *material = mSkinnedGeometry->getMaterial();
         T3D_ASSERT(material != nullptr);
         const auto &transforms = mSkinnedGeometry->getBoneGameObjects();

@@ -231,21 +231,23 @@ namespace Tiny3D
         ArchiveManagerPtr       mArchiveMgr {nullptr};
         /// 序列化管理器
         SerializerManagerPtr    mSerializerMgr {nullptr};
-        /// 动态库管理器
+        /// 动态库资源管理器
         DylibManagerPtr         mDylibMgr {nullptr};
-        /// 网格管理器
+        /// 网格资源管理器
         MeshManagerPtr          mMeshMgr {nullptr};
-        /// 动画管理器
+        /// 骨架资源管理器
+        SkeletonManagerPtr      mSkeletonMgr {nullptr};
+        /// 动画资源管理器
         AnimationManagerPtr     mAnimationMgr {nullptr};
-        /// 预制体管理器
+        /// 预制体资源管理器
         PrefabManagerPtr        mPrefabMgr {nullptr};
-        /// 着色器管理器
+        /// 着色器资源管理器
         ShaderManagerPtr        mShaderMgr {nullptr};
-        /// 材质管理器
+        /// 材质资源管理器
         MaterialManagerPtr      mMaterialMgr {nullptr};
-        /// 纹理管理器
+        /// 纹理资源管理器
         TextureManagerPtr       mTextureMgr {nullptr};
-        /// 场景管理器
+        /// 场景资源管理器
         SceneManagerPtr         mSceneMgr {nullptr};
         /// 图像编码器
         ImageCodecPtr           mImageCodec {nullptr};

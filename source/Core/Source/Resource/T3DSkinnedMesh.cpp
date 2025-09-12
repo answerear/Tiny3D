@@ -28,6 +28,8 @@
 #include "Resource/T3DAnimationManager.h"
 #include "Animation/T3DAnimationClip.h"
 #include "Animation/T3DAnimationTrack.h"
+#include "Resource/T3DSkeleton.h"
+#include "Resource/T3DSkeletonManager.h"
 
 
 namespace Tiny3D
@@ -44,9 +46,9 @@ namespace Tiny3D
     SkinnedMeshPtr SkinnedMesh::create(const String &name,
         VertexAttributes &&attributes, Vertices &&vertices,
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        SkeletalAnimation *skeletalAni, Bones &&bones)
+        Skeleton *skeleton, SkeletalAnimation *skeletalAni)
     {
-        return T3D_NEW SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeletalAni, std::move(bones));
+        return T3D_NEW SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeleton, skeletalAni);
     }
 
     //--------------------------------------------------------------------------
@@ -68,10 +70,11 @@ namespace Tiny3D
 
     SkinnedMesh::SkinnedMesh(const String &name, VertexAttributes &&attributes,
         Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets,
-        SubMeshes &&submeshes, SkeletalAnimation *skeletalAni, Bones &&bones)
+        SubMeshes &&submeshes, Skeleton *skeleton, SkeletalAnimation *skeletalAni)
         : Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes))
+        , mSkeletonUUID(skeleton->getUUID())
         , mSkeletalAniUUID(skeletalAni->getUUID())
-        , mBones(std::move(bones))
+        , mSkeleton(skeleton)
         , mSkeletalAni(skeletalAni)
     {
         
@@ -142,6 +145,10 @@ namespace Tiny3D
 
         do
         {
+            mSkeleton = T3D_SKELETON_MGR.loadSkeleton(archive, mSkeletonUUID);
+#if defined (T3D_DEBUG)
+            mIsBonesDirty = true;
+#endif
             mSkeletalAni = T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, mSkeletalAniUUID);
         } while (false);
         
@@ -207,10 +214,12 @@ namespace Tiny3D
     {
         clearJoints();
 
+        const Bones &bones = mSkeleton->getBones();
+
         uint16_t index = 0;
-        mJoints.resize(mBones.size(), nullptr);
+        mJoints.resize(bones.size(), nullptr);
         
-        for (const auto &bone : mBones)
+        for (const auto &bone : bones)
         {
             JointNode *node = T3D_NEW JointNode();
             node->joint = index;
@@ -227,7 +236,7 @@ namespace Tiny3D
 
         index = 0;
         
-        for (const auto &bone : mBones)
+        for (const auto &bone : bones)
         {
             JointNode *node = mJoints[index];
 
@@ -259,7 +268,8 @@ namespace Tiny3D
             ss << "\t";
         }
 
-        BoneNode *bone = mBones[node->joint];
+        const Bones &bones = mSkeleton->getBones();
+        BoneNode *bone = bones[node->joint];
         
         ss << "Bone - name : " << bone->getName();
         ss << " T : " << bone->getTranslation().getDebugString();

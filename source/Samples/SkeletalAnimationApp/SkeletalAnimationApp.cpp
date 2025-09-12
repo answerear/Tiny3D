@@ -35,6 +35,7 @@ using namespace Tiny3D;
 const char *SUB_MESH_NAME = "#0";
 
 const float kOneBoneLength = 4.0f;
+const char *kArmSkeleton = "ArmSkeleton";
 const char *kUpperArmName = "UpperArm";
 const char *kForeArmName = "ForeArm";
 const char *kPalmName = "Palm";
@@ -752,10 +753,10 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 
-    Bones bones;
-    SkeletalAnimationPtr skeletalAni = buildArmSkeletalAnimation(bones);
+    SkeletonPtr skeleton = buildArmSkeleton();
+    SkeletalAnimationPtr skeletalAni = buildArmSkeletalAnimation();
     
-    MeshPtr mesh = T3D_MESH_MGR.createSkinnedMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes), skeletalAni, std::move(bones));
+    MeshPtr mesh = T3D_MESH_MGR.createSkinnedMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes), skeleton, skeletalAni);
 #if defined (T3D_DEBUG)
     APP_LOG_DEBUG("Mesh (%s) Data :\n%s", mesh->getName().c_str(), mesh->getDebugInfo().c_str());
 #endif
@@ -798,8 +799,9 @@ void SkeletalAnimationApp::buildAnimationTracks(const String &name, const Radian
     tracks.emplace(name, track);
 }
 
-SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation(Bones &bones)
+SkeletonPtr SkeletalAnimationApp::buildArmSkeleton()
 {
+    Bones bones;
     // bones hierarchy and offset matrices
     Matrix4 offsetMatrix;
     Vector3 pos = Vector3::ZERO;
@@ -815,6 +817,12 @@ SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation(Bones &bone
     bone = BoneNode::create(kPalmName, 1, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
     bones.emplace_back(bone);
 
+    return T3D_SKELETON_MGR.createSkeleton(kArmSkeleton, std::move(bones));
+}
+
+
+SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation()
+{
     // animation clips
     AnimationTracks tracks;
 

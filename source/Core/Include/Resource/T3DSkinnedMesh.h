@@ -47,8 +47,8 @@ namespace Tiny3D
         static SkinnedMeshPtr create(const String &name,
             VertexAttributes &&attributes, Vertices &&vertices,
             VertexStrides &&strides, VertexOffsets &&offsets,
-            SubMeshes &&submeshes, SkeletalAnimation *skeletalAni,
-            Bones &&bones);
+            SubMeshes &&submeshes, Skeleton *skeleton,
+            SkeletalAnimation *skeletalAni);
 
         /**
          * \brief 析构函数
@@ -57,22 +57,21 @@ namespace Tiny3D
 
         Type getType() const override;
 
+        TPROPERTY(RTTRFuncName="SkeletonUUID", RTTRFuncType="getter")
+        const UUID &getSkeletonUUID() const
+        {
+            return mSkeletonUUID;
+        }
+        
         TPROPERTY(RTTRFuncName="SkeletalAnimationUUID", RTTRFuncType="getter")
         const UUID &getSkeletalAnimationUUID() const
         {
             return mSkeletalAniUUID;
         }
 
-        TPROPERTY(RTTRFuncName="Bones", RTTRFuncType="getter")
-        const Bones &getBones() const
-        {
-            return mBones;
-        }
-
-        SkeletalAnimation *getSkeletalAnimation() const
-        {
-            return mSkeletalAni;
-        }
+        Skeleton *getSkeleton() const { return mSkeleton; }
+        
+        SkeletalAnimation *getSkeletalAnimation() const { return mSkeletalAni; }
 
 #if defined (T3D_DEBUG)
         String getDebugInfo() const override;
@@ -85,8 +84,8 @@ namespace Tiny3D
 
         SkinnedMesh(const String &name, VertexAttributes &&attributes,
             Vertices &&vertices, VertexStrides &&strides,
-            VertexOffsets &&offsets, SubMeshes &&submeshes,
-            SkeletalAnimation *skeletalAni, Bones &&bones);
+            VertexOffsets &&offsets, SubMeshes &&submeshes, Skeleton *skeleton,
+            SkeletalAnimation *skeletalAni);
         
         ResourcePtr clone() const override;
 
@@ -105,13 +104,10 @@ namespace Tiny3D
             mSkeletalAniUUID = skeletalAniUUID;
         }
         
-        TPROPERTY(RTTRFuncName="Bones", RTTRFuncType="setter")
-        void setBones(const Bones &bones)
+        TPROPERTY(RTTRFuncName="SkeletonUUID", RTTRFuncType="setter")
+        void setSkeletonUUID(const UUID &skeletonUUID)
         {
-            mBones = bones;
-#if defined (T3D_DEBUG)
-            mIsBonesDirty = true;
-#endif
+            mSkeletonUUID = skeletonUUID;
         }
 
         bool isDynamicVertices() const override { return true; }
@@ -122,12 +118,13 @@ namespace Tiny3D
 #endif
         
     protected:
+        /// 骨架资源 UUID
+        UUID mSkeletonUUID {};
         /// 骨骼动画数据资源 UUID
         UUID mSkeletalAniUUID {};
 
-        /// 骨骼 hierarchy
-        Bones mBones {};
-
+        /// 骨架数据对象
+        SkeletonPtr mSkeleton {nullptr};
         /// 骨骼动画数据对象
         SkeletalAnimationPtr mSkeletalAni {nullptr};
 
