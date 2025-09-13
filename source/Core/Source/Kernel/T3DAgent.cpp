@@ -777,7 +777,7 @@ namespace Tiny3D
                 break;
             }
 
-            auto rval = mPlugins.insert(PluginsValue(plugin->getName(), plugin));
+            auto rval = mPlugins.emplace(PluginsValue(plugin->getName(), plugin));
             if (!rval.second)
             {
                 ret = T3D_ERR_PLG_DUPLICATED;
