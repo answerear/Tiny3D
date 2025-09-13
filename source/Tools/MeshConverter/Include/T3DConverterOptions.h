@@ -30,8 +30,10 @@ namespace Tiny3D
     {
         /// 输入文件全路径
         String  srcPath {};
-        /// 输出文件全路径
-        String  dstPath {};
+        /// 输出文件夹路径
+        String  dstDir {};
+        /// 输出文件名
+        String  dstTitle {};
         /// 附加文件全路径，在 ogre 模型时是指 material 文件
         String  extraPath {};
 

@@ -21,19 +21,24 @@
 #pragma once
 
 
-#include "T3DConverterPrerequisites.h"
+#include "T3DAssetImporter.h"
 
 
 namespace Tiny3D
 {
-    class Importer;
+    class EngineImporter;
 
-    T3D_DECLARE_SMART_PTR(Importer);
+    T3D_DECLARE_SMART_PTR(EngineImporter);
     
-    class Importer : public Object
+    class EngineImporter : public AssetImporter
     {
     public:
-        virtual TResult run(const String &path, Resource *resource) = 0;
+        static EngineImporterPtr create();
+        
+        ~EngineImporter() override;
+        
+    protected:
+        TResult run(const ConverterOptions &opts, Assets &resources) override;
     };
 }
 

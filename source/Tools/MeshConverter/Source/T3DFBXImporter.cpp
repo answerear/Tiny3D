@@ -47,28 +47,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXImporter::run(const String &path, Resource *resource)
+    TResult FBXImporter::run(const ConverterOptions &opts, Assets &resources)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            if (path.empty())
-            {
-                MCONV_LOG_ERROR("Invalid file path.")
-                ret = T3D_ERR_INVALID_PARAM;
-                break;
-            }
-            
-            if (resource->getType() != Resource::Type::kMesh
-                && resource->getType() != Resource::Type::kSkinnedMesh
-                && resource->getType() != Resource::Type::kSkeletalAnimation)
-            {
-                MCONV_LOG_ERROR("Invalid resource type: %d", static_cast<int32_t>(resource->getType()))
-                ret = T3D_ERR_INVALID_PARAM;
-                break;
-            }
-
             // 初始化 FBX 对象
             ret = initFbxObjects();
             if (T3D_FAILED(ret))

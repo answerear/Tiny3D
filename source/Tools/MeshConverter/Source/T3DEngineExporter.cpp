@@ -18,44 +18,32 @@
  ******************************************************************************/
 
 
-#pragma once
-
-
-#include "T3DAssetImporter.h"
+#include "T3DEngineExporter.h"
 
 
 namespace Tiny3D
 {
-    class FBXImporter;
+    //--------------------------------------------------------------------------
 
-    T3D_DECLARE_SMART_PTR(FBXImporter);
-    
-    class FBXImporter : public AssetImporter
+    EngineExporterPtr EngineExporter::create()
     {
-    public:
-        static FBXImporterPtr create();
+        return new EngineExporter();
+    }
+    
+    //--------------------------------------------------------------------------
 
-        ~FBXImporter() override;
+    EngineExporter::~EngineExporter()
+    {
 
-    protected:
-        FBXImporter();
+    }
 
-        TResult run(const ConverterOptions &opts, Assets &resources) override;
+    //--------------------------------------------------------------------------
 
-        /**
-         * 初始化 FBX SDK 对象
-         * @return T3D_OK 成功
-         */
-        TResult initFbxObjects();
-
-        /**
-         * 释放 FBX SDK 对象
-         * @return T3D_OK 成功
-         */
-        TResult destroyFbxObjects();
-        
-    protected:
-        FbxManager *mFbxManager {nullptr};
-    };
+    TResult EngineExporter::run(const ConverterOptions &opts, const Assets &resources)
+    {
+        return T3D_OK;
+    }
+    
+    //--------------------------------------------------------------------------
 }
 

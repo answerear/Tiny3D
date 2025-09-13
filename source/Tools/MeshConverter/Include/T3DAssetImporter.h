@@ -21,41 +21,20 @@
 #pragma once
 
 
-#include "T3DAssetImporter.h"
+#include "T3DConverterPrerequisites.h"
+#include "T3DConverterOptions.h"
 
 
 namespace Tiny3D
 {
-    class FBXImporter;
+    class AssetImporter;
 
-    T3D_DECLARE_SMART_PTR(FBXImporter);
+    T3D_DECLARE_SMART_PTR(AssetImporter);
     
-    class FBXImporter : public AssetImporter
+    class AssetImporter : public Object
     {
     public:
-        static FBXImporterPtr create();
-
-        ~FBXImporter() override;
-
-    protected:
-        FBXImporter();
-
-        TResult run(const ConverterOptions &opts, Assets &resources) override;
-
-        /**
-         * 初始化 FBX SDK 对象
-         * @return T3D_OK 成功
-         */
-        TResult initFbxObjects();
-
-        /**
-         * 释放 FBX SDK 对象
-         * @return T3D_OK 成功
-         */
-        TResult destroyFbxObjects();
-        
-    protected:
-        FbxManager *mFbxManager {nullptr};
+        virtual TResult run(const ConverterOptions &opts, Assets &resources) = 0;
     };
 }
 

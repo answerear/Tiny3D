@@ -26,108 +26,130 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    bool ConverterCommand::parse(int32_t argc, char *argv[], 
-        ConverterOptions &options)
+    bool ConverterCommand::parse(int32_t argc, char *argv[], ConverterOptions &opts)
     {
-        printCommand(argc, argv);
+        bool ret = true;
 
-        if (argc < 3)
+        do
         {
-            printHelp();
-            return false;
-        }
+            printCommand(argc, argv);
 
-        bool bShowHelp = false;
-        String ext;
-
-        for (int32_t i = 1; i < argc; ++i)
-        {
-            const char *arg = argv[i];
-            size_t len = strlen(arg);
-            if (len > 1 && arg[0] == '-')
+            if (argc < 3)
             {
-                if (arg[1] == '?')
-                {
-                    bShowHelp = true;
-                }
-                else if (arg[1] == 'v')
-                {
-                    options.verbose = true;
-                }
-                else if (arg[1] == 't')
-                {
-                    options.isTxt = true;
-                }
-                else if (arg[1] == 'i')
-                {
-                    options.srcFileType = parseFileType(argv[++i]);
-                }
-                else if (arg[1] == 'o')
-                {
-                    options.dstFileType = parseFileType(argv[++i]);
-                    ext = argv[i];
-                }
-                else if (arg[1] == 'b')
-                {
-                    options.boundType = parseBoundType(argv[++i]);
-                }
-                else if (arg[1] == 'm')
-                {
-                    options.extraPath = argv[++i];
-                }
-            }
-            else if (options.srcPath.empty())
-            {
-                options.srcPath = arg;
-            }
-            else if (options.dstPath.empty())
-            {
-                options.dstPath = arg;
-            }
-        }
-
-        if (bShowHelp || options.srcPath.empty())
-        {
-            printHelp();
-            return false;
-        }
-
-        if (options.srcFileType == MeshFileType::kAuto)
-        {
-            const String srcPath = options.srcPath;
-            String::size_type pos = srcPath.rfind('.');
-            if (pos != String::npos)
-            {
-                ext = srcPath.substr(pos + 1);
-                options.srcFileType = parseFileType(ext.c_str());
-            }
-        }
-
-        if (options.dstPath.empty())
-        {
-            const String &srcPath = options.srcPath;
-            String::size_type pos = srcPath.rfind('.');
-            options.dstPath = srcPath.substr(0, pos);
-
-            switch (options.dstFileType)
-            {
-            case MeshFileType::kFbx:
-                options.dstPath += ".fbx";
-                break;
-            case MeshFileType::kOgre:
-                options.dstPath += ".mesh";
-                break;
-            case MeshFileType::kTMesh:
-                options.dstPath += Resource::EXT_MESH;
-                break;
-            case MeshFileType::kAuto:
-            default:
-                T3D_ASSERT(false);
+                printf("Invalid arguments.\n");
+                printHelp();
+                ret = false;
                 break;
             }
-        }
 
-        return true;
+            bool bShowHelp = false;
+
+            for (int32_t i = 1; i < argc; ++i)
+            {
+                const char *arg = argv[i];
+                size_t len = strlen(arg);
+                if (len > 1 && arg[0] == '-')
+                {
+                    if (arg[1] == '?')
+                    {
+                        bShowHelp = true;
+                    }
+                    else if (arg[1] == 'v')
+                    {
+                        opts.verbose = true;
+                    }
+                    else if (arg[1] == 't')
+                    {
+                        opts.isTxt = true;
+                    }
+                    else if (arg[1] == 'i')
+                    {
+                        opts.srcFileType = parseFileType(argv[++i]);
+                    }
+                    else if (arg[1] == 'o')
+                    {
+                        opts.dstFileType = parseFileType(argv[++i]);
+                    }
+                    else if (arg[1] == 'b')
+                    {
+                        opts.boundType = parseBoundType(argv[++i]);
+                    }
+                    else if (arg[1] == 'm')
+                    {
+                        opts.extraPath = argv[++i];
+                    }
+                }
+                else if (opts.srcPath.empty())
+                {
+                    opts.srcPath = arg;
+                }
+                else if (opts.dstDir.empty())
+                {
+                    opts.dstDir = arg;
+                }
+            }
+
+            if (bShowHelp || opts.srcPath.empty() || opts.dstFileType == MeshFileType::kAuto)
+            {
+                // 显示帮助信息
+                // 输入文件全路径是必须指定的
+                // 输出文件格式是必须指定的
+                if (opts.srcPath.empty())
+                {
+                    printf("Input file full path is empty.\n");
+                }
+                if (opts.dstFileType == MeshFileType::kAuto)
+                {
+                    printf("Output file type is empty.\n");
+                }
+                
+                printHelp();
+                ret = false;
+                break;
+            }
+
+            // 处理一些默认值
+            if (opts.srcFileType == MeshFileType::kAuto || opts.dstDir.empty())
+            {
+                String dir, title, ext;
+                Dir::parsePath(opts.srcPath, dir, title, ext);
+
+                if (opts.srcFileType == MeshFileType::kAuto)
+                {
+                    // 自动格式，根据文件扩展名判断
+                    if (ext.empty())
+                    {
+                        // 没扩展名，就无法判断了
+                        ret = false;
+                        break;
+                    }
+                    
+                    opts.srcFileType = parseFileType(ext.c_str());
+                }
+
+                if (opts.srcFileType == opts.dstFileType)
+                {
+                    // 输入输出格式相同，不需要转换
+                    printf("Input and output file type is same. No need to convert.\n");
+                    ret = false;
+                    break;
+                }
+
+                if (opts.dstDir.empty())
+                {
+                    // 输出目录默认和输入文件目录相同
+                    opts.dstDir = dir;
+                }
+
+                if (opts.dstTitle.empty())
+                {
+                    // 输出文件名默认和输入文件名相同
+                    opts.dstTitle = title;
+                }
+            }
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -140,7 +162,7 @@ namespace Tiny3D
         {
             if (i > 1)
                 printf(" ");
-            printf(argv[i]);
+            printf("%s", argv[i]);
         }
 
         printf("\n");
@@ -152,28 +174,32 @@ namespace Tiny3D
     {
         printf("Version : %s\n", MCONV_VERSION_STR);
         printf("Usage : ");
-        printf("  mconv.exe [options] <input> [<output>]\n");
-        printf("    <input>  : The filename of the file to convert.\n");
-        printf("    <output> : The filename of the converted file.\n");
+        printf("  mconv.exe [options] -o <type> <input full path> [<output directory>]\n");
+        printf("    <input full path>  : The full path of the file to convert.\n");
+        printf("    <output directory> : The directory of the output file.\n");
         printf("\n");
-        printf("    Options:\n");
+        printf("    [options] :\n");
         printf("      -? : Display this help information.\n");
         printf("      -i <type> : Set the type of the input file to <type>. The valid values is below\n");
         printf("          \"FBX\" - FBX(.fbx) file\n");
         printf("          \"OGRE\" - OGRE(*.mesh) file.\n");
-        printf("          \"tmesh\" - Tiny3D mesh or skinned mesh (*.tmesh) file\n");
+        printf("          \"tiny3d\" - Tiny3D all skinned mesh data file including skinned mesh(*.tmesh), skeleton(*.tskel) and animation (*.tani) files.\n");
+        printf("          \"tmesh\" - Tiny3D mesh (*.tmesh) file\n");
+        printf("          \"tskin\" - Tiny3D skinned mesh (*.tmesh) file\n");
         printf("          \"tskel\" - Tiny3D skeleton (*.tskel) file\n");
         printf("          \"tani\" - Tiny3D animation (*.tani) file\n");
         printf("      -o <type> : Set the type of the output file to <type>. The valid values is below\n");
         printf("          \"FBX\" - FBX(.fbx) file\n");
         printf("          \"OGRE\" - OGRE(*.mesh) file.\n");
-        printf("          \"tmesh\" - Tiny3D mesh or skinned mesh (*.tmesh) file\n");
+        printf("          \"tiny3d\" - Tiny3D all skinned mesh data file including skinned mesh(*.tmesh), skeleton(*.tskel) and animation (*.tani) files.\n");
+        printf("          \"tmesh\" - Tiny3D mesh (*.tmesh) file\n");
+        printf("          \"tskin\" - Tiny3D skinned mesh (*.tmesh) file\n");
         printf("          \"tskel\" - Tiny3D skeleton (*.tskel) file\n");
         printf("          \"tani\" - Tiny3D animation (*.tani) file\n");
         printf("      -t : Set the type of the output file to text or binary. Default is binary. It only take effect when output Tiny3D file.\n");
         printf("      -b <type> : Set the type of the bounding box to <type>. The valid values is below\n");
-        printf("          \"sphere\" - Sphere Bounding Volume\n");
-        printf("          \"AABB\" - Axis Aligned Bounding Box\n");
+        printf("          \"sphere\" - Sphere Bounding Volume.\n");
+        printf("          \"AABB\" - Axis Aligned Bounding Box. This is the default value.\n");
         printf("      -m <filename> : Set the material file when input file type is OGRE.\n");
         printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
@@ -185,12 +211,34 @@ namespace Tiny3D
     {
         MeshFileType type = MeshFileType::kFbx;
 
-        if (stricmp(argv, "fbx") == 0)
+        if (_stricmp(argv, "fbx") == 0)
+        {
             type = MeshFileType::kFbx;
-        else if (stricmp(argv, "ogre") == 0)
+        }
+        else if (_stricmp(argv, "ogre") == 0)
+        {
             type = MeshFileType::kOgre;
-        else if (stricmp(argv, "tmesh") == 0)
+        }
+        else if (_stricmp(argv, "tmesh") == 0)
+        {
             type = MeshFileType::kTMesh;
+        }
+        else if (_stricmp(argv, "tskin") == 0)
+        {
+            type = MeshFileType::kTSkin;
+        }
+        else if (_stricmp(argv, "tskel") == 0)
+        {
+            type = MeshFileType::kTSkel;
+        }
+        else if (_stricmp(argv, "tani") == 0)
+        {
+            type = MeshFileType::kTAni;
+        }
+        else if (_stricmp(argv, "tiny3d") == 0)
+        {
+            type = MeshFileType::kTiny3D;
+        }
 
         return type;
     }
@@ -201,9 +249,9 @@ namespace Tiny3D
     {
         BoundType type = BoundType::kSphere;
 
-        if (stricmp(argv, "sphere") == 0)
+        if (_stricmp(argv, "sphere") == 0)
             type = BoundType::kSphere;
-        else if (stricmp(argv, "aabb") == 0)
+        else if (_stricmp(argv, "aabb") == 0)
             type = BoundType::kAabb;
 
         return type;

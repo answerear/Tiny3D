@@ -22,18 +22,19 @@
 
 
 #include "T3DConverterPrerequisites.h"
+#include "T3DConverterOptions.h"
 
 
 namespace Tiny3D
 {
-    class Exporter;
+    class AssetExporter;
 
-    T3D_DECLARE_SMART_PTR(Exporter);
+    T3D_DECLARE_SMART_PTR(AssetExporter);
     
-    class Exporter : public Object
+    class AssetExporter : public Object
     {
     public:
-        virtual TResult run(const String &path, const Resource *resource) = 0;
+        virtual TResult run(const ConverterOptions &opts, const Assets &resources) = 0;
     };
 }
 

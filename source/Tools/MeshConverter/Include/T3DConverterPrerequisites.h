@@ -48,7 +48,7 @@ namespace Tiny3D
         printf(fmt, ##__VA_ARGS__); \
         printf("\n");
 
-    enum class MeshFileType : uint32_t
+    enum MeshFileType : uint32_t
     {
         /// 根据扩展名自动判断文件格式
         kAuto = 0,
@@ -56,12 +56,16 @@ namespace Tiny3D
         kFbx = 0x10,
         /// OGRE 格式
         kOgre = 0x20,
-        /// Tiny3D Mesh 和 SkinnedMesh 格式
+        /// Tiny3D Static Mesh 格式
         kTMesh = 0x40,
+        /// Tiny3D Skinned Mesh 格式
+        kTSkin = 0x80,
         /// Tiny3D Skeleton 格式
-        kTSkel = 0x80,
+        kTSkel = 0x100,
         /// Tiny3D Animation 格式
-        kTAni = 0x100,
+        kTAni = 0x200,
+        /// Tiny3D mesh 格式
+        kTiny3D = kTSkin | kTSkel | kTAni,
     };
 
     enum class BoundType : uint32_t
@@ -71,6 +75,8 @@ namespace Tiny3D
     };
 
     #define MCONV_VERSION       0x00001000
-    #define MCONV_VERSION_STR   "0.0.1" 
+    #define MCONV_VERSION_STR   "0.0.1"
+
+    using Assets = TUnorderedMap<String, Resource*>;
 }
 

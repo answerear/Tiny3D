@@ -21,6 +21,9 @@
 #include "T3DMeshConverterApp.h"
 #include "T3DConverterOptions.h"
 #include "T3DConverterCommand.h"
+#include "T3DFBXImporter.h"
+#include "T3DEngineImporter.h"
+#include "T3DEngineExporter.h"
 
 
 Tiny3D::MeshConverterApp theApp;
@@ -46,21 +49,87 @@ namespace Tiny3D
 
     bool MeshConverterApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
-        bool ret = false;
+        bool ret = true;
 
         do 
         {
             ConverterOptions opts;
             ConverterCommand cmd;
 
-            bool rt = cmd.parse(argc, argv, opts);
-
-            if (rt)
+            // 解析命令行参数
+            if (!cmd.parse(argc, argv, opts))
             {
-                // 根据输入参数，创建输入文件解析器对象
-                
+                ret = false;
+                break;
+            }
+
+            // 创建导入器
+            AssetImporter *importer = nullptr;
+
+            switch (opts.srcFileType)
+            {
+            case MeshFileType::kFbx:
+                importer = FBXImporter::create();
+                break;
+            case MeshFileType::kOgre:
+                break;
+            case MeshFileType::kTMesh:
+            case MeshFileType::kTSkin:
+            case MeshFileType::kTSkel:
+            case MeshFileType::kTAni:
+            case MeshFileType::kTiny3D:
+                break;
+            case MeshFileType::kAuto:
+            default:
+                ret = false;
+                break;
+            }
+
+            if (!ret)
+            {
+                break;
+            }
+            
+            Assets assets;
+
+            // 导入资源
+            TResult result = importer->run(opts, assets);
+            if (T3D_FAILED(result))
+            {
+                ret = false;
+                break;
+            }
+
+            // 创建导出器
+            AssetExporter *exporter = nullptr;
+            
+            switch (opts.dstFileType)
+            {
+            case MeshFileType::kFbx:
+            case MeshFileType::kOgre:
+                break;
+            case MeshFileType::kTMesh:
+            case MeshFileType::kTSkin:
+            case MeshFileType::kTSkel:
+            case MeshFileType::kTAni:
+            case MeshFileType::kTiny3D:
+                exporter = EngineExporter::create();
+                break;
+            case MeshFileType::kAuto:
+            default:
+                ret = false;
+                break;
+            }
+
+            // 导出资源
+            result = exporter->run(opts, assets);
+            if (T3D_FAILED(result))
+            {
+                ret = false;
+                break;
             }
         } while (false);
+        
         return ret;
     }
 
