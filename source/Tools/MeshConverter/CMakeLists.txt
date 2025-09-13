@@ -22,6 +22,8 @@ if (MSVC)
 	add_definitions(-DFBXSDK_SHARED)
 endif (MSVC)
 
+add_definitions(-DT3D_EDITOR)
+
 set(FBXSDK_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/fbxsdk" CACHE PATH "FBX SDK library path")
 find_package(FBXSDK)
 
@@ -66,7 +68,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DUtils
 		T3DMath
 		T3DFramework
-		T3DCore
+		T3DCoreEditor
         rttr_core
 		${FBXSDK_LIBRARY}
 		)
@@ -107,7 +109,7 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE T3DUtils
         LINK_PRIVATE T3DMath
         LINK_PRIVATE T3DFramework
-        LINK_PRIVATE T3DCore
+        LINK_PRIVATE T3DCoreEditor
         LINK_PRIVATE rttr_core
         LINK_PRIVATE ${FBXSDK_LIBRARY}
         LINK_PRIVATE ${Iconv_LIBRARIES}
@@ -168,7 +170,7 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DUtils
         T3DMath
-        T3DCore
+        T3DCoreEditor
         rttr_core
         ${Iconv_LIBRARIES}
         ${ZLIB_LIBRARIES}
