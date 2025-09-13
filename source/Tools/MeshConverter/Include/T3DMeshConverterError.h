@@ -34,6 +34,12 @@ namespace Tiny3D
         T3D_ERR_FBX_SDK_CREATE_FAILED,
         /// 加载 FBX 插件 DLL 失败
         T3D_ERR_FBX_PLUGIN_LOAD_FAILED,
+        /// 创建 FBX 场景失败
+        T3D_ERR_FBX_SCENE_CREATE_FAILED,
+        /// FBX 导入器初始化失败
+        T3D_ERR_FBX_IMPORTER_INIT_FAILED,
+        //// FBX 场景导入失败
+        T3D_ERR_FBX_SCENE_IMPORT_FAILED,
     };
 }
 

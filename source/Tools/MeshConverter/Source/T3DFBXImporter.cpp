@@ -19,6 +19,7 @@
 
 
 #include "T3DFBXImporter.h"
+#include "T3DFBXDataStream.h"
 #include "T3DMeshConverterError.h"
 
 
@@ -60,6 +61,15 @@ namespace Tiny3D
                 break;
             }
 
+            FbxScene *lFbxScene = FbxScene::Create(mFbxManager, "My Scene");
+            if (lFbxScene == nullptr)
+            {
+                MCONV_LOG_ERROR("Failed to create FbxScene.")
+                ret = T3D_ERR_FBX_SCENE_CREATE_FAILED;
+                break;
+            }
+
+            // 导入 FBX 文件
         } while (false);
 
         // 释放 FBX 对象
@@ -117,6 +127,39 @@ namespace Tiny3D
         }
         
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::importScene(DataStream &stream, FbxScene *lFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 创建 FBX IO
+            FbxImporter *lImporter = FbxImporter::Create(mFbxManager, "");
+            FBXDataStream lStream(stream, mFbxManager, true);
+            if (!lImporter->Initialize(&lStream, mFbxManager->GetIOSettings()))
+            {
+                MCONV_LOG_ERROR("Failed to initialize FBX importer.")
+                ret = T3D_ERR_FBX_IMPORTER_INIT_FAILED;
+                break;
+            }
+
+            // 导入 FBX 场景
+            if (!lImporter->Import(lFbxScene))
+            {
+                MCONV_LOG_ERROR("Failed to import FBX scene.")
+                ret = T3D_ERR_FBX_SCENE_IMPORT_FAILED;
+                break;
+            }
+
+            // 销毁 FBX IO
+            lImporter->Destroy();
+        } while (false);
+        
+        return ret;
     }
 
     //--------------------------------------------------------------------------

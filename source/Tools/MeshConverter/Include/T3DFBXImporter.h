@@ -53,6 +53,8 @@ namespace Tiny3D
          * @return T3D_OK 成功
          */
         TResult destroyFbxObjects();
+
+        TResult importScene(DataStream &stream, FbxScene *lFbxScene);
         
     protected:
         FbxManager *mFbxManager {nullptr};

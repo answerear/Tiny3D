@@ -25,7 +25,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    FbxDataStream::FbxDataStream(DataStream &stream, FbxManager *manager, bool readable)
+    FBXDataStream::FBXDataStream(DataStream &stream, FbxManager *manager, bool readable)
         : mStream(stream)
         , mReaderID(-1)
         , mWriterID(-1)
@@ -46,21 +46,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    FbxDataStream::~FbxDataStream()
+    FBXDataStream::~FBXDataStream()
     {
 
     }
 
     //--------------------------------------------------------------------------
 
-    FbxStream::EState FbxDataStream::GetState()
+    FbxStream::EState FBXDataStream::GetState()
     {
         return EState::eOpen;
     }
 
     //--------------------------------------------------------------------------
 
-    bool FbxDataStream::Open(void *pStreamData)
+    bool FBXDataStream::Open(void *pStreamData)
     {
         mStream.seek(0, false);
         return true;
@@ -68,49 +68,49 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool FbxDataStream::Close()
+    bool FBXDataStream::Close()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool FbxDataStream::Flush()
+    bool FBXDataStream::Flush()
     {
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    size_t FbxDataStream::Write(const void *pData, FbxUInt64 size)
+    size_t FBXDataStream::Write(const void *pData, FbxUInt64 size)
     {
         return mStream.write((void *)pData, size);
     }
 
     //--------------------------------------------------------------------------
 
-    size_t FbxDataStream::Read(void *pData, FbxUInt64 size) const
+    size_t FBXDataStream::Read(void *pData, FbxUInt64 size) const
     {
         return mStream.read(pData, size);
     }
 
     //--------------------------------------------------------------------------
 
-    int FbxDataStream::GetReaderID() const
+    int FBXDataStream::GetReaderID() const
     {
         return mReaderID;
     }
 
     //--------------------------------------------------------------------------
 
-    int FbxDataStream::GetWriterID() const
+    int FBXDataStream::GetWriterID() const
     {
         return mWriterID;
     }
 
     //--------------------------------------------------------------------------
 
-    void FbxDataStream::Seek(const FbxInt64 &pOffset, const FbxFile::ESeekPos &pSeekPos)
+    void FBXDataStream::Seek(const FbxInt64 &pOffset, const FbxFile::ESeekPos &pSeekPos)
     {
         switch (pSeekPos)
         {
@@ -135,28 +135,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    FbxInt64 FbxDataStream::GetPosition() const
+    FbxInt64 FBXDataStream::GetPosition() const
     {
         return mStream.tell();
     }
 
     //--------------------------------------------------------------------------
 
-    void FbxDataStream::SetPosition(FbxInt64 pPosition)
+    void FBXDataStream::SetPosition(FbxInt64 pPosition)
     {
         mStream.seek(pPosition, false);
     }
 
     //--------------------------------------------------------------------------
 
-    int FbxDataStream::GetError() const
+    int FBXDataStream::GetError() const
     {
         return 0;
     }
 
     //--------------------------------------------------------------------------
 
-    void FbxDataStream::ClearError()
+    void FBXDataStream::ClearError()
     {
 
     }

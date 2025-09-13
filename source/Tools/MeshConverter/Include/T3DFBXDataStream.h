@@ -24,12 +24,12 @@
 
 namespace Tiny3D
 {
-    class FbxDataStream : public FbxStream
+    class FBXDataStream : public FbxStream
     {
     public:
-        FbxDataStream(DataStream &stream, FbxManager *manager, bool readable);
+        FBXDataStream(DataStream &stream, FbxManager *manager, bool readable);
 
-        ~FbxDataStream() override;
+        ~FBXDataStream() override;
 
         EState GetState() override;
 

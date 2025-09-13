@@ -64,7 +64,7 @@ namespace Tiny3D
             }
 
             // 创建导入器
-            AssetImporter *importer = nullptr;
+            AssetImporterPtr importer = nullptr;
 
             switch (opts.srcFileType)
             {
@@ -101,7 +101,7 @@ namespace Tiny3D
             }
 
             // 创建导出器
-            AssetExporter *exporter = nullptr;
+            AssetExporterPtr exporter = nullptr;
             
             switch (opts.dstFileType)
             {
