@@ -617,6 +617,35 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    ResourcePtr ResourceManager::clone(const String &newName, ResourcePtr src)
+    {
+        ResourcePtr res;
+
+        do 
+        {
+            if (src == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid source resource to clone !");
+                break;
+            }
+
+            // 克隆对象
+            ResourcePtr dst = src->clone();
+            dst->setName(newName);
+            dst->mIsCloned = true;  // 设置克隆标记
+            
+            if (!insertCache(dst->getUUID(), dst))
+            {
+                break;
+            }
+
+            res = dst;
+        } while (false);
+
+        return res;
+    }
+    //--------------------------------------------------------------------------
+
     Resource *ResourceManager::getResource(const String &filename) const
     {
         ResourcePtr res;

@@ -40,6 +40,10 @@ namespace Tiny3D
         T3D_ERR_FBX_IMPORTER_INIT_FAILED,
         //// FBX 场景导入失败
         T3D_ERR_FBX_SCENE_IMPORT_FAILED,
+        /// FBX 文件打开失败
+        T3D_ERR_FBX_FILE_OPEN_FAILED,
+        /// FBX 面片转三角形失败
+        T3D_ERR_FBX_FACE_TO_TRIANGLE_FAILED,
     };
 }
 

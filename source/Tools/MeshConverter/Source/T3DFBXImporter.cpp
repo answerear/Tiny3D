@@ -51,7 +51,8 @@ namespace Tiny3D
     TResult FBXImporter::run(const ConverterOptions &opts, Assets &resources)
     {
         TResult ret = T3D_OK;
-
+        FileDataStream fs;
+        
         do
         {
             // 初始化 FBX 对象
@@ -61,6 +62,7 @@ namespace Tiny3D
                 break;
             }
 
+            // 创建 FBX 场景
             FbxScene *lFbxScene = FbxScene::Create(mFbxManager, "My Scene");
             if (lFbxScene == nullptr)
             {
@@ -69,9 +71,93 @@ namespace Tiny3D
                 break;
             }
 
-            // 导入 FBX 文件
+            // 打开 FBX 文件
+            if (!fs.open(opts.srcPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            {
+                MCONV_LOG_ERROR("Failed to open file: %s", opts.srcPath.c_str())
+                ret = T3D_ERR_FBX_FILE_OPEN_FAILED;
+                break;
+            }
+
+            // 导入场景
+            ret = importScene(fs, lFbxScene);
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to import FBX file.")
+                break;
+            }
+
+            fs.close();
+
+            // 设置度量系统
+            ret = setupMetricSystem(lFbxScene);
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to setup metric system.")
+                break;
+            }
+
+            // 加载默认材质
+            ret = loadDefaultMaterial(opts.defaultMaterialPath);
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to load default material.")
+                break;
+            }
+
+            if (opts.dstFileType & MeshFileType::kTMesh)
+            {
+                // 导出静态网格数据
+                ret = processStaticMesh(lFbxScene);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Failed to process static mesh.")
+                    break;
+                }
+            }
+            
+            if (opts.dstFileType & MeshFileType::kTSkin)
+            {
+                // 导出蒙皮数据
+                ret = processSkinnedMesh(lFbxScene);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Failed to process skinned mesh.")
+                    break;
+                }
+            }
+            
+            if (opts.dstFileType & MeshFileType::kTSkel)
+            {
+                // 导出骨架数据
+                ret = processSkeleton(lFbxScene);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Failed to process skeleton.")
+                    break;
+                }
+            }
+            
+            if (opts.dstFileType & MeshFileType::kTAni)
+            {
+                // 导出动画数据
+                ret = processAnimation(lFbxScene);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Failed to process animation.")
+                    break;
+                }
+            }
+
+            // 把结果放到 resources 中
+            resources = mResources;
         } while (false);
 
+        if (fs.isOpened())
+        {
+            fs.close();
+        }
+        
         // 释放 FBX 对象
         destroyFbxObjects();
         
@@ -137,16 +223,21 @@ namespace Tiny3D
 
         do
         {
-            // 创建 FBX IO
+            // 创建 FBX importer
             FbxImporter *lImporter = FbxImporter::Create(mFbxManager, "");
             FBXDataStream lStream(stream, mFbxManager, true);
-            if (!lImporter->Initialize(&lStream, mFbxManager->GetIOSettings()))
+            if (!lImporter->Initialize(&lStream, nullptr, -1, mFbxManager->GetIOSettings()))
             {
                 MCONV_LOG_ERROR("Failed to initialize FBX importer.")
                 ret = T3D_ERR_FBX_IMPORTER_INIT_FAILED;
                 break;
             }
 
+            // 获取 FBX 文件版本
+            int lFileMajor, lFileMinor, lFileRevision;
+            lImporter->GetFileVersion(lFileMajor, lFileMinor, lFileRevision);
+            MCONV_LOG_INFO("FBX File Version: %d.%d.%d", lFileMajor, lFileMinor, lFileRevision)
+            
             // 导入 FBX 场景
             if (!lImporter->Import(lFbxScene))
             {
@@ -155,13 +246,846 @@ namespace Tiny3D
                 break;
             }
 
-            // 销毁 FBX IO
+            // 销毁 FBX importer
             lImporter->Destroy();
         } while (false);
         
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::setupMetricSystem(FbxScene *lFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 统一转成 DirectX 坐标系
+            FbxAxisSystem lSceneAxisSystem = lFbxScene->GetGlobalSettings().GetAxisSystem();
+            if (lSceneAxisSystem != FbxAxisSystem::eDirectX)
+            {
+                MCONV_LOG_INFO("Start converting scene to DirectX coordinate system ...")
+                FbxAxisSystem::DirectX.ConvertScene(lFbxScene);
+                MCONV_LOG_INFO("Completed converting to DirectX coordinate system.")
+            }
+
+            // 统一转成米制单位
+            FbxSystemUnit SceneSystemUnit = lFbxScene->GetGlobalSettings().GetSystemUnit();
+            if (SceneSystemUnit.GetScaleFactor() != 1.0)
+            {
+                MCONV_LOG_INFO("Start converting unit to meter ......")
+                FbxSystemUnit::m.ConvertScene(lFbxScene);
+                MCONV_LOG_INFO("Completed converting unit !")
+            }
+
+            // 不是三角形为面的mesh，统一转换成三角形为面的mesh
+            MCONV_LOG_INFO("Start converting face to triangles ......")
+            FbxGeometryConverter converter(mFbxManager);
+            if (!converter.Triangulate(lFbxScene, true))
+            {
+                MCONV_LOG_ERROR("Failed to convert face to triangles.")
+                ret = T3D_ERR_FBX_FACE_TO_TRIANGLE_FAILED;
+                break;
+            }
+            MCONV_LOG_INFO("Completed converting face to triangles !")
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::loadDefaultMaterial(const String &path)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), "FileSystem", Archive::AccessMode::kRead);
+            T3D_ASSERT(archive != nullptr);
+
+            mDefaultMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, path);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::processStaticMesh(FbxScene *lFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            MCONV_LOG_INFO("Starting processing static mesh ...")
+
+            ret = getFbxMeshNode(lFbxScene->GetRootNode());
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::getFbxMeshNode(FbxNode *lFbxNode)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (lFbxNode->GetNodeAttribute() != nullptr)
+            {
+                switch (lFbxNode->GetNodeAttribute()->GetAttributeType())
+                {
+                case FbxNodeAttribute::eMesh:
+                    ret = processFbxMeshNode(lFbxNode);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            for (int32_t i = 0; i < lFbxNode->GetChildCount(); i++)
+            {
+                ret = getFbxMeshNode(lFbxNode->GetChild(i));
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::processFbxMeshNode(FbxNode *lFbxNode)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            MCONV_LOG_INFO("Starting processing fbx mesh node ...")
+
+            FbxMesh *lFbxMesh = lFbxNode->GetMesh();
+
+            // 三角形数量
+            int32_t triangleCount = lFbxMesh->GetPolygonCount();
+
+            MCONV_LOG_INFO("FBX mesh triangle count: %d", triangleCount)
+
+            // 获取三角形材质索引，让相同材质的三角形在一起，形成一个 submesh
+            TArray<int32_t> triangleMaterialIndices;
+            triangleMaterialIndices.reserve(triangleCount);
+            getFbxTriangleMaterialIndices(lFbxMesh, triangleCount, triangleMaterialIndices);
+
+            // 获取三角形平滑组索引，相同平滑组的顶点合并在一起，使用面法线的平均值作为法线
+            TArray<int32_t> triangleSmGroupIndices;
+            triangleSmGroupIndices.reserve(triangleCount);
+            getFbxTriangleSmoothGroupIndices(lFbxMesh, triangleCount, triangleSmGroupIndices);
+
+            int32_t texUVCount = lFbxMesh->GetTextureUVCount();
+
+            int32_t materialCount = lFbxNode->GetMaterialCount();
+
+            int32_t vertexCount = triangleCount * 3;
+            mVertices.clear();
+            mNormals.clear();
+            mNormals.reserve(vertexCount);
+            mSmoothingGroups.clear();
+            mSmoothingGroups.reserve(vertexCount);
+            mTangents.clear();
+            mTangents.reserve(vertexCount);
+            mBinormals.clear();
+            mBinormals.reserve(vertexCount);
+            for (int32_t l = 0; l < T3D_MAX_TEXTURE_LEVEL; l++)
+            {
+                mTexCoords[l].clear();
+                mTexCoords[l].reserve(vertexCount);
+            }
+            mIndices.reserve(vertexCount);
+            
+            for (int32_t k = 0; k < materialCount; k++)
+            {
+                FbxSurfaceMaterial *lMaterial = lFbxNode->GetMaterial(k);
+                
+                MCONV_LOG_INFO("Material [%d]: %s", k, lMaterial->GetName())
+
+                mIndices.clear();
+
+                for (int32_t i = 0; i < triangleCount; i++)
+                {
+                    if (triangleMaterialIndices[i] == k)
+                    {
+                        // 处理三角形
+
+                        for (int32_t j = 0; j < 3; j++)
+                        {
+                            // 获取顶点
+                            Vector3 V;
+                            int32_t ctrlPointIndex = lFbxMesh->GetPolygonVertex(i, j);
+                            readVertex(lFbxMesh, ctrlPointIndex, V);
+
+                            // 获取 uv
+                            Vector2Array texCoords;
+                            texCoords.reserve(texUVCount);
+                            for (int32_t l = 0; l < texUVCount; l++)
+                            {
+                                Vector2 UV;
+                                readUV(lFbxMesh, ctrlPointIndex, lFbxMesh->GetTextureUVIndex(i, j), l, UV);
+                                texCoords.emplace_back(UV);
+                            }
+
+                            // 获取顶点颜色
+                            ColorRGBA C;
+                            readColor(lFbxMesh, ctrlPointIndex, j + 3 * i, C);
+
+                            // 获取法线
+                            Vector3 N, T, B;
+                            readNormal(lFbxMesh, ctrlPointIndex, j + 3 * i, N);
+                            if (texUVCount > 0)
+                            {
+                                readTangent(lFbxMesh, ctrlPointIndex, j + 3 * i, T);
+                                readBinormal(lFbxMesh, ctrlPointIndex, j + 3 * i, B);
+                            }
+
+                            // 查找已经收集的顶点中，是否有和当前顶点属于一个光滑组的点
+                            // 如果同一个光滑组，则累计光滑组的法线、副法线、切线，用于计算平均值
+                            uint32_t v = 0;
+                            for (v = 0; v < mVertices.size(); v++)
+                            {
+                                if (mVertices[v] == V && mSmoothingGroups[v] == triangleSmGroupIndices[i])
+                                {
+                                    N += mNormals[v];
+                                    mNormals[v] = N;
+
+                                    if (texUVCount > 0)
+                                    {
+                                        T += mTangents[v];
+                                        mTangents[v] = T;
+
+                                        B += mBinormals[v];
+                                        mBinormals[v] = B;
+                                    }
+                                }
+                            }
+
+                            // 查看这个顶点是否已经存在（顶点位置、光滑组、UV都相同则为相同）
+                            for (v = 0; v < mVertices.size(); v++)
+                            {
+                                if (mVertices[v] == V && mSmoothingGroups[v] == triangleSmGroupIndices[i])
+                                {
+                                    // 如果已经存在，则不添加
+                                    int32_t layer = 0;
+                                    for (layer = 0; layer < texUVCount; layer++)
+                                    {
+                                        if (mTexCoords[layer][v] != texCoords[layer])
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (layer == texUVCount)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (v == mVertices.size())
+                            {
+                                // 跑到这里表示没有找到相同的顶点，添加
+
+                                // 位置
+                                mVertices.emplace_back(V);
+                                // 颜色
+                                mColors.emplace_back(C);
+                                // 光滑组
+                                mSmoothingGroups.emplace_back(triangleSmGroupIndices[i]);
+                                // 纹理
+                                for (int32_t layer = 0; layer < texUVCount; layer++)
+                                {
+                                    mTexCoords[layer].emplace_back(texCoords[layer]);
+                                }
+                                // 法线
+                                mNormals.emplace_back(N);
+                                // 切线
+                                mTangents.emplace_back(T);
+                                // 副法线
+                                mBinormals.emplace_back(B);
+                            }
+
+                            // 索引
+                            mIndices.emplace_back(v);
+                        }
+                    }
+                }
+
+                String name = lFbxNode->GetName();
+                if (materialCount > 0)
+                {
+                    name += String("_") + lFbxNode->GetMaterial(k)->GetName();
+                }
+
+                // 创建对应的材质
+                MaterialPtr material;
+                FbxSurfaceMaterial *lFbxMaterial = lFbxNode->GetMaterial(k);
+                ret = createMaterial(lFbxMaterial, material);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Failed to create material.")
+                    break;
+                }
+
+                // 创建子网格
+                SubMeshPtr submesh;
+                ret = createSubMesh(name, material, submesh);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("failed to create submesh.")
+                    break;
+                }
+
+                mMaterials.emplace(material->getName(), material);
+                mSubMeshes.emplace(name, submesh);
+            }
+            
+            MCONV_LOG_INFO("Completed processing fbx mesh node.")
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::getFbxTriangleSmoothGroupIndices(FbxGeometryBase *lFbxGeometry, int32_t triangleCount, TArray<int32_t> &triangleSmGroupIndices) const
+    {
+        FbxLayerElementSmoothing *lFbxSmoothing = lFbxGeometry->GetElementSmoothing();
+        
+        if (lFbxSmoothing != nullptr)
+        {
+            bool bDirectSm = (lFbxSmoothing->GetReferenceMode() == FbxLayerElement::eDirect);
+
+            for(int triangleIndex = 0 ; triangleIndex < triangleCount ; ++triangleIndex)  
+            {  
+                int32_t SmIndex = bDirectSm ? triangleIndex : lFbxSmoothing->GetIndexArray().GetAt(triangleIndex);
+                int32_t iSmoothing = lFbxSmoothing->GetDirectArray().GetAt(SmIndex);
+                triangleSmGroupIndices[triangleIndex] = iSmoothing;  
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::getFbxTriangleMaterialIndices(FbxGeometryBase *lFbxGeometry, int32_t triangleCount, TArray<int32_t> &triangleMaterialIndices) const
+    {
+        FbxLayerElementMaterial *lFbxMaterial = lFbxGeometry->GetElementMaterial();
+        if (lFbxMaterial == nullptr)
+        {
+            return;
+        }
+
+        for(int triangleIndex = 0 ; triangleIndex < triangleCount ; ++triangleIndex)  
+        {  
+            int32_t materialIndex = lFbxMaterial->GetIndexArray().GetAt(triangleIndex);
+            triangleMaterialIndices[triangleIndex] = materialIndex;  
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, Vector3 &vertex)
+    {
+        FbxVector4 *lFbxCtrlPoints = lFbxGeometry->GetControlPoints();
+
+        vertex[0] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][0]);
+        vertex[1] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][1]);
+        vertex[2] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][2]);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::readNormal(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t vertexCounter, Vector3 &normal)
+    {
+        if (lFbxGeometry->GetElementNormalCount() <= 0)
+        {
+            return;
+        }
+
+        FbxGeometryElementNormal *lFbxNormal = lFbxGeometry->GetElementNormal(0);
+        switch (lFbxNormal->GetMappingMode())
+        {
+        case FbxGeometryElement::eByControlPoint:
+            {
+                switch (lFbxNormal->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        normal[0] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(ctrlPointIndex)[0]);
+                        normal[1] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(ctrlPointIndex)[1]);
+                        normal[2] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(ctrlPointIndex)[2]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxNormal->GetIndexArray().GetAt(ctrlPointIndex);
+                        normal[0] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(id)[0]);
+                        normal[1] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(id)[1]);
+                        normal[2] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(id)[2]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        case FbxGeometryElement::eByPolygonVertex:
+            {
+                switch (lFbxNormal->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        normal[0] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(vertexCounter)[0]);
+                        normal[1] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(vertexCounter)[1]);
+                        normal[2] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(vertexCounter)[2]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxNormal->GetIndexArray().GetAt(vertexCounter);
+                        normal[0] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(id)[0]);
+                        normal[1] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(id)[1]);
+                        normal[2] = static_cast<float32_t>(lFbxNormal->GetDirectArray().GetAt(id)[2]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::readTangent(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t vertexCounter, Vector3 &tangent)
+    {
+        if (lFbxGeometry->GetElementTangentCount() <= 0)
+        {
+            return;
+        }
+
+        FbxGeometryElementTangent *lFbxTangent = lFbxGeometry->GetElementTangent(0);
+        switch (lFbxTangent->GetMappingMode())
+        {
+        case FbxGeometryElement::eByControlPoint:
+            {
+                switch (lFbxTangent->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        tangent[0] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(ctrlPointIndex)[0]);
+                        tangent[1] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(ctrlPointIndex)[1]);
+                        tangent[2] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(ctrlPointIndex)[2]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxTangent->GetIndexArray().GetAt(ctrlPointIndex);
+                        tangent[0] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(id)[0]);
+                        tangent[1] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(id)[1]);
+                        tangent[2] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(id)[2]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        case FbxGeometryElement::eByPolygonVertex:
+            {
+                switch (lFbxTangent->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        tangent[0] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(vertexCounter)[0]);
+                        tangent[1] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(vertexCounter)[1]);
+                        tangent[2] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(vertexCounter)[2]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxTangent->GetIndexArray().GetAt(vertexCounter);
+                        tangent[0] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(id)[0]);
+                        tangent[1] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(id)[1]);
+                        tangent[2] = static_cast<float32_t>(lFbxTangent->GetDirectArray().GetAt(id)[2]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::readBinormal(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t vertexCounter, Vector3 &binormal)
+    {
+        if (lFbxGeometry->GetElementBinormalCount() <= 0)
+        {
+            return;
+        }
+
+        FbxGeometryElementBinormal *lFbxBinormal = lFbxGeometry->GetElementBinormal(0);
+        switch (lFbxBinormal->GetMappingMode())
+        {
+        case FbxGeometryElement::eByControlPoint:
+            {
+                switch (lFbxBinormal->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        binormal[0] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(ctrlPointIndex)[0]);
+                        binormal[1] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(ctrlPointIndex)[1]);
+                        binormal[2] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(ctrlPointIndex)[2]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxBinormal->GetIndexArray().GetAt(ctrlPointIndex);
+                        binormal[0] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(id)[0]);
+                        binormal[1] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(id)[1]);
+                        binormal[2] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(id)[2]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        case FbxGeometryElement::eByPolygonVertex:
+            {
+                switch (lFbxBinormal->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        binormal[0] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(vertexCounter)[0]);
+                        binormal[1] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(vertexCounter)[1]);
+                        binormal[2] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(vertexCounter)[2]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxBinormal->GetIndexArray().GetAt(vertexCounter);
+                        binormal[0] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(id)[0]);
+                        binormal[1] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(id)[1]);
+                        binormal[2] = static_cast<float32_t>(lFbxBinormal->GetDirectArray().GetAt(id)[2]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::readColor(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t vertexCounter, ColorRGBA &color)
+    {
+        if (lFbxGeometry->GetElementVertexColorCount() <= 0)
+        {
+            return;
+        }
+
+        FbxGeometryElementVertexColor *lFbxColor = lFbxGeometry->GetElementVertexColor(0);
+        switch (lFbxColor->GetMappingMode())
+        {
+        case FbxGeometryElement::eByControlPoint:
+            {
+                switch (lFbxColor->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        color.red() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(ctrlPointIndex).mRed);
+                        color.green() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(ctrlPointIndex).mGreen);
+                        color.blue() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(ctrlPointIndex).mBlue);
+                        color.alpha() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(ctrlPointIndex).mAlpha);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxColor->GetIndexArray().GetAt(ctrlPointIndex);
+                        color.red() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mRed);
+                        color.green() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mGreen);
+                        color.blue() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mBlue);
+                        color.alpha() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mAlpha);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        case FbxGeometryElement::eByPolygonVertex:
+            {
+                switch (lFbxColor->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        color.red() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(vertexCounter).mRed);
+                        color.green() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(vertexCounter).mGreen);
+                        color.blue() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(vertexCounter).mBlue);
+                        color.alpha() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(vertexCounter).mAlpha);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxColor->GetIndexArray().GetAt(vertexCounter);
+                        color.red() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mRed);
+                        color.green() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mGreen);
+                        color.blue() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mBlue);
+                        color.alpha() = static_cast<float32_t>(lFbxColor->GetDirectArray().GetAt(id).mAlpha);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporter::readUV(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t texUVIndex, int32_t uvLayer, Vector2 &uv)
+    {
+        FbxGeometryElementUV *lFbxUV = lFbxGeometry->GetElementUV(uvLayer);
+
+        switch (lFbxUV->GetMappingMode())
+        {
+        case FbxGeometryElement::eByControlPoint:
+            {
+                switch (lFbxUV->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        uv[0] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(ctrlPointIndex)[0]);
+                        uv[1] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(ctrlPointIndex)[1]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        int32_t id = lFbxUV->GetIndexArray().GetAt(ctrlPointIndex);
+                        uv[0] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(id)[0]);
+                        uv[1] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(id)[1]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        case FbxGeometryElement::eByPolygonVertex:
+            {
+                switch (lFbxUV->GetReferenceMode())
+                {
+                case FbxGeometryElement::eDirect:
+                    {
+                        uv[0] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(texUVIndex)[0]);
+                        uv[1] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(texUVIndex)[1]);
+                    }
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                    {
+                        uv[0] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(texUVIndex)[0]);
+                        uv[1] = static_cast<float32_t>(lFbxUV->GetDirectArray().GetAt(texUVIndex)[1]);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::createMaterial(FbxSurfaceMaterial *lFbxMaterial, MaterialPtr &material)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            const auto lookForImplementation = [](FbxSurfaceMaterial *lFbxMaterial)
+            {
+                const FbxImplementation *lFbxImplementation = nullptr;
+                if (!lFbxImplementation)
+                    lFbxImplementation = GetImplementation(lFbxMaterial, FBXSDK_IMPLEMENTATION_CGFX);
+                if (!lFbxImplementation)
+                    lFbxImplementation = GetImplementation(lFbxMaterial, FBXSDK_IMPLEMENTATION_HLSL);
+                if (!lFbxImplementation)
+                    lFbxImplementation = GetImplementation(lFbxMaterial, FBXSDK_IMPLEMENTATION_SFX);
+                if (!lFbxImplementation)
+                    lFbxImplementation = GetImplementation(lFbxMaterial, FBXSDK_IMPLEMENTATION_OGS);
+                if (!lFbxImplementation)
+                    lFbxImplementation = GetImplementation(lFbxMaterial, FBXSDK_IMPLEMENTATION_SSSL);
+                return lFbxImplementation; 
+            };
+
+            String materialName = lFbxMaterial->GetName();
+
+            const FbxImplementation *lFbxImplementation = lookForImplementation(lFbxMaterial);
+            if (lFbxImplementation != nullptr)
+            {
+                // FBX 是自定义的材质，直接使用默认材质代替
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+            }
+            else if (lFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+            {
+                // Phong 材质
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+
+                FbxSurfacePhong *lFbxPhong = static_cast<FbxSurfacePhong *>(lFbxMaterial);
+
+                // Diffuse color
+                ColorRGBA diffuse(
+                    static_cast<float32_t>(lFbxPhong->Diffuse.Get()[0]),
+                    static_cast<float32_t>(lFbxPhong->Diffuse.Get()[1]),
+                    static_cast<float32_t>(lFbxPhong->Diffuse.Get()[2]));
+                material->setColor("Diffuse", diffuse);
+
+                // Specular color
+                ColorRGBA specular(
+                    static_cast<float32_t>(lFbxPhong->Specular.Get()[0]),
+                    static_cast<float32_t>(lFbxPhong->Specular.Get()[1]),
+                    static_cast<float32_t>(lFbxPhong->Specular.Get()[2]));
+                material->setColor("Specular", specular);
+
+                // Shininess
+                float32_t shininess = static_cast<float32_t>(lFbxPhong->Shininess.Get());
+                material->setFloat("Shininess", shininess);
+            }
+            else if (lFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+            {
+                // Lambert 材质
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::createSubMesh(const String &name, Material *material, SubMeshPtr &submesh)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            bool is16Bits = true;
+            Buffer indices;
+            if (mIndices.size() > std::numeric_limits<uint16_t>::max())
+            {
+                indices.DataSize = mIndices.size() * sizeof(uint32_t);
+                indices.Data = new uint8_t[indices.DataSize];
+                uint32_t *data = (uint32_t *)indices.Data;
+                for (uint32_t idx = 0; idx < mIndices.size(); idx++)
+                {
+                    *data = mIndices[idx];
+                    data++;
+                }
+                is16Bits = false;
+            }
+            else
+            {
+                indices.DataSize = mIndices.size() * sizeof(uint16_t);
+                indices.Data = new uint8_t[indices.DataSize];
+                uint16_t *data = (uint16_t *)indices.Data;
+                for (uint32_t idx = 0; idx < mIndices.size(); idx++)
+                {
+                    *data = static_cast<uint16_t>(mIndices[idx]);
+                    data++;
+                }
+                is16Bits = true;
+            }
+                
+            submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, indices, is16Bits);
+
+            indices.release();
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::processSkinnedMesh(FbxScene *lFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+        
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::processSkeleton(FbxScene *lFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+        
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::processAnimation(FbxScene *lFbxScene)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            
+        } while (false);
+        
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 }
 

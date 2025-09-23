@@ -69,6 +69,14 @@ namespace Tiny3D
         ResourcePtr clone(ResourcePtr src);
 
         /**
+         * @brief 克隆新资源对象
+         * @param [in] newName : 新资源名称
+         * @param [in] src : 源资源对象 
+         * @return 返回新资源对象
+         */
+        ResourcePtr clone(const String &newName, ResourcePtr src);
+
+        /**
          * @brief 根据名称获取资源对象
          * @param [in] filename : 给定资源名称 
          * @return 返回查找到的资源对象

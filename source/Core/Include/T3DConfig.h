@@ -43,7 +43,9 @@ namespace Tiny3D
 
     #define T3D_MAX_BLEND_BONES                 4
 
-    #define T3D_MAX_BONE_MATRICES               512 
+    #define T3D_MAX_BONE_MATRICES               512
+
+    #define T3D_MAX_TEXTURE_LEVEL               16
 }
 
 

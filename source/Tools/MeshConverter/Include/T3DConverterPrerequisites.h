@@ -77,6 +77,6 @@ namespace Tiny3D
     #define MCONV_VERSION       0x00001000
     #define MCONV_VERSION_STR   "0.0.1"
 
-    using Assets = TUnorderedMap<String, Resource*>;
+    using Assets = TUnorderedMap<String, ResourcePtr>;
 }
 

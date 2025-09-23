@@ -78,6 +78,10 @@ namespace Tiny3D
                     {
                         opts.extraPath = argv[++i];
                     }
+                    else if (arg[1] == 'd')
+                    {
+                        opts.defaultMaterialPath = argv[++i];
+                    }
                 }
                 else if (opts.srcPath.empty())
                 {
@@ -96,11 +100,11 @@ namespace Tiny3D
                 // 输出文件格式是必须指定的
                 if (opts.srcPath.empty())
                 {
-                    printf("Input file full path is empty.\n");
+                    MCONV_LOG_ERROR("Input file full path is empty.")
                 }
                 if (opts.dstFileType == MeshFileType::kAuto)
                 {
-                    printf("Output file type is empty.\n");
+                    MCONV_LOG_ERROR("Output file type is empty.")
                 }
                 
                 printHelp();
@@ -130,7 +134,7 @@ namespace Tiny3D
                 if (opts.srcFileType == opts.dstFileType)
                 {
                     // 输入输出格式相同，不需要转换
-                    printf("Input and output file type is same. No need to convert.\n");
+                    MCONV_LOG_ERROR("Input and output file type is same. No need to convert.")
                     ret = false;
                     break;
                 }
@@ -188,7 +192,7 @@ namespace Tiny3D
         printf("          \"tskin\" - Tiny3D skinned mesh (*.tmesh) file\n");
         printf("          \"tskel\" - Tiny3D skeleton (*.tskel) file\n");
         printf("          \"tani\" - Tiny3D animation (*.tani) file\n");
-        printf("      -o <type> : Set the type of the output file to <type>. The valid values is below\n");
+        printf("      -o <type> : Set the type of the output file to <type>. The valid values are below\n");
         printf("          \"FBX\" - FBX(.fbx) file\n");
         printf("          \"OGRE\" - OGRE(*.mesh) file.\n");
         printf("          \"tiny3d\" - Tiny3D all skinned mesh data file including skinned mesh(*.tmesh), skeleton(*.tskel) and animation (*.tani) files.\n");
@@ -201,6 +205,7 @@ namespace Tiny3D
         printf("          \"sphere\" - Sphere Bounding Volume.\n");
         printf("          \"AABB\" - Axis Aligned Bounding Box. This is the default value.\n");
         printf("      -m <filename> : Set the material file when input file type is OGRE.\n");
+        printf("      -d <filename> : Set the default material file path for engine.\n");
         printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
     }
