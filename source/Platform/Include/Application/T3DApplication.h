@@ -82,7 +82,7 @@ namespace Tiny3D
 
         virtual bool isRunInBackground() const;
      
-        virtual bool applicationDidFinishLaunching(int32_t argc, char* argv[]) = 0;
+        virtual TResult applicationDidFinishLaunching(int32_t argc, char* argv[]) = 0;
 
         virtual void applicationDidEnterBackground() = 0;
 

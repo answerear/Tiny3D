@@ -129,7 +129,7 @@ IntersectionApp::~IntersectionApp()
                            Z
 
  ******************************************************************************/
-bool IntersectionApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult IntersectionApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // 射线和三角形相交检测
     testRayTriangle();
@@ -167,7 +167,7 @@ bool IntersectionApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // 视锥体和OBB相交检测
     testFrustumObb();
 
-    return true;
+    return T3D_OK;
 }
 
 void IntersectionApp::applicationDidEnterBackground()

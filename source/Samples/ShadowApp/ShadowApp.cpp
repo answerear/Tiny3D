@@ -48,7 +48,7 @@ ShadowApp::~ShadowApp()
 {
 }
 
-bool ShadowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult ShadowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -159,7 +159,7 @@ bool ShadowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // plane
     buildPlane(root);
     
-    return true;
+    return T3D_OK;
 }
 
 void ShadowApp::applicationWillTerminate() 

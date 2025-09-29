@@ -37,7 +37,7 @@ TransformationApp::~TransformationApp()
 {
 }
 
-bool TransformationApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult TransformationApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     Degree degree;
     Radian radian;
@@ -138,7 +138,7 @@ bool TransformationApp::applicationDidFinishLaunching(int32_t argc, char *argv[]
 
 //     Rx.fromEulerAnglesXYZ(Degree(30), Degree(0), Degree(0));
 
-    return true;
+    return T3D_OK;
 }
 
 void TransformationApp::applicationDidEnterBackground()

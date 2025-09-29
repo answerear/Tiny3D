@@ -388,9 +388,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    bool LauncherApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+    TResult LauncherApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

@@ -47,9 +47,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool MeshConverterApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+    TResult MeshConverterApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
-        bool ret = true;
+        TResult ret = T3D_OK;
 
         do 
         {
@@ -59,7 +59,7 @@ namespace Tiny3D
             // 解析命令行参数
             if (!cmd.parse(argc, argv, opts))
             {
-                ret = false;
+                ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
 
@@ -93,10 +93,9 @@ namespace Tiny3D
             Assets assets;
 
             // 导入资源
-            TResult result = importer->run(opts, assets);
-            if (T3D_FAILED(result))
+            ret = importer->run(opts, assets);
+            if (T3D_FAILED(ret))
             {
-                ret = false;
                 break;
             }
 
@@ -122,10 +121,9 @@ namespace Tiny3D
             }
 
             // 导出资源
-            result = exporter->run(opts, assets);
-            if (T3D_FAILED(result))
+            ret = exporter->run(opts, assets);
+            if (T3D_FAILED(ret))
             {
-                ret = false;
                 break;
             }
         } while (false);

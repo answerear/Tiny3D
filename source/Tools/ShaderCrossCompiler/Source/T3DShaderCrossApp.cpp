@@ -57,28 +57,27 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    bool ShaderCrossApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+    TResult ShaderCrossApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
         ShaderCrossPtr sc = ShaderCross::create();
 
-        bool ret = false;
+        TResult ret = T3D_OK;
         
         do 
         {
             if (argc == 1)
             {
                 T3D_LOG_ERROR(LOG_TAG, "Not enough parameters !");
-                ret = false;
+                ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
 
             if (!sc->compile(argc-1, (const char**)(argv+1)))
             {
-                ret = false;
+                T3D_LOG_ERROR(LOG_TAG, "Compile failed !");
+                ret = T3D_ERR_FAIL;
                 break;
             }
-
-            ret = true;
         } while (false);
 
         sc = nullptr;

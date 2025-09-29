@@ -36,7 +36,7 @@ public:
     ~HelloApp() override;
 
 protected:  /// from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+    TResult applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 	
 protected:
 };

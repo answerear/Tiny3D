@@ -36,15 +36,15 @@ public:
     ~TransformationApp() override;
 
 protected:  // from Tiny3D::Application
-    virtual bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+    TResult applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
-    virtual void applicationDidEnterBackground() override;
+    void applicationDidEnterBackground() override;
 
-    virtual void applicationWillEnterForeground() override;
+    void applicationWillEnterForeground() override;
 
-    virtual void applicationWillTerminate() override;
+    void applicationWillTerminate() override;
 
-    virtual void applicationLowMemory() override;
+    void applicationLowMemory() override;
 };
 
 

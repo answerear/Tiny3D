@@ -55,9 +55,9 @@ TResult SampleWindowApp::go(int32_t argc, char *argv[])
     return ret;
 }
 
-bool SampleWindowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult SampleWindowApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
-    return true;
+    return T3D_OK;
 }
 
 void SampleWindowApp::applicationDidEnterBackground()
@@ -112,9 +112,9 @@ TResult SampleConsoleApp::go(int32_t argc, char *argv[])
     return ret;
 }
 
-bool SampleConsoleApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult SampleConsoleApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
-    return true;
+    return T3D_OK;
 }
 
 void SampleConsoleApp::applicationDidEnterBackground()

@@ -572,9 +572,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    bool EditorApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+    TResult EditorApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
-        return true;
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

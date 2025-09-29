@@ -45,7 +45,7 @@ SpotLightApp::~SpotLightApp()
 {
 }
 
-bool SpotLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult SpotLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -113,7 +113,7 @@ bool SpotLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
         pos.x() += 5.0f;
     }
     
-    return true;
+    return T3D_OK;
 }
 
 void SpotLightApp::applicationWillTerminate() 

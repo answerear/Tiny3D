@@ -45,7 +45,7 @@ TextureApp::~TextureApp()
 {
 }
 
-bool TextureApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult TextureApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // create scene
     ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
@@ -64,7 +64,7 @@ bool TextureApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // cube
     buildCube(root);
     
-    return true;
+    return T3D_OK;
 }
 
 void TextureApp::buildCamera(Transform3D *parent)

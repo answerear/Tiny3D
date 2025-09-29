@@ -384,7 +384,11 @@ namespace Tiny3D
             mIsRunning = true;
 
             Application *theApp = Application::getInstancePtr();
-            theApp->applicationDidFinishLaunching(argc, argv);
+            ret = theApp->applicationDidFinishLaunching(argc, argv);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
 
         return ret;
@@ -446,7 +450,11 @@ namespace Tiny3D
             mIsRunning = true;
 
             Application *theApp = Application::getInstancePtr();
-            theApp->applicationDidFinishLaunching(argc, argv);
+            ret = theApp->applicationDidFinishLaunching(argc, argv);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
         } while (false);
 
         return ret;

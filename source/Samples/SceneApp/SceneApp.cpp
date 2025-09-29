@@ -45,7 +45,7 @@ SceneApp::~SceneApp()
 {
 }
 
-bool SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -86,7 +86,7 @@ bool SceneApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
         buildCube(root, pos, yAngles);
     }
     
-    return true;
+    return T3D_OK;
 }
 
 void SceneApp::applicationWillTerminate() 

@@ -37,16 +37,16 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    bool BuiltinGeneratorApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+    TResult BuiltinGeneratorApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     {
-        bool ret = false;
+        TResult ret = T3D_OK;
         
         do 
         {
             if (argc == 1)
             {
                 BGEN_LOG_ERROR("Not enough parameters !");
-                ret = false;
+                ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
 
@@ -55,19 +55,19 @@ namespace Tiny3D
             if (!parseCommandList(argc, argv, opts))
             {
                 BGEN_LOG_ERROR("Parse command line failed !");
+                ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
 
             BuiltinGenerator *generator = T3D_NEW BuiltinGenerator();
-            TResult rt = generator->run(opts.outputPath, opts.reservedTemp);
-            if (T3D_FAILED(rt))
+            ret = generator->run(opts.outputPath, opts.reservedTemp);
+            if (T3D_FAILED(ret))
             {
                 T3D_SAFE_DELETE(generator);
                 break;
             }
             
             T3D_SAFE_DELETE(generator);
-            ret = true;
         } while (false);
         
         return ret;

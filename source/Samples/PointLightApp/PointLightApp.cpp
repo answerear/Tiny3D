@@ -45,7 +45,7 @@ PointLightApp::~PointLightApp()
 {
 }
 
-bool PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -106,7 +106,7 @@ bool PointLightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
         pos.x() += 5.0f;
     }
     
-    return true;
+    return T3D_OK;
 }
 
 void PointLightApp::applicationWillTerminate() 

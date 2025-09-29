@@ -64,7 +64,7 @@ SkeletalAnimationApp::~SkeletalAnimationApp()
 {
 }
 
-bool SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // create scene
     ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
@@ -121,7 +121,7 @@ bool SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *arg
     // plane
     buildPlane(root);
     
-    return true;
+    return T3D_OK;
 }
 
 void SkeletalAnimationApp::applicationWillTerminate() 

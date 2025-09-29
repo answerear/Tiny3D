@@ -36,7 +36,7 @@ public:
     ~GeometryApp() override;
 
 protected:  /// from Tiny3D::Application
-    bool applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+    TResult applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
 
     void applicationWillTerminate() override;
 

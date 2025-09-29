@@ -39,7 +39,7 @@ CameraApp::~CameraApp()
 {
 }
 
-bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+TResult CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
     // create scene
     ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
@@ -89,7 +89,7 @@ bool CameraApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     camera->setClearColor(ColorRGB::BLUE);
     camera->setRenderTarget(rt);
 
-    return true;
+    return T3D_OK;
 }
 
 void CameraApp::applicationWillTerminate() 
