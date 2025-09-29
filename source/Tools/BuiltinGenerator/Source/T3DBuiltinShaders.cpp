@@ -141,7 +141,7 @@ namespace Tiny3D
             if (exitCode != 0)
             {
                 // 编译出错了，只能退出
-                BGEN_LOG_ERROR("Failed to compile shader (%s) ! ERROR [%d]", filePath.c_str(), ret);
+                BGEN_LOG_ERROR("Failed to compile shader (%s) ! ERROR [%d]", filePath.c_str(), exitCode);
                 break;
             }
 

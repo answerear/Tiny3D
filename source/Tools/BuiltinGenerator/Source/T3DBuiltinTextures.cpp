@@ -77,7 +77,8 @@ namespace Tiny3D
         
         Buffer texData;
         texData.setData(data, dataSize);
-
+        T3D_POD_SAFE_DELETE_ARRAY(data);
+        
         String name = "white";
         String filename = name + "." + Resource::EXT_TEXTURE;
         
