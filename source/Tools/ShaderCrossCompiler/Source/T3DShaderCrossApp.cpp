@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
-    Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+    Dir::setCachePathInfo("Tiny3D", "ShaderCrossCompiler");
     
     Agent *theEngine = T3D_NEW Agent();
     Settings settings;
