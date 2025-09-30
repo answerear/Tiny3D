@@ -570,6 +570,13 @@ namespace Tiny3D
                 mMaterials.emplace(material->getName(), material);
                 mSubMeshes.emplace(name, submesh);
             }
+
+            ret = createMesh(lFbxMesh->GetName());
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to create mesh.")
+                break;
+            }
             
             MCONV_LOG_INFO("Completed processing fbx mesh node.")
         } while (false);
@@ -1024,7 +1031,7 @@ namespace Tiny3D
             if (mIndices.size() > std::numeric_limits<uint16_t>::max())
             {
                 indices.DataSize = mIndices.size() * sizeof(uint32_t);
-                indices.Data = new uint8_t[indices.DataSize];
+                indices.Data = T3D_POD_NEW_ARRAY(uint8_t, indices.DataSize);
                 uint32_t *data = (uint32_t *)indices.Data;
                 for (uint32_t idx = 0; idx < mIndices.size(); idx++)
                 {
@@ -1036,7 +1043,7 @@ namespace Tiny3D
             else
             {
                 indices.DataSize = mIndices.size() * sizeof(uint16_t);
-                indices.Data = new uint8_t[indices.DataSize];
+                indices.Data = T3D_POD_NEW_ARRAY(uint8_t, indices.DataSize);
                 uint16_t *data = (uint16_t *)indices.Data;
                 for (uint32_t idx = 0; idx < mIndices.size(); idx++)
                 {
@@ -1051,6 +1058,25 @@ namespace Tiny3D
             indices.release();
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::createMesh(const String &name)
+    {
+        TResult ret = T3D_OK;
+
+        VertexAttributes attributes;
+        
+        uint32_t offset = 0;
+        VertexAttribute attrPos(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+        attributes.emplace_back(attrPos);
+        offset += sizeof(float32_t) * 3;
+        
+
+        // MeshPtr mesh = T3D_MESH_MGR.createMesh(name, std::move(attributes), std::move(mVertices), std::move(mSubMeshes));
+
         return ret;
     }
 

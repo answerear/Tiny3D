@@ -86,6 +86,8 @@ namespace Tiny3D
 
         TResult createSubMesh(const String &name, Material *material, SubMeshPtr &submesh);
 
+        TResult createMesh(const String &name);
+
         /// 处理蒙皮网格
         TResult processSkinnedMesh(FbxScene *lFbxScene);
 
