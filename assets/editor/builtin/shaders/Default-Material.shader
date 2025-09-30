@@ -25,19 +25,6 @@ Shader "Tiny3DBuiltin/Default-Material"
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma target 4.0
-				
-				//cbuffer Tiny3DPerDraw : register(b0)
-				//{
-				//   row_major float4x4 tiny3d_ObjectToWorld;
-				//   row_major float4x4 tiny3d_WorldToObject;
-				//}
-
-				//cbuffer Tiny3DPerFrame : register(b1)
-				//{
-				//   row_major float4x4 tiny3d_MatrixV;
-				//   row_major float4x4 tiny3d_MatrixP;
-				//   row_major float4x4 tiny3d_MatrixVP;
-				//}
 
 				cbuffer Tiny3DPerFrame : register(b1)
 				{
@@ -74,13 +61,7 @@ Shader "Tiny3DBuiltin/Default-Material"
 				VertexOutput vert(VertexInput input)
 				{
 				   VertexOutput output;
-				   //float4 worldPosition = mul(float4(input.position, 1.0), modelMatrix);
-				   //float4 viewPosition = mul(viewMatrix, worldPosition);
-				   //float4 clipPosition = mul(projectionMatrix, viewPosition);
-				   //output.position = clipPosition;
-				   //row_major float4x4 MVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);
 				   output.position = mul(TINY3D_MATRIX_MVP, float4(input.position, 1.0f));
-				   //output.position = float4(input.position, 1.0);
 				   output.uv = input.uv;
 				   return output;
 				}
@@ -100,7 +81,6 @@ Shader "Tiny3DBuiltin/Default-Material"
 				float4 frag(PS_INPUT input) : SV_Target
 				{
 					float4 color = _MainTex.Sample(sampler__MainTex, input.uv);
-					//float4 color = float4(0.15f, 0.5f, 1.0f, 1.0f);
 					return color;
 				}
 				

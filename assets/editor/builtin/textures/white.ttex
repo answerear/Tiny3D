@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "547c0a25ac85cfb9a8633bb3b67d3f5a"
+          "RTTI_Value": "d48887b1f9f646d0c8ff7ae5de901ad7"
         }
       },
       "SamplerDesc": {
@@ -54,6 +54,10 @@
           "CompareFunc": {
             "RTTI_Type": "Tiny3D::CompareFunction",
             "RTTI_Value": "kAlwaysFail"
+          },
+          "IsComparison": {
+            "RTTI_Type": "bool",
+            "RTTI_Value": false
           },
           "MagFilter": {
             "RTTI_Type": "Tiny3D::FilterOptions",
