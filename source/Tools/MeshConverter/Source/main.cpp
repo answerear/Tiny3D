@@ -21,14 +21,14 @@
 #include "T3DMeshConverterApp.h"
 
 // For debug
-// Text : -o tiny3d -b sphere -t $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx 
+// Text : -o tmesh -b sphere -t -d $(SolutionDir)..\..\assets\editor\builtin\materials\Default-Material.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx 
 
 
 int main(int argc, char *argv[])
 {
     using namespace Tiny3D;
 
-    Dir::setCachePathInfo("Tiny3D", "Tiny3D");
+    Dir::setCachePathInfo("Tiny3D", "MeshConverter");
     
     Agent *theEngine = T3D_NEW Agent();
     Settings settings;

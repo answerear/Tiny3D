@@ -302,10 +302,22 @@ namespace Tiny3D
 
         do
         {
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), "FileSystem", Archive::AccessMode::kRead);
-            T3D_ASSERT(archive != nullptr);
+            // String dir, name;
+            // Dir::parsePath(path, dir, name);
+            // ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(dir, "FileSystem", Archive::AccessMode::kRead);
+            // T3D_ASSERT(archive != nullptr);
+            //
+            // mDefaultMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, name);
+            FileDataStream fs;
+            if (!fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                MCONV_LOG_ERROR("Failed to open file: %s", path.c_str())
+                break;
+            }
 
-            mDefaultMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, path);
+            mDefaultMaterial = T3D_SERIALIZER_MGR.deserialize<Material>(fs);
+            fs.close();
         } while (false);
 
         return ret;
@@ -387,16 +399,14 @@ namespace Tiny3D
             MCONV_LOG_INFO("FBX mesh triangle count: %d", triangleCount)
 
             // 获取三角形材质索引，让相同材质的三角形在一起，形成一个 submesh
-            TArray<int32_t> triangleMaterialIndices;
-            triangleMaterialIndices.reserve(triangleCount);
+            TArray<int32_t> triangleMaterialIndices(triangleCount, -1);
             getFbxTriangleMaterialIndices(lFbxMesh, triangleCount, triangleMaterialIndices);
 
             // 获取三角形平滑组索引，相同平滑组的顶点合并在一起，使用面法线的平均值作为法线
-            TArray<int32_t> triangleSmGroupIndices;
-            triangleSmGroupIndices.reserve(triangleCount);
+            TArray<int32_t> triangleSmGroupIndices(triangleCount, -1);
             getFbxTriangleSmoothGroupIndices(lFbxMesh, triangleCount, triangleSmGroupIndices);
 
-            int32_t texUVCount = lFbxMesh->GetTextureUVCount();
+            int32_t texUVCount = lFbxMesh->GetElementUVCount();
 
             int32_t materialCount = lFbxNode->GetMaterialCount();
 
@@ -1035,7 +1045,7 @@ namespace Tiny3D
                 }
                 is16Bits = true;
             }
-                
+
             submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, indices, is16Bits);
 
             indices.release();

@@ -81,11 +81,11 @@ namespace Tiny3D
                 break;
             case MeshFileType::kAuto:
             default:
-                ret = false;
+                ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
 
-            if (!ret)
+            if (T3D_FAILED(ret))
             {
                 break;
             }
@@ -116,7 +116,12 @@ namespace Tiny3D
                 break;
             case MeshFileType::kAuto:
             default:
-                ret = false;
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
+
+            if (T3D_FAILED(ret))
+            {
                 break;
             }
 
