@@ -82,6 +82,14 @@ namespace Tiny3D
                     {
                         opts.defaultMaterialPath = argv[++i];
                     }
+                    else if (arg[1] == 'r')
+                    {
+                        opts.defaultResourcePath = argv[++i];
+                    }
+                    else if (arg[1] == 's')
+                    {
+                        opts.compiledShaderPath = argv[++i];
+                    }
                 }
                 else if (opts.srcPath.empty())
                 {
@@ -206,6 +214,8 @@ namespace Tiny3D
         printf("          \"AABB\" - Axis Aligned Bounding Box. This is the default value.\n");
         printf("      -m <filename> : Set the material file when input file type is OGRE.\n");
         printf("      -d <filename> : Set the default material file path for engine.\n");
+        printf("      -r <the root directory of resource> : Set the root of default material directory for engine.\n");
+        printf("      -s <tiny3d compiled shader directory> : Set the compiled shader directory for engine. If not set this option, mconv will compile all shader lab.\n");
         printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
     }

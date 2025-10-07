@@ -52,9 +52,12 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
         FileDataStream fs;
+        String tempPath;
         
         do
         {
+            mOutputName = opts.dstTitle;
+            
             // 初始化 FBX 对象
             ret = initFbxObjects();
             if (T3D_FAILED(ret))
@@ -97,8 +100,27 @@ namespace Tiny3D
                 break;
             }
 
+            if (opts.compiledShaderPath.empty())
+            {
+                // 没有传入编译后的着色器路径，自动从资源根路径查找所有shader lab 并编译
+                tempPath = Dir::getAppPath() + Dir::getNativeSeparator() + "temp";
+                Dir::makeDir(tempPath);
+                
+                ret = compileAllShaders(tempPath, opts.defaultResourcePath);
+                if (T3D_FAILED(ret))
+                {
+                    MCONV_LOG_ERROR("Failed to compile shaders.")
+                    break;
+                }
+            }
+            else
+            {
+                // 传入了编译后的着色器路径，只记录路径
+                ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.compiledShaderPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            }
+            
             // 加载默认材质
-            ret = loadDefaultMaterial(opts.defaultMaterialPath);
+            ret = loadDefaultMaterial(opts.defaultResourcePath, opts.defaultMaterialPath);
             if (T3D_FAILED(ret))
             {
                 MCONV_LOG_ERROR("Failed to load default material.")
@@ -156,6 +178,11 @@ namespace Tiny3D
         if (fs.isOpened())
         {
             fs.close();
+        }
+
+        if (!tempPath.empty())
+        {
+            Dir::remove(tempPath);
         }
         
         // 释放 FBX 对象
@@ -296,28 +323,178 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXImporter::loadDefaultMaterial(const String &path)
+    TResult FBXImporter::compileAllShaders(const String &tempPath, const String &assetsPath)
     {
         TResult ret = T3D_OK;
 
         do
         {
-            // String dir, name;
-            // Dir::parsePath(path, dir, name);
-            // ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(dir, "FileSystem", Archive::AccessMode::kRead);
-            // T3D_ASSERT(archive != nullptr);
-            //
-            // mDefaultMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, name);
-            FileDataStream fs;
-            if (!fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            // 编译后 Shaders 存放路径
+            String compiledShadersPath = tempPath + Dir::getNativeSeparator() + "shaders";
+            if (!Dir::exists(compiledShadersPath))
             {
-                ret = T3D_ERR_FILE_NOT_EXIST;
-                MCONV_LOG_ERROR("Failed to open file: %s", path.c_str())
+                if (!Dir::makeDir(compiledShadersPath))
+                {
+                    MCONV_LOG_ERROR("Failed to create shaders folder (%s) !", compiledShadersPath.c_str());
+                    ret = T3D_ERR_FAIL;
+                    break;
+                }
+            }
+            
+            // 编译资源中所有 shaders
+            ret = compileShaders(assetsPath, compiledShadersPath);
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to compile project shaders !");
                 break;
             }
 
-            mDefaultMaterial = T3D_SERIALIZER_MGR.deserialize<Material>(fs);
+            // 编译后 shaders 档案系统
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(compiledShadersPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            if (archive == nullptr)
+            {
+                MCONV_LOG_ERROR("Failed to load compiled shaders fs archive [%s]", compiledShadersPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::compileShaders(const String &inputPath, const String &outputPath)
+    {
+        TResult ret = T3D_OK;
+
+        String searchPath = inputPath + Dir::getNativeSeparator() + "*.*";
+        Dir dir;
+        bool working = dir.findFile(searchPath);
+
+        while (working)
+        {
+            if (dir.isDots())
+            {
+                // . or ..
+            }
+            else if (dir.isDirectory())
+            {
+                // directory
+                ret = compileShaders(dir.getFilePath(), outputPath);
+            }
+            else
+            {
+                // file
+                String path, title, ext;
+                Dir::parsePath(dir.getFilePath(), path, title, ext);
+                StringUtil::toLowerCase(ext);
+                if (ext == "shader")
+                {
+                    const String filePath = dir.getFilePath();
+                    ret = compileShader(filePath, outputPath);
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            working = dir.findNextFile();
+        }
+
+        dir.close();
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::compileShader(const String &inputPath, const String &outputPath)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            MCONV_LOG_INFO("Begin compiling shader %s ...", inputPath.c_str());
+            
+            // 从 meta 中读取出 UUID
+            String metaPath = inputPath + ".meta";
+            FileDataStream fs;
+            if (!fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            {
+                MCONV_LOG_ERROR("Failed to open meta file [%s] !", metaPath.c_str());
+                break;
+            }
+
+            MetaPtr meta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
+            T3D_ASSERT(meta->getType() == Meta::Type::kShaderLab);
+            
             fs.close();
+
+            MetaShaderLab *metaShaderLab = (MetaShaderLab*)meta.get();
+
+            // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
+#if defined (T3D_OS_WINDOWS)
+            String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
+            String cmdLine =  inputPath + " -t hlsl" + " -o " + outputPath + " -u " + metaShaderLab->getShaderUUID().toString();
+#elif defined (T3D_OS_LINUX)
+#elif defined (T3D_OS_MAC)
+#endif
+
+            Process process;
+            ret = process.start(appPath, cmdLine);
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to start scc.exe from source file (%s) ! ERROR [%d]", inputPath.c_str(), ret);
+                break;
+            }
+
+            // 等待编译结束
+            ret = process.wait();
+            if (T3D_FAILED(ret))
+            {
+                MCONV_LOG_ERROR("Failed to wait process exiting from source file (%s) ! ERROR [%d]", inputPath.c_str(), ret);
+                break;
+            }
+
+            uint32_t exitCode = process.getExitCode();
+            if (exitCode != 0)
+            {
+                // 编译出错了，只能退出
+                MCONV_LOG_ERROR("Failed to compile shader (%s) ! ERROR [%d]", inputPath.c_str(), ret);
+                break;
+            }
+
+            MCONV_LOG_INFO("Completed compiling shader !");
+        } while (false);
+        
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    TResult FBXImporter::loadDefaultMaterial(const String &rootPath, const String &relativePath)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(rootPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            T3D_ASSERT(archive != nullptr);
+            mDefaultMaterial = T3D_MATERIAL_MGR.loadMaterial(archive, relativePath);
+            
+            //FileDataStream fs;
+            //if (!fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            //{
+            //    ret = T3D_ERR_FILE_NOT_EXIST;
+            //    MCONV_LOG_ERROR("Failed to open file: %s", path.c_str())
+            //    break;
+            //}
+
+            //mDefaultMaterial = T3D_SERIALIZER_MGR.deserialize<Material>(fs);
+            //fs.close();
         } while (false);
 
         return ret;
@@ -571,7 +748,7 @@ namespace Tiny3D
                 mSubMeshes.emplace(name, submesh);
             }
 
-            ret = createMesh(lFbxMesh->GetName());
+            ret = createMesh();
             if (T3D_FAILED(ret))
             {
                 MCONV_LOG_ERROR("Failed to create mesh.")
@@ -1013,6 +1190,8 @@ namespace Tiny3D
                 // Lambert 材质
                 material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
             }
+
+            mResources.emplace(materialName, material);
         } while (false);
         
         return ret;
@@ -1063,20 +1242,152 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXImporter::createMesh(const String &name)
+    TResult FBXImporter::createMesh()
     {
         TResult ret = T3D_OK;
 
-        VertexAttributes attributes;
-        
-        uint32_t offset = 0;
-        VertexAttribute attrPos(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
-        attributes.emplace_back(attrPos);
-        offset += sizeof(float32_t) * 3;
-        
+        do
+        {
+            Vertices vertices;
+            VertexAttributes attributes;
+            VertexStrides strides;
+            VertexOffsets offsets;
+            
+            uint32_t offset = 0;
+            
+            // position
+            VertexAttribute attrPos(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+            attributes.emplace_back(attrPos);
+            offset += sizeof(Vector3);
+            
+            if (!mColors.empty())
+            {
+                // diffuse color
+                T3D_ASSERT(mColors.size() == mVertices.size());
+                VertexAttribute attrCol(0, offset, VertexAttribute::Type::E_VAT_FLOAT4, VertexAttribute::Semantic::E_VAS_DIFFUSE, 0);
+                attributes.emplace_back(attrCol);
+                offset += sizeof(ColorRGBA);
+            }
 
-        // MeshPtr mesh = T3D_MESH_MGR.createMesh(name, std::move(attributes), std::move(mVertices), std::move(mSubMeshes));
+            for (uint32_t i = 0; i < T3D_MAX_TEXTURE_LEVEL; i++)
+            {
+                // uv
+                if (!mTexCoords[i].empty())
+                {
+                    T3D_ASSERT(mTexCoords[i].size() == mVertices.size());
+                    VertexAttribute attrUV(0, offset, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, i);
+                    attributes.emplace_back(attrUV);
+                    offset += sizeof(Vector2);
+                }
+            }
 
+            if (!mNormals.empty())
+            {
+                // normal
+                T3D_ASSERT(mNormals.size() == mVertices.size());
+                VertexAttribute attrNor(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+                attributes.emplace_back(attrNor);
+                offset += sizeof(Vector3);
+            }
+
+            if (!mBinormals.empty())
+            {
+                // binormal
+                T3D_ASSERT(mBinormals.size() == mVertices.size());
+                VertexAttribute attrBin(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_BINORMAL, 0);
+                attributes.emplace_back(attrBin);
+                offset += sizeof(Vector3);
+            }
+
+            if (!mTangents.empty())
+            {
+                // tangent
+                T3D_ASSERT(mTangents.size() == mVertices.size());
+                VertexAttribute attrTan(0, offset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_TANGENT, 0);
+                attributes.emplace_back(attrTan);
+                offset += sizeof(Vector3);
+            }
+
+            TArray<float32_t> data;
+
+            for (size_t i = 0; i < mVertices.size(); i++)
+            {
+                // position
+                const Vector3 &pos = mVertices[i];
+                data.emplace_back(pos[0]);
+                data.emplace_back(pos[1]);
+                data.emplace_back(pos[2]);
+
+                // diffuse color
+                if (!mColors.empty())
+                {
+                    const ColorRGBA &color = mColors[i];
+                    data.emplace_back(color.red());
+                    data.emplace_back(color.green());
+                    data.emplace_back(color.blue());
+                    data.emplace_back(color.alpha());
+                }
+
+                // texture uv
+                for (const auto &texCoord : mTexCoords)
+                {
+                    if (!texCoord.empty())
+                    {
+                        const Vector2 &uv = texCoord[i];
+                        data.emplace_back(uv[0]);
+                        data.emplace_back(uv[1]);
+                    }
+                }
+
+                // normal
+                if (!mNormals.empty())
+                {
+                    const Vector3 &nor = mNormals[i];
+                    data.emplace_back(nor[0]);
+                    data.emplace_back(nor[1]);
+                    data.emplace_back(nor[2]);
+                }
+
+                // binormal
+                if (!mBinormals.empty())
+                {
+                    const Vector3 &bin = mBinormals[i];
+                    data.emplace_back(bin[0]);
+                    data.emplace_back(bin[1]);
+                    data.emplace_back(bin[2]);
+                }
+                
+                // tangent
+                if (!mTangents.empty())
+                {
+                    const Vector3 &tan = mTangents[i];
+                    data.emplace_back(tan[0]);
+                    data.emplace_back(tan[1]);
+                    data.emplace_back(tan[2]);
+                }
+            }
+
+            Buffer buffer;
+            buffer.setData(data.data(), data.size() * sizeof(float32_t));
+            
+            vertices.emplace_back(buffer);
+            strides.emplace_back(offset);
+            offsets.emplace_back(0);
+
+            String name = mOutputName;
+            MeshPtr mesh = T3D_MESH_MGR.createMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(mSubMeshes));
+            if (mesh == nullptr)
+            {
+                ret = T3D_ERR_RES_INVALID_OBJECT;
+                MCONV_LOG_ERROR("Failed to create mesh %s", name.c_str());
+                break;
+            }
+
+            name = name + "." + Resource::EXT_MESH;
+            mResources.emplace(name, mesh);
+        } while (false);
+
+        
         return ret;
     }
 

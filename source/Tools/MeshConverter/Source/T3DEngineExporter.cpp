@@ -20,6 +20,8 @@
 
 #include "T3DEngineExporter.h"
 
+#include "Resource/T3DAnimationManager.h"
+
 
 namespace Tiny3D
 {
@@ -41,7 +43,111 @@ namespace Tiny3D
 
     TResult EngineExporter::run(const ConverterOptions &opts, const Assets &resources)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        for (auto res : resources)
+        {
+            ret = exportResource(opts, res.second);
+        }
+        
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportResource(const ConverterOptions &opts, Resource *resource)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            switch (resource->getType())
+            {
+            case Resource::Type::kMaterial:
+                {
+                    ret = exportMaterial(opts, static_cast<Material *>(resource));
+                }
+                break;
+            case Resource::Type::kMesh:
+                {
+                    ret = exportMesh(opts, static_cast<Mesh *>(resource));
+                }
+                break;
+            case Resource::Type::kSkinnedMesh:
+                {
+                    ret = exportSkinnedMesh(opts, static_cast<SkinnedMesh *>(resource));
+                }
+                break;
+            case Resource::Type::kSkeleton:
+                {
+                    ret = exportSkeleton(opts, static_cast<Skeleton *>(resource));
+                }
+                break;
+            case Resource::Type::kSkeletalAnimation:
+                {
+                    ret = exportSkeletalAnimation(opts, static_cast<SkeletalAnimation *>(resource));
+                }
+                break;
+            default:
+                {
+                    ret = T3D_ERR_FAIL;
+                    MCONV_LOG_ERROR("Invalid resource type");
+                }
+                break;
+            }
+        } while (false);
+
+        return ret;
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportMaterial(const ConverterOptions &opts, Material *material)
+    {
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive);
+        String filename = material->getName() + "." + Resource::EXT_MATERIAL;
+        return T3D_MATERIAL_MGR.saveMaterial(archive, filename, material);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportMesh(const ConverterOptions &opts, Mesh *mesh)
+    {
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive);
+        String filename = mesh->getName() + "." + Resource::EXT_MESH;
+        return T3D_MESH_MGR.saveMesh(archive, filename, mesh);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportSkinnedMesh(const ConverterOptions &opts,SkinnedMesh *mesh)
+    {
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive);
+        String filename = mesh->getName() + "." + Resource::EXT_MESH;
+        return T3D_MESH_MGR.saveMesh(archive, filename, mesh);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportSkeleton(const ConverterOptions &opts, Skeleton *skeleton)
+    {
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive);
+        String filename = skeleton->getName() + "." + Resource::EXT_SKELETON;
+        return T3D_SKELETON_MGR.saveSkeleton(archive, filename, skeleton);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportSkeletalAnimation(const ConverterOptions &opts, SkeletalAnimation *anim)
+    {
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive);
+        String filename = anim->getName() + "." + Resource::EXT_ANIMATION;
+        return T3D_ANIMATION_MGR.saveSkeletalAnimation(archive, filename, anim);
     }
     
     //--------------------------------------------------------------------------

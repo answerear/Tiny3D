@@ -47,6 +47,12 @@ namespace Tiny3D
         /// 默认材质文件完整路径
         String defaultMaterialPath {};
 
+        /// 所有引用的资源根路径
+        String defaultResourcePath {};
+
+        /// 从 shader lab 生成好的引擎 shader 文件路径
+        String compiledShaderPath {};
+
         /// 输出格式是文本还是二进制，只对 Tiny3D 格式有效
         bool    isTxt {false};
         /// 是否有顶点共享

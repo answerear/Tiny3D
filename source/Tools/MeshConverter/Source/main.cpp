@@ -21,7 +21,7 @@
 #include "T3DMeshConverterApp.h"
 
 // For debug
-// Text : -o tmesh -b sphere -t -d $(SolutionDir)..\..\assets\editor\builtin\materials\Default-Material.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx 
+// Text : -o tmesh -b sphere -t -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Default-Material.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx 
 
 
 int main(int argc, char *argv[])
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
     settings.pluginSettings.plugins.push_back("FileSystemArchiveEditor");
+    settings.pluginSettings.plugins.push_back("MetaFSArchive");
     settings.pluginSettings.plugins.push_back("FreeImageCodecEditor");
     settings.pluginSettings.plugins.push_back("NullRendererEditor");
     settings.renderSettings.renderer = "NullRenderer";

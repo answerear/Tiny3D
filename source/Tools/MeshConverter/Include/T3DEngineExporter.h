@@ -39,6 +39,18 @@ namespace Tiny3D
         
     protected:
         TResult run(const ConverterOptions &opts, const Assets &resources) override;
+
+        TResult exportResource(const ConverterOptions &opts, Resource *resource);
+
+        TResult exportMaterial(const ConverterOptions &opts, Material *material);
+
+        TResult exportMesh(const ConverterOptions &opts, Mesh *mesh);
+
+        TResult exportSkinnedMesh(const ConverterOptions &opts, SkinnedMesh *mesh);
+
+        TResult exportSkeleton(const ConverterOptions &opts, Skeleton *skeleton);
+
+        TResult exportSkeletalAnimation(const ConverterOptions &opts, SkeletalAnimation *anim);
     };
 }
 

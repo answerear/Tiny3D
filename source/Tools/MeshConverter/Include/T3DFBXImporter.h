@@ -54,8 +54,14 @@ namespace Tiny3D
         /// 设置度量系统
         TResult setupMetricSystem(FbxScene *lFbxScene);
 
+        TResult compileAllShaders(const String &tempPath, const String &assetsPath);
+
+        TResult compileShaders(const String &inputPath, const String &outputPath);
+
+        TResult compileShader(const String &inputPath, const String &outputPath);
+
         /// 加载默认材质
-        TResult loadDefaultMaterial(const String &path);
+        TResult loadDefaultMaterial(const String &rootPath, const String &relativePath);
 
         /// 处理静态网格
         TResult processStaticMesh(FbxScene *lFbxScene);
@@ -86,7 +92,7 @@ namespace Tiny3D
 
         TResult createSubMesh(const String &name, Material *material, SubMeshPtr &submesh);
 
-        TResult createMesh(const String &name);
+        TResult createMesh();
 
         /// 处理蒙皮网格
         TResult processSkinnedMesh(FbxScene *lFbxScene);
@@ -105,8 +111,6 @@ namespace Tiny3D
         using SmoothingGroupArray = TArray<int32_t>;
         using Vector2Array = TArray<Vector2>;
         using IndexArray = TArray<uint32_t>;
-
-        using SubMeshes = TUnorderedMap<String, SubMeshPtr>;
 
         using Materials = TUnorderedMap<String, MaterialPtr>;
 
@@ -136,6 +140,9 @@ namespace Tiny3D
         /// 1、FBX 材质是自定义的时候，直接用默认材质
         /// 2、FBX 材质的参数可以通过默认材质组合而来
         MaterialPtr mDefaultMaterial {nullptr};
+
+        /// 输出名称
+        String mOutputName {};
 
         Assets mResources {};
     };
