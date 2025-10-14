@@ -63,6 +63,11 @@ namespace Tiny3D
                 break;
             }
 
+            if (opts.isGeneratingMeta)
+            {
+                T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+            }
+
             // 创建导入器
             AssetImporterPtr importer = nullptr;
 
