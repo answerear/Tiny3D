@@ -64,6 +64,7 @@
 #include <Resource/T3DSkeletonManager.h>
 #include <Resource/T3DSubMesh.h>
 #include <Resource/T3DSkeletalAnimation.h>
+#include <Resource/T3DAnimationManager.h>
 
 // Skeletal Animation
 #include <Animation/T3DBoneNode.h>

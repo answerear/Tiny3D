@@ -24,8 +24,6 @@
 
 #include "SkeletalAnimationApp.h"
 
-#include "Resource/T3DAnimationManager.h"
-
 #define UVN_CAMERA
 
 #define USE_GPU_SKIN
