@@ -90,6 +90,9 @@ namespace Tiny3D
                 break;
             }
 
+            String filename;
+            Dir::parsePath(opts.srcPath, mInputDir, filename);
+            
             fs.close();
 
             // 设置度量系统
@@ -735,6 +738,8 @@ namespace Tiny3D
                     break;
                 }
 
+                mResources.emplace(material->getName(), material);
+
                 // 创建子网格
                 SubMeshPtr submesh;
                 ret = createSubMesh(name, material, submesh);
@@ -744,7 +749,6 @@ namespace Tiny3D
                     break;
                 }
 
-                mMaterials.emplace(material->getName(), material);
                 mSubMeshes.emplace(name, submesh);
             }
 
@@ -1153,6 +1157,7 @@ namespace Tiny3D
             };
 
             String materialName = lFbxMaterial->GetName();
+            materialName = mOutputName + "-" + materialName;
 
             const FbxImplementation *lFbxImplementation = lookForImplementation(lFbxMaterial);
             if (lFbxImplementation != nullptr)
@@ -1191,12 +1196,212 @@ namespace Tiny3D
                 material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
             }
 
-            mResources.emplace(materialName, material);
+            int lTextureIndex;
+            FBXSDK_FOR_EACH_TEXTURE(lTextureIndex)
+            {
+                FbxProperty lFbxProperty = lFbxMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[lTextureIndex]);
+                TexturePtr texture;
+                ret = createTexture(lFbxProperty, texture);
+                if (T3D_FAILED(ret) || texture == nullptr)
+                {
+                    continue;
+                }
+
+                const String texName = "_MainTex";
+                material->setTexture(texName, texture->getUUID());
+            }
+
+            // mResources.emplace(materialName, material);
         } while (false);
         
         return ret;
     }
 
+    //--------------------------------------------------------------------------
+
+    TResult FBXImporter::createTexture(const FbxProperty &lFbxProperty, TexturePtr &texture)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (lFbxProperty.IsValid() )
+            {
+                const auto _createTexture = [this](FbxTexture *lFbxTexture, int lFbxBlendMode, TexturePtr &texture)
+                {
+                    TResult ret = T3D_OK;
+                    
+                    FbxFileTexture *lFbxFileTexture = FbxCast<FbxFileTexture>(lFbxTexture);
+                    FbxProceduralTexture *lFbxProceduralTexture = FbxCast<FbxProceduralTexture>(lFbxTexture);
+
+                    do
+                    {
+                        if (lFbxFileTexture == nullptr)
+                        {
+                            MCONV_LOG_WARNING("Invalid texture");
+                            ret = T3D_ERR_INVALID_PARAM;
+                            break;
+                        }
+
+                        String path = lFbxFileTexture->GetFileName();
+                        String dir, title, ext;
+                        Dir::parsePath(path, dir, title, ext);
+                        
+                        if (!Dir::exists(path))
+                        {
+                            path = mInputDir;
+                        }
+                        else
+                        {
+                            path = dir;
+                        }
+
+                        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
+                        T3D_ASSERT(archive != nullptr);
+                        String filename = title + "." + ext;
+                        ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, filename);
+                        T3D_ASSERT(image != nullptr);
+                        texture = T3D_TEXTURE_MGR.createTexture2D(title, image);
+                        T3D_ASSERT(texture != nullptr);
+
+                        SamplerDesc samplerDesc;
+                        if (lFbxTexture->GetWrapModeU() == FbxTexture::eRepeat)
+                        {
+                            samplerDesc.AddressU = TextureAddressMode::kWrap;
+                        }
+                        else if (lFbxTexture->GetWrapModeU() == FbxTexture::eClamp)
+                        {
+                            samplerDesc.AddressU = TextureAddressMode::kClamp;
+                        }
+                        
+                        if (lFbxTexture->GetWrapModeV() == FbxTexture::eRepeat)
+                        {
+                            samplerDesc.AddressV = TextureAddressMode::kWrap;
+                        }
+                        else if (lFbxTexture->GetWrapModeV() == FbxTexture::eClamp)
+                        {
+                            samplerDesc.AddressV = TextureAddressMode::kClamp;
+                        }
+                        
+                        texture->setSamplerDesc(samplerDesc);
+                    } while (false);
+                    
+                    
+                    // MCONV_LOG_INFO("            Name: \"%s\"", (const char *)lFbxTexture->GetName());
+                    // if (lFbxFileTexture)
+                    // {
+                    //     MCONV_LOG_INFO("            Type: File Texture");
+                    //     MCONV_LOG_INFO("            File Name: \"%s\"", (const char *)lFbxFileTexture->GetFileName());
+                    // }
+                    // else if (lFbxProceduralTexture)
+                    // {
+                    //     MCONV_LOG_INFO("            Type: Procedural Texture");
+                    // }
+                    // MCONV_LOG_INFO("            Scale U: %f", lFbxTexture->GetScaleU());
+                    // MCONV_LOG_INFO("            Scale V: %f", lFbxTexture->GetScaleV());
+                    // MCONV_LOG_INFO("            Translation U: %f", lFbxTexture->GetTranslationU());
+                    // MCONV_LOG_INFO("            Translation V: %f", lFbxTexture->GetTranslationV());
+                    // MCONV_LOG_INFO("            Swap UV: %d", lFbxTexture->GetSwapUV());
+                    // MCONV_LOG_INFO("            Rotation U: %f", lFbxTexture->GetRotationU());
+                    // MCONV_LOG_INFO("            Rotation V: %f", lFbxTexture->GetRotationV());
+                    // MCONV_LOG_INFO("            Rotation W: %f", lFbxTexture->GetRotationW());
+                    // const char* lAlphaSources[] = { "None", "RGB Intensity", "Black" };
+                    // MCONV_LOG_INFO("            Alpha Source: %s", lAlphaSources[lFbxTexture->GetAlphaSource()]);
+                    // MCONV_LOG_INFO("            Cropping Left: %d", lFbxTexture->GetCroppingLeft());
+                    // MCONV_LOG_INFO("            Cropping Top: %d", lFbxTexture->GetCroppingTop());
+                    // MCONV_LOG_INFO("            Cropping Right: %d", lFbxTexture->GetCroppingRight());
+                    // MCONV_LOG_INFO("            Cropping Bottom: %d", lFbxTexture->GetCroppingBottom());
+                    // const char* lMappingTypes[] = { "Null", "Planar", "Spherical", "Cylindrical", 
+                    //     "Box", "Face", "UV", "Environment" };
+                    // MCONV_LOG_INFO("            Mapping Type: %s", lMappingTypes[lFbxTexture->GetMappingType()]);
+                    // if (lFbxTexture->GetMappingType() == FbxTexture::ePlanar)
+                    // {
+                    //     const char* lPlanarMappingNormals[] = { "X", "Y", "Z" };
+                    //     MCONV_LOG_INFO("            Planar Mapping Normal: %s", lPlanarMappingNormals[lFbxTexture->GetPlanarMappingNormal()]);
+                    // }
+                    // const char* lBlendModes[]   = { "Translucent", "Additive", "Modulate", "Modulate2", "Over", "Normal", "Dissolve", "Darken", "ColorBurn", "LinearBurn",
+                    //                                 "DarkerColor", "Lighten", "Screen", "ColorDodge", "LinearDodge", "LighterColor", "SoftLight", "HardLight", "VividLight",
+                    //                                 "LinearLight", "PinLight", "HardMix", "Difference", "Exclusion", "Substract", "Divide", "Hue", "Saturation", "Color",
+                    //                                 "Luminosity", "Overlay"};   
+                    //
+                    // if (lFbxBlendMode >= 0)
+                    // {
+                    //     MCONV_LOG_INFO("            Blend Mode: %s", lBlendModes[lFbxBlendMode]);
+                    // }
+                    // MCONV_LOG_INFO("            Alpha: %f", lFbxTexture->GetDefaultAlpha());
+                    // if (lFbxFileTexture)
+                    // {
+                    //     const char* lMaterialUses[] = { "Model Material", "Default Material" };
+                    //     MCONV_LOG_INFO("            Material Use: %s", lMaterialUses[lFbxFileTexture->GetMaterialUse()]);
+                    // }
+                    // const char* pTextureUses[] = { "Standard", "Shadow Map", "Light Map", 
+                    //     "Spherical Reflexion Map", "Sphere Reflexion Map", "Bump Normal Map" };
+                    // MCONV_LOG_INFO("            Texture Use: %s", pTextureUses[lFbxTexture->GetTextureUse()]);
+                    // MCONV_LOG_INFO("");
+
+                    return ret;
+                };
+                
+                int lTextureCount = lFbxProperty.GetSrcObjectCount<FbxTexture>();
+                for (int j = 0; j < lTextureCount; ++j)
+                {
+                    //Here we have to check if it's layeredtextures, or just textures:
+                    FbxLayeredTexture *lFbxLayeredTexture = lFbxProperty.GetSrcObject<FbxLayeredTexture>(j);
+                    if (lFbxLayeredTexture)
+                    {                
+                        int lNbTextures = lFbxLayeredTexture->GetSrcObjectCount<FbxTexture>();
+                        for (int k =0; k<lNbTextures; ++k)
+                        {
+                            FbxTexture* lFbxTexture = lFbxLayeredTexture->GetSrcObject<FbxTexture>(k);
+                            if (lFbxTexture)
+                            {
+                                //NOTE the blend mode is ALWAYS on the LayeredTexture and NOT the one on the texture.
+                                //Why is that?  because one texture can be shared on different layered textures and might
+                                //have different blend modes.
+                                FbxLayeredTexture::EBlendMode lBlendMode;
+                                lFbxLayeredTexture->GetTextureBlendMode(k, lBlendMode);
+                                FbxFileTexture *lFbxFileTexture = FbxCast<FbxFileTexture>(lFbxTexture);
+                                MCONV_LOG_INFO("Layered Textures [%d] - textures[%d] : %s", j, k, (const char *)lFbxProperty.GetName());
+                                ret = _createTexture(lFbxTexture, lBlendMode, texture);
+                                if (T3D_FAILED(ret))
+                                {
+                                    break;
+                                }
+
+                                mResources.emplace(texture->getName(), texture);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //no layered texture simply get on the property
+                        FbxTexture* lFbxTexture = lFbxProperty.GetSrcObject<FbxTexture>(j);
+                        if (lFbxTexture)
+                        {
+                            //display connected Material header only at the first time
+                            FbxFileTexture *lFbxFileTexture = FbxCast<FbxFileTexture>(lFbxTexture);
+                            MCONV_LOG_INFO("Textures[%d] : %s", j, (const char *)lFbxProperty.GetName());
+                            ret = _createTexture(lFbxTexture, -1, texture);
+                            if (T3D_FAILED(ret))
+                            {
+                                break;
+                            }
+
+                            mResources.emplace(texture->getName(), texture);
+                        }
+                    }
+
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
+                }
+            }//end if pProperty
+        } while (false);
+        
+        return ret;
+    }
+    
     //--------------------------------------------------------------------------
 
     TResult FBXImporter::createSubMesh(const String &name, Material *material, SubMeshPtr &submesh)

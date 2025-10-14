@@ -90,6 +90,8 @@ namespace Tiny3D
 
         TResult createMaterial(FbxSurfaceMaterial *lFbxMaterial, MaterialPtr &material);
 
+        TResult createTexture(const FbxProperty &lFbxProperty, TexturePtr &texture);
+
         TResult createSubMesh(const String &name, Material *material, SubMeshPtr &submesh);
 
         TResult createMesh();
@@ -113,6 +115,7 @@ namespace Tiny3D
         using IndexArray = TArray<uint32_t>;
 
         using Materials = TUnorderedMap<String, MaterialPtr>;
+        using Textures = TUnorderedMap<String, TexturePtr>;
 
         /// 顶点数据
         Vector3Array mVertices {};
@@ -133,8 +136,6 @@ namespace Tiny3D
 
         /// 子网格
         SubMeshes mSubMeshes {};
-        /// 材质
-        Materials mMaterials {};
 
         /// 默认材质
         /// 1、FBX 材质是自定义的时候，直接用默认材质
@@ -143,6 +144,9 @@ namespace Tiny3D
 
         /// 输出名称
         String mOutputName {};
+
+        /// 输入路径
+        String mInputDir {};
 
         Assets mResources {};
     };

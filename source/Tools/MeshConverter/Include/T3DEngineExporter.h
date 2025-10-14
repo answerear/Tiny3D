@@ -44,6 +44,8 @@ namespace Tiny3D
 
         TResult exportMaterial(const ConverterOptions &opts, Material *material);
 
+        TResult exportTexture(const ConverterOptions &opts, Texture *texture);
+
         TResult exportMesh(const ConverterOptions &opts, Mesh *mesh);
 
         TResult exportSkinnedMesh(const ConverterOptions &opts, SkinnedMesh *mesh);

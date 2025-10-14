@@ -68,6 +68,11 @@ namespace Tiny3D
                     ret = exportMaterial(opts, static_cast<Material *>(resource));
                 }
                 break;
+            case Resource::Type::kTexture:
+                {
+                    ret = exportTexture(opts, static_cast<Texture *>(resource));
+                }
+                break;
             case Resource::Type::kMesh:
                 {
                     ret = exportMesh(opts, static_cast<Mesh *>(resource));
@@ -104,17 +109,57 @@ namespace Tiny3D
 
     TResult EngineExporter::exportMaterial(const ConverterOptions &opts, Material *material)
     {
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive;
+            if (opts.isGeneratingMeta)
+            {
+                archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+            }
+            else
+            {
+                archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+            }
+            T3D_ASSERT(archive);
+            String filename = material->getName() + "." + Resource::EXT_MATERIAL;
+            return T3D_MATERIAL_MGR.saveMaterial(archive, filename, material);
+        } while (false);
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult EngineExporter::exportTexture(const ConverterOptions &opts, Texture *texture)
+    {
+        ArchivePtr archive;
+        if (opts.isGeneratingMeta)
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+        }
+        else
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        }
         T3D_ASSERT(archive);
-        String filename = material->getName() + "." + Resource::EXT_MATERIAL;
-        return T3D_MATERIAL_MGR.saveMaterial(archive, filename, material);
+        String filename = texture->getName() + "." + Resource::EXT_TEXTURE;
+        return T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
     }
 
     //--------------------------------------------------------------------------
 
     TResult EngineExporter::exportMesh(const ConverterOptions &opts, Mesh *mesh)
     {
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        ArchivePtr archive;
+        if (opts.isGeneratingMeta)
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+        }
+        else
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        }
         T3D_ASSERT(archive);
         String filename = mesh->getName() + "." + Resource::EXT_MESH;
         return T3D_MESH_MGR.saveMesh(archive, filename, mesh);
@@ -124,7 +169,15 @@ namespace Tiny3D
 
     TResult EngineExporter::exportSkinnedMesh(const ConverterOptions &opts,SkinnedMesh *mesh)
     {
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        ArchivePtr archive;
+        if (opts.isGeneratingMeta)
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+        }
+        else
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        }
         T3D_ASSERT(archive);
         String filename = mesh->getName() + "." + Resource::EXT_MESH;
         return T3D_MESH_MGR.saveMesh(archive, filename, mesh);
@@ -134,7 +187,15 @@ namespace Tiny3D
 
     TResult EngineExporter::exportSkeleton(const ConverterOptions &opts, Skeleton *skeleton)
     {
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        ArchivePtr archive;
+        if (opts.isGeneratingMeta)
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+        }
+        else
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        }
         T3D_ASSERT(archive);
         String filename = skeleton->getName() + "." + Resource::EXT_SKELETON;
         return T3D_SKELETON_MGR.saveSkeleton(archive, filename, skeleton);
@@ -144,7 +205,15 @@ namespace Tiny3D
 
     TResult EngineExporter::exportSkeletalAnimation(const ConverterOptions &opts, SkeletalAnimation *anim)
     {
-        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        ArchivePtr archive;
+        if (opts.isGeneratingMeta)
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
+        }
+        else
+        {
+            archive = T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        }
         T3D_ASSERT(archive);
         String filename = anim->getName() + "." + Resource::EXT_ANIMATION;
         return T3D_ANIMATION_MGR.saveSkeletalAnimation(archive, filename, anim);

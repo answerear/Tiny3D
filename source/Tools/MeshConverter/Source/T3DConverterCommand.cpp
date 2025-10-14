@@ -90,6 +90,10 @@ namespace Tiny3D
                     {
                         opts.compiledShaderPath = argv[++i];
                     }
+                    else if (arg[1] == 'a')
+                    {
+                        opts.isGeneratingMeta = true;
+                    }
                 }
                 else if (opts.srcPath.empty())
                 {
@@ -216,6 +220,7 @@ namespace Tiny3D
         printf("      -d <filename> : Set the default material file path for engine.\n");
         printf("      -r <the root directory of resource> : Set the root of default material directory for engine.\n");
         printf("      -s <tiny3d compiled shader directory> : Set the compiled shader directory for engine. If not set this option, mconv will compile all shader lab.\n");
+        printf("      -a : Generate the corresponding meta files.\n");
         printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
     }

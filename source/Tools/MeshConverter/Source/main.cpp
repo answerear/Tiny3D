@@ -21,7 +21,7 @@
 #include "T3DMeshConverterApp.h"
 
 // For debug
-// Text : -o tmesh -b sphere -t -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Default-Material.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx 
+// Text : -o tmesh -b sphere -t -a -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Default-Material.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx 
 
 
 int main(int argc, char *argv[])

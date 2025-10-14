@@ -57,6 +57,8 @@ namespace Tiny3D
         bool    isTxt {false};
         /// 是否有顶点共享
         bool    hasVertexShared {false};
+        /// 是否生成对应 meta 文件
+        bool    isGeneratingMeta {false};
         /// 是否输出详细信息
         bool    verbose {true};
     };
