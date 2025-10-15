@@ -100,9 +100,9 @@ TResult SampleConsoleApp::go(int32_t argc, char *argv[])
 
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
-    settings.pluginSettings.plugins.push_back("FileSystemArchive");
-    settings.pluginSettings.plugins.push_back("NullRenderer");
-    settings.renderSettings.renderer = "NullRenderer";
+    settings.pluginSettings.plugins.emplace_back("FileSystemArchive");
+    settings.pluginSettings.plugins.emplace_back("NullRenderer");
+    settings.renderSettings.renderer = RHIRenderer::NULLRENDERER;
     ret = theEngine->init(argc, argv, true, false, settings);
     if (ret == T3D_OK)
         theEngine->run();
