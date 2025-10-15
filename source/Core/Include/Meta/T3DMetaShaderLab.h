@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_SCENE_H__
-#define __T3D_META_SCENE_H__
+#ifndef __T3D_META_SHADER_LAB_H__
+#define __T3D_META_SHADER_LAB_H__
 
 
 #include "T3DMeta.h"
@@ -31,33 +31,42 @@
 
 namespace Tiny3D
 {
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
 
     TCLASS()
-    class T3D_ENGINE_API MetaScene : public Meta
+    class T3D_ENGINE_API MetaShaderLab : public Meta
     {
         TRTTI_ENABLE(Meta)
         TRTTI_FRIEND
 
     public:
-        static MetaScenePtr create(const UUID &uuid)
+        static MetaShaderLabPtr create(const UUID &uuid, const UUID &shaderUUID)
         {
-            return T3D_NEW MetaScene(uuid);
+            return T3D_NEW MetaShaderLab(uuid, shaderUUID);
         }
 
-        Type getType() const override { return kScene; }
+        Type getType() const override { return kShaderLab; }
+
+        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="getter")
+        const UUID &getShaderUUID() const { return mShaderUUID; }
+
+        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="setter")
+        void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
 
     protected:
-        MetaScene() = default;
+        MetaShaderLab() = default;
 
-        MetaScene(const UUID &uuid)
+        MetaShaderLab(const UUID &uuid, const UUID &shaderUUID)
             : Meta(uuid)
+            , mShaderUUID(shaderUUID)
         {
         }
+
+        UUID mShaderUUID {UUID::INVALID};
     };
 
 #endif
 }
 
 
-#endif    /*__T3D_META_SCENE_H__*/
+#endif    /*__T3D_META_SHADER_LAB_H__*/

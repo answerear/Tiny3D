@@ -193,7 +193,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIThread);
     T3D_DECLARE_SMART_PTR(RHICommand);
 
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
     T3D_DECLARE_SMART_PTR(Meta);
     T3D_DECLARE_SMART_PTR(MetaFolder);
     T3D_DECLARE_SMART_PTR(MetaFile);

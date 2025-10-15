@@ -23,6 +23,6 @@
  ******************************************************************************/
 
 
-#include "Editor/T3DMetaFolder.h"
+#include "Meta/T3DMetaShaderLab.h"
 
 

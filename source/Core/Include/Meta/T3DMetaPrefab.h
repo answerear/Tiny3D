@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_MESH_H__
-#define __T3D_META_MESH_H__
+#ifndef __T3D_META_PREFAB_H__
+#define __T3D_META_PREFAB_H__
 
 
 #include "T3DMeta.h"
@@ -31,26 +31,26 @@
 
 namespace Tiny3D
 {
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
 
     TCLASS()
-    class T3D_ENGINE_API MetaMesh : public Meta
+    class T3D_ENGINE_API MetaPrefab : public Meta
     {
         TRTTI_ENABLE(Meta)
         TRTTI_FRIEND
 
     public:
-        static MetaMeshPtr create(const UUID &uuid)
+        static MetaPrefabPtr create(const UUID &uuid)
         {
-            return T3D_NEW MetaMesh(uuid);
+            return T3D_NEW MetaPrefab(uuid);
         }
 
-        Type getType() const override { return kMesh; }
+        Type getType() const override { return kPrefab; }
 
     protected:
-        MetaMesh() = default;
+        MetaPrefab() = default;
 
-        MetaMesh(const UUID &uuid)
+        MetaPrefab(const UUID &uuid)
             : Meta(uuid)
         {
         }
@@ -60,4 +60,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_META_MESH_H__*/
+#endif    /*__T3D_META_PREFAB_H__*/

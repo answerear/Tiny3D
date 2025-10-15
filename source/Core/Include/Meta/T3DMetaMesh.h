@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_FILE_H__
-#define __T3D_META_FILE_H__
+#ifndef __T3D_META_MESH_H__
+#define __T3D_META_MESH_H__
 
 
 #include "T3DMeta.h"
@@ -31,26 +31,26 @@
 
 namespace Tiny3D
 {
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
 
     TCLASS()
-    class T3D_ENGINE_API MetaFile : public Meta
+    class T3D_ENGINE_API MetaMesh : public Meta
     {
         TRTTI_ENABLE(Meta)
         TRTTI_FRIEND
 
     public:
-        static MetaFilePtr create(const UUID &uuid)
+        static MetaMeshPtr create(const UUID &uuid)
         {
-            return T3D_NEW MetaFile(uuid);
+            return T3D_NEW MetaMesh(uuid);
         }
 
-        Type getType() const override { return kFile; }
+        Type getType() const override { return kMesh; }
 
     protected:
-        MetaFile() = default;
+        MetaMesh() = default;
 
-        MetaFile(const UUID &uuid)
+        MetaMesh(const UUID &uuid)
             : Meta(uuid)
         {
         }
@@ -60,4 +60,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_META_FILE_H__*/
+#endif    /*__T3D_META_MESH_H__*/

@@ -22,7 +22,42 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_META_MATERIAL_H__
+#define __T3D_META_MATERIAL_H__
 
-#include "Editor/T3DMetaScene.h"
+
+#include "T3DMeta.h"
 
 
+namespace Tiny3D
+{
+#if defined(T3D_OS_DESKTOP)
+
+    TCLASS()
+    class T3D_ENGINE_API MetaMaterial : public Meta
+    {
+        TRTTI_ENABLE(Meta)
+        TRTTI_FRIEND
+
+    public:
+        static MetaMaterialPtr create(const UUID &uuid)
+        {
+            return T3D_NEW MetaMaterial(uuid);
+        }
+
+        Type getType() const override { return kMaterial; }
+
+    protected:
+        MetaMaterial() = default;
+
+        MetaMaterial(const UUID &uuid)
+            : Meta(uuid)
+        {
+        }
+    };
+
+#endif
+}
+
+
+#endif    /*__T3D_META_MATERIAL_H__*/

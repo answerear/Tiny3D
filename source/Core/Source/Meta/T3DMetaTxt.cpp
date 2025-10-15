@@ -22,42 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_TEXTURE_H__
-#define __T3D_META_TEXTURE_H__
+
+#include "Meta/T3DMetaTxt.h"
 
 
-#include "T3DMeta.h"
-
-
-namespace Tiny3D
-{
-#if defined(T3D_EDITOR)
-
-    TCLASS()
-    class T3D_ENGINE_API MetaTexture : public Meta
-    {
-        TRTTI_ENABLE(Meta)
-        TRTTI_FRIEND
-
-    public:
-        static MetaTexturePtr create(const UUID &uuid)
-        {
-            return T3D_NEW MetaTexture(uuid);
-        }
-
-        Type getType() const override { return kTexture; }
-
-    protected:
-        MetaTexture() = default;
-
-        MetaTexture(const UUID &uuid)
-            : Meta(uuid)
-        {
-        }
-    };
-
-#endif
-}
-
-
-#endif    /*__T3D_META_TEXTURE_H__*/

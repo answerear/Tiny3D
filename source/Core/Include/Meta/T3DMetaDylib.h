@@ -22,8 +22,8 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_MATERIAL_H__
-#define __T3D_META_MATERIAL_H__
+#ifndef __T3D_META_DYLIB_H__
+#define __T3D_META_DYLIB_H__
 
 
 #include "T3DMeta.h"
@@ -31,26 +31,26 @@
 
 namespace Tiny3D
 {
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
 
     TCLASS()
-    class T3D_ENGINE_API MetaMaterial : public Meta
+    class T3D_ENGINE_API MetaDylib : public Meta
     {
         TRTTI_ENABLE(Meta)
         TRTTI_FRIEND
 
     public:
-        static MetaMaterialPtr create(const UUID &uuid)
+        static MetaDylibPtr create(const UUID &uuid)
         {
-            return T3D_NEW MetaMaterial(uuid);
+            return T3D_NEW MetaDylib(uuid);
         }
 
-        Type getType() const override { return kMaterial; }
+        Type getType() const override { return kDylib; }
 
     protected:
-        MetaMaterial() = default;
+        MetaDylib() = default;
 
-        MetaMaterial(const UUID &uuid)
+        MetaDylib(const UUID &uuid)
             : Meta(uuid)
         {
         }
@@ -60,4 +60,4 @@ namespace Tiny3D
 }
 
 
-#endif    /*__T3D_META_MATERIAL_H__*/
+#endif    /*__T3D_META_DYLIB_H__*/

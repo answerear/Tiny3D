@@ -108,6 +108,10 @@ set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializ
 set_project_files(Source\\\\Animation ${TINY3D_CORE_SOURCE_DIR}/Source/Animation/ .cpp)
 set_project_files(Source\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Source/Editor/ .cpp)
 
+if (TINY3D_OS_DESKTOP)
+    set_project_files(Include\\\\Meta ${TINY3D_CORE_SOURCE_DIR}/Include/Meta/ .h)
+    set_project_files(Source\\\\Meta ${TINY3D_CORE_SOURCE_DIR}/Source/Meta/ .cpp)
+endif (TINY3D_OS_DESKTOP)
 
 # Generated source for reflection.
 set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/../Editor/Generated/ .generated.cpp)

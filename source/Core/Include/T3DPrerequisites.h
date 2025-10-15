@@ -257,7 +257,7 @@ namespace Tiny3D
     class RHIThread;
     class RHICommand;
 
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
     class Meta;
     class MetaFolder;
     class MetaFile;

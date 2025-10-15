@@ -22,7 +22,42 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#ifndef __T3D_META_SHADER_H__
+#define __T3D_META_SHADER_H__
 
-#include "Editor/T3DMetaMesh.h"
+
+#include "T3DMeta.h"
 
 
+namespace Tiny3D
+{
+#if defined(T3D_OS_DESKTOP)
+
+    TCLASS()
+    class T3D_ENGINE_API MetaShader : public Meta
+    {
+        TRTTI_ENABLE(Meta)
+        TRTTI_FRIEND
+
+    public:
+        static MetaShaderPtr create(const UUID &uuid)
+        {
+            return T3D_NEW MetaShader(uuid);
+        }
+
+        Type getType() const override { return kShader; }
+
+    protected:
+        MetaShader() = default;
+
+        MetaShader(const UUID &uuid)
+            : Meta(uuid)
+        {
+        }
+    };
+
+#endif
+}
+
+
+#endif    /*__T3D_META_SHADER_H__*/

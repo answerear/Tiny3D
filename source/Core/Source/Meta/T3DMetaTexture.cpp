@@ -23,6 +23,6 @@
  ******************************************************************************/
 
 
-#include "Editor/T3DMetaTexture.h"
+#include "Meta/T3DMetaTexture.h"
 
 

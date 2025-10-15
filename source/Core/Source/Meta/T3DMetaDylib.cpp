@@ -22,42 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_BIN_H__
-#define __T3D_META_BIN_H__
+
+#include "Meta/T3DMetaDylib.h"
 
 
-#include "T3DMeta.h"
-
-
-namespace Tiny3D
-{
-#if defined(T3D_EDITOR)
-
-    TCLASS()
-    class T3D_ENGINE_API MetaBin : public Meta
-    {
-        TRTTI_ENABLE(Meta)
-        TRTTI_FRIEND
-
-    public:
-        static MetaBinPtr create(const UUID &uuid)
-        {
-            return T3D_NEW MetaBin(uuid);
-        }
-
-        Type getType() const override { return kBin; }
-
-    protected:
-        MetaBin() = default;
-
-        MetaBin(const UUID &uuid)
-            : Meta(uuid)
-        {
-        }
-    };
-
-#endif
-}
-
-
-#endif    /*__T3D_META_BIN_H__*/

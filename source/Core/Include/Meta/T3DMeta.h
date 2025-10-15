@@ -22,42 +22,61 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_PREFAB_H__
-#define __T3D_META_PREFAB_H__
+#ifndef __T3D_META_H__
+#define __T3D_META_H__
 
 
-#include "T3DMeta.h"
+#include "T3DPrerequisites.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
 {
-#if defined(T3D_EDITOR)
+#if defined(T3D_OS_DESKTOP)
 
     TCLASS()
-    class T3D_ENGINE_API MetaPrefab : public Meta
+    class T3D_ENGINE_API Meta : public Object
     {
-        TRTTI_ENABLE(Meta)
+        TRTTI_ENABLE(Object)
         TRTTI_FRIEND
-
+        
     public:
-        static MetaPrefabPtr create(const UUID &uuid)
+        TENUM()
+        enum Type
         {
-            return T3D_NEW MetaPrefab(uuid);
-        }
+            kUnknown = 0,
+            kFolder,
+            kFile,
+            kTxt,
+            kBin,
+            kDylib,
+            kMaterial,
+            kTexture,
+            kShader,
+            kMesh,
+            kPrefab,
+            kScene,
+            kShaderLab,
+        };
 
-        Type getType() const override { return kPrefab; }
+        virtual Type getType() const = 0;
 
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
+        const UUID &getUUID() const { return mUUID; }
+
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
+        void setUUID(const UUID &uuid) { mUUID = uuid; }
+        
     protected:
-        MetaPrefab() = default;
+        Meta() = default;
 
-        MetaPrefab(const UUID &uuid)
-            : Meta(uuid)
-        {
-        }
+        Meta(const UUID &uuid) : mUUID(uuid) {}
+
+        UUID mUUID {UUID::INVALID};
     };
 
 #endif
 }
 
 
-#endif    /*__T3D_META_PREFAB_H__*/
+#endif    /*__T3D_META_H__*/

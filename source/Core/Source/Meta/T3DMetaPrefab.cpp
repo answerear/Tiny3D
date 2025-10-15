@@ -23,6 +23,6 @@
  ******************************************************************************/
 
 
-#include "Editor/T3DMetaDylib.h"
+#include "Meta/T3DMetaPrefab.h"
 
 

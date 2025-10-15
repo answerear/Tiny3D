@@ -22,42 +22,7 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_FOLDER_H__
-#define __T3D_META_FOLDER_H__
+
+#include "Meta/T3DMetaMesh.h"
 
 
-#include "T3DMeta.h"
-
-
-namespace Tiny3D
-{
-#if defined(T3D_EDITOR)
-
-    TCLASS()
-    class T3D_ENGINE_API MetaFolder : public Meta
-    {
-        TRTTI_ENABLE(Meta)
-        TRTTI_FRIEND
-        
-    public:
-        static MetaFolderPtr create(const UUID &uuid)
-        {
-            return T3D_NEW MetaFolder(uuid);
-        }
-
-        Type getType() const override { return kFolder; }
-
-    protected:
-        MetaFolder() = default;
-        
-        MetaFolder(const UUID &uuid)
-            : Meta(uuid)
-        {
-        }
-    };
-
-#endif
-}
-
-
-#endif    /*__T3D_META_FOLDER_H__*/

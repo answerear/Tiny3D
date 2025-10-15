@@ -156,20 +156,20 @@
 #include <RHI/T3DRHIThread.h>
 #include <RHI/T3DRHICommand.h>
 
-#if defined(T3D_EDITOR)
-#include <Editor/T3DMeta.h>
-#include <Editor/T3DMetaBin.h>
-#include <Editor/T3DMetaDylib.h>
-#include <Editor/T3DMetaFile.h>
-#include <Editor/T3DMetaFolder.h>
-#include <Editor/T3DMetaMaterial.h>
-#include <Editor/T3DMetaMesh.h>
-#include <Editor/T3DMetaPrefab.h>
-#include <Editor/T3DMetaScene.h>
-#include <Editor/T3DMetaShader.h>
-#include <Editor/T3DMetaShaderLab.h>
-#include <Editor/T3DMetaTexture.h>
-#include <Editor/T3DMetaTxt.h>
+#if defined(T3D_OS_DESKTOP)
+#include <Meta/T3DMeta.h>
+#include <Meta/T3DMetaBin.h>
+#include <Meta/T3DMetaDylib.h>
+#include <Meta/T3DMetaFile.h>
+#include <Meta/T3DMetaFolder.h>
+#include <Meta/T3DMetaMaterial.h>
+#include <Meta/T3DMetaMesh.h>
+#include <Meta/T3DMetaPrefab.h>
+#include <Meta/T3DMetaScene.h>
+#include <Meta/T3DMetaShader.h>
+#include <Meta/T3DMetaShaderLab.h>
+#include <Meta/T3DMetaTexture.h>
+#include <Meta/T3DMetaTxt.h>
 #endif
 
 #endif  /*__TINY3D_H__*/
