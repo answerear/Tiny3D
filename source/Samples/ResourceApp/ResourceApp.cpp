@@ -71,8 +71,6 @@ TResult ResourceApp::go(int32_t argc, char *argv[])
 
 TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
-    T3D_AGENT.loadPlugin("MetaFSArchive");
-    
     // create scene
     ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
     scene->init();
