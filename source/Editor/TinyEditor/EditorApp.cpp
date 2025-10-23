@@ -240,7 +240,7 @@ namespace Tiny3D
             mTextureMgr = new ImTextureManager();
 
             // 手动加载 Meta 文件系统插件，不让引擎自动加载，避免没有设置 Editor 之前，插件内部依赖 Editor 对象的操作会出错
-            ret = T3D_AGENT.loadPlugin("MetaFSArchive");
+            ret = T3D_AGENT.loadPlugin("MetaFSArchiveEditor");
             if (T3D_FAILED(ret))
             {
                 break;
