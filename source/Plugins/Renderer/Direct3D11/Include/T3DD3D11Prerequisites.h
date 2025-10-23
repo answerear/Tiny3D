@@ -46,24 +46,34 @@
 
 namespace Tiny3D
 {
-#if !defined (T3D_DEBUG)
+// #if !defined (T3D_DEBUG)
+//     #define D3D_SAFE_RELEASE(p) \
+//         if ((p) != nullptr)   \
+//         {   \
+//             (p)->AddRef();   \
+//             ULONG RefCount = (p)->Release();    \
+//             T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "%s - %s [IUnknown Pointer] : 0x%016p, RefCount : %u", __FUNCTION__, #p, (p), RefCount);    \
+//             (p)->Release();   \
+//             (p) = nullptr;    \
+//         }
+// #else
     #define D3D_SAFE_RELEASE(p) \
         if ((p) != nullptr)   \
         {   \
-            (p)->AddRef();   \
-            ULONG RefCount = (p)->Release();    \
-            T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "%s - %s [IUnknown Pointer] : 0x%016p, RefCount : %u", __FUNCTION__, #p, (p), RefCount);    \
             (p)->Release();   \
             (p) = nullptr;    \
         }
-#else
-    #define D3D_SAFE_RELEASE(p) \
-        if ((p) != nullptr)   \
+
+    #define D3D_SAFE_RELEASE_ARRAY(p) \
+        for (UINT i = 0; i < sizeof(p) / sizeof((p)[0]); ++i)   \
         {   \
-            (p)->Release();   \
-            (p) = nullptr;    \
+            if ((p[i]) != nullptr) \
+            {   \
+                (p[i])->Release();   \
+                (p[i]) = nullptr;   \
+            }   \
         }
-#endif
+// #endif
 
 #if defined (T3D_DEBUG)
     #define D3D_REF_COUNT(prefix, p)    \

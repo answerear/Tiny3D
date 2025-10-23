@@ -989,6 +989,60 @@ namespace Tiny3D
         // mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
         // mD3DDeviceContext->IAGetVertexBuffers(0, 1, &mBackupState.VertexBuffer, &mBackupState.VertexBufferStride, &mBackupState.VertexBufferOffset);
         // mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+
+        // 裁剪矩形和视口
+        mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
+        mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
+
+        // 渲染目标和深度模版
+        mD3DDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, mBackupState.RenderTargetViews, &mBackupState.DepthStencilView);
+
+        // 所有着色器资源（PS、VS、CS、HS、DS、GS）
+        mD3DDeviceContext->PSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.PSShaderResources);
+        mD3DDeviceContext->VSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.VSShaderResources);
+        mD3DDeviceContext->GSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.GSShaderResources);
+        mD3DDeviceContext->HSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.HSShaderResources);
+        mD3DDeviceContext->DSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.DSShaderResources);
+        mD3DDeviceContext->CSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.CSShaderResources);
+
+        // 所有着色器
+        mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
+        mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
+        mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
+        mD3DDeviceContext->HSGetShader(&mBackupState.HS, mBackupState.HSInstances, &mBackupState.HSInstancesCount);
+        mD3DDeviceContext->DSGetShader(&mBackupState.DS, mBackupState.DSInstances, &mBackupState.DSInstancesCount);
+        mD3DDeviceContext->CSGetShader(&mBackupState.CS, mBackupState.CSInstances, &mBackupState.CSInstancesCount);
+
+        // 所有常量缓冲区
+        mD3DDeviceContext->VSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.VSConstantBuffers);
+        mD3DDeviceContext->PSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.PSConstantBuffers);
+        mD3DDeviceContext->GSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.GSConstantBuffers);
+        mD3DDeviceContext->HSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.HSConstantBuffers);
+        mD3DDeviceContext->DSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.DSConstantBuffers);
+        mD3DDeviceContext->CSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.CSConstantBuffers);
+
+        // 所有采样器
+        mD3DDeviceContext->VSGetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.VSSamplers);
+        mD3DDeviceContext->PSGetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.PSSamplers);
+        mD3DDeviceContext->GSGetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.GSSamplers);
+        mD3DDeviceContext->HSGetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.HSSamplers);
+        mD3DDeviceContext->DSGetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.DSSamplers);
+        mD3DDeviceContext->CSGetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.CSSamplers);
+
+        // 输入布局
+        mD3DDeviceContext->IAGetInputLayout(&mBackupState.InputLayout);
+
+        // 顶点缓冲区和索引缓冲区
+        mD3DDeviceContext->IAGetVertexBuffers(0, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT, mBackupState.VertexBuffers, mBackupState.VertexBufferStrides, mBackupState.VertexBufferOffsets);
+        mD3DDeviceContext->IAGetIndexBuffer(&mBackupState.IndexBuffer, &mBackupState.IndexBufferFormat, &mBackupState.IndexBufferOffset);
+
+        // 拓扑结构
+        mD3DDeviceContext->IAGetPrimitiveTopology(&mBackupState.PrimitiveTopology);
+
+        // 混合状态、深度模版状态、光栅化状态
+        mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
+        mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
+        mD3DDeviceContext->RSGetState(&mBackupState.RasterizerState);
     }
 
     //--------------------------------------------------------------------------
@@ -2825,62 +2879,155 @@ namespace Tiny3D
             // mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout);
             // D3D_SAFE_RELEASE(mBackupState.InputLayout);
 
-            // 解绑所有渲染目标和深度模板
-            ID3D11RenderTargetView* nullRTV[ D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ] = { nullptr };
-            mD3DDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTV, nullptr);
+            // // 解绑所有渲染目标和深度模板
+            // ID3D11RenderTargetView* nullRTV[ D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ] = { nullptr };
+            // mD3DDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTV, nullptr);
+            //
+            // // 解绑所有着色器资源（PS、VS、GS、HS、DS、CS）
+            // ID3D11ShaderResourceView* nullSRVs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
+            // mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            // mD3DDeviceContext->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            // mD3DDeviceContext->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            // mD3DDeviceContext->HSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            // mD3DDeviceContext->DSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            // mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            //
+            // // 解绑所有着色器
+            // mD3DDeviceContext->VSSetShader(nullptr, nullptr, 0);
+            // mD3DDeviceContext->PSSetShader(nullptr, nullptr, 0);
+            // mD3DDeviceContext->GSSetShader(nullptr, nullptr, 0);
+            // mD3DDeviceContext->HSSetShader(nullptr, nullptr, 0);
+            // mD3DDeviceContext->DSSetShader(nullptr, nullptr, 0);
+            // mD3DDeviceContext->CSSetShader(nullptr, nullptr, 0);
+            //
+            // // 解绑所有常量缓冲区
+            // ID3D11Buffer* nullCBs[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
+            // mD3DDeviceContext->VSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            // mD3DDeviceContext->PSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            // mD3DDeviceContext->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            // mD3DDeviceContext->HSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            // mD3DDeviceContext->DSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            // mD3DDeviceContext->CSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            //
+            // // 解绑所有采样器
+            // ID3D11SamplerState* nullSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = { nullptr };
+            // mD3DDeviceContext->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            // mD3DDeviceContext->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            // mD3DDeviceContext->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            // mD3DDeviceContext->HSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            // mD3DDeviceContext->DSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            // mD3DDeviceContext->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            //
+            // // 解绑输入布局
+            // mD3DDeviceContext->IASetInputLayout(nullptr);
+            //
+            // // 解绑顶点缓冲区和索引缓冲区
+            // ID3D11Buffer* nullVBs[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
+            // UINT zeroStrides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
+            // UINT zeroOffsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
+            // mD3DDeviceContext->IASetVertexBuffers(0, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT, nullVBs, zeroStrides, zeroOffsets);
+            // mD3DDeviceContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
+            //
+            // // 重置拓扑为默认（通常是三角形列表）
+            // mD3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            //
+            // // 重置光栅化状态、混合状态、深度模板状态为默认（如果你有默认状态对象）
+            // mD3DDeviceContext->RSSetState(nullptr);
+            // mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+            // mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
-            // 解绑所有着色器资源（PS、VS、GS、HS、DS、CS）
-            ID3D11ShaderResourceView* nullSRVs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
-            mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
-            mD3DDeviceContext->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
-            mD3DDeviceContext->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
-            mD3DDeviceContext->HSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
-            mD3DDeviceContext->DSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
-            mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+            // 还原裁剪状态
+            mD3DDeviceContext->RSSetScissorRects(mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
 
-            // 解绑所有着色器
-            mD3DDeviceContext->VSSetShader(nullptr, nullptr, 0);
-            mD3DDeviceContext->PSSetShader(nullptr, nullptr, 0);
-            mD3DDeviceContext->GSSetShader(nullptr, nullptr, 0);
-            mD3DDeviceContext->HSSetShader(nullptr, nullptr, 0);
-            mD3DDeviceContext->DSSetShader(nullptr, nullptr, 0);
-            mD3DDeviceContext->CSSetShader(nullptr, nullptr, 0);
+            // 还原视口状态
+            mD3DDeviceContext->RSSetViewports(mBackupState.ViewportsCount, mBackupState.Viewports);
 
-            // 解绑所有常量缓冲区
-            ID3D11Buffer* nullCBs[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
-            mD3DDeviceContext->VSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
-            mD3DDeviceContext->PSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
-            mD3DDeviceContext->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
-            mD3DDeviceContext->HSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
-            mD3DDeviceContext->DSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
-            mD3DDeviceContext->CSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, nullCBs);
+            // 还原所有渲染目标和深度模板
+            mD3DDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, mBackupState.RenderTargetViews, mBackupState.DepthStencilView);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.RenderTargetViews);
+            D3D_SAFE_RELEASE(mBackupState.DepthStencilView);
 
-            // 解绑所有采样器
-            ID3D11SamplerState* nullSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = { nullptr };
-            mD3DDeviceContext->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
-            mD3DDeviceContext->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
-            mD3DDeviceContext->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
-            mD3DDeviceContext->HSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
-            mD3DDeviceContext->DSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
-            mD3DDeviceContext->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, nullSamplers);
+            // 还原所有着色器资源（PS、VS、GS、HS、DS、CS）
+            mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.PSShaderResources);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.PSShaderResources);
+            mD3DDeviceContext->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.VSShaderResources);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.VSShaderResources);
+            mD3DDeviceContext->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.GSShaderResources);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.GSShaderResources);
+            mD3DDeviceContext->HSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.HSShaderResources);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.HSShaderResources);
+            mD3DDeviceContext->DSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.DSShaderResources);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.DSShaderResources);
+            mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.CSShaderResources);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.CSShaderResources);
 
-            // 解绑输入布局
-            mD3DDeviceContext->IASetInputLayout(nullptr);
+            // 还原所有着色器
+            mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.VS);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.VSInstances);
+            mD3DDeviceContext->PSSetShader(mBackupState.PS, mBackupState.PSInstances, mBackupState.PSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.PS);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.PSInstances);
+            mD3DDeviceContext->GSSetShader(mBackupState.GS, mBackupState.GSInstances, mBackupState.GSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.GS);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.GSInstances);
+            mD3DDeviceContext->HSSetShader(mBackupState.HS, mBackupState.HSInstances, mBackupState.HSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.HS);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.HSInstances);
+            mD3DDeviceContext->DSSetShader(mBackupState.DS, mBackupState.DSInstances, mBackupState.DSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.DS);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.DSInstances);
+            mD3DDeviceContext->CSSetShader(mBackupState.CS, mBackupState.CSInstances, mBackupState.CSInstancesCount);
+            D3D_SAFE_RELEASE(mBackupState.CS);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.CSInstances);
 
-            // 解绑顶点缓冲区和索引缓冲区
-            ID3D11Buffer* nullVBs[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
-            UINT zeroStrides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
-            UINT zeroOffsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
-            mD3DDeviceContext->IASetVertexBuffers(0, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT, nullVBs, zeroStrides, zeroOffsets);
-            mD3DDeviceContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
+            // 还原所有常量缓冲区
+            mD3DDeviceContext->VSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.VSConstantBuffers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.VSConstantBuffers);
+            mD3DDeviceContext->PSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.PSConstantBuffers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.PSConstantBuffers);
+            mD3DDeviceContext->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.GSConstantBuffers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.GSConstantBuffers);
+            mD3DDeviceContext->HSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.HSConstantBuffers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.HSConstantBuffers);
+            mD3DDeviceContext->DSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.DSConstantBuffers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.DSConstantBuffers);
+            mD3DDeviceContext->CSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, mBackupState.CSConstantBuffers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.CSConstantBuffers);
 
-            // 重置拓扑为默认（通常是三角形列表）
-            mD3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            // 还原所有采样器
+            mD3DDeviceContext->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.PSSamplers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.PSSamplers);
+            mD3DDeviceContext->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.VSSamplers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.VSSamplers);
+            mD3DDeviceContext->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.GSSamplers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.GSSamplers);
+            mD3DDeviceContext->HSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.HSSamplers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.HSSamplers);
+            mD3DDeviceContext->DSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.DSSamplers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.DSSamplers);
+            mD3DDeviceContext->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, mBackupState.CSSamplers);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.CSSamplers);
 
-            // 重置光栅化状态、混合状态、深度模板状态为默认（如果你有默认状态对象）
-            mD3DDeviceContext->RSSetState(nullptr);
-            mD3DDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
-            mD3DDeviceContext->OMSetDepthStencilState(nullptr, 0);
+            // 还原输入布局
+            mD3DDeviceContext->IASetInputLayout(mBackupState.InputLayout);
+            D3D_SAFE_RELEASE(mBackupState.InputLayout);
+
+            // 还原顶点缓冲区和索引缓冲区
+            mD3DDeviceContext->IASetVertexBuffers(0, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT, mBackupState.VertexBuffers, mBackupState.VertexBufferStrides, mBackupState.VertexBufferOffsets);
+            mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset);
+
+            // 还原拓扑为默认（通常是三角形列表）
+            mD3DDeviceContext->IASetPrimitiveTopology(mBackupState.PrimitiveTopology);
+
+            // 还原光栅化状态、混合状态、深度模板状态为默认（如果你有默认状态对象）
+            mD3DDeviceContext->RSSetState(mBackupState.RasterizerState);
+            D3D_SAFE_RELEASE(mBackupState.RasterizerState);
+            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask);
+            D3D_SAFE_RELEASE(mBackupState.BlendState);
+            mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef);
+            D3D_SAFE_RELEASE(mBackupState.DepthStencilState);
+            
             return T3D_OK;
         };
 

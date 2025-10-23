@@ -654,29 +654,66 @@ namespace Tiny3D
 
         struct BackUpDX11State
         {
-            ID3D11RenderTargetView*     RenderTargetView;
-            ID3D11DepthStencilView*     DepthStencilView;
-            UINT                        ScissorRectsCount, ViewportsCount;
+            ID3D11RenderTargetView      *RenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] {nullptr};
+            ID3D11DepthStencilView      *DepthStencilView {nullptr};
+
+            UINT                        ScissorRectsCount {0}, ViewportsCount {0};
             D3D11_RECT                  ScissorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
             D3D11_VIEWPORT              Viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-            ID3D11RasterizerState*      RS;
-            ID3D11BlendState*           BlendState;
-            FLOAT                       BlendFactor[4];
-            UINT                        SampleMask;
-            UINT                        StencilRef;
-            ID3D11DepthStencilState*    DepthStencilState;
-            ID3D11ShaderResourceView*   PSShaderResource;
-            ID3D11SamplerState*         PSSampler;
-            ID3D11PixelShader*          PS;
-            ID3D11VertexShader*         VS;
-            ID3D11GeometryShader*       GS;
-            UINT                        PSInstancesCount, VSInstancesCount, GSInstancesCount;
-            ID3D11ClassInstance         *PSInstances[256], *VSInstances[256], *GSInstances[256];   // 256 is max according to PSSetShader documentation
-            D3D11_PRIMITIVE_TOPOLOGY    PrimitiveTopology;
-            ID3D11Buffer*               IndexBuffer, *VertexBuffer, *VSConstantBuffer;
-            UINT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
-            DXGI_FORMAT                 IndexBufferFormat;
-            ID3D11InputLayout*          InputLayout;
+
+            ID3D11RasterizerState       *RasterizerState {nullptr};
+            ID3D11BlendState            *BlendState {nullptr};
+            FLOAT                       BlendFactor[4] {0.0f};
+            UINT                        SampleMask {0};
+            UINT                        StencilRef {0};
+            ID3D11DepthStencilState     *DepthStencilState {nullptr};
+            
+            ID3D11ShaderResourceView    *VSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+            ID3D11ShaderResourceView    *PSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+            ID3D11ShaderResourceView    *GSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+            ID3D11ShaderResourceView    *HSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+            ID3D11ShaderResourceView    *DSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+            ID3D11ShaderResourceView    *CSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+
+            ID3D11SamplerState          *VSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
+            ID3D11SamplerState          *PSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
+            ID3D11SamplerState          *GSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
+            ID3D11SamplerState          *HSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
+            ID3D11SamplerState          *DSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
+            ID3D11SamplerState          *CSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
+            
+            ID3D11PixelShader           *PS {nullptr};
+            ID3D11VertexShader          *VS {nullptr};
+            ID3D11GeometryShader        *GS {nullptr};
+            ID3D11DomainShader          *DS {nullptr};
+            ID3D11HullShader            *HS {nullptr};
+            ID3D11ComputeShader         *CS {nullptr};
+            
+            UINT                        PSInstancesCount {0}, VSInstancesCount {0}, GSInstancesCount {0}, HSInstancesCount {0}, DSInstancesCount {0}, CSInstancesCount {0};
+            
+            ID3D11ClassInstance         *PSInstances[256] {nullptr};
+            ID3D11ClassInstance         *VSInstances[256] {nullptr};
+            ID3D11ClassInstance         *GSInstances[256] {nullptr};
+            ID3D11ClassInstance         *HSInstances[256] {nullptr};
+            ID3D11ClassInstance         *DSInstances[256] {nullptr};
+            ID3D11ClassInstance         *CSInstances[256] {nullptr};   // 256 is max according to PSSetShader documentation
+            
+            D3D11_PRIMITIVE_TOPOLOGY    PrimitiveTopology {D3D_PRIMITIVE_TOPOLOGY_UNDEFINED};
+            ID3D11Buffer                *IndexBuffer {nullptr};
+            ID3D11Buffer                *VertexBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+            UINT                        VertexBufferStrides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] {0};
+            UINT                        VertexBufferOffsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] {0};
+
+            ID3D11Buffer                *VSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
+            ID3D11Buffer                *PSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
+            ID3D11Buffer                *GSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
+            ID3D11Buffer                *HSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
+            ID3D11Buffer                *DSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
+            ID3D11Buffer                *CSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
+            
+            UINT                        IndexBufferOffset {0};
+            DXGI_FORMAT                 IndexBufferFormat {DXGI_FORMAT_UNKNOWN};
+            ID3D11InputLayout           *InputLayout {nullptr};
         };
         
         /// The instance
