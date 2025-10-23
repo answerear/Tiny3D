@@ -46,6 +46,8 @@ namespace Tiny3D
         }
     protected:
         TResult generateMaterial(const String &title, const String &rootPath, const String &texName);
+
+        void initMaterialData(Material *material);
         
         // TResult generateDefaultMaterial(const String &rootPath);
         //
