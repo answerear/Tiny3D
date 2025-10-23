@@ -326,6 +326,24 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void GameObject::setupTransformNode()
+    {
+        for (const auto &item : mComponentObjects)
+        {
+            if (mTransformNode == nullptr)
+            {
+                RTTRType type = RTTRType::get_by_name(item.first);
+                if (type.is_derived_from<TransformNode>())
+                {
+                    mTransformNode = smart_pointer_cast<TransformNode>(item.second);
+                    break;
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
     
     ComponentPtr GameObject::addComponent(const RTTRType &type)
     {

@@ -260,10 +260,17 @@ namespace Tiny3D
         const ComponentsSet &getAllComponents() const { return mComponentObjects; }
 
         TPROPERTY(RTTRFuncName="Components", RTTRFuncType="setter")
-        void setAllComponents(const ComponentsSet &components) { mComponentObjects = components; setupComponents(); }
+        void setAllComponents(const ComponentsSet &components)
+        {
+            mComponentObjects = components;
+            setupTransformNode();
+            setupComponents();
+        }
 
         /// 设置所有相关的组件，模拟 addComponent 行为，用于反序列化后 
         void setupComponents();
+
+        void setupTransformNode();
 
         /// 生成场景树，用于反序列化后
         void setupHierarchy();
