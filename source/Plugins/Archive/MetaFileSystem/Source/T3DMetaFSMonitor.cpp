@@ -170,6 +170,7 @@ namespace Tiny3D
                 meta = generateFileMeta(metaPath, dir, title, ext);
                 if (meta == nullptr)
                 {
+                    MFS_LOG_ERROR("Failed to generate meta for file %s !", path.c_str());
                     break;
                 }
             }
