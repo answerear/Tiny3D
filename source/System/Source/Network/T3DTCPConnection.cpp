@@ -265,6 +265,10 @@ namespace Tiny3D
             mSocket->close();
         }
         T3D_SAFE_DELETE(mSocket);
+
+        T3D_POD_SAFE_DELETE_ARRAY(mSendBuffer);
+        T3D_POD_SAFE_DELETE_ARRAY(mRecvBuffer);
+        
         dequeue(this);
     }
 
