@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "8079a01e6f4c016b0dc36e60299b3f20"
+          "RTTI_Value": "dc3245bce3b914d4c274979cc5911760"
         }
       },
       "SubMeshes": {
@@ -30,7 +30,7 @@
                   "RTTI_Type": "Tiny3D::Buffer",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N"
+                    "RTTI_Value": "3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d"
                   }
                 },
                 "Is16Bits": {
@@ -41,7 +41,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "6e9540267c1c88c963eb932bfc79fc4f"
+                    "RTTI_Value": "a365c3d20a6502d1064436bc8d937b32"
                   }
                 },
                 "Name": {
