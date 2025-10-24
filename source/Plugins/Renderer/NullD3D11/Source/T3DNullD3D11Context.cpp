@@ -655,7 +655,7 @@ namespace Tiny3D
                             String cbufferName, cname;
                             bool rval = getOriginalName(bindDesc.Name, variableDesc.Name, cbufferName, cname);
                             T3D_ASSERT(rval);
-                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, NullD3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns));
+                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, NullD3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns, d3dSRTypeDesc.Elements));
                             constantParams.emplace(param->getName(), param);
                             
                             // ShaderVariableBinding varBinding;
@@ -666,7 +666,8 @@ namespace Tiny3D
                             // size += varBinding.size;
                             // constBinding.variables.emplace(varBinding.name, varBinding);
 
-                            T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s, type : %u, size : %u, offset : %u", param->getCBufferName().c_str(), param->getName().c_str(), param->getDataType(), param->getDataSize(), param->getDataOffset());
+                            T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - cbuffer name : %s, variable name : %s, type : %u, size : %u, offset : %u, rows : %u, cols : %u, elements: %u",
+                                param->getCBufferName().c_str(), param->getName().c_str(), param->getDataType(), param->getDataSize(), param->getDataOffset(), d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns, d3dSRTypeDesc.Elements);
                         }
 
                         // constBinding.size = size;
