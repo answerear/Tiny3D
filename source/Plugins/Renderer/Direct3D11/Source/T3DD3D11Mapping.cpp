@@ -779,10 +779,13 @@ namespace Tiny3D
         {
         case D3D_SVT_BOOL:
             {
-                type = ShaderConstantParam::DATA_TYPE::DT_BOOL;
                 if (numOfElements > 1)
                 {
                     type = ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY;
+                }
+                else
+                {
+                    type = ShaderConstantParam::DATA_TYPE::DT_BOOL;
                 }
             }
             break;
@@ -800,25 +803,40 @@ namespace Tiny3D
                 type = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
                 if (rows == 4 && cols == 4)
                 {
-                    // Matrix4
-                    type = ShaderConstantParam::DATA_TYPE::DT_MATRIX4;
                     if (numOfElements > 1)
                     {
+                        // Matrix4Array
                         type = ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY;
+                    }
+                    else
+                    {
+                        // Matrix4
+                        type = ShaderConstantParam::DATA_TYPE::DT_MATRIX4;
                     }
                 }
                 else if (rows == 4 && cols == 1 || rows == 1 && cols == 4)
                 {
-                    // Vector4
-                    type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
                     if (numOfElements > 1)
                     {
+                        // Vector4Array
                         type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY;
                     }
+                    else
+                    {
+                        // Vector4
+                        type = ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                    }
                 }
-                else if (numOfElements > 1)
+                else
                 {
-                    type = ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY;
+                    if (numOfElements > 1)
+                    {
+                        type = ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY;
+                    }
+                    else
+                    {
+                        type = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                    }
                 }
             }
             break;
@@ -844,6 +862,7 @@ namespace Tiny3D
                 type = ShaderConstantParam::DATA_TYPE::DT_STRUCT;
             }
             break;
+            
         }
 
         return type;
