@@ -118,6 +118,13 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
+    inline bool Material::hasColorArray(const String &name) const
+    {
+        return hasValue<ColorArray>(name);
+    }
+
+    //--------------------------------------------------------------------------
+
     inline void Material::setVector(const String &name, const Vector4 &value)
     {
         setValue(name, value, &ShaderConstantValue::setVector, &TechniqueInstance::setVector);
@@ -152,6 +159,13 @@ namespace  Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    inline bool Material::hasVectorArray(const String &name) const
+    {
+        return hasValue<Vector4Array>(name);
+    }
+
+    //--------------------------------------------------------------------------
     
     inline void Material::setMatrix(const String &name, const Matrix4 &value)
     {
@@ -184,6 +198,13 @@ namespace  Tiny3D
     inline Matrix4Array Material::getMatrixArray(const String &name) const
     {
         return getValue<Matrix4Array>(name, &ShaderConstantValue::getMatrixArray);
+    }
+
+    //--------------------------------------------------------------------------
+
+    inline bool Material::hasMatrixArray(const String &name) const
+    {
+        return hasValue<Matrix4Array>(name);
     }
 
     //--------------------------------------------------------------------------

@@ -282,6 +282,8 @@ namespace Tiny3D
 
         ColorArray getColorArray(const String &name) const;
 
+        bool hasColorArray(const String &name) const;
+
         void setVector(const String &name, const Vector4 &value);
 
         Vector4 getVector(const String &name) const;
@@ -292,6 +294,8 @@ namespace Tiny3D
 
         Vector4Array getVectorArray(const String &name) const;
 
+        bool hasVectorArray(const String &name) const;
+        
         void setMatrix(const String &name, const Matrix4 &value);
 
         Matrix4 getMatrix(const String &name) const;
@@ -301,6 +305,8 @@ namespace Tiny3D
         void setMatrixArray(const String &name, const Matrix4Array &values);
 
         Matrix4Array getMatrixArray(const String &name) const;
+
+        bool hasMatrixArray(const String &name) const;
         
         void setTexture(const String &name, const UUID &uuid);
 
@@ -353,6 +359,28 @@ namespace Tiny3D
         {
             const auto itr = mConstantValues.find(name);
             return (itr != mConstantValues.end() && sizeof(T) == itr->second->getDataSize());
+        }
+
+        template <>
+        bool hasValue<ColorArray>(const String &name) const
+        {
+            const auto itr = mConstantValues.find(name);
+            return (itr != mConstantValues.end() && (itr->second->getDataSize() % sizeof(ColorRGBA) == 0));
+        }
+
+        template <>
+        bool hasValue<Vector4Array>(const String &name) const
+        {
+            const auto itr = mConstantValues.find(name);
+            return (itr != mConstantValues.end() && (itr->second->getDataSize() % sizeof(Vector4) == 0));
+        }
+
+        template <>
+        bool hasValue<Matrix4Array>(const String &name) const
+        {
+            
+            const auto itr = mConstantValues.find(name);
+            return (itr != mConstantValues.end() && (itr->second->getDataSize() % sizeof(Matrix4) == 0));
         }
         
         template <typename Value_t, typename ShaderSetValue_t, typename TechniqueSetValue_t>
