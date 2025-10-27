@@ -172,7 +172,20 @@ namespace Tiny3D
             PragmaParamsMap     paramsMap;
         };
 
-        typedef TArray<ShaderSnippet> ShaderSnippets;
+        // typedef TArray<ShaderSnippet> ShaderSnippets;
+
+        struct SnippetKey
+        {
+            String defines {};
+            String stage {};
+
+            bool operator <(const SnippetKey &other) const
+            {
+                return (defines < other.defines || defines == other.defines && stage < other.stage);
+            }
+        };
+        
+        typedef TMap<SnippetKey, ShaderSnippet> ShaderSnippets;
 
         ShaderCompiler();
 

@@ -54,15 +54,42 @@ namespace Tiny3D
         struct BoxVertex
         {
             Vector3 position {};
+            Vector3 normal {};
             Vector2 uv {};
+            float weight[T3D_MAX_BLEND_BONES] {0.0f};
+            uint8_t indices[T3D_MAX_BLEND_BONES] {0xFF};
         };
         
         // vertex attributes
-        VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
-        VertexAttribute attrUV(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
-        VertexAttributes attributes(2);
-        attributes[0] = attrPos;
-        attributes[1] = attrUV;
+        VertexAttributes attributes(5);
+
+        uint32_t attribIdx = 0;
+        // position
+        uint32_t attrOffset = 0;
+        VertexAttribute attrPos(0, attrOffset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+        attrOffset += sizeof(Vector3);
+        attributes[attribIdx] = attrPos;
+        attribIdx++;
+        // normal
+        VertexAttribute attrNormal(0, attrOffset, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+        attrOffset += sizeof(Vector3);
+        attributes[attribIdx] = attrNormal;
+        attribIdx++;
+        // uv
+        VertexAttribute attrUV(0, attrOffset, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+        attrOffset += sizeof(Vector2);
+        attributes[attribIdx] = attrUV;
+        attribIdx++;
+        // blend weights
+        VertexAttribute attrWeights(0, attrOffset, VertexAttribute::Type::E_VAT_FLOAT4, VertexAttribute::Semantic::E_VAS_BLENDWEIGHT, 0);
+        attrOffset += sizeof(float) * T3D_MAX_BLEND_BONES;
+        attributes[attribIdx] = attrWeights;
+        attribIdx++;
+        // blend indices
+        VertexAttribute attrIndices(0, attrOffset, VertexAttribute::Type::E_VAT_UBYTE4, VertexAttribute::Semantic::E_VAS_BLENDINDICES, 0);
+        attrOffset += sizeof(uint32_t) * T3D_MAX_BLEND_BONES;
+        attributes[attribIdx] = attrIndices;
+        attribIdx++;
 
         // vertices & indices
         Vector3 offset;
@@ -79,6 +106,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[0].position = center + offset;
+        vertices[0].normal = Vector3::FORWARD;
         vertices[0].uv = Vector2(0.0f, 0.0f);
         
         // front - V1
@@ -86,6 +114,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[1].position = center + offset;
+        vertices[1].normal = Vector3::FORWARD;
         vertices[1].uv = Vector2(0.0f, 0.5f);
         
         // front - V2
@@ -93,6 +122,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[2].position = center + offset;
+        vertices[2].normal = Vector3::FORWARD;
         vertices[2].uv = Vector2(0.5f, 0.0f);
         
         // front - V3
@@ -100,6 +130,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[3].position = center + offset;
+        vertices[3].normal = Vector3::FORWARD;
         vertices[3].uv = Vector2(0.5f, 0.5f);
 
         // right - V2
@@ -107,6 +138,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[4].position = center + offset;
+        vertices[4].normal = Vector3::RIGHT;
         vertices[4].uv = Vector2(0.0f, 0.5f);
         
         // right - V3
@@ -114,6 +146,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[5].position = center + offset;
+        vertices[5].normal = Vector3::RIGHT;
         vertices[5].uv = Vector2(0.0f, 1.0f);
         
         // right - V4
@@ -121,6 +154,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[6].position = center + offset;
+        vertices[6].normal = Vector3::RIGHT;
         vertices[6].uv = Vector2(0.5f, 0.5f);
         
         // right - V5
@@ -128,6 +162,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[7].position = center + offset;
+        vertices[7].normal = Vector3::RIGHT;
         vertices[7].uv = Vector2(0.5f, 1.0f);
 
         // back - V4
@@ -135,6 +170,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[8].position = center + offset;
+        vertices[8].normal = -Vector3::FORWARD;
         vertices[8].uv = Vector2(0.0f, 0.0f);
         
         // back - V5
@@ -142,6 +178,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[9].position = center + offset;
+        vertices[9].normal = -Vector3::FORWARD;
         vertices[9].uv = Vector2(0.0f, 0.5f);
 
         // back - V6
@@ -156,6 +193,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[11].position = center + offset;
+        vertices[11].normal = -Vector3::FORWARD;
         vertices[11].uv = Vector2(0.5f, 0.5f);
         
         // left - V6
@@ -163,6 +201,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[12].position = center + offset;
+        vertices[12].normal = -Vector3::RIGHT;
         vertices[12].uv = Vector2(0.5f, 0.5f);
         
         // left - V7
@@ -170,6 +209,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[13].position = center + offset;
+        vertices[13].normal = -Vector3::RIGHT;
         vertices[13].uv = Vector2(0.5f, 1.0f);
 
         // left - V0
@@ -177,6 +217,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[14].position = center + offset;
+        vertices[14].normal = -Vector3::RIGHT;
         vertices[14].uv = Vector2(1.0f, 0.5f);
         
         // left - V1
@@ -184,6 +225,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[15].position = center + offset;
+        vertices[15].normal = -Vector3::RIGHT;
         vertices[15].uv = Vector2(1.0f, 1.0f);
 
         // top - V0
@@ -191,6 +233,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[16].position = center + offset;
+        vertices[16].normal = Vector3::UP;
         vertices[16].uv = Vector2(0.5f, 0.5f);
         
         // top - V2
@@ -198,6 +241,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[17].position = center + offset;
+        vertices[17].normal = Vector3::UP;
         vertices[17].uv = Vector2(1.0f, 0.5f);
 
         // top - V4
@@ -205,6 +249,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[18].position = center + offset;
+        vertices[18].normal = Vector3::UP;
         vertices[18].uv = Vector2(1.0f, 0.0f);
 
         // top - V6
@@ -212,6 +257,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[19].position = center + offset;
+        vertices[19].normal = Vector3::UP;
         vertices[19].uv = Vector2(0.5f, 0.0f);
 
         // bottom - V1
@@ -219,6 +265,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[20].position = center + offset;
+        vertices[20].normal = -Vector3::UP;
         vertices[20].uv = Vector2(0.5f, 0.5f);
 
         // bottom - V7
@@ -226,6 +273,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[21].position = center + offset;
+        vertices[21].normal = -Vector3::UP;
         vertices[21].uv = Vector2(0.5f, 1.0f);
 
         // bottom - V3
@@ -233,6 +281,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[22].position = center + offset;
+        vertices[22].normal = -Vector3::UP;
         vertices[22].uv = Vector2(1.0f, 0.5f);
         
         // bottom - V5
@@ -240,6 +289,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[23].position = center + offset;
+        vertices[23].normal = -Vector3::UP;
         vertices[23].uv = Vector2(1.0f, 1.0f);
         
         // Front face

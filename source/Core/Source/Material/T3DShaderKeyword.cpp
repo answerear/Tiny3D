@@ -81,16 +81,16 @@ namespace Tiny3D
 
     TResult ShaderKeyword::generate()
     {
-        String name;
+        String name = "";
         for (const auto &str : mKeys)
         {
-            if (mKeys.size() == 1)
+            if (mKeys.size() == 1 && str != "_")
             {
                 name += str;
             }
-            else
+            else if (str != "_")
             {
-                name += "_";
+                name += "-";
                 name += str;
             }
         }

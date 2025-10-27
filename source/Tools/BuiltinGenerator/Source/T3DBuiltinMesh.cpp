@@ -30,7 +30,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char *MATERIAL_NAME = "Default-Material.tmat";
+    const char *MATERIAL_NAME = "Tiny3DStandard.tmat";
     const char *TEST_MATERIAL_NAME = "Test-Material.tmat";
     
     //--------------------------------------------------------------------------

@@ -32,6 +32,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     const char *MATERIAL_TITLE = "Default-Material";
+    const char *TINY3D_STANDARD_TITLE = "Tiny3DStandard";
+    const char *TINY3D_DEFAULT_SHADER = "Tiny3DStandard";
     const char *TEST_MATERIAL_TITLE = "Test-Material";
     
     //--------------------------------------------------------------------------
@@ -43,14 +45,14 @@ namespace Tiny3D
         do
         {
             // default meterial
-            ret = generateMaterial(MATERIAL_TITLE, rootPath, "white.ttex");
+            ret = generateMaterial(TINY3D_STANDARD_TITLE, TINY3D_DEFAULT_SHADER, rootPath, "white.ttex");
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate default material !");
             }
 
             // test material
-            ret = generateMaterial(TEST_MATERIAL_TITLE, rootPath, "blocks.ttex");
+            ret = generateMaterial(TEST_MATERIAL_TITLE, TINY3D_DEFAULT_SHADER, rootPath, "blocks.ttex");
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate test material !");
@@ -62,7 +64,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinMaterials::generateMaterial(const String &title, const String &rootPath, const String &texName)
+    TResult BuiltinMaterials::generateMaterial(const String &title, const String &shaderTitle, const String &rootPath, const String &texName)
     {
         TResult ret = T3D_OK;
 
@@ -70,7 +72,7 @@ namespace Tiny3D
         {
             // 生成 material
             // String title = MATERIAL_TITLE;
-            String shaderName = title + "." + Resource::EXT_SHADER;
+            String shaderName = shaderTitle + "." + Resource::EXT_SHADER;
             // Shader *shader = T3D_BUILTIN_SHADERS.getShader(shaderName);
             auto shaderData = T3D_BUILTIN_SHADERS.getShaderData(shaderName);
             T3D_ASSERT(shaderData.shader != nullptr);
@@ -131,28 +133,54 @@ namespace Tiny3D
         // 這裡只是設置材質有該項變量，具體值，引擎會幫助動態計算和設置
 
         // Camera
-        material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+        const char *tiny3d_CameraWorldPos = "tiny3d_CameraWorldPos";
+        // T3D_ASSERT(material->hasVector(tiny3d_CameraWorldPos));
+        material->setVector(tiny3d_CameraWorldPos, Vector4::ZERO);
         // Object
-        material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+        const char *tiny3d_ObjectSmoothness = "tiny3d_ObjectSmoothness";
+        // T3D_ASSERT(material->hasVector(tiny3d_ObjectSmoothness));
+        material->setVector(tiny3d_ObjectSmoothness, Vector4(0.5f, 0, 0, 0));
         // Ambient
-        material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+        const char *tiny3d_AmbientLight = "tiny3d_AmbientLight";
+        // T3D_ASSERT(material->hasColor(tiny3d_AmbientLight));
+        material->setColor(tiny3d_AmbientLight, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
         // Directional light
-        material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-        material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+        const char *tiny3d_DirLightColor = "tiny3d_DirLightColor";
+        // T3D_ASSERT(material->hasColor(tiny3d_DirLightColor));
+        material->setColor(tiny3d_DirLightColor, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+        const char *tiny3d_DirLightDir = "tiny3d_DirLightDir";
+        // T3D_ASSERT(material->hasVector(tiny3d_DirLightDir));
+        material->setVector(tiny3d_DirLightDir, Vector4::ZERO);
         // Point lights
         ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-        material->setColorArray("tiny3d_PointLightColor", colors);
+        const char *tiny3d_PointLightColor = "tiny3d_PointLightColor";
+        // T3D_ASSERT(material->hasColorArray(tiny3d_PointLightColor));
+        material->setColorArray(tiny3d_PointLightColor, colors);
         Vector4Array values(4, Vector4::ZERO);
-        material->setVectorArray("tiny3d_PointLightPos", values);
-        material->setVectorArray("tiny3d_PointLightAttenuation", values);
+        const char *tiny3d_PointLightPos = "tiny3d_PointLightPos";
+        // T3D_ASSERT(material->hasVectorArray(tiny3d_PointLightPos));
+        material->setVectorArray(tiny3d_PointLightPos, values);
+        const char *tiny3d_PointLightAttenuation = "tiny3d_PointLightAttenuation";
+        // T3D_ASSERT(material->hasVectorArray(tiny3d_PointLightAttenuation));
+        material->setVectorArray(tiny3d_PointLightAttenuation, values);
         // Spot lights
-        material->setColorArray("tiny3d_SpotLightColor", colors);
-        material->setVectorArray("tiny3d_SpotLightPos", values);
-        material->setVectorArray("tiny3d_SpotLightDir", values);
-        material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+        const char *tiny3d_SpotLightColor = "tiny3d_SpotLightColor";
+        // T3D_ASSERT(material->hasColorArray(tiny3d_SpotLightColor));
+        material->setColorArray(tiny3d_SpotLightColor, colors);
+        const char *tiny3d_SpotLightPos = "tiny3d_SpotLightPos";
+        // T3D_ASSERT(material->hasVectorArray(tiny3d_SpotLightPos));
+        material->setVectorArray(tiny3d_SpotLightPos, values);
+        const char *tiny3d_SpotLightDir = "tiny3d_SpotLightDir";
+        // T3D_ASSERT(material->hasVectorArray(tiny3d_SpotLightDir));
+        material->setVectorArray(tiny3d_SpotLightDir, values);
+        const char *tiny3d_SpotLightAttenuation = "tiny3d_SpotLightAttenuation";
+        // T3D_ASSERT(material->hasVectorArray(tiny3d_SpotLightAttenuation));
+        material->setVectorArray(tiny3d_SpotLightAttenuation, values);
         // bone matrices
         Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
-        material->setMatrixArray("tiny3d_BoneMatrices", matrices);
+        const char *tiny3d_BoneMatrices = "tiny3d_BoneMatrices";
+        // T3D_ASSERT(material->hasMatrixArray(tiny3d_BoneMatrices));
+        material->setMatrixArray(tiny3d_BoneMatrices, matrices);
     }
     
     //--------------------------------------------------------------------------

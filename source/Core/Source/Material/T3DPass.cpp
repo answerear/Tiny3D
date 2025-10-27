@@ -68,12 +68,14 @@ namespace Tiny3D
             
             for (auto shader : shaders)
             {
+                T3D_LOG_INFO(LOG_TAG_RESOURCE, "Start compiling shader variant [%s] ...", shader.first.getName().c_str());
                 ret = shader.second->compile();
                 if (T3D_FAILED(ret))
                 {
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader [%s] ! ERROR [%d]", shader.first.getName().c_str(), ret);
                     break;
                 }
+                T3D_LOG_INFO(LOG_TAG_RESOURCE, "Completed compiling shader variant !");
             }
 
             return ret;

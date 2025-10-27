@@ -173,9 +173,12 @@ namespace Tiny3D
 
         // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
 
-        for (const ShaderSnippet &snippet : snippets)
+        // for (const ShaderSnippet &snippet : snippets)
+        for (const auto &s : snippets)
         {
-            ret = ret && compileShaderSnippet(snippet, pass);
+            SCC_LOG_INFO("Begin compiling shader variant [%s - %s] ...", s.first.stage.c_str(), s.first.defines.c_str());
+            ret = ret && compileShaderSnippet(s.second, pass);
+            SCC_LOG_INFO("Completed compiling shader variant ret = %d", ret);
         }
         
         return ret;
@@ -210,9 +213,12 @@ namespace Tiny3D
 
         // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
 
-        for (const ShaderSnippet &snippet : snippets)
+        // for (const ShaderSnippet &snippet : snippets)
+        for (const auto &s : snippets)
         {
-            ret = ret && compileShaderSnippet(snippet);
+            SCC_LOG_INFO("Begin compiling shader variant [%s - %s] ...", s.first.stage.c_str(), s.first.defines.c_str());
+            ret = ret && compileShaderSnippet(s.second);
+            SCC_LOG_INFO("Completed compiling shader variant ret = %d", ret);
         }
         
         return ret;
@@ -322,7 +328,7 @@ namespace Tiny3D
             }
             else
             {
-                results.push_back(result);
+                results.emplace_back(result);
             }
         }
     }
@@ -348,9 +354,18 @@ namespace Tiny3D
         {
             std::vector<MacroDefine> defines;
             defines.resize(variants[variantIndex].size());
+            String key = "";
             for (int32_t defineIndex = 0; defineIndex < defines.size(); ++defineIndex)
             {
                 defines[defineIndex].name = variants[variantIndex][defineIndex].c_str();
+                if (defines[defineIndex].name != "_")
+                {
+                    if (defineIndex > 0 && key != "")
+                    {
+                        key += "-";
+                    }
+                    key += defines[defineIndex].name;
+                }
             }
 
             for (int32_t programIndex = 0; programIndex < kStageCount; ++programIndex)
@@ -361,13 +376,23 @@ namespace Tiny3D
                     continue;
                 }
 
+                SnippetKey snippetKey;
+                snippetKey.defines = key;
+                snippetKey.stage = stage;
+                const auto itr = snippets.find(snippetKey);
+                if (itr != snippets.end())
+                {
+                    continue;
+                }
+                
                 ShaderSnippet snippet(source);
                 snippet.entry = params.entriesName.at(stage);
                 snippet.defines = defines;
                 snippet.paramsMap = params.paramsMap;
                 snippet.stage = stage;
                 snippet.model = params.shaderModel;
-                snippets.push_back(snippet);
+                // snippets.push_back(snippet);
+                snippets.emplace(snippetKey, snippet);
             }
         }
     }

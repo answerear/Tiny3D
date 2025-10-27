@@ -409,7 +409,7 @@ namespace Tiny3D
             if (mShader == nullptr)
             {
                 // 加载 shader 失败
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load shader (%s) failed !", mShaderUUID.toString().c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load shader [uuid: %s] !", mShaderUUID.toString().c_str());
                 ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }

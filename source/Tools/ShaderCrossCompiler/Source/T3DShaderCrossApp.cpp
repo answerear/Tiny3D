@@ -34,7 +34,7 @@
 
 // For debug
 //// "$(SolutionDir)..\..\assets\builtin\materials\Test.Shader" -t hlsl
-// "$(SolutionDir)..\..\assets\editor\builtin\shaders\Default-Material.shader" -t hlsl -o "$(SolutionDir)..\..\assets\editor\builtin\materials"
+// "$(SolutionDir)..\..\assets\editor\builtin\shaders\Tiny3DStandard.shader" -t hlsl -o "$(SolutionDir)..\..\assets\editor\builtin\shaders"
 
 // To hlsl for Samples
 // Unlit vertex shader : "$(SolutionDir)..\..\assets\Samples\shaders\GeometryApp.vshader" -t hlsl -o "$(SolutionDir)..\..\assets\Samples\shaders\output" -N -O0
