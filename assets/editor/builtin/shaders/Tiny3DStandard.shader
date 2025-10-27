@@ -26,7 +26,8 @@ Shader "Tiny3DBuiltin/Standard"
 				#pragma fragment fragForward
 				#pragma target 4.0
 
-				#pragma multi_compile T3D_SKINNED_MESH T3D_GPU_SKINNING
+				#pragma multi_compile _ T3D_SKINNED_MESH 
+				#pragma multi_compile _ T3D_GPU_SKINNING
 
 				#include "Tiny3DStandardForward.cginc"
 				
@@ -42,7 +43,8 @@ Shader "Tiny3DBuiltin/Standard"
 				#pragma vertex vertShadowCaster
 				#pragma target 4.0
 
-				#pragma multi_compile T3D_SKINNED_MESH T3D_GPU_SKINNING
+				#pragma multi_compile _ T3D_SKINNED_MESH 
+				#pragma multi_compile _ T3D_GPU_SKINNING
 
 				#include "Tiny3DStandardShadow.cginc"
 

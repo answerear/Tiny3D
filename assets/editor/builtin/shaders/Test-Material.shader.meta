@@ -8,14 +8,14 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "4fe62f5f4d918109ba2794564b646980"
+          "RTTI_Value": "4da31d947e7c57070085ccd1d3c05e6e"
         }
       },
       "ShaderUUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "5e5178d646d66c53960b715693417762"
+          "RTTI_Value": "2631d99afa7401597ee29981453acd27"
         }
       }
     }

@@ -2,13 +2,13 @@
   "Magic": "T3D",
   "Version": "0.0.1",
   "Object": {
-    "RTTI_Type": "Tiny3D::MetaTexture",
+    "RTTI_Type": "Tiny3D::MetaFile",
     "RTTI_Value": {
       "UUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "7a8bca983f59fd0c3fea6a6acb3c9aa7"
+          "RTTI_Value": "e2fa9b8da0968f36f91e286f63f5b963"
         }
       }
     }

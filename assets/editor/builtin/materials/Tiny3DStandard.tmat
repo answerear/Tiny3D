@@ -6,13 +6,13 @@
     "RTTI_Value": {
       "Name": {
         "RTTI_Type": "std::string",
-        "RTTI_Value": "Test-Material"
+        "RTTI_Value": "Tiny3DStandard"
       },
       "UUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "eac3d66a50bc5a57aaf070952eb03295"
+          "RTTI_Value": "e45e3acb1134a6cffc37efb4c69d0f8e"
         }
       },
       "ConstantValues": {
@@ -533,7 +533,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "7a8bca983f59fd0c3fea6a6acb3c9aa7"
+                    "RTTI_Value": "f21c6090a450a3c283a801889f7878df"
                   }
                 }
               }
