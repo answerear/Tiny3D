@@ -1,0 +1,16 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::MetaMesh",
+    "RTTI_Value": {
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "eea678afb1a11ecf2f5374b4f3ea3169"
+        }
+      }
+    }
+  }
+}

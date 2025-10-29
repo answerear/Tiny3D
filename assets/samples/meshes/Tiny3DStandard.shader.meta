@@ -1,0 +1,23 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::MetaShaderLab",
+    "RTTI_Value": {
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "fcfe8f99a08232447a59fb4c4c368ade"
+        }
+      },
+      "ShaderUUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "d28843e36a4388e2d4acbf60aaf34560"
+        }
+      }
+    }
+  }
+}
