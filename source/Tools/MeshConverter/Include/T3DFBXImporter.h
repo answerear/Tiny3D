@@ -149,6 +149,9 @@ namespace Tiny3D
         String mInputDir {};
 
         Assets mResources {};
+
+        /// 是否 OpenGL 的制式
+        bool mIsOpenGLMetric {false};
     };
 }
 

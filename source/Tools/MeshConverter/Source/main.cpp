@@ -21,7 +21,7 @@
 #include "T3DMeshConverterApp.h"
 
 // For debug
-// Text : -o tmesh -b sphere -t -a -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Default-Material.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx $(SolutionDir)..\..\assets\samples\meshes
+// Text : -o tmesh -b sphere -t -a -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Tiny3DStandard.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx $(SolutionDir)..\..\assets\samples\meshes
 
 
 int main(int argc, char *argv[])
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
     settings.pluginSettings.plugins.push_back("FileSystemArchiveEditor");
-    settings.pluginSettings.plugins.push_back("MetaFSArchive");
+    settings.pluginSettings.plugins.push_back("MetaFSArchiveEditor");
     settings.pluginSettings.plugins.push_back("FreeImageCodecEditor");
     settings.pluginSettings.plugins.push_back("NullRendererEditor");
     settings.renderSettings.renderer = RHIRenderer::NULLRENDERER;

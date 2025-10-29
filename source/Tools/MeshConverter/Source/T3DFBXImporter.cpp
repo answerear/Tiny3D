@@ -298,6 +298,7 @@ namespace Tiny3D
                 MCONV_LOG_INFO("Start converting scene to DirectX coordinate system ...")
                 FbxAxisSystem::DirectX.ConvertScene(lFbxScene);
                 MCONV_LOG_INFO("Completed converting to DirectX coordinate system.")
+                mIsOpenGLMetric = true;
             }
 
             // 统一转成米制单位
@@ -1172,27 +1173,32 @@ namespace Tiny3D
 
                 FbxSurfacePhong *lFbxPhong = static_cast<FbxSurfacePhong *>(lFbxMaterial);
 
-                // Diffuse color
-                ColorRGBA diffuse(
-                    static_cast<float32_t>(lFbxPhong->Diffuse.Get()[0]),
-                    static_cast<float32_t>(lFbxPhong->Diffuse.Get()[1]),
-                    static_cast<float32_t>(lFbxPhong->Diffuse.Get()[2]));
-                material->setColor("Diffuse", diffuse);
-
-                // Specular color
-                ColorRGBA specular(
-                    static_cast<float32_t>(lFbxPhong->Specular.Get()[0]),
-                    static_cast<float32_t>(lFbxPhong->Specular.Get()[1]),
-                    static_cast<float32_t>(lFbxPhong->Specular.Get()[2]));
-                material->setColor("Specular", specular);
-
-                // Shininess
-                float32_t shininess = static_cast<float32_t>(lFbxPhong->Shininess.Get());
-                material->setFloat("Shininess", shininess);
+                // // Diffuse color
+                // ColorRGBA diffuse(
+                //     static_cast<float32_t>(lFbxPhong->Diffuse.Get()[0]),
+                //     static_cast<float32_t>(lFbxPhong->Diffuse.Get()[1]),
+                //     static_cast<float32_t>(lFbxPhong->Diffuse.Get()[2]));
+                // material->setColor("Diffuse", diffuse);
+                //
+                // // Specular color
+                // ColorRGBA specular(
+                //     static_cast<float32_t>(lFbxPhong->Specular.Get()[0]),
+                //     static_cast<float32_t>(lFbxPhong->Specular.Get()[1]),
+                //     static_cast<float32_t>(lFbxPhong->Specular.Get()[2]));
+                // material->setColor("Specular", specular);
+                //
+                // // Shininess
+                // float32_t shininess = static_cast<float32_t>(lFbxPhong->Shininess.Get());
+                // material->setFloat("Shininess", shininess);
             }
             else if (lFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
             {
                 // Lambert 材质
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+            }
+            else
+            {
+                // 其他材质
                 material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
             }
 
@@ -1261,6 +1267,11 @@ namespace Tiny3D
                         String filename = title + "." + ext;
                         ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, filename);
                         T3D_ASSERT(image != nullptr);
+                        if (mIsOpenGLMetric)
+                        {
+                            // OpenGL 制式，纹理要翻转
+                            image->flip();
+                        }
                         texture = T3D_TEXTURE_MGR.createTexture2D(title, image);
                         T3D_ASSERT(texture != nullptr);
 
