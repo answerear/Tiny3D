@@ -29,6 +29,9 @@
 
 #define USE_GPU_SKIN
 
+#define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
+#define ARCHIVE_TYPE_FS             "FileSystem"
+
 using namespace Tiny3D;
 
 
@@ -79,7 +82,7 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // add ambient light to the root of scene
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.5f);
+    ambient->setIntensity(1.0f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -171,7 +174,36 @@ void ResourceApp::buildCamera(Transform3D *parent)
 
 void ResourceApp::loadMesh(Transform3D *parent)
 {
+    TResult ret = T3D_OK;
+    GameObjectPtr go = GameObject::createWithTransform("mesh");
+    Transform3D *node = static_cast<Transform3D*>(go->getTransformNode());
+    parent->addChild(node);
+    node->setScaling(0.01f, 0.01f, 0.01f);
     
+    const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "meshes";
+    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+    T3D_ASSERT(archive != nullptr);
+    const String meshName = "tortoise.tmesh";
+    MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, meshName);
+    T3D_ASSERT(mesh != nullptr);
+    
+    GeometryPtr geometry = go->addComponent<Geometry>();
+    StringArray enableKeywrods;
+    enableKeywrods.push_back("");
+    StringArray disableKeywords;
+    for (auto submesh : mesh->getSubMeshes())
+    {
+        Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+        T3D_ASSERT(material != nullptr);
+        ret = material->switchKeywords(enableKeywrods, disableKeywords);
+        T3D_ASSERT(T3D_SUCCEEDED(ret));
+    }
+
+    for (const auto submesh : mesh->getSubMeshes())
+    {
+        geometry->setMeshObject(mesh, submesh.second);
+        break;
+    }
 }
 
 
