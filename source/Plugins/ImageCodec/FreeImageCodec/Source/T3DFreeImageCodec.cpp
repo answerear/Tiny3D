@@ -384,18 +384,24 @@ namespace Tiny3D
                 {
                     for (y = 0; y < height; ++y)
                     {
-                        uint8_t *pSrc = src + (height - y - 1) * srcPitch;
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
-                        Color4::convert_B8G8R8A8toA8R8G8B8(pSrc, pDst, width);
-#elif FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-                        memcpy(pDst, pSrc, dstPitch);
-#endif
+//                         uint8_t *pSrc = src + (height - y - 1) * srcPitch;
+// #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
+//                         Color4::convert_B8G8R8A8toA8R8G8B8(pSrc, pDst, width);
+// #elif FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+//                         memcpy(pDst, pSrc, dstPitch);
+// #endif
+//                         pDst += dstPitch;
+                        uint8_t *pSrc = FreeImage_GetScanLine(dib, height - y - 1);
+                        memcpy(pDst,pSrc, dstPitch);
                         pDst += dstPitch;
                     }
                 }
 
 
-                fif = FreeImage_GetFileTypeFromMemory(stream);
+                if (fif == FIF_UNKNOWN)
+                {
+                    fif = FreeImage_GetFileTypeFromMemory(stream, (DWORD)size);
+                }
 
                 setImageDimension(image, width, height, dstPitch);
                 setImageInfo(image, static_cast<Image::FileFormat>(fif), bpp, hasAlpha, isPreMulti, eFormat);
@@ -453,7 +459,7 @@ namespace Tiny3D
 
             FreeImage_Unload(dib);
             dib = nullptr;
-        } while (0);
+        } while (false);
 
         if (dib != nullptr)
         {
