@@ -342,11 +342,13 @@ namespace Tiny3D
         Matrix3 matR;
         ori.toRotationMatrix(matR);
         Radian xAngle, yAngle, zAngle;
-        matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+        // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+        matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
         const Quaternion &localOri = xform->getLocalTransform().getOrientation();
         localOri.toRotationMatrix(matR);
         Radian xLocal, yLocal, zLocal;
-        matR.toEulerAnglesZXY(zLocal, xLocal, yLocal);
+        // matR.toEulerAnglesZXY(zLocal, xLocal, yLocal);
+        matR.toEulerAnglesYXZ(yLocal, xLocal, zLocal);
         T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s - World Translation : %s, Euler Angle : (%f, %f, %f) - Local Translation : %s, Euler Angle : (%f, %f, %f)",
             xform->getGameObject()->getName().c_str(),
             pos.getDebugString().c_str(),
