@@ -90,6 +90,9 @@ namespace Tiny3D
             const Vector3 &scaling, const Matrix4 &offsetMatrix);
 
     private:
+        TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
+        void setName(const String &name) { mName = name; }
+        
         TPROPERTY(RTTRFuncName="ParentIndex", RTTRFuncType="setter")
         void setParent(uint16_t parentIndex)
         {
