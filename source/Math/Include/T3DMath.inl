@@ -257,22 +257,22 @@ namespace Tiny3D
     const T TMath<T>::POS_INFINITY = TReal<T>::INF;
 
     template <typename T>
-    const T TMath<T>::NEG_INFINITY = TReal<T>::MINUSINF;
+    const T TMath<T>::NEG_INFINITY = TReal<T>::MINUS_INF;
 
     template <typename T>
-    const T TMath<T>::PI = T(4.0f * ::atan(TReal<T>::ONE));
+    const T TMath<T>::PI = T(4.0f * ::atan(1));
 
     template <typename T>
-    const T TMath<T>::TWO_PI = T(2.0f * PI);
+    const T TMath<T>::TWO_PI = T(8.0f * ::atan(1));
 
     template <typename T>
-    const T TMath<T>::HALF_PI = T(TReal<T>::HALF * PI);
+    const T TMath<T>::HALF_PI = T(2.0f * ::atan(1));
 
     template <typename T>
-    const T TMath<T>::DEGREES_TO_RADIANS = PI / T(180.0f);
+    const T TMath<T>::DEGREES_TO_RADIANS = T(4.0f * ::atan(1) / 180.0f);
 
     template <typename T>
-    const T TMath<T>::RADIANS_TO_DEGREES = T(180.0f) / PI;
+    const T TMath<T>::RADIANS_TO_DEGREES = T(180.0f / (4.0f * ::atan(1)));
 
 }
 
