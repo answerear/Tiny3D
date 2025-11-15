@@ -208,6 +208,8 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(MetaScene);
     T3D_DECLARE_SMART_PTR(MetaShader);
     T3D_DECLARE_SMART_PTR(MetaShaderLab);
+    T3D_DECLARE_SMART_PTR(MetaAnimation);
+    T3D_DECLARE_SMART_PTR(MetaSkeleton);
 #endif
     
 

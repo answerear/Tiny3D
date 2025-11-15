@@ -145,7 +145,7 @@ namespace Tiny3D
 
     TResult MeshManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kMesh);
+        T3D_ASSERT(res->getType() == Resource::Type::kMesh || res->getType() == Resource::Type::kSkinnedMesh);
         Mesh *mesh = static_cast<Mesh*>(res);
         return T3D_SERIALIZER_MGR.serialize(stream, mesh);
     }

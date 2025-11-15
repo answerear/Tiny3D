@@ -272,6 +272,8 @@ namespace Tiny3D
     class MetaScene;
     class MetaShader;
     class MetaShaderLab;
+    class MetaAnimation;
+    class MetaSkeleton;
 #endif
 } // namespace Tiny3D
 

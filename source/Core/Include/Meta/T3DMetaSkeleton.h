@@ -22,12 +22,11 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_META_H__
-#define __T3D_META_H__
+#ifndef __T3D_META_SKELETON_H__
+#define __T3D_META_SKELETON_H__
 
 
-#include "T3DPrerequisites.h"
-#include "T3DTypedef.h"
+#include "T3DMeta.h"
 
 
 namespace Tiny3D
@@ -35,50 +34,30 @@ namespace Tiny3D
 #if defined(T3D_OS_DESKTOP)
 
     TCLASS()
-    class T3D_ENGINE_API Meta : public Object
+    class T3D_ENGINE_API MetaSkeleton : public Meta
     {
-        TRTTI_ENABLE(Object)
+        TRTTI_ENABLE(Meta)
         TRTTI_FRIEND
-        
+
     public:
-        TENUM()
-        enum Type
+        static MetaSkeletonPtr create(const UUID &uuid)
         {
-            kUnknown = 0,
-            kFolder,
-            kFile,
-            kTxt,
-            kBin,
-            kDylib,
-            kMaterial,
-            kTexture,
-            kShader,
-            kMesh,
-            kPrefab,
-            kScene,
-            kShaderLab,
-            kAnimation,
-            kSkeleton,
-        };
+            return T3D_NEW MetaSkeleton(uuid);
+        }
 
-        virtual Type getType() const = 0;
+        Type getType() const override { return kSkeleton; }
 
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
-        const UUID &getUUID() const { return mUUID; }
-
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
-        void setUUID(const UUID &uuid) { mUUID = uuid; }
-        
     protected:
-        Meta() = default;
+        MetaSkeleton() = default;
 
-        Meta(const UUID &uuid) : mUUID(uuid) {}
-
-        UUID mUUID {UUID::INVALID};
+        MetaSkeleton(const UUID &uuid)
+            : Meta(uuid)
+        {
+        }
     };
 
 #endif
 }
 
 
-#endif    /*__T3D_META_H__*/
+#endif    /*__T3D_META_SKELETON_H__*/

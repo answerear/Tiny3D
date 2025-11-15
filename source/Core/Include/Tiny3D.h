@@ -170,6 +170,8 @@
 #include <Meta/T3DMetaShaderLab.h>
 #include <Meta/T3DMetaTexture.h>
 #include <Meta/T3DMetaTxt.h>
+#include <Meta/T3DMetaAnimation.h>
+#include <Meta/T3DMetaSkeleton.h>
 #endif
 
 #endif  /*__TINY3D_H__*/

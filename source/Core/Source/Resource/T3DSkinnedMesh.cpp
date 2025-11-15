@@ -30,6 +30,7 @@
 #include "Animation/T3DAnimationTrack.h"
 #include "Resource/T3DSkeleton.h"
 #include "Resource/T3DSkeletonManager.h"
+#include "Kernel/T3DTransform.h"
 
 
 namespace Tiny3D
@@ -146,10 +147,21 @@ namespace Tiny3D
         do
         {
             mSkeleton = T3D_SKELETON_MGR.loadSkeleton(archive, mSkeletonUUID);
+            mSkeletalAni = T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, mSkeletalAniUUID);
+
 #if defined (T3D_DEBUG)
             mIsBonesDirty = true;
+
+            if (mIsBonesDirty)
+            {
+                populateBoneHierarchy();
+                mIsBonesDirty = false;
+
+                String bones = getBoneDebugString(mJoints[mJointRootIdx], 0);
+
+                T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Mesh (%s) Skeleton :\n%s", getName().c_str(), bones.c_str());
+            }
 #endif
-            mSkeletalAni = T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, mSkeletalAniUUID);
         } while (false);
         
         return ret;
@@ -195,7 +207,8 @@ namespace Tiny3D
                     Matrix3 matR;
                     orientation.toRotationMatrix(matR);
                     Radian xAngle, yAngle, zAngle;
-                    matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+                    // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+                    matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
                     ss << "\t\t\t\tTime : " << kfOrienetation->getTime() << " - (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")" << std::endl;
                 }
                 ss << "\t\t\tScaling :" << std::endl;
@@ -277,10 +290,17 @@ namespace Tiny3D
         Matrix3 matR;
         orientation.toRotationMatrix(matR);
         Radian xAngle, yAngle, zAngle;
-        matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+        // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
+        matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
         ss << " R : (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")";
         ss << " S : " << bone->getScaling().getDebugString();
+        
+        // Transform transform(bone->getTranslation(), bone->getScaling(), bone->getRotation());
+        // Matrix4 mat = transform.getAffineMatrix() * bone->getOffsetMatrix();
+        // ss << " M : " << mat.getDebugString();
+        
         ss << std::endl;
+        
         for (const auto child : node->children)
         {
             ss << getBoneDebugString(mJoints[child], tabCount + 1);

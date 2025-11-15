@@ -99,7 +99,7 @@ namespace Tiny3D
 
     TResult AnimationManager::saveResource(DataStream &stream, Resource *res)
     {
-        T3D_ASSERT(res->getType() == Resource::Type::kMesh);
+        T3D_ASSERT(res->getType() == Resource::Type::kSkeletalAnimation);
         SkeletalAnimation *skeletalAni = static_cast<SkeletalAnimation*>(res);
         return T3D_SERIALIZER_MGR.serialize(stream, skeletalAni);
     }

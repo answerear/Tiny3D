@@ -239,7 +239,9 @@ namespace Tiny3D
                     || ext == Resource::EXT_SHADER
                     || ext == Resource::EXT_MESH
                     || ext == Resource::EXT_PREFAB
-                    || ext == Resource::EXT_SCENE)
+                    || ext == Resource::EXT_SCENE
+                    || ext == Resource::EXT_ANIMATION
+                    || ext == Resource::EXT_SKELETON)
             {
                 ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
                 T3D_ASSERT(archive != nullptr);
@@ -300,6 +302,24 @@ namespace Tiny3D
                         scene = T3D_SCENE_MGR.loadScene(archive, filename);
                     }
                     meta = MetaScene::create(scene->getUUID());
+                }
+                else if (ext == Resource::EXT_ANIMATION)
+                {
+                    SkeletalAnimation *anim = static_cast<SkeletalAnimation *>(res);
+                    if (res == nullptr)
+                    {
+                        anim = T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, filename);
+                    }
+                    meta = MetaAnimation::create(anim->getUUID());
+                }
+                else if (ext == Resource::EXT_SKELETON)
+                {
+                    Skeleton *skel = static_cast<Skeleton *>(res);
+                    if (res == nullptr)
+                    {
+                        skel = T3D_SKELETON_MGR.loadSkeleton(archive, filename);
+                    }
+                    meta = MetaSkeleton::create(skel->getUUID());
                 }
             }
             else if (ext == Resource::EXT_SHADERLAB)
