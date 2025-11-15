@@ -1015,7 +1015,7 @@ namespace Tiny3D
     {
         T3D_ASSERT(data.DataSize == sizeof(mTuples));
         memcpy(mTuples, data.Data, data.DataSize);
-        T3D_SAFE_DELETE_ARRAY(data.Data);
+        T3D_POD_SAFE_DELETE_ARRAY(data.Data);
     }
 
     //--------------------------------------------------------------------------
