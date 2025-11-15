@@ -1318,11 +1318,11 @@ namespace Tiny3D
         // rot(A) = |  cx*sz           cx*cz          -sx    |
         //          | -cz*sy+cy*sx*sz  cy*cz*sx+sy*sz  cx*cy |
 
-        rPitch = TMath<T>::asin(-mTuples[4]);
+        rPitch = TMath<T>::asin(-mTuples[5]);
 
         if (rPitch < TRadian<T>(TMath<T>::HALF_PI))
         {
-            if (rPitch > TRadian<T>(-TMath<T>::HALF_PI))
+            if (rPitch > -TRadian<T>(TMath<T>::HALF_PI))
             {
                 rYaw = TMath<T>::atan2(mTuples[2], mTuples[8]);
                 rRoll = TMath<T>::atan2(mTuples[3], mTuples[4]);
