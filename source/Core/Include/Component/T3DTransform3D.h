@@ -71,6 +71,10 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Scaling",  RTTRFuncType="getter")
         const Vector3 &getScaling() const;
 
+        void getRotation(Radian &pitch, Radian &yaw, Radian &roll) const;
+
+        void getRotation(Degree &pitch, Degree &yaw, Degree &roll) const;
+
         void translate(const Vector3 &offset);
 
         void translate(Real x, Real y, Real z);
@@ -82,6 +86,10 @@ namespace Tiny3D
         void rotate(const Vector3 &axis, const Radian &radians);
 
         void rotate(const Vector3 &axis, const Degree &degrees);
+
+        void rotate(const Radian &pitch, const Radian &yaw, const Radian &roll);
+
+        void rotate(const Degree &pitch, const Degree &yaw, const Degree &roll);
 
         void pitch(const Degree &degrees);
 
@@ -95,29 +103,29 @@ namespace Tiny3D
 
         void roll(const Radian &radians);
 
-        Matrix3 fromEulerAnglesXYZ(const Radian &xAngle, const Radian &yAngle, const Radian &zAngle);
-
-        Matrix3 fromEulerAnglesXZY(const Radian &xAngle, const Radian &zAngle, const Radian &yAngle);
-
-        Matrix3 fromEulerAnglesYXZ(const Radian &yAngle, const Radian &xAngle, const Radian &zAngle);
-
-        Matrix3 fromEulerAnglesYZX(const Radian &yAngle, const Radian &zAngle, const Radian &xAngle);
-
-        Matrix3 fromEulerAnglesZXY(const Radian &zAngle, const Radian &xAngle, const Radian &yAngle);
-
-        Matrix3 fromEulerAnglesZYX(const Radian &zAngle, const Radian &yAngle, const Radian &xAngle);
-
-        void toEulerAnglesXYZ(Radian &xAngle, Radian &yAngle, Radian &zAngle);
-
-        void toEulerAnglesXZY(Radian &xAngle, Radian &zAngle, Radian &yAngle);
-
-        void toEulerAnglesYXZ(Radian &yAngle, Radian &xAngle, Radian &zAngle);
-
-        void toEulerAnglesYZX(Radian &yAngle, Radian &zAngle, Radian &xAngle);
-
-        void toEulerAnglesZXY(Radian &zAngle, Radian &xAngle, Radian &yAngle);
-
-        void toEulerAnglesZYX(Radian &zAngle, Radian &yAngle, Radian &xAngle);
+        // Matrix3 fromEulerAnglesXYZ(const Radian &xAngle, const Radian &yAngle, const Radian &zAngle);
+        //
+        // Matrix3 fromEulerAnglesXZY(const Radian &xAngle, const Radian &zAngle, const Radian &yAngle);
+        //
+        // Matrix3 fromEulerAnglesYXZ(const Radian &yAngle, const Radian &xAngle, const Radian &zAngle);
+        //
+        // Matrix3 fromEulerAnglesYZX(const Radian &yAngle, const Radian &zAngle, const Radian &xAngle);
+        //
+        // Matrix3 fromEulerAnglesZXY(const Radian &zAngle, const Radian &xAngle, const Radian &yAngle);
+        //
+        // Matrix3 fromEulerAnglesZYX(const Radian &zAngle, const Radian &yAngle, const Radian &xAngle);
+        //
+        // void toEulerAnglesXYZ(Radian &xAngle, Radian &yAngle, Radian &zAngle);
+        //
+        // void toEulerAnglesXZY(Radian &xAngle, Radian &zAngle, Radian &yAngle);
+        //
+        // void toEulerAnglesYXZ(Radian &yAngle, Radian &xAngle, Radian &zAngle);
+        //
+        // void toEulerAnglesYZX(Radian &yAngle, Radian &zAngle, Radian &xAngle);
+        //
+        // void toEulerAnglesZXY(Radian &zAngle, Radian &xAngle, Radian &yAngle);
+        //
+        // void toEulerAnglesZYX(Radian &zAngle, Radian &yAngle, Radian &xAngle);
 
         void scale(const Vector3 &scaling);
 

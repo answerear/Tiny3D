@@ -271,15 +271,15 @@ namespace Tiny3D
         const Transform &worldXform = getLocalToWorldTransform();
         
         T3D_LOG_INFO(LOG_TAG_COMPONENT, "%sTransform 3D - %s, "
-            "Local : T (%f, %f, %f), R (%f, %f, %f, %f), S (%f, %f, %f)"
+            "Local : T %s, Q %s, S %s"
             "    World : T (%f, %f, %f), R (%f, %f, %f, %f), S (%f, %f, %f)",
             ss.str().c_str(), getGameObject()->getName().c_str(),
-            mPosition.x(), mPosition.y(), mPosition.z(),
-            mOrientation.x(), mOrientation.y(), mOrientation.z(), mOrientation.w(),
-            mScaling.x(), mScaling.y(), mScaling.z(),
-            worldXform.getTranslation().x(), worldXform.getTranslation().y(), worldXform.getTranslation().z(),
-            worldXform.getOrientation().x(), worldXform.getOrientation().y(), worldXform.getOrientation().z(), worldXform.getOrientation().w(),
-            worldXform.getScaling().x(), worldXform.getScaling().y(), worldXform.getScaling().z());
+            mPosition.getDebugString().c_str(),
+            mOrientation.getDebugString().c_str(),
+            mScaling.getDebugString().c_str(),
+            worldXform.getTranslation().getDebugString().c_str(),
+            worldXform.getOrientation().getDebugString().c_str(),
+            worldXform.getScaling().getDebugString().c_str());
 
         tab++;
         
