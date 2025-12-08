@@ -81,7 +81,13 @@ namespace Tiny3D
         {
             return mOffsetMatrix;
         }
-
+        
+        TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="setter")
+        void setOffsetMatrix(const Matrix4 &offsetMatrix)
+        {
+            mOffsetMatrix = offsetMatrix;
+        }
+        
     protected:
         BoneNode() = default;
         
@@ -116,13 +122,7 @@ namespace Tiny3D
         {
             mScaling = scaling;
         }
-        
-        TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="setter")
-        void setOffsetMatrix(const Matrix4 &offsetMatrix)
-        {
-            mOffsetMatrix = offsetMatrix;
-        }
-        
+
     protected:
         /// 骨骼名称
         String mName {"#Bone"};
