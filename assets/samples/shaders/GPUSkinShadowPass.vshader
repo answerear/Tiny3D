@@ -51,7 +51,7 @@ VertexOutput vert(VertexInput input)
       pos += mul(m, float4(input.position, 1.0f)) * w;
    }
    
-   output.position = mul(TINY3D_MATRIX_LIGHTSPACE_VP, pos);
+   output.position = mul(TINY3D_MATRIX_LIGHTSPACE, pos);
    
    return output;
 };
