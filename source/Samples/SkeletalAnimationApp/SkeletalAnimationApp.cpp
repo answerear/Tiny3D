@@ -171,7 +171,7 @@ void SkeletalAnimationApp::buildCamera(Transform3D *parent)
     Radian yAngle(-Math::PI * 0.25f);
     // Radian yAngle(0.0f);
     Radian zAngle(0.0f);
-    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    xform->rotate(xAngle, yAngle, zAngle);
 #endif
 
     // construct frustum bound
@@ -316,14 +316,17 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     ss << "Cube#" << index;
     
     // transform node for cube
-    GameObjectPtr go = GameObject::create(ss.str());
-    Transform3DPtr xform = go->addComponent<Transform3D>();
+    GameObjectPtr go = GameObject::createWithTransform(ss.str());
+    Transform3D *xform = static_cast<Transform3D *>(go->getTransformNode());
     parent->addChild(xform);
     xform->setPosition(pos);
-    Radian xAngles(0.0f);
-    Radian zAngles(0.0f);
-    xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
-    
+    xform->rotate(Radian::kZero, yAngles, Radian::kZero);
+
+    go = GameObject::createWithTransform("body");
+    xform->addChild(go->getTransformNode());
+    xform = static_cast<Transform3D *>(go->getTransformNode());
+    xform->rotate(Degree::kZero, Degree(30.0f), Degree::kZero);
+
     // submesh
     SubMesh *submesh = mCubeMesh->getSubMesh(SUB_MESH_NAME);
 
@@ -1090,7 +1093,7 @@ void SkeletalAnimationApp::buildPlane(Transform3D *parent)
     Radian xAngles(0.0f);
     Radian yAngles(0.0f);
     Radian zAngles(0.0f);
-    xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
+    xform->rotate(xAngles, yAngles, zAngles);
     xform->setScaling(Vector3(3.0f, 3.0f, 3.0f));
     
     // submesh

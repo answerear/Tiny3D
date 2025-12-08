@@ -211,7 +211,7 @@ void ShadowApp::buildCamera(Transform3D *parent)
     Radian yAngle(-Math::PI * 0.25f);
     // Radian yAngle(0.0f);
     Radian zAngle(0.0f);
-    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    xform->rotate(xAngle, yAngle, zAngle);
 #endif
 
     // construct frustum bound
@@ -342,7 +342,7 @@ void ShadowApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian 
     xform->setPosition(pos);
     Radian xAngles(0.0f);
     Radian zAngles(0.0f);
-    xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
+    xform->rotate(xAngles, yAngles, zAngles);
     
     // submesh
     SubMesh *submesh = mCubeMesh->getSubMesh(SUB_MESH_NAME);
@@ -1102,7 +1102,7 @@ void ShadowApp::buildPlane(Transform3D *parent)
     Radian xAngles(0.0f);
     Radian yAngles(0.0f);
     Radian zAngles(0.0f);
-    xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
+    xform->rotate(xAngles, yAngles, zAngles);
     xform->setScaling(Vector3(3.0f, 3.0f, 3.0f));
     
     // submesh

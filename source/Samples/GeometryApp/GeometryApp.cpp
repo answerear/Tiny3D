@@ -132,7 +132,7 @@ void GeometryApp::buildCamera(Transform3D *parent)
     Radian yAngle(-Math::PI * 0.25f);
 #endif
     Radian zAngle(0.0f);
-    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    xform->rotate(xAngle, yAngle, zAngle);
 #endif
 
     // construct frustum bound

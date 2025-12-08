@@ -163,7 +163,7 @@ void SpotLightApp::buildCamera(Transform3D *parent)
     Radian yAngle(-Math::PI * 0.25f);
     // Radian yAngle(0.0f);
     Radian zAngle(0.0f);
-    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    xform->rotate(xAngle, yAngle, zAngle);
 #endif
 
     // construct frustum bound
@@ -184,7 +184,7 @@ void SpotLightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radi
     xform->setPosition(pos);
     Radian xAngles(0.0f);
     Radian zAngles(0.0f);
-    xform->fromEulerAnglesYXZ(yAngles, xAngles, zAngles);
+    xform->rotate(xAngles, yAngles, zAngles);
     
     // submesh
     SubMesh *submesh = mMesh->getSubMesh(SUB_MESH_NAME);

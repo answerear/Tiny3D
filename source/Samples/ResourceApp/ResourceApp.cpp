@@ -164,7 +164,7 @@ void ResourceApp::buildCamera(Transform3D *parent)
     Radian yAngle(-Math::PI * 0.25f);
     // Radian yAngle(0.0f);
     Radian zAngle(0.0f);
-    xform->fromEulerAnglesYXZ(yAngle, xAngle, zAngle);
+    xform->rotate(xAngle, yAngle, zAngle);
 #endif
 
     // construct frustum bound
@@ -186,8 +186,21 @@ void ResourceApp::loadMesh(Transform3D *parent)
     const String meshName = "tortoise.tmesh";
     MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, meshName);
     T3D_ASSERT(mesh != nullptr);
+
+    GeometryPtr geometry;
+    if (mesh->getType() == Resource::Type::kMesh)
+    {
+        geometry = go->addComponent<Geometry>();
+    }
+    else if (mesh->getType() == Resource::Type::kSkinnedMesh)
+    {
+        geometry = go->addComponent<SkinnedGeometry>();
+    }
+    else
+    {
+        T3D_ASSERT(false);
+    }
     
-    GeometryPtr geometry = go->addComponent<Geometry>();
     StringArray enableKeywrods;
     enableKeywrods.push_back("");
     StringArray disableKeywords;
@@ -203,6 +216,14 @@ void ResourceApp::loadMesh(Transform3D *parent)
     {
         geometry->setMeshObject(mesh, submesh.second);
         break;
+    }
+
+    if (mesh->getType() == Resource::Type::kSkinnedMesh)
+    {
+        SkinnedGeometry *skinnedGeometry = smart_pointer_cast<SkinnedGeometry>(geometry);
+        skinnedGeometry->setGPUSkinning(false);
+        const String &defaultClip = skinnedGeometry->getDefaultClipName();
+        skinnedGeometry->play(defaultClip, true);
     }
 }
 
