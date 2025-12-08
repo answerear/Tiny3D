@@ -176,7 +176,7 @@ namespace Tiny3D
             }
             else
             {
-                root->getTransformNode()->addChild(node);
+                root->getTransformNode()->getParent()->addChild(node);
             }
         }
         

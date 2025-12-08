@@ -204,11 +204,12 @@ namespace Tiny3D
                 for (const auto &kfOrienetation : track.second->getOrientationTrack())
                 {
                     const Quaternion &orientation = kfOrienetation->getOrientation();
-                    Matrix3 matR;
-                    orientation.toRotationMatrix(matR);
+                    // Matrix3 matR;
+                    // orientation.toRotationMatrix(matR);
+                    // Radian xAngle, yAngle, zAngle;
+                    // matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
                     Radian xAngle, yAngle, zAngle;
-                    // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-                    matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
+                    orientation.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
                     ss << "\t\t\t\tTime : " << kfOrienetation->getTime() << " - (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")" << std::endl;
                 }
                 ss << "\t\t\tScaling :" << std::endl;
@@ -287,11 +288,12 @@ namespace Tiny3D
         ss << "Bone - name : " << bone->getName();
         ss << " T : " << bone->getTranslation().getDebugString();
         const Quaternion &orientation = bone->getRotation();
-        Matrix3 matR;
-        orientation.toRotationMatrix(matR);
+        // Matrix3 matR;
+        // orientation.toRotationMatrix(matR);
+        // Radian xAngle, yAngle, zAngle;
+        // matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
         Radian xAngle, yAngle, zAngle;
-        // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-        matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
+        orientation.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
         ss << " R : (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")";
         ss << " S : " << bone->getScaling().getDebugString();
         

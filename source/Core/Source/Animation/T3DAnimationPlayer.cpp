@@ -40,6 +40,42 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+#if defined (T3D_DEBUG)
+    static void debugBoneHierarchy(TransformNode *node)
+    {
+        Transform3D *xform = static_cast<Transform3D *>(node);
+        const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
+        const Quaternion &ori = xform->getLocalToWorldTransform().getOrientation();
+        const Vector3 &scaling = xform->getLocalToWorldTransform().getScaling();
+
+        // Matrix3 matR;
+        // ori.toRotationMatrix(matR);
+        // Radian xAngle, yAngle, zAngle;
+        // matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
+        // const Quaternion &localOri = xform->getLocalTransform().getOrientation();
+        // localOri.toRotationMatrix(matR);
+        // Radian xLocal, yLocal, zLocal;
+        // matR.toEulerAnglesYXZ(yLocal, xLocal, zLocal);
+        Radian xAngle, yAngle, zAngle;
+        ori.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
+        Radian xLocal, yLocal, zLocal;
+        xform->getLocalTransform().getOrientation().toEulerAnglesYXZ(yLocal, xLocal, zLocal);
+        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s - World Translation : %s, Euler Angle : (%f, %f, %f) - Local Translation : %s, Euler Angle : (%f, %f, %f)",
+            xform->getGameObject()->getName().c_str(),
+            pos.getDebugString().c_str(),
+            xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+            xform->getLocalTransform().getTranslation().getDebugString().c_str(),
+            xLocal.valueDegrees(), yLocal.valueDegrees(), zLocal.valueDegrees());
+
+        for (const auto child : xform->getChildren())
+        {
+            debugBoneHierarchy(child.get());
+        }
+    };
+#endif
+    
+    //--------------------------------------------------------------------------
+
     template <typename keyframes_t>
     bool getKeyframe(uint32_t startFrame, uint32_t time, const keyframes_t &keyframes, Keyframe *&frame0, Keyframe *&frame1, uint32_t &frame)
     {
@@ -331,38 +367,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-#if defined (T3D_DEBUG)
-    void debugBoneHierarchy(TransformNode *node)
-    {
-        Transform3D *xform = static_cast<Transform3D *>(node);
-        const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
-        const Quaternion &ori = xform->getLocalToWorldTransform().getOrientation();
-        const Vector3 &scaling = xform->getLocalToWorldTransform().getScaling();
-
-        Matrix3 matR;
-        ori.toRotationMatrix(matR);
-        Radian xAngle, yAngle, zAngle;
-        // matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-        matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
-        const Quaternion &localOri = xform->getLocalTransform().getOrientation();
-        localOri.toRotationMatrix(matR);
-        Radian xLocal, yLocal, zLocal;
-        // matR.toEulerAnglesZXY(zLocal, xLocal, yLocal);
-        matR.toEulerAnglesYXZ(yLocal, xLocal, zLocal);
-        T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s - World Translation : %s, Euler Angle : (%f, %f, %f) - Local Translation : %s, Euler Angle : (%f, %f, %f)",
-            xform->getGameObject()->getName().c_str(),
-            pos.getDebugString().c_str(),
-            xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-            xform->getLocalTransform().getTranslation().getDebugString().c_str(),
-            xLocal.valueDegrees(), yLocal.valueDegrees(), zLocal.valueDegrees());
-
-        for (const auto child : xform->getChildren())
-        {
-            debugBoneHierarchy(child.get());
-        }
-    };
-#endif
-
     void AnimationPlayer::skinning()
     {
         if (mIsGPUSkinning)
@@ -398,6 +402,8 @@ namespace Tiny3D
         
         // CPU 蒙皮
         SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
+        GameObjectPtr go = mSkinnedGeometry->getGameObject();
+        Transform3D *xform = static_cast<Transform3D *>(go->getTransformNode());
 
         const VertexBuffers &vbos = skinnedMesh->getVertexBuffers();
         const Vertices &vertices = skinnedMesh->getVertices();
