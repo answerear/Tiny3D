@@ -158,6 +158,24 @@ namespace Tiny3D
         TFUNCTION()
         void fromRotationMatrix(const TMatrix3<T> &rkRot);
 
+        TFUNCTION()
+        void fromEulerAnglesXYZ(const TRadian<T> &pitch, const TRadian<T> &yaw, const TRadian<T> &roll);
+
+        TFUNCTION()
+        void fromEulerAnglesXZY(const TRadian<T> &pitch, const TRadian<T> &roll, const TRadian<T> &yaw);
+
+        TFUNCTION()
+        void fromEulerAnglesYXZ(const TRadian<T> &yaw, const TRadian<T> &pitch, const TRadian<T> &roll);
+
+        TFUNCTION()
+        void fromEulerAnglesYZX(const TRadian<T> &yaw, const TRadian<T> &roll, const TRadian<T> &pitch);
+
+        TFUNCTION()
+        void fromEulerAnglesZXY(const TRadian<T> &roll, const TRadian<T> &pitch, const TRadian<T> &yaw);
+
+        TFUNCTION()
+        void fromEulerAnglesZYX(const TRadian<T> &roll, const TRadian<T> &yaw, const TRadian<T> &pitch);
+
         /// 把四元数转成一个旋转角(弧度)和一个单位向量表示的旋转轴.
         TFUNCTION()
         void toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const;
@@ -173,6 +191,24 @@ namespace Tiny3D
         /// 把四元数转成一个旋转矩阵.
         TFUNCTION()
         void toRotationMatrix(TMatrix3<T> &rRot) const;
+
+        TFUNCTION()
+        void toEulerAnglesXYZ(TRadian<T> &pitch, TRadian<T> &yaw, TRadian<T> &roll) const;
+
+        TFUNCTION()
+        void toEulerAnglesXZY(TRadian<T> &pitch, TRadian<T> &roll, TRadian<T> &yaw) const;
+
+        TFUNCTION()
+        void toEulerAnglesYXZ(TRadian<T> &yaw, TRadian<T> &pitch, TRadian<T> &roll) const;
+
+        TFUNCTION()
+        void toEulerAnglesYZX(TRadian<T> &yaw, TRadian<T> &roll, TRadian<T> &pitch) const;
+
+        TFUNCTION()
+        void toEulerAnglesZXY(TRadian<T> &roll, TRadian<T> &pitch, TRadian<T> &yaw) const;
+
+        TFUNCTION()
+        void toEulerAnglesZYX(TRadian<T> &roll, TRadian<T> &yaw, TRadian<T> &pitch) const;
 
         /// 获取绕X轴旋转(俯仰角)的角度(单位：弧度).
         TFUNCTION()

@@ -22,6 +22,11 @@
  * SOFTWARE.
  ******************************************************************************/
 
+
+template <typename T>
+const TRadian<T> TRadian<T>::kZero;
+
+
 template <typename T>
 TRadian<T>::TRadian()
     : mRadian(TReal<T>::ZERO)

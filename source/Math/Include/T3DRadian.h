@@ -42,6 +42,8 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        static const TRadian kZero;
+        
         /// 默认构造函数
         explicit TRadian();
         /// 指定实数弧度制的构造函数.

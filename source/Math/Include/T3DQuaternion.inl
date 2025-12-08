@@ -27,6 +27,18 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     template <typename T>
+    inline TQuaternion<T> operator *(T scalar, const TQuaternion<T> &rkQ)
+    {
+        return TQuaternion<T>(
+            scalar * rkQ.w(),
+            scalar * rkQ.x(), 
+            scalar * rkQ.y(), 
+            scalar * rkQ.z());
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    template <typename T>
     inline void TQuaternion<T>::fromAngleAxis(const TRadian<T> &rkRadians, 
         const TVector3<T> &rkAxis)
     {
@@ -650,18 +662,6 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     template <typename T>
-    inline TQuaternion<T> operator *(T scalar, const TQuaternion<T> &rkQ)
-    {
-        return TQuaternion<T>(
-            scalar * rkQ.w(),
-            scalar * rkQ.x(), 
-            scalar * rkQ.y(), 
-            scalar * rkQ.z());
-    }
-
-    //--------------------------------------------------------------------------
-    
-    template <typename T>
     const TQuaternion<T> TQuaternion<T>::IDENTITY(1.0, 0.0, 0.0, 0.0);
 
     //--------------------------------------------------------------------------
@@ -672,7 +672,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     template <typename T>
-    void TQuaternion<T>::fromRotationMatrix(const TMatrix3<T> &rkRot)
+    inline void TQuaternion<T>::fromRotationMatrix(const TMatrix3<T> &rkRot)
     {
         // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
         // article "TQuaternion Calculus and Fast Animation".
@@ -713,9 +713,69 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::fromEulerAnglesXYZ(const TRadian<T> &pitch, const TRadian<T> &yaw, const TRadian<T> &roll)
+    {
+        TMatrix3<T> matR;
+        matR.fromEulerAnglesXYZ(pitch, yaw, roll);
+        fromRotationMatrix(matR);
+    }
+
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::fromEulerAnglesXZY(const TRadian<T> &pitch, const TRadian<T> &roll, const TRadian<T> &yaw)
+    {
+        TMatrix3<T> matR;
+        matR.fromEulerAnglesXZY(pitch, roll, yaw);
+        fromRotationMatrix(matR);
+    }
+
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::fromEulerAnglesYXZ(const TRadian<T> &yaw, const TRadian<T> &pitch, const TRadian<T> &roll)
+    {
+        TMatrix3<T> matR;
+        matR.fromEulerAnglesYXZ(yaw, pitch, roll);
+        fromRotationMatrix(matR);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::fromEulerAnglesYZX(const TRadian<T> &yaw, const TRadian<T> &roll, const TRadian<T> &pitch)
+    {
+        TMatrix3<T> matR;
+        matR.fromEulerAnglesYZX(yaw, roll, pitch);
+        fromRotationMatrix(matR);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::fromEulerAnglesZXY(const TRadian<T> &roll, const TRadian<T> &pitch, const TRadian<T> &yaw)
+    {
+        TMatrix3<T> matR;
+        matR.fromEulerAnglesZXY(roll, pitch, yaw);
+        fromRotationMatrix(matR);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::fromEulerAnglesZYX(const TRadian<T> &roll, const TRadian<T> &yaw, const TRadian<T> &pitch)
+    {
+        TMatrix3<T> matR;
+        matR.fromEulerAnglesZYX(roll, yaw, pitch);
+        fromRotationMatrix(matR);
+    }
+    
+    //--------------------------------------------------------------------------
     
     template <typename T>
-    void TQuaternion<T>::toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const
+    inline void TQuaternion<T>::toAngleAxis(TRadian<T> &rAngle, TVector3<T> &rAxis) const
     {
         // The quaternion representing the rotation is
         //   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
@@ -742,7 +802,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     template <typename T>
-    void TQuaternion<T>::toRotationMatrix(TMatrix3<T> &rRot) const
+    inline void TQuaternion<T>::toRotationMatrix(TMatrix3<T> &rRot) const
     {
         T fTx = _x + _x;
         T fTy = _y + _y;
@@ -768,6 +828,58 @@ namespace Tiny3D
         rRot[2][2] = TReal<T>::ONE - (fTxx + fTyy);
     }
 
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::toEulerAnglesXYZ(TRadian<T> &pitch, TRadian<T> &yaw, TRadian<T> &roll) const
+    {
+        TMatrix3<T> matR;
+        toRotationMatrix(matR);
+        matR.toEulerAnglesXYZ(pitch, yaw, roll);
+    }
+
+    //--------------------------------------------------------------------------
+
+    template <typename T>
+    inline void TQuaternion<T>::toEulerAnglesXZY(TRadian<T> &pitch, TRadian<T> &roll, TRadian<T> &yaw) const
+    {
+        TMatrix3<T> matR;
+        toRotationMatrix(matR);
+        matR.toEulerAnglesXZY(pitch, roll, yaw);
+    }
+
+    template <typename T>
+    inline void TQuaternion<T>::toEulerAnglesYXZ(TRadian<T> &yaw, TRadian<T> &pitch, TRadian<T> &roll) const
+    {
+        TMatrix3<T> matR;
+        toRotationMatrix(matR);
+        matR.toEulerAnglesYXZ(yaw, pitch, roll);
+    }
+
+    template <typename T>
+    inline void TQuaternion<T>::toEulerAnglesYZX(TRadian<T> &yaw, TRadian<T> &roll, TRadian<T> &pitch) const
+    {
+        TMatrix3<T> matR;
+        toRotationMatrix(matR);
+        matR.toEulerAnglesYZX(yaw, roll, pitch);
+    }
+
+    template <typename T>
+    inline void TQuaternion<T>::toEulerAnglesZXY(TRadian<T> &roll, TRadian<T> &pitch, TRadian<T> &yaw) const
+    {
+        TMatrix3<T> matR;
+        toRotationMatrix(matR);
+        matR.toEulerAnglesZXY(roll, pitch, yaw);
+    }
+
+    template <typename T>
+    inline void TQuaternion<T>::toEulerAnglesZYX(TRadian<T> &roll, TRadian<T> &yaw, TRadian<T> &pitch) const
+    {
+        TMatrix3<T> matR;
+        toRotationMatrix(matR);
+        matR.toEulerAnglesZYX(roll, yaw, pitch);
+    }
+    
     //--------------------------------------------------------------------------
     
     template<typename T>

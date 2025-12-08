@@ -22,13 +22,16 @@
  * SOFTWARE.
  ******************************************************************************/
 
+
+template <typename T>
+const TDegree<T> TDegree<T>::kZero(0.0f);
+
 template <typename T>
 inline TDegree<T>::TDegree()
     : mDegree(TReal<T>::ZERO)
 {
     
 }
-
 
 template <typename T>
 inline TDegree<T>::TDegree(T degree /* = TReal<T>::ZERO */)

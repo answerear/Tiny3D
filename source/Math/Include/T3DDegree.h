@@ -41,6 +41,8 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        static const TDegree kZero;
+        
         explicit TDegree();
 
         /// 指定实数角度值的构造函数
