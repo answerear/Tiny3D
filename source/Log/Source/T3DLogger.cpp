@@ -67,9 +67,9 @@ namespace Tiny3D
                 String filename = dir.getFileName();
     
                 const int32_t oneDay = 24 * 60 * 60;
-                const int32_t maxOutdate = mExpired * oneDay;
+                const int32_t maxOutdate = static_cast<int32_t>(mExpired) * oneDay;
                 time_t lastTime = dir.getLastWriteTime();
-                time_t dt = currentTime - lastTime;
+                time_t dt = static_cast<time_t>(currentTime) - lastTime;
                 if (dt >= maxOutdate)
                 {
                     Dir::remove(dir.getFilePath().c_str());
