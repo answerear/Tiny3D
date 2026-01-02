@@ -521,7 +521,10 @@ namespace Tiny3D
 
     void Logger::commitCheckExpiredTask()
     {
-        mQueuedJobPool->addQueuedJob(T3D_NEW CheckExpiredFileJob());
+        CheckExpiredFileJob *job = T3D_NEW CheckExpiredFileJob();
+        job->setLogPath(getLogPath());
+        job->setExpired(mStrategy.unExpired);
+        mQueuedJobPool->addQueuedJob(job);
     }
 
     //--------------------------------------------------------------------------
