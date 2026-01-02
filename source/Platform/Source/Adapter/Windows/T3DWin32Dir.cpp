@@ -529,14 +529,17 @@ namespace Tiny3D
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return 0;
 
-        struct _stat buffer;
-#ifdef UNICODE
-        char szFileName[MAX_PATH] = {0};
-        ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
-        int result = _stat(szFileName, &buffer);
-#else
-        int result = _stat(m_FindFileData.cFileName, &buffer);
-#endif
+        struct _stat64 buffer;
+// #ifdef UNICODE
+//         char szFileName[MAX_PATH] = {0};
+//         ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+//         int result = _stat64(szFileName, &buffer);
+// #else
+//         String fullpath = getFilePath();
+//         int result = _stat64(fullpath.c_str(), &buffer);
+// #endif
+        String fullpath = getFilePath();
+        int result = _stat64(fullpath.c_str(), &buffer);
         if (result == 0)
         {
             return buffer.st_ctime;
@@ -552,14 +555,16 @@ namespace Tiny3D
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return 0;
 
-        struct _stat buffer;
-#ifdef UNICODE
-        char szFileName[MAX_PATH] = {0};
-        ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
-        int result = _stat(szFileName, &buffer);
-#else
-        int result = _stat(m_FindFileData.cFileName, &buffer);
-#endif
+        struct _stat64 buffer;
+// #ifdef UNICODE
+//         char szFileName[MAX_PATH] = {0};
+//         ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+//         int result = _stat64(szFileName, &buffer);
+// #else
+//         int result = _stat64(m_FindFileData.cFileName, &buffer);
+// #endif
+        String fullpath = getFilePath();
+        int result = _stat64(fullpath.c_str(), &buffer);
         if (result == 0)
         {
             return buffer.st_atime;
@@ -575,14 +580,16 @@ namespace Tiny3D
         if (m_hFindFile == INVALID_HANDLE_VALUE)
             return 0;
 
-        struct _stat buffer;
-#ifdef UNICODE
-        char szFileName[MAX_PATH] = {0};
-        ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
-        int result = _stat(szFileName, &buffer);
-#else
-        int result = _stat(m_FindFileData.cFileName, &buffer);
-#endif
+        struct _stat64 buffer;
+// #ifdef UNICODE
+//         char szFileName[MAX_PATH] = {0};
+//         ::WideCharToMultiByte(CP_UTF8, 0, m_FindFileData.cFileName, MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
+//         int result = _stat64(szFileName, &buffer);
+// #else
+//         int result = _stat64(m_FindFileData.cFileName, &buffer);
+// #endif
+        String fullpath = getFilePath();
+        int result = _stat64(fullpath.c_str(), &buffer);
         if (result == 0)
         {
             return buffer.st_mtime;
@@ -595,14 +602,14 @@ namespace Tiny3D
 
     long_t Win32Dir::getCreationTime(const String &filename) const
     {
-        struct _stat buffer;
+        struct _stat64 buffer;
 #ifdef UNICODE
         char szFileName[MAX_PATH] = {0};
         ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
-        int result = _stat(szFileName, &buffer);
+        int result = _stat64(szFileName, &buffer);
 #else
         String name = T3D_LOCALE.UTF8ToANSI(filename);
-        int result = _stat(name.c_str(), &buffer);
+        int result = _stat64(name.c_str(), &buffer);
 #endif
         if (result == 0)
         {
@@ -616,14 +623,14 @@ namespace Tiny3D
 
     long_t Win32Dir::getLastAccessTime(const String &filename) const
     {
-        struct _stat buffer;
+        struct _stat64 buffer;
 #ifdef UNICODE
         char szFileName[MAX_PATH] = {0};
         ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
-        int result = _stat(szFileName, &buffer);
+        int result = _stat64(szFileName, &buffer);
 #else
         String name = T3D_LOCALE.UTF8ToANSI(filename);
-        int result = _stat(name.c_str(), &buffer);
+        int result = _stat64(name.c_str(), &buffer);
 #endif
         if (result == 0)
         {
@@ -637,14 +644,14 @@ namespace Tiny3D
 
     long_t Win32Dir::getLastWriteTime(const String &filename) const
     {
-        struct _stat buffer;
+        struct _stat64 buffer;
 #ifdef UNICODE
         char szFileName[MAX_PATH] = {0};
         ::WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), MAX_PATH, szFileName, sizeof(szFileName), nullptr, nullptr);
-        int result = _stat(szFileName, &buffer);
+        int result = _stat64(szFileName, &buffer);
 #else
         String name = T3D_LOCALE.UTF8ToANSI(filename);
-        int result = _stat(name.c_str(), &buffer);
+        int result = _stat64(name.c_str(), &buffer);
 #endif
         if (result == 0)
         {
