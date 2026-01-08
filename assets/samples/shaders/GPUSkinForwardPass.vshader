@@ -1,7 +1,7 @@
 #pragma vertex vert
 #pragma target 4.0
 
-#define kMaxBoneMatrices 512
+#define kMaxBones 256
 #define kMaxBlendBones 4
 
 cbuffer Tiny3DPerDraw
@@ -16,7 +16,7 @@ cbuffer Tiny3DPerFrame
    row_major float4x4 tiny3d_MatrixP;
    row_major float4x4 tiny3d_MatrixVP;
    row_major float4x4 tiny3d_MatrixLightSpaceVP;
-   row_major float4x4 tiny3d_BoneMatrices[kMaxBoneMatrices];
+   row_major float4x4 tiny3d_BoneMatrices[kMaxBones];
 }
 
 static float4x4 tiny3d_MatrixMVP = mul(tiny3d_MatrixVP, tiny3d_ObjectToWorld);
