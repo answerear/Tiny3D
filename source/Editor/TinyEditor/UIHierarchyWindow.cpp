@@ -244,8 +244,8 @@ namespace Tiny3D
             ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
             
             Transform3D *root = mScene->getRootTransform();
-            root->dfs_visit(true, nullptr,
-                [this, &ret](TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
+            root->visitAll(
+                [this, &ret](int32_t depth, TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy)
                 {
                     if (T3D_FAILED(ret))
                         return;

@@ -25,9 +25,9 @@
 #include "ResourceApp.h"
 
 
-#define UVN_CAMERA
+// #define UVN_CAMERA
 
-#define USE_GPU_SKIN
+// #define USE_GPU_SKIN
 
 #define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
 #define ARCHIVE_TYPE_FS             "FileSystem"
@@ -112,6 +112,8 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // mesh
     loadMesh(root);
     
+    root->printHierarchy(true);
+    
     return T3D_OK;
 }
 
@@ -153,16 +155,17 @@ void ResourceApp::buildCamera(Transform3D *parent)
     
     // construct camera position & orientation & scaling
 
-    Vector3 eye(8.0f, 20.0f, -20.0f);
+    Vector3 eye(0.0f, 0.0f, -20.0f);
 
 #if defined (UVN_CAMERA)
     Vector3 obj(0.0f, 0.0f, 0.0f);
     camera->lookAt(eye, obj, Vector3::UP);
 #else
     xform->setPosition(eye);
-    Radian xAngle(Degree(25.0f).valueRadians());
-    Radian yAngle(-Math::PI * 0.25f);
-    // Radian yAngle(0.0f);
+    // Radian xAngle(Degree(25.0f).valueRadians());
+    // Radian yAngle(-Math::PI * 0.25f);
+    Radian xAngle(0.0f);
+    Radian yAngle(0.0f);
     Radian zAngle(0.0f);
     xform->rotate(xAngle, yAngle, zAngle);
 #endif
@@ -220,7 +223,17 @@ void ResourceApp::loadMesh(Transform3D *parent)
 
     if (mesh->getType() == Resource::Type::kSkinnedMesh)
     {
+        SkinnedMesh *skinnedMesh = smart_pointer_cast<SkinnedMesh>(mesh);
+        T3D_ASSERT(skinnedMesh != nullptr);
+        SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
+        T3D_ASSERT(skeletalAni != nullptr);
+        const AnimationClips &clips = skeletalAni->getAnimationClips();
+        T3D_ASSERT(!clips.empty());
+        const String &clipName = clips.begin()->first;
         SkinnedGeometry *skinnedGeometry = smart_pointer_cast<SkinnedGeometry>(geometry);
+        skinnedGeometry->populateAllChildren();
+        skinnedGeometry->setDefaultClipName(clipName);
+        T3D_ASSERT(skinnedGeometry != nullptr);
         skinnedGeometry->setGPUSkinning(false);
         const String &defaultClip = skinnedGeometry->getDefaultClipName();
         skinnedGeometry->play(defaultClip, true);

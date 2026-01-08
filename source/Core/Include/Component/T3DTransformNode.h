@@ -155,7 +155,8 @@ namespace Tiny3D
         template <typename VisitAction, typename ...Args>
         void visitActive(const VisitAction &action, Args &...args)
         {
-            dfs_visit(true,
+            int32_t depth = 0;
+            dfs_visit(depth, true,
                 [](TransformNode *node) { return node->getGameObject()->isActive(); },
                 action, args...);
         }
@@ -163,7 +164,8 @@ namespace Tiny3D
         template <typename VisitAction, typename  ...Args>
         void visitVisible(const VisitAction &action, Args &...args)
         {
-            dfs_visit(true,
+            int32_t depth = 0;
+            dfs_visit(depth, true,
                 [](TransformNode *node) { return node->getGameObject()->isVisible(); },
                 action, args...);
         }
@@ -171,13 +173,15 @@ namespace Tiny3D
         template <typename VisitAction, typename ...Args>
         void visitAll(const VisitAction &action, Args &...args)
         {
-            dfs_visit(true, nullptr, action, args...);
+            int32_t depth = 0;
+            dfs_visit(depth, true, nullptr, action, args...);
         }
 
         template <typename VisitAction, typename ...Args>
         void reverseVisitActive(const VisitAction &action, Args &...args)
         {
-            dfs_visit(false,
+            int32_t depth = 0;
+            dfs_visit(depth, false,
                 [](TransformNode *node) { return node->getGameObject()->isActive(); },
                 action, args...);
         }
@@ -185,7 +189,8 @@ namespace Tiny3D
         template <typename VisitAction, typename ...Args>
         void reverseVisitVisible(const VisitAction &action, Args &...args)
         {
-            dfs_visit(false,
+            int32_t depth = 0;
+            dfs_visit(depth, false,
                 [](TransformNode *node) { return node->getGameObject()->isVisible(); },
                 action, args...);
         }
@@ -193,7 +198,8 @@ namespace Tiny3D
         template <typename VisitAction, typename ...Args>
         void reverseVisitAll(const VisitAction &action, Args &...args)
         {
-            dfs_visit(false, nullptr, action, args...);
+            int32_t depth = 0;
+            dfs_visit(depth, false, nullptr, action, args...);
         }
 
         const UUID &getKey() const override { return getUUID(); }
@@ -217,6 +223,8 @@ namespace Tiny3D
         void setUserData(void *data) { mUserData = data; }
 
         void *getUserData() const { return mUserData; }
+        
+        virtual String printHierarchy(bool outputLog = true);
         
     protected:
         TransformNode() = default;

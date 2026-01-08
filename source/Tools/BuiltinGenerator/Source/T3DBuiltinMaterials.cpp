@@ -177,7 +177,7 @@ namespace Tiny3D
         // T3D_ASSERT(material->hasVectorArray(tiny3d_SpotLightAttenuation));
         material->setVectorArray(tiny3d_SpotLightAttenuation, values);
         // bone matrices
-        Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
+        Matrix4Array matrices(T3D_MAX_SKIN_BONES, Matrix4::IDENTITY);
         const char *tiny3d_BoneMatrices = "tiny3d_BoneMatrices";
         // T3D_ASSERT(material->hasMatrixArray(tiny3d_BoneMatrices));
         material->setMatrixArray(tiny3d_BoneMatrices, matrices);

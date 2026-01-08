@@ -1129,6 +1129,6 @@ void SkeletalAnimationApp::initMaterialData(Tiny3D::Material *material)
     material->setVectorArray("tiny3d_SpotLightDir", values);
     material->setVectorArray("tiny3d_SpotLightAttenuation", values);
     // bone matrices
-    Matrix4Array matrices(T3D_MAX_BONE_MATRICES, Matrix4::IDENTITY);
+    Matrix4Array matrices(T3D_MAX_SKIN_BONES, Matrix4::IDENTITY);
     material->setMatrixArray("tiny3d_BoneMatrices", matrices);
 }

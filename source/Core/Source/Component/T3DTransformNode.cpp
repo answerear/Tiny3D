@@ -486,6 +486,24 @@ namespace Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    String TransformNode::printHierarchy(bool outputLog)
+    {
+        String output;
+        visitAll([&output](int32_t depth, const TransformNode *node)
+        {
+            String indent(depth * 2, ' ');
+            output += indent + node->getGameObject()->getName();
+            output += "\n";
+        });
+        if (outputLog)
+        {
+            T3D_LOG_DEBUG(LOG_TAG_COMPONENT, "Hierarchy : \n%s", output.c_str());
+        }
+        return output;
+    }
+    
+    //--------------------------------------------------------------------------
 #endif
 }
 

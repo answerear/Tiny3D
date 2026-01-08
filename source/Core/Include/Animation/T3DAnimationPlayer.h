@@ -28,6 +28,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "T3DConfig.h"
 
 
 namespace Tiny3D
@@ -141,11 +142,11 @@ namespace Tiny3D
         int64_t mStartTimestamp {0};
 
         /// 平移轨道当前帧号
-        uint32_t mCurrentFrameT {0};
+        uint32_t mCurrentFrameT[T3D_MAX_SKIN_BONES] {0};
         /// 旋转轨道当前帧号
-        uint32_t mCurrentFrameO {0};
+        uint32_t mCurrentFrameO[T3D_MAX_SKIN_BONES] {0};
         /// 缩放轨道当前帧号
-        uint32_t mCurrentFrameS {0};
+        uint32_t mCurrentFrameS[T3D_MAX_SKIN_BONES] {0};
 
         /// 是否在播放中
         bool mIsPlaying {false};

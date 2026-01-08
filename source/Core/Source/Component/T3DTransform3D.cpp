@@ -260,34 +260,56 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Transform3D::debugInfo(int32_t tab)
+    // void Transform3D::debugInfo(int32_t tab)
+    // {
+    //     std::stringstream ss;
+    //     for (int32_t i = 0; i < tab; i++)
+    //     {
+    //         ss << "\t";
+    //     }
+    //
+    //     const Transform &worldXform = getLocalToWorldTransform();
+    //     
+    //     T3D_LOG_INFO(LOG_TAG_COMPONENT, "%sTransform 3D - %s, "
+    //         "Local : T %s, Q %s, S %s"
+    //         "    World : T (%f, %f, %f), R (%f, %f, %f, %f), S (%f, %f, %f)",
+    //         ss.str().c_str(), getGameObject()->getName().c_str(),
+    //         mPosition.getDebugString().c_str(),
+    //         mOrientation.getDebugString().c_str(),
+    //         mScaling.getDebugString().c_str(),
+    //         worldXform.getTranslation().getDebugString().c_str(),
+    //         worldXform.getOrientation().getDebugString().c_str(),
+    //         worldXform.getScaling().getDebugString().c_str());
+    //
+    //     tab++;
+    //     
+    //     for (auto itr = child_begin(); itr != child_end(); ++itr)
+    //     {
+    //         Transform3D *node = static_cast<Transform3D*>(itr->get());
+    //         node->debugInfo(tab);
+    //     }
+    // }
+
+    String Transform3D::printHierarchy(bool outputLog)
     {
-        std::stringstream ss;
-        for (int32_t i = 0; i < tab; i++)
+        String output;
+        visitAll([&output](int32_t depth, const TransformNode *node)
         {
-            ss << "\t";
-        }
-
-        const Transform &worldXform = getLocalToWorldTransform();
-        
-        T3D_LOG_INFO(LOG_TAG_COMPONENT, "%sTransform 3D - %s, "
-            "Local : T %s, Q %s, S %s"
-            "    World : T (%f, %f, %f), R (%f, %f, %f, %f), S (%f, %f, %f)",
-            ss.str().c_str(), getGameObject()->getName().c_str(),
-            mPosition.getDebugString().c_str(),
-            mOrientation.getDebugString().c_str(),
-            mScaling.getDebugString().c_str(),
-            worldXform.getTranslation().getDebugString().c_str(),
-            worldXform.getOrientation().getDebugString().c_str(),
-            worldXform.getScaling().getDebugString().c_str());
-
-        tab++;
-        
-        for (auto itr = child_begin(); itr != child_end(); ++itr)
+            String indent(depth * 2, ' ');
+            const Transform3D *xformNode = static_cast<const Transform3D*>(node);
+            std::stringstream ss;
+            ss << indent;
+            ss << node->getGameObject()->getName();
+            ss << " - T:" << xformNode->getPosition().getDebugString()
+               << ", E:" << xformNode->getRotation().getDebugString()
+               << ", S:" << xformNode->getScaling().getDebugString() << std::endl;
+            output += ss.str();
+        });
+        if (outputLog)
         {
-            Transform3D *node = static_cast<Transform3D*>(itr->get());
-            node->debugInfo(tab);
+            T3D_LOG_DEBUG(LOG_TAG_COMPONENT, "Hierarchy : \n%s", output.c_str());
         }
+        return output;
     }
 
     //--------------------------------------------------------------------------

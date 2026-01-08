@@ -105,7 +105,7 @@ namespace Tiny3D
                 // 最后一帧，直接用最后一帧的数据
                 frame = i;
                 frame0 = current;
-                frame1 = nullptr;
+                frame1 = next;
                 found = true;
                 break;
             }
@@ -162,9 +162,9 @@ namespace Tiny3D
             }
 
             mStartTimestamp = DateTime::currentMSecsSinceEpoch();
-            mCurrentFrameT = 0;
-            mCurrentFrameO = 0;
-            mCurrentFrameS = 0;
+            memset(mCurrentFrameT, 0, sizeof(mCurrentFrameT));
+            memset(mCurrentFrameO, 0, sizeof(mCurrentFrameO));
+            memset(mCurrentFrameS, 0, sizeof(mCurrentFrameS));
             
             mIsPlaying = true;
             mIsLoop = isLoop;
@@ -287,61 +287,63 @@ namespace Tiny3D
 
                 // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
             
-                for (const auto &it : tracks)
+                // 重要：按照骨骼层次结构顺序更新（使用BoneGameObjects数组，它按照父子顺序存储）
+                // 这样可以确保父骨骼的世界变换先于子骨骼更新
+                const BoneGameObjects &boneGameObjects = mSkinnedGeometry->getBoneGameObjects();
+                for (size_t i = 0; i < boneGameObjects.size(); i++)
                 {
-                    AnimationTrack *track = it.second;
+                    GameObject *boneGO = boneGameObjects[i];
+                    const String &boneName = boneGO->getName();
+                    
+                    // 查找对应的动画轨道
+                    const auto trackIt = tracks.find(boneName);
+                    if (trackIt == tracks.end())
+                    {
+                        // 该骨骼没有动画轨道，跳过
+                        continue;
+                    }
+                    
+                    AnimationTrack *track = trackIt->second;
 
                     // 差值计算平移
                     const TranslationTrack &trackT = track->getTranslationTrack();
                     Vector3 translation;
-                    mCurrentFrameT = interpolateTranslation(mCurrentFrameT, elapsed, trackT, translation);
+                    mCurrentFrameT[i] = interpolateTranslation(mCurrentFrameT[i], elapsed, trackT, translation);
 
                     // 差值计算旋转
                     const OrientationTrack &trackO = track->getOrientationTrack();
                     Quaternion orientation;
-                    mCurrentFrameO = interpolateOrientation(mCurrentFrameO, elapsed, trackO, orientation);
+                    mCurrentFrameO[i] = interpolateOrientation(mCurrentFrameO[i], elapsed, trackO, orientation);
 
                     // 差值计算缩放
                     const ScalingTrack &trackS = track->getScalingTrack();
                     Vector3 scaling;
-                    mCurrentFrameS = interpolateScaling(mCurrentFrameS, elapsed, trackS, scaling);
+                    mCurrentFrameS[i] = interpolateScaling(mCurrentFrameS[i], elapsed, trackS, scaling);
 
                     // 更新对应骨骼的 RTS
-                    const auto itr = bones.find(it.first);
-                    if (itr == bones.end())
-                    {
-                        // 没有对应的骨骼，这里要报错了
-                        T3D_LOG_ERROR(LOG_TAG_ANIMATION,
-                            "Could not find the corresponding bone [%s] in skinned geometry hierarchy !",
-                            it.first.c_str());
-                        continue;
-                    }
-
-                    Transform3D *xform = static_cast<Transform3D *>(itr->second->getTransformNode());
-                    if (mCurrentFrameT != static_cast<uint32_t>(-1))
+                    Transform3D *xform = static_cast<Transform3D *>(boneGO->getTransformNode());
+                    if (mCurrentFrameT[i] != static_cast<uint32_t>(-1))
                     {
                         xform->setPosition(translation);
                     }
-                    if (mCurrentFrameO != static_cast<uint32_t>(-1))
+                    if (mCurrentFrameO[i] != static_cast<uint32_t>(-1))
                     {
                         xform->setOrientation(orientation);
                     }
-                    if (mCurrentFrameS != static_cast<uint32_t>(-1))
+                    if (mCurrentFrameS[i] != static_cast<uint32_t>(-1))
                     {
                         xform->setScaling(scaling);
                     }
 
-// #if defined (T3D_DEBUG)
-//                     Matrix3 matR;
-//                     xform->getOrientation().toRotationMatrix(matR);
-//                     Radian xAngle, yAngle, zAngle;
-//                     matR.toEulerAnglesZXY(zAngle, xAngle, yAngle);
-//                     T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Translation : (%f, %f, %f), Euler Angle : (%f, %f, %f), Scaling : (%f, %f, %f)",
-//                         it.first.c_str(),
-//                         xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
-//                         xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-//                         xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
-// #endif
+#if defined (T3D_DEBUG)
+                    Radian xAngle, yAngle, zAngle;
+                    xform->getRotation(xAngle, yAngle, zAngle);
+                    T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Elapse %u, Translation[%u] : (%f, %f, %f), Euler Angle[%u] : (%f, %f, %f), Scaling[%u] : (%f, %f, %f)",
+                        boneName.c_str(), elapsed,
+                        mCurrentFrameT[i], xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
+                        mCurrentFrameO[i], xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+                        mCurrentFrameS[i], xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
+#endif
                 }
 
                 if (elapsed >= clip->getDuration())
@@ -350,9 +352,9 @@ namespace Tiny3D
                     {
                         // 重置播放时间
                         mStartTimestamp = DateTime::currentMSecsSinceEpoch();
-                        mCurrentFrameT = 0;
-                        mCurrentFrameO = 0;
-                        mCurrentFrameS = 0;
+                        memset(&mCurrentFrameT, 0, sizeof(mCurrentFrameT));
+                        memset(mCurrentFrameO, 0, sizeof(mCurrentFrameO));
+                        memset(mCurrentFrameS, 0, sizeof(mCurrentFrameS));
                     }
                     else
                     {
@@ -383,6 +385,7 @@ namespace Tiny3D
 
     void AnimationPlayer::CPUSkinning()
     {
+        static uint32_t frameCount = 0;
 // #if defined (T3D_DEBUG)
 //         int64_t currentTS = DateTime::currentMSecsSinceEpoch();
 //         uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
@@ -399,6 +402,12 @@ namespace Tiny3D
 //             frameCount = t;
 //         }
 // #endif
+        
+        frameCount++;
+        if (frameCount > 1)
+        {
+            // return;
+        }
         
         // CPU 蒙皮
         SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
@@ -554,14 +563,14 @@ namespace Tiny3D
         Material *material = mSkinnedGeometry->getMaterial();
         T3D_ASSERT(material != nullptr);
         const auto &transforms = mSkinnedGeometry->getBoneGameObjects();
-        Matrix4 matrices[T3D_MAX_BONE_MATRICES] = { Matrix4::IDENTITY };
+        Matrix4 matrices[T3D_MAX_SKIN_BONES] = { Matrix4::IDENTITY };
         for (int32_t i = 0; i < bones.size(); i++)
         {
             const Matrix4 &mat = static_cast<Transform3D *>(transforms[i]->getTransformNode())->getLocalToWorldTransform().getAffineMatrix();
             const Matrix4 &matOffset = bones[i]->getOffsetMatrix();
             matrices[i] = mat * matOffset;
         }
-        Matrix4Array matrixArray(matrices, matrices+T3D_MAX_BONE_MATRICES);
+        Matrix4Array matrixArray(matrices, matrices+T3D_MAX_SKIN_BONES);
         material->setMatrixArray("tiny3d_BoneMatrices", matrixArray);
     }
 
@@ -584,6 +593,10 @@ namespace Tiny3D
         
         if (getKeyframe(startFrame, time, track, kf0, kf1, currentFrame))
         {
+            T3D_LOG_DEBUG(LOG_TAG_ANIMATION, 
+                "interpolateTranslation: time in range, startFrame %u, time %u, currentFrame %u",
+                startFrame, time, currentFrame)
+            
             if (kf1 != nullptr)
             {
                 // 位于两帧之间，插值
@@ -598,6 +611,13 @@ namespace Tiny3D
                 KfTranslation *keyframe = static_cast<KfTranslation *>(kf0);
                 translation = keyframe->getTranslation();
             }
+        }
+        else if (!track.empty())
+        {
+            // 找不到关键帧（可能时间超出范围），使用最后一帧的数据
+            currentFrame = static_cast<uint32_t>(track.size() - 1);
+            KfTranslation *keyframe = static_cast<KfTranslation *>(track[currentFrame]);
+            translation = keyframe->getTranslation();
         }
         
         return currentFrame;
@@ -627,6 +647,14 @@ namespace Tiny3D
                 orientation = keyframe->getOrientation();
             }
         }
+        else if (!track.empty())
+        {
+            // 找不到关键帧（可能时间超出范围），使用最后一帧的数据
+            currentFrame = static_cast<uint32_t>(track.size() - 1);
+            KfOrientation *keyframe = static_cast<KfOrientation *>(track[currentFrame]);
+            orientation = keyframe->getOrientation();
+            T3D_LOG_WARNING(LOG_TAG_ANIMATION, "interpolateOrientation: time out of range, using last frame")
+        }
         
         return currentFrame;
     }
@@ -654,6 +682,13 @@ namespace Tiny3D
                 KfScaling *keyframe = static_cast<KfScaling *>(kf0);
                 scaling = keyframe->getScaling();
             }
+        }
+        else if (!track.empty())
+        {
+            // 找不到关键帧（可能时间超出范围），使用最后一帧的数据
+            currentFrame = static_cast<uint32_t>(track.size() - 1);
+            KfScaling *keyframe = static_cast<KfScaling *>(track[currentFrame]);
+            scaling = keyframe->getScaling();
         }
         
         return currentFrame;

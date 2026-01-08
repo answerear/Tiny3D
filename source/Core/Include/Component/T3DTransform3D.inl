@@ -137,6 +137,15 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    inline Vector3 Transform3D::getRotation() const
+    {
+        Radian pitch, yaw, roll;
+        getRotation(pitch, yaw, roll);
+        return Vector3(pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees());
+    }
+    
+    //--------------------------------------------------------------------------
+
     inline void Transform3D::translate(const Vector3 &offset)
     {
         if (offset != Vector3::ZERO)

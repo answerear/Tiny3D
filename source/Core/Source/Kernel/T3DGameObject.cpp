@@ -150,7 +150,7 @@ namespace Tiny3D
         TransformNodePtr node = getComponent<TransformNode>();
         if (node != nullptr)
         {
-            node->visitActive([](TransformNode *node)
+            node->visitActive([](int32_t depth, TransformNode *node)
             {
                 GameObject *go = node->getGameObject();
                 go->onUpdate();
@@ -194,7 +194,7 @@ namespace Tiny3D
         if (node != nullptr && camera != nullptr)
         {
             FrustumBound *frustum = camera->getGameObject()->getComponent<FrustumBound>();
-            node->visitVisible([](TransformNode *node, Camera *camera, FrustumBound *frustum, RenderPipeline *pipeline)
+            node->visitVisible([](int32_t depth, TransformNode *node, Camera *camera, FrustumBound *frustum, RenderPipeline *pipeline)
             {
                 GameObject *go = node->getGameObject();
                 Renderable *renderable = go->getComponent<Renderable>();
@@ -227,7 +227,7 @@ namespace Tiny3D
         TransformNodePtr node = getComponent<TransformNode>();
         if (node != nullptr)
         {
-            node->visitVisible([](TransformNode *node, RenderPipeline *pipeline)
+            node->visitVisible([](int32_t depth, TransformNode *node, RenderPipeline *pipeline)
             {
                 GameObject *go = node->getGameObject();
                 Light *light = go->getComponent<Light>();
@@ -246,7 +246,7 @@ namespace Tiny3D
         TransformNodePtr node = gameObject->getComponent<TransformNode>();
         if (node != nullptr)
         {
-            node->reverseVisitAll([](TransformNode *node)
+            node->reverseVisitAll([](int32_t depth, TransformNode *node)
             {
                 node->getGameObject()->removeAllComponents();
                 destroyGameObject(node->getGameObject());

@@ -74,6 +74,8 @@ namespace Tiny3D
         void getRotation(Radian &pitch, Radian &yaw, Radian &roll) const;
 
         void getRotation(Degree &pitch, Degree &yaw, Degree &roll) const;
+        
+        Vector3 getRotation() const;
 
         void translate(const Vector3 &offset);
 
@@ -160,8 +162,10 @@ namespace Tiny3D
         void addScalingChangedCallback(Component *component, const ScalingChangedCallback &callback);
 
         void removeScalingChangedCallback(Component *component);
+        
+        String printHierarchy(bool outputLog) override;
 
-        void debugInfo(int32_t tab = 0);
+        // void debugInfo(int32_t tab = 0);
         
     protected:
         Transform3D() = default;

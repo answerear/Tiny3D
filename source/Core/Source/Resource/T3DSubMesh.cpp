@@ -27,6 +27,7 @@
 #include "Render/T3DRenderResourceManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
+#include "Render/T3DIndexBuffer.h"
 
 
 namespace Tiny3D

@@ -266,23 +266,25 @@ namespace Tiny3D
         }
 
         template<typename VisitAction, typename... Args>
-        void dfs_visit(bool selfFirst, const QueryAction &query, const VisitAction &action, Args &&... args)
+        void dfs_visit(int32_t depth, bool selfFirst, const QueryAction &query, const VisitAction &action, Args &&... args)
         {
             if (query == nullptr || query(static_cast<pointer_t>(this)))
             {
                 if (selfFirst)
                 {
-                    action(static_cast<pointer_t>(this), std::forward<Args>(args)...);
+                    action(depth, static_cast<pointer_t>(this), std::forward<Args>(args)...);
                 }
 
+                depth++;
                 for (auto &child : mChildren)
                 {
-                    child->dfs_visit(selfFirst, query, action, std::forward<Args>(args)...);
+                    child->dfs_visit(depth, selfFirst, query, action, std::forward<Args>(args)...);
                 }
+                depth--;
 
                 if (!selfFirst)
                 {
-                    action(static_cast<pointer_t>(this), std::forward<Args>(args)...);
+                    action(depth, static_cast<pointer_t>(this), std::forward<Args>(args)...);
                 }
             }
         }
