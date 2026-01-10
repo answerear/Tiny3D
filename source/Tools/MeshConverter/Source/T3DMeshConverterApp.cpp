@@ -22,6 +22,7 @@
 #include "T3DConverterOptions.h"
 #include "T3DConverterCommand.h"
 #include "T3DFBXImporter.h"
+#include "T3DFBXImporterNew.h"
 #include "T3DEngineImporter.h"
 #include "T3DEngineExporter.h"
 
@@ -74,7 +75,7 @@ namespace Tiny3D
             switch (opts.srcFileType)
             {
             case MeshFileType::kFbx:
-                importer = FBXImporter::create();
+                importer = FBXImporterNew::create();
                 break;
             case MeshFileType::kOgre:
                 break;
@@ -96,6 +97,10 @@ namespace Tiny3D
             }
             
             Assets assets;
+
+            ScenePtr scene = T3D_SCENE_MGR.createScene("__TEMP__");
+            scene->init();
+            T3D_SCENE_MGR.setCurrentScene(scene);
 
             // 导入资源
             ret = importer->run(opts, assets);
@@ -136,6 +141,10 @@ namespace Tiny3D
             {
                 break;
             }
+
+            T3D_SCENE_MGR.unloadScene(scene);
+            scene = nullptr;
+            T3D_SCENE_MGR.setCurrentScene(nullptr);
         } while (false);
         
         return ret;

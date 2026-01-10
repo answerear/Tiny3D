@@ -22,6 +22,7 @@
 
 // For debug
 // Text : -o tmesh -b sphere -t -a -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Tiny3DStandard.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx $(SolutionDir)..\..\assets\samples\meshes
+// Text : -o Tiny3D -b sphere -t -a -r $(SolutionDir)..\..\assets\editor\builtin -d materials\Tiny3DStandard.tmat $(SolutionDir)..\..\assets\samples\raw\tortoise.fbx $(SolutionDir)..\..\assets\samples\meshes
 
 
 int main(int argc, char *argv[])

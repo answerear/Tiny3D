@@ -52,6 +52,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
 
+
 if (TINY3D_OS_WINDOWS)
     add_compile_options("/wd4251")
     

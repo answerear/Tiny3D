@@ -62,12 +62,18 @@ namespace Tiny3D
 
         /// 加载默认材质
         TResult loadDefaultMaterial(const String &rootPath, const String &relativePath);
+        
+        TResult processFbxScene(FbxScene *lFbxScene);
+
+        TResult processFbxNode(FbxNode *lFbxNode, GameObject *goParent);
+
+        TResult processFbxMesh(FbxNode *lFbxNode);
 
         /// 处理静态网格
         TResult processStaticMesh(FbxScene *lFbxScene);
 
         /// 获取 FBX 网格节点
-        TResult getFbxMeshNode(FbxNode *lNode);
+        TResult getFbxMeshNode(FbxNode *lNode, bool hasSkin);
 
         /// 处理 FBX 网格节点
         TResult processFbxMeshNode(FbxNode *lNode);
@@ -102,8 +108,47 @@ namespace Tiny3D
         /// 处理骨架
         TResult processSkeleton(FbxScene *lFbxScene);
 
+        /// 递归获取骨架结构
+        TResult getSkeleton(FbxScene *lFbxScene, FbxNode *lFbxNode, GameObjectPtr parent);
+
+        /// 提取并计算 offset matrix
+        TResult getOffsetMatrix(FbxMesh *lFbxMesh);
+
+        /// 提取蒙皮网格的混合权重和索引
+        TResult extractBlendWeightsAndIndices(FbxScene *lFbxScene, FbxNode *lFbxNode, const TMap<String, uint8_t> &boneNameToIndexMap);
+
+        /// 处理单个网格的混合数据
+        TResult processMeshBlendData(FbxMesh *lFbxMesh, const TMap<String, uint8_t> &boneNameToIndexMap);
+
+        /// 根据骨架层次结构，生成骨骼信息索引表
+        TResult generateBones();
+
+        /// 创建骨架
+        TResult createSkeleton();
+
         /// 处理动画
         TResult processAnimation(FbxScene *lFbxScene);
+        
+        /// 提取平移关键帧（内部辅助函数）
+        void extractTranslationKeyframes(FbxAnimCurveNode *lCurveNode, 
+            const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+            TranslationTrack &track);
+
+        /// 提取旋转关键帧（内部辅助函数）
+        void extractRotationKeyframes(FbxAnimCurveNode *lCurveNode, 
+            const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+            OrientationTrack &track);
+
+        /// 提取缩放关键帧（内部辅助函数）
+        void extractScalingKeyframes(FbxAnimCurveNode *lCurveNode, 
+            const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+            ScalingTrack &track);
+
+        Vector3 FbxPointToTinyVector3Remap(const FbxVector4 &lFbxPos) const;
+
+        Quaternion FbxEulerToTinyQuaternion(const FbxVector4 &lFbxEuler) const;
+
+        Vector3 FbxPointToTinyVector3(const FbxVector4 &lFbxPos) const;
         
     protected:
         FbxManager *mFbxManager {nullptr};
@@ -116,6 +161,22 @@ namespace Tiny3D
 
         using Materials = TUnorderedMap<String, MaterialPtr>;
         using Textures = TUnorderedMap<String, TexturePtr>;
+
+        struct BoneInfo
+        {
+            GameObject *gameObject {nullptr};
+            Matrix4 offsetMatrix {Matrix4::IDENTITY};
+        };
+        
+        using BoneInfoMap = TMap<String, BoneInfo>;
+
+        using FbxNodeLUT = TUnorderedMap<FbxNode*, GameObjectPtr>;
+        using FbxMeshLUT = TUnorderedMap<FbxMesh*, MeshData*>;
+
+        struct MeshData
+        {
+            
+        };
 
         /// 顶点数据
         Vector3Array mVertices {};
@@ -134,8 +195,42 @@ namespace Tiny3D
         /// 索引数据
         IndexArray mIndices {};
 
+        /// 每个顶点对应的控制点索引（用于映射 blend weights）
+        TArray<int32_t> mVertexToControlPointMap {};
+
+        /// 混合权重数据（用于蒙皮网格）
+        TArray<TArray<float32_t>> mBlendWeights {};
+        /// 混合索引数据（用于蒙皮网格）
+        TArray<TArray<uint8_t>> mBlendIndices {};
+
         /// 子网格
         SubMeshes mSubMeshes {};
+
+        /// 蒙皮网格的平移、旋转、缩放
+        Vector3 mMeshT {Vector3::ZERO};
+        Quaternion mMeshQ {Quaternion::IDENTITY};
+        Vector3 mMeshS {Vector3::UNIT_SCALE};
+
+        /// 骨架信息
+        Bones mBones {};
+
+        /// 骨架对应的 Game Object 映射表，方便后续生成索引表
+        BoneInfoMap mBoneMap {};
+
+        /// 动画片段集合
+        AnimationClips mAnimationClips {};
+
+        GameObjectPtr mRoot {nullptr};
+
+        SkeletonPtr mSkeleton {nullptr};
+
+        SkeletalAnimationPtr mAnimation {nullptr};
+        
+        /// FBXNode 查找 Game Object 映射表
+        FbxNodeLUT mFbxNodesToGameObjects {};
+
+        /// FBXMesh 查找 MeshData 映射表
+        FbxMeshLUT mFbxMeshes {};
 
         /// 默认材质
         /// 1、FBX 材质是自定义的时候，直接用默认材质
