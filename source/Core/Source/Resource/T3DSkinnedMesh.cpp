@@ -128,12 +128,6 @@ namespace Tiny3D
             {
                 break;
             }
-            
-            // ret = generateRenderResource(archive);
-            // if (T3D_FAILED(ret))
-            // {
-            //     break;
-            // }
         } while (false);
         return ret;
     }
