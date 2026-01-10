@@ -440,6 +440,13 @@ namespace Tiny3D
         {
             FbxGlobalSettings &lFbxGlobalSettings = lFbxScene->GetGlobalSettings();
 
+            FbxTime::EMode timeMode = lFbxScene->GetGlobalSettings().GetTimeMode();
+            if (timeMode != FbxTime::eCustom)
+                mFbxFrameRate = FbxTime::GetFrameRate(timeMode);
+            else
+                mFbxFrameRate = lFbxGlobalSettings.GetCustomFrameRate();
+            mFbxSampleRate = 1.0 / mFbxFrameRate;
+            
             // 统一转成 DirectX 坐标系
             FbxAxisSystem lSceneAxisSystem = lFbxGlobalSettings.GetAxisSystem();
 #if defined (T3D_FBX_LOADER_RH)
@@ -1020,8 +1027,9 @@ namespace Tiny3D
 
             // 获取全局时间设置
             FbxTime::EMode timeMode = lFbxScene->GetGlobalSettings().GetTimeMode();
-            double frameRate = FbxTime::GetFrameRate(timeMode);
-            MCONV_LOG_INFO("Bone : %s, FBX time mode: %d, frame rate: %f", boneName.c_str(), timeMode, frameRate)
+            double frameRate = mFbxFrameRate;
+            double sampleRate = mFbxSampleRate;
+            MCONV_LOG_INFO("Bone : %s, FBX time mode: %d, frame rate: %f, sample rate : %f", boneName.c_str(), timeMode, frameRate, sampleRate)
 
             // 遍历所有动画栈
             for (int32_t stackIdx = 0; stackIdx < aniStackCount; stackIdx++)
@@ -1041,7 +1049,10 @@ namespace Tiny3D
                 FbxTime stopTime = timeSpan.GetStop();
                 
                 // 计算动画时长（转换为毫秒）
-                double durationSeconds = (stopTime.GetSecondDouble() - startTime.GetSecondDouble());
+                AnimationTimeRange range;
+                range.timeRangeStart = static_cast<float>(startTime.GetSecondDouble());
+                range.timeRangeEnd = static_cast<float>(stopTime.GetSecondDouble());
+                float durationSeconds = range.timeRangeEnd - range.timeRangeStart;
                 uint32_t durationMs = static_cast<uint32_t>(durationSeconds * 1000.0);
 
                 MCONV_LOG_INFO("Animation duration: %.3f seconds (%u ms)", durationSeconds, durationMs)
@@ -1055,6 +1066,8 @@ namespace Tiny3D
                 }
 
                 AnimationTracks &tracks = skelAniData->animationClips[aniStackName]->tracks;
+                
+                
 
                 // 遍历动画栈中的所有动画层
                 int32_t aniLayerCount = lFbxAniStack->GetMemberCount<FbxAnimLayer>();
@@ -1084,7 +1097,6 @@ namespace Tiny3D
                             FbxTime frameTime = lFbxTransCurve->KeyGetTime(k);
                             if (frameTime >= FBXSDK_TIME_ZERO)
                             {
-                                // FbxVector4 lFbxT = lFbxNode->EvaluateLocalTranslation(frameTime);
                                 FbxAMatrix lFbxM = lFbxNode->EvaluateLocalTransform(frameTime);
                                 FbxVector4 lFbxT = lFbxM.GetT();
                                 uint32_t time = static_cast<uint32_t>(frameTime.GetSecondDouble() * 1000.0);
@@ -1107,27 +1119,47 @@ namespace Tiny3D
                     FbxAnimCurve *lFbxRotationCurve = lFbxNode->LclRotation.GetCurve(lFbxAniLayer);
                     if (lFbxRotationCurve != nullptr)
                     {
-                        int nKeyframeCount = lFbxRotationCurve->KeyGetCount();
-                    
-                        int k = 0;
-                        for (k = 0; k < nKeyframeCount; ++k)
+                        float minimum, maximum;
+                        evaluateTimeRange(lFbxRotationCurve, range, minimum, maximum);
+                        int firstFrame = static_cast<int>(std::floorf(minimum / static_cast<float>(sampleRate)) + 0.5f);
+                        int lastFrame = static_cast<int>(std::floorf(maximum / static_cast<float>(sampleRate)) + 0.5f);
+                        lastFrame = std::max(firstFrame + 1, lastFrame);   // generate at least two keys at a minimum
+                        
+                        for (int32_t f = firstFrame; f <= lastFrame; f++)
                         {
-                            FbxTime frameTime = lFbxRotationCurve->KeyGetTime(k);
-                            if (frameTime >= FBXSDK_TIME_ZERO)
+                            float time = static_cast<float>(f) * static_cast<float>(sampleRate);
+                            FbxTime lFbxTime;
+                            lFbxTime.SetSecondDouble(time);
+                            FbxAMatrix lFbxM = lFbxNode->EvaluateLocalTransform(lFbxTime);
+                            FbxVector4 lFbxR = lFbxM.GetR();
+                            Quaternion q = FbxEulerToTinyQuaternion(lFbxR);
+                            uint32_t timeMs = static_cast<uint32_t>(time * 1000.0);
+                            KfOrientationPtr keyframe = KfOrientation::create(timeMs, q);
+                            if (keyframe != nullptr)
                             {
-                                // FbxVector4 lFbxR = lFbxNode->EvaluateLocalRotation(frameTime);
-                                FbxAMatrix lFbxM = lFbxNode->EvaluateLocalTransform(frameTime);
-                                FbxVector4 lFbxR = lFbxM.GetR();
-                                Quaternion q = FbxEulerToTinyQuaternion(lFbxR);
-                                uint32_t time = static_cast<uint32_t>(frameTime.GetSecondDouble() * 1000.0);
-                                KfOrientationPtr keyframe = KfOrientation::create(time, q);
-                                if (keyframe != nullptr)
-                                {
-                                    orientationTrack.emplace_back(keyframe);
-                                }
+                                orientationTrack.emplace_back(keyframe);
                             }
                         }
-                        
+                        // int nKeyframeCount = lFbxRotationCurve->KeyGetCount();
+                        //
+                        // int k = 0;
+                        // for (k = 0; k < nKeyframeCount; ++k)
+                        // {
+                        //     FbxTime frameTime = lFbxRotationCurve->KeyGetTime(k);
+                        //     if (frameTime >= FBXSDK_TIME_ZERO)
+                        //     {
+                        //         FbxAMatrix lFbxM = lFbxNode->EvaluateLocalTransform(frameTime);
+                        //         FbxVector4 lFbxR = lFbxM.GetR();
+                        //         Quaternion q = FbxEulerToTinyQuaternion(lFbxR);
+                        //         uint32_t time = static_cast<uint32_t>(frameTime.GetSecondDouble() * 1000.0);
+                        //         KfOrientationPtr keyframe = KfOrientation::create(time, q);
+                        //         if (keyframe != nullptr)
+                        //         {
+                        //             orientationTrack.emplace_back(keyframe);
+                        //         }
+                        //     }
+                        // }
+                        //
                         // 按时间排序
                         std::sort(orientationTrack.begin(), orientationTrack.end(), 
                             [](const KfOrientationPtr &a, const KfOrientationPtr &b) {
@@ -1146,7 +1178,6 @@ namespace Tiny3D
                             FbxTime frameTime = lFbxScaleCurve->KeyGetTime(k);
                             if (frameTime >= FBXSDK_TIME_ZERO)
                             {
-                                // FbxVector4 lFbxS = lFbxNode->EvaluateLocalScaling(frameTime);
                                 FbxAMatrix lFbxM = lFbxNode->EvaluateLocalTransform(frameTime);
                                 FbxVector4 lFbxS = lFbxM.GetS();
                                 uint32_t time = static_cast<uint32_t>(frameTime.GetSecondDouble() * 1000.0);
@@ -1212,305 +1243,364 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void FBXImporterNew::extractTranslationKeyframes(FbxAnimCurveNode *lCurveNode, 
-        const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
-        TranslationTrack &track)
+    void FBXImporterNew::evaluateTimeRange(FbxAnimCurve *lFbxCurve, const AnimationTimeRange &range, float &minimum, float &maximum) const
     {
-        track.clear();
+        minimum = std::numeric_limits<float>::infinity();
+        maximum = -std::numeric_limits<float>::infinity();
 
-        // 获取 X, Y, Z 轴的曲线
-        FbxAnimCurve *lCurveX = lCurveNode->GetCurve(0); // X
-        FbxAnimCurve *lCurveY = lCurveNode->GetCurve(1); // Y
-        FbxAnimCurve *lCurveZ = lCurveNode->GetCurve(2); // Z
-
-        // 收集所有关键帧时间点
-        TSet<uint32_t> keyTimes;
-
-        if (lCurveX != nullptr)
-        {
-            int32_t keyCount = lCurveX->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveX->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        if (lCurveY != nullptr)
-        {
-            int32_t keyCount = lCurveY->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveY->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        if (lCurveZ != nullptr)
-        {
-            int32_t keyCount = lCurveZ->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveZ->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        // 为每个关键帧时间点创建关键帧
-        for (uint32_t timeMs : keyTimes)
-        {
-            FbxTime fbxTime;
-            fbxTime.SetSecondDouble(timeMs / 1000.0);
-
-            float32_t x = 0.0f, y = 0.0f, z = 0.0f;
-
-            if (lCurveX != nullptr)
-            {
-                x = static_cast<float32_t>(lCurveX->Evaluate(fbxTime));
-            }
-            if (lCurveY != nullptr)
-            {
-                y = static_cast<float32_t>(lCurveY->Evaluate(fbxTime));
-            }
-            if (lCurveZ != nullptr)
-            {
-                z = static_cast<float32_t>(lCurveZ->Evaluate(fbxTime));
-            }
-
-            FbxVector4 lFbxT(x, y, z, 1.0);
-            Vector3 translation = FbxPointToTinyVector3Remap(lFbxT);
-            KfTranslationPtr keyframe = KfTranslation::create(timeMs, translation);
-            if (keyframe != nullptr)
-            {
-                track.emplace_back(keyframe);
-            }
-        }
-
-        // 按时间排序
-        std::sort(track.begin(), track.end(), 
-            [](const KfTranslationPtr &a, const KfTranslationPtr &b) {
-                return a->getTime() < b->getTime();
-            });
-    }
-
-    //--------------------------------------------------------------------------
-
-    void FBXImporterNew::extractRotationKeyframes(FbxAnimCurveNode *lCurveNode, 
-        const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
-        OrientationTrack &track)
-    {
-        track.clear();
-
-        const char* rotationName = "Lcl Rotation";
+        // for (int i = 0; i < 3; ++i)
+        // {
+        //     if (curve[i])
+        //     {
+        //         if (curve[i]->KeyGetCount())
+        //         {
+        //             float curMin = static_cast<float>(curve[i]->KeyGet(0).GetTime().GetSecondDouble());
+        //             float curMax = static_cast<float>(curve[i]->KeyGet(curve[i]->KeyGetCount() - 1).GetTime().GetSecondDouble());
+        //             if (curMin > range.timeRangeEnd || curMax < range.timeRangeStart)
+        //                 continue;
+        //
+        //             minimum = std::min<float>(curMin, minimum);
+        //             maximum = std::max<float>(curMax, maximum);
+        //         }
+        //     }
+        // }
         
-        // 获取 X, Y, Z 轴的曲线（Euler 角）
-        int32_t chnlIndex = lCurveNode->GetChannelIndex(FBXSDK_CURVENODE_COMPONENT_X);
-        FbxAnimCurve *lCurveX = lCurveNode->GetCurve(chnlIndex, 0, rotationName); // X (Pitch)
-        chnlIndex = lCurveNode->GetChannelIndex(FBXSDK_CURVENODE_COMPONENT_Y);
-        FbxAnimCurve *lCurveY = lCurveNode->GetCurve(chnlIndex, 0, rotationName); // Y (Yaw)
-        chnlIndex = lCurveNode->GetChannelIndex(FBXSDK_CURVENODE_COMPONENT_Z);
-        FbxAnimCurve *lCurveZ = lCurveNode->GetCurve(chnlIndex, 0, rotationName); // Z (Roll)
-
-        // 收集所有关键帧时间点
-        TSet<uint32_t> keyTimes;
-
-        if (lCurveX != nullptr)
+        float curMin = static_cast<float>(lFbxCurve->KeyGet(0).GetTime().GetSecondDouble());
+        float curMax = static_cast<float>(lFbxCurve->KeyGet(lFbxCurve->KeyGetCount() - 1).GetTime().GetSecondDouble());
+        if (curMin >= range.timeRangeStart && curMax <= range.timeRangeEnd)
         {
-            int32_t keyCount = lCurveX->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveX->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
+            minimum = std::max<float>(curMin, range.timeRangeStart);
+            maximum = std::min<float>(curMax, range.timeRangeEnd);
         }
-
-        if (lCurveY != nullptr)
-        {
-            int32_t keyCount = lCurveY->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveY->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        if (lCurveZ != nullptr)
-        {
-            int32_t keyCount = lCurveZ->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveZ->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        // 为每个关键帧时间点创建关键帧
-        for (uint32_t timeMs : keyTimes)
-        {
-            FbxTime fbxTime;
-            fbxTime.SetSecondDouble(timeMs / 1000.0);
-
-            float32_t x = 0.0f, y = 0.0f, z = 0.0f;
-
-            if (lCurveX != nullptr)
-            {
-                x = static_cast<float32_t>(lCurveX->Evaluate(fbxTime));
-            }
-            if (lCurveY != nullptr)
-            {
-                y = static_cast<float32_t>(lCurveY->Evaluate(fbxTime));
-            }
-            if (lCurveZ != nullptr)
-            {
-                z = static_cast<float32_t>(lCurveZ->Evaluate(fbxTime));
-            }
-
-            FbxVector4 lFbxR(x, y, z, 1.0f);
-
-            Quaternion orientation = FbxEulerToTinyQuaternion(lFbxR);
-
-            KfOrientationPtr keyframe = KfOrientation::create(timeMs, orientation);
-            if (keyframe != nullptr)
-            {
-                track.emplace_back(keyframe);
-            }
-        }
-
-        // 按时间排序
-        std::sort(track.begin(), track.end(), 
-            [](const KfOrientationPtr &a, const KfOrientationPtr &b)
-            {
-                return a->getTime() < b->getTime();
-            });
     }
-
+    
     //--------------------------------------------------------------------------
-
-    void FBXImporterNew::extractScalingKeyframes(FbxAnimCurveNode *lCurveNode, 
-        const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
-        ScalingTrack &track)
+    
+    void FBXImporterNew::setupTimeRange(FbxScene &fbxScene, FbxAnimStack &animStack, AnimationTimeRange &output) const
     {
-        track.clear();
-
-        // 获取 X, Y, Z 轴的曲线
-        FbxAnimCurve *lCurveX = lCurveNode->GetCurve(0); // X
-        FbxAnimCurve *lCurveY = lCurveNode->GetCurve(1); // Y
-        FbxAnimCurve *lCurveZ = lCurveNode->GetCurve(2); // Z
-
-        // 收集所有关键帧时间点
-        TSet<uint32_t> keyTimes;
-
-        if (lCurveX != nullptr)
+        FbxTimeSpan bakeTimeSpan = animStack.GetLocalTimeSpan();
+        // This is a special workaround for a change in FBXSDK 2012.2
+        // For some COLLADA files animStack->GetLocalTimeSpan() is [0 0]
+        // So we get animation range from keyframes themselves using GetAnimationInterval
+        if (bakeTimeSpan.GetDuration().GetSecondDouble() < std::numeric_limits<float>::epsilon())
         {
-            int32_t keyCount = lCurveX->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
+            FbxTimeSpan tempbakeTimeSpan;
+            const int animLayerCount = animStack.GetSrcObjectCount<FbxAnimLayer>();
+            bool isRangeValid = false;
+            for (int i = 0; i < animLayerCount; ++i)
+                isRangeValid = fbxScene.GetRootNode()->GetAnimationInterval(tempbakeTimeSpan, &animStack, i);
+            if (isRangeValid)
             {
-                FbxTime fbxTime = lCurveX->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
+                bakeTimeSpan = tempbakeTimeSpan;
             }
         }
 
-        if (lCurveY != nullptr)
-        {
-            int32_t keyCount = lCurveY->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveY->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        if (lCurveZ != nullptr)
-        {
-            int32_t keyCount = lCurveZ->KeyGetCount();
-            for (int32_t i = 0; i < keyCount; i++)
-            {
-                FbxTime fbxTime = lCurveZ->KeyGetTime(i);
-                if (fbxTime >= startTime && fbxTime <= stopTime)
-                {
-                    double seconds = fbxTime.GetSecondDouble();
-                    uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
-                    keyTimes.insert(timeMs);
-                }
-            }
-        }
-
-        // 为每个关键帧时间点创建关键帧
-        for (uint32_t timeMs : keyTimes)
-        {
-            FbxTime fbxTime;
-            fbxTime.SetSecondDouble(timeMs / 1000.0);
-
-            float32_t x = 1.0f, y = 1.0f, z = 1.0f; // 默认缩放为 1
-
-            if (lCurveX != nullptr)
-            {
-                x = static_cast<float32_t>(lCurveX->Evaluate(fbxTime));
-            }
-            if (lCurveY != nullptr)
-            {
-                y = static_cast<float32_t>(lCurveY->Evaluate(fbxTime));
-            }
-            if (lCurveZ != nullptr)
-            {
-                z = static_cast<float32_t>(lCurveZ->Evaluate(fbxTime));
-            }
-
-            FbxVector4 lFbxS(x, y, z, 1.0f);
-            Vector3 scaling = FbxPointToTinyVector3(lFbxS);
-            KfScalingPtr keyframe = KfScaling::create(timeMs, scaling);
-            if (keyframe != nullptr)
-            {
-                track.emplace_back(keyframe);
-            }
-        }
-
-        // 按时间排序
-        std::sort(track.begin(), track.end(), 
-            [](const KfScalingPtr &a, const KfScalingPtr &b) {
-                return a->getTime() < b->getTime();
-            });
+        output.timeRangeStart = static_cast<float>(bakeTimeSpan.GetStart().GetSecondDouble());
+        output.timeRangeEnd = static_cast<float>(bakeTimeSpan.GetStop().GetSecondDouble());
+        output.timeRangeOffset = -output.timeRangeStart;
     }
+    
+    //--------------------------------------------------------------------------
+    
+    // void FBXImporterNew::extractTranslationKeyframes(FbxAnimCurveNode *lCurveNode, 
+    //     const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+    //     TranslationTrack &track)
+    // {
+    //     track.clear();
+    //
+    //     // 获取 X, Y, Z 轴的曲线
+    //     FbxAnimCurve *lCurveX = lCurveNode->GetCurve(0); // X
+    //     FbxAnimCurve *lCurveY = lCurveNode->GetCurve(1); // Y
+    //     FbxAnimCurve *lCurveZ = lCurveNode->GetCurve(2); // Z
+    //
+    //     // 收集所有关键帧时间点
+    //     TSet<uint32_t> keyTimes;
+    //
+    //     if (lCurveX != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveX->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveX->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (lCurveY != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveY->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveY->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (lCurveZ != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveZ->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveZ->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     // 为每个关键帧时间点创建关键帧
+    //     for (uint32_t timeMs : keyTimes)
+    //     {
+    //         FbxTime fbxTime;
+    //         fbxTime.SetSecondDouble(timeMs / 1000.0);
+    //
+    //         float32_t x = 0.0f, y = 0.0f, z = 0.0f;
+    //
+    //         if (lCurveX != nullptr)
+    //         {
+    //             x = static_cast<float32_t>(lCurveX->Evaluate(fbxTime));
+    //         }
+    //         if (lCurveY != nullptr)
+    //         {
+    //             y = static_cast<float32_t>(lCurveY->Evaluate(fbxTime));
+    //         }
+    //         if (lCurveZ != nullptr)
+    //         {
+    //             z = static_cast<float32_t>(lCurveZ->Evaluate(fbxTime));
+    //         }
+    //
+    //         FbxVector4 lFbxT(x, y, z, 1.0);
+    //         Vector3 translation = FbxPointToTinyVector3Remap(lFbxT);
+    //         KfTranslationPtr keyframe = KfTranslation::create(timeMs, translation);
+    //         if (keyframe != nullptr)
+    //         {
+    //             track.emplace_back(keyframe);
+    //         }
+    //     }
+    //
+    //     // 按时间排序
+    //     std::sort(track.begin(), track.end(), 
+    //         [](const KfTranslationPtr &a, const KfTranslationPtr &b) {
+    //             return a->getTime() < b->getTime();
+    //         });
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void FBXImporterNew::extractRotationKeyframes(FbxAnimCurveNode *lCurveNode, 
+    //     const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+    //     OrientationTrack &track)
+    // {
+    //     track.clear();
+    //
+    //     const char* rotationName = "Lcl Rotation";
+    //     
+    //     // 获取 X, Y, Z 轴的曲线（Euler 角）
+    //     int32_t chnlIndex = lCurveNode->GetChannelIndex(FBXSDK_CURVENODE_COMPONENT_X);
+    //     FbxAnimCurve *lCurveX = lCurveNode->GetCurve(chnlIndex, 0, rotationName); // X (Pitch)
+    //     chnlIndex = lCurveNode->GetChannelIndex(FBXSDK_CURVENODE_COMPONENT_Y);
+    //     FbxAnimCurve *lCurveY = lCurveNode->GetCurve(chnlIndex, 0, rotationName); // Y (Yaw)
+    //     chnlIndex = lCurveNode->GetChannelIndex(FBXSDK_CURVENODE_COMPONENT_Z);
+    //     FbxAnimCurve *lCurveZ = lCurveNode->GetCurve(chnlIndex, 0, rotationName); // Z (Roll)
+    //
+    //     // 收集所有关键帧时间点
+    //     TSet<uint32_t> keyTimes;
+    //
+    //     if (lCurveX != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveX->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveX->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (lCurveY != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveY->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveY->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (lCurveZ != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveZ->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveZ->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     // 为每个关键帧时间点创建关键帧
+    //     for (uint32_t timeMs : keyTimes)
+    //     {
+    //         FbxTime fbxTime;
+    //         fbxTime.SetSecondDouble(timeMs / 1000.0);
+    //
+    //         float32_t x = 0.0f, y = 0.0f, z = 0.0f;
+    //
+    //         if (lCurveX != nullptr)
+    //         {
+    //             x = static_cast<float32_t>(lCurveX->Evaluate(fbxTime));
+    //         }
+    //         if (lCurveY != nullptr)
+    //         {
+    //             y = static_cast<float32_t>(lCurveY->Evaluate(fbxTime));
+    //         }
+    //         if (lCurveZ != nullptr)
+    //         {
+    //             z = static_cast<float32_t>(lCurveZ->Evaluate(fbxTime));
+    //         }
+    //
+    //         FbxVector4 lFbxR(x, y, z, 1.0f);
+    //
+    //         Quaternion orientation = FbxEulerToTinyQuaternion(lFbxR);
+    //
+    //         KfOrientationPtr keyframe = KfOrientation::create(timeMs, orientation);
+    //         if (keyframe != nullptr)
+    //         {
+    //             track.emplace_back(keyframe);
+    //         }
+    //     }
+    //
+    //     // 按时间排序
+    //     std::sort(track.begin(), track.end(), 
+    //         [](const KfOrientationPtr &a, const KfOrientationPtr &b)
+    //         {
+    //             return a->getTime() < b->getTime();
+    //         });
+    // }
+    //
+    // //--------------------------------------------------------------------------
+    //
+    // void FBXImporterNew::extractScalingKeyframes(FbxAnimCurveNode *lCurveNode, 
+    //     const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+    //     ScalingTrack &track)
+    // {
+    //     track.clear();
+    //
+    //     // 获取 X, Y, Z 轴的曲线
+    //     FbxAnimCurve *lCurveX = lCurveNode->GetCurve(0); // X
+    //     FbxAnimCurve *lCurveY = lCurveNode->GetCurve(1); // Y
+    //     FbxAnimCurve *lCurveZ = lCurveNode->GetCurve(2); // Z
+    //
+    //     // 收集所有关键帧时间点
+    //     TSet<uint32_t> keyTimes;
+    //
+    //     if (lCurveX != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveX->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveX->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (lCurveY != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveY->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveY->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (lCurveZ != nullptr)
+    //     {
+    //         int32_t keyCount = lCurveZ->KeyGetCount();
+    //         for (int32_t i = 0; i < keyCount; i++)
+    //         {
+    //             FbxTime fbxTime = lCurveZ->KeyGetTime(i);
+    //             if (fbxTime >= startTime && fbxTime <= stopTime)
+    //             {
+    //                 double seconds = fbxTime.GetSecondDouble();
+    //                 uint32_t timeMs = static_cast<uint32_t>(seconds * 1000.0);
+    //                 keyTimes.insert(timeMs);
+    //             }
+    //         }
+    //     }
+    //
+    //     // 为每个关键帧时间点创建关键帧
+    //     for (uint32_t timeMs : keyTimes)
+    //     {
+    //         FbxTime fbxTime;
+    //         fbxTime.SetSecondDouble(timeMs / 1000.0);
+    //
+    //         float32_t x = 1.0f, y = 1.0f, z = 1.0f; // 默认缩放为 1
+    //
+    //         if (lCurveX != nullptr)
+    //         {
+    //             x = static_cast<float32_t>(lCurveX->Evaluate(fbxTime));
+    //         }
+    //         if (lCurveY != nullptr)
+    //         {
+    //             y = static_cast<float32_t>(lCurveY->Evaluate(fbxTime));
+    //         }
+    //         if (lCurveZ != nullptr)
+    //         {
+    //             z = static_cast<float32_t>(lCurveZ->Evaluate(fbxTime));
+    //         }
+    //
+    //         FbxVector4 lFbxS(x, y, z, 1.0f);
+    //         Vector3 scaling = FbxPointToTinyVector3(lFbxS);
+    //         KfScalingPtr keyframe = KfScaling::create(timeMs, scaling);
+    //         if (keyframe != nullptr)
+    //         {
+    //             track.emplace_back(keyframe);
+    //         }
+    //     }
+    //
+    //     // 按时间排序
+    //     std::sort(track.begin(), track.end(), 
+    //         [](const KfScalingPtr &a, const KfScalingPtr &b) {
+    //             return a->getTime() < b->getTime();
+    //         });
+    // }
     
     //--------------------------------------------------------------------------
 

@@ -110,6 +110,13 @@ namespace Tiny3D
             /// 动画资源
             SkeletalAnimationPtr animation {nullptr};
         };
+        
+        struct AnimationTimeRange
+        {
+            float timeRangeStart {0.0f};
+            float timeRangeEnd {0.0f};
+            float timeRangeOffset {0.0f};
+        };
 
         using FbxNodeLUT = TUnorderedMap<FbxNode*, FbxNode*>;
         using FbxMeshNodeLUT = TUnorderedMap<FbxNode*, FbxMesh*>;
@@ -182,20 +189,24 @@ namespace Tiny3D
         /// 处理 FBX 骨骼动画
         TResult generateBoneAnimationTrack(FbxScene *lFbxScene, FbxNode *lFbxNode, SkeletalAnimationData *skelAniData);
 
-        /// 提取平移关键帧（内部辅助函数）
-        void extractTranslationKeyframes(FbxAnimCurveNode *lCurveNode, 
-            const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
-            TranslationTrack &track);
-
-        /// 提取旋转关键帧（内部辅助函数）
-        void extractRotationKeyframes(FbxAnimCurveNode *lCurveNode, 
-            const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
-            OrientationTrack &track);
-
-        /// 提取缩放关键帧（内部辅助函数）
-        void extractScalingKeyframes(FbxAnimCurveNode *lCurveNode, 
-            const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
-            ScalingTrack &track);
+        // /// 提取平移关键帧（内部辅助函数）
+        // void extractTranslationKeyframes(FbxAnimCurveNode *lCurveNode, 
+        //     const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+        //     TranslationTrack &track);
+        //
+        // /// 提取旋转关键帧（内部辅助函数）
+        // void extractRotationKeyframes(FbxAnimCurveNode *lCurveNode, 
+        //     const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+        //     OrientationTrack &track);
+        //
+        // /// 提取缩放关键帧（内部辅助函数）
+        // void extractScalingKeyframes(FbxAnimCurveNode *lCurveNode, 
+        //     const FbxTime &startTime, const FbxTime &stopTime, double frameRate, 
+        //     ScalingTrack &track);
+        
+        void setupTimeRange(FbxScene& fbxScene, FbxAnimStack& animStack, AnimationTimeRange& output) const;
+        
+        void evaluateTimeRange(FbxAnimCurve *lFbxCurve, const AnimationTimeRange &range, float &minimum, float &maximum) const;
 
         /// 生成骨架链接数据，主要一个是生成 binding pose 数据，一个是生成 skeleton 对应 mesh 的关系
         TResult generateMeshesLinkData();
@@ -273,6 +284,10 @@ namespace Tiny3D
         FbxManager *mFbxManager {nullptr};
 
         FbxScene *mFbxScene {nullptr};
+        
+        double mFbxFrameRate {0.0};
+        
+        double mFbxSampleRate {0.0};
 
         /// Fbx 骨骼所在 FbxNode 根节点查找 Fbx mesh 所在 FbxNode 根节点映射表
         /// key : 骨架根节点, value : 网格根节点
