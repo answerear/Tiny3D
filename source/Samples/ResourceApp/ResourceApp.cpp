@@ -119,10 +119,7 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
 void ResourceApp::applicationWillTerminate() 
 {
-    mCubeMesh = nullptr;
-    mPlaneMesh = nullptr;
-    mCubeMaterial = nullptr;
-    mPlaneMaterial = nullptr;
+    mMesh = nullptr;
 }
 
 void ResourceApp::buildCamera(Transform3D *parent)
@@ -187,15 +184,15 @@ void ResourceApp::loadMesh(Transform3D *parent)
     ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
     T3D_ASSERT(archive != nullptr);
     const String meshName = "tortoise.tmesh";
-    MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, meshName);
-    T3D_ASSERT(mesh != nullptr);
+    mMesh = T3D_MESH_MGR.loadMesh(archive, meshName);
+    T3D_ASSERT(mMesh != nullptr);
 
     GeometryPtr geometry;
-    if (mesh->getType() == Resource::Type::kMesh)
+    if (mMesh->getType() == Resource::Type::kMesh)
     {
         geometry = go->addComponent<Geometry>();
     }
-    else if (mesh->getType() == Resource::Type::kSkinnedMesh)
+    else if (mMesh->getType() == Resource::Type::kSkinnedMesh)
     {
         geometry = go->addComponent<SkinnedGeometry>();
     }
@@ -207,7 +204,7 @@ void ResourceApp::loadMesh(Transform3D *parent)
     StringArray enableKeywrods;
     enableKeywrods.push_back("");
     StringArray disableKeywords;
-    for (auto submesh : mesh->getSubMeshes())
+    for (auto submesh : mMesh->getSubMeshes())
     {
         Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
         T3D_ASSERT(material != nullptr);
@@ -215,15 +212,15 @@ void ResourceApp::loadMesh(Transform3D *parent)
         T3D_ASSERT(T3D_SUCCEEDED(ret));
     }
 
-    for (const auto submesh : mesh->getSubMeshes())
+    for (const auto submesh : mMesh->getSubMeshes())
     {
-        geometry->setMeshObject(mesh, submesh.second);
+        geometry->setMeshObject(mMesh, submesh.second);
         break;
     }
 
-    if (mesh->getType() == Resource::Type::kSkinnedMesh)
+    if (mMesh->getType() == Resource::Type::kSkinnedMesh)
     {
-        SkinnedMesh *skinnedMesh = smart_pointer_cast<SkinnedMesh>(mesh);
+        SkinnedMesh *skinnedMesh = smart_pointer_cast<SkinnedMesh>(mMesh);
         T3D_ASSERT(skinnedMesh != nullptr);
         SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
         T3D_ASSERT(skeletalAni != nullptr);
@@ -236,7 +233,7 @@ void ResourceApp::loadMesh(Transform3D *parent)
         T3D_ASSERT(skinnedGeometry != nullptr);
         skinnedGeometry->setGPUSkinning(false);
         const String &defaultClip = skinnedGeometry->getDefaultClipName();
-        skinnedGeometry->play(defaultClip, true);
+        skinnedGeometry->play(defaultClip, false);
     }
 }
 

@@ -47,11 +47,7 @@ protected:
 
     void loadMesh(Tiny3D::Transform3D *parent);
     
-    Tiny3D::SkinnedMeshPtr mCubeMesh {nullptr};
-    Tiny3D::MeshPtr mPlaneMesh {nullptr};
-    
-    Tiny3D::MaterialPtr mCubeMaterial {nullptr};
-    Tiny3D::MaterialPtr mPlaneMaterial {nullptr};
+    Tiny3D::SkinnedMeshPtr mMesh {nullptr};
 };
 
 
