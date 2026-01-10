@@ -1,0 +1,1465 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::Skeleton",
+    "RTTI_Value": {
+      "Name": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "tortoise"
+      },
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "b2ac16f9701e04a2f8bcb4c5ae3361b1"
+        }
+      },
+      "Bones": {
+        "RTTI_Type": "std::vector<Tiny3D::SmartPtr<Tiny3D::BoneNode>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bip01"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 65535
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.6999518871307373
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.0075491489842534069
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.01300116442143917
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.7140318155288696
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -258.0327453613281
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 31.157825469970704
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bone001"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "hkotvxLqLb8oDZG+a/HxwbbYHj8P1Tu/Zb6NPnk8I0OZuMq+kkA+PFoPaz8gpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 0
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.6677185893058777
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.1497478187084198
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.7288380265235901
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.022861093282699586
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999997615814209
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000001192092896
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 19.267807006835939
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 114.01465606689453
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -96.1458969116211
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bone002"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "0nZavttFeb9hMKO97H1AQ3KlZD+m5mi+mKnGPrvVhUKauMq+mUA+PFoPaz8hpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 1
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9932394623756409
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.04776478186249733
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0989915281534195
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.03734384477138519
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -152.24697875976563
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.000016927719116210939
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -7.105427357601002e-15
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bone003"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "A6HsPuCMXL/dOlc+tEqZQ4ciSz/08AE/qearPtABSMNxuMq+Lj8+PGMPaz8UpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 2
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9738208055496216
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.011508125811815262
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0369032584130764
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.22400657832622529
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000007152557374
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999995231628418
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -167.39474487304688
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.00006103515625
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.00002288818359375
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bone001(mirrored)"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "jUotvw7qLT8tDZG+ovHxwbHYHr8V1Tu/Yr6Nvno8I8OZuMq+tkA+vFoPaz8hpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 0
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.22126111388206483
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.6976137757301331
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.1321553885936737
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.6685159802436829
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000001192092896
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 23.252960205078126
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 106.42539978027344
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 103.67031860351563
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bone002(mirrored)"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "BHdavtxFeT9KMKO95n1AQ3SlZL/P5mi+mKnGvsrVhcKXuMq+cUI+vFwPaz8tpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 4
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9858128428459168
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.005179209169000387
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.007088236045092344
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.16761864721775056
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999998211860657
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999998211860657
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -152.24697875976563
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0000209808349609375
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.000003814697265625
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "Bone003(mirrored)"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "AKHsPuWMXD/VOlc+tUqZQ4kiS7/x8AE/searvswBSEN3uMq+iD4+vGUPaz8NpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 5
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9789777398109436
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.10112285614013672
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.022113751620054246
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.17574921250343324
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999998807907105
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -167.39476013183595
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0000152587890625
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0000762939453125
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "bozi"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "0OR9v8OMlLuVAAO+H1n+wrNOlTtP/3+/zMLqOCiHFz9eAAO+YGn3uX/lfT/9SALCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 0
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.5581369996070862
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.581910252571106
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.3877337872982025
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.446683406829834
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000001192092896
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000001192092896
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000001192092896
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 12.454177856445313
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 127.94024658203125
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 4.610877990722656
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "tou"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "sgJzv1yUjLtmAaE+TvV4wrNOlTtP/3+/zMLqOCmHFz/oAKE+N7zJOlUDcz9C5MbAAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 7
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9786237478256226
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.04412275552749634
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.19959533214569093
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.022597167640924455
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -73.77458190917969
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -3.2596298993325947e-9
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -2.384185791015625e-7
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "yanjing"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "zhCfvYnGfL83Jg0+FeeKQqQmfz8wY6S9gVBbvJ39lsLT6cY80p0LPnmIfT+xtJHBAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 8
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.7338398694992065
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.14877498149871827
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.06230732798576355
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.6598960757255554
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999999403953552
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -137.14175415039063
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -64.03713989257813
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 26.457313537597658
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "yanjing2"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "yxCfvYnGfD82Jg0+FeeKQqUmf78xY6S9TlFbPJ/9lkI56sY80Z0LvnqIfT+3tJHBAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 8
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.7307722568511963
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.14963550865650178
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.06192922592163086
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.6631333827972412
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999998807907105
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000001192092896
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000003576278687
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -136.58404541015626
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 65.96151733398438
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 26.257225036621095
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "shenti"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "hG16PzGXKDS9fFS+E+yBQ718VD7m4qC0hG16P1lVtEE/TcQzAACAv1LgrrS2tdc3AAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 0
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.7701118588447571
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.02097266912460327
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.0044256881810724739
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.6375486254692078
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999996423721314
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.999999463558197
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.6929931640625
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.8477884531021118
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.018381118774414064
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "tr1"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "kzx3PvEzdL/IczY+ras3Qz0Qdz//roI+hpZwPUZDtkOw48+9rI8hPl10ez92+DnCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 0
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.48306190967559817
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.2758311331272125
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.8030906915664673
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.21357429027557374
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999997615814209
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000004768371583
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 40.8048095703125
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -138.44064331054688
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -95.66104888916016
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "tr2"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "bXsgPy8NPr/WDXI+Cf7KQyuVRD+Y2CM/HTDYvOs0UUPI2wa+edBKPkOneD9atIXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 12
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9761385917663574
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.07885190099477768
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.13248935341835023
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.15291321277618409
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000003576278687
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000003576278687
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -95.64965057373047
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0000152587890625
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0000019073486328125
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "tr3"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "a+9CP36dFL8SpZM+U3AFRLaxHj8LP0g/L8N+vanpxUJJAUK+VoxnPnebdD/C6M3CAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 13
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9930393099784851
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.01868687942624092
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.024226168170571328
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.11374038457870484
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999997615814209
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -101.01617431640625
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0000762939453125
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "t1"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "YSZ3PqI1dD+tbTY+eqM3Q7gRd7+So4I+1JxwvXNFtsM63M+9wYshvpt0ez8z8TnCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 0
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.27847346663475039
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.5191284418106079
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.28710147738456728
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.7553349733352661
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999997019767761
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999995827674866
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 44.373992919921878
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -145.24087524414063
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 83.17391204833985
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "t2"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "GXcgPzgRPj8ICXI+UvvKQ+iYRL8n1CM/0Q/YPGQ8UcMS1wa+Uc1KvpGneD8VsIXCAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 15
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9695227742195129
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.0449797697365284
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.09746944159269333
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.22023198008537293
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000004768371583
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0000003576278687
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -95.64974212646485
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.000011444091796875
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.000006854534149169922
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::BoneNode",
+            "RTTI_Value": {
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "t3"
+              },
+              "OffsetMatrix": {
+                "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                "RTTI_Value": {
+                  "data": {
+                    "RTTI_Type": "Tiny3D::Buffer",
+                    "RTTI_Value": {
+                      "RTTI_Type": "std::string",
+                      "RTTI_Value": "DuxCP2iiFD8yo5M+bm8FREi2Hr+KO0g/Xa9+PZn6xcLu+0G+oIpnvtKbdD855M3CAAAAAAAAAAAAAAAAAACAPw=="
+                    }
+                  }
+                }
+              },
+              "ParentIndex": {
+                "RTTI_Type": "unsignedshort",
+                "RTTI_Value": 16
+              },
+              "Rotation": {
+                "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                "RTTI_Value": {
+                  "w": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9878251552581787
+                  },
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.005472192075103521
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.020939406007528306
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.15405549108982087
+                  }
+                }
+              },
+              "Scaling": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999995827674866
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 0.9999997019767761
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.000000238418579
+                  }
+                }
+              },
+              "Translation": {
+                "RTTI_Type": "Tiny3D::TVector3<float>",
+                "RTTI_Value": {
+                  "x": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -101.01614379882813
+                  },
+                  "y": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -6.092024023018894e-7
+                  },
+                  "z": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": -0.00000787538829172263
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
