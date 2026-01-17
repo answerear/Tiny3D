@@ -25,7 +25,7 @@
 #include "ResourceApp.h"
 
 
-// #define UVN_CAMERA
+#define UVN_CAMERA
 
 // #define USE_GPU_SKIN
 
@@ -119,6 +119,12 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
 void ResourceApp::applicationWillTerminate() 
 {
+    if (mPitchTimerID != T3D_INVALID_TIMER_ID)
+    {
+        T3D_TIMER_MGR.stopTimer(mPitchTimerID);
+        mPitchTimerID = T3D_INVALID_TIMER_ID;
+    }
+    
     mMesh = nullptr;
 }
 
@@ -152,7 +158,7 @@ void ResourceApp::buildCamera(Transform3D *parent)
     
     // construct camera position & orientation & scaling
 
-    Vector3 eye(0.0f, 0.0f, -20.0f);
+    Vector3 eye(10.0f, 20.0f, -20.0f);
 
 #if defined (UVN_CAMERA)
     Vector3 obj(0.0f, 0.0f, 0.0f);
@@ -179,6 +185,12 @@ void ResourceApp::loadMesh(Transform3D *parent)
     Transform3D *node = static_cast<Transform3D*>(go->getTransformNode());
     parent->addChild(node);
     node->setScaling(0.01f, 0.01f, 0.01f);
+    
+    // mPitchTimerID = T3D_TIMER_MGR.startTimer(1000, true, [node, this](ID timerID, uint32_t dt)
+    //     {
+    //         const Degree deltaAngle(5.0f);
+    //         node->rotate(Vector3::UNIT_X, deltaAngle);
+    //     });
     
     const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "meshes";
     ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
@@ -234,6 +246,11 @@ void ResourceApp::loadMesh(Transform3D *parent)
         skinnedGeometry->setGPUSkinning(false);
         const String &defaultClip = skinnedGeometry->getDefaultClipName();
         skinnedGeometry->play(defaultClip, false);
+        //
+        // T3D_TIMER_MGR.startTimer(8, false, [this, skinnedGeometry](uint32_t timerID, uint32_t dt)
+        // {
+        //     skinnedGeometry->stop();
+        // });
     }
 }
 
