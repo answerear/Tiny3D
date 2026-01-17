@@ -27,6 +27,7 @@
 
 
 #include "Component/T3DGeometry.h"
+#include "Animation/T3DAnimationPlayer.h"
 
 
 namespace Tiny3D
@@ -66,6 +67,8 @@ namespace Tiny3D
 
         bool play(const String &clipName, bool isLoop);
         
+        bool stop();
+        
     protected:
         SkinnedGeometry() = default;
 
@@ -97,6 +100,8 @@ namespace Tiny3D
 
         /// 默认动画剪辑名称
         String mDefaultClipName {};
+        
+        ID mPlaybackID {AnimationPlayer::INVALID_ID};
         
         /// 是否 GPU 蒙皮
         bool mIsGPUSkinning {false};

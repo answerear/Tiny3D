@@ -225,6 +225,8 @@ namespace Tiny3D
 
     TResult AnimationPlayer::stopPlayback(ID playbackID)
     {
+        T3D_ANIMATION_PLAYER_MGR.removePlayer(this);
+        mIsPlaying = false;
         return T3D_OK;
     }
 

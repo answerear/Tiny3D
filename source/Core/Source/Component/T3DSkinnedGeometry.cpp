@@ -24,7 +24,6 @@
 
 
 #include "Component/T3DSkinnedGeometry.h"
-#include "Animation/T3DAnimationPlayer.h"
 #include "Resource/T3DSkinnedMesh.h"
 #include "T3DErrorDef.h"
 #include "Component/T3DTransform3D.h"
@@ -189,10 +188,20 @@ namespace Tiny3D
     {
         T3D_ASSERT(mAnimationPlayer != nullptr);
 
-        mAnimationPlayer->playClip(clipName, false, isLoop, mIsGPUSkinning);
+        mPlaybackID = mAnimationPlayer->playClip(clipName, false, isLoop, mIsGPUSkinning);
 
         return true;
     }
 
+    //--------------------------------------------------------------------------
+    
+    bool SkinnedGeometry::stop()
+    {
+        T3D_ASSERT(mAnimationPlayer != nullptr);
+        mAnimationPlayer->stopPlayback(mPlaybackID);
+        mPlaybackID = AnimationPlayer::INVALID_ID;
+        return true;
+    }
+    
     //--------------------------------------------------------------------------
 }
