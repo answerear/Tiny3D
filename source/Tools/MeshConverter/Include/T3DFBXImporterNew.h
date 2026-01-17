@@ -56,6 +56,8 @@ namespace Tiny3D
         };
 
         using AnimationClipsData = TUnorderedMap<String, AnimationClipData*>;
+        
+        using MaterialData = TUnorderedMap<String, FbxSurfaceMaterial*>;
 
         struct MeshData : public Allocator
         {
@@ -83,6 +85,9 @@ namespace Tiny3D
             TArray<TArray<float32_t>> blendWeights {};
             /// 混合索引数据（用于蒙皮网格）
             TArray<TArray<uint8_t>> blendIndices {};
+            
+            /// 材质数据
+            MaterialData materials {};
 
             /// 子网格
             SubMeshes subMeshes {};
@@ -236,6 +241,10 @@ namespace Tiny3D
         void readColor(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t vertexCounter, ColorRGBA &color);
 
         void readUV(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t texUVIndex, int32_t uvLayer, Vector2 &uv);
+        
+        TResult generateMeshIndices(MeshData *meshData);
+        
+        TResult createMaterialsAndSubMeshes(MeshData *meshData);
 
         TResult createMaterial(FbxSurfaceMaterial *lFbxMaterial, MaterialPtr &material);
 
