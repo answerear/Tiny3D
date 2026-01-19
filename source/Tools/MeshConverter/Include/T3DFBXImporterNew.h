@@ -57,10 +57,24 @@ namespace Tiny3D
 
         using AnimationClipsData = TUnorderedMap<String, AnimationClipData*>;
         
-        using MaterialData = TUnorderedMap<String, FbxSurfaceMaterial*>;
+        struct SubMeshData : public Allocator
+        {
+            FbxSurfaceMaterial *fbxMaterial {nullptr};
+            IndexArray indices {};
+        };
+        
+        using MaterialData = TUnorderedMap<String, SubMeshData*>;
 
         struct MeshData : public Allocator
         {
+            ~MeshData()
+            {
+                for (auto& material : materials)
+                {
+                    T3D_POD_SAFE_DELETE(material.second);
+                }
+            }
+            
             /// 顶点数据
             Vector3Array vertices {};
             /// 颜色数据
@@ -75,8 +89,6 @@ namespace Tiny3D
             Vector3Array tangents {};
             /// 副法线数据
             Vector3Array binormals {};
-            /// 索引数据
-            IndexArray indices {};
 
             /// 每个顶点对应的控制点索引（用于映射 blend weights）
             TArray<int32_t> vertexToControlPointMap {};
@@ -242,7 +254,7 @@ namespace Tiny3D
 
         void readUV(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t texUVIndex, int32_t uvLayer, Vector2 &uv);
         
-        TResult generateMeshIndices(MeshData *meshData);
+        // TResult generateMeshIndices(MeshData *meshData);
         
         TResult createMaterialsAndSubMeshes(MeshData *meshData);
 
@@ -250,7 +262,7 @@ namespace Tiny3D
 
         TResult createTexture(const FbxProperty &lFbxProperty, TexturePtr &texture);
 
-        TResult createSubMesh(const String &name, MeshData *meshData, Material *material, SubMeshPtr &submesh);
+        TResult createSubMesh(const String &name, SubMeshData *subMeshData, Material *material, SubMeshPtr &submesh);
 
         TResult createMesh(FbxNode *lFbxMeshRoot, MeshData *meshData);
 

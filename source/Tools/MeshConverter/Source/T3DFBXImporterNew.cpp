@@ -1771,12 +1771,12 @@ namespace Tiny3D
                         }
                     }
                     
-                    // 3. 最后进行顶点去重和索引生成
-                    ret = generateMeshIndices(meshData);
-                    if (T3D_FAILED(ret))
-                    {
-                        break;
-                    }
+                    // // 3. 最后进行顶点去重和索引生成
+                    // ret = generateMeshIndices(meshData);
+                    // if (T3D_FAILED(ret))
+                    // {
+                    //     break;
+                    // }
                 }
                 else
                 {
@@ -2052,15 +2052,18 @@ namespace Tiny3D
                 meshData->texCoords[l].clear();
                 meshData->texCoords[l].reserve(vertexCount);
             }
-            meshData->indices.reserve(vertexCount);
             
             for (int32_t k = 0; k < materialCount; k++)
             {
                 FbxSurfaceMaterial *lMaterial = lFbxNode->GetMaterial(k);
                 
                 MCONV_LOG_INFO("Material [%d]: %s", k, lMaterial->GetName())
-
-                meshData->indices.clear();
+                
+                name += String("_") + lFbxNode->GetMaterial(k)->GetName();
+                FbxSurfaceMaterial *lFbxMaterial = lFbxNode->GetMaterial(k);
+                SubMeshData *subMeshData = T3D_NEW SubMeshData();
+                subMeshData->fbxMaterial = lFbxMaterial;
+                meshData->materials.emplace(name, subMeshData);
 
                 for (int32_t i = 0; i < triangleCount; i++)
                 {
@@ -2109,110 +2112,100 @@ namespace Tiny3D
                             // 如果同一个光滑组且控制点相同，则累计光滑组的法线、副法线、切线，用于计算平均值
                             // 注意：必须比较控制点索引，因为不同控制点的顶点不应该共享法线
                             uint32_t v = 0;
-                            for (v = 0; v < meshData->vertices.size(); v++)
-                            {
-                                if (meshData->vertices[v] == V && 
-                                    meshData->smoothingGroups[v] == triangleSmGroupIndices[i] &&
-                                    meshData->vertexToControlPointMap[v] == ctrlPointIndex)
-                                {
-                                    N += meshData->normals[v];
-                                    meshData->normals[v] = N;
-
-                                    if (texUVCount > 0)
-                                    {
-                                        T += meshData->tangents[v];
-                                        meshData->tangents[v] = T;
-
-                                        B += meshData->binormals[v];
-                                        meshData->binormals[v] = B;
-                                    }
-                                }
-                            }
-                            
-                            // 位置
-                            meshData->vertices.emplace_back(V);
-                            // 颜色
-                            meshData->colors.emplace_back(C);
-                            // 光滑组
-                            meshData->smoothingGroups.emplace_back(triangleSmGroupIndices[i]);
-                            // 纹理
-                            for (int32_t layer = 0; layer < texUVCount; layer++)
-                            {
-                                meshData->texCoords[layer].emplace_back(texCoords[layer]);
-                            }
-                            // 法线
-                            meshData->normals.emplace_back(N);
-                            // 切线
-                            meshData->tangents.emplace_back(T);
-                            // 副法线
-                            meshData->binormals.emplace_back(B);
-                            // 保存该顶点对应的控制点索引
-                            meshData->vertexToControlPointMap.emplace_back(ctrlPointIndex);
-                            // 索引
-                            // meshData->indices.emplace_back(v);
-                            
-                            // // 查看这个顶点是否已经存在（顶点位置、光滑组、UV、控制点索引都相同则为相同）
-                            // // 注意：必须比较控制点索引，因为不同控制点的蒙皮数据不同
                             // for (v = 0; v < meshData->vertices.size(); v++)
                             // {
                             //     if (meshData->vertices[v] == V && 
                             //         meshData->smoothingGroups[v] == triangleSmGroupIndices[i] &&
                             //         meshData->vertexToControlPointMap[v] == ctrlPointIndex)
                             //     {
-                            //         // 如果已经存在，则不添加
-                            //         int32_t layer = 0;
-                            //         for (layer = 0; layer < texUVCount; layer++)
+                            //         N += meshData->normals[v];
+                            //         meshData->normals[v] = N;
+                            //
+                            //         if (texUVCount > 0)
                             //         {
-                            //             if (meshData->texCoords[layer][v] != texCoords[layer])
-                            //             {
-                            //                 break;
-                            //             }
-                            //         }
-                            //         if (layer == texUVCount)
-                            //         {
-                            //             break;
+                            //             T += meshData->tangents[v];
+                            //             meshData->tangents[v] = T;
+                            //
+                            //             B += meshData->binormals[v];
+                            //             meshData->binormals[v] = B;
                             //         }
                             //     }
                             // }
                             //
-                            // if (v == meshData->vertices.size())
+                            // // 位置
+                            // meshData->vertices.emplace_back(V);
+                            // // 颜色
+                            // meshData->colors.emplace_back(C);
+                            // // 光滑组
+                            // meshData->smoothingGroups.emplace_back(triangleSmGroupIndices[i]);
+                            // // 纹理
+                            // for (int32_t layer = 0; layer < texUVCount; layer++)
                             // {
-                            //     // 跑到这里表示没有找到相同的顶点，添加
-                            //
-                            //     // 位置
-                            //     meshData->vertices.emplace_back(V);
-                            //     // 颜色
-                            //     meshData->colors.emplace_back(C);
-                            //     // 光滑组
-                            //     meshData->smoothingGroups.emplace_back(triangleSmGroupIndices[i]);
-                            //     // 纹理
-                            //     for (int32_t layer = 0; layer < texUVCount; layer++)
-                            //     {
-                            //         meshData->texCoords[layer].emplace_back(texCoords[layer]);
-                            //     }
-                            //     // 法线
-                            //     meshData->normals.emplace_back(N);
-                            //     // 切线
-                            //     meshData->tangents.emplace_back(T);
-                            //     // 副法线
-                            //     meshData->binormals.emplace_back(B);
-                            //     // 保存该顶点对应的控制点索引
-                            //     meshData->vertexToControlPointMap.emplace_back(ctrlPointIndex);
+                            //     meshData->texCoords[layer].emplace_back(texCoords[layer]);
                             // }
-                            //
-                            // // 索引
-                            // meshData->indices.emplace_back(v);
+                            // // 法线
+                            // meshData->normals.emplace_back(N);
+                            // // 切线
+                            // meshData->tangents.emplace_back(T);
+                            // // 副法线
+                            // meshData->binormals.emplace_back(B);
+                            // // 保存该顶点对应的控制点索引
+                            // meshData->vertexToControlPointMap.emplace_back(ctrlPointIndex);
+                            
+                            // 查看这个顶点是否已经存在（顶点位置、光滑组、UV、控制点索引都相同则为相同）
+                            // 注意：必须比较控制点索引，因为不同控制点的蒙皮数据不同
+                            for (v = 0; v < meshData->vertices.size(); v++)
+                            {
+                                if (meshData->vertices[v] == V && 
+                                    meshData->smoothingGroups[v] == triangleSmGroupIndices[i] &&
+                                    meshData->vertexToControlPointMap[v] == ctrlPointIndex)
+                                {
+                                    // 如果已经存在，则不添加
+                                    int32_t layer = 0;
+                                    for (layer = 0; layer < texUVCount; layer++)
+                                    {
+                                        if (meshData->texCoords[layer][v] != texCoords[layer])
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (layer == texUVCount)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (v == meshData->vertices.size())
+                            {
+                                // 跑到这里表示没有找到相同的顶点，添加
+                            
+                                // 位置
+                                meshData->vertices.emplace_back(V);
+                                // 颜色
+                                meshData->colors.emplace_back(C);
+                                // 光滑组
+                                meshData->smoothingGroups.emplace_back(triangleSmGroupIndices[i]);
+                                // 纹理
+                                for (int32_t layer = 0; layer < texUVCount; layer++)
+                                {
+                                    meshData->texCoords[layer].emplace_back(texCoords[layer]);
+                                }
+                                // 法线
+                                meshData->normals.emplace_back(N);
+                                // 切线
+                                meshData->tangents.emplace_back(T);
+                                // 副法线
+                                meshData->binormals.emplace_back(B);
+                                // 保存该顶点对应的控制点索引
+                                meshData->vertexToControlPointMap.emplace_back(ctrlPointIndex);
+                            }
+                            
+                            // 索引
+                            subMeshData->indices.emplace_back(v);
                         }
                     }
                 }
-
-                if (materialCount > 0)
-                {
-                    name += String("_") + lFbxNode->GetMaterial(k)->GetName();
-                }
-
-                FbxSurfaceMaterial *lFbxMaterial = lFbxNode->GetMaterial(k);
-                meshData->materials.emplace(name, lFbxMaterial);
             }
             
             MCONV_LOG_INFO("Completed generating mesh !")
@@ -2604,259 +2597,259 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult FBXImporterNew::generateMeshIndices(MeshData *meshData)
-    {
-        TResult ret = T3D_OK;
-        do
-        {
-            // 如果顶点数据为空，直接返回
-            if (meshData->vertices.empty())
-            {
-                break;
-            }
-
-            // 保存原始数据
-            Vector3Array originalVertices = meshData->vertices;
-            Vector3Array originalNormals = meshData->normals;
-            ColorArray originalColors = meshData->colors;
-            Vector3Array originalTangents = meshData->tangents;
-            Vector3Array originalBinormals = meshData->binormals;
-            TArray<TArray<float32_t>> originalBlendWeights = meshData->blendWeights;
-            TArray<TArray<uint8_t>> originalBlendIndices = meshData->blendIndices;
-            
-            // 保存原始纹理坐标（支持多层）
-            Vector2Array originalTexCoords[T3D_MAX_TEXTURE_LEVEL];
-            for (int32_t i = 0; i < T3D_MAX_TEXTURE_LEVEL; ++i)
-            {
-                originalTexCoords[i] = meshData->texCoords[i];
-            }
-
-            // 清空原始数据，准备存放去重后的数据
-            meshData->vertices.clear();
-            meshData->normals.clear();
-            meshData->colors.clear();
-            meshData->tangents.clear();
-            meshData->binormals.clear();
-            meshData->blendWeights.clear();
-            meshData->blendIndices.clear();
-            meshData->indices.clear();
-            
-            for (int32_t i = 0; i < T3D_MAX_TEXTURE_LEVEL; ++i)
-            {
-                meshData->texCoords[i].clear();
-            }
-
-            // 用于存储顶点到新索引的映射
-            // key: 原始顶点索引, value: 去重后的新索引
-            TMap<uint32_t, uint32_t> vertexIndexMap;
-
-            // 遍历所有原始顶点
-            uint32_t originalVertexCount = originalVertices.size();
-            for (uint32_t i = 0; i < originalVertexCount; ++i)
-            {
-                // 检查是否已经存在相同的顶点
-                bool found = false;
-                uint32_t newIndex = 0;
-
-                // 遍历已经去重的顶点，查找是否有完全相同的顶点
-                for (uint32_t j = 0; j < meshData->vertices.size(); ++j)
-                {
-                    bool isSame = true;
-
-                    // 比较顶点位置
-                    if (meshData->vertices[j] != originalVertices[i])
-                    {
-                        isSame = false;
-                    }
-
-                    // 比较法线（如果存在）
-                    if (isSame && !originalNormals.empty())
-                    {
-                        if (meshData->normals[j] != originalNormals[i])
-                        {
-                            isSame = false;
-                        }
-                    }
-
-                    // 比较颜色（如果存在）
-                    if (isSame && !originalColors.empty())
-                    {
-                        if (meshData->colors[j] != originalColors[i])
-                        {
-                            isSame = false;
-                        }
-                    }
-
-                    // 比较纹理坐标（所有层）
-                    if (isSame)
-                    {
-                        for (int32_t k = 0; k < T3D_MAX_TEXTURE_LEVEL; ++k)
-                        {
-                            if (!originalTexCoords[k].empty())
-                            {
-                                if (meshData->texCoords[k][j] != originalTexCoords[k][i])
-                                {
-                                    isSame = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    // 比较切线（如果存在）
-                    if (isSame && !originalTangents.empty())
-                    {
-                        if (meshData->tangents[j] != originalTangents[i])
-                        {
-                            isSame = false;
-                        }
-                    }
-
-                    // 比较副法线（如果存在）
-                    if (isSame && !originalBinormals.empty())
-                    {
-                        if (meshData->binormals[j] != originalBinormals[i])
-                        {
-                            isSame = false;
-                        }
-                    }
-
-                    // 比较蒙皮权重（如果存在）
-                    if (isSame && !originalBlendWeights.empty())
-                    {
-                        const auto &weights1 = meshData->blendWeights[j];
-                        const auto &weights2 = originalBlendWeights[i];
-                        
-                        if (weights1.size() != weights2.size())
-                        {
-                            isSame = false;
-                        }
-                        else
-                        {
-                            for (size_t w = 0; w < weights1.size(); ++w)
-                            {
-                                if (fabs(weights1[w] - weights2[w]) > 0.0001f)
-                                {
-                                    isSame = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    // 比较蒙皮索引（如果存在）
-                    if (isSame && !originalBlendIndices.empty())
-                    {
-                        const auto &indices1 = meshData->blendIndices[j];
-                        const auto &indices2 = originalBlendIndices[i];
-                        
-                        if (indices1.size() != indices2.size())
-                        {
-                            isSame = false;
-                        }
-                        else
-                        {
-                            for (size_t b = 0; b < indices1.size(); ++b)
-                            {
-                                if (indices1[b] != indices2[b])
-                                {
-                                    isSame = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    // 如果找到完全相同的顶点
-                    if (isSame)
-                    {
-                        found = true;
-                        newIndex = j;
-                        break;
-                    }
-                }
-
-                // 如果没有找到相同的顶点，添加新顶点
-                if (!found)
-                {
-                    newIndex = meshData->vertices.size();
-
-                    // 添加顶点位置
-                    meshData->vertices.push_back(originalVertices[i]);
-
-                    // 添加法线
-                    if (!originalNormals.empty())
-                    {
-                        meshData->normals.emplace_back(originalNormals[i]);
-                    }
-
-                    // 添加颜色
-                    if (!originalColors.empty())
-                    {
-                        meshData->colors.emplace_back(originalColors[i]);
-                    }
-
-                    // 添加纹理坐标
-                    for (int32_t k = 0; k < T3D_MAX_TEXTURE_LEVEL; ++k)
-                    {
-                        if (!originalTexCoords[k].empty())
-                        {
-                            meshData->texCoords[k].emplace_back(originalTexCoords[k][i]);
-                        }
-                    }
-
-                    // 添加切线
-                    if (!originalTangents.empty())
-                    {
-                        meshData->tangents.emplace_back(originalTangents[i]);
-                    }
-
-                    // 添加副法线
-                    if (!originalBinormals.empty())
-                    {
-                        meshData->binormals.emplace_back(originalBinormals[i]);
-                    }
-
-                    // 添加蒙皮权重
-                    if (!originalBlendWeights.empty())
-                    {
-                        meshData->blendWeights.emplace_back(TArray<float_t>(originalBlendWeights[i].size()));
-                        auto &weights = meshData->blendWeights.back();
-                        int32_t j = 0;
-                        for (const auto &weight : originalBlendWeights[i])
-                        {
-                            weights[j] = weight;
-                            j++;
-                        }
-                        T3D_ASSERT(meshData->blendWeights.back().size() == originalBlendWeights[i].size());
-                    }
-
-                    // 添加蒙皮索引
-                    if (!originalBlendIndices.empty())
-                    {
-                        meshData->blendIndices.emplace_back(TArray<uint8_t>(originalBlendIndices[i].size()));
-                        auto &indices = meshData->blendIndices.back();
-                        int32_t j = 0;
-                        for (const auto &index : originalBlendIndices[i])
-                        {
-                            indices[j] = index;
-                            j++;
-                        }
-                        T3D_ASSERT(meshData->blendIndices.back().size() == originalBlendIndices[i].size());
-                    }
-                }
-
-                // 添加索引
-                meshData->indices.push_back(newIndex);
-            }
-
-            MCONV_LOG_INFO("Mesh indices generated: original vertices = %u, unique vertices = %llu, indices = %llu",
-                originalVertexCount, meshData->vertices.size(), meshData->indices.size())
-
-        } while (false);
-        
-        return ret;
-    }
+    // TResult FBXImporterNew::generateMeshIndices(MeshData *meshData)
+    // {
+    //     TResult ret = T3D_OK;
+    //     do
+    //     {
+    //         // 如果顶点数据为空，直接返回
+    //         if (meshData->vertices.empty())
+    //         {
+    //             break;
+    //         }
+    //
+    //         // 保存原始数据
+    //         Vector3Array originalVertices = meshData->vertices;
+    //         Vector3Array originalNormals = meshData->normals;
+    //         ColorArray originalColors = meshData->colors;
+    //         Vector3Array originalTangents = meshData->tangents;
+    //         Vector3Array originalBinormals = meshData->binormals;
+    //         TArray<TArray<float32_t>> originalBlendWeights = meshData->blendWeights;
+    //         TArray<TArray<uint8_t>> originalBlendIndices = meshData->blendIndices;
+    //         
+    //         // 保存原始纹理坐标（支持多层）
+    //         Vector2Array originalTexCoords[T3D_MAX_TEXTURE_LEVEL];
+    //         for (int32_t i = 0; i < T3D_MAX_TEXTURE_LEVEL; ++i)
+    //         {
+    //             originalTexCoords[i] = meshData->texCoords[i];
+    //         }
+    //
+    //         // 清空原始数据，准备存放去重后的数据
+    //         meshData->vertices.clear();
+    //         meshData->normals.clear();
+    //         meshData->colors.clear();
+    //         meshData->tangents.clear();
+    //         meshData->binormals.clear();
+    //         meshData->blendWeights.clear();
+    //         meshData->blendIndices.clear();
+    //         meshData->indices.clear();
+    //         
+    //         for (int32_t i = 0; i < T3D_MAX_TEXTURE_LEVEL; ++i)
+    //         {
+    //             meshData->texCoords[i].clear();
+    //         }
+    //
+    //         // 用于存储顶点到新索引的映射
+    //         // key: 原始顶点索引, value: 去重后的新索引
+    //         TMap<uint32_t, uint32_t> vertexIndexMap;
+    //
+    //         // 遍历所有原始顶点
+    //         uint32_t originalVertexCount = originalVertices.size();
+    //         for (uint32_t i = 0; i < originalVertexCount; ++i)
+    //         {
+    //             // 检查是否已经存在相同的顶点
+    //             bool found = false;
+    //             uint32_t newIndex = 0;
+    //
+    //             // 遍历已经去重的顶点，查找是否有完全相同的顶点
+    //             for (uint32_t j = 0; j < meshData->vertices.size(); ++j)
+    //             {
+    //                 bool isSame = true;
+    //
+    //                 // 比较顶点位置
+    //                 if (meshData->vertices[j] != originalVertices[i])
+    //                 {
+    //                     isSame = false;
+    //                 }
+    //
+    //                 // 比较法线（如果存在）
+    //                 if (isSame && !originalNormals.empty())
+    //                 {
+    //                     if (meshData->normals[j] != originalNormals[i])
+    //                     {
+    //                         isSame = false;
+    //                     }
+    //                 }
+    //
+    //                 // 比较颜色（如果存在）
+    //                 if (isSame && !originalColors.empty())
+    //                 {
+    //                     if (meshData->colors[j] != originalColors[i])
+    //                     {
+    //                         isSame = false;
+    //                     }
+    //                 }
+    //
+    //                 // 比较纹理坐标（所有层）
+    //                 if (isSame)
+    //                 {
+    //                     for (int32_t k = 0; k < T3D_MAX_TEXTURE_LEVEL; ++k)
+    //                     {
+    //                         if (!originalTexCoords[k].empty())
+    //                         {
+    //                             if (meshData->texCoords[k][j] != originalTexCoords[k][i])
+    //                             {
+    //                                 isSame = false;
+    //                                 break;
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //
+    //                 // 比较切线（如果存在）
+    //                 if (isSame && !originalTangents.empty())
+    //                 {
+    //                     if (meshData->tangents[j] != originalTangents[i])
+    //                     {
+    //                         isSame = false;
+    //                     }
+    //                 }
+    //
+    //                 // 比较副法线（如果存在）
+    //                 if (isSame && !originalBinormals.empty())
+    //                 {
+    //                     if (meshData->binormals[j] != originalBinormals[i])
+    //                     {
+    //                         isSame = false;
+    //                     }
+    //                 }
+    //
+    //                 // 比较蒙皮权重（如果存在）
+    //                 if (isSame && !originalBlendWeights.empty())
+    //                 {
+    //                     const auto &weights1 = meshData->blendWeights[j];
+    //                     const auto &weights2 = originalBlendWeights[i];
+    //                     
+    //                     if (weights1.size() != weights2.size())
+    //                     {
+    //                         isSame = false;
+    //                     }
+    //                     else
+    //                     {
+    //                         for (size_t w = 0; w < weights1.size(); ++w)
+    //                         {
+    //                             if (fabs(weights1[w] - weights2[w]) > 0.0001f)
+    //                             {
+    //                                 isSame = false;
+    //                                 break;
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //
+    //                 // 比较蒙皮索引（如果存在）
+    //                 if (isSame && !originalBlendIndices.empty())
+    //                 {
+    //                     const auto &indices1 = meshData->blendIndices[j];
+    //                     const auto &indices2 = originalBlendIndices[i];
+    //                     
+    //                     if (indices1.size() != indices2.size())
+    //                     {
+    //                         isSame = false;
+    //                     }
+    //                     else
+    //                     {
+    //                         for (size_t b = 0; b < indices1.size(); ++b)
+    //                         {
+    //                             if (indices1[b] != indices2[b])
+    //                             {
+    //                                 isSame = false;
+    //                                 break;
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //
+    //                 // 如果找到完全相同的顶点
+    //                 if (isSame)
+    //                 {
+    //                     found = true;
+    //                     newIndex = j;
+    //                     break;
+    //                 }
+    //             }
+    //
+    //             // 如果没有找到相同的顶点，添加新顶点
+    //             if (!found)
+    //             {
+    //                 newIndex = meshData->vertices.size();
+    //
+    //                 // 添加顶点位置
+    //                 meshData->vertices.push_back(originalVertices[i]);
+    //
+    //                 // 添加法线
+    //                 if (!originalNormals.empty())
+    //                 {
+    //                     meshData->normals.emplace_back(originalNormals[i]);
+    //                 }
+    //
+    //                 // 添加颜色
+    //                 if (!originalColors.empty())
+    //                 {
+    //                     meshData->colors.emplace_back(originalColors[i]);
+    //                 }
+    //
+    //                 // 添加纹理坐标
+    //                 for (int32_t k = 0; k < T3D_MAX_TEXTURE_LEVEL; ++k)
+    //                 {
+    //                     if (!originalTexCoords[k].empty())
+    //                     {
+    //                         meshData->texCoords[k].emplace_back(originalTexCoords[k][i]);
+    //                     }
+    //                 }
+    //
+    //                 // 添加切线
+    //                 if (!originalTangents.empty())
+    //                 {
+    //                     meshData->tangents.emplace_back(originalTangents[i]);
+    //                 }
+    //
+    //                 // 添加副法线
+    //                 if (!originalBinormals.empty())
+    //                 {
+    //                     meshData->binormals.emplace_back(originalBinormals[i]);
+    //                 }
+    //
+    //                 // 添加蒙皮权重
+    //                 if (!originalBlendWeights.empty())
+    //                 {
+    //                     meshData->blendWeights.emplace_back(TArray<float_t>(originalBlendWeights[i].size()));
+    //                     auto &weights = meshData->blendWeights.back();
+    //                     int32_t j = 0;
+    //                     for (const auto &weight : originalBlendWeights[i])
+    //                     {
+    //                         weights[j] = weight;
+    //                         j++;
+    //                     }
+    //                     T3D_ASSERT(meshData->blendWeights.back().size() == originalBlendWeights[i].size());
+    //                 }
+    //
+    //                 // 添加蒙皮索引
+    //                 if (!originalBlendIndices.empty())
+    //                 {
+    //                     meshData->blendIndices.emplace_back(TArray<uint8_t>(originalBlendIndices[i].size()));
+    //                     auto &indices = meshData->blendIndices.back();
+    //                     int32_t j = 0;
+    //                     for (const auto &index : originalBlendIndices[i])
+    //                     {
+    //                         indices[j] = index;
+    //                         j++;
+    //                     }
+    //                     T3D_ASSERT(meshData->blendIndices.back().size() == originalBlendIndices[i].size());
+    //                 }
+    //             }
+    //
+    //             // 添加索引
+    //             meshData->indices.push_back(newIndex);
+    //         }
+    //
+    //         MCONV_LOG_INFO("Mesh indices generated: original vertices = %u, unique vertices = %llu, indices = %llu",
+    //             originalVertexCount, meshData->vertices.size(), meshData->indices.size())
+    //
+    //     } while (false);
+    //     
+    //     return ret;
+    // }
     
     //--------------------------------------------------------------------------
 
@@ -2869,10 +2862,10 @@ namespace Tiny3D
             for (const auto &materialData : meshData->materials)
             {
                 const auto &name = materialData.first;
-                FbxSurfaceMaterial *lFbxMaterial = materialData.second;
+                SubMeshData *subMeshData = materialData.second;
                 // 创建对应的材质
                 MaterialPtr material;
-                ret = createMaterial(lFbxMaterial, material);
+                ret = createMaterial(subMeshData->fbxMaterial, material);
                 if (T3D_FAILED(ret))
                 {
                     MCONV_LOG_ERROR("Failed to create material.")
@@ -2884,7 +2877,7 @@ namespace Tiny3D
 
                 // 创建子网格
                 SubMeshPtr submesh;
-                ret = createSubMesh(name, meshData, material, submesh);
+                ret = createSubMesh(name, subMeshData, material, submesh);
                 if (T3D_FAILED(ret))
                 {
                     MCONV_LOG_ERROR("failed to create submesh.")
@@ -3182,7 +3175,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult FBXImporterNew::createSubMesh(const String &name, MeshData *meshData, Material *material, SubMeshPtr &submesh)
+    TResult FBXImporterNew::createSubMesh(const String &name, SubMeshData *subMeshData, Material *material, SubMeshPtr &submesh)
     {
         TResult ret = T3D_OK;
 
@@ -3190,26 +3183,26 @@ namespace Tiny3D
         {
             bool is16Bits = true;
             Buffer indices;
-            if (meshData->indices.size() > std::numeric_limits<uint16_t>::max())
+            if (subMeshData->indices.size() > std::numeric_limits<uint16_t>::max())
             {
-                indices.DataSize = meshData->indices.size() * sizeof(uint32_t);
+                indices.DataSize = subMeshData->indices.size() * sizeof(uint32_t);
                 indices.Data = T3D_POD_NEW_ARRAY(uint8_t, indices.DataSize);
                 uint32_t *data = (uint32_t *)indices.Data;
-                for (uint32_t idx = 0; idx < meshData->indices.size(); idx++)
+                for (uint32_t idx = 0; idx < subMeshData->indices.size(); idx++)
                 {
-                    *data = meshData->indices[idx];
+                    *data = subMeshData->indices[idx];
                     data++;
                 }
                 is16Bits = false;
             }
             else
             {
-                indices.DataSize = meshData->indices.size() * sizeof(uint16_t);
+                indices.DataSize = subMeshData->indices.size() * sizeof(uint16_t);
                 indices.Data = T3D_POD_NEW_ARRAY(uint8_t, indices.DataSize);
                 uint16_t *data = (uint16_t *)indices.Data;
-                for (uint32_t idx = 0; idx < meshData->indices.size(); idx++)
+                for (uint32_t idx = 0; idx < subMeshData->indices.size(); idx++)
                 {
-                    *data = static_cast<uint16_t>(meshData->indices[idx]);
+                    *data = static_cast<uint16_t>(subMeshData->indices[idx]);
                     data++;
                 }
                 is16Bits = true;
