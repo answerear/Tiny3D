@@ -337,15 +337,15 @@ namespace Tiny3D
                         xform->setScaling(scaling);
                     }
 
-#if defined (T3D_DEBUG)
-                    Radian xAngle, yAngle, zAngle;
-                    xform->getRotation(xAngle, yAngle, zAngle);
-                    T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Elapse %u, Translation[%u] : (%f, %f, %f), Euler Angle[%u] : (%f, %f, %f), Scaling[%u] : (%f, %f, %f)",
-                        boneName.c_str(), elapsed,
-                        mCurrentFrameT[i], xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
-                        mCurrentFrameO[i], xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-                        mCurrentFrameS[i], xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
-#endif
+// #if defined (T3D_DEBUG)
+//                     Radian xAngle, yAngle, zAngle;
+//                     xform->getRotation(xAngle, yAngle, zAngle);
+//                     T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Elapse %u, Translation[%u] : (%f, %f, %f), Euler Angle[%u] : (%f, %f, %f), Scaling[%u] : (%f, %f, %f)",
+//                         boneName.c_str(), elapsed,
+//                         mCurrentFrameT[i], xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
+//                         mCurrentFrameO[i], xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
+//                         mCurrentFrameS[i], xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
+// #endif
                 }
 
                 if (elapsed >= clip->getDuration())
