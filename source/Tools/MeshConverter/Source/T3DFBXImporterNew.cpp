@@ -3581,31 +3581,33 @@ namespace Tiny3D
                     MCONV_LOG_INFO("Created animation clip [%s] with %lld tracks, duration: %u ms", 
                             aniClip.first.c_str(), clipData->tracks.size(), clipData->duration)
                     
-                    for (const auto &track : clip->getTracks())
-                    {
-                        MCONV_LOG_DEBUG("\tTrack: %s", track.first.c_str())
-                        
-                        MCONV_LOG_DEBUG("\t\tTrack Translation: ")
-                        for (const auto &trackT : track.second->getTranslationTrack())
-                        {
-                            MCONV_LOG_DEBUG("\t\tTime: %u, T: %s", trackT->getTime(), trackT->getTranslation().getDebugString().c_str())
-                        }
-                        
-                        MCONV_LOG_DEBUG("\t\tTrack Orientation: ")
-                        for (const auto &trackO : track.second->getOrientationTrack())
-                        {
-                            Radian pitch, yaw, roll;
-                            trackO->getOrientation().toEulerAnglesYXZ(yaw, pitch, roll);
-                            MCONV_LOG_DEBUG("\t\tTime: %u, O: %s, E: (%f, %f, %f)", 
-                                trackO->getTime(), trackO->getOrientation().getDebugString().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees())
-                        }
-                        
-                        MCONV_LOG_DEBUG("\t\tTrack Scaling: ")
-                        for (const auto &trackS : track.second->getScalingTrack())
-                        {
-                            MCONV_LOG_DEBUG("\t\tTime: %u, S: %s", trackS->getTime(), trackS->getScaling().getDebugString().c_str())
-                        }
-                    }
+#if defined (T3D_DEBUG)
+                    // for (const auto &track : clip->getTracks())
+                    // {
+                    //     MCONV_LOG_DEBUG("\tTrack: %s", track.first.c_str())
+                    //     
+                    //     MCONV_LOG_DEBUG("\t\tTrack Translation: ")
+                    //     for (const auto &trackT : track.second->getTranslationTrack())
+                    //     {
+                    //         MCONV_LOG_DEBUG("\t\tTime: %u, T: %s", trackT->getTime(), trackT->getTranslation().getDebugString().c_str())
+                    //     }
+                    //     
+                    //     MCONV_LOG_DEBUG("\t\tTrack Orientation: ")
+                    //     for (const auto &trackO : track.second->getOrientationTrack())
+                    //     {
+                    //         Radian pitch, yaw, roll;
+                    //         trackO->getOrientation().toEulerAnglesYXZ(yaw, pitch, roll);
+                    //         MCONV_LOG_DEBUG("\t\tTime: %u, O: %s, E: (%f, %f, %f)", 
+                    //             trackO->getTime(), trackO->getOrientation().getDebugString().c_str(), pitch.valueDegrees(), yaw.valueDegrees(), roll.valueDegrees())
+                    //     }
+                    //     
+                    //     MCONV_LOG_DEBUG("\t\tTrack Scaling: ")
+                    //     for (const auto &trackS : track.second->getScalingTrack())
+                    //     {
+                    //         MCONV_LOG_DEBUG("\t\tTime: %u, S: %s", trackS->getTime(), trackS->getScaling().getDebugString().c_str())
+                    //     }
+                    // }
+#endif
                 }
             }
 
