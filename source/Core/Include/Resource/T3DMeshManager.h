@@ -51,8 +51,9 @@ namespace Tiny3D
          * @param [in] submeshes : 子 mesh 对象
          * @return 调用成功返回 mesh 对象，否则返回 nullptr
          */
-        MeshPtr createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes);
-
+        MeshPtr createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes, 
+            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE);
+        
         /**
          * @brief 根据文件名，加载 mesh 对象
          * @param [in] archive : 从该档案对象中加载 mesh 对象
@@ -90,7 +91,10 @@ namespace Tiny3D
             VertexAttributes &&attributes, Vertices &&vertices,
             VertexStrides &&strides, VertexOffsets &&offsets,
             SubMeshes &&submeshes, Skeleton *skeleton,
-            SkeletalAnimation *skeletalAni);
+            SkeletalAnimation *skeletalAni, 
+            const Vector3 &position = Vector3::ZERO, 
+            const Quaternion &orientation = Quaternion::IDENTITY,
+            const Vector3 &scaling = Vector3::UNIT_SCALE);
 
     protected:
         /**

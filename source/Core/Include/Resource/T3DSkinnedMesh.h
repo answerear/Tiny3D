@@ -48,7 +48,8 @@ namespace Tiny3D
             VertexAttributes &&attributes, Vertices &&vertices,
             VertexStrides &&strides, VertexOffsets &&offsets,
             SubMeshes &&submeshes, Skeleton *skeleton,
-            SkeletalAnimation *skeletalAni);
+            SkeletalAnimation *skeletalAni, 
+            const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling);
 
         /**
          * \brief 析构函数
@@ -85,7 +86,8 @@ namespace Tiny3D
         SkinnedMesh(const String &name, VertexAttributes &&attributes,
             Vertices &&vertices, VertexStrides &&strides,
             VertexOffsets &&offsets, SubMeshes &&submeshes, Skeleton *skeleton,
-            SkeletalAnimation *skeletalAni);
+            SkeletalAnimation *skeletalAni,
+            const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling);
         
         ResourcePtr clone() const override;
 

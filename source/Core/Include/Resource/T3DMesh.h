@@ -58,10 +58,14 @@ namespace Tiny3D
          * \param [in] vertices : 顶点数据
          * \param [in] strides : 每个顶点的跨度，也就是顶点大小
          * \param [in] offsets : 顶点在顶点缓冲区的偏移
-         * \param [in] submeshes : 子 mesh 对象 
+         * \param [in] submeshes : 子 mesh 对象
+         * \param [in] position : mesh 位置
+         * \param [in] orientation : mesh 旋转
+         * \param [in] scaling : mesh 缩放
          * \return 调用成功返回一个 mesh 对象
          */
-        static MeshPtr create(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes);
+        static MeshPtr create(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes, 
+            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE);
 
         /**
          * \brief 析构函数
@@ -87,6 +91,15 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="VertexOffsets", RTTRFuncType="getter")
         const VertexOffsets &getVertexOffsets() const { return mVertexOffsets; }
+        
+        TPROPERTY(RTTRFuncName="MeshPosition", RTTRFuncType="getter")
+        const Vector3 &getMeshPosition() const { return mMeshT; }
+
+        TPROPERTY(RTTRFuncName="MeshOrientation", RTTRFuncType="getter")
+        const Quaternion &getMeshOrientation() const { return mMeshQ; }
+
+        TPROPERTY(RTTRFuncName="MeshScaling", RTTRFuncType="getter")
+        const Vector3 &getMeshScaling() const { return mMeshS; }
 
         VertexDeclarationPtr getVertexDeclaration() const { return mVertexDecl; }
 
@@ -129,7 +142,8 @@ namespace Tiny3D
         
         Mesh(const String &name);
 
-        Mesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes);
+        Mesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
+            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE);
         
         ResourcePtr clone() const override;
 
@@ -150,6 +164,15 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="VertexOffsets", RTTRFuncType="setter")
         void setVertexOffsets(const VertexOffsets &offsets) { mVertexOffsets = offsets; }
+        
+        TPROPERTY(RTTRFuncName="MeshPosition", RTTRFuncType="setter")
+        void setMeshPosition(const Vector3 &position) { mMeshT = position; }
+        
+        TPROPERTY(RTTRFuncName="MeshOrientation", RTTRFuncType="setter")
+        void setMeshOrientation(const Quaternion &orientation) { mMeshQ = orientation; }
+        
+        TPROPERTY(RTTRFuncName="MeshScaling", RTTRFuncType="setter")
+        void setMeshScaling(const Vector3 &scaling) { mMeshS = scaling; }
 
         virtual TResult generateRenderResource(Archive *archive);
 
@@ -172,6 +195,10 @@ namespace Tiny3D
         VertexDeclarationPtr    mVertexDecl {nullptr};
         /// 渲染用的顶点缓冲区
         VertexBuffers mVBuffers {nullptr};
+        
+        Vector3 mMeshT {Vector3::ZERO};
+        Quaternion mMeshQ {Quaternion::IDENTITY};
+        Vector3 mMeshS {Vector3::UNIT_SCALE};
         
         /// 顶点属性是否需要更新
         bool    mIsAttrDirty {false};

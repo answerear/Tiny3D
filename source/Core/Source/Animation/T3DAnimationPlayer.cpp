@@ -595,9 +595,9 @@ namespace Tiny3D
         
         if (getKeyframe(startFrame, time, track, kf0, kf1, currentFrame))
         {
-            T3D_LOG_DEBUG(LOG_TAG_ANIMATION, 
-                "interpolateTranslation: time in range, startFrame %u, time %u, currentFrame %u",
-                startFrame, time, currentFrame)
+            // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, 
+            //     "interpolateTranslation: time in range, startFrame %u, time %u, currentFrame %u",
+            //     startFrame, time, currentFrame)
             
             if (kf1 != nullptr)
             {

@@ -44,6 +44,8 @@ namespace Tiny3D
         static GameObjectPtr create(const String &name, bool managed = true);
 
         static GameObjectPtr createWithTransform(const String &name, bool managed = true);
+        
+        static GameObjectPtr createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, bool managed = true);
 
         static void destroyComponents();
 

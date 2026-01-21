@@ -41,14 +41,15 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    MeshPtr MeshManager::createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes)
+    MeshPtr MeshManager::createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
     {
         VertexAttributes attrs = std::move(attributes);
         Vertices verts = std::move(vertices);
         VertexStrides vstrides = std::move(strides);
         VertexOffsets voffsets = std::move(offsets);
         SubMeshes subs = std::move(submeshes);
-        return smart_pointer_cast<Mesh>(createResource(name, 5, &attrs, &verts, &vstrides, &voffsets, &subs));
+        return smart_pointer_cast<Mesh>(createResource(name, 8, &attrs, &verts, &vstrides, &voffsets, &subs, &position, &orientation, &scaling));
     }
 
     //--------------------------------------------------------------------------
@@ -84,14 +85,15 @@ namespace Tiny3D
     SkinnedMeshPtr MeshManager::createSkinnedMesh(const String &name,
         VertexAttributes &&attributes, Vertices &&vertices,
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        Skeleton *skeleton, SkeletalAnimation *skeletalAni)
+        Skeleton *skeleton, SkeletalAnimation *skeletalAni,
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
     {
         VertexAttributes attrs = std::move(attributes);
         Vertices verts = std::move(vertices);
         VertexStrides vstrides = std::move(strides);
         VertexOffsets voffsets = std::move(offsets);
         SubMeshes subs = std::move(submeshes);
-        return smart_pointer_cast<SkinnedMesh>(createResource(name, 7, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni));
+        return smart_pointer_cast<SkinnedMesh>(createResource(name, 10, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni, &position, &orientation, &scaling));
     }
 
     //--------------------------------------------------------------------------
@@ -99,9 +101,9 @@ namespace Tiny3D
     ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
         ResourcePtr res;
-        T3D_ASSERT(argc == 5 || argc == 7);
+        T3D_ASSERT(argc == 8 || argc == 10);
         
-        if (argc == 5)
+        if (argc == 8)
         {
             // Mesh
             VertexAttributes *attributes = va_arg(args, VertexAttributes*);
@@ -109,9 +111,12 @@ namespace Tiny3D
             VertexStrides *strides = va_arg(args, VertexStrides*);
             VertexOffsets *offsets = va_arg(args, VertexOffsets*);
             SubMeshes *submeshes = va_arg(args, SubMeshes*);
-            res = Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes));
+            Vector3 *pos = va_arg(args, Vector3*);
+            Quaternion *ori = va_arg(args, Quaternion*);
+            Vector3 *scale = va_arg(args, Vector3*);
+            res = Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), *pos, *ori, *scale);
         }
-        else
+        else if (argc == 10)
         {
             // Skinned Mesh
             VertexAttributes *attributes = va_arg(args, VertexAttributes*);
@@ -121,7 +126,10 @@ namespace Tiny3D
             SubMeshes *submeshes = va_arg(args, SubMeshes*);
             Skeleton *skeleton = va_arg(args, Skeleton*);
             SkeletalAnimation *skeletalAni = va_arg(args, SkeletalAnimation*);
-            res = SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeleton, skeletalAni);
+            Vector3 *pos = va_arg(args, Vector3*);
+            Quaternion *ori = va_arg(args, Quaternion*);
+            Vector3 *scale = va_arg(args, Vector3*);
+            res = SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeleton, skeletalAni, *pos, *ori, *scale);
         }
         
         return res;

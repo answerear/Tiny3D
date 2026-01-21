@@ -47,9 +47,10 @@ namespace Tiny3D
     SkinnedMeshPtr SkinnedMesh::create(const String &name,
         VertexAttributes &&attributes, Vertices &&vertices,
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        Skeleton *skeleton, SkeletalAnimation *skeletalAni)
+        Skeleton *skeleton, SkeletalAnimation *skeletalAni, 
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
     {
-        return T3D_NEW SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeleton, skeletalAni);
+        return T3D_NEW SkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), skeleton, skeletalAni, position, orientation, scaling);
     }
 
     //--------------------------------------------------------------------------
@@ -71,8 +72,9 @@ namespace Tiny3D
 
     SkinnedMesh::SkinnedMesh(const String &name, VertexAttributes &&attributes,
         Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets,
-        SubMeshes &&submeshes, Skeleton *skeleton, SkeletalAnimation *skeletalAni)
-        : Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes))
+        SubMeshes &&submeshes, Skeleton *skeleton, SkeletalAnimation *skeletalAni,
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
+        : Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), position, orientation, scaling)
         , mSkeletonUUID(skeleton->getUUID())
         , mSkeletalAniUUID(skeletalAni->getUUID())
         , mSkeleton(skeleton)

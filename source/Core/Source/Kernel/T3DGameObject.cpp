@@ -24,15 +24,21 @@
 
 
 #include "Kernel/T3DGameObject.h"
-
+#include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DSkeletalAnimation.h"
+#include "Resource/T3DSkinnedMesh.h"
 #include "Bound/T3DFrustumBound.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransform3D.h"
 #include "Component/T3DComponent.h"
+#include "Component/T3DGeometry.h"
+#include "Component/T3DSkinnedGeometry.h"
 #include "Light/T3DLight.h"
 #include "Kernel/T3DAgent.h"
 #include "Render/T3DRenderPipeline.h"
+#include "Resource/T3DMesh.h"
 #include "Resource/T3DScene.h"
 #include "Resource/T3DSceneManager.h"
 #include "bound/T3DBound.h"
@@ -123,6 +129,64 @@ namespace Tiny3D
         return go;
     }
     
+    //--------------------------------------------------------------------------
+
+    GameObjectPtr GameObject::createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, bool managed)
+    {
+        if (mesh->getType() != Resource::Type::kMesh && mesh->getType() != Resource::Type::kSkinnedMesh)
+        {
+            return nullptr;
+        }
+        
+        GameObjectPtr go = createWithTransform(name, managed);
+        
+        GeometryPtr geo = nullptr;
+        
+        if (mesh->getType() == Resource::Type::kMesh)
+        {
+            geo = go->addComponent<Geometry>();
+        }
+        else if (mesh->getType() == Resource::Type::kSkinnedMesh)
+        {
+            geo = go->addComponent<SkinnedGeometry>();
+        }
+        
+        StringArray enableKeywrods;
+        enableKeywrods.push_back("");
+        StringArray disableKeywords;
+        int32_t i = 0;
+        for (auto submesh : mesh->getSubMeshes())
+        {
+            Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+            T3D_ASSERT(material != nullptr);
+            TResult ret = material->switchKeywords(enableKeywrods, disableKeywords);
+            T3D_ASSERT(T3D_SUCCEEDED(ret));
+            if (i == 0)
+            {
+                geo->setMeshObject(mesh, submesh.second);
+            }
+            i++;
+        }
+        
+        if (mesh->getType() == Resource::Type::kSkinnedMesh)
+        {
+            SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh*>(mesh);
+            T3D_ASSERT(skinnedMesh != nullptr);
+            SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
+            T3D_ASSERT(skeletalAni != nullptr);
+            const AnimationClips &clips = skeletalAni->getAnimationClips();
+            T3D_ASSERT(!clips.empty());
+            const String &clipName = clips.begin()->first;
+            SkinnedGeometry *skinnedGeometry = smart_pointer_cast<SkinnedGeometry>(geo);
+            skinnedGeometry->populateAllChildren();
+            skinnedGeometry->setDefaultClipName(clipName);
+            T3D_ASSERT(skinnedGeometry != nullptr);
+        }
+        
+        geometry = geo;
+        
+        return go;
+    }
     //--------------------------------------------------------------------------
 
     GameObject::GameObject(const String &name, bool managed)
