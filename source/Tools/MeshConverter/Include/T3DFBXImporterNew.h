@@ -105,9 +105,9 @@ namespace Tiny3D
             SubMeshes subMeshes {};
 
             /// 蒙皮网格的平移、旋转、缩放
-            Vector3 skinnedMeshT {Vector3::ZERO};
-            Quaternion skinnedMeshQ {Quaternion::IDENTITY};
-            Vector3 skinnedMeshS {Vector3::UNIT_SCALE};
+            Vector3 meshT {Vector3::ZERO};
+            Quaternion meshQ {Quaternion::IDENTITY};
+            Vector3 meshS {Vector3::UNIT_SCALE};
         };
 
         struct SkeletalAnimationData : public Allocator
@@ -309,6 +309,8 @@ namespace Tiny3D
         double mFbxFrameRate {0.0};
         
         double mFbxSampleRate {0.0};
+        
+        float mSceneScaleFactor {1.0f};
 
         /// Fbx 骨骼所在 FbxNode 根节点查找 Fbx mesh 所在 FbxNode 根节点映射表
         /// key : 骨架根节点, value : 网格根节点

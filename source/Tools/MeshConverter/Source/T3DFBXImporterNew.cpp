@@ -485,8 +485,14 @@ namespace Tiny3D
             {
                 MCONV_LOG_INFO("Start converting unit to meter ......")
                 FbxSystemUnit::cm.ConvertScene(lFbxScene);
+                
+                FbxSystemUnit::ConversionOptions options;
+                options.mConvertRrsNodes = false; // Do not convert nodes that don't inherit scale from their parent.
+                FbxSystemUnit(sceneScaleFactor).ConvertScene(lFbxScene, options);
                 MCONV_LOG_INFO("Completed converting unit !")
             }
+            
+            mSceneScaleFactor *= 0.01f;
 
             // 不是三角形为面的mesh，统一转换成三角形为面的mesh
             MCONV_LOG_INFO("Start converting face to triangles ......")
@@ -842,6 +848,15 @@ namespace Tiny3D
                     // 建立 FbxMeshRootLUT
                     mFbxMeshRoots.emplace(lFbxMesh, lFbxRoot);
 
+                    // 保存 mesh RTS 变换
+                    FbxAMatrix lFbxGlobalM = lFbxNode->EvaluateGlobalTransform(FBXSDK_TIME_ZERO);
+                    FbxVector4 lFbxGlobalT = lFbxGlobalM.GetT();
+                    FbxVector4 lFbxGlobalR = lFbxGlobalM.GetR();
+                    FbxVector4 lFbxGlobalS = lFbxGlobalM.GetS();
+                    
+                    meshData->meshT = FbxPointToTinyVector3Remap(lFbxGlobalT) * mSceneScaleFactor;
+                    meshData->meshQ = FbxEulerToTinyQuaternion(lFbxGlobalR);
+                    meshData->meshS = FbxPointToTinyVector3(lFbxGlobalS);
                 }
             }
         } while (false);
@@ -981,7 +996,7 @@ namespace Tiny3D
             FbxVector4 lFbxLocalR = lFbxLocalMat.GetR();
             FbxVector4 lFbxLocalS = lFbxLocalMat.GetS();
 
-            Vector3 localT = FbxPointToTinyVector3Remap(lFbxLocalT);
+            Vector3 localT = FbxPointToTinyVector3Remap(lFbxLocalT) * mSceneScaleFactor;
             Quaternion localQ = FbxEulerToTinyQuaternion(lFbxLocalR);
             Vector3 localS = FbxPointToTinyVector3(lFbxLocalS);
 
@@ -1099,7 +1114,7 @@ namespace Tiny3D
                                 FbxAMatrix lFbxM = lFbxNode->EvaluateLocalTransform(frameTime);
                                 FbxVector4 lFbxT = lFbxM.GetT();
                                 uint32_t time = static_cast<uint32_t>(frameTime.GetSecondDouble() * 1000.0);
-                                Vector3 T = FbxPointToTinyVector3Remap(lFbxT);
+                                Vector3 T = FbxPointToTinyVector3Remap(lFbxT) * mSceneScaleFactor;
                                 KfTranslationPtr keyframe = KfTranslation::create(time, T);
                                 if (keyframe != nullptr)
                                 {
@@ -1727,6 +1742,11 @@ namespace Tiny3D
                     // boneNode->setOffsetMatrix(mat.inverse());
 
                     Matrix4 mat = FbxAMatrixToMatrix4(lFbxOffsetM);
+                    Matrix4 scaleM(false);
+                    scaleM[0][0] = mSceneScaleFactor;
+                    scaleM[1][1] = mSceneScaleFactor;
+                    scaleM[2][2] = mSceneScaleFactor;
+                    mat = scaleM * mat;
                     boneNode->setOffsetMatrix(mat);
                     
                     MCONV_LOG_DEBUG("Bone [%s] offset matrix set. M: %s", boneName.c_str(), mat.getDebugString(true).c_str())
