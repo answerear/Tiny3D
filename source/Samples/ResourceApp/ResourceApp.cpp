@@ -184,7 +184,7 @@ void ResourceApp::loadMesh(Transform3D *parent)
     GameObjectPtr go = GameObject::createWithTransform("mesh");
     Transform3D *node = static_cast<Transform3D*>(go->getTransformNode());
     parent->addChild(node);
-    node->setScaling(0.01f, 0.01f, 0.01f);
+    // node->setScaling(0.01f, 0.01f, 0.01f);
     
     // mPitchTimerID = T3D_TIMER_MGR.startTimer(1000, true, [node, this](ID timerID, uint32_t dt)
     //     {
@@ -245,7 +245,7 @@ void ResourceApp::loadMesh(Transform3D *parent)
         T3D_ASSERT(skinnedGeometry != nullptr);
         skinnedGeometry->setGPUSkinning(false);
         const String &defaultClip = skinnedGeometry->getDefaultClipName();
-        skinnedGeometry->play(defaultClip, false);
+        skinnedGeometry->play(defaultClip, true);
         //
         // T3D_TIMER_MGR.startTimer(8, false, [this, skinnedGeometry](uint32_t timerID, uint32_t dt)
         // {
