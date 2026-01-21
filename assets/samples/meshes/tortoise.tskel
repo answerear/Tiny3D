@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "9c16917c7b07d5637c221809dc02bb0f"
+          "RTTI_Value": "214e0b3016444c27b2560900f2b155f0"
         }
       },
       "Bones": {
@@ -84,11 +84,11 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -258.0327453613281
+                    "RTTI_Value": -2.5803275108337404
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 31.157825469970704
+                    "RTTI_Value": 0.31157824397087099
                   },
                   "z": {
                     "RTTI_Type": "float",
@@ -112,7 +112,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "hkotvxLqLb8oDZG+a/HxwbbYHj8P1Tu/Zb6NPnk8I0OZuMq+kkA+PFoPaz8gpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "B9Ddu0Cc3rtwqjm78teavtRSyzvgbPC7lW41Oz7x0D/SvYG72YXzODlwFjzNECu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -164,15 +164,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 19.267807006835939
+                    "RTTI_Value": 0.1926780641078949
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 114.01465606689453
+                    "RTTI_Value": 1.1401464939117432
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -96.1458969116211
+                    "RTTI_Value": -0.9614589214324951
                   }
                 }
               }
@@ -192,7 +192,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "0nZavttFeb9hMKO97H1AQ3KlZD+m5mi+mKnGPrvVhUKauMq+mUA+PFoPaz8hpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "KtELu96IH7zE4VC6vWP2P2dVEjx/DhW7uEl+OwRPKz/TvYG74oXzODlwFjzOECu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -244,15 +244,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -152.24697875976563
+                    "RTTI_Value": -1.5224697589874268
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.000016927719116210939
+                    "RTTI_Value": -1.6927718604620169e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -7.105427357601002e-15
+                    "RTTI_Value": -7.105427198782324e-17
                   }
                 }
               }
@@ -272,7 +272,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "A6HsPuCMXL/dOlc+tEqZQ4ciSz/08AE/qearPtABSMNxuMq+Lj8+PGMPaz8UpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "SXGXO/YmDbxGvwk7qTZEQJ4BAjwkU6Y7hghcOykBAMC5vYG7EoTzOD9wFjy9ECu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -324,15 +324,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -167.39474487304688
+                    "RTTI_Value": -1.6739474534988404
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.00006103515625
+                    "RTTI_Value": 6.103515488575795e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.00002288818359375
+                    "RTTI_Value": -2.288818308215923e-7
                   }
                 }
               }
@@ -352,7 +352,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "jUotvw7qLT8tDZG+ovHxwbHYHr8V1Tu/Yr6Nvno8I8OZuMq+tkA+vFoPaz8hpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "ENDduzuc3jt3qjm7Ftiavs5Sy7vnbPC7km41u0Dx0L/SvYG7B4bzuDlwFjzOECu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -404,15 +404,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 23.252960205078126
+                    "RTTI_Value": 0.23252959549427033
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 106.42539978027344
+                    "RTTI_Value": 1.0642539262771607
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 103.67031860351563
+                    "RTTI_Value": 1.036703109741211
                   }
                 }
               }
@@ -432,7 +432,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "BHdavtxFeT9KMKO95n1AQ3SlZL/P5mi+mKnGvsrVhcKXuMq+cUI+vFwPaz8tpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "StELu96IHzym4VC6tWP2P2lVEryZDhW7uEl+uxdPK7/RvYG7PojzuDtwFjzdECu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -484,15 +484,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -152.24697875976563
+                    "RTTI_Value": -1.5224697589874268
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.0000209808349609375
+                    "RTTI_Value": 2.0980834847250663e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.000003814697265625
+                    "RTTI_Value": -3.814697180359872e-8
                   }
                 }
               }
@@ -512,7 +512,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "AKHsPuWMXD/VOlc+tUqZQ4kiS7/x8AE/searvswBSEN3uMq+iD4+vGUPaz8NpYXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "R3GXO/kmDTxAvwk7qjZEQJ8BArwgU6Y7kAhcuyYBAEC9vYG7PYPzuEBwFjy0ECu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -564,15 +564,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -167.39476013183595
+                    "RTTI_Value": -1.6739475727081299
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.0000152587890625
+                    "RTTI_Value": 1.5258788721439488e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.0000762939453125
+                    "RTTI_Value": 7.629394076502649e-7
                   }
                 }
               }
@@ -592,7 +592,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "0OR9v8OMlLuVAAO+H1n+wrNOlTtP/3+/zMLqOCiHFz9eAAO+YGn3uX/lfT/9SALCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "9n0ivNAkPrjTrqe6Zsiivw4dPziZ1iO8Oz+WNa70wTuNrqe661eetmZ+IjzTw6a+AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -644,15 +644,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 12.454177856445313
+                    "RTTI_Value": 0.12454177439212799
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 127.94024658203125
+                    "RTTI_Value": 1.279402494430542
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 4.610877990722656
+                    "RTTI_Value": 0.046108778566122058
                   }
                 }
               }
@@ -672,7 +672,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "sgJzv1yUjLtmAaE+TvV4wrNOlTtP/3+/zMLqOCmHFz/oAKE+N7zJOlUDcz9C5MbAAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "2IYbvBnxM7hFFk47UFUfvw4dPziZ1iO8Oz+WNa/0wTukFU47TByBN0CHGzzPlH69AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -724,15 +724,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -73.77458190917969
+                    "RTTI_Value": -0.7377458214759827
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -3.2596298993325947e-9
+                    "RTTI_Value": -3.259629718921353e-11
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -2.384185791015625e-7
+                    "RTTI_Value": -2.38418573772492e-9
                   }
                 }
               }
@@ -752,7 +752,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "zhCfvYnGfL83Jg0+FeeKQqQmfz8wY6S9gVBbvJ39lsLT6cY80p0LPnmIfT+xtJHBAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "oZpLur7GIbzLq7Q6oMsxP+5LIzx7alK6e1wMuaBEQb/vm345h7WyOt1CIjzigDq+AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -804,15 +804,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -137.14175415039063
+                    "RTTI_Value": -1.37141752243042
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -64.03713989257813
+                    "RTTI_Value": -0.6403713822364807
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 26.457313537597658
+                    "RTTI_Value": 0.2645731270313263
                   }
                 }
               }
@@ -832,7 +832,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "yxCfvYnGfD82Jg0+FeeKQqUmf78xY6S9TlFbPJ/9lkI56sY80Z0LvnqIfT+3tJHBAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "nZpLur7GITzKq7Q6oMsxP+5LI7x8alK6/1wMOaJEQT9ynH45hrWyut1CIjzqgDq+AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -884,15 +884,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -136.58404541015626
+                    "RTTI_Value": -1.3658404350280762
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 65.96151733398438
+                    "RTTI_Value": 0.659615159034729
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 26.257225036621095
+                    "RTTI_Value": 0.2625722587108612
                   }
                 }
               }
@@ -912,7 +912,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "hG16PzGXKDS9fFS+E+yBQ718VD7m4qC0hG16P1lVtEE/TcQzAACAv1LgrrS2tdc3AAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "F0YgPMTL1zDp/Qe75UwmQOn9Bzs7702xF0YgPKXTZj4nRHswCtcjvHPXX7HlDYo0AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -964,15 +964,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.6929931640625
+                    "RTTI_Value": -0.0069299316965043549
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.8477884531021118
+                    "RTTI_Value": -0.008477884344756604
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.018381118774414064
+                    "RTTI_Value": -0.00018381117843091488
                   }
                 }
               }
@@ -992,7 +992,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "kzx3PvEzdL/IczY+ras3Qz0Qdz//roI+hpZwPUZDtkOw48+9rI8hPl10ez92+DnCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "PzseOzRKHLz1iek6LxnrP98eHjxlRic77/kZOt5LaUCZDIW6YczOOlDuIDzUCu6+AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -1044,15 +1044,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 40.8048095703125
+                    "RTTI_Value": 0.4080480933189392
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -138.44064331054688
+                    "RTTI_Value": -1.3844064474105836
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -95.66104888916016
+                    "RTTI_Value": -0.9566104412078857
                   }
                 }
               }
@@ -1072,7 +1072,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "bXsgPy8NPr/WDXI+Cf7KQyuVRD+Y2CM/HTDYvOs0UUPI2wa+edBKPkOneD9atIXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "yWrNOxNE87si6ho7Q+qBQDeg+zsUudE7O1yKuW3kBUBwnqy6Gs0BO14jHzxKJCu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -1124,15 +1124,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -95.64965057373047
+                    "RTTI_Value": -0.9564964771270752
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.0000152587890625
+                    "RTTI_Value": 1.5258788721439488e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.0000019073486328125
+                    "RTTI_Value": 1.907348590179936e-8
                   }
                 }
               }
@@ -1152,7 +1152,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "a+9CP36dFL8SpZM+U3AFRLaxHj8LP0g/L8N+vanpxUJJAUK+VoxnPnebdD/C6M3CAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "YIT5Ozs6vrtA/Dw7N82qQOkgyztZKAA8RwwjugtUfT+QU/i62zAUO3WMHDwqyIO/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -1204,11 +1204,11 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -101.01617431640625
+                    "RTTI_Value": -1.0101617574691773
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.0000762939453125
+                    "RTTI_Value": 7.629394076502649e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
@@ -1232,7 +1232,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "YSZ3PqI1dD+tbTY+eqM3Q7gRd7+So4I+1JxwvXNFtsM63M+9wYshvpt0ez8z8TnCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "Cy0eO0lLHDwlguk6sA7rP9IfHrzFNyc7+P0ZuqdOacDTB4W6XcfOunfuIDyJAe6+AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -1284,15 +1284,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 44.373992919921878
+                    "RTTI_Value": 0.4437399208545685
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -145.24087524414063
+                    "RTTI_Value": -1.4524086713790894
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 83.17391204833985
+                    "RTTI_Value": 0.8317391276359558
                   }
                 }
               }
@@ -1312,7 +1312,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "GXcgPzgRPj8ICXI+UvvKQ+iYRL8n1CM/0Q/YPGQ8UcMS1wa+Uc1KvpGneD8VsIXCAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "PmXNOz1J8zsP5xo7huiBQACl+7tls9E7kEeKOTbpBcBpmKy6FcsBu5AjHzzTHiu/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -1364,15 +1364,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -95.64974212646485
+                    "RTTI_Value": -0.9564973711967468
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.000011444091796875
+                    "RTTI_Value": -1.1444091541079615e-7
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": 0.000006854534149169922
+                    "RTTI_Value": 6.854534007061375e-8
                   }
                 }
               }
@@ -1392,7 +1392,7 @@
                     "RTTI_Type": "Tiny3D::Buffer",
                     "RTTI_Value": {
                       "RTTI_Type": "std::string",
-                      "RTTI_Value": "DuxCP2iiFD8yo5M+bm8FREi2Hr+KO0g/Xa9+PZn6xcLu+0G+oIpnvtKbdD855M3CAAAAAAAAAAAAAAAAAACAPw=="
+                      "RTTI_Value": "EoD5O4VAvjvZ+Tw7EsyqQMImy7sbJgA8l/8iOrlpfb+1TPi6wi8Uu6+MHDxDxYO/AAAAAAAAAAAAAAAAAACAPw=="
                     }
                   }
                 }
@@ -1444,15 +1444,15 @@
                 "RTTI_Value": {
                   "x": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -101.01614379882813
+                    "RTTI_Value": -1.0101613998413087
                   },
                   "y": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -6.092024023018894e-7
+                    "RTTI_Value": -6.092023774328936e-9
                   },
                   "z": {
                     "RTTI_Type": "float",
-                    "RTTI_Value": -0.00000787538829172263
+                    "RTTI_Value": -7.875387808553569e-8
                   }
                 }
               }
