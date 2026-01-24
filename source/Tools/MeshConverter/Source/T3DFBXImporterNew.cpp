@@ -1775,7 +1775,7 @@ namespace Tiny3D
                 if (lookupMeshData(mesh.second, meshData))
                 {
                     // 1. 生成网格数据（顶点、法线、UV等）
-                    ret = generateMesh(mesh.second, meshData);
+                    ret = generateMesh(mesh.second, meshData, hasSkin);
                     if (T3D_FAILED(ret))
                     {
                         break;
@@ -2026,7 +2026,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult FBXImporterNew::generateMesh(FbxMesh *lFbxMesh, MeshData *meshData)
+TResult FBXImporterNew::generateMesh(FbxMesh *lFbxMesh, MeshData *meshData, bool hasSkin)
     {
         TResult ret = T3D_OK;
 
@@ -2103,7 +2103,7 @@ namespace Tiny3D
                             Vector3 V;
                             int32_t vertexIndex = vertexOrder[j];
                             int32_t ctrlPointIndex = lFbxMesh->GetPolygonVertex(i, vertexIndex);
-                            readVertex(lFbxMesh, ctrlPointIndex, V);
+                            readVertex(lFbxMesh, ctrlPointIndex, V, hasSkin);
 
                             // 获取 uv
                             Vector2Array texCoords;
@@ -2272,15 +2272,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, Vector3 &vertex)
-    {
-        FbxVector4 *lFbxCtrlPoints = lFbxGeometry->GetControlPoints();
+void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, Vector3 &vertex, bool hasSkin)
+{
+    FbxVector4 *lFbxCtrlPoints = lFbxGeometry->GetControlPoints();
 
-        vertex = FbxPointToTinyVector3Remap(lFbxCtrlPoints[ctrlPointIndex]);
-        // vertex[0] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][0]);
-        // vertex[1] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][1]);
-        // vertex[2] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][2]);
+    vertex = FbxPointToTinyVector3Remap(lFbxCtrlPoints[ctrlPointIndex]);
+    
+    // 对于没有蒙皮的 mesh，直接在这里缩放顶点位置
+    // 对于有蒙皮的 mesh，缩放会通过 Offset Matrix 应用
+    if (!hasSkin)
+    {
+        vertex *= mSceneScaleFactor;
     }
+    
+    // vertex[0] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][0]);
+    // vertex[1] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][1]);
+    // vertex[2] = static_cast<float32_t>(lFbxCtrlPoints[ctrlPointIndex][2]);
+}
 
     //--------------------------------------------------------------------------
 

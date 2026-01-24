@@ -234,7 +234,7 @@ namespace Tiny3D
         /// 生成网格对象
         TResult generateMeshes(bool hasSkin);
 
-        TResult generateMesh(FbxMesh *lFbxMesh, MeshData *meshData);
+        TResult generateMesh(FbxMesh *lFbxMesh, MeshData *meshData, bool hasSkin);
 
         TResult generateMeshSkinData(FbxMesh *lFbxMesh, MeshData *meshData);
         
@@ -242,7 +242,7 @@ namespace Tiny3D
 
         void getFbxTriangleMaterialIndices(FbxGeometryBase *lFbxGeometry, int32_t triangleCount, TArray<int32_t> &triangleMaterialIndices) const;
 
-        void readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, Vector3 &vertex);
+        void readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, Vector3 &vertex, bool hasSkin);
 
         void readNormal(FbxGeometryBase *lFbxGeometry, int32_t ctrlPointIndex, int32_t vertexCounter, Vector3 &normal);
 
