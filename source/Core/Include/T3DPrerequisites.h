@@ -169,6 +169,7 @@ namespace Tiny3D
     class Renderable;
     class Geometry;
     class SkinnedGeometry;
+    class Bone;
 
     // Bound
     class Bound;
