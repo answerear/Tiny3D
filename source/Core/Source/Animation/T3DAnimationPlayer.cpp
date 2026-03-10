@@ -281,11 +281,8 @@ namespace Tiny3D
                 int64_t currentTS = DateTime::currentMSecsSinceEpoch();
                 uint32_t elapsed = static_cast<uint32_t>(currentTS - mStartTimestamp);
 
-                if (elapsed >= clip->getDuration())
-                {
-                    // 设置时间为动画的持续时间
-                    elapsed = clip->getDuration();
-                }
+                // 设置时间为动画的持续时间
+                elapsed = std::min(elapsed, clip->getDuration());
 
                 // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
             
