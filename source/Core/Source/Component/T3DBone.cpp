@@ -76,7 +76,6 @@ namespace Tiny3D
 
             const Bone * other = static_cast<const Bone * const>(src);
             mOffsetMatrix = other->mOffsetMatrix;
-            mParentIndex = other->mParentIndex;
         } while (false);
         
         return ret;

@@ -37,9 +37,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    SkeletonPtr Skeleton::create(const String &name, Bones &&bones)
+    SkeletonPtr Skeleton::create(const String &name, GameObjectPtr rootBoneGameObject)
     {
-        return T3D_NEW Skeleton(name, std::move(bones));
+        return T3D_NEW Skeleton(name, rootBoneGameObject);
     }
 
     //--------------------------------------------------------------------------
@@ -59,9 +59,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Skeleton::Skeleton(const String &name, Bones &&bones)
+    Skeleton::Skeleton(const String &name, GameObjectPtr rootBoneGameObject)
         : Resource(name)
-        , mBones(std::move(bones))
+        , mRootBoneGameObject(rootBoneGameObject)
     {
         
     }
@@ -89,6 +89,7 @@ namespace Tiny3D
         Resource::cloneProperties(src);
         
         const Skeleton *skel = static_cast<const Skeleton*>(src);
+        mRootBoneGameObject = skel->mRootBoneGameObject;
     }
 
     //--------------------------------------------------------------------------

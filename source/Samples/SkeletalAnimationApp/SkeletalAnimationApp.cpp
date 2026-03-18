@@ -324,6 +324,11 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     xform->setPosition(pos);
     xform->rotate(Radian::kZero, yAngles, Radian::kZero);
 
+    // 将骨骼树根节点（UpperArm）挂到 Cube#0 下
+    Skeleton *skeleton = mCubeMesh->getSkeleton();
+    TransformNode *upperArmXform = skeleton->getRootBoneGameObject()->getTransformNode();
+    xform->addChild(upperArmXform);
+
     go = GameObject::createWithTransform("body");
     xform->addChild(go->getTransformNode());
     xform = static_cast<Transform3D *>(go->getTransformNode());
@@ -756,8 +761,10 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 
-    SkeletonPtr skeleton = buildArmSkeleton();
+    SkeletonPtr skeleton = buildArmSkeleton(nullptr);
     SkeletalAnimationPtr skeletalAni = buildArmSkeletalAnimation();
+    
+    skeleton->getRootBoneGameObject()->getTransformNode()->printHierarchy();
     
     MeshPtr mesh = T3D_MESH_MGR.createSkinnedMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes), skeleton, skeletalAni);
 #if defined (T3D_DEBUG)
@@ -802,25 +809,52 @@ void SkeletalAnimationApp::buildAnimationTracks(const String &name, const Radian
     tracks.emplace(name, track);
 }
 
-SkeletonPtr SkeletalAnimationApp::buildArmSkeleton()
+SkeletonPtr SkeletalAnimationApp::buildArmSkeleton(Transform3D *parent)
 {
-    Bones bones;
-    // bones hierarchy and offset matrices
     Matrix4 offsetMatrix;
     Vector3 pos = Vector3::ZERO;
-    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
-    BoneNodePtr bone = BoneNode::create(kUpperArmName, -1, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
-    bones.emplace_back(bone);
-    pos.y() += kOneBoneLength;
-    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
-    bone = BoneNode::create(kForeArmName, 0, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
-    bones.emplace_back(bone);
-    pos.y() += kOneBoneLength;
-    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
-    bone = BoneNode::create(kPalmName, 1, pos, Quaternion::IDENTITY, Vector3::UNIT_SCALE, offsetMatrix);
-    bones.emplace_back(bone);
 
-    return T3D_SKELETON_MGR.createSkeleton(kArmSkeleton, std::move(bones));
+    // UpperArm（根骨骼）
+    GameObjectPtr upperArmGO = GameObject::create(kUpperArmName);
+    Transform3DPtr upperArmXform = upperArmGO->addComponent<Transform3D>();
+    upperArmXform->setPosition(pos);
+    upperArmXform->setOrientation(Quaternion::IDENTITY);
+    upperArmXform->setScaling(Vector3::UNIT_SCALE);
+    BonePtr upperArmBone = upperArmGO->addComponent<Bone>();
+    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
+    upperArmBone->setOffsetMatrix(offsetMatrix);
+
+    // 将 UpperArm 挂到传入的父节点下（场景 hierarchy）
+    if (parent != nullptr)
+    {
+        parent->addChild(upperArmXform.get());
+    }
+
+    // ForeArm（UpperArm 的子骨骼）
+    pos.y() += kOneBoneLength;
+    GameObjectPtr foreArmGO = GameObject::create(kForeArmName);
+    Transform3DPtr foreArmXform = foreArmGO->addComponent<Transform3D>();
+    foreArmXform->setPosition(pos);
+    foreArmXform->setOrientation(Quaternion::IDENTITY);
+    foreArmXform->setScaling(Vector3::UNIT_SCALE);
+    BonePtr foreArmBone = foreArmGO->addComponent<Bone>();
+    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
+    foreArmBone->setOffsetMatrix(offsetMatrix);
+    upperArmXform->addChild(foreArmXform.get());
+
+    // Palm（ForeArm 的子骨骼）
+    pos.y() += kOneBoneLength;
+    GameObjectPtr palmGO = GameObject::create(kPalmName);
+    Transform3DPtr palmXform = palmGO->addComponent<Transform3D>();
+    palmXform->setPosition(pos);
+    palmXform->setOrientation(Quaternion::IDENTITY);
+    palmXform->setScaling(Vector3::UNIT_SCALE);
+    BonePtr palmBone = palmGO->addComponent<Bone>();
+    offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
+    palmBone->setOffsetMatrix(offsetMatrix);
+    foreArmXform->addChild(palmXform.get());
+
+    return T3D_SKELETON_MGR.createSkeleton(kArmSkeleton, upperArmGO);
 }
 
 

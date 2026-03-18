@@ -423,13 +423,8 @@ namespace Tiny3D
                 break;
             }
 
-            // 克隆子结点属性
-            for (auto child : node->mChildren)
-            {
-                TransformNode *newChild = smart_pointer_cast<TransformNode>(child->clone());
-                child->cloneProperties(newChild);
-                addChild(newChild);
-            }
+            // TransformNode 基类无额外变换字段，子树由 GameObject::clone() 负责递归克隆，
+            // 此处不遍历子节点、不调用 addChild，保证克隆后父节点指针为 nullptr
         } while (false);
 
         return ret;

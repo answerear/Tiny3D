@@ -132,7 +132,6 @@ namespace Tiny3D
     class AnimationManager;
 
     // Skeletal Animation
-    class BoneNode;
     class Keyframe;
     class KfTranslation;
     class KfOrientation;

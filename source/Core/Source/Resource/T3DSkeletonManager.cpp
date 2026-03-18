@@ -39,10 +39,9 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    SkeletonPtr SkeletonManager::createSkeleton(const String &name, Bones &&bones)
+    SkeletonPtr SkeletonManager::createSkeleton(const String &name, GameObject *rootBoneGameObject)
     {
-        Bones data = std::move(bones);
-        return smart_pointer_cast<Skeleton>(createResource(name, 1, &data));
+        return smart_pointer_cast<Skeleton>(createResource(name, 1, rootBoneGameObject));
     }
 
     //--------------------------------------------------------------------------
@@ -78,9 +77,8 @@ namespace Tiny3D
     ResourcePtr SkeletonManager::newResource(const String &name, int32_t argc, va_list args)
     {
         T3D_ASSERT(argc == 1);
-        // Skeleton
-        Bones *bones = va_arg(args, Bones*);
-        return Skeleton::create(name, std::move(*bones));
+        GameObject *rootBoneGameObject = va_arg(args, GameObject*);
+        return Skeleton::create(name, rootBoneGameObject);
     }
 
     //--------------------------------------------------------------------------

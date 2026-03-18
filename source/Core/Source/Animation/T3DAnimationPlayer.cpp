@@ -29,11 +29,12 @@
 #include "Resource/T3DSkinnedMesh.h"
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Component/T3DTransform3D.h"
+#include "Component/T3DBone.h"
+#include "Kernel/T3DGameObject.h"
 #include "Render/T3DVertexBuffer.h"
 #include "T3DConfig.h"
 #include "Animation/T3DAnimationPlayerMgr.h"
 #include "Resource/T3DMaterial.h"
-#include "Resource/T3DSkeleton.h"
 
 
 namespace Tiny3D
@@ -457,16 +458,17 @@ namespace Tiny3D
         T3D_ASSERT(srcPosVerts.Data != dstPosVerts.Data);
         T3D_ASSERT(srcPosVerts.DataSize == dstPosVerts.DataSize);
 
-        const auto getBoneMatrix = [](const Bones &bones, const BoneGameObjects &boneGameObjects, uint8_t boneIndex)
+        const auto getBoneMatrix = [](const BoneGameObjects &boneGameObjects, uint8_t boneIndex)
         {
             if (boneIndex == 0xFF)
             {
                 return Matrix4::IDENTITY;
             }
             
-            const BoneNodePtr &bone = bones[boneIndex];
-            const Matrix4 &matOffset = bone->getOffsetMatrix();
-            Transform3D *xform = static_cast<Transform3D *>(boneGameObjects[boneIndex]->getTransformNode());
+            GameObject *boneGO = boneGameObjects[boneIndex];
+            Bone *bone = boneGO->getComponent<Bone>();
+            const Matrix4 &matOffset = (bone != nullptr) ? bone->getOffsetMatrix() : Matrix4::IDENTITY;
+            Transform3D *xform = static_cast<Transform3D *>(boneGO->getTransformNode());
             const Matrix4 &matBoneMatrix = xform->getLocalToWorldTransform().getAffineMatrix();
             Matrix4 mat = matBoneMatrix * matOffset;
             return mat;
@@ -504,10 +506,10 @@ namespace Tiny3D
                 uint8_t blendIdx = srcIndex[idx];
                 
                 // 混合计算位置
-                pos += getBoneMatrix(skinnedMesh->getSkeleton()->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * srcPos1 * blendWeight;
+                pos += getBoneMatrix(mSkinnedGeometry->getBoneGameObjects(), blendIdx) * srcPos1 * blendWeight;
 
                 // 混合计算法线
-                normal += getBoneMatrix(skinnedMesh->getSkeleton()->getBones(), mSkinnedGeometry->getBoneGameObjects(), blendIdx) * (srcNormal1) * blendWeight;
+                normal += getBoneMatrix(mSkinnedGeometry->getBoneGameObjects(), blendIdx) * (srcNormal1) * blendWeight;
             }
 
             T3D_ASSERT(posOffset < dstPosVerts.DataSize);
@@ -557,16 +559,16 @@ namespace Tiny3D
     void AnimationPlayer::GPUSkinning()
     {
         T3D_ASSERT(mSkinnedGeometry != nullptr);
-        SkinnedMesh *skinnedMesh = (SkinnedMesh *)(mSkinnedGeometry->getMeshObject());
-        const Bones &bones = skinnedMesh->getSkeleton()->getBones();
         Material *material = mSkinnedGeometry->getMaterial();
         T3D_ASSERT(material != nullptr);
-        const auto &transforms = mSkinnedGeometry->getBoneGameObjects();
+        const auto &boneGameObjects = mSkinnedGeometry->getBoneGameObjects();
         Matrix4 matrices[T3D_MAX_SKIN_BONES] = { Matrix4::IDENTITY };
-        for (int32_t i = 0; i < bones.size(); i++)
+        for (int32_t i = 0; i < static_cast<int32_t>(boneGameObjects.size()); i++)
         {
-            const Matrix4 &mat = static_cast<Transform3D *>(transforms[i]->getTransformNode())->getLocalToWorldTransform().getAffineMatrix();
-            const Matrix4 &matOffset = bones[i]->getOffsetMatrix();
+            GameObject *boneGO = boneGameObjects[i];
+            Bone *bone = boneGO->getComponent<Bone>();
+            const Matrix4 &matOffset = (bone != nullptr) ? bone->getOffsetMatrix() : Matrix4::IDENTITY;
+            const Matrix4 &mat = static_cast<Transform3D *>(boneGO->getTransformNode())->getLocalToWorldTransform().getAffineMatrix();
             matrices[i] = mat * matOffset;
         }
         Matrix4Array matrixArray(matrices, matrices+T3D_MAX_SKIN_BONES);

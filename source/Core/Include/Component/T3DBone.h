@@ -49,18 +49,6 @@ namespace Tiny3D
         
         ComponentPtr clone() const override;
         
-        TPROPERTY(RTTRFuncName="ParentIndex", RTTRFuncType="getter")
-        uint16_t getParentIndex() const
-        {
-            return mParentIndex;
-        }
-        
-        TPROPERTY(RTTRFuncName="ParentIndex", RTTRFuncType="setter")
-        void setParent(uint16_t parentIndex)
-        {
-            mParentIndex = parentIndex;
-        }
-
         TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="getter")
         const Matrix4 &getOffsetMatrix() const
         {
@@ -83,9 +71,6 @@ namespace Tiny3D
     protected:
         /// 骨骼偏移矩阵
         Matrix4 mOffsetMatrix {false};
-        
-        /// 父骨骼索引
-        uint16_t mParentIndex {kInvalidIndex};
     };
 }
 

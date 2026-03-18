@@ -27,7 +27,9 @@
 #include "Resource/T3DSkinnedMesh.h"
 #include "T3DErrorDef.h"
 #include "Component/T3DTransform3D.h"
+#include "Component/T3DBone.h"
 #include "Resource/T3DSkeleton.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D
@@ -140,42 +142,84 @@ namespace Tiny3D
             return T3D_ERR_RES_INVALID_OBJECT;
         }
 
-        const Bones &bones = skinnedMesh->getSkeleton()->getBones();
-        
-        mBoneGameObjects.clear();
-        mBoneGameObjects.resize(bones.size(), nullptr);
-
-        mAllBones.clear();
-
-        // 先构建所有 game object 对象
-        for (size_t i = 0; i < bones.size(); i++)
+        Skeleton *skeleton = skinnedMesh->getSkeleton();
+        if (skeleton == nullptr)
         {
-            const auto &bone = bones[i];
-            GameObjectPtr go = GameObject::create(bone->getName());
-            Transform3DPtr xform = smart_pointer_cast<Transform3D>(go->addComponent<Transform3D>());
-            xform->setPosition(bone->getTranslation());
-            xform->setOrientation(bone->getRotation());
-            xform->setScaling(bone->getScaling());
-            mBoneGameObjects[i] = go;
-            mAllBones.emplace(bone->getName(), go);
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren failed. Skeleton is nullptr !");
+            return T3D_ERR_RES_INVALID_OBJECT;
         }
 
-        // 根据骨骼层级结构来构建 game object 层级结构
-        for (size_t i = 0; i < bones.size(); i++)
+        GameObjectPtr templateRootBone = skeleton->getRootBoneGameObject();
+        if (templateRootBone == nullptr)
         {
-            const auto &bone = bones[i];
-            GameObjectPtr go = mBoneGameObjects[i];
-            Transform3D *node = static_cast<Transform3D *>(go->getTransformNode());
-            uint16_t parentIdx = bone->getParentIndex();
-            if (parentIdx != BoneNode::kInvalidIndex)
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren failed. Root bone GameObject is nullptr !");
+            return T3D_ERR_RES_INVALID_OBJECT;
+        }
+
+        // 克隆骨骼根节点的整个子树，作为该 SkinnedGeometry 实例独占的运行时骨骼副本
+        mRootBoneGameObject = templateRootBone->clone();
+        if (mRootBoneGameObject == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren failed. Clone root bone GameObject failed !");
+            return T3D_ERR_RES_INVALID_OBJECT;
+        }
+
+        templateRootBone->getTransformNode()->printHierarchy();
+        mRootBoneGameObject->getTransformNode()->printHierarchy();
+        
+        mBoneGameObjects.clear();
+        mAllBones.clear();
+
+        // 第一步：遍历克隆子树，按骨骼名称建立 mAllBones 哈希表
+        std::function<void(GameObject*)> collectClonedBones = [&](GameObject *go)
+        {
+            BonePtr bone = go->getComponent<Bone>();
+            if (bone != nullptr)
             {
-                GameObjectPtr parentGO = mBoneGameObjects[parentIdx];
-                Transform3D *parentNode = static_cast<Transform3D *>(parentGO->getTransformNode());
-                parentNode->addChild(node);
+                mAllBones.emplace(go->getName(), go);
             }
-            else
+
+            TransformNode *node = go->getTransformNode();
+            if (node == nullptr) return;
+
+            for (auto itr = node->child_begin(); itr != node->child_end(); ++itr)
             {
-                root->getTransformNode()->getParent()->addChild(node);
+                collectClonedBones(itr->get()->getGameObject());
+            }
+        };
+        collectClonedBones(mRootBoneGameObject.get());
+
+        // 第二步：按模板骨骼子树的 DFS 顺序，填充 mBoneGameObjects 数组（保证索引与模板一致）
+        std::function<void(GameObject*)> buildIndexByTemplate = [&](GameObject *go)
+        {
+            BonePtr bone = go->getComponent<Bone>();
+            if (bone != nullptr)
+            {
+                auto it = mAllBones.find(go->getName());
+                if (it != mAllBones.end())
+                {
+                    mBoneGameObjects.push_back(it->second);
+                }
+            }
+
+            TransformNode *node = go->getTransformNode();
+            if (node == nullptr) return;
+
+            for (auto itr = node->child_begin(); itr != node->child_end(); ++itr)
+            {
+                buildIndexByTemplate(itr->get()->getGameObject());
+            }
+        };
+        buildIndexByTemplate(templateRootBone.get());
+
+        // 将克隆出的骨骼根节点作为兄弟节点挂接到 SkinnedGeometry 所在 GameObject 的同级父节点下
+        TransformNode *myNode = root->getTransformNode();
+        if (myNode != nullptr && myNode->getParent() != nullptr)
+        {
+            TransformNode *rootBoneNode = mRootBoneGameObject->getTransformNode();
+            if (rootBoneNode != nullptr)
+            {
+                myNode->getParent()->addChild(rootBoneNode);
             }
         }
         

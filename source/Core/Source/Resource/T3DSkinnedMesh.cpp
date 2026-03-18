@@ -31,6 +31,10 @@
 #include "Resource/T3DSkeleton.h"
 #include "Resource/T3DSkeletonManager.h"
 #include "Kernel/T3DTransform.h"
+#include "Kernel/T3DGameObject.h"
+#include "Component/T3DTransformNode.h"
+#include "Component/T3DTransform3D.h"
+#include "Component/T3DBone.h"
 
 
 namespace Tiny3D
@@ -224,40 +228,66 @@ namespace Tiny3D
     {
         clearJoints();
 
-        const Bones &bones = mSkeleton->getBones();
+        GameObjectPtr rootBoneGO = mSkeleton->getRootBoneGameObject();
+        if (rootBoneGO == nullptr)
+        {
+            return;
+        }
 
-        uint16_t index = 0;
-        mJoints.resize(bones.size(), nullptr);
-        
-        for (const auto &bone : bones)
+        // 先收集所有骨骼 GameObject，按 DFS 顺序建立索引
+        TArray<GameObject*> allBoneGOs;
+        TUnorderedMap<GameObject*, uint16_t> goToIndex;
+
+        // DFS 遍历骨骼子树，收集所有骨骼节点
+        std::function<void(GameObject*)> collectBones = [&](GameObject *go)
+        {
+            Bone *bone = go->getComponent<Bone>().get();
+            if (bone == nullptr) return;
+
+            uint16_t idx = static_cast<uint16_t>(allBoneGOs.size());
+            goToIndex[go] = idx;
+            allBoneGOs.push_back(go);
+
+            TransformNode *node = go->getTransformNode();
+            if (node == nullptr) return;
+
+            for (auto itr = node->child_begin(); itr != node->child_end(); ++itr)
+            {
+                collectBones(itr->get()->getGameObject());
+            }
+        };
+        collectBones(rootBoneGO.get());
+
+        mJoints.resize(allBoneGOs.size(), nullptr);
+
+        for (uint16_t i = 0; i < static_cast<uint16_t>(allBoneGOs.size()); i++)
         {
             JointNode *node = T3D_NEW JointNode();
-            node->joint = index;
-            
-            uint16_t parentIdx = bone->getParentIndex();
-            if (parentIdx == BoneNode::kInvalidIndex)
-            {
-                mJointRootIdx = index;
-            }
+            node->joint = i;
+            mJoints[i] = node;
 
-            mJoints[index] = node;
-            index++;
+            TransformNode *tn = allBoneGOs[i]->getTransformNode();
+            TransformNode *parentTN = (tn != nullptr) ? tn->getParent() : nullptr;
+            if (parentTN == nullptr)
+            {
+                mJointRootIdx = i;
+            }
+            else
+            {
+                GameObject *parentGO = parentTN->getGameObject();
+                auto it = goToIndex.find(parentGO);
+                if (it != goToIndex.end())
+                {
+                    mJoints[it->second]->children.emplace_back(i);
+                }
+                else
+                {
+                    mJointRootIdx = i;
+                }
+            }
         }
 
-        index = 0;
-        
-        for (const auto &bone : bones)
-        {
-            JointNode *node = mJoints[index];
-
-            uint16_t parentIdx = bone->getParentIndex();
-            if (parentIdx != BoneNode::kInvalidIndex)
-            {
-                mJoints[parentIdx]->children.emplace_back(index);
-            }
-            
-            index++;
-        }
+        mAllBoneGOs = allBoneGOs;
     }
 
     void SkinnedMesh::clearJoints() const
@@ -278,25 +308,19 @@ namespace Tiny3D
             ss << "\t";
         }
 
-        const Bones &bones = mSkeleton->getBones();
-        BoneNode *bone = bones[node->joint];
-        
-        ss << "Bone - name : " << bone->getName();
-        ss << " T : " << bone->getTranslation().getDebugString();
-        const Quaternion &orientation = bone->getRotation();
-        // Matrix3 matR;
-        // orientation.toRotationMatrix(matR);
-        // Radian xAngle, yAngle, zAngle;
-        // matR.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
-        Radian xAngle, yAngle, zAngle;
-        orientation.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
-        ss << " R : (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")";
-        ss << " S : " << bone->getScaling().getDebugString();
-        
-        // Transform transform(bone->getTranslation(), bone->getScaling(), bone->getRotation());
-        // Matrix4 mat = transform.getAffineMatrix() * bone->getOffsetMatrix();
-        // ss << " M : " << mat.getDebugString();
-        
+        GameObject *boneGO = mAllBoneGOs[node->joint];
+        Transform3D *transform3D = boneGO->getComponent<Transform3D>().get();
+
+        ss << "Bone - name : " << boneGO->getName();
+        if (transform3D != nullptr)
+        {
+            ss << " T : " << transform3D->getPosition().getDebugString();
+            const Quaternion &orientation = transform3D->getOrientation();
+            Radian xAngle, yAngle, zAngle;
+            orientation.toEulerAnglesYXZ(yAngle, xAngle, zAngle);
+            ss << " R : (" << xAngle.valueDegrees() << ", " << yAngle.valueDegrees() << ", " << zAngle.valueDegrees() << ")";
+            ss << " S : " << transform3D->getScaling().getDebugString();
+        }
         ss << std::endl;
         
         for (const auto child : node->children)

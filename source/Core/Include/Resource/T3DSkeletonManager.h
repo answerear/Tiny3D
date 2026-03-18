@@ -27,6 +27,7 @@
 
 
 #include "Resource/T3DResourceManager.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -41,7 +42,7 @@ namespace Tiny3D
          */
         static SkeletonManagerPtr create();
 
-        SkeletonPtr createSkeleton(const String &name, Bones &&bones);
+        SkeletonPtr createSkeleton(const String &name, GameObject *rootBoneGameObject);
 
         SkeletonPtr loadSkeleton(Archive *archive, const String &filename);
 

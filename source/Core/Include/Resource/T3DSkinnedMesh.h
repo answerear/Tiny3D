@@ -27,7 +27,7 @@
 
 
 #include "Resource/T3DMesh.h"
-#include "Animation/T3DBoneNode.h"
+#include "Component/T3DBone.h"
 
 
 namespace Tiny3D
@@ -140,13 +140,14 @@ namespace Tiny3D
         {
             JointNode() = default;
             
-            uint16_t joint {BoneNode::kInvalidIndex};
+            uint16_t joint {Bone::kInvalidIndex};
             JointChildren children {};
         };
 
         using Joints = TArray<JointNode*>;
         mutable Joints mJoints {};
-        mutable uint16_t mJointRootIdx {BoneNode::kInvalidIndex};
+        mutable uint16_t mJointRootIdx {Bone::kInvalidIndex};
+        mutable TArray<GameObject*> mAllBoneGOs {};
 
         String getBoneDebugString(JointNode *node, int32_t tabCount) const;
 #endif

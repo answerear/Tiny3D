@@ -67,7 +67,6 @@
 #include <Resource/T3DAnimationManager.h>
 
 // Skeletal Animation
-#include <Animation/T3DBoneNode.h>
 #include <Animation/T3DKeyframe.h>
 #include <Animation/T3DAnimationTrack.h>
 #include <Animation/T3DAnimationClip.h>

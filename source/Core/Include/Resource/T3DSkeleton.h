@@ -27,7 +27,8 @@
 
 
 #include "Resource/T3DResource.h"
-#include "Animation/T3DBoneNode.h"
+#include "Kernel/T3DGameObject.h"
+#include "T3DTypedef.h"
 
 
 namespace Tiny3D
@@ -44,7 +45,7 @@ namespace Tiny3D
     public:
         static SkeletonPtr create(const String &name);
 
-        static SkeletonPtr create(const String &name, Bones &&bones);
+        static SkeletonPtr create(const String &name, GameObjectPtr rootBoneGameObject);
 
         /**
          * \brief 析构函数
@@ -53,10 +54,13 @@ namespace Tiny3D
 
         Type getType() const override;
 
-        TPROPERTY(RTTRFuncName="Bones", RTTRFuncType="getter")
-        const Bones &getBones() const
+        /**
+         * \brief 获取骨骼根节点 GameObject
+         */
+        TPROPERTY(RTTRFuncName="RootBoneGameObject", RTTRFuncType="getter")
+        GameObject *getRootBoneGameObject() const
         {
-            return mBones;
+            return mRootBoneGameObject;
         }
 
     protected:
@@ -64,7 +68,7 @@ namespace Tiny3D
         
         Skeleton(const String &name);
 
-        Skeleton(const String &name, Bones &&bones);
+        Skeleton(const String &name, GameObjectPtr rootBoneGameObject);
         
         ResourcePtr clone() const override;
 
@@ -73,17 +77,17 @@ namespace Tiny3D
         TResult onCreate() override;
         
         TResult onLoad(Archive *archive) override;
-
+        
     private:
-        TPROPERTY(RTTRFuncName="Bones", RTTRFuncType="setter")
-        void setBones(const Bones &bones)
+        TPROPERTY(RTTRFuncName="RootBoneGameObject", RTTRFuncType="setter")
+        void setRootBoneGameObject(GameObject *rootBoneGameObject)
         {
-            mBones = bones;
+            mRootBoneGameObject = rootBoneGameObject;
         }
         
     protected:
-        /// 骨骼 hierarchy
-        Bones mBones {};
+        /// 骨骼根节点 GameObject
+        GameObjectPtr mRootBoneGameObject;
     };
 }
 

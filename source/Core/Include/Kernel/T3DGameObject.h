@@ -51,6 +51,12 @@ namespace Tiny3D
 
         static void destroyGameObjects();
 
+        /**
+         * \brief 深拷贝当前 GameObject 及其整个子树（包括所有组件和子节点）
+         * \return 返回克隆出的新 GameObject
+         */
+        GameObjectPtr clone() const;
+
 // #if defined (T3D_DEBUG)
 //         Object *acquire() override;
 //
@@ -255,6 +261,12 @@ namespace Tiny3D
     private:
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         void setUUID(const UUID &uuid) { mUUID = uuid; }
+
+        /**
+         * \brief 克隆当前节点自身（不含子节点），包括所有 Component 的克隆与挂载
+         * \return 返回克隆出的新 GameObject（不含子树）
+         */
+        GameObjectPtr cloneSelf() const;
 
         using ComponentsSet = TUnorderedMultimap<String, ComponentPtr>;
 

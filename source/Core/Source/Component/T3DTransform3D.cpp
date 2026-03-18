@@ -81,17 +81,20 @@ namespace Tiny3D
                 break;
             }
 
+            // 先调用父类复制父类属性
+            ret = TransformNode::cloneProperties(src);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            // 再复制自身扩展属性（位置、旋转、缩放、世界变换、脏标记）
             mPosition = node->mPosition;
             mOrientation = node->mOrientation;
             mScaling = node->mScaling;
             mWorldTransform = node->mWorldTransform;
             mIsDirty = node->mIsDirty;
         } while (false);
-
-        if (ret == T3D_OK)
-        {
-            ret = TransformNode::cloneProperties(src);
-        }
 
         return ret;
     }

@@ -85,7 +85,6 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(AnimationManager);
 
     // Skeletal Animation
-    T3D_DECLARE_SMART_PTR(BoneNode);
     T3D_DECLARE_SMART_PTR(Keyframe);
     T3D_DECLARE_SMART_PTR(KfTranslation);
     T3D_DECLARE_SMART_PTR(KfOrientation);
@@ -268,7 +267,6 @@ namespace Tiny3D
     using AnimationClips = TMap<String, AnimationClipPtr>;
     using BoneGameObjectsMap = TUnorderedMap<String, GameObject*>;
     using BoneGameObjects = TArray<GameObject*>;
-    using Bones = TArray<BoneNodePtr>;
 
     using AnimationPlayers = TUnorderedMap<AnimationPlayer*, AnimationPlayerPtr>;
 }

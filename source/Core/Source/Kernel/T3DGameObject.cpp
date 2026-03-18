@@ -131,6 +131,71 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    GameObjectPtr GameObject::cloneSelf() const
+    {
+        // 创建新的 GameObject 作为克隆根，拥有独立的 UUID
+        GameObjectPtr newGO = create(mName);
+
+        // 遍历源 GameObject 上挂载的所有 Component，逐一克隆并挂载到新 GameObject
+        for (const auto &item : mComponents)
+        {
+            const RTTRType &type = item.first;
+            ComponentPtr comp = item.second;
+
+            // 对所有 Component（包括 TransformNode 派生类）统一调用 clone()
+            ComponentPtr newComp = comp->clone();
+            if (newComp != nullptr)
+            {
+                newComp->setGameObject(newGO);
+                newGO->mComponents.emplace(type, newComp);
+                newGO->mComponentObjects.emplace(type.get_name(), newComp);
+                newGO->putUpdatingQueue(type, newComp);
+
+                // 若是 TransformNode 派生类，赋值 mTransformNode，与 addComponent 路径保持一致
+                if (type.is_derived_from<TransformNode>())
+                {
+                    newGO->mTransformNode = static_cast<TransformNode*>(newComp.get());
+                }
+
+                newComp->onStart();
+            }
+        }
+
+        return newGO;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObjectPtr GameObject::clone() const
+    {
+        // 克隆当前节点自身（不含子节点）
+        GameObjectPtr newGO = cloneSelf();
+
+        // 使用 child_begin()/child_end() 迭代器递归克隆子节点，建立新树的父子关系
+        TransformNode *myNode = getTransformNode();
+        if (myNode != nullptr)
+        {
+            TransformNode *newNode = newGO->getTransformNode();
+            for (auto it = myNode->child_begin(); it != myNode->child_end(); ++it)
+            {
+                TransformNode *srcChildNode = it->get();
+                GameObjectPtr childClone = srcChildNode->getGameObject()->clone();
+                if (childClone != nullptr && newNode != nullptr)
+                {
+                    TransformNode *childNode = childClone->getTransformNode();
+                    if (childNode != nullptr)
+                    {
+                        newNode->addChild(childNode);
+                    }
+                }
+            }
+        }
+
+        return newGO;
+    }
+
+    //--------------------------------------------------------------------------
+
     GameObjectPtr GameObject::createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, bool managed)
     {
         if (mesh->getType() != Resource::Type::kMesh && mesh->getType() != Resource::Type::kSkinnedMesh)

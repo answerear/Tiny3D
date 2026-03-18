@@ -93,6 +93,9 @@ namespace Tiny3D
         /// 动画播放器
         AnimationPlayerPtr mAnimationPlayer {nullptr};
 
+        /// 克隆出的骨骼根节点 GameObject（该 SkinnedGeometry 实例独占的运行时骨骼副本）
+        GameObjectPtr mRootBoneGameObject {nullptr};
+
         /// 所有骨骼游戏对象，按照骨骼名称做一个映射
         BoneGameObjectsMap mAllBones {};
         /// 所有骨骼游戏对象，按照骨骼索引做一个映射
