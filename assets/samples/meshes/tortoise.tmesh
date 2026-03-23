@@ -12,7 +12,62 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "0c4ad3bbb0af74419b37cc6c0398f9b2"
+          "RTTI_Value": "8868c546ca010b7fcf1dedd31aa65c3a"
+        }
+      },
+      "MeshOrientation": {
+        "RTTI_Type": "Tiny3D::TQuaternion<float>",
+        "RTTI_Value": {
+          "w": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshPosition": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshScaling": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          }
         }
       },
       "SubMeshes": {
@@ -41,7 +96,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "c48bd6ba86e5c349d314e8c9972967d2"
+                    "RTTI_Value": "e929b50de5fecbed77d89b70994bc503"
                   }
                 },
                 "Name": {
@@ -292,73 +347,18 @@
           }
         ]
       },
-      "MeshPosition": {
-        "RTTI_Type": "Tiny3D::TVector3<float>",
-        "RTTI_Value": {
-          "x": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 0.0
-          },
-          "y": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 0.0
-          },
-          "z": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 0.0
-          }
-        }
-      },
-      "MeshOrientation": {
-        "RTTI_Type": "Tiny3D::TQuaternion<float>",
-        "RTTI_Value": {
-          "w": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 1.0
-          },
-          "x": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 0.0
-          },
-          "y": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 0.0
-          },
-          "z": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 0.0
-          }
-        }
-      },
-      "MeshScaling": {
-        "RTTI_Type": "Tiny3D::TVector3<float>",
-        "RTTI_Value": {
-          "x": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 1.0
-          },
-          "y": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 1.0
-          },
-          "z": {
-            "RTTI_Type": "float",
-            "RTTI_Value": 1.0
-          }
-        }
-      },
       "SkeletalAnimationUUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "f86ed107e3371fba8b9297a30ac585bb"
+          "RTTI_Value": "7c8712777aff0712d1a4719e92edef29"
         }
       },
       "SkeletonUUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "c9fabd8cc06d4f63ca2c18536bcfc7bf"
+          "RTTI_Value": "48ecd68d522d5f3664acfbb85027c3ee"
         }
       }
     }
