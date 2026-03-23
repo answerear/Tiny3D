@@ -2134,21 +2134,8 @@ namespace Tiny3D
             }
             
             // 处理完 mesh 后，提取 blend weights 和 blend indices
-            // 需要建立骨骼名称到 mBones 索引的映射
-            TMap<String, uint8_t> boneNameToIndexMap;
-            for (size_t i = 0; i < mBones.size(); i++)
-            {
-                const BoneNodePtr &bone = mBones[i];
-                if (bone != nullptr)
-                {
-                    boneNameToIndexMap.emplace(bone->getName(), static_cast<uint8_t>(i));
-                }
-            }
-
-            // 遍历所有处理过的 mesh 节点，提取权重和索引
-            // 注意：这里需要访问之前处理过的 mesh，可以通过存储 mesh 节点或者重新遍历
-            // 为了简单，我们重新遍历场景中的 mesh 节点
-            ret = extractBlendWeightsAndIndices(lFbxScene, lFbxScene->GetRootNode(), boneNameToIndexMap);
+            // 使用 generateBones() 中建立的骨骼名称到索引的映射
+            ret = extractBlendWeightsAndIndices(lFbxScene, lFbxScene->GetRootNode(), mBoneNameToIndexMap);
             if (T3D_FAILED(ret))
             {
                 MCONV_LOG_ERROR("Failed to extract blend weights and indices ! ERROR [%d]", ret)
@@ -2692,10 +2679,9 @@ namespace Tiny3D
             }
 
             // 清空之前的骨骼数组
-            mBones.clear();
-            mBones.reserve(mBoneMap.size());
+            // mBones 已删除，骨骼层级通过 mRoot 的 GameObject 树表达
 
-            // 按照索引顺序创建 BoneNode（使用之前建立的索引顺序）
+            // 按照索引顺序在骨骼 GameObject 上挂载 Bone 组件（使用之前建立的索引顺序）
             TArray<String> boneNamesInOrder(nameToIndexMap.size());
             for (const auto &item : nameToIndexMap)
             {
@@ -2729,45 +2715,24 @@ namespace Tiny3D
                     continue;
                 }
 
-                // 获取骨骼的变换信息
+                // 获取骨骼的变换信息（用于调试日志）
                 const Vector3 &pos = xform->getPosition();
                 const Quaternion &orientation = xform->getOrientation();
                 const Vector3 &scaling = xform->getScaling();
 
-                // 查找父骨骼的索引
-                uint16_t parentIndex = BoneNode::kInvalidIndex;
-                TransformNode *parentNode = xform->getParent();
-                if (parentNode != nullptr)
+                // 在骨骼 GameObject 上挂载 Bone 组件，存储 offsetMatrix
+                BonePtr boneComp = go->getComponent<Bone>();
+                if (boneComp == nullptr)
                 {
-                    GameObject *parentGO = parentNode->getGameObject();
-                    if (parentGO != nullptr)
-                    {
-                        auto parentIt = goToNameMap.find(parentGO);
-                        if (parentIt != goToNameMap.end())
-                        {
-                            const String &parentName = parentIt->second;
-                            auto indexIt = nameToIndexMap.find(parentName);
-                            if (indexIt != nameToIndexMap.end())
-                            {
-                                parentIndex = indexIt->second;
-                            }
-                        }
-                    }
+                    boneComp = go->addComponent<Bone>();
                 }
-
-                // 创建 BoneNode
-                BoneNodePtr bone = BoneNode::create(
-                    boneName, 
-                    parentIndex, 
-                    pos, 
-                    orientation, 
-                    scaling, 
-                    boneInfo.offsetMatrix
-                );
-
-                if (bone == nullptr)
+                if (boneComp != nullptr)
                 {
-                    MCONV_LOG_ERROR("Failed to create BoneNode for [%s]", boneName.c_str())
+                    boneComp->setOffsetMatrix(boneInfo.offsetMatrix);
+                }
+                else
+                {
+                    MCONV_LOG_ERROR("Failed to add Bone component for [%s]", boneName.c_str())
                     ret = T3D_ERR_FAIL;
                     break;
                 }
@@ -2783,11 +2748,16 @@ namespace Tiny3D
                     pos.getDebugString().c_str(),
                     xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
                     scaling.getDebugString().c_str());
-
-                mBones.emplace_back(bone);
             }
 
-            MCONV_LOG_INFO("Generated %lld bones.", mBones.size());
+            MCONV_LOG_INFO("Generated %lld bones.", nameToIndexMap.size());
+
+            // 将骨骼名称到索引的映射保存到成员变量，供后续 processSkinnedMesh 使用
+            mBoneNameToIndexMap.clear();
+            for (const auto &item : nameToIndexMap)
+            {
+                mBoneNameToIndexMap.emplace(item.first, static_cast<uint8_t>(item.second));
+            }
         } while (false);
         
         return ret;
@@ -2802,7 +2772,7 @@ namespace Tiny3D
         do
         {
             String name = mOutputName;
-            mSkeleton = T3D_SKELETON_MGR.createSkeleton(name, std::move(mBones));
+            mSkeleton = T3D_SKELETON_MGR.createSkeleton(name, mRoot);
             if (mSkeleton == nullptr)
             {
                 MCONV_LOG_ERROR("Failed to create skeleton for [%s]", name.c_str());

@@ -877,7 +877,7 @@ namespace Tiny3D
             for (int32_t i = 0; i < lFbxScene->GetRootNode()->GetChildCount(); i++)
             {
                 FbxNode *lFbxNode = lFbxScene->GetRootNode()->GetChild(i);
-                uint16_t parentIdx = BoneNode::kInvalidIndex;
+                uint16_t parentIdx = Bone::kInvalidIndex;
                 ret = recursiveGenerateSkeletonsAndAnimations(lFbxScene, lFbxNode, lFbxNode, parentIdx);
                 if (T3D_FAILED(ret))
                 {
@@ -904,14 +904,14 @@ namespace Tiny3D
 
         do
         {
-            uint16_t boneIdx = BoneNode::kInvalidIndex;
+            uint16_t boneIdx = Bone::kInvalidIndex;
             ret = generateSkeletonAndAnimation(lFbxScene, lFbxRoot, lFbxNode, parentIdx, boneIdx);
             if (T3D_FAILED(ret))
             {
                 break;
             }
 
-            if (boneIdx != BoneNode::kInvalidIndex)
+            if (boneIdx != Bone::kInvalidIndex)
             {
                 parentIdx = boneIdx;
             }
@@ -1000,11 +1000,38 @@ namespace Tiny3D
             Quaternion localQ = FbxEulerToTinyQuaternion(lFbxLocalR);
             Vector3 localS = FbxPointToTinyVector3(lFbxLocalS);
 
-            Matrix4 offsetM(false);
-            BoneNodePtr bone = BoneNode::create(boneName, parentIdx, localT, localQ, localS, offsetM);
-            skelAniData->bones.emplace_back(bone);
-            boneIdx = static_cast<uint16_t>(skelAniData->bones.size() - 1);
+            // 创建骨骼 GameObject
+            GameObjectPtr boneGO = GameObject::create(boneName);
 
+            // 挂载 Transform3D 并设置本地变换
+            Transform3DPtr boneXform = boneGO->addComponent<Transform3D>();
+            boneXform->setPosition(localT);
+            boneXform->setOrientation(localQ);
+            boneXform->setScaling(localS);
+
+            // 挂载 Bone 组件（offsetMatrix 暂为单位矩阵，在 generateMeshLinkData 阶段填充）
+            boneGO->addComponent<Bone>();
+
+            // 确定当前骨骼索引
+            boneIdx = static_cast<uint16_t>(skelAniData->boneGameObjects.size());
+
+            if (boneIdx == 0)
+            {
+                // 根骨骼：存入 rootBoneGameObject
+                skelAniData->rootBoneGameObject = boneGO;
+            }
+            else
+            {
+                // 非根骨骼：将当前 Transform3D 挂到父骨骼的 Transform3D 下
+                GameObjectPtr parentGO = skelAniData->boneGameObjects[parentIdx];
+                Transform3D *parentXform = static_cast<Transform3D*>(parentGO->getTransformNode());
+                parentXform->addChild(boneXform.get());
+            }
+
+            // 按索引顺序存储骨骼 GameObject
+            skelAniData->boneGameObjects.push_back(boneGO);
+
+            // 记录 FbxNode -> boneIdx 映射，保持与蒙皮权重查找逻辑兼容
             skelAniData->boneMap[lFbxNode] = boneIdx;
 
             Radian rx, ry, rz;
@@ -1716,7 +1743,22 @@ namespace Tiny3D
                     }
 
                     uint16_t boneIdx = it->second;
-                    BoneNodePtr boneNode = skelAniData->bones[boneIdx];
+
+                    // 越界检查
+                    if (boneIdx >= skelAniData->boneGameObjects.size())
+                    {
+                        MCONV_LOG_WARNING("Bone index [%u] out of range (boneGameObjects.size()=%lld), skipping offset matrix.", 
+                            boneIdx, skelAniData->boneGameObjects.size());
+                        continue;
+                    }
+
+                    // 通过 boneGameObjects 按索引取出对应的 Bone 组件
+                    BonePtr bone = skelAniData->boneGameObjects[boneIdx]->getComponent<Bone>();
+                    if (bone == nullptr)
+                    {
+                        MCONV_LOG_WARNING("Bone component not found on GameObject for bone [%s], skipping offset matrix.", boneName.c_str());
+                        continue;
+                    }
 
                     // 获取绑定姿态矩阵
                     // TransformMatrix: 网格节点在绑定姿态时的世界空间变换矩阵
@@ -1747,7 +1789,7 @@ namespace Tiny3D
                     scaleM[1][1] = mSceneScaleFactor;
                     scaleM[2][2] = mSceneScaleFactor;
                     mat = scaleM * mat;
-                    boneNode->setOffsetMatrix(mat);
+                    bone->setOffsetMatrix(mat);
                     
                     MCONV_LOG_DEBUG("Bone [%s] offset matrix set. M: %s", boneName.c_str(), mat.getDebugString(true).c_str())
                 }
@@ -3573,8 +3615,16 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
 
         do
         {
+            // 检查根骨骼是否有效
+            if (skelAniData->rootBoneGameObject == nullptr)
+            {
+                MCONV_LOG_ERROR("Root bone GameObject is null, cannot create skeleton !");
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
             String name = mOutputName;
-            skelAniData->skeleton = T3D_SKELETON_MGR.createSkeleton(name, std::move(skelAniData->bones));
+            skelAniData->skeleton = T3D_SKELETON_MGR.createSkeleton(name, skelAniData->rootBoneGameObject.get());
             if (skelAniData->skeleton == nullptr)
             {
                 MCONV_LOG_ERROR("Failed to create skeleton for [%s]", name.c_str());
@@ -3584,7 +3634,7 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
 
             name = name + "." + Resource::EXT_SKELETON;
             mResources.emplace(name, skelAniData->skeleton);
-            MCONV_LOG_INFO("Created skeleton [%s] with %lld bones", name.c_str(), skelAniData->bones.size())
+            MCONV_LOG_INFO("Created skeleton [%s] with %lld bones", name.c_str(), skelAniData->boneGameObjects.size())
         } while (false);
 
         return ret;

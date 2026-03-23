@@ -211,11 +211,11 @@ namespace Tiny3D
         Quaternion mMeshQ {Quaternion::IDENTITY};
         Vector3 mMeshS {Vector3::UNIT_SCALE};
 
-        /// 骨架信息
-        Bones mBones {};
-
         /// 骨架对应的 Game Object 映射表，方便后续生成索引表
         BoneInfoMap mBoneMap {};
+
+        /// 骨骼名称到索引的映射表（由 generateBones() 填充，供 processSkinnedMesh() 使用）
+        TMap<String, uint8_t> mBoneNameToIndexMap {};
 
         /// 动画片段集合
         AnimationClips mAnimationClips {};

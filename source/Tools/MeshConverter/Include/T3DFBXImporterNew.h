@@ -112,8 +112,11 @@ namespace Tiny3D
 
         struct SkeletalAnimationData : public Allocator
         {
-            /// 骨架信息
-            Bones bones {};
+            /// 骨骼树根节点（根骨骼对应的 GameObject）
+            GameObjectPtr rootBoneGameObject {nullptr};
+
+            /// 按骨骼索引顺序存储所有骨骼 GameObject，支持通过 boneIdx 快速查找
+            TArray<GameObjectPtr> boneGameObjects {};
 
             /// 骨骼对应的索引
             BoneInfoMap boneMap {};
