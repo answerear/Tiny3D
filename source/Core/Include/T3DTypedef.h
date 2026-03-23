@@ -268,6 +268,7 @@ namespace Tiny3D
     using BoneGameObjectsMap = TUnorderedMap<String, GameObject*>;
     using BoneGameObjects = TArray<GameObject*>;
 
+    using GameObjects = TUnorderedMap<UUID, GameObjectPtr, UUIDHash, UUIDEqual>;
     using AnimationPlayers = TUnorderedMap<AnimationPlayer*, AnimationPlayerPtr>;
 }
 

@@ -347,7 +347,9 @@ namespace Tiny3D
                 auto preSave = wrapped_type.get_method("onPreSave");
                 if (preSave)
                 {
-                    preSave.invoke(var);
+                    // var 可能是 SmartPtr<T>（wrapper 类型），需要先 unwrap 成裸指针再 invoke
+                    // 否则 RTTR invoke 因类型不匹配会静默失败
+                    preSave.invoke(is_wrapper ? var.extract_wrapped_value() : var);
                 }
             }
 
@@ -403,7 +405,8 @@ namespace Tiny3D
                 auto postSave = wrapped_type.get_method("onPostSave");
                 if (postSave)
                 {
-                    postSave.invoke(var);
+                    // 同 onPreSave，需要先 unwrap 再 invoke
+                    postSave.invoke(is_wrapper ? var.extract_wrapped_value() : var);
                 }
             }
             
@@ -964,11 +967,37 @@ namespace Tiny3D
             // Version
             writer.Key(T3D_FILE_VERSION_KEY);
             writer.String(T3D_FILE_VERSION_STR);
-            // Object
+        // Object
             writer.Key(T3D_FILE_OBJECT_KEY);
             writer.StartObject();
             {
+                // 序列化前，对顶层对象调用 onPreSave
+                // serialize() 直接调用 WriteObject，跳过了 WriteVariant 中的 onPreSave 触发逻辑
+                // 因此需要在入口处手动调用
+                const instance topInst(obj);
+                const instance topInst2 = topInst.get_type().get_raw_type().is_wrapper()
+                    ? topInst.get_wrapped_instance() : topInst;
+                const type topType = topInst2.get_derived_type();
+                if (topType.is_derived_from<Tiny3D::Object>())
+                {
+                    auto preSave = topType.get_method("onPreSave");
+                    if (preSave)
+                    {
+                        preSave.invoke(topInst2);
+                    }
+                }
+
                 RTTRObjectJsonWriter::WriteObject(writer, obj);
+
+                // 序列化后，对顶层对象调用 onPostSave
+                if (topType.is_derived_from<Tiny3D::Object>())
+                {
+                    auto postSave = topType.get_method("onPostSave");
+                    if (postSave)
+                    {
+                        postSave.invoke(topInst2);
+                    }
+                }
             }
             writer.EndObject();
         }        

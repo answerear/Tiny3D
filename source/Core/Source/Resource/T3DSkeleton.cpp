@@ -24,6 +24,7 @@
 
 #include "Resource/T3DSkeleton.h"
 #include "T3DErrorDef.h"
+#include "Component/T3DTransformNode.h"
 
 
 namespace Tiny3D
@@ -90,6 +91,8 @@ namespace Tiny3D
         
         const Skeleton *skel = static_cast<const Skeleton*>(src);
         mRootBoneGameObject = skel->mRootBoneGameObject;
+        mBoneGameObjects = skel->mBoneGameObjects;
+        mRootBoneUUID = skel->mRootBoneUUID;
     }
 
     //--------------------------------------------------------------------------
@@ -116,6 +119,51 @@ namespace Tiny3D
             }
         } while (false);
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Skeleton::onPreSave()
+    {
+        // 序列化前，将骨骼子树收集到扁平表
+        if (mRootBoneGameObject == nullptr)
+        {
+            T3D_LOG_WARNING(LOG_TAG_RESOURCE,
+                "Skeleton [%s] onPreSave: mRootBoneGameObject is nullptr, skip collecting hierarchy.",
+                getName().c_str());
+            return;
+        }
+
+        mBoneGameObjects.clear();
+        GameObject::collectHierarchy(mRootBoneGameObject, mBoneGameObjects);
+        mRootBoneUUID = mRootBoneGameObject->getUUID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Skeleton::onPostLoad()
+    {
+        // GameObject 没有重写 onPostLoad()，ReadValue 末尾调用的是 Object::onPostLoad()（空实现）。
+        // setupHierarchy() 不会被自动触发，必须在这里手动调用，与 Scene::onPostLoad() 的做法一致。
+        for (const auto &item : mBoneGameObjects)
+        {
+            item.second->setupHierarchy();
+        }
+
+        // 通过根节点 UUID 找到根节点并赋值
+        const auto it = mBoneGameObjects.find(mRootBoneUUID);
+        if (it != mBoneGameObjects.end())
+        {
+            mRootBoneGameObject = it->second;
+            mRootBoneGameObject->getTransformNode()->printHierarchy();
+        }
+        else
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                "Skeleton [%s] onPostLoad: RootBoneUUID [%s] not found in BoneGameObjects.",
+                getName().c_str(), mRootBoneUUID.toString().c_str());
+            mRootBoneGameObject = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------

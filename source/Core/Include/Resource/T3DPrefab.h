@@ -27,10 +27,12 @@
 
 
 #include "Resource/T3DResource.h"
+#include "Kernel/T3DGameObject.h"
 
 
 namespace Tiny3D
 {
+    TCLASS()
     class T3D_ENGINE_API Prefab : public Resource
     {
         TRTTI_ENABLE(Resource)
@@ -42,20 +44,12 @@ namespace Tiny3D
         ~Prefab() override;
 
         Type getType() const override;
-        
-        template<typename T>
-        T *instantiateAsPointer()
-        {
-            T *src = mObject->try_convert<T>();
-            return src->clone();
-        }
 
-        template<typename T>
-        T instantiateAsObject()
-        {
-            T *src = mObject->try_convert<T>();
-            return *src;
-        }
+        /**
+         * \brief 实例化 Prefab，深拷贝整棵子树并返回新的根节点
+         * \return 返回克隆出的根节点 GameObjectPtr，若 mRootGameObject 为 nullptr 则返回 nullptr
+         */
+        GameObjectPtr instantiate() const;
         
     protected:
         Prefab(const String &name);
@@ -66,13 +60,35 @@ namespace Tiny3D
 
         TResult onLoad(Archive *archive) override;
 
-        void addCompnentForLoadingResource(Component *component);
+        void onPreSave() override;
+
+        void onPostLoad() override;
+
+        void onAddComponentForLoadingResource(Component *component) override;
+
+    private:
+        TPROPERTY(RTTRFuncName="GameObjects", RTTRFuncType="getter")
+        const GameObjects &getGameObjects() const { return mGameObjects; }
+
+        TPROPERTY(RTTRFuncName="GameObjects", RTTRFuncType="setter")
+        void setGameObjects(const GameObjects &gameObjects) { mGameObjects = gameObjects; }
+
+        TPROPERTY(RTTRFuncName="RootGameObjectUUID", RTTRFuncType="getter")
+        const UUID &getRootGameObjectUUID() const { return mRootGameObjectUUID; }
+
+        TPROPERTY(RTTRFuncName="RootGameObjectUUID", RTTRFuncType="setter")
+        void setRootGameObjectUUID(const UUID &uuid) { mRootGameObjectUUID = uuid; }
 
     protected:
+        /// 预制体子树所有节点的扁平表（序列化用）
+        GameObjects mGameObjects {};
+        /// 预制体根节点 UUID（序列化用）
+        UUID mRootGameObjectUUID {};
+        /// 预制体根节点 GameObject（运行时使用，不序列化）
+        GameObjectPtr mRootGameObject {nullptr};
+
         // Component* : 组件对象
         using NeedToLoadResourceComponents = TSet<Component*>;
-        
-        RTTRObject  *mObject {nullptr};
         NeedToLoadResourceComponents mNeedToLoadResourceComponents {};
     };
 }

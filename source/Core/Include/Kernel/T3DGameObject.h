@@ -52,10 +52,21 @@ namespace Tiny3D
         static void destroyGameObjects();
 
         /**
+         * \brief 从根节点出发，收集整棵子树的所有 GameObject 到扁平表
+         * \param [in] root : 子树根节点
+         * \param [out] out : 收集结果，key 为 UUID，value 为 GameObjectPtr
+         * \note 若节点没有 TransformNode 则只收集自身，不继续遍历子节点
+         */
+        static void collectHierarchy(GameObject *root, GameObjects &out);
+
+        /**
          * \brief 深拷贝当前 GameObject 及其整个子树（包括所有组件和子节点）
          * \return 返回克隆出的新 GameObject
          */
         GameObjectPtr clone() const;
+
+        /// 生成场景树，用于反序列化后（供 Scene/Skeleton/Prefab 的 onPostLoad 调用）
+        void setupHierarchy();
 
 // #if defined (T3D_DEBUG)
 //         Object *acquire() override;
@@ -285,9 +296,6 @@ namespace Tiny3D
         void setupComponents();
 
         void setupTransformNode();
-
-        /// 生成场景树，用于反序列化后
-        void setupHierarchy();
         
         ComponentsSet mComponentObjects {};
         

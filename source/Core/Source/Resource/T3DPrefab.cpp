@@ -23,7 +23,6 @@
  ******************************************************************************/
 
 #include "Resource/T3DPrefab.h"
-
 #include "Component/T3DComponent.h"
 
 
@@ -40,14 +39,12 @@ namespace Tiny3D
 
     Prefab::~Prefab()
     {
-        T3D_POD_SAFE_DELETE(mObject);
     }
 
     //--------------------------------------------------------------------------
 
     Prefab::Prefab(const String &name)
         : Resource(name)
-        , mObject(nullptr)
     {
         
     }
@@ -57,6 +54,21 @@ namespace Tiny3D
     Resource::Type Prefab::getType() const
     {
         return Type::kPrefab;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObjectPtr Prefab::instantiate() const
+    {
+        if (mRootGameObject == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                "Prefab [%s] instantiate: mRootGameObject is nullptr, cannot instantiate.",
+                getName().c_str());
+            return nullptr;
+        }
+
+        return mRootGameObject->clone();
     }
 
     //--------------------------------------------------------------------------
@@ -72,8 +84,12 @@ namespace Tiny3D
 
     void Prefab::cloneProperties(const Resource *const src)
     {
+        Resource::cloneProperties(src);
+
         const Prefab *prefab = static_cast<const Prefab*>(src);
-        mObject = T3D_NEW RTTRObject(*prefab->mObject);
+        mGameObjects = prefab->mGameObjects;
+        mRootGameObjectUUID = prefab->mRootGameObjectUUID;
+        mRootGameObject = prefab->mRootGameObject;
     }
 
     //--------------------------------------------------------------------------
@@ -95,7 +111,51 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Prefab::addCompnentForLoadingResource(Component *component)
+    void Prefab::onPreSave()
+    {
+        // 序列化前，将预制体子树收集到扁平表
+        if (mRootGameObject == nullptr)
+        {
+            T3D_LOG_WARNING(LOG_TAG_RESOURCE,
+                "Prefab [%s] onPreSave: mRootGameObject is nullptr, skip collecting hierarchy.",
+                getName().c_str());
+            return;
+        }
+
+        mGameObjects.clear();
+        GameObject::collectHierarchy(mRootGameObject, mGameObjects);
+        mRootGameObjectUUID = mRootGameObject->getUUID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Prefab::onPostLoad()
+    {
+        // GameObject 没有重写 onPostLoad()，ReadValue 末尾调用的是 Object::onPostLoad()（空实现）。
+        // setupHierarchy() 不会被自动触发，必须在这里手动调用，与 Scene::onPostLoad() 的做法一致。
+        for (const auto &item : mGameObjects)
+        {
+            item.second->setupHierarchy();
+        }
+
+        // 通过根节点 UUID 找到根节点并赋值
+        const auto it = mGameObjects.find(mRootGameObjectUUID);
+        if (it != mGameObjects.end())
+        {
+            mRootGameObject = it->second;
+        }
+        else
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                "Prefab [%s] onPostLoad: RootGameObjectUUID [%s] not found in GameObjects.",
+                getName().c_str(), mRootGameObjectUUID.toString().c_str());
+            mRootGameObject = nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Prefab::onAddComponentForLoadingResource(Component *component)
     {
         mNeedToLoadResourceComponents.emplace(component);
     }

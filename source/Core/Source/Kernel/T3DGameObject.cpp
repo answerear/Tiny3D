@@ -128,6 +128,32 @@ namespace Tiny3D
         }
         return go;
     }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::collectHierarchy(GameObject *root, GameObjects &out)
+    {
+        if (root == nullptr)
+        {
+            return;
+        }
+
+        TransformNode *node = root->getTransformNode();
+        if (node != nullptr)
+        {
+            // 有 TransformNode，通过 visitAll 递归收集整棵子树
+            node->visitAll([&out](int32_t depth, TransformNode *n)
+            {
+                GameObject *go = n->getGameObject();
+                out.emplace(go->getUUID(), go);
+            });
+        }
+        else
+        {
+            // 没有 TransformNode，只收集自身
+            out.emplace(root->getUUID(), root);
+        }
+    }
     
     //--------------------------------------------------------------------------
 

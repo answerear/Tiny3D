@@ -164,7 +164,10 @@ namespace Tiny3D
             return T3D_ERR_RES_INVALID_OBJECT;
         }
 
+        T3D_LOG_DEBUG(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren. Template root bone hierarchy:");
         templateRootBone->getTransformNode()->printHierarchy();
+        
+        T3D_LOG_DEBUG(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren. Cloned root bone hierarchy:");
         mRootBoneGameObject->getTransformNode()->printHierarchy();
         
         mBoneGameObjects.clear();

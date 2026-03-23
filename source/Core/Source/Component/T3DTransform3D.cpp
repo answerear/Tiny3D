@@ -57,7 +57,7 @@ namespace Tiny3D
 
     ComponentPtr Transform3D::clone() const
     {
-        Transform3DPtr newObj = T3D_NEW Transform3D();
+        Transform3DPtr newObj = T3D_NEW Transform3D(UUID::generate());
         if (T3D_FAILED(newObj->cloneProperties(this)))
         {
             newObj = nullptr;

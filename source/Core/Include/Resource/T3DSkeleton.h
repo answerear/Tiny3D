@@ -55,9 +55,8 @@ namespace Tiny3D
         Type getType() const override;
 
         /**
-         * \brief 获取骨骼根节点 GameObject
+         * \brief 获取骨骼根节点 GameObject（运行时使用，不序列化）
          */
-        TPROPERTY(RTTRFuncName="RootBoneGameObject", RTTRFuncType="getter")
         GameObject *getRootBoneGameObject() const
         {
             return mRootBoneGameObject;
@@ -77,17 +76,36 @@ namespace Tiny3D
         TResult onCreate() override;
         
         TResult onLoad(Archive *archive) override;
+
+        void onPreSave() override;
+
+        void onPostLoad() override;
         
     private:
-        TPROPERTY(RTTRFuncName="RootBoneGameObject", RTTRFuncType="setter")
-        void setRootBoneGameObject(GameObject *rootBoneGameObject)
+        void setRootBoneGameObject(GameObjectPtr rootBoneGameObject)
         {
             mRootBoneGameObject = rootBoneGameObject;
         }
+
+        TPROPERTY(RTTRFuncName="BoneGameObjects", RTTRFuncType="getter")
+        const GameObjects &getBoneGameObjects() const { return mBoneGameObjects; }
+
+        TPROPERTY(RTTRFuncName="BoneGameObjects", RTTRFuncType="setter")
+        void setBoneGameObjects(const GameObjects &boneGameObjects) { mBoneGameObjects = boneGameObjects; }
+
+        TPROPERTY(RTTRFuncName="RootBoneUUID", RTTRFuncType="getter")
+        const UUID &getRootBoneUUID() const { return mRootBoneUUID; }
+
+        TPROPERTY(RTTRFuncName="RootBoneUUID", RTTRFuncType="setter")
+        void setRootBoneUUID(const UUID &uuid) { mRootBoneUUID = uuid; }
         
     protected:
-        /// 骨骼根节点 GameObject
+        /// 骨骼根节点 GameObject（运行时使用，不序列化）
         GameObjectPtr mRootBoneGameObject;
+        /// 骨骼子树所有节点的扁平表（序列化用）
+        GameObjects mBoneGameObjects {};
+        /// 骨骼根节点 UUID（序列化用）
+        UUID mRootBoneUUID {};
     };
 }
 
