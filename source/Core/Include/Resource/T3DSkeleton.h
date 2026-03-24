@@ -76,6 +76,8 @@ namespace Tiny3D
         TResult onCreate() override;
         
         TResult onLoad(Archive *archive) override;
+        
+        TResult onUnload() override;
 
         void onPreSave() override;
 

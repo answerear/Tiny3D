@@ -119,6 +119,12 @@ namespace Tiny3D
             
         }
         
+        if (mSkeletonMgr != nullptr)
+        {
+            mSkeletonMgr->unloadAllResources();
+            mSkeletonMgr = nullptr;
+        }
+        
         GameObject::destroyComponents();
         GameObject::destroyGameObjects();
 
@@ -160,12 +166,6 @@ namespace Tiny3D
         {
             mImageMgr->unloadAllResources();
             mImageMgr = nullptr;
-        }
-
-        if (mSkeletonMgr != nullptr)
-        {
-            mSkeletonMgr->unloadAllResources();
-            mSkeletonMgr = nullptr;
         }
 
         if (mAnimationMgr != nullptr)

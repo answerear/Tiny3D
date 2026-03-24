@@ -112,7 +112,8 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // mesh
     loadMesh(root);
     
-    root->printHierarchy(true);
+    APP_LOG_DEBUG("Scene hierarchy:");
+    scene->printSceneHierarchy(true);
     
     return T3D_OK;
 }

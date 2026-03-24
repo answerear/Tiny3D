@@ -68,6 +68,12 @@ namespace Tiny3D
 
     void SkinnedGeometry::onDestroy()
     {
+        // 显式置空，触发骨骼根节点 GameObject 的销毁链：
+        // TransformNode::onDestroy() 会自动从场景树摘除并递归销毁整个骨骼子树
+        mRootBoneGameObject = nullptr;
+        mAllBones.clear();
+        mBoneGameObjects.clear();
+
         Geometry::onDestroy();
     }
 
@@ -133,6 +139,14 @@ namespace Tiny3D
 
     TResult SkinnedGeometry::populateAllChildren()
     {
+        // 若已有旧骨骼子树（如热重载场景），先清理，防止旧节点残留
+        if (mRootBoneGameObject != nullptr)
+        {
+            mRootBoneGameObject = nullptr;  // 触发旧骨骼子树的自动销毁和场景树摘除
+            mAllBones.clear();
+            mBoneGameObjects.clear();
+        }
+
         GameObject *root = getGameObject();
 
         SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(getMeshObject());
@@ -172,6 +186,17 @@ namespace Tiny3D
         
         mBoneGameObjects.clear();
         mAllBones.clear();
+
+        // 获取 TransformNode，若失败则清理已克隆的骨骼子树后返回错误
+        TransformNode *myNode = root != nullptr ? root->getTransformNode() : nullptr;
+        if (myNode == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT, "SkinnedGeometry::populateAllChildren failed. TransformNode of root GameObject is nullptr !");
+            mRootBoneGameObject = nullptr;
+            mAllBones.clear();
+            mBoneGameObjects.clear();
+            return T3D_ERR_RES_INVALID_OBJECT;
+        }
 
         // 第一步：遍历克隆子树，按骨骼名称建立 mAllBones 哈希表
         std::function<void(GameObject*)> collectClonedBones = [&](GameObject *go)
@@ -216,8 +241,7 @@ namespace Tiny3D
         buildIndexByTemplate(templateRootBone.get());
 
         // 将克隆出的骨骼根节点作为兄弟节点挂接到 SkinnedGeometry 所在 GameObject 的同级父节点下
-        TransformNode *myNode = root->getTransformNode();
-        if (myNode != nullptr && myNode->getParent() != nullptr)
+        if (myNode->getParent() != nullptr)
         {
             TransformNode *rootBoneNode = mRootBoneGameObject->getTransformNode();
             if (rootBoneNode != nullptr)

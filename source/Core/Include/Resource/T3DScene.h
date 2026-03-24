@@ -76,6 +76,13 @@ namespace Tiny3D
 
         virtual bool isSceneRoot(TransformNode *node) const { return node->getParent() == nullptr; }
 
+        /**
+         * @brief 输出完整场景树（从根节点递归遍历所有节点）
+         * @param verbose 为 true 时输出每个节点的 Component 列表、[BONE] 标记及变换信息
+         * @return 返回完整的场景树字符串
+         */
+        virtual String printSceneHierarchy(bool verbose = false);
+
 #if defined(T3D_EDITOR)
         virtual Camera *getEditorCamera() const { return nullptr; }
 

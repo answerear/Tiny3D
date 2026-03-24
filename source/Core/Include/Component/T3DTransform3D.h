@@ -163,7 +163,7 @@ namespace Tiny3D
 
         void removeScalingChangedCallback(Component *component);
         
-        String printHierarchy(bool outputLog) override;
+        String printHierarchy(bool outputLog, bool verbose = false) override;
 
         // void debugInfo(int32_t tab = 0);
         

@@ -293,19 +293,49 @@ namespace Tiny3D
     //     }
     // }
 
-    String Transform3D::printHierarchy(bool outputLog)
+    String Transform3D::printHierarchy(bool outputLog, bool verbose)
     {
         String output;
-        visitAll([&output](int32_t depth, const TransformNode *node)
+        visitAll([&output, verbose](int32_t depth, const TransformNode *node)
         {
             String indent(depth * 2, ' ');
+            GameObject *go = node->getGameObject();
+            if (go == nullptr)
+            {
+                output += indent + "[NULL_GAMEOBJECT]\n";
+                return;
+            }
+
             const Transform3D *xformNode = static_cast<const Transform3D*>(node);
             std::stringstream ss;
-            ss << indent;
-            ss << node->getGameObject()->getName();
-            ss << " - T:" << xformNode->getPosition().getDebugString()
-               << ", E:" << xformNode->getRotation().getDebugString()
-               << ", S:" << xformNode->getScaling().getDebugString() << std::endl;
+            ss << indent << go->getName();
+
+            if (verbose)
+            {
+                // 输出所有 Component 类型名称，并检测是否含 Bone
+                bool hasBone = false;
+                String compList = " [";
+                bool first = true;
+                auto comps = go->getComponents<Component>();
+                for (const auto &comp : comps)
+                {
+                    if (!first) compList += ", ";
+                    String typeName = comp->get_type().get_name().to_string();
+                    compList += typeName;
+                    if (typeName == "Bone") hasBone = true;
+                    first = false;
+                }
+                compList += "]";
+                ss << compList;
+                if (hasBone) ss << " [BONE]";
+
+                // 输出本地 position / orientation（欧拉角）/ scaling
+                ss << "\n" << indent << "  T:" << xformNode->getPosition().getDebugString()
+                   << ", E:" << xformNode->getRotation().getDebugString()
+                   << ", S:" << xformNode->getScaling().getDebugString();
+            }
+
+            ss << "\n";
             output += ss.str();
         });
         if (outputLog)

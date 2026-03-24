@@ -123,6 +123,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult Skeleton::onUnload()
+    {
+        TResult ret;
+
+        do
+        {
+            ret = Resource::onUnload();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+            
+            mBoneGameObjects.clear();
+            GameObject::destroy(mRootBoneGameObject);
+            mRootBoneGameObject = nullptr;
+        } while (false);
+        
+        return ret;
+    }
+    //--------------------------------------------------------------------------
+
     void Skeleton::onPreSave()
     {
         // 序列化前，将骨骼子树收集到扁平表

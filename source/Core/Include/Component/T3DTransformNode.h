@@ -224,7 +224,7 @@ namespace Tiny3D
 
         void *getUserData() const { return mUserData; }
         
-        virtual String printHierarchy(bool outputLog = true);
+        virtual String printHierarchy(bool outputLog = true, bool verbose = false);
         
     protected:
         TransformNode() = default;

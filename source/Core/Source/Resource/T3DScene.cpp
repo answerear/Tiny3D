@@ -79,7 +79,22 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    
+
+    String Scene::printSceneHierarchy(bool verbose)
+    {
+        if (mRootTransform == nullptr)
+        {
+            T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "[EMPTY SCENE]");
+            return "[EMPTY SCENE]";
+        }
+
+        String output = mRootTransform->printHierarchy(false, verbose);
+        T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Scene Hierarchy : \n%s", output.c_str());
+        return output;
+    }
+
+    //--------------------------------------------------------------------------
+
     void Scene::update()
     {
         mRootGameObject->update();

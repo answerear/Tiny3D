@@ -119,7 +119,7 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
     // plane
     buildPlane(root);
     
-    root->printHierarchy(true);
+    scene->printSceneHierarchy(true);
     
     return T3D_OK;
 }
