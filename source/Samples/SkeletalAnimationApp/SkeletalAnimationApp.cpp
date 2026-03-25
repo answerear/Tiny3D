@@ -325,9 +325,9 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     xform->rotate(Radian::kZero, yAngles, Radian::kZero);
 
     // 将骨骼树根节点（UpperArm）挂到 Cube#0 下
-    Skeleton *skeleton = mCubeMesh->getSkeleton();
-    TransformNode *upperArmXform = skeleton->getRootBoneGameObject()->getTransformNode();
-    xform->addChild(upperArmXform);
+    // Skeleton *skeleton = mCubeMesh->getSkeleton();
+    // TransformNode *upperArmXform = skeleton->getRootBoneGameObject()->getTransformNode();
+    // xform->addChild(upperArmXform);
 
     go = GameObject::createWithTransform("body");
     xform->addChild(go->getTransformNode());
@@ -763,7 +763,7 @@ MeshPtr SkeletalAnimationApp::buildArmMesh(const Tiny3D::UUID &materialUUID)
     SkeletonPtr skeleton = buildArmSkeleton(nullptr);
     SkeletalAnimationPtr skeletalAni = buildArmSkeletalAnimation();
     
-    skeleton->getRootBoneGameObject()->getTransformNode()->printHierarchy();
+    // skeleton->getRootBoneGameObject()->getTransformNode()->printHierarchy();
     
     MeshPtr mesh = T3D_MESH_MGR.createSkinnedMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes), skeleton, skeletalAni);
 #if defined (T3D_DEBUG)
@@ -823,11 +823,11 @@ SkeletonPtr SkeletalAnimationApp::buildArmSkeleton(Transform3D *parent)
     offsetMatrix.makeInverseTransform(pos, Vector3::UNIT_SCALE, Quaternion::IDENTITY);
     upperArmBone->setOffsetMatrix(offsetMatrix);
 
-    // 将 UpperArm 挂到传入的父节点下（场景 hierarchy）
-    if (parent != nullptr)
-    {
-        parent->addChild(upperArmXform.get());
-    }
+    // // 将 UpperArm 挂到传入的父节点下（场景 hierarchy）
+    // if (parent != nullptr)
+    // {
+    //     parent->addChild(upperArmXform.get());
+    // }
 
     // ForeArm（UpperArm 的子骨骼）
     pos.y() += kOneBoneLength;
