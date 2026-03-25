@@ -332,8 +332,7 @@ namespace Tiny3D
         
         String name = SUB_MESH_NAME;
         MaterialPtr material = buildMaterial();
-        SubMeshPtr submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, indexBuffer, true);
-        indexBuffer.release();
+        SubMeshPtr submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, std::move(indexBuffer), true);
         SubMeshes subMeshes;
         subMeshes.emplace(name, submesh);
 
@@ -351,8 +350,7 @@ namespace Tiny3D
         mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
 
         material = buildTestMaterial();
-        submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, indexBuffer2, true);
-        indexBuffer2.release();
+        submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, std::move(indexBuffer2), true);
         SubMeshes subMeshes2;
         subMeshes2.emplace(name, submesh);
         mTestMesh = T3D_MESH_MGR.createMesh(TEST_MESH_NAME, std::move(attributes2), std::move(vertexBuffers2), std::move(strides2), std::move(offsets2), std::move(subMeshes2));

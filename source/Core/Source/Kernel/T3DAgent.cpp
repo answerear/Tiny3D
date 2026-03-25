@@ -101,6 +101,12 @@ namespace Tiny3D
         mDefaultWindow = nullptr;
         mActiveRHIRenderer = nullptr;
 
+        if (mSkeletonMgr != nullptr)
+        {
+            mSkeletonMgr->unloadAllResources();
+            mSkeletonMgr = nullptr;
+        }
+        
         if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
         {
             // mSceneMgr->getCurrentScene()->removeAll();
@@ -117,12 +123,6 @@ namespace Tiny3D
         {
             mPrefabMgr->unloadAllResources();
             
-        }
-        
-        if (mSkeletonMgr != nullptr)
-        {
-            mSkeletonMgr->unloadAllResources();
-            mSkeletonMgr = nullptr;
         }
         
         GameObject::destroyComponents();

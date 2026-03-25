@@ -142,6 +142,8 @@ namespace Tiny3D
                 break;
             }
 
+            T3D_SKELETON_MGR.unloadAllResources();
+            
             T3D_SCENE_MGR.unloadScene(scene);
             scene = nullptr;
             T3D_SCENE_MGR.setCurrentScene(nullptr);

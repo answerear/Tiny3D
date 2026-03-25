@@ -463,8 +463,7 @@ MeshPtr TextureApp::buildMesh(const Tiny3D::UUID &materialUUID)
     indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
     
     String name = SUB_MESH_NAME;
-    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, indexBuffer, true);
-    indexBuffer.release();
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, std::move(indexBuffer), true);
     SubMeshes subMeshes;
     subMeshes.emplace(name, submesh);
 

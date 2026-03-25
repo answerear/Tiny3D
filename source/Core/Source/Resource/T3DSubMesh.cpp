@@ -34,20 +34,21 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SubMeshPtr SubMesh::create(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+    SubMeshPtr SubMesh::create(const String &name, const UUID &materialUUID, PrimitiveType priType, Buffer &&indices, bool is16Bits)
     {
-        return T3D_NEW SubMesh(name, materialUUID, priType, indices, is16Bits);
+        return T3D_NEW SubMesh(name, materialUUID, priType, std::move(indices), is16Bits);
     }
 
     //--------------------------------------------------------------------------
 
-    SubMesh::SubMesh(const String &name, const UUID &materialUUID, PrimitiveType priType, const Buffer &indices, bool is16Bits)
+    SubMesh::SubMesh(const String &name, const UUID &materialUUID, PrimitiveType priType, Buffer &&indices, bool is16Bits)
         : mPriType(priType)
+        , mIndices(std::move(indices))
         , mIs16Bits(is16Bits)
         , mName(name)
         , mMaterialUUID(materialUUID)
     {
-        mIndices.setData(indices.Data, indices.DataSize);
+        
     }
     
     //--------------------------------------------------------------------------

@@ -1903,9 +1903,7 @@ namespace Tiny3D
                 is16Bits = true;
             }
 
-            submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, indices, is16Bits);
-
-            indices.release();
+            submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, std::move(indices), is16Bits);
         } while (false);
         
         return ret;
