@@ -857,6 +857,14 @@ namespace Tiny3D
                     meshData->meshT = FbxPointToTinyVector3Remap(lFbxGlobalT) * mSceneScaleFactor;
                     meshData->meshQ = FbxEulerToTinyQuaternion(lFbxGlobalR);
                     meshData->meshS = FbxPointToTinyVector3(lFbxGlobalS);
+                    
+                    MCONV_LOG_DEBUG("Mesh T: %s", meshData->meshT.getDebugString().c_str());
+                    MCONV_LOG_DEBUG("Mesh Q: %s", meshData->meshQ.getDebugString().c_str());
+                    MCONV_LOG_DEBUG("Mesh S: %s", meshData->meshS.getDebugString().c_str());
+                    
+                    MCONV_LOG_DEBUG("FBXMesh Node T: (%f, %f, %f)", lFbxGlobalT[0], lFbxGlobalT[1], lFbxGlobalT[2])
+                    MCONV_LOG_DEBUG("FBXMesh Node R: (%f, %f, %f)", lFbxGlobalR[0], lFbxGlobalR[1], lFbxGlobalR[2])
+                    MCONV_LOG_DEBUG("FBXMesh Node S: (%f, %f, %f)", lFbxGlobalS[0], lFbxGlobalS[1], lFbxGlobalS[2])
                 }
             }
         } while (false);
@@ -3481,7 +3489,15 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
             
             if (!hasSkin)
             {
-                mesh = T3D_MESH_MGR.createMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(meshData->subMeshes));
+                mesh = T3D_MESH_MGR.createMesh(name, 
+                    std::move(attributes), 
+                    std::move(vertices), 
+                    std::move(strides), 
+                    std::move(offsets), 
+                    std::move(meshData->subMeshes), 
+                    meshData->meshT, 
+                    meshData->meshQ, 
+                    meshData->meshS);
                 if (mesh == nullptr)
                 {
                     ret = T3D_ERR_RES_INVALID_OBJECT;
@@ -3497,7 +3513,17 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                     SkeletalAnimationData *skelAniData = getSkeletalAnimationData(lFbxBoneRoot);
                     if (skelAniData != nullptr)
                     {
-                        mesh = T3D_MESH_MGR.createSkinnedMesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(meshData->subMeshes), skelAniData->skeleton, skelAniData->animation);
+                        mesh = T3D_MESH_MGR.createSkinnedMesh(name, 
+                            std::move(attributes), 
+                            std::move(vertices), 
+                            std::move(strides), 
+                            std::move(offsets), 
+                            std::move(meshData->subMeshes), 
+                            skelAniData->skeleton, 
+                            skelAniData->animation, 
+                            meshData->meshT, 
+                            meshData->meshQ, 
+                            meshData->meshS);
                         if (mesh == nullptr)
                         {
                             ret = T3D_ERR_RES_INVALID_OBJECT;
