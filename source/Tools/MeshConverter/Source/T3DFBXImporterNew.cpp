@@ -843,6 +843,7 @@ namespace Tiny3D
 
                     // 建立 FbxMeshLUT
                     MeshData *meshData = T3D_NEW MeshData;
+                    meshData->meshName = lFbxNode->GetName();
                     mFbxMeshData.emplace(lFbxMesh, meshData);
 
                     // 建立 FbxMeshRootLUT
@@ -3497,7 +3498,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                     std::move(meshData->subMeshes), 
                     meshData->meshT, 
                     meshData->meshQ, 
-                    meshData->meshS);
+                    meshData->meshS,
+                    meshData->meshName);
                 if (mesh == nullptr)
                 {
                     ret = T3D_ERR_RES_INVALID_OBJECT;
@@ -3523,7 +3525,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                             skelAniData->animation, 
                             meshData->meshT, 
                             meshData->meshQ, 
-                            meshData->meshS);
+                            meshData->meshS,
+                            meshData->meshName);
                         if (mesh == nullptr)
                         {
                             ret = T3D_ERR_RES_INVALID_OBJECT;

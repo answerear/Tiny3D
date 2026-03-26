@@ -48,9 +48,9 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     MeshPtr Mesh::create(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        const Vector3 &position, const Quaternion &rotation, const Vector3 &scale)
+        const Vector3 &position, const Quaternion &rotation, const Vector3 &scale, const String &meshNodeName)
     {
-        return T3D_NEW Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes));
+        return T3D_NEW Mesh(name, std::move(attributes), std::move(vertices), std::move(strides), std::move(offsets), std::move(submeshes), position, rotation, scale, meshNodeName);
     }
     
     //--------------------------------------------------------------------------
@@ -80,13 +80,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     Mesh::Mesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling, const String &meshNodeName)
         : Resource(name)
         , mVertexAttributes(std::move(attributes))
         , mVertices(std::move(vertices))
         , mVertexStrides(std::move(strides))
         , mVertexOffsets(std::move(offsets))
         , mSubMeshes(std::move(submeshes))
+        , mMeshNodeName(meshNodeName)
         , mMeshT(position)
         , mMeshQ(orientation)
         , mMeshS(scaling)

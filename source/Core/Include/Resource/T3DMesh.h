@@ -65,7 +65,8 @@ namespace Tiny3D
          * \return 调用成功返回一个 mesh 对象
          */
         static MeshPtr create(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes, 
-            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE);
+            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE,
+            const String &meshNodeName = "");
 
         /**
          * \brief 析构函数
@@ -101,6 +102,9 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="MeshScaling", RTTRFuncType="getter")
         const Vector3 &getMeshScaling() const { return mMeshS; }
 
+        TPROPERTY(RTTRFuncName="MeshNodeName", RTTRFuncType="getter")
+        const String &getMeshNodeName() const { return mMeshNodeName; }
+        
         VertexDeclarationPtr getVertexDeclaration() const { return mVertexDecl; }
 
         const VertexBuffers &getVertexBuffers() const { return mVBuffers; }
@@ -143,7 +147,8 @@ namespace Tiny3D
         Mesh(const String &name);
 
         Mesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE);
+            const Vector3 &position = Vector3::ZERO, const Quaternion &orientation = Quaternion::IDENTITY, const Vector3 &scaling = Vector3::UNIT_SCALE,
+            const String &meshNodeName = "");
         
         ResourcePtr clone() const override;
 
@@ -174,6 +179,9 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="MeshScaling", RTTRFuncType="setter")
         void setMeshScaling(const Vector3 &scaling) { mMeshS = scaling; }
 
+        TPROPERTY(RTTRFuncName="MeshNodeName", RTTRFuncType="setter")
+        void setMeshNodeName(const String &name) { mMeshNodeName = name; }
+        
         virtual TResult generateRenderResource(Archive *archive);
 
         virtual bool isDynamicVertices() const { return false; }
@@ -196,6 +204,7 @@ namespace Tiny3D
         /// 渲染用的顶点缓冲区
         VertexBuffers mVBuffers {nullptr};
         
+        String mMeshNodeName {};
         Vector3 mMeshT {Vector3::ZERO};
         Quaternion mMeshQ {Quaternion::IDENTITY};
         Vector3 mMeshS {Vector3::UNIT_SCALE};

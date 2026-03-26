@@ -42,14 +42,14 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     MeshPtr MeshManager::createMesh(const String &name, VertexAttributes &&attributes, Vertices &&vertices, VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
-        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling, const String &meshNodeName)
     {
         VertexAttributes attrs = std::move(attributes);
         Vertices verts = std::move(vertices);
         VertexStrides vstrides = std::move(strides);
         VertexOffsets voffsets = std::move(offsets);
         SubMeshes subs = std::move(submeshes);
-        return smart_pointer_cast<Mesh>(createResource(name, 8, &attrs, &verts, &vstrides, &voffsets, &subs, &position, &orientation, &scaling));
+        return smart_pointer_cast<Mesh>(createResource(name, 9, &attrs, &verts, &vstrides, &voffsets, &subs, &position, &orientation, &scaling, &meshNodeName));
     }
 
     //--------------------------------------------------------------------------
@@ -86,14 +86,15 @@ namespace Tiny3D
         VertexAttributes &&attributes, Vertices &&vertices,
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
         Skeleton *skeleton, SkeletalAnimation *skeletalAni,
-        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling)
+        const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling, 
+        const String &meshNodeName)
     {
         VertexAttributes attrs = std::move(attributes);
         Vertices verts = std::move(vertices);
         VertexStrides vstrides = std::move(strides);
         VertexOffsets voffsets = std::move(offsets);
         SubMeshes subs = std::move(submeshes);
-        return smart_pointer_cast<SkinnedMesh>(createResource(name, 10, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni, &position, &orientation, &scaling));
+        return smart_pointer_cast<SkinnedMesh>(createResource(name, 11, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni, &position, &orientation, &scaling, &meshNodeName));
     }
 
     //--------------------------------------------------------------------------
@@ -101,9 +102,9 @@ namespace Tiny3D
     ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
         ResourcePtr res;
-        T3D_ASSERT(argc == 8 || argc == 10);
+        T3D_ASSERT(argc == 9 || argc == 11);
         
-        if (argc == 8)
+        if (argc == 9)
         {
             // Mesh
             VertexAttributes *attributes = va_arg(args, VertexAttributes*);
@@ -114,9 +115,10 @@ namespace Tiny3D
             Vector3 *pos = va_arg(args, Vector3*);
             Quaternion *ori = va_arg(args, Quaternion*);
             Vector3 *scale = va_arg(args, Vector3*);
-            res = Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), *pos, *ori, *scale);
+            String *meshNodeName = va_arg(args, String*);
+            res = Mesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), *pos, *ori, *scale, *meshNodeName);
         }
-        else if (argc == 10)
+        else if (argc == 11)
         {
             // Skinned Mesh
             VertexAttributes *attributes = va_arg(args, VertexAttributes*);
@@ -129,7 +131,8 @@ namespace Tiny3D
             Vector3 *pos = va_arg(args, Vector3*);
             Quaternion *ori = va_arg(args, Quaternion*);
             Vector3 *scale = va_arg(args, Vector3*);
-            res = SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeleton, skeletalAni, *pos, *ori, *scale);
+            String *meshNodeName = va_arg(args, String*);
+            res = SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeleton, skeletalAni, *pos, *ori, *scale, *meshNodeName);
         }
         
         return res;

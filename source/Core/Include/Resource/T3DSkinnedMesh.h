@@ -49,7 +49,8 @@ namespace Tiny3D
             VertexStrides &&strides, VertexOffsets &&offsets,
             SubMeshes &&submeshes, Skeleton *skeleton,
             SkeletalAnimation *skeletalAni, 
-            const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling);
+            const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling,
+            const String &meshNodeName);
 
         /**
          * \brief 析构函数
@@ -87,7 +88,8 @@ namespace Tiny3D
             Vertices &&vertices, VertexStrides &&strides,
             VertexOffsets &&offsets, SubMeshes &&submeshes, Skeleton *skeleton,
             SkeletalAnimation *skeletalAni,
-            const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling);
+            const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling,
+            const String &meshNodeName);
         
         ResourcePtr clone() const override;
 

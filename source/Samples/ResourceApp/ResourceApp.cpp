@@ -199,15 +199,22 @@ void ResourceApp::loadMesh(Transform3D *parent)
     const String meshName = "tortoise.tmesh";
     mMesh = T3D_MESH_MGR.loadMesh(archive, meshName);
     T3D_ASSERT(mMesh != nullptr);
+    
+    GameObjectPtr goBody = GameObject::createWithTransform(mMesh->getMeshNodeName());
+    Transform3D *bodyNode = static_cast<Transform3D*>(goBody->getTransformNode());
+    bodyNode->setPosition(mMesh->getMeshPosition());
+    bodyNode->setOrientation(mMesh->getMeshOrientation());
+    bodyNode->setScaling(mMesh->getMeshScaling());
+    node->addChild(bodyNode);
 
     GeometryPtr geometry;
     if (mMesh->getType() == Resource::Type::kMesh)
     {
-        geometry = go->addComponent<Geometry>();
+        geometry = goBody->addComponent<Geometry>();
     }
     else if (mMesh->getType() == Resource::Type::kSkinnedMesh)
     {
-        geometry = go->addComponent<SkinnedGeometry>();
+        geometry = goBody->addComponent<SkinnedGeometry>();
     }
     else
     {

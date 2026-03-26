@@ -75,6 +75,8 @@ namespace Tiny3D
                 }
             }
             
+            String meshName {};
+            
             /// 顶点数据
             Vector3Array vertices {};
             /// 颜色数据
