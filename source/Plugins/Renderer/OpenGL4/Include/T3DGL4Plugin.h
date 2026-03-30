@@ -22,25 +22,38 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#ifndef __T3D_GL4_PLUGIN_H__
+#define __T3D_GL4_PLUGIN_H__
+
+
+#include "T3DGL4Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class GL4Plugin : public Plugin
+    {
+    public:
+        GL4Plugin();
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL4 = "OpenGL 4";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+        virtual ~GL4Plugin();
 
-    //--------------------------------------------------------------------------
+        virtual const String &getName() const override;
+
+        virtual TResult install() override;
+
+        virtual TResult startup() override;
+
+        virtual TResult shutdown() override;
+
+        virtual TResult uninstall() override;
+
+    protected:
+        String          mName;
+        RHIRendererPtr  mRenderer;
+    };
 }
+
+
+#endif  /*__T3D_GL4_PLUGIN_H__*/

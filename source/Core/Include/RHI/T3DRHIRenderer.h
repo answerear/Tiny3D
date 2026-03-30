@@ -47,8 +47,8 @@ namespace Tiny3D
         static const char * const NULL_DIRECT3D11;
         /// Direct3D12 渲染器
         static const char * const DIRECT3D12;
-        /// OpenGL 3.x 渲染器
-        static const char * const OPENGL3;
+        /// OpenGL 4.x 渲染器
+        static const char * const OPENGL4;
         /// OpenGL ES 2 渲染器
         static const char * const OPENGLES2;
         /// OpenGL ES 3 渲染器

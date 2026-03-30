@@ -22,25 +22,75 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+
+#include "T3DGL4Renderer.h"
+#include "T3DGL4Context.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL4 = "OpenGL 4";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+    GL4RendererPtr GL4Renderer::create()
+    {
+        return T3D_NEW GL4Renderer();
+    }
+
+    //--------------------------------------------------------------------------
+
+    GL4Renderer::GL4Renderer()
+    {
+        mName = OPENGL4;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GL4Renderer::~GL4Renderer()
+    {
+        cleanup();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Renderer::init()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            mContext = GL4Context::create();
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Renderer::destroy()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            cleanup();
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Renderer::getEditorInfo(void *info, RenderWindow *window)
+    {
+        // TODO: 填充编辑器需要的 GL 上下文信息
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Renderer::cleanup()
+    {
+        mContext = nullptr;
+    }
 
     //--------------------------------------------------------------------------
 }

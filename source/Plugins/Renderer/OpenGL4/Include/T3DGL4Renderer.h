@@ -22,25 +22,39 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+#ifndef __T3D_GL4_RENDERER_H__
+#define __T3D_GL4_RENDERER_H__
+
+
+#include "T3DGL4Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class GL4Renderer
+        : public RHIRenderer
+        , public Singleton<GL4Renderer>
+    {
+    public:
+        static GL4RendererPtr create();
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL4 = "OpenGL 4";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+        ~GL4Renderer() override;
 
-    //--------------------------------------------------------------------------
+        TResult init() override;
+
+        TResult destroy() override;
+
+        void getEditorInfo(void *info, RenderWindow *window) override;
+
+    protected:
+        GL4Renderer();
+
+        void cleanup();
+    };
+
+    #define GL4_RENDERER    (GL4Renderer::getInstance())
+    #define GL4_CONTEXT     (smart_pointer_cast<GL4Context>(GL4_RENDERER.getContext()))
 }
+
+
+#endif  /*__T3D_GL4_RENDERER_H__*/

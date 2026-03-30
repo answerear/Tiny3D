@@ -22,25 +22,53 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
+#ifndef __T3D_GL4_RENDER_WINDOW_H__
+#define __T3D_GL4_RENDER_WINDOW_H__
+
+
+#include "T3DGL4Prerequisites.h"
 
 
 namespace Tiny3D
 {
-    //--------------------------------------------------------------------------
+    class GL4RenderWindow : public RHIRenderWindow
+    {
+    public:
+        static GL4RenderWindowPtr create(RenderWindow *renderWindow);
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL4 = "OpenGL 4";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::METAL = "Metal";
+        ~GL4RenderWindow() override;
 
-    //--------------------------------------------------------------------------
+        bool init(RenderWindow *renderWindow);
+
+        TResult swapBuffers() override;
+
+        TResult resize(uint32_t w, uint32_t h) override;
+
+        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
+
+        void *getNativeObject() const override;
+
+        /// OpenGL 上下文 (WGL: HGLRC, GLX: GLXContext)
+#if defined(T3D_OS_WINDOWS)
+        HGLRC   GLContext {nullptr};
+        HDC     GLDeviceContext {nullptr};
+#elif defined(T3D_OS_LINUX)
+        GLXContext  GLContext {nullptr};
+        Display     *GLDisplay {nullptr};
+        ::Window    GLWindow {0};
+#endif
+        /// 默认 FBO (通常为 0)
+        GLuint  GLDefaultFBO {0};
+        /// 深度缓冲 RBO
+        GLuint  GLDepthRBO {0};
+
+        uint32_t mWidth {0};
+        uint32_t mHeight {0};
+
+    protected:
+        GL4RenderWindow();
+    };
 }
+
+
+#endif  /*__T3D_GL4_RENDER_WINDOW_H__*/

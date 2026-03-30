@@ -5,7 +5,7 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(GL3Renderer)
+set_project_name(GL4Renderer)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
@@ -13,7 +13,8 @@ if (MSVC)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
-find_package(OpenGL)
+# GLAD library path
+set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/glad")
 
 # Setup project include files path
 include_directories(
@@ -23,8 +24,11 @@ include_directories(
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
+    "${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${RTTR_INCLUDE_DIR}"
+    "${T3D_COMMON_INCLUDE_DIR}"
+    "${GLAD_DIR}/include"
     )
 
 
@@ -34,6 +38,9 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .h)
 # Setup project source files
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
 
+# Add GLAD source file
+list(APPEND SOURCE_FILES ${GLAD_DIR}/src/glad.c)
+
 
 if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
@@ -42,15 +49,24 @@ else (TINY3D_BUILD_SHARED_LIBS)
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
+if (WIN32)
+    set(GL4_PLATFORM_LIBS opengl32)
+elseif (UNIX AND NOT APPLE)
+    set(GL4_PLATFORM_LIBS GL X11)
+endif ()
+
 target_link_libraries(
     ${LIB_NAME}
     ${OPENGL_LIBRARIES}
+    ${GL4_PLATFORM_LIBS}
     T3DMath
     T3DLog
+    T3DUtils
     T3DPlatform
     T3DSystem
     T3DCore
     rttr_core
+    ${CMAKE_DL_LIBS}
     )
 
 # Setup project folder
