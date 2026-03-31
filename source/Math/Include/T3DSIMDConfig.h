@@ -25,7 +25,7 @@
 #ifndef __T3D_SIMD_CONFIG_H__
 #define __T3D_SIMD_CONFIG_H__
 
-#define T3D_SIMD_DISABLED
+// #define T3D_SIMD_DISABLED
 
 //-----------------------------------------------------------------------------
 // SIMD platform detection
