@@ -544,8 +544,38 @@ namespace Tiny3D
                     return ShadingLanguage::Hlsl;
             };
 
-            targetDesc.version = snippet.model.c_str();
             targetDesc.language = getShadingLanguage(mArgs.target);
+
+            // For GLSL/ESSL targets, convert HLSL shader model version to
+            // the corresponding GLSL version string that SPIRV-Cross expects
+            // (e.g. "40" -> "400", "50" -> "450", "30" -> "330").
+            auto convertToGLSLVersion = [](const String &model) -> String
+            {
+                static const TMap<String, String> kModelToGLSL = {
+                    {"20", "110"}, {"21", "120"}, {"30", "130"},
+                    {"31", "140"}, {"32", "150"}, {"33", "330"},
+                    {"40", "400"}, {"41", "410"}, {"42", "420"},
+                    {"43", "430"}, {"44", "440"}, {"45", "450"},
+                    {"50", "450"}, {"51", "450"}, {"60", "460"},
+                    {"61", "460"}, {"62", "460"}, {"63", "460"},
+                };
+                auto it = kModelToGLSL.find(model);
+                if (it != kModelToGLSL.end())
+                    return it->second;
+                return "450";  // default to GLSL 4.50
+            };
+
+            String glslVersion;
+            if (targetDesc.language == ShadingLanguage::Glsl
+                || targetDesc.language == ShadingLanguage::Essl)
+            {
+                glslVersion = convertToGLSLVersion(snippet.model);
+                targetDesc.version = glslVersion.c_str();
+            }
+            else
+            {
+                targetDesc.version = snippet.model.c_str();
+            }
 
             Compiler::Options opt;
             opt.packMatricesInRowMajor = false;
