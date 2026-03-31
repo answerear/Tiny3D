@@ -384,3 +384,6 @@ namespace Tiny3D
     template <typename T>
     const TVector3<T> TVector3<T>::FORWARD(0.0, 0.0, 1.0);
 }
+
+
+#include "T3DVector3_SIMD.inl"

@@ -324,3 +324,6 @@ namespace Tiny3D
     template <typename T>
     const TVector4<T> TVector4<T>::ZERO(0.0, 0.0, 0.0, 0.0);
 }
+
+
+#include "T3DVector4_SIMD.inl"

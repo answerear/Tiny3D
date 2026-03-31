@@ -63,6 +63,21 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 
 
 
+# Setup SIMD compiler flags
+if (TINY3D_OS_WINDOWS)
+	if (MSVC)
+		if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+			# x86: enable SSE2 (x64 has it by default)
+			target_compile_options(${LIB_NAME} PRIVATE /arch:SSE2)
+		endif ()
+	endif ()
+elseif (TINY3D_OS_LINUX OR TINY3D_OS_MACOSX)
+	if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|i[3-6]86|AMD64")
+		target_compile_options(${LIB_NAME} PRIVATE -msse4.1)
+	endif ()
+endif ()
+
+
 if (TINY3D_OS_WINDOWS)
 	# Windows
 	
