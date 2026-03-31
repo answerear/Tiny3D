@@ -27,7 +27,7 @@
 
 #define UVN_CAMERA
 
-// #define USE_GPU_SKIN
+#define USE_GPU_SKIN
 
 #define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
 #define ARCHIVE_TYPE_FS             "FileSystem"
