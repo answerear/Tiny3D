@@ -998,6 +998,12 @@ namespace Tiny3D
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Start Tiny3D - %s(%s) ...... version %s", getVersionName(), getVersionString(), T3D_DEVICE_INFO.getSoftwareVersion().c_str());
         T3D_LOG_INFO(LOG_TAG_ENGINE, "System Information : \n%s", T3D_DEVICE_INFO.getSystemInfo().c_str());
 
+#if !defined(T3D_SIMD_DISABLED)
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "SIMD is enabled !")
+#else
+        T3D_LOG_INFO(LOG_TAG_ENGINE, "SIMD is disabled !")
+#endif
+
         return ret;
     }
     
