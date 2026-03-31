@@ -162,6 +162,9 @@ namespace Tiny3D
         TResult bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers);
         TResult bindSamplers(uint32_t startSlot, const Samplers &samplers);
 
+        void setupUniformBlockBindings(GLuint program);
+        void setupSamplerBindings(GLuint program);
+
     protected:
         /// 当前激活的 GL Program
         GLuint  mCurrentProgram {0};
@@ -175,6 +178,8 @@ namespace Tiny3D
         RenderTargetPtr mCurrentRenderTarget {nullptr};
         /// 当前绑定的 VAO
         GLuint  mCurrentVAO {0};
+        /// 延迟配置顶点属性用的 VertexDeclaration 缓存
+        VertexDeclaration *mPendingVertexDecl {nullptr};
         /// GLAD 是否已加载
         bool    mGLADLoaded {false};
 

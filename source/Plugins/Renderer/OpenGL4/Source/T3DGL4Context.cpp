@@ -901,19 +901,9 @@ namespace Tiny3D
         mCurrentVAO = glDecl->GLVAO;
         glBindVertexArray(mCurrentVAO);
 
-        // 设置顶点属性
-        for (uint32_t i = 0; i < decl->getAttributeCount(); ++i)
-        {
-            const VertexAttribute &attrib = decl->getAttributes()[i];
-            GLint size = GL4Mapping::getVertexAttribSize(attrib.getType());
-            GLenum type = GL4Mapping::getVertexAttribType(attrib.getType());
-            GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
-
-            glEnableVertexAttribArray(i);
-            glVertexAttribPointer(i, size, type, normalized,
-                0,  // stride 在 setVertexBuffers 中通过 bindBuffer 时设置
-                reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
-        }
+        // 延迟顶点属性配置到 setVertexBuffers，因为 glVertexAttribPointer
+        // 在 Core Profile 下要求当前有 GL_ARRAY_BUFFER 绑定
+        mPendingVertexDecl = decl;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration");
         return T3D_OK;
@@ -945,7 +935,29 @@ namespace Tiny3D
         {
             GL4VertexBuffer *glVB = static_cast<GL4VertexBuffer*>(buffers[i]->getRHIResource().get());
             glBindBuffer(GL_ARRAY_BUFFER, glVB->GLBuffer);
+
+            // VBO 已绑定，现在配置此 slot 对应的顶点属性
+            if (mPendingVertexDecl != nullptr)
+            {
+                for (uint32_t j = 0; j < mPendingVertexDecl->getAttributeCount(); ++j)
+                {
+                    const VertexAttribute &attrib = mPendingVertexDecl->getAttributes()[j];
+                    if (attrib.getSlot() != startSlot + i)
+                        continue;
+
+                    GLint size = GL4Mapping::getVertexAttribSize(attrib.getType());
+                    GLenum type = GL4Mapping::getVertexAttribType(attrib.getType());
+                    GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
+
+                    glEnableVertexAttribArray(j);
+                    glVertexAttribPointer(j, size, type, normalized,
+                        (GLsizei)strides[i],
+                        reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                }
+            }
         }
+
+        mPendingVertexDecl = nullptr;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexBuffers");
         return T3D_OK;
@@ -1042,12 +1054,11 @@ namespace Tiny3D
             GL4Mapping::getPixelType(desc.format),
             buffer->getBuffer().Data);
 
-        if (desc.mipmaps > 1)
-        {
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
+        // 无论请求多少 mipmap，都生成完整 mipmap chain，
+        // 确保 Sampler Object 的 mipmap filtering 模式正常工作
+        glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, desc.mipmaps > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1367,6 +1378,8 @@ namespace Tiny3D
             }
 
             glAttachShader(tempProgram, glShader->GLShaderHandle);
+            // Allow linking with a single shader stage for reflection purposes
+            glProgramParameteri(tempProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
             glLinkProgram(tempProgram);
 
             GLint linked = 0;
@@ -1434,12 +1447,27 @@ namespace Tiny3D
                     default:             dataSize = arrayStride > 0 ? arrayStride * uniformSize : 4 * uniformSize; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
                     }
 
+                    // Convert SPIRV-Cross generated names back to original names
+                    // UBO block name: "type_Xxx" -> "Xxx" (strip "type_" prefix)
+                    // Uniform name: "Instance.member" -> "member" (strip instance name + dot)
                     String cbufferName(blockName);
                     String cname(uniformName);
+
+                    if (StringUtil::startsWith(cbufferName, "type_"))
+                    {
+                        cbufferName = cbufferName.substr(5);
+                    }
+
+                    String::size_type dotPos = cname.find('.');
+                    if (dotPos != String::npos)
+                    {
+                        cname = cname.substr(dotPos + 1);
+                    }
+
                     ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, i, dataSize, offset, dataType);
                     constantParams.emplace(param->getName(), param);
 
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - UBO name: %s, uniform name: %s, type: %u, size: %u, offset: %d", blockName, uniformName, dataType, dataSize, offset);
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - UBO name: %s -> %s, uniform name: %s -> %s, type: %u, size: %u, offset: %d", blockName, cbufferName.c_str(), uniformName, cname.c_str(), dataType, dataSize, offset);
                 }
             }
 
@@ -1447,6 +1475,7 @@ namespace Tiny3D
             GLint numUniforms = 0;
             glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
+            uint32_t samplerIndex = 0;
             for (GLint i = 0; i < numUniforms; ++i)
             {
                 char uniformName[256] = {};
@@ -1472,7 +1501,24 @@ namespace Tiny3D
                 if (isSampler)
                 {
                     GLint loc = glGetUniformLocation(tempProgram, uniformName);
+                    if (loc < 0)
+                        continue;
+
                     String name(uniformName);
+
+                    // Convert SPIRV-Cross combined sampler name to original texture name
+                    // Pattern: "SPIRV_Cross_Combined<texName>sampler<texName>" -> "<texName>"
+                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
+                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
+                    {
+                        String remainder = name.substr(kSpirvPrefix.size());
+                        // Find "sampler" keyword in the remainder to extract texture name
+                        String::size_type samplerPos = remainder.find("sampler");
+                        if (samplerPos != String::npos && samplerPos > 0)
+                        {
+                            name = remainder.substr(0, samplerPos);
+                        }
+                    }
 
                     ShaderSamplerParamPtr param;
                     const auto itr = samplerParams.find(name);
@@ -1486,11 +1532,14 @@ namespace Tiny3D
                         param = itr->second;
                     }
 
-                    param->setTexBinding(loc);
-                    param->setSamplerBinding(loc);
+                    // 使用从 0 开始递增的索引作为 binding，
+                    // 与 setupSamplerBindings() 中的 texUnit 递增顺序一致
+                    param->setTexBinding(samplerIndex);
+                    param->setSamplerBinding(samplerIndex);
                     param->setTextureType(texType);
 
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - sampler name: %s, binding: %d, type: %d", uniformName, loc, texType);
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - sampler name: %s -> %s, binding: %d, type: %d", uniformName, name.c_str(), samplerIndex, texType);
+                    samplerIndex++;
                 }
             }
 
@@ -1536,6 +1585,12 @@ namespace Tiny3D
             }
 
             glUseProgram(mCurrentProgram);
+
+            // Bind uniform blocks to their binding points
+            setupUniformBlockBindings(mCurrentProgram);
+
+            // Bind sampler uniforms to their texture units
+            setupSamplerBindings(mCurrentProgram);
         }
 
         const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
@@ -1569,6 +1624,12 @@ namespace Tiny3D
             }
 
             glUseProgram(mCurrentProgram);
+
+            // Bind uniform blocks to their binding points
+            setupUniformBlockBindings(mCurrentProgram);
+
+            // Bind sampler uniforms to their texture units
+            setupSamplerBindings(mCurrentProgram);
         }
 
         glDrawArrays(mPrimitiveType, startVertex, vertexCount);
@@ -1758,6 +1819,53 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     // Helper methods for resource binding (OpenGL unified binding)
+    //--------------------------------------------------------------------------
+
+    void GL4Context::setupUniformBlockBindings(GLuint program)
+    {
+        GLint numBlocks = 0;
+        glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
+
+        for (GLint i = 0; i < numBlocks; ++i)
+        {
+            // Bind uniform block index i to binding point i
+            // This matches the slot used by bindConstantBuffers(startSlot, ...)
+            glUniformBlockBinding(program, i, i);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::setupSamplerBindings(GLuint program)
+    {
+        GLint numUniforms = 0;
+        glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+        GLint texUnit = 0;
+        for (GLint i = 0; i < numUniforms; ++i)
+        {
+            char name[256] = {};
+            GLsizei nameLen = 0;
+            GLint uniformSize = 0;
+            GLenum uniformType = 0;
+            glGetActiveUniform(program, i, sizeof(name), &nameLen, &uniformSize, &uniformType, name);
+
+            bool isSampler = (uniformType == GL_SAMPLER_1D || uniformType == GL_SAMPLER_2D
+                || uniformType == GL_SAMPLER_3D || uniformType == GL_SAMPLER_CUBE
+                || uniformType == GL_SAMPLER_2D_SHADOW);
+
+            if (isSampler)
+            {
+                GLint loc = glGetUniformLocation(program, name);
+                if (loc >= 0)
+                {
+                    glUniform1i(loc, texUnit);
+                    texUnit++;
+                }
+            }
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     TResult GL4Context::bindConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
