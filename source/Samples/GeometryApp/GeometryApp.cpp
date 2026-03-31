@@ -39,6 +39,8 @@ GeometryApp theApp;
 
 extern const char *SAMPLE_VERTEX_SHADER;
 extern const char *SAMPLE_PIXEL_SHADER;
+extern const char *SAMPLE_VERTEX_SHADER_GL;
+extern const char *SAMPLE_PIXEL_SHADER_GL;
 
 
 GeometryApp::GeometryApp()
@@ -277,12 +279,14 @@ MaterialPtr GeometryApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = SAMPLE_VERTEX_SHADER;
+    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? SAMPLE_VERTEX_SHADER_GL : SAMPLE_VERTEX_SHADER;
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps = SAMPLE_PIXEL_SHADER;
+    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? SAMPLE_PIXEL_SHADER_GL : SAMPLE_PIXEL_SHADER;
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);

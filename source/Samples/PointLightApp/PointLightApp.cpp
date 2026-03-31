@@ -36,6 +36,8 @@ PointLightApp theApp;
 
 extern const char *SAMPLE_LIT_VERTEX_SHADER;
 extern const char *SAMPLE_LIT_PIXEL_SHADER;
+extern const char *SAMPLE_LIT_VERTEX_SHADER_GL;
+extern const char *SAMPLE_LIT_PIXEL_SHADER_GL;
 
 PointLightApp::PointLightApp()
 {
@@ -310,13 +312,15 @@ MaterialPtr PointLightApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = SAMPLE_LIT_VERTEX_SHADER;
+    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? SAMPLE_LIT_VERTEX_SHADER_GL : SAMPLE_LIT_VERTEX_SHADER;
     
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps = SAMPLE_LIT_PIXEL_SHADER;
+    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? SAMPLE_LIT_PIXEL_SHADER_GL : SAMPLE_LIT_PIXEL_SHADER;
     
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);

@@ -39,6 +39,9 @@ ShadowApp theApp;
 extern const char *SHADOW_VERTEX_SHADER;
 extern const char *FORWARD_VERTEX_SHADER;
 extern const char *FORWARD_PIXEL_SHADER;
+extern const char *SHADOW_VERTEX_SHADER_GL;
+extern const char *FORWARD_VERTEX_SHADER_GL;
+extern const char *FORWARD_PIXEL_SHADER_GL;
 
 ShadowApp::ShadowApp()
 {
@@ -227,7 +230,8 @@ PassPtr ShadowApp::buildShadowPass()
     vkeyword.generate();
 
     // vertex shader for shadow pass
-    const String vs = SHADOW_VERTEX_SHADER;
+    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? SHADOW_VERTEX_SHADER_GL : SHADOW_VERTEX_SHADER;
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
@@ -267,12 +271,14 @@ PassPtr ShadowApp::buildForwardPass()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader for forward pass
-    const String vs = FORWARD_VERTEX_SHADER;    
+    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? FORWARD_VERTEX_SHADER_GL : FORWARD_VERTEX_SHADER;
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader for forward pass
-    const String ps = FORWARD_PIXEL_SHADER;
+    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? FORWARD_PIXEL_SHADER_GL : FORWARD_PIXEL_SHADER;
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
 

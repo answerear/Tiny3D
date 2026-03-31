@@ -53,6 +53,13 @@ extern const char *SKIN_FORWARD_VERTEX_SHADER;
 extern const char *FORWARD_PIXEL_SHADER;
 extern const char *GPU_SKIN_SHADOW_VERTEX_SHADER;
 extern const char *GPU_SKIN_FORWARD_VERTEX_SHADER;
+extern const char *FORWARD_VERTEX_SHADER_GL;
+extern const char *SHADOW_VERTEX_SHADER_GL;
+extern const char *SKIN_SHADOW_VERTEX_SHADER_GL;
+extern const char *SKIN_FORWARD_VERTEX_SHADER_GL;
+extern const char *FORWARD_PIXEL_SHADER_GL;
+extern const char *GPU_SKIN_SHADOW_VERTEX_SHADER_GL;
+extern const char *GPU_SKIN_FORWARD_VERTEX_SHADER_GL;
 
 SkeletalAnimationApp::SkeletalAnimationApp()
 {
@@ -97,11 +104,20 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
     light->setSpecularIntensity(1.0f);
 
     // cube shader & material
-    ShaderPtr shader = buildShader("Cube-Shader", SKIN_FORWARD_VERTEX_SHADER, SKIN_SHADOW_VERTEX_SHADER, GPU_SKIN_FORWARD_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER);
+    bool isGL = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4);
+    ShaderPtr shader = buildShader("Cube-Shader",
+        isGL ? SKIN_FORWARD_VERTEX_SHADER_GL : SKIN_FORWARD_VERTEX_SHADER,
+        isGL ? SKIN_SHADOW_VERTEX_SHADER_GL : SKIN_SHADOW_VERTEX_SHADER,
+        isGL ? GPU_SKIN_FORWARD_VERTEX_SHADER_GL : GPU_SKIN_FORWARD_VERTEX_SHADER,
+        isGL ? GPU_SKIN_SHADOW_VERTEX_SHADER_GL : GPU_SKIN_SHADOW_VERTEX_SHADER);
     mCubeMaterial = buildArmMaterial(shader);
     
     // plane shader & material
-    shader = buildShader("Plane-Shader", FORWARD_VERTEX_SHADER, SHADOW_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER, GPU_SKIN_SHADOW_VERTEX_SHADER);
+    shader = buildShader("Plane-Shader",
+        isGL ? FORWARD_VERTEX_SHADER_GL : FORWARD_VERTEX_SHADER,
+        isGL ? SHADOW_VERTEX_SHADER_GL : SHADOW_VERTEX_SHADER,
+        isGL ? GPU_SKIN_SHADOW_VERTEX_SHADER_GL : GPU_SKIN_SHADOW_VERTEX_SHADER,
+        isGL ? GPU_SKIN_SHADOW_VERTEX_SHADER_GL : GPU_SKIN_SHADOW_VERTEX_SHADER);
     mPlaneMaterial = buildPlaneMaterial(shader);
 
     // cube mesh
@@ -252,7 +268,8 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs, const String &v
     vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader for forward pass
-    const String ps = FORWARD_PIXEL_SHADER;
+    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
+        ? FORWARD_PIXEL_SHADER_GL : FORWARD_PIXEL_SHADER;
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
 
