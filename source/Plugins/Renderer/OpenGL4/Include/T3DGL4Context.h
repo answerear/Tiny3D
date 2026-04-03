@@ -158,11 +158,11 @@ namespace Tiny3D
         TResult initDummyContext();
         void destroyDummyContext();
 
-        TResult bindConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers);
+        TResult stageConstantBuffers(const ConstantBuffers &buffers);
         TResult bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers);
         TResult bindSamplers(uint32_t startSlot, const Samplers &samplers);
 
-        void setupUniformBlockBindings(GLuint program);
+        void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
 
     protected:
@@ -180,6 +180,10 @@ namespace Tiny3D
         GLuint  mCurrentVAO {0};
         /// 延迟配置顶点属性用的 VertexDeclaration 缓存
         VertexDeclaration *mPendingVertexDecl {nullptr};
+        /// 延迟绑定 UBO：cbuffer 名 -> GL buffer handle（render() link 后统一绑定）
+        TMap<String, GLuint> mPendingUBOs;
+        /// program 是否需要重新 link（setVertexShader/setPixelShader 后置 true，link 后置 false）
+        bool    mProgramDirty {false};
         /// GLAD 是否已加载
         bool    mGLADLoaded {false};
 

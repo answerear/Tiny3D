@@ -1132,12 +1132,13 @@ namespace Tiny3D
     {
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
 
-        if (mCurrentProgram == 0)
+        if (mCurrentProgram != 0)
         {
-            mCurrentProgram = glCreateProgram();
+            GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
         }
-
+        mCurrentProgram = glCreateProgram();
         glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
+        mProgramDirty = true;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexShader");
         return T3D_OK;
@@ -1147,7 +1148,7 @@ namespace Tiny3D
 
     TResult GL4Context::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return bindConstantBuffers(startSlot, buffers);
+        return stageConstantBuffers(buffers);
     }
 
     TResult GL4Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -1206,8 +1207,8 @@ namespace Tiny3D
         {
             mCurrentProgram = glCreateProgram();
         }
-
         glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
+        mProgramDirty = true;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPixelShader");
         return T3D_OK;
@@ -1217,7 +1218,7 @@ namespace Tiny3D
 
     TResult GL4Context::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return bindConstantBuffers(startSlot, buffers);
+        return stageConstantBuffers(buffers);
     }
 
     TResult GL4Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -1317,7 +1318,7 @@ namespace Tiny3D
 
     TResult GL4Context::setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return bindConstantBuffers(startSlot, buffers);
+        return stageConstantBuffers(buffers);
     }
 
     TResult GL4Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -1564,8 +1565,7 @@ namespace Tiny3D
 
     TResult GL4Context::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
     {
-        // Link program if needed
-        if (mCurrentProgram != 0)
+        if (mCurrentProgram != 0 && mProgramDirty)
         {
             glLinkProgram(mCurrentProgram);
 
@@ -1585,12 +1585,9 @@ namespace Tiny3D
             }
 
             glUseProgram(mCurrentProgram);
-
-            // Bind uniform blocks to their binding points
-            setupUniformBlockBindings(mCurrentProgram);
-
-            // Bind sampler uniforms to their texture units
+            bindPendingUniformBlocks(mCurrentProgram);
             setupSamplerBindings(mCurrentProgram);
+            mProgramDirty = false;
         }
 
         const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
@@ -1604,7 +1601,7 @@ namespace Tiny3D
 
     TResult GL4Context::render(uint32_t vertexCount, uint32_t startVertex)
     {
-        if (mCurrentProgram != 0)
+        if (mCurrentProgram != 0 && mProgramDirty)
         {
             glLinkProgram(mCurrentProgram);
 
@@ -1624,12 +1621,9 @@ namespace Tiny3D
             }
 
             glUseProgram(mCurrentProgram);
-
-            // Bind uniform blocks to their binding points
-            setupUniformBlockBindings(mCurrentProgram);
-
-            // Bind sampler uniforms to their texture units
+            bindPendingUniformBlocks(mCurrentProgram);
             setupSamplerBindings(mCurrentProgram);
+            mProgramDirty = false;
         }
 
         glDrawArrays(mPrimitiveType, startVertex, vertexCount);
@@ -1652,6 +1646,8 @@ namespace Tiny3D
 
         // 删除当前 program，下次渲染重新创建
         GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
+        mPendingUBOs.clear();
+        mProgramDirty = false;
         mCurrentVAO = 0;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reset");
@@ -1821,17 +1817,45 @@ namespace Tiny3D
     // Helper methods for resource binding (OpenGL unified binding)
     //--------------------------------------------------------------------------
 
-    void GL4Context::setupUniformBlockBindings(GLuint program)
+    void GL4Context::bindPendingUniformBlocks(GLuint program)
     {
         GLint numBlocks = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
 
+        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindPendingUniformBlocks: program=%u numBlocks=%d pendingUBOs=%d",
+            program, numBlocks, (int)mPendingUBOs.size());
+
         for (GLint i = 0; i < numBlocks; ++i)
         {
-            // Bind uniform block index i to binding point i
-            // This matches the slot used by bindConstantBuffers(startSlot, ...)
-            glUniformBlockBinding(program, i, i);
+            char blockName[256] = {};
+            GLsizei nameLen = 0;
+            glGetActiveUniformBlockName(program, i, sizeof(blockName), &nameLen, blockName);
+
+            String cbufferName(blockName);
+            if (StringUtil::startsWith(cbufferName, "type_"))
+            {
+                cbufferName = cbufferName.substr(5);
+            }
+
+            GLuint bindingPoint = static_cast<GLuint>(i);
+            glUniformBlockBinding(program, i, bindingPoint);
+
+            auto it = mPendingUBOs.find(cbufferName);
+            if (it != mPendingUBOs.end())
+            {
+                glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, it->second);
+                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  UBO bound: block='%s' -> '%s' bindingPoint=%u glBuffer=%u",
+                    blockName, cbufferName.c_str(), bindingPoint, it->second);
+            }
+            else
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                    "No pending UBO for uniform block '%s' (cbuffer name '%s')",
+                    blockName, cbufferName.c_str());
+            }
         }
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPendingUniformBlocks");
     }
 
     //--------------------------------------------------------------------------
@@ -1860,6 +1884,8 @@ namespace Tiny3D
                 if (loc >= 0)
                 {
                     glUniform1i(loc, texUnit);
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "setupSamplerBindings: sampler='%s' loc=%d texUnit=%d",
+                        name, loc, texUnit);
                     texUnit++;
                 }
             }
@@ -1868,15 +1894,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::bindConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
+    TResult GL4Context::stageConstantBuffers(const ConstantBuffers &buffers)
     {
         for (uint32_t i = 0; i < buffers.size(); ++i)
         {
             GL4ConstantBuffer *glCB = static_cast<GL4ConstantBuffer*>(buffers[i]->getRHIResource().get());
-            glBindBufferBase(GL_UNIFORM_BUFFER, startSlot + i, glCB->GLBuffer);
+            const String &name = buffers[i]->getName();
+            mPendingUBOs[name] = glCB->GLBuffer;
         }
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindConstantBuffers");
         return T3D_OK;
     }
 
@@ -1884,10 +1910,16 @@ namespace Tiny3D
 
     TResult GL4Context::bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
+        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindPixelBuffers: startSlot=%d bufferCount=%d",
+            startSlot, (int)buffers.size());
+
         for (uint32_t i = 0; i < buffers.size(); ++i)
         {
             if (buffers[i] == nullptr)
+            {
+                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  pixelBuffer[%d]: NULL (skipped)", i);
                 continue;
+            }
 
             GLuint texHandle = 0;
             GLenum texTarget = GL_TEXTURE_2D;
@@ -1914,7 +1946,10 @@ namespace Tiny3D
                 break;
             }
 
-            glActiveTexture(GL_TEXTURE0 + startSlot + i);
+            GLuint slot = startSlot + i;
+            T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  pixelBuffer[%d]: texHandle=%u texTarget=0x%X -> GL_TEXTURE%d",
+                i, texHandle, texTarget, slot);
+            glActiveTexture(GL_TEXTURE0 + slot);
             glBindTexture(texTarget, texHandle);
         }
 
