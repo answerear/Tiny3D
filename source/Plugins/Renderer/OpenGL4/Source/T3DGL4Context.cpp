@@ -1465,6 +1465,13 @@ namespace Tiny3D
                         cname = cname.substr(dotPos + 1);
                     }
 
+                    // Strip array suffix [0] that OpenGL adds to array uniform names
+                    String::size_type bracketPos = cname.find('[');
+                    if (bracketPos != String::npos)
+                    {
+                        cname = cname.substr(0, bracketPos);
+                    }
+
                     ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, i, dataSize, offset, dataType);
                     constantParams.emplace(param->getName(), param);
 
