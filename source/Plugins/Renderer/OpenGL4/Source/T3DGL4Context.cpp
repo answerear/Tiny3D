@@ -749,6 +749,8 @@ namespace Tiny3D
         glState->data.frontCCW = desc.FrontAnticlockwise;
         glState->data.scissorEnabled = desc.ScissorEnable;
         glState->data.depthClipEnabled = desc.DepthClipEnable;
+        glState->data.depthBias = static_cast<GLfloat>(desc.DepthBias);
+        glState->data.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
 
         return glState;
     }
@@ -779,7 +781,20 @@ namespace Tiny3D
         };
         glSamplerParameterfv(glState->GLSampler, GL_TEXTURE_BORDER_COLOR, borderColor);
 
+        if (desc.IsComparison)
+        {
+            glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+            glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_FUNC, GL4Mapping::get(desc.CompareFunc));
+        }
+        else
+        {
+            glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+        }
+
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createSamplerState");
+
+        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "createSamplerState: glSampler=%u IsComparison=%d CompareFunc=%d",
+            glState->GLSampler, desc.IsComparison ? 1 : 0, desc.CompareFunc);
 
         return glState;
     }
@@ -876,6 +891,16 @@ namespace Tiny3D
             glEnable(GL_DEPTH_CLAMP);
         else
             glDisable(GL_DEPTH_CLAMP);
+
+        if (d.depthBias != 0.0f || d.slopeScaledDepthBias != 0.0f)
+        {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
+        }
+        else
+        {
+            glDisable(GL_POLYGON_OFFSET_FILL);
+        }
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
         return T3D_OK;
@@ -1139,6 +1164,7 @@ namespace Tiny3D
         mCurrentProgram = glCreateProgram();
         glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
         mProgramDirty = true;
+        mCurrentVSVariant = shader;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexShader");
         return T3D_OK;
@@ -1209,6 +1235,7 @@ namespace Tiny3D
         }
         glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
         mProgramDirty = true;
+        mCurrentPSVariant = shader;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPixelShader");
         return T3D_OK;
@@ -1656,6 +1683,8 @@ namespace Tiny3D
         mPendingUBOs.clear();
         mProgramDirty = false;
         mCurrentVAO = 0;
+        mCurrentVSVariant = nullptr;
+        mCurrentPSVariant = nullptr;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reset");
         return T3D_OK;
@@ -1872,7 +1901,50 @@ namespace Tiny3D
         GLint numUniforms = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
 
-        GLint texUnit = 0;
+        // 解析 SPIRV-Cross 组合采样器名称，提取纹理名称
+        // 格式: "SPIRV_Cross_Combined<texName>sampler<texName>" -> "<texName>"
+        auto parseSpirvName = [](const String &uniformName) -> String
+        {
+            const String kSpirvPrefix = "SPIRV_Cross_Combined";
+            if (StringUtil::startsWith(uniformName, kSpirvPrefix, false))
+            {
+                String remainder = uniformName.substr(kSpirvPrefix.size());
+                String::size_type samplerPos = remainder.find("sampler");
+                if (samplerPos != String::npos && samplerPos > 0)
+                {
+                    return remainder.substr(0, samplerPos);
+                }
+            }
+            return uniformName;
+        };
+
+        // 从缓存的 ShaderVariant 中按名称查找反射阶段分配的 samplerBinding（即 texUnit slot）
+        auto findSlot = [this](const String &texName) -> int32_t
+        {
+            // 先在 PS 中查找（大多数纹理采样器在 PS 中）
+            if (mCurrentPSVariant != nullptr)
+            {
+                const auto &params = mCurrentPSVariant->getShaderSamplerParams();
+                const auto itr = params.find(texName);
+                if (itr != params.end())
+                {
+                    return static_cast<int32_t>(itr->second->getSamplerBinding());
+                }
+            }
+            // 再在 VS 中查找
+            if (mCurrentVSVariant != nullptr)
+            {
+                const auto &params = mCurrentVSVariant->getShaderSamplerParams();
+                const auto itr = params.find(texName);
+                if (itr != params.end())
+                {
+                    return static_cast<int32_t>(itr->second->getSamplerBinding());
+                }
+            }
+            return -1;  // 未找到
+        };
+
+        GLint fallbackTexUnit = 0;
         for (GLint i = 0; i < numUniforms; ++i)
         {
             char name[256] = {};
@@ -1890,10 +1962,27 @@ namespace Tiny3D
                 GLint loc = glGetUniformLocation(program, name);
                 if (loc >= 0)
                 {
+                    String texName = parseSpirvName(String(name));
+                    int32_t slot = findSlot(texName);
+
+                    GLint texUnit;
+                    if (slot >= 0)
+                    {
+                        texUnit = static_cast<GLint>(slot);
+                    }
+                    else
+                    {
+                        // 查找失败，回退到递增分配（不应该发生）
+                        texUnit = fallbackTexUnit;
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                            "setupSamplerBindings: could not find slot for sampler='%s' texName='%s', fallback texUnit=%d",
+                            name, texName.c_str(), texUnit);
+                    }
+
                     glUniform1i(loc, texUnit);
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "setupSamplerBindings: sampler='%s' loc=%d texUnit=%d",
-                        name, loc, texUnit);
-                    texUnit++;
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "setupSamplerBindings: sampler='%s' texName='%s' loc=%d texUnit=%d",
+                        name, texName.c_str(), loc, texUnit);
+                    fallbackTexUnit++;
                 }
             }
         }
@@ -1973,7 +2062,13 @@ namespace Tiny3D
             if (samplers[i] != nullptr)
             {
                 GL4SamplerState *glSampler = static_cast<GL4SamplerState*>(samplers[i]->getRHIState().get());
-                glBindSampler(startSlot + i, glSampler->GLSampler);
+                GLuint slot = startSlot + i;
+                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u glSampler=%u", slot, glSampler->GLSampler);
+                glBindSampler(slot, glSampler->GLSampler);
+            }
+            else
+            {
+                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u sampler=NULL", startSlot + i);
             }
         }
 

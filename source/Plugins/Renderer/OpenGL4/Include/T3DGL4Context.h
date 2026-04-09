@@ -187,6 +187,10 @@ namespace Tiny3D
         /// GLAD 是否已加载
         bool    mGLADLoaded {false};
 
+        /// 当前绑定的 VS/PS ShaderVariant（用于 setupSamplerBindings 查找 slot）
+        ShaderVariant *mCurrentVSVariant {nullptr};
+        ShaderVariant *mCurrentPSVariant {nullptr};
+
         //-------------------------------------------------------------------
         // Dummy window/context 用于在 createRenderWindow 之前初始化 GLAD
         //-------------------------------------------------------------------

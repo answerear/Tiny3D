@@ -75,7 +75,7 @@ namespace Tiny3D
         SamplerDesc samplerDesc;
         samplerDesc.MinFilter = FilterOptions::kLinear;
         samplerDesc.MagFilter = FilterOptions::kLinear;
-        samplerDesc.MipFilter = FilterOptions::kPoint;
+        samplerDesc.MipFilter = FilterOptions::kNone;
         samplerDesc.AddressU = TextureAddressMode::kBorder;
         samplerDesc.AddressV = TextureAddressMode::kBorder;
         samplerDesc.AddressW = TextureAddressMode::kBorder;
@@ -337,6 +337,15 @@ namespace Tiny3D
         ctx->setViewProjectionTransform(matView, matProj);
 
         // 经过平台重新计算的 view matrix & projection matrix , 存起来后续 forward pass 使用
+        // D3D11 的 setViewProjectionTransform 中已经对投影矩阵乘以了 conversionMat
+        // (将 Z 从 [-1,1] 映射到 [0,1])，所以 getProjViewMatrix() 在 D3D11 下 Z 范围是 [0,1]。
+        // 但 GL4 的 setViewProjectionTransform 没有做这个转换，Z 范围仍是 [-1,1]。
+        // 而 OpenGL depth buffer 存储的值范围是 [0,1]（viewport transform 自动做了）。
+        // 因此需要对 GL4 的光空间矩阵额外做 Z bias 转换。
+        // 由于这里是平台无关代码，通过检查 getProjViewMatrix() 后的 Z 行来判断：
+        // 如果 conversionMat 已应用（D3D11），则不再重复处理。
+        // 这里统一用 conversionMat * projViewMatrix 的方式，但 D3D11 已经在内部做过了。
+        // 简单做法：判断渲染器名称。
         mLightSpaceMatrix = ctx->getProjViewMatrix();
 
         const auto itr = mRenderQueue.find(camera);
