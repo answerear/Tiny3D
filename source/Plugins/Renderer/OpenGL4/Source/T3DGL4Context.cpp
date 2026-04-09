@@ -352,8 +352,14 @@ namespace Tiny3D
 
     TResult GL4Context::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
+        static Matrix4 conversionMat(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f
+            );
         mViewMatrix = viewMat;
-        mProjMatrix = projMat;
+        mProjMatrix = conversionMat * projMat;
         mProjViewMatrix = mProjMatrix * mViewMatrix;
         return T3D_OK;
     }
