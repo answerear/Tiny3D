@@ -256,6 +256,21 @@ namespace Tiny3D
 
             mGLADLoaded = true;
 
+#if defined(T3D_OS_WINDOWS)
+            // 获取 WGL 扩展函数指针（用于 MSAA 像素格式选择）
+            mWglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+            mWglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+
+            if (mWglChoosePixelFormatARB != nullptr)
+            {
+                T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB is available, MSAA pixel format selection enabled.");
+            }
+            else
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB is NOT available, MSAA will be disabled for render windows.");
+            }
+#endif
+
             T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "OpenGL Vendor: %s", glGetString(GL_VENDOR));
             T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "OpenGL Renderer: %s", glGetString(GL_RENDERER));
             T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "OpenGL Version: %s", glGetString(GL_VERSION));
@@ -392,75 +407,156 @@ namespace Tiny3D
 
             if (isColorRT)
             {
-                // 创建颜色纹理
-                glGenTextures(1, &glPixelBuffer->GLTexture);
-                glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
-                glTexImage2D(GL_TEXTURE_2D, 0,
-                    GL4Mapping::getInternalFormat(desc.format),
-                    desc.width, desc.height, 0,
-                    GL4Mapping::get(desc.format),
-                    GL4Mapping::getPixelType(desc.format),
-                    nullptr);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glBindTexture(GL_TEXTURE_2D, 0);
+                uint32_t msaaCount = desc.sampleDesc.Count;
+                if (msaaCount < 1) msaaCount = 1;
+                glPixelBuffer->GLMSAACount = msaaCount;
 
-                // 创建 FBO
-                glGenFramebuffers(1, &glPixelBuffer->GLFBO);
-                glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
+                GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
 
-                // 创建深度 RBO
-                glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
-                glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, desc.width, desc.height);
-                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-
-                if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                if (msaaCount > 1)
                 {
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Color render texture FBO is not complete !");
-                    ret = T3D_ERR_GL4_CREATE_FBO;
-                }
+                    // ---- MSAA 路径 ----
 
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    // 创建多采样颜色纹理
+                    glGenTextures(1, &glPixelBuffer->GLTexture);
+                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture);
+                    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaaCount,
+                        internalFmt, desc.width, desc.height, GL_TRUE);
+                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+                    // 创建 MSAA FBO
+                    glGenFramebuffers(1, &glPixelBuffer->GLFBO);
+                    glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                        GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture, 0);
+
+                    // 创建多采样深度 RBO
+                    glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
+                    glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount,
+                        GL_DEPTH24_STENCIL8, desc.width, desc.height);
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                        GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+
+                    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "MSAA color render texture FBO is not complete !");
+                        ret = T3D_ERR_GL4_CREATE_FBO;
+                    }
+
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                    // 创建 resolve 纹理（非多采样，供 shader 读取）
+                    glGenTextures(1, &glPixelBuffer->GLResolveTex);
+                    glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLResolveTex);
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                        desc.width, desc.height, 0,
+                        GL4Mapping::get(desc.format),
+                        GL4Mapping::getPixelType(desc.format),
+                        nullptr);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+
+                    // 创建 resolve FBO
+                    glGenFramebuffers(1, &glPixelBuffer->GLResolveFBO);
+                    glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLResolveFBO);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                        GL_TEXTURE_2D, glPixelBuffer->GLResolveTex, 0);
+
+                    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "MSAA resolve FBO is not complete !");
+                        ret = T3D_ERR_GL4_CREATE_FBO;
+                    }
+
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "Created MSAA render texture: %ux%u, %dx MSAA", desc.width, desc.height, msaaCount);
+                }
+                else
+                {
+                    // ---- 非 MSAA 路径（原有逻辑） ----
+
+                    // 创建颜色纹理
+                    glGenTextures(1, &glPixelBuffer->GLTexture);
+                    glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                        desc.width, desc.height, 0,
+                        GL4Mapping::get(desc.format),
+                        GL4Mapping::getPixelType(desc.format),
+                        nullptr);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+
+                    // 创建 FBO
+                    glGenFramebuffers(1, &glPixelBuffer->GLFBO);
+                    glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
+
+                    // 创建深度 RBO
+                    glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
+                    glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, desc.width, desc.height);
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+
+                    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Color render texture FBO is not complete !");
+                        ret = T3D_ERR_GL4_CREATE_FBO;
+                    }
+
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                }
             }
             else
             {
                 // 创建深度纹理
+                uint32_t msaaCount = desc.sampleDesc.Count;
+                if (msaaCount < 1) msaaCount = 1;
+                glPixelBuffer->GLMSAACount = msaaCount;
+
                 GLenum internalFormat = GL4Mapping::getInternalFormat(desc.format);
                 GLenum texFormat = GL_DEPTH_COMPONENT;
                 GLenum texType = GL4Mapping::getPixelType(desc.format);
 
-                if (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-                    || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT)
+                bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
+                    || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
+                if (hasStencil)
                 {
                     texFormat = GL_DEPTH_STENCIL;
                 }
 
+                GLenum texTarget = (msaaCount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+
                 glGenTextures(1, &glPixelBuffer->GLTexture);
-                glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
-                glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
-                    desc.width, desc.height, 0,
-                    texFormat, texType, nullptr);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glBindTexture(GL_TEXTURE_2D, 0);
+                glBindTexture(texTarget, glPixelBuffer->GLTexture);
+
+                if (msaaCount > 1)
+                {
+                    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaaCount,
+                        internalFormat, desc.width, desc.height, GL_TRUE);
+                }
+                else
+                {
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
+                        desc.width, desc.height, 0,
+                        texFormat, texType, nullptr);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                }
+
+                glBindTexture(texTarget, 0);
 
                 // 创建 FBO
                 glGenFramebuffers(1, &glPixelBuffer->GLFBO);
                 glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
 
-                if (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-                    || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT)
-                {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
-                }
-                else
-                {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
-                }
+                GLenum attachment = hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+                glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texTarget, glPixelBuffer->GLTexture, 0);
 
                 glDrawBuffer(GL_NONE);
                 glReadBuffer(GL_NONE);
@@ -530,8 +626,9 @@ namespace Tiny3D
                                 renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
                             if (glDS != nullptr)
                             {
+                                GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
                                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                    GL_TEXTURE_2D, glDS->GLTexture, 0);
+                                    dsTexTarget, glDS->GLTexture, 0);
                                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferTexture2D(depth texture)");
                             }
                         }
@@ -757,6 +854,7 @@ namespace Tiny3D
         glState->data.depthClipEnabled = desc.DepthClipEnable;
         glState->data.depthBias = static_cast<GLfloat>(desc.DepthBias);
         glState->data.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
+        glState->data.multisampleEnabled = desc.MultisampleEnable;
 
         return glState;
     }
@@ -907,6 +1005,10 @@ namespace Tiny3D
         {
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
+
+        // 注意：不在光栅化状态中控制 GL_MULTISAMPLE。
+        // GL_MULTISAMPLE 在窗口初始化时根据像素格式的 MSAA 能力启用，
+        // 之后应始终保持启用状态（与 D3D11 的行为一致）。
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
         return T3D_OK;
@@ -1756,7 +1858,32 @@ namespace Tiny3D
         GLint dstX1 = dstX0 + static_cast<GLint>(size.x());
         GLint dstY1 = dstY0 + static_cast<GLint>(size.y());
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, glSrcPB->GLFBO);
+        // 确定实际读取的 FBO
+        GLuint readFBO = glSrcPB->GLFBO;
+
+        // 如果源是 MSAA 纹理且有 resolve 资源，先做 MSAA Resolve
+        // （参照 D3D11 的 ResolveSubresource 模式）
+        if (glSrcPB->GLMSAACount > 1 && glSrcPB->GLResolveFBO != 0)
+        {
+            // 获取源纹理的完整尺寸用于 resolve
+            GLint texW = static_cast<GLint>(tex2D->getWidth());
+            GLint texH = static_cast<GLint>(tex2D->getHeight());
+
+            // 步骤1：从 MSAA FBO resolve 到非多采样的 GLResolveFBO
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, glSrcPB->GLFBO);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glSrcPB->GLResolveFBO);
+            glBlitFramebuffer(
+                0, 0, texW, texH,
+                0, 0, texW, texH,
+                GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "blit: MSAA resolve");
+
+            // 步骤2：使用 resolve 后的 FBO 作为读取源
+            readFBO = glSrcPB->GLResolveFBO;
+        }
+
+        // 从（resolve 后的）源 blit 到目标
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFBO);
 
         glBlitFramebuffer(

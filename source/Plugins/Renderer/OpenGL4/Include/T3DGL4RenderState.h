@@ -75,6 +75,7 @@ namespace Tiny3D
         bool        scissorEnabled {false};
         bool        depthClipEnabled {true};
         bool        frontCCW {true};
+        bool        multisampleEnabled {false};
         GLfloat     depthBias {0.0f};
         GLfloat     slopeScaledDepthBias {0.0f};
     };

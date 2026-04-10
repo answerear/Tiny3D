@@ -147,6 +147,9 @@ namespace Tiny3D
         /// 获取 dummy GL 上下文（供 GL4RenderWindow 做 wglShareLists 共享）
 #if defined(T3D_OS_WINDOWS)
         HGLRC getDummyGLRC() const { return mDummyHGLRC; }
+
+        /// 获取 wglChoosePixelFormatARB 函数指针（供 GL4RenderWindow 使用 MSAA 像素格式）
+        PFNWGLCHOOSEPIXELFORMATARBPROC getWglChoosePixelFormatARB() const { return mWglChoosePixelFormatARB; }
 #elif defined(T3D_OS_LINUX)
         GLXContext getDummyGLXContext() const { return mDummyGLXContext; }
 #endif
@@ -198,6 +201,10 @@ namespace Tiny3D
         HWND    mDummyHWND {nullptr};
         HDC     mDummyHDC {nullptr};
         HGLRC   mDummyHGLRC {nullptr};
+
+        /// WGL 扩展函数指针（在 initDummyContext 中获取）
+        PFNWGLCHOOSEPIXELFORMATARBPROC  mWglChoosePixelFormatARB {nullptr};
+        PFNWGLGETEXTENSIONSSTRINGARBPROC mWglGetExtensionsStringARB {nullptr};
 #elif defined(T3D_OS_LINUX)
         Display     *mDummyDisplay {nullptr};
         ::Window    mDummyWindow {0};

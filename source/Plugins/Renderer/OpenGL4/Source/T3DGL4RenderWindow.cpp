@@ -99,30 +99,75 @@ namespace Tiny3D
                 break;
             }
 
-            // 设置像素格式
-            PIXELFORMATDESCRIPTOR pfd = {};
-            pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-            pfd.nVersion = 1;
-            pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-            pfd.iPixelType = PFD_TYPE_RGBA;
-            pfd.cColorBits = 32;
-            pfd.cDepthBits = 24;
-            pfd.cStencilBits = 8;
-            pfd.iLayerType = PFD_MAIN_PLANE;
-
-            int pixelFormat = ChoosePixelFormat(GLDeviceContext, &pfd);
-            if (pixelFormat == 0)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "ChoosePixelFormat failed !");
-                ret = false;
-                break;
-            }
+                int pixelFormat = 0;
+                bool msaaEnabled = false;
 
-            if (!SetPixelFormat(GLDeviceContext, pixelFormat, &pfd))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "SetPixelFormat failed !");
-                ret = false;
-                break;
+                // 尝试使用 wglChoosePixelFormatARB 获取 MSAA 像素格式
+                auto wglChoosePF = GL4_CONTEXT->getWglChoosePixelFormatARB();
+                uint32_t requestedMSAA = desc.MSAA.Count;
+
+                if (wglChoosePF != nullptr && requestedMSAA > 1)
+                {
+                    int attribs[] = {
+                        WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+                        WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+                        WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
+                        WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
+                        WGL_COLOR_BITS_ARB,     32,
+                        WGL_DEPTH_BITS_ARB,     24,
+                        WGL_STENCIL_BITS_ARB,   8,
+                        WGL_SAMPLE_BUFFERS_ARB, 1,
+                        WGL_SAMPLES_ARB,        (int)requestedMSAA,
+                        0
+                    };
+
+                    UINT numFormats = 0;
+                    if (wglChoosePF(GLDeviceContext, attribs, nullptr, 1, &pixelFormat, &numFormats)
+                        && numFormats > 0 && pixelFormat != 0)
+                    {
+                        msaaEnabled = true;
+                        mMSAACount = requestedMSAA;
+                        T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "MSAA pixel format selected: %dx MSAA (format=%d)", requestedMSAA, pixelFormat);
+                    }
+                    else
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB failed for %dx MSAA, falling back to non-MSAA.", requestedMSAA);
+                        pixelFormat = 0;
+                    }
+                }
+
+                // 回退到传统 ChoosePixelFormat（无 MSAA）
+                if (pixelFormat == 0)
+                {
+                    PIXELFORMATDESCRIPTOR pfd = {};
+                    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+                    pfd.nVersion = 1;
+                    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+                    pfd.iPixelType = PFD_TYPE_RGBA;
+                    pfd.cColorBits = 32;
+                    pfd.cDepthBits = 24;
+                    pfd.cStencilBits = 8;
+                    pfd.iLayerType = PFD_MAIN_PLANE;
+
+                    pixelFormat = ChoosePixelFormat(GLDeviceContext, &pfd);
+                    if (pixelFormat == 0)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "ChoosePixelFormat failed !");
+                        ret = false;
+                        break;
+                    }
+                    mMSAACount = 1;
+                }
+
+                PIXELFORMATDESCRIPTOR pfd = {};
+                DescribePixelFormat(GLDeviceContext, pixelFormat, sizeof(pfd), &pfd);
+                if (!SetPixelFormat(GLDeviceContext, pixelFormat, &pfd))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "SetPixelFormat failed !");
+                    ret = false;
+                    break;
+                }
             }
 
             // 创建 GL 上下文
@@ -163,7 +208,24 @@ namespace Tiny3D
             }
 
             int screen = DefaultScreen(GLDisplay);
-            int attribs[] = {
+
+            // 先尝试带 MSAA 的属性列表
+            uint32_t requestedMSAA = desc.MSAA.Count;
+            int attribsMSAA[] = {
+                GLX_RGBA,
+                GLX_RED_SIZE, 8,
+                GLX_GREEN_SIZE, 8,
+                GLX_BLUE_SIZE, 8,
+                GLX_ALPHA_SIZE, 8,
+                GLX_DEPTH_SIZE, 24,
+                GLX_STENCIL_SIZE, 8,
+                GLX_DOUBLEBUFFER,
+                GLX_SAMPLE_BUFFERS, 1,
+                GLX_SAMPLES, (int)requestedMSAA,
+                None
+            };
+
+            int attribsFallback[] = {
                 GLX_RGBA,
                 GLX_RED_SIZE, 8,
                 GLX_GREEN_SIZE, 8,
@@ -175,7 +237,27 @@ namespace Tiny3D
                 None
             };
 
-            XVisualInfo *visualInfo = glXChooseVisual(GLDisplay, screen, attribs);
+            XVisualInfo *visualInfo = nullptr;
+
+            if (requestedMSAA > 1)
+            {
+                visualInfo = glXChooseVisual(GLDisplay, screen, attribsMSAA);
+                if (visualInfo != nullptr)
+                {
+                    mMSAACount = requestedMSAA;
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GLX MSAA visual selected: %dx MSAA", requestedMSAA);
+                }
+                else
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "glXChooseVisual failed for %dx MSAA, falling back to non-MSAA.", requestedMSAA);
+                }
+            }
+
+            if (visualInfo == nullptr)
+            {
+                visualInfo = glXChooseVisual(GLDisplay, screen, attribsFallback);
+                mMSAACount = 1;
+            }
             if (visualInfo == nullptr)
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glXChooseVisual failed !");
@@ -242,6 +324,13 @@ namespace Tiny3D
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             glFrontFace(GL_CCW);
+
+            // 启用多重采样抗锯齿
+            if (mMSAACount > 1)
+            {
+                glEnable(GL_MULTISAMPLE);
+                T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GL_MULTISAMPLE enabled (%dx)", mMSAACount);
+            }
 
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4RenderWindow::init");
 

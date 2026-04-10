@@ -42,6 +42,47 @@
 #undef min
 
 
+//-------------------------------------------------------------------------
+// WGL_ARB_multisample / WGL_ARB_pixel_format constants
+//-------------------------------------------------------------------------
+#if defined(T3D_OS_WINDOWS)
+    #ifndef WGL_DRAW_TO_WINDOW_ARB
+        #define WGL_DRAW_TO_WINDOW_ARB          0x2001
+    #endif
+    #ifndef WGL_SUPPORT_OPENGL_ARB
+        #define WGL_SUPPORT_OPENGL_ARB          0x2010
+    #endif
+    #ifndef WGL_DOUBLE_BUFFER_ARB
+        #define WGL_DOUBLE_BUFFER_ARB           0x2011
+    #endif
+    #ifndef WGL_PIXEL_TYPE_ARB
+        #define WGL_PIXEL_TYPE_ARB              0x2013
+    #endif
+    #ifndef WGL_TYPE_RGBA_ARB
+        #define WGL_TYPE_RGBA_ARB               0x202B
+    #endif
+    #ifndef WGL_COLOR_BITS_ARB
+        #define WGL_COLOR_BITS_ARB              0x2014
+    #endif
+    #ifndef WGL_DEPTH_BITS_ARB
+        #define WGL_DEPTH_BITS_ARB              0x2022
+    #endif
+    #ifndef WGL_STENCIL_BITS_ARB
+        #define WGL_STENCIL_BITS_ARB            0x2023
+    #endif
+    #ifndef WGL_SAMPLE_BUFFERS_ARB
+        #define WGL_SAMPLE_BUFFERS_ARB          0x2041
+    #endif
+    #ifndef WGL_SAMPLES_ARB
+        #define WGL_SAMPLES_ARB                 0x2042
+    #endif
+
+    // WGL extension function pointer types
+    typedef BOOL (WINAPI *PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
+    typedef const char *(WINAPI *PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
+#endif
+
+
 #if defined GL4RENDERER_EXPORT
     #define T3D_GL4RENDERER_API     T3D_EXPORT_API
 #else

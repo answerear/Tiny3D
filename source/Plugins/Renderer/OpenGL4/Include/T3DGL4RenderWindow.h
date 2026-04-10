@@ -64,6 +64,8 @@ namespace Tiny3D
 
         uint32_t mWidth {0};
         uint32_t mHeight {0};
+        /// 实际获得的 MSAA 采样数
+        uint32_t mMSAACount {1};
 
     protected:
         GL4RenderWindow();

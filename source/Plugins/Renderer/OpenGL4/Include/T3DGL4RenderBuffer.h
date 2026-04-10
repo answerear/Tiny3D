@@ -83,6 +83,12 @@ namespace Tiny3D
         GLuint GLTexture {0};
         GLuint GLFBO {0};
         GLuint GLDepthRBO {0};
+        /// MSAA resolve 纹理（非多采样，用于 shader 读取）
+        GLuint GLResolveTex {0};
+        /// MSAA resolve FBO
+        GLuint GLResolveFBO {0};
+        /// MSAA 采样数（1 = 无 MSAA）
+        uint32_t GLMSAACount {1};
     protected:
         GL4PixelBuffer2D() = default;
     };
