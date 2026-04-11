@@ -41,10 +41,10 @@ namespace Tiny3D
     inline TQuaternion<float32_t> TQuaternion<float32_t>::operator +(
         const TQuaternion &other) const
     {
-        __m128 a = _mm_loadu_ps(&_w);
-        __m128 b = _mm_loadu_ps(&other._w);
+        __m128 a = _mm_load_ps(&_w);
+        __m128 b = _mm_load_ps(&other._w);
         TQuaternion result;
-        _mm_storeu_ps(&result._w, _mm_add_ps(a, b));
+        _mm_store_ps(&result._w, _mm_add_ps(a, b));
         return result;
     }
 
@@ -52,64 +52,64 @@ namespace Tiny3D
     inline TQuaternion<float32_t> TQuaternion<float32_t>::operator -(
         const TQuaternion &other) const
     {
-        __m128 a = _mm_loadu_ps(&_w);
-        __m128 b = _mm_loadu_ps(&other._w);
+        __m128 a = _mm_load_ps(&_w);
+        __m128 b = _mm_load_ps(&other._w);
         TQuaternion result;
-        _mm_storeu_ps(&result._w, _mm_sub_ps(a, b));
+        _mm_store_ps(&result._w, _mm_sub_ps(a, b));
         return result;
     }
 
     template <>
     inline TQuaternion<float32_t> TQuaternion<float32_t>::operator *(float32_t scalar) const
     {
-        __m128 a = _mm_loadu_ps(&_w);
+        __m128 a = _mm_load_ps(&_w);
         __m128 s = _mm_set1_ps(scalar);
         TQuaternion result;
-        _mm_storeu_ps(&result._w, _mm_mul_ps(a, s));
+        _mm_store_ps(&result._w, _mm_mul_ps(a, s));
         return result;
     }
 
     template <>
     inline TQuaternion<float32_t> TQuaternion<float32_t>::operator -() const
     {
-        __m128 a = _mm_loadu_ps(&_w);
+        __m128 a = _mm_load_ps(&_w);
         TQuaternion result;
-        _mm_storeu_ps(&result._w, _mm_sub_ps(_mm_setzero_ps(), a));
+        _mm_store_ps(&result._w, _mm_sub_ps(_mm_setzero_ps(), a));
         return result;
     }
 
     template <>
     inline TQuaternion<float32_t> &TQuaternion<float32_t>::operator +=(const TQuaternion &other)
     {
-        __m128 a = _mm_loadu_ps(&_w);
-        __m128 b = _mm_loadu_ps(&other._w);
-        _mm_storeu_ps(&_w, _mm_add_ps(a, b));
+        __m128 a = _mm_load_ps(&_w);
+        __m128 b = _mm_load_ps(&other._w);
+        _mm_store_ps(&_w, _mm_add_ps(a, b));
         return *this;
     }
 
     template <>
     inline TQuaternion<float32_t> &TQuaternion<float32_t>::operator -=(const TQuaternion &other)
     {
-        __m128 a = _mm_loadu_ps(&_w);
-        __m128 b = _mm_loadu_ps(&other._w);
-        _mm_storeu_ps(&_w, _mm_sub_ps(a, b));
+        __m128 a = _mm_load_ps(&_w);
+        __m128 b = _mm_load_ps(&other._w);
+        _mm_store_ps(&_w, _mm_sub_ps(a, b));
         return *this;
     }
 
     template <>
     inline TQuaternion<float32_t> &TQuaternion<float32_t>::operator *=(float32_t scalar)
     {
-        __m128 a = _mm_loadu_ps(&_w);
+        __m128 a = _mm_load_ps(&_w);
         __m128 s = _mm_set1_ps(scalar);
-        _mm_storeu_ps(&_w, _mm_mul_ps(a, s));
+        _mm_store_ps(&_w, _mm_mul_ps(a, s));
         return *this;
     }
 
     template <>
     inline float32_t TQuaternion<float32_t>::dot(const TQuaternion &other) const
     {
-        __m128 a = _mm_loadu_ps(&_w);
-        __m128 b = _mm_loadu_ps(&other._w);
+        __m128 a = _mm_load_ps(&_w);
+        __m128 b = _mm_load_ps(&other._w);
         __m128 mul = _mm_mul_ps(a, b);
         return t3d_hsum_ps(mul);
     }
@@ -117,7 +117,7 @@ namespace Tiny3D
     template <>
     inline float32_t TQuaternion<float32_t>::norm() const
     {
-        __m128 a = _mm_loadu_ps(&_w);
+        __m128 a = _mm_load_ps(&_w);
         __m128 mul = _mm_mul_ps(a, a);
         return t3d_hsum_ps(mul);
     }
@@ -127,9 +127,9 @@ namespace Tiny3D
     {
         float32_t len = norm();
         float32_t factor = 1.0f / TMath<float32_t>::sqrt(len);
-        __m128 a = _mm_loadu_ps(&_w);
+        __m128 a = _mm_load_ps(&_w);
         __m128 f = _mm_set1_ps(factor);
-        _mm_storeu_ps(&_w, _mm_mul_ps(a, f));
+        _mm_store_ps(&_w, _mm_mul_ps(a, f));
         return len;
     }
 

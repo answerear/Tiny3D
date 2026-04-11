@@ -40,10 +40,10 @@ namespace Tiny3D
     // result = a*r0 + b*r1 + c*r2 + d*r3
     static inline __m128 t3d_mat4_mul_row_sse(__m128 row, const float *mat)
     {
-        __m128 r0 = _mm_loadu_ps(mat);
-        __m128 r1 = _mm_loadu_ps(mat + 4);
-        __m128 r2 = _mm_loadu_ps(mat + 8);
-        __m128 r3 = _mm_loadu_ps(mat + 12);
+        __m128 r0 = _mm_load_ps(mat);
+        __m128 r1 = _mm_load_ps(mat + 4);
+        __m128 r2 = _mm_load_ps(mat + 8);
+        __m128 r3 = _mm_load_ps(mat + 12);
 
         __m128 x = _mm_shuffle_ps(row, row, _MM_SHUFFLE(0, 0, 0, 0));
         __m128 y = _mm_shuffle_ps(row, row, _MM_SHUFFLE(1, 1, 1, 1));
@@ -60,15 +60,15 @@ namespace Tiny3D
     {
         TMatrix4 result(true);
 
-        __m128 a0 = _mm_loadu_ps(mTuples);
-        __m128 a1 = _mm_loadu_ps(mTuples + 4);
-        __m128 a2 = _mm_loadu_ps(mTuples + 8);
-        __m128 a3 = _mm_loadu_ps(mTuples + 12);
+        __m128 a0 = _mm_load_ps(mTuples);
+        __m128 a1 = _mm_load_ps(mTuples + 4);
+        __m128 a2 = _mm_load_ps(mTuples + 8);
+        __m128 a3 = _mm_load_ps(mTuples + 12);
 
-        _mm_storeu_ps(result.mTuples,      t3d_mat4_mul_row_sse(a0, other.mTuples));
-        _mm_storeu_ps(result.mTuples + 4,  t3d_mat4_mul_row_sse(a1, other.mTuples));
-        _mm_storeu_ps(result.mTuples + 8,  t3d_mat4_mul_row_sse(a2, other.mTuples));
-        _mm_storeu_ps(result.mTuples + 12, t3d_mat4_mul_row_sse(a3, other.mTuples));
+        _mm_store_ps(result.mTuples,      t3d_mat4_mul_row_sse(a0, other.mTuples));
+        _mm_store_ps(result.mTuples + 4,  t3d_mat4_mul_row_sse(a1, other.mTuples));
+        _mm_store_ps(result.mTuples + 8,  t3d_mat4_mul_row_sse(a2, other.mTuples));
+        _mm_store_ps(result.mTuples + 12, t3d_mat4_mul_row_sse(a3, other.mTuples));
 
         return result;
     }
@@ -77,10 +77,10 @@ namespace Tiny3D
     inline TMatrix4<float32_t> TMatrix4<float32_t>::operator +(const TMatrix4 &other) const
     {
         TMatrix4 result(true);
-        _mm_storeu_ps(result.mTuples,      _mm_add_ps(_mm_loadu_ps(mTuples),      _mm_loadu_ps(other.mTuples)));
-        _mm_storeu_ps(result.mTuples + 4,  _mm_add_ps(_mm_loadu_ps(mTuples + 4),  _mm_loadu_ps(other.mTuples + 4)));
-        _mm_storeu_ps(result.mTuples + 8,  _mm_add_ps(_mm_loadu_ps(mTuples + 8),  _mm_loadu_ps(other.mTuples + 8)));
-        _mm_storeu_ps(result.mTuples + 12, _mm_add_ps(_mm_loadu_ps(mTuples + 12), _mm_loadu_ps(other.mTuples + 12)));
+        _mm_store_ps(result.mTuples,      _mm_add_ps(_mm_load_ps(mTuples),      _mm_load_ps(other.mTuples)));
+        _mm_store_ps(result.mTuples + 4,  _mm_add_ps(_mm_load_ps(mTuples + 4),  _mm_load_ps(other.mTuples + 4)));
+        _mm_store_ps(result.mTuples + 8,  _mm_add_ps(_mm_load_ps(mTuples + 8),  _mm_load_ps(other.mTuples + 8)));
+        _mm_store_ps(result.mTuples + 12, _mm_add_ps(_mm_load_ps(mTuples + 12), _mm_load_ps(other.mTuples + 12)));
         return result;
     }
 
@@ -88,10 +88,10 @@ namespace Tiny3D
     inline TMatrix4<float32_t> TMatrix4<float32_t>::operator -(const TMatrix4 &other) const
     {
         TMatrix4 result(true);
-        _mm_storeu_ps(result.mTuples,      _mm_sub_ps(_mm_loadu_ps(mTuples),      _mm_loadu_ps(other.mTuples)));
-        _mm_storeu_ps(result.mTuples + 4,  _mm_sub_ps(_mm_loadu_ps(mTuples + 4),  _mm_loadu_ps(other.mTuples + 4)));
-        _mm_storeu_ps(result.mTuples + 8,  _mm_sub_ps(_mm_loadu_ps(mTuples + 8),  _mm_loadu_ps(other.mTuples + 8)));
-        _mm_storeu_ps(result.mTuples + 12, _mm_sub_ps(_mm_loadu_ps(mTuples + 12), _mm_loadu_ps(other.mTuples + 12)));
+        _mm_store_ps(result.mTuples,      _mm_sub_ps(_mm_load_ps(mTuples),      _mm_load_ps(other.mTuples)));
+        _mm_store_ps(result.mTuples + 4,  _mm_sub_ps(_mm_load_ps(mTuples + 4),  _mm_load_ps(other.mTuples + 4)));
+        _mm_store_ps(result.mTuples + 8,  _mm_sub_ps(_mm_load_ps(mTuples + 8),  _mm_load_ps(other.mTuples + 8)));
+        _mm_store_ps(result.mTuples + 12, _mm_sub_ps(_mm_load_ps(mTuples + 12), _mm_load_ps(other.mTuples + 12)));
         return result;
     }
 
@@ -100,30 +100,30 @@ namespace Tiny3D
     {
         __m128 s = _mm_set1_ps(scalar);
         TMatrix4 result(true);
-        _mm_storeu_ps(result.mTuples,      _mm_mul_ps(_mm_loadu_ps(mTuples),      s));
-        _mm_storeu_ps(result.mTuples + 4,  _mm_mul_ps(_mm_loadu_ps(mTuples + 4),  s));
-        _mm_storeu_ps(result.mTuples + 8,  _mm_mul_ps(_mm_loadu_ps(mTuples + 8),  s));
-        _mm_storeu_ps(result.mTuples + 12, _mm_mul_ps(_mm_loadu_ps(mTuples + 12), s));
+        _mm_store_ps(result.mTuples,      _mm_mul_ps(_mm_load_ps(mTuples),      s));
+        _mm_store_ps(result.mTuples + 4,  _mm_mul_ps(_mm_load_ps(mTuples + 4),  s));
+        _mm_store_ps(result.mTuples + 8,  _mm_mul_ps(_mm_load_ps(mTuples + 8),  s));
+        _mm_store_ps(result.mTuples + 12, _mm_mul_ps(_mm_load_ps(mTuples + 12), s));
         return result;
     }
 
     template <>
     inline TMatrix4<float32_t> &TMatrix4<float32_t>::operator +=(const TMatrix4 &other)
     {
-        _mm_storeu_ps(mTuples,      _mm_add_ps(_mm_loadu_ps(mTuples),      _mm_loadu_ps(other.mTuples)));
-        _mm_storeu_ps(mTuples + 4,  _mm_add_ps(_mm_loadu_ps(mTuples + 4),  _mm_loadu_ps(other.mTuples + 4)));
-        _mm_storeu_ps(mTuples + 8,  _mm_add_ps(_mm_loadu_ps(mTuples + 8),  _mm_loadu_ps(other.mTuples + 8)));
-        _mm_storeu_ps(mTuples + 12, _mm_add_ps(_mm_loadu_ps(mTuples + 12), _mm_loadu_ps(other.mTuples + 12)));
+        _mm_store_ps(mTuples,      _mm_add_ps(_mm_load_ps(mTuples),      _mm_load_ps(other.mTuples)));
+        _mm_store_ps(mTuples + 4,  _mm_add_ps(_mm_load_ps(mTuples + 4),  _mm_load_ps(other.mTuples + 4)));
+        _mm_store_ps(mTuples + 8,  _mm_add_ps(_mm_load_ps(mTuples + 8),  _mm_load_ps(other.mTuples + 8)));
+        _mm_store_ps(mTuples + 12, _mm_add_ps(_mm_load_ps(mTuples + 12), _mm_load_ps(other.mTuples + 12)));
         return *this;
     }
 
     template <>
     inline TMatrix4<float32_t> &TMatrix4<float32_t>::operator -=(const TMatrix4 &other)
     {
-        _mm_storeu_ps(mTuples,      _mm_sub_ps(_mm_loadu_ps(mTuples),      _mm_loadu_ps(other.mTuples)));
-        _mm_storeu_ps(mTuples + 4,  _mm_sub_ps(_mm_loadu_ps(mTuples + 4),  _mm_loadu_ps(other.mTuples + 4)));
-        _mm_storeu_ps(mTuples + 8,  _mm_sub_ps(_mm_loadu_ps(mTuples + 8),  _mm_loadu_ps(other.mTuples + 8)));
-        _mm_storeu_ps(mTuples + 12, _mm_sub_ps(_mm_loadu_ps(mTuples + 12), _mm_loadu_ps(other.mTuples + 12)));
+        _mm_store_ps(mTuples,      _mm_sub_ps(_mm_load_ps(mTuples),      _mm_load_ps(other.mTuples)));
+        _mm_store_ps(mTuples + 4,  _mm_sub_ps(_mm_load_ps(mTuples + 4),  _mm_load_ps(other.mTuples + 4)));
+        _mm_store_ps(mTuples + 8,  _mm_sub_ps(_mm_load_ps(mTuples + 8),  _mm_load_ps(other.mTuples + 8)));
+        _mm_store_ps(mTuples + 12, _mm_sub_ps(_mm_load_ps(mTuples + 12), _mm_load_ps(other.mTuples + 12)));
         return *this;
     }
 
@@ -131,28 +131,28 @@ namespace Tiny3D
     inline TMatrix4<float32_t> &TMatrix4<float32_t>::operator *=(float32_t scalar)
     {
         __m128 s = _mm_set1_ps(scalar);
-        _mm_storeu_ps(mTuples,      _mm_mul_ps(_mm_loadu_ps(mTuples),      s));
-        _mm_storeu_ps(mTuples + 4,  _mm_mul_ps(_mm_loadu_ps(mTuples + 4),  s));
-        _mm_storeu_ps(mTuples + 8,  _mm_mul_ps(_mm_loadu_ps(mTuples + 8),  s));
-        _mm_storeu_ps(mTuples + 12, _mm_mul_ps(_mm_loadu_ps(mTuples + 12), s));
+        _mm_store_ps(mTuples,      _mm_mul_ps(_mm_load_ps(mTuples),      s));
+        _mm_store_ps(mTuples + 4,  _mm_mul_ps(_mm_load_ps(mTuples + 4),  s));
+        _mm_store_ps(mTuples + 8,  _mm_mul_ps(_mm_load_ps(mTuples + 8),  s));
+        _mm_store_ps(mTuples + 12, _mm_mul_ps(_mm_load_ps(mTuples + 12), s));
         return *this;
     }
 
     template <>
     inline TMatrix4<float32_t> TMatrix4<float32_t>::transpose() const
     {
-        __m128 r0 = _mm_loadu_ps(mTuples);
-        __m128 r1 = _mm_loadu_ps(mTuples + 4);
-        __m128 r2 = _mm_loadu_ps(mTuples + 8);
-        __m128 r3 = _mm_loadu_ps(mTuples + 12);
+        __m128 r0 = _mm_load_ps(mTuples);
+        __m128 r1 = _mm_load_ps(mTuples + 4);
+        __m128 r2 = _mm_load_ps(mTuples + 8);
+        __m128 r3 = _mm_load_ps(mTuples + 12);
 
         _MM_TRANSPOSE4_PS(r0, r1, r2, r3);
 
         TMatrix4 result(true);
-        _mm_storeu_ps(result.mTuples,      r0);
-        _mm_storeu_ps(result.mTuples + 4,  r1);
-        _mm_storeu_ps(result.mTuples + 8,  r2);
-        _mm_storeu_ps(result.mTuples + 12, r3);
+        _mm_store_ps(result.mTuples,      r0);
+        _mm_store_ps(result.mTuples + 4,  r1);
+        _mm_store_ps(result.mTuples + 8,  r2);
+        _mm_store_ps(result.mTuples + 12, r3);
         return result;
     }
 
@@ -160,11 +160,11 @@ namespace Tiny3D
     inline TVector4<float32_t> TMatrix4<float32_t>::operator *(const TVector4<float32_t> &rkV) const
     {
         // M * V (row-major): each result component is dot(row_i, V)
-        __m128 v = _mm_loadu_ps((const float*)rkV);
-        __m128 r0 = _mm_loadu_ps(mTuples);
-        __m128 r1 = _mm_loadu_ps(mTuples + 4);
-        __m128 r2 = _mm_loadu_ps(mTuples + 8);
-        __m128 r3 = _mm_loadu_ps(mTuples + 12);
+        __m128 v = _mm_load_ps((const float*)rkV);
+        __m128 r0 = _mm_load_ps(mTuples);
+        __m128 r1 = _mm_load_ps(mTuples + 4);
+        __m128 r2 = _mm_load_ps(mTuples + 8);
+        __m128 r3 = _mm_load_ps(mTuples + 12);
 
         __m128 m0 = _mm_mul_ps(r0, v);
         __m128 m1 = _mm_mul_ps(r1, v);

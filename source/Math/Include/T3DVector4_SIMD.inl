@@ -38,78 +38,78 @@ namespace Tiny3D
     template <>
     inline TVector4<float32_t> TVector4<float32_t>::operator +(const TVector4 &other) const
     {
-        __m128 a = _mm_loadu_ps(&_x);
-        __m128 b = _mm_loadu_ps(&other._x);
+        __m128 a = _mm_load_ps(&_x);
+        __m128 b = _mm_load_ps(&other._x);
         __m128 r = _mm_add_ps(a, b);
         TVector4 result;
-        _mm_storeu_ps(&result._x, r);
+        _mm_store_ps(&result._x, r);
         return result;
     }
 
     template <>
     inline TVector4<float32_t> TVector4<float32_t>::operator -(const TVector4 &other) const
     {
-        __m128 a = _mm_loadu_ps(&_x);
-        __m128 b = _mm_loadu_ps(&other._x);
+        __m128 a = _mm_load_ps(&_x);
+        __m128 b = _mm_load_ps(&other._x);
         __m128 r = _mm_sub_ps(a, b);
         TVector4 result;
-        _mm_storeu_ps(&result._x, r);
+        _mm_store_ps(&result._x, r);
         return result;
     }
 
     template <>
     inline TVector4<float32_t> TVector4<float32_t>::operator *(float32_t scalar) const
     {
-        __m128 a = _mm_loadu_ps(&_x);
+        __m128 a = _mm_load_ps(&_x);
         __m128 s = _mm_set1_ps(scalar);
         __m128 r = _mm_mul_ps(a, s);
         TVector4 result;
-        _mm_storeu_ps(&result._x, r);
+        _mm_store_ps(&result._x, r);
         return result;
     }
 
     template <>
     inline TVector4<float32_t> TVector4<float32_t>::operator -() const
     {
-        __m128 a = _mm_loadu_ps(&_x);
+        __m128 a = _mm_load_ps(&_x);
         __m128 r = _mm_sub_ps(_mm_setzero_ps(), a);
         TVector4 result;
-        _mm_storeu_ps(&result._x, r);
+        _mm_store_ps(&result._x, r);
         return result;
     }
 
     template <>
     inline TVector4<float32_t> &TVector4<float32_t>::operator +=(const TVector4 &other)
     {
-        __m128 a = _mm_loadu_ps(&_x);
-        __m128 b = _mm_loadu_ps(&other._x);
-        _mm_storeu_ps(&_x, _mm_add_ps(a, b));
+        __m128 a = _mm_load_ps(&_x);
+        __m128 b = _mm_load_ps(&other._x);
+        _mm_store_ps(&_x, _mm_add_ps(a, b));
         return *this;
     }
 
     template <>
     inline TVector4<float32_t> &TVector4<float32_t>::operator -=(const TVector4 &other)
     {
-        __m128 a = _mm_loadu_ps(&_x);
-        __m128 b = _mm_loadu_ps(&other._x);
-        _mm_storeu_ps(&_x, _mm_sub_ps(a, b));
+        __m128 a = _mm_load_ps(&_x);
+        __m128 b = _mm_load_ps(&other._x);
+        _mm_store_ps(&_x, _mm_sub_ps(a, b));
         return *this;
     }
 
     template <>
     inline TVector4<float32_t> &TVector4<float32_t>::operator *=(float32_t scalar)
     {
-        __m128 a = _mm_loadu_ps(&_x);
+        __m128 a = _mm_load_ps(&_x);
         __m128 s = _mm_set1_ps(scalar);
-        _mm_storeu_ps(&_x, _mm_mul_ps(a, s));
+        _mm_store_ps(&_x, _mm_mul_ps(a, s));
         return *this;
     }
 
     template <>
     inline float32_t TVector4<float32_t>::dot(const TVector4 &other) const
     {
-        __m128 a = _mm_loadu_ps(&_x);
-        __m128 b = _mm_loadu_ps(&other._x);
+        __m128 a = _mm_load_ps(&_x);
+        __m128 b = _mm_load_ps(&other._x);
         __m128 mul = _mm_mul_ps(a, b);
         return t3d_hsum_ps(mul);
     }
@@ -117,7 +117,7 @@ namespace Tiny3D
     template <>
     inline float32_t TVector4<float32_t>::length2() const
     {
-        __m128 a = _mm_loadu_ps(&_x);
+        __m128 a = _mm_load_ps(&_x);
         __m128 mul = _mm_mul_ps(a, a);
         return t3d_hsum_ps(mul);
     }
@@ -125,7 +125,7 @@ namespace Tiny3D
     template <>
     inline float32_t TVector4<float32_t>::length() const
     {
-        __m128 a = _mm_loadu_ps(&_x);
+        __m128 a = _mm_load_ps(&_x);
         __m128 mul = _mm_mul_ps(a, a);
         float sum = t3d_hsum_ps(mul);
         return TMath<float32_t>::sqrt(sum);
@@ -138,14 +138,14 @@ namespace Tiny3D
 
         if (len > TReal<float32_t>::ZERO)
         {
-            __m128 a = _mm_loadu_ps(&_x);
+            __m128 a = _mm_load_ps(&_x);
             __m128 invLen = _mm_set1_ps(1.0f / len);
-            _mm_storeu_ps(&_x, _mm_mul_ps(a, invLen));
+            _mm_store_ps(&_x, _mm_mul_ps(a, invLen));
         }
         else
         {
             len = TReal<float32_t>::ZERO;
-            _mm_storeu_ps(&_x, _mm_setzero_ps());
+            _mm_store_ps(&_x, _mm_setzero_ps());
         }
 
         return len;
@@ -155,8 +155,8 @@ namespace Tiny3D
     inline TVector4<float32_t> TVector4<float32_t>::cross(const TVector4 &other) const
     {
         // cross for 4D: (y*z'-z*y', z*w'-w*z', w*x'-x*w', x*y'-y*x')
-        __m128 a = _mm_loadu_ps(&_x);
-        __m128 b = _mm_loadu_ps(&other._x);
+        __m128 a = _mm_load_ps(&_x);
+        __m128 b = _mm_load_ps(&other._x);
 
         // a shuffled: (y, z, w, x)
         __m128 a1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(0, 3, 2, 1));
@@ -169,7 +169,7 @@ namespace Tiny3D
 
         __m128 r = _mm_sub_ps(_mm_mul_ps(a1, b1), _mm_mul_ps(a2, b2));
         TVector4 result;
-        _mm_storeu_ps(&result._x, r);
+        _mm_store_ps(&result._x, r);
         return result;
     }
 
