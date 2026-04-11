@@ -105,6 +105,9 @@
 #include <Bound/T3DObbBound.h>
 #include <Bound/T3DFrustumBound.h>
 
+// Performance
+#include <Performance/T3DPerformance.h>
+
 // Serialize
 #include <Serializer/T3DSerializer.h>
 #include <Serializer/T3DBinSerializer.h>

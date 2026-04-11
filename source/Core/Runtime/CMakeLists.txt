@@ -97,6 +97,7 @@ set_project_files(Source\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Source/Component
 set_project_files(Source\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Source/Light/ .cpp)
 set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializer/ .cpp)
 set_project_files(Source\\\\Animation ${TINY3D_CORE_SOURCE_DIR}/Source/Animation/ .cpp)
+set_project_files(Source\\\\Performance ${TINY3D_CORE_SOURCE_DIR}/Source/Performance/ .cpp)
 
 if (TINY3D_OS_DESKTOP)
     set_project_files(Include\\\\Meta ${TINY3D_CORE_SOURCE_DIR}/Include/Meta/ .h)

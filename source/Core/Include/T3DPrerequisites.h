@@ -185,6 +185,9 @@ namespace Tiny3D
     class DirectionalLight;
     class PointLight;
     class SpotLight;
+
+    // Performance
+    class Performance;
     
     // Render
     class RenderContext;
