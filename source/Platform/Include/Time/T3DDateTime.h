@@ -30,6 +30,7 @@
 #include "T3DType.h"
 #include "T3DMacro.h"
 #include "Memory/T3DMemory.h"
+#include <chrono>
 
 
 namespace Tiny3D
@@ -173,6 +174,32 @@ namespace Tiny3D
         * @return 返回QGDateTime对象.
         */
         static DateTime fromSecsSinceEpoch(int64_t sces);
+
+        /**
+         * @brief 获取当前时间点的纳秒数（用于计算时间差）
+         * @return 当前时间点的纳秒数
+         */
+        static int64_t currentNanoSeconds();
+
+        /**
+         * @brief 获取当前时间点的微秒数（用于计算时间差）
+         * @return 当前时间点的微秒数
+         */
+        static int64_t currentMicroSeconds();
+
+        /**
+         * @brief 计算从 startNano 到当前时间的纳秒差
+         * @param [in] startNano : 起始时间点的纳秒数（由 currentNanoSeconds 返回）
+         * @return 经过的纳秒数
+         */
+        static int64_t elapsedNanoSeconds(int64_t startNano);
+
+        /**
+         * @brief 计算从 startMicro 到当前时间的微秒差
+         * @param [in] startMicro : 起始时间点的微秒数（由 currentMicroSeconds 返回）
+         * @return 经过的微秒数
+         */
+        static int64_t elapsedMicroSeconds(int64_t startMicro);
 
         static void exit();
 

@@ -24,6 +24,7 @@
 
 #include "T3DDateTime.h"
 #include <time.h>
+#include <chrono>
 #include "Adapter/T3DTimeInterface.h"
 #include "T3DPlatform.h"
 #include "Adapter/T3DFactoryInterface.h"
@@ -329,6 +330,38 @@ namespace Tiny3D
         }
 
         return msTime;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int64_t DateTime::currentNanoSeconds()
+    {
+        auto now = std::chrono::high_resolution_clock::now();
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+            now.time_since_epoch()).count();
+    }
+
+    //--------------------------------------------------------------------------
+
+    int64_t DateTime::currentMicroSeconds()
+    {
+        auto now = std::chrono::high_resolution_clock::now();
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            now.time_since_epoch()).count();
+    }
+
+    //--------------------------------------------------------------------------
+
+    int64_t DateTime::elapsedNanoSeconds(int64_t startNano)
+    {
+        return currentNanoSeconds() - startNano;
+    }
+
+    //--------------------------------------------------------------------------
+
+    int64_t DateTime::elapsedMicroSeconds(int64_t startMicro)
+    {
+        return currentMicroSeconds() - startMicro;
     }
 
     //--------------------------------------------------------------------------
