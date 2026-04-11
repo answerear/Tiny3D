@@ -5,7 +5,8 @@
 float calcLightAttenuation(float3 lightPos, float3 pos, float attenuationConstant, float attenuationLinear, float attenuationQuadratic)
 {
 	float distance = length(lightPos - pos);
-	float attenuation = 1.0 / (attenuationConstant + attenuationLinear * distance + attenuationQuadratic * distance * distance);
+	float denom = attenuationConstant + attenuationLinear * distance + attenuationQuadratic * distance * distance;
+	float attenuation = (denom > 0.0) ? (1.0 / denom) : 0.0;
 	return attenuation;
 }
 

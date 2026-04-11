@@ -103,6 +103,8 @@ namespace Tiny3D
 
     GL4PixelBuffer2D::~GL4PixelBuffer2D()
     {
+        GL_SAFE_DELETE_FBO(GLResolveFBO);
+        GL_SAFE_DELETE_TEXTURE(GLResolveTex);
         GL_SAFE_DELETE_RBO(GLDepthRBO);
         GL_SAFE_DELETE_FBO(GLFBO);
         GL_SAFE_DELETE_TEXTURE(GLTexture);

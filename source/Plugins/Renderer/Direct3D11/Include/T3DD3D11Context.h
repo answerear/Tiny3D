@@ -48,7 +48,7 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
-        
+
         /**
          * \brief 创建 RHI 渲染窗口
          * \param [in] renderWindow : 引擎渲染窗口
