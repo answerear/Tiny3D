@@ -45,6 +45,9 @@ protected:  // from Tiny3D::Application
     void applicationWillTerminate() override;
 
     void applicationLowMemory() override;
+
+private:
+    void runPerformanceBenchmark();
 };
 
 
