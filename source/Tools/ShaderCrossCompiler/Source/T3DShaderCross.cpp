@@ -956,6 +956,7 @@ namespace Tiny3D
         printf("      -i : Including file path.");
         printf("      -u uuid : Assigning UUID to the generated shader.");
         printf("      -N : The input shader is native shader, such as hlsl, glsl, metal. It is not shader lab.");
+        printf("      -D macro[=value] : Define a preprocessor macro. Can be specified multiple times. Only effective with -N.");
     }
 
     //--------------------------------------------------------------------------
@@ -1096,6 +1097,33 @@ namespace Tiny3D
             {
                 // 原生 shader ，不是 shader lab
                 args.options |= Args::OPT_NATIVE_SHADER;
+            }
+            else if (strcmp(argv[i], "-D") == 0)
+            {
+                // 宏定义
+                if (argc - 1 == i)
+                {
+                    // 参数不够
+                    SCC_LOG_ERROR("Missing macro definition ! Use -h for help.");
+                    ret = false;
+                    break;
+                }
+
+                ++i;
+                MacroDefine define;
+                String arg = argv[i];
+                String::size_type eqPos = arg.find('=');
+                if (eqPos != String::npos)
+                {
+                    define.name = arg.substr(0, eqPos);
+                    define.value = arg.substr(eqPos + 1);
+                }
+                else
+                {
+                    define.name = arg;
+                    define.value = "1";
+                }
+                args.defines.push_back(define);
             }
             else if (mInputFile.empty())
             {

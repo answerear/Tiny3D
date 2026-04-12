@@ -36,6 +36,14 @@ namespace Tiny3D
 
     T3D_DECLARE_SMART_PTR(ShaderCompiler);
 
+    struct MacroDefine
+    {
+        String  name;
+        String  value;
+    };
+
+    typedef TArray<MacroDefine> MacroDefines;
+
     struct Args
     {
         enum Options
@@ -69,6 +77,8 @@ namespace Tiny3D
         String      baseName {};
         /// 生成 Shader 的 UUID
         UUID        uuid {UUID::INVALID};
+        /// 命令行通过 -D 传入的宏定义列表
+        MacroDefines    defines {};
     };
     
     class ShaderCompiler : public Object
@@ -146,14 +156,6 @@ namespace Tiny3D
             PragmaParamsMap             paramsMap;
             EntryMap                    entriesName;
         };
-
-        struct MacroDefine
-        {
-            String  name;
-            String  value;
-        };
-
-        typedef TArray<MacroDefine> MacroDefines;
 
         struct ShaderSnippet
         {

@@ -388,6 +388,11 @@ namespace Tiny3D
                 ShaderSnippet snippet(source);
                 snippet.entry = params.entriesName.at(stage);
                 snippet.defines = defines;
+                // 将命令行 -D 传入的宏定义追加到 defines
+                if (!mArgs.defines.empty())
+                {
+                    snippet.defines.insert(snippet.defines.end(), mArgs.defines.begin(), mArgs.defines.end());
+                }
                 snippet.paramsMap = params.paramsMap;
                 snippet.stage = stage;
                 snippet.model = params.shaderModel;
