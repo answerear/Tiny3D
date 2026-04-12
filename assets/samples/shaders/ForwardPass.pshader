@@ -58,14 +58,32 @@ struct PS_INPUT
 TEX2D(texCube);
 TEX2D_CS(shadowMap);
 
+// 将裁剪空间投影坐标转换为阴影贴图采样用的 UV 和深度值
+// 输入: 透视除法后的 projCoords (xyz)
+// 输出: float3(u, v, depth)，均在 [0,1] 范围
+float3 clipToShadowUV(float3 projCoords)
+{
+#if defined (TINY3D_DIRECTX)
+	// DirectX: NDC Z 已在 [0,1]，仅映射 XY，Y 轴翻转（纹理原点左上角）
+	projCoords.xy = projCoords.xy * 0.5 + 0.5;
+	projCoords.y = 1.0f - projCoords.y;
+#elif defined (TINY3D_OPENGL)
+	// OpenGL (with glClipControl GL_ZERO_TO_ONE): Z 已经由 conversionMat 映射到 [0,1]，
+	// 仅映射 XY，Y 轴不翻转（GL_LOWER_LEFT，纹理原点左下角）
+	projCoords.xy = projCoords.xy * 0.5 + 0.5;
+#else
+	#error "Must define TINY3D_DIRECTX or TINY3D_OPENGL"
+#endif
+	return projCoords;
+}
+
 // 计算阴影
 float calcShadow(float4 lightSpacePos)
 {
 	// 执行透视除法
 	float3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
 	// 变换到[0,1]的范围
-	projCoords.xy = projCoords.xy * 0.5 + 0.5;
-	projCoords.y = 1.0f - projCoords.y;
+	projCoords = clipToShadowUV(projCoords);
 
 	// 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
 	// float4 color = SAMPLE(shadowMap, projCoords.xy);
