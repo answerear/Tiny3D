@@ -1,7 +1,7 @@
 #ifndef TINY3D_SHADER_VARIABLES_INCLUDED
 #define TINY3D_SHADER_VARIABLES_INCLUDED
 
-#define kMaxBoneMatrices 512
+#define kMaxBoneMatrices 200
 #define kMaxBlendBones 4
 
 #define BLINN_PHONG

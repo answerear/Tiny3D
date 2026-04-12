@@ -1,7 +1,7 @@
 #pragma vertex vert
 #pragma target 4.0
 
-#define kMaxBones 256
+#define kMaxBones 200
 #define kMaxBlendBones 4
 
 cbuffer Tiny3DPerDraw
