@@ -453,6 +453,7 @@ namespace Tiny3D
         mViewMatrix = viewMat;
         mProjMatrix = conversionMat * projMat;
         mProjViewMatrix = mProjMatrix * mViewMatrix;
+
         return T3D_OK;
         // mCBufferPerFrame.matrixV = viewMat;
         // mCBufferPerFrame.matrixP = conversionMat * projMat;
