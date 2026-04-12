@@ -150,6 +150,9 @@ namespace Tiny3D
 
         /// 获取 wglChoosePixelFormatARB 函数指针（供 GL4RenderWindow 使用 MSAA 像素格式）
         PFNWGLCHOOSEPIXELFORMATARBPROC getWglChoosePixelFormatARB() const { return mWglChoosePixelFormatARB; }
+
+        /// 获取 wglCreateContextAttribsARB 函数指针（供 GL4RenderWindow 创建 Core Profile 上下文）
+        PFNWGLCREATECONTEXTATTRIBSARBPROC getWglCreateContextAttribsARB() const { return mWglCreateContextAttribsARB; }
 #elif defined(T3D_OS_LINUX)
         GLXContext getDummyGLXContext() const { return mDummyGLXContext; }
 #endif
@@ -205,6 +208,7 @@ namespace Tiny3D
         /// WGL 扩展函数指针（在 initDummyContext 中获取）
         PFNWGLCHOOSEPIXELFORMATARBPROC  mWglChoosePixelFormatARB {nullptr};
         PFNWGLGETEXTENSIONSSTRINGARBPROC mWglGetExtensionsStringARB {nullptr};
+        PFNWGLCREATECONTEXTATTRIBSARBPROC mWglCreateContextAttribsARB {nullptr};
 #elif defined(T3D_OS_LINUX)
         Display     *mDummyDisplay {nullptr};
         ::Window    mDummyWindow {0};

@@ -260,6 +260,7 @@ namespace Tiny3D
             // 获取 WGL 扩展函数指针（用于 MSAA 像素格式选择）
             mWglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
             mWglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+            mWglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 
             if (mWglChoosePixelFormatARB != nullptr)
             {
@@ -268,6 +269,39 @@ namespace Tiny3D
             else
             {
                 T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB is NOT available, MSAA will be disabled for render windows.");
+            }
+
+            // 升级 dummy 上下文为 Core Profile（RenderDoc 要求通过 wglCreateContextAttribsARB 创建）
+            if (mWglCreateContextAttribsARB != nullptr)
+            {
+                int contextFlags = 0;
+#if defined(T3D_DEBUG)
+                contextFlags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+#endif
+                int attribs[] = {
+                    WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+                    WGL_CONTEXT_MINOR_VERSION_ARB, 5,
+                    WGL_CONTEXT_FLAGS_ARB, contextFlags,
+                    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                    0
+                };
+
+                HGLRC coreRC = mWglCreateContextAttribsARB(mDummyHDC, nullptr, attribs);
+                if (coreRC != nullptr)
+                {
+                    wglMakeCurrent(mDummyHDC, coreRC);
+                    wglDeleteContext(mDummyHGLRC);
+                    mDummyHGLRC = coreRC;
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "Dummy context upgraded to OpenGL 4.5 Core Profile (RenderDoc compatible).");
+                }
+                else
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglCreateContextAttribsARB failed for Core Profile 4.5, keeping legacy context.");
+                }
+            }
+            else
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglCreateContextAttribsARB is NOT available, RenderDoc may not work.");
             }
 #endif
 
@@ -367,6 +401,11 @@ namespace Tiny3D
 
     TResult GL4Context::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
+        // The engine's projection matrices (orthographic_LH / perspective_LH)
+        // produce OpenGL-style NDC with Z in [-1, 1].  Since we use
+        // glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE) to set the depth
+        // range to [0, 1] (matching D3D11), we need conversionMat to remap
+        // the projection Z from [-1,1] to [0,1].
         static Matrix4 conversionMat(
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
@@ -1083,9 +1122,18 @@ namespace Tiny3D
                     GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
 
                     glEnableVertexAttribArray(j);
-                    glVertexAttribPointer(j, size, type, normalized,
-                        (GLsizei)strides[i],
-                        reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                    if (GL4Mapping::isIntegerAttrib(attrib.getType()))
+                    {
+                        glVertexAttribIPointer(j, size, type,
+                            (GLsizei)strides[i],
+                            reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                    }
+                    else
+                    {
+                        glVertexAttribPointer(j, size, type, normalized,
+                            (GLsizei)strides[i],
+                            reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                    }
                 }
             }
         }

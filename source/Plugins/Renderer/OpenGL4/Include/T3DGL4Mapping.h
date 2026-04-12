@@ -41,6 +41,7 @@ namespace Tiny3D
         static GLint getVertexAttribSize(VertexAttribute::Type type);
         static GLenum getVertexAttribType(VertexAttribute::Type type);
         static GLboolean getVertexAttribNormalized(VertexAttribute::Type type);
+        static bool isIntegerAttrib(VertexAttribute::Type type);
     };
 }
 

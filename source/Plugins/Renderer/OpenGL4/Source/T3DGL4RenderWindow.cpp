@@ -171,21 +171,51 @@ namespace Tiny3D
             }
 
             // 创建 GL 上下文
-            GLContext = wglCreateContext(GLDeviceContext);
-            if (GLContext == nullptr)
+            HGLRC dummyRC = GL4_CONTEXT->getDummyGLRC();
+            auto wglCreateCtxAttribs = GL4_CONTEXT->getWglCreateContextAttribsARB();
+
+            if (wglCreateCtxAttribs != nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "wglCreateContext failed !");
-                ret = false;
-                break;
+                int contextFlags = 0;
+#if defined(T3D_DEBUG)
+                contextFlags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+#endif
+                int attribs[] = {
+                    WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+                    WGL_CONTEXT_MINOR_VERSION_ARB, 5,
+                    WGL_CONTEXT_FLAGS_ARB, contextFlags,
+                    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                    0
+                };
+
+                GLContext = wglCreateCtxAttribs(GLDeviceContext, dummyRC, attribs);
+                if (GLContext != nullptr)
+                {
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GL context created via wglCreateContextAttribsARB (Core Profile 4.5, RenderDoc compatible).");
+                }
+                else
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglCreateContextAttribsARB failed, falling back to wglCreateContext.");
+                }
             }
 
-            // 与 dummy 上下文共享 GL 对象（纹理、FBO、UBO 等）
-            HGLRC dummyRC = GL4_CONTEXT->getDummyGLRC();
-            if (dummyRC != nullptr)
+            if (GLContext == nullptr)
             {
-                if (!wglShareLists(dummyRC, GLContext))
+                GLContext = wglCreateContext(GLDeviceContext);
+                if (GLContext == nullptr)
                 {
-                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglShareLists failed, GL resources may not be shared !");
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "wglCreateContext failed !");
+                    ret = false;
+                    break;
+                }
+
+                // 回退路径需要 wglShareLists 来共享 GL 对象
+                if (dummyRC != nullptr)
+                {
+                    if (!wglShareLists(dummyRC, GLContext))
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglShareLists failed, GL resources may not be shared !");
+                    }
                 }
             }
 

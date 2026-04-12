@@ -366,4 +366,23 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    bool GL4Mapping::isIntegerAttrib(VertexAttribute::Type type)
+    {
+        switch (type)
+        {
+        case VertexAttribute::Type::E_VAT_BYTE4:
+        case VertexAttribute::Type::E_VAT_UBYTE4:
+        case VertexAttribute::Type::E_VAT_SHORT2:
+        case VertexAttribute::Type::E_VAT_SHORT4:
+        case VertexAttribute::Type::E_VAT_USHORT2:
+        case VertexAttribute::Type::E_VAT_USHORT4:
+            return true;
+        default:
+            break;
+        }
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
 }
