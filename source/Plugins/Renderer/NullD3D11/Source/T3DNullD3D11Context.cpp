@@ -66,7 +66,8 @@ namespace Tiny3D
             );
         mViewMatrix = viewMat;
         mProjMatrix = conversionMat * projMat;
-        mProjViewMatrix = mProjViewMatrix * mViewMatrix;
+        mProjViewMatrix = mProjMatrix * mViewMatrix;
+
         return T3D_OK;
     }
 
