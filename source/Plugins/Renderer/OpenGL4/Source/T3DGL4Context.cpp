@@ -412,8 +412,29 @@ namespace Tiny3D
             0.0f, 0.0f, 0.5f, 0.5f,
             0.0f, 0.0f, 0.0f, 1.0f
             );
+
+        // 渲染到 FBO 时，翻转投影矩阵 Y 轴（Unity 策略）。
+        // 这样 FBO 中的画面方向与 D3D11 一致，shader 无需区分平台。
+        static Matrix4 conversionFlipYMat(
+            1.0f,  0.0f, 0.0f, 0.0f,
+            0.0f, -1.0f, 0.0f, 0.0f,
+            0.0f,  0.0f, 0.5f, 0.5f,
+            0.0f,  0.0f, 0.0f, 1.0f
+            );
+
         mViewMatrix = viewMat;
-        mProjMatrix = conversionMat * projMat;
+
+        if (mRenderingToFBO)
+        {
+            mProjMatrix = conversionFlipYMat * projMat;
+            mProjectionFlipped = true;
+        }
+        else
+        {
+            mProjMatrix = conversionMat * projMat;
+            mProjectionFlipped = false;
+        }
+
         mProjViewMatrix = mProjMatrix * mViewMatrix;
         return T3D_OK;
     }
@@ -724,6 +745,7 @@ namespace Tiny3D
         if (T3D_SUCCEEDED(ret))
         {
             mCurrentRenderTarget = renderTarget;
+            mRenderingToFBO = (renderTarget->getType() == RenderTarget::Type::E_RT_TEXTURE);
         }
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRenderTarget");
@@ -1016,7 +1038,17 @@ namespace Tiny3D
         if (d.cullEnabled)
         {
             glEnable(GL_CULL_FACE);
-            glCullFace(d.cullMode);
+
+            // 投影矩阵 Y 翻转时，三角形缠绕方向反转，需要反转 cull mode
+            GLenum cullMode = d.cullMode;
+            if (mProjectionFlipped)
+            {
+                if (cullMode == GL_FRONT)
+                    cullMode = GL_BACK;
+                else if (cullMode == GL_BACK)
+                    cullMode = GL_FRONT;
+            }
+            glCullFace(cullMode);
         }
         else
         {
@@ -1900,6 +1932,15 @@ namespace Tiny3D
         GLint srcY0 = static_cast<GLint>(srcOffset.y());
         GLint srcX1 = srcX0 + static_cast<GLint>(size.x());
         GLint srcY1 = srcY0 + static_cast<GLint>(size.y());
+
+        // 投影矩阵 Y 翻转后 FBO 中内容为 top-down，blit 到 backbuffer 时
+        // 需要交换 src Y 坐标让 glBlitFramebuffer 自动翻转图像
+        if (mProjectionFlipped && dst->getType() == RenderTarget::Type::E_RT_WINDOW)
+        {
+            GLint tmp = srcY0;
+            srcY0 = srcY1;
+            srcY1 = tmp;
+        }
 
         GLint dstX0 = static_cast<GLint>(dstOffset.x());
         GLint dstY0 = static_cast<GLint>(dstOffset.y());

@@ -78,6 +78,9 @@ namespace Tiny3D
 
         const Matrix4 &getProjViewMatrix() const { return mProjViewMatrix; }
 
+        /// 当前投影矩阵是否被 Y 翻转（OpenGL RTT 路径）
+        bool isProjectionFlipped() const { return mProjectionFlipped; }
+
         /**
          * \brief 创建 RHI 渲染窗口
          * \param [in] renderWindow : 引擎渲染窗口
@@ -605,6 +608,8 @@ namespace Tiny3D
         Matrix4 mViewMatrix {false};
         /// 投影和视口变换的联合变换
         Matrix4 mProjViewMatrix {false};
+        /// 投影矩阵是否被 Y 翻转（OpenGL 渲染到纹理时为 true）
+        bool mProjectionFlipped {false};
     };
 }
 

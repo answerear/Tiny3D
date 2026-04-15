@@ -347,6 +347,7 @@ namespace Tiny3D
         // 这里统一用 conversionMat * projViewMatrix 的方式，但 D3D11 已经在内部做过了。
         // 简单做法：判断渲染器名称。
         mLightSpaceMatrix = ctx->getProjViewMatrix();
+        mShadowMapFlipped = ctx->isProjectionFlipped();
 
         const auto itr = mRenderQueue.find(camera);
 
@@ -579,6 +580,14 @@ namespace Tiny3D
         material->setMatrix("tiny3d_MatrixP", ctx->getProjMatrix());
         material->setMatrix("tiny3d_MatrixVP", ctx->getProjViewMatrix());
         material->setMatrix("tiny3d_MatrixLightSpaceVP", mLightSpaceMatrix);
+
+        // tiny3d_ProjectionParams:
+        //   x = +1.0 正常, -1.0 forward pass 投影 Y 翻转（OpenGL RTT）
+        //   y = +1.0 shadow map 未翻转, -1.0 shadow map Y 翻转
+        Real flipSign = ctx->isProjectionFlipped() ? -REAL_ONE : REAL_ONE;
+        Real shadowFlipSign = mShadowMapFlipped ? -REAL_ONE : REAL_ONE;
+        material->setVector("tiny3d_ProjectionParams", Vector4(flipSign, shadowFlipSign, REAL_ZERO, REAL_ZERO));
+
         return T3D_OK;
     }
 

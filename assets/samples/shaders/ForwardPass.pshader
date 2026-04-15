@@ -47,6 +47,11 @@ cbuffer tiny3d_ObjectParams
 	float4 tiny3d_ObjectSmoothness;	// x - 物体光滑度, yzw - padding
 }
 
+cbuffer tiny3d_ProjectionParamsCB
+{
+	float4 tiny3d_ProjectionParams;	// x - +1.0 正常 / -1.0 投影Y翻转(OpenGL RTT), y - +1.0 shadow map未翻转 / -1.0 shadow map Y翻转, zw - 保留
+}
+
 struct PS_INPUT
 {
 	float3 worldNormal : NORMAL;
@@ -61,19 +66,15 @@ TEX2D_CS(shadowMap);
 // 将裁剪空间投影坐标转换为阴影贴图采样用的 UV 和深度值
 // 输入: 透视除法后的 projCoords (xyz)
 // 输出: float3(u, v, depth)，均在 [0,1] 范围
+// 注：通过 tiny3d_ProjectionParams.y 运行时判断 shadow map 是否被 Y 翻转，
+//     无需编译时 TINY3D_DIRECTX / TINY3D_OPENGL 条件编译
 float3 clipToShadowUV(float3 projCoords)
 {
-#if defined (TINY3D_DIRECTX)
-	// DirectX: NDC Z 已在 [0,1]，仅映射 XY，Y 轴翻转（纹理原点左上角）
 	projCoords.xy = projCoords.xy * 0.5 + 0.5;
-	projCoords.y = 1.0f - projCoords.y;
-#elif defined (TINY3D_OPENGL)
-	// OpenGL (with glClipControl GL_ZERO_TO_ONE): Z 已经由 conversionMat 映射到 [0,1]，
-	// 仅映射 XY，Y 轴不翻转（GL_LOWER_LEFT，纹理原点左下角）
-	projCoords.xy = projCoords.xy * 0.5 + 0.5;
-#else
-	#error "Must define TINY3D_DIRECTX or TINY3D_OPENGL"
-#endif
+	// shadow map 未被 Y 翻转时（D3D11 路径），需要 1-y 匹配纹理原点方向
+	// shadow map 已被 Y 翻转时（OpenGL RTT 路径），lightSpaceMatrix 已包含翻转，跳过 1-y
+	if (tiny3d_ProjectionParams.y > 0.0f)
+		projCoords.y = 1.0f - projCoords.y;
 	return projCoords;
 }
 

@@ -114,6 +114,9 @@ namespace Tiny3D
         /// 平行光空间矩阵
         Matrix4 mLightSpaceMatrix { false};
 
+        /// 阴影贴图投影是否被 Y 翻转（OpenGL RTT 路径）
+        bool mShadowMapFlipped {false};
+
         /// 点光源颜色 + 漫反射强度
         ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};
         /// 点光源位置 + 镜面反射强度

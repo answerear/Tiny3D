@@ -493,6 +493,8 @@ MaterialPtr ShadowApp::buildCubeMaterial(Tiny3D::Shader *shader)
     material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
     // Object
     material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // ProjectionParams
+    material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 0, 0, 0));
     // Ambient
     material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
     // Directional light
@@ -996,6 +998,8 @@ MaterialPtr ShadowApp::buildPlaneMaterial(Tiny3D::Shader *shader)
     material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
     // Object
     material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // ProjectionParams
+    material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 0, 0, 0));
     // Ambient
     material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
     // Directional light

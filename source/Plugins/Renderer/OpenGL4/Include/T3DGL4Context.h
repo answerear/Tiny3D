@@ -193,6 +193,9 @@ namespace Tiny3D
         /// GLAD 是否已加载
         bool    mGLADLoaded {false};
 
+        /// 当前是否渲染到 FBO（非 backbuffer），用于 Y 翻转判断
+        bool    mRenderingToFBO {false};
+
         /// 当前绑定的 VS/PS ShaderVariant（用于 setupSamplerBindings 查找 slot）
         ShaderVariant *mCurrentVSVariant {nullptr};
         ShaderVariant *mCurrentPSVariant {nullptr};
