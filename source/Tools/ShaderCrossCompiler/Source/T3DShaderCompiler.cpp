@@ -388,11 +388,6 @@ namespace Tiny3D
                 ShaderSnippet snippet(source);
                 snippet.entry = params.entriesName.at(stage);
                 snippet.defines = defines;
-                // 将命令行 -D 传入的宏定义追加到 defines
-                if (!mArgs.defines.empty())
-                {
-                    snippet.defines.insert(snippet.defines.end(), mArgs.defines.begin(), mArgs.defines.end());
-                }
                 snippet.paramsMap = params.paramsMap;
                 snippet.stage = stage;
                 snippet.model = params.shaderModel;
@@ -515,10 +510,19 @@ namespace Tiny3D
                 // path = outPath + name;
             };
 
-            ShaderConductor::MacroDefine* defines = T3D_NEW ShaderConductor::MacroDefine[snippet.defines.size()];
+            size_t totalDefines = snippet.defines.size() + mArgs.defines.size();
+            ShaderConductor::MacroDefine* defines = T3D_NEW ShaderConductor::MacroDefine[totalDefines];
             ShaderKeyword keyword;
             generateDefinesAndPath(snippet, defines, keyword);
             keyword.generate();
+
+            // keyword 生成后，再追加命令行 -D 宏到 defines 数组（不影响 keyword 和文件名）
+            for (size_t i = 0; i < mArgs.defines.size(); i++)
+            {
+                size_t idx = snippet.defines.size() + i;
+                defines[idx].name = mArgs.defines[i].name.c_str();
+                defines[idx].value = mArgs.defines[i].value.c_str();
+            }
 
             SHADER_STAGE shaderType;
             sourceDesc.source = snippet.source.c_str();
@@ -526,7 +530,7 @@ namespace Tiny3D
             sourceDesc.entryPoint = snippet.entry.c_str();
             sourceDesc.fileName = mInputPath.c_str();
             sourceDesc.defines = defines;
-            sourceDesc.numDefines = snippet.defines.size();
+            sourceDesc.numDefines = totalDefines;
             //sourceDesc.loadIncludeCallback = nullptr;
 
             auto getShadingLanguage = [](const String& str) -> ShadingLanguage
