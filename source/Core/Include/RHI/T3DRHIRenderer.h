@@ -45,6 +45,8 @@ namespace Tiny3D
         static const char * const DIRECT3D11;
         /// 控制台模式下的 D3D11
         static const char * const NULL_DIRECT3D11;
+        /// 控制台模式下的 OpenGL4
+        static const char * const NULL_OPENGL4;
         /// Direct3D12 渲染器
         static const char * const DIRECT3D12;
         /// OpenGL 4.x 渲染器
