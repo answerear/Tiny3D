@@ -281,14 +281,22 @@ namespace Tiny3D
 
     void Material::setShaderSamplerValue(Archive *archive, ShaderSamplerValue *samplerValue)
     {
+        const UUID &texUUID = samplerValue->getTextureUUID();
+
+        // 运行时纹理（如 shadowMap）在离线阶段没有对应资源，UUID 为无效值，跳过加载
+        if (texUUID == UUID::INVALID)
+        {
+            return;
+        }
+
         if (archive != nullptr)
         {
-            TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(archive, samplerValue->getTextureUUID());
+            TexturePtr texture = T3D_TEXTURE_MGR.loadTexture(archive, texUUID);
             T3D_ASSERT(texture);
         }
 
         T3D_ASSERT(mCurTechnique != nullptr);
-        mCurTechnique->setTexture(samplerValue->getName(), samplerValue->getTextureUUID());
+        mCurTechnique->setTexture(samplerValue->getName(), texUUID);
     }
 
     //--------------------------------------------------------------------------
