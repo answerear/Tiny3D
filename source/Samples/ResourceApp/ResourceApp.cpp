@@ -56,10 +56,11 @@ TResult ResourceApp::go(int32_t argc, char *argv[])
     settings.pluginSettings.plugins.push_back("FileSystemArchive");
     settings.pluginSettings.plugins.push_back("MetaFSArchive");
     settings.pluginSettings.plugins.push_back("D3D11Renderer");
+    settings.pluginSettings.plugins.push_back("GL4Renderer");
     settings.pluginSettings.plugins.push_back("FreeImageCodec");
 
 #if defined (T3D_OS_WINDOWS)
-    settings.renderSettings.renderer = RHIRenderer::DIRECT3D11;
+    settings.renderSettings.renderer = RHIRenderer::OPENGL4;
 #else
 #endif
     
@@ -74,6 +75,10 @@ TResult ResourceApp::go(int32_t argc, char *argv[])
 
 TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
+    // auto compile shaders if language mismatch
+    const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "meshes";
+    autoCompileShaders(path);
+
     // create scene
     ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
     scene->init();
@@ -260,6 +265,150 @@ void ResourceApp::loadMesh(Transform3D *parent)
         //     skinnedGeometry->stop();
         // });
     }
+}
+
+void ResourceApp::autoCompileShaders(const String &resourcePath)
+{
+    // Determine required shader language from the active renderer
+    String requiredLang;
+    const String &rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    if (rendererName == RHIRenderer::OPENGL4
+        || rendererName == RHIRenderer::OPENGLES2
+        || rendererName == RHIRenderer::OPENGLES3)
+    {
+        requiredLang = "glsl";
+    }
+    else
+    {
+        requiredLang = "hlsl";
+    }
+
+    // Enumerate all *.shader.meta files in the resource directory
+    String searchPattern = resourcePath + Dir::getNativeSeparator() + "*.shader.meta";
+    Dir dir;
+    bool working = dir.findFile(searchPattern);
+
+    while (working)
+    {
+        if (!dir.isDots() && !dir.isDirectory())
+        {
+            do
+            {
+                const String shaderMetaPath = dir.getFilePath();
+
+                // Read .shader.meta to get ShaderUUID
+                FileDataStream fs;
+                if (!fs.open(shaderMetaPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                {
+                    APP_LOG_DEBUG("Failed to open %s", shaderMetaPath.c_str());
+                    break;
+                }
+
+                MetaPtr meta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
+                fs.close();
+
+                if (meta == nullptr || meta->getType() != Meta::kShaderLab)
+                {
+                    break;
+                }
+
+                MetaShaderLab *metaShaderLab = static_cast<MetaShaderLab *>(meta.get());
+                const Tiny3D::UUID &shaderUUID = metaShaderLab->getShaderUUID();
+
+                // Derive .shader source path from .shader.meta path (strip ".meta")
+                String shaderSourcePath = shaderMetaPath.substr(0, shaderMetaPath.length() - 5);
+
+                // Find the .tshader.meta file by looking for the file whose MetaShader UUID matches
+                // We know the naming convention: <title>.tshader.meta
+                String shaderDir, shaderName;
+                Dir::parsePath(shaderSourcePath, shaderDir, shaderName);
+                String shaderTitle, shaderExt;
+                Dir::parsePath(shaderSourcePath, shaderDir, shaderTitle, shaderExt);
+                String tshaderMetaPath = resourcePath + Dir::getNativeSeparator() + shaderTitle + "." + Resource::EXT_SHADER + ".meta";
+
+                if (!Dir::exists(tshaderMetaPath))
+                {
+                    APP_LOG_DEBUG("tshader meta not found: %s", tshaderMetaPath.c_str());
+                    break;
+                }
+
+                // Read .tshader.meta to get Language and UUID
+                FileDataStream tshaderMetaFs;
+                if (!tshaderMetaFs.open(tshaderMetaPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                {
+                    APP_LOG_DEBUG("Failed to open %s", tshaderMetaPath.c_str());
+                    break;
+                }
+
+                MetaPtr tshaderMeta = T3D_SERIALIZER_MGR.deserialize<Meta>(tshaderMetaFs);
+                tshaderMetaFs.close();
+
+                if (tshaderMeta == nullptr || tshaderMeta->getType() != Meta::kShader)
+                {
+                    break;
+                }
+
+                MetaShader *metaShader = static_cast<MetaShader *>(tshaderMeta.get());
+                const String &currentLang = metaShader->getLanguage();
+
+                if (currentLang == requiredLang)
+                {
+                    // Language matches, no recompilation needed
+                    break;
+                }
+
+                APP_LOG_DEBUG("Shader language mismatch for %s: current='%s', required='%s'. Recompiling...",
+                    shaderTitle.c_str(), currentLang.c_str(), requiredLang.c_str());
+
+                // Call scc.exe to recompile with -u to preserve UUID
+                String sccPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
+                String cmdLine = shaderSourcePath
+                    + " -t " + requiredLang
+                    + " -u " + metaShader->getUUID().toString()
+                    + " -o " + resourcePath;
+
+                Process process;
+                TResult ret = process.start(sccPath, cmdLine);
+                if (T3D_FAILED(ret))
+                {
+                    APP_LOG_DEBUG("Failed to start scc.exe for %s ! ERROR [%d]", shaderTitle.c_str(), ret);
+                    break;
+                }
+
+                ret = process.wait();
+                if (T3D_FAILED(ret))
+                {
+                    APP_LOG_DEBUG("Failed to wait for scc.exe for %s ! ERROR [%d]", shaderTitle.c_str(), ret);
+                    break;
+                }
+
+                uint32_t exitCode = process.getExitCode();
+                if (exitCode != 0)
+                {
+                    APP_LOG_DEBUG("scc.exe failed for %s with exit code [%d]", shaderTitle.c_str(), exitCode);
+                    break;
+                }
+
+                // Update .tshader.meta with new language
+                metaShader->setLanguage(requiredLang);
+                FileDataStream writeFs;
+                if (writeFs.open(tshaderMetaPath.c_str(),
+                    FileDataStream::EOpenMode::E_MODE_TRUNCATE
+                    | FileDataStream::EOpenMode::E_MODE_READ_WRITE
+                    | FileDataStream::EOpenMode::E_MODE_TEXT))
+                {
+                    T3D_SERIALIZER_MGR.serialize(writeFs, metaShader);
+                    writeFs.close();
+                }
+
+                APP_LOG_DEBUG("Successfully recompiled %s to %s", shaderTitle.c_str(), requiredLang.c_str());
+            } while (false);
+        }
+
+        working = dir.findNextFile();
+    }
+
+    dir.close();
 }
 
 

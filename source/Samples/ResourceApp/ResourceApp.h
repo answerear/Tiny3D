@@ -46,6 +46,8 @@ protected:
     void buildCamera(Tiny3D::Transform3D *parent);
 
     void loadMesh(Tiny3D::Transform3D *parent);
+
+    void autoCompileShaders(const String &resourcePath);
     
     Tiny3D::SkinnedMeshPtr mMesh {nullptr};
     
