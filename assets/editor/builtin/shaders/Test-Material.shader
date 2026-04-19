@@ -1,4 +1,4 @@
-Shader "Tiny3DBuiltin/Default-Material"
+Shader "Tiny3DBuiltin/Test-Material"
 {
 	Properties
 	{
@@ -26,13 +26,13 @@ Shader "Tiny3DBuiltin/Default-Material"
 				#pragma fragment frag
 				#pragma target 4.0
 				
-				cbuffer Tiny3DPerDraw : register(b0)
+				cbuffer Tiny3DPerDraw
 				{
 				   row_major float4x4 tiny3d_ObjectToWorld;
 				   row_major float4x4 tiny3d_WorldToObject;
 				}
 
-				cbuffer Tiny3DPerFrame : register(b1)
+				cbuffer Tiny3DPerFrame
 				{
 				   row_major float4x4 tiny3d_MatrixV;
 				   row_major float4x4 tiny3d_MatrixP;

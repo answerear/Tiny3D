@@ -8,8 +8,12 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "d28843e36a4388e2d4acbf60aaf34560"
+          "RTTI_Value": "6f08bee8f014080fd2372257a3e13c2a"
         }
+      },
+      "Language": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "hlsl"
       }
     }
   }

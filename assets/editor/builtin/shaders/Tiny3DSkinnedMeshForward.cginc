@@ -3,7 +3,7 @@
 
 #include "Tiny3DShaderVariables.cginc"
 
-VertexOutputForwardBase vertForwardBaseSkinned(VertexInput v)
+VertexOutputForwardBase vertForwardBaseSkinned(VertexInput input)
 {
     VertexOutputForwardBase output;
 
@@ -21,10 +21,10 @@ VertexOutputForwardBase vertForwardBaseSkinned(VertexInput v)
         normal += mul((float3x3)m, input.normal) * w;
     }
 
-    output.position = mul(TINY3D_MATRIX_VP, pos);
-    output.worldNormal = normalize(normal);
-    output.worldPos = pos.xyz;
-    output.lightSpacePos = mul(TINY3D_MATRIX_LIGHTSPACE_VP, pos);
+    output.position = mul(TINY3D_MATRIX_MVP, pos);
+    output.worldNormal = normalize(mul((float3x3)TINY3D_MATRIX_M, normal));
+    output.worldPos = mul(TINY3D_MATRIX_M, pos).xyz;
+    output.lightSpacePos = mul(TINY3D_MATRIX_LIGHTSPACE, pos);
     output.uv = input.uv;
     return output;
 }

@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "d28843e36a4388e2d4acbf60aaf34560"
+          "RTTI_Value": "6f08bee8f014080fd2372257a3e13c2a"
         }
       },
       "ConstantValues": {
@@ -248,7 +248,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DLightParams : register(b5)\n{\n    float4 Tiny3DLightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 Tiny3DLightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 Tiny3DLightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 Tiny3DLightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 Tiny3DLightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 Tiny3DLightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 Tiny3DLightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 Tiny3DLightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 Tiny3DLightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 Tiny3DLightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_Tiny3DPerCamera : register(b6)\n{\n    float4 Tiny3DPerCamera_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_Tiny3DPerObject : register(b7)\n{\n    float4 Tiny3DPerObject_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _71 = normalize(Tiny3DPerCamera_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float3 _86 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0).xyz;\n    float3 _87 = -Tiny3DLightParams_tiny3d_DirLightDir.xyz;\n    float _90 = Tiny3DPerObject_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _102;\n    _102 = (Tiny3DLightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _87)) * Tiny3DLightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_71, normalize(_87 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_DirLightDir.w))) * _86;\n    [unroll]\n    for (int _105 = 0; _105 < 4; )\n    {\n        float3 _124 = Tiny3DLightParams_tiny3d_PointLightPos[_105].xyz - in_var_COLOR0;\n        float _125 = length(_124);\n        float3 _132 = normalize(_124);\n        _102 += (((Tiny3DLightParams_tiny3d_PointLightColor[_105].xyz * ((max(0.0f, dot(in_var_NORMAL, _132)) * Tiny3DLightParams_tiny3d_PointLightColor[_105].w) + (pow(max(dot(_71, normalize(_132 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_PointLightPos[_105].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].x + (Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].y * _125)) + ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].z * _125) * _125))));\n        _105++;\n        continue;\n    }\n    float3 _147;\n    _147 = _102;\n    [unroll]\n    for (int _150 = 0; _150 < 4; )\n    {\n        float3 _176 = Tiny3DLightParams_tiny3d_SpotLightPos[_150].xyz - in_var_COLOR0;\n        float _177 = length(_176);\n        float3 _184 = normalize(_176);\n        float _190 = clamp((dot(_184, -Tiny3DLightParams_tiny3d_SpotLightDir[_150].xyz) - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w) / (Tiny3DLightParams_tiny3d_SpotLightDir[_150].w - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w), 0.0f, 1.0f);\n        _147 += (((Tiny3DLightParams_tiny3d_SpotLightColor[_150].xyz * (((max(0.0f, dot(in_var_NORMAL, _184)) * _190) * Tiny3DLightParams_tiny3d_SpotLightColor[_150].w) + ((pow(max(dot(_71, normalize(_184 + _71)), 0.0f), _90) * _190) * Tiny3DLightParams_tiny3d_SpotLightPos[_150].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].x + (Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].y * _177)) + ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].z * _177) * _177))));\n        _150++;\n        continue;\n    }\n    out_var_SV_Target = float4(((Tiny3DLightParams_tiny3d_AmbientLight.xyz * Tiny3DLightParams_tiny3d_AmbientLight.w) * _86) + _147, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "static const float2 _78[9] = { (-1.0f).xx, float2(0.0f, -1.0f), float2(1.0f, -1.0f), float2(-1.0f, 0.0f), 0.0f.xx, float2(1.0f, 0.0f), float2(-1.0f, 1.0f), float2(0.0f, 1.0f), 1.0f.xx };\n\ncbuffer type_tiny3d_LightParams : register(b5)\n{\n    float4 tiny3d_LightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 tiny3d_LightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 tiny3d_LightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 tiny3d_LightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 tiny3d_LightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 tiny3d_LightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 tiny3d_LightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 tiny3d_LightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 tiny3d_LightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 tiny3d_LightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_tiny3d_CameraParams : register(b6)\n{\n    float4 tiny3d_CameraParams_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ObjectParams : register(b7)\n{\n    float4 tiny3d_ObjectParams_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ProjectionParamsCB : register(b8)\n{\n    float4 tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\nTexture2D<float4> shadowMap : register(t9);\nSamplerComparisonState samplershadowMap : register(s10);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _98 = normalize(tiny3d_CameraParams_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float4 _102 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0);\n    float3 _113 = _102.xyz;\n    float3 _114 = -tiny3d_LightParams_tiny3d_DirLightDir.xyz;\n    float _117 = tiny3d_ObjectParams_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _131 = in_var_COLOR1.xyz / in_var_COLOR1.w.xxx;\n    float2 _134 = (_131.xy * 0.5f) + 0.5f.xx;\n    float3 _135 = float3(_134.x, _134.y, _131.z);\n    float3 _144;\n    if (tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams.y > 0.0f)\n    {\n        float3 _143 = _135;\n        _143.y = 1.0f - _134.y;\n        _144 = _143;\n    }\n    else\n    {\n        _144 = _135;\n    }\n    float _147;\n    _147 = 0.0f;\n    [unroll]\n    for (int _150 = 0; _150 < 9; )\n    {\n        _147 += shadowMap.SampleCmpLevelZero(samplershadowMap, _144.xy + (_78[_150] * 0.00048828125f.xx), _144.z);\n        _150++;\n        continue;\n    }\n    float3 _166;\n    _166 = ((tiny3d_LightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _114)) * tiny3d_LightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_98, normalize(_114 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_DirLightDir.w))) * _113) * (_147 * 0.111111111938953399658203125f);\n    [unroll]\n    for (int _169 = 0; _169 < 4; )\n    {\n        float3 _188 = tiny3d_LightParams_tiny3d_PointLightPos[_169].xyz - in_var_COLOR0;\n        float _189 = length(_188);\n        float _194 = (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].x + (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].y * _189)) + ((tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].z * _189) * _189);\n        float3 _198 = normalize(_188);\n        _166 += (((tiny3d_LightParams_tiny3d_PointLightColor[_169].xyz * ((max(0.0f, dot(in_var_NORMAL, _198)) * tiny3d_LightParams_tiny3d_PointLightColor[_169].w) + (pow(max(dot(_98, normalize(_198 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_PointLightPos[_169].w))) * _113) * ((_194 > 0.0f) ? (1.0f / _194) : 0.0f));\n        _169++;\n        continue;\n    }\n    float3 _213;\n    _213 = _166;\n    [unroll]\n    for (int _216 = 0; _216 < 4; )\n    {\n        float3 _242 = tiny3d_LightParams_tiny3d_SpotLightPos[_216].xyz - in_var_COLOR0;\n        float _243 = length(_242);\n        float _248 = (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].x + (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].y * _243)) + ((tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].z * _243) * _243);\n        float3 _252 = normalize(_242);\n        float _258 = clamp((dot(_252, -tiny3d_LightParams_tiny3d_SpotLightDir[_216].xyz) - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w) / (tiny3d_LightParams_tiny3d_SpotLightDir[_216].w - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w), 0.0f, 1.0f);\n        _213 += (((tiny3d_LightParams_tiny3d_SpotLightColor[_216].xyz * (((max(0.0f, dot(in_var_NORMAL, _252)) * _258) * tiny3d_LightParams_tiny3d_SpotLightColor[_216].w) + ((pow(max(dot(_98, normalize(_252 + _98)), 0.0f), _117) * _258) * tiny3d_LightParams_tiny3d_SpotLightPos[_216].w))) * _113) * ((_248 > 0.0f) ? (1.0f / _248) : 0.0f));\n        _216++;\n        continue;\n    }\n    out_var_SV_Target = float4(((tiny3d_LightParams_tiny3d_AmbientLight.xyz * tiny3d_LightParams_tiny3d_AmbientLight.w) * _113) + _213, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -267,7 +267,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -302,7 +302,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -337,7 +337,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -372,7 +372,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerObject"
+                                            "RTTI_Value": "tiny3d_ObjectParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -407,7 +407,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -442,7 +442,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -477,7 +477,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -512,7 +512,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -547,7 +547,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -582,7 +582,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -617,7 +617,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -652,7 +652,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerCamera"
+                                            "RTTI_Value": "tiny3d_CameraParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -669,6 +669,41 @@
                                           "Name": {
                                             "RTTI_Type": "std::string",
                                             "RTTI_Value": "tiny3d_CameraWorldPos"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_ProjectionParams"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 8
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParamsCB"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 16
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_VECTOR4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParams"
                                           }
                                         }
                                       }
@@ -710,11 +745,38 @@
                                           },
                                           "SamplerBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 0
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
+                                          },
+                                          "TextureState": {
+                                            "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                            "RTTI_Value": "TT_2D"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "shadowMap"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                        "RTTI_Value": {
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "shadowMap"
+                                          },
+                                          "SamplerBinding": {
+                                            "RTTI_Type": "unsignedint",
                                             "RTTI_Value": 1
+                                          },
+                                          "TexBinding": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -760,7 +822,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DLightParams : register(b5)\n{\n    float4 Tiny3DLightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 Tiny3DLightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 Tiny3DLightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 Tiny3DLightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 Tiny3DLightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 Tiny3DLightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 Tiny3DLightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 Tiny3DLightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 Tiny3DLightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 Tiny3DLightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_Tiny3DPerCamera : register(b6)\n{\n    float4 Tiny3DPerCamera_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_Tiny3DPerObject : register(b7)\n{\n    float4 Tiny3DPerObject_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _71 = normalize(Tiny3DPerCamera_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float3 _86 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0).xyz;\n    float3 _87 = -Tiny3DLightParams_tiny3d_DirLightDir.xyz;\n    float _90 = Tiny3DPerObject_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _102;\n    _102 = (Tiny3DLightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _87)) * Tiny3DLightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_71, normalize(_87 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_DirLightDir.w))) * _86;\n    [unroll]\n    for (int _105 = 0; _105 < 4; )\n    {\n        float3 _124 = Tiny3DLightParams_tiny3d_PointLightPos[_105].xyz - in_var_COLOR0;\n        float _125 = length(_124);\n        float3 _132 = normalize(_124);\n        _102 += (((Tiny3DLightParams_tiny3d_PointLightColor[_105].xyz * ((max(0.0f, dot(in_var_NORMAL, _132)) * Tiny3DLightParams_tiny3d_PointLightColor[_105].w) + (pow(max(dot(_71, normalize(_132 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_PointLightPos[_105].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].x + (Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].y * _125)) + ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].z * _125) * _125))));\n        _105++;\n        continue;\n    }\n    float3 _147;\n    _147 = _102;\n    [unroll]\n    for (int _150 = 0; _150 < 4; )\n    {\n        float3 _176 = Tiny3DLightParams_tiny3d_SpotLightPos[_150].xyz - in_var_COLOR0;\n        float _177 = length(_176);\n        float3 _184 = normalize(_176);\n        float _190 = clamp((dot(_184, -Tiny3DLightParams_tiny3d_SpotLightDir[_150].xyz) - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w) / (Tiny3DLightParams_tiny3d_SpotLightDir[_150].w - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w), 0.0f, 1.0f);\n        _147 += (((Tiny3DLightParams_tiny3d_SpotLightColor[_150].xyz * (((max(0.0f, dot(in_var_NORMAL, _184)) * _190) * Tiny3DLightParams_tiny3d_SpotLightColor[_150].w) + ((pow(max(dot(_71, normalize(_184 + _71)), 0.0f), _90) * _190) * Tiny3DLightParams_tiny3d_SpotLightPos[_150].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].x + (Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].y * _177)) + ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].z * _177) * _177))));\n        _150++;\n        continue;\n    }\n    out_var_SV_Target = float4(((Tiny3DLightParams_tiny3d_AmbientLight.xyz * Tiny3DLightParams_tiny3d_AmbientLight.w) * _86) + _147, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "static const float2 _78[9] = { (-1.0f).xx, float2(0.0f, -1.0f), float2(1.0f, -1.0f), float2(-1.0f, 0.0f), 0.0f.xx, float2(1.0f, 0.0f), float2(-1.0f, 1.0f), float2(0.0f, 1.0f), 1.0f.xx };\n\ncbuffer type_tiny3d_LightParams : register(b5)\n{\n    float4 tiny3d_LightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 tiny3d_LightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 tiny3d_LightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 tiny3d_LightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 tiny3d_LightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 tiny3d_LightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 tiny3d_LightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 tiny3d_LightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 tiny3d_LightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 tiny3d_LightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_tiny3d_CameraParams : register(b6)\n{\n    float4 tiny3d_CameraParams_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ObjectParams : register(b7)\n{\n    float4 tiny3d_ObjectParams_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ProjectionParamsCB : register(b8)\n{\n    float4 tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\nTexture2D<float4> shadowMap : register(t9);\nSamplerComparisonState samplershadowMap : register(s10);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _98 = normalize(tiny3d_CameraParams_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float4 _102 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0);\n    float3 _113 = _102.xyz;\n    float3 _114 = -tiny3d_LightParams_tiny3d_DirLightDir.xyz;\n    float _117 = tiny3d_ObjectParams_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _131 = in_var_COLOR1.xyz / in_var_COLOR1.w.xxx;\n    float2 _134 = (_131.xy * 0.5f) + 0.5f.xx;\n    float3 _135 = float3(_134.x, _134.y, _131.z);\n    float3 _144;\n    if (tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams.y > 0.0f)\n    {\n        float3 _143 = _135;\n        _143.y = 1.0f - _134.y;\n        _144 = _143;\n    }\n    else\n    {\n        _144 = _135;\n    }\n    float _147;\n    _147 = 0.0f;\n    [unroll]\n    for (int _150 = 0; _150 < 9; )\n    {\n        _147 += shadowMap.SampleCmpLevelZero(samplershadowMap, _144.xy + (_78[_150] * 0.00048828125f.xx), _144.z);\n        _150++;\n        continue;\n    }\n    float3 _166;\n    _166 = ((tiny3d_LightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _114)) * tiny3d_LightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_98, normalize(_114 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_DirLightDir.w))) * _113) * (_147 * 0.111111111938953399658203125f);\n    [unroll]\n    for (int _169 = 0; _169 < 4; )\n    {\n        float3 _188 = tiny3d_LightParams_tiny3d_PointLightPos[_169].xyz - in_var_COLOR0;\n        float _189 = length(_188);\n        float _194 = (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].x + (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].y * _189)) + ((tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].z * _189) * _189);\n        float3 _198 = normalize(_188);\n        _166 += (((tiny3d_LightParams_tiny3d_PointLightColor[_169].xyz * ((max(0.0f, dot(in_var_NORMAL, _198)) * tiny3d_LightParams_tiny3d_PointLightColor[_169].w) + (pow(max(dot(_98, normalize(_198 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_PointLightPos[_169].w))) * _113) * ((_194 > 0.0f) ? (1.0f / _194) : 0.0f));\n        _169++;\n        continue;\n    }\n    float3 _213;\n    _213 = _166;\n    [unroll]\n    for (int _216 = 0; _216 < 4; )\n    {\n        float3 _242 = tiny3d_LightParams_tiny3d_SpotLightPos[_216].xyz - in_var_COLOR0;\n        float _243 = length(_242);\n        float _248 = (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].x + (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].y * _243)) + ((tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].z * _243) * _243);\n        float3 _252 = normalize(_242);\n        float _258 = clamp((dot(_252, -tiny3d_LightParams_tiny3d_SpotLightDir[_216].xyz) - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w) / (tiny3d_LightParams_tiny3d_SpotLightDir[_216].w - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w), 0.0f, 1.0f);\n        _213 += (((tiny3d_LightParams_tiny3d_SpotLightColor[_216].xyz * (((max(0.0f, dot(in_var_NORMAL, _252)) * _258) * tiny3d_LightParams_tiny3d_SpotLightColor[_216].w) + ((pow(max(dot(_98, normalize(_252 + _98)), 0.0f), _117) * _258) * tiny3d_LightParams_tiny3d_SpotLightPos[_216].w))) * _113) * ((_248 > 0.0f) ? (1.0f / _248) : 0.0f));\n        _216++;\n        continue;\n    }\n    out_var_SV_Target = float4(((tiny3d_LightParams_tiny3d_AmbientLight.xyz * tiny3d_LightParams_tiny3d_AmbientLight.w) * _113) + _213, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -779,7 +841,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -814,7 +876,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -849,7 +911,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -884,7 +946,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerObject"
+                                            "RTTI_Value": "tiny3d_ObjectParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -919,7 +981,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -954,7 +1016,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -989,7 +1051,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1024,7 +1086,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1059,7 +1121,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1094,7 +1156,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1129,7 +1191,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1164,7 +1226,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerCamera"
+                                            "RTTI_Value": "tiny3d_CameraParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1181,6 +1243,41 @@
                                           "Name": {
                                             "RTTI_Type": "std::string",
                                             "RTTI_Value": "tiny3d_CameraWorldPos"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_ProjectionParams"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 8
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParamsCB"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 16
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_VECTOR4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParams"
                                           }
                                         }
                                       }
@@ -1226,11 +1323,38 @@
                                           },
                                           "SamplerBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 0
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
+                                          },
+                                          "TextureState": {
+                                            "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                            "RTTI_Value": "TT_2D"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "shadowMap"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                        "RTTI_Value": {
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "shadowMap"
+                                          },
+                                          "SamplerBinding": {
+                                            "RTTI_Type": "unsignedint",
                                             "RTTI_Value": 1
+                                          },
+                                          "TexBinding": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -1276,7 +1400,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DLightParams : register(b5)\n{\n    float4 Tiny3DLightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 Tiny3DLightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 Tiny3DLightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 Tiny3DLightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 Tiny3DLightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 Tiny3DLightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 Tiny3DLightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 Tiny3DLightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 Tiny3DLightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 Tiny3DLightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_Tiny3DPerCamera : register(b6)\n{\n    float4 Tiny3DPerCamera_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_Tiny3DPerObject : register(b7)\n{\n    float4 Tiny3DPerObject_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _71 = normalize(Tiny3DPerCamera_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float3 _86 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0).xyz;\n    float3 _87 = -Tiny3DLightParams_tiny3d_DirLightDir.xyz;\n    float _90 = Tiny3DPerObject_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _102;\n    _102 = (Tiny3DLightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _87)) * Tiny3DLightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_71, normalize(_87 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_DirLightDir.w))) * _86;\n    [unroll]\n    for (int _105 = 0; _105 < 4; )\n    {\n        float3 _124 = Tiny3DLightParams_tiny3d_PointLightPos[_105].xyz - in_var_COLOR0;\n        float _125 = length(_124);\n        float3 _132 = normalize(_124);\n        _102 += (((Tiny3DLightParams_tiny3d_PointLightColor[_105].xyz * ((max(0.0f, dot(in_var_NORMAL, _132)) * Tiny3DLightParams_tiny3d_PointLightColor[_105].w) + (pow(max(dot(_71, normalize(_132 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_PointLightPos[_105].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].x + (Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].y * _125)) + ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].z * _125) * _125))));\n        _105++;\n        continue;\n    }\n    float3 _147;\n    _147 = _102;\n    [unroll]\n    for (int _150 = 0; _150 < 4; )\n    {\n        float3 _176 = Tiny3DLightParams_tiny3d_SpotLightPos[_150].xyz - in_var_COLOR0;\n        float _177 = length(_176);\n        float3 _184 = normalize(_176);\n        float _190 = clamp((dot(_184, -Tiny3DLightParams_tiny3d_SpotLightDir[_150].xyz) - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w) / (Tiny3DLightParams_tiny3d_SpotLightDir[_150].w - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w), 0.0f, 1.0f);\n        _147 += (((Tiny3DLightParams_tiny3d_SpotLightColor[_150].xyz * (((max(0.0f, dot(in_var_NORMAL, _184)) * _190) * Tiny3DLightParams_tiny3d_SpotLightColor[_150].w) + ((pow(max(dot(_71, normalize(_184 + _71)), 0.0f), _90) * _190) * Tiny3DLightParams_tiny3d_SpotLightPos[_150].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].x + (Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].y * _177)) + ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].z * _177) * _177))));\n        _150++;\n        continue;\n    }\n    out_var_SV_Target = float4(((Tiny3DLightParams_tiny3d_AmbientLight.xyz * Tiny3DLightParams_tiny3d_AmbientLight.w) * _86) + _147, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "static const float2 _78[9] = { (-1.0f).xx, float2(0.0f, -1.0f), float2(1.0f, -1.0f), float2(-1.0f, 0.0f), 0.0f.xx, float2(1.0f, 0.0f), float2(-1.0f, 1.0f), float2(0.0f, 1.0f), 1.0f.xx };\n\ncbuffer type_tiny3d_LightParams : register(b5)\n{\n    float4 tiny3d_LightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 tiny3d_LightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 tiny3d_LightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 tiny3d_LightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 tiny3d_LightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 tiny3d_LightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 tiny3d_LightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 tiny3d_LightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 tiny3d_LightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 tiny3d_LightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_tiny3d_CameraParams : register(b6)\n{\n    float4 tiny3d_CameraParams_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ObjectParams : register(b7)\n{\n    float4 tiny3d_ObjectParams_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ProjectionParamsCB : register(b8)\n{\n    float4 tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\nTexture2D<float4> shadowMap : register(t9);\nSamplerComparisonState samplershadowMap : register(s10);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _98 = normalize(tiny3d_CameraParams_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float4 _102 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0);\n    float3 _113 = _102.xyz;\n    float3 _114 = -tiny3d_LightParams_tiny3d_DirLightDir.xyz;\n    float _117 = tiny3d_ObjectParams_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _131 = in_var_COLOR1.xyz / in_var_COLOR1.w.xxx;\n    float2 _134 = (_131.xy * 0.5f) + 0.5f.xx;\n    float3 _135 = float3(_134.x, _134.y, _131.z);\n    float3 _144;\n    if (tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams.y > 0.0f)\n    {\n        float3 _143 = _135;\n        _143.y = 1.0f - _134.y;\n        _144 = _143;\n    }\n    else\n    {\n        _144 = _135;\n    }\n    float _147;\n    _147 = 0.0f;\n    [unroll]\n    for (int _150 = 0; _150 < 9; )\n    {\n        _147 += shadowMap.SampleCmpLevelZero(samplershadowMap, _144.xy + (_78[_150] * 0.00048828125f.xx), _144.z);\n        _150++;\n        continue;\n    }\n    float3 _166;\n    _166 = ((tiny3d_LightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _114)) * tiny3d_LightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_98, normalize(_114 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_DirLightDir.w))) * _113) * (_147 * 0.111111111938953399658203125f);\n    [unroll]\n    for (int _169 = 0; _169 < 4; )\n    {\n        float3 _188 = tiny3d_LightParams_tiny3d_PointLightPos[_169].xyz - in_var_COLOR0;\n        float _189 = length(_188);\n        float _194 = (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].x + (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].y * _189)) + ((tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].z * _189) * _189);\n        float3 _198 = normalize(_188);\n        _166 += (((tiny3d_LightParams_tiny3d_PointLightColor[_169].xyz * ((max(0.0f, dot(in_var_NORMAL, _198)) * tiny3d_LightParams_tiny3d_PointLightColor[_169].w) + (pow(max(dot(_98, normalize(_198 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_PointLightPos[_169].w))) * _113) * ((_194 > 0.0f) ? (1.0f / _194) : 0.0f));\n        _169++;\n        continue;\n    }\n    float3 _213;\n    _213 = _166;\n    [unroll]\n    for (int _216 = 0; _216 < 4; )\n    {\n        float3 _242 = tiny3d_LightParams_tiny3d_SpotLightPos[_216].xyz - in_var_COLOR0;\n        float _243 = length(_242);\n        float _248 = (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].x + (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].y * _243)) + ((tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].z * _243) * _243);\n        float3 _252 = normalize(_242);\n        float _258 = clamp((dot(_252, -tiny3d_LightParams_tiny3d_SpotLightDir[_216].xyz) - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w) / (tiny3d_LightParams_tiny3d_SpotLightDir[_216].w - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w), 0.0f, 1.0f);\n        _213 += (((tiny3d_LightParams_tiny3d_SpotLightColor[_216].xyz * (((max(0.0f, dot(in_var_NORMAL, _252)) * _258) * tiny3d_LightParams_tiny3d_SpotLightColor[_216].w) + ((pow(max(dot(_98, normalize(_252 + _98)), 0.0f), _117) * _258) * tiny3d_LightParams_tiny3d_SpotLightPos[_216].w))) * _113) * ((_248 > 0.0f) ? (1.0f / _248) : 0.0f));\n        _216++;\n        continue;\n    }\n    out_var_SV_Target = float4(((tiny3d_LightParams_tiny3d_AmbientLight.xyz * tiny3d_LightParams_tiny3d_AmbientLight.w) * _113) + _213, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -1295,7 +1419,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1330,7 +1454,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1365,7 +1489,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1400,7 +1524,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerObject"
+                                            "RTTI_Value": "tiny3d_ObjectParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1435,7 +1559,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1470,7 +1594,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1505,7 +1629,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1540,7 +1664,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1575,7 +1699,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1610,7 +1734,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1645,7 +1769,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1680,7 +1804,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerCamera"
+                                            "RTTI_Value": "tiny3d_CameraParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1697,6 +1821,41 @@
                                           "Name": {
                                             "RTTI_Type": "std::string",
                                             "RTTI_Value": "tiny3d_CameraWorldPos"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_ProjectionParams"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 8
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParamsCB"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 16
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_VECTOR4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParams"
                                           }
                                         }
                                       }
@@ -1742,11 +1901,38 @@
                                           },
                                           "SamplerBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 0
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
+                                          },
+                                          "TextureState": {
+                                            "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                            "RTTI_Value": "TT_2D"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "shadowMap"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                        "RTTI_Value": {
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "shadowMap"
+                                          },
+                                          "SamplerBinding": {
+                                            "RTTI_Type": "unsignedint",
                                             "RTTI_Value": 1
+                                          },
+                                          "TexBinding": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -1792,7 +1978,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DLightParams : register(b5)\n{\n    float4 Tiny3DLightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 Tiny3DLightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 Tiny3DLightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 Tiny3DLightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 Tiny3DLightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 Tiny3DLightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 Tiny3DLightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 Tiny3DLightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 Tiny3DLightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 Tiny3DLightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_Tiny3DPerCamera : register(b6)\n{\n    float4 Tiny3DPerCamera_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_Tiny3DPerObject : register(b7)\n{\n    float4 Tiny3DPerObject_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _71 = normalize(Tiny3DPerCamera_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float3 _86 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0).xyz;\n    float3 _87 = -Tiny3DLightParams_tiny3d_DirLightDir.xyz;\n    float _90 = Tiny3DPerObject_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _102;\n    _102 = (Tiny3DLightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _87)) * Tiny3DLightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_71, normalize(_87 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_DirLightDir.w))) * _86;\n    [unroll]\n    for (int _105 = 0; _105 < 4; )\n    {\n        float3 _124 = Tiny3DLightParams_tiny3d_PointLightPos[_105].xyz - in_var_COLOR0;\n        float _125 = length(_124);\n        float3 _132 = normalize(_124);\n        _102 += (((Tiny3DLightParams_tiny3d_PointLightColor[_105].xyz * ((max(0.0f, dot(in_var_NORMAL, _132)) * Tiny3DLightParams_tiny3d_PointLightColor[_105].w) + (pow(max(dot(_71, normalize(_132 + _71)), 0.0f), _90) * Tiny3DLightParams_tiny3d_PointLightPos[_105].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].x + (Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].y * _125)) + ((Tiny3DLightParams_tiny3d_PointLightAttenuation[_105].z * _125) * _125))));\n        _105++;\n        continue;\n    }\n    float3 _147;\n    _147 = _102;\n    [unroll]\n    for (int _150 = 0; _150 < 4; )\n    {\n        float3 _176 = Tiny3DLightParams_tiny3d_SpotLightPos[_150].xyz - in_var_COLOR0;\n        float _177 = length(_176);\n        float3 _184 = normalize(_176);\n        float _190 = clamp((dot(_184, -Tiny3DLightParams_tiny3d_SpotLightDir[_150].xyz) - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w) / (Tiny3DLightParams_tiny3d_SpotLightDir[_150].w - Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].w), 0.0f, 1.0f);\n        _147 += (((Tiny3DLightParams_tiny3d_SpotLightColor[_150].xyz * (((max(0.0f, dot(in_var_NORMAL, _184)) * _190) * Tiny3DLightParams_tiny3d_SpotLightColor[_150].w) + ((pow(max(dot(_71, normalize(_184 + _71)), 0.0f), _90) * _190) * Tiny3DLightParams_tiny3d_SpotLightPos[_150].w))) * _86) * (1.0f / ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].x + (Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].y * _177)) + ((Tiny3DLightParams_tiny3d_SpotLightAttenuation[_150].z * _177) * _177))));\n        _150++;\n        continue;\n    }\n    out_var_SV_Target = float4(((Tiny3DLightParams_tiny3d_AmbientLight.xyz * Tiny3DLightParams_tiny3d_AmbientLight.w) * _86) + _147, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "static const float2 _78[9] = { (-1.0f).xx, float2(0.0f, -1.0f), float2(1.0f, -1.0f), float2(-1.0f, 0.0f), 0.0f.xx, float2(1.0f, 0.0f), float2(-1.0f, 1.0f), float2(0.0f, 1.0f), 1.0f.xx };\n\ncbuffer type_tiny3d_LightParams : register(b5)\n{\n    float4 tiny3d_LightParams_tiny3d_AmbientLight : packoffset(c0);\n    float4 tiny3d_LightParams_tiny3d_DirLightColor : packoffset(c1);\n    float4 tiny3d_LightParams_tiny3d_DirLightDir : packoffset(c2);\n    float4 tiny3d_LightParams_tiny3d_PointLightColor[4] : packoffset(c3);\n    float4 tiny3d_LightParams_tiny3d_PointLightPos[4] : packoffset(c7);\n    float4 tiny3d_LightParams_tiny3d_PointLightAttenuation[4] : packoffset(c11);\n    float4 tiny3d_LightParams_tiny3d_SpotLightColor[4] : packoffset(c15);\n    float4 tiny3d_LightParams_tiny3d_SpotLightPos[4] : packoffset(c19);\n    float4 tiny3d_LightParams_tiny3d_SpotLightDir[4] : packoffset(c23);\n    float4 tiny3d_LightParams_tiny3d_SpotLightAttenuation[4] : packoffset(c27);\n};\n\ncbuffer type_tiny3d_CameraParams : register(b6)\n{\n    float4 tiny3d_CameraParams_tiny3d_CameraWorldPos : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ObjectParams : register(b7)\n{\n    float4 tiny3d_ObjectParams_tiny3d_ObjectSmoothness : packoffset(c0);\n};\n\ncbuffer type_tiny3d_ProjectionParamsCB : register(b8)\n{\n    float4 tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams : packoffset(c0);\n};\n\nTexture2D<float4> _MainTex : register(t1);\nSamplerState sampler_MainTex : register(s2);\nTexture2D<float4> shadowMap : register(t9);\nSamplerComparisonState samplershadowMap : register(s10);\n\nstatic float3 in_var_NORMAL;\nstatic float3 in_var_COLOR0;\nstatic float4 in_var_COLOR1;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 out_var_SV_Target;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_NORMAL : NORMAL;\n    float3 in_var_COLOR0 : COLOR0;\n    float4 in_var_COLOR1 : COLOR1;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 out_var_SV_Target : SV_Target0;\n};\n\nvoid frag_main()\n{\n    float3 _98 = normalize(tiny3d_CameraParams_tiny3d_CameraWorldPos.xyz - in_var_COLOR0);\n    float4 _102 = _MainTex.Sample(sampler_MainTex, in_var_TEXCOORD0);\n    float3 _113 = _102.xyz;\n    float3 _114 = -tiny3d_LightParams_tiny3d_DirLightDir.xyz;\n    float _117 = tiny3d_ObjectParams_tiny3d_ObjectSmoothness.x * 128.0f;\n    float3 _131 = in_var_COLOR1.xyz / in_var_COLOR1.w.xxx;\n    float2 _134 = (_131.xy * 0.5f) + 0.5f.xx;\n    float3 _135 = float3(_134.x, _134.y, _131.z);\n    float3 _144;\n    if (tiny3d_ProjectionParamsCB_tiny3d_ProjectionParams.y > 0.0f)\n    {\n        float3 _143 = _135;\n        _143.y = 1.0f - _134.y;\n        _144 = _143;\n    }\n    else\n    {\n        _144 = _135;\n    }\n    float _147;\n    _147 = 0.0f;\n    [unroll]\n    for (int _150 = 0; _150 < 9; )\n    {\n        _147 += shadowMap.SampleCmpLevelZero(samplershadowMap, _144.xy + (_78[_150] * 0.00048828125f.xx), _144.z);\n        _150++;\n        continue;\n    }\n    float3 _166;\n    _166 = ((tiny3d_LightParams_tiny3d_DirLightColor.xyz * ((max(0.0f, dot(in_var_NORMAL, _114)) * tiny3d_LightParams_tiny3d_DirLightColor.w) + (pow(max(dot(_98, normalize(_114 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_DirLightDir.w))) * _113) * (_147 * 0.111111111938953399658203125f);\n    [unroll]\n    for (int _169 = 0; _169 < 4; )\n    {\n        float3 _188 = tiny3d_LightParams_tiny3d_PointLightPos[_169].xyz - in_var_COLOR0;\n        float _189 = length(_188);\n        float _194 = (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].x + (tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].y * _189)) + ((tiny3d_LightParams_tiny3d_PointLightAttenuation[_169].z * _189) * _189);\n        float3 _198 = normalize(_188);\n        _166 += (((tiny3d_LightParams_tiny3d_PointLightColor[_169].xyz * ((max(0.0f, dot(in_var_NORMAL, _198)) * tiny3d_LightParams_tiny3d_PointLightColor[_169].w) + (pow(max(dot(_98, normalize(_198 + _98)), 0.0f), _117) * tiny3d_LightParams_tiny3d_PointLightPos[_169].w))) * _113) * ((_194 > 0.0f) ? (1.0f / _194) : 0.0f));\n        _169++;\n        continue;\n    }\n    float3 _213;\n    _213 = _166;\n    [unroll]\n    for (int _216 = 0; _216 < 4; )\n    {\n        float3 _242 = tiny3d_LightParams_tiny3d_SpotLightPos[_216].xyz - in_var_COLOR0;\n        float _243 = length(_242);\n        float _248 = (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].x + (tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].y * _243)) + ((tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].z * _243) * _243);\n        float3 _252 = normalize(_242);\n        float _258 = clamp((dot(_252, -tiny3d_LightParams_tiny3d_SpotLightDir[_216].xyz) - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w) / (tiny3d_LightParams_tiny3d_SpotLightDir[_216].w - tiny3d_LightParams_tiny3d_SpotLightAttenuation[_216].w), 0.0f, 1.0f);\n        _213 += (((tiny3d_LightParams_tiny3d_SpotLightColor[_216].xyz * (((max(0.0f, dot(in_var_NORMAL, _252)) * _258) * tiny3d_LightParams_tiny3d_SpotLightColor[_216].w) + ((pow(max(dot(_98, normalize(_252 + _98)), 0.0f), _117) * _258) * tiny3d_LightParams_tiny3d_SpotLightPos[_216].w))) * _113) * ((_248 > 0.0f) ? (1.0f / _248) : 0.0f));\n        _216++;\n        continue;\n    }\n    out_var_SV_Target = float4(((tiny3d_LightParams_tiny3d_AmbientLight.xyz * tiny3d_LightParams_tiny3d_AmbientLight.w) * _113) + _213, 1.0f);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_COLOR0 = stage_input.in_var_COLOR0;\n    in_var_COLOR1 = stage_input.in_var_COLOR1;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    frag_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.out_var_SV_Target = out_var_SV_Target;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -1811,7 +1997,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1846,7 +2032,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1881,7 +2067,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1916,7 +2102,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerObject"
+                                            "RTTI_Value": "tiny3d_ObjectParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1951,7 +2137,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -1986,7 +2172,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2021,7 +2207,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2056,7 +2242,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2091,7 +2277,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2126,7 +2312,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2161,7 +2347,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DLightParams"
+                                            "RTTI_Value": "tiny3d_LightParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2196,7 +2382,7 @@
                                           },
                                           "CBufferName": {
                                             "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerCamera"
+                                            "RTTI_Value": "tiny3d_CameraParams"
                                           },
                                           "DataOffset": {
                                             "RTTI_Type": "unsignedint",
@@ -2213,6 +2399,41 @@
                                           "Name": {
                                             "RTTI_Type": "std::string",
                                             "RTTI_Value": "tiny3d_CameraWorldPos"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_ProjectionParams"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 8
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParamsCB"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 16
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_VECTOR4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ProjectionParams"
                                           }
                                         }
                                       }
@@ -2258,11 +2479,38 @@
                                           },
                                           "SamplerBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 0
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
+                                          },
+                                          "TextureState": {
+                                            "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                            "RTTI_Value": "TT_2D"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "shadowMap"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                        "RTTI_Value": {
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "shadowMap"
+                                          },
+                                          "SamplerBinding": {
+                                            "RTTI_Type": "unsignedint",
                                             "RTTI_Value": 1
+                                          },
+                                          "TexBinding": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 2
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -2803,7 +3051,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _54 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _54).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _54 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _54).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -3040,7 +3288,7 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
@@ -3112,7 +3360,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _54 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _54).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _54 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _54).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -3349,7 +3597,7 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
@@ -3425,7 +3673,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 in_var_BLENDWEIGHT;\nstatic uint4 in_var_BLENDINDICES;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n    float4 in_var_BLENDWEIGHT : BLENDWEIGHT;\n    uint4 in_var_BLENDINDICES : BLENDINDICES;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _59 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _59);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _59).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _59);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    in_var_BLENDWEIGHT = stage_input.in_var_BLENDWEIGHT;\n    in_var_BLENDINDICES = stage_input.in_var_BLENDINDICES;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 in_var_BLENDWEIGHT;\nstatic uint4 in_var_BLENDINDICES;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n    float4 in_var_BLENDWEIGHT : BLENDWEIGHT;\n    uint4 in_var_BLENDINDICES : BLENDINDICES;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _56 = in_var_BLENDWEIGHT;\n    uint4 _55 = in_var_BLENDINDICES;\n    float3 _71;\n    float4 _74;\n    _71 = 0.0f.xxx;\n    _74 = 0.0f.xxxx;\n    [unroll]\n    for (int _76 = 0; _76 < 4; )\n    {\n        uint _80 = uint(_76);\n        _71 += (mul(float3x3(Tiny3DPerFrame_tiny3d_BoneMatrices[_55[_80]][0].xyz, Tiny3DPerFrame_tiny3d_BoneMatrices[_55[_80]][1].xyz, Tiny3DPerFrame_tiny3d_BoneMatrices[_55[_80]][2].xyz), in_var_NORMAL) * _56[_80]);\n        _74 += (mul(Tiny3DPerFrame_tiny3d_BoneMatrices[_55[_80]], float4(in_var_POSITION, 1.0f)) * _56[_80]);\n        _76++;\n        continue;\n    }\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _74);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), _71));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _74).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _74);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    in_var_BLENDWEIGHT = stage_input.in_var_BLENDWEIGHT;\n    in_var_BLENDINDICES = stage_input.in_var_BLENDINDICES;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -3662,7 +3910,7 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
@@ -3738,7 +3986,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _54 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _54).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float3 out_var_NORMAL;\nstatic float3 out_var_COLOR0;\nstatic float4 out_var_COLOR1;\nstatic float2 out_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float3 out_var_NORMAL : NORMAL;\n    float3 out_var_COLOR0 : COLOR0;\n    float4 out_var_COLOR1 : COLOR1;\n    float2 out_var_TEXCOORD0 : TEXCOORD0;\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _54 = float4(in_var_POSITION, 1.0f);\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_NORMAL = normalize(mul(float3x3(Tiny3DPerDraw_tiny3d_ObjectToWorld[0].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[1].xyz, Tiny3DPerDraw_tiny3d_ObjectToWorld[2].xyz), in_var_NORMAL));\n    out_var_COLOR0 = mul(Tiny3DPerDraw_tiny3d_ObjectToWorld, _54).xyz;\n    out_var_COLOR1 = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _54);\n    out_var_TEXCOORD0 = in_var_TEXCOORD0;\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    stage_output.out_var_NORMAL = out_var_NORMAL;\n    stage_output.out_var_COLOR0 = out_var_COLOR0;\n    stage_output.out_var_COLOR1 = out_var_COLOR1;\n    stage_output.out_var_TEXCOORD0 = out_var_TEXCOORD0;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -3975,7 +4223,7 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
@@ -4678,7 +4926,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), float4(in_var_POSITION, 1.0f));\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), float4(in_var_POSITION, 1.0f));\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -4915,7 +5163,7 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
@@ -4987,7 +5235,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), float4(in_var_POSITION, 1.0f));\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), float4(in_var_POSITION, 1.0f));\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -5224,7 +5472,7 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
@@ -5300,250 +5548,7 @@
                               "RTTI_Value": {
                                 "Code": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 in_var_BLENDWEIGHT;\nstatic uint4 in_var_BLENDINDICES;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n    float4 in_var_BLENDWEIGHT : BLENDWEIGHT;\n    uint4 in_var_BLENDINDICES : BLENDINDICES;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _43 = in_var_BLENDWEIGHT;\n    uint4 _42 = in_var_BLENDINDICES;\n    float4 _48;\n    _48 = 0.0f.xxxx;\n    [unroll]\n    for (int _51 = 0; _51 < 4; )\n    {\n        uint _55 = uint(_51);\n        _48 += (mul(Tiny3DPerFrame_tiny3d_BoneMatrices[_42[_55]], float4(in_var_POSITION, 1.0f)) * _43[_55]);\n        _51++;\n        continue;\n    }\n    gl_Position = mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, _48);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    in_var_BLENDWEIGHT = stage_input.in_var_BLENDWEIGHT;\n    in_var_BLENDINDICES = stage_input.in_var_BLENDINDICES;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
-                                },
-                                "ShaderConstantParams": {
-                                  "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
-                                  "RTTI_Value": [
-                                    {
-                                      "RTTI_Map_Key": {
-                                        "RTTI_Type": "std::string",
-                                        "RTTI_Value": "tiny3d_MatrixV"
-                                      },
-                                      "RTTI_Map_Value": {
-                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
-                                        "RTTI_Value": {
-                                          "BindingPoint": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 4
-                                          },
-                                          "CBufferName": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerFrame"
-                                          },
-                                          "DataOffset": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 0
-                                          },
-                                          "DataSize": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 64
-                                          },
-                                          "DataType": {
-                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
-                                            "RTTI_Value": "DT_MATRIX4"
-                                          },
-                                          "Name": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "tiny3d_MatrixV"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "RTTI_Map_Key": {
-                                        "RTTI_Type": "std::string",
-                                        "RTTI_Value": "tiny3d_MatrixP"
-                                      },
-                                      "RTTI_Map_Value": {
-                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
-                                        "RTTI_Value": {
-                                          "BindingPoint": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 4
-                                          },
-                                          "CBufferName": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerFrame"
-                                          },
-                                          "DataOffset": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 64
-                                          },
-                                          "DataSize": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 64
-                                          },
-                                          "DataType": {
-                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
-                                            "RTTI_Value": "DT_MATRIX4"
-                                          },
-                                          "Name": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "tiny3d_MatrixP"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "RTTI_Map_Key": {
-                                        "RTTI_Type": "std::string",
-                                        "RTTI_Value": "tiny3d_MatrixVP"
-                                      },
-                                      "RTTI_Map_Value": {
-                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
-                                        "RTTI_Value": {
-                                          "BindingPoint": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 4
-                                          },
-                                          "CBufferName": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerFrame"
-                                          },
-                                          "DataOffset": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 128
-                                          },
-                                          "DataSize": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 64
-                                          },
-                                          "DataType": {
-                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
-                                            "RTTI_Value": "DT_MATRIX4"
-                                          },
-                                          "Name": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "tiny3d_MatrixVP"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "RTTI_Map_Key": {
-                                        "RTTI_Type": "std::string",
-                                        "RTTI_Value": "tiny3d_MatrixLightSpaceVP"
-                                      },
-                                      "RTTI_Map_Value": {
-                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
-                                        "RTTI_Value": {
-                                          "BindingPoint": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 4
-                                          },
-                                          "CBufferName": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerFrame"
-                                          },
-                                          "DataOffset": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 192
-                                          },
-                                          "DataSize": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 64
-                                          },
-                                          "DataType": {
-                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
-                                            "RTTI_Value": "DT_MATRIX4"
-                                          },
-                                          "Name": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "tiny3d_MatrixLightSpaceVP"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "RTTI_Map_Key": {
-                                        "RTTI_Type": "std::string",
-                                        "RTTI_Value": "tiny3d_BoneMatrices"
-                                      },
-                                      "RTTI_Map_Value": {
-                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
-                                        "RTTI_Value": {
-                                          "BindingPoint": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 4
-                                          },
-                                          "CBufferName": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "Tiny3DPerFrame"
-                                          },
-                                          "DataOffset": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 256
-                                          },
-                                          "DataSize": {
-                                            "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
-                                          },
-                                          "DataType": {
-                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
-                                            "RTTI_Value": "DT_MATRIX4_ARRAY"
-                                          },
-                                          "Name": {
-                                            "RTTI_Type": "std::string",
-                                            "RTTI_Value": "tiny3d_BoneMatrices"
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                },
-                                "ShaderKeyword": {
-                                  "RTTI_Type": "Tiny3D::ShaderKeyword",
-                                  "RTTI_Value": {
-                                    "HashCode": {
-                                      "RTTI_Type": "unsignedint",
-                                      "RTTI_Value": 1797544855
-                                    },
-                                    "Keys": {
-                                      "RTTI_Type": "std::set<std::basic_string<char>>",
-                                      "RTTI_Value": [
-                                        {
-                                          "RTTI_Type": "std::string",
-                                          "RTTI_Value": "T3D_GPU_SKINNING"
-                                        },
-                                        {
-                                          "RTTI_Type": "std::string",
-                                          "RTTI_Value": "T3D_SKINNED_MESH"
-                                        }
-                                      ]
-                                    }
-                                  }
-                                },
-                                "ShaderSamplerParams": {
-                                  "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
-                                  "RTTI_Value": []
-                                },
-                                "Stage": {
-                                  "RTTI_Type": "Tiny3D::SHADER_STAGE",
-                                  "RTTI_Value": "kVertex"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "RTTI_Map_Key": {
-                              "RTTI_Type": "Tiny3D::ShaderKeyword",
-                              "RTTI_Value": {
-                                "HashCode": {
-                                  "RTTI_Type": "unsignedint",
-                                  "RTTI_Value": 2022175956
-                                },
-                                "Keys": {
-                                  "RTTI_Type": "std::set<std::basic_string<char>>",
-                                  "RTTI_Value": [
-                                    {
-                                      "RTTI_Type": "std::string",
-                                      "RTTI_Value": "T3D_SKINNED_MESH"
-                                    },
-                                    {
-                                      "RTTI_Type": "std::string",
-                                      "RTTI_Value": "_"
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            "RTTI_Map_Value": {
-                              "RTTI_Type": "Tiny3D::ShaderVariant",
-                              "RTTI_Value": {
-                                "Code": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[512] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), float4(in_var_POSITION, 1.0f));\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\nstatic float4 in_var_BLENDWEIGHT;\nstatic uint4 in_var_BLENDINDICES;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n    float4 in_var_BLENDWEIGHT : BLENDWEIGHT;\n    uint4 in_var_BLENDINDICES : BLENDINDICES;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    float4 _46 = in_var_BLENDWEIGHT;\n    uint4 _45 = in_var_BLENDINDICES;\n    float4 _56;\n    _56 = 0.0f.xxxx;\n    [unroll]\n    for (int _59 = 0; _59 < 4; )\n    {\n        uint _63 = uint(_59);\n        _56 += (mul(Tiny3DPerFrame_tiny3d_BoneMatrices[_45[_63]], float4(in_var_POSITION, 1.0f)) * _46[_63]);\n        _59++;\n        continue;\n    }\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), _56);\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    in_var_BLENDWEIGHT = stage_input.in_var_BLENDWEIGHT;\n    in_var_BLENDINDICES = stage_input.in_var_BLENDINDICES;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
                                 },
                                 "ShaderConstantParams": {
                                   "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
@@ -5780,7 +5785,320 @@
                                           },
                                           "DataSize": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 32768
+                                            "RTTI_Value": 12800
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4_ARRAY"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_BoneMatrices"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "ShaderKeyword": {
+                                  "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                  "RTTI_Value": {
+                                    "HashCode": {
+                                      "RTTI_Type": "unsignedint",
+                                      "RTTI_Value": 1797544855
+                                    },
+                                    "Keys": {
+                                      "RTTI_Type": "std::set<std::basic_string<char>>",
+                                      "RTTI_Value": [
+                                        {
+                                          "RTTI_Type": "std::string",
+                                          "RTTI_Value": "T3D_GPU_SKINNING"
+                                        },
+                                        {
+                                          "RTTI_Type": "std::string",
+                                          "RTTI_Value": "T3D_SKINNED_MESH"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "ShaderSamplerParams": {
+                                  "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
+                                  "RTTI_Value": []
+                                },
+                                "Stage": {
+                                  "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                  "RTTI_Value": "kVertex"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "RTTI_Map_Key": {
+                              "RTTI_Type": "Tiny3D::ShaderKeyword",
+                              "RTTI_Value": {
+                                "HashCode": {
+                                  "RTTI_Type": "unsignedint",
+                                  "RTTI_Value": 2022175956
+                                },
+                                "Keys": {
+                                  "RTTI_Type": "std::set<std::basic_string<char>>",
+                                  "RTTI_Value": [
+                                    {
+                                      "RTTI_Type": "std::string",
+                                      "RTTI_Value": "T3D_SKINNED_MESH"
+                                    },
+                                    {
+                                      "RTTI_Type": "std::string",
+                                      "RTTI_Value": "_"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "RTTI_Map_Value": {
+                              "RTTI_Type": "Tiny3D::ShaderVariant",
+                              "RTTI_Value": {
+                                "Code": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "cbuffer type_Tiny3DPerDraw : register(b3)\n{\n    row_major float4x4 Tiny3DPerDraw_tiny3d_ObjectToWorld : packoffset(c0);\n    row_major float4x4 Tiny3DPerDraw_tiny3d_WorldToObject : packoffset(c4);\n};\n\ncbuffer type_Tiny3DPerFrame : register(b4)\n{\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixV : packoffset(c0);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixP : packoffset(c4);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixVP : packoffset(c8);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP : packoffset(c12);\n    row_major float4x4 Tiny3DPerFrame_tiny3d_BoneMatrices[200] : packoffset(c16);\n};\n\n\nstatic float4 gl_Position;\nstatic float3 in_var_POSITION;\nstatic float3 in_var_NORMAL;\nstatic float2 in_var_TEXCOORD0;\n\nstruct SPIRV_Cross_Input\n{\n    float3 in_var_POSITION : POSITION;\n    float3 in_var_NORMAL : NORMAL;\n    float2 in_var_TEXCOORD0 : TEXCOORD0;\n};\n\nstruct SPIRV_Cross_Output\n{\n    float4 gl_Position : SV_Position;\n};\n\nvoid vert_main()\n{\n    gl_Position = mul(mul(Tiny3DPerFrame_tiny3d_MatrixLightSpaceVP, Tiny3DPerDraw_tiny3d_ObjectToWorld), float4(in_var_POSITION, 1.0f));\n}\n\nSPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)\n{\n    in_var_POSITION = stage_input.in_var_POSITION;\n    in_var_NORMAL = stage_input.in_var_NORMAL;\n    in_var_TEXCOORD0 = stage_input.in_var_TEXCOORD0;\n    vert_main();\n    SPIRV_Cross_Output stage_output;\n    stage_output.gl_Position = gl_Position;\n    return stage_output;\n}\n"
+                                },
+                                "ShaderConstantParams": {
+                                  "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+                                  "RTTI_Value": [
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_ObjectToWorld"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 3
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerDraw"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_ObjectToWorld"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_WorldToObject"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 3
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerDraw"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_WorldToObject"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_MatrixV"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 4
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerFrame"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_MatrixV"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_MatrixP"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 4
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerFrame"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_MatrixP"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_MatrixVP"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 4
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerFrame"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 128
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_MatrixVP"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_MatrixLightSpaceVP"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 4
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerFrame"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 192
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 64
+                                          },
+                                          "DataType": {
+                                            "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                            "RTTI_Value": "DT_MATRIX4"
+                                          },
+                                          "Name": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "tiny3d_MatrixLightSpaceVP"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "std::string",
+                                        "RTTI_Value": "tiny3d_BoneMatrices"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                        "RTTI_Value": {
+                                          "BindingPoint": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 4
+                                          },
+                                          "CBufferName": {
+                                            "RTTI_Type": "std::string",
+                                            "RTTI_Value": "Tiny3DPerFrame"
+                                          },
+                                          "DataOffset": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 256
+                                          },
+                                          "DataSize": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 12800
                                           },
                                           "DataType": {
                                             "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",

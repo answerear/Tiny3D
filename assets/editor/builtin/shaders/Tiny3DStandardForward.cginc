@@ -5,7 +5,7 @@
 #include "Tiny3DStandardInput.cginc"
 #include "Tiny3DStandardForwardOutput.cginc"
 
-#if defined (T3D_SKINND_MESH) && defined (T3D_GPU_SKINNING)
+#if defined (T3D_SKINNED_MESH) && defined (T3D_GPU_SKINNING)
     #include "Tiny3DSkinnedMeshForward.cginc"
     VertexOutputForwardBase vertForward(VertexInput v) { return vertForwardBaseSkinned(v); }
 #else

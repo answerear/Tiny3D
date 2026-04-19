@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "9d382f659d63ce1e328f75be8cae182b"
+          "RTTI_Value": "3c7aa63407647c65faec907b545ecb22"
         }
       },
       "MeshNodeName": {
@@ -100,7 +100,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "93fc156d81b4da09866bd62c4064bf28"
+                    "RTTI_Value": "f70dacc278a16a511b27a87a4299538a"
                   }
                 },
                 "Name": {
@@ -355,14 +355,14 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "eb1d07bb16977b0f207ef071b4fee2a7"
+          "RTTI_Value": "57170b55a430b2a8adedd501fea50c57"
         }
       },
       "SkeletonUUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "b4afe4870c72712d33690c91aede9148"
+          "RTTI_Value": "f7a5fbef24900ffef59171414cbd9e41"
         }
       }
     }

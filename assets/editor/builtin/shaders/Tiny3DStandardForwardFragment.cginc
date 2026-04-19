@@ -1,6 +1,50 @@
 #ifndef TINY3D_STANDARD_FORWARD_FRAGMENT_INCLUDED
 #define TINY3D_STANDARD_FORWARD_FRAGMENT_INCLUDED
 
+TEXTURE2D_COMP_STATE(shadowMap);
+
+// 将裁剪空间投影坐标转换为阴影贴图采样用的 UV 和深度值
+// 输入: 透视除法后的 projCoords (xyz)
+// 输出: float3(u, v, depth)，均在 [0,1] 范围
+// 注：通过 tiny3d_ProjectionParams.y 运行时判断 shadow map 是否被 Y 翻转，
+//     无需编译时 TINY3D_DIRECTX / TINY3D_OPENGL 条件编译
+float3 clipToShadowUV(float3 projCoords)
+{
+	projCoords.xy = projCoords.xy * 0.5 + 0.5;
+	// shadow map 未被 Y 翻转时（D3D11 路径），需要 1-y 匹配纹理原点方向
+	// shadow map 已被 Y 翻转时（OpenGL RTT 路径），lightSpaceMatrix 已包含翻转，跳过 1-y
+	if (tiny3d_ProjectionParams.y > 0.0f)
+		projCoords.y = 1.0f - projCoords.y;
+	return projCoords;
+}
+
+// 计算阴影
+float calcShadow(float4 lightSpacePos)
+{
+	// 执行透视除法
+	float3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
+	// 变换到[0,1]的范围
+	projCoords = clipToShadowUV(projCoords);
+
+	float shadow = 0.0f;
+	float2 texelSize = 1.0f / float2(T3D_SHADOWMAP_WIDTH, T3D_SHADOWMAP_HEIGHT);
+	const float2 offsets[9] = {
+		float2(-1, -1), float2(0, -1), float2(1, -1),
+		float2(-1, 0), float2(0, 0), float2(1, 0),
+		float2(-1, 1), float2(0, 1), float2(1, 1)
+	};
+	float depth = projCoords.z;
+
+	[unroll]
+	for (int i = 0; i < 9; i++)
+	{
+		float2 uv = projCoords.xy + offsets[i] * texelSize;
+		shadow += shadowMap.SampleCmpLevelZero(SAMPLER(shadowMap), uv, depth);
+	}
+	shadow /= 9.0f;
+	return shadow;
+}
+
 // 计算衰减值
 float calcLightAttenuation(float3 lightPos, float3 pos, float attenuationConstant, float attenuationLinear, float attenuationQuadratic)
 {
@@ -105,6 +149,9 @@ float4 fragForwardBase(VertexOutputForwardBase input) : SV_Target
 	float3 lightDir = tiny3d_DirLightDir.xyz;
 	float3 lightColor = tiny3d_DirLightColor.rgb;
 	float3 dirColor = calcDirectionalLight(input.worldNormal, viewDir, albedo.rgb, lightDir, lightColor, diffuseIntensity, specularIntensity, smoothness);
+	// 计算阴影
+	float shadow = calcShadow(input.lightSpacePos);
+	dirColor *= shadow;
 	color += dirColor;
 
 	int i = 0;

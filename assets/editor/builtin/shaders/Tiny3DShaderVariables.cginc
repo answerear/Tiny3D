@@ -36,7 +36,7 @@ static float4x4 tiny3d_MatrixLightSpaceMVP = mul(tiny3d_MatrixLightSpaceVP, tiny
 #define TINY3D_MATRIX_LIGHTSPACE tiny3d_MatrixLightSpaceMVP
 #define TINY3D_MATRIX_LIGHTSPACE_VP tiny3d_MatrixLightSpaceVP
 
-cbuffer Tiny3DLightParams
+cbuffer tiny3d_LightParams
 {
     // 环境光
 	float4 tiny3d_AmbientLight;	// rgb - 环境光颜色, a - 强度
@@ -57,14 +57,22 @@ cbuffer Tiny3DLightParams
 	float4 tiny3d_SpotLightAttenuation[T3D_MAX_SPOT_LIGHTS];	// x - 衰减常量项, y - 衰减一次项, z - 衰减二次项, w - outer cutoff
 }
 
-cbuffer Tiny3DPerCamera
+cbuffer tiny3d_CameraParams
 {
     float4 tiny3d_CameraWorldPos;	// 相机世界位置
 }
 
-cbuffer Tiny3DPerObject
+cbuffer tiny3d_ObjectParams
 {
     float4 tiny3d_ObjectSmoothness;	// x - 物体光滑度, yzw - padding
 }
 
-#endif  /*TINY3D_SHADER_VARIABLES_INCLUDE*/
+cbuffer tiny3d_ProjectionParamsCB
+{
+	float4 tiny3d_ProjectionParams;	// x - +1.0 正常 / -1.0 投影Y翻转(OpenGL RTT), y - +1.0 shadow map未翻转 / -1.0 shadow map Y翻转, zw - 保留
+}
+
+#define T3D_SHADOWMAP_WIDTH		2048
+#define T3D_SHADOWMAP_HEIGHT	2048
+
+#endif  /*TINY3D_SHADER_VARIABLES_INCLUDED*/

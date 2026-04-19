@@ -12,7 +12,66 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "b37647d3b7463c6e4c71f2572aabb620"
+          "RTTI_Value": "e5aa95102403bbbdb55dac8128d56479"
+        }
+      },
+      "MeshNodeName": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": ""
+      },
+      "MeshOrientation": {
+        "RTTI_Type": "Tiny3D::TQuaternion<float>",
+        "RTTI_Value": {
+          "w": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshPosition": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshScaling": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          }
         }
       },
       "SubMeshes": {
@@ -30,7 +89,7 @@
                   "RTTI_Type": "Tiny3D::Buffer",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N"
+                    "RTTI_Value": "AAACAAEAAQACAAMABAAGAAUABQAGAAcACAAKAAkACQAKAAsADAAOAA0ADQAOAA8AEAATABIAEgARABAAFAAWABUAFQAWABcA"
                   }
                 },
                 "Is16Bits": {
@@ -41,7 +100,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "a172dab39e3359e9f92cdf27b5d09f71"
+                    "RTTI_Value": "cb3837bf6b0a6ee70a66e4e5c197aa47"
                   }
                 },
                 "Name": {
@@ -212,7 +271,7 @@
             "RTTI_Type": "Tiny3D::Buffer",
             "RTTI_Value": {
               "RTTI_Type": "std::string",
-              "RTTI_Value": "AAAAvwAAAD8AAAC/AAAAAAAAAAAAAIA/AAAAAAAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAC/AAAAvwAAAAAAAAAAAACAPwAAAAAAAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAL8AAAAAAAAAAAAAgD8AAAA/AAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAL8AAAC/AAAAAAAAAAAAAIA/AAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAvwAAgD8AAAAAAAAAAAAAAAAAAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAvwAAAL8AAIA/AAAAAAAAAAAAAAAAAACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AACAPwAAAAAAAAAAAAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAD8AAAC/AAAAPwAAgD8AAAAAAAAAAAAAAD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAD8AAACAAAAAgAAAgL8AAAAAAAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAL8AAAA/AAAAgAAAAIAAAIC/AAAAAAAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAA/AAAAP83Nzc3Nzc3Nzc3NzQAAAD8AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAC/AAAAvwAAAD8AAACAAAAAgAAAgL8AAAA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAvwAAAD8AAAA/AACAvwAAAIAAAACAAAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAC/AAAAPwAAgL8AAACAAAAAgAAAAD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAC/AAAAPwAAAL8AAIC/AAAAgAAAAIAAAIA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAvwAAAL8AAAC/AACAvwAAAIAAAACAAACAPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAA/AAAAvwAAAAAAAIA/AAAAAAAAAD8AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAL8AAAAAAACAPwAAAAAAAIA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AAAAAAAAgD8AAAAAAACAPwAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAA/AAAAPwAAAAAAAIA/AAAAAAAAAD8AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAC/AAAAvwAAAL8AAACAAACAvwAAAIAAAAA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAvwAAAL8AAAA/AAAAgAAAgL8AAACAAAAAPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAD8AAAC/AAAAvwAAAIAAAIC/AAAAgAAAgD8AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAvwAAAD8AAACAAACAvwAAAIAAAIA/AACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N"
+              "RTTI_Value": "AAAAvwAAAD8AAAC/AAAAAAAAAAAAAIA/AAAAAAAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAC/AAAAvwAAAAAAAAAAAACAPwAAAAAAAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAL8AAAAAAAAAAAAAgD8AAAA/AAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAL8AAAC/AAAAAAAAAAAAAIA/AAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAvwAAgD8AAAAAAAAAAAAAAAAAAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAvwAAAL8AAIA/AAAAAAAAAAAAAAAAAACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AACAPwAAAAAAAAAAAAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAD8AAAC/AAAAPwAAgD8AAAAAAAAAAAAAAD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAD8AAAAAAAAAAAAAgL8AAAAAAAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAL8AAAA/AAAAAAAAAAAAAIC/AAAAAAAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAA/AAAAP83Nzc3Nzc3Nzc3NzQAAAD8AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAC/AAAAvwAAAD8AAAAAAAAAAAAAgL8AAAA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAvwAAAD8AAAA/AACAvwAAAAAAAAAAAAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAC/AAAAPwAAgL8AAAAAAAAAAAAAAD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAC/AAAAPwAAAL8AAIC/AAAAAAAAAAAAAIA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAvwAAAL8AAAC/AACAvwAAAAAAAAAAAACAPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAA/AAAAvwAAAAAAAIA/AAAAAAAAAD8AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAL8AAAAAAACAPwAAAAAAAIA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AAAAAAAAgD8AAAAAAACAPwAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAA/AAAAPwAAAAAAAIA/AAAAAAAAAD8AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAC/AAAAvwAAAL8AAAAAAACAvwAAAAAAAAA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAvwAAAL8AAAA/AAAAAAAAgL8AAAAAAAAAPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAD8AAAC/AAAAvwAAAAAAAIC/AAAAAAAAgD8AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAvwAAAD8AAAAAAACAvwAAAAAAAIA/AACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N"
             }
           }
         ]
