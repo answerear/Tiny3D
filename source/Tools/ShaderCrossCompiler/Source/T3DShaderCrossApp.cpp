@@ -127,8 +127,28 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.pluginSettings.pluginPath = ".";
     settings.pluginSettings.plugins.push_back("FileSystemArchiveEditor");
-    settings.pluginSettings.plugins.push_back("NullD3D11Renderer");
-    settings.renderSettings.renderer = RHIRenderer::NULL_DIRECT3D11;
+
+    // Pre-scan argv to find -t parameter and select renderer accordingly
+    String targetLang = "hlsl";
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "-t") == 0 && i + 1 < argc)
+        {
+            targetLang = argv[i + 1];
+            break;
+        }
+    }
+
+    if (targetLang == "glsl" || targetLang == "essl")
+    {
+        settings.pluginSettings.plugins.push_back("NullGL4Renderer");
+        settings.renderSettings.renderer = RHIRenderer::NULL_OPENGL4;
+    }
+    else
+    {
+        settings.pluginSettings.plugins.push_back("NullD3D11Renderer");
+        settings.renderSettings.renderer = RHIRenderer::NULL_DIRECT3D11;
+    }
     settings.logSettings.tag = LOG_TAG;
     TResult ret = theEngine->init(argc, argv, true, false, settings);
     if (ret == T3D_OK)
