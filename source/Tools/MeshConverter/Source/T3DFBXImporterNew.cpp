@@ -335,13 +335,13 @@ namespace Tiny3D
             mFbxManager->SetIOSettings(ioSettings);
 
             // 加载 FBX 插件动态库
-            FbxString lPath = FbxGetApplicationDirectory();
-            if (!mFbxManager->LoadPluginsDirectory(lPath.Buffer()))
-            {
-                MCONV_LOG_ERROR("Failed to load plugins directory.")
-                ret = T3D_ERR_FBX_PLUGIN_LOAD_FAILED;
-                break;
-            }
+//             FbxString lPath = FbxGetApplicationDirectory();
+//             if (!mFbxManager->LoadPluginsDirectory(lPath.Buffer()))
+//             {
+//                 MCONV_LOG_ERROR("Failed to load plugins directory.")
+//                 ret = T3D_ERR_FBX_PLUGIN_LOAD_FAILED;
+//                 break;
+//             }
 
             int lSDKMajor, lSDKMinor, lSDKRevision;
             FbxManager::GetFileFormatVersion(lSDKMajor, lSDKMinor, lSDKRevision);
