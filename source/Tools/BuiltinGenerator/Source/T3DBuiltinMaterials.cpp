@@ -140,6 +140,8 @@ namespace Tiny3D
         const char *tiny3d_ObjectSmoothness = "tiny3d_ObjectSmoothness";
         // T3D_ASSERT(material->hasVector(tiny3d_ObjectSmoothness));
         material->setVector(tiny3d_ObjectSmoothness, Vector4(0.5f, 0, 0, 0));
+        // ProjectionParams
+        material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 0, 0, 0));
         // Ambient
         const char *tiny3d_AmbientLight = "tiny3d_AmbientLight";
         // T3D_ASSERT(material->hasColor(tiny3d_AmbientLight));

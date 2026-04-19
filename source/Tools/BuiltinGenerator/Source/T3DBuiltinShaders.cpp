@@ -157,6 +157,7 @@ namespace Tiny3D
 
             // 给 shader 生成 meta 文件
             MetaShaderPtr meta = MetaShader::create(shader->getUUID());
+            meta->setLanguage("hlsl");
             String metaName = filename + ".meta";
             archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             ret = archive->write(metaName,
