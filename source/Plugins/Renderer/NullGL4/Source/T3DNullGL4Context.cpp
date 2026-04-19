@@ -635,6 +635,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullGL4Context::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     // Empty implementations
     //--------------------------------------------------------------------------
 

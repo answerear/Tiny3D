@@ -128,6 +128,9 @@ namespace Tiny3D
         TResult compileShader(ShaderVariant *shader) override;
         TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
 
+        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
+
+
         TResult setPrimitiveType(PrimitiveType primitive) override;
         TResult render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex) override;
         TResult render(uint32_t vertexCount, uint32_t startVertex) override;

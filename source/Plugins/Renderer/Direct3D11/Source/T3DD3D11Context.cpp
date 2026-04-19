@@ -2798,6 +2798,82 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            size_t bytesLength = 0;
+            const char *bytes = shader->getBytesCode(bytesLength);
+            ID3DBlob *pShaderBlob = nullptr;
+            HRESULT hr = D3DCreateBlob(bytesLength, &pShaderBlob);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_BLOB;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "reflectSamplerBindings: D3DCreateBlob failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            void *pData = pShaderBlob->GetBufferPointer();
+            memcpy(pData, bytes, bytesLength);
+            ID3D11ShaderReflection *pReflection = nullptr;
+            hr = D3DReflect(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflection);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_SHADER_REFLECTION;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "reflectSamplerBindings: D3DReflect failed ! DX ERROR [%d]", hr);
+                D3D_SAFE_RELEASE(pShaderBlob);
+                break;
+            }
+
+            D3D11_SHADER_DESC shaderDesc;
+            hr = pReflection->GetDesc(&shaderDesc);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_GET_SHADER_DESC;
+                break;
+            }
+
+            for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
+            {
+                D3D11_SHADER_INPUT_BIND_DESC bindDesc;
+                pReflection->GetResourceBindingDesc(i, &bindDesc);
+
+                if (bindDesc.Type == D3D_SIT_TEXTURE)
+                {
+                    String name = bindDesc.Name;
+                    auto itr = samplerParams.find(name);
+                    if (itr != samplerParams.end())
+                    {
+                        itr->second->setTexBinding(bindDesc.BindPoint);
+                        itr->second->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
+                    }
+                }
+                else if (bindDesc.Type == D3D_SIT_SAMPLER)
+                {
+                    String name = bindDesc.Name;
+                    if (StringUtil::startsWith(name, "sampler"))
+                    {
+                        String key = name.substr(7);
+                        auto itr = samplerParams.find(key);
+                        if (itr != samplerParams.end())
+                        {
+                            itr->second->setSamplerBinding(bindDesc.BindPoint);
+                        }
+                    }
+                }
+            }
+
+            D3D_SAFE_RELEASE(pReflection);
+            D3D_SAFE_RELEASE(pShaderBlob);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::setPrimitiveType(PrimitiveType primitive)
     {
         D3D11_PRIMITIVE_TOPOLOGY topology = D3D11Mapping::get(primitive);

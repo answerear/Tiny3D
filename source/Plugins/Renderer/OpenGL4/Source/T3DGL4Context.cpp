@@ -1777,6 +1777,109 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult GL4Context::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
+            if (glShader == nullptr || glShader->GLShaderHandle == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectSamplerBindings: RHI shader is null !");
+                ret = T3D_ERR_GL4_SHADER_REFLECTION;
+                break;
+            }
+
+            GLuint tempProgram = glCreateProgram();
+            glAttachShader(tempProgram, glShader->GLShaderHandle);
+            glProgramParameteri(tempProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
+            glLinkProgram(tempProgram);
+
+            GLint linked = 0;
+            glGetProgramiv(tempProgram, GL_LINK_STATUS, &linked);
+            if (!linked)
+            {
+                GLint logLen = 0;
+                glGetProgramiv(tempProgram, GL_INFO_LOG_LENGTH, &logLen);
+                if (logLen > 0)
+                {
+                    TArray<char> log(logLen + 1, 0);
+                    glGetProgramInfoLog(tempProgram, logLen, nullptr, log.data());
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectSamplerBindings link error: %s", log.data());
+                }
+                glDeleteProgram(tempProgram);
+                ret = T3D_ERR_GL4_LINK_PROGRAM;
+                break;
+            }
+
+            GLint numUniforms = 0;
+            glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+            uint32_t samplerIndex = 0;
+            for (GLint i = 0; i < numUniforms; ++i)
+            {
+                char uniformName[256] = {};
+                GLsizei nameLen = 0;
+                GLint uniformSize = 0;
+                GLenum uniformType = 0;
+                glGetActiveUniform(tempProgram, i, sizeof(uniformName), &nameLen, &uniformSize, &uniformType, uniformName);
+
+                bool isSampler = false;
+                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+
+                switch (uniformType)
+                {
+                case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
+                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
+                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
+                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                default: break;
+                }
+
+                if (isSampler)
+                {
+                    GLint loc = glGetUniformLocation(tempProgram, uniformName);
+                    if (loc < 0)
+                        continue;
+
+                    String name(uniformName);
+
+                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
+                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
+                    {
+                        String remainder = name.substr(kSpirvPrefix.size());
+                        String::size_type samplerPos = remainder.find("sampler");
+                        if (samplerPos != String::npos && samplerPos > 0)
+                        {
+                            name = remainder.substr(0, samplerPos);
+                        }
+                    }
+
+                    auto itr = samplerParams.find(name);
+                    if (itr != samplerParams.end())
+                    {
+                        itr->second->setTexBinding(samplerIndex);
+                        itr->second->setSamplerBinding(samplerIndex);
+                        itr->second->setTextureType(texType);
+                    }
+
+                    samplerIndex++;
+                }
+            }
+
+            glDetachShader(tempProgram, glShader->GLShaderHandle);
+            glDeleteProgram(tempProgram);
+
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reflectSamplerBindings");
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::setPrimitiveType(PrimitiveType primitive)
     {
         mPrimitiveType = GL4Mapping::get(primitive);

@@ -116,6 +116,16 @@ namespace Tiny3D
                 T3D_ASSERT(0);
                 break;
             }
+
+            // 运行时反射 sampler binding（各渲染器自行查询本平台的绑定索引）
+            if (mRHIShader != nullptr && !mSamplerParams.empty())
+            {
+                ret = ctx->reflectSamplerBindings(this, mSamplerParams);
+                if (T3D_FAILED(ret))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to reflect sampler bindings ! ERROR [%d]", ret);
+                }
+            }
         } while (false);
 
         return ret;

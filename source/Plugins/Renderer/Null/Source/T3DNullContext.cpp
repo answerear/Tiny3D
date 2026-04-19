@@ -460,6 +460,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult NullContext::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult NullContext::setPrimitiveType(PrimitiveType primitive)
     {
         return T3D_OK;

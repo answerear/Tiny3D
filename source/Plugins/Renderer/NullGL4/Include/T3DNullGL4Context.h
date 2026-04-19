@@ -28,6 +28,9 @@ namespace Tiny3D
         TResult compileShader(ShaderVariant *shader) override;
         TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
 
+        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
+
+
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         RHIShaderPtr createPixelShader(ShaderVariant *shader) override;
         RHIShaderPtr createHullShader(ShaderVariant *shader) override;

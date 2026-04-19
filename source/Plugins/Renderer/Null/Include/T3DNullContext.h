@@ -469,6 +469,9 @@ namespace Tiny3D
          */
         TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
 
+        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
+
+
         /**
          * \brief 设置渲染图元类型
          * \param [in] primitive : 图元类型

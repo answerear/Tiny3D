@@ -505,6 +505,14 @@ namespace Tiny3D
         virtual TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) = 0;
 
         /**
+         * \brief 运行时反射着色器的纹理采样器绑定信息（需要 RHI shader 已创建）
+         * \param [in] shader : 要反射的着色器（RHI shader 已创建）
+         * \param [in,out] samplerParams : 已有的纹理采样参数，更新其 binding 索引
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) = 0;
+
+        /**
          * \brief 设置渲染图元类型
          * \param [in] primitive : 图元类型
          * \return 调用成功返回 T3D_OK

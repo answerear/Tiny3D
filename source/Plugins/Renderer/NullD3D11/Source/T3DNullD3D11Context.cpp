@@ -611,6 +611,8 @@ namespace Tiny3D
                 break;
             }
             
+            uint32_t samplerIndex = 0;
+
             for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
             {
                 D3D11_SHADER_INPUT_BIND_DESC bindDesc;
@@ -722,7 +724,7 @@ namespace Tiny3D
 
                         T3D_ASSERT(param != nullptr);
 
-                        param->setTexBinding(bindDesc.BindPoint);
+                        param->setTexBinding(samplerIndex);
                         param->setTextureType(NullD3D11Mapping::get(bindDesc.Dimension));
 
                         T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - Name:%s, texture binding point : %d, texture type : %d", param->getName().c_str(), param->getTexBinding(), param->getTextureType());
@@ -741,27 +743,6 @@ namespace Tiny3D
                         }
 
                         String key = name.substr(7);
-                        // auto itr = texSamplerBindings.find(key);
-                        // if (itr == texSamplerBindings.end())
-                        // {
-                        //     // 没有，则新建一个
-                        //     ShaderTexSamplerBinding texSamplerBinding;
-                        //     texSamplerBinding.samplerBinding.name = name;
-                        //     texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
-                        //
-                        //     texSamplerBindings.emplace(key, texSamplerBinding);
-                        //     T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - New (name:%s, key:%s). sampler name : %s, binding point : %d",
-                        //         name.c_str(), key.c_str(), texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
-                        // }
-                        // else
-                        // {
-                        //     // 已有，用已有的
-                        //     ShaderTexSamplerBinding &texSamplerBinding = itr->second;
-                        //     texSamplerBinding.samplerBinding.name = name;
-                        //     texSamplerBinding.samplerBinding.binding = bindDesc.BindPoint;
-                        //     T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "Shader reflection - Already exists (name:%s, key:%s). sampler name : %s, binding point : %d",
-                        //         name.c_str(), key.c_str(), texSamplerBinding.samplerBinding.name.c_str(), texSamplerBinding.samplerBinding.binding);
-                        // }
 
                         ShaderSamplerParamPtr param;
                         const auto itr = samplerParams.find(key);
@@ -779,9 +760,11 @@ namespace Tiny3D
 
                         T3D_ASSERT(param != nullptr);
 
-                        param->setSamplerBinding(bindDesc.BindPoint);
+                        param->setSamplerBinding(samplerIndex);
 
                         T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - Name:%s, sampler binding point : %d", param->getName().c_str(), param->getSamplerBinding());
+
+                        samplerIndex++;
                     }
                     break;
                 }
@@ -794,6 +777,13 @@ namespace Tiny3D
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullD3D11Context::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
+    {
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
