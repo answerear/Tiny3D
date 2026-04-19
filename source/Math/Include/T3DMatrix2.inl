@@ -671,7 +671,7 @@ namespace Tiny3D
             for (int32_t i = 0; i < 4; i++)
             {
                 ss << mTuples[i];
-                if (i & 1 == 0)
+                if ((i & 1) == 0)
                 {
                     ss << " ";
                 }
