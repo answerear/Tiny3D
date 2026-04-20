@@ -20,6 +20,9 @@ set(TINY3D_NULLGL4_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # GLAD library path
 set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/glad")
 
+# glslang library path (CPU-side GLSL compilation and reflection)
+set(GLSLANG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/glslang")
+
 # Setup project include files path
 include_directories(
     "${TINY3D_CORE_SOURCE_DIR}/Include"
@@ -34,6 +37,7 @@ include_directories(
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
     "${GLAD_DIR}/include"
+    "${GLSLANG_DIR}/include"
     )
 
 
@@ -53,6 +57,34 @@ else (TINY3D_BUILD_SHARED_LIBS)
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
+if (WIN32)
+    set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Windows/x64")
+elseif (UNIX AND NOT APPLE)
+    set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Linux/x64")
+elseif (APPLE)
+    set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/OSX")
+endif ()
+
+# glslang static libraries — Debug libs have 'd' suffix and live in Debug/ subdirectory
+set(GLSLANG_LIBS
+    debug "${GLSLANG_LIB_DIR}/Debug/glslangd.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/MachineIndependentd.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/GenericCodeGend.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/OSDependentd.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/SPIRVd.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/SPIRV-Toolsd.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/SPIRV-Tools-optd.lib"
+    debug "${GLSLANG_LIB_DIR}/Debug/glslang-default-resource-limitsd.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/glslang.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/MachineIndependent.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/GenericCodeGen.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/OSDependent.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/SPIRV.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/SPIRV-Tools.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/SPIRV-Tools-opt.lib"
+    optimized "${GLSLANG_LIB_DIR}/Release/glslang-default-resource-limits.lib"
+    )
+
 target_link_libraries(
     ${LIB_NAME}
     ${OPENGL_LIBRARIES}
@@ -63,6 +95,7 @@ target_link_libraries(
     T3DSystem
     T3DCoreEditor
     rttr_core
+    ${GLSLANG_LIBS}
     )
 
 # Setup project folder

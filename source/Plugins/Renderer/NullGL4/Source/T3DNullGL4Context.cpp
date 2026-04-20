@@ -12,6 +12,9 @@
 #include "T3DNullGL4RenderState.h"
 #include "T3DNullGL4Shader.h"
 
+#include <glslang/Public/ShaderLang.h>
+#include <glslang/Public/ResourceLimits.h>
+
 
 namespace Tiny3D
 {
@@ -32,6 +35,11 @@ namespace Tiny3D
 
     NullGL4Context::~NullGL4Context()
     {
+        if (mGlslangInitialized)
+        {
+            glslang::FinalizeProcess();
+            mGlslangInitialized = false;
+        }
         destroyDummyContext();
     }
 
@@ -39,7 +47,13 @@ namespace Tiny3D
 
     TResult NullGL4Context::init()
     {
-        return initDummyContext();
+        TResult ret = initDummyContext();
+        if (T3D_OK == ret && !mGlslangInitialized)
+        {
+            glslang::InitializeProcess();
+            mGlslangInitialized = true;
+        }
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -262,7 +276,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    // Core: compileShader (GLSL pass-through)
+    // Core: compileShader (glslang CPU-side compilation + reflection)
     //--------------------------------------------------------------------------
 
     TResult NullGL4Context::compileShader(ShaderVariant *shader)
@@ -270,7 +284,94 @@ namespace Tiny3D
         size_t bytesLength = 0;
         const char *bytes = shader->getBytesCode(bytesLength);
         shader->setBytesCode(bytes, bytesLength);
-        return T3D_OK;
+
+        return glslangCompileAndReflect(shader);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullGL4Context::glslangCompileAndReflect(ShaderVariant *shader)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            EShLanguage glslangStage;
+            switch (shader->getShaderStage())
+            {
+            case SHADER_STAGE::kVertex:   glslangStage = EShLangVertex; break;
+            case SHADER_STAGE::kPixel:    glslangStage = EShLangFragment; break;
+            case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; break;
+            default:
+                T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "glslangCompileAndReflect: unsupported shader stage !");
+                ret = T3D_ERR_NULLGL4_SHADER_REFLECTION;
+                break;
+            }
+
+            if (T3D_FAILED(ret))
+                break;
+
+            size_t bytesLength = 0;
+            const char *source = shader->getBytesCode(bytesLength);
+
+            glslang::TShader glslangShader(glslangStage);
+            int sourceLen = static_cast<int>(bytesLength);
+            glslangShader.setStringsWithLengths(&source, &sourceLen, 1);
+
+            const TBuiltInResource *resources = GetDefaultResources();
+            if (!glslangShader.parse(resources, 400, false, EShMsgDefault))
+            {
+                T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "glslang parse error:\n%s", glslangShader.getInfoLog());
+                ret = T3D_ERR_NULLGL4_SHADER_REFLECTION;
+                break;
+            }
+
+            glslang::TProgram program;
+            program.addShader(&glslangShader);
+
+            if (!program.link(EShMsgDefault))
+            {
+                T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "glslang link error:\n%s", program.getInfoLog());
+                ret = T3D_ERR_NULLGL4_SHADER_REFLECTION;
+                break;
+            }
+
+            if (!program.buildReflection(EShReflectionAllBlockVariables))
+            {
+                T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "glslang buildReflection failed !");
+                ret = T3D_ERR_NULLGL4_SHADER_REFLECTION;
+                break;
+            }
+
+            GlslangReflectionData data;
+
+            int numBlocks = program.getNumUniformBlocks();
+            data.blocks.resize(numBlocks);
+            for (int i = 0; i < numBlocks; ++i)
+            {
+                const auto &block = program.getUniformBlock(i);
+                data.blocks[i].name = block.name.c_str();
+                data.blocks[i].size = block.size;
+            }
+
+            int numUniforms = program.getNumUniformVariables();
+            data.uniforms.resize(numUniforms);
+            for (int i = 0; i < numUniforms; ++i)
+            {
+                const auto &uniform = program.getUniform(i);
+                data.uniforms[i].name = uniform.name.c_str();
+                data.uniforms[i].glDefineType = uniform.glDefineType;
+                data.uniforms[i].offset = uniform.offset;
+                data.uniforms[i].size = uniform.size;
+                data.uniforms[i].blockIndex = uniform.index;
+                data.uniforms[i].arrayStride = uniform.arrayStride;
+            }
+
+            mReflectionCache[shader] = std::move(data);
+
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -392,7 +493,7 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-    // Core: reflectShaderAllBindings (GL reflect API)
+    // Core: reflectShaderAllBindings (read from glslang cache)
     //--------------------------------------------------------------------------
 
     TResult NullGL4Context::reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
@@ -401,134 +502,39 @@ namespace Tiny3D
 
         do
         {
-            // If RHI shader is not yet created (reflect() is called without createXXXShader),
-            // we need to compile the GLSL source into a temporary GL shader for reflection.
-            GLuint tempShaderHandle = 0;
-            bool ownsTempShader = false;
-
-            NullGL4Shader *glShader = static_cast<NullGL4Shader*>(shader->getRHIShader());
-            if (glShader == nullptr || glShader->GLShaderHandle == 0)
+            auto itr = mReflectionCache.find(shader);
+            if (itr == mReflectionCache.end())
             {
-                // Determine GL shader type from ShaderVariant stage
-                GLenum glShaderType = 0;
-                switch (shader->getShaderStage())
-                {
-                case SHADER_STAGE::kVertex:   glShaderType = GL_VERTEX_SHADER; break;
-                case SHADER_STAGE::kPixel:    glShaderType = GL_FRAGMENT_SHADER; break;
-                case SHADER_STAGE::kGeometry: glShaderType = GL_GEOMETRY_SHADER; break;
-                case SHADER_STAGE::kCompute:  glShaderType = GL_COMPUTE_SHADER; break;
-                default:
-                    T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "Cannot reflect shader: unsupported stage !");
-                    ret = T3D_ERR_NULLGL4_SHADER_REFLECTION;
-                    break;
-                }
-
-                if (T3D_FAILED(ret))
-                    break;
-
-                size_t bytecodeLength = 0;
-                const char *bytecode = shader->getBytesCode(bytecodeLength);
-
-                tempShaderHandle = glCreateShader(glShaderType);
-                GLint len = static_cast<GLint>(bytecodeLength);
-                glShaderSource(tempShaderHandle, 1, &bytecode, &len);
-                glCompileShader(tempShaderHandle);
-
-                GLint compiled = 0;
-                glGetShaderiv(tempShaderHandle, GL_COMPILE_STATUS, &compiled);
-                if (!compiled)
-                {
-                    GLint logLen = 0;
-                    glGetShaderiv(tempShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
-                    if (logLen > 0)
-                    {
-                        TArray<char> log(logLen + 1, 0);
-                        glGetShaderInfoLog(tempShaderHandle, logLen, nullptr, log.data());
-                        T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "Shader compile error during reflection: %s", log.data());
-                    }
-                    glDeleteShader(tempShaderHandle);
-                    ret = T3D_ERR_NULLGL4_COMPILE_SHADER;
-                    break;
-                }
-
-                ownsTempShader = true;
-            }
-            else
-            {
-                tempShaderHandle = glShader->GLShaderHandle;
-            }
-
-            GLuint tempProgram = glCreateProgram();
-            glAttachShader(tempProgram, tempShaderHandle);
-            glProgramParameteri(tempProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
-            glLinkProgram(tempProgram);
-
-            GLint linked = 0;
-            glGetProgramiv(tempProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
-            {
-                GLint logLen = 0;
-                glGetProgramiv(tempProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
-                {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(tempProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "Shader link error during reflection: %s", log.data());
-                }
-                glDeleteProgram(tempProgram);
-                ret = T3D_ERR_NULLGL4_LINK_PROGRAM;
+                T3D_LOG_ERROR(LOG_TAG_NULLGL4RENDERER, "reflectShaderAllBindings: no cached reflection data (compileShader not called?)");
+                ret = T3D_ERR_NULLGL4_SHADER_REFLECTION;
                 break;
             }
 
+            const GlslangReflectionData &data = itr->second;
+
             // Reflect Uniform Blocks (cbuffers)
-            GLint numBlocks = 0;
-            glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
-
-            for (GLint i = 0; i < numBlocks; ++i)
+            for (int blockIdx = 0; blockIdx < static_cast<int>(data.blocks.size()); ++blockIdx)
             {
-                char blockName[256] = {};
-                GLsizei nameLen = 0;
-                glGetActiveUniformBlockName(tempProgram, i, sizeof(blockName), &nameLen, blockName);
-
-                GLint blockSize = 0;
-                glGetActiveUniformBlockiv(tempProgram, i, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-
-                GLint numUniforms = 0;
-                glGetActiveUniformBlockiv(tempProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numUniforms);
-
-                TArray<GLint> uniformIndices(numUniforms);
-                glGetActiveUniformBlockiv(tempProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, uniformIndices.data());
-
-                for (GLint j = 0; j < numUniforms; ++j)
+                for (const auto &uniform : data.uniforms)
                 {
-                    GLuint idx = static_cast<GLuint>(uniformIndices[j]);
-                    char uniformName[256] = {};
-                    GLsizei uniformNameLen = 0;
-                    GLint uniformSize = 0;
-                    GLenum uniformType = 0;
-                    glGetActiveUniform(tempProgram, idx, sizeof(uniformName), &uniformNameLen, &uniformSize, &uniformType, uniformName);
-
-                    GLint offset = 0;
-                    glGetActiveUniformsiv(tempProgram, 1, &idx, GL_UNIFORM_OFFSET, &offset);
-
-                    GLint arrayStride = 0;
-                    glGetActiveUniformsiv(tempProgram, 1, &idx, GL_UNIFORM_ARRAY_STRIDE, &arrayStride);
+                    if (uniform.blockIndex != blockIdx)
+                        continue;
 
                     uint32_t dataSize = 0;
                     ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
 
-                    switch (uniformType)
+                    switch (uniform.glDefineType)
                     {
-                    case GL_FLOAT:       dataSize = sizeof(float) * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT; break;
-                    case GL_FLOAT_VEC4:  dataSize = sizeof(float) * 4 * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4; break;
-                    case GL_FLOAT_MAT4:  dataSize = sizeof(float) * 16 * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4; break;
-                    case GL_INT:         dataSize = sizeof(int) * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER; break;
-                    case GL_BOOL:        dataSize = sizeof(int) * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL; break;
-                    default:             dataSize = arrayStride > 0 ? arrayStride * uniformSize : 4 * uniformSize; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
+                    case GL_FLOAT:       dataSize = sizeof(float) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT; break;
+                    case GL_FLOAT_VEC4:  dataSize = sizeof(float) * 4 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4; break;
+                    case GL_FLOAT_MAT4:  dataSize = sizeof(float) * 16 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4; break;
+                    case GL_INT:         dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER; break;
+                    case GL_BOOL:        dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL; break;
+                    default:             dataSize = uniform.arrayStride > 0 ? uniform.arrayStride * uniform.size : 4 * uniform.size; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
                     }
 
-                    String cbufferName(blockName);
-                    String cname(uniformName);
+                    String cbufferName = data.blocks[blockIdx].name;
+                    String cname = uniform.name;
 
                     if (StringUtil::startsWith(cbufferName, "type_"))
                     {
@@ -547,30 +553,25 @@ namespace Tiny3D
                         cname = cname.substr(0, bracketPos);
                     }
 
-                    ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, i, dataSize, offset, dataType);
+                    ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, blockIdx, dataSize, uniform.offset, dataType);
                     constantParams.emplace(param->getName(), param);
 
-                    T3D_LOG_DEBUG(LOG_TAG_NULLGL4RENDERER, "Reflect - UBO: %s -> %s, uniform: %s -> %s, type: %u, size: %u, offset: %d", blockName, cbufferName.c_str(), uniformName, cname.c_str(), dataType, dataSize, offset);
+                    T3D_LOG_DEBUG(LOG_TAG_NULLGL4RENDERER, "Reflect - UBO: %s -> %s, uniform: %s -> %s, type: %u, size: %u, offset: %d",
+                        data.blocks[blockIdx].name.c_str(), cbufferName.c_str(), uniform.name.c_str(), cname.c_str(), dataType, dataSize, uniform.offset);
                 }
             }
 
             // Reflect standalone Uniforms (texture samplers)
-            GLint numUniforms = 0;
-            glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-
             uint32_t samplerIndex = 0;
-            for (GLint i = 0; i < numUniforms; ++i)
+            for (const auto &uniform : data.uniforms)
             {
-                char uniformName[256] = {};
-                GLsizei nameLen = 0;
-                GLint uniformSize = 0;
-                GLenum uniformType = 0;
-                glGetActiveUniform(tempProgram, i, sizeof(uniformName), &nameLen, &uniformSize, &uniformType, uniformName);
+                if (uniform.blockIndex >= 0)
+                    continue;
 
                 bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
 
-                switch (uniformType)
+                switch (uniform.glDefineType)
                 {
                 case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
                 case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
@@ -582,11 +583,7 @@ namespace Tiny3D
 
                 if (isSampler)
                 {
-                    GLint loc = glGetUniformLocation(tempProgram, uniformName);
-                    if (loc < 0)
-                        continue;
-
-                    String name(uniformName);
+                    String name = uniform.name;
 
                     const String kSpirvPrefix = "SPIRV_Cross_Combined";
                     if (StringUtil::startsWith(name, kSpirvPrefix, false))
@@ -600,33 +597,25 @@ namespace Tiny3D
                     }
 
                     ShaderSamplerParamPtr param;
-                    const auto itr = samplerParams.find(name);
-                    if (itr == samplerParams.end())
+                    const auto it = samplerParams.find(name);
+                    if (it == samplerParams.end())
                     {
                         param = ShaderSamplerParam::create(name);
                         samplerParams.emplace(name, param);
                     }
                     else
                     {
-                        param = itr->second;
+                        param = it->second;
                     }
 
                     param->setTexBinding(samplerIndex);
                     param->setSamplerBinding(samplerIndex);
                     param->setTextureType(texType);
 
-                    T3D_LOG_DEBUG(LOG_TAG_NULLGL4RENDERER, "Reflect - sampler: %s -> %s, binding: %d, type: %d", uniformName, name.c_str(), samplerIndex, texType);
+                    T3D_LOG_DEBUG(LOG_TAG_NULLGL4RENDERER, "Reflect - sampler: %s -> %s, binding: %d, type: %d",
+                        uniform.name.c_str(), name.c_str(), samplerIndex, texType);
                     samplerIndex++;
                 }
-            }
-
-            glDetachShader(tempProgram, tempShaderHandle);
-            glDeleteProgram(tempProgram);
-
-            // Clean up temporary shader if we created it internally
-            if (ownsTempShader)
-            {
-                glDeleteShader(tempShaderHandle);
             }
 
         } while (false);

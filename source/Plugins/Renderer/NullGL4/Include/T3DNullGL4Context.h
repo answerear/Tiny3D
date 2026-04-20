@@ -107,6 +107,36 @@ namespace Tiny3D
         TResult initDummyContext();
         void destroyDummyContext();
 
+        //-------------------------------------------------------------------
+        // glslang CPU-side reflection cache
+        //-------------------------------------------------------------------
+        struct GlslangUniformInfo
+        {
+            String name;        // e.g. "Tiny3DPerDraw.tiny3d_ObjectToWorld"
+            int glDefineType;   // GL_FLOAT_MAT4, GL_SAMPLER_2D, etc.
+            int offset;         // byte offset within the uniform block
+            int size;           // array size (1 for non-array)
+            int blockIndex;     // index of owning uniform block (-1 for standalone)
+            int arrayStride;
+        };
+
+        struct GlslangBlockInfo
+        {
+            String name;        // e.g. "type_Tiny3DPerDraw"
+            int size;           // block data size in bytes
+        };
+
+        struct GlslangReflectionData
+        {
+            TArray<GlslangBlockInfo> blocks;
+            TArray<GlslangUniformInfo> uniforms;
+        };
+
+        TResult glslangCompileAndReflect(ShaderVariant *shader);
+
+        TMap<ShaderVariant*, GlslangReflectionData> mReflectionCache;
+        bool mGlslangInitialized {false};
+
 #if defined(T3D_OS_WINDOWS)
         HWND  mDummyHWND {nullptr};
         HDC   mDummyHDC {nullptr};

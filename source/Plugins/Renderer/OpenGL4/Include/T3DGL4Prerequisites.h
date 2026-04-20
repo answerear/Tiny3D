@@ -151,9 +151,15 @@ namespace Tiny3D
     #define GL_CHECK_ERROR(tag, msg) \
         { \
             GLenum _glErr; \
-            while ((_glErr = glGetError()) != GL_NO_ERROR) \
+            int _glErrCount = 0; \
+            while ((_glErr = glGetError()) != GL_NO_ERROR && _glErrCount < 16) \
             { \
                 T3D_LOG_ERROR(tag, "%s : GL Error 0x%04X", msg, _glErr); \
+                ++_glErrCount; \
+            } \
+            if (_glErrCount >= 16) \
+            { \
+                T3D_LOG_ERROR(tag, "%s : Too many GL errors (no GL context on this thread?)", msg); \
             } \
         }
 #else

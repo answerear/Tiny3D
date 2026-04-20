@@ -32,6 +32,9 @@
 #include "T3DGL4Shader.h"
 #include "T3DGL4Renderer.h"
 
+#include <glslang/Public/ShaderLang.h>
+#include <glslang/Public/ResourceLimits.h>
+
 
 namespace Tiny3D
 {
@@ -62,6 +65,12 @@ namespace Tiny3D
         GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
         GL_SAFE_DELETE_VAO(mCurrentVAO);
 
+        if (mGlslangInitialized)
+        {
+            glslang::FinalizeProcess();
+            mGlslangInitialized = false;
+        }
+
         destroyDummyContext();
     }
 
@@ -78,6 +87,12 @@ namespace Tiny3D
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Failed to init dummy GL context !");
                 break;
+            }
+
+            if (!mGlslangInitialized)
+            {
+                glslang::InitializeProcess();
+                mGlslangInitialized = true;
             }
         } while (false);
 
@@ -367,23 +382,28 @@ namespace Tiny3D
 
     TResult GL4Context::swapBackBuffer(GL4RenderWindow *renderWindow)
     {
-        TResult ret = T3D_OK;
-
-        do
+        auto lambda = [this](GL4RenderWindowPtr renderWindow)
         {
-#if defined(T3D_OS_WINDOWS)
-            if (!::SwapBuffers(renderWindow->GLDeviceContext))
-            {
-                ret = T3D_ERR_GL4_PRESENT;
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "SwapBuffers failed !");
-                break;
-            }
-#elif defined(T3D_OS_LINUX)
-            glXSwapBuffers(renderWindow->GLDisplay, renderWindow->GLWindow);
-#endif
-        } while (false);
+            TResult ret = T3D_OK;
 
-        return ret;
+            do
+            {
+#if defined(T3D_OS_WINDOWS)
+                if (!::SwapBuffers(renderWindow->GLDeviceContext))
+                {
+                    ret = T3D_ERR_GL4_PRESENT;
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "SwapBuffers failed !");
+                    break;
+                }
+#elif defined(T3D_OS_LINUX)
+                glXSwapBuffers(renderWindow->GLDisplay, renderWindow->GLWindow);
+#endif
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GL4RenderWindowPtr(renderWindow));
     }
 
     //--------------------------------------------------------------------------
@@ -392,9 +412,21 @@ namespace Tiny3D
     {
         rw->mWidth = w;
         rw->mHeight = h;
-        glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::resizeRenderWindow");
-        return T3D_OK;
+
+        auto lambda = [this](uint32_t w, uint32_t h)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::resizeRenderWindow");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, w, h);
     }
 
     //--------------------------------------------------------------------------
@@ -444,6 +476,43 @@ namespace Tiny3D
     RHIRenderTargetPtr GL4Context::createRenderWindow(RenderWindow *renderWindow)
     {
         GL4RenderWindowPtr glRenderWindow = GL4RenderWindow::create(renderWindow);
+
+        // GL4RenderWindow::init() 在主线程完成了 GL context 创建和初始化。
+        // 当 RHI 线程启用时，需要将 GL context 从主线程转移到 RHI 线程：
+        // 1. 主线程 release GL context
+        // 2. 设置 RHI 线程初始化回调，在回调中 acquire GL context
+        // 这样保证在所有排队的 GL 命令执行之前，RHI 线程已拥有 GL context。
+        if (T3D_RHI_THREAD.isRunning())
+        {
+#if defined(T3D_OS_WINDOWS)
+            wglMakeCurrent(nullptr, nullptr);
+            T3D_RHI_THREAD.setThreadInitCallback([glRenderWindow]()
+            {
+                if (!wglMakeCurrent(glRenderWindow->GLDeviceContext, glRenderWindow->GLContext))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "RHI thread: wglMakeCurrent failed !");
+                }
+                else
+                {
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "RHI thread: GL context acquired successfully.");
+                }
+            });
+#elif defined(T3D_OS_LINUX)
+            glXMakeCurrent(glRenderWindow->GLDisplay, None, nullptr);
+            T3D_RHI_THREAD.setThreadInitCallback([glRenderWindow]()
+            {
+                if (!glXMakeCurrent(glRenderWindow->GLDisplay, glRenderWindow->GLWindow, glRenderWindow->GLContext))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "RHI thread: glXMakeCurrent failed !");
+                }
+                else
+                {
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "RHI thread: GL context acquired successfully.");
+                }
+            });
+#endif
+        }
+
         return glRenderWindow;
     }
 
@@ -453,185 +522,181 @@ namespace Tiny3D
     {
         GL4PixelBuffer2DPtr glPixelBuffer = GL4PixelBuffer2D::create();
 
-        TResult ret = T3D_OK;
-
-        do
+        const auto &desc = buffer->getDescriptor();
+        bool isColorRT = true;
+        if (desc.format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
+            && desc.format <= PixelFormat::E_PF_D16_UNORM)
         {
-            const auto &desc = buffer->getDescriptor();
-            bool isColorRT = true;
-            if (desc.format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-                && desc.format <= PixelFormat::E_PF_D16_UNORM)
+            isColorRT = false;
+        }
+
+        uint32_t msaaCount = desc.sampleDesc.Count;
+        if (msaaCount < 1) msaaCount = 1;
+        glPixelBuffer->GLMSAACount = msaaCount;
+
+        GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
+        GLenum pixelFmt = GL4Mapping::get(desc.format);
+        GLenum pixelType = GL4Mapping::getPixelType(desc.format);
+
+        bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
+            || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
+
+        auto lambda = [this](const GL4PixelBuffer2DPtr &glPixelBuffer,
+            bool isColorRT, uint32_t msaaCount, uint32_t width, uint32_t height,
+            GLenum internalFmt, GLenum pixelFmt, GLenum pixelType, bool hasStencil)
+        {
+            TResult ret = T3D_OK;
+
+            do
             {
-                isColorRT = false;
-            }
-
-            if (isColorRT)
-            {
-                uint32_t msaaCount = desc.sampleDesc.Count;
-                if (msaaCount < 1) msaaCount = 1;
-                glPixelBuffer->GLMSAACount = msaaCount;
-
-                GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
-
-                if (msaaCount > 1)
+                if (isColorRT)
                 {
-                    // ---- MSAA 路径 ----
-
-                    // 创建多采样颜色纹理
-                    glGenTextures(1, &glPixelBuffer->GLTexture);
-                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture);
-                    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaaCount,
-                        internalFmt, desc.width, desc.height, GL_TRUE);
-                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-
-                    // 创建 MSAA FBO
-                    glGenFramebuffers(1, &glPixelBuffer->GLFBO);
-                    glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                        GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture, 0);
-
-                    // 创建多采样深度 RBO
-                    glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
-                    glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount,
-                        GL_DEPTH24_STENCIL8, desc.width, desc.height);
-                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                        GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-
-                    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                    if (msaaCount > 1)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "MSAA color render texture FBO is not complete !");
-                        ret = T3D_ERR_GL4_CREATE_FBO;
+                        // ---- MSAA 路径 ----
+
+                        glGenTextures(1, &glPixelBuffer->GLTexture);
+                        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture);
+                        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaaCount,
+                            internalFmt, width, height, GL_TRUE);
+                        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+                        glGenFramebuffers(1, &glPixelBuffer->GLFBO);
+                        glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                            GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture, 0);
+
+                        glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
+                        glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+                        glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount,
+                            GL_DEPTH24_STENCIL8, width, height);
+                        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                            GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+
+                        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "MSAA color render texture FBO is not complete !");
+                            ret = T3D_ERR_GL4_CREATE_FBO;
+                        }
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                        glGenTextures(1, &glPixelBuffer->GLResolveTex);
+                        glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLResolveTex);
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                            width, height, 0, pixelFmt, pixelType, nullptr);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                        glBindTexture(GL_TEXTURE_2D, 0);
+
+                        glGenFramebuffers(1, &glPixelBuffer->GLResolveFBO);
+                        glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLResolveFBO);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                            GL_TEXTURE_2D, glPixelBuffer->GLResolveTex, 0);
+
+                        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "MSAA resolve FBO is not complete !");
+                            ret = T3D_ERR_GL4_CREATE_FBO;
+                        }
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                        T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "Created MSAA render texture: %ux%u, %dx MSAA", width, height, msaaCount);
                     }
-
-                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                    // 创建 resolve 纹理（非多采样，供 shader 读取）
-                    glGenTextures(1, &glPixelBuffer->GLResolveTex);
-                    glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLResolveTex);
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
-                        desc.width, desc.height, 0,
-                        GL4Mapping::get(desc.format),
-                        GL4Mapping::getPixelType(desc.format),
-                        nullptr);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glBindTexture(GL_TEXTURE_2D, 0);
-
-                    // 创建 resolve FBO
-                    glGenFramebuffers(1, &glPixelBuffer->GLResolveFBO);
-                    glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLResolveFBO);
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                        GL_TEXTURE_2D, glPixelBuffer->GLResolveTex, 0);
-
-                    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                    else
                     {
-                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "MSAA resolve FBO is not complete !");
-                        ret = T3D_ERR_GL4_CREATE_FBO;
+                        // ---- 非 MSAA 路径 ----
+
+                        glGenTextures(1, &glPixelBuffer->GLTexture);
+                        glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                            width, height, 0, pixelFmt, pixelType, nullptr);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                        glBindTexture(GL_TEXTURE_2D, 0);
+
+                        glGenFramebuffers(1, &glPixelBuffer->GLFBO);
+                        glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
+
+                        glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
+                        glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+                        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+                        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+
+                        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Color render texture FBO is not complete !");
+                            ret = T3D_ERR_GL4_CREATE_FBO;
+                        }
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
                     }
-
-                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "Created MSAA render texture: %ux%u, %dx MSAA", desc.width, desc.height, msaaCount);
                 }
                 else
                 {
-                    // ---- 非 MSAA 路径（原有逻辑） ----
+                    // 创建深度纹理
+                    GLenum texFormat = hasStencil ? GL_DEPTH_STENCIL : GL_DEPTH_COMPONENT;
+                    GLenum texTarget = (msaaCount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
-                    // 创建颜色纹理
                     glGenTextures(1, &glPixelBuffer->GLTexture);
-                    glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
-                        desc.width, desc.height, 0,
-                        GL4Mapping::get(desc.format),
-                        GL4Mapping::getPixelType(desc.format),
-                        nullptr);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glBindTexture(GL_TEXTURE_2D, 0);
+                    glBindTexture(texTarget, glPixelBuffer->GLTexture);
 
-                    // 创建 FBO
+                    if (msaaCount > 1)
+                    {
+                        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaaCount,
+                            internalFmt, width, height, GL_TRUE);
+                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glTexImage2DMultisample");
+                    }
+                    else
+                    {
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                            width, height, 0, texFormat, pixelType, nullptr);
+                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glTexImage2D");
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    }
+
+                    glBindTexture(texTarget, 0);
+
                     glGenFramebuffers(1, &glPixelBuffer->GLFBO);
                     glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
 
-                    // 创建深度 RBO
-                    glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
-                    glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, desc.width, desc.height);
-                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
+                    GLenum attachment = hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texTarget, glPixelBuffer->GLTexture, 0);
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glFramebufferTexture2D");
 
-                    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                    glDrawBuffer(GL_NONE);
+                    glReadBuffer(GL_NONE);
+
+                    GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+                    if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Color render texture FBO is not complete !");
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                            "Depth render texture FBO is not complete ! status=0x%04X, "
+                            "size=%ux%u, internalFmt=0x%04X, texFormat=0x%04X, pixelType=0x%04X, "
+                            "attachment=0x%04X, texTarget=0x%04X, msaa=%u, tex=%u, fbo=%u",
+                            fboStatus, width, height, internalFmt, texFormat, pixelType,
+                            attachment, texTarget, msaaCount,
+                            glPixelBuffer->GLTexture, glPixelBuffer->GLFBO);
                         ret = T3D_ERR_GL4_CREATE_FBO;
                     }
 
                     glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 }
-            }
-            else
-            {
-                // 创建深度纹理
-                uint32_t msaaCount = desc.sampleDesc.Count;
-                if (msaaCount < 1) msaaCount = 1;
-                glPixelBuffer->GLMSAACount = msaaCount;
 
-                GLenum internalFormat = GL4Mapping::getInternalFormat(desc.format);
-                GLenum texFormat = GL_DEPTH_COMPONENT;
-                GLenum texType = GL4Mapping::getPixelType(desc.format);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createRenderTexture");
+            } while (false);
 
-                bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-                    || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
-                if (hasStencil)
-                {
-                    texFormat = GL_DEPTH_STENCIL;
-                }
+            return ret;
+        };
 
-                GLenum texTarget = (msaaCount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-
-                glGenTextures(1, &glPixelBuffer->GLTexture);
-                glBindTexture(texTarget, glPixelBuffer->GLTexture);
-
-                if (msaaCount > 1)
-                {
-                    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaaCount,
-                        internalFormat, desc.width, desc.height, GL_TRUE);
-                }
-                else
-                {
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
-                        desc.width, desc.height, 0,
-                        texFormat, texType, nullptr);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                }
-
-                glBindTexture(texTarget, 0);
-
-                // 创建 FBO
-                glGenFramebuffers(1, &glPixelBuffer->GLFBO);
-                glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
-
-                GLenum attachment = hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-                glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texTarget, glPixelBuffer->GLTexture, 0);
-
-                glDrawBuffer(GL_NONE);
-                glReadBuffer(GL_NONE);
-
-                if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                {
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Depth render texture FBO is not complete !");
-                    ret = T3D_ERR_GL4_CREATE_FBO;
-                }
-
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
-
-            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createRenderTexture");
-        } while (false);
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glPixelBuffer,
+            isColorRT, msaaCount, desc.width, desc.height,
+            internalFmt, pixelFmt, pixelType, hasStencil);
 
         if (T3D_FAILED(ret))
         {
@@ -647,100 +712,106 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        // 入口处清空残留 GL error，判断错误是否来自外部
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: ENTRY (stale error from outside)");
-
-        switch (renderTarget->getType())
+        auto lambda = [this](RenderTargetPtr renderTarget)
         {
-        case RenderTarget::Type::E_RT_WINDOW:
+            TResult ret = T3D_OK;
+
+            do
             {
-                // 渲染到默认帧缓冲
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
-            break;
-        case RenderTarget::Type::E_RT_TEXTURE:
-            {
-                if (renderTarget->getNumOfRenderTextures() > 0)
+                // 入口处清空残留 GL error
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: ENTRY (stale error from outside)");
+
+                switch (renderTarget->getType())
                 {
-                    // 获取第一个颜色纹理的 FBO
-                    GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(
-                        renderTarget->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
-                    if (glPB != nullptr && glPB->GLFBO != 0)
+                case RenderTarget::Type::E_RT_WINDOW:
                     {
-                        glBindFramebuffer(GL_FRAMEBUFFER, glPB->GLFBO);
-                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glBindFramebuffer(color FBO)");
-
-                        // 如果有独立深度纹理，attach 到当前 FBO
-                        if (renderTarget->getDepthStencil() != nullptr)
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    }
+                    break;
+                case RenderTarget::Type::E_RT_TEXTURE:
+                    {
+                        if (renderTarget->getNumOfRenderTextures() > 0)
                         {
-                            // 先 detach 颜色 FBO 自带的深度 RBO（如果有的话），
-                            // 避免 RBO 和纹理同时 attach 到同一挂载点导致 GL_INVALID_OPERATION
-                            if (glPB->GLDepthRBO != 0)
+                            GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(
+                                renderTarget->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
+                            if (glPB != nullptr && glPB->GLFBO != 0)
                             {
-                                glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                                    GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
-                                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferRenderbuffer(detach RBO)");
-                            }
+                                glBindFramebuffer(GL_FRAMEBUFFER, glPB->GLFBO);
+                                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glBindFramebuffer(color FBO)");
 
+                                if (renderTarget->getDepthStencil() != nullptr)
+                                {
+                                    if (glPB->GLDepthRBO != 0)
+                                    {
+                                        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                            GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
+                                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferRenderbuffer(detach RBO)");
+                                    }
+
+                                    GL4PixelBuffer2D *glDS = static_cast<GL4PixelBuffer2D*>(
+                                        renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
+                                    if (glDS != nullptr)
+                                    {
+                                        GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+                                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                            dsTexTarget, glDS->GLTexture, 0);
+                                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferTexture2D(depth texture)");
+                                    }
+                                }
+
+                                uint32_t numRT = renderTarget->getNumOfRenderTextures();
+                                if (numRT > 1)
+                                {
+                                    GLenum drawBuffers[8];
+                                    for (uint32_t i = 0; i < numRT && i < 8; ++i)
+                                    {
+                                        drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+                                        if (i > 0)
+                                        {
+                                            GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D*>(
+                                                renderTarget->getRenderTexture(i)->getPixelBuffer()->getRHIResource().get());
+                                            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                                                GL_TEXTURE_2D, pb->GLTexture, 0);
+                                        }
+                                    }
+                                    glDrawBuffers(numRT, drawBuffers);
+                                }
+                            }
+                        }
+                        else if (renderTarget->getDepthStencil() != nullptr)
+                        {
                             GL4PixelBuffer2D *glDS = static_cast<GL4PixelBuffer2D*>(
                                 renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
                             if (glDS != nullptr)
                             {
-                                GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-                                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                    dsTexTarget, glDS->GLTexture, 0);
-                                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferTexture2D(depth texture)");
-                            }
-                        }
-
-                        // 设置多个颜色 attachment
-                        uint32_t numRT = renderTarget->getNumOfRenderTextures();
-                        if (numRT > 1)
-                        {
-                            GLenum drawBuffers[8];
-                            for (uint32_t i = 0; i < numRT && i < 8; ++i)
-                            {
-                                drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
-                                if (i > 0)
+                                static GLuint sDepthOnlyFBO = 0;
+                                if (sDepthOnlyFBO == 0)
                                 {
-                                    GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D*>(
-                                        renderTarget->getRenderTexture(i)->getPixelBuffer()->getRHIResource().get());
-                                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                                        GL_TEXTURE_2D, pb->GLTexture, 0);
+                                    glGenFramebuffers(1, &sDepthOnlyFBO);
                                 }
-                            }
-                            glDrawBuffers(numRT, drawBuffers);
-                        }
-                    }
-                }
-                else if (renderTarget->getDepthStencil() != nullptr)
-                {
-                    // 只有深度纹理 (shadow map path)
-                    // 使用运行时 FBO 并动态 attach 深度纹理
-                    GL4PixelBuffer2D *glDS = static_cast<GL4PixelBuffer2D*>(
-                        renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
-                    if (glDS != nullptr)
-                    {
-                        static GLuint sDepthOnlyFBO = 0;
-                        if (sDepthOnlyFBO == 0)
-                        {
-                            glGenFramebuffers(1, &sDepthOnlyFBO);
-                        }
 
-                        glBindFramebuffer(GL_FRAMEBUFFER, sDepthOnlyFBO);
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                            GL_TEXTURE_2D, glDS->GLTexture, 0);
-                        glDrawBuffer(GL_NONE);
-                        glReadBuffer(GL_NONE);
-                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: depth-only FBO");
+                                glBindFramebuffer(GL_FRAMEBUFFER, sDepthOnlyFBO);
+                                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                    GL_TEXTURE_2D, glDS->GLTexture, 0);
+                                glDrawBuffer(GL_NONE);
+                                glReadBuffer(GL_NONE);
+                                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: depth-only FBO");
+                            }
+                        }
                     }
+                    break;
+                default:
+                    T3D_ASSERT(false);
+                    break;
                 }
-            }
-            break;
-        default:
-            T3D_ASSERT(false);
-            break;
-        }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRenderTarget");
+            } while (false);
+
+            return ret;
+        };
+
+        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget));
 
         if (T3D_SUCCEEDED(ret))
         {
@@ -748,7 +819,6 @@ namespace Tiny3D
             mRenderingToFBO = (renderTarget->getType() == RenderTarget::Type::E_RT_TEXTURE);
         }
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRenderTarget");
         return ret;
     }
 
@@ -757,8 +827,20 @@ namespace Tiny3D
     TResult GL4Context::resetRenderTarget()
     {
         mCurrentRenderTarget = nullptr;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return T3D_OK;
+
+        auto lambda = [this]()
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
     }
 
     //--------------------------------------------------------------------------
@@ -803,10 +885,21 @@ namespace Tiny3D
         GLint y = static_cast<GLint>(viewport.Top * height);
         GLsizei w = static_cast<GLsizei>(viewport.Width * width);
         GLsizei h = static_cast<GLsizei>(viewport.Height * height);
-        glViewport(x, y, w, h);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setViewport");
-        return T3D_OK;
+        auto lambda = [this](GLint x, GLint y, GLsizei w, GLsizei h)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glViewport(x, y, w, h);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setViewport");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, w, h);
     }
 
     //--------------------------------------------------------------------------
@@ -816,11 +909,21 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
-        glClearColor(color.red(), color.green(), color.blue(), 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        auto lambda = [this](ColorRGB color)
+        {
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearColor");
-        return T3D_OK;
+            do
+            {
+                glClearColor(color.red(), color.green(), color.blue(), 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearColor");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, color);
     }
 
     //--------------------------------------------------------------------------
@@ -830,11 +933,21 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
-        glClearDepth((GLdouble)depth);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        auto lambda = [this](Real depth)
+        {
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearDepth");
-        return T3D_OK;
+            do
+            {
+                glClearDepth((GLdouble)depth);
+                glClear(GL_DEPTH_BUFFER_BIT);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearDepth");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, depth);
     }
 
     //--------------------------------------------------------------------------
@@ -844,12 +957,22 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
-        glClearDepth((GLdouble)depth);
-        glClearStencil((GLint)stencil);
-        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        auto lambda = [this](Real depth, uint32_t stencil)
+        {
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearDepthStencil");
-        return T3D_OK;
+            do
+            {
+                glClearDepth((GLdouble)depth);
+                glClearStencil((GLint)stencil);
+                glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearDepthStencil");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, stencil);
     }
 
     //--------------------------------------------------------------------------
@@ -860,17 +983,38 @@ namespace Tiny3D
 
         const BlendDesc &desc = state->getStateDesc();
         const auto &rt0 = desc.RenderTargetStates[0];
-        glState->data.enabled = rt0.BlendEnable;
-        glState->data.srcRGB = GL4Mapping::get(rt0.SrcBlend);
-        glState->data.dstRGB = GL4Mapping::get(rt0.DestBlend);
-        glState->data.opRGB = GL4Mapping::get(rt0.BlendOp);
-        glState->data.srcAlpha = GL4Mapping::get(rt0.SrcBlendAlpha);
-        glState->data.dstAlpha = GL4Mapping::get(rt0.DstBlendAlpha);
-        glState->data.opAlpha = GL4Mapping::get(rt0.BlendOpAlpha);
-        glState->data.colorMask[0] = (rt0.ColorMask & kWriteMaskRed) ? GL_TRUE : GL_FALSE;
-        glState->data.colorMask[1] = (rt0.ColorMask & kWriteMaskGreen) ? GL_TRUE : GL_FALSE;
-        glState->data.colorMask[2] = (rt0.ColorMask & kWriteMaskBlue) ? GL_TRUE : GL_FALSE;
-        glState->data.colorMask[3] = (rt0.ColorMask & kWriteMaskAlpha) ? GL_TRUE : GL_FALSE;
+
+        // 主线程提取所有描述符数据（POD）
+        GL4BlendStateData d {};
+        d.enabled = rt0.BlendEnable;
+        d.srcRGB = GL4Mapping::get(rt0.SrcBlend);
+        d.dstRGB = GL4Mapping::get(rt0.DestBlend);
+        d.opRGB = GL4Mapping::get(rt0.BlendOp);
+        d.srcAlpha = GL4Mapping::get(rt0.SrcBlendAlpha);
+        d.dstAlpha = GL4Mapping::get(rt0.DstBlendAlpha);
+        d.opAlpha = GL4Mapping::get(rt0.BlendOpAlpha);
+        d.colorMask[0] = (rt0.ColorMask & kWriteMaskRed) ? GL_TRUE : GL_FALSE;
+        d.colorMask[1] = (rt0.ColorMask & kWriteMaskGreen) ? GL_TRUE : GL_FALSE;
+        d.colorMask[2] = (rt0.ColorMask & kWriteMaskBlue) ? GL_TRUE : GL_FALSE;
+        d.colorMask[3] = (rt0.ColorMask & kWriteMaskAlpha) ? GL_TRUE : GL_FALSE;
+
+        auto lambda = [this](const GL4BlendStatePtr &glState, GL4BlendStateData d)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glState->data = d;
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
+        if (T3D_FAILED(ret))
+        {
+            glState = nullptr;
+        }
 
         return glState;
     }
@@ -882,20 +1026,41 @@ namespace Tiny3D
         GL4DepthStencilStatePtr glState = GL4DepthStencilState::create();
 
         const DepthStencilDesc &desc = state->getStateDesc();
-        glState->data.depthTestEnabled = desc.DepthTestEnable;
-        glState->data.depthWriteEnabled = desc.DepthWriteEnable;
-        glState->data.depthFunc = GL4Mapping::get(desc.DepthFunc);
-        glState->data.stencilEnabled = desc.StencilEnable;
-        glState->data.stencilReadMask = desc.StencilReadMask;
-        glState->data.stencilWriteMask = desc.StencilWriteMask;
-        glState->data.frontStencilFail = GL4Mapping::get(desc.FrontFace.StencilFailOp);
-        glState->data.frontDepthFail = GL4Mapping::get(desc.FrontFace.StencilDepthFailOp);
-        glState->data.frontStencilPass = GL4Mapping::get(desc.FrontFace.StencilPassOp);
-        glState->data.frontStencilFunc = GL4Mapping::get(desc.FrontFace.StencilFunc);
-        glState->data.backStencilFail = GL4Mapping::get(desc.BackFace.StencilFailOp);
-        glState->data.backDepthFail = GL4Mapping::get(desc.BackFace.StencilDepthFailOp);
-        glState->data.backStencilPass = GL4Mapping::get(desc.BackFace.StencilPassOp);
-        glState->data.backStencilFunc = GL4Mapping::get(desc.BackFace.StencilFunc);
+
+        // 主线程提取所有描述符数据（POD）
+        GL4DepthStencilStateData d {};
+        d.depthTestEnabled = desc.DepthTestEnable;
+        d.depthWriteEnabled = desc.DepthWriteEnable;
+        d.depthFunc = GL4Mapping::get(desc.DepthFunc);
+        d.stencilEnabled = desc.StencilEnable;
+        d.stencilReadMask = desc.StencilReadMask;
+        d.stencilWriteMask = desc.StencilWriteMask;
+        d.frontStencilFail = GL4Mapping::get(desc.FrontFace.StencilFailOp);
+        d.frontDepthFail = GL4Mapping::get(desc.FrontFace.StencilDepthFailOp);
+        d.frontStencilPass = GL4Mapping::get(desc.FrontFace.StencilPassOp);
+        d.frontStencilFunc = GL4Mapping::get(desc.FrontFace.StencilFunc);
+        d.backStencilFail = GL4Mapping::get(desc.BackFace.StencilFailOp);
+        d.backDepthFail = GL4Mapping::get(desc.BackFace.StencilDepthFailOp);
+        d.backStencilPass = GL4Mapping::get(desc.BackFace.StencilPassOp);
+        d.backStencilFunc = GL4Mapping::get(desc.BackFace.StencilFunc);
+
+        auto lambda = [this](const GL4DepthStencilStatePtr &glState, GL4DepthStencilStateData d)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glState->data = d;
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
+        if (T3D_FAILED(ret))
+        {
+            glState = nullptr;
+        }
 
         return glState;
     }
@@ -907,15 +1072,36 @@ namespace Tiny3D
         GL4RasterizerStatePtr glState = GL4RasterizerState::create();
 
         const RasterizerDesc &desc = state->getStateDesc();
-        glState->data.fillMode = GL4Mapping::get(desc.FillMode);
-        glState->data.cullMode = GL4Mapping::get(desc.CullMode);
-        glState->data.cullEnabled = (desc.CullMode != CullingMode::kNone);
-        glState->data.frontCCW = desc.FrontAnticlockwise;
-        glState->data.scissorEnabled = desc.ScissorEnable;
-        glState->data.depthClipEnabled = desc.DepthClipEnable;
-        glState->data.depthBias = static_cast<GLfloat>(desc.DepthBias);
-        glState->data.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
-        glState->data.multisampleEnabled = desc.MultisampleEnable;
+
+        // 主线程提取所有描述符数据（POD）
+        GL4RasterizerStateData d {};
+        d.fillMode = GL4Mapping::get(desc.FillMode);
+        d.cullMode = GL4Mapping::get(desc.CullMode);
+        d.cullEnabled = (desc.CullMode != CullingMode::kNone);
+        d.frontCCW = desc.FrontAnticlockwise;
+        d.scissorEnabled = desc.ScissorEnable;
+        d.depthClipEnabled = desc.DepthClipEnable;
+        d.depthBias = static_cast<GLfloat>(desc.DepthBias);
+        d.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
+        d.multisampleEnabled = desc.MultisampleEnable;
+
+        auto lambda = [this](const GL4RasterizerStatePtr &glState, GL4RasterizerStateData d)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glState->data = d;
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
+        if (T3D_FAILED(ret))
+        {
+            glState = nullptr;
+        }
 
         return glState;
     }
@@ -928,38 +1114,91 @@ namespace Tiny3D
 
         const SamplerDesc &desc = state->getStateDesc();
 
-        glGenSamplers(1, &glState->GLSampler);
-
-        glSamplerParameteri(glState->GLSampler, GL_TEXTURE_WRAP_S, GL4Mapping::get(desc.AddressU));
-        glSamplerParameteri(glState->GLSampler, GL_TEXTURE_WRAP_T, GL4Mapping::get(desc.AddressV));
-        glSamplerParameteri(glState->GLSampler, GL_TEXTURE_WRAP_R, GL4Mapping::get(desc.AddressW));
-        glSamplerParameteri(glState->GLSampler, GL_TEXTURE_MIN_FILTER, GL4Mapping::getMinFilter(desc.MinFilter, desc.MipFilter));
-        glSamplerParameteri(glState->GLSampler, GL_TEXTURE_MAG_FILTER, GL4Mapping::getMagFilter(desc.MagFilter));
-        glSamplerParameterf(glState->GLSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<GLfloat>(desc.MaxAnisotropy));
-        glSamplerParameterf(glState->GLSampler, GL_TEXTURE_LOD_BIAS, desc.MipLODBias);
-        glSamplerParameterf(glState->GLSampler, GL_TEXTURE_MIN_LOD, desc.MinLOD);
-        glSamplerParameterf(glState->GLSampler, GL_TEXTURE_MAX_LOD, desc.MaxLOD);
-
+        GLenum wrapS = GL4Mapping::get(desc.AddressU);
+        GLenum wrapT = GL4Mapping::get(desc.AddressV);
+        GLenum wrapR = GL4Mapping::get(desc.AddressW);
+        GLenum minFilter = GL4Mapping::getMinFilter(desc.MinFilter, desc.MipFilter);
+        GLenum magFilter = GL4Mapping::getMagFilter(desc.MagFilter);
+        GLfloat maxAniso = static_cast<GLfloat>(desc.MaxAnisotropy);
+        GLfloat lodBias = desc.MipLODBias;
+        GLfloat minLOD = desc.MinLOD;
+        GLfloat maxLOD = desc.MaxLOD;
         GLfloat borderColor[4] = {
             desc.BorderColor.blue(), desc.BorderColor.green(),
             desc.BorderColor.red(), desc.BorderColor.alpha()
         };
-        glSamplerParameterfv(glState->GLSampler, GL_TEXTURE_BORDER_COLOR, borderColor);
+        bool isComparison = desc.IsComparison;
+        GLenum compareFunc = GL4Mapping::get(desc.CompareFunc);
 
-        if (desc.IsComparison)
+        auto lambda = [this](const GL4SamplerStatePtr &glState,
+            GLenum wrapS, GLenum wrapT, GLenum wrapR,
+            GLenum minFilter, GLenum magFilter, GLfloat maxAniso,
+            GLfloat lodBias, GLfloat minLOD, GLfloat maxLOD,
+            bool isComparison, GLenum compareFunc)
         {
-            glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-            glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_FUNC, GL4Mapping::get(desc.CompareFunc));
-        }
-        else
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glGenSamplers(1, &glState->GLSampler);
+
+                glSamplerParameteri(glState->GLSampler, GL_TEXTURE_WRAP_S, wrapS);
+                glSamplerParameteri(glState->GLSampler, GL_TEXTURE_WRAP_T, wrapT);
+                glSamplerParameteri(glState->GLSampler, GL_TEXTURE_WRAP_R, wrapR);
+                glSamplerParameteri(glState->GLSampler, GL_TEXTURE_MIN_FILTER, minFilter);
+                glSamplerParameteri(glState->GLSampler, GL_TEXTURE_MAG_FILTER, magFilter);
+                glSamplerParameterf(glState->GLSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+                glSamplerParameterf(glState->GLSampler, GL_TEXTURE_LOD_BIAS, lodBias);
+                glSamplerParameterf(glState->GLSampler, GL_TEXTURE_MIN_LOD, minLOD);
+                glSamplerParameterf(glState->GLSampler, GL_TEXTURE_MAX_LOD, maxLOD);
+
+                if (isComparison)
+                {
+                    glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+                    glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_FUNC, compareFunc);
+                }
+                else
+                {
+                    glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createSamplerState");
+            } while (false);
+
+            return ret;
+        };
+
+        // borderColor 需要单独处理（数组不能直接传递给 ENQUEUE_UNIQUE_COMMAND）
+        // 由于它已经在主线程计算好了，这里直接通过 lambda 捕获的 glState 在渲染线程设置
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState,
+            wrapS, wrapT, wrapR, minFilter, magFilter, maxAniso,
+            lodBias, minLOD, maxLOD, isComparison, compareFunc);
+
+        // borderColor 单独入队设置
+        auto lambdaBorder = [this](const GL4SamplerStatePtr &glState,
+            GLfloat b0, GLfloat b1, GLfloat b2, GLfloat b3)
         {
-            glSamplerParameteri(glState->GLSampler, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+            TResult ret = T3D_OK;
+
+            do
+            {
+                GLfloat bc[4] = { b0, b1, b2, b3 };
+                glSamplerParameterfv(glState->GLSampler, GL_TEXTURE_BORDER_COLOR, bc);
+            } while (false);
+
+            return ret;
+        };
+
+        ENQUEUE_UNIQUE_COMMAND(lambdaBorder, glState,
+            borderColor[0], borderColor[1], borderColor[2], borderColor[3]);
+
+        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "createSamplerState: IsComparison=%d CompareFunc=%d",
+            isComparison ? 1 : 0, desc.CompareFunc);
+
+        if (T3D_FAILED(ret))
+        {
+            glState = nullptr;
         }
-
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createSamplerState");
-
-        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "createSamplerState: glSampler=%u IsComparison=%d CompareFunc=%d",
-            glState->GLSampler, desc.IsComparison ? 1 : 0, desc.CompareFunc);
 
         return glState;
     }
@@ -971,21 +1210,32 @@ namespace Tiny3D
         GL4BlendState *glState = static_cast<GL4BlendState*>(state->getRHIState().get());
         const auto &d = glState->data;
 
-        if (d.enabled)
+        auto lambda = [this](GL4BlendStateData d)
         {
-            glEnable(GL_BLEND);
-            glBlendFuncSeparate(d.srcRGB, d.dstRGB, d.srcAlpha, d.dstAlpha);
-            glBlendEquationSeparate(d.opRGB, d.opAlpha);
-        }
-        else
-        {
-            glDisable(GL_BLEND);
-        }
+            TResult ret = T3D_OK;
 
-        glColorMask(d.colorMask[0], d.colorMask[1], d.colorMask[2], d.colorMask[3]);
+            do
+            {
+                if (d.enabled)
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFuncSeparate(d.srcRGB, d.dstRGB, d.srcAlpha, d.dstAlpha);
+                    glBlendEquationSeparate(d.opRGB, d.opAlpha);
+                }
+                else
+                {
+                    glDisable(GL_BLEND);
+                }
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setBlendState");
-        return T3D_OK;
+                glColorMask(d.colorMask[0], d.colorMask[1], d.colorMask[2], d.colorMask[3]);
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setBlendState");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d);
     }
 
     //--------------------------------------------------------------------------
@@ -995,35 +1245,46 @@ namespace Tiny3D
         GL4DepthStencilState *glState = static_cast<GL4DepthStencilState*>(state->getRHIState().get());
         const auto &d = glState->data;
 
-        if (d.depthTestEnabled)
+        auto lambda = [this](GL4DepthStencilStateData d)
         {
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(d.depthFunc);
-        }
-        else
-        {
-            glDisable(GL_DEPTH_TEST);
-        }
+            TResult ret = T3D_OK;
 
-        glDepthMask(d.depthWriteEnabled ? GL_TRUE : GL_FALSE);
+            do
+            {
+                if (d.depthTestEnabled)
+                {
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(d.depthFunc);
+                }
+                else
+                {
+                    glDisable(GL_DEPTH_TEST);
+                }
 
-        if (d.stencilEnabled)
-        {
-            glEnable(GL_STENCIL_TEST);
-            glStencilMaskSeparate(GL_FRONT, d.stencilWriteMask);
-            glStencilMaskSeparate(GL_BACK, d.stencilWriteMask);
-            glStencilFuncSeparate(GL_FRONT, d.frontStencilFunc, 1, d.stencilReadMask);
-            glStencilFuncSeparate(GL_BACK, d.backStencilFunc, 1, d.stencilReadMask);
-            glStencilOpSeparate(GL_FRONT, d.frontStencilFail, d.frontDepthFail, d.frontStencilPass);
-            glStencilOpSeparate(GL_BACK, d.backStencilFail, d.backDepthFail, d.backStencilPass);
-        }
-        else
-        {
-            glDisable(GL_STENCIL_TEST);
-        }
+                glDepthMask(d.depthWriteEnabled ? GL_TRUE : GL_FALSE);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setDepthStencilState");
-        return T3D_OK;
+                if (d.stencilEnabled)
+                {
+                    glEnable(GL_STENCIL_TEST);
+                    glStencilMaskSeparate(GL_FRONT, d.stencilWriteMask);
+                    glStencilMaskSeparate(GL_BACK, d.stencilWriteMask);
+                    glStencilFuncSeparate(GL_FRONT, d.frontStencilFunc, 1, d.stencilReadMask);
+                    glStencilFuncSeparate(GL_BACK, d.backStencilFunc, 1, d.stencilReadMask);
+                    glStencilOpSeparate(GL_FRONT, d.frontStencilFail, d.frontDepthFail, d.frontStencilPass);
+                    glStencilOpSeparate(GL_BACK, d.backStencilFail, d.backDepthFail, d.backStencilPass);
+                }
+                else
+                {
+                    glDisable(GL_STENCIL_TEST);
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setDepthStencilState");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d);
     }
 
     //--------------------------------------------------------------------------
@@ -1032,57 +1293,64 @@ namespace Tiny3D
     {
         GL4RasterizerState *glState = static_cast<GL4RasterizerState*>(state->getRHIState().get());
         const auto &d = glState->data;
+        bool projFlipped = mProjectionFlipped;
 
-        glPolygonMode(GL_FRONT_AND_BACK, d.fillMode);
-
-        if (d.cullEnabled)
+        auto lambda = [this](GL4RasterizerStateData d, bool projFlipped)
         {
-            glEnable(GL_CULL_FACE);
+            TResult ret = T3D_OK;
 
-            // 投影矩阵 Y 翻转时，三角形缠绕方向反转，需要反转 cull mode
-            GLenum cullMode = d.cullMode;
-            if (mProjectionFlipped)
+            do
             {
-                if (cullMode == GL_FRONT)
-                    cullMode = GL_BACK;
-                else if (cullMode == GL_BACK)
-                    cullMode = GL_FRONT;
-            }
-            glCullFace(cullMode);
-        }
-        else
-        {
-            glDisable(GL_CULL_FACE);
-        }
+                glPolygonMode(GL_FRONT_AND_BACK, d.fillMode);
 
-        glFrontFace(d.frontCCW ? GL_CCW : GL_CW);
+                if (d.cullEnabled)
+                {
+                    glEnable(GL_CULL_FACE);
 
-        if (d.scissorEnabled)
-            glEnable(GL_SCISSOR_TEST);
-        else
-            glDisable(GL_SCISSOR_TEST);
+                    GLenum cullMode = d.cullMode;
+                    if (projFlipped)
+                    {
+                        if (cullMode == GL_FRONT)
+                            cullMode = GL_BACK;
+                        else if (cullMode == GL_BACK)
+                            cullMode = GL_FRONT;
+                    }
+                    glCullFace(cullMode);
+                }
+                else
+                {
+                    glDisable(GL_CULL_FACE);
+                }
 
-        if (d.depthClipEnabled)
-            glEnable(GL_DEPTH_CLAMP);
-        else
-            glDisable(GL_DEPTH_CLAMP);
+                glFrontFace(d.frontCCW ? GL_CCW : GL_CW);
 
-        if (d.depthBias != 0.0f || d.slopeScaledDepthBias != 0.0f)
-        {
-            glEnable(GL_POLYGON_OFFSET_FILL);
-            glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
-        }
-        else
-        {
-            glDisable(GL_POLYGON_OFFSET_FILL);
-        }
+                if (d.scissorEnabled)
+                    glEnable(GL_SCISSOR_TEST);
+                else
+                    glDisable(GL_SCISSOR_TEST);
 
-        // 注意：不在光栅化状态中控制 GL_MULTISAMPLE。
-        // GL_MULTISAMPLE 在窗口初始化时根据像素格式的 MSAA 能力启用，
-        // 之后应始终保持启用状态（与 D3D11 的行为一致）。
+                if (d.depthClipEnabled)
+                    glEnable(GL_DEPTH_CLAMP);
+                else
+                    glDisable(GL_DEPTH_CLAMP);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
-        return T3D_OK;
+                if (d.depthBias != 0.0f || d.slopeScaledDepthBias != 0.0f)
+                {
+                    glEnable(GL_POLYGON_OFFSET_FILL);
+                    glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
+                }
+                else
+                {
+                    glDisable(GL_POLYGON_OFFSET_FILL);
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, d, projFlipped);
     }
 
     //--------------------------------------------------------------------------
@@ -1091,9 +1359,21 @@ namespace Tiny3D
     {
         GL4VertexDeclarationPtr glDecl = GL4VertexDeclaration::create();
 
-        glGenVertexArrays(1, &glDecl->GLVAO);
+        auto lambda = [this](const GL4VertexDeclarationPtr &glDecl)
+        {
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createVertexDeclaration");
+            do
+            {
+                glGenVertexArrays(1, &glDecl->GLVAO);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createVertexDeclaration");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glDecl);
+        if (T3D_FAILED(ret)) { glDecl = nullptr; }
         return glDecl;
     }
 
@@ -1103,14 +1383,22 @@ namespace Tiny3D
     {
         GL4VertexDeclaration *glDecl = static_cast<GL4VertexDeclaration*>(decl->getRHIResource().get());
         mCurrentVAO = glDecl->GLVAO;
-        glBindVertexArray(mCurrentVAO);
-
-        // 延迟顶点属性配置到 setVertexBuffers，因为 glVertexAttribPointer
-        // 在 Core Profile 下要求当前有 GL_ARRAY_BUFFER 绑定
         mPendingVertexDecl = decl;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration");
-        return T3D_OK;
+        auto lambda = [this](GLuint vao)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glBindVertexArray(vao);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, mCurrentVAO);
     }
 
     //--------------------------------------------------------------------------
@@ -1119,15 +1407,29 @@ namespace Tiny3D
     {
         GL4VertexBufferPtr glBuffer = GL4VertexBuffer::create();
 
-        glGenBuffers(1, &glBuffer->GLBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, glBuffer->GLBuffer);
-        glBufferData(GL_ARRAY_BUFFER,
-            (GLsizeiptr)buffer->getBufferSize(),
-            buffer->getBuffer().Data,
-            GL4Mapping::getBufferUsage(buffer->getUsage()));
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createVertexBuffer");
+        auto lambda = [this](const GL4VertexBufferPtr &glBuffer, const VertexBufferPtr &buffer, GLenum usage)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glGenBuffers(1, &glBuffer->GLBuffer);
+                glBindBuffer(GL_ARRAY_BUFFER, glBuffer->GLBuffer);
+                glBufferData(GL_ARRAY_BUFFER,
+                    (GLsizeiptr)buffer->getBufferSize(),
+                    buffer->getBuffer().Data,
+                    usage);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createVertexBuffer");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, VertexBufferPtr(buffer), usage);
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
         return glBuffer;
     }
 
@@ -1135,45 +1437,56 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        for (uint32_t i = 0; i < buffers.size(); ++i)
-        {
-            GL4VertexBuffer *glVB = static_cast<GL4VertexBuffer*>(buffers[i]->getRHIResource().get());
-            glBindBuffer(GL_ARRAY_BUFFER, glVB->GLBuffer);
-
-            // VBO 已绑定，现在配置此 slot 对应的顶点属性
-            if (mPendingVertexDecl != nullptr)
-            {
-                for (uint32_t j = 0; j < mPendingVertexDecl->getAttributeCount(); ++j)
-                {
-                    const VertexAttribute &attrib = mPendingVertexDecl->getAttributes()[j];
-                    if (attrib.getSlot() != startSlot + i)
-                        continue;
-
-                    GLint size = GL4Mapping::getVertexAttribSize(attrib.getType());
-                    GLenum type = GL4Mapping::getVertexAttribType(attrib.getType());
-                    GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
-
-                    glEnableVertexAttribArray(j);
-                    if (GL4Mapping::isIntegerAttrib(attrib.getType()))
-                    {
-                        glVertexAttribIPointer(j, size, type,
-                            (GLsizei)strides[i],
-                            reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
-                    }
-                    else
-                    {
-                        glVertexAttribPointer(j, size, type, normalized,
-                            (GLsizei)strides[i],
-                            reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
-                    }
-                }
-            }
-        }
-
+        VertexDeclaration *pendingDecl = mPendingVertexDecl;
         mPendingVertexDecl = nullptr;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexBuffers");
-        return T3D_OK;
+        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, VertexDeclaration *pendingDecl)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                for (uint32_t i = 0; i < buffers.size(); ++i)
+                {
+                    GL4VertexBuffer *glVB = static_cast<GL4VertexBuffer*>(buffers[i]->getRHIResource().get());
+                    glBindBuffer(GL_ARRAY_BUFFER, glVB->GLBuffer);
+
+                    if (pendingDecl != nullptr)
+                    {
+                        for (uint32_t j = 0; j < pendingDecl->getAttributeCount(); ++j)
+                        {
+                            const VertexAttribute &attrib = pendingDecl->getAttributes()[j];
+                            if (attrib.getSlot() != startSlot + i)
+                                continue;
+
+                            GLint size = GL4Mapping::getVertexAttribSize(attrib.getType());
+                            GLenum type = GL4Mapping::getVertexAttribType(attrib.getType());
+                            GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
+
+                            glEnableVertexAttribArray(j);
+                            if (GL4Mapping::isIntegerAttrib(attrib.getType()))
+                            {
+                                glVertexAttribIPointer(j, size, type,
+                                    (GLsizei)strides[i],
+                                    reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                            }
+                            else
+                            {
+                                glVertexAttribPointer(j, size, type, normalized,
+                                    (GLsizei)strides[i],
+                                    reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                            }
+                        }
+                    }
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexBuffers");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, strides, offsets, pendingDecl);
     }
 
     //--------------------------------------------------------------------------
@@ -1182,15 +1495,29 @@ namespace Tiny3D
     {
         GL4IndexBufferPtr glBuffer = GL4IndexBuffer::create();
 
-        glGenBuffers(1, &glBuffer->GLBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glBuffer->GLBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-            (GLsizeiptr)buffer->getBufferSize(),
-            buffer->getBuffer().Data,
-            GL4Mapping::getBufferUsage(buffer->getUsage()));
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createIndexBuffer");
+        auto lambda = [this](const GL4IndexBufferPtr &glBuffer, const IndexBufferPtr &buffer, GLenum usage)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glGenBuffers(1, &glBuffer->GLBuffer);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glBuffer->GLBuffer);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                    (GLsizeiptr)buffer->getBufferSize(),
+                    buffer->getBuffer().Data,
+                    usage);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createIndexBuffer");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, IndexBufferPtr(buffer), usage);
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
         return glBuffer;
     }
 
@@ -1199,13 +1526,25 @@ namespace Tiny3D
     TResult GL4Context::setIndexBuffer(IndexBuffer *buffer)
     {
         GL4IndexBuffer *glIB = static_cast<GL4IndexBuffer*>(buffer->getRHIResource().get());
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIB->GLBuffer);
+        GLuint glBuf = glIB->GLBuffer;
 
         mIndexType = GL4Mapping::get(buffer->getIndexType());
         mIndexSize = (buffer->getIndexType() == IndexType::E_IT_16BITS) ? 2 : 4;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setIndexBuffer");
-        return T3D_OK;
+        auto lambda = [this](GLuint glBuf)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glBuf);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setIndexBuffer");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, glBuf);
     }
 
     //--------------------------------------------------------------------------
@@ -1214,15 +1553,29 @@ namespace Tiny3D
     {
         GL4ConstantBufferPtr glBuffer = GL4ConstantBuffer::create();
 
-        glGenBuffers(1, &glBuffer->GLBuffer);
-        glBindBuffer(GL_UNIFORM_BUFFER, glBuffer->GLBuffer);
-        glBufferData(GL_UNIFORM_BUFFER,
-            (GLsizeiptr)buffer->getBufferSize(),
-            buffer->getBuffer().Data,
-            GL4Mapping::getBufferUsage(buffer->getUsage()));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createConstantBuffer");
+        auto lambda = [this](const GL4ConstantBufferPtr &glBuffer, const ConstantBufferPtr &buffer, GLenum usage)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glGenBuffers(1, &glBuffer->GLBuffer);
+                glBindBuffer(GL_UNIFORM_BUFFER, glBuffer->GLBuffer);
+                glBufferData(GL_UNIFORM_BUFFER,
+                    (GLsizeiptr)buffer->getBufferSize(),
+                    buffer->getBuffer().Data,
+                    usage);
+                glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createConstantBuffer");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, ConstantBufferPtr(buffer), usage);
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
         return glBuffer;
     }
 
@@ -1232,21 +1585,34 @@ namespace Tiny3D
     {
         GL4PixelBuffer1DPtr glBuffer = GL4PixelBuffer1D::create();
 
-        const auto &desc = buffer->getDescriptor();
+        auto lambda = [this](const GL4PixelBuffer1DPtr &glBuffer, const PixelBuffer1DPtr &buffer)
+        {
+            TResult ret = T3D_OK;
 
-        glGenTextures(1, &glBuffer->GLTexture);
-        glBindTexture(GL_TEXTURE_1D, glBuffer->GLTexture);
-        glTexImage1D(GL_TEXTURE_1D, 0,
-            GL4Mapping::getInternalFormat(desc.format),
-            desc.width, 0,
-            GL4Mapping::get(desc.format),
-            GL4Mapping::getPixelType(desc.format),
-            buffer->getBuffer().Data);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_1D, 0);
+            do
+            {
+                const auto &desc = buffer->getDescriptor();
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer1D");
+                glGenTextures(1, &glBuffer->GLTexture);
+                glBindTexture(GL_TEXTURE_1D, glBuffer->GLTexture);
+                glTexImage1D(GL_TEXTURE_1D, 0,
+                    GL4Mapping::getInternalFormat(desc.format),
+                    desc.width, 0,
+                    GL4Mapping::get(desc.format),
+                    GL4Mapping::getPixelType(desc.format),
+                    buffer->getBuffer().Data);
+                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glBindTexture(GL_TEXTURE_1D, 0);
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer1D");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, PixelBuffer1DPtr(buffer));
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
         return glBuffer;
     }
 
@@ -1256,26 +1622,37 @@ namespace Tiny3D
     {
         GL4PixelBuffer2DPtr glBuffer = GL4PixelBuffer2D::create();
 
-        const auto &desc = buffer->getDescriptor();
+        auto lambda = [this](const GL4PixelBuffer2DPtr &glBuffer, const PixelBuffer2DPtr &buffer)
+        {
+            TResult ret = T3D_OK;
 
-        glGenTextures(1, &glBuffer->GLTexture);
-        glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0,
-            GL4Mapping::getInternalFormat(desc.format),
-            desc.width, desc.height, 0,
-            GL4Mapping::get(desc.format),
-            GL4Mapping::getPixelType(desc.format),
-            buffer->getBuffer().Data);
+            do
+            {
+                const auto &desc = buffer->getDescriptor();
 
-        // 无论请求多少 mipmap，都生成完整 mipmap chain，
-        // 确保 Sampler Object 的 mipmap filtering 模式正常工作
-        glGenerateMipmap(GL_TEXTURE_2D);
+                glGenTextures(1, &glBuffer->GLTexture);
+                glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
+                glTexImage2D(GL_TEXTURE_2D, 0,
+                    GL4Mapping::getInternalFormat(desc.format),
+                    desc.width, desc.height, 0,
+                    GL4Mapping::get(desc.format),
+                    GL4Mapping::getPixelType(desc.format),
+                    buffer->getBuffer().Data);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
+                glGenerateMipmap(GL_TEXTURE_2D);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer2D");
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer2D");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, PixelBuffer2DPtr(buffer));
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
         return glBuffer;
     }
 
@@ -1285,21 +1662,34 @@ namespace Tiny3D
     {
         GL4PixelBuffer3DPtr glBuffer = GL4PixelBuffer3D::create();
 
-        const auto &desc = buffer->getDescriptor();
+        auto lambda = [this](const GL4PixelBuffer3DPtr &glBuffer, const PixelBuffer3DPtr &buffer)
+        {
+            TResult ret = T3D_OK;
 
-        glGenTextures(1, &glBuffer->GLTexture);
-        glBindTexture(GL_TEXTURE_3D, glBuffer->GLTexture);
-        glTexImage3D(GL_TEXTURE_3D, 0,
-            GL4Mapping::getInternalFormat(desc.format),
-            desc.width, desc.height, desc.depth, 0,
-            GL4Mapping::get(desc.format),
-            GL4Mapping::getPixelType(desc.format),
-            buffer->getBuffer().Data);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_3D, 0);
+            do
+            {
+                const auto &desc = buffer->getDescriptor();
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer3D");
+                glGenTextures(1, &glBuffer->GLTexture);
+                glBindTexture(GL_TEXTURE_3D, glBuffer->GLTexture);
+                glTexImage3D(GL_TEXTURE_3D, 0,
+                    GL4Mapping::getInternalFormat(desc.format),
+                    desc.width, desc.height, desc.depth, 0,
+                    GL4Mapping::get(desc.format),
+                    GL4Mapping::getPixelType(desc.format),
+                    buffer->getBuffer().Data);
+                glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glBindTexture(GL_TEXTURE_3D, 0);
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer3D");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, PixelBuffer3DPtr(buffer));
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
         return glBuffer;
     }
 
@@ -1314,28 +1704,47 @@ namespace Tiny3D
         size_t bytecodeLength = 0;
         const char *bytecode = shader->getBytesCode(bytecodeLength);
 
-        glShader->GLShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-        GLint len = static_cast<GLint>(bytecodeLength);
-        glShaderSource(glShader->GLShaderHandle, 1, &bytecode, &len);
-        glCompileShader(glShader->GLShaderHandle);
+        // 复制 shader 源码，确保渲染线程执行时数据有效
+        String shaderSource(bytecode, bytecodeLength);
 
-        GLint compiled = 0;
-        glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
-        if (!compiled)
+        auto lambda = [this](const GL4VertexShaderPtr &glShader, String shaderSource)
         {
-            GLint logLen = 0;
-            glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
-            if (logLen > 0)
-            {
-                TArray<char> log(logLen + 1, 0);
-                glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Vertex shader compile error: %s", log.data());
-            }
-            GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
-            return nullptr;
-        }
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createVertexShader");
+            do
+            {
+                const char *src = shaderSource.c_str();
+                GLint len = static_cast<GLint>(shaderSource.size());
+
+                glShader->GLShaderHandle = glCreateShader(GL_VERTEX_SHADER);
+                glShaderSource(glShader->GLShaderHandle, 1, &src, &len);
+                glCompileShader(glShader->GLShaderHandle);
+
+                GLint compiled = 0;
+                glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
+                if (!compiled)
+                {
+                    GLint logLen = 0;
+                    glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
+                    if (logLen > 0)
+                    {
+                        TArray<char> log(logLen + 1, 0);
+                        glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Vertex shader compile error: %s", log.data());
+                    }
+                    GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
+                    ret = T3D_ERR_GL4_COMPILE_SHADER;
+                    break;
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createVertexShader");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glShader, shaderSource);
+        if (T3D_FAILED(ret)) { return nullptr; }
         return glShader;
     }
 
@@ -1344,18 +1753,30 @@ namespace Tiny3D
     TResult GL4Context::setVertexShader(ShaderVariant *shader)
     {
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
+        GLuint shaderHandle = glShader->GLShaderHandle;
 
-        if (mCurrentProgram != 0)
-        {
-            GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
-        }
-        mCurrentProgram = glCreateProgram();
-        glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
-        mProgramDirty = true;
         mCurrentVSVariant = shader;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexShader");
-        return T3D_OK;
+        auto lambda = [this](GLuint shaderHandle)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                if (mCurrentProgram != 0)
+                {
+                    GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
+                }
+                mCurrentProgram = glCreateProgram();
+                glAttachShader(mCurrentProgram, shaderHandle);
+                mProgramDirty = true;
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexShader");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
     }
 
     //--------------------------------------------------------------------------
@@ -1386,28 +1807,46 @@ namespace Tiny3D
         size_t bytecodeLength = 0;
         const char *bytecode = shader->getBytesCode(bytecodeLength);
 
-        glShader->GLShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
-        GLint len = static_cast<GLint>(bytecodeLength);
-        glShaderSource(glShader->GLShaderHandle, 1, &bytecode, &len);
-        glCompileShader(glShader->GLShaderHandle);
+        String shaderSource(bytecode, bytecodeLength);
 
-        GLint compiled = 0;
-        glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
-        if (!compiled)
+        auto lambda = [this](const GL4PixelShaderPtr &glShader, String shaderSource)
         {
-            GLint logLen = 0;
-            glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
-            if (logLen > 0)
-            {
-                TArray<char> log(logLen + 1, 0);
-                glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Pixel shader compile error: %s", log.data());
-            }
-            GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
-            return nullptr;
-        }
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelShader");
+            do
+            {
+                const char *src = shaderSource.c_str();
+                GLint len = static_cast<GLint>(shaderSource.size());
+
+                glShader->GLShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
+                glShaderSource(glShader->GLShaderHandle, 1, &src, &len);
+                glCompileShader(glShader->GLShaderHandle);
+
+                GLint compiled = 0;
+                glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
+                if (!compiled)
+                {
+                    GLint logLen = 0;
+                    glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
+                    if (logLen > 0)
+                    {
+                        TArray<char> log(logLen + 1, 0);
+                        glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Pixel shader compile error: %s", log.data());
+                    }
+                    GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
+                    ret = T3D_ERR_GL4_COMPILE_SHADER;
+                    break;
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelShader");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glShader, shaderSource);
+        if (T3D_FAILED(ret)) { return nullptr; }
         return glShader;
     }
 
@@ -1416,17 +1855,29 @@ namespace Tiny3D
     TResult GL4Context::setPixelShader(ShaderVariant *shader)
     {
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
+        GLuint shaderHandle = glShader->GLShaderHandle;
 
-        if (mCurrentProgram == 0)
-        {
-            mCurrentProgram = glCreateProgram();
-        }
-        glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
-        mProgramDirty = true;
         mCurrentPSVariant = shader;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPixelShader");
-        return T3D_OK;
+        auto lambda = [this](GLuint shaderHandle)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                if (mCurrentProgram == 0)
+                {
+                    mCurrentProgram = glCreateProgram();
+                }
+                glAttachShader(mCurrentProgram, shaderHandle);
+                mProgramDirty = true;
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPixelShader");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
     }
 
     //--------------------------------------------------------------------------
@@ -1487,28 +1938,46 @@ namespace Tiny3D
         size_t bytecodeLength = 0;
         const char *bytecode = shader->getBytesCode(bytecodeLength);
 
-        glShader->GLShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
-        GLint len = static_cast<GLint>(bytecodeLength);
-        glShaderSource(glShader->GLShaderHandle, 1, &bytecode, &len);
-        glCompileShader(glShader->GLShaderHandle);
+        String shaderSource(bytecode, bytecodeLength);
 
-        GLint compiled = 0;
-        glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
-        if (!compiled)
+        auto lambda = [this](const GL4GeometryShaderPtr &glShader, String shaderSource)
         {
-            GLint logLen = 0;
-            glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
-            if (logLen > 0)
-            {
-                TArray<char> log(logLen + 1, 0);
-                glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Geometry shader compile error: %s", log.data());
-            }
-            GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
-            return nullptr;
-        }
+            TResult ret = T3D_OK;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createGeometryShader");
+            do
+            {
+                const char *src = shaderSource.c_str();
+                GLint len = static_cast<GLint>(shaderSource.size());
+
+                glShader->GLShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
+                glShaderSource(glShader->GLShaderHandle, 1, &src, &len);
+                glCompileShader(glShader->GLShaderHandle);
+
+                GLint compiled = 0;
+                glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
+                if (!compiled)
+                {
+                    GLint logLen = 0;
+                    glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
+                    if (logLen > 0)
+                    {
+                        TArray<char> log(logLen + 1, 0);
+                        glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Geometry shader compile error: %s", log.data());
+                    }
+                    GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
+                    ret = T3D_ERR_GL4_COMPILE_SHADER;
+                    break;
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createGeometryShader");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glShader, shaderSource);
+        if (T3D_FAILED(ret)) { return nullptr; }
         return glShader;
     }
 
@@ -1517,16 +1986,26 @@ namespace Tiny3D
     TResult GL4Context::setGeometryShader(ShaderVariant *shader)
     {
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
+        GLuint shaderHandle = glShader->GLShaderHandle;
 
-        if (mCurrentProgram == 0)
+        auto lambda = [this](GLuint shaderHandle)
         {
-            mCurrentProgram = glCreateProgram();
-        }
+            TResult ret = T3D_OK;
 
-        glAttachShader(mCurrentProgram, glShader->GLShaderHandle);
+            do
+            {
+                if (mCurrentProgram == 0)
+                {
+                    mCurrentProgram = glCreateProgram();
+                }
+                glAttachShader(mCurrentProgram, shaderHandle);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setGeometryShader");
+            } while (false);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setGeometryShader");
-        return T3D_OK;
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
     }
 
     //--------------------------------------------------------------------------
@@ -1565,12 +2044,97 @@ namespace Tiny3D
 
     TResult GL4Context::compileShader(ShaderVariant *shader)
     {
-        // OpenGL 使用 GLSL，编译发生在 createXXXShader 中（glCompileShader）
-        // compileShader 在 GL4 中只需标记已编译，源码即字节码
         size_t bytesLength = 0;
         const char *bytes = shader->getBytesCode(bytesLength);
         shader->setBytesCode(bytes, bytesLength);
-        return T3D_OK;
+
+        return glslangCompileAndReflect(shader);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::glslangCompileAndReflect(ShaderVariant *shader)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            EShLanguage glslangStage;
+            switch (shader->getShaderStage())
+            {
+            case SHADER_STAGE::kVertex:   glslangStage = EShLangVertex; break;
+            case SHADER_STAGE::kPixel:    glslangStage = EShLangFragment; break;
+            case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; break;
+            default:
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslangCompileAndReflect: unsupported shader stage !");
+                ret = T3D_ERR_GL4_SHADER_REFLECTION;
+                break;
+            }
+
+            if (T3D_FAILED(ret))
+                break;
+
+            size_t bytesLength = 0;
+            const char *source = shader->getBytesCode(bytesLength);
+
+            glslang::TShader glslangShader(glslangStage);
+            int sourceLen = static_cast<int>(bytesLength);
+            glslangShader.setStringsWithLengths(&source, &sourceLen, 1);
+
+            const TBuiltInResource *resources = GetDefaultResources();
+            if (!glslangShader.parse(resources, 400, false, EShMsgDefault))
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang parse error:\n%s", glslangShader.getInfoLog());
+                ret = T3D_ERR_GL4_SHADER_REFLECTION;
+                break;
+            }
+
+            glslang::TProgram program;
+            program.addShader(&glslangShader);
+
+            if (!program.link(EShMsgDefault))
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang link error:\n%s", program.getInfoLog());
+                ret = T3D_ERR_GL4_SHADER_REFLECTION;
+                break;
+            }
+
+            if (!program.buildReflection(EShReflectionAllBlockVariables))
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang buildReflection failed !");
+                ret = T3D_ERR_GL4_SHADER_REFLECTION;
+                break;
+            }
+
+            GlslangReflectionData data;
+
+            int numBlocks = program.getNumUniformBlocks();
+            data.blocks.resize(numBlocks);
+            for (int i = 0; i < numBlocks; ++i)
+            {
+                const auto &block = program.getUniformBlock(i);
+                data.blocks[i].name = block.name.c_str();
+                data.blocks[i].size = block.size;
+            }
+
+            int numUniforms = program.getNumUniformVariables();
+            data.uniforms.resize(numUniforms);
+            for (int i = 0; i < numUniforms; ++i)
+            {
+                const auto &uniform = program.getUniform(i);
+                data.uniforms[i].name = uniform.name.c_str();
+                data.uniforms[i].glDefineType = uniform.glDefineType;
+                data.uniforms[i].offset = uniform.offset;
+                data.uniforms[i].size = uniform.size;
+                data.uniforms[i].blockIndex = uniform.index;
+                data.uniforms[i].arrayStride = uniform.arrayStride;
+            }
+
+            mReflectionCache[shader] = std::move(data);
+
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -1581,93 +2145,40 @@ namespace Tiny3D
 
         do
         {
-            // 为了反射，需要先创建一个临时 program 并 link
-            GLuint tempProgram = glCreateProgram();
-
-            GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-            if (glShader == nullptr || glShader->GLShaderHandle == 0)
+            auto itr = mReflectionCache.find(shader);
+            if (itr == mReflectionCache.end())
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Cannot reflect shader: RHI shader is null !");
-                glDeleteProgram(tempProgram);
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectShaderAllBindings: no cached reflection data (compileShader not called?)");
                 ret = T3D_ERR_GL4_SHADER_REFLECTION;
                 break;
             }
 
-            glAttachShader(tempProgram, glShader->GLShaderHandle);
-            // Allow linking with a single shader stage for reflection purposes
-            glProgramParameteri(tempProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
-            glLinkProgram(tempProgram);
+            const GlslangReflectionData &data = itr->second;
 
-            GLint linked = 0;
-            glGetProgramiv(tempProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
+            // Reflect Uniform Blocks (cbuffers) — iterate block members
+            for (int blockIdx = 0; blockIdx < static_cast<int>(data.blocks.size()); ++blockIdx)
             {
-                GLint logLen = 0;
-                glGetProgramiv(tempProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
+                for (const auto &uniform : data.uniforms)
                 {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(tempProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Shader link error during reflection: %s", log.data());
-                }
-                glDeleteProgram(tempProgram);
-                ret = T3D_ERR_GL4_LINK_PROGRAM;
-                break;
-            }
+                    if (uniform.blockIndex != blockIdx)
+                        continue;
 
-            // 反射 Uniform Blocks (对应 D3D11 的 cbuffer)
-            GLint numBlocks = 0;
-            glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
-
-            for (GLint i = 0; i < numBlocks; ++i)
-            {
-                char blockName[256] = {};
-                GLsizei nameLen = 0;
-                glGetActiveUniformBlockName(tempProgram, i, sizeof(blockName), &nameLen, blockName);
-
-                GLint blockSize = 0;
-                glGetActiveUniformBlockiv(tempProgram, i, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-
-                GLint numUniforms = 0;
-                glGetActiveUniformBlockiv(tempProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numUniforms);
-
-                TArray<GLint> uniformIndices(numUniforms);
-                glGetActiveUniformBlockiv(tempProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, uniformIndices.data());
-
-                for (GLint j = 0; j < numUniforms; ++j)
-                {
-                    GLuint idx = static_cast<GLuint>(uniformIndices[j]);
-                    char uniformName[256] = {};
-                    GLsizei uniformNameLen = 0;
-                    GLint uniformSize = 0;
-                    GLenum uniformType = 0;
-                    glGetActiveUniform(tempProgram, idx, sizeof(uniformName), &uniformNameLen, &uniformSize, &uniformType, uniformName);
-
-                    GLint offset = 0;
-                    glGetActiveUniformsiv(tempProgram, 1, &idx, GL_UNIFORM_OFFSET, &offset);
-
-                    GLint arrayStride = 0;
-                    glGetActiveUniformsiv(tempProgram, 1, &idx, GL_UNIFORM_ARRAY_STRIDE, &arrayStride);
-
-                    // 计算 data size
                     uint32_t dataSize = 0;
                     ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
 
-                    switch (uniformType)
+                    switch (uniform.glDefineType)
                     {
-                    case GL_FLOAT:       dataSize = sizeof(float) * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT; break;
-                    case GL_FLOAT_VEC4:  dataSize = sizeof(float) * 4 * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4; break;
-                    case GL_FLOAT_MAT4:  dataSize = sizeof(float) * 16 * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4; break;
-                    case GL_INT:         dataSize = sizeof(int) * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER; break;
-                    case GL_BOOL:        dataSize = sizeof(int) * uniformSize; dataType = (uniformSize > 1) ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL; break;
-                    default:             dataSize = arrayStride > 0 ? arrayStride * uniformSize : 4 * uniformSize; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
+                    case GL_FLOAT:       dataSize = sizeof(float) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT; break;
+                    case GL_FLOAT_VEC4:  dataSize = sizeof(float) * 4 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4; break;
+                    case GL_FLOAT_MAT4:  dataSize = sizeof(float) * 16 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4; break;
+                    case GL_INT:         dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER; break;
+                    case GL_BOOL:        dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL; break;
+                    default:             dataSize = uniform.arrayStride > 0 ? uniform.arrayStride * uniform.size : 4 * uniform.size; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
                     }
 
                     // Convert SPIRV-Cross generated names back to original names
-                    // UBO block name: "type_Xxx" -> "Xxx" (strip "type_" prefix)
-                    // Uniform name: "Instance.member" -> "member" (strip instance name + dot)
-                    String cbufferName(blockName);
-                    String cname(uniformName);
+                    String cbufferName = data.blocks[blockIdx].name;
+                    String cname = uniform.name;
 
                     if (StringUtil::startsWith(cbufferName, "type_"))
                     {
@@ -1680,38 +2191,31 @@ namespace Tiny3D
                         cname = cname.substr(dotPos + 1);
                     }
 
-                    // Strip array suffix [0] that OpenGL adds to array uniform names
                     String::size_type bracketPos = cname.find('[');
                     if (bracketPos != String::npos)
                     {
                         cname = cname.substr(0, bracketPos);
                     }
 
-                    ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, i, dataSize, offset, dataType);
+                    ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, blockIdx, dataSize, uniform.offset, dataType);
                     constantParams.emplace(param->getName(), param);
 
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - UBO name: %s -> %s, uniform name: %s -> %s, type: %u, size: %u, offset: %d", blockName, cbufferName.c_str(), uniformName, cname.c_str(), dataType, dataSize, offset);
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - UBO: %s -> %s, uniform: %s -> %s, type: %u, size: %u, offset: %d",
+                        data.blocks[blockIdx].name.c_str(), cbufferName.c_str(), uniform.name.c_str(), cname.c_str(), dataType, dataSize, uniform.offset);
                 }
             }
 
-            // 反射独立 Uniform（纹理采样器）
-            GLint numUniforms = 0;
-            glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-
+            // Reflect standalone Uniforms (texture samplers)
             uint32_t samplerIndex = 0;
-            for (GLint i = 0; i < numUniforms; ++i)
+            for (const auto &uniform : data.uniforms)
             {
-                char uniformName[256] = {};
-                GLsizei nameLen = 0;
-                GLint uniformSize = 0;
-                GLenum uniformType = 0;
-                glGetActiveUniform(tempProgram, i, sizeof(uniformName), &nameLen, &uniformSize, &uniformType, uniformName);
+                if (uniform.blockIndex >= 0)
+                    continue;
 
-                // 只处理采样器类型
                 bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
 
-                switch (uniformType)
+                switch (uniform.glDefineType)
                 {
                 case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
                 case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
@@ -1723,19 +2227,12 @@ namespace Tiny3D
 
                 if (isSampler)
                 {
-                    GLint loc = glGetUniformLocation(tempProgram, uniformName);
-                    if (loc < 0)
-                        continue;
+                    String name = uniform.name;
 
-                    String name(uniformName);
-
-                    // Convert SPIRV-Cross combined sampler name to original texture name
-                    // Pattern: "SPIRV_Cross_Combined<texName>sampler<texName>" -> "<texName>"
                     const String kSpirvPrefix = "SPIRV_Cross_Combined";
                     if (StringUtil::startsWith(name, kSpirvPrefix, false))
                     {
                         String remainder = name.substr(kSpirvPrefix.size());
-                        // Find "sampler" keyword in the remainder to extract texture name
                         String::size_type samplerPos = remainder.find("sampler");
                         if (samplerPos != String::npos && samplerPos > 0)
                         {
@@ -1744,32 +2241,27 @@ namespace Tiny3D
                     }
 
                     ShaderSamplerParamPtr param;
-                    const auto itr = samplerParams.find(name);
-                    if (itr == samplerParams.end())
+                    const auto it = samplerParams.find(name);
+                    if (it == samplerParams.end())
                     {
                         param = ShaderSamplerParam::create(name);
                         samplerParams.emplace(name, param);
                     }
                     else
                     {
-                        param = itr->second;
+                        param = it->second;
                     }
 
-                    // 使用从 0 开始递增的索引作为 binding，
-                    // 与 setupSamplerBindings() 中的 texUnit 递增顺序一致
                     param->setTexBinding(samplerIndex);
                     param->setSamplerBinding(samplerIndex);
                     param->setTextureType(texType);
 
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - sampler name: %s -> %s, binding: %d, type: %d", uniformName, name.c_str(), samplerIndex, texType);
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - sampler: %s -> %s, binding: %d, type: %d",
+                        uniform.name.c_str(), name.c_str(), samplerIndex, texType);
                     samplerIndex++;
                 }
             }
 
-            glDetachShader(tempProgram, glShader->GLShaderHandle);
-            glDeleteProgram(tempProgram);
-
-            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reflectShaderAllBindings");
         } while (false);
 
         return ret;
@@ -1783,52 +2275,26 @@ namespace Tiny3D
 
         do
         {
-            GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-            if (glShader == nullptr || glShader->GLShaderHandle == 0)
+            auto itr = mReflectionCache.find(shader);
+            if (itr == mReflectionCache.end())
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectSamplerBindings: RHI shader is null !");
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectSamplerBindings: no cached reflection data (compileShader not called?)");
                 ret = T3D_ERR_GL4_SHADER_REFLECTION;
                 break;
             }
 
-            GLuint tempProgram = glCreateProgram();
-            glAttachShader(tempProgram, glShader->GLShaderHandle);
-            glProgramParameteri(tempProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
-            glLinkProgram(tempProgram);
-
-            GLint linked = 0;
-            glGetProgramiv(tempProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
-            {
-                GLint logLen = 0;
-                glGetProgramiv(tempProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
-                {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(tempProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectSamplerBindings link error: %s", log.data());
-                }
-                glDeleteProgram(tempProgram);
-                ret = T3D_ERR_GL4_LINK_PROGRAM;
-                break;
-            }
-
-            GLint numUniforms = 0;
-            glGetProgramiv(tempProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+            const GlslangReflectionData &data = itr->second;
 
             uint32_t samplerIndex = 0;
-            for (GLint i = 0; i < numUniforms; ++i)
+            for (const auto &uniform : data.uniforms)
             {
-                char uniformName[256] = {};
-                GLsizei nameLen = 0;
-                GLint uniformSize = 0;
-                GLenum uniformType = 0;
-                glGetActiveUniform(tempProgram, i, sizeof(uniformName), &nameLen, &uniformSize, &uniformType, uniformName);
+                if (uniform.blockIndex >= 0)
+                    continue;
 
                 bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
 
-                switch (uniformType)
+                switch (uniform.glDefineType)
                 {
                 case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
                 case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
@@ -1840,11 +2306,7 @@ namespace Tiny3D
 
                 if (isSampler)
                 {
-                    GLint loc = glGetUniformLocation(tempProgram, uniformName);
-                    if (loc < 0)
-                        continue;
-
-                    String name(uniformName);
+                    String name = uniform.name;
 
                     const String kSpirvPrefix = "SPIRV_Cross_Combined";
                     if (StringUtil::startsWith(name, kSpirvPrefix, false))
@@ -1857,22 +2319,18 @@ namespace Tiny3D
                         }
                     }
 
-                    auto itr = samplerParams.find(name);
-                    if (itr != samplerParams.end())
+                    auto it = samplerParams.find(name);
+                    if (it != samplerParams.end())
                     {
-                        itr->second->setTexBinding(samplerIndex);
-                        itr->second->setSamplerBinding(samplerIndex);
-                        itr->second->setTextureType(texType);
+                        it->second->setTexBinding(samplerIndex);
+                        it->second->setSamplerBinding(samplerIndex);
+                        it->second->setTextureType(texType);
                     }
 
                     samplerIndex++;
                 }
             }
 
-            glDetachShader(tempProgram, glShader->GLShaderHandle);
-            glDeleteProgram(tempProgram);
-
-            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reflectSamplerBindings");
         } while (false);
 
         return ret;
@@ -1882,79 +2340,116 @@ namespace Tiny3D
 
     TResult GL4Context::setPrimitiveType(PrimitiveType primitive)
     {
-        mPrimitiveType = GL4Mapping::get(primitive);
-        return T3D_OK;
+        GLenum glPrimitive = GL4Mapping::get(primitive);
+
+        auto lambda = [this](GLenum glPrimitive)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                mPrimitiveType = glPrimitive;
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, glPrimitive);
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
     {
-        if (mCurrentProgram != 0 && mProgramDirty)
+        auto lambda = [this](uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
         {
-            glLinkProgram(mCurrentProgram);
+            TResult ret = T3D_OK;
 
-            GLint linked = 0;
-            glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
+            do
             {
-                GLint logLen = 0;
-                glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
+                if (mCurrentProgram != 0 && mProgramDirty)
                 {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+                    glLinkProgram(mCurrentProgram);
+
+                    GLint linked = 0;
+                    glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
+                    if (!linked)
+                    {
+                        GLint logLen = 0;
+                        glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
+                        if (logLen > 0)
+                        {
+                            TArray<char> log(logLen + 1, 0);
+                            glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+                        }
+                        ret = T3D_ERR_GL4_LINK_PROGRAM;
+                        break;
+                    }
+
+                    glUseProgram(mCurrentProgram);
+                    bindPendingUniformBlocks(mCurrentProgram);
+                    setupSamplerBindings(mCurrentProgram);
+                    mProgramDirty = false;
                 }
-                return T3D_ERR_GL4_LINK_PROGRAM;
-            }
 
-            glUseProgram(mCurrentProgram);
-            bindPendingUniformBlocks(mCurrentProgram);
-            setupSamplerBindings(mCurrentProgram);
-            mProgramDirty = false;
-        }
+                const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
+                glDrawElementsBaseVertex(mPrimitiveType, indexCount, mIndexType, offset, baseVertex);
 
-        const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
-        glDrawElementsBaseVertex(mPrimitiveType, indexCount, mIndexType, offset, baseVertex);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::render(indexed)");
+            } while (false);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::render(indexed)");
-        return T3D_OK;
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, indexCount, startIndex, baseVertex);
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::render(uint32_t vertexCount, uint32_t startVertex)
     {
-        if (mCurrentProgram != 0 && mProgramDirty)
+        auto lambda = [this](uint32_t vertexCount, uint32_t startVertex)
         {
-            glLinkProgram(mCurrentProgram);
+            TResult ret = T3D_OK;
 
-            GLint linked = 0;
-            glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
+            do
             {
-                GLint logLen = 0;
-                glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
+                if (mCurrentProgram != 0 && mProgramDirty)
                 {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+                    glLinkProgram(mCurrentProgram);
+
+                    GLint linked = 0;
+                    glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
+                    if (!linked)
+                    {
+                        GLint logLen = 0;
+                        glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
+                        if (logLen > 0)
+                        {
+                            TArray<char> log(logLen + 1, 0);
+                            glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+                        }
+                        ret = T3D_ERR_GL4_LINK_PROGRAM;
+                        break;
+                    }
+
+                    glUseProgram(mCurrentProgram);
+                    bindPendingUniformBlocks(mCurrentProgram);
+                    setupSamplerBindings(mCurrentProgram);
+                    mProgramDirty = false;
                 }
-                return T3D_ERR_GL4_LINK_PROGRAM;
-            }
 
-            glUseProgram(mCurrentProgram);
-            bindPendingUniformBlocks(mCurrentProgram);
-            setupSamplerBindings(mCurrentProgram);
-            mProgramDirty = false;
-        }
+                glDrawArrays(mPrimitiveType, startVertex, vertexCount);
 
-        glDrawArrays(mPrimitiveType, startVertex, vertexCount);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::render(non-indexed)");
+            } while (false);
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::render(non-indexed)");
-        return T3D_OK;
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, startVertex);
     }
 
     //--------------------------------------------------------------------------
@@ -1962,23 +2457,33 @@ namespace Tiny3D
     TResult GL4Context::reset()
     {
         mCurrentRenderTarget = nullptr;
-
-        glUseProgram(0);
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // 删除当前 program，下次渲染重新创建
-        GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
-        mPendingUBOs.clear();
-        mProgramDirty = false;
-        mCurrentVAO = 0;
         mCurrentVSVariant = nullptr;
         mCurrentPSVariant = nullptr;
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reset");
-        return T3D_OK;
+        auto lambda = [this]()
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glUseProgram(0);
+                glBindVertexArray(0);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
+                mPendingUBOs.clear();
+                mProgramDirty = false;
+                mCurrentVAO = 0;
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reset");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
     }
 
     //--------------------------------------------------------------------------
@@ -1998,7 +2503,6 @@ namespace Tiny3D
         if (src == nullptr || dst == nullptr)
             return T3D_ERR_INVALID_PARAM;
 
-        // 获取源纹理的 FBO（作为 READ framebuffer）
         Texture2D *tex2D = static_cast<Texture2D*>(src);
         GL4PixelBuffer2D *glSrcPB = static_cast<GL4PixelBuffer2D*>(
             tex2D->getPixelBuffer()->getRHIResource().get());
@@ -2008,13 +2512,12 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-        // 确定目标 FBO
         GLuint dstFBO = 0;
         GLsizei dstWidth = 0, dstHeight = 0;
 
         if (dst->getType() == RenderTarget::Type::E_RT_WINDOW)
         {
-            dstFBO = 0; // 默认帧缓冲
+            dstFBO = 0;
             dstWidth = static_cast<GLsizei>(dst->getRenderWindow()->getDescriptor().Width);
             dstHeight = static_cast<GLsizei>(dst->getRenderWindow()->getDescriptor().Height);
         }
@@ -2030,15 +2533,13 @@ namespace Tiny3D
             }
         }
 
-        // srcOffset 和 size 是像素坐标
         GLint srcX0 = static_cast<GLint>(srcOffset.x());
         GLint srcY0 = static_cast<GLint>(srcOffset.y());
         GLint srcX1 = srcX0 + static_cast<GLint>(size.x());
         GLint srcY1 = srcY0 + static_cast<GLint>(size.y());
 
-        // 投影矩阵 Y 翻转后 FBO 中内容为 top-down，blit 到 backbuffer 时
-        // 需要交换 src Y 坐标让 glBlitFramebuffer 自动翻转图像
-        if (mProjectionFlipped && dst->getType() == RenderTarget::Type::E_RT_WINDOW)
+        bool flipY = mProjectionFlipped && (dst->getType() == RenderTarget::Type::E_RT_WINDOW);
+        if (flipY)
         {
             GLint tmp = srcY0;
             srcY0 = srcY1;
@@ -2050,44 +2551,53 @@ namespace Tiny3D
         GLint dstX1 = dstX0 + static_cast<GLint>(size.x());
         GLint dstY1 = dstY0 + static_cast<GLint>(size.y());
 
-        // 确定实际读取的 FBO
         GLuint readFBO = glSrcPB->GLFBO;
+        bool needResolve = (glSrcPB->GLMSAACount > 1 && glSrcPB->GLResolveFBO != 0);
+        GLuint resolveFBO = glSrcPB->GLResolveFBO;
+        GLuint srcFBO = glSrcPB->GLFBO;
+        GLint texW = static_cast<GLint>(tex2D->getWidth());
+        GLint texH = static_cast<GLint>(tex2D->getHeight());
 
-        // 如果源是 MSAA 纹理且有 resolve 资源，先做 MSAA Resolve
-        // （参照 D3D11 的 ResolveSubresource 模式）
-        if (glSrcPB->GLMSAACount > 1 && glSrcPB->GLResolveFBO != 0)
+        auto lambda = [this](GLuint srcFBO, GLuint resolveFBO, GLuint dstFBO,
+            bool needResolve, GLint texW, GLint texH,
+            GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+            GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1)
         {
-            // 获取源纹理的完整尺寸用于 resolve
-            GLint texW = static_cast<GLint>(tex2D->getWidth());
-            GLint texH = static_cast<GLint>(tex2D->getHeight());
+            TResult ret = T3D_OK;
 
-            // 步骤1：从 MSAA FBO resolve 到非多采样的 GLResolveFBO
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, glSrcPB->GLFBO);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glSrcPB->GLResolveFBO);
-            glBlitFramebuffer(
-                0, 0, texW, texH,
-                0, 0, texW, texH,
-                GL_COLOR_BUFFER_BIT, GL_NEAREST);
-            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "blit: MSAA resolve");
+            do
+            {
+                GLuint readFBO = srcFBO;
 
-            // 步骤2：使用 resolve 后的 FBO 作为读取源
-            readFBO = glSrcPB->GLResolveFBO;
-        }
+                if (needResolve)
+                {
+                    glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFBO);
+                    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFBO);
+                    glBlitFramebuffer(0, 0, texW, texH, 0, 0, texW, texH,
+                        GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "blit: MSAA resolve");
+                    readFBO = resolveFBO;
+                }
 
-        // 从（resolve 后的）源 blit 到目标
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFBO);
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFBO);
 
-        glBlitFramebuffer(
+                glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
+                    dstX0, dstY0, dstX1, dstY1,
+                    GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::blit(Texture->RenderTarget)");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, srcFBO, resolveFBO, dstFBO,
+            needResolve, texW, texH,
             srcX0, srcY0, srcX1, srcY1,
-            dstX0, dstY0, dstX1, dstY1,
-            GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-        // 恢复：将当前 render target 的 FBO 重新绑定
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::blit(Texture->RenderTarget)");
-        return T3D_OK;
+            dstX0, dstY0, dstX1, dstY1);
     }
 
     //--------------------------------------------------------------------------
@@ -2118,60 +2628,81 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        do
-        {
-            GLenum target = 0;
-            GLuint glBuf = 0;
+        GLenum target = 0;
+        GLuint glBuf = 0;
+        bool isTexture = false;
+        GLuint texHandle = 0;
 
-            switch (renderBuffer->getRHIResource()->getResourceType())
+        switch (renderBuffer->getRHIResource()->getResourceType())
+        {
+        case RHIResource::ResourceType::kVertexBuffer:
+            target = GL_ARRAY_BUFFER;
+            glBuf = static_cast<GL4VertexBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
+            break;
+        case RHIResource::ResourceType::kIndexBuffer:
+            target = GL_ELEMENT_ARRAY_BUFFER;
+            glBuf = static_cast<GL4IndexBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
+            break;
+        case RHIResource::ResourceType::kConstantBuffer:
+            target = GL_UNIFORM_BUFFER;
+            glBuf = static_cast<GL4ConstantBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            isTexture = true;
+            texHandle = static_cast<GL4PixelBuffer2D*>(renderBuffer->getRHIResource().get())->GLTexture;
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Unsupported resource type for writeBuffer");
+            return T3D_ERR_GL4_INVALID_USAGE;
+        }
+
+        if (isTexture)
+        {
+            auto lambda = [this](GLuint texHandle, Buffer buffer)
             {
-            case RHIResource::ResourceType::kVertexBuffer:
-                target = GL_ARRAY_BUFFER;
-                glBuf = static_cast<GL4VertexBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
-                break;
-            case RHIResource::ResourceType::kIndexBuffer:
-                target = GL_ELEMENT_ARRAY_BUFFER;
-                glBuf = static_cast<GL4IndexBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
-                break;
-            case RHIResource::ResourceType::kConstantBuffer:
-                target = GL_UNIFORM_BUFFER;
-                glBuf = static_cast<GL4ConstantBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
-                break;
-            case RHIResource::ResourceType::kPixelBuffer2D:
+                TResult ret = T3D_OK;
+
+                do
                 {
-                    GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(renderBuffer->getRHIResource().get());
-                    glBindTexture(GL_TEXTURE_2D, glPB->GLTexture);
+                    glBindTexture(GL_TEXTURE_2D, texHandle);
                     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                        0, 0, // 需要实际的宽高，这里简化处理
+                        0, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data);
                     glBindTexture(GL_TEXTURE_2D, 0);
                     GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer(texture)");
-                    return T3D_OK;
+                } while (false);
+
+                return ret;
+            };
+
+            return ENQUEUE_UNIQUE_COMMAND(lambda, texHandle, buffer);
+        }
+
+        auto lambda = [this](GLenum target, GLuint glBuf, Buffer buffer, bool discardWholeBuffer)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                glBindBuffer(target, glBuf);
+
+                if (discardWholeBuffer)
+                {
+                    glBufferData(target, (GLsizeiptr)buffer.DataSize, buffer.Data, GL_DYNAMIC_DRAW);
                 }
-            default:
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Unsupported resource type for writeBuffer");
-                return T3D_ERR_GL4_INVALID_USAGE;
-            }
+                else
+                {
+                    glBufferSubData(target, 0, (GLsizeiptr)buffer.DataSize, buffer.Data);
+                }
 
-            glBindBuffer(target, glBuf);
+                glBindBuffer(target, 0);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer");
+            } while (false);
 
-            if (discardWholeBuffer)
-            {
-                // 用 glBufferData 整体替换（类似 MAP_WRITE_DISCARD）
-                glBufferData(target, (GLsizeiptr)buffer.DataSize, buffer.Data, GL_DYNAMIC_DRAW);
-            }
-            else
-            {
-                // 用 glBufferSubData 更新部分
-                glBufferSubData(target, 0, (GLsizeiptr)buffer.DataSize, buffer.Data);
-            }
+            return ret;
+        };
 
-            glBindBuffer(target, 0);
-
-            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer");
-        } while (false);
-
-        return ret;
+        return ENQUEUE_UNIQUE_COMMAND(lambda, target, glBuf, buffer, discardWholeBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -2317,14 +2848,33 @@ namespace Tiny3D
 
     TResult GL4Context::stageConstantBuffers(const ConstantBuffers &buffers)
     {
+        // 主线程提取 UBO 名称和 GL 句柄到 POD 数组，避免 lambda 中访问引擎对象
+        using UBOBinding = std::pair<String, GLuint>;
+        TArray<UBOBinding> uboBindings;
+        uboBindings.reserve(buffers.size());
+
         for (uint32_t i = 0; i < buffers.size(); ++i)
         {
             GL4ConstantBuffer *glCB = static_cast<GL4ConstantBuffer*>(buffers[i]->getRHIResource().get());
-            const String &name = buffers[i]->getName();
-            mPendingUBOs[name] = glCB->GLBuffer;
+            uboBindings.push_back({buffers[i]->getName(), glCB->GLBuffer});
         }
 
-        return T3D_OK;
+        auto lambda = [this](TArray<UBOBinding> uboBindings)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                for (const auto &binding : uboBindings)
+                {
+                    mPendingUBOs[binding.first] = binding.second;
+                }
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, uboBindings);
     }
 
     //--------------------------------------------------------------------------
@@ -2334,11 +2884,17 @@ namespace Tiny3D
         T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindPixelBuffers: startSlot=%d bufferCount=%d",
             startSlot, (int)buffers.size());
 
+        // 提取 GL 句柄和目标到 POD 数组，避免在 lambda 中访问引擎对象
+        struct TexBinding { GLuint handle; GLenum target; };
+        TArray<TexBinding> bindings;
+        bindings.reserve(buffers.size());
+
         for (uint32_t i = 0; i < buffers.size(); ++i)
         {
             if (buffers[i] == nullptr)
             {
                 T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  pixelBuffer[%d]: NULL (skipped)", i);
+                bindings.push_back({0, GL_TEXTURE_2D});
                 continue;
             }
 
@@ -2367,38 +2923,75 @@ namespace Tiny3D
                 break;
             }
 
-            GLuint slot = startSlot + i;
             T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  pixelBuffer[%d]: texHandle=%u texTarget=0x%X -> GL_TEXTURE%d",
-                i, texHandle, texTarget, slot);
-            glActiveTexture(GL_TEXTURE0 + slot);
-            glBindTexture(texTarget, texHandle);
+                i, texHandle, texTarget, startSlot + i);
+            bindings.push_back({texHandle, texTarget});
         }
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPixelBuffers");
-        return T3D_OK;
+        auto lambda = [this](uint32_t startSlot, TArray<TexBinding> bindings)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                for (uint32_t i = 0; i < bindings.size(); ++i)
+                {
+                    if (bindings[i].handle == 0) continue;
+                    glActiveTexture(GL_TEXTURE0 + startSlot + i);
+                    glBindTexture(bindings[i].target, bindings[i].handle);
+                }
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPixelBuffers");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, bindings);
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::bindSamplers(uint32_t startSlot, const Samplers &samplers)
     {
+        // 提取 GL 句柄到 POD 数组
+        TArray<GLuint> samplerHandles;
+        samplerHandles.reserve(samplers.size());
+
         for (uint32_t i = 0; i < samplers.size(); ++i)
         {
             if (samplers[i] != nullptr)
             {
                 GL4SamplerState *glSampler = static_cast<GL4SamplerState*>(samplers[i]->getRHIState().get());
-                GLuint slot = startSlot + i;
-                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u glSampler=%u", slot, glSampler->GLSampler);
-                glBindSampler(slot, glSampler->GLSampler);
+                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u glSampler=%u", startSlot + i, glSampler->GLSampler);
+                samplerHandles.push_back(glSampler->GLSampler);
             }
             else
             {
                 T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u sampler=NULL", startSlot + i);
+                samplerHandles.push_back(0);
             }
         }
 
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindSamplers");
-        return T3D_OK;
+        auto lambda = [this](uint32_t startSlot, TArray<GLuint> samplerHandles)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                for (uint32_t i = 0; i < samplerHandles.size(); ++i)
+                {
+                    if (samplerHandles[i] != 0)
+                    {
+                        glBindSampler(startSlot + i, samplerHandles[i]);
+                    }
+                }
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindSamplers");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, samplerHandles);
     }
 
     //--------------------------------------------------------------------------
