@@ -51,20 +51,7 @@ TResult ResourceApp::go(int32_t argc, char *argv[])
     TResult ret;
 
     Agent *theEngine = T3D_NEW Agent();
-    Settings settings;
-    settings.pluginSettings.pluginPath = ".";
-    settings.pluginSettings.plugins.push_back("FileSystemArchive");
-    settings.pluginSettings.plugins.push_back("MetaFSArchive");
-    settings.pluginSettings.plugins.push_back("D3D11Renderer");
-    settings.pluginSettings.plugins.push_back("GL4Renderer");
-    settings.pluginSettings.plugins.push_back("FreeImageCodec");
-
-#if defined (T3D_OS_WINDOWS)
-    settings.renderSettings.renderer = RHIRenderer::OPENGL4;
-#else
-#endif
-    
-    ret = theEngine->init(argc, argv, true, true, settings);
+    ret = theEngine->init(argc, argv, true, true);
     if (ret == T3D_OK)
         theEngine->run();
 
@@ -113,6 +100,14 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
     // camera
     buildCamera(root);
+
+    // load MetaFSArchive plugin on demand (not in shared Tiny3D.cfg)
+    TResult ret = T3D_AGENT.loadPlugin("MetaFSArchive");
+    if (T3D_FAILED(ret))
+    {
+        APP_LOG_DEBUG("Failed to load MetaFSArchive plugin ! ERROR [%d]", ret);
+        return ret;
+    }
 
     // mesh
     loadMesh(root);
