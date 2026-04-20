@@ -29,6 +29,7 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include <functional>
 
 
 namespace Tiny3D
@@ -50,6 +51,10 @@ namespace Tiny3D
         bool isRunning() const { return mIsRunning; }
 
         TResult addCommand(RHICommand * command);
+
+        /// 设置 RHI 线程初始化回调（在线程首次执行命令前调用，用于绑定 GL context 等）
+        using ThreadInitCallback = std::function<void()>;
+        void setThreadInitCallback(ThreadInitCallback cb) { mThreadInitCallback = std::move(cb); }
 
         template <typename T>
         struct function_traits;
@@ -131,6 +136,8 @@ namespace Tiny3D
         int32_t                         mEnqueueCommandListIdx {0};
         /// 线程是否在运行
         bool                            mIsRunning {false};
+        /// RHI 线程初始化回调
+        ThreadInitCallback              mThreadInitCallback;
     };
 
     #define T3D_RHI_THREAD      (RHIThread::getInstance())

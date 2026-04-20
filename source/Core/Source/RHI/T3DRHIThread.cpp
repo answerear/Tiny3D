@@ -94,6 +94,13 @@ namespace Tiny3D
 
             if (!mIsRunning)
                 break;
+
+            // 在 RHI 线程上执行一次性初始化（如绑定 GL context）
+            if (mThreadInitCallback)
+            {
+                mThreadInitCallback();
+                mThreadInitCallback = nullptr;
+            }
             
             // 循环执行 RHI 命令
             for (auto &command : mCommandLists[mHanldeCommandListIdx])
