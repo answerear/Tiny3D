@@ -56,7 +56,7 @@ namespace Tiny3D
     };
 
     
-    class RenderStateManager
+    class T3D_ENGINE_API RenderStateManager
         : public RenderResourceManager
         , public Singleton<RenderStateManager>
     {
