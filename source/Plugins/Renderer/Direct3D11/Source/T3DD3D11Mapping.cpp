@@ -614,6 +614,15 @@ namespace Tiny3D
         case VertexAttribute::Type::E_VAT_UBYTE4:
             d3dformat = DXGI_FORMAT_R8G8B8A8_UINT;
             break;
+        case VertexAttribute::Type::E_VAT_UBYTE4_NORM:
+            d3dformat = DXGI_FORMAT_R8G8B8A8_UNORM;
+            break;
+        case VertexAttribute::Type::E_VAT_BYTE4:
+            d3dformat = DXGI_FORMAT_R8G8B8A8_SINT;
+            break;
+        case VertexAttribute::Type::E_VAT_BYTE4_NORM:
+            d3dformat = DXGI_FORMAT_R8G8B8A8_SNORM;
+            break;
         }
 
         return d3dformat;

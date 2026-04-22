@@ -1044,6 +1044,16 @@ namespace Tiny3D
         mD3DDeviceContext->OMGetBlendState(&mBackupState.BlendState, mBackupState.BlendFactor, &mBackupState.SampleMask);
         mD3DDeviceContext->OMGetDepthStencilState(&mBackupState.DepthStencilState, &mBackupState.StencilRef);
         mD3DDeviceContext->RSGetState(&mBackupState.RasterizerState);
+
+        // 备份完成后，解绑所有 SRV 和 RTV，避免后续 OMSetRenderTargets 时
+        // 新的 RTV 与残留的 SRV 指向同一资源导致 D3D11 HAZARD 警告。
+        // reset() 还原时会把备份的状态设回去。
+        ID3D11ShaderResourceView* nullSRVs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+        mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+        mD3DDeviceContext->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRVs);
+
+        ID3D11RenderTargetView* nullRTVs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
+        mD3DDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTVs, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -1691,12 +1701,18 @@ namespace Tiny3D
                     // 创建顶点缓冲区子资源数据
                     D3D11_SUBRESOURCE_DATA initData;
                     memset(&initData, 0, sizeof(initData));
-                    initData.pSysMem = buffer->getBuffer().Data;
-                    initData.SysMemPitch = 0;
-                    initData.SysMemSlicePitch = 0;
+                    D3D11_SUBRESOURCE_DATA *pInitData = nullptr;
+
+                    if (buffer->getBuffer().Data != nullptr)
+                    {
+                        initData.pSysMem = buffer->getBuffer().Data;
+                        initData.SysMemPitch = 0;
+                        initData.SysMemSlicePitch = 0;
+                        pInitData = &initData;
+                    }
 
                     ID3D11Buffer *pD3DBuffer = nullptr;
-                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, pInitData, &pD3DBuffer);
                     if (FAILED(hr))
                     {
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create vertex buffer ! DX ERROR [%d]", hr);
@@ -1775,15 +1791,21 @@ namespace Tiny3D
                 
                 do
                 {
-                    // 创建顶点缓冲区子资源数据
+                    // 创建索引缓冲区子资源数据
                     D3D11_SUBRESOURCE_DATA initData;
                     memset(&initData, 0, sizeof(initData));
-                    initData.pSysMem = buffer->getBuffer().Data;
-                    initData.SysMemPitch = 0;
-                    initData.SysMemSlicePitch = 0;
+                    D3D11_SUBRESOURCE_DATA *pInitData = nullptr;
+
+                    if (buffer->getBuffer().Data != nullptr)
+                    {
+                        initData.pSysMem = buffer->getBuffer().Data;
+                        initData.SysMemPitch = 0;
+                        initData.SysMemSlicePitch = 0;
+                        pInitData = &initData;
+                    }
 
                     ID3D11Buffer *pD3DBuffer = nullptr;
-                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, &initData, &pD3DBuffer);
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, pInitData, &pD3DBuffer);
                     if (FAILED(hr))
                     {
                         T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create index buffer ! DX ERROR [%d]", hr);
@@ -3092,7 +3114,9 @@ namespace Tiny3D
 
             // 还原顶点缓冲区和索引缓冲区
             mD3DDeviceContext->IASetVertexBuffers(0, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT, mBackupState.VertexBuffers, mBackupState.VertexBufferStrides, mBackupState.VertexBufferOffsets);
+            D3D_SAFE_RELEASE_ARRAY(mBackupState.VertexBuffers);
             mD3DDeviceContext->IASetIndexBuffer(mBackupState.IndexBuffer, mBackupState.IndexBufferFormat, mBackupState.IndexBufferOffset);
+            D3D_SAFE_RELEASE(mBackupState.IndexBuffer);
 
             // 还原拓扑为默认（通常是三角形列表）
             mD3DDeviceContext->IASetPrimitiveTopology(mBackupState.PrimitiveTopology);
