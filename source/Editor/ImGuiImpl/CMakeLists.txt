@@ -7,5 +7,6 @@
 
 
 add_subdirectory(ImGuiDX11)
+add_subdirectory(ImGuiTiny3D)
 
 
