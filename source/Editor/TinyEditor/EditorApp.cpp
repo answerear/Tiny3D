@@ -34,6 +34,7 @@
 #include "TestScene.h"
 
 
+
 Tiny3D::Editor::EditorApp *app = nullptr;
 
 namespace Tiny3D
@@ -42,6 +43,7 @@ namespace Tiny3D
 
     EditorApp theApp;
 
+    #define IMGUI_TINY3D_PLUGIN "ImGuiTiny3D"
     #define IMGUI_DX11_PLUGIN   "ImGuiDX11"
 
     //--------------------------------------------------------------------------
@@ -202,7 +204,7 @@ namespace Tiny3D
                 ss << argv[i] << " ";
             }
             
-            T3D_LOG_INFO(LOG_TAG_EDITOR, "Tthe number of arguments : %d, Command line : %s", argc, ss.str().c_str());
+            T3D_LOG_INFO(LOG_TAG_EDITOR, "The number of arguments : %d, Command line : %s", argc, ss.str().c_str());
             
             if (!parseCommandLine(argc, argv))
             {
@@ -401,10 +403,15 @@ namespace Tiny3D
 
         do
         {
-            ret = mEngine->loadPlugin(IMGUI_DX11_PLUGIN);
+#if defined(USE_DX_IMGUI)
+            const char *kImguiPlugin = IMGUI_DX11_PLUGIN;
+#else
+            const char *kImguiPlugin = IMGUI_TINY3D_PLUGIN;
+#endif
+            ret = mEngine->loadPlugin(kImguiPlugin);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Load ImGuiDX11 plugin failed ! ERROR [%d]", ret);
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Load %s plugin failed ! ERROR [%d]", kImguiPlugin, ret);
                 break;
             }
 
@@ -440,22 +447,32 @@ namespace Tiny3D
             }
 
             style.WindowMenuButtonPosition = ImGuiDir_None;
-            
-#if defined (T3D_OS_WINDOWS)
+
+#if defined(USE_DX_IMGUI)
+#if defined(T3D_OS_WINDOWS)
             EditorInfoDX11 info;
             mEngine->getEditorInfo(&info);
             mImGuiImpl->init(&info);
             mSDLWindow = info.sdlWindow;
-#elif defined (T3D_OS_OSX)
-#elif defined (T3D_OS_LINUX)
+#elif defined(T3D_OS_OSX)
+#elif defined(T3D_OS_LINUX)
+#endif
 #endif
 
+            // 先加载字体（必须在 init 之前，因为 init 内部会调用 createFontTexture 构建字体纹理）
             String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Editor" + Dir::getNativeSeparator() + "fonts" + Dir::getNativeSeparator() + "arial unicode ms.ttf";
             ImFont *font = io.Fonts->AddFontFromFileTTF(path.c_str(), 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
             mFontMap.emplace(16, font);
             font = io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
             mFontMap.emplace(20, font);
             io.FontDefault = font;
+
+#if !defined(USE_DX_IMGUI)
+            // 传入 RenderWindow 作为初始化数据，ImGuiImplRHI 内部通过 RHI 自行获取所需资源
+            RenderWindow *renderWindow = T3D_AGENT.getDefaultRenderWindow();
+            mImGuiImpl->init(renderWindow);
+            mSDLWindow = static_cast<SDL_Window *>(renderWindow->getNativeObject());
+#endif
         } while (false);
 
         return ret;
@@ -465,7 +482,12 @@ namespace Tiny3D
 
     void EditorApp::destroyImGuiEnv()
     {
-        mEngine->unloadPlugin(IMGUI_DX11_PLUGIN);
+#if defined(USE_DX_IMGUI)
+        const char *kImguiPlugin = IMGUI_DX11_PLUGIN;
+#else
+        const char *kImguiPlugin = IMGUI_TINY3D_PLUGIN;
+#endif
+        mEngine->unloadPlugin(kImguiPlugin);
         ImGui::DestroyContext();
     }
 
@@ -669,12 +691,17 @@ namespace Tiny3D
                 {
                     if (event.window.windowID == SDL_GetWindowID(mSDLWindow))
                     {
-#if defined (T3D_OS_WINDOWS)
+#if defined(USE_DX_IMGUI)
+#if defined(T3D_OS_WINDOWS)
                         EditorInfoDX11 info;
                         T3D_AGENT.getEditorInfo(&info);
                         mImGuiImpl->refreshInfo(&info);
-#elif defined (T3D_OS_OSX)
-#elif defined (T3D_OS_LINUX)
+#elif defined(T3D_OS_OSX)
+#elif defined(T3D_OS_LINUX)
+#endif
+#else
+                        RenderWindow *renderWindow = T3D_AGENT.getDefaultRenderWindow();
+                        mImGuiImpl->refreshInfo(renderWindow);
 #endif
                     }
                 }

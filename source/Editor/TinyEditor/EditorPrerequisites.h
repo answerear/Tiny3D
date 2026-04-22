@@ -32,6 +32,7 @@
 #include "SDL.h"
 
 
+
 #define NS_BEGIN(name)  namespace name {
 #define NS_END    }
 

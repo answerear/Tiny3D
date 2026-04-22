@@ -47,7 +47,11 @@ namespace Tiny3D
             auto itr = mTextures.find(name);
             if (itr != mTextures.end())
             {
+#if defined(USE_DX_IMGUI)
                 texID = itr->second->texture->getPixelBuffer()->getRHIResource()->getNativeObject();
+#else
+                texID = reinterpret_cast<ImTextureID>(itr->second->texture->getPixelBuffer());
+#endif
                 itr->second->refCount++;
                 break;
             }
@@ -57,7 +61,11 @@ namespace Tiny3D
             ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
             T3D_ASSERT(image != nullptr);
             Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image);
+#if defined(USE_DX_IMGUI)
             texID = texture->getPixelBuffer()->getRHIResource()->getNativeObject();
+#else
+            texID = reinterpret_cast<ImTextureID>(texture->getPixelBuffer());
+#endif
             TextureData *texData = new TextureData(texture);
             texData->refCount++;
             mTextures.emplace(name, texData);
