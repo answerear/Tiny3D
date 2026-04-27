@@ -678,9 +678,23 @@ namespace Tiny3D
             MetaShaderLab *metaShaderLab = (MetaShaderLab*)meta.get();
 
             // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
+            // 根据当前渲染后端选择编译目标语言
+            String targetLang = "hlsl";
+            {
+                RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+                if (renderer != nullptr)
+                {
+                    const String &name = renderer->getName();
+                    if (name == RHIRenderer::OPENGL4 || name == RHIRenderer::NULL_OPENGL4)
+                    {
+                        targetLang = "glsl";
+                    }
+                }
+            }
+
 #if defined (T3D_OS_WINDOWS)
             String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
-            String cmdLine =  inputPath + " -t hlsl" + " -o " + outputPath + " -u " + metaShaderLab->getShaderUUID().toString();
+            String cmdLine =  inputPath + " -t " + targetLang + " -o " + outputPath + " -u " + metaShaderLab->getShaderUUID().toString();
 #elif defined (T3D_OS_LINUX)
 #elif defined (T3D_OS_MAC)
 #endif

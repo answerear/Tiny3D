@@ -353,7 +353,10 @@ namespace Tiny3D
             settings.pluginSettings.plugins.emplace_back("FileSystemArchiveEditor");
             // settings.pluginSettings.plugins.emplace_back("MetaFSArchive");
             settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
+            settings.pluginSettings.plugins.emplace_back("GL4RendererEditor");
             settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
+            settings.renderSettings.renderer = RHIRenderer::OPENGL4;
+//             settings.renderSettings.renderer = RHIRenderer::DIRECT3D11;
             
             // 初始化引擎，只有初始化后才能使用
             ret = mEngine->init(argc, argv, true, true, settings, kEvtMax);
@@ -487,6 +490,8 @@ namespace Tiny3D
 #else
         const char *kImguiPlugin = IMGUI_TINY3D_PLUGIN;
 #endif
+        // 先卸载插件（~ImGuiImplTiny3D 中清理 Renderer 回调指针和 SDL 平台层），
+        // 再销毁 ImGui context（DestroyPlatformWindows 不会调用已清理的 Renderer 回调）。
         mEngine->unloadPlugin(kImguiPlugin);
         ImGui::DestroyContext();
     }
@@ -753,12 +758,16 @@ namespace Tiny3D
         mImGuiImpl->postRender();
 
         // Update and Render additional Platform Windows
+        // 注意：非 DX 路径（ImGuiImplTiny3D）已在 postRender() 内部完成
+        // multi-viewport 渲染及 GL context 恢复，此处仅 DX 路径需要执行。
+#if defined(USE_DX_IMGUI)
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
         }
+#endif
     }
 
     //--------------------------------------------------------------------------

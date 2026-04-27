@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -64,10 +64,22 @@ namespace Tiny3D
             void setupRenderState(ImDrawData *drawData);
             void renderDrawData(ImDrawData *drawData);
 
+            /// 渲染次级 viewport 的 DrawData（不绑定引擎 RenderTarget，直接渲染到当前 FBO）
+            void renderViewportDrawData(ImDrawData *drawData);
+
+            /// 初始化 multi-viewport 支持：注册 Renderer 端回调
+            void initMultiViewportSupport();
+
             /// 注册纹理到映射表，返回 ImTextureID
             ImTextureID registerTexture(const PixelBuffer2DPtr &texture);
             /// 根据 ImTextureID 查找纹理智能指针
             PixelBuffer2DPtr findTexture(ImTextureID texID) const;
+
+            // ImGui multi-viewport Renderer 端回调（静态函数）
+            static void ImGui_Renderer_CreateWindow(ImGuiViewport *vp);
+            static void ImGui_Renderer_DestroyWindow(ImGuiViewport *vp);
+            static void ImGui_Renderer_RenderWindow(ImGuiViewport *vp, void *render_arg);
+            static void ImGui_Renderer_SetWindowSize(ImGuiViewport *vp, ImVec2 size);
 
             // 内嵌着色器源码
             static const char *sImGuiVS_HLSL;

@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -24,6 +24,7 @@
 
 
 #include "ImGuiImplTiny3D.h"
+#include <SDL.h>
 
 
 namespace Tiny3D
@@ -89,7 +90,7 @@ namespace Tiny3D
             "layout (location = 0) in vec2 Position;\n"
             "layout (location = 1) in vec2 UV;\n"
             "layout (location = 2) in vec4 Color;\n"
-            "uniform mat4 ProjMtx;\n"
+            "layout(std140) uniform ImGuiProjMtx { mat4 ProjMtx; };\n"
             "out vec2 Frag_UV;\n"
             "out vec4 Frag_Color;\n"
             "void main()\n"
@@ -122,6 +123,19 @@ namespace Tiny3D
         {
             if (mInitialized)
             {
+                // 清理 multi-viewport Renderer 回调指针（必须在 SDL Shutdown 和 DLL 卸载之前），
+                // 否则后续 ImGui::DestroyContext → DestroyPlatformWindows 会调用悬空指针。
+                ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
+                platform_io.Renderer_CreateWindow = nullptr;
+                platform_io.Renderer_DestroyWindow = nullptr;
+                platform_io.Renderer_RenderWindow = nullptr;
+                platform_io.Renderer_SetWindowSize = nullptr;
+                platform_io.Renderer_SwapBuffers = nullptr;
+
+                ImGuiIO &io = ImGui::GetIO();
+                io.BackendRendererUserData = nullptr;
+                io.BackendFlags &= ~ImGuiBackendFlags_RendererHasViewports;
+
                 ImGui_ImplSDL2_Shutdown();
             }
 
@@ -151,8 +165,45 @@ namespace Tiny3D
             mRenderWindow = static_cast<RenderWindow *>(initData);
             mSDLWindow = static_cast<SDL_Window *>(mRenderWindow->getNativeObject());
 
-            // 初始化 SDL2 平台层（与图形 API 无关）
-            ImGui_ImplSDL2_InitForOther(mSDLWindow);
+            // 通过 RHI 接口获取原生 context（GL4 返回 HGLRC/GLXContext，D3D11 返回 nullptr）
+            RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
+            void *nativeCtx = ctx->getNativeContext();
+
+            T3D_LOG_INFO(LOG_TAG_IMGUITINY3D, "init: nativeContext=%p", nativeCtx);
+
+            // 初始化 SDL2 平台层
+            if (nativeCtx != nullptr)
+            {
+                // 让 SDL 追踪引擎的 GL context（引擎通过 wglCreateContextAttribsARB 创建，
+                // SDL 未追踪，需要先 MakeCurrent 一次让 SDL 内部记录）。
+                // 这样后续 SDL_GL_GetCurrentContext() 才能返回正确的 context，
+                // 子窗口创建流程中的 backup/restore 逻辑才能正常工作。
+                SDL_GL_MakeCurrent(mSDLWindow, (SDL_GLContext)nativeCtx);
+
+                // GL 后端：使用原生 context 初始化 SDL2 OpenGL 支持
+                ImGui_ImplSDL2_InitForOpenGL(mSDLWindow, nativeCtx);
+            }
+            else
+            {
+                // D3D11 等非 GL 后端
+                ImGui_ImplSDL2_InitForOther(mSDLWindow);
+            }
+
+            // Renderer multi-viewport 支持
+            ImGuiIO &io = ImGui::GetIO();
+            io.BackendRendererUserData = this;
+
+            // 仅在有原生 context 时启用 multi-viewport Renderer 回调
+            if (nativeCtx != nullptr)
+            {
+                io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
+                initMultiViewportSupport();
+            }
+            else
+            {
+                // 无原生 context，关闭 ViewportsEnable
+                io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
+            }
 
             // 通过引擎 RHI 创建渲染资源
             createShaders();
@@ -189,15 +240,18 @@ namespace Tiny3D
 
         void ImGuiImplTiny3D::preRender()
         {
-            // 设置渲染目标为默认窗口并清屏
             RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
+
+            // 先 reset 清理上一帧遗留状态
+            ctx->reset();
+
+            // 再设置渲染目标并清屏
             if (mRenderTarget == nullptr)
             {
                 mRenderTarget = RenderTarget::create(mRenderWindow);
             }
             ctx->setRenderTarget(mRenderTarget.get());
             ctx->clearColor(ColorRGB(0.45f, 0.55f, 0.60f));
-            ctx->reset();
         }
 
         //----------------------------------------------------------------------
@@ -212,6 +266,18 @@ namespace Tiny3D
 
             RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
             ctx->reset();
+
+            // Multi-viewport: 渲染次级 viewport 窗口
+            ImGuiIO &io = ImGui::GetIO();
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+
+                // 恢复主窗口渲染 context（GL4: wglMakeCurrent, D3D11: no-op）
+                ctx->restoreNativeContext();
+                ctx->reset();
+            }
         }
 
         //----------------------------------------------------------------------
@@ -314,7 +380,7 @@ namespace Tiny3D
             SamplerDesc sampDesc;
             sampDesc.MinFilter = FilterOptions::kLinear;
             sampDesc.MagFilter = FilterOptions::kLinear;
-            sampDesc.MipFilter = FilterOptions::kLinear;
+            sampDesc.MipFilter = FilterOptions::kNone;
             sampDesc.AddressU = TextureAddressMode::kWrap;
             sampDesc.AddressV = TextureAddressMode::kWrap;
             sampDesc.AddressW = TextureAddressMode::kWrap;
@@ -470,6 +536,18 @@ namespace Tiny3D
             float T = drawData->DisplayPos.y;
             float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
+            // 首帧诊断日志
+            {
+                static bool sFirstSetup = true;
+                if (sFirstSetup)
+                {
+                    T3D_LOG_INFO(LOG_TAG_IMGUITINY3D,
+                        "setupRenderState [DIAG]: L=%.1f R=%.1f T=%.1f B=%.1f (W=%.1f H=%.1f)",
+                        L, R, T, B, R - L, B - T);
+                    sFirstSetup = false;
+                }
+            }
+
             float mvp[4][4] =
             {
                 { 2.0f / (R - L),       0.0f,                0.0f, 0.0f },
@@ -489,19 +567,9 @@ namespace Tiny3D
             cbs.push_back(mConstantBuffer);
             ctx->setVSConstantBuffers(0, cbs);
 
-            // 设置顶点缓冲
-            VertexBuffers vbs;
-            vbs.push_back(mVertexBuffer);
-            VertexStrides strides;
-            strides.push_back(sizeof(ImDrawVert));
-            VertexOffsets offsets;
-            offsets.push_back(0);
-            ctx->setVertexBuffers(0, vbs, strides, offsets);
-
-            // 设置索引缓冲
-            ctx->setIndexBuffer(mIndexBuffer.get());
-
-            // 创建并设置顶点声明（InputLayout）
+            // 创建并设置顶点声明（InputLayout / VAO）
+            // 注意：在 OpenGL 中必须先绑定 VAO，再设置 VB/IB，
+            // 因为 GL_ELEMENT_ARRAY_BUFFER 绑定是 VAO 状态的一部分。
             if (mVertexDecl == nullptr)
             {
                 VertexAttributes attrs;
@@ -531,6 +599,18 @@ namespace Tiny3D
             }
 
             ctx->setVertexDeclaration(mVertexDecl.get());
+
+            // 设置顶点缓冲
+            VertexBuffers vbs;
+            vbs.push_back(mVertexBuffer);
+            VertexStrides strides;
+            strides.push_back(sizeof(ImDrawVert));
+            VertexOffsets offsets;
+            offsets.push_back(0);
+            ctx->setVertexBuffers(0, vbs, strides, offsets);
+
+            // 设置索引缓冲
+            ctx->setIndexBuffer(mIndexBuffer.get());
         }
 
         //----------------------------------------------------------------------
@@ -541,9 +621,30 @@ namespace Tiny3D
             if (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f)
                 return;
 
+            // 首帧诊断日志
+            static bool sFirstFrame = true;
+            if (sFirstFrame)
+            {
+                T3D_LOG_INFO(LOG_TAG_IMGUITINY3D,
+                    "renderDrawData [DIAG]: DisplayPos=(%.1f,%.1f) DisplaySize=(%.1f,%.1f) "
+                    "FbScale=(%.2f,%.2f) TotalVtxCount=%d TotalIdxCount=%d CmdListsCount=%d",
+                    drawData->DisplayPos.x, drawData->DisplayPos.y,
+                    drawData->DisplaySize.x, drawData->DisplaySize.y,
+                    drawData->FramebufferScale.x, drawData->FramebufferScale.y,
+                    drawData->TotalVtxCount, drawData->TotalIdxCount,
+                    drawData->CmdListsCount);
+                sFirstFrame = false;
+            }
+
             RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
 
-            // 重新设置 render target（引擎渲染管线可能在 preRender 和 postRender 之间重置了 RT）
+            // 清理引擎渲染管线遗留的 GL 状态（program、VAO、FBO 等），
+            // 确保后续 ImGui 渲染的状态链完整、从零开始设置。
+            // 注意：reset() 会将 mCurrentRenderTarget 置为 nullptr，
+            // 因此必须在之后重新 setRenderTarget。
+            ctx->reset();
+
+            // 重新设置 render target
             if (mRenderTarget != nullptr)
             {
                 ctx->setRenderTarget(mRenderTarget.get());
@@ -696,6 +797,213 @@ namespace Tiny3D
                 globalIdxOffset += cmdList->IdxBuffer.Size;
                 globalVtxOffset += cmdList->VtxBuffer.Size;
             }
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplTiny3D::initMultiViewportSupport()
+        {
+            ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
+            platform_io.Renderer_CreateWindow = ImGui_Renderer_CreateWindow;
+            platform_io.Renderer_DestroyWindow = ImGui_Renderer_DestroyWindow;
+            platform_io.Renderer_RenderWindow = ImGui_Renderer_RenderWindow;
+            platform_io.Renderer_SetWindowSize = ImGui_Renderer_SetWindowSize;
+        }
+
+        //----------------------------------------------------------------------
+
+        void ImGuiImplTiny3D::renderViewportDrawData(ImDrawData *drawData)
+        {
+            if (drawData == nullptr || drawData->TotalVtxCount == 0)
+                return;
+
+            // 避免在最小化时渲染
+            if (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f)
+                return;
+
+            RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
+
+            // 次级 viewport 渲染：GL context 已被 Platform_RenderWindow 切换到子窗口，
+            // 引擎的 GL 状态追踪（mCurrentProgram、mCurrentVAO 等）已失效，先 reset。
+            ctx->reset();
+
+            // 不绑定引擎 mRenderTarget（那是主窗口的），
+            // 直接渲染到子窗口的默认 framebuffer (FBO 0)。
+            // resetRenderTarget 会 glBindFramebuffer(GL_FRAMEBUFFER, 0)。
+            ctx->resetRenderTarget();
+
+            // 确保缓冲区足够大
+            createBuffers(drawData->TotalVtxCount, drawData->TotalIdxCount);
+
+            // 上传顶点和索引数据到 GPU 缓冲区
+            {
+                size_t totalVtxSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
+                size_t totalIdxSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+                uint8_t *vtxDst = T3D_POD_NEW_ARRAY(uint8_t, totalVtxSize);
+                uint8_t *idxDst = T3D_POD_NEW_ARRAY(uint8_t, totalIdxSize);
+
+                size_t vtxOffset = 0;
+                size_t idxOffset = 0;
+
+                for (int n = 0; n < drawData->CmdListsCount; n++)
+                {
+                    const ImDrawList *cmdList = drawData->CmdLists[n];
+
+                    size_t vtxSize = cmdList->VtxBuffer.Size * sizeof(ImDrawVert);
+                    memcpy(vtxDst + vtxOffset, cmdList->VtxBuffer.Data, vtxSize);
+                    vtxOffset += vtxSize;
+
+                    size_t idxSize = cmdList->IdxBuffer.Size * sizeof(ImDrawIdx);
+                    memcpy(idxDst + idxOffset, cmdList->IdxBuffer.Data, idxSize);
+                    idxOffset += idxSize;
+                }
+
+                if (mVertexBuffer->getBufferSize() < totalVtxSize)
+                {
+                    mVertexBuffer = nullptr;
+                    mVertexBufferSize = drawData->TotalVtxCount + 5000;
+
+                    Buffer vbResize;
+                    vbResize.DataSize = mVertexBufferSize * sizeof(ImDrawVert);
+                    vbResize.Data = T3D_POD_NEW_ARRAY(uint8_t, vbResize.DataSize);
+                    memcpy(vbResize.Data, vtxDst, totalVtxSize);
+                    memset(vbResize.Data + totalVtxSize, 0, vbResize.DataSize - totalVtxSize);
+
+                    mVertexBuffer = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
+                        sizeof(ImDrawVert), mVertexBufferSize, vbResize,
+                        MemoryType::kVRAM, Usage::kDynamic, kCPUWrite);
+                }
+                else
+                {
+                    Buffer vtxData;
+                    vtxData.DataSize = totalVtxSize;
+                    vtxData.Data = vtxDst;
+                    mVertexBuffer->writeData(0, vtxData, true);
+                    vtxData.Data = nullptr;
+                }
+
+                if (mIndexBuffer->getBufferSize() < totalIdxSize)
+                {
+                    mIndexBuffer = nullptr;
+                    mIndexBufferSize = drawData->TotalIdxCount + 10000;
+
+                    Buffer ibResize;
+                    ibResize.DataSize = mIndexBufferSize * sizeof(ImDrawIdx);
+                    ibResize.Data = T3D_POD_NEW_ARRAY(uint8_t, ibResize.DataSize);
+                    memcpy(ibResize.Data, idxDst, totalIdxSize);
+                    memset(ibResize.Data + totalIdxSize, 0, ibResize.DataSize - totalIdxSize);
+
+                    mIndexBuffer = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(
+                        sizeof(ImDrawIdx) == 2 ? IndexType::E_IT_16BITS : IndexType::E_IT_32BITS,
+                        mIndexBufferSize, ibResize,
+                        MemoryType::kVRAM, Usage::kDynamic, kCPUWrite);
+                }
+                else
+                {
+                    Buffer idxData;
+                    idxData.DataSize = totalIdxSize;
+                    idxData.Data = idxDst;
+                    mIndexBuffer->writeData(0, idxData, true);
+                    idxData.Data = nullptr;
+                }
+
+                T3D_POD_SAFE_DELETE_ARRAY(vtxDst);
+                T3D_POD_SAFE_DELETE_ARRAY(idxDst);
+            }
+
+            // 设置渲染状态
+            setupRenderState(drawData);
+
+            // 渲染 ImGui 命令列表
+            int globalIdxOffset = 0;
+            int globalVtxOffset = 0;
+            ImVec2 clipOff = drawData->DisplayPos;
+
+            for (int n = 0; n < drawData->CmdListsCount; n++)
+            {
+                const ImDrawList *cmdList = drawData->CmdLists[n];
+
+                for (int cmdIdx = 0; cmdIdx < cmdList->CmdBuffer.Size; cmdIdx++)
+                {
+                    const ImDrawCmd *pcmd = &cmdList->CmdBuffer[cmdIdx];
+
+                    if (pcmd->UserCallback != nullptr)
+                    {
+                        if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+                        {
+                            setupRenderState(drawData);
+                        }
+                        else
+                        {
+                            pcmd->UserCallback(cmdList, pcmd);
+                        }
+                    }
+                    else
+                    {
+                        ImVec2 clipMin(pcmd->ClipRect.x - clipOff.x, pcmd->ClipRect.y - clipOff.y);
+                        ImVec2 clipMax(pcmd->ClipRect.z - clipOff.x, pcmd->ClipRect.w - clipOff.y);
+                        if (clipMax.x <= clipMin.x || clipMax.y <= clipMin.y)
+                            continue;
+
+                        ImTextureID texID = pcmd->GetTexID();
+                        PixelBuffer2D *rawTexPtr = reinterpret_cast<PixelBuffer2D *>(texID);
+                        if (rawTexPtr == nullptr)
+                        {
+                            rawTexPtr = mFontTexture.get();
+                        }
+                        if (rawTexPtr != nullptr)
+                        {
+                            PixelBuffers texBuffers;
+                            texBuffers.push_back(PixelBuffer2DPtr(rawTexPtr));
+                            ctx->setPSPixelBuffers(0, texBuffers);
+                        }
+
+                        ctx->render(
+                            pcmd->ElemCount,
+                            pcmd->IdxOffset + globalIdxOffset,
+                            pcmd->VtxOffset + globalVtxOffset);
+                    }
+                }
+
+                globalIdxOffset += cmdList->IdxBuffer.Size;
+                globalVtxOffset += cmdList->VtxBuffer.Size;
+            }
+        }
+
+        //----------------------------------------------------------------------
+        // Multi-viewport Renderer 端回调
+        //----------------------------------------------------------------------
+
+        void ImGuiImplTiny3D::ImGui_Renderer_CreateWindow(ImGuiViewport *vp)
+        {
+            // 次级 viewport 窗口已由 SDL2 Platform_CreateWindow 创建，
+            // GL context 也已由 SDL2 通过 SDL_GL_CreateContext 创建（共享资源）。
+            // Renderer 端无需额外的创建操作。
+        }
+
+        void ImGuiImplTiny3D::ImGui_Renderer_DestroyWindow(ImGuiViewport *vp)
+        {
+            // GL context 由 SDL2 Platform_DestroyWindow 销毁。
+            // Renderer 端无需额外的销毁操作。
+        }
+
+        void ImGuiImplTiny3D::ImGui_Renderer_RenderWindow(ImGuiViewport *vp, void *render_arg)
+        {
+            // 此回调在 Platform_RenderWindow（SDL_GL_MakeCurrent 子 context）之后执行。
+            // 当前 GL context 已切换到子窗口的共享 context。
+            ImGuiIO &io = ImGui::GetIO();
+            ImGuiImplTiny3D *self = static_cast<ImGuiImplTiny3D *>(io.BackendRendererUserData);
+            if (self != nullptr)
+            {
+                self->renderViewportDrawData(vp->DrawData);
+            }
+        }
+
+        void ImGuiImplTiny3D::ImGui_Renderer_SetWindowSize(ImGuiViewport *vp, ImVec2 size)
+        {
+            // 子窗口 resize 时由 SDL2 处理，GL viewport 在 renderViewportDrawData
+            // 的 setupRenderState 中通过 setViewport 设置，无需额外操作。
         }
 
         //----------------------------------------------------------------------
