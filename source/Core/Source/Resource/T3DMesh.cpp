@@ -198,8 +198,22 @@ namespace Tiny3D
                     {
                         material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
                     }
+
+                    if (material == nullptr)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to load material for submesh [%s] !", submesh.first.c_str());
+                        ret = T3D_ERR_RES_LOAD_FAILED;
+                        break;
+                    }
                     
                     TechniqueInstance *tech = material->getCurrentTechnique();
+                    if (tech == nullptr)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Material has no valid technique (shader compile failed?) !");
+                        ret = T3D_ERR_RES_INVALID_SHADER;
+                        break;
+                    }
+
                     PassInstance *pass = nullptr;
                     
                     // 先找前向渲染的 pass 里面的 shader

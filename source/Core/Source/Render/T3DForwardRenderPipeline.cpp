@@ -110,6 +110,10 @@ namespace Tiny3D
         }
 
         Material *material = renderable->getMaterial();
+        if (material == nullptr || material->getCurrentTechnique() == nullptr)
+        {
+            return T3D_OK;
+        }
         uint32_t queue = material->getCurrentTechnique()->getTechnique()->getRenderQueue();
 
         auto itr = itCamera->second.find(queue);
@@ -363,6 +367,10 @@ namespace Tiny3D
                     const Renderables &renderables = itemGroup.second;
 
                     TechniqueInstancePtr tech = material->getCurrentTechnique();
+                    if (tech == nullptr)
+                    {
+                        continue;
+                    }
 
                     // 设置 material 对应的矩阵
                     setupShadowPassMatrices(ctx, material);
@@ -477,6 +485,10 @@ namespace Tiny3D
                     const Renderables &renderables = itemGroup.second;
 
                     TechniqueInstancePtr tech = material->getCurrentTechnique();
+                    if (tech == nullptr)
+                    {
+                        continue;
+                    }
 
                     // 设置 shadow map 纹理
                     material->setTexture("shadowMap", mShadowMapRT->getDepthStencil()->getUUID());

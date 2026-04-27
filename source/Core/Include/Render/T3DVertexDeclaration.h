@@ -65,8 +65,8 @@ namespace Tiny3D
         bool onUnload() override;
 
     protected:
-        /// 顶点属性列表
-        const VertexAttributes &mVertexAttributes;
+        /// 顶点属性列表（值拷贝，避免外部引用析构后悬垂）
+        const VertexAttributes mVertexAttributes;
         /// 数据 hash 值
         uint32_t    mHash {0};
         ShaderVariantPtr    mVertexShader {nullptr};
