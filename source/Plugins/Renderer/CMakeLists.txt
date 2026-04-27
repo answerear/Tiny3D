@@ -143,6 +143,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_GL4PLUS)
     else ()
         add_subdirectory(OpenGL4)
         add_dependencies(GL4Renderer T3DCore T3DMath T3DLog T3DPlatform T3DUtils)
+        add_dependencies(GL4RendererEditor T3DCoreEditor T3DMath T3DLog T3DPlatform T3DUtils)
     endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_GL4PLUS)
 
