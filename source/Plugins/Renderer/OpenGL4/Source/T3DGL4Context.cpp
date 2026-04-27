@@ -477,6 +477,16 @@ namespace Tiny3D
     {
         GL4RenderWindowPtr glRenderWindow = GL4RenderWindow::create(renderWindow);
 
+        // 保存主窗口 GL context/DC，供 getNativeContext()/restoreNativeContext() 使用
+#if defined(T3D_OS_WINDOWS)
+        mSavedGLContext = glRenderWindow->GLContext;
+        mSavedGLDC = glRenderWindow->GLDeviceContext;
+#elif defined(T3D_OS_LINUX)
+        mSavedGLContext = glRenderWindow->GLContext;
+        mSavedGLDisplay = glRenderWindow->GLDisplay;
+        mSavedGLWindow = glRenderWindow->GLWindow;
+#endif
+
         // GL4RenderWindow::init() 在主线程完成了 GL context 创建和初始化。
         // 当 RHI 线程启用时，需要将 GL context 从主线程转移到 RHI 线程：
         // 1. 主线程 release GL context
@@ -877,8 +887,34 @@ namespace Tiny3D
         }
         else
         {
-            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "GL4Context::setViewport: no render target");
-            return T3D_OK;
+            // 无引擎 RenderTarget 绑定（如 ImGui 子 viewport 渲染到默认 FBO），
+            // 将比例值传入 lambda，在 RHI 线程中通过 GL API 查询当前 viewport 尺寸。
+            // 这样无论同步还是异步模式都能正确工作。
+            auto lambda = [this](Viewport vp)
+            {
+                TResult ret = T3D_OK;
+                do
+                {
+                    GLint currentVP[4];
+                    glGetIntegerv(GL_VIEWPORT, currentVP);
+                    Real w = static_cast<Real>(currentVP[2]);
+                    Real h = static_cast<Real>(currentVP[3]);
+                    if (w <= 0 || h <= 0)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                            "GL4Context::setViewport: no render target and GL viewport is zero");
+                        break;
+                    }
+                    GLint x = static_cast<GLint>(vp.Left * w);
+                    GLint y = static_cast<GLint>(vp.Top * h);
+                    GLsizei gw = static_cast<GLsizei>(vp.Width * w);
+                    GLsizei gh = static_cast<GLsizei>(vp.Height * h);
+                    glViewport(x, y, gw, gh);
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setViewport(fallback)");
+                } while (false);
+                return ret;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda, viewport);
         }
 
         GLint x = static_cast<GLint>(viewport.Left * width);
@@ -906,9 +942,6 @@ namespace Tiny3D
 
     TResult GL4Context::clearColor(const ColorRGB &color)
     {
-        if (mCurrentRenderTarget == nullptr)
-            return T3D_OK;
-
         auto lambda = [this](ColorRGB color)
         {
             TResult ret = T3D_OK;
@@ -2703,6 +2736,36 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, target, glBuf, buffer, discardWholeBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void* GL4Context::getNativeContext() const
+    {
+#if defined(T3D_OS_WINDOWS)
+        return (void *)mSavedGLContext;
+#elif defined(T3D_OS_LINUX)
+        return (void *)mSavedGLContext;
+#else
+        return nullptr;
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::restoreNativeContext()
+    {
+#if defined(T3D_OS_WINDOWS)
+        if (mSavedGLContext != nullptr && mSavedGLDC != nullptr)
+        {
+            wglMakeCurrent(mSavedGLDC, mSavedGLContext);
+        }
+#elif defined(T3D_OS_LINUX)
+        if (mSavedGLContext != nullptr && mSavedGLDisplay != nullptr)
+        {
+            glXMakeCurrent(mSavedGLDisplay, mSavedGLWindow, mSavedGLContext);
+        }
+#endif
     }
 
     //--------------------------------------------------------------------------

@@ -606,6 +606,17 @@ namespace Tiny3D
          */
         virtual TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) = 0;
 
+        /**
+         * \brief 获取主渲染 context 的原生句柄
+         * \return GL 后端返回 HGLRC/GLXContext，D3D11 等返回 nullptr
+         */
+        virtual void* getNativeContext() const { return nullptr; }
+
+        /**
+         * \brief 恢复主窗口的渲染 context（multi-viewport 子窗口渲染后调用）
+         */
+        virtual void restoreNativeContext() {}
+
     protected:
         RHIContext();
 

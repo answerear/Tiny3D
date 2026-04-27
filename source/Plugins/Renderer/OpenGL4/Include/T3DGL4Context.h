@@ -144,6 +144,9 @@ namespace Tiny3D
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
+        void* getNativeContext() const override;
+        void restoreNativeContext() override;
+
         /// GLAD 是否已加载（供 GL4RenderWindow 检查，避免重复加载）
         bool isGLADLoaded() const { return mGLADLoaded; }
 
@@ -232,6 +235,16 @@ namespace Tiny3D
         /// 当前绑定的 VS/PS ShaderVariant（用于 setupSamplerBindings 查找 slot）
         ShaderVariant *mCurrentVSVariant {nullptr};
         ShaderVariant *mCurrentPSVariant {nullptr};
+
+        /// 主窗口 GL context 句柄（用于 multi-viewport 恢复）
+#if defined(T3D_OS_WINDOWS)
+        HGLRC   mSavedGLContext {nullptr};
+        HDC     mSavedGLDC {nullptr};
+#elif defined(T3D_OS_LINUX)
+        GLXContext  mSavedGLContext {nullptr};
+        Display    *mSavedGLDisplay {nullptr};
+        ::Window    mSavedGLWindow {0};
+#endif
 
         //-------------------------------------------------------------------
         // Dummy window/context 用于在 createRenderWindow 之前初始化 GLAD
