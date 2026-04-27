@@ -175,6 +175,20 @@ namespace Tiny3D
             auto frustum = go->addComponent<FrustumBound>();
             T3D_ASSERT(frustum != nullptr);
 
+            // Ambient Light
+            go = GameObject::create("Ambient Light");
+            xform = go->addComponent<Transform3D>();
+            gameNode->addChild(xform);
+            AmbientLightPtr ambientLight = go->addComponent<AmbientLight>();
+            ambientLight->setIntensity(0.2f);
+
+            // Directional Light
+            go = GameObject::create("Directional Light");
+            xform = go->addComponent<Transform3D>();
+            gameNode->addChild(xform);
+            xform->rotate(Degree(50), Degree(-30), Degree(0));
+            DirectionalLightPtr dirLight = go->addComponent<DirectionalLight>();
+
             const String sceneFolder = "Scenes";
             String scenePath = assetsPath + Dir::getNativeSeparator() + sceneFolder;
             // if (!Dir::makeDir(scenePath))
