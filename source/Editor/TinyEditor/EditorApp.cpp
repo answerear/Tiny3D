@@ -172,6 +172,12 @@ namespace Tiny3D
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mAppEventProxy)
+
+        // 确保 ImGui 插件在引擎销毁前被卸载，避免渲染器 DLL 先于 ImGui 插件卸载
+        // 导致 SmartPtr<RHIShader> 析构时虚函数表已失效而崩溃。
+        // destroyImGuiEnv() 内部有幂等保护，正常退出路径(shutdown)中已调用过时会安全跳过。
+        destroyImGuiEnv();
+
         T3D_SAFE_DELETE(mEngine)
 
         return ret;
@@ -484,6 +490,12 @@ namespace Tiny3D
 
     void EditorApp::destroyImGuiEnv()
     {
+        // 幂等保护：如果 ImGui 上下文尚未创建或已被销毁，则跳过
+        if (ImGui::GetCurrentContext() == nullptr)
+        {
+            return;
+        }
+
 #if defined(USE_DX_IMGUI)
         const char *kImguiPlugin = IMGUI_DX11_PLUGIN;
 #else
@@ -491,7 +503,10 @@ namespace Tiny3D
 #endif
         // 先卸载插件（~ImGuiImplTiny3D 中清理 Renderer 回调指针和 SDL 平台层），
         // 再销毁 ImGui context（DestroyPlatformWindows 不会调用已清理的 Renderer 回调）。
-        mEngine->unloadPlugin(kImguiPlugin);
+        if (mEngine != nullptr)
+        {
+            mEngine->unloadPlugin(kImguiPlugin);
+        }
         ImGui::DestroyContext();
     }
 
