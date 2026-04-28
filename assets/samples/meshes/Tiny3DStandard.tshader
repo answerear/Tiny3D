@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "6f08bee8f014080fd2372257a3e13c2a"
+          "RTTI_Value": "d407ceca4ee9f2d1c36d03f2ccc15bce"
         }
       },
       "ConstantValues": {
@@ -4814,7 +4814,7 @@
                               },
                               "DepthBias": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.0
+                                "RTTI_Value": 4.0
                               },
                               "DepthBiasClamp": {
                                 "RTTI_Type": "float",
@@ -4838,7 +4838,7 @@
                               },
                               "SlopeScaledDepthBias": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.0
+                                "RTTI_Value": 1.5
                               }
                             }
                           }

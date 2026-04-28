@@ -36,10 +36,12 @@ Shader "Tiny3DBuiltin/Standard"
 
 			Pass
 			{
-				Name "ShadowCaster"
-				Tags { "LightMode" = "ShadowCaster" }
+			Name "ShadowCaster"
+			Tags { "LightMode" = "ShadowCaster" }
 
-				CGPROGRAM
+			Offset 1.5, 4.0
+
+			CGPROGRAM
 				#pragma vertex vertShadowCaster
 				#pragma target 4.0
 

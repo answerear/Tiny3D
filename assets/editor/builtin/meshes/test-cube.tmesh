@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "e5aa95102403bbbdb55dac8128d56479"
+          "RTTI_Value": "80b55166f4b9c068d83728056f484082"
         }
       },
       "MeshNodeName": {
@@ -100,7 +100,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "cb3837bf6b0a6ee70a66e4e5c197aa47"
+                    "RTTI_Value": "ef9fd775425b7cd4540ff9af7c8f606c"
                   }
                 },
                 "Name": {
