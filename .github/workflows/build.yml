@@ -1,0 +1,166 @@
+name: Tiny3D Build
+
+on:
+  schedule:
+    # 每天 UTC 18:00 (北京时间凌晨 2:00)
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: |
+          pip install openpyxl pandas
+
+      - name: Setup MSVC dev environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      # ==================== 阶段一: 构建 RTTR 工具 ====================
+      - name: "Phase 1: Generate project and build RTTR tools"
+        shell: cmd
+        working-directory: source
+        run: |
+          rmdir /Q /S vs2019-x64 2>nul
+          rmdir /Q /S lib 2>nul
+          rmdir /Q /S bin 2>nul
+          mkdir vs2019-x64 && cd vs2019-x64
+          cmake -G "Visual Studio 16 2019" -DTINY3D_BUILD_RTTR_TOOL=ON -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          cmake --build ./ --config ${{ matrix.build_type }}
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+      # ==================== 阶段二: NMake + 反射代码生成 ====================
+      - name: "Phase 2: NMake generate compile_commands"
+        shell: cmd
+        working-directory: source
+        run: |
+          rmdir /Q /S nmake 2>nul
+          mkdir nmake && cd nmake
+
+          @rem System project
+          cmake -G "NMake Makefiles" -DTINY3D_SYSTEM_RTTR=ON -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          mkdir .\System 2>nul
+          xcopy /Y compile_commands.json .\System
+
+          @rem Math project
+          cmake -G "NMake Makefiles" -DTINY3D_MATH_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          mkdir .\Math 2>nul
+          xcopy /Y compile_commands.json .\Math
+
+          @rem Core Runtime project
+          cmake -G "NMake Makefiles" -DTINY3D_CORE_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          mkdir .\Core\Runtime 2>nul
+          xcopy /Y compile_commands.json .\Core\Runtime
+
+          @rem Core Editor project
+          cmake -G "NMake Makefiles" -DTINY3D_CORE_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -UTINY3D_EDITOR_RTTR -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          mkdir .\Core\Editor 2>nul
+          xcopy /Y compile_commands.json .\Core\Editor
+
+          @rem Editor/TinyLauncher project
+          cmake -G "NMake Makefiles" -DTINY3D_LAUNCHER_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_EDITOR_RTTR -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          mkdir .\Editor\TinyLauncher 2>nul
+          xcopy /Y compile_commands.json .\Editor\TinyLauncher
+
+          @rem Editor/TinyEditor project
+          cmake -G "NMake Makefiles" -DTINY3D_EDITOR_RTTR=ON -UTINY3D_SYSTEM_RTTR -UTINY3D_MATH_RTTR -UTINY3D_CORE_RTTR -UTINY3D_CORE_EDITOR_RTTR -UTINY3D_METAFSARCHIVE_RTTR -UTINY3D_LAUNCHER_RTTR -DTINY3D_COPY_RESOURCE=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          mkdir .\Editor\TinyEditor 2>nul
+          xcopy /Y compile_commands.json .\Editor\TinyEditor
+
+      - name: "Phase 2: Generate ReflectionSettings.json"
+        shell: cmd
+        working-directory: source
+        run: |
+          mkdir vs2019-x64\System\Generated 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\System vs2019-x64\System\Generated
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          mkdir vs2019-x64\Math\Generated 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Math vs2019-x64\Math\Generated
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          mkdir vs2019-x64\Core\Runtime\Generated 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Core\Runtime vs2019-x64\Core\Runtime\Generated
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          mkdir vs2019-x64\Core\Editor\Generated 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Core\Editor vs2019-x64\Core\Editor\Generated
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          mkdir vs2019-x64\Editor\TinyLauncher\Generated 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Editor\TinyLauncher vs2019-x64\Editor\TinyLauncher\Generated
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          mkdir vs2019-x64\Editor\TinyEditor\Generated 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Editor\TinyEditor vs2019-x64\Editor\TinyEditor\Generated
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+      - name: "Phase 2: Generate reflection source code"
+        shell: cmd
+        working-directory: source
+        run: |
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\System System -r -j 20
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Math Math -r -j 20
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Core\Runtime Core -r -j 20 -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Core\Editor Core -r -j 20 -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Editor\TinyLauncher Editor\TinyLauncher -r -j 20
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Editor\TinyEditor Editor\TinyEditor -r -j 20
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+      # ==================== 阶段三: 完整项目构建 ====================
+      - name: "Phase 3: Regenerate full project"
+        shell: cmd
+        working-directory: source/vs2019-x64
+        run: |
+          cmake -G "Visual Studio 16 2019" -DTINY3D_BUILD_RTTR_TOOL=OFF -DTINY3D_COPY_RESOURCE=ON -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ../
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+      - name: "Phase 3: Build all"
+        shell: cmd
+        working-directory: source/vs2019-x64
+        run: |
+          cmake --build . --config ${{ matrix.build_type }} -- /maxcpucount
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+      # ==================== 上传产物 ====================
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tiny3D-Windows-x64-${{ matrix.build_type }}
+          path: |
+            source/bin/Windows/${{ matrix.build_type }}/
+            source/lib/Windows/${{ matrix.build_type }}/
+          retention-days: 7
