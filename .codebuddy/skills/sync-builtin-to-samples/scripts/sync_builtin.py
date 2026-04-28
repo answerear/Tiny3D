@@ -2,8 +2,9 @@
 """
 Sync built-in asset files from assets/editor/builtin/ to assets/samples/meshes/.
 
-Copies .shader, .tmat, and .tshader files (with their .meta companions)
-from the appropriate builtin subdirectory to the samples/meshes target.
+- Copies ALL files from builtin/shaders/ (including .shader, .cginc, .meta, etc.)
+- Copies .tmat (+ .meta) from builtin/materials/
+- Copies .tshader (+ .meta) from builtin/TempShaders/
 """
 
 import argparse
@@ -11,9 +12,8 @@ import os
 import shutil
 import sys
 
-# Mapping: file extension -> builtin subdirectory name
+# Mapping: file extension -> builtin subdirectory name (for materials & TempShaders)
 EXTENSION_TO_SUBDIR = {
-    ".shader": "shaders",
     ".tmat": "materials",
     ".tshader": "TempShaders",
 }
@@ -21,9 +21,53 @@ EXTENSION_TO_SUBDIR = {
 SUPPORTED_EXTENSIONS = list(EXTENSION_TO_SUBDIR.keys())
 
 
+def sync_all_shaders(builtin_dir, target_dir, workspace, dry_run=False, names=None):
+    """
+    Copy ALL files from builtin/shaders/ to the target directory.
+    When names is specified, only copy files whose stem (filename without all
+    extensions, e.g. 'Tiny3D' from 'Tiny3D.cginc.meta') matches one of the names.
+    """
+    shaders_dir = os.path.join(builtin_dir, "shaders")
+    if not os.path.isdir(shaders_dir):
+        print(f"WARNING: Shaders directory not found: {shaders_dir}")
+        return 0, True
+
+    copied = 0
+    success = True
+
+    for fname in sorted(os.listdir(shaders_dir)):
+        src = os.path.join(shaders_dir, fname)
+        if not os.path.isfile(src):
+            continue
+
+        # Filter by --names if specified: match stem (name before first '.')
+        if names is not None:
+            stem = fname.split(".")[0]
+            if stem not in names:
+                continue
+
+        dst = os.path.join(target_dir, fname)
+        rel_src = os.path.relpath(src, workspace)
+        rel_dst = os.path.relpath(dst, workspace)
+
+        if dry_run:
+            print(f"[DRY-RUN] {rel_src} -> {rel_dst}")
+            copied += 1
+        else:
+            try:
+                shutil.copy2(src, dst)
+                print(f"Copied: {rel_src} -> {rel_dst}")
+                copied += 1
+            except Exception as e:
+                print(f"ERROR copying {rel_src}: {e}", file=sys.stderr)
+                success = False
+
+    return copied, success
+
+
 def find_target_assets(target_dir, names=None):
     """
-    Scan the target directory for asset files (non-.meta) that we can sync.
+    Scan the target directory for .tmat / .tshader files (non-.meta) to sync.
     Returns a list of (basename_without_ext, extension) tuples.
     """
     assets = []
@@ -51,13 +95,26 @@ def sync_assets(workspace, dry_run=False, names=None):
         return False
 
     if not os.path.isdir(target_dir):
-        print(f"ERROR: Target directory not found: {target_dir}", file=sys.stderr)
-        return False
+        os.makedirs(target_dir, exist_ok=True)
+        print(f"Created target directory: {target_dir}")
 
-    # Determine which assets to sync
+    success = True
+    copied = 0
+
+    # --- Phase 1: Copy ALL files from builtin/shaders/ ---
+    print("=== Syncing shaders (all files) ===")
+    name_set = set(names) if names else None
+    shader_copied, shader_ok = sync_all_shaders(
+        builtin_dir, target_dir, workspace, dry_run=dry_run, names=name_set
+    )
+    copied += shader_copied
+    if not shader_ok:
+        success = False
+
+    # --- Phase 2: Sync .tmat and .tshader by extension matching ---
+    print("\n=== Syncing materials & compiled shaders ===")
     if names:
         name_set = set(names)
-        # For explicit names, check all supported extensions
         assets = []
         for name in name_set:
             for ext in SUPPORTED_EXTENSIONS:
@@ -66,14 +123,7 @@ def sync_assets(workspace, dry_run=False, names=None):
                 if os.path.isfile(src):
                     assets.append((name, ext))
     else:
-        assets = find_target_assets(target_dir)
-
-    if not assets:
-        print("No matching assets found to sync.")
-        return True
-
-    success = True
-    copied = 0
+        assets = find_target_assets(target_dir, names=None)
 
     for base, ext in assets:
         subdir = EXTENSION_TO_SUBDIR[ext]
@@ -92,6 +142,7 @@ def sync_assets(workspace, dry_run=False, names=None):
 
             if dry_run:
                 print(f"[DRY-RUN] {rel_src} -> {rel_dst}")
+                copied += 1
             else:
                 try:
                     shutil.copy2(src, dst)
@@ -104,7 +155,7 @@ def sync_assets(workspace, dry_run=False, names=None):
     if not dry_run:
         print(f"\nDone. {copied} file(s) copied.")
     else:
-        print(f"\n[DRY-RUN] {len(assets) * 2} file(s) would be processed.")
+        print(f"\n[DRY-RUN] {copied} file(s) would be processed.")
 
     return success
 
