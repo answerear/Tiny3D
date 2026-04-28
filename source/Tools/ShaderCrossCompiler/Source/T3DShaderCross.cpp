@@ -608,8 +608,8 @@ namespace Tiny3D
         // auto depth_bias = dst->mutable_depth_bias();
         // depth_bias->set_factor(src.offsetFactor.val);
         // depth_bias->set_units(src.offsetUnits.val);
-        rasterizer.DepthBias = 0;                  // src.offsetUnits.val;
-        rasterizer.SlopeScaledDepthBias = 0; // src.offsetFactor.val;
+        rasterizer.DepthBias = src.offsetUnits.val;
+        rasterizer.SlopeScaledDepthBias = src.offsetFactor.val;
         
         state->setRasterizerDesc(rasterizer);
 
