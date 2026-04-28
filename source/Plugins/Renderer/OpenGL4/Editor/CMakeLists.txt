@@ -49,7 +49,6 @@ set_project_files(Source ${TINY3D_GL4RENDERER_SOURCE_DIR}/Source/ .cpp)
 # Add GLAD source file
 list(APPEND SOURCE_FILES ${GLAD_DIR}/src/glad.c)
 
-list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoGL4.h)
 
 if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
