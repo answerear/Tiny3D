@@ -15,12 +15,12 @@ def main(input_file, output_h, output_txt):
         h_file.write("// DO NOT modify this manually! Edit the corresponding language excel file instead!\n\n")
         h_file.write("#pragma once\n\n")
         for index, row in df.iterrows():
-            macro_name = row[0]
+            macro_name = row.iloc[0]
             macro_value = index
             h_file.write('#define {} {}\n'.format(macro_name, macro_value))
             #logging.info('Writing macro definition: #define {} {}'.format(macro_name, macro_value))
 
-            text = row[1]
+            text = row.iloc[1]
             txt_file.write('{}\n'.format(text))
             #logging.info('Writing text: {}'.format(text))
 
