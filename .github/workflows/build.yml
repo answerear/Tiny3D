@@ -48,6 +48,18 @@ jobs:
           cmake --build ./ --config ${{ matrix.build_type }}
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
+      # ==================== 预生成 Language.h ====================
+      - name: "Pre-generate Language.h for Editor and Launcher"
+        shell: cmd
+        working-directory: source
+        run: |
+          mkdir Editor\TinyEditor\Language 2>nul
+          mkdir Editor\TinyLauncher\Language 2>nul
+          python Tools\LanguageGenerator\excel_to_hpp.py Tools\LanguageGenerator\Editor\lang-zh-hans.xlsx Editor\TinyEditor\Language\Language.h Tools\LanguageGenerator\Editor\lang-zh-hans.txt
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+          python Tools\LanguageGenerator\excel_to_hpp.py Tools\LanguageGenerator\Launcher\lang-zh-hans.xlsx Editor\TinyLauncher\Language\Language.h Tools\LanguageGenerator\Launcher\lang-zh-hans.txt
+          if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
       # ==================== 阶段二: NMake + 反射代码生成 ====================
       - name: "Phase 2: NMake generate compile_commands"
         shell: cmd
