@@ -67,6 +67,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    DateTime::DateTime(int64_t msecs)
+        : mYear(0)
+        , mMonth(0)
+        , mDay(0)
+        , mHour(0)
+        , mMinute(0)
+        , mSecond(0)
+        , mMillisecond(0)
+    {
+        mMillisecond = (int32_t)(msecs % 1000);
+        int64_t totalSeconds = msecs / 1000;
+        mSecond = (int32_t)(totalSeconds % 60);
+        int64_t totalMinutes = totalSeconds / 60;
+        mMinute = (int32_t)(totalMinutes % 60);
+        int64_t totalHours = totalMinutes / 60;
+        mHour = (int32_t)(totalHours % 24);
+        mDay = (int32_t)(totalHours / 24);
+    }
+
+    //--------------------------------------------------------------------------
+
     int64_t DateTime::toMSecsSinceEpoch() const
     {
         tm dt;

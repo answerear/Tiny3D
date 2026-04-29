@@ -80,6 +80,13 @@ namespace Tiny3D
             int32_t hour, int32_t minute, int32_t second, int32_t millisecond);
 
         /**
+        * @brief Constructor for DateTime.
+        * @param [in] msecs : 毫秒数（绝对时间差），不考虑时区，
+        *   直接换算成 天/时/分/秒/毫秒 存放
+        */
+        explicit DateTime(int64_t msecs);
+
+        /**
         * @brief 把QGDateTime中时间转换成从1970年1月1日开始的毫秒数.
         * @return 返回时间毫秒数.
         */
