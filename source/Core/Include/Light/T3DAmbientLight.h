@@ -60,13 +60,13 @@ namespace Tiny3D
         /**
          * @brief 获取光照强度
          */
-        TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="Intensity", RTTRFuncType="getter")
         float getIntensity() const { return mIntensity; }
 
         /**
          * @brief 设置光照强度
          */
-        TPROPERTY(RTTRFuncTpe="Intensity", RTTRFuncType="setter")
+        TPROPERTY(RTTRFuncName="Intensity", RTTRFuncType="setter")
         void setIntensity(float intensity) { mIntensity = intensity; }
         
     protected:
