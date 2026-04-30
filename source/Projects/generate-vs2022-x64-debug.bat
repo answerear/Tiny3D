@@ -44,17 +44,15 @@ xcopy compile_commands.json .\Core
 
 @rem =============== Generate ReflectionSettings.json =============
 @mkdir ..\vs2022-x64\System\Generated
-..\bin\Windows\Debug\cct.exe .\System ..\vs2022-x64\System\Generated
 @mkdir ..\vs2022-x64\Math\Generated
-..\bin\Windows\Debug\cct.exe .\Math ..\vs2022-x64\Math\Generated
 @mkdir ..\vs2022-x64\Core\Generated
-..\bin\Windows\Debug\cct.exe .\Core ..\vs2022-x64\Core\Generated
+
+@rem Parallel cct.exe
+powershell -NoProfile -Command "& { $p = @(); $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\System','..\vs2022-x64\System\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Math','..\vs2022-x64\Math\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Core','..\vs2022-x64\Core\Generated' -NoNewWindow -PassThru; $p | Wait-Process }"
 
 
-@rem Generate reflection source by ReflectionPreprocessor.
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\System ..\System
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Math ..\Math
-..\bin\Windows\Debug\ReflectionPreprocessor.exe .\Core ..\Core
+@rem Generate reflection source by ReflectionPreprocessor (parallel).
+powershell -NoProfile -Command "& { $p = @(); $p += Start-Process '..\bin\Windows\Debug\ReflectionPreprocessor.exe' -ArgumentList '.\System','..\System','-j','8' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\ReflectionPreprocessor.exe' -ArgumentList '.\Math','..\Math','-j','8' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\ReflectionPreprocessor.exe' -ArgumentList '.\Core','..\Core','-j','8' -NoNewWindow -PassThru; $p | Wait-Process }"
 
 
 @rem ==================== Generate all projects ===================

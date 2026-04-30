@@ -87,6 +87,59 @@ namespace Tiny3D
 
         TResult instantiateClassTemplate(ASTClassTemplate *klassTemplate, const String &name, const StringArray &formalParams, const StringArray &actualParams, const String &headerPath);
         
+        /**
+         * @brief 获取指定源文件的头文件依赖列表（完整路径）
+         */
+        const StringList& getFileDependencies(const String &srcTitle) const;
+
+        /**
+         * @brief 清除当前收集的依赖信息（每个翻译单元解析前调用）
+         */
+        void clearCurrentDependencies();
+
+        /**
+         * @brief 判断给定路径是否属于项目内头文件（在 -I 包含路径下）
+         */
+        bool isProjectFile(const String &filePath) const;
+
+        /**
+         * @brief 从另一个 generator 合并 AST 结果（用于多线程并行解析后的合并）
+         * 将 other 中的 mSourceFiles、mHeaderFiles、mClassTemplates、
+         * mFunctionTemplates、mFiles、mFileDependencies 合并到本实例
+         */
+        void mergeFrom(ReflectionGenerator &other);
+
+        /// 预解析结果结构体，用于并行 parse 后串行 visit
+        struct ParsedUnit
+        {
+            CXTranslationUnit   cxUnit {nullptr};
+            String              srcPath {};
+            TResult             result {0};
+        };
+
+        /**
+         * @brief 只做 clang_parseTranslationUnit（线程安全，不依赖 generator 状态）
+         * @param [in] srcPath : 源码文件路径
+         * @param [in] args : clang 编译参数
+         * @param [in] externalIndex : 外部提供的 CXIndex（用于复用 preamble 缓存）
+         * @return ParsedUnit 供主线程串行执行 visitChildren
+         */
+        static ParsedUnit parseOnly(const String &srcPath, const ClangArgs &args, CXIndex externalIndex);
+
+        /**
+         * @brief 在已解析的 CXTranslationUnit 上执行 AST 遍历（必须在主线程调用）
+         */
+        TResult visitParsedUnit(ParsedUnit &unit);
+
+        /**
+         * @brief 生成预编译头文件（PCH）
+         * @param [in] headerPath : 要预编译的头文件路径
+         * @param [in] pchOutputPath : 输出 .pch 文件路径
+         * @param [in] args : clang 编译参数
+         * @return 成功返回 T3D_OK
+         */
+        static TResult generatePCH(const String &headerPath, const String &pchOutputPath, const ClangArgs &args);
+
     protected:
         String toString(const CXString &s) const
         {
@@ -262,8 +315,15 @@ namespace Tiny3D
         Files                   mFiles {};
         /// AST 根结点
         ASTNode                 *mRoot {nullptr};
+        /// 复用的 CXIndex（构造时创建，析构时销毁）
+        CXIndex                 mCxIndex {nullptr};
         /// 工程根目录
         String                  mProjectPath {};
+        /// 每个源文件的头文件完整路径依赖列表 (key = 源文件 title)
+        using DependenciesMap = TMap<String, StringList>;
+        DependenciesMap         mFileDependencies {};
+        /// 当前正在解析的源文件的 title
+        String                  mCurrentSrcTitle {};
     };
 }
 

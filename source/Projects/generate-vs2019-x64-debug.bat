@@ -89,29 +89,18 @@ xcopy compile_commands.json .\Editor\TinyEditor
 
 @rem =============== Generate ReflectionSettings.json =============
 @mkdir ..\vs2019-x64\System\Generated
-..\bin\Windows\Debug\cct.exe .\System ..\vs2019-x64\System\Generated
 @mkdir ..\vs2019-x64\Math\Generated
-..\bin\Windows\Debug\cct.exe .\Math ..\vs2019-x64\Math\Generated
 @mkdir ..\vs2019-x64\Core\Runtime\Generated
-..\bin\Windows\Debug\cct.exe .\Core\Runtime ..\vs2019-x64\Core\Runtime\Generated
 @mkdir ..\vs2019-x64\Core\Editor\Generated
-..\bin\Windows\Debug\cct.exe .\Core\Editor ..\vs2019-x64\Core\Editor\Generated
-@rem @mkdir ..\vs2019-x64\Plugins\Archive\MetaFileSystem\Generated
-@rem ..\bin\Windows\Debug\cct.exe .\Plugins\Archive\MetaFileSystem ..\..\..\vs2019-x64\Plugins\Archive\MetaFileSystem\Generated
 @mkdir ..\vs2019-x64\Editor\TinyLauncher\Generated
-..\bin\Windows\Debug\cct.exe .\Editor\TinyLauncher ..\..\vs2019-x64\Editor\TinyLauncher\Generated
 @mkdir ..\vs2019-x64\Editor\TinyEditor\Generated
-..\bin\Windows\Debug\cct.exe .\Editor\TinyEditor ..\..\vs2019-x64\Editor\TinyEditor\Generated
+
+@rem Parallel cct.exe
+powershell -NoProfile -Command "& { $p = @(); $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\System','..\vs2019-x64\System\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Math','..\vs2019-x64\Math\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Core\Runtime','..\vs2019-x64\Core\Runtime\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Core\Editor','..\vs2019-x64\Core\Editor\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Editor\TinyLauncher','..\..\vs2019-x64\Editor\TinyLauncher\Generated' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\cct.exe' -ArgumentList '.\Editor\TinyEditor','..\..\vs2019-x64\Editor\TinyEditor\Generated' -NoNewWindow -PassThru; $p | Wait-Process }"
 
 
-@rem Generate reflection source by ReflectionPreprocessor.
-..\bin\Windows\Debug\rpp.exe .\System ..\System -r
-..\bin\Windows\Debug\rpp.exe .\Math ..\Math -r
-..\bin\Windows\Debug\rpp.exe .\Core\Runtime ..\Core -r -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
-..\bin\Windows\Debug\rpp.exe .\Core\Editor ..\Core -r -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
-@rem ..\bin\Windows\Debug\rpp.exe .\Plugins\Archive\MetaFileSystem ..\Plugins\Archive\MetaFileSystem -r
-..\bin\Windows\Debug\rpp.exe .\Editor\TinyLauncher ..\Editor\TinyLauncher -r
-..\bin\Windows\Debug\rpp.exe .\Editor\TinyEditor ..\Editor\TinyEditor -r
+@rem Generate reflection source by ReflectionPreprocessor (parallel).
+powershell -NoProfile -Command "& { $p = @(); $p += Start-Process '..\bin\Windows\Debug\rpp.exe' -ArgumentList '.\System','..\System','-r','-j','8' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\rpp.exe' -ArgumentList '.\Math','..\Math','-r','-j','8' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\rpp.exe' -ArgumentList '.\Core\Runtime','..\Core','-r','-j','8','-W','Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\rpp.exe' -ArgumentList '.\Core\Editor','..\Core','-r','-j','8','-W','Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\rpp.exe' -ArgumentList '.\Editor\TinyLauncher','..\Editor\TinyLauncher','-r','-j','8' -NoNewWindow -PassThru; $p += Start-Process '..\bin\Windows\Debug\rpp.exe' -ArgumentList '.\Editor\TinyEditor','..\Editor\TinyEditor','-r','-j','8' -NoNewWindow -PassThru; $p | Wait-Process }"
 
 
 @rem ==================== Generate all projects ===================

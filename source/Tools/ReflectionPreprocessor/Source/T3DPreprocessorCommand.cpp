@@ -107,6 +107,20 @@ namespace Tiny3D
                     ++i;
                     options.WhiteList = StringUtil::split2(argv[i], ";");
                 }
+                else if (arg[0] == '-' && arg[1] == 'd')
+                {
+                    options.DumpAST = true;
+                }
+                else if (arg[0] == '-' && arg[1] == 'j')
+                {
+                    ++i;
+                    if (i < argc)
+                    {
+                        options.NumThreads = std::atoi(argv[i]);
+                        if (options.NumThreads < 1)
+                            options.NumThreads = 1;
+                    }
+                }
                 
                 ++i;
             }
@@ -149,9 +163,11 @@ namespace Tiny3D
         printf("\treflection settings directory : The directory of 'ReflectionSettings.json' file.\n");
         printf("\tsource directory              : The root directory of source code.\n");
         printf("\t<options>                     :\n");
-        printf("\t\t-r : Re-generate all reflection source files.");
-        printf("\t\t-b : Check last generated time before generate reflection source files.");
-        printf("\t\t-W : Classes in white list which are generated reflection source code. Separate by ';' when more than one class.");
+        printf("\t\t-r : Re-generate all reflection source files.\n");
+        printf("\t\t-b : Check last generated time before generate reflection source files.\n");
+        printf("\t\t-W : Classes in white list which are generated reflection source code. Separate by ';' when more than one class.\n");
+        printf("\t\t-d : Dump AST to ast.json for debugging.\n");
+        printf("\t\t-j N : Use N threads for parallel parsing (default: 1).\n");
     }
 
     //-------------------------------------------------------------------------

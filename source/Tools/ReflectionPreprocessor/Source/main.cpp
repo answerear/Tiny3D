@@ -78,6 +78,8 @@ int main(int argc, char *argv[])
     Logger *logger = T3D_NEW Logger();
     T3D_LOG_STARTUP(1000, LOG_TAG, true, true);
 
+    int64_t startTime = DateTime::currentMSecsSinceEpoch();
+
     int ret = 0;
     
     do 
@@ -107,6 +109,11 @@ int main(int argc, char *argv[])
         ret = processor.execute(argc, argv);
 #endif
     } while (false);
+
+    int64_t elapsed = DateTime::currentMSecsSinceEpoch() - startTime;
+    DateTime dt(elapsed);
+    RP_LOG_INFO("ReflectionPreprocessor completed in %s",
+        dt.timeToString(DateTime::TimeFormat::HH_MM_SS_XXX).c_str());
     
     T3D_LOG_SHUTDOWN();
 

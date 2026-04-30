@@ -74,6 +74,7 @@ namespace Tiny3D
     
     ReflectionGenerator::ReflectionGenerator()
         : mRoot(T3D_NEW ASTNode(DEFAULT_ROOT_NAME))
+        , mCxIndex(clang_createIndex(0, 0))
     {
     }
     
@@ -82,6 +83,12 @@ namespace Tiny3D
     ReflectionGenerator::~ReflectionGenerator()
     {
         delete mRoot;
+
+        if (mCxIndex)
+        {
+            clang_disposeIndex(mCxIndex);
+            mCxIndex = nullptr;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -94,6 +101,41 @@ namespace Tiny3D
             const String &name = names.back();
             mClassWhiteList.insert(ASTWhiteListValue(name, str));
         }
+    }
+
+    //-------------------------------------------------------------------------
+
+    static const StringList kEmptyDeps;
+
+    const StringList& ReflectionGenerator::getFileDependencies(const String &srcTitle) const
+    {
+        auto itr = mFileDependencies.find(srcTitle);
+        if (itr != mFileDependencies.end())
+        {
+            return itr->second;
+        }
+        return kEmptyDeps;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::clearCurrentDependencies()
+    {
+        mCurrentSrcTitle.clear();
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionGenerator::isProjectFile(const String &filePath) const
+    {
+        for (const auto &includePath : mIncludePathes)
+        {
+            if (StringUtil::match(filePath, includePath + "*", false))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     //-------------------------------------------------------------------------
@@ -132,11 +174,19 @@ namespace Tiny3D
         {
             RP_LOG_INFO("[%s] Generating reflection source file ...", srcPath.c_str());
 
-            CXIndex cxIndex = clang_createIndex(0, 0);
+            // 记录当前源文件 title，用于依赖收集
+            {
+                String dir, title, ext;
+                Dir::parsePath(srcPath, dir, title, ext);
+                mCurrentSrcTitle = title;
+                mFileDependencies[title] = StringList();
+            }
 
-            CXTranslationUnit cxUnit = clang_parseTranslationUnit(cxIndex, srcPath.c_str(),
+            const unsigned cxOptions = CXTranslationUnit_DetailedPreprocessingRecord
+                | CXTranslationUnit_PrecompiledPreamble;
+            CXTranslationUnit cxUnit = clang_parseTranslationUnit(mCxIndex, srcPath.c_str(),
                 args.data(), args.size(), nullptr, 0,
-                CXTranslationUnit_DetailedPreprocessingRecord);
+                cxOptions);
             if (cxUnit == nullptr)
             {
                 RP_LOG_ERROR("Parse source file [%s] failed !", srcPath.c_str());
@@ -191,13 +241,256 @@ namespace Tiny3D
                 &data);
 
             clang_disposeTranslationUnit(cxUnit);
-            
-            clang_disposeIndex(cxIndex);
 
             RP_LOG_INFO(">---- [%s] Completed ! ----", srcPath.c_str());
         } while (false);
 
         return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    ReflectionGenerator::ParsedUnit ReflectionGenerator::parseOnly(const String &srcPath, const ClangArgs &args, CXIndex externalIndex)
+    {
+        ParsedUnit unit;
+        unit.srcPath = srcPath;
+
+        if (externalIndex == nullptr)
+        {
+            RP_LOG_ERROR("parseOnly: externalIndex is null !");
+            unit.result = T3D_ERR_RP_PARSE_SOURCE;
+            return unit;
+        }
+
+        const unsigned cxOptions = CXTranslationUnit_DetailedPreprocessingRecord
+            | CXTranslationUnit_PrecompiledPreamble
+            | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles;
+        unit.cxUnit = clang_parseTranslationUnit(externalIndex, srcPath.c_str(),
+            args.data(), args.size(), nullptr, 0,
+            cxOptions);
+
+        if (unit.cxUnit == nullptr)
+        {
+            RP_LOG_ERROR("Parse source file [%s] failed !", srcPath.c_str());
+            unit.result = T3D_ERR_RP_PARSE_SOURCE;
+        }
+        else
+        {
+            unit.result = T3D_OK;
+        }
+
+        return unit;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::generatePCH(const String &headerPath, const String &pchOutputPath, const ClangArgs &args)
+    {
+        RP_LOG_INFO("[PCH] Generating precompiled header from: %s", headerPath.c_str());
+
+        CXIndex cxIndex = clang_createIndex(0, 0);
+        if (cxIndex == nullptr)
+        {
+            RP_LOG_ERROR("[PCH] Failed to create CXIndex !");
+            return T3D_ERR_RP_PARSE_SOURCE;
+        }
+
+        // 使用 ForSerialization + Incomplete + DetailedPreprocessingRecord + IgnoreNonErrorsFromIncludedFiles
+        const unsigned cxOptions = CXTranslationUnit_ForSerialization
+            | CXTranslationUnit_Incomplete
+            | CXTranslationUnit_DetailedPreprocessingRecord
+            | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles;
+
+        CXTranslationUnit cxUnit = clang_parseTranslationUnit(cxIndex, headerPath.c_str(),
+            args.data(), args.size(), nullptr, 0,
+            cxOptions);
+
+        if (cxUnit == nullptr)
+        {
+            RP_LOG_ERROR("[PCH] Failed to parse header: %s", headerPath.c_str());
+            clang_disposeIndex(cxIndex);
+            return T3D_ERR_RP_PARSE_SOURCE;
+        }
+
+        // 检查诊断信息
+        const auto cxNumDiag = clang_getNumDiagnostics(cxUnit);
+        if (cxNumDiag != 0)
+        {
+            for (uint32_t i = 0; i < cxNumDiag; ++i)
+            {
+                const auto cxDiag = clang_getDiagnostic(cxUnit, i);
+                CXDiagnosticSeverity cxSeverity = clang_getDiagnosticSeverity(cxDiag);
+                if (cxSeverity == CXDiagnostic_Error || cxSeverity == CXDiagnostic_Fatal)
+                {
+                    const char *diagStr = clang_getCString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions()));
+                    RP_LOG_ERROR("[PCH] >>> %s", diagStr ? diagStr : "unknown error");
+                }
+                clang_disposeDiagnostic(cxDiag);
+            }
+        }
+
+        // 保存为 PCH 文件
+        int saveResult = clang_saveTranslationUnit(cxUnit, pchOutputPath.c_str(),
+            clang_defaultSaveOptions(cxUnit));
+
+        clang_disposeTranslationUnit(cxUnit);
+        clang_disposeIndex(cxIndex);
+
+        if (saveResult != CXSaveError_None)
+        {
+            RP_LOG_ERROR("[PCH] Failed to save PCH file: %s (error: %d)", pchOutputPath.c_str(), saveResult);
+            return T3D_ERR_FAIL;
+        }
+
+        RP_LOG_INFO("[PCH] Successfully generated: %s", pchOutputPath.c_str());
+        return T3D_OK;
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::visitParsedUnit(ParsedUnit &unit)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (unit.cxUnit == nullptr)
+            {
+                ret = T3D_ERR_RP_PARSE_SOURCE;
+                break;
+            }
+
+            RP_LOG_INFO("[%s] Visiting AST ...", unit.srcPath.c_str());
+
+            // 记录当前源文件 title，用于依赖收集
+            {
+                String dir, title, ext;
+                Dir::parsePath(unit.srcPath, dir, title, ext);
+                mCurrentSrcTitle = title;
+                mFileDependencies[title] = StringList();
+            }
+
+            // 检查诊断信息
+            const auto cxNumDiag = clang_getNumDiagnostics(unit.cxUnit);
+            if (cxNumDiag != 0)
+            {
+                bool hasErrors = false;
+                RP_LOG_INFO("> Diagnostics:");
+                for (uint32_t i = 0; i < cxNumDiag; ++i)
+                {
+                    const auto cxDiag = clang_getDiagnostic(unit.cxUnit, i);
+                    CXDiagnosticSeverity cxSeverity = clang_getDiagnosticSeverity(cxDiag);
+                    if (cxSeverity == CXDiagnostic_Error || cxSeverity == CXDiagnostic_Fatal)
+                    {
+                        hasErrors = true;
+                        RP_LOG_ERROR(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
+                    }
+                    else
+                    {
+                        RP_LOG_WARNING(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
+                    }
+
+                    clang_disposeDiagnostic(cxDiag);
+                }
+
+                if (hasErrors)
+                {
+                    ret = T3D_ERR_RP_COMPILE_ERROR;
+                    break;
+                }
+                else
+                {
+                    ret = T3D_ERR_RP_COMPILE_WARNING;
+                }
+            }
+
+            auto cxCursor = clang_getTranslationUnitCursor(unit.cxUnit);
+
+            ClientData data = {mRoot, this};
+
+            clang_visitChildren(
+                cxCursor,
+                [](CXCursor cxCursor, CXCursor cxParent, CXClientData cxData)
+                {
+                    ClientData *data = static_cast<ClientData*>(cxData);
+                    return data->generator->visitRootChildren(cxCursor, cxParent, static_cast<ASTNode*>(data->parent));
+                },
+                &data);
+
+            RP_LOG_INFO(">---- [%s] Visit completed ! ----", unit.srcPath.c_str());
+        } while (false);
+
+        // 清理（CXIndex 由外部管理，这里只销毁 CXTranslationUnit）
+        if (unit.cxUnit)
+        {
+            clang_disposeTranslationUnit(unit.cxUnit);
+            unit.cxUnit = nullptr;
+        }
+
+        return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::mergeFrom(ReflectionGenerator &other)
+    {
+        // 合并源码文件映射
+        for (auto &val : other.mSourceFiles)
+        {
+            auto itr = mSourceFiles.find(val.first);
+            if (itr == mSourceFiles.end())
+            {
+                mSourceFiles.insert(std::move(val));
+            }
+            else
+            {
+                for (auto &node : val.second)
+                {
+                    itr->second.insert(std::move(node));
+                }
+            }
+        }
+
+        // 合并头文件映射
+        for (auto &val : other.mHeaderFiles)
+        {
+            auto itr = mHeaderFiles.find(val.first);
+            if (itr == mHeaderFiles.end())
+            {
+                mHeaderFiles.insert(std::move(val));
+            }
+            else
+            {
+                for (auto &h : val.second)
+                {
+                    itr->second.push_back(std::move(h));
+                }
+            }
+        }
+
+        // 合并类模板
+        for (auto &val : other.mClassTemplates)
+        {
+            mClassTemplates.insert(std::move(val));
+        }
+
+        // 合并函数模板
+        for (auto &val : other.mFunctionTemplates)
+        {
+            mFunctionTemplates.insert(std::move(val));
+        }
+
+        // 合并反射信息文件
+        for (auto &val : other.mFiles)
+        {
+            mFiles.insert(std::move(val));
+        }
+
+        // 合并依赖信息
+        for (auto &val : other.mFileDependencies)
+        {
+            mFileDependencies.insert(std::move(val));
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -209,6 +502,50 @@ namespace Tiny3D
         TResult ret = T3D_OK;
         
         CXCursorKind cxKind = clang_getCursorKind(cxCursor);
+
+        // 路径过滤：对非宏展开、非包含指令、非命名空间的 cursor，
+        // 检查是否在项目包含路径下，不在则跳过以减少无关 AST 遍历
+        if (cxKind != CXCursor_MacroExpansion
+            && cxKind != CXCursor_InclusionDirective
+            && cxKind != CXCursor_Namespace
+            && !mIncludePathes.empty())
+        {
+            CXSourceLocation cxLoc = clang_getCursorLocation(cxCursor);
+            if (!clang_Location_isFromMainFile(cxLoc))
+            {
+                CXFile cxFile = nullptr;
+                unsigned line, col, offset;
+                clang_getFileLocation(cxLoc, &cxFile, &line, &col, &offset);
+                if (cxFile != nullptr)
+                {
+                    CXString cxPath = clang_File_tryGetRealPathName(cxFile);
+                    const char *pathStr = clang_getCString(cxPath);
+                    if (pathStr != nullptr && pathStr[0] != '\0')
+                    {
+                        String filePath(pathStr);
+                        clang_disposeString(cxPath);
+
+                        bool inProject = false;
+                        for (const auto &includePath : mIncludePathes)
+                        {
+                            if (StringUtil::match(filePath, includePath + "*", false))
+                            {
+                                inProject = true;
+                                break;
+                            }
+                        }
+                        if (!inProject)
+                        {
+                            return CXChildVisit_Continue;
+                        }
+                    }
+                    else
+                    {
+                        clang_disposeString(cxPath);
+                    }
+                }
+            }
+        }
 
         CXString cxName = clang_getCursorSpelling(cxCursor);
         String name = toString(cxName);
@@ -541,7 +878,7 @@ namespace Tiny3D
 
         if (parent != nullptr)
         {
-            RP_LOG_INFO("FunctionChildren -- %s : %s (parent %s : %s), parent node : %s", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str(), parent->getHierarchyName().c_str());
+            //RP_LOG_INFO("FunctionChildren -- %s : %s (parent %s : %s), parent node : %s", type.c_str(), name.c_str(), parentType.c_str(), parentName.c_str(), parent->getHierarchyName().c_str());
         }
 
         // if (parent != nullptr && cxParent.kind == CXCursor_ParmDecl && clang_isExpression(cxCursor.kind))
@@ -1140,6 +1477,21 @@ namespace Tiny3D
             }
 
             itrFile->second.push_back(name);
+
+            // 收集头文件完整路径用于增量构建依赖追踪（只记录项目内头文件）
+            if (!mCurrentSrcTitle.empty())
+            {
+                CXFile cxIncludedFile = clang_getIncludedFile(cxCursor);
+                if (cxIncludedFile)
+                {
+                    String includedPath = toString(clang_File_tryGetRealPathName(cxIncludedFile));
+                    if (!includedPath.empty() && isProjectFile(includedPath))
+                    {
+                        auto &deps = mFileDependencies[mCurrentSrcTitle];
+                        deps.push_back(includedPath);
+                    }
+                }
+            }
         } while (false);
         
         return ret;
@@ -1629,7 +1981,7 @@ namespace Tiny3D
                     if (!rval)
                     {
                         // 属性标签也没有，那没有反射
-                        RP_LOG_WARNING("Did not set reflection tags on function or property ! [%s:%u]", path.c_str(), start);
+                        //RP_LOG_WARNING("Did not set reflection tags on function or property ! [%s:%u]", path.c_str(), start);
                         break;
                     }
                     

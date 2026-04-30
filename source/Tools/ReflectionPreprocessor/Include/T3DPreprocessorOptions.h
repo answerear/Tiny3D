@@ -41,6 +41,8 @@ namespace Tiny3D
         String          SettingsPath {};
         String          SourcePath {};
         bool            IsRebuild {true};
+        bool            DumpAST {false};
+        int32_t         NumThreads {1};
         StringList      WhiteList {};
     };
 

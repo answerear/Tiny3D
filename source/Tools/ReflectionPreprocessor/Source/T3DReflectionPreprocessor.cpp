@@ -26,6 +26,15 @@
 #include "T3DPreprocessorCommand.h"
 #include "T3DPreprocessorOptions.h"
 #include "T3DReflectionGenerator.h"
+#include "T3DRPErrorCode.h"
+
+#include <fstream>
+#include <sstream>
+#include <thread>
+#include <future>
+#include <vector>
+#include <algorithm>
+#include <chrono>
 
 
 namespace  Tiny3D
@@ -120,10 +129,32 @@ namespace  Tiny3D
 
             String path = opts.SourcePath + Dir::getNativeSeparator() + mGeneratedPath;
             
+            // 确保 Generated 目录存在（PCH 文件需要写入此目录）
+            Dir::makeDir(path);
+
+            // 确保 Generated/.deps/ 子目录存在（增量构建依赖文件存放于此）
+            String depsPath = path + Dir::getNativeSeparator() + ".deps";
+            Dir::makeDir(depsPath);
+
             RP_LOG_INFO("Generating AST [%s] ...", path.c_str());
 
-            // 根据对应路径，遍历路径里的源文件，逐个产生抽象语法树
-            ret = generateAST(opts.SourcePath, args, path, opts.IsRebuild);
+            // 尝试生成 PCH 加速后续解析
+            String pchPath = detectAndGeneratePCH(path, args);
+            if (!pchPath.empty())
+            {
+                // 注入 -include-pch 参数（libclang 直接接收 cc1 参数，不需要 -Xclang）
+                mArgs.push_back("-include-pch");
+                args.push_back(mArgs.back().c_str());
+                mArgs.push_back(pchPath);
+                args.push_back(mArgs.back().c_str());
+            }
+
+            // 收集待处理的源文件
+            std::vector<PendingFile> pendingFiles;
+            collectSourceFiles(opts.SourcePath, path, opts.IsRebuild, pendingFiles);
+
+            // 解析 AST
+            ret = generateAST(args, pendingFiles, opts.NumThreads);
             if (T3D_FAILED(ret))
             {
                 RP_LOG_ERROR("Generating AST failed ! ERROR [%d]", ret);
@@ -132,8 +163,18 @@ namespace  Tiny3D
 
             RP_LOG_INFO("Generating source files ...");
 
-            // 生成源码文件
-            ret = generateSource(path, opts.IsRebuild);
+            // 生成源码文件（rebuild 模式会先删除再重建 Generated 目录）
+            ret = generateSource(path, opts.IsRebuild, opts.DumpAST);
+
+            // 在 generateSource 之后写入 .deps 文件（确保不会被 rebuild 的目录删除覆盖）
+            for (const auto &pf : pendingFiles)
+            {
+                if (pf.processed)
+                {
+                    const StringList &deps = mGenerator->getFileDependencies(pf.fileTitle);
+                    writeDepsFile(pf.depsFile, pf.filePath, deps);
+                }
+            }
 
             RP_LOG_INFO("Completed reflection [%s] ! ERROR [%d]", opts.SourcePath.c_str(), ret);
         } while (false);
@@ -355,6 +396,22 @@ namespace  Tiny3D
                 if (fileExt == "h" || fileExt == "hpp")
                 {
                     mGenerator->collectProjectHeaders(filePath);
+
+                    // 预扫描：检查头文件是否包含反射宏
+                    if (hasReflectionMacros(filePath))
+                    {
+                        mReflectionHeaders.insert(fileTitle);
+                        RP_LOG_INFO(">>> [prescan] %s contains reflection macros.", fileTitle.c_str());
+                    }
+
+                    // 检测 Prerequisites 头文件作为 PCH 候选
+                    if (mPrerequisitesHeader.empty()
+                        && (fileTitle.find("Prerequisites") != String::npos
+                            || fileTitle.find("Prereq") != String::npos))
+                    {
+                        mPrerequisitesHeader = filePath;
+                        RP_LOG_INFO(">>> [PCH] Found prerequisites header: %s", filePath.c_str());
+                    }
                 }
             }
 
@@ -363,20 +420,19 @@ namespace  Tiny3D
 
         dir.close();
         
+        RP_LOG_INFO("Prescan complete: %u header(s) with reflection macros.", (uint32_t)mReflectionHeaders.size());
+
         return ret;
     }
     
     //-------------------------------------------------------------------------
 
-    TResult ReflectionPreprocessor::generateAST(const String &path, const ClangArgs &args, const String &generatedPath, bool rebuild)
+    void ReflectionPreprocessor::collectSourceFiles(const String &path, const String &generatedPath, bool rebuild,
+                                                    std::vector<PendingFile> &pendingFiles)
     {
-        TResult ret = T3D_OK;
-
         String searchPath = path + Dir::getNativeSeparator() + "*.*";
-        
-        Dir dir;
 
-        // 分析源码文件，生成 AST
+        Dir dir;
         bool working = dir.findFile(searchPath);
 
         while (working)
@@ -387,28 +443,36 @@ namespace  Tiny3D
             }
             else if (dir.isDirectory())
             {
-                // directory
-                generateAST(dir.getFilePath(), args, generatedPath, rebuild);
+                collectSourceFiles(dir.getFilePath(), generatedPath, rebuild, pendingFiles);
             }
             else
             {
-                // file
                 const String filePath = dir.getFilePath();
                 String fileDir, fileTitle, fileExt;
                 Dir::parsePath(filePath, fileDir, fileTitle, fileExt);
                 if (fileExt == "cpp" || fileExt == "cxx")
                 {
-                    String generatedFile = generatedPath + Dir::getNativeSeparator() + fileTitle + ".generated.cpp";
-                    long_t srcLastWTime = Dir::getLastWriteTime(filePath);
-                    long_t genLastWTime = Dir::getLastWriteTime(generatedFile);
-                    if (rebuild || genLastWTime < srcLastWTime)
+                    // 预扫描过滤：如果同名 .h 不含反射宏，跳过该 .cpp
+                    if (mReflectionHeaders.find(fileTitle) == mReflectionHeaders.end())
                     {
-                        // 反射文件不存在，或者反射生成文件比源码文件还旧，则重新生成
-                        mGenerator->generateAST(filePath, args);
+                        RP_LOG_INFO(">>> [prescan] %s skipped (no reflection macros in header).", filePath.c_str());
+                        working = dir.findNextFile();
+                        continue;
+                    }
+
+                    PendingFile pf;
+                    pf.filePath = filePath;
+                    pf.fileTitle = fileTitle;
+                    pf.generatedFile = generatedPath + Dir::getNativeSeparator() + fileTitle + ".generated.cpp";
+                    pf.depsFile = generatedPath + Dir::getNativeSeparator() + ".deps" + Dir::getNativeSeparator() + fileTitle + ".deps";
+
+                    if (rebuild || needsRebuild(pf.depsFile, pf.filePath, pf.generatedFile))
+                    {
+                        pendingFiles.push_back(std::move(pf));
                     }
                     else
                     {
-                        RP_LOG_INFO(">>> %s updated !", filePath.c_str());
+                        RP_LOG_INFO(">>> %s up-to-date, skipped.", filePath.c_str());
                     }
                 }
             }
@@ -417,25 +481,371 @@ namespace  Tiny3D
         }
 
         dir.close();
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionPreprocessor::generateAST(const ClangArgs &args, std::vector<PendingFile> &pendingFiles, int32_t numThreads)
+    {
+        TResult ret = T3D_OK;
+
+        if (pendingFiles.empty())
+        {
+            RP_LOG_INFO("All files are up-to-date, nothing to do.");
+            return ret;
+        }
+
+        RP_LOG_INFO("Found %u file(s) to process.", (uint32_t)pendingFiles.size());
+
+        auto totalStart = std::chrono::steady_clock::now();
+
+        if (numThreads <= 1 || pendingFiles.size() <= 1)
+        {
+            // 单线程模式
+            for (auto &pf : pendingFiles)
+            {
+                auto fileStart = std::chrono::steady_clock::now();
+
+                mGenerator->clearCurrentDependencies();
+                TResult parseRet = mGenerator->generateAST(pf.filePath, args);
+
+                auto fileEnd = std::chrono::steady_clock::now();
+                auto fileMs = std::chrono::duration_cast<std::chrono::milliseconds>(fileEnd - fileStart).count();
+                RP_LOG_INFO("[timing] %s : %lld ms", pf.fileTitle.c_str(), (long long)fileMs);
+
+                if (!T3D_FAILED(parseRet) || parseRet == T3D_ERR_RP_COMPILE_WARNING)
+                {
+                    pf.processed = true;
+                }
+            }
+        }
+        else
+        {
+            // 多线程模式：并行 parse → 串行 visit
+            int32_t actualThreads = std::min(numThreads, (int32_t)pendingFiles.size());
+            RP_LOG_INFO("Using %d thread(s) for parallel parsing.", actualThreads);
+
+            // 创建 CXIndex 池
+            std::vector<CXIndex> indexPool(actualThreads, nullptr);
+            for (int32_t t = 0; t < actualThreads; ++t)
+            {
+                indexPool[t] = clang_createIndex(0, 0);
+                if (indexPool[t] == nullptr)
+                {
+                    RP_LOG_ERROR("Failed to create CXIndex for thread slot %d !", t);
+                }
+            }
+
+            std::vector<std::future<ReflectionGenerator::ParsedUnit>> futures;
+            futures.reserve(pendingFiles.size());
+
+            size_t idx = 0;
+            while (idx < pendingFiles.size())
+            {
+                size_t batchEnd = std::min(idx + (size_t)actualThreads, pendingFiles.size());
+                futures.clear();
+
+                auto batchStart = std::chrono::steady_clock::now();
+
+                for (size_t i = idx; i < batchEnd; ++i)
+                {
+                    const auto &pf = pendingFiles[i];
+                    CXIndex slotIndex = indexPool[i - idx];
+                    futures.push_back(std::async(std::launch::async,
+                        [&pf, &args, slotIndex]()
+                        {
+                            return ReflectionGenerator::parseOnly(pf.filePath, args, slotIndex);
+                        }));
+                }
+
+                for (size_t i = 0; i < futures.size(); ++i)
+                {
+                    auto unit = futures[i].get();
+                    auto &pf = pendingFiles[idx + i];
+
+                    if (unit.cxUnit != nullptr)
+                    {
+                        TResult visitRet = mGenerator->visitParsedUnit(unit);
+
+                        if (!T3D_FAILED(visitRet) || visitRet == T3D_ERR_RP_COMPILE_WARNING)
+                        {
+                            pf.processed = true;
+                        }
+                    }
+                    else
+                    {
+                        RP_LOG_ERROR("Parse source file [%s] failed !", pf.filePath.c_str());
+                    }
+                }
+
+                auto batchEnd_ = std::chrono::steady_clock::now();
+                auto batchMs = std::chrono::duration_cast<std::chrono::milliseconds>(batchEnd_ - batchStart).count();
+                RP_LOG_INFO("[timing] batch [%u..%u] : %lld ms", (uint32_t)idx, (uint32_t)(batchEnd - 1), (long long)batchMs);
+
+                idx = batchEnd;
+            }
+
+            // 销毁 CXIndex 池
+            for (auto &cxIdx : indexPool)
+            {
+                if (cxIdx != nullptr)
+                {
+                    clang_disposeIndex(cxIdx);
+                    cxIdx = nullptr;
+                }
+            }
+        }
+
+        auto totalEnd = std::chrono::steady_clock::now();
+        auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(totalEnd - totalStart).count();
+        RP_LOG_INFO("[timing] Total generateAST : %lld ms (%u files)", (long long)totalMs, (uint32_t)pendingFiles.size());
 
         return ret;
     }
 
     //-------------------------------------------------------------------------
 
-    TResult ReflectionPreprocessor::generateSource(const String& path, bool rebuild)
+    TResult ReflectionPreprocessor::generateSource(const String& path, bool rebuild, bool dumpAST)
     {
         if (rebuild)
         {
             Dir::removeDir(path, true);
             Dir::makeDir(path);
+            // 重建 .deps 子目录
+            Dir::makeDir(path + Dir::getNativeSeparator() + ".deps");
         }
         
-        // 输出 AST 到文件，方便 debug
-        String dumpPath = path + Dir::getNativeSeparator() + "ast.json";
-        mGenerator->dumpReflectionInfo(dumpPath);
+        // 输出 AST 到文件，仅在 -d 开关下启用
+        if (dumpAST)
+        {
+            String dumpPath = path + Dir::getNativeSeparator() + "ast.json";
+            mGenerator->dumpReflectionInfo(dumpPath);
+        }
 
         return mGenerator->generateSource(path);
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionPreprocessor::needsRebuild(const String &depsFile, const String &srcFile, const String &generatedFile)
+    {
+        // 如果生成文件不存在，必须重建
+        long_t genLastWTime = Dir::getLastWriteTime(generatedFile);
+        if (genLastWTime == 0)
+        {
+            return true;
+        }
+
+        // 读取 .deps 文件
+        std::ifstream ifs(depsFile.c_str());
+        if (!ifs.is_open())
+        {
+            // .deps 文件不存在，需要重建
+            return true;
+        }
+
+        // 解析 .deps 文件，格式: <timestamp> <hash> <filepath>
+        struct DepEntry
+        {
+            long_t savedTimestamp {0};
+            uint64_t savedHash {0};
+            std::string path {};
+            long_t currentTimestamp {0};
+        };
+
+        std::vector<DepEntry> entries;
+        bool needsTimestampUpdate = false;
+
+        std::string line;
+        while (std::getline(ifs, line))
+        {
+            if (line.empty())
+                continue;
+
+            std::istringstream iss(line);
+            DepEntry entry;
+            iss >> entry.savedTimestamp >> entry.savedHash;
+            std::getline(iss >> std::ws, entry.path);
+
+            if (entry.path.empty())
+                continue;
+
+            entry.currentTimestamp = Dir::getLastWriteTime(entry.path.c_str());
+
+            if (entry.currentTimestamp == entry.savedTimestamp)
+            {
+                // 时间戳相同，该依赖 OK
+            }
+            else
+            {
+                // 时间戳不同，计算当前文件内容哈希进行二次确认
+                uint64_t currentHash = computeFileHash(entry.path.c_str());
+                if (currentHash != entry.savedHash)
+                {
+                    // 哈希不同，文件真的变了，需要重建
+                    RP_LOG_INFO(">>> Dependency changed: %s", entry.path.c_str());
+                    ifs.close();
+                    return true;
+                }
+
+                // 哈希相同，内容未变（仅时间戳变了），标记需要更新 .deps
+                needsTimestampUpdate = true;
+            }
+
+            entries.push_back(std::move(entry));
+        }
+
+        ifs.close();
+
+        // 所有依赖都 OK，如果有时间戳需要更新则重写 .deps
+        if (needsTimestampUpdate)
+        {
+            std::ofstream ofs(depsFile.c_str(), std::ios::trunc);
+            if (ofs.is_open())
+            {
+                for (const auto &entry : entries)
+                {
+                    ofs << entry.currentTimestamp << " " << entry.savedHash << " " << entry.path << "\n";
+                }
+                ofs.close();
+            }
+        }
+
+        return false;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::writeDepsFile(const String &depsFile, const String &srcFile, const StringList &deps) const
+    {
+        std::ofstream ofs(depsFile.c_str(), std::ios::trunc);
+        if (!ofs.is_open())
+        {
+            RP_LOG_WARNING("Failed to write deps file: %s", depsFile.c_str());
+            return;
+        }
+
+        // 写入源文件自身：<timestamp> <hash> <filepath>
+        long_t srcTimestamp = Dir::getLastWriteTime(srcFile);
+        uint64_t srcHash = computeFileHash(srcFile);
+        ofs << srcTimestamp << " " << srcHash << " " << srcFile << "\n";
+
+        // 写入所有头文件依赖：<timestamp> <hash> <filepath>
+        for (const auto &dep : deps)
+        {
+            long_t depTimestamp = Dir::getLastWriteTime(dep);
+            uint64_t depHash = computeFileHash(dep);
+            ofs << depTimestamp << " " << depHash << " " << dep << "\n";
+        }
+
+        ofs.close();
+    }
+
+    //-------------------------------------------------------------------------
+
+    uint64_t ReflectionPreprocessor::computeFileHash(const String &filePath)
+    {
+        std::ifstream ifs(filePath.c_str(), std::ios::binary);
+        if (!ifs.is_open())
+        {
+            return 0;
+        }
+
+        // FNV-1a 64 位哈希
+        const uint64_t FNV_OFFSET_BASIS = 0xcbf29ce484222325ULL;
+        const uint64_t FNV_PRIME = 0x100000001b3ULL;
+
+        uint64_t hash = FNV_OFFSET_BASIS;
+        char buffer[4096];
+
+        while (ifs.read(buffer, sizeof(buffer)) || ifs.gcount() > 0)
+        {
+            auto bytesRead = ifs.gcount();
+            for (std::streamsize i = 0; i < bytesRead; ++i)
+            {
+                hash ^= static_cast<uint64_t>(static_cast<uint8_t>(buffer[i]));
+                hash *= FNV_PRIME;
+            }
+        }
+
+        ifs.close();
+        return hash;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionPreprocessor::hasReflectionMacros(const String &filePath)
+    {
+        std::ifstream ifs(filePath.c_str(), std::ios::binary | std::ios::ate);
+        if (!ifs.is_open())
+        {
+            return false;
+        }
+
+        auto fileSize = ifs.tellg();
+        if (fileSize <= 0)
+        {
+            return false;
+        }
+
+        ifs.seekg(0, std::ios::beg);
+        std::string content;
+        content.resize(static_cast<size_t>(fileSize));
+        ifs.read(&content[0], fileSize);
+        ifs.close();
+
+        // 检查反射宏关键字
+        static const char* kReflectionMacros[] = {
+            "TCLASS",
+            "TSTRUCT",
+            "TFUNCTION",
+            "TPROPERTY",
+            "TENUM",
+            "TRTTI_ENABLE",
+            "TRTTI_FRIEND"
+        };
+
+        for (const auto *macro : kReflectionMacros)
+        {
+            if (content.find(macro) != std::string::npos)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //-------------------------------------------------------------------------
+
+    String ReflectionPreprocessor::detectAndGeneratePCH(const String &generatedPath, const ClangArgs &args)
+    {
+        if (mPrerequisitesHeader.empty())
+        {
+            RP_LOG_INFO("[PCH] No prerequisites header found, skipping PCH generation.");
+            return String();
+        }
+
+        // PCH 文件放在 generatedPath 下
+        String pchPath = generatedPath + Dir::getNativeSeparator() + "prereq.pch";
+
+        // 检查 PCH 是否已存在且比头文件新
+        long_t pchTime = Dir::getLastWriteTime(pchPath);
+        long_t hdrTime = Dir::getLastWriteTime(mPrerequisitesHeader);
+        if (pchTime > 0 && pchTime >= hdrTime)
+        {
+            RP_LOG_INFO("[PCH] Reusing existing PCH: %s", pchPath.c_str());
+            return pchPath;
+        }
+
+        TResult ret = ReflectionGenerator::generatePCH(mPrerequisitesHeader, pchPath, args);
+        if (T3D_FAILED(ret))
+        {
+            RP_LOG_WARNING("[PCH] PCH generation failed, will proceed without PCH.");
+            return String();
+        }
+
+        return pchPath;
     }
 
     //-------------------------------------------------------------------------
