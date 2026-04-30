@@ -125,50 +125,50 @@ jobs:
         shell: cmd
         working-directory: source
         run: |
-          mkdir vs2019-x64\System\Generated 2>nul
-          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\System vs2019-x64\System\Generated
+          mkdir vs2019-x64\System\Generated\.deps 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\System ..\vs2019-x64\System\Generated
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          mkdir vs2019-x64\Math\Generated 2>nul
-          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Math vs2019-x64\Math\Generated
+          mkdir vs2019-x64\Math\Generated\.deps 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Math ..\vs2019-x64\Math\Generated
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          mkdir vs2019-x64\Core\Runtime\Generated 2>nul
-          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Core\Runtime vs2019-x64\Core\Runtime\Generated
+          mkdir vs2019-x64\Core\Runtime\Generated\.deps 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Core\Runtime ..\vs2019-x64\Core\Runtime\Generated
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          mkdir vs2019-x64\Core\Editor\Generated 2>nul
-          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Core\Editor vs2019-x64\Core\Editor\Generated
+          mkdir vs2019-x64\Core\Editor\Generated\.deps 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Core\Editor ..\vs2019-x64\Core\Editor\Generated
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          mkdir vs2019-x64\Editor\TinyLauncher\Generated 2>nul
-          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Editor\TinyLauncher vs2019-x64\Editor\TinyLauncher\Generated
+          mkdir vs2019-x64\Editor\TinyLauncher\Generated\.deps 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Editor\TinyLauncher ..\..\vs2019-x64\Editor\TinyLauncher\Generated
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          mkdir vs2019-x64\Editor\TinyEditor\Generated 2>nul
-          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Editor\TinyEditor vs2019-x64\Editor\TinyEditor\Generated
+          mkdir vs2019-x64\Editor\TinyEditor\Generated\.deps 2>nul
+          bin\Windows\${{ matrix.build_type }}\cct.exe nmake\Editor\TinyEditor ..\..\vs2019-x64\Editor\TinyEditor\Generated
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
       - name: "Phase 2: Generate reflection source code"
         shell: cmd
         working-directory: source
         run: |
-          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\System System -r -j 20
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\System %cd%\System -r -j 20
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Math Math -r -j 20
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Math %cd%\Math -r -j 20
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Core\Runtime Core -r -j 20 -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Core\Runtime %cd%\Core -r -j 20 -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Core\Editor Core -r -j 20 -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Core\Editor %cd%\Core -r -j 20 -W Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Editor\TinyLauncher Editor\TinyLauncher -r -j 20
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Editor\TinyLauncher %cd%\Editor\TinyLauncher -r -j 20
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Editor\TinyEditor Editor\TinyEditor -r -j 20
+          bin\Windows\${{ matrix.build_type }}\rpp.exe nmake\Editor\TinyEditor %cd%\Editor\TinyEditor -r -j 20
           if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
       # ==================== 阶段三: 完整项目构建 ====================
