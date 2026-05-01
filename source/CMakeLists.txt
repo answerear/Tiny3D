@@ -249,8 +249,12 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
-# Project Reflect
-add_subdirectory(Reflect)
+# Project Reflect (incremental reflection generation, can be disabled in CI)
+option(TINY3D_INCREMENTAL_RTTR "Enable incremental RTTR reflection generation during build" ON)
+
+if (TINY3D_INCREMENTAL_RTTR)
+    add_subdirectory(Reflect)
+endif ()
 
 # Project Platform
 add_subdirectory(Platform)
@@ -303,7 +307,11 @@ add_dependencies(T3DUtils T3DLog T3DPlatform)
 
 
 if (NOT TINY3D_BUILD_RTTR_TOOL)
-	add_dependencies(T3DSystem T3DReflect rttr_core T3DPlatform)
+    if (TINY3D_INCREMENTAL_RTTR)
+	    add_dependencies(T3DSystem T3DReflect rttr_core T3DPlatform)
+    else ()
+        add_dependencies(T3DSystem rttr_core T3DPlatform)
+    endif (TINY3D_INCREMENTAL_RTTR)
     add_dependencies(T3DMath T3DLog T3DPlatform)
     add_dependencies(T3DFramework T3DLog T3DPlatform)
     #add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
