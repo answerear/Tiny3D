@@ -2,14 +2,42 @@ name: Tiny3D Build
 
 on:
   schedule:
-    # 每天 UTC 18:00 (北京时间凌晨 2:00)
-    - cron: '0 18 * * *'
-  push:
-    branches: [main, master, Refactor]
+    # 每天 UTC 17:00 (北京时间凌晨 1:00)
+    - cron: '0 17 * * *'
   workflow_dispatch:
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check_commits.outputs.should_build }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Check for recent commits
+        id: check_commits
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "Manual trigger - will build"
+          else
+            COMMITS=$(git log --since="24 hours ago" --oneline)
+            if [ -n "$COMMITS" ]; then
+              echo "should_build=true" >> $GITHUB_OUTPUT
+              echo "Found recent commits:"
+              echo "$COMMITS"
+            else
+              echo "should_build=false" >> $GITHUB_OUTPUT
+              echo "No commits in the last 24 hours - skipping build"
+            fi
+          fi
+
   build:
+    needs: check
+    if: needs.check.outputs.should_build == 'true'
     runs-on: windows-latest
     strategy:
       matrix:
