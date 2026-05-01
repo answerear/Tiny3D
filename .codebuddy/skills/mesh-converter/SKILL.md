@@ -80,8 +80,9 @@ python <skill_dir>/scripts/convert_mesh.py --workspace D:\private\Tiny3D --input
 1. **Pre-check** — Verify that `mconv.exe` exists and is accessible
 2. **Validate inputs** — Check that input FBX file(s) and resource root directory exist
 3. **Assemble command** — Build the `mconv.exe` command line from parameters with defaults
-4. **Execute conversion** — Run `mconv.exe` via subprocess (or print command in dry-run mode)
-5. **Report results** — Display success/failure summary with per-file status
+4. **Clean old artifacts** — Delete existing output files (`.tmesh`, `.tskel`, `.tani`, `.tskin`, `.tmat`, `.ttex`) and their `.meta` files for the target FBX in the output directory, so they are regenerated fresh. Note: template material `Tiny3DStandard.tmat` and its `.meta` are protected and never deleted.
+5. **Execute conversion** — Run `mconv.exe` via subprocess (or print command in dry-run mode)
+6. **Report results** — Display success/failure summary with per-file status
 
 ### Underlying mconv.exe Command
 

@@ -232,6 +232,44 @@ def main():
         if not args.dry_run:
             os.makedirs(out_dir, exist_ok=True)
 
+        # Delete existing output artifacts and their .meta files before conversion
+        # so that mconv.exe regenerates everything fresh
+        if not args.dry_run:
+            fbx_stem = os.path.splitext(os.path.basename(fbx_abs))[0]
+            # Exact-match extensions (one file per FBX)
+            exact_extensions = [".tmesh", ".tskel", ".tani", ".tskin"]
+            # Template files that must NOT be deleted
+            protected_files = ["Tiny3DStandard.tmat", "Tiny3DStandard.tmat.meta"]
+            files_to_delete = []
+            # Collect exact-match artifacts
+            for ext in exact_extensions:
+                artifact = os.path.join(out_dir, fbx_stem + ext)
+                if os.path.isfile(artifact):
+                    files_to_delete.append(artifact)
+                meta = artifact + ".meta"
+                if os.path.isfile(meta):
+                    files_to_delete.append(meta)
+            # Collect .tmat and .ttex files matching fbx_stem prefix
+            # (e.g. tortoise-base.tmat, tortoise.ttex)
+            for glob_ext in [".tmat", ".ttex"]:
+                pattern = os.path.join(out_dir, f"{fbx_stem}*{glob_ext}")
+                for matched_file in glob.glob(pattern):
+                    if os.path.basename(matched_file) in protected_files:
+                        continue
+                    if os.path.isfile(matched_file):
+                        files_to_delete.append(matched_file)
+                    meta = matched_file + ".meta"
+                    if os.path.isfile(meta) and os.path.basename(meta) not in protected_files:
+                        files_to_delete.append(meta)
+            if files_to_delete:
+                print(f"  Removing {len(files_to_delete)} existing artifact(s) for '{fbx_stem}':")
+                for f in files_to_delete:
+                    try:
+                        os.remove(f)
+                        print(f"    Deleted: {os.path.basename(f)}")
+                    except OSError as e:
+                        print(f"    WARNING: Could not delete {f}: {e}")
+
         cmd = build_command(
             mconv_path=mconv_path,
             input_path=fbx_abs,
