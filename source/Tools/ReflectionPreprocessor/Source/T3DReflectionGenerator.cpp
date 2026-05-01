@@ -536,7 +536,20 @@ namespace Tiny3D
                         }
                         if (!inProject)
                         {
-                            return CXChildVisit_Continue;
+                            // 白名单类模板例外：允许系统头文件中的白名单类模板正常注册
+                            if (cxKind == CXCursor_ClassTemplate
+                                || cxKind == CXCursor_ClassTemplatePartialSpecialization)
+                            {
+                                String cursorName = toString(clang_getCursorSpelling(cxCursor));
+                                if (mClassWhiteList.find(cursorName) == mClassWhiteList.end())
+                                {
+                                    return CXChildVisit_Continue;
+                                }
+                            }
+                            else
+                            {
+                                return CXChildVisit_Continue;
+                            }
                         }
                     }
                     else
