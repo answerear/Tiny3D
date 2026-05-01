@@ -232,6 +232,8 @@ namespace Tiny3D
     {
         bool ret = true;
 
+        mCurrentSource = source;
+
         do 
         {
             String shaderName = mArgs.baseName + "." + Resource::EXT_SHADER;
@@ -487,6 +489,12 @@ namespace Tiny3D
             break;
         case SLPassBase::kPassCompiled:
             break;
+        case SLPassBase::kPassGrab:
+            {
+                // GrabPass is a special pass type for frame buffer capture
+                // Currently we just skip it as the engine handles it differently
+            }
+            break;
         }
 
         return ret;
@@ -526,8 +534,11 @@ namespace Tiny3D
         ret = ret && translate(src.state, state);
         pass->setRenderState(state);
         
-        // program
-        ret = ret && translate(src.program, pass);
+        // program(s) - support multiple program blocks per pass
+        for (const auto& prog : src.programs)
+        {
+            ret = ret && translate(prog, pass);
+        }
         if (ret)
         {
             ShaderKeyword kw;
@@ -597,8 +608,7 @@ namespace Tiny3D
 
         RasterizerDesc rasterizer;
         // conservative
-        // dst->set_conservative(false);
-        rasterizer.Conservative = false;
+        rasterizer.Conservative = (bool)src.conservative.val;
         
         // culling
         // dst->set_cull(getCulling(src.culling));
@@ -632,7 +642,8 @@ namespace Tiny3D
         translate(src.stencilOpFront, depthStencil.FrontFace);
 
         // z clip
-        // dst->set_z_clip(true);
+        rasterizer.DepthClipEnable = (bool)src.zClip.val;
+
         shaderlab::CompareFunction c = (shaderlab::CompareFunction)src.zTest.val;
         if (c != shaderlab::CompareFunction::kFuncDisabled)
         {
@@ -930,11 +941,16 @@ namespace Tiny3D
 
     bool ShaderCross::translate(const shaderlab::SLProgram& src, PassPtr pass)
     {
-        // dst->mutable_source()->set_type(getProgramType(src.type));
-        // dst->mutable_source()->set_code(src.source);
-
         ShaderCompilerPtr compiler = ShaderCompiler::create();
-        return compiler->compile(src.source, pass, mInputFile, mOutputDir, mArgs);
+
+        // Inject includeCode (from HLSLINCLUDE/CGINCLUDE) before the program source
+        String source = src.source;
+        if (mCurrentSource != nullptr && !mCurrentSource->includeCode.empty())
+        {
+            source = mCurrentSource->includeCode + "\n" + source;
+        }
+
+        return compiler->compile(source, pass, mInputFile, mOutputDir, mArgs);
     }
 
     //--------------------------------------------------------------------------

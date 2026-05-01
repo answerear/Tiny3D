@@ -38,12 +38,137 @@ namespace Tiny3D
             const PragmaParam& pragma = params[i];
             if (pragma.values.size() < 1)
             {
-                continue;
+                // Some pragmas like skip_variants may have values, require may not
+                if (pragma.option != "skip_variants" && pragma.option != "require")
+                    continue;
             }
 
-            if (pragma.option == "multi_compile")
+            // Helper lambda to parse keyword type/scope/stage from pragma option string
+            auto parseKeywordPragma = [&](const String& option) -> bool
             {
-                keywords.push_back(pragma.values);
+                KeywordType type = KeywordType::kMultiCompile;
+                KeywordScope scope = KeywordScope::kGlobal;
+                KeywordStage stage = KeywordStage::kAll;
+
+                String opt = option;
+
+                // Determine type
+                if (opt.find("shader_feature") == 0)
+                {
+                    type = KeywordType::kShaderFeature;
+                    opt = opt.substr(14); // strlen("shader_feature")
+                }
+                else if (opt.find("multi_compile") == 0)
+                {
+                    type = KeywordType::kMultiCompile;
+                    opt = opt.substr(13); // strlen("multi_compile")
+                }
+                else if (opt.find("dynamic_branch") == 0)
+                {
+                    type = KeywordType::kDynamicBranch;
+                    opt = opt.substr(14); // strlen("dynamic_branch")
+                }
+                else
+                {
+                    return false;
+                }
+
+                // Determine scope (local suffix)
+                if (opt.find("_local") == 0)
+                {
+                    scope = KeywordScope::kLocal;
+                    opt = opt.substr(6); // strlen("_local")
+                }
+
+                // Determine stage-specific suffix
+                if (opt.empty() || opt == "")
+                {
+                    stage = KeywordStage::kAll;
+                }
+                else if (opt == "_vertex")
+                {
+                    stage = KeywordStage::kVertex;
+                }
+                else if (opt == "_fragment")
+                {
+                    stage = KeywordStage::kFragment;
+                }
+                else if (opt == "_hull")
+                {
+                    stage = KeywordStage::kHull;
+                }
+                else if (opt == "_domain")
+                {
+                    stage = KeywordStage::kDomain;
+                }
+                else if (opt == "_geometry")
+                {
+                    stage = KeywordStage::kGeometry;
+                }
+                else if (opt == "_raytracing")
+                {
+                    stage = KeywordStage::kRaytracing;
+                }
+                else
+                {
+                    // Could be a builtin shortcut like _fwdbase, _fwdadd, _shadowcaster etc.
+                    // Handle builtin shortcuts
+                    if (type == KeywordType::kMultiCompile)
+                    {
+                        if (opt == "_fwdbase")
+                        {
+                            TArray<String> kws = {"DIRECTIONAL", "LIGHTMAP_ON", "DIRLIGHTMAP_COMBINED", "DYNAMICLIGHTMAP_ON", "SHADOWS_SCREEN", "SHADOWS_SHADOWMASK", "LIGHTMAP_SHADOW_MIXING", "LIGHTPROBE_SH"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                        else if (opt == "_fwdadd")
+                        {
+                            TArray<String> kws = {"POINT", "DIRECTIONAL", "SPOT", "POINT_COOKIE", "DIRECTIONAL_COOKIE"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                        else if (opt == "_fwdadd_fullshadows")
+                        {
+                            TArray<String> kws = {"POINT", "DIRECTIONAL", "SPOT", "POINT_COOKIE", "DIRECTIONAL_COOKIE", "SHADOWS_DEPTH", "SHADOWS_SCREEN", "SHADOWS_CUBE", "SHADOWS_SOFT", "SHADOWS_SHADOWMASK", "LIGHTMAP_SHADOW_MIXING"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                        else if (opt == "_shadowcaster")
+                        {
+                            TArray<String> kws = {"SHADOWS_DEPTH", "SHADOWS_CUBE"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                        else if (opt == "_fog")
+                        {
+                            TArray<String> kws = {"FOG_LINEAR", "FOG_EXP", "FOG_EXP2"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                        else if (opt == "_instancing")
+                        {
+                            TArray<String> kws = {"INSTANCING_ON", "PROCEDURAL_ON"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                        else if (opt == "_particles")
+                        {
+                            TArray<String> kws = {"SOFTPARTICLES_ON"};
+                            keywords.emplace_back(kws, type, scope, stage);
+                            return true;
+                        }
+                    }
+                    // Unknown suffix, treat as generic
+                    stage = KeywordStage::kAll;
+                }
+
+                keywords.emplace_back(pragma.values, type, scope, stage);
+                return true;
+            };
+
+            if (parseKeywordPragma(pragma.option))
+            {
+                // Handled as keyword pragma
             }
             else if (pragma.option == "vertex")
             {
@@ -73,6 +198,20 @@ namespace Tiny3D
             {
                 shaderModel = pragma.values[0];
                 StringUtil::replaceAll(shaderModel, ".", "");
+            }
+            else if (pragma.option == "skip_variants")
+            {
+                for (const auto& v : pragma.values)
+                {
+                    skipVariants.push_back(v);
+                }
+            }
+            else if (pragma.option == "require")
+            {
+                for (const auto& v : pragma.values)
+                {
+                    requires.push_back(v);
+                }
             }
             else
             {

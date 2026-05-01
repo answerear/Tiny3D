@@ -9,6 +9,8 @@
 
 namespace shaderlab
 {
+	static const int32_t kMaxRTs = 8;
+
 	struct SLFloat 
 	{
 		SLFloat() 
@@ -40,6 +42,35 @@ namespace shaderlab
 
 		float			val;
 		std::string		ref;
+	};
+
+	struct SLAttribute
+	{
+		SLAttribute() {}
+
+		SLAttribute(const std::string& inName)
+			: name(inName)
+		{
+		}
+
+		SLAttribute(const std::string& inName, const std::vector<std::string>& inArgs)
+			: name(inName)
+			, args(inArgs)
+		{
+		}
+
+		bool operator == (const SLAttribute& rhs) const
+		{
+			return name == rhs.name && args == rhs.args;
+		}
+
+		bool operator != (const SLAttribute& rhs) const
+		{
+			return !(*this == rhs);
+		}
+
+		std::string					name;
+		std::vector<std::string>	args;
 	};
 
 	struct SLVector4 
@@ -176,9 +207,10 @@ namespace shaderlab
 			kFloat,
 			kRange,
 			kTexture,
+			kInteger,
 		};
 
-		SLPropValue(const char* inName, const char* desc, SLPropValue::Type inType, const std::vector<std::string>& atts)
+		SLPropValue(const char* inName, const char* desc, SLPropValue::Type inType, const std::vector<SLAttribute>& atts)
 			: type(inType)
 			, name(inName)
 			, description(desc)
@@ -196,22 +228,18 @@ namespace shaderlab
 			{
 				case SLPropValue::kColor:
 					return "Color";
-					break;
 				case SLPropValue::kVector:
 					return "Vector";
-					break;
 				case SLPropValue::kFloat:
 					return "Float";
-					break;
 				case SLPropValue::kRange:
 					return "Range";
-					break;
 				case SLPropValue::kTexture:
 					return "Texture";
-					break;
+				case SLPropValue::kInteger:
+					return "Integer";
 				default:
 					return "UnKnown";
-					break;
 			}
 			return "UnKnown";
 		}
@@ -232,7 +260,7 @@ namespace shaderlab
 				return false;
 			}
 
-			for (int32_t i = 0; i < attributes.size(); ++i)
+			for (int32_t i = 0; i < (int32_t)attributes.size(); ++i)
 			{
 				if (attributes[i] != rhs.attributes[i])
 				{
@@ -259,7 +287,7 @@ namespace shaderlab
 		Type						type;
 		std::string					name;
 		std::string					description;
-		std::vector<std::string>	attributes;
+		std::vector<SLAttribute>	attributes;
 		float						value[4];
 		SLPropTexture				texture;
 	};
@@ -273,7 +301,7 @@ namespace shaderlab
 				return false;
 			}
 
-			for (int32_t i = 0; i < props.size(); ++i) 
+			for (int32_t i = 0; i < (int32_t)props.size(); ++i) 
 			{
 				if (props[i] != rhs.props[i]) 
 				{
@@ -289,13 +317,19 @@ namespace shaderlab
 			return !(*this == rhs); 
 		}
 
-		void AddFloatProperty(const char* name, const char* desc, const std::vector<std::string>& atts, float value)
+		void AddFloatProperty(const char* name, const char* desc, const std::vector<SLAttribute>& atts, float value)
 		{
 			props.emplace_back(name, desc, SLPropValue::kFloat, atts);
 			props.back().value[0] = value;
 		}
 
-		void AddVectorProperty(const char* name, const char* desc, const std::vector<std::string>& atts, const SLVector4& value)
+		void AddIntegerProperty(const char* name, const char* desc, const std::vector<SLAttribute>& atts, int32_t value)
+		{
+			props.emplace_back(name, desc, SLPropValue::kInteger, atts);
+			props.back().value[0] = (float)value;
+		}
+
+		void AddVectorProperty(const char* name, const char* desc, const std::vector<SLAttribute>& atts, const SLVector4& value)
 		{
 			props.emplace_back(name, desc, SLPropValue::kVector, atts);
 			props.back().value[0] = value.x;
@@ -304,7 +338,7 @@ namespace shaderlab
 			props.back().value[3] = value.w;
 		}
 
-		void AddColorProperty(const char* name, const char* desc, const std::vector<std::string>& atts, const SLVector4& value)
+		void AddColorProperty(const char* name, const char* desc, const std::vector<SLAttribute>& atts, const SLVector4& value)
 		{
 			props.emplace_back(name, desc, SLPropValue::kColor, atts);
 			props.back().value[0] = value.x;
@@ -313,7 +347,7 @@ namespace shaderlab
 			props.back().value[3] = value.w;
 		}
 
-		void AddRangeProperty(const char* name, const char* desc, const std::vector<std::string>& atts, float value, float valmin, float valmax)
+		void AddRangeProperty(const char* name, const char* desc, const std::vector<SLAttribute>& atts, float value, float valmin, float valmax)
 		{
 			props.emplace_back(name, desc, SLPropValue::kRange, atts);
 			props.back().value[0] = value;
@@ -321,7 +355,7 @@ namespace shaderlab
 			props.back().value[2] = valmax;
 		}
 
-		void AddTextureProperty(const char* name, const char* desc, const std::vector<std::string>& atts, const SLPropTexture& texture)
+		void AddTextureProperty(const char* name, const char* desc, const std::vector<SLAttribute>& atts, const SLPropTexture& texture)
 		{
 			props.emplace_back(name, desc, SLPropValue::kTexture, atts);
 			props.back().texture = texture;
@@ -346,6 +380,8 @@ namespace shaderlab
 				zTest != rhs.zTest || 
 				culling != rhs.culling || 
 				zWrite != rhs.zWrite || 
+				zClip != rhs.zClip ||
+				conservative != rhs.conservative ||
 				alphaToMask != rhs.alphaToMask || 
 				colMask != rhs.colMask ||
 				srcBlend != rhs.srcBlend || 
@@ -390,6 +426,8 @@ namespace shaderlab
 		SLFloat								offsetUnits;
 		SLFloat								zTest;
 		SLFloat								zWrite;
+		SLFloat								zClip;
+		SLFloat								conservative;
 		SLFloat								culling;
 		SLFloat								blendOp;
 		SLFloat								blendOpAlpha;
@@ -403,6 +441,15 @@ namespace shaderlab
 		SLStencilOperation					stencilOp;
 		SLStencilOperation					stencilOpFront;
 		SLStencilOperation					stencilOpBack;
+
+		// MRT support (index 0 is the default above, indices 1-7 for additional RTs)
+		SLFloat								mrtSrcBlend[kMaxRTs];
+		SLFloat								mrtDestBlend[kMaxRTs];
+		SLFloat								mrtSrcBlendAlpha[kMaxRTs];
+		SLFloat								mrtDestBlendAlpha[kMaxRTs];
+		SLFloat								mrtBlendOp[kMaxRTs];
+		SLFloat								mrtBlendOpAlpha[kMaxRTs];
+		SLFloat								mrtColMask[kMaxRTs];
 	};
 
 	struct SLPassBase 
@@ -412,6 +459,7 @@ namespace shaderlab
 			kPassNormal,
 			kPassUse,
 			kPassCompiled,
+			kPassGrab,
 		};
 
 		SLPassBase(PassType inType) 
@@ -484,7 +532,7 @@ namespace shaderlab
 
 		bool operator == (const SLNormalPass& rhs) const
 		{
-			return state != rhs.state && program == rhs.program;
+			return state != rhs.state && programs == rhs.programs;
 		}
 
 		bool operator != (const SLNormalPass &rhs) const
@@ -492,8 +540,8 @@ namespace shaderlab
 			return !(*this == rhs);
 		}
 
-		SLShaderState	state;
-		SLProgram		program;
+		SLShaderState				state;
+		std::vector<SLProgram>		programs;
 	};
 
 	struct SLUsePass : public SLPassBase 
@@ -523,6 +571,36 @@ namespace shaderlab
 		std::string		useName;
 	};
 
+	struct SLGrabPass : public SLPassBase
+	{
+		SLGrabPass()
+			: SLPassBase(kPassGrab)
+		{
+		}
+
+		SLGrabPass(const char* name)
+			: SLPassBase(kPassGrab)
+			, textureName(name)
+		{
+		}
+
+		virtual ~SLGrabPass()
+		{
+		}
+
+		bool operator == (const SLGrabPass& rhs) const
+		{
+			return textureName == rhs.textureName;
+		}
+
+		bool operator != (const SLGrabPass& rhs) const
+		{
+			return !(*this == rhs);
+		}
+
+		std::string textureName;
+	};
+
 	struct SLCompiledProgram
 	{
 		ShaderStage						shaderStage;
@@ -542,7 +620,7 @@ namespace shaderlab
 
 		virtual ~SLCompiledPass()
 		{
-			for (int32_t i = 0; i < programs.size(); ++i)
+			for (int32_t i = 0; i < (int32_t)programs.size(); ++i)
 			{
 				delete programs[i];
 			}
@@ -564,7 +642,7 @@ namespace shaderlab
 
 		~SLSubShader()
 		{
-			for (int32_t i = 0; i < passes.size(); ++i)
+			for (int32_t i = 0; i < (int32_t)passes.size(); ++i)
 			{
 				delete passes[i];
 			}
@@ -583,7 +661,7 @@ namespace shaderlab
 				return false;
 			}
 
-			for (int32_t i = 0; i < passes.size(); ++i) 
+			for (int32_t i = 0; i < (int32_t)passes.size(); ++i) 
 			{
 				SLPassBase* lp = passes[i];
 				SLPassBase* rp = rhs.passes[i];
@@ -630,7 +708,7 @@ namespace shaderlab
 	{
 		~SLShader()
 		{
-			for (int32_t i = 0; i < subShaders.size(); ++i)
+			for (int32_t i = 0; i < (int32_t)subShaders.size(); ++i)
 			{
 				delete subShaders[i];
 			}
@@ -641,5 +719,7 @@ namespace shaderlab
 		std::string					fallbackName;
 		SLProperties				properties;
 		std::vector<SLSubShader*>	subShaders;
+		std::string					includeCode;
+		std::vector<std::string>	packageRequirements;
 	};
 }

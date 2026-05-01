@@ -13,6 +13,8 @@ void SetDefaultShaderState(SLShaderState& base)
 	base.alphaToMask.SetValue(false);
 	base.zTest.SetValue(kFuncLEqual);
 	base.zWrite.SetValue(true);
+	base.zClip.SetValue(true);
+	base.conservative.SetValue(false);
 
 	base.srcBlend.SetValue(kBlendOne);
 	base.destBlend.SetValue(kBlendZero);
@@ -31,6 +33,18 @@ void SetDefaultShaderState(SLShaderState& base)
 
 	base.stencilOpFront = base.stencilOp;
 	base.stencilOpBack  = base.stencilOp;
+
+	// MRT defaults
+	for (int32_t i = 0; i < kMaxRTs; ++i)
+	{
+		base.mrtSrcBlend[i].SetValue(kBlendOne);
+		base.mrtDestBlend[i].SetValue(kBlendZero);
+		base.mrtSrcBlendAlpha[i].SetValue(kBlendOne);
+		base.mrtDestBlendAlpha[i].SetValue(kBlendZero);
+		base.mrtBlendOp[i].SetValue(kBlendOpAdd);
+		base.mrtBlendOpAlpha[i].SetValue(kBlendOpAdd);
+		base.mrtColMask[i].SetValue(kColorWriteR | kColorWriteG | kColorWriteB | kColorWriteA);
+	}
 }
 
 SLShader* ParseShaderLab(const char* data, int32_t size)

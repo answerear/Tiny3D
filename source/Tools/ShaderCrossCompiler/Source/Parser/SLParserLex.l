@@ -9,31 +9,17 @@
 #include <vector>
 #include <string>
 
-#include "Common/Common.h"
-#include "SLParserTypes.h"
+#include "T3DSCCPrerequisites.h"
+#include "SLParserData.h"
 
-int32 shaderlaberror(const char *s);
-
-namespace shaderlab
-{
-	struct SLFloat;
-	struct SLVector4;
-	struct SLShader;
-	struct SLProperties;
-	struct SLShaderState;
-	struct SLSubShader;
-	struct SLNormalPass;
-	struct SLPassBase;
-	struct SLProgram;
-	struct SLPropTexture;
-}
+int32_t shaderlaberror(const char *s);
 
 using namespace shaderlab;
 
 #define yylex shaderlablex
 #include "SLParserYacc.hpp"
 
-static int32 yyinput();
+static int32_t yyinput();
 
 bool ParseAndEatLine(std::string &outstring);
 
@@ -41,7 +27,7 @@ static char* CreateBracketString(const char* src);
 
 static char* CreateNormalString(const char* src);
 
-inline int32 GetYYLineno() 
+inline int32_t GetYYLineno() 
 {
 	return yylineno;
 }
@@ -107,6 +93,16 @@ CUBE					{
 							return VAL_TEX_DIM;
 						}
 
+2DArray					{
+							shaderlablval.enumval = kTexDim2DArray;
+							return VAL_TEX_DIM;
+						}
+
+CubeArray				{
+							shaderlablval.enumval = kTexDimCUBEArray;
+							return VAL_TEX_DIM;
+						}
+
 Color					{	
 							return TOKEN_COLOR; 
 						}
@@ -117,6 +113,10 @@ Float					{
 
 Vector					{ 	
 							return TOKEN_VECTOR; 
+						}
+
+Integer					{
+							return TOKEN_INTEGER;
 						}
 
 Int						{ 	
@@ -141,6 +141,10 @@ NAME					{
 
 ZWrite					{ 	
 							return TOKEN_ZWRITE; 
+						}
+
+ZClip					{
+							return TOKEN_ZCLIP;
 						}
 
 ZTest					{
@@ -549,6 +553,32 @@ USEPASS					{
 							return TOKEN_USEPASS;
 						}
 
+GrabPass				{
+							return TOKEN_GRABPASS;
+						}
+
+Conservative			{
+							return TOKEN_CONSERVATIVE;
+						}
+
+PackageRequirements		{
+							return TOKEN_PACKAGE_REQUIREMENTS;
+						}
+
+HLSLINCLUDE				{
+							BEGIN(STATE_PROGRAM);
+							g_LexTempString.clear();
+							shaderlablval.number = yylineno;
+							return VAL_HLSLINCLUDE;
+						}
+
+CGINCLUDE				{
+							BEGIN(STATE_PROGRAM);
+							g_LexTempString.clear();
+							shaderlablval.number = yylineno;
+							return VAL_CGINCLUDE;
+						}
+
 GLSLPROGRAM				{
 							BEGIN(STATE_PROGRAM);
 							g_LexTempString.clear();
@@ -653,6 +683,11 @@ fallback				{
 
 <INITIAL,STATE_COLMASK,STATE_ZTEST,STATE_STENIL>{
 
+\[{VAR_STRING}\([^\]]*\)\]		{
+									shaderlablval.strval = CreateBracketString(yytext);
+									return VAL_BRACKET_ATTR;
+								}
+
 \[{VAR_STRING}\]				{
 									shaderlablval.strval = CreateBracketString(yytext);
 									return VAL_BRACKET_ID;
@@ -718,8 +753,8 @@ fallback				{
 								}
 
 "/*"        					{
-									int32 c;
-									int32 depth = 1;
+									int32_t c;
+									int32_t depth = 1;
 									while (true) 
 									{
 										while ((c = yyinput()) != '*' && c != '/' && c != EOF && c != '\0') 
@@ -778,7 +813,7 @@ fallback				{
 
 %%
 
-inline bool IsEndChar(int32 c) 
+inline bool IsEndChar(int32_t c) 
 {
 	if (c == EOF || c == '\0' || c == '\r' || c == '\n') 
 	{
@@ -789,7 +824,7 @@ inline bool IsEndChar(int32 c)
 	}
 }
 
-void InitLex(const char *data, int32 dataSize) 
+void InitLex(const char *data, int32_t dataSize) 
 {
 	g_LexTempString.reserve(64 * 1024);
 	YY_BUFFER_STATE b = yy_scan_bytes(data, dataSize);
@@ -805,7 +840,7 @@ void FreeLex()
 
 bool ParseAndEatLine(std::string &outstring)
 {
-	int32 c = 0;
+	int32_t c = 0;
 	while ((c = yyinput()) && (c==' ' || c=='\t')) 
 	{
         ;
@@ -830,7 +865,7 @@ bool ParseAndEatLine(std::string &outstring)
 
 static char* CreateBracketString(const char *src) 
 {
-	int32 size = strlen(src);
+	int32_t size = strlen(src);
 	char *buffer = new char[size - 1];
 	memcpy(buffer, src + 1, size - 2);
 	buffer[size - 2] = '\0';
@@ -839,7 +874,7 @@ static char* CreateBracketString(const char *src)
 
 static char* CreateNormalString(const char *src) 
 {
-	int32 size = strlen(src) + 1;
+	int32_t size = strlen(src) + 1;
 	char *buffer = new char[size];
 	memcpy(buffer, src, size);
 	buffer[size - 1] = '\0';

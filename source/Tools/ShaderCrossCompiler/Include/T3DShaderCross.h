@@ -109,6 +109,7 @@ namespace Tiny3D
         String  mInputFile {};
         String  mOutputDir {};
         Args    mArgs {};
+        shaderlab::SLShader* mCurrentSource {nullptr};
     };
 }
 

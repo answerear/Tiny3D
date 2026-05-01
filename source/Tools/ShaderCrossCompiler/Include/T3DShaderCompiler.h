@@ -118,15 +118,54 @@ namespace Tiny3D
 
         typedef TMap<String, PragmaParam> PragmaParamsMap;
 
+        enum class KeywordType
+        {
+            kMultiCompile,
+            kShaderFeature,
+            kDynamicBranch,
+        };
+
+        enum class KeywordScope
+        {
+            kGlobal,
+            kLocal,
+        };
+
+        enum class KeywordStage
+        {
+            kAll,
+            kVertex,
+            kFragment,
+            kHull,
+            kDomain,
+            kGeometry,
+            kRaytracing,
+        };
+
         struct MultiCompileParam
         {
             MultiCompileParam(const TArray<String>& inKeywords)
                 : keywords(inKeywords)
+                , type(KeywordType::kMultiCompile)
+                , scope(KeywordScope::kGlobal)
+                , stage(KeywordStage::kAll)
+            {
+
+            }
+
+            MultiCompileParam(const TArray<String>& inKeywords, KeywordType inType, KeywordScope inScope, KeywordStage inStage)
+                : keywords(inKeywords)
+                , type(inType)
+                , scope(inScope)
+                , stage(inStage)
             {
 
             }
 
             TArray<String>	keywords;
+            KeywordType     type;
+            KeywordScope    scope;
+            KeywordStage    stage;
         };
 
         typedef TMap<String, String> EntryMap;
@@ -155,6 +194,8 @@ namespace Tiny3D
             TArray<MultiCompileParam>   keywords;
             PragmaParamsMap             paramsMap;
             EntryMap                    entriesName;
+            TArray<String>              skipVariants;
+            TArray<String>              requires;
         };
 
         struct ShaderSnippet
