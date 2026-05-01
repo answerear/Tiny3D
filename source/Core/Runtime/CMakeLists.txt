@@ -183,20 +183,14 @@ if (TINY3D_OS_WINDOWS)
 
     add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${BIN_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} $<TARGET_FILE_DIR:${BIN_NAME}>
         )
     
     add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Windows/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Tiny3D.cfg
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Windows/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
-        #COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../assets/samples/textures" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/samples/textures"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../assets/samples" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Assets/samples"
-        #COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../assets/samples/textures" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/samples/textures"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../assets/samples" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Assets/samples"
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Windows/Tiny3D.cfg $<TARGET_FILE_DIR:${BIN_NAME}>/Tiny3D.cfg
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/../assets/samples" "$<TARGET_FILE_DIR:${BIN_NAME}>/Assets/samples"
         )
 elseif (TINY3D_OS_MACOSX)
     # Mac OS X
