@@ -236,6 +236,10 @@ namespace Tiny3D
                 break;
             }
 
+            // 刷新 RHI 命令队列，确保 createRenderWindow/createShadowMap 等
+            // 初始化命令已在 RHI 线程执行完毕，否则 ImGui 初始化时 D3D11 资源尚未创建
+            mEngine->flushRHICommands();
+
             // 创建 imgui 环境
             ret = createImGuiEnv();
             if (T3D_FAILED(ret))
@@ -337,6 +341,10 @@ namespace Tiny3D
             
             // 构建编辑器场景
             // buildScene();
+
+            // 刷新 RHI 命令队列，确保 ImGui shader/render state 和
+            // EditorScene 渲染资源在 RHI 线程上创建完成后再进入主循环
+            mEngine->flushRHICommands();
         } while (false);
 
         return ret;
@@ -762,6 +770,18 @@ namespace Tiny3D
     void EditorApp::enginePreRender()
     {
         ImGui::Render();
+
+        // 首帧诊断：确认 ImGui draw data 是否有效
+        //static bool sFirstPreRender = true;
+        //if (sFirstPreRender)
+        //{
+        //    ImDrawData *dd = ImGui::GetDrawData();
+        //    EDITOR_LOG_INFO("[DIAG] enginePreRender: DrawData=%p TotalVtxCount=%d TotalIdxCount=%d CmdListsCount=%d DisplaySize=(%.0f,%.0f)",
+        //        dd, dd ? dd->TotalVtxCount : -1, dd ? dd->TotalIdxCount : -1, dd ? dd->CmdListsCount : -1,
+        //        dd ? dd->DisplaySize.x : 0.0f, dd ? dd->DisplaySize.y : 0.0f);
+        //    sFirstPreRender = false;
+        //}
+
         mImGuiImpl->preRender();
     }
 

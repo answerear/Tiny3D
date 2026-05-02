@@ -494,6 +494,7 @@ namespace Tiny3D
                 if (desc.MSAA.Count == 0)
                 {
                     uMSAACount = 1;
+                    uMSAAQuality = 0;
                 }
                 else
                 {
@@ -505,10 +506,7 @@ namespace Tiny3D
                         break;
                     }
 
-                    // traceDebugInfo("D3D11 D3DObjects trace - #2 ", __FUNCTION__);
-                    
                     uMSAAQuality = uNumQuality - 1;
-                    // uMSAACount = uNumQuality;
                 }
 
                 // 创建 Swap Chain
@@ -607,6 +605,13 @@ namespace Tiny3D
 
             do
             {
+                if (buffer == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createRenderTexture: buffer is null (dangling pointer?)");
+                    ret = T3D_ERR_INVALID_POINTER;
+                    break;
+                }
+
                 // 获取支持的 MSAA
                 UINT uMSAACount = buffer->getDescriptor().sampleDesc.Count;
                 UINT uMSAAQuality = buffer->getDescriptor().sampleDesc.Quality;
@@ -616,6 +621,7 @@ namespace Tiny3D
                 if (uMSAACount == 0)
                 {
                     uMSAACount = 1;
+                    uMSAAQuality = 0;
                 }
                 else
                 {
@@ -623,7 +629,7 @@ namespace Tiny3D
                     HRESULT hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
                     if (FAILED(hr))
                     {
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to check multiple sample quality levels ! DX ERROR [%d]", hr);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to check multiple sample quality levels ! DX ERROR [%d] Count=%u", hr, uMSAACount);
                         break;
                     }
                     
@@ -1062,7 +1068,7 @@ namespace Tiny3D
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow());
         D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
-        if (pD3DDepthStencil != nullptr)
+        if (depthStencil != nullptr)
         {
             pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
         }
@@ -3321,7 +3327,15 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage must be kDynamic when write buffer ! Usage [%d]", renderBuffer->getUsage());
                 break;
             }
-            
+
+            // 多线程模式下，Buffer::Data 指向的内存可能在 RHI 线程执行前被释放
+            // （栈变量超出作用域或堆内存被 caller 主动 delete）。
+            // 因此必须深拷贝数据，让 command 对象持有独立的副本。
+            Buffer ownedBuffer;
+            ownedBuffer.DataSize = buffer.DataSize;
+            ownedBuffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
+            memcpy(ownedBuffer.Data, buffer.Data, buffer.DataSize);
+
             auto lambda = [this](const RenderBufferPtr &renderBuffer, Buffer &buffer, bool discardWholeBuffer)
             {
                 TResult ret = T3D_OK;
@@ -3376,14 +3390,15 @@ namespace Tiny3D
                     
                     // unmap buffer
                     mD3DDeviceContext->Unmap(pD3DResource, 0);
-
-                    //buffer.release();
                 } while (false);
+
+                // 释放深拷贝的数据（无论 Map 成功与否都需要释放）
+                buffer.release();
 
                 return ret;
             };
 
-            ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), buffer, discardWholeBuffer);
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(renderBuffer), ownedBuffer, discardWholeBuffer);
             
             if (T3D_FAILED(ret))
             {

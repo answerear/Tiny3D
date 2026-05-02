@@ -653,6 +653,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Agent::flushRHICommands()
+    {
+#if (T3D_ENABLE_RHI_THREAD)
+        T3D_RHI_THREAD.resume();
+        mRHIEvent.wait();
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
     void Agent::beginFrame()
     {
 #if (T3D_ENABLE_RHI_THREAD)
@@ -1359,6 +1369,12 @@ namespace Tiny3D
     {
         if (mRHIRunnable != nullptr)
         {
+#if (T3D_ENABLE_RHI_THREAD)
+            // flush 最后一帧入队但未执行的 command，避免退出时 writeBuffer
+            // 等深拷贝命令的 Buffer 在 command 析构时未释放导致内存泄漏
+            T3D_RHI_THREAD.resume();
+            mRHIEvent.wait();
+#endif
             mRHIRunnable->stop();
             mRHIThread.wait();
             mRHIRunnable = nullptr;

@@ -457,9 +457,10 @@ namespace Tiny3D
                     sizeof(ImDrawVert),
                     mVertexBufferSize,
                     vbData,
-                    MemoryType::kVRAM,
+                    MemoryType::kBoth,
                     Usage::kDynamic,
                     kCPUWrite);
+                vbData.release();
             }
 
             if (mIndexBuffer == nullptr || mIndexBufferSize < totalIdxCount)
@@ -476,9 +477,10 @@ namespace Tiny3D
                     sizeof(ImDrawIdx) == 2 ? IndexType::E_IT_16BITS : IndexType::E_IT_32BITS,
                     mIndexBufferSize,
                     ibData,
-                    MemoryType::kVRAM,
+                    MemoryType::kBoth,
                     Usage::kDynamic,
                     kCPUWrite);
+                ibData.release();
             }
 
             // 创建或重建正交投影矩阵的常量缓冲区
@@ -493,9 +495,10 @@ namespace Tiny3D
                     "ImGuiProjMtx",
                     0,
                     cbData,
-                    MemoryType::kVRAM,
+                    MemoryType::kBoth,
                     Usage::kDynamic,
                     kCPUWrite);
+                cbData.release();
             }
         }
 
@@ -691,7 +694,8 @@ namespace Tiny3D
 
                     mVertexBuffer = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
                         sizeof(ImDrawVert), mVertexBufferSize, vbResize,
-                        MemoryType::kVRAM, Usage::kDynamic, kCPUWrite);
+                        MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+                    vbResize.release();
                 }
                 else
                 {
@@ -716,7 +720,8 @@ namespace Tiny3D
                     mIndexBuffer = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(
                         sizeof(ImDrawIdx) == 2 ? IndexType::E_IT_16BITS : IndexType::E_IT_32BITS,
                         mIndexBufferSize, ibResize,
-                        MemoryType::kVRAM, Usage::kDynamic, kCPUWrite);
+                        MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+                    ibResize.release();
                 }
                 else
                 {
@@ -872,7 +877,8 @@ namespace Tiny3D
 
                     mVertexBuffer = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
                         sizeof(ImDrawVert), mVertexBufferSize, vbResize,
-                        MemoryType::kVRAM, Usage::kDynamic, kCPUWrite);
+                        MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+                    vbResize.release();
                 }
                 else
                 {
@@ -897,7 +903,8 @@ namespace Tiny3D
                     mIndexBuffer = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(
                         sizeof(ImDrawIdx) == 2 ? IndexType::E_IT_16BITS : IndexType::E_IT_32BITS,
                         mIndexBufferSize, ibResize,
-                        MemoryType::kVRAM, Usage::kDynamic, kCPUWrite);
+                        MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+                    ibResize.release();
                 }
                 else
                 {

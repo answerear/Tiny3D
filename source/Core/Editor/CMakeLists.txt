@@ -32,6 +32,7 @@ endif (MSVC)
 
 
 add_definitions(-DT3D_EDITOR)
+add_definitions(-DT3D_ENABLE_RHI_THREAD=1)
 
 if (TINY3D_OS_WINDOWS)
     add_definitions(-DT3D_WIN_EDITOR)

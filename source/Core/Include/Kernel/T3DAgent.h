@@ -160,6 +160,13 @@ namespace Tiny3D
 
         TResult removeImageCodec(ImageCodecBase::FileType type);
 
+        /**
+         * @brief   同步刷新 RHI 命令队列
+         * @remarks 触发 RHI 线程执行所有已入队的命令并等待完成。
+         *          用于需要确保 RHI 资源已创建的场景（如编辑器初始化 ImGui 前）。
+         */
+        void flushRHICommands();
+
     protected:
         TResult initSystem(const String &appPath, uint32_t maxEvent);
         
