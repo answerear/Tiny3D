@@ -223,3 +223,11 @@ jobs:
             source/bin/Windows/${{ matrix.build_type }}/
             source/lib/Windows/${{ matrix.build_type }}/
           retention-days: 7
+
+      - name: Upload generated reflection files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Generated-Reflection-${{ matrix.build_type }}
+          path: |
+            source/vs2019-x64/**/Generated/*.generated.cpp
+          retention-days: 7
