@@ -324,6 +324,32 @@ namespace Tiny3D
         DependenciesMap         mFileDependencies {};
         /// 当前正在解析的源文件的 title
         String                  mCurrentSrcTitle {};
+
+    public:
+        /// 模板实例化持久化记录
+        struct TemplateInstInfo
+        {
+            String sourceFilePath;   /// insertSourceFiles 的 key（头文件路径）
+            String hierarchyName;    /// 模板实例化的全类型名（如 std::vector<Tiny3D::Buffer>）
+            StringList headerPaths;  /// 该实例化需要的 include 头文件绝对路径列表
+        };
+
+        using TemplateInstList = std::vector<TemplateInstInfo>;
+        using TemplateInstMap = TMap<String, TemplateInstList>;  // key = srcTitle
+
+        /**
+         * @brief 获取指定 cpp 的模板实例化记录
+         */
+        const TemplateInstList& getTemplateInstantiations(const String &srcTitle) const;
+
+        /**
+         * @brief 将从 .tpl 文件加载的模板实例化信息注入到 mSourceFiles/mHeaderFiles 中
+         */
+        void injectTemplateInstantiations(const TemplateInstList &instList);
+
+    protected:
+        /// per-cpp 的模板实例化记录（在 instantiateClassTemplate 成功时填充）
+        TemplateInstMap         mTemplateInstantiations {};
     };
 }
 

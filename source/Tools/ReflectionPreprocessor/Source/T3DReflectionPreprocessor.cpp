@@ -163,16 +163,27 @@ namespace  Tiny3D
 
             RP_LOG_INFO("Generating source files ...");
 
+            // 增量模式下，加载跳过文件的 .tpl 模板实例化信息注入 mGenerator
+            if (!opts.IsRebuild)
+            {
+                String depsDir = path + Dir::getNativeSeparator() + ".deps";
+                loadAllTemplateFiles(depsDir, pendingFiles);
+            }
+
             // 生成源码文件（rebuild 模式会先删除再重建 Generated 目录）
             ret = generateSource(path, opts.IsRebuild, opts.DumpAST);
 
-            // 在 generateSource 之后写入 .deps 文件（确保不会被 rebuild 的目录删除覆盖）
+            // 在 generateSource 之后写入 .deps 和 .tpl 文件（确保不会被 rebuild 的目录删除覆盖）
             for (const auto &pf : pendingFiles)
             {
                 if (pf.processed)
                 {
                     const StringList &deps = mGenerator->getFileDependencies(pf.fileTitle);
                     writeDepsFile(pf.depsFile, pf.filePath, deps);
+
+                    // 写入 .tpl 模板实例化持久化文件
+                    String tplFile = path + Dir::getNativeSeparator() + ".deps" + Dir::getNativeSeparator() + pf.fileTitle + ".tpl";
+                    writeTemplateFile(tplFile, pf.fileTitle);
                 }
             }
 
@@ -739,6 +750,119 @@ namespace  Tiny3D
         }
 
         ofs.close();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::writeTemplateFile(const String &tplFile, const String &srcTitle) const
+    {
+        const auto &instList = mGenerator->getTemplateInstantiations(srcTitle);
+        
+        std::ofstream ofs(tplFile.c_str(), std::ios::trunc);
+        if (!ofs.is_open())
+        {
+            RP_LOG_WARNING("Failed to write tpl file: %s", tplFile.c_str());
+            return;
+        }
+
+        // 格式：每行 <sourceFilePath>|<hierarchyName>|<header1>;<header2>;...
+        for (const auto &info : instList)
+        {
+            ofs << info.sourceFilePath << "|" << info.hierarchyName << "|";
+            bool first = true;
+            for (const auto &h : info.headerPaths)
+            {
+                if (!first) ofs << ";";
+                ofs << h;
+                first = false;
+            }
+            ofs << "\n";
+        }
+
+        ofs.close();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::loadAllTemplateFiles(const String &depsDir, const std::vector<PendingFile> &pendingFiles)
+    {
+        // 收集已被重新处理的文件 title 集合
+        std::unordered_set<std::string> processedTitles;
+        for (const auto &pf : pendingFiles)
+        {
+            if (pf.processed)
+            {
+                processedTitles.insert(pf.fileTitle);
+            }
+        }
+
+        // 遍历 depsDir 下所有 .tpl 文件
+        String searchPath = depsDir + Dir::getNativeSeparator() + "*.tpl";
+        Dir dir;
+        bool working = dir.findFile(searchPath);
+
+        while (working)
+        {
+            if (!dir.isDots() && !dir.isDirectory())
+            {
+                const String filePath = dir.getFilePath();
+                String fileDir, fileTitle, fileExt;
+                Dir::parsePath(filePath, fileDir, fileTitle, fileExt);
+
+                // 只加载未被重新处理的文件的 .tpl
+                if (processedTitles.find(fileTitle) == processedTitles.end())
+                {
+                    // 读取 .tpl 文件并注入
+                    std::ifstream ifs(filePath.c_str());
+                    if (ifs.is_open())
+                    {
+                        ReflectionGenerator::TemplateInstList instList;
+                        std::string line;
+                        while (std::getline(ifs, line))
+                        {
+                            if (line.empty()) continue;
+
+                            // 解析格式：<sourceFilePath>|<hierarchyName>|<header1>;<header2>;...
+                            auto pos1 = line.find('|');
+                            if (pos1 == std::string::npos) continue;
+                            auto pos2 = line.find('|', pos1 + 1);
+                            if (pos2 == std::string::npos) continue;
+
+                            ReflectionGenerator::TemplateInstInfo info;
+                            info.sourceFilePath = line.substr(0, pos1);
+                            info.hierarchyName = line.substr(pos1 + 1, pos2 - pos1 - 1);
+
+                            // 解析头文件列表
+                            std::string headers = line.substr(pos2 + 1);
+                            if (!headers.empty())
+                            {
+                                size_t start = 0;
+                                size_t sep;
+                                while ((sep = headers.find(';', start)) != std::string::npos)
+                                {
+                                    info.headerPaths.push_back(headers.substr(start, sep - start));
+                                    start = sep + 1;
+                                }
+                                info.headerPaths.push_back(headers.substr(start));
+                            }
+
+                            instList.push_back(std::move(info));
+                        }
+
+                        ifs.close();
+
+                        if (!instList.empty())
+                        {
+                            mGenerator->injectTemplateInstantiations(instList);
+                        }
+                    }
+                }
+            }
+
+            working = dir.findNextFile();
+        }
+
+        dir.close();
     }
 
     //-------------------------------------------------------------------------

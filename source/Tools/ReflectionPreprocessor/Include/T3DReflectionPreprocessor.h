@@ -75,6 +75,12 @@ namespace Tiny3D
         /// 写入 .deps 依赖文件
         void writeDepsFile(const String &depsFile, const String &srcFile, const StringList &deps) const;
 
+        /// 写入 .tpl 模板实例化持久化文件
+        void writeTemplateFile(const String &tplFile, const String &srcTitle) const;
+
+        /// 加载所有 .tpl 文件，对跳过文件的模板实例化信息注入 mGenerator
+        void loadAllTemplateFiles(const String &depsDir, const std::vector<PendingFile> &pendingFiles);
+
         /// 计算文件内容的 FNV-1a 64 位哈希值
         static uint64_t computeFileHash(const String &filePath);
 

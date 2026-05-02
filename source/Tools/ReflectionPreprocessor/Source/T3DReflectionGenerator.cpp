@@ -126,6 +126,187 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    static const ReflectionGenerator::TemplateInstList kEmptyInstList;
+
+    const ReflectionGenerator::TemplateInstList& ReflectionGenerator::getTemplateInstantiations(const String &srcTitle) const
+    {
+        auto itr = mTemplateInstantiations.find(srcTitle);
+        if (itr != mTemplateInstantiations.end())
+        {
+            return itr->second;
+        }
+        return kEmptyInstList;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::injectTemplateInstantiations(const TemplateInstList &instList)
+    {
+        for (const auto &info : instList)
+        {
+            // 在 mSourceFiles 中查找或创建对应条目
+            auto itr = mSourceFiles.find(info.sourceFilePath);
+            if (itr == mSourceFiles.end())
+            {
+                auto ret = mSourceFiles.insert(SourceFilesMapValue(info.sourceFilePath, ASTNodeMap()));
+                itr = ret.first;
+            }
+
+            // 检查是否已经存在（去重）
+            if (itr->second.find(info.hierarchyName) != itr->second.end())
+            {
+                continue;
+            }
+
+            // 在已有的类模板集合中查找对应模板定义
+            // 通过白名单类名查找
+            String templateShortName;
+            {
+                // 从 hierarchyName 提取模板短名（如 "std::vector<...>" → "vector"）
+                auto pos = info.hierarchyName.find('<');
+                if (pos != String::npos)
+                {
+                    String prefix = info.hierarchyName.substr(0, pos);
+                    auto lastColon = prefix.rfind("::");
+                    templateShortName = (lastColon != String::npos) ? prefix.substr(lastColon + 2) : prefix;
+                }
+            }
+
+            // 查找模板定义并实例化
+            ASTClassTemplate *klassTemplate = nullptr;
+            for (const auto &tmpl : mClassTemplates)
+            {
+                ASTClassTemplate *t = tmpl.second;
+                if (t->getName() == templateShortName)
+                {
+                    klassTemplate = t;
+                    break;
+                }
+            }
+
+            if (klassTemplate == nullptr)
+            {
+                // 模板定义不可用（首次增量构建可能没有），跳过
+                continue;
+            }
+
+            // 从 hierarchyName 解析模板实参
+            StringArray actualParams;
+            {
+                auto ltPos = info.hierarchyName.find('<');
+                auto rtPos = info.hierarchyName.rfind('>');
+                if (ltPos != String::npos && rtPos != String::npos && rtPos > ltPos)
+                {
+                    String argsStr = info.hierarchyName.substr(ltPos + 1, rtPos - ltPos - 1);
+                    // 简单按顶层逗号分割（考虑嵌套模板）
+                    int depth = 0;
+                    String current;
+                    for (char c : argsStr)
+                    {
+                        if (c == '<') depth++;
+                        else if (c == '>') depth--;
+                        else if (c == ',' && depth == 0)
+                        {
+                            // trim
+                            auto start = current.find_first_not_of(' ');
+                            if (start != String::npos)
+                                current = current.substr(start);
+                            auto end = current.find_last_not_of(' ');
+                            if (end != String::npos)
+                                current = current.substr(0, end + 1);
+                            actualParams.push_back(current);
+                            current.clear();
+                            continue;
+                        }
+                        current += c;
+                    }
+                    if (!current.empty())
+                    {
+                        auto start = current.find_first_not_of(' ');
+                        if (start != String::npos)
+                            current = current.substr(start);
+                        auto end = current.find_last_not_of(' ');
+                        if (end != String::npos)
+                            current = current.substr(0, end + 1);
+                        actualParams.push_back(current);
+                    }
+                }
+            }
+
+            // 收集形参
+            StringArray formalParams;
+            for (const auto &param : klassTemplate->TemplateParams)
+            {
+                switch (param.kind)
+                {
+                case ASTTemplateParam::Kind::kTemplateType:
+                    formalParams.push_back(param.type);
+                    break;
+                case ASTTemplateParam::Kind::kNonType:
+                    formalParams.push_back("");
+                    break;
+                case ASTTemplateParam::Kind::kTemplateTemplate:
+                    formalParams.push_back(param.name);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            // 提取短名
+            StringList names = split(info.hierarchyName);
+            const String &name = names.back();
+
+            // 克隆模板并实例化
+            ASTClassTemplate *templateInstance = static_cast<ASTClassTemplate *>(klassTemplate->clone());
+            ASTNode *parent = klassTemplate->getParent();
+            
+            if (parent->getChild(name) != nullptr)
+            {
+                // 已存在
+                T3D_SAFE_DELETE(templateInstance);
+                continue;
+            }
+
+            parent->addChild(name, templateInstance);
+            templateInstance->setName(name);
+            templateInstance->replaceTemplateParams(klassTemplate, formalParams, actualParams, info.sourceFilePath);
+
+            // 加入到导出文件列表
+            insertSourceFiles(info.sourceFilePath, templateInstance, true, info.headerPaths);
+
+            // 提取头文件
+            String dir, title, ext;
+            Dir::parsePath(info.sourceFilePath, dir, title, ext);
+
+            auto rval = mHeaderFiles.insert(HeaderFilesMapValue(title, StringList()));
+
+            for (const auto &includePath : mIncludePathes)
+            {
+                String pattern = includePath + "*";
+                for (const auto &str : info.headerPaths)
+                {
+                    String headerPath = str;
+                    if (StringUtil::match(headerPath, pattern, false))
+                    {
+                        StringUtil::replaceAll(headerPath, includePath, "");
+                        if (!headerPath.empty() && headerPath[0] == Dir::getNativeSeparator())
+                        {
+                            headerPath.erase(0, 1);
+                            auto it = std::find(rval.first->second.begin(), rval.first->second.end(), headerPath);
+                            if (it == rval.first->second.end())
+                            {
+                                rval.first->second.push_back(headerPath);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     bool ReflectionGenerator::isProjectFile(const String &filePath) const
     {
         for (const auto &includePath : mIncludePathes)
@@ -3676,6 +3857,16 @@ namespace Tiny3D
             pathes.push_back(path);
             pathes.push_back(headerPath);
             insertSourceFiles(templateInstance->FileInfo.Path, templateInstance, true, pathes);
+
+            // 记录模板实例化信息用于 .tpl 持久化
+            if (!mCurrentSrcTitle.empty())
+            {
+                TemplateInstInfo info;
+                info.sourceFilePath = templateInstance->FileInfo.Path;
+                info.hierarchyName = templateInstance->getHierarchyName();
+                info.headerPaths = pathes;
+                mTemplateInstantiations[mCurrentSrcTitle].push_back(std::move(info));
+            }
         } while (false);
         
         return ret;
