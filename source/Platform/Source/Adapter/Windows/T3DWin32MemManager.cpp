@@ -206,7 +206,7 @@ namespace Tiny3D
             {
                 if (!getFileAndLine(pBlock->address[i], pBlock->callstacks[i], pBlock->line[i]))
                 {
-                    break;
+                    continue;
                 }
             }
             pBlock = pBlock->next;
@@ -528,7 +528,14 @@ namespace Tiny3D
 
             for (unsigned int i = 0 ; i < pBlock->callStackCount ; i++)
             {
-                Win32OutputDebugString("\t0x%X\t%s(%d)\n", pBlock->address[i], pBlock->callstacks[i], pBlock->line[i]);
+                if (pBlock->callstacks[i][0] != '\0')
+                {
+                    Win32OutputDebugString("\t0x%X\t%s(%d)\n", pBlock->address[i], pBlock->callstacks[i], pBlock->line[i]);
+                }
+                else
+                {
+                    Win32OutputDebugString("\t0x%X\t[unknown]\n", pBlock->address[i]);
+                }
             }
             Win32OutputDebugString("$$$$$$$$$$$$$$$$$ End Leak %d  $$$$$$$$$$$$$$$$$$$\n", uiLeakNum);
             pBlock = pBlock->next;
