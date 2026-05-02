@@ -229,5 +229,9 @@ jobs:
         with:
           name: Generated-Reflection-${{ matrix.build_type }}
           path: |
-            source/vs2019-x64/**/Generated/*.generated.cpp
+            source/vs2019-x64/Math/Generated/
+            source/vs2019-x64/System/Generated/
+            source/vs2019-x64/Core/Runtime/Generated/
+            source/vs2019-x64/Core/Editor/Generated/
           retention-days: 7
+          if-no-files-found: warn
