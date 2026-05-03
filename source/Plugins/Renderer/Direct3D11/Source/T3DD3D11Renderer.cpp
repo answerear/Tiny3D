@@ -26,7 +26,9 @@
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11Context.h"
 #include "T3DD3D11RenderWindow.h"
+#ifdef T3D_EDITOR
 #include "T3DEditorInfoDX11.h"
+#endif
 
 
 namespace Tiny3D
@@ -85,6 +87,7 @@ namespace Tiny3D
 
     void D3D11Renderer::getEditorInfo(void *info, RenderWindow *window)
     {
+#ifdef T3D_EDITOR
         if (mContext != nullptr)
         {
             EditorInfoDX11 *dx11Info = static_cast<EditorInfoDX11*>(info);
@@ -96,6 +99,7 @@ namespace Tiny3D
             D3D11RenderWindow *renderWindow = static_cast<D3D11RenderWindow *>(window->getRHIRenderWindow());
             dx11Info->d3dRTView = renderWindow->D3DRTView;
         }
+#endif
     }
 
     //--------------------------------------------------------------------------

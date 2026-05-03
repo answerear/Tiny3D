@@ -55,7 +55,6 @@ set_project_files(Include ${TINY3D_D3D11_RUNTIME_DIR}/Include/ .h)
 # Setup project source files - Runtime
 set_project_files(Source ${TINY3D_D3D11_RUNTIME_DIR}/Source/ .cpp)
 
-list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h)
 
 if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
