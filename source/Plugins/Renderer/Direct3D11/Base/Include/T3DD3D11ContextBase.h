@@ -22,39 +22,41 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_GL4_RENDERER_H__
-#define __T3D_GL4_RENDERER_H__
+
+#ifndef __T3D_D3D11_CONTEXT_BASE_H__
+#define __T3D_D3D11_CONTEXT_BASE_H__
 
 
-#include "T3DGL4Prerequisites.h"
+#include <Tiny3D.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
+
+#include <algorithm>
+#undef min
 
 
 namespace Tiny3D
 {
-    class GL4Renderer
-        : public RHIRenderer
-        , public Singleton<GL4Renderer>
+    class D3D11ContextBase;
+    T3D_DECLARE_SMART_PTR(D3D11ContextBase);
+
+    class D3D11ContextBase : public RHIContext
     {
     public:
-        static GL4RendererPtr create();
+        virtual ~D3D11ContextBase();
 
-        ~GL4Renderer() override;
+        // D3D11 shared: depth range conversion [0,1]
+        TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
 
-        TResult init() override;
-
-        TResult destroy() override;
-
-        void getEditorInfo(void *info, RenderWindow *window) override;
+        // Shader compilation and reflection (shared by Console and Runtime)
+        TResult compileShader(ShaderVariant *shader) override;
+        TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
+        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
 
     protected:
-        GL4Renderer();
-
-        void cleanup();
+        D3D11ContextBase();
     };
-
-    #define GL4_RENDERER    (GL4Renderer::getInstance())
-    #define GL4_CONTEXT     (smart_pointer_cast<GL4Context>(GL4_RENDERER.getContext()))
 }
 
 
-#endif  /*__T3D_GL4_RENDERER_H__*/
+#endif  /*__T3D_D3D11_CONTEXT_BASE_H__*/

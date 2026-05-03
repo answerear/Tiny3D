@@ -1,36 +1,28 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
  ******************************************************************************/
 
 
-#ifndef __T3D_GL4CONSOLE_CONTEXT_H__
-#define __T3D_GL4CONSOLE_CONTEXT_H__
+#ifndef __T3D_GL4_CONSOLE_CONTEXT_H__
+#define __T3D_GL4_CONSOLE_CONTEXT_H__
 
 
+#include "T3DGL4ContextBase.h"
 #include "T3DGL4ConsolePrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class GL4ConsoleContext : public RHIContext
+    class GL4ConsoleContext : public GL4ContextBase
     {
     public:
         static GL4ConsoleContextPtr create();
 
         virtual ~GL4ConsoleContext();
 
-        TResult init();
-
-        // ===== Core methods with real implementation =====
-
-        TResult compileShader(ShaderVariant *shader) override;
-        TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
-
-        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
-
-
+        // Shader creation (real GL compilation)
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         RHIShaderPtr createPixelShader(ShaderVariant *shader) override;
         RHIShaderPtr createHullShader(ShaderVariant *shader) override;
@@ -38,8 +30,7 @@ namespace Tiny3D
         RHIShaderPtr createGeometryShader(ShaderVariant *shader) override;
         RHIShaderPtr createComputeShader(ShaderVariant *shader) override;
 
-        // ===== Empty implementations =====
-
+        // Empty implementations for Console
         TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
         RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) override;
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
@@ -103,52 +94,8 @@ namespace Tiny3D
 
     protected:
         GL4ConsoleContext();
-
-        TResult initDummyContext();
-        void destroyDummyContext();
-
-        //-------------------------------------------------------------------
-        // glslang CPU-side reflection cache
-        //-------------------------------------------------------------------
-        struct GlslangUniformInfo
-        {
-            String name;        // e.g. "Tiny3DPerDraw.tiny3d_ObjectToWorld"
-            int glDefineType;   // GL_FLOAT_MAT4, GL_SAMPLER_2D, etc.
-            int offset;         // byte offset within the uniform block
-            int size;           // array size (1 for non-array)
-            int blockIndex;     // index of owning uniform block (-1 for standalone)
-            int arrayStride;
-        };
-
-        struct GlslangBlockInfo
-        {
-            String name;        // e.g. "type_Tiny3DPerDraw"
-            int size;           // block data size in bytes
-        };
-
-        struct GlslangReflectionData
-        {
-            TArray<GlslangBlockInfo> blocks;
-            TArray<GlslangUniformInfo> uniforms;
-        };
-
-        TResult glslangCompileAndReflect(ShaderVariant *shader);
-
-        TMap<ShaderVariant*, GlslangReflectionData> mReflectionCache;
-        bool mGlslangInitialized {false};
-
-#if defined(T3D_OS_WINDOWS)
-        HWND  mDummyHWND {nullptr};
-        HDC   mDummyHDC {nullptr};
-        HGLRC mDummyHGLRC {nullptr};
-#elif defined(T3D_OS_LINUX)
-        Display      *mDummyDisplay {nullptr};
-        ::Window      mDummyWindow {0};
-        GLXContext    mDummyGLXContext {nullptr};
-#endif
-        bool mGLADLoaded {false};
     };
 }
 
 
-#endif  /*__T3D_GL4CONSOLE_CONTEXT_H__*/
+#endif  /*__T3D_GL4_CONSOLE_CONTEXT_H__*/

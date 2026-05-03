@@ -28,12 +28,12 @@
 
 
 #include "T3DGL4Prerequisites.h"
-#include "T3DGL4ConsoleContext.h"
+#include "T3DGL4ContextBase.h"
 
 
 namespace Tiny3D
 {
-    class GL4Context : public GL4ConsoleContext
+    class GL4Context : public GL4ContextBase
     {
     public:
         static GL4ContextPtr create();

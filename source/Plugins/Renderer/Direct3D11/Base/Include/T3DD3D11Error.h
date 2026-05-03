@@ -23,16 +23,16 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11CONSOLE_ERROR_H__
-#define __T3D_D3D11CONSOLE_ERROR_H__
+#ifndef __T3D_D3D11_ERROR_H__
+#define __T3D_D3D11_ERROR_H__
 
 
-#include "T3DD3D11ConsolePrerequisites.h"
+#include <Tiny3D.h>
 
 
 namespace Tiny3D
 {
-    enum D3D11ConsoleErrorCode : int32_t
+    enum D3D11ErrorCode : int32_t
     {
         /**< 窗口已经创建 */
         T3D_ERR_D3D11_WINDOW_ALREADY = T3D_ERR_RENDERER,
@@ -114,4 +114,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_D3D11CONSOLE_ERROR_H__*/
+#endif  /*__T3D_D3D11_ERROR_H__*/

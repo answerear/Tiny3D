@@ -6,7 +6,7 @@
 
 
 #include "T3DGL4ConsoleWindow.h"
-#include "T3DGL4ConsoleError.h"
+#include "T3DGL4Error.h"
 #include "T3DGL4ConsoleRenderer.h"
 
 

@@ -27,13 +27,12 @@
 
 
 #include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11ConsoleRenderer.h"
 #include "T3DD3D11Context.h"
 
 namespace Tiny3D
 {
     class D3D11Renderer
-        : public D3D11RendererConsole
+        : public RHIRenderer
         , public Singleton<D3D11Renderer>
     {
     public:

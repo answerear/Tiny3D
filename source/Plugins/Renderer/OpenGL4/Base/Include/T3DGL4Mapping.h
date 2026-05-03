@@ -8,7 +8,8 @@
 #define __T3D_GL4_MAPPING_H__
 
 
-#include "T3DGL4Prerequisites.h"
+#include <Tiny3D.h>
+#include <glad/glad.h>
 
 
 namespace Tiny3D

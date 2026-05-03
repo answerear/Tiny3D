@@ -28,12 +28,12 @@
 
 
 #include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11ConsoleContext.h"
+#include "T3DD3D11ContextBase.h"
 
 
 namespace Tiny3D
 {
-    class D3D11Context : public D3D11ConsoleContext
+    class D3D11Context : public D3D11ContextBase
     {
     public:
         static D3D11ContextPtr create();

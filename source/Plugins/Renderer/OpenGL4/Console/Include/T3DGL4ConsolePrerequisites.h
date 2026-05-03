@@ -60,6 +60,7 @@ namespace Tiny3D
     #define LOG_TAG_GL4CONSOLERENDERER        "GL4RendererConsole"
 
     class GL4RendererConsole;
+    class GL4ContextBase;
     class GL4ConsoleContext;
     class GL4ConsoleWindow;
     class GL4ConsoleVertexDeclaration;
@@ -82,6 +83,7 @@ namespace Tiny3D
     class GL4ConsoleComputeShader;
 
     T3D_DECLARE_SMART_PTR(GL4RendererConsole);
+    T3D_DECLARE_SMART_PTR(GL4ContextBase);
     T3D_DECLARE_SMART_PTR(GL4ConsoleContext);
     T3D_DECLARE_SMART_PTR(GL4ConsoleWindow);
     T3D_DECLARE_SMART_PTR(GL4ConsoleVertexDeclaration);

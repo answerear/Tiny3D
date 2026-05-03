@@ -24,7 +24,7 @@
 
 
 #include "T3DD3D11ConsoleWindow.h"
-#include "T3DD3D11ConsoleError.h"
+#include "T3DD3D11Error.h"
 #include "T3DD3D11ConsoleRenderer.h"
 
 

@@ -55,6 +55,7 @@ namespace Tiny3D
     #define LOG_TAG_D3D11CONSOLERENDERER        "D3D11RendererConsole"
 
     class D3D11RendererConsole;
+    class D3D11ContextBase;
     class D3D11ConsoleContext;
     class D3D11ConsoleWindow;
     class D3D11ConsoleVertexDeclaration;
@@ -76,6 +77,7 @@ namespace Tiny3D
     class D3D11ConsoleComputeShader;
 
     T3D_DECLARE_SMART_PTR(D3D11RendererConsole);
+    T3D_DECLARE_SMART_PTR(D3D11ContextBase);
     T3D_DECLARE_SMART_PTR(D3D11ConsoleContext);
     T3D_DECLARE_SMART_PTR(D3D11ConsoleWindow);
     T3D_DECLARE_SMART_PTR(D3D11ConsoleVertexDeclaration);
