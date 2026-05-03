@@ -23,81 +23,57 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_D3D11_CONTEXT_H__
-#define __T3D_D3D11_CONTEXT_H__
+#ifndef __T3D_D3D11CONSOLE_CONTEXT_H__
+#define __T3D_D3D11CONSOLE_CONTEXT_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11ConsoleContext.h"
+#include "T3DD3D11ConsolePrerequisites.h"
 
 
 namespace Tiny3D
 {
-    class D3D11Context : public D3D11ConsoleContext
+    class D3D11ConsoleContext : public RHIContext
     {
     public:
-        static D3D11ContextPtr create();
+        static D3D11ConsoleContextPtr create();
 
-        TResult init();
+        virtual ~D3D11ConsoleContext();
+
+        /**
+         * \brief 设置视图变换矩阵和投影变换矩阵
+         * \param [in] viewMat : 视图变换矩阵
+         * \param [in] projMat : 投影变换矩阵
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
         
-        TResult swapBackBuffer(D3D11RenderWindow *renderWindow);
-
-
         /**
          * \brief 创建 RHI 渲染窗口
          * \param [in] renderWindow : 引擎渲染窗口
          * \return 调用成功返回新建的 RHI 对象
          */
         RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) override;
-        
+
         /**
          * \brief 创建 RHI 渲染纹理
          * \param [in] buffer : 引擎渲染纹理
-         * \param [in] shaderReadable : 在 shader 中是否可读
          * \return 调用成功返回新建的 RHI 对象
          */
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
-
-        /**
-         * 改变渲染窗口大小
-         * @param [in] rw : 要改变大小的渲染窗口对象
-         * @param [in] w : 要改变的宽度
-         * @param [in] h : 要改变的高度 
-         * @return 调用成功返回 T3D_OK
-         */
-        TResult resizeRenderWindow(D3D11RenderWindow *rw, uint32_t w, uint32_t h);
-
-        /**
-         * 改变渲染纹理大小
-         * @param [in] rt : 要改变大小的渲染纹理对象
-         * @param [in] w : 要改变的宽度
-         * @param [in] h : 要改变的高度
-         * @return 调用成功返回 T3D_OK
-         */
-        TResult resizeRenderTexture(RenderTexture *rt, uint32_t w, uint32_t h);
-
-        /**
-         * 改变渲染目标大小
-         * @param [in] rt : 要改变大小的渲染目标
-         * @param [in] w : 要改变的宽度 
-         * @param [in] h : 要改变的高度
-         * @return 调用成功返回 T3D_OK
-         */
-        TResult resizeRenderTarget(RenderTarget *rt, uint32_t w, uint32_t h);
-
+        
         /**
          * \brief 设置当前渲染目标
          * \param [in] renderTarget : 渲染目标
          * \return 调用成功返回 T3D_OK
          */
         TResult setRenderTarget(RenderTarget *renderTarget) override;
-
+        
         /**
          * \brief 清除渲染目标
          * \return 调用成功返回 T3D_OK
          */
         TResult resetRenderTarget() override;
-
+        
         /**
          * \brief 设置视口
          * \param [in] viewport : 视口 
@@ -175,7 +151,7 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setRasterizerState(RasterizerState *state) override;
-        
+
         /**
          * \brief 创建 RHI 顶点格式对象
          * \param [in] decl : 顶点格式对象
@@ -248,7 +224,7 @@ namespace Tiny3D
          * \return 调用成功返回 RHI 对象
          */
         RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3D *buffer) override;
-        
+
         /**
          * \brief 创建 RHI 顶点着色器对象
          * \param [in] shader : 引擎使用的顶点着色器对象
@@ -478,6 +454,13 @@ namespace Tiny3D
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         /**
+         * \brief 编译着色器
+         * \param [in,out] shader : 着色器变体对象
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult compileShader(ShaderVariant *shader) override;
+
+        /**
          * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
          * \param [in] shader : 要反射的着色器
          * \param [out] constantParams : 绑定的常量缓冲区信息
@@ -511,7 +494,7 @@ namespace Tiny3D
          * \param [in] startVertex : 顶点缓冲区其实位置
          * \return 调用成功返回 T3D_OK
          */
-        TResult render( uint32_t vertexCount, uint32_t startVertex) override;
+        TResult render(uint32_t vertexCount, uint32_t startVertex) override;
 
         /**
          * \brief 清除所有状态、渲染资源，包括 RenderTarget
@@ -582,166 +565,13 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
-
-        ID3D11Device *getD3DDevice() const { return mD3DDevice; }
-
-        ID3D11DeviceContext *getD3DDeviceContext() const { return mD3DDeviceContext; }
         
     protected:
-        D3D11Context();
+        D3D11ConsoleContext();
 
-        ~D3D11Context() override;
-
-        void traceDebugInfo(const String &tag = "", const String &func = "");
-        
-        TResult clearColor(RenderWindow *window, const ColorRGB &color);
-
-        TResult clearColor(const RenderTexturePtr *textures, uint32_t numOfTextures, const ColorRGB &color);
-
-        // TResult clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil);
-        
-        TResult clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil);
-
-        void setupBlitQuad();
-
-        void setupInternalCBuffers();
-
-        TResult blitAll(ID3D11Resource *pD3DSrc, ID3D11Resource *pD3DDst);
-        
-        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, ID3D11RenderTargetView *pD3DRTView, ID3D11DepthStencilView *pD3DDSView, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 &dstOffset = Vector3::ZERO);
-
-        using SetSamplerState = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11SamplerState * const *);
-        
-        TResult setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, const Samplers &samplers);
-
-        using SetShaderResources = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11ShaderResourceView * const *);
-        
-        TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers);
-
-        using SetConstantBuffers = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11Buffer * const *);
-        
-        TResult setConstantBuffers(SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers);
-
-        TResult setConstantBuffer(uint32_t startSlot, const Buffer &buffer, ID3D11Buffer *pD3DBuffer);
-
-        TResult createRenderWindow(D3D11RenderWindow *pD3DRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality);
-
-        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil);
-
-        TResult setRenderTarget(const RenderTexturePtr *renderTexture, uint32_t numOfTextures, RenderTexture *depthStencil);
-
-        void backupRenderState();
-        
-    protected:
-        /**
-         * \brief 用于 blit 的 quad 顶点结构
-         */
-        struct BlitVertex
-        {
-            Vector3 position;
-            Vector2 uv;
-        };
-
-        struct BackUpDX11State
-        {
-            ID3D11RenderTargetView      *RenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] {nullptr};
-            ID3D11DepthStencilView      *DepthStencilView {nullptr};
-
-            UINT                        ScissorRectsCount {0}, ViewportsCount {0};
-            D3D11_RECT                  ScissorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-            D3D11_VIEWPORT              Viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-
-            ID3D11RasterizerState       *RasterizerState {nullptr};
-            ID3D11BlendState            *BlendState {nullptr};
-            FLOAT                       BlendFactor[4] {0.0f};
-            UINT                        SampleMask {0};
-            UINT                        StencilRef {0};
-            ID3D11DepthStencilState     *DepthStencilState {nullptr};
-            
-            ID3D11ShaderResourceView    *VSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-            ID3D11ShaderResourceView    *PSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-            ID3D11ShaderResourceView    *GSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-            ID3D11ShaderResourceView    *HSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-            ID3D11ShaderResourceView    *DSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-            ID3D11ShaderResourceView    *CSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-
-            ID3D11SamplerState          *VSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
-            ID3D11SamplerState          *PSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
-            ID3D11SamplerState          *GSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
-            ID3D11SamplerState          *HSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
-            ID3D11SamplerState          *DSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
-            ID3D11SamplerState          *CSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
-            
-            ID3D11PixelShader           *PS {nullptr};
-            ID3D11VertexShader          *VS {nullptr};
-            ID3D11GeometryShader        *GS {nullptr};
-            ID3D11DomainShader          *DS {nullptr};
-            ID3D11HullShader            *HS {nullptr};
-            ID3D11ComputeShader         *CS {nullptr};
-            
-            UINT                        PSInstancesCount {0}, VSInstancesCount {0}, GSInstancesCount {0}, HSInstancesCount {0}, DSInstancesCount {0}, CSInstancesCount {0};
-            
-            ID3D11ClassInstance         *PSInstances[256] {nullptr};
-            ID3D11ClassInstance         *VSInstances[256] {nullptr};
-            ID3D11ClassInstance         *GSInstances[256] {nullptr};
-            ID3D11ClassInstance         *HSInstances[256] {nullptr};
-            ID3D11ClassInstance         *DSInstances[256] {nullptr};
-            ID3D11ClassInstance         *CSInstances[256] {nullptr};   // 256 is max according to PSSetShader documentation
-            
-            D3D11_PRIMITIVE_TOPOLOGY    PrimitiveTopology {D3D_PRIMITIVE_TOPOLOGY_UNDEFINED};
-            ID3D11Buffer                *IndexBuffer {nullptr};
-            ID3D11Buffer                *VertexBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
-            UINT                        VertexBufferStrides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] {0};
-            UINT                        VertexBufferOffsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] {0};
-
-            ID3D11Buffer                *VSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
-            ID3D11Buffer                *PSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
-            ID3D11Buffer                *GSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
-            ID3D11Buffer                *HSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
-            ID3D11Buffer                *DSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
-            ID3D11Buffer                *CSConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT];
-            
-            UINT                        IndexBufferOffset {0};
-            DXGI_FORMAT                 IndexBufferFormat {DXGI_FORMAT_UNKNOWN};
-            ID3D11InputLayout           *InputLayout {nullptr};
-        };
-        
-        /// The instance
-        HINSTANCE           mInstance {nullptr};
-        /// D3D11 设备对象
-        ID3D11Device        *mD3DDevice {nullptr};
-        /// 用于调试的设备对象
-#if defined (T3D_DEBUG)
-        ID3D11Debug         *mDebugDevice {nullptr};
-#endif
-        /// D3D11 上下文对象
-        ID3D11DeviceContext *mD3DDeviceContext {nullptr};
-        /// D3D 特性级别
-        D3D_FEATURE_LEVEL   mFeatureLevel {D3D_FEATURE_LEVEL_11_0};
-
-        /// 用于 blit 的 vertex buffer
-        ID3D11Buffer        *mBlitVB {nullptr};
-        /// 用于 blit 的 input layout
-        ID3D11InputLayout   *mBlitLayout {nullptr};
-        /// 用于 blit 的 vertex shader
-        ID3D11VertexShader  *mBlitVS {nullptr};
-        /// 用于 blit 的 pixel shader
-        ID3D11PixelShader   *mBlitPS {nullptr};
-        /// 用于 blit 的 sampler state
-        ID3D11SamplerState      *mBlitSamplerState {nullptr};
-        /// 用于 blit 的 blend state
-        ID3D11BlendState        *mBlitBState {nullptr};
-        /// 用于 blit 的 depth stencil state
-        ID3D11DepthStencilState *mBlitDSState {nullptr};
-        /// 用于 blit 的 rasterizer state
-        ID3D11RasterizerState   *mBlitRState {nullptr};
-
-        /// 当前渲染目标，调用 SetRenderTarget 设置进来
-        RenderTargetPtr     mCurrentRenderTarget {nullptr};
-
-        BackUpDX11State     mBackupState {};
+        TResult collectInformation();
     };
 }
 
 
-#endif  /*__T3D_D3D11_CONTEXT_H__*/
+#endif  /*__T3D_D3D11CONSOLE_CONTEXT_H__*/

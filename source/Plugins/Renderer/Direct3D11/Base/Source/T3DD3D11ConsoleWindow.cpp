@@ -22,40 +22,57 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
 
-
-#include "T3DD3D11Prerequisites.h"
+#include "T3DD3D11ConsoleWindow.h"
+#include "T3DD3D11ConsoleError.h"
 #include "T3DD3D11ConsoleRenderer.h"
-#include "T3DD3D11Context.h"
+
 
 namespace Tiny3D
 {
-    class D3D11Renderer
-        : public D3D11RendererConsole
-        , public Singleton<D3D11Renderer>
+    //--------------------------------------------------------------------------
+
+    D3D11ConsoleWindowPtr D3D11ConsoleWindow::create()
     {
-    public:
-        static D3D11RendererPtr create();
+        D3D11ConsoleWindowPtr window = T3D_NEW D3D11ConsoleWindow();
+        return window;
+    }
 
-        ~D3D11Renderer() override;
-        
-        TResult init() override;
-        
-        TResult destroy() override;
-        
-        void getEditorInfo(void *info, RenderWindow *window) override;
-        
-    protected:
-        D3D11Renderer();
-        
-        void cleanup();
-    };
+    //--------------------------------------------------------------------------
 
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
+    D3D11ConsoleWindow::D3D11ConsoleWindow()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11ConsoleWindow::~D3D11ConsoleWindow()
+    {
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11ConsoleWindow::swapBuffers()
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11ConsoleWindow::resize(uint32_t w, uint32_t h)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *D3D11ConsoleWindow::getNativeObject() const
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
 }
 
 
-#endif    /*__T3D_D3D11_RENDERER_H__*/

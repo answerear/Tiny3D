@@ -22,40 +22,54 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+
+#ifndef __T3D_D3D11CONSOLE_WINDOW_H__
+#define __T3D_D3D11CONSOLE_WINDOW_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11ConsoleRenderer.h"
-#include "T3DD3D11Context.h"
+#include "T3DD3D11ConsolePrerequisites.h"
+
 
 namespace Tiny3D
 {
-    class D3D11Renderer
-        : public D3D11RendererConsole
-        , public Singleton<D3D11Renderer>
+    class D3D11ConsoleWindow : public RHIRenderWindow
     {
     public:
-        static D3D11RendererPtr create();
+        /**
+         * @brief 创建渲染窗口对象
+         * @param [in] name : 渲染窗口名字
+         * @return 返回一个渲染窗口对象
+         */
+        static D3D11ConsoleWindowPtr create();
 
-        ~D3D11Renderer() override;
-        
-        TResult init() override;
-        
-        TResult destroy() override;
-        
-        void getEditorInfo(void *info, RenderWindow *window) override;
+        /**
+         * @fn  virtual NullRenderWindow::~NullRenderWindow();
+         * @brief   析构函数
+         */
+        virtual ~D3D11ConsoleWindow();
+
+        /**
+         * @fn  virtual TResult NullRenderWindow::swapBuffers() override;
+         * @brief   双缓冲中交换离屏缓存到显示缓存，显示出图像
+         * @return  调用成功返回 T3D_OK.
+         * @remarks  具体渲染系统子类实现本接口.
+         */
+        TResult swapBuffers() override;
+
+        TResult resize(uint32_t w, uint32_t h) override;
+
+        void *getNativeObject() const override;
         
     protected:
-        D3D11Renderer();
-        
-        void cleanup();
+        /**
+         * @fn  NullRenderWindow::NullRenderWindow(const String &name);
+         * @brief   Constructor
+         * @param   name    The name.
+         */
+        D3D11ConsoleWindow();
     };
-
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
 }
 
 
-#endif    /*__T3D_D3D11_RENDERER_H__*/
+
+#endif  /*__T3D_NULL_WINDOW_H__*/

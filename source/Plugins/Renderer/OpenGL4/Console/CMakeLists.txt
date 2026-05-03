@@ -5,11 +5,11 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(NullGL4Renderer)
+set_project_name(GL4RendererConsole)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
-        add_definitions(-DT3D_NULLGL4_EXPORT -D_USRDLL)
+        add_definitions(-DT3D_GL4CONSOLE_EXPORT -D_USRDLL)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 

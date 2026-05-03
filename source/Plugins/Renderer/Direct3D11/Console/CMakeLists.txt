@@ -5,11 +5,11 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(NullD3D11Renderer)
+set_project_name(D3D11RendererConsole)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
-        add_definitions(-DT3D_NULLD3D11_EXPORT -D_USRDLL)
+        add_definitions(-DT3D_D3D11CONSOLE_EXPORT -D_USRDLL)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 

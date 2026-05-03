@@ -22,40 +22,35 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+#ifndef __T3D_D3D11CONSOLE_RENDERER_H__
+#define __T3D_D3D11CONSOLE_RENDERER_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11ConsoleRenderer.h"
-#include "T3DD3D11Context.h"
+#include "T3DD3D11ConsolePrerequisites.h"
+
 
 namespace Tiny3D
 {
-    class D3D11Renderer
-        : public D3D11RendererConsole
-        , public Singleton<D3D11Renderer>
+    class D3D11RendererConsole
+        : public RHIRenderer
     {
     public:
-        static D3D11RendererPtr create();
+        static D3D11RendererConsolePtr create();
 
-        ~D3D11Renderer() override;
+        virtual ~D3D11RendererConsole();
         
         TResult init() override;
         
         TResult destroy() override;
-        
+
         void getEditorInfo(void *info, RenderWindow *window) override;
         
     protected:
-        D3D11Renderer();
+        D3D11RendererConsole();
         
         void cleanup();
     };
-
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
 }
 
 
-#endif    /*__T3D_D3D11_RENDERER_H__*/
+#endif    /*__T3D_D3D11CONSOLE_RENDERER_H__*/

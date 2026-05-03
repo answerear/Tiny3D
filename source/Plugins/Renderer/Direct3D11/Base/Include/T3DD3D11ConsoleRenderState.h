@@ -22,40 +22,67 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+#ifndef __T3D_D3D11CONSOLE_RENDERER_H__
+#define __T3D_D3D11CONSOLE_RENDERER_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11ConsoleRenderer.h"
-#include "T3DD3D11Context.h"
+#include "T3DD3D11ConsolePrerequisites.h"
+
 
 namespace Tiny3D
 {
-    class D3D11Renderer
-        : public D3D11RendererConsole
-        , public Singleton<D3D11Renderer>
+    class D3D11ConsoleBlendState : public RHIBlendState
     {
     public:
-        static D3D11RendererPtr create();
+        static D3D11ConsoleBlendStatePtr create();
 
-        ~D3D11Renderer() override;
-        
-        TResult init() override;
-        
-        TResult destroy() override;
-        
-        void getEditorInfo(void *info, RenderWindow *window) override;
+        ~D3D11ConsoleBlendState() override;
+
+        void *getNativeObject() const override;
         
     protected:
-        D3D11Renderer();
-        
-        void cleanup();
+        D3D11ConsoleBlendState() = default;
     };
 
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
+    class D3D11ConsoleRasterizerState : public RHIRasterizerState
+    {
+    public:
+        static D3D11ConsoleRasterizerStatePtr create();
+
+        ~D3D11ConsoleRasterizerState() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        D3D11ConsoleRasterizerState() = default;
+    };
+
+    class D3D11ConsoleDepthStencilState : public RHIDepthStencilState
+    {
+    public:
+        static D3D11ConsoleDepthStencilStatePtr create();
+
+        ~D3D11ConsoleDepthStencilState() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        D3D11ConsoleDepthStencilState() = default;
+    };
+
+    class D3D11ConsoleSamplerState : public RHISamplerState
+    {
+    public:
+        static D3D11ConsoleSamplerStatePtr create();
+
+        ~D3D11ConsoleSamplerState() override;
+
+        void *getNativeObject() const override;
+        
+    protected:
+        D3D11ConsoleSamplerState() = default;
+    };
 }
 
 
-#endif    /*__T3D_D3D11_RENDERER_H__*/
+#endif    /*__T3D_D3D11CONSOLE_RENDERER_H__*/

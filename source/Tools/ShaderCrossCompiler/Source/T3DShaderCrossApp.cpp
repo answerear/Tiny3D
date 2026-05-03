@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -141,12 +141,12 @@ int main(int argc, char *argv[])
 
     if (targetLang == "glsl" || targetLang == "essl")
     {
-        settings.pluginSettings.plugins.push_back("NullGL4Renderer");
+        settings.pluginSettings.plugins.push_back("GL4RendererConsole");
         settings.renderSettings.renderer = RHIRenderer::NULL_OPENGL4;
     }
     else
     {
-        settings.pluginSettings.plugins.push_back("NullD3D11Renderer");
+        settings.pluginSettings.plugins.push_back("D3D11RendererConsole");
         settings.renderSettings.renderer = RHIRenderer::NULL_DIRECT3D11;
     }
     settings.logSettings.tag = LOG_TAG;

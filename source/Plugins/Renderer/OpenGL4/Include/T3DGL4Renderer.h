@@ -27,13 +27,13 @@
 
 
 #include "T3DGL4Prerequisites.h"
-#include "T3DNullGL4Renderer.h"
+#include "T3DGL4ConsoleRenderer.h"
 
 
 namespace Tiny3D
 {
     class GL4Renderer
-        : public NullGL4Renderer
+        : public GL4RendererConsole
         , public Singleton<GL4Renderer>
     {
     public:
