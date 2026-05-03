@@ -15,16 +15,11 @@ endif (MSVC)
 
 add_definitions(-DT3D_EDITOR)
 
-set(TINY3D_GL4_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_GL4_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 set(TINY3D_GL4_BASE_DIR ${TINY3D_GL4_ROOT_DIR}/Base)
-set(TINY3D_GL4_RUNTIME_DIR ${TINY3D_GL4_ROOT_DIR}/Runtime)
+set(TINY3D_GL4_WINDOW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_GL4_RUNTIME_DIR ${TINY3D_GL4_WINDOW_DIR}/Runtime)
 set(TINY3D_GL4_EDITOR_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-# GLAD library path
-set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../dependencies/glad")
-
-# glslang library path
-set(GLSLANG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../dependencies/glslang")
 
 # Setup project include files path
 include_directories(
@@ -36,13 +31,13 @@ include_directories(
     "${TINY3D_LOG_SOURCE_DIR}/Include"
     "${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${TINY3D_GL4_BASE_DIR}/Include"
-    "${TINY3D_GL4_ROOT_DIR}/Include"
+    "${TINY3D_GL4_WINDOW_DIR}/Include"
     "${TINY3D_GL4_RUNTIME_DIR}/Include"
     "${TINY3D_GL4_EDITOR_DIR}/Include"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
-    "${GLAD_DIR}/include"
-    "${GLSLANG_DIR}/include"
+    "${GLAD_INCLUDE_DIR}"
+    "${GLSLANG_INCLUDE_DIR}"
     )
 
 
@@ -53,10 +48,10 @@ set_project_files(Include\\\\Base ${TINY3D_GL4_BASE_DIR}/Include/ .h)
 set_project_files(Source\\\\Base ${TINY3D_GL4_BASE_DIR}/Source/ .cpp)
 
 # Setup project header files - Shared
-set_project_files(Include ${TINY3D_GL4_ROOT_DIR}/Include/ .h)
+set_project_files(Include ${TINY3D_GL4_WINDOW_DIR}/Include/ .h)
 
 # Setup project source files - Shared
-set_project_files(Source ${TINY3D_GL4_ROOT_DIR}/Source/ .cpp)
+set_project_files(Source ${TINY3D_GL4_WINDOW_DIR}/Source/ .cpp)
 
 # Setup project header files - Editor
 set_project_files(Include ${TINY3D_GL4_EDITOR_DIR}/Include/ .h)
@@ -65,7 +60,7 @@ set_project_files(Include ${TINY3D_GL4_EDITOR_DIR}/Include/ .h)
 set_project_files(Source ${TINY3D_GL4_EDITOR_DIR}/Source/ .cpp)
 
 # Add GLAD source file
-list(APPEND SOURCE_FILES ${GLAD_DIR}/src/glad.c)
+list(APPEND SOURCE_FILES ${GLAD_SOURCES})
 
 
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -77,33 +72,9 @@ endif (TINY3D_BUILD_SHARED_LIBS)
 
 if (WIN32)
     set(GL4_PLATFORM_LIBS opengl32)
-    set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Windows/x64")
 elseif (UNIX AND NOT APPLE)
     set(GL4_PLATFORM_LIBS GL X11)
-    set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Linux/x64")
-elseif (APPLE)
-    set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/OSX")
 endif ()
-
-# glslang static libraries
-set(GLSLANG_LIBS
-    debug "${GLSLANG_LIB_DIR}/Debug/glslangd.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/MachineIndependentd.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/GenericCodeGend.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/OSDependentd.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/SPIRVd.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/SPIRV-Toolsd.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/SPIRV-Tools-optd.lib"
-    debug "${GLSLANG_LIB_DIR}/Debug/glslang-default-resource-limitsd.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/glslang.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/MachineIndependent.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/GenericCodeGen.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/OSDependent.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/SPIRV.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/SPIRV-Tools.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/SPIRV-Tools-opt.lib"
-    optimized "${GLSLANG_LIB_DIR}/Release/glslang-default-resource-limits.lib"
-    )
 
 target_link_libraries(
     ${LIB_NAME}
@@ -116,7 +87,7 @@ target_link_libraries(
     T3DSystem
     T3DCoreEditor
     rttr_core
-    ${GLSLANG_LIBS}
+    ${GLSLANG_LIBRARIES}
     ${CMAKE_DL_LIBS}
     )
 

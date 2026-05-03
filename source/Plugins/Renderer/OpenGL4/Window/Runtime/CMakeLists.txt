@@ -5,18 +5,18 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-set_project_name(D3D11Renderer)
+set_project_name(GL4Renderer)
 
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
-        add_definitions(-DD3D11RENDERER_EXPORT -D_USRDLL)
+        add_definitions(-DGL4RENDERER_EXPORT -D_USRDLL)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
-
-set(TINY3D_D3D11_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
-set(TINY3D_D3D11_BASE_DIR ${TINY3D_D3D11_ROOT_DIR}/Base)
-set(TINY3D_D3D11_RUNTIME_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TINY3D_GL4_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set(TINY3D_GL4_BASE_DIR ${TINY3D_GL4_ROOT_DIR}/Base)
+set(TINY3D_GL4_WINDOW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_GL4_RUNTIME_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Setup project include files path
 include_directories(
@@ -26,34 +26,37 @@ include_directories(
     "${TINY3D_PLATFORM_SOURCE_DIR}/Include"
     "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
-	"${TINY3D_UTILS_SOURCE_DIR}/Include"
-    "${TINY3D_D3D11_BASE_DIR}/Include"
-    "${TINY3D_D3D11_ROOT_DIR}/Include"
-    "${TINY3D_D3D11_RUNTIME_DIR}/Include"
-    "${DirectX11_INCLUDE_DIR}"
-    "${SDL2_INCLUDE_DIR}"
+    "${TINY3D_UTILS_SOURCE_DIR}/Include"
+    "${TINY3D_GL4_BASE_DIR}/Include"
+    "${TINY3D_GL4_WINDOW_DIR}/Include"
+    "${TINY3D_GL4_RUNTIME_DIR}/Include"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
+    "${GLAD_INCLUDE_DIR}"
+    "${GLSLANG_INCLUDE_DIR}"
     )
 
 
 # Setup project header files - Base
-set_project_files(Include\\\\Base ${TINY3D_D3D11_BASE_DIR}/Include/ .h)
+set_project_files(Include\\\\Base ${TINY3D_GL4_BASE_DIR}/Include/ .h)
 
 # Setup project source files - Base
-set_project_files(Source\\\\Base ${TINY3D_D3D11_BASE_DIR}/Source/ .cpp)
+set_project_files(Source\\\\Base ${TINY3D_GL4_BASE_DIR}/Source/ .cpp)
 
-# Setup project header files - Shared (Runtime+Editor)
-set_project_files(Include ${TINY3D_D3D11_ROOT_DIR}/Include/ .h)
+# Setup project header files - Shared
+set_project_files(Include ${TINY3D_GL4_WINDOW_DIR}/Include/ .h)
 
-# Setup project source files - Shared (Runtime+Editor)
-set_project_files(Source ${TINY3D_D3D11_ROOT_DIR}/Source/ .cpp)
+# Setup project source files - Shared
+set_project_files(Source ${TINY3D_GL4_WINDOW_DIR}/Source/ .cpp)
 
 # Setup project header files - Runtime
-set_project_files(Include ${TINY3D_D3D11_RUNTIME_DIR}/Include/ .h)
+set_project_files(Include ${TINY3D_GL4_RUNTIME_DIR}/Include/ .h)
 
 # Setup project source files - Runtime
-set_project_files(Source ${TINY3D_D3D11_RUNTIME_DIR}/Source/ .cpp)
+set_project_files(Source ${TINY3D_GL4_RUNTIME_DIR}/Source/ .cpp)
+
+# Add GLAD source file
+list(APPEND SOURCE_FILES ${GLAD_SOURCES})
 
 
 if (TINY3D_BUILD_SHARED_LIBS)
@@ -63,17 +66,25 @@ else (TINY3D_BUILD_SHARED_LIBS)
 endif (TINY3D_BUILD_SHARED_LIBS)
 
 
+if (WIN32)
+    set(GL4_PLATFORM_LIBS opengl32)
+elseif (UNIX AND NOT APPLE)
+    set(GL4_PLATFORM_LIBS GL X11)
+endif ()
+
 target_link_libraries(
     ${LIB_NAME}
-    ${DirectX11_LIBRARIES}
-	d3dcompiler
+    ${OPENGL_LIBRARIES}
+    ${GL4_PLATFORM_LIBS}
     T3DMath
     T3DLog
-	T3DUtils
+    T3DUtils
     T3DPlatform
     T3DSystem
     T3DCore
     rttr_core
+    ${GLSLANG_LIBRARIES}
+    ${CMAKE_DL_LIBS}
     )
 
 # Setup project folder

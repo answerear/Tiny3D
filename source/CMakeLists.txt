@@ -209,6 +209,14 @@ set(T3D_COMMON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Common")
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
+# Search GLAD library for OpenGL4 renderer.
+set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/glad" CACHE PATH "GLAD library path")
+find_package(GLAD)
+
+# Search glslang library for OpenGL4 renderer.
+set(GLSLANG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/glslang" CACHE PATH "glslang library path")
+find_package(Glslang)
+
 # Search protobuf library for all projects.
 #set(PROTOBUF_HOME "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/protobuf" CACHE PATH "protobuf library path")
 #find_package(protobuf)
