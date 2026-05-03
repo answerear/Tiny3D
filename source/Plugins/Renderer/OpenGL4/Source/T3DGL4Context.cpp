@@ -1414,16 +1414,17 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexDeclaration(VertexDeclaration *decl)
     {
-        GL4VertexDeclaration *glDecl = static_cast<GL4VertexDeclaration*>(decl->getRHIResource().get());
-        mCurrentVAO = glDecl->GLVAO;
+        GL4VertexDeclarationPtr glDecl = static_cast<GL4VertexDeclaration*>(decl->getRHIResource().get());
         mPendingVertexDecl = decl;
 
-        auto lambda = [this](GLuint vao)
+        auto lambda = [this](const GL4VertexDeclarationPtr &glDecl)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                GLuint vao = glDecl->GLVAO;
+                mCurrentVAO = vao;
                 glBindVertexArray(vao);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration");
             } while (false);
@@ -1431,7 +1432,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, mCurrentVAO);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, glDecl);
     }
 
     //--------------------------------------------------------------------------
@@ -1558,26 +1559,25 @@ namespace Tiny3D
 
     TResult GL4Context::setIndexBuffer(IndexBuffer *buffer)
     {
-        GL4IndexBuffer *glIB = static_cast<GL4IndexBuffer*>(buffer->getRHIResource().get());
-        GLuint glBuf = glIB->GLBuffer;
+        GL4IndexBufferPtr glIB = static_cast<GL4IndexBuffer*>(buffer->getRHIResource().get());
 
         mIndexType = GL4Mapping::get(buffer->getIndexType());
         mIndexSize = (buffer->getIndexType() == IndexType::E_IT_16BITS) ? 2 : 4;
 
-        auto lambda = [this](GLuint glBuf)
+        auto lambda = [this](const GL4IndexBufferPtr &glIB)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glBuf);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIB->GLBuffer);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setIndexBuffer");
             } while (false);
 
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, glBuf);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, glIB);
     }
 
     //--------------------------------------------------------------------------
@@ -2427,6 +2427,17 @@ namespace Tiny3D
                 }
 
                 const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
+
+                // Safety check: verify EBO is bound before issuing indexed draw
+                GLint boundEBO = 0;
+                glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &boundEBO);
+                if (boundEBO == 0)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::render(indexed): No EBO bound! Skipping draw to avoid crash.");
+                    ret = T3D_ERR_GL4_INVALID_USAGE;
+                    break;
+                }
+
                 glDrawElementsBaseVertex(mPrimitiveType, indexCount, mIndexType, offset, baseVertex);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::render(indexed)");
@@ -2661,81 +2672,106 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        GLenum target = 0;
-        GLuint glBuf = 0;
+        auto rhiRes = renderBuffer->getRHIResource();
         bool isTexture = false;
-        GLuint texHandle = 0;
 
-        switch (renderBuffer->getRHIResource()->getResourceType())
+        switch (rhiRes->getResourceType())
         {
         case RHIResource::ResourceType::kVertexBuffer:
-            target = GL_ARRAY_BUFFER;
-            glBuf = static_cast<GL4VertexBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
-            break;
         case RHIResource::ResourceType::kIndexBuffer:
-            target = GL_ELEMENT_ARRAY_BUFFER;
-            glBuf = static_cast<GL4IndexBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
-            break;
         case RHIResource::ResourceType::kConstantBuffer:
-            target = GL_UNIFORM_BUFFER;
-            glBuf = static_cast<GL4ConstantBuffer*>(renderBuffer->getRHIResource().get())->GLBuffer;
             break;
         case RHIResource::ResourceType::kPixelBuffer2D:
             isTexture = true;
-            texHandle = static_cast<GL4PixelBuffer2D*>(renderBuffer->getRHIResource().get())->GLTexture;
             break;
         default:
             T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Unsupported resource type for writeBuffer");
             return T3D_ERR_GL4_INVALID_USAGE;
         }
 
+        // Deep copy Buffer.Data to avoid dangling pointer in multi-threaded mode.
+        // The lambda executes on the RHI thread after the caller's stack frame is gone.
+        Buffer ownedBuffer;
+        ownedBuffer.DataSize = buffer.DataSize;
+        ownedBuffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
+        memcpy(ownedBuffer.Data, buffer.Data, buffer.DataSize);
+
         if (isTexture)
         {
-            auto lambda = [this](GLuint texHandle, Buffer buffer)
+            GL4PixelBuffer2DPtr glTex = static_cast<GL4PixelBuffer2D*>(rhiRes.get());
+
+            auto lambda = [this](const GL4PixelBuffer2DPtr &glTex, Buffer ownedBuffer)
             {
                 TResult ret = T3D_OK;
 
                 do
                 {
-                    glBindTexture(GL_TEXTURE_2D, texHandle);
+                    glBindTexture(GL_TEXTURE_2D, glTex->GLTexture);
                     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                         0, 0,
-                        GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data);
+                        GL_RGBA, GL_UNSIGNED_BYTE, ownedBuffer.Data);
                     glBindTexture(GL_TEXTURE_2D, 0);
                     GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer(texture)");
                 } while (false);
 
+                T3D_POD_SAFE_DELETE_ARRAY(ownedBuffer.Data);
                 return ret;
             };
 
-            return ENQUEUE_UNIQUE_COMMAND(lambda, texHandle, buffer);
+            return ENQUEUE_UNIQUE_COMMAND(lambda, glTex, ownedBuffer);
         }
 
-        auto lambda = [this](GLenum target, GLuint glBuf, Buffer buffer, bool discardWholeBuffer)
+        // For buffer resources, use DSA (glNamedBufferData/glNamedBufferSubData) to avoid
+        // polluting VAO's EBO binding when writing to GL_ELEMENT_ARRAY_BUFFER.
+        auto rhiResPtr = rhiRes;  // capture smart pointer to keep alive
+
+        auto lambda = [this](const RHIResourcePtr &rhiResPtr, Buffer ownedBuffer, bool discardWholeBuffer)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                glBindBuffer(target, glBuf);
+                GLuint glBuf = 0;
 
+                switch (rhiResPtr->getResourceType())
+                {
+                case RHIResource::ResourceType::kVertexBuffer:
+                    glBuf = static_cast<GL4VertexBuffer*>(rhiResPtr.get())->GLBuffer;
+                    break;
+                case RHIResource::ResourceType::kIndexBuffer:
+                    glBuf = static_cast<GL4IndexBuffer*>(rhiResPtr.get())->GLBuffer;
+                    break;
+                case RHIResource::ResourceType::kConstantBuffer:
+                    glBuf = static_cast<GL4ConstantBuffer*>(rhiResPtr.get())->GLBuffer;
+                    break;
+                default:
+                    break;
+                }
+
+                if (glBuf == 0)
+                {
+                    T3D_POD_SAFE_DELETE_ARRAY(ownedBuffer.Data);
+                    break;
+                }
+
+                // Use DSA to avoid unbinding the current VAO's EBO
                 if (discardWholeBuffer)
                 {
-                    glBufferData(target, (GLsizeiptr)buffer.DataSize, buffer.Data, GL_DYNAMIC_DRAW);
+                    glNamedBufferData(glBuf, (GLsizeiptr)ownedBuffer.DataSize, ownedBuffer.Data, GL_DYNAMIC_DRAW);
                 }
                 else
                 {
-                    glBufferSubData(target, 0, (GLsizeiptr)buffer.DataSize, buffer.Data);
+                    glNamedBufferSubData(glBuf, 0, (GLsizeiptr)ownedBuffer.DataSize, ownedBuffer.Data);
                 }
 
-                glBindBuffer(target, 0);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer");
             } while (false);
 
+            T3D_POD_SAFE_DELETE_ARRAY(ownedBuffer.Data);
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, target, glBuf, buffer, discardWholeBuffer);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, rhiResPtr, ownedBuffer, discardWholeBuffer);
     }
 
     //--------------------------------------------------------------------------

@@ -380,11 +380,7 @@ namespace Tiny3D
 
     TResult GL4RenderWindow::resize(uint32_t w, uint32_t h)
     {
-        mWidth = w;
-        mHeight = h;
-        glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4RenderWindow::resize");
-        return T3D_OK;
+        return GL4_CONTEXT->resizeRenderWindow(this, w, h);
     }
 
     //--------------------------------------------------------------------------
