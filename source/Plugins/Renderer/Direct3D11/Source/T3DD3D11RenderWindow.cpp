@@ -139,31 +139,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil)
-    {
-        TResult ret = T3D_OK;
-        
-        do 
-        {
-            // if (D3DRTView == nullptr)
-            // {
-            //     break;
-            // }
-            //
-            // if (D3DDSView == nullptr)
-            // {
-            //     break;
-            // }
-            //
-            // D3D11_CONTEXT->clearRenderTargetView(&D3DRTView, clrFill);
-            // D3D11_CONTEXT->clearDepthStencilView(&D3DDSView, depth, (uint8_t)stencil);
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     void *D3D11RenderWindow::getNativeObject() const
     {
         return D3DSwapChain;

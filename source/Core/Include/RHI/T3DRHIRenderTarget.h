@@ -41,8 +41,6 @@ namespace Tiny3D
     {
     public:
         ~RHIRenderTarget() override = default;
-
-        virtual TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) = 0;
         
     protected:
         RHIRenderTarget() = default;

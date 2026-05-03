@@ -57,17 +57,6 @@ namespace Tiny3D
         TResult swapBuffers() override;
 
         TResult resize(uint32_t w, uint32_t h) override;
-        
-        /**
-         * @fn  virtual void NullRenderWindow::clear(const ColorRGB &clrFill, 
-         *      uint32_t clearFlags, Real depth, uint32_t stencil) override;
-         * @brief   Clears this object to its blank/initial state
-         * @param   clrFill     The color fill.
-         * @param   clearFlags  The clear flags.
-         * @param   depth       The depth.
-         * @param   stencil     The stencil.
-         */
-        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
 
         void *getNativeObject() const override;
         

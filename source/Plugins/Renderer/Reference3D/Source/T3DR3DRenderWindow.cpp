@@ -209,11 +209,6 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
-
-    void R3DRenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
-        Real depth, uint32_t stencil)
-    {
-
-    }
 }
+
 

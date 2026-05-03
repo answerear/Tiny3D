@@ -60,14 +60,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullD3D11Window::clear(const ColorRGB &clrFill, uint32_t clearFlags, 
-        Real depth, uint32_t stencil)
-    {
-        return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult NullD3D11Window::resize(uint32_t w, uint32_t h)
     {
         return T3D_OK;

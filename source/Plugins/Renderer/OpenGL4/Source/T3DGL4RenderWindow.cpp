@@ -385,42 +385,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4RenderWindow::clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil)
-    {
-        TResult ret = T3D_OK;
-
-        GLbitfield mask = 0;
-
-        if (clearFlags & 0x01) // Color
-        {
-            glClearColor(clrFill.red(), clrFill.green(), clrFill.blue(), 1.0f);
-            mask |= GL_COLOR_BUFFER_BIT;
-        }
-
-        if (clearFlags & 0x02) // Depth
-        {
-            glClearDepth((GLdouble)depth);
-            mask |= GL_DEPTH_BUFFER_BIT;
-        }
-
-        if (clearFlags & 0x04) // Stencil
-        {
-            glClearStencil((GLint)stencil);
-            mask |= GL_STENCIL_BUFFER_BIT;
-        }
-
-        if (mask != 0)
-        {
-            glClear(mask);
-        }
-
-        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4RenderWindow::clear");
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
     void *GL4RenderWindow::getNativeObject() const
     {
 #if defined(T3D_OS_WINDOWS)

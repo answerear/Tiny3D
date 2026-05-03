@@ -22,7 +22,6 @@ namespace Tiny3D
 
         TResult swapBuffers() override;
         TResult resize(uint32_t w, uint32_t h) override;
-        TResult clear(const ColorRGB &clrFill, uint32_t clearFlags, Real depth, uint32_t stencil) override;
         void *getNativeObject() const override;
 
     protected:
