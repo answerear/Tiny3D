@@ -291,7 +291,7 @@ namespace Tiny3D
             const char *psSource = nullptr;
 
             if (rendererName == RHIRenderer::DIRECT3D11 
-                || rendererName == RHIRenderer::NULL_DIRECT3D11)
+                || rendererName == RHIRenderer::DIRECT3D11_CONSOLE)
             {
                 vsSource = sImGuiVS_HLSL;
                 psSource = sImGuiPS_HLSL;

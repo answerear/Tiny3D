@@ -142,12 +142,12 @@ int main(int argc, char *argv[])
     if (targetLang == "glsl" || targetLang == "essl")
     {
         settings.pluginSettings.plugins.push_back("GL4RendererConsole");
-        settings.renderSettings.renderer = RHIRenderer::NULL_OPENGL4;
+        settings.renderSettings.renderer = RHIRenderer::OPENGL4_CONSOLE;
     }
     else
     {
         settings.pluginSettings.plugins.push_back("D3D11RendererConsole");
-        settings.renderSettings.renderer = RHIRenderer::NULL_DIRECT3D11;
+        settings.renderSettings.renderer = RHIRenderer::DIRECT3D11_CONSOLE;
     }
     settings.logSettings.tag = LOG_TAG;
     TResult ret = theEngine->init(argc, argv, true, false, settings);

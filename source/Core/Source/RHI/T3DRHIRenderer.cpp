@@ -34,8 +34,8 @@ namespace Tiny3D
     const char * const RHIRenderer::REFERENCE3D = "Reference3D";
     const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
     const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::NULL_DIRECT3D11 = "NullDirect3D11";
-    const char * const RHIRenderer::NULL_OPENGL4 = "NullOpenGL4";
+    const char * const RHIRenderer::DIRECT3D11_CONSOLE = "Direct3D11 Console";
+    const char * const RHIRenderer::OPENGL4_CONSOLE = "OpenGL 4 Console";
     const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
     const char * const RHIRenderer::OPENGL4 = "OpenGL 4";
     const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";

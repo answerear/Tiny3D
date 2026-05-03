@@ -41,7 +41,7 @@ namespace Tiny3D
 
     D3D11RendererConsole::D3D11RendererConsole()
     {
-        mName = NULL_DIRECT3D11;
+        mName = DIRECT3D11_CONSOLE;
     }
     
     //--------------------------------------------------------------------------

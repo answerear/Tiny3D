@@ -23,7 +23,7 @@ namespace Tiny3D
 
     GL4RendererConsole::GL4RendererConsole()
     {
-        mName = NULL_OPENGL4;
+        mName = OPENGL4_CONSOLE;
     }
 
     //--------------------------------------------------------------------------

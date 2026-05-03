@@ -699,7 +699,7 @@ namespace Tiny3D
                 if (renderer != nullptr)
                 {
                     const String &name = renderer->getName();
-                    if (name == RHIRenderer::OPENGL4 || name == RHIRenderer::NULL_OPENGL4)
+                    if (name == RHIRenderer::OPENGL4 || name == RHIRenderer::OPENGL4_CONSOLE)
                     {
                         targetLang = "glsl";
                     }
