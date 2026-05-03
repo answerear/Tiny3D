@@ -22,40 +22,38 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+
+#ifndef __T3D_GL4_PLUGIN_H__
+#define __T3D_GL4_PLUGIN_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DNullD3D11Renderer.h"
-#include "T3DD3D11Context.h"
+#include "T3DGL4Prerequisites.h"
+
 
 namespace Tiny3D
 {
-    class D3D11Renderer
-        : public NullD3D11Renderer
-        , public Singleton<D3D11Renderer>
+    class GL4Plugin : public Plugin
     {
     public:
-        static D3D11RendererPtr create();
+        GL4Plugin();
 
-        ~D3D11Renderer() override;
-        
-        TResult init() override;
-        
-        TResult destroy() override;
-        
-        void getEditorInfo(void *info, RenderWindow *window) override;
-        
+        virtual ~GL4Plugin();
+
+        virtual const String &getName() const override;
+
+        virtual TResult install() override;
+
+        virtual TResult startup() override;
+
+        virtual TResult shutdown() override;
+
+        virtual TResult uninstall() override;
+
     protected:
-        D3D11Renderer();
-        
-        void cleanup();
+        String          mName;
+        RHIRendererPtr  mRenderer;
     };
-
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
 }
 
 
-#endif    /*__T3D_D3D11_RENDERER_H__*/
+#endif  /*__T3D_GL4_PLUGIN_H__*/

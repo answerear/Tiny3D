@@ -15,12 +15,11 @@ namespace Tiny3D
 {
     class NullGL4Renderer
         : public RHIRenderer
-        , public Singleton<NullGL4Renderer>
     {
     public:
         static NullGL4RendererPtr create();
 
-        ~NullGL4Renderer() override;
+        virtual ~NullGL4Renderer();
 
         TResult init() override;
         TResult destroy() override;
@@ -30,8 +29,6 @@ namespace Tiny3D
         NullGL4Renderer();
         void cleanup();
     };
-
-    #define NULL_GL4_RENDERER      (NullGL4Renderer::getInstance())
 }
 
 

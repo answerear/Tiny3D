@@ -22,40 +22,29 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+
+#include "T3DD3D11Plugin.h"
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DNullD3D11Renderer.h"
-#include "T3DD3D11Context.h"
+Tiny3D::D3D11Plugin *gPlugin = nullptr;
 
-namespace Tiny3D
+extern "C"
 {
-    class D3D11Renderer
-        : public NullD3D11Renderer
-        , public Singleton<D3D11Renderer>
+    T3D_D3D11RENDERER_API TResult dllStartPlugin()
     {
-    public:
-        static D3D11RendererPtr create();
+        gPlugin = T3D_NEW Tiny3D::D3D11Plugin();
+        return Tiny3D::Agent::getInstance().installPlugin(gPlugin);
+    }
 
-        ~D3D11Renderer() override;
-        
-        TResult init() override;
-        
-        TResult destroy() override;
-        
-        void getEditorInfo(void *info, RenderWindow *window) override;
-        
-    protected:
-        D3D11Renderer();
-        
-        void cleanup();
-    };
+    T3D_D3D11RENDERER_API TResult dllStopPlugin()
+    {
+        TResult ret = Tiny3D::Agent::getInstance().uninstallPlugin(gPlugin);
 
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
+        if (ret == Tiny3D::T3D_OK)
+        {
+            T3D_SAFE_DELETE(gPlugin);
+        }
+
+        return ret;
+    }
 }
-
-
-#endif    /*__T3D_D3D11_RENDERER_H__*/

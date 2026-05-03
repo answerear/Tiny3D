@@ -15,7 +15,10 @@ endif (MSVC)
 
 add_definitions(-DT3D_EDITOR)
 
-set(TINY3D_D3D11RENDERER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_D3D11_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_D3D11_BASE_DIR ${TINY3D_D3D11_ROOT_DIR}/Base)
+set(TINY3D_D3D11_RUNTIME_DIR ${TINY3D_D3D11_ROOT_DIR}/Runtime)
+set(TINY3D_D3D11_EDITOR_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Setup project include files path
 include_directories(
@@ -26,7 +29,10 @@ include_directories(
     "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
-    "${TINY3D_D3D11RENDERER_SOURCE_DIR}/Include"
+    "${TINY3D_D3D11_BASE_DIR}/Include"
+    "${TINY3D_D3D11_ROOT_DIR}/Include"
+    "${TINY3D_D3D11_RUNTIME_DIR}/Include"
+    "${TINY3D_D3D11_EDITOR_DIR}/Include"
     "${DirectX11_INCLUDE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
@@ -34,11 +40,23 @@ include_directories(
     )
 
 
-# Setup project header files
-set_project_files(Include ${TINY3D_D3D11RENDERER_SOURCE_DIR}/Include/ .h)
+# Setup project header files - Base
+set_project_files(Include\\\\Base ${TINY3D_D3D11_BASE_DIR}/Include/ .h)
 
-# Setup project source files
-set_project_files(Source ${TINY3D_D3D11RENDERER_SOURCE_DIR}/Source/ .cpp)
+# Setup project source files - Base
+set_project_files(Source\\\\Base ${TINY3D_D3D11_BASE_DIR}/Source/ .cpp)
+
+# Setup project header files - Shared (Runtime+Editor)
+set_project_files(Include ${TINY3D_D3D11_ROOT_DIR}/Include/ .h)
+
+# Setup project source files - Shared (Runtime+Editor)
+set_project_files(Source ${TINY3D_D3D11_ROOT_DIR}/Source/ .cpp)
+
+# Setup project header files - Editor
+set_project_files(Include ${TINY3D_D3D11_EDITOR_DIR}/Include/ .h)
+
+# Setup project source files - Editor
+set_project_files(Source ${TINY3D_D3D11_EDITOR_DIR}/Source/ .cpp)
 
 list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/T3DEditorInfoDX11.h)
 

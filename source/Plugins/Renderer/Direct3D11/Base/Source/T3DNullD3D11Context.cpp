@@ -26,7 +26,7 @@
 #include "T3DNullD3D11Context.h"
 #include "T3DNullD3D11Window.h"
 #include "T3DNullD3D11Error.h"
-#include "T3DNullD3D11Mapping.h"
+#include "T3DD3D11Mapping.h"
 
 
 namespace Tiny3D
@@ -502,7 +502,7 @@ namespace Tiny3D
             const char *bytes = shader->getBytesCode(bytesLength);
 
 #if defined (T3D_DEBUG)
-            UINT shaderCompileFlags = D3DCOMPILE_DEBUG;
+            UINT shaderCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_OPTIMIZATION_LEVEL0;
 #else
             UINT shaderCompileFlags = 0;
 #endif
@@ -658,7 +658,7 @@ namespace Tiny3D
                             String cbufferName, cname;
                             bool rval = getOriginalName(bindDesc.Name, variableDesc.Name, cbufferName, cname);
                             T3D_ASSERT(rval);
-                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, NullD3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns, d3dSRTypeDesc.Elements));
+                            ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, bindDesc.BindPoint, variableDesc.Size, variableDesc.StartOffset, D3D11Mapping::get(d3dSRTypeDesc.Type, d3dSRTypeDesc.Rows, d3dSRTypeDesc.Columns, d3dSRTypeDesc.Elements));
                             constantParams.emplace(param->getName(), param);
                             
                             // ShaderVariableBinding varBinding;
@@ -725,7 +725,7 @@ namespace Tiny3D
                         T3D_ASSERT(param != nullptr);
 
                         param->setTexBinding(samplerIndex);
-                        param->setTextureType(NullD3D11Mapping::get(bindDesc.Dimension));
+                        param->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
 
                         T3D_LOG_DEBUG(LOG_TAG_NULLD3D11RENDERER, "Shader reflection - Name:%s, texture binding point : %d, texture type : %d", param->getName().c_str(), param->getTexBinding(), param->getTextureType());
                     }

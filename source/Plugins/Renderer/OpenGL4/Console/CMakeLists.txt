@@ -15,13 +15,14 @@ endif (MSVC)
 
 add_definitions(-DT3D_EDITOR)
 
-set(TINY3D_NULLGL4_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TINY3D_GL4_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Base)
+set(TINY3D_GL4_CONSOLE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # GLAD library path
-set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/glad")
+set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../dependencies/glad")
 
-# glslang library path (CPU-side GLSL compilation and reflection)
-set(GLSLANG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../dependencies/glslang")
+# glslang library path
+set(GLSLANG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../dependencies/glslang")
 
 # Setup project include files path
 include_directories(
@@ -32,7 +33,8 @@ include_directories(
     "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
     "${TINY3D_UTILS_SOURCE_DIR}/Include"
-    "${TINY3D_NULLGL4_SOURCE_DIR}/Include"
+    "${TINY3D_GL4_BASE_DIR}/Include"
+    "${TINY3D_GL4_CONSOLE_DIR}/Include"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
@@ -41,11 +43,17 @@ include_directories(
     )
 
 
-# Setup project header files
-set_project_files(Include ${TINY3D_NULLGL4_SOURCE_DIR}/Include/ .h)
+# Setup project header files - Base
+set_project_files(Include\\\\Base ${TINY3D_GL4_BASE_DIR}/Include/ .h)
 
-# Setup project source files
-set_project_files(Source ${TINY3D_NULLGL4_SOURCE_DIR}/Source/ .cpp)
+# Setup project source files - Base
+set_project_files(Source\\\\Base ${TINY3D_GL4_BASE_DIR}/Source/ .cpp)
+
+# Setup project header files - Console
+set_project_files(Include ${TINY3D_GL4_CONSOLE_DIR}/Include/ .h)
+
+# Setup project source files - Console
+set_project_files(Source ${TINY3D_GL4_CONSOLE_DIR}/Source/ .cpp)
 
 # Add GLAD source file
 list(APPEND SOURCE_FILES ${GLAD_DIR}/src/glad.c)
@@ -65,7 +73,7 @@ elseif (APPLE)
     set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/OSX")
 endif ()
 
-# glslang static libraries — Debug libs have 'd' suffix and live in Debug/ subdirectory
+# glslang static libraries
 set(GLSLANG_LIBS
     debug "${GLSLANG_LIB_DIR}/Debug/glslangd.lib"
     debug "${GLSLANG_LIB_DIR}/Debug/MachineIndependentd.lib"

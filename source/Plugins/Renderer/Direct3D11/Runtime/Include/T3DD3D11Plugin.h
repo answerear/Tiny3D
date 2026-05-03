@@ -22,40 +22,59 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_D3D11_RENDERER_H__
-#define __T3D_D3D11_RENDERER_H__
+
+#ifndef __T3D_D3D11_PLUGIN_H__
+#define __T3D_D3D11_PLUGIN_H__
 
 
 #include "T3DD3D11Prerequisites.h"
-#include "T3DNullD3D11Renderer.h"
-#include "T3DD3D11Context.h"
+
 
 namespace Tiny3D
 {
-    class D3D11Renderer
-        : public NullD3D11Renderer
-        , public Singleton<D3D11Renderer>
+    class D3D11Plugin : public Plugin
     {
     public:
-        static D3D11RendererPtr create();
+        /**
+         * @brief 默认构造函数
+         */
+        D3D11Plugin();
 
-        ~D3D11Renderer() override;
-        
-        TResult init() override;
-        
-        TResult destroy() override;
-        
-        void getEditorInfo(void *info, RenderWindow *window) override;
-        
+        /**
+         * @brief 析构函数
+         */
+        virtual ~D3D11Plugin();
+
+        /**
+         * @brief 获取插件名称
+         */
+        virtual const String &getName() const override;
+
+        /**
+         * @brief 安装插件
+         */
+        virtual TResult install() override;
+
+        /**
+         * @brief 启动插件
+         */
+        virtual TResult startup() override;
+
+        /**
+         * @brief 关闭插件
+         */
+        virtual TResult shutdown() override;
+
+        /**
+         * @brief 卸载插件
+         */
+        virtual TResult uninstall() override;
+
     protected:
-        D3D11Renderer();
-        
-        void cleanup();
+        String                  mName;
+        RHIRendererPtr          mRenderer;
     };
-
-    #define D3D11_RENDERER      (D3D11Renderer::getInstance())
-    #define D3D11_CONTEXT       (smart_pointer_cast<D3D11Context>(D3D11_RENDERER.getContext()))
 }
 
 
-#endif    /*__T3D_D3D11_RENDERER_H__*/
+#endif  /*__T3D_D3D11_PLUGIN_H__*/

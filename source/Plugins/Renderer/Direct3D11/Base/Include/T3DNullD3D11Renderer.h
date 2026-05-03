@@ -33,12 +33,11 @@ namespace Tiny3D
 {
     class NullD3D11Renderer
         : public RHIRenderer
-        , public Singleton<NullD3D11Renderer>
     {
     public:
         static NullD3D11RendererPtr create();
 
-        ~NullD3D11Renderer() override;
+        virtual ~NullD3D11Renderer();
         
         TResult init() override;
         
@@ -51,8 +50,6 @@ namespace Tiny3D
         
         void cleanup();
     };
-
-    #define NULL_RENDERER      (NullD3D11Renderer::getInstance())
 }
 
 

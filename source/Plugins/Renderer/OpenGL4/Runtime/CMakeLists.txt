@@ -13,12 +13,14 @@ if (MSVC)
     endif (TINY3D_BUILD_SHARED_LIBS)
 endif (MSVC)
 
-set(TINY3D_GL4RENDERER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_GL4_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(TINY3D_GL4_BASE_DIR ${TINY3D_GL4_ROOT_DIR}/Base)
+set(TINY3D_GL4_RUNTIME_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # GLAD library path
 set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../dependencies/glad")
 
-# glslang library path (CPU-side GLSL compilation and reflection)
+# glslang library path
 set(GLSLANG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../dependencies/glslang")
 
 # Setup project include files path
@@ -30,7 +32,9 @@ include_directories(
     "${TINY3D_SYSTEM_SOURCE_DIR}/Include"
     "${TINY3D_LOG_SOURCE_DIR}/Include"
     "${TINY3D_UTILS_SOURCE_DIR}/Include"
-    "${TINY3D_GL4RENDERER_SOURCE_DIR}/Include"
+    "${TINY3D_GL4_BASE_DIR}/Include"
+    "${TINY3D_GL4_ROOT_DIR}/Include"
+    "${TINY3D_GL4_RUNTIME_DIR}/Include"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
     "${GLAD_DIR}/include"
@@ -38,11 +42,23 @@ include_directories(
     )
 
 
-# Setup project header files
-set_project_files(Include ${TINY3D_GL4RENDERER_SOURCE_DIR}/Include/ .h)
+# Setup project header files - Base
+set_project_files(Include\\\\Base ${TINY3D_GL4_BASE_DIR}/Include/ .h)
 
-# Setup project source files
-set_project_files(Source ${TINY3D_GL4RENDERER_SOURCE_DIR}/Source/ .cpp)
+# Setup project source files - Base
+set_project_files(Source\\\\Base ${TINY3D_GL4_BASE_DIR}/Source/ .cpp)
+
+# Setup project header files - Shared
+set_project_files(Include ${TINY3D_GL4_ROOT_DIR}/Include/ .h)
+
+# Setup project source files - Shared
+set_project_files(Source ${TINY3D_GL4_ROOT_DIR}/Source/ .cpp)
+
+# Setup project header files - Runtime
+set_project_files(Include ${TINY3D_GL4_RUNTIME_DIR}/Include/ .h)
+
+# Setup project source files - Runtime
+set_project_files(Source ${TINY3D_GL4_RUNTIME_DIR}/Source/ .cpp)
 
 # Add GLAD source file
 list(APPEND SOURCE_FILES ${GLAD_DIR}/src/glad.c)
@@ -65,7 +81,7 @@ elseif (APPLE)
     set(GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/OSX")
 endif ()
 
-# glslang static libraries — Debug libs have 'd' suffix and live in Debug/ subdirectory
+# glslang static libraries
 set(GLSLANG_LIBS
     debug "${GLSLANG_LIB_DIR}/Debug/glslangd.lib"
     debug "${GLSLANG_LIB_DIR}/Debug/MachineIndependentd.lib"

@@ -95,40 +95,9 @@ if (TINY3D_BUILD_RENDERSYSTEM_D3D11)
         add_subdirectory(Direct3D11)
         add_dependencies(D3D11Renderer T3DCore T3DMath T3DLog T3DPlatform)
         add_dependencies(D3D11RendererEditor T3DCoreEditor T3DMath T3DLog T3DPlatform)
-    endif ()
-endif (TINY3D_BUILD_RENDERSYSTEM_D3D11)
-
-
-if (TINY3D_BUILD_RENDERSYSTEM_D3D11_NULL)
-    add_definitions(-DT3D_ERR_D3D11_RENDERER=T3D_ERR_RENDERER)
-
-    find_package(DirectX11)
-
-    if (NOT DirectX11_FOUND)
-        message(STATUS "Could not find dependency: DirectX11")
-        message(STATUS "Skipping Direct3D11 rendersystem build")
-        set(TINY3D_BUILD_RENDERSYSTEM_D3D11_NULL FALSE)
-    else ()
-        add_subdirectory(NullD3D11)
         add_dependencies(NullD3D11Renderer T3DCoreEditor T3DMath T3DLog T3DPlatform)
     endif ()
-endif (TINY3D_BUILD_RENDERSYSTEM_D3D11_NULL)
-
-
-if (TINY3D_BUILD_RENDERSYSTEM_GL4_NULL)
-    add_definitions(-DT3D_ERR_NULLGL4_RENDERER=T3D_ERR_RENDERER)
-
-    find_package(OpenGL)
-
-    if (NOT OPENGL_FOUND)
-        message(STATUS "Could not find dependency: OpenGL")
-        message(STATUS "Skipping NullGL4 rendersystem build")
-        set(TINY3D_BUILD_RENDERSYSTEM_GL4_NULL FALSE)
-    else ()
-        add_subdirectory(NullGL4)
-        add_dependencies(NullGL4Renderer T3DCoreEditor T3DMath T3DLog T3DPlatform)
-    endif ()
-endif (TINY3D_BUILD_RENDERSYSTEM_GL4_NULL)
+endif (TINY3D_BUILD_RENDERSYSTEM_D3D11)
 
 
 if (TINY3D_BUILD_RENDERSYSTEM_GL4PLUS)
@@ -144,6 +113,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_GL4PLUS)
         add_subdirectory(OpenGL4)
         add_dependencies(GL4Renderer T3DCore T3DMath T3DLog T3DPlatform T3DUtils)
         add_dependencies(GL4RendererEditor T3DCoreEditor T3DMath T3DLog T3DPlatform T3DUtils)
+        add_dependencies(NullGL4Renderer T3DCoreEditor T3DMath T3DLog T3DPlatform)
     endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_GL4PLUS)
 

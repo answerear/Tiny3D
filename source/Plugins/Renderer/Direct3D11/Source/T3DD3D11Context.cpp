@@ -441,30 +441,6 @@ namespace Tiny3D
     // }
 
     //--------------------------------------------------------------------------
-
-    TResult D3D11Context::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
-    {
-        static Matrix4 conversionMat(
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.5f, 0.5f,
-            0.0f, 0.0f, 0.0f, 1.0f
-            );
-        mViewMatrix = viewMat;
-        mProjMatrix = conversionMat * projMat;
-        mProjViewMatrix = mProjMatrix * mViewMatrix;
-
-        return T3D_OK;
-        // mCBufferPerFrame.matrixV = viewMat;
-        // mCBufferPerFrame.matrixP = conversionMat * projMat;
-        // mCBufferPerFrame.matrixVP = mCBufferPerFrame.matrixP * mCBufferPerFrame.matrixV;
-        // Buffer buffer;
-        // buffer.setData(&mCBufferPerFrame, sizeof(CBufferPerFrame));
-        //
-        // return setConstantBuffer(1, buffer, mPerFrameCBuffer);
-    }
-
-    //--------------------------------------------------------------------------
     
     RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindow *renderWindow)
     {
@@ -2483,85 +2459,6 @@ namespace Tiny3D
     TResult D3D11Context::setCSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return setSamplers(&ID3D11DeviceContext::CSSetSamplers, startSlot, samplers);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Context::compileShader(ShaderVariant *shader)
-    {
-        TResult ret = T3D_OK;
-        
-        do
-        {
-            String profile;
-        
-            switch (shader->getShaderStage())
-            {
-            case SHADER_STAGE::kVertex:
-                profile = "vs_5_0";
-                break;
-            case SHADER_STAGE::kPixel:
-                profile = "ps_5_0";
-                break;
-            case SHADER_STAGE::kCompute:
-                profile = "cs_5_0";
-                break;
-            case SHADER_STAGE::kGeometry:
-                profile = "gs_5_0";
-                break;
-            case SHADER_STAGE::kHull:
-                profile = "hs_5_0";
-                break;
-            case SHADER_STAGE::kDomain:
-                profile = "ds_5_0";
-                break;
-            case SHADER_STAGE::kUnknown:
-            default:
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid shader stage [%d] !", shader->getShaderStage());
-                ret = T3D_ERR_INVALID_PARAM;
-                break;
-            }
-
-            if (T3D_FAILED(ret))
-            {
-                break;
-            }
-            
-            size_t bytesLength = 0;
-            const char *bytes = shader->getBytesCode(bytesLength);
-
-#if defined (T3D_DEBUG)
-            UINT shaderCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_OPTIMIZATION_LEVEL0;
-#else
-            UINT shaderCompileFlags = 0;
-#endif
-
-            String sourceName = shader->getPass()->getTechnique()->getShader()->getName();
-            sourceName = shader->getShaderKeyword().getName() + (!shader->getShaderKeyword().getName().empty() ? "-" : "") + profile + "-" + sourceName;
-
-            ID3DBlob *shaderBlob = nullptr;
-            ID3DBlob *errorBlob = nullptr;
-            HRESULT hr = D3DCompile(bytes, bytesLength, sourceName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", profile.c_str(), shaderCompileFlags, 0, &shaderBlob, &errorBlob);
-            if (FAILED(hr))
-            {
-                ret = T3D_ERR_D3D11_COMPILE_SHADER;
-                String error;
-                if (errorBlob != nullptr)
-                {
-                    error.assign(static_cast<const char *>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
-                }
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Compile shader failed ! (Keyword:%s, Target:%s, ) DX ERROR [%d] (%s)", shader->getShaderKeyword().getName().c_str(), profile.c_str(), hr, error.c_str());
-                D3D_SAFE_RELEASE(shaderBlob);
-                D3D_SAFE_RELEASE(errorBlob);
-                break;
-            }
-
-            // 把编译后的设置到 shader 里面
-            shader->setBytesCode(static_cast<const char*>(shaderBlob->GetBufferPointer()), shaderBlob->GetBufferSize());
-            D3D_SAFE_RELEASE(shaderBlob);
-        } while (false);
-        
-        return ret;
     }
 
     //--------------------------------------------------------------------------

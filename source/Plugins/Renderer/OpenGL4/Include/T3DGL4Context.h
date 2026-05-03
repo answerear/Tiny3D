@@ -28,11 +28,12 @@
 
 
 #include "T3DGL4Prerequisites.h"
+#include "T3DNullGL4Context.h"
 
 
 namespace Tiny3D
 {
-    class GL4Context : public RHIContext
+    class GL4Context : public NullGL4Context
     {
     public:
         static GL4ContextPtr create();

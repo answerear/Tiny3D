@@ -9,4 +9,5 @@
 
 add_subdirectory(Runtime)
 add_subdirectory(Editor)
+add_subdirectory(Console)
 

@@ -28,11 +28,12 @@
 
 
 #include "T3DD3D11Prerequisites.h"
+#include "T3DNullD3D11Context.h"
 
 
 namespace Tiny3D
 {
-    class D3D11Context : public RHIContext
+    class D3D11Context : public NullD3D11Context
     {
     public:
         static D3D11ContextPtr create();
@@ -41,13 +42,6 @@ namespace Tiny3D
         
         TResult swapBackBuffer(D3D11RenderWindow *renderWindow);
 
-        /**
-         * \brief 设置视图变换矩阵和投影变换矩阵
-         * \param [in] viewMat : 视图变换矩阵
-         * \param [in] projMat : 投影变换矩阵
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
 
         /**
          * \brief 创建 RHI 渲染窗口
@@ -482,13 +476,6 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
-
-        /**
-         * \brief 编译着色器
-         * \param [in,out] shader : 着色器变体对象
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult compileShader(ShaderVariant *shader) override;
 
         /**
          * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
