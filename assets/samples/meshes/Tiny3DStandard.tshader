@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "49f796f1230c8e577b2c2c653be53715"
+          "RTTI_Value": "20e23897a93e0c140bd462dd9e20c6ab"
         }
       },
       "ConstantValues": {
@@ -749,7 +749,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 1
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -776,7 +776,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 9
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -1327,7 +1327,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 1
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -1354,7 +1354,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 9
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -1905,7 +1905,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 1
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -1932,7 +1932,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 9
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -2483,7 +2483,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 1
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
@@ -2510,7 +2510,7 @@
                                           },
                                           "TexBinding": {
                                             "RTTI_Type": "unsignedint",
-                                            "RTTI_Value": 2
+                                            "RTTI_Value": 9
                                           },
                                           "TextureState": {
                                             "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
