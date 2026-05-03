@@ -724,7 +724,7 @@ namespace Tiny3D
 
                         T3D_ASSERT(param != nullptr);
 
-                        param->setTexBinding(samplerIndex);
+                        param->setTexBinding(bindDesc.BindPoint);
                         param->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
 
                         T3D_LOG_DEBUG(LOG_TAG_D3D11CONSOLERENDERER, "Shader reflection - Name:%s, texture binding point : %d, texture type : %d", param->getName().c_str(), param->getTexBinding(), param->getTextureType());
