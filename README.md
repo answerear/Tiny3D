@@ -8,10 +8,21 @@
 - Visual Studio 2019
 - Windows SDK 10.0.19042 or later
 - Python 3
+- Vulkan SDK 1.1 or later (from [LunarG](https://vulkan.lunarg.com/sdk/home))
 
 **Setup Environment**
 
 Run the script **<setup_env.bat>** in directory **<$(Root)/source/Projects>**
+
+**Install Vulkan SDK :**
+
+1. Download the latest Vulkan SDK installer from https://vulkan.lunarg.com/sdk/home (Windows version)
+2. Run the installer with default settings (typical install path: `C:\VulkanSDK\<version>`)
+3. The installer will automatically set the `VULKAN_SDK` environment variable
+4. Verify the installation:
+   - Open a new terminal and run: `echo %VULKAN_SDK%` — should print the SDK path
+   - Confirm `%VULKAN_SDK%\Include\vulkan\vulkan.h` exists
+   - Confirm `%VULKAN_SDK%\Lib\vulkan-1.lib` exists
 
 **Install graphics tools for debug (Win 10 or later) :** 
 
