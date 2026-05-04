@@ -9,26 +9,11 @@
 #define __T3D_GL4_CONTEXT_BASE_H__
 
 
-#include <Tiny3D.h>
-#include <glad/glad.h>
-
-#if defined(T3D_OS_WINDOWS)
-    #include <Windows.h>
-#elif defined(T3D_OS_LINUX)
-    #include <GL/glx.h>
-    #include <GL/glxext.h>
-    #include <X11/Xlib.h>
-#endif
-
-#include <algorithm>
-#undef min
+#include "T3DGL4PrerequisitesBase.h"
 
 
 namespace Tiny3D
 {
-    class GL4ContextBase;
-    T3D_DECLARE_SMART_PTR(GL4ContextBase);
-
     class GL4ContextBase : public RHIContext
     {
     public:

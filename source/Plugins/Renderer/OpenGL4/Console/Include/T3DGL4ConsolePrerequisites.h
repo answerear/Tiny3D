@@ -27,19 +27,7 @@
 #define __T3D_GL4CONSOLE_PREREQUISITES_H__
 
 
-#include <Tiny3D.h>
-#include <glad/glad.h>
-
-#if defined(T3D_OS_WINDOWS)
-    #include <Windows.h>
-#elif defined(T3D_OS_LINUX)
-    #include <GL/glx.h>
-    #include <GL/glxext.h>
-    #include <X11/Xlib.h>
-#endif
-
-#include <algorithm>
-#undef min
+#include "T3DGL4PrerequisitesBase.h"
 
 
 #if defined T3D_GL4CONSOLE_EXPORT
@@ -51,16 +39,9 @@
 
 namespace Tiny3D
 {
-    #define GL_SAFE_DELETE_SHADER(p) \
-        if ((p) != 0) { glDeleteShader(p); (p) = 0; }
-
-    #define GL_SAFE_DELETE_PROGRAM(p) \
-        if ((p) != 0) { glDeleteProgram(p); (p) = 0; }
-
     #define LOG_TAG_GL4CONSOLERENDERER        "GL4RendererConsole"
 
     class GL4RendererConsole;
-    class GL4ContextBase;
     class GL4ConsoleContext;
     class GL4ConsoleWindow;
     class GL4ConsoleVertexDeclaration;
@@ -83,7 +64,6 @@ namespace Tiny3D
     class GL4ConsoleComputeShader;
 
     T3D_DECLARE_SMART_PTR(GL4RendererConsole);
-    T3D_DECLARE_SMART_PTR(GL4ContextBase);
     T3D_DECLARE_SMART_PTR(GL4ConsoleContext);
     T3D_DECLARE_SMART_PTR(GL4ConsoleWindow);
     T3D_DECLARE_SMART_PTR(GL4ConsoleVertexDeclaration);
