@@ -5,5 +5,5 @@
 # Feel free to make use of it in any way you like.
 #-------------------------------------------------------------------------------
 
-add_subdirectory(Window)
-add_subdirectory(Console)
+add_subdirectory(Runtime)
+add_subdirectory(Editor)
