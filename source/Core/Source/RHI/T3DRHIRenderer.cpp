@@ -41,6 +41,7 @@ namespace Tiny3D
     const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
     const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
     const char * const RHIRenderer::VULKAN = "Vulkan";
+    const char * const RHIRenderer::VULKAN_CONSOLE = "Vulkan Console";
     const char * const RHIRenderer::METAL = "Metal";
 
     //--------------------------------------------------------------------------

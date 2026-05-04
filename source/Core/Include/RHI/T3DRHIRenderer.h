@@ -57,6 +57,8 @@ namespace Tiny3D
         static const char * const OPENGLES3;
         /// Vulkan 渲染器
         static const char * const VULKAN;
+        /// 控制台模式下的 Vulkan
+        static const char * const VULKAN_CONSOLE;
         /// Metal 渲染器
         static const char * const METAL;
 
