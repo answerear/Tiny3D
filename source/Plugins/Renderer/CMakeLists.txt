@@ -153,6 +153,7 @@ if (TINY3D_BUILD_RENDERSYSTEM_VULKAN)
     add_definitions(-DT3D_ERR_VULKAN_RENDERER=T3D_ERR_RENDERER)
 
     find_package(Vulkan)
+    find_package(SpirvReflect)
     
     if (NOT Vulkan_FOUND)
         message(STATUS "Could not find dependency: Vulkan")

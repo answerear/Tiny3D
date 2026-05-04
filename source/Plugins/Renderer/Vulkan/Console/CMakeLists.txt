@@ -32,6 +32,7 @@ include_directories(
     "${TINY3D_VK_ROOT_DIR}/Window/Include"
     "${TINY3D_VK_CONSOLE_DIR}/Include"
     "${Vulkan_INCLUDE_DIR}"
+    "${SPIRV_REFLECT_INCLUDE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
@@ -49,6 +50,9 @@ set_project_files(Include ${TINY3D_VK_CONSOLE_DIR}/Include/ .h)
 
 # Setup project source files - Console
 set_project_files(Source ${TINY3D_VK_CONSOLE_DIR}/Source/ .cpp)
+
+# SPIRV-Reflect source
+list(APPEND SOURCE_FILES ${SPIRV_REFLECT_SOURCES})
 
 
 if (TINY3D_BUILD_SHARED_LIBS)

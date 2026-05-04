@@ -35,6 +35,7 @@ include_directories(
     "${TINY3D_VK_RUNTIME_DIR}/Include"
     "${TINY3D_VK_EDITOR_DIR}/Include"
     "${Vulkan_INCLUDE_DIR}"
+    "${SPIRV_REFLECT_INCLUDE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
@@ -58,6 +59,9 @@ set_project_files(Include ${TINY3D_VK_EDITOR_DIR}/Include/ .h)
 
 # Setup project source files - Editor
 set_project_files(Source ${TINY3D_VK_EDITOR_DIR}/Source/ .cpp)
+
+# SPIRV-Reflect source
+list(APPEND SOURCE_FILES ${SPIRV_REFLECT_SOURCES})
 
 
 if (TINY3D_BUILD_SHARED_LIBS)

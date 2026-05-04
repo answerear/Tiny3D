@@ -26,34 +26,57 @@
 #define __T3D_VK_MAPPING_H__
 
 
-#include "T3DVKPrerequisites.h"
+#include "T3DVKPrerequisitesBase.h"
+
 
 namespace Tiny3D
 {
     class VKMapping
     {
     public:
-        static const char * const POSITION;
-        static const char * const BLENDWEIGHT;
-        static const char * const BLENDINDICES;
-        static const char * const NORMAL;
-        static const char * const COLOR;
-        static const char * const TEXCOORD;
-        static const char * const TANGENT;
-        static const char * const BINORMAL;
+        static const char * const POSITION;     /**< The position */
+        static const char * const BLENDWEIGHT;  /**< The blendweight */
+        static const char * const BLENDINDICES; /**< The blendindices */
+        static const char * const NORMAL;       /**< The normal */
+        static const char * const COLOR;        /**< The color */
+        static const char * const TEXCOORD;     /**< The texcoord */
+        static const char * const TANGENT;      /**< The tangent */
+        static const char * const BINORMAL;     /**< The binormal */
 
         static VkFormat get(PixelFormat src);
-        static VkImageUsageFlags get(Usage src);
+
+        static VkMemoryPropertyFlags get(Usage src);
+
+        static VkMemoryPropertyFlags get(uint32_t accMode);
+
+        static VkImageViewType get(TEXTURE_TYPE texType);
+
         static VkBlendFactor get(BlendFactor factor);
+
         static VkBlendOp get(BlendOperation op);
+
+        static VkColorComponentFlags get(BlendColorWriteMask mask);
+
         static VkCompareOp get(CompareFunction func);
+
         static VkStencilOp get(StencilOp op);
+
         static VkPolygonMode get(PolygonMode mode);
+
         static VkCullModeFlags get(CullingMode mode);
+
         static VkSamplerAddressMode get(TextureAddressMode mode);
+
         static VkFilter get(FilterOptions filter);
+
+        static VkSamplerMipmapMode getMipmapMode(FilterOptions mipFilter);
+
+        static const char *get(VertexAttribute::Semantic semantic);
+
         static VkFormat get(VertexAttribute::Type type);
-        static VkFormat get(IndexType idxType);
+
+        static VkIndexType get(IndexType idxType);
+
         static VkPrimitiveTopology get(PrimitiveType primitive);
     };
 }

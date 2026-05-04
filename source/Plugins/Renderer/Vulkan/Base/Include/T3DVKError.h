@@ -27,7 +27,7 @@
 #define __T3D_VK_ERROR_H__
 
 
-#include <Tiny3D.h>
+#include "T3DVKPrerequisitesBase.h"
 
 
 namespace Tiny3D
@@ -60,42 +60,30 @@ namespace Tiny3D
         T3D_ERR_VK_SHADER_NOT_COMPILED,
         /**< Shader 编译失败 */
         T3D_ERR_VK_SHADER_COMPILED,
-        /**< 创建输入布局失败 */
-        T3D_ERR_VK_CREATE_INPUT_LAYOUT,
+        /**< 创建 Pipeline Layout 失败 */
+        T3D_ERR_VK_CREATE_PIPELINE_LAYOUT,
         /**< 创建缓冲区失败 */
         T3D_ERR_VK_CREATE_BUFFER,
-        /**< 创建 2D 纹理失败 */
-        T3D_ERR_VK_CREATE_TEXTURE2D,
-        /**< 创建 RenderTargetView 失败 */
-        T3D_ERR_VK_CREATE_RENDER_TARGET_VIEW,
-        /// 创建 ShaderResourceView 失败
-        T3D_ERR_VK_CREATE_SHADER_RESOURCE_VIEW,
-        /// 创建 DepthStencilView 失败
-        T3D_ERR_VK_CREATE_DEPTH_STENCIL_VIEW,
-        /// 创建 BlendState 失败
-        T3D_ERR_VK_CREATE_BLEND_STATE,
-        /// 创建 DepthStencilState 失败
-        T3D_ERR_VK_CREATE_DEPTH_STENCIL_STATE,
-        /// 创建 RasterizerState 失败
-        T3D_ERR_VK_CREATE_RASTERIZER_STATE,
-        /// 创建 SamplerState 失败
-        T3D_ERR_VK_CREATE_SAMPLER_STATE,
+        /**< 创建 Image 失败 */
+        T3D_ERR_VK_CREATE_IMAGE,
+        /**< 创建 ImageView 失败 */
+        T3D_ERR_VK_CREATE_IMAGE_VIEW,
+        /// 创建 ShaderModule 失败
+        T3D_ERR_VK_CREATE_SHADER_MODULE,
+        /// 分配显存失败
+        T3D_ERR_VK_ALLOCATE_MEMORY,
+        /// 创建 DescriptorSetLayout 失败
+        T3D_ERR_VK_CREATE_DESCRIPTOR_SET_LAYOUT,
+        /// 分配 DescriptorSet 失败
+        T3D_ERR_VK_ALLOCATE_DESCRIPTOR_SET,
+        /// 创建 Sampler 失败
+        T3D_ERR_VK_CREATE_SAMPLER,
         /**< 锁定缓冲区失败 */
         T3D_ERR_VK_LOCK_BUFFER,
         /**< 接口调用不配对 */
         T3D_ERR_VK_MISMATCH_CALLING,
         /**< Present 失败 */
         T3D_ERR_VK_PRESENT,
-        /// 编译 shader 失败
-        T3D_ERR_VK_COMPILE_SHADER,
-        /// 反射 shader 失败
-        T3D_ERR_VK_SHADER_REFLECTION,
-        /// 获取 shader 描述失败
-        T3D_ERR_VK_GET_SHADER_DESC,
-        /// shader sampler 命名错误
-        T3D_ERR_VK_INVALID_SHADER_SAMPLER_NAME,
-        /// Usage 和调用的接口不匹配
-        T3D_ERR_VK_INVALID_USAGE,
         /// 创建 VkInstance 失败
         T3D_ERR_VK_CREATE_INSTANCE,
         /// 创建 VkDevice 失败
@@ -110,8 +98,26 @@ namespace Tiny3D
         T3D_ERR_VK_CREATE_COMMAND_POOL,
         /// 创建 VkPipeline 失败
         T3D_ERR_VK_CREATE_PIPELINE,
+        /// 编译 shader 失败
+        T3D_ERR_VK_COMPILE_SHADER,
+        /// 反射 shader 失败
+        T3D_ERR_VK_SHADER_REFLECTION,
+        /// 获取 shader 描述失败
+        T3D_ERR_VK_GET_SHADER_DESC,
+        /// shader sampler 命名错误
+        T3D_ERR_VK_INVALID_SHADER_SAMPLER_NAME,
+        /// Usage 和调用的接口不匹配
+        T3D_ERR_VK_INVALID_USAGE,
+        /// 映射 GPU 内存失败
+        T3D_ERR_VK_MAP_MEMORY,
         /// 改变所有 frame buffer 大小失败
         T3D_ERR_VK_RESIZE_BUFFERS,
+        /// 创建 VkSurface 失败
+        T3D_ERR_VK_CREATE_SURFACE,
+        /// 创建 Semaphore 失败
+        T3D_ERR_VK_CREATE_SEMAPHORE,
+        /// 创建 Fence 失败
+        T3D_ERR_VK_CREATE_FENCE,
     };
 }
 

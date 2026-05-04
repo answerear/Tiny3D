@@ -23,32 +23,29 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_VK_CONTEXT_BASE_H__
-#define __T3D_VK_CONTEXT_BASE_H__
+#ifndef __T3D_VK_PREREQUISITES_BASE_H__
+#define __T3D_VK_PREREQUISITES_BASE_H__
 
 
-#include "T3DVKPrerequisitesBase.h"
+#include <Tiny3D.h>
+
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.h>
 
 
 namespace Tiny3D
 {
-    class VKContextBase : public RHIContext
-    {
-    public:
-        virtual ~VKContextBase();
+    #define VK_CHECK_RESULT(result) \
+        if ((result) != VK_SUCCESS) \
+        { \
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Vulkan error : %d", (result)); \
+        }
 
-        // Vulkan shared: depth range conversion [0,1]
-        TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
+    #define LOG_TAG_VKRENDERER        "VKRenderer"
 
-        // Shader compilation and reflection (shared by Console and Runtime)
-        TResult compileShader(ShaderVariant *shader) override;
-        TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
-        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
-
-    protected:
-        VKContextBase();
-    };
+    class VKContextBase;
+    T3D_DECLARE_SMART_PTR(VKContextBase);
 }
 
 
-#endif  /*__T3D_VK_CONTEXT_BASE_H__*/
+#endif  /*__T3D_VK_PREREQUISITES_BASE_H__*/
