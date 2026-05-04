@@ -27,19 +27,11 @@
 #define __T3D_D3D11_CONTEXT_BASE_H__
 
 
-#include <Tiny3D.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-
-#include <algorithm>
-#undef min
+#include "T3DD3D11PrerequisitesBase.h"
 
 
 namespace Tiny3D
 {
-    class D3D11ContextBase;
-    T3D_DECLARE_SMART_PTR(D3D11ContextBase);
-
     class D3D11ContextBase : public RHIContext
     {
     public:

@@ -27,7 +27,7 @@
 #define __T3D_D3D11_ERROR_H__
 
 
-#include <Tiny3D.h>
+#include "T3DD3D11PrerequisitesBase.h"
 
 
 namespace Tiny3D

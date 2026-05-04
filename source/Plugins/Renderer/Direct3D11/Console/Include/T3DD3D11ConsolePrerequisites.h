@@ -27,12 +27,7 @@
 #define __T3D_D3D11CONSOLE_PREREQUISITES_H__
 
 
-#include <Tiny3D.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-
-#include <algorithm>
-#undef min
+#include "T3DD3D11PrerequisitesBase.h"
 
 
 #if defined T3D_D3D11CONSOLE_EXPORT
@@ -45,17 +40,9 @@
 
 namespace Tiny3D
 {
-    #define D3D_SAFE_RELEASE(p) \
-        if ((p) != nullptr)   \
-        {   \
-            (p)->Release();   \
-            (p) = nullptr;    \
-        }
-
     #define LOG_TAG_D3D11CONSOLERENDERER        "D3D11RendererConsole"
 
     class D3D11RendererConsole;
-    class D3D11ContextBase;
     class D3D11ConsoleContext;
     class D3D11ConsoleWindow;
     class D3D11ConsoleVertexDeclaration;
@@ -77,7 +64,6 @@ namespace Tiny3D
     class D3D11ConsoleComputeShader;
 
     T3D_DECLARE_SMART_PTR(D3D11RendererConsole);
-    T3D_DECLARE_SMART_PTR(D3D11ContextBase);
     T3D_DECLARE_SMART_PTR(D3D11ConsoleContext);
     T3D_DECLARE_SMART_PTR(D3D11ConsoleWindow);
     T3D_DECLARE_SMART_PTR(D3D11ConsoleVertexDeclaration);

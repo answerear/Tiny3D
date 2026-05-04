@@ -26,8 +26,7 @@
 #define __T3D_D3D11_MAPPING_H__
 
 
-#include "T3DD3D11Prerequisites.h"
-#include "T3DD3D11Context.h"
+#include "T3DD3D11PrerequisitesBase.h"
 
 namespace Tiny3D
 {
