@@ -28,6 +28,7 @@
 
 
 #include "T3DVKPrerequisites.h"
+#include <vector>
 
 
 namespace Tiny3D
@@ -47,9 +48,29 @@ namespace Tiny3D
 
         void *getNativeObject() const override;
 
+        /// Swap chain
         VkSwapchainKHR      VkSwapChain {VK_NULL_HANDLE};
+        /// Win32 surface
         VkSurfaceKHR        VkSurface {VK_NULL_HANDLE};
-        
+        /// Swap chain images
+        std::vector<VkImage>        VkSwapChainImages;
+        /// Swap chain image views
+        std::vector<VkImageView>    VkSwapChainImageViews;
+        /// Framebuffers (one per swap chain image)
+        std::vector<VkFramebuffer>  VkFramebuffers;
+        /// Swap chain image format
+        VkFormat            VkSwapChainImageFormat {VK_FORMAT_B8G8R8A8_UNORM};
+        /// Swap chain extent
+        VkExtent2D          VkSwapChainExtent {0, 0};
+        /// Depth stencil image
+        VkImage             VkDepthImage {VK_NULL_HANDLE};
+        /// Depth stencil image memory
+        VkDeviceMemory      VkDepthImageMemory {VK_NULL_HANDLE};
+        /// Depth stencil image view
+        VkImageView         VkDepthImageView {VK_NULL_HANDLE};
+        /// Current image index in swap chain
+        uint32_t            VkCurrentImageIndex {0};
+
     protected:
         VKRenderWindow();
     };

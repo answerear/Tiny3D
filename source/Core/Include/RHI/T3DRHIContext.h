@@ -617,6 +617,22 @@ namespace Tiny3D
          */
         virtual void restoreNativeContext() {}
 
+        /**
+         * \brief 开始一帧的渲染命令录制。
+         *        对于 Vulkan 后端，执行 waitFence + acquireNextImage + beginCommandBuffer。
+         *        对于 D3D11/OpenGL4 后端，空实现。
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult beginRender() = 0;
+
+        /**
+         * \brief 结束一帧的渲染命令录制并提交。
+         *        对于 Vulkan 后端，执行 endCommandBuffer + queueSubmit。
+         *        对于 D3D11/OpenGL4 后端，空实现。
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult endRender() = 0;
+
     protected:
         RHIContext();
 

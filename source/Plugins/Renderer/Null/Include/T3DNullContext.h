@@ -565,6 +565,9 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
+
+        TResult beginRender() override { return T3D_OK; }
+        TResult endRender() override { return T3D_OK; }
         
     protected:
         NullContext();

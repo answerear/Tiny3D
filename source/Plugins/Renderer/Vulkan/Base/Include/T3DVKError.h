@@ -118,6 +118,8 @@ namespace Tiny3D
         T3D_ERR_VK_CREATE_SEMAPHORE,
         /// 创建 Fence 失败
         T3D_ERR_VK_CREATE_FENCE,
+        /// 分配 CommandBuffer 失败
+        T3D_ERR_VK_ALLOCATE_COMMAND_BUFFER,
     };
 }
 

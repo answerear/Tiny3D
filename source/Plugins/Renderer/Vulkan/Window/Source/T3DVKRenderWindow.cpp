@@ -24,6 +24,11 @@
 
 
 #include "T3DVKRenderWindow.h"
+#include "T3DVKRenderer.h"
+#include "T3DVKContext.h"
+
+#define VK_DEVICE()    (VK_CONTEXT->getVkDevice())
+#define VK_INSTANCE()  (VK_CONTEXT->getVkInstance())
 
 
 namespace Tiny3D
@@ -33,9 +38,9 @@ namespace Tiny3D
     VKRenderWindowPtr VKRenderWindow::create(RenderWindow *renderWindow)
     {
         VKRenderWindowPtr window = T3D_NEW VKRenderWindow();
-        if (window != nullptr)
+        if (window != nullptr && !window->init(renderWindow))
         {
-            window->init(renderWindow);
+            window = nullptr;
         }
         return window;
     }
@@ -50,13 +55,64 @@ namespace Tiny3D
 
     VKRenderWindow::~VKRenderWindow()
     {
+        VkDevice device = VK_DEVICE();
+        VkInstance instance = VK_INSTANCE();
+
+        if (device != VK_NULL_HANDLE)
+        {
+            vkDeviceWaitIdle(device);
+
+            // Destroy framebuffers FIRST (they reference image views)
+            for (auto framebuffer : VkFramebuffers)
+            {
+                vkDestroyFramebuffer(device, framebuffer, nullptr);
+            }
+            VkFramebuffers.clear();
+
+            // Destroy depth resources
+            if (VkDepthImageView != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(device, VkDepthImageView, nullptr);
+                VkDepthImageView = VK_NULL_HANDLE;
+            }
+            if (VkDepthImage != VK_NULL_HANDLE)
+            {
+                vkDestroyImage(device, VkDepthImage, nullptr);
+                VkDepthImage = VK_NULL_HANDLE;
+            }
+            if (VkDepthImageMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkDepthImageMemory, nullptr);
+                VkDepthImageMemory = VK_NULL_HANDLE;
+            }
+
+            // Destroy swap chain image views
+            for (auto imageView : VkSwapChainImageViews)
+            {
+                vkDestroyImageView(device, imageView, nullptr);
+            }
+            VkSwapChainImageViews.clear();
+
+            // Destroy swap chain
+            if (VkSwapChain != VK_NULL_HANDLE)
+            {
+                vkDestroySwapchainKHR(device, VkSwapChain, nullptr);
+                VkSwapChain = VK_NULL_HANDLE;
+            }
+        }
+
+        // Destroy surface
+        if (instance != VK_NULL_HANDLE && VkSurface != VK_NULL_HANDLE)
+        {
+            vkDestroySurfaceKHR(instance, VkSurface, nullptr);
+            VkSurface = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     bool VKRenderWindow::init(RenderWindow *renderWindow)
     {
-        // TODO: Create Vulkan surface and swapchain
         return true;
     }
 
@@ -64,22 +120,20 @@ namespace Tiny3D
 
     TResult VKRenderWindow::swapBuffers()
     {
-        return T3D_OK;
+        return VK_CONTEXT->swapBackBuffer(this);
     }
 
     //--------------------------------------------------------------------------
 
     TResult VKRenderWindow::resize(uint32_t w, uint32_t h)
     {
-        return T3D_OK;
+        return VK_CONTEXT->resizeRenderWindow(this, w, h);
     }
 
     //--------------------------------------------------------------------------
 
     void *VKRenderWindow::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkSwapChain;
     }
-
-    //--------------------------------------------------------------------------
 }

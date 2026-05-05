@@ -53,7 +53,8 @@ namespace Tiny3D
 
         void *getNativeObject() const override;
         
-        VkBuffer    VkBuf {VK_NULL_HANDLE};
+        VkBuffer        VkBuf {VK_NULL_HANDLE};
+        VkDeviceMemory  VkBufMemory {VK_NULL_HANDLE};
         
     protected:
         VKVertexBuffer() = default;
@@ -68,7 +69,8 @@ namespace Tiny3D
 
         void *getNativeObject() const override;
         
-        VkBuffer    VkBuf {VK_NULL_HANDLE};
+        VkBuffer        VkBuf {VK_NULL_HANDLE};
+        VkDeviceMemory  VkBufMemory {VK_NULL_HANDLE};
         
     protected:
         VKIndexBuffer() = default;
@@ -83,7 +85,8 @@ namespace Tiny3D
 
         void *getNativeObject() const override;
         
-        VkBuffer    VkBuf {VK_NULL_HANDLE};
+        VkBuffer        VkBuf {VK_NULL_HANDLE};
+        VkDeviceMemory  VkBufMemory {VK_NULL_HANDLE};
 
     protected:
         VKConstantBuffer() = default;
@@ -99,6 +102,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         VkImage         VkTex {VK_NULL_HANDLE};
+        VkDeviceMemory  VkTexMemory {VK_NULL_HANDLE};
         VkImageView     VkTexView {VK_NULL_HANDLE};
         
     protected:
@@ -115,7 +119,12 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         VkImage         VkTex {VK_NULL_HANDLE};
+        VkDeviceMemory  VkTexMemory {VK_NULL_HANDLE};
         VkImageView     VkTexView {VK_NULL_HANDLE};
+        /// Render target view (for render texture)
+        VkImageView     VkRTView {VK_NULL_HANDLE};
+        /// Depth stencil view
+        VkImageView     VkDSView {VK_NULL_HANDLE};
 
     protected:
         VKPixelBuffer2D() = default;
@@ -127,6 +136,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         VkImage         VkTex {VK_NULL_HANDLE};
+        VkDeviceMemory  VkTexMemory {VK_NULL_HANDLE};
         VkImageView     VkTexView {VK_NULL_HANDLE};
     };
 }

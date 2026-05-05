@@ -24,6 +24,10 @@
 
 
 #include "T3DVKRenderBuffer.h"
+#include "T3DVKRenderer.h"
+#include "T3DVKContext.h"
+
+#define VK_DEVICE()  (VK_CONTEXT->getVkDevice())
 
 
 namespace Tiny3D
@@ -59,13 +63,27 @@ namespace Tiny3D
 
     VKVertexBuffer::~VKVertexBuffer()
     {
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            if (VkBuf != VK_NULL_HANDLE)
+            {
+                vkDestroyBuffer(device, VkBuf, nullptr);
+                VkBuf = VK_NULL_HANDLE;
+            }
+            if (VkBufMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkBufMemory, nullptr);
+                VkBufMemory = VK_NULL_HANDLE;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKVertexBuffer::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkBuf;
     }
 
     //--------------------------------------------------------------------------
@@ -79,13 +97,27 @@ namespace Tiny3D
 
     VKIndexBuffer::~VKIndexBuffer()
     {
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            if (VkBuf != VK_NULL_HANDLE)
+            {
+                vkDestroyBuffer(device, VkBuf, nullptr);
+                VkBuf = VK_NULL_HANDLE;
+            }
+            if (VkBufMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkBufMemory, nullptr);
+                VkBufMemory = VK_NULL_HANDLE;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKIndexBuffer::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkBuf;
     }
 
     //--------------------------------------------------------------------------
@@ -99,13 +131,27 @@ namespace Tiny3D
 
     VKConstantBuffer::~VKConstantBuffer()
     {
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            if (VkBuf != VK_NULL_HANDLE)
+            {
+                vkDestroyBuffer(device, VkBuf, nullptr);
+                VkBuf = VK_NULL_HANDLE;
+            }
+            if (VkBufMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkBufMemory, nullptr);
+                VkBufMemory = VK_NULL_HANDLE;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKConstantBuffer::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkBuf;
     }
 
     //--------------------------------------------------------------------------
@@ -119,13 +165,32 @@ namespace Tiny3D
 
     VKPixelBuffer1D::~VKPixelBuffer1D()
     {
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            if (VkTexView != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(device, VkTexView, nullptr);
+                VkTexView = VK_NULL_HANDLE;
+            }
+            if (VkTex != VK_NULL_HANDLE)
+            {
+                vkDestroyImage(device, VkTex, nullptr);
+                VkTex = VK_NULL_HANDLE;
+            }
+            if (VkTexMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkTexMemory, nullptr);
+                VkTexMemory = VK_NULL_HANDLE;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKPixelBuffer1D::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkTex;
     }
 
     //--------------------------------------------------------------------------
@@ -139,21 +204,48 @@ namespace Tiny3D
 
     VKPixelBuffer2D::~VKPixelBuffer2D()
     {
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            if (VkDSView != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(device, VkDSView, nullptr);
+                VkDSView = VK_NULL_HANDLE;
+            }
+            if (VkRTView != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(device, VkRTView, nullptr);
+                VkRTView = VK_NULL_HANDLE;
+            }
+            if (VkTexView != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(device, VkTexView, nullptr);
+                VkTexView = VK_NULL_HANDLE;
+            }
+            if (VkTex != VK_NULL_HANDLE)
+            {
+                vkDestroyImage(device, VkTex, nullptr);
+                VkTex = VK_NULL_HANDLE;
+            }
+            if (VkTexMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkTexMemory, nullptr);
+                VkTexMemory = VK_NULL_HANDLE;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKPixelBuffer2D::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkTex;
     }
 
     //--------------------------------------------------------------------------
 
     void *VKPixelBuffer3D::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkTex;
     }
-
-    //--------------------------------------------------------------------------
 }

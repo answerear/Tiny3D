@@ -39,6 +39,7 @@
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderWindow.h"
 #include "RHI/T3DRHIRenderer.h"
+#include "RHI/T3DRHIContext.h"
 #include "RHI/T3DRHIThread.h"
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DForwardRenderPipeline.h"
@@ -628,14 +629,22 @@ namespace Tiny3D
             preRender();
         }
 
+        auto ctx = mActiveRHIRenderer->getContext();
+
+        // 开始一帧渲染（Vulkan: waitFence + acquire + beginCmdBuf）
+        ctx->beginRender();
+
         if (mRenderPipeline != nullptr)
         {
             // 剔除
             mRenderPipeline->cull(mSceneMgr->getCurrentScene());
             
             // 渲染
-            mRenderPipeline->render(mActiveRHIRenderer->getContext());
+            mRenderPipeline->render(ctx);
         }
+
+        // 结束一帧渲染（Vulkan: endCmdBuf + submit）
+        ctx->endRender();
 
         if (postRender != nullptr)
         {

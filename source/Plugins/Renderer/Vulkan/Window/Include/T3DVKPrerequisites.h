@@ -27,10 +27,7 @@
 #define __T3D_VK_PREREQUISITES_H__
 
 
-#include <Tiny3D.h>
-
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.h>
+#include "T3DVKPrerequisitesBase.h"
 
 
 #if defined VKRENDERER_EXPORT
@@ -43,8 +40,6 @@
 
 namespace Tiny3D
 {
-    #define LOG_TAG_VKRENDERER        "VKRenderer"
-
     class VKRenderer;
     class VKContext;
     class VKBlendState;

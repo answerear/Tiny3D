@@ -39,8 +39,23 @@ namespace Tiny3D
         static VKContextPtr create();
 
         TResult init();
-
+        
         TResult swapBackBuffer(VKRenderWindow *renderWindow);
+
+        /**
+         * @brief 改变渲染窗口大小
+         */
+        TResult resizeRenderWindow(VKRenderWindow *rw, uint32_t w, uint32_t h);
+
+        /**
+         * @brief 改变渲染纹理大小
+         */
+        TResult resizeRenderTexture(RenderTexture *rt, uint32_t w, uint32_t h);
+
+        /**
+         * @brief 改变渲染目标大小
+         */
+        TResult resizeRenderTarget(RenderTarget *rt, uint32_t w, uint32_t h);
 
         RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) override;
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
@@ -108,19 +123,112 @@ namespace Tiny3D
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
+        TResult beginRender() override;
+        TResult endRender() override;
+
+        VkDevice getVkDevice() const { return mVkDevice; }
+
+        VkPhysicalDevice getVkPhysicalDevice() const { return mVkPhysicalDevice; }
+
+        VkInstance getVkInstance() const { return mVkInstance; }
+
     protected:
         VKContext();
 
         ~VKContext() override;
 
+        TResult createRenderWindow(VKRenderWindow *vkRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality);
+
+        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil);
+
+        TResult setRenderTarget(const RenderTexturePtr *renderTexture, uint32_t numOfTextures, RenderTexture *depthStencil);
+
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+
+        TResult createVkBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
+
+        TResult createVkImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
+
+        VkImageView createVkImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
+        VkCommandBuffer beginSingleTimeCommands();
+
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+        void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+        bool isDepthFormat(VkFormat format) const;
+
+        bool hasStencilComponent(VkFormat format) const;
+
+        void insertImageBarrier(VkCommandBuffer cmdBuf, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage, VkPipelineStageFlags dstStage, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT);
+
     protected:
+        static const uint32_t MAX_FRAMES_IN_FLIGHT = 3;
+
+        /// Vulkan instance
         VkInstance          mVkInstance {VK_NULL_HANDLE};
+        /// Physical device
         VkPhysicalDevice    mVkPhysicalDevice {VK_NULL_HANDLE};
+        /// Logical device
         VkDevice            mVkDevice {VK_NULL_HANDLE};
+        /// Graphics queue
         VkQueue             mVkGraphicsQueue {VK_NULL_HANDLE};
+        /// Present queue
+        VkQueue             mVkPresentQueue {VK_NULL_HANDLE};
+        /// Command pool
         VkCommandPool       mVkCommandPool {VK_NULL_HANDLE};
 
+        /// Graphics queue family index
+        uint32_t            mGraphicsQueueFamily {UINT32_MAX};
+        /// Present queue family index
+        uint32_t            mPresentQueueFamily {UINT32_MAX};
+
+        /// Render pass (default)
+        VkRenderPass        mVkRenderPass {VK_NULL_HANDLE};
+        /// Pipeline layout
+        VkPipelineLayout    mVkPipelineLayout {VK_NULL_HANDLE};
+        /// Pipeline cache
+        VkPipelineCache     mVkPipelineCache {VK_NULL_HANDLE};
+        /// Descriptor set layout
+        VkDescriptorSetLayout   mVkDescriptorSetLayout {VK_NULL_HANDLE};
+        /// Descriptor pool
+        VkDescriptorPool    mVkDescriptorPool {VK_NULL_HANDLE};
+
+        /// Per-frame command buffers
+        std::vector<VkCommandBuffer>    mVkCommandBuffers;
+        /// Per-frame: image available semaphores
+        std::vector<VkSemaphore>        mVkImageAvailableSemaphores;
+        /// Per-frame: render finished semaphores
+        std::vector<VkSemaphore>        mVkRenderFinishedSemaphores;
+        /// Per-frame: in-flight fences
+        std::vector<VkFence>            mVkInFlightFences;
+
+        /// Current frame index (0 ~ MAX_FRAMES_IN_FLIGHT-1)
+        uint32_t            mCurrentFrame {0};
+
+        /// Current render target
         RenderTargetPtr     mCurrentRenderTarget {nullptr};
+
+        /// Current pipeline state
+        VkPrimitiveTopology mVkPrimitiveTopology {VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
+
+        /// Current pipeline (cached)
+        VkPipeline          mVkCurrentPipeline {VK_NULL_HANDLE};
+
+        /// Current render window (set during createRenderWindow)
+        VKRenderWindow      *mCurrentRenderWindow {nullptr};
+
+        /// Current swapchain image index (set by beginRender/acquireNextImage)
+        uint32_t            mCurrentImageIndex {0};
+
+        /// Current clear color (set by clearColor, used by clear operations)
+        ColorRGB            mClearColor;
+
+#if defined (T3D_DEBUG)
+        /// Validation layers debug messenger
+        VkDebugUtilsMessengerEXT    mVkDebugMessenger {VK_NULL_HANDLE};
+#endif
     };
 }
 

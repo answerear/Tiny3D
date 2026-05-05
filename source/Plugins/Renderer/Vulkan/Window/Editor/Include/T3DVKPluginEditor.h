@@ -23,8 +23,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_VK_PLUGIN_H__
-#define __T3D_VK_PLUGIN_H__
+#ifndef __T3D_VK_PLUGIN_EDITOR_H__
+#define __T3D_VK_PLUGIN_EDITOR_H__
 
 
 #include "T3DVKPrerequisites.h"
@@ -51,4 +51,4 @@ namespace Tiny3D
 }
 
 
-#endif  /*__T3D_VK_PLUGIN_H__*/
+#endif  /*__T3D_VK_PLUGIN_EDITOR_H__*/

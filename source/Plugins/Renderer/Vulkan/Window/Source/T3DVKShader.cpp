@@ -24,6 +24,8 @@
 
 
 #include "T3DVKShader.h"
+#include "T3DVKRenderer.h"
+#include "T3DVKContext.h"
 
 
 namespace Tiny3D
@@ -39,13 +41,19 @@ namespace Tiny3D
 
     VKVertexShader::~VKVertexShader()
     {
+        VkDevice device = VK_CONTEXT->getVkDevice();
+        if (device != VK_NULL_HANDLE && VkModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, VkModule, nullptr);
+            VkModule = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKVertexShader::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkModule;
     }
 
     //--------------------------------------------------------------------------
@@ -59,13 +67,19 @@ namespace Tiny3D
 
     VKHullShader::~VKHullShader()
     {
+        VkDevice device = VK_CONTEXT->getVkDevice();
+        if (device != VK_NULL_HANDLE && VkModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, VkModule, nullptr);
+            VkModule = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKHullShader::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkModule;
     }
 
     //--------------------------------------------------------------------------
@@ -79,13 +93,19 @@ namespace Tiny3D
 
     VKDomainShader::~VKDomainShader()
     {
+        VkDevice device = VK_CONTEXT->getVkDevice();
+        if (device != VK_NULL_HANDLE && VkModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, VkModule, nullptr);
+            VkModule = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKDomainShader::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkModule;
     }
 
     //--------------------------------------------------------------------------
@@ -99,13 +119,19 @@ namespace Tiny3D
 
     VKGeometryShader::~VKGeometryShader()
     {
+        VkDevice device = VK_CONTEXT->getVkDevice();
+        if (device != VK_NULL_HANDLE && VkModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, VkModule, nullptr);
+            VkModule = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKGeometryShader::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkModule;
     }
 
     //--------------------------------------------------------------------------
@@ -119,13 +145,19 @@ namespace Tiny3D
 
     VKPixelShader::~VKPixelShader()
     {
+        VkDevice device = VK_CONTEXT->getVkDevice();
+        if (device != VK_NULL_HANDLE && VkModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, VkModule, nullptr);
+            VkModule = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKPixelShader::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkModule;
     }
 
     //--------------------------------------------------------------------------
@@ -139,14 +171,18 @@ namespace Tiny3D
 
     VKComputeShader::~VKComputeShader()
     {
+        VkDevice device = VK_CONTEXT->getVkDevice();
+        if (device != VK_NULL_HANDLE && VkModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, VkModule, nullptr);
+            VkModule = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------
 
     void *VKComputeShader::getNativeObject() const
     {
-        return nullptr;
+        return (void *)VkModule;
     }
-
-    //--------------------------------------------------------------------------
 }
