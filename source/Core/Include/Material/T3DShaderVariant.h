@@ -68,6 +68,15 @@ namespace Tiny3D
         static ShaderVariantPtr create(ShaderKeyword &&keyword, const String &code);
 
         /**
+         * \brief 创建 shader 变体对象（接受二进制/文本数据 + 长度）
+         * \param [in] keyword : 变体对应的关键字
+         * \param [in] code : 变体对应的代码数据（可以是文本或二进制如 SPIR-V）
+         * \param [in] codeLength : 代码数据长度（字节数）
+         * \return 返回 shader 变体对象
+         */
+        static ShaderVariantPtr create(ShaderKeyword &&keyword, const char *code, size_t codeLength);
+
+        /**
          * \brief Destructor
          */
         ~ShaderVariant() override;
@@ -161,6 +170,7 @@ namespace Tiny3D
         
     protected:
         ShaderVariant(ShaderKeyword &&key, const String &code);
+        ShaderVariant(ShaderKeyword &&key, const char *code, size_t codeLength);
 
         void copyCode(const char *code, size_t codeSize)
         {

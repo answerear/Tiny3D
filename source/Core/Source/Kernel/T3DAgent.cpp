@@ -98,10 +98,23 @@ namespace Tiny3D
         }
 
         // mRenderPipeline->detachAllRenderTargets();
-        
-        mDefaultWindow = nullptr;
-        mActiveRHIRenderer = nullptr;
 
+        // Ensure GPU is idle before releasing any resources.
+        // destroy() only calls vkDeviceWaitIdle — VkDevice stays alive.
+        if (mActiveRHIRenderer != nullptr)
+        {
+            mActiveRHIRenderer->destroy();
+            // Clear residual render state (mCurrentRenderTarget, etc.) to
+            // break indirect references to GPU resources that will be released
+            // below.  Without this, ~VKContext() would later trigger a second
+            // vkDestroyImageView on already-destroyed handles.
+            mActiveRHIRenderer->getContext()->reset();
+        }
+
+        mDefaultWindow = nullptr;
+
+        // Release all GPU resources while VkDevice is still alive
+        // (renderer singleton stays valid via mRenderers map)
         if (mSkeletonMgr != nullptr)
         {
             mSkeletonMgr->unloadAllResources();
@@ -169,6 +182,15 @@ namespace Tiny3D
             mImageMgr = nullptr;
         }
 
+        mRenderPipeline = nullptr;
+        mAssignableObjMgr = nullptr;
+        mRenderStateMgr = nullptr;
+        mRenderBufferMgr = nullptr;
+        mRenderWindows.clear();
+
+        // Now safe to release renderer (VkDevice will be destroyed)
+        mActiveRHIRenderer = nullptr;
+
         if (mAnimationMgr != nullptr)
         {
             mAnimationMgr->unloadAllResources();
@@ -179,12 +201,6 @@ namespace Tiny3D
         {
             mArchiveMgr->unloadAllArchives();
         }
-
-        mRenderPipeline = nullptr;
-        mAssignableObjMgr = nullptr;
-        mRenderStateMgr = nullptr;
-        mRenderBufferMgr = nullptr;
-        mRenderWindows.clear();
 
         // if (mObjTracer != nullptr)
         // {
