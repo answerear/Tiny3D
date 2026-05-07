@@ -633,6 +633,24 @@ namespace Tiny3D
          */
         virtual TResult endRender() = 0;
 
+        /**
+         * \brief 开始一个渲染 Pass。
+         *        对于 Vulkan 后端，执行 vkCmdBeginRenderPass。
+         *        对于 D3D11/OpenGL4 后端，空实现。
+         *        应在 clear 操作之后、draw call 之前调用。
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult beginPass() = 0;
+
+        /**
+         * \brief 结束一个渲染 Pass。
+         *        对于 Vulkan 后端，执行 vkCmdEndRenderPass。
+         *        对于 D3D11/OpenGL4 后端，空实现。
+         *        应在所有 draw call 之后、blit/reset 之前调用。
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult endPass() = 0;
+
     protected:
         RHIContext();
 

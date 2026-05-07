@@ -42,11 +42,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ShaderVariantPtr ShaderVariant::create(ShaderKeyword &&keyword, const char *code, size_t codeLength)
+    {
+        return T3D_NEW ShaderVariant(std::move(keyword), code, codeLength);
+    }
+
+    //--------------------------------------------------------------------------
+
     ShaderVariant::ShaderVariant(ShaderKeyword &&key, const String &code)
     {
         mShaderKeyword = T3D_NEW ShaderKeyword(std::move(key));
         mShaderKeyword->generate();
         setSourceCode(code.c_str(), code.length());
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderVariant::ShaderVariant(ShaderKeyword &&key, const char *code, size_t codeLength)
+    {
+        mShaderKeyword = T3D_NEW ShaderKeyword(std::move(key));
+        mShaderKeyword->generate();
+        setSourceCode(code, codeLength);
     }
 
     //--------------------------------------------------------------------------

@@ -210,11 +210,15 @@ namespace Tiny3D
             if (VkDSView != VK_NULL_HANDLE)
             {
                 vkDestroyImageView(device, VkDSView, nullptr);
+                if (VkTexView == VkDSView)
+                    VkTexView = VK_NULL_HANDLE;
                 VkDSView = VK_NULL_HANDLE;
             }
             if (VkRTView != VK_NULL_HANDLE)
             {
                 vkDestroyImageView(device, VkRTView, nullptr);
+                if (VkTexView == VkRTView)
+                    VkTexView = VK_NULL_HANDLE;
                 VkRTView = VK_NULL_HANDLE;
             }
             if (VkTexView != VK_NULL_HANDLE)

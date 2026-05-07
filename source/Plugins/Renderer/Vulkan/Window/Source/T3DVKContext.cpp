@@ -30,8 +30,10 @@
 #include "T3DVKMapping.h"
 #include "T3DVKRenderState.h"
 #include "T3DVKShader.h"
+#include "spirv_reflect.h"
 #include <vector>
 #include <set>
+#include <map>
 
 
 namespace Tiny3D
@@ -75,8 +77,39 @@ namespace Tiny3D
             mVkImageAvailableSemaphores.clear();
             mVkCommandBuffers.clear();
 
-            if (mVkDescriptorPool != VK_NULL_HANDLE)
-                vkDestroyDescriptorPool(mVkDevice, mVkDescriptorPool, nullptr);
+            // Destroy cached pipelines
+            for (auto &pair : mPipelineCache)
+                vkDestroyPipeline(mVkDevice, pair.second, nullptr);
+            mPipelineCache.clear();
+
+            // Destroy cached framebuffers
+            for (auto &pair : mFramebufferCache)
+                vkDestroyFramebuffer(mVkDevice, pair.second.framebuffer, nullptr);
+            mFramebufferCache.clear();
+
+            // Destroy cached render passes
+            for (auto &pair : mRenderPassCache)
+                vkDestroyRenderPass(mVkDevice, pair.second, nullptr);
+            mRenderPassCache.clear();
+
+            // Destroy cached pipeline layouts
+            for (auto &pair : mPipelineLayoutCache)
+                vkDestroyPipelineLayout(mVkDevice, pair.second, nullptr);
+            mPipelineLayoutCache.clear();
+
+            // Destroy cached descriptor set layouts
+            for (auto &pair : mDescriptorSetLayoutCache)
+                vkDestroyDescriptorSetLayout(mVkDevice, pair.second, nullptr);
+            mDescriptorSetLayoutCache.clear();
+
+            if (mVkDescriptorPools[0] != VK_NULL_HANDLE)
+            {
+                for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+                {
+                    if (mVkDescriptorPools[i] != VK_NULL_HANDLE)
+                        vkDestroyDescriptorPool(mVkDevice, mVkDescriptorPools[i], nullptr);
+                }
+            }
             if (mVkDescriptorSetLayout != VK_NULL_HANDLE)
                 vkDestroyDescriptorSetLayout(mVkDevice, mVkDescriptorSetLayout, nullptr);
             if (mVkPipelineCache != VK_NULL_HANDLE)
@@ -126,7 +159,7 @@ namespace Tiny3D
             appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
             appInfo.pEngineName = "Tiny3D";
             appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-            appInfo.apiVersion = VK_API_VERSION_1_0;
+            appInfo.apiVersion = VK_API_VERSION_1_1;
 
             std::vector<const char *> extensions;
             extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
@@ -317,40 +350,34 @@ namespace Tiny3D
             pipelineCacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
             vkCreatePipelineCache(mVkDevice, &pipelineCacheInfo, nullptr, &mVkPipelineCache);
 
-            // 9. Create descriptor set layout (basic: one UBO + one sampler)
-            VkDescriptorSetLayoutBinding uboLayoutBinding {};
-            uboLayoutBinding.binding = 0;
-            uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            uboLayoutBinding.descriptorCount = 1;
-            uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
-
-            VkDescriptorSetLayoutBinding samplerLayoutBinding {};
-            samplerLayoutBinding.binding = 1;
-            samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            samplerLayoutBinding.descriptorCount = 1;
-            samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-            VkDescriptorSetLayoutBinding bindings[] = { uboLayoutBinding, samplerLayoutBinding };
-
-            VkDescriptorSetLayoutCreateInfo layoutInfo {};
-            layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = 2;
-            layoutInfo.pBindings = bindings;
-
-            vkCreateDescriptorSetLayout(mVkDevice, &layoutInfo, nullptr, &mVkDescriptorSetLayout);
-
-            // 10. Create pipeline layout
-            VkPipelineLayoutCreateInfo pipelineLayoutInfo {};
-            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipelineLayoutInfo.setLayoutCount = 1;
-            pipelineLayoutInfo.pSetLayouts = &mVkDescriptorSetLayout;
-
-            vkResult = vkCreatePipelineLayout(mVkDevice, &pipelineLayoutInfo, nullptr, &mVkPipelineLayout);
-            if (vkResult != VK_SUCCESS)
+            // 9. Create descriptor pool (per-frame)
             {
-                ret = T3D_ERR_VK_CREATE_PIPELINE;
-                T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Create VkPipelineLayout failed ! VK ERROR [%d]", vkResult);
-                break;
+                VkDescriptorPoolSize poolSizes[] = {
+                    { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_DESCRIPTOR_SETS * 4 },
+                    { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_DESCRIPTOR_SETS * 4 },
+                    { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, MAX_DESCRIPTOR_SETS * 2 },
+                    { VK_DESCRIPTOR_TYPE_SAMPLER, MAX_DESCRIPTOR_SETS * 2 },
+                };
+
+                VkDescriptorPoolCreateInfo poolInfo {};
+                poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+                poolInfo.maxSets = MAX_DESCRIPTOR_SETS;
+                poolInfo.poolSizeCount = 4;
+                poolInfo.pPoolSizes = poolSizes;
+
+                for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+                {
+                    vkResult = vkCreateDescriptorPool(mVkDevice, &poolInfo, nullptr, &mVkDescriptorPools[i]);
+                    if (vkResult != VK_SUCCESS)
+                    {
+                        ret = T3D_ERR_VK_CREATE_PIPELINE;
+                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Create VkDescriptorPool[%u] failed ! VK ERROR [%d]", i, vkResult);
+                        break;
+                    }
+                }
+                if (T3D_FAILED(ret))
+                    break;
             }
 
         } while (false);
@@ -362,32 +389,27 @@ namespace Tiny3D
 
     TResult VKContext::swapBackBuffer(VKRenderWindow *renderWindow)
     {
-        auto lambda = [this](const VKRenderWindowPtr &renderWindow)
-        {
-            TResult ret = T3D_OK;
+        TResult ret = T3D_OK;
 
-            // Present
-            VkSemaphore waitSemaphores[] = { mVkRenderFinishedSemaphores[mCurrentFrame] };
+        // Present
+        VkSemaphore waitSemaphores[] = { mVkRenderFinishedSemaphores[mCurrentFrame] };
 
-            VkPresentInfoKHR presentInfo {};
-            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-            presentInfo.waitSemaphoreCount = 1;
-            presentInfo.pWaitSemaphores = waitSemaphores;
+        VkPresentInfoKHR presentInfo {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = waitSemaphores;
 
-            VkSwapchainKHR swapChains[] = { renderWindow->VkSwapChain };
-            presentInfo.swapchainCount = 1;
-            presentInfo.pSwapchains = swapChains;
-            presentInfo.pImageIndices = &mCurrentImageIndex;
+        VkSwapchainKHR swapChains[] = { renderWindow->VkSwapChain };
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &mCurrentImageIndex;
 
-            vkQueuePresentKHR(mVkPresentQueue, &presentInfo);
+        vkQueuePresentKHR(mVkPresentQueue, &presentInfo);
 
-            // Advance frame index
-            mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        // Advance frame index
+        mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-            return ret;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, VKRenderWindowPtr(renderWindow));
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -397,37 +419,35 @@ namespace Tiny3D
         if (mCurrentRenderWindow == nullptr)
             return T3D_OK;
 
-        auto lambda = [this]()
-        {
-            TResult ret = T3D_OK;
+        TResult ret = T3D_OK;
 
-            // Wait for this frame's fence
-            vkWaitForFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
-            vkResetFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrame]);
+        // Wait for this frame's fence
+        vkWaitForFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrame]);
 
-            // Acquire next image
-            vkAcquireNextImageKHR(mVkDevice, mCurrentRenderWindow->VkSwapChain, UINT64_MAX,
-                mVkImageAvailableSemaphores[mCurrentFrame], VK_NULL_HANDLE, &mCurrentImageIndex);
-            mCurrentRenderWindow->VkCurrentImageIndex = mCurrentImageIndex;
+        // Reset descriptor pool to reclaim all descriptor sets from previous frame
+        vkResetDescriptorPool(mVkDevice, mVkDescriptorPools[mCurrentFrame], 0);
 
-            // Reset and begin command buffer
-            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
-            vkResetCommandBuffer(cmdBuf, 0);
+        // Acquire next image
+        vkAcquireNextImageKHR(mVkDevice, mCurrentRenderWindow->VkSwapChain, UINT64_MAX,
+            mVkImageAvailableSemaphores[mCurrentFrame], VK_NULL_HANDLE, &mCurrentImageIndex);
+        mCurrentRenderWindow->VkCurrentImageIndex = mCurrentImageIndex;
 
-            VkCommandBufferBeginInfo beginInfo {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            vkBeginCommandBuffer(cmdBuf, &beginInfo);
+        // Reset and begin command buffer
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+        vkResetCommandBuffer(cmdBuf, 0);
 
-            // Transition swapchain image from UNDEFINED to TRANSFER_DST
-            insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
-                VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                0, VK_ACCESS_TRANSFER_WRITE_BIT,
-                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+        VkCommandBufferBeginInfo beginInfo {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(cmdBuf, &beginInfo);
 
-            return ret;
-        };
+        // Transition swapchain image from UNDEFINED to TRANSFER_DST
+        insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            0, VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -437,42 +457,435 @@ namespace Tiny3D
         if (mCurrentRenderWindow == nullptr)
             return T3D_OK;
 
-        auto lambda = [this]()
+        TResult ret = T3D_OK;
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        // Transition swapchain image to PRESENT_SRC
+        insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            VK_ACCESS_TRANSFER_WRITE_BIT, 0,
+            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+
+        vkEndCommandBuffer(cmdBuf);
+
+        // Submit
+        VkSubmitInfo submitInfo {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore waitSemaphores[] = { mVkImageAvailableSemaphores[mCurrentFrame] };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_TRANSFER_BIT };
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &cmdBuf;
+
+        VkSemaphore signalSemaphores[] = { mVkRenderFinishedSemaphores[mCurrentFrame] };
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+
+        vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, mVkInFlightFences[mCurrentFrame]);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkRenderPass VKContext::getOrCreateRenderPass(VkFormat colorFormat, VkFormat depthFormat, bool hasColor, bool depthOnly)
+    {
+        // Compute a hash from the parameters
+        size_t hash = 0;
+        hash ^= std::hash<uint32_t>{}((uint32_t)colorFormat) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)depthFormat) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)hasColor) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)depthOnly) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+        auto it = mRenderPassCache.find(hash);
+        if (it != mRenderPassCache.end())
+            return it->second;
+
+        std::vector<VkAttachmentDescription> attachments;
+        VkAttachmentReference colorAttachmentRef {};
+        VkAttachmentReference depthAttachmentRef {};
+
+        VkSubpassDescription subpass {};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+        if (hasColor && !depthOnly)
         {
-            TResult ret = T3D_OK;
+            VkAttachmentDescription colorAttachment {};
+            colorAttachment.format = colorFormat;
+            colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+            colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            attachments.push_back(colorAttachment);
 
-            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+            colorAttachmentRef.attachment = 0;
+            colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            subpass.colorAttachmentCount = 1;
+            subpass.pColorAttachments = &colorAttachmentRef;
+        }
 
-            // Transition swapchain image to PRESENT_SRC
+        if (depthFormat != VK_FORMAT_UNDEFINED)
+        {
+            VkAttachmentDescription depthAttachment {};
+            depthAttachment.format = depthFormat;
+            depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+            depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            depthAttachment.storeOp = depthOnly ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            attachments.push_back(depthAttachment);
+
+            depthAttachmentRef.attachment = (uint32_t)(attachments.size() - 1);
+            depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            subpass.pDepthStencilAttachment = &depthAttachmentRef;
+        }
+
+        if (depthOnly)
+        {
+            subpass.colorAttachmentCount = 0;
+            subpass.pColorAttachments = nullptr;
+        }
+
+        VkSubpassDependency dependency {};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        VkRenderPassCreateInfo renderPassInfo {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = (uint32_t)attachments.size();
+        renderPassInfo.pAttachments = attachments.data();
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies = &dependency;
+
+        VkRenderPass renderPass = VK_NULL_HANDLE;
+        VkResult result = vkCreateRenderPass(mVkDevice, &renderPassInfo, nullptr, &renderPass);
+        if (result != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create render pass for RT ! VK ERROR [%d]", result);
+            return VK_NULL_HANDLE;
+        }
+
+        mRenderPassCache[hash] = renderPass;
+        return renderPass;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkFramebuffer VKContext::getOrCreateFramebuffer(VkRenderPass renderPass, VkExtent2D &outExtent)
+    {
+        if (mCurrentRenderTarget == nullptr)
+            return VK_NULL_HANDLE;
+
+        // Use render target pointer as cache key
+        size_t hash = std::hash<uintptr_t>{}((uintptr_t)mCurrentRenderTarget.get());
+        hash ^= std::hash<uint64_t>{}((uint64_t)renderPass) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+        auto it = mFramebufferCache.find(hash);
+        if (it != mFramebufferCache.end())
+        {
+            outExtent = it->second.extent;
+            return it->second.framebuffer;
+        }
+
+        std::vector<VkImageView> attachments;
+        uint32_t width = 0, height = 0;
+
+        bool depthOnly = (mCurrentRenderTarget->getNumOfRenderTextures() == 0);
+
+        if (!depthOnly)
+        {
+            // Color attachment
+            const RenderTexturePtr &colorRT = mCurrentRenderTarget->getRenderTexture();
+            VKPixelBuffer2D *vkColorPB = static_cast<VKPixelBuffer2D *>(colorRT->getPixelBuffer()->getRHIResource().get());
+            attachments.push_back(vkColorPB->VkRTView);
+
+            PixelBuffer2D *pb2d = static_cast<PixelBuffer2D *>(colorRT->getPixelBuffer());
+            width = pb2d->getDescriptor().width;
+            height = pb2d->getDescriptor().height;
+        }
+
+        // Depth attachment
+        RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
+        if (depthStencilRT != nullptr)
+        {
+            VKPixelBuffer2D *vkDSPB = static_cast<VKPixelBuffer2D *>(depthStencilRT->getPixelBuffer()->getRHIResource().get());
+            attachments.push_back(vkDSPB->VkDSView);
+
+            if (depthOnly)
+            {
+                PixelBuffer2D *pb2d = static_cast<PixelBuffer2D *>(depthStencilRT->getPixelBuffer());
+                width = pb2d->getDescriptor().width;
+                height = pb2d->getDescriptor().height;
+            }
+        }
+
+        if (attachments.empty() || width == 0 || height == 0)
+            return VK_NULL_HANDLE;
+
+        VkFramebufferCreateInfo fbInfo {};
+        fbInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        fbInfo.renderPass = renderPass;
+        fbInfo.attachmentCount = (uint32_t)attachments.size();
+        fbInfo.pAttachments = attachments.data();
+        fbInfo.width = width;
+        fbInfo.height = height;
+        fbInfo.layers = 1;
+
+        VkFramebuffer framebuffer = VK_NULL_HANDLE;
+        VkResult result = vkCreateFramebuffer(mVkDevice, &fbInfo, nullptr, &framebuffer);
+        if (result != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create framebuffer for RT ! VK ERROR [%d]", result);
+            return VK_NULL_HANDLE;
+        }
+
+        outExtent = { width, height };
+        mFramebufferCache[hash] = { framebuffer, outExtent };
+        return framebuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::beginPass()
+    {
+        if (mCurrentRenderTarget == nullptr)
+            return T3D_OK;
+
+        TResult ret = T3D_OK;
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        if (mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
+        {
+            if (mCurrentRenderWindow == nullptr)
+                return T3D_OK;
+
+            // Transition swapchain image from TRANSFER_DST to COLOR_ATTACHMENT_OPTIMAL
             insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                VK_ACCESS_TRANSFER_WRITE_BIT, 0,
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-            vkEndCommandBuffer(cmdBuf);
+            // Transition depth image to DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+            insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkDepthImage,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
-            // Submit
-            VkSubmitInfo submitInfo {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            // Begin render pass
+            VkRenderPassBeginInfo renderPassInfo {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = mVkRenderPass;
+            renderPassInfo.framebuffer = mCurrentRenderWindow->VkFramebuffers[mCurrentImageIndex];
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = mCurrentRenderWindow->VkSwapChainExtent;
 
-            VkSemaphore waitSemaphores[] = { mVkImageAvailableSemaphores[mCurrentFrame] };
-            VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_TRANSFER_BIT };
-            submitInfo.waitSemaphoreCount = 1;
-            submitInfo.pWaitSemaphores = waitSemaphores;
-            submitInfo.pWaitDstStageMask = waitStages;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &cmdBuf;
+            // Provide clear values for LOAD_OP_CLEAR attachments (color + depth)
+            VkClearValue clearValues[2] {};
+            clearValues[0].color = {{mClearColor.red(), mClearColor.green(), mClearColor.blue(), 1.0f}};
+            clearValues[1].depthStencil = {1.0f, 0};
+            renderPassInfo.clearValueCount = 2;
+            renderPassInfo.pClearValues = clearValues;
 
-            VkSemaphore signalSemaphores[] = { mVkRenderFinishedSemaphores[mCurrentFrame] };
-            submitInfo.signalSemaphoreCount = 1;
-            submitInfo.pSignalSemaphores = signalSemaphores;
+            mCurrentPassRenderPass = mVkRenderPass;
+            mCurrentPassExtent = mCurrentRenderWindow->VkSwapChainExtent;
 
-            vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, mVkInFlightFences[mCurrentFrame]);
+            vkCmdBeginRenderPass(cmdBuf, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            return ret;
-        };
+            // Set viewport and scissor (negative height flips Y to match OpenGL/D3D convention)
+            VkViewport viewport {};
+            viewport.x = 0.0f;
+            viewport.y = (float)mCurrentRenderWindow->VkSwapChainExtent.height;
+            viewport.width = (float)mCurrentRenderWindow->VkSwapChainExtent.width;
+            viewport.height = -(float)mCurrentRenderWindow->VkSwapChainExtent.height;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            vkCmdSetViewport(cmdBuf, 0, 1, &viewport);
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda);
+            VkRect2D scissor {};
+            scissor.offset = {0, 0};
+            scissor.extent = mCurrentRenderWindow->VkSwapChainExtent;
+            vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
+        }
+        else
+        {
+            // Render to texture
+            bool depthOnly = (mCurrentRenderTarget->getNumOfRenderTextures() == 0);
+            VkFormat colorFormat = VK_FORMAT_UNDEFINED;
+            VkFormat depthFormat = VK_FORMAT_UNDEFINED;
+            bool hasColor = !depthOnly;
+
+            if (hasColor)
+            {
+                const RenderTexturePtr &colorRT = mCurrentRenderTarget->getRenderTexture();
+                VKPixelBuffer2D *vkColorPB = static_cast<VKPixelBuffer2D *>(colorRT->getPixelBuffer()->getRHIResource().get());
+                PixelBuffer2D *pb2d = static_cast<PixelBuffer2D *>(colorRT->getPixelBuffer());
+                colorFormat = VKMapping::get(pb2d->getDescriptor().format);
+
+                // Transition color to COLOR_ATTACHMENT_OPTIMAL
+                insertImageBarrier(cmdBuf, vkColorPB->VkTex,
+                    vkColorPB->VkCurrentLayout, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                    0, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+                vkColorPB->VkCurrentLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            }
+
+            RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
+            if (depthStencilRT != nullptr)
+            {
+                VKPixelBuffer2D *vkDSPB = static_cast<VKPixelBuffer2D *>(depthStencilRT->getPixelBuffer()->getRHIResource().get());
+                PixelBuffer2D *dsPB2D = static_cast<PixelBuffer2D *>(depthStencilRT->getPixelBuffer());
+                depthFormat = VKMapping::get(dsPB2D->getDescriptor().format);
+
+                VkImageAspectFlags dsAspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+                if (hasStencilComponent(depthFormat))
+                    dsAspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+
+                // Transition depth to DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+                insertImageBarrier(cmdBuf, vkDSPB->VkTex,
+                    vkDSPB->VkCurrentLayout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                    0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                    dsAspect);
+                vkDSPB->VkCurrentLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
+
+            // Get or create render pass and framebuffer
+            VkRenderPass renderPass = getOrCreateRenderPass(colorFormat, depthFormat, hasColor, depthOnly);
+            if (renderPass == VK_NULL_HANDLE)
+                return T3D_ERR_VK_CREATE_RENDER_PASS;
+
+            VkExtent2D extent {};
+            VkFramebuffer framebuffer = getOrCreateFramebuffer(renderPass, extent);
+            if (framebuffer == VK_NULL_HANDLE)
+                return T3D_ERR_VK_CREATE_FRAMEBUFFER;
+
+            mCurrentPassRenderPass = renderPass;
+            mCurrentPassExtent = extent;
+
+            // Begin render pass
+            VkRenderPassBeginInfo renderPassInfo {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = framebuffer;
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = extent;
+
+            // Provide clear values for LOAD_OP_CLEAR attachments
+            VkClearValue clearValues[2] {};
+            uint32_t clearValueCount = 0;
+            if (hasColor && !depthOnly)
+            {
+                clearValues[clearValueCount].color = {{mClearColor.red(), mClearColor.green(), mClearColor.blue(), 1.0f}};
+                clearValueCount++;
+            }
+            if (depthFormat != VK_FORMAT_UNDEFINED)
+            {
+                clearValues[clearValueCount].depthStencil = {1.0f, 0};
+                clearValueCount++;
+            }
+            renderPassInfo.clearValueCount = clearValueCount;
+            renderPassInfo.pClearValues = clearValues;
+
+            vkCmdBeginRenderPass(cmdBuf, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+            // Set viewport and scissor (negative height flips Y to match OpenGL/D3D convention)
+            VkViewport viewport {};
+            viewport.x = 0.0f;
+            viewport.y = (float)extent.height;
+            viewport.width = (float)extent.width;
+            viewport.height = -(float)extent.height;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            vkCmdSetViewport(cmdBuf, 0, 1, &viewport);
+
+            VkRect2D scissor {};
+            scissor.offset = {0, 0};
+            scissor.extent = extent;
+            vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
+        }
+
+        mRenderPassActive = true;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::endPass()
+    {
+        if (!mRenderPassActive)
+            return T3D_OK;
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        vkCmdEndRenderPass(cmdBuf);
+
+        if (mCurrentRenderTarget != nullptr && mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
+        {
+            // Transition swapchain image back to TRANSFER_DST for potential blit operations
+            insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_TRANSFER_WRITE_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+        }
+        else if (mCurrentRenderTarget != nullptr && mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_TEXTURE)
+        {
+            bool depthOnly = (mCurrentRenderTarget->getNumOfRenderTextures() == 0);
+
+            if (!depthOnly)
+            {
+                // Transition color render texture to SHADER_READ_ONLY for sampling
+                const RenderTexturePtr &colorRT = mCurrentRenderTarget->getRenderTexture();
+                VKPixelBuffer2D *vkColorPB = static_cast<VKPixelBuffer2D *>(colorRT->getPixelBuffer()->getRHIResource().get());
+                insertImageBarrier(cmdBuf, vkColorPB->VkTex,
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+                vkColorPB->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            }
+
+            // Transition depth to SHADER_READ_ONLY (for shadow map sampling)
+            RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
+            if (depthStencilRT != nullptr)
+            {
+                VKPixelBuffer2D *vkDSPB = static_cast<VKPixelBuffer2D *>(depthStencilRT->getPixelBuffer()->getRHIResource().get());
+                PixelBuffer2D *dsPB2D = static_cast<PixelBuffer2D *>(depthStencilRT->getPixelBuffer());
+                VkFormat depthFormat = VKMapping::get(dsPB2D->getDescriptor().format);
+
+                VkImageAspectFlags dsAspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+                if (hasStencilComponent(depthFormat))
+                    dsAspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+
+                insertImageBarrier(cmdBuf, vkDSPB->VkTex,
+                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                    VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                    dsAspect);
+                vkDSPB->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            }
+        }
+
+        mRenderPassActive = false;
+        mVkCurrentPipeline = VK_NULL_HANDLE;
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -503,48 +916,41 @@ namespace Tiny3D
     {
         VKRenderWindowPtr vkRenderWindow = VKRenderWindow::create(renderWindow);
 
-        auto lambda = [this](const RenderWindowPtr &pRenderWindow, const VKRenderWindowPtr &pVKRenderWindow)
+        TResult ret = T3D_OK;
+
+        do
         {
-            TResult ret = T3D_OK;
+            const RenderWindowDesc &desc = renderWindow->getDescriptor();
 
-            do
+            // Create Win32 surface
+            SysWMInfo info;
+            renderWindow->getSystemInfo(info);
+
+            VkWin32SurfaceCreateInfoKHR surfaceCreateInfo {};
+            surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+            surfaceCreateInfo.hwnd = (HWND)info.hWnd;
+            surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
+
+            VkResult vkResult = vkCreateWin32SurfaceKHR(mVkInstance, &surfaceCreateInfo, nullptr, &vkRenderWindow->VkSurface);
+            if (vkResult != VK_SUCCESS)
             {
-                const RenderWindowDesc &desc = pRenderWindow->getDescriptor();
+                ret = T3D_ERR_VK_CREATE_SURFACE;
+                T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Create Win32 surface failed ! VK ERROR [%d]", vkResult);
+                break;
+            }
 
-                // Create Win32 surface
-                SysWMInfo info;
-                pRenderWindow->getSystemInfo(info);
+            // Verify present support
+            VkBool32 presentSupport = VK_FALSE;
+            vkGetPhysicalDeviceSurfaceSupportKHR(mVkPhysicalDevice, mPresentQueueFamily, vkRenderWindow->VkSurface, &presentSupport);
+            if (!presentSupport)
+            {
+                ret = T3D_ERR_VK_CREATE_SURFACE;
+                T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Queue family does not support present !");
+                break;
+            }
 
-                VkWin32SurfaceCreateInfoKHR surfaceCreateInfo {};
-                surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-                surfaceCreateInfo.hwnd = (HWND)info.hWnd;
-                surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
-
-                VkResult vkResult = vkCreateWin32SurfaceKHR(mVkInstance, &surfaceCreateInfo, nullptr, &pVKRenderWindow->VkSurface);
-                if (vkResult != VK_SUCCESS)
-                {
-                    ret = T3D_ERR_VK_CREATE_SURFACE;
-                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Create Win32 surface failed ! VK ERROR [%d]", vkResult);
-                    break;
-                }
-
-                // Verify present support
-                VkBool32 presentSupport = VK_FALSE;
-                vkGetPhysicalDeviceSurfaceSupportKHR(mVkPhysicalDevice, mPresentQueueFamily, pVKRenderWindow->VkSurface, &presentSupport);
-                if (!presentSupport)
-                {
-                    ret = T3D_ERR_VK_CREATE_SURFACE;
-                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Queue family does not support present !");
-                    break;
-                }
-
-                ret = createRenderWindow(pVKRenderWindow, desc.Width, desc.Height, desc.MSAA.Count, desc.MSAA.Quality);
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderWindowPtr(renderWindow), VKRenderWindowPtr(vkRenderWindow));
+            ret = createRenderWindow(vkRenderWindow, desc.Width, desc.Height, desc.MSAA.Count, desc.MSAA.Quality);
+        } while (false);
 
         if (T3D_FAILED(ret))
         {
@@ -747,43 +1153,38 @@ namespace Tiny3D
 
     TResult VKContext::resizeRenderWindow(VKRenderWindow *rw, uint32_t w, uint32_t h)
     {
-        auto lambda = [this](const VKRenderWindowPtr &rw, uint32_t w, uint32_t h)
+        TResult ret = T3D_OK;
+
+        do
         {
-            TResult ret = T3D_OK;
+            vkDeviceWaitIdle(mVkDevice);
 
-            do
-            {
-                vkDeviceWaitIdle(mVkDevice);
+            // Cleanup old resources
+            for (auto fb : rw->VkFramebuffers)
+                vkDestroyFramebuffer(mVkDevice, fb, nullptr);
+            rw->VkFramebuffers.clear();
 
-                // Cleanup old resources
-                for (auto fb : rw->VkFramebuffers)
-                    vkDestroyFramebuffer(mVkDevice, fb, nullptr);
-                rw->VkFramebuffers.clear();
+            for (auto iv : rw->VkSwapChainImageViews)
+                vkDestroyImageView(mVkDevice, iv, nullptr);
+            rw->VkSwapChainImageViews.clear();
 
-                for (auto iv : rw->VkSwapChainImageViews)
-                    vkDestroyImageView(mVkDevice, iv, nullptr);
-                rw->VkSwapChainImageViews.clear();
+            if (rw->VkDepthImageView != VK_NULL_HANDLE)
+                vkDestroyImageView(mVkDevice, rw->VkDepthImageView, nullptr);
+            if (rw->VkDepthImage != VK_NULL_HANDLE)
+                vkDestroyImage(mVkDevice, rw->VkDepthImage, nullptr);
+            if (rw->VkDepthImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(mVkDevice, rw->VkDepthImageMemory, nullptr);
 
-                if (rw->VkDepthImageView != VK_NULL_HANDLE)
-                    vkDestroyImageView(mVkDevice, rw->VkDepthImageView, nullptr);
-                if (rw->VkDepthImage != VK_NULL_HANDLE)
-                    vkDestroyImage(mVkDevice, rw->VkDepthImage, nullptr);
-                if (rw->VkDepthImageMemory != VK_NULL_HANDLE)
-                    vkFreeMemory(mVkDevice, rw->VkDepthImageMemory, nullptr);
+            VkSwapchainKHR oldSwapchain = rw->VkSwapChain;
+            rw->VkSwapChain = VK_NULL_HANDLE;
+            if (oldSwapchain != VK_NULL_HANDLE)
+                vkDestroySwapchainKHR(mVkDevice, oldSwapchain, nullptr);
 
-                VkSwapchainKHR oldSwapchain = rw->VkSwapChain;
-                rw->VkSwapChain = VK_NULL_HANDLE;
-                if (oldSwapchain != VK_NULL_HANDLE)
-                    vkDestroySwapchainKHR(mVkDevice, oldSwapchain, nullptr);
+            // Recreate
+            ret = createRenderWindow(rw, w, h, 1, 0);
+        } while (false);
 
-                // Recreate
-                ret = createRenderWindow(rw, w, h, 1, 0);
-            } while (false);
-
-            return ret;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, VKRenderWindowPtr(rw), w, h);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -808,58 +1209,52 @@ namespace Tiny3D
     {
         VKPixelBuffer2DPtr vkPixelBuffer = VKPixelBuffer2D::create();
 
-        auto lambda = [this](const PixelBuffer2DPtr &buffer, const VKPixelBuffer2DPtr &vkPixelBuffer)
+        TResult ret = T3D_OK;
+
+        do
         {
-            TResult ret = T3D_OK;
-
-            do
+            if (buffer == nullptr)
             {
-                if (buffer == nullptr)
-                {
-                    ret = T3D_ERR_INVALID_POINTER;
-                    break;
-                }
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
 
-                const auto &desc = buffer->getDescriptor();
-                VkFormat format = VKMapping::get(desc.format);
+            const auto &desc = buffer->getDescriptor();
+            VkFormat format = VKMapping::get(desc.format);
 
-                // Determine usage and aspect based on format
-                VkImageUsageFlags usage;
-                VkImageAspectFlags aspect;
+            // Determine usage and aspect based on format
+            VkImageUsageFlags usage;
+            VkImageAspectFlags aspect;
 
-                if (isDepthFormat(format))
-                {
-                    usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-                    aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
-                    if (hasStencilComponent(format))
-                        aspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
-                }
-                else
-                {
-                    usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-                    aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-                }
+            if (isDepthFormat(format))
+            {
+                usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+                aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+                if (hasStencilComponent(format))
+                    aspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            else
+            {
+                usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+                aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+            }
 
-                // Create image for render texture
-                ret = createVkImage(desc.width, desc.height, format, VK_IMAGE_TILING_OPTIMAL,
-                    usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                    vkPixelBuffer->VkTex, vkPixelBuffer->VkTexMemory);
-                if (T3D_FAILED(ret))
-                    break;
+            // Create image for render texture
+            ret = createVkImage(desc.width, desc.height, format, VK_IMAGE_TILING_OPTIMAL,
+                usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                vkPixelBuffer->VkTex, vkPixelBuffer->VkTexMemory);
+            if (T3D_FAILED(ret))
+                break;
 
-                // Create image view
-                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
+            // Create image view
+            vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
 
-                if (isDepthFormat(format))
-                    vkPixelBuffer->VkDSView = vkPixelBuffer->VkTexView;
-                else
-                    vkPixelBuffer->VkRTView = vkPixelBuffer->VkTexView;
-            } while (false);
+            if (isDepthFormat(format))
+                vkPixelBuffer->VkDSView = vkPixelBuffer->VkTexView;
+            else
+                vkPixelBuffer->VkRTView = vkPixelBuffer->VkTexView;
+        } while (false);
 
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(buffer), VKPixelBuffer2DPtr(vkPixelBuffer));
         if (T3D_FAILED(ret))
         {
             vkPixelBuffer = nullptr;
@@ -919,55 +1314,49 @@ namespace Tiny3D
 
         RenderTargetPtr renderTarget = mCurrentRenderTarget;
 
-        auto lambda = [this](const ColorRGB &color, const RenderTargetPtr &renderTarget)
+        if (renderTarget == nullptr)
+            return ret;
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        if (renderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
         {
-            TResult ret = T3D_OK;
+            // Clear back buffer — it's already in TRANSFER_DST layout
+            VKRenderWindow *vkWin = static_cast<VKRenderWindow *>(renderTarget->getRenderWindow()->getRHIRenderWindow());
+            VkImage image = vkWin->VkSwapChainImages[vkWin->VkCurrentImageIndex];
 
-            if (renderTarget == nullptr)
-                return ret;
-
-            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
-
-            if (renderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
+            VkClearColorValue clearColor = {{color.red(), color.green(), color.blue(), 1.0f}};
+            VkImageSubresourceRange range {};
+            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            range.levelCount = 1;
+            range.layerCount = 1;
+            vkCmdClearColorImage(cmdBuf, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &range);
+        }
+        else
+        {
+            // Clear render texture(s)
+            for (uint32_t i = 0; i < renderTarget->getNumOfRenderTextures(); ++i)
             {
-                // Clear back buffer — it's already in TRANSFER_DST layout
-                VKRenderWindow *vkWin = static_cast<VKRenderWindow *>(renderTarget->getRenderWindow()->getRHIRenderWindow());
-                VkImage image = vkWin->VkSwapChainImages[vkWin->VkCurrentImageIndex];
+                const RenderTexturePtr &rt = renderTarget->getRenderTexture(i);
+                VKPixelBuffer2D *vkPB = static_cast<VKPixelBuffer2D *>(rt->getPixelBuffer()->getRHIResource().get());
+
+                // Transition to TRANSFER_DST using tracked layout
+                insertImageBarrier(cmdBuf, vkPB->VkTex,
+                    vkPB->VkCurrentLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    0, VK_ACCESS_TRANSFER_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+                vkPB->VkCurrentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
                 VkClearColorValue clearColor = {{color.red(), color.green(), color.blue(), 1.0f}};
                 VkImageSubresourceRange range {};
                 range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 range.levelCount = 1;
                 range.layerCount = 1;
-                vkCmdClearColorImage(cmdBuf, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &range);
+                vkCmdClearColorImage(cmdBuf, vkPB->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &range);
             }
-            else
-            {
-                // Clear render texture(s)
-                for (uint32_t i = 0; i < renderTarget->getNumOfRenderTextures(); ++i)
-                {
-                    const RenderTexturePtr &rt = renderTarget->getRenderTexture(i);
-                    VKPixelBuffer2D *vkPB = static_cast<VKPixelBuffer2D *>(rt->getPixelBuffer()->getRHIResource().get());
+        }
 
-                    // Transition to TRANSFER_DST
-                    insertImageBarrier(cmdBuf, vkPB->VkTex,
-                        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        0, VK_ACCESS_TRANSFER_WRITE_BIT,
-                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
-
-                    VkClearColorValue clearColor = {{color.red(), color.green(), color.blue(), 1.0f}};
-                    VkImageSubresourceRange range {};
-                    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                    range.levelCount = 1;
-                    range.layerCount = 1;
-                    vkCmdClearColorImage(cmdBuf, vkPB->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &range);
-                }
-            }
-
-            return ret;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, color, renderTarget);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -982,34 +1371,30 @@ namespace Tiny3D
 
         RenderTexturePtr depthStencil = mCurrentRenderTarget->getDepthStencil();
 
-        auto lambda = [this](Real depth, const RenderTexturePtr &depthStencil)
-        {
-            if (depthStencil == nullptr)
-                return T3D_OK;
-
-            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
-            VKPixelBuffer2D *vkDS = static_cast<VKPixelBuffer2D *>(depthStencil->getPixelBuffer()->getRHIResource().get());
-
-            // D24S8 requires both DEPTH+STENCIL in barrier aspectMask
-            VkImageAspectFlags aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-
-            insertImageBarrier(cmdBuf, vkDS->VkTex,
-                VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                0, VK_ACCESS_TRANSFER_WRITE_BIT,
-                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                aspect);
-
-            VkClearDepthStencilValue clearValue = {depth, 0};
-            VkImageSubresourceRange range {};
-            range.aspectMask = aspect;
-            range.levelCount = 1;
-            range.layerCount = 1;
-            vkCmdClearDepthStencilImage(cmdBuf, vkDS->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &range);
-
+        if (depthStencil == nullptr)
             return T3D_OK;
-        };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, depthStencil);
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+        VKPixelBuffer2D *vkDS = static_cast<VKPixelBuffer2D *>(depthStencil->getPixelBuffer()->getRHIResource().get());
+
+        // D24S8 requires both DEPTH+STENCIL in barrier aspectMask
+        VkImageAspectFlags aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+
+        insertImageBarrier(cmdBuf, vkDS->VkTex,
+            vkDS->VkCurrentLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            0, VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+            aspect);
+        vkDS->VkCurrentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+        VkClearDepthStencilValue clearValue = {depth, 0};
+        VkImageSubresourceRange range {};
+        range.aspectMask = aspect;
+        range.levelCount = 1;
+        range.layerCount = 1;
+        vkCmdClearDepthStencilImage(cmdBuf, vkDS->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &range);
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -1024,31 +1409,27 @@ namespace Tiny3D
 
         RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
 
-        auto lambda = [this](Real depth, uint32_t stencil, const RenderTexturePtr &ds)
-        {
-            if (ds == nullptr)
-                return T3D_OK;
-
-            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
-            VKPixelBuffer2D *vkDS = static_cast<VKPixelBuffer2D *>(ds->getPixelBuffer()->getRHIResource().get());
-
-            insertImageBarrier(cmdBuf, vkDS->VkTex,
-                VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                0, VK_ACCESS_TRANSFER_WRITE_BIT,
-                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
-
-            VkClearDepthStencilValue clearValue = {depth, stencil};
-            VkImageSubresourceRange range {};
-            range.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-            range.levelCount = 1;
-            range.layerCount = 1;
-            vkCmdClearDepthStencilImage(cmdBuf, vkDS->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &range);
-
+        if (depthStencilRT == nullptr)
             return T3D_OK;
-        };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, stencil, depthStencilRT);
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+        VKPixelBuffer2D *vkDS = static_cast<VKPixelBuffer2D *>(depthStencilRT->getPixelBuffer()->getRHIResource().get());
+
+        insertImageBarrier(cmdBuf, vkDS->VkTex,
+            vkDS->VkCurrentLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            0, VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+        vkDS->VkCurrentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+        VkClearDepthStencilValue clearValue = {depth, stencil};
+        VkImageSubresourceRange range {};
+        range.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        range.levelCount = 1;
+        range.layerCount = 1;
+        vkCmdClearDepthStencilImage(cmdBuf, vkDS->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &range);
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -1081,6 +1462,38 @@ namespace Tiny3D
     RHISamplerStatePtr VKContext::createSamplerState(SamplerState *state)
     {
         VKSamplerStatePtr vkState = VKSamplerState::create();
+
+        const SamplerDesc &desc = state->getStateDesc();
+
+        VkSamplerCreateInfo samplerInfo {};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VKMapping::get(desc.MagFilter);
+        samplerInfo.minFilter = VKMapping::get(desc.MinFilter);
+        samplerInfo.mipmapMode = VKMapping::getMipmapMode(desc.MipFilter);
+        samplerInfo.addressModeU = VKMapping::get(desc.AddressU);
+        samplerInfo.addressModeV = VKMapping::get(desc.AddressV);
+        samplerInfo.addressModeW = VKMapping::get(desc.AddressW);
+        samplerInfo.mipLodBias = desc.MipLODBias;
+        samplerInfo.anisotropyEnable = (desc.MaxAnisotropy > 1) ? VK_TRUE : VK_FALSE;
+        samplerInfo.maxAnisotropy = (float)desc.MaxAnisotropy;
+        samplerInfo.compareEnable = desc.IsComparison ? VK_TRUE : VK_FALSE;
+        samplerInfo.compareOp = VKMapping::get(desc.CompareFunc);
+        samplerInfo.minLod = desc.MinLOD;
+        samplerInfo.maxLod = desc.MaxLOD;
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+
+        VkResult vkResult = vkCreateSampler(mVkDevice, &samplerInfo, nullptr, &vkState->VkSamp);
+        if (vkResult != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create VkSampler ! VK ERROR [%d]", vkResult);
+            vkState = nullptr;
+        }
+        else
+        {
+            vkState->VkDev = mVkDevice;
+        }
+
         return vkState;
     }
 
@@ -1118,6 +1531,42 @@ namespace Tiny3D
 
     TResult VKContext::setVertexDeclaration(VertexDeclaration *decl)
     {
+        if (decl == nullptr)
+            return T3D_OK;
+
+        mVertexBindings.clear();
+        mVertexAttributes.clear();
+
+        const VertexAttributes &attrs = decl->getAttributes();
+
+        // Collect unique bindings (slots)
+        std::set<uint32_t> slots;
+        for (size_t i = 0; i < attrs.size(); ++i)
+        {
+            slots.insert(attrs[i].getSlot());
+        }
+
+        // Create binding descriptions
+        for (uint32_t slot : slots)
+        {
+            VkVertexInputBindingDescription binding {};
+            binding.binding = slot;
+            binding.stride = decl->getVertexSize(slot);
+            binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            mVertexBindings.push_back(binding);
+        }
+
+        // Create attribute descriptions
+        for (size_t i = 0; i < attrs.size(); ++i)
+        {
+            VkVertexInputAttributeDescription attr {};
+            attr.location = (uint32_t)i;
+            attr.binding = attrs[i].getSlot();
+            attr.format = VKMapping::get(attrs[i].getType());
+            attr.offset = attrs[i].getOffset();
+            mVertexAttributes.push_back(attr);
+        }
+
         return T3D_OK;
     }
 
@@ -1131,39 +1580,33 @@ namespace Tiny3D
         {
             VkDeviceSize bufferSize = buffer->getBufferSize();
 
-            auto lambda = [this](VkDeviceSize bufferSize, const VKVertexBufferPtr &vkBuffer, const VertexBufferPtr &buffer)
+            TResult ret = T3D_OK;
+
+            do
             {
-                TResult ret = T3D_OK;
-
-                do
+                VkResult vkResult;
+                ret = createVkBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    vkBuffer->VkBuf, vkBuffer->VkBufMemory);
+                if (T3D_FAILED(ret))
                 {
-                    VkResult vkResult;
-                    ret = createVkBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                        vkBuffer->VkBuf, vkBuffer->VkBufMemory);
-                    if (T3D_FAILED(ret))
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create vertex buffer !");
+                    break;
+                }
+
+                // Copy data if available
+                if (buffer->getBuffer().Data != nullptr)
+                {
+                    void *data = nullptr;
+                    vkResult = vkMapMemory(mVkDevice, vkBuffer->VkBufMemory, 0, bufferSize, 0, &data);
+                    if (vkResult == VK_SUCCESS)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create vertex buffer !");
-                        break;
+                        memcpy(data, buffer->getBuffer().Data, (size_t)bufferSize);
+                        vkUnmapMemory(mVkDevice, vkBuffer->VkBufMemory);
                     }
+                }
+            } while (false);
 
-                    // Copy data if available
-                    if (buffer->getBuffer().Data != nullptr)
-                    {
-                        void *data = nullptr;
-                        vkResult = vkMapMemory(mVkDevice, vkBuffer->VkBufMemory, 0, bufferSize, 0, &data);
-                        if (vkResult == VK_SUCCESS)
-                        {
-                            memcpy(data, buffer->getBuffer().Data, (size_t)bufferSize);
-                            vkUnmapMemory(mVkDevice, vkBuffer->VkBufMemory);
-                        }
-                    }
-                } while (false);
-
-                return ret;
-            };
-
-            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, bufferSize, vkBuffer, VertexBufferPtr(buffer));
             if (T3D_FAILED(ret))
             {
                 vkBuffer = nullptr;
@@ -1178,7 +1621,23 @@ namespace Tiny3D
 
     TResult VKContext::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        // Vertex buffers are bound during command buffer recording
+        if (buffers.empty())
+            return T3D_OK;
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        std::vector<VkBuffer> vkBuffers(buffers.size());
+        std::vector<VkDeviceSize> vkOffsets(buffers.size());
+
+        for (size_t i = 0; i < buffers.size(); ++i)
+        {
+            VKVertexBuffer *vkVB = static_cast<VKVertexBuffer *>(buffers[i]->getRHIResource().get());
+            vkBuffers[i] = vkVB->VkBuf;
+            vkOffsets[i] = (i < offsets.size()) ? (VkDeviceSize)offsets[i] : 0;
+        }
+
+        vkCmdBindVertexBuffers(cmdBuf, startSlot, (uint32_t)vkBuffers.size(), vkBuffers.data(), vkOffsets.data());
+
         return T3D_OK;
     }
 
@@ -1192,37 +1651,31 @@ namespace Tiny3D
         {
             VkDeviceSize bufferSize = buffer->getBufferSize();
 
-            auto lambda = [this](VkDeviceSize bufferSize, const VKIndexBufferPtr &vkBuffer, const IndexBufferPtr &buffer)
+            TResult ret = T3D_OK;
+
+            do
             {
-                TResult ret = T3D_OK;
-
-                do
+                ret = createVkBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    vkBuffer->VkBuf, vkBuffer->VkBufMemory);
+                if (T3D_FAILED(ret))
                 {
-                    ret = createVkBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                        vkBuffer->VkBuf, vkBuffer->VkBufMemory);
-                    if (T3D_FAILED(ret))
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create index buffer !");
+                    break;
+                }
+
+                if (buffer->getBuffer().Data != nullptr)
+                {
+                    void *data = nullptr;
+                    VkResult vkResult = vkMapMemory(mVkDevice, vkBuffer->VkBufMemory, 0, bufferSize, 0, &data);
+                    if (vkResult == VK_SUCCESS)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create index buffer !");
-                        break;
+                        memcpy(data, buffer->getBuffer().Data, (size_t)bufferSize);
+                        vkUnmapMemory(mVkDevice, vkBuffer->VkBufMemory);
                     }
+                }
+            } while (false);
 
-                    if (buffer->getBuffer().Data != nullptr)
-                    {
-                        void *data = nullptr;
-                        VkResult vkResult = vkMapMemory(mVkDevice, vkBuffer->VkBufMemory, 0, bufferSize, 0, &data);
-                        if (vkResult == VK_SUCCESS)
-                        {
-                            memcpy(data, buffer->getBuffer().Data, (size_t)bufferSize);
-                            vkUnmapMemory(mVkDevice, vkBuffer->VkBufMemory);
-                        }
-                    }
-                } while (false);
-
-                return ret;
-            };
-
-            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, bufferSize, vkBuffer, IndexBufferPtr(buffer));
             if (T3D_FAILED(ret))
             {
                 vkBuffer = nullptr;
@@ -1237,6 +1690,15 @@ namespace Tiny3D
 
     TResult VKContext::setIndexBuffer(IndexBuffer *buffer)
     {
+        if (buffer == nullptr)
+            return T3D_OK;
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+        VKIndexBuffer *vkIB = static_cast<VKIndexBuffer *>(buffer->getRHIResource().get());
+        VkIndexType indexType = VKMapping::get(buffer->getIndexType());
+
+        vkCmdBindIndexBuffer(cmdBuf, vkIB->VkBuf, 0, indexType);
+
         return T3D_OK;
     }
 
@@ -1250,37 +1712,31 @@ namespace Tiny3D
         {
             VkDeviceSize bufferSize = buffer->getBufferSize();
 
-            auto lambda = [this](VkDeviceSize bufferSize, const VKConstantBufferPtr &vkBuffer, const ConstantBufferPtr &buffer)
+            TResult ret = T3D_OK;
+
+            do
             {
-                TResult ret = T3D_OK;
-
-                do
+                ret = createVkBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    vkBuffer->VkBuf, vkBuffer->VkBufMemory);
+                if (T3D_FAILED(ret))
                 {
-                    ret = createVkBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                        vkBuffer->VkBuf, vkBuffer->VkBufMemory);
-                    if (T3D_FAILED(ret))
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create constant buffer !");
+                    break;
+                }
+
+                if (buffer->getBuffer().Data != nullptr)
+                {
+                    void *data = nullptr;
+                    VkResult vkResult = vkMapMemory(mVkDevice, vkBuffer->VkBufMemory, 0, bufferSize, 0, &data);
+                    if (vkResult == VK_SUCCESS)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create constant buffer !");
-                        break;
+                        memcpy(data, buffer->getBuffer().Data, (size_t)bufferSize);
+                        vkUnmapMemory(mVkDevice, vkBuffer->VkBufMemory);
                     }
+                }
+            } while (false);
 
-                    if (buffer->getBuffer().Data != nullptr)
-                    {
-                        void *data = nullptr;
-                        VkResult vkResult = vkMapMemory(mVkDevice, vkBuffer->VkBufMemory, 0, bufferSize, 0, &data);
-                        if (vkResult == VK_SUCCESS)
-                        {
-                            memcpy(data, buffer->getBuffer().Data, (size_t)bufferSize);
-                            vkUnmapMemory(mVkDevice, vkBuffer->VkBufMemory);
-                        }
-                    }
-                } while (false);
-
-                return ret;
-            };
-
-            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, bufferSize, vkBuffer, ConstantBufferPtr(buffer));
             if (T3D_FAILED(ret))
             {
                 vkBuffer = nullptr;
@@ -1309,63 +1765,57 @@ namespace Tiny3D
         {
             const auto &desc = buffer->getDescriptor();
 
-            auto lambda = [this](const VKPixelBuffer2DPtr &vkBuffer, const PixelBuffer2DPtr &buffer)
+            TResult ret = T3D_OK;
+
+            do
             {
-                TResult ret = T3D_OK;
+                VkFormat format = VKMapping::get(desc.format);
 
-                do
+                ret = createVkImage(desc.width, desc.height, format, VK_IMAGE_TILING_OPTIMAL,
+                    VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                    vkBuffer->VkTex, vkBuffer->VkTexMemory);
+                if (T3D_FAILED(ret))
                 {
-                    const auto &desc = buffer->getDescriptor();
-                    VkFormat format = VKMapping::get(desc.format);
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create 2D texture !");
+                    break;
+                }
 
-                    ret = createVkImage(desc.width, desc.height, format, VK_IMAGE_TILING_OPTIMAL,
-                        VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        vkBuffer->VkTex, vkBuffer->VkTexMemory);
-                    if (T3D_FAILED(ret))
-                    {
-                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create 2D texture !");
-                        break;
-                    }
+                vkBuffer->VkTexView = createVkImageView(vkBuffer->VkTex, format, VK_IMAGE_ASPECT_COLOR_BIT);
 
-                    vkBuffer->VkTexView = createVkImageView(vkBuffer->VkTex, format, VK_IMAGE_ASPECT_COLOR_BIT);
+                // Upload data if available
+                if (buffer->getBuffer().Data != nullptr)
+                {
+                    VkDeviceSize imageSize = buffer->getBuffer().DataSize;
+                    VkBuffer stagingBuffer;
+                    VkDeviceMemory stagingBufferMemory;
+                    createVkBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                        stagingBuffer, stagingBufferMemory);
 
-                    // Upload data if available
-                    if (buffer->getBuffer().Data != nullptr)
-                    {
-                        VkDeviceSize imageSize = buffer->getBuffer().DataSize;
-                        VkBuffer stagingBuffer;
-                        VkDeviceMemory stagingBufferMemory;
-                        createVkBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                            stagingBuffer, stagingBufferMemory);
+                    void *data = nullptr;
+                    vkMapMemory(mVkDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+                    memcpy(data, buffer->getBuffer().Data, (size_t)imageSize);
+                    vkUnmapMemory(mVkDevice, stagingBufferMemory);
 
-                        void *data = nullptr;
-                        vkMapMemory(mVkDevice, stagingBufferMemory, 0, imageSize, 0, &data);
-                        memcpy(data, buffer->getBuffer().Data, (size_t)imageSize);
-                        vkUnmapMemory(mVkDevice, stagingBufferMemory);
+                    transitionImageLayout(vkBuffer->VkTex, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-                        transitionImageLayout(vkBuffer->VkTex, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                    VkCommandBuffer cmdBuf = beginSingleTimeCommands();
+                    VkBufferImageCopy region {};
+                    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                    region.imageSubresource.layerCount = 1;
+                    region.imageExtent = { desc.width, desc.height, 1 };
+                    vkCmdCopyBufferToImage(cmdBuf, stagingBuffer, vkBuffer->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                    endSingleTimeCommands(cmdBuf);
 
-                        VkCommandBuffer cmdBuf = beginSingleTimeCommands();
-                        VkBufferImageCopy region {};
-                        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                        region.imageSubresource.layerCount = 1;
-                        region.imageExtent = { desc.width, desc.height, 1 };
-                        vkCmdCopyBufferToImage(cmdBuf, stagingBuffer, vkBuffer->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-                        endSingleTimeCommands(cmdBuf);
+                    transitionImageLayout(vkBuffer->VkTex, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                    vkBuffer->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-                        transitionImageLayout(vkBuffer->VkTex, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                    vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
+                    vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
+                }
+            } while (false);
 
-                        vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
-                        vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
-                    }
-                } while (false);
-
-                return ret;
-            };
-
-            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, vkBuffer, PixelBuffer2DPtr(buffer));
             if (T3D_FAILED(ret))
             {
                 vkBuffer = nullptr;
@@ -1391,33 +1841,60 @@ namespace Tiny3D
 
         do
         {
-            auto lambda = [this](const ShaderVariantPtr &shader, const VKVertexShaderPtr &vkShader)
+            TResult ret = T3D_OK;
+
+            do
             {
-                TResult ret = T3D_OK;
+                size_t bytecodeLength = 0;
+                const char *bytecode = shader->getBytesCode(bytecodeLength);
 
-                do
+                VkShaderModuleCreateInfo createInfo {};
+                createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize = bytecodeLength;
+                createInfo.pCode = reinterpret_cast<const uint32_t *>(bytecode);
+
+                VkResult vkResult = vkCreateShaderModule(mVkDevice, &createInfo, nullptr, &vkShader->VkModule);
+                if (vkResult != VK_SUCCESS)
                 {
-                    size_t bytecodeLength = 0;
-                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create vertex shader module ! VK ERROR [%d]", vkResult);
+                    ret = T3D_ERR_VK_CREATE_SHADER_MODULE;
+                    break;
+                }
 
-                    VkShaderModuleCreateInfo createInfo {};
-                    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-                    createInfo.codeSize = bytecodeLength;
-                    createInfo.pCode = reinterpret_cast<const uint32_t *>(bytecode);
-
-                    VkResult vkResult = vkCreateShaderModule(mVkDevice, &createInfo, nullptr, &vkShader->VkModule);
-                    if (vkResult != VK_SUCCESS)
+                // Extract entry point name and binding info from SPIR-V via spirv-reflect
+                SpvReflectShaderModule spvModule;
+                SpvReflectResult spvResult = spvReflectCreateShaderModule(bytecodeLength, bytecode, &spvModule);
+                if (spvResult == SPV_REFLECT_RESULT_SUCCESS)
+                {
+                    if (spvModule.entry_point_count > 0)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create vertex shader module ! VK ERROR [%d]", vkResult);
-                        ret = T3D_ERR_VK_CREATE_SHADER_MODULE;
-                        break;
+                        vkShader->EntryPoint = spvModule.entry_points[0].name;
                     }
-                } while (false);
 
-                return ret;
-            };
+                    // Extract descriptor bindings
+                    uint32_t bindingCount = 0;
+                    spvReflectEnumerateDescriptorBindings(&spvModule, &bindingCount, nullptr);
+                    if (bindingCount > 0)
+                    {
+                        std::vector<SpvReflectDescriptorBinding*> spvBindings(bindingCount);
+                        spvReflectEnumerateDescriptorBindings(&spvModule, &bindingCount, spvBindings.data());
 
-            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), vkShader);
+                        for (uint32_t i = 0; i < bindingCount; ++i)
+                        {
+                            VKShaderBindingInfo info {};
+                            info.binding = spvBindings[i]->binding;
+                            info.set = spvBindings[i]->set;
+                            info.descriptorType = (VkDescriptorType)spvBindings[i]->descriptor_type;
+                            info.descriptorCount = spvBindings[i]->count;
+                            info.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+                            vkShader->Bindings.push_back(info);
+                        }
+                    }
+
+                    spvReflectDestroyShaderModule(&spvModule);
+                }
+            } while (false);
+
             if (T3D_FAILED(ret))
             {
                 vkShader = nullptr;
@@ -1432,6 +1909,33 @@ namespace Tiny3D
 
     TResult VKContext::setVertexShader(ShaderVariant *shader)
     {
+        if (shader == nullptr)
+        {
+            mCurrentVSModule = VK_NULL_HANDLE;
+            mCurrentVSEntryPoint = "main";
+            mCurrentVSBindings.clear();
+            return T3D_OK;
+        }
+
+        VKVertexShader *vkShader = static_cast<VKVertexShader *>(shader->getRHIShader());
+        if (vkShader != nullptr)
+        {
+            mCurrentVSModule = vkShader->VkModule;
+            mCurrentVSEntryPoint = vkShader->EntryPoint;
+
+            // Convert binding info to VkDescriptorSetLayoutBinding
+            mCurrentVSBindings.clear();
+            for (const auto &b : vkShader->Bindings)
+            {
+                VkDescriptorSetLayoutBinding layoutBinding {};
+                layoutBinding.binding = b.binding;
+                layoutBinding.descriptorType = b.descriptorType;
+                layoutBinding.descriptorCount = b.descriptorCount;
+                layoutBinding.stageFlags = b.stageFlags;
+                mCurrentVSBindings.push_back(layoutBinding);
+            }
+        }
+
         return T3D_OK;
     }
 
@@ -1439,6 +1943,25 @@ namespace Tiny3D
 
     TResult VKContext::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
+        mCurrentVSCBStartSlot = startSlot;
+        mCurrentVSConstantBuffers.clear();
+        mCurrentVSConstantBufferSizes.clear();
+
+        for (size_t i = 0; i < buffers.size(); ++i)
+        {
+            if (buffers[i] != nullptr)
+            {
+                VKConstantBuffer *vkCB = static_cast<VKConstantBuffer *>(buffers[i]->getRHIResource().get());
+                mCurrentVSConstantBuffers.push_back(vkCB->VkBuf);
+                mCurrentVSConstantBufferSizes.push_back((VkDeviceSize)buffers[i]->getBufferSize());
+            }
+            else
+            {
+                mCurrentVSConstantBuffers.push_back(VK_NULL_HANDLE);
+                mCurrentVSConstantBufferSizes.push_back(0);
+            }
+        }
+
         return T3D_OK;
     }
 
@@ -1446,6 +1969,7 @@ namespace Tiny3D
 
     TResult VKContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
+        // VS texture bindings not commonly used, but store for completeness
         return T3D_OK;
     }
 
@@ -1464,33 +1988,79 @@ namespace Tiny3D
 
         do
         {
-            auto lambda = [this](const ShaderVariantPtr &shader, const VKPixelShaderPtr &vkShader)
+            TResult ret = T3D_OK;
+
+            do
             {
-                TResult ret = T3D_OK;
+                size_t bytecodeLength = 0;
+                const char *bytecode = shader->getBytesCode(bytecodeLength);
 
-                do
+                // Use spirv-reflect to remap PS bindings before creating VkShaderModule
+                SpvReflectShaderModule spvModule;
+                SpvReflectResult spvResult = spvReflectCreateShaderModule(bytecodeLength, bytecode, &spvModule);
+                if (spvResult != SPV_REFLECT_RESULT_SUCCESS)
                 {
-                    size_t bytecodeLength = 0;
-                    const char *bytecode = shader->getBytesCode(bytecodeLength);
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create spirv-reflect module for pixel shader !");
+                    ret = T3D_ERR_VK_CREATE_SHADER_MODULE;
+                    break;
+                }
 
-                    VkShaderModuleCreateInfo createInfo {};
-                    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-                    createInfo.codeSize = bytecodeLength;
-                    createInfo.pCode = reinterpret_cast<const uint32_t *>(bytecode);
+                // Extract entry point name
+                if (spvModule.entry_point_count > 0)
+                {
+                    vkShader->EntryPoint = spvModule.entry_points[0].name;
+                }
 
-                    VkResult vkResult = vkCreateShaderModule(mVkDevice, &createInfo, nullptr, &vkShader->VkModule);
-                    if (vkResult != VK_SUCCESS)
+                // Remap all PS descriptor bindings by +PS_BINDING_OFFSET
+                uint32_t bindingCount = 0;
+                spvReflectEnumerateDescriptorBindings(&spvModule, &bindingCount, nullptr);
+                if (bindingCount > 0)
+                {
+                    std::vector<SpvReflectDescriptorBinding*> spvBindings(bindingCount);
+                    spvReflectEnumerateDescriptorBindings(&spvModule, &bindingCount, spvBindings.data());
+
+                    for (uint32_t i = 0; i < bindingCount; ++i)
                     {
-                        T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create pixel shader module ! VK ERROR [%d]", vkResult);
-                        ret = T3D_ERR_VK_CREATE_SHADER_MODULE;
-                        break;
+                        uint32_t newBinding = spvBindings[i]->binding + PS_BINDING_OFFSET;
+                        spvReflectChangeDescriptorBindingNumbers(&spvModule, spvBindings[i],
+                            newBinding, SPV_REFLECT_SET_NUMBER_DONT_CHANGE);
                     }
-                } while (false);
 
-                return ret;
-            };
+                    // Re-enumerate after remap to get updated binding info
+                    spvReflectEnumerateDescriptorBindings(&spvModule, &bindingCount, nullptr);
+                    spvBindings.resize(bindingCount);
+                    spvReflectEnumerateDescriptorBindings(&spvModule, &bindingCount, spvBindings.data());
 
-            TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), vkShader);
+                    for (uint32_t i = 0; i < bindingCount; ++i)
+                    {
+                        VKShaderBindingInfo info {};
+                        info.binding = spvBindings[i]->binding;
+                        info.set = spvBindings[i]->set;
+                        info.descriptorType = (VkDescriptorType)spvBindings[i]->descriptor_type;
+                        info.descriptorCount = spvBindings[i]->count;
+                        info.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+                        vkShader->Bindings.push_back(info);
+                    }
+                }
+
+                // Create VkShaderModule from modified SPIR-V bytecode
+                VkShaderModuleCreateInfo createInfo {};
+                createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize = spvReflectGetCodeSize(&spvModule);
+                createInfo.pCode = spvReflectGetCode(&spvModule);
+
+                VkResult vkResult = vkCreateShaderModule(mVkDevice, &createInfo, nullptr, &vkShader->VkModule);
+                if (vkResult != VK_SUCCESS)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create pixel shader module ! VK ERROR [%d]", vkResult);
+                    ret = T3D_ERR_VK_CREATE_SHADER_MODULE;
+                    spvReflectDestroyShaderModule(&spvModule);
+                    break;
+                }
+
+                spvReflectDestroyShaderModule(&spvModule);
+            } while (false);
+
             if (T3D_FAILED(ret))
             {
                 vkShader = nullptr;
@@ -1503,10 +2073,102 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult VKContext::setPixelShader(ShaderVariant *shader) { return T3D_OK; }
-    TResult VKContext::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult VKContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
-    TResult VKContext::setPSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
+    TResult VKContext::setPixelShader(ShaderVariant *shader)
+    {
+        if (shader == nullptr)
+        {
+            mCurrentPSModule = VK_NULL_HANDLE;
+            mCurrentPSEntryPoint = "main";
+            mCurrentPSBindings.clear();
+            return T3D_OK;
+        }
+
+        VKPixelShader *vkShader = static_cast<VKPixelShader *>(shader->getRHIShader());
+        if (vkShader != nullptr)
+        {
+            mCurrentPSModule = vkShader->VkModule;
+            mCurrentPSEntryPoint = vkShader->EntryPoint;
+
+            // Convert binding info to VkDescriptorSetLayoutBinding
+            mCurrentPSBindings.clear();
+            for (const auto &b : vkShader->Bindings)
+            {
+                VkDescriptorSetLayoutBinding layoutBinding {};
+                layoutBinding.binding = b.binding;
+                layoutBinding.descriptorType = b.descriptorType;
+                layoutBinding.descriptorCount = b.descriptorCount;
+                layoutBinding.stageFlags = b.stageFlags;
+                mCurrentPSBindings.push_back(layoutBinding);
+            }
+        }
+
+        return T3D_OK;
+    }
+    TResult VKContext::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
+    {
+        mCurrentPSCBStartSlot = startSlot;
+        mCurrentPSConstantBuffers.clear();
+        mCurrentPSConstantBufferSizes.clear();
+
+        for (size_t i = 0; i < buffers.size(); ++i)
+        {
+            if (buffers[i] != nullptr)
+            {
+                VKConstantBuffer *vkCB = static_cast<VKConstantBuffer *>(buffers[i]->getRHIResource().get());
+                mCurrentPSConstantBuffers.push_back(vkCB->VkBuf);
+                mCurrentPSConstantBufferSizes.push_back((VkDeviceSize)buffers[i]->getBufferSize());
+            }
+            else
+            {
+                mCurrentPSConstantBuffers.push_back(VK_NULL_HANDLE);
+                mCurrentPSConstantBufferSizes.push_back(0);
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    TResult VKContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    {
+        mCurrentPSTexStartSlot = startSlot;
+        mCurrentPSImageViews.clear();
+
+        for (size_t i = 0; i < buffers.size(); ++i)
+        {
+            if (buffers[i] != nullptr)
+            {
+                VKPixelBuffer2D *vkPB = static_cast<VKPixelBuffer2D *>(buffers[i]->getRHIResource().get());
+                mCurrentPSImageViews.push_back(vkPB->VkTexView);
+            }
+            else
+            {
+                mCurrentPSImageViews.push_back(VK_NULL_HANDLE);
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    TResult VKContext::setPSSamplers(uint32_t startSlot, const Samplers &samplers)
+    {
+        mCurrentPSSamplerStartSlot = startSlot;
+        mCurrentPSSamplers.clear();
+
+        for (size_t i = 0; i < samplers.size(); ++i)
+        {
+            if (samplers[i] != nullptr)
+            {
+                VKSamplerState *vkSampler = static_cast<VKSamplerState *>(samplers[i]->getRHIResource().get());
+                mCurrentPSSamplers.push_back(vkSampler->VkSamp);
+            }
+            else
+            {
+                mCurrentPSSamplers.push_back(VK_NULL_HANDLE);
+            }
+        }
+
+        return T3D_OK;
+    }
 
     //--------------------------------------------------------------------------
 
@@ -1579,28 +2241,486 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    VkDescriptorSetLayout VKContext::getOrCreateDescriptorSetLayout(size_t &outHash)
+    {
+        // Merge VS and PS bindings, combining stageFlags for same binding number
+        std::map<uint32_t, VkDescriptorSetLayoutBinding> mergedBindings;
+
+        for (const auto &b : mCurrentVSBindings)
+        {
+            auto it = mergedBindings.find(b.binding);
+            if (it != mergedBindings.end())
+                it->second.stageFlags |= b.stageFlags;
+            else
+                mergedBindings[b.binding] = b;
+        }
+
+        for (const auto &b : mCurrentPSBindings)
+        {
+            auto it = mergedBindings.find(b.binding);
+            if (it != mergedBindings.end())
+                it->second.stageFlags |= b.stageFlags;
+            else
+                mergedBindings[b.binding] = b;
+        }
+
+        // Compute hash
+        size_t hash = 0;
+        for (const auto &pair : mergedBindings)
+        {
+            hash ^= std::hash<uint32_t>{}(pair.second.binding) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            hash ^= std::hash<uint32_t>{}((uint32_t)pair.second.descriptorType) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            hash ^= std::hash<uint32_t>{}(pair.second.stageFlags) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        }
+        outHash = hash;
+
+        // Check cache
+        auto it = mDescriptorSetLayoutCache.find(hash);
+        if (it != mDescriptorSetLayoutCache.end())
+            return it->second;
+
+        // Create new descriptor set layout
+        std::vector<VkDescriptorSetLayoutBinding> bindingsVec;
+        for (const auto &pair : mergedBindings)
+            bindingsVec.push_back(pair.second);
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = (uint32_t)bindingsVec.size();
+        layoutInfo.pBindings = bindingsVec.data();
+
+        VkDescriptorSetLayout dsl = VK_NULL_HANDLE;
+        VkResult result = vkCreateDescriptorSetLayout(mVkDevice, &layoutInfo, nullptr, &dsl);
+        if (result != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create descriptor set layout ! VK ERROR [%d]", result);
+            return VK_NULL_HANDLE;
+        }
+
+        mDescriptorSetLayoutCache[hash] = dsl;
+        return dsl;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkPipelineLayout VKContext::getOrCreatePipelineLayout(VkDescriptorSetLayout dsl, size_t dslHash)
+    {
+        auto it = mPipelineLayoutCache.find(dslHash);
+        if (it != mPipelineLayoutCache.end())
+            return it->second;
+
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo {};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts = &dsl;
+
+        VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+        VkResult result = vkCreatePipelineLayout(mVkDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout);
+        if (result != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create pipeline layout ! VK ERROR [%d]", result);
+            return VK_NULL_HANDLE;
+        }
+
+        mPipelineLayoutCache[dslHash] = pipelineLayout;
+        return pipelineLayout;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkPipeline VKContext::getOrCreatePipeline()
+    {
+        // Compute a hash for the current pipeline state
+        size_t hash = 0;
+        hash ^= std::hash<uint64_t>{}((uint64_t)mCurrentVSModule) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint64_t>{}((uint64_t)mCurrentPSModule) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mVkPrimitiveTopology) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<size_t>{}(mVertexAttributes.size()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<size_t>{}(mVertexBindings.size()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        // Include render pass in hash since pipeline must be compatible
+        VkRenderPass currentRP = mCurrentPassRenderPass != VK_NULL_HANDLE ? mCurrentPassRenderPass : mVkRenderPass;
+        hash ^= std::hash<uint64_t>{}((uint64_t)currentRP) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+        // Check cache
+        auto it = mPipelineCache.find(hash);
+        if (it != mPipelineCache.end())
+            return it->second;
+
+        // Determine if this is a depth-only pass (no pixel shader)
+        bool hasPixelShader = (mCurrentPSModule != VK_NULL_HANDLE);
+
+        // Create new pipeline
+        VkPipelineShaderStageCreateInfo shaderStages[2] {};
+        uint32_t stageCount = 1;
+
+        shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+        shaderStages[0].module = mCurrentVSModule;
+        shaderStages[0].pName = mCurrentVSEntryPoint.c_str();
+
+        if (hasPixelShader)
+        {
+            shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+            shaderStages[1].module = mCurrentPSModule;
+            shaderStages[1].pName = mCurrentPSEntryPoint.c_str();
+            stageCount = 2;
+        }
+
+        // Vertex input state
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
+        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)mVertexBindings.size();
+        vertexInputInfo.pVertexBindingDescriptions = mVertexBindings.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)mVertexAttributes.size();
+        vertexInputInfo.pVertexAttributeDescriptions = mVertexAttributes.data();
+
+        // Input assembly
+        VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
+        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        inputAssembly.topology = mVkPrimitiveTopology;
+        inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+        // Viewport state (dynamic)
+        VkPipelineViewportStateCreateInfo viewportState {};
+        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportState.viewportCount = 1;
+        viewportState.scissorCount = 1;
+
+        // Rasterization
+        VkPipelineRasterizationStateCreateInfo rasterizer {};
+        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        rasterizer.depthClampEnable = VK_FALSE;
+        rasterizer.rasterizerDiscardEnable = VK_FALSE;
+        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+        rasterizer.lineWidth = 1.0f;
+        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizer.depthBiasEnable = VK_FALSE;
+
+        // Multisampling
+        VkPipelineMultisampleStateCreateInfo multisampling {};
+        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+        multisampling.sampleShadingEnable = VK_FALSE;
+        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+        // Depth stencil
+        VkPipelineDepthStencilStateCreateInfo depthStencil {};
+        depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        depthStencil.depthTestEnable = VK_TRUE;
+        depthStencil.depthWriteEnable = VK_TRUE;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+        depthStencil.depthBoundsTestEnable = VK_FALSE;
+        depthStencil.stencilTestEnable = VK_FALSE;
+
+        // Color blending — only if we have a color attachment
+        VkPipelineColorBlendAttachmentState colorBlendAttachment {};
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        colorBlendAttachment.blendEnable = VK_FALSE;
+
+        VkPipelineColorBlendStateCreateInfo colorBlending {};
+        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        colorBlending.logicOpEnable = VK_FALSE;
+
+        // Depth-only pass: no color attachments in render pass
+        bool isDepthOnlyPass = (mCurrentRenderTarget != nullptr
+            && mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_TEXTURE
+            && mCurrentRenderTarget->getNumOfRenderTextures() == 0);
+
+        if (isDepthOnlyPass)
+        {
+            colorBlending.attachmentCount = 0;
+            colorBlending.pAttachments = nullptr;
+        }
+        else
+        {
+            colorBlending.attachmentCount = 1;
+            colorBlending.pAttachments = &colorBlendAttachment;
+        }
+
+        // Dynamic state
+        VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+        VkPipelineDynamicStateCreateInfo dynamicState {};
+        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamicState.dynamicStateCount = 2;
+        dynamicState.pDynamicStates = dynamicStates;
+
+        // Create pipeline
+        VkGraphicsPipelineCreateInfo pipelineInfo {};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = stageCount;
+        pipelineInfo.pStages = shaderStages;
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pDepthStencilState = &depthStencil;
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDynamicState = &dynamicState;
+
+        // Dynamic descriptor set layout and pipeline layout
+        size_t dslHash = 0;
+        VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
+        VkPipelineLayout pipelineLayout = getOrCreatePipelineLayout(dsl, dslHash);
+        pipelineInfo.layout = pipelineLayout;
+
+        // Use current render pass (set by beginPass)
+        pipelineInfo.renderPass = currentRP;
+        pipelineInfo.subpass = 0;
+
+        VkPipeline pipeline = VK_NULL_HANDLE;
+        VkResult result = vkCreateGraphicsPipelines(mVkDevice, mVkPipelineCache, 1, &pipelineInfo, nullptr, &pipeline);
+        if (result != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create graphics pipeline ! VK ERROR [%d]", result);
+            return VK_NULL_HANDLE;
+        }
+
+        mPipelineCache[hash] = pipeline;
+        return pipeline;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::bindDescriptorSet(VkCommandBuffer cmdBuf, VkPipelineLayout pipelineLayout)
+    {
+        VkDescriptorSetAllocateInfo allocInfo {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = mVkDescriptorPools[mCurrentFrame];
+        allocInfo.descriptorSetCount = 1;
+
+        size_t dslHash = 0;
+        VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
+        allocInfo.pSetLayouts = &dsl;
+
+        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+        VkResult result = vkAllocateDescriptorSets(mVkDevice, &allocInfo, &descriptorSet);
+        if (result != VK_SUCCESS)
+            return T3D_ERR_VK_ALLOCATE_DESCRIPTOR_SET;
+
+        std::vector<VkWriteDescriptorSet> writes;
+        std::vector<VkDescriptorBufferInfo> bufferInfos;
+        std::vector<VkDescriptorImageInfo> imageInfos;
+
+        // Reserve space to avoid reallocation invalidating pointers
+        size_t totalBindings = mCurrentVSBindings.size() + mCurrentPSBindings.size();
+        bufferInfos.reserve(totalBindings);
+        imageInfos.reserve(totalBindings);
+
+        // --- VS bindings (reflection-driven) ---
+        uint32_t vsUboIdx = 0;
+        for (const auto &b : mCurrentVSBindings)
+        {
+            if (b.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+            {
+                if (vsUboIdx < mCurrentVSConstantBuffers.size() && mCurrentVSConstantBuffers[vsUboIdx] != VK_NULL_HANDLE)
+                {
+                    VkDescriptorBufferInfo bufInfo {};
+                    bufInfo.buffer = mCurrentVSConstantBuffers[vsUboIdx];
+                    bufInfo.offset = 0;
+                    bufInfo.range = mCurrentVSConstantBufferSizes[vsUboIdx];
+                    bufferInfos.push_back(bufInfo);
+
+                    VkWriteDescriptorSet write {};
+                    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet = descriptorSet;
+                    write.dstBinding = b.binding;
+                    write.dstArrayElement = 0;
+                    write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    write.descriptorCount = 1;
+                    write.pBufferInfo = &bufferInfos.back();
+                    writes.push_back(write);
+                }
+                vsUboIdx++;
+            }
+        }
+
+        // --- PS bindings (reflection-driven) ---
+        uint32_t psUboIdx = 0, psTexIdx = 0, psSamplerIdx = 0;
+        for (const auto &b : mCurrentPSBindings)
+        {
+            switch (b.descriptorType)
+            {
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            {
+                if (psUboIdx < mCurrentPSConstantBuffers.size() && mCurrentPSConstantBuffers[psUboIdx] != VK_NULL_HANDLE)
+                {
+                    VkDescriptorBufferInfo bufInfo {};
+                    bufInfo.buffer = mCurrentPSConstantBuffers[psUboIdx];
+                    bufInfo.offset = 0;
+                    bufInfo.range = mCurrentPSConstantBufferSizes[psUboIdx];
+                    bufferInfos.push_back(bufInfo);
+
+                    VkWriteDescriptorSet write {};
+                    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet = descriptorSet;
+                    write.dstBinding = b.binding;
+                    write.dstArrayElement = 0;
+                    write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    write.descriptorCount = 1;
+                    write.pBufferInfo = &bufferInfos.back();
+                    writes.push_back(write);
+                }
+                psUboIdx++;
+                break;
+            }
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            {
+                if (psTexIdx < mCurrentPSImageViews.size() && mCurrentPSImageViews[psTexIdx] != VK_NULL_HANDLE)
+                {
+                    VkDescriptorImageInfo imgInfo {};
+                    imgInfo.imageView = mCurrentPSImageViews[psTexIdx];
+                    imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    imgInfo.sampler = VK_NULL_HANDLE;
+                    imageInfos.push_back(imgInfo);
+
+                    VkWriteDescriptorSet write {};
+                    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet = descriptorSet;
+                    write.dstBinding = b.binding;
+                    write.dstArrayElement = 0;
+                    write.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+                    write.descriptorCount = 1;
+                    write.pImageInfo = &imageInfos.back();
+                    writes.push_back(write);
+                }
+                psTexIdx++;
+                break;
+            }
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            {
+                if (psSamplerIdx < mCurrentPSSamplers.size() && mCurrentPSSamplers[psSamplerIdx] != VK_NULL_HANDLE)
+                {
+                    VkDescriptorImageInfo imgInfo {};
+                    imgInfo.imageView = VK_NULL_HANDLE;
+                    imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    imgInfo.sampler = mCurrentPSSamplers[psSamplerIdx];
+                    imageInfos.push_back(imgInfo);
+
+                    VkWriteDescriptorSet write {};
+                    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet = descriptorSet;
+                    write.dstBinding = b.binding;
+                    write.dstArrayElement = 0;
+                    write.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+                    write.descriptorCount = 1;
+                    write.pImageInfo = &imageInfos.back();
+                    writes.push_back(write);
+                }
+                psSamplerIdx++;
+                break;
+            }
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            {
+                if (psTexIdx < mCurrentPSImageViews.size() && mCurrentPSImageViews[psTexIdx] != VK_NULL_HANDLE)
+                {
+                    VkDescriptorImageInfo imgInfo {};
+                    imgInfo.imageView = mCurrentPSImageViews[psTexIdx];
+                    imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    imgInfo.sampler = (psSamplerIdx < mCurrentPSSamplers.size()) ? mCurrentPSSamplers[psSamplerIdx] : VK_NULL_HANDLE;
+                    imageInfos.push_back(imgInfo);
+
+                    VkWriteDescriptorSet write {};
+                    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet = descriptorSet;
+                    write.dstBinding = b.binding;
+                    write.dstArrayElement = 0;
+                    write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    write.descriptorCount = 1;
+                    write.pImageInfo = &imageInfos.back();
+                    writes.push_back(write);
+                }
+                psTexIdx++;
+                psSamplerIdx++;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        if (!writes.empty())
+        {
+            vkUpdateDescriptorSets(mVkDevice, (uint32_t)writes.size(), writes.data(), 0, nullptr);
+        }
+
+        vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+            0, 1, &descriptorSet, 0, nullptr);
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult VKContext::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
     {
-        auto lambda = [this](uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
+        if (!mRenderPassActive)
         {
-            vkCmdDrawIndexed(mVkCommandBuffers[mCurrentFrame], indexCount, 1, startIndex, baseVertex, 0);
-            return T3D_OK;
-        };
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "render() called outside an active render pass !");
+            return T3D_ERR_INVALID_PARAM;
+        }
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, indexCount, startIndex, baseVertex);
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        // Bind pipeline
+        VkPipeline pipeline = getOrCreatePipeline();
+        if (pipeline == VK_NULL_HANDLE)
+            return T3D_ERR_VK_CREATE_PIPELINE;
+
+        if (pipeline != mVkCurrentPipeline)
+        {
+            vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+            mVkCurrentPipeline = pipeline;
+        }
+
+        // Allocate and bind descriptor set (reflection-driven)
+        size_t dslHash = 0;
+        VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
+        if (dsl != VK_NULL_HANDLE)
+        {
+            VkPipelineLayout pipelineLayout = getOrCreatePipelineLayout(dsl, dslHash);
+            bindDescriptorSet(cmdBuf, pipelineLayout);
+        }
+
+        vkCmdDrawIndexed(cmdBuf, indexCount, 1, startIndex, baseVertex, 0);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
     TResult VKContext::render(uint32_t vertexCount, uint32_t startVertex)
     {
-        auto lambda = [this](uint32_t vertexCount, uint32_t startVertex)
+        if (!mRenderPassActive)
         {
-            vkCmdDraw(mVkCommandBuffers[mCurrentFrame], vertexCount, 1, startVertex, 0);
-            return T3D_OK;
-        };
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "render() called outside an active render pass !");
+            return T3D_ERR_INVALID_PARAM;
+        }
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, startVertex);
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        // Bind pipeline
+        VkPipeline pipeline = getOrCreatePipeline();
+        if (pipeline == VK_NULL_HANDLE)
+            return T3D_ERR_VK_CREATE_PIPELINE;
+
+        if (pipeline != mVkCurrentPipeline)
+        {
+            vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+            mVkCurrentPipeline = pipeline;
+        }
+
+        // Allocate and bind descriptor set (reflection-driven)
+        size_t dslHash = 0;
+        VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
+        if (dsl != VK_NULL_HANDLE)
+        {
+            VkPipelineLayout pipelineLayout = getOrCreatePipelineLayout(dsl, dslHash);
+            bindDescriptorSet(cmdBuf, pipelineLayout);
+        }
+
+        vkCmdDraw(cmdBuf, vertexCount, 1, startVertex, 0);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -1635,91 +2755,94 @@ namespace Tiny3D
         if (src == nullptr || dst == nullptr)
             return T3D_OK;
 
-        auto lambda = [this](const RenderTexturePtr &srcTex, const RenderTargetPtr &dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
+        TResult ret = T3D_OK;
+
+        do
         {
-            TResult ret = T3D_OK;
+            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
 
-            do
+            RenderTexture *srcRT = static_cast<RenderTexture *>(src);
+
+            // Get source VkImage
+            VKPixelBuffer2D *vkSrcPB = static_cast<VKPixelBuffer2D *>(srcRT->getPixelBuffer()->getRHIResource().get());
+            VkImage srcImage = vkSrcPB->VkTex;
+
+            // Get destination VkImage
+            VkImage dstImage = VK_NULL_HANDLE;
+            uint32_t dstWidth = 0, dstHeight = 0;
+
+            if (dst->getType() == RenderTarget::Type::E_RT_WINDOW)
             {
-                VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+                VKRenderWindow *vkWin = static_cast<VKRenderWindow *>(dst->getRenderWindow()->getRHIRenderWindow());
+                dstImage = vkWin->VkSwapChainImages[vkWin->VkCurrentImageIndex];
+                dstWidth = vkWin->VkSwapChainExtent.width;
+                dstHeight = vkWin->VkSwapChainExtent.height;
+            }
+            else if (dst->getType() == RenderTarget::Type::E_RT_TEXTURE && dst->getNumOfRenderTextures() > 0)
+            {
+                VKPixelBuffer2D *vkDstPB = static_cast<VKPixelBuffer2D *>(dst->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
+                dstImage = vkDstPB->VkTex;
+                PixelBuffer2D *dstPB2D = static_cast<PixelBuffer2D *>(dst->getRenderTexture()->getPixelBuffer());
+                dstWidth = dstPB2D->getDescriptor().width;
+                dstHeight = dstPB2D->getDescriptor().height;
+            }
 
-                // Get source VkImage
-                VKPixelBuffer2D *vkSrcPB = static_cast<VKPixelBuffer2D *>(srcTex->getPixelBuffer()->getRHIResource().get());
-                VkImage srcImage = vkSrcPB->VkTex;
+            if (srcImage == VK_NULL_HANDLE || dstImage == VK_NULL_HANDLE)
+                break;
 
-                // Get destination VkImage
-                VkImage dstImage = VK_NULL_HANDLE;
-                uint32_t dstWidth = 0, dstHeight = 0;
+            // Transition src to TRANSFER_SRC (using tracked layout)
+            insertImageBarrier(cmdBuf, srcImage,
+                vkSrcPB->VkCurrentLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                VK_ACCESS_MEMORY_READ_BIT, VK_ACCESS_TRANSFER_READ_BIT,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-                if (dst->getType() == RenderTarget::Type::E_RT_WINDOW)
-                {
-                    VKRenderWindow *vkWin = static_cast<VKRenderWindow *>(dst->getRenderWindow()->getRHIRenderWindow());
-                    dstImage = vkWin->VkSwapChainImages[vkWin->VkCurrentImageIndex];
-                    dstWidth = vkWin->VkSwapChainExtent.width;
-                    dstHeight = vkWin->VkSwapChainExtent.height;
-                }
-                else if (dst->getType() == RenderTarget::Type::E_RT_TEXTURE && dst->getNumOfRenderTextures() > 0)
-                {
-                    VKPixelBuffer2D *vkDstPB = static_cast<VKPixelBuffer2D *>(dst->getRenderTexture()->getPixelBuffer()->getRHIResource().get());
-                    dstImage = vkDstPB->VkTex;
-                    PixelBuffer2D *dstPB2D = static_cast<PixelBuffer2D *>(dst->getRenderTexture()->getPixelBuffer());
-                    dstWidth = dstPB2D->getDescriptor().width;
-                    dstHeight = dstPB2D->getDescriptor().height;
-                }
+            // dst is already in TRANSFER_DST (set by beginRender for back buffer)
 
-                if (srcImage == VK_NULL_HANDLE || dstImage == VK_NULL_HANDLE)
-                    break;
+            // Compute blit regions
+            PixelBuffer2D *srcPB2D = static_cast<PixelBuffer2D *>(srcRT->getPixelBuffer());
+            uint32_t srcW = srcPB2D->getDescriptor().width;
+            uint32_t srcH = srcPB2D->getDescriptor().height;
 
-                // Transition src to TRANSFER_SRC
-                insertImageBarrier(cmdBuf, srcImage,
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+            VkImageBlit blitRegion {};
+            blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            blitRegion.srcSubresource.layerCount = 1;
+            blitRegion.srcOffsets[0] = {(int32_t)srcOffset.x(), (int32_t)srcOffset.y(), 0};
 
-                // dst is already in TRANSFER_DST (set by beginRender for back buffer)
+            if (size.x() > 0 && size.y() > 0)
+            {
+                blitRegion.srcOffsets[1] = {(int32_t)(srcOffset.x() + size.x()), (int32_t)(srcOffset.y() + size.y()), 1};
+            }
+            else
+            {
+                blitRegion.srcOffsets[1] = {(int32_t)srcW, (int32_t)srcH, 1};
+            }
 
-                // Compute blit regions
-                PixelBuffer2D *srcPB2D = static_cast<PixelBuffer2D *>(srcTex->getPixelBuffer());
-                uint32_t srcW = srcPB2D->getDescriptor().width;
-                uint32_t srcH = srcPB2D->getDescriptor().height;
+            blitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            blitRegion.dstSubresource.layerCount = 1;
+            blitRegion.dstOffsets[0] = {(int32_t)dstOffset.x(), (int32_t)dstOffset.y(), 0};
 
-                VkImageBlit blitRegion {};
-                blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                blitRegion.srcSubresource.layerCount = 1;
-                blitRegion.srcOffsets[0] = {(int32_t)srcOffset.x(), (int32_t)srcOffset.y(), 0};
+            if (size.x() > 0 && size.y() > 0)
+            {
+                blitRegion.dstOffsets[1] = {(int32_t)(dstOffset.x() + size.x()), (int32_t)(dstOffset.y() + size.y()), 1};
+            }
+            else
+            {
+                blitRegion.dstOffsets[1] = {(int32_t)dstWidth, (int32_t)dstHeight, 1};
+            }
 
-                if (size.x() > 0 && size.y() > 0)
-                {
-                    blitRegion.srcOffsets[1] = {(int32_t)(srcOffset.x() + size.x()), (int32_t)(srcOffset.y() + size.y()), 1};
-                }
-                else
-                {
-                    blitRegion.srcOffsets[1] = {(int32_t)srcW, (int32_t)srcH, 1};
-                }
+            vkCmdBlitImage(cmdBuf, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                1, &blitRegion, VK_FILTER_LINEAR);
 
-                blitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                blitRegion.dstSubresource.layerCount = 1;
-                blitRegion.dstOffsets[0] = {(int32_t)dstOffset.x(), (int32_t)dstOffset.y(), 0};
+            // Restore src to SHADER_READ_ONLY for subsequent sampling
+            insertImageBarrier(cmdBuf, srcImage,
+                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            vkSrcPB->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        } while (false);
 
-                if (size.x() > 0 && size.y() > 0)
-                {
-                    blitRegion.dstOffsets[1] = {(int32_t)(dstOffset.x() + size.x()), (int32_t)(dstOffset.y() + size.y()), 1};
-                }
-                else
-                {
-                    blitRegion.dstOffsets[1] = {(int32_t)dstWidth, (int32_t)dstHeight, 1};
-                }
-
-                vkCmdBlitImage(cmdBuf, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    1, &blitRegion, VK_FILTER_LINEAR);
-            } while (false);
-
-            return ret;
-        };
-
-        RenderTexture *srcRT = static_cast<RenderTexture *>(src);
-        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderTexturePtr(srcRT), RenderTargetPtr(dst), srcOffset, size, dstOffset);
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -1742,72 +2865,60 @@ namespace Tiny3D
 
     TResult VKContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
     {
-        auto lambda = [this](RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
-        {
-            VkBuffer srcBuf = (VkBuffer)src->getRHIResource()->getNativeObject();
-            VkBuffer dstBuf = (VkBuffer)dst->getRHIResource()->getNativeObject();
+        VkBuffer srcBuf = (VkBuffer)src->getRHIResource()->getNativeObject();
+        VkBuffer dstBuf = (VkBuffer)dst->getRHIResource()->getNativeObject();
 
-            VkCommandBuffer cmdBuf = beginSingleTimeCommands();
-            VkBufferCopy copyRegion {};
-            copyRegion.srcOffset = srcOffset;
-            copyRegion.dstOffset = dstOffset;
-            copyRegion.size = (size == 0) ? src->getBufferSize() : size;
-            vkCmdCopyBuffer(cmdBuf, srcBuf, dstBuf, 1, &copyRegion);
-            endSingleTimeCommands(cmdBuf);
+        VkCommandBuffer cmdBuf = beginSingleTimeCommands();
+        VkBufferCopy copyRegion {};
+        copyRegion.srcOffset = srcOffset;
+        copyRegion.dstOffset = dstOffset;
+        copyRegion.size = (size == 0) ? src->getBufferSize() : size;
+        vkCmdCopyBuffer(cmdBuf, srcBuf, dstBuf, 1, &copyRegion);
+        endSingleTimeCommands(cmdBuf);
 
-            return T3D_OK;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, src, dst, srcOffset, size, dstOffset);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
     TResult VKContext::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)
     {
-        auto lambda = [this](RenderBuffer *renderBuffer, Buffer buffer, bool discardWholeBuffer)
+        TResult ret = T3D_OK;
+
+        do
         {
-            TResult ret = T3D_OK;
+            VkBuffer vkBuf = (VkBuffer)renderBuffer->getRHIResource()->getNativeObject();
+            // Find the device memory associated with this buffer
+            VkDeviceMemory memory = VK_NULL_HANDLE;
 
-            do
+            auto rhiRes = renderBuffer->getRHIResource();
+            if (auto *vb = dynamic_cast<VKVertexBuffer *>(rhiRes.get()))
+                memory = vb->VkBufMemory;
+            else if (auto *ib = dynamic_cast<VKIndexBuffer *>(rhiRes.get()))
+                memory = ib->VkBufMemory;
+            else if (auto *cb = dynamic_cast<VKConstantBuffer *>(rhiRes.get()))
+                memory = cb->VkBufMemory;
+
+            if (memory == VK_NULL_HANDLE)
             {
-                VkBuffer vkBuf = (VkBuffer)renderBuffer->getRHIResource()->getNativeObject();
-                // Find the device memory associated with this buffer
-                // For simplicity, we use the VkBufMemory from the typed buffer
-                VkDeviceMemory memory = VK_NULL_HANDLE;
+                ret = T3D_ERR_VK_MAP_MEMORY;
+                break;
+            }
 
-                auto rhiRes = renderBuffer->getRHIResource();
-                if (auto *vb = dynamic_cast<VKVertexBuffer *>(rhiRes.get()))
-                    memory = vb->VkBufMemory;
-                else if (auto *ib = dynamic_cast<VKIndexBuffer *>(rhiRes.get()))
-                    memory = ib->VkBufMemory;
-                else if (auto *cb = dynamic_cast<VKConstantBuffer *>(rhiRes.get()))
-                    memory = cb->VkBufMemory;
+            void *data = nullptr;
+            VkResult vkResult = vkMapMemory(mVkDevice, memory, 0, buffer.DataSize, 0, &data);
+            if (vkResult != VK_SUCCESS)
+            {
+                ret = T3D_ERR_VK_MAP_MEMORY;
+                T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to map buffer memory ! VK ERROR [%d]", vkResult);
+                break;
+            }
 
-                if (memory == VK_NULL_HANDLE)
-                {
-                    ret = T3D_ERR_VK_MAP_MEMORY;
-                    break;
-                }
+            memcpy(data, buffer.Data, buffer.DataSize);
+            vkUnmapMemory(mVkDevice, memory);
+        } while (false);
 
-                void *data = nullptr;
-                VkResult vkResult = vkMapMemory(mVkDevice, memory, 0, buffer.DataSize, 0, &data);
-                if (vkResult != VK_SUCCESS)
-                {
-                    ret = T3D_ERR_VK_MAP_MEMORY;
-                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to map buffer memory ! VK ERROR [%d]", vkResult);
-                    break;
-                }
-
-                memcpy(data, buffer.Data, buffer.DataSize);
-                vkUnmapMemory(mVkDevice, memory);
-                buffer.release();
-            } while (false);
-
-            return ret;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, renderBuffer, buffer, discardWholeBuffer);
+        return ret;
     }
 
     //--------------------------------------------------------------------------

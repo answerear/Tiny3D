@@ -80,6 +80,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         VkSampler   VkSamp {VK_NULL_HANDLE};
+        VkDevice    VkDev {VK_NULL_HANDLE};
         
     protected:
         VKSamplerState() = default;

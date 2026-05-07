@@ -151,6 +151,9 @@ namespace Tiny3D
         TResult beginRender() override { return T3D_OK; }
         TResult endRender() override { return T3D_OK; }
 
+        TResult beginPass() override { return T3D_OK; }
+        TResult endPass() override { return T3D_OK; }
+
         /// GLAD 是否已加载（供 GL4RenderWindow 检查，避免重复加载）
         bool isGLADLoaded() const { return mGLADLoaded; }
 

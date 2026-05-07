@@ -28,6 +28,8 @@
 
 
 #include "T3DVKPrerequisites.h"
+#include <unordered_map>
+#include <string>
 #include "T3DVKContextBase.h"
 
 
@@ -126,6 +128,9 @@ namespace Tiny3D
         TResult beginRender() override;
         TResult endRender() override;
 
+        TResult beginPass() override;
+        TResult endPass() override;
+
         VkDevice getVkDevice() const { return mVkDevice; }
 
         VkPhysicalDevice getVkPhysicalDevice() const { return mVkPhysicalDevice; }
@@ -192,8 +197,8 @@ namespace Tiny3D
         VkPipelineCache     mVkPipelineCache {VK_NULL_HANDLE};
         /// Descriptor set layout
         VkDescriptorSetLayout   mVkDescriptorSetLayout {VK_NULL_HANDLE};
-        /// Descriptor pool
-        VkDescriptorPool    mVkDescriptorPool {VK_NULL_HANDLE};
+        /// Descriptor pool (per-frame to avoid reset conflicts)
+        VkDescriptorPool    mVkDescriptorPools[MAX_FRAMES_IN_FLIGHT] {};
 
         /// Per-frame command buffers
         std::vector<VkCommandBuffer>    mVkCommandBuffers;
@@ -224,6 +229,92 @@ namespace Tiny3D
 
         /// Current clear color (set by clearColor, used by clear operations)
         ColorRGB            mClearColor;
+
+        //----------------------------------------------------------------------
+        // Render state tracking (for pipeline creation and command recording)
+        //----------------------------------------------------------------------
+
+        /// Current vertex shader module
+        VkShaderModule      mCurrentVSModule {VK_NULL_HANDLE};
+        /// Current pixel shader module
+        VkShaderModule      mCurrentPSModule {VK_NULL_HANDLE};
+        /// Current vertex shader entry point name
+        std::string         mCurrentVSEntryPoint {"main"};
+        /// Current pixel shader entry point name
+        std::string         mCurrentPSEntryPoint {"main"};
+        /// Current vertex input binding descriptions
+        std::vector<VkVertexInputBindingDescription>   mVertexBindings;
+        /// Current vertex input attribute descriptions
+        std::vector<VkVertexInputAttributeDescription> mVertexAttributes;
+        /// Whether a render pass is currently active
+        bool                mRenderPassActive {false};
+        /// Pipeline cache (hash -> VkPipeline)
+        std::unordered_map<size_t, VkPipeline> mPipelineCache;
+        /// Descriptor set layout cache (binding hash -> VkDescriptorSetLayout)
+        std::unordered_map<size_t, VkDescriptorSetLayout> mDescriptorSetLayoutCache;
+        /// Pipeline layout cache (dsl hash -> VkPipelineLayout)
+        std::unordered_map<size_t, VkPipelineLayout> mPipelineLayoutCache;
+
+        //----------------------------------------------------------------------
+        // Descriptor set management
+        //----------------------------------------------------------------------
+
+        /// Max descriptor sets per pool
+        static const uint32_t MAX_DESCRIPTOR_SETS = 1000;
+
+        /// Binding offset for pixel shader descriptors to avoid conflicts with VS bindings
+        static const uint32_t PS_BINDING_OFFSET = 16;
+
+        /// Current constant buffers (VS stage)
+        std::vector<VkBuffer>   mCurrentVSConstantBuffers;
+        std::vector<VkDeviceSize> mCurrentVSConstantBufferSizes;
+        uint32_t                mCurrentVSCBStartSlot {0};
+        /// Current constant buffers (PS stage)
+        std::vector<VkBuffer>   mCurrentPSConstantBuffers;
+        std::vector<VkDeviceSize> mCurrentPSConstantBufferSizes;
+        uint32_t                mCurrentPSCBStartSlot {0};
+        /// Current pixel buffers (textures, PS stage)
+        std::vector<VkImageView> mCurrentPSImageViews;
+        uint32_t                mCurrentPSTexStartSlot {0};
+        /// Current samplers (PS stage)
+        std::vector<VkSampler>  mCurrentPSSamplers;
+        uint32_t                mCurrentPSSamplerStartSlot {0};
+
+        /// Current VS shader binding info (from reflection)
+        std::vector<VkDescriptorSetLayoutBinding> mCurrentVSBindings;
+        /// Current PS shader binding info (from reflection)
+        std::vector<VkDescriptorSetLayoutBinding> mCurrentPSBindings;
+
+        //----------------------------------------------------------------------
+        // Render pass / Framebuffer cache for render textures
+        //----------------------------------------------------------------------
+
+        /// Render pass cache (format hash -> VkRenderPass)
+        std::unordered_map<size_t, VkRenderPass> mRenderPassCache;
+        /// Framebuffer cache (RT pointer hash -> VkFramebuffer + extent)
+        struct FramebufferEntry {
+            VkFramebuffer framebuffer {VK_NULL_HANDLE};
+            VkExtent2D extent {0, 0};
+        };
+        std::unordered_map<size_t, FramebufferEntry> mFramebufferCache;
+        /// Current render pass for this pass (set by beginPass)
+        VkRenderPass        mCurrentPassRenderPass {VK_NULL_HANDLE};
+        /// Current framebuffer extent for this pass
+        VkExtent2D          mCurrentPassExtent {0, 0};
+
+        /// Bind descriptor set with reflection-driven resource matching
+        TResult bindDescriptorSet(VkCommandBuffer cmdBuf, VkPipelineLayout pipelineLayout);
+
+        /// Get or create a graphics pipeline based on current render state
+        VkPipeline getOrCreatePipeline();
+        /// Get or create descriptor set layout from current VS+PS bindings
+        VkDescriptorSetLayout getOrCreateDescriptorSetLayout(size_t &outHash);
+        /// Get or create pipeline layout from descriptor set layout
+        VkPipelineLayout getOrCreatePipelineLayout(VkDescriptorSetLayout dsl, size_t dslHash);
+        /// Get or create render pass for given attachment formats
+        VkRenderPass getOrCreateRenderPass(VkFormat colorFormat, VkFormat depthFormat, bool hasColor, bool depthOnly);
+        /// Get or create framebuffer for current render target
+        VkFramebuffer getOrCreateFramebuffer(VkRenderPass renderPass, VkExtent2D &outExtent);
 
 #if defined (T3D_DEBUG)
         /// Validation layers debug messenger

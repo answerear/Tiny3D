@@ -353,6 +353,8 @@ namespace Tiny3D
         mLightSpaceMatrix = ctx->getProjViewMatrix();
         mShadowMapFlipped = ctx->isProjectionFlipped();
 
+        ctx->beginPass();
+
         const auto itr = mRenderQueue.find(camera);
 
         if (itr != mRenderQueue.end())
@@ -437,6 +439,7 @@ namespace Tiny3D
             }
         }
         
+        ctx->endPass();
         ctx->reset();
         
         return T3D_OK;
@@ -470,6 +473,8 @@ namespace Tiny3D
         
         // 清除 depth buffer、stencil buffer
         ctx->clearDepthStencil(camera->getClearDepth(), camera->getClearStencil());
+
+        ctx->beginPass();
 
         const auto itr = mRenderQueue.find(camera);
 
@@ -560,6 +565,8 @@ namespace Tiny3D
                 }
             }
         }
+
+        ctx->endPass();
 
         // 把相机渲染纹理渲染到相机对应的渲染目标上
         // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)

@@ -586,6 +586,9 @@ namespace Tiny3D
         TResult beginRender() override { return T3D_OK; }
         TResult endRender() override { return T3D_OK; }
 
+        TResult beginPass() override { return T3D_OK; }
+        TResult endPass() override { return T3D_OK; }
+
         ID3D11Device *getD3DDevice() const { return mD3DDevice; }
 
         ID3D11DeviceContext *getD3DDeviceContext() const { return mD3DDeviceContext; }

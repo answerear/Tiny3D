@@ -125,6 +125,8 @@ namespace Tiny3D
         VkImageView     VkRTView {VK_NULL_HANDLE};
         /// Depth stencil view
         VkImageView     VkDSView {VK_NULL_HANDLE};
+        /// Current image layout (tracked for correct barrier transitions)
+        VkImageLayout   VkCurrentLayout {VK_IMAGE_LAYOUT_UNDEFINED};
 
     protected:
         VKPixelBuffer2D() = default;

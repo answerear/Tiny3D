@@ -99,6 +99,11 @@ namespace Tiny3D
 
     VKSamplerState::~VKSamplerState()
     {
+        if (VkSamp != VK_NULL_HANDLE && VkDev != VK_NULL_HANDLE)
+        {
+            vkDestroySampler(VkDev, VkSamp, nullptr);
+            VkSamp = VK_NULL_HANDLE;
+        }
     }
 
     //--------------------------------------------------------------------------

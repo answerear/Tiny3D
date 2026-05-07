@@ -73,7 +73,17 @@ namespace Tiny3D
 
         do 
         {
-            cleanup();
+            // Wait for all GPU work to complete before releasing resources.
+            // NOTE: Do NOT call cleanup() here — VkDevice must stay alive
+            // until all GPU resources are released by the engine.
+            // cleanup() will be called later in ~VKRenderer().
+            if (mContext != nullptr)
+            {
+                VKContext *vkCtx = static_cast<VKContext *>(mContext.get());
+                VkDevice device = vkCtx->getVkDevice();
+                if (device != VK_NULL_HANDLE)
+                    vkDeviceWaitIdle(device);
+            }
         } while (false);
 
         return ret;

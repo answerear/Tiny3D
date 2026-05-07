@@ -95,6 +95,9 @@ namespace Tiny3D
         TResult beginRender() override { return T3D_OK; }
         TResult endRender() override { return T3D_OK; }
 
+        TResult beginPass() override { return T3D_OK; }
+        TResult endPass() override { return T3D_OK; }
+
     protected:
         GL4ConsoleContext();
     };

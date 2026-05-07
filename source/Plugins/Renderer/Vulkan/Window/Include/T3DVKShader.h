@@ -27,6 +27,8 @@
 
 
 #include "T3DVKPrerequisites.h"
+#include <string>
+#include <vector>
 
 
 namespace Tiny3D
@@ -35,6 +37,16 @@ namespace Tiny3D
     {
     protected:
         VKShader() = default;
+    };
+
+    /// Descriptor binding info extracted from SPIR-V reflection
+    struct VKShaderBindingInfo
+    {
+        uint32_t            binding {0};
+        uint32_t            set {0};
+        VkDescriptorType    descriptorType {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER};
+        uint32_t            descriptorCount {1};
+        VkShaderStageFlags  stageFlags {0};
     };
 
     class VKVertexShader : public VKShader
@@ -47,6 +59,8 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         VkShaderModule  VkModule {VK_NULL_HANDLE};
+        std::string     EntryPoint {"main"};
+        std::vector<VKShaderBindingInfo> Bindings;
     protected:
         VKVertexShader() = default;
     };
@@ -103,6 +117,8 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         VkShaderModule  VkModule {VK_NULL_HANDLE};
+        std::string     EntryPoint {"main"};
+        std::vector<VKShaderBindingInfo> Bindings;
     protected:
         VKPixelShader() = default;
     };
