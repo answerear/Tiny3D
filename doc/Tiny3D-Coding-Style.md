@@ -307,9 +307,23 @@ case Projection::kOrthographic:
 }
 ```
 
-**例外**：简短的单行内联函数可以写在一行：
+**`.cpp` 文件中的函数**：函数体大括号**必须**独占一行，不允许与函数签名同行：
 
 ```cpp
+// 正确 ✓ (.cpp 文件)
+uint32_t Camera::getOrder() const
+{
+    return mOrder;
+}
+
+// 错误 ✗ (.cpp 文件)
+uint32_t Camera::getOrder() const { return mOrder; }
+```
+
+**`.h` 文件中的例外**：在头文件中，简短的单行内联函数**可以**写在一行：
+
+```cpp
+// 允许（仅限 .h 文件中的内联函数）
 uint32_t getOrder() const { return mOrder; }
 bool isRunning() const { return mIsRunning; }
 ```
