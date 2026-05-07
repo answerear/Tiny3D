@@ -1,8 +1,8 @@
 """
-Compile .vshader and .pshader files using scc.exe to generate HLSL and GLSL output.
+Compile .vshader and .pshader files using scc.exe to generate HLSL, GLSL, and SPIR-V output.
 
 Usage:
-    python compile_shaders.py --scc <scc_path> --src <shader_dir> --hlsl-out <hlsl_dir> --glsl-out <glsl_dir> [--extra-args <args>]
+    python compile_shaders.py --scc <scc_path> --src <shader_dir> --hlsl-out <hlsl_dir> --glsl-out <glsl_dir> [--spirv-out <spirv_dir>] [--extra-args <args>]
 
 Example:
     python compile_shaders.py \
@@ -10,6 +10,7 @@ Example:
         --src assets/samples/shaders \
         --hlsl-out assets/samples/shaders/output/HLSL \
         --glsl-out assets/samples/shaders/output/OpenGL4 \
+        --spirv-out assets/samples/shaders/output/Vulkan \
         --extra-args "-N -O0"
 """
 
@@ -72,6 +73,7 @@ def main():
     parser.add_argument('--src', required=True, help='Source directory containing .vshader/.pshader files')
     parser.add_argument('--hlsl-out', required=True, help='Output directory for HLSL files')
     parser.add_argument('--glsl-out', required=True, help='Output directory for GLSL files')
+    parser.add_argument('--spirv-out', default='', help='Output directory for SPIR-V files (optional)')
     parser.add_argument('--extra-args', default='-N -O0', help='Extra arguments for scc.exe (default: -N -O0)')
     args = parser.parse_args()
 
@@ -87,21 +89,29 @@ def main():
     # Ensure output dirs exist
     os.makedirs(args.hlsl_out, exist_ok=True)
     os.makedirs(args.glsl_out, exist_ok=True)
+    if args.spirv_out:
+        os.makedirs(args.spirv_out, exist_ok=True)
+
+    # Build target list
+    targets = [
+        ('hlsl', args.hlsl_out, 'TINY3D_DIRECTX'),
+        ('glsl', args.glsl_out, 'TINY3D_OPENGL'),
+    ]
+    if args.spirv_out:
+        targets.append(('spirv', args.spirv_out, 'TINY3D_VULKAN'))
 
     success = 0
     fail = 0
 
     for shader in shaders:
-        for target, out_dir, define_macro in [
-            ('hlsl', args.hlsl_out, 'TINY3D_DIRECTX'),
-            ('glsl', args.glsl_out, 'TINY3D_OPENGL'),
-        ]:
+        for target, out_dir, define_macro in targets:
             if compile_shader_with_define(args.scc, shader, target, out_dir, extra, define_macro):
                 success += 1
             else:
                 fail += 1
 
-    print(f'\nDone: {success} succeeded, {fail} failed out of {len(shaders) * 2} total compilations.')
+    total = len(shaders) * len(targets)
+    print(f'\nDone: {success} succeeded, {fail} failed out of {total} total compilations.')
     if fail > 0:
         sys.exit(1)
 
