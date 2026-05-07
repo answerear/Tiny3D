@@ -45,9 +45,9 @@ protected:
     void buildArm(Tiny3D::Transform3D *parent, const Tiny3D::Vector3 &pos, const Tiny3D::Radian &yAngles);
     void buildPlane(Tiny3D::Transform3D *parent);
     
-    Tiny3D::ShaderPtr buildShader(const String &name, const String &forwardVS, const String &shadowVS, const String &forwardVS4GPU, const String &shadowVS4GPU);
-    Tiny3D::PassPtr buildShadowPass(const String &vs, const String &vs4GPU);
-    Tiny3D::PassPtr buildForwardPass(const String &vs, const String &vs4GPU);
+    Tiny3D::ShaderPtr buildShader(const String &name, const char *forwardVS, size_t forwardVSSize, const char *shadowVS, size_t shadowVSSize, const char *forwardVS4GPU, size_t forwardVS4GPUSize, const char *shadowVS4GPU, size_t shadowVS4GPUSize);
+    Tiny3D::PassPtr buildShadowPass(const char *vs, size_t vsSize, const char *vs4GPU, size_t vs4GPUSize);
+    Tiny3D::PassPtr buildForwardPass(const char *vs, size_t vsSize, const char *vs4GPU, size_t vs4GPUSize);
     
     Tiny3D::Texture2DPtr buildArmTexture();
     Tiny3D::MaterialPtr buildArmMaterial(Tiny3D::Shader *shader);

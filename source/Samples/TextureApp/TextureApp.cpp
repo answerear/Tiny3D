@@ -38,6 +38,10 @@ extern const char *SAMPLE_VERTEX_SHADER;
 extern const char *SAMPLE_PIXEL_SHADER;
 extern const char *SAMPLE_VERTEX_SHADER_GL;
 extern const char *SAMPLE_PIXEL_SHADER_GL;
+extern const unsigned char SAMPLE_VERTEX_SHADER_VK[];
+extern const size_t SAMPLE_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char SAMPLE_PIXEL_SHADER_VK[];
+extern const size_t SAMPLE_PIXEL_SHADER_VK_SIZE;
 
 TextureApp::TextureApp()
 {
@@ -152,17 +156,50 @@ MaterialPtr TextureApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
-        ? SAMPLE_VERTEX_SHADER_GL : SAMPLE_VERTEX_SHADER;
-    
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    const char *vsCode = nullptr;
+    size_t vsSize = 0;
+
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SAMPLE_VERTEX_SHADER_VK);
+        vsSize = SAMPLE_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        vsCode = SAMPLE_VERTEX_SHADER_GL;
+        vsSize = strlen(SAMPLE_VERTEX_SHADER_GL);
+    }
+    else
+    {
+        vsCode = SAMPLE_VERTEX_SHADER;
+        vsSize = strlen(SAMPLE_VERTEX_SHADER);
+    }
+
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader
-    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
-        ? SAMPLE_PIXEL_SHADER_GL : SAMPLE_PIXEL_SHADER;
-    
-    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
+    const char *psCode = nullptr;
+    size_t psSize = 0;
+
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(SAMPLE_PIXEL_SHADER_VK);
+        psSize = SAMPLE_PIXEL_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        psCode = SAMPLE_PIXEL_SHADER_GL;
+        psSize = strlen(SAMPLE_PIXEL_SHADER_GL);
+    }
+    else
+    {
+        psCode = SAMPLE_PIXEL_SHADER;
+        psSize = strlen(SAMPLE_PIXEL_SHADER);
+    }
+
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
 
     // render state

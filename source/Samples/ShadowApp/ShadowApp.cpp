@@ -42,6 +42,12 @@ extern const char *FORWARD_PIXEL_SHADER;
 extern const char *SHADOW_VERTEX_SHADER_GL;
 extern const char *FORWARD_VERTEX_SHADER_GL;
 extern const char *FORWARD_PIXEL_SHADER_GL;
+extern const unsigned char SHADOW_VERTEX_SHADER_VK[];
+extern const size_t SHADOW_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char FORWARD_VERTEX_SHADER_VK[];
+extern const size_t FORWARD_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char FORWARD_PIXEL_SHADER_VK[];
+extern const size_t FORWARD_PIXEL_SHADER_VK_SIZE;
 
 ShadowApp::ShadowApp()
 {
@@ -230,9 +236,27 @@ PassPtr ShadowApp::buildShadowPass()
     vkeyword.generate();
 
     // vertex shader for shadow pass
-    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
-        ? SHADOW_VERTEX_SHADER_GL : SHADOW_VERTEX_SHADER;
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    const char *vsCode = nullptr;
+    size_t vsSize = 0;
+
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        vsSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        vsCode = SHADOW_VERTEX_SHADER_GL;
+        vsSize = strlen(SHADOW_VERTEX_SHADER_GL);
+    }
+    else
+    {
+        vsCode = SHADOW_VERTEX_SHADER;
+        vsSize = strlen(SHADOW_VERTEX_SHADER);
+    }
+
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // shadow pass
@@ -271,15 +295,50 @@ PassPtr ShadowApp::buildForwardPass()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader for forward pass
-    const String vs = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
-        ? FORWARD_VERTEX_SHADER_GL : FORWARD_VERTEX_SHADER;
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
+    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    const char *vsCode = nullptr;
+    size_t vsSize = 0;
+
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        vsSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        vsCode = FORWARD_VERTEX_SHADER_GL;
+        vsSize = strlen(FORWARD_VERTEX_SHADER_GL);
+    }
+    else
+    {
+        vsCode = FORWARD_VERTEX_SHADER;
+        vsSize = strlen(FORWARD_VERTEX_SHADER);
+    }
+
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader for forward pass
-    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
-        ? FORWARD_PIXEL_SHADER_GL : FORWARD_PIXEL_SHADER;
-    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
+    const char *psCode = nullptr;
+    size_t psSize = 0;
+
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        psCode = FORWARD_PIXEL_SHADER_GL;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GL);
+    }
+    else
+    {
+        psCode = FORWARD_PIXEL_SHADER;
+        psSize = strlen(FORWARD_PIXEL_SHADER);
+    }
+
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
 
     // forward pass

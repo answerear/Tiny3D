@@ -60,6 +60,20 @@ extern const char *SKIN_FORWARD_VERTEX_SHADER_GL;
 extern const char *FORWARD_PIXEL_SHADER_GL;
 extern const char *GPU_SKIN_SHADOW_VERTEX_SHADER_GL;
 extern const char *GPU_SKIN_FORWARD_VERTEX_SHADER_GL;
+extern const unsigned char FORWARD_VERTEX_SHADER_VK[];
+extern const size_t FORWARD_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char SHADOW_VERTEX_SHADER_VK[];
+extern const size_t SHADOW_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char SKIN_SHADOW_VERTEX_SHADER_VK[];
+extern const size_t SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char SKIN_FORWARD_VERTEX_SHADER_VK[];
+extern const size_t SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char FORWARD_PIXEL_SHADER_VK[];
+extern const size_t FORWARD_PIXEL_SHADER_VK_SIZE;
+extern const unsigned char GPU_SKIN_SHADOW_VERTEX_SHADER_VK[];
+extern const size_t GPU_SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char GPU_SKIN_FORWARD_VERTEX_SHADER_VK[];
+extern const size_t GPU_SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
 
 SkeletalAnimationApp::SkeletalAnimationApp()
 {
@@ -104,20 +118,93 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
     light->setSpecularIntensity(1.0f);
 
     // cube shader & material
-    bool isGL = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4);
+    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    bool isVK = (rendererName == RHIRenderer::VULKAN);
+    bool isGL = (rendererName == RHIRenderer::OPENGL4);
+
+    const char *skinForwardVS = nullptr;
+    size_t skinForwardVSSize = 0;
+    const char *skinShadowVS = nullptr;
+    size_t skinShadowVSSize = 0;
+    const char *gpuSkinForwardVS = nullptr;
+    size_t gpuSkinForwardVSSize = 0;
+    const char *gpuSkinShadowVS = nullptr;
+    size_t gpuSkinShadowVSSize = 0;
+
+    if (isVK)
+    {
+        skinForwardVS = reinterpret_cast<const char*>(SKIN_FORWARD_VERTEX_SHADER_VK);
+        skinForwardVSSize = SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+        skinShadowVS = reinterpret_cast<const char*>(SKIN_SHADOW_VERTEX_SHADER_VK);
+        skinShadowVSSize = SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+        gpuSkinForwardVS = reinterpret_cast<const char*>(GPU_SKIN_FORWARD_VERTEX_SHADER_VK);
+        gpuSkinForwardVSSize = GPU_SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+        gpuSkinShadowVS = reinterpret_cast<const char*>(GPU_SKIN_SHADOW_VERTEX_SHADER_VK);
+        gpuSkinShadowVSSize = GPU_SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (isGL)
+    {
+        skinForwardVS = SKIN_FORWARD_VERTEX_SHADER_GL;
+        skinForwardVSSize = strlen(SKIN_FORWARD_VERTEX_SHADER_GL);
+        skinShadowVS = SKIN_SHADOW_VERTEX_SHADER_GL;
+        skinShadowVSSize = strlen(SKIN_SHADOW_VERTEX_SHADER_GL);
+        gpuSkinForwardVS = GPU_SKIN_FORWARD_VERTEX_SHADER_GL;
+        gpuSkinForwardVSSize = strlen(GPU_SKIN_FORWARD_VERTEX_SHADER_GL);
+        gpuSkinShadowVS = GPU_SKIN_SHADOW_VERTEX_SHADER_GL;
+        gpuSkinShadowVSSize = strlen(GPU_SKIN_SHADOW_VERTEX_SHADER_GL);
+    }
+    else
+    {
+        skinForwardVS = SKIN_FORWARD_VERTEX_SHADER;
+        skinForwardVSSize = strlen(SKIN_FORWARD_VERTEX_SHADER);
+        skinShadowVS = SKIN_SHADOW_VERTEX_SHADER;
+        skinShadowVSSize = strlen(SKIN_SHADOW_VERTEX_SHADER);
+        gpuSkinForwardVS = GPU_SKIN_FORWARD_VERTEX_SHADER;
+        gpuSkinForwardVSSize = strlen(GPU_SKIN_FORWARD_VERTEX_SHADER);
+        gpuSkinShadowVS = GPU_SKIN_SHADOW_VERTEX_SHADER;
+        gpuSkinShadowVSSize = strlen(GPU_SKIN_SHADOW_VERTEX_SHADER);
+    }
+
     ShaderPtr shader = buildShader("Cube-Shader",
-        isGL ? SKIN_FORWARD_VERTEX_SHADER_GL : SKIN_FORWARD_VERTEX_SHADER,
-        isGL ? SKIN_SHADOW_VERTEX_SHADER_GL : SKIN_SHADOW_VERTEX_SHADER,
-        isGL ? GPU_SKIN_FORWARD_VERTEX_SHADER_GL : GPU_SKIN_FORWARD_VERTEX_SHADER,
-        isGL ? GPU_SKIN_SHADOW_VERTEX_SHADER_GL : GPU_SKIN_SHADOW_VERTEX_SHADER);
+        skinForwardVS, skinForwardVSSize,
+        skinShadowVS, skinShadowVSSize,
+        gpuSkinForwardVS, gpuSkinForwardVSSize,
+        gpuSkinShadowVS, gpuSkinShadowVSSize);
     mCubeMaterial = buildArmMaterial(shader);
     
     // plane shader & material
+    const char *planeForwardVS = nullptr;
+    size_t planeForwardVSSize = 0;
+    const char *planeShadowVS = nullptr;
+    size_t planeShadowVSSize = 0;
+
+    if (isVK)
+    {
+        planeForwardVS = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        planeForwardVSSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+        planeShadowVS = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        planeShadowVSSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (isGL)
+    {
+        planeForwardVS = FORWARD_VERTEX_SHADER_GL;
+        planeForwardVSSize = strlen(FORWARD_VERTEX_SHADER_GL);
+        planeShadowVS = SHADOW_VERTEX_SHADER_GL;
+        planeShadowVSSize = strlen(SHADOW_VERTEX_SHADER_GL);
+    }
+    else
+    {
+        planeForwardVS = FORWARD_VERTEX_SHADER;
+        planeForwardVSSize = strlen(FORWARD_VERTEX_SHADER);
+        planeShadowVS = SHADOW_VERTEX_SHADER;
+        planeShadowVSSize = strlen(SHADOW_VERTEX_SHADER);
+    }
+
     shader = buildShader("Plane-Shader",
-        isGL ? FORWARD_VERTEX_SHADER_GL : FORWARD_VERTEX_SHADER,
-        isGL ? SHADOW_VERTEX_SHADER_GL : SHADOW_VERTEX_SHADER,
-        isGL ? GPU_SKIN_SHADOW_VERTEX_SHADER_GL : GPU_SKIN_SHADOW_VERTEX_SHADER,
-        isGL ? GPU_SKIN_SHADOW_VERTEX_SHADER_GL : GPU_SKIN_SHADOW_VERTEX_SHADER);
+        planeForwardVS, planeForwardVSSize,
+        planeShadowVS, planeShadowVSSize,
+        gpuSkinShadowVS, gpuSkinShadowVSSize,
+        gpuSkinShadowVS, gpuSkinShadowVSSize);
     mPlaneMaterial = buildPlaneMaterial(shader);
 
     // cube mesh
@@ -197,7 +284,7 @@ void SkeletalAnimationApp::buildCamera(Transform3D *parent)
     T3D_ASSERT(frustum != nullptr);
 }
 
-PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs, const String &vs4GPU)
+PassPtr SkeletalAnimationApp::buildShadowPass(const char *vs, size_t vsSize, const char *vs4GPU, size_t vs4GPUSize)
 {
     // CPU_SKIN keyword for shadow pass
     ShaderKeyword keyCPUSkin;
@@ -205,7 +292,7 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs, const String &vs
     keyCPUSkin.generate();
 
     // vertex shader for shadow pass
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs);
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // GPU_SKIN keyword for shadow pass
@@ -214,7 +301,7 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs, const String &vs
     keyGPUSkin.generate();
 
     // GPU skin vertex shader for shadow pass
-    ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU);
+    ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU, vs4GPUSize);
     vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
 
     // shadow pass
@@ -246,7 +333,7 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const String &vs, const String &vs
     return pass;
 }
 
-PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs, const String &vs4GPU)
+PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, const char *vs4GPU, size_t vs4GPUSize)
 {
     // vertex & pixel shader keyword for forward pass
     ShaderKeyword keyCPUSkin;
@@ -255,7 +342,7 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs, const String &v
     ShaderKeyword pkeyword(keyCPUSkin);
     
     // vertex shader for forward pass 
-    ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs);
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
 
     // GPU_SKIN keyword for forward pass
@@ -264,13 +351,31 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs, const String &v
     keyGPUSkin.generate();
 
     // GPU skin vertex shader for forward pass
-    ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU);
+    ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU, vs4GPUSize);
     vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
 
     // pixel shader for forward pass
-    const String ps = (T3D_AGENT.getActiveRHIRenderer()->getName() == RHIRenderer::OPENGL4)
-        ? FORWARD_PIXEL_SHADER_GL : FORWARD_PIXEL_SHADER;
-    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
+    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    const char *psCode = nullptr;
+    size_t psSize = 0;
+
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        psCode = FORWARD_PIXEL_SHADER_GL;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GL);
+    }
+    else
+    {
+        psCode = FORWARD_PIXEL_SHADER;
+        psSize = strlen(FORWARD_PIXEL_SHADER);
+    }
+
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
 
     // forward pass
@@ -303,13 +408,13 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const String &vs, const String &v
 }
 
 
-ShaderPtr SkeletalAnimationApp::buildShader(const String &name, const String &forwardVS, const String &shadowVS, const String &forwardVS4GPU, const String &shadowVS4GPU)
+ShaderPtr SkeletalAnimationApp::buildShader(const String &name, const char *forwardVS, size_t forwardVSSize, const char *shadowVS, size_t shadowVSSize, const char *forwardVS4GPU, size_t forwardVS4GPUSize, const char *shadowVS4GPU, size_t shadowVS4GPUSize)
 {
     // shadow pass
-    PassPtr shadowPass= buildShadowPass(shadowVS, shadowVS4GPU);
+    PassPtr shadowPass= buildShadowPass(shadowVS, shadowVSSize, shadowVS4GPU, shadowVS4GPUSize);
 
     // forward pass
-    PassPtr forwardPass = buildForwardPass(forwardVS, forwardVS4GPU);
+    PassPtr forwardPass = buildForwardPass(forwardVS, forwardVSSize, forwardVS4GPU, forwardVS4GPUSize);
 
     // technique
     TechniquePtr tech = Technique::create("Default-Technique");
