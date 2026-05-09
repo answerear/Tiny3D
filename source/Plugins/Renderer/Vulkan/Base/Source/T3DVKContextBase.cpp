@@ -284,10 +284,25 @@ namespace Tiny3D
                         String cbufferName = (binding->type_description->type_name != nullptr)
                             ? binding->type_description->type_name : binding->name;
 
+                        // Strip "type." prefix from cbuffer name if present.
+                        // SPIR-V compiled by ShaderConductor (DXC -> SPIR-V) prepends
+                        // "type." to the cbuffer type name (e.g. "type.Tiny3DPerDraw").
+                        // The engine material system uses the original name without
+                        // this prefix (e.g. "Tiny3DPerDraw").
+                        const String kTypePrefix = "type.";
+                        if (cbufferName.size() > kTypePrefix.size()
+                            && cbufferName.substr(0, kTypePrefix.size()) == kTypePrefix)
+                        {
+                            cbufferName = cbufferName.substr(kTypePrefix.size());
+                        }
+
                         for (uint32_t j = 0; j < binding->block.member_count; ++j)
                         {
                             SpvReflectBlockVariable &member = binding->block.members[j];
 
+                            // SPIR-V member names from spirv-reflect are already the
+                            // original short names (e.g. "tiny3d_ObjectToWorld"),
+                            // no prefix stripping needed.
                             String memberName = (member.name != nullptr) ? member.name : "";
 
                             uint32_t numOfElements = 1;

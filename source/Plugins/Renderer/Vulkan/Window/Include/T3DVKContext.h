@@ -31,6 +31,9 @@
 #include <unordered_map>
 #include <string>
 #include "T3DVKContextBase.h"
+#include "Render/T3DRasterizerState.h"
+#include "Render/T3DBlendState.h"
+#include "Render/T3DDepthStencilState.h"
 
 
 namespace Tiny3D
@@ -229,6 +232,17 @@ namespace Tiny3D
 
         /// Current clear color (set by clearColor, used by clear operations)
         ColorRGB            mClearColor;
+
+        //----------------------------------------------------------------------
+        // Cached render state descriptors (for pipeline creation)
+        //----------------------------------------------------------------------
+
+        /// Current rasterizer state (used in pipeline creation)
+        RasterizerDesc      mCurrentRasterizerDesc {};
+        /// Current blend state (used in pipeline creation)
+        BlendDesc           mCurrentBlendDesc {};
+        /// Current depth/stencil state (used in pipeline creation)
+        DepthStencilDesc    mCurrentDepthStencilDesc {};
 
         //----------------------------------------------------------------------
         // Render state tracking (for pipeline creation and command recording)

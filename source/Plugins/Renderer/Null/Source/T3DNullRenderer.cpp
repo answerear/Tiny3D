@@ -74,8 +74,9 @@ namespace Tiny3D
 
         do 
         {
-            cleanup();
-        } while (0);
+            // Do NOT cleanup() here. Context destruction is deferred to
+            // ~NullRenderer() when mRenderers map is cleared.
+        } while (false);
 
         return ret;
     }

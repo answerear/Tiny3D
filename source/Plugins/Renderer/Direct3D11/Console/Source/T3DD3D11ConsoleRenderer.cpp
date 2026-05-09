@@ -73,8 +73,9 @@ namespace Tiny3D
 
         do 
         {
-            cleanup();
-        } while (0);
+            // Do NOT cleanup() here. Context/Device destruction is deferred
+            // to ~D3D11RendererConsole() when mRenderers map is cleared.
+        } while (false);
 
         return ret;
     }

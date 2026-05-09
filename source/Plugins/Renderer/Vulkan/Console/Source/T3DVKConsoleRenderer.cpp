@@ -73,8 +73,13 @@ namespace Tiny3D
 
         do 
         {
-            cleanup();
-        } while (0);
+            if (mContext != nullptr)
+            {
+                // Clear cached render state. Do NOT cleanup() — VkDevice
+                // must stay alive for later vkDestroyXXX calls.
+                mContext->reset();
+            }
+        } while (false);
 
         return ret;
     }

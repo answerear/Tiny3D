@@ -91,30 +91,30 @@ namespace Tiny3D
         
         stopRenderThread();
 
+        // Wait for GPU to finish all submitted commands before destroying
+        // any GPU resources. This prevents Vulkan validation errors caused
+        // by destroying resources still in use by pending command buffers.
+        // For D3D11/GL4, destroy() is a no-op so this is safe across backends.
+        if (mActiveRHIRenderer != nullptr)
+        {
+            mActiveRHIRenderer->destroy();
+        }
+
         if (mRenderPipeline != nullptr)
         {
             mRenderPipeline->destroy();
             mRenderPipeline = nullptr;
         }
 
-        // mRenderPipeline->detachAllRenderTargets();
-
-        // Ensure GPU is idle before releasing any resources.
-        // destroy() only calls vkDeviceWaitIdle — VkDevice stays alive.
-        if (mActiveRHIRenderer != nullptr)
-        {
-            mActiveRHIRenderer->destroy();
-            // Clear residual render state (mCurrentRenderTarget, etc.) to
-            // break indirect references to GPU resources that will be released
-            // below.  Without this, ~VKContext() would later trigger a second
-            // vkDestroyImageView on already-destroyed handles.
-            mActiveRHIRenderer->getContext()->reset();
-        }
-
         mDefaultWindow = nullptr;
 
-        // Release all GPU resources while VkDevice is still alive
-        // (renderer singleton stays valid via mRenderers map)
+        // Release Agent's reference to renderer. mRenderers map still holds
+        // the renderer alive, so Context/Device won't be destroyed yet.
+        // Actual destruction happens in unloadPlugins() when mRenderers is cleared.
+        mActiveRHIRenderer = nullptr;
+
+        mRHIRunnable = nullptr;
+
         if (mSkeletonMgr != nullptr)
         {
             mSkeletonMgr->unloadAllResources();
@@ -187,9 +187,6 @@ namespace Tiny3D
         mRenderStateMgr = nullptr;
         mRenderBufferMgr = nullptr;
         mRenderWindows.clear();
-
-        // Now safe to release renderer (VkDevice will be destroyed)
-        mActiveRHIRenderer = nullptr;
 
         if (mAnimationMgr != nullptr)
         {
@@ -1250,6 +1247,8 @@ namespace Tiny3D
                 mActiveRHIRenderer->destroy();
             }
 
+            mRHIRunnable = nullptr;
+
             ret = renderer->init();
 
             if (ret == T3D_OK)
@@ -1271,6 +1270,7 @@ namespace Tiny3D
                 {
                     stopRenderThread();
                     mActiveRHIRenderer = nullptr;
+                    mRHIRunnable = nullptr;
                     return ret;
                 }
             }
@@ -1402,7 +1402,6 @@ namespace Tiny3D
 #endif
             mRHIRunnable->stop();
             mRHIThread.wait();
-            mRHIRunnable = nullptr;
         }
     }
 

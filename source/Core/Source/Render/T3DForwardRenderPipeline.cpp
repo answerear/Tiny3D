@@ -650,8 +650,8 @@ namespace Tiny3D
                     // 方向和镜面反射强度
                     // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
                     Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
-                    const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
-                    float specularIntensity = light->getDiffuseIntensity();
+                    const Matrix4 &mat = xform->getLocalToWorldTransform().getAffineMatrix();
+                    float specularIntensity = light->getSpecularIntensity();
                     Vector4 dir(mat[0][2], mat[1][2], mat[2][2], specularIntensity);
                     material->setVector("tiny3d_DirLightDir", dir);
                 }
@@ -842,22 +842,10 @@ namespace Tiny3D
         {
             ctx->setVertexShader(vertexShader->getShaderVariant());
         }
-        if (hullShader != nullptr)
-        {
-            ctx->setHullShader(hullShader->getShaderVariant());
-        }
-        if (domainShader != nullptr)
-        {
-            ctx->setDomainShader(domainShader->getShaderVariant());
-        }
-        if (geometryShader != nullptr)
-        {
-            ctx->setGeometryShader(geometryShader->getShaderVariant());
-        }
-        if (pixelShader != nullptr)
-        {
-            ctx->setPixelShader(pixelShader->getShaderVariant());
-        }
+        ctx->setHullShader(hullShader != nullptr ? hullShader->getShaderVariant() : nullptr);
+        ctx->setDomainShader(domainShader != nullptr ? domainShader->getShaderVariant() : nullptr);
+        ctx->setGeometryShader(geometryShader != nullptr ? geometryShader->getShaderVariant() : nullptr);
+        ctx->setPixelShader(pixelShader != nullptr ? pixelShader->getShaderVariant() : nullptr);
 
         return T3D_OK;
     }

@@ -77,7 +77,10 @@ namespace Tiny3D
 
         do 
         {
-            cleanup();
+            // Do NOT cleanup() here. Context/Device destruction is deferred
+            // to ~D3D11Renderer() (triggered when mRenderers map is cleared
+            // in unloadPlugins()), by which time all GPU resources have been
+            // released and Device refcount can reach zero cleanly.
         } while (false);
 
         return ret;

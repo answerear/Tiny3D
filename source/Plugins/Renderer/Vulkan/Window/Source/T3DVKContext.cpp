@@ -39,6 +39,105 @@
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
+    // Engine enum -> Vulkan enum mapping helpers
+    //--------------------------------------------------------------------------
+
+    static VkCullModeFlags toVkCullMode(CullingMode mode)
+    {
+        switch (mode)
+        {
+        case CullingMode::kNone:  return VK_CULL_MODE_NONE;
+        case CullingMode::kFront: return VK_CULL_MODE_FRONT_BIT;
+        case CullingMode::kBack:  return VK_CULL_MODE_BACK_BIT;
+        default:                  return VK_CULL_MODE_BACK_BIT;
+        }
+    }
+
+    static VkPolygonMode toVkPolygonMode(PolygonMode mode)
+    {
+        switch (mode)
+        {
+        case PolygonMode::kPoint:     return VK_POLYGON_MODE_POINT;
+        case PolygonMode::kWireframe: return VK_POLYGON_MODE_LINE;
+        case PolygonMode::kSolid:     return VK_POLYGON_MODE_FILL;
+        default:                      return VK_POLYGON_MODE_FILL;
+        }
+    }
+
+    static VkCompareOp toVkCompareOp(CompareFunction func)
+    {
+        switch (func)
+        {
+        case CompareFunction::kAlwaysFail:   return VK_COMPARE_OP_NEVER;
+        case CompareFunction::kAlwaysPass:   return VK_COMPARE_OP_ALWAYS;
+        case CompareFunction::kLess:         return VK_COMPARE_OP_LESS;
+        case CompareFunction::kLessEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL;
+        case CompareFunction::kEqual:        return VK_COMPARE_OP_EQUAL;
+        case CompareFunction::kNotEqual:     return VK_COMPARE_OP_NOT_EQUAL;
+        case CompareFunction::kGreaterEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;
+        case CompareFunction::kGreater:      return VK_COMPARE_OP_GREATER;
+        default:                             return VK_COMPARE_OP_LESS;
+        }
+    }
+
+    static VkBlendFactor toVkBlendFactor(BlendFactor factor)
+    {
+        switch (factor)
+        {
+        case BlendFactor::kOne:              return VK_BLEND_FACTOR_ONE;
+        case BlendFactor::kZero:             return VK_BLEND_FACTOR_ZERO;
+        case BlendFactor::kDstColor:         return VK_BLEND_FACTOR_DST_COLOR;
+        case BlendFactor::kSrcColor:         return VK_BLEND_FACTOR_SRC_COLOR;
+        case BlendFactor::kOneMinusDstColor: return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+        case BlendFactor::kOneMinusSrcColor: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+        case BlendFactor::kDstAlpha:         return VK_BLEND_FACTOR_DST_ALPHA;
+        case BlendFactor::kSrcAlpha:         return VK_BLEND_FACTOR_SRC_ALPHA;
+        case BlendFactor::kOneMinusDstAlpha: return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        case BlendFactor::kOneMinusSrcAlpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        default:                             return VK_BLEND_FACTOR_ONE;
+        }
+    }
+
+    static VkBlendOp toVkBlendOp(BlendOperation op)
+    {
+        switch (op)
+        {
+        case BlendOperation::kAdd:            return VK_BLEND_OP_ADD;
+        case BlendOperation::kSubtract:       return VK_BLEND_OP_SUBTRACT;
+        case BlendOperation::kReverseSubtract:return VK_BLEND_OP_REVERSE_SUBTRACT;
+        case BlendOperation::kMin:            return VK_BLEND_OP_MIN;
+        case BlendOperation::kMax:            return VK_BLEND_OP_MAX;
+        default:                              return VK_BLEND_OP_ADD;
+        }
+    }
+
+    static VkStencilOp toVkStencilOp(StencilOp op)
+    {
+        switch (op)
+        {
+        case StencilOp::kKeep:    return VK_STENCIL_OP_KEEP;
+        case StencilOp::kZero:    return VK_STENCIL_OP_ZERO;
+        case StencilOp::kReplace: return VK_STENCIL_OP_REPLACE;
+        case StencilOp::kInc:     return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+        case StencilOp::kIncWrap: return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+        case StencilOp::kDec:     return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+        case StencilOp::kDecWrap: return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+        case StencilOp::kInvert:  return VK_STENCIL_OP_INVERT;
+        default:                  return VK_STENCIL_OP_KEEP;
+        }
+    }
+
+    static VkColorComponentFlags toVkColorWriteMask(uint8_t mask)
+    {
+        VkColorComponentFlags flags = 0;
+        if (mask & kWriteMaskRed)   flags |= VK_COLOR_COMPONENT_R_BIT;
+        if (mask & kWriteMaskGreen) flags |= VK_COLOR_COMPONENT_G_BIT;
+        if (mask & kWriteMaskBlue)  flags |= VK_COLOR_COMPONENT_B_BIT;
+        if (mask & kWriteMaskAlpha) flags |= VK_COLOR_COMPONENT_A_BIT;
+        return flags;
+    }
+
+    //--------------------------------------------------------------------------
 
     VKContextPtr VKContext::create()
     {
@@ -1246,13 +1345,19 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
                 break;
 
-            // Create image view
-            vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
-
+            // Create image view(s)
             if (isDepthFormat(format))
-                vkPixelBuffer->VkDSView = vkPixelBuffer->VkTexView;
+            {
+                // Attachment view: full depth+stencil aspect for framebuffer
+                vkPixelBuffer->VkDSView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
+                // Sampling view: depth-only aspect (Vulkan spec requires single aspect for descriptor sampling)
+                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, VK_IMAGE_ASPECT_DEPTH_BIT);
+            }
             else
+            {
+                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
                 vkPixelBuffer->VkRTView = vkPixelBuffer->VkTexView;
+            }
         } while (false);
 
         if (T3D_FAILED(ret))
@@ -1501,7 +1606,10 @@ namespace Tiny3D
 
     TResult VKContext::setBlendState(BlendState *state)
     {
-        // State is recorded for pipeline creation at render time
+        if (state != nullptr)
+        {
+            mCurrentBlendDesc = state->getStateDesc();
+        }
         return T3D_OK;
     }
 
@@ -1509,6 +1617,10 @@ namespace Tiny3D
 
     TResult VKContext::setDepthStencilState(DepthStencilState *state)
     {
+        if (state != nullptr)
+        {
+            mCurrentDepthStencilDesc = state->getStateDesc();
+        }
         return T3D_OK;
     }
 
@@ -1516,6 +1628,10 @@ namespace Tiny3D
 
     TResult VKContext::setRasterizerState(RasterizerState *state)
     {
+        if (state != nullptr)
+        {
+            mCurrentRasterizerDesc = state->getStateDesc();
+        }
         return T3D_OK;
     }
 
@@ -2341,6 +2457,22 @@ namespace Tiny3D
         VkRenderPass currentRP = mCurrentPassRenderPass != VK_NULL_HANDLE ? mCurrentPassRenderPass : mVkRenderPass;
         hash ^= std::hash<uint64_t>{}((uint64_t)currentRP) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
+        // Include render state in hash (excluding depth bias values which are dynamic)
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentRasterizerDesc.CullMode) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentRasterizerDesc.FillMode) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentRasterizerDesc.FrontAnticlockwise) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentDepthStencilDesc.DepthTestEnable) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentDepthStencilDesc.DepthWriteEnable) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentDepthStencilDesc.DepthFunc) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)mCurrentDepthStencilDesc.StencilEnable) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        // Blend state for RT[0]
+        const auto &rt0Blend = mCurrentBlendDesc.RenderTargetStates[0];
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.BlendEnable) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.SrcBlend) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.DestBlend) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.BlendOp) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.ColorMask) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
         // Check cache
         auto it = mPipelineCache.find(hash);
         if (it != mPipelineCache.end())
@@ -2387,16 +2519,20 @@ namespace Tiny3D
         viewportState.viewportCount = 1;
         viewportState.scissorCount = 1;
 
-        // Rasterization
+        // Rasterization — read from cached desc
         VkPipelineRasterizationStateCreateInfo rasterizer {};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+        rasterizer.polygonMode = toVkPolygonMode(mCurrentRasterizerDesc.FillMode);
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
+        rasterizer.cullMode = toVkCullMode(mCurrentRasterizerDesc.CullMode);
+        rasterizer.frontFace = mCurrentRasterizerDesc.FrontAnticlockwise ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+        // Always enable depth bias (dynamic state); when not needed, values are set to 0
+        rasterizer.depthBiasEnable = VK_TRUE;
+        rasterizer.depthBiasConstantFactor = 0.0f;  // dynamic
+        rasterizer.depthBiasSlopeFactor = 0.0f;     // dynamic
+        rasterizer.depthBiasClamp = 0.0f;           // dynamic
 
         // Multisampling
         VkPipelineMultisampleStateCreateInfo multisampling {};
@@ -2404,19 +2540,46 @@ namespace Tiny3D
         multisampling.sampleShadingEnable = VK_FALSE;
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-        // Depth stencil
+        // Depth stencil — read from cached desc
         VkPipelineDepthStencilStateCreateInfo depthStencil {};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-        depthStencil.depthTestEnable = VK_TRUE;
-        depthStencil.depthWriteEnable = VK_TRUE;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+        depthStencil.depthTestEnable = mCurrentDepthStencilDesc.DepthTestEnable ? VK_TRUE : VK_FALSE;
+        depthStencil.depthWriteEnable = mCurrentDepthStencilDesc.DepthWriteEnable ? VK_TRUE : VK_FALSE;
+        depthStencil.depthCompareOp = toVkCompareOp(mCurrentDepthStencilDesc.DepthFunc);
         depthStencil.depthBoundsTestEnable = VK_FALSE;
-        depthStencil.stencilTestEnable = VK_FALSE;
+        depthStencil.stencilTestEnable = mCurrentDepthStencilDesc.StencilEnable ? VK_TRUE : VK_FALSE;
+        if (mCurrentDepthStencilDesc.StencilEnable)
+        {
+            depthStencil.front.failOp = toVkStencilOp(mCurrentDepthStencilDesc.FrontFace.StencilFailOp);
+            depthStencil.front.passOp = toVkStencilOp(mCurrentDepthStencilDesc.FrontFace.StencilPassOp);
+            depthStencil.front.depthFailOp = toVkStencilOp(mCurrentDepthStencilDesc.FrontFace.StencilDepthFailOp);
+            depthStencil.front.compareOp = toVkCompareOp(mCurrentDepthStencilDesc.FrontFace.StencilFunc);
+            depthStencil.front.compareMask = mCurrentDepthStencilDesc.StencilReadMask;
+            depthStencil.front.writeMask = mCurrentDepthStencilDesc.StencilWriteMask;
+            depthStencil.front.reference = mCurrentDepthStencilDesc.StencilRef;
 
-        // Color blending — only if we have a color attachment
+            depthStencil.back.failOp = toVkStencilOp(mCurrentDepthStencilDesc.BackFace.StencilFailOp);
+            depthStencil.back.passOp = toVkStencilOp(mCurrentDepthStencilDesc.BackFace.StencilPassOp);
+            depthStencil.back.depthFailOp = toVkStencilOp(mCurrentDepthStencilDesc.BackFace.StencilDepthFailOp);
+            depthStencil.back.compareOp = toVkCompareOp(mCurrentDepthStencilDesc.BackFace.StencilFunc);
+            depthStencil.back.compareMask = mCurrentDepthStencilDesc.StencilReadMask;
+            depthStencil.back.writeMask = mCurrentDepthStencilDesc.StencilWriteMask;
+            depthStencil.back.reference = mCurrentDepthStencilDesc.StencilRef;
+        }
+
+        // Color blending — read from cached desc
         VkPipelineColorBlendAttachmentState colorBlendAttachment {};
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = VK_FALSE;
+        colorBlendAttachment.colorWriteMask = toVkColorWriteMask(rt0Blend.ColorMask);
+        colorBlendAttachment.blendEnable = rt0Blend.BlendEnable ? VK_TRUE : VK_FALSE;
+        if (rt0Blend.BlendEnable)
+        {
+            colorBlendAttachment.srcColorBlendFactor = toVkBlendFactor(rt0Blend.SrcBlend);
+            colorBlendAttachment.dstColorBlendFactor = toVkBlendFactor(rt0Blend.DestBlend);
+            colorBlendAttachment.colorBlendOp = toVkBlendOp(rt0Blend.BlendOp);
+            colorBlendAttachment.srcAlphaBlendFactor = toVkBlendFactor(rt0Blend.SrcBlendAlpha);
+            colorBlendAttachment.dstAlphaBlendFactor = toVkBlendFactor(rt0Blend.DstBlendAlpha);
+            colorBlendAttachment.alphaBlendOp = toVkBlendOp(rt0Blend.BlendOpAlpha);
+        }
 
         VkPipelineColorBlendStateCreateInfo colorBlending {};
         colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -2438,11 +2601,11 @@ namespace Tiny3D
             colorBlending.pAttachments = &colorBlendAttachment;
         }
 
-        // Dynamic state
-        VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+        // Dynamic state — viewport, scissor, and depth bias
+        VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_DEPTH_BIAS };
         VkPipelineDynamicStateCreateInfo dynamicState {};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = 2;
+        dynamicState.dynamicStateCount = 3;
         dynamicState.pDynamicStates = dynamicStates;
 
         // Create pipeline
@@ -2537,7 +2700,11 @@ namespace Tiny3D
         }
 
         // --- PS bindings (reflection-driven) ---
-        uint32_t psUboIdx = 0, psTexIdx = 0, psSamplerIdx = 0;
+        // PS bindings have been remapped by +PS_BINDING_OFFSET in createPixelShader(),
+        // but mCurrentPSTexStartSlot/mCurrentPSSamplerStartSlot store the original
+        // (un-offset) binding numbers from shader reflection. So we subtract
+        // PS_BINDING_OFFSET first to recover the original binding, then subtract startSlot.
+        uint32_t psUboIdx = 0;
         for (const auto &b : mCurrentPSBindings)
         {
             switch (b.descriptorType)
@@ -2567,10 +2734,11 @@ namespace Tiny3D
             }
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             {
-                if (psTexIdx < mCurrentPSImageViews.size() && mCurrentPSImageViews[psTexIdx] != VK_NULL_HANDLE)
+                uint32_t texIdx = (b.binding - PS_BINDING_OFFSET) - mCurrentPSTexStartSlot;
+                if (texIdx < mCurrentPSImageViews.size() && mCurrentPSImageViews[texIdx] != VK_NULL_HANDLE)
                 {
                     VkDescriptorImageInfo imgInfo {};
-                    imgInfo.imageView = mCurrentPSImageViews[psTexIdx];
+                    imgInfo.imageView = mCurrentPSImageViews[texIdx];
                     imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                     imgInfo.sampler = VK_NULL_HANDLE;
                     imageInfos.push_back(imgInfo);
@@ -2585,17 +2753,17 @@ namespace Tiny3D
                     write.pImageInfo = &imageInfos.back();
                     writes.push_back(write);
                 }
-                psTexIdx++;
                 break;
             }
             case VK_DESCRIPTOR_TYPE_SAMPLER:
             {
-                if (psSamplerIdx < mCurrentPSSamplers.size() && mCurrentPSSamplers[psSamplerIdx] != VK_NULL_HANDLE)
+                uint32_t sampIdx = (b.binding - PS_BINDING_OFFSET) - mCurrentPSSamplerStartSlot;
+                if (sampIdx < mCurrentPSSamplers.size() && mCurrentPSSamplers[sampIdx] != VK_NULL_HANDLE)
                 {
                     VkDescriptorImageInfo imgInfo {};
                     imgInfo.imageView = VK_NULL_HANDLE;
                     imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                    imgInfo.sampler = mCurrentPSSamplers[psSamplerIdx];
+                    imgInfo.sampler = mCurrentPSSamplers[sampIdx];
                     imageInfos.push_back(imgInfo);
 
                     VkWriteDescriptorSet write {};
@@ -2608,17 +2776,18 @@ namespace Tiny3D
                     write.pImageInfo = &imageInfos.back();
                     writes.push_back(write);
                 }
-                psSamplerIdx++;
                 break;
             }
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
             {
-                if (psTexIdx < mCurrentPSImageViews.size() && mCurrentPSImageViews[psTexIdx] != VK_NULL_HANDLE)
+                uint32_t texIdx = (b.binding - PS_BINDING_OFFSET) - mCurrentPSTexStartSlot;
+                uint32_t sampIdx = (b.binding - PS_BINDING_OFFSET) - mCurrentPSSamplerStartSlot;
+                if (texIdx < mCurrentPSImageViews.size() && mCurrentPSImageViews[texIdx] != VK_NULL_HANDLE)
                 {
                     VkDescriptorImageInfo imgInfo {};
-                    imgInfo.imageView = mCurrentPSImageViews[psTexIdx];
+                    imgInfo.imageView = mCurrentPSImageViews[texIdx];
                     imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                    imgInfo.sampler = (psSamplerIdx < mCurrentPSSamplers.size()) ? mCurrentPSSamplers[psSamplerIdx] : VK_NULL_HANDLE;
+                    imgInfo.sampler = (sampIdx < mCurrentPSSamplers.size()) ? mCurrentPSSamplers[sampIdx] : VK_NULL_HANDLE;
                     imageInfos.push_back(imgInfo);
 
                     VkWriteDescriptorSet write {};
@@ -2631,8 +2800,6 @@ namespace Tiny3D
                     write.pImageInfo = &imageInfos.back();
                     writes.push_back(write);
                 }
-                psTexIdx++;
-                psSamplerIdx++;
                 break;
             }
             default:
@@ -2674,6 +2841,12 @@ namespace Tiny3D
             mVkCurrentPipeline = pipeline;
         }
 
+        // Set dynamic depth bias
+        vkCmdSetDepthBias(cmdBuf,
+            mCurrentRasterizerDesc.DepthBias,
+            mCurrentRasterizerDesc.DepthBiasClamp,
+            mCurrentRasterizerDesc.SlopeScaledDepthBias);
+
         // Allocate and bind descriptor set (reflection-driven)
         size_t dslHash = 0;
         VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
@@ -2710,6 +2883,12 @@ namespace Tiny3D
             mVkCurrentPipeline = pipeline;
         }
 
+        // Set dynamic depth bias
+        vkCmdSetDepthBias(cmdBuf,
+            mCurrentRasterizerDesc.DepthBias,
+            mCurrentRasterizerDesc.DepthBiasClamp,
+            mCurrentRasterizerDesc.SlopeScaledDepthBias);
+
         // Allocate and bind descriptor set (reflection-driven)
         size_t dslHash = 0;
         VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
@@ -2729,6 +2908,12 @@ namespace Tiny3D
     {
         mCurrentRenderTarget = nullptr;
         mVkCurrentPipeline = VK_NULL_HANDLE;
+
+        // Reset render state caches to defaults
+        mCurrentRasterizerDesc = RasterizerDesc{};
+        mCurrentBlendDesc = BlendDesc{};
+        mCurrentDepthStencilDesc = DepthStencilDesc{};
+
         return T3D_OK;
     }
 

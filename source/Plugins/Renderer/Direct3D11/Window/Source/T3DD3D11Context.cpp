@@ -67,6 +67,14 @@ namespace Tiny3D
     {
         mCurrentRenderTarget = nullptr;
 
+        // Unbind all pipeline state to release internal references held by
+        // the DeviceContext, then flush to ensure GPU has finished processing.
+        if (mD3DDeviceContext != nullptr)
+        {
+            mD3DDeviceContext->ClearState();
+            mD3DDeviceContext->Flush();
+        }
+
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
         D3D_SAFE_RELEASE(mBlitVS)
@@ -2118,6 +2126,16 @@ namespace Tiny3D
     
     TResult D3D11Context::setPixelShader(ShaderVariant *shader)
     {
+        if (shader == nullptr)
+        {
+            auto lambda = [this]()
+            {
+                mD3DDeviceContext->PSSetShader(nullptr, nullptr, 0);
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         D3D11PixelShaderPtr d3dShader = static_cast<D3D11PixelShader*>(shader->getRHIShader());
         
         auto lambda = [this](const D3D11PixelShaderPtr &d3dShader)
@@ -2195,6 +2213,16 @@ namespace Tiny3D
     
     TResult D3D11Context::setHullShader(ShaderVariant *shader)
     {
+        if (shader == nullptr)
+        {
+            auto lambda = [this]()
+            {
+                mD3DDeviceContext->HSSetShader(nullptr, nullptr, 0);
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         D3D11HullShaderPtr d3dShader = static_cast<D3D11HullShader*>(shader->getRHIShader());
         
         auto lambda = [this](const D3D11HullShaderPtr &d3dShader)
@@ -2273,6 +2301,16 @@ namespace Tiny3D
     
     TResult D3D11Context::setDomainShader(ShaderVariant *shader)
     {
+        if (shader == nullptr)
+        {
+            auto lambda = [this]()
+            {
+                mD3DDeviceContext->DSSetShader(nullptr, nullptr, 0);
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         D3D11DomainShaderPtr d3dShader = static_cast<D3D11DomainShader*>(shader->getRHIShader());
         
         auto lambda = [this](const D3D11DomainShaderPtr &d3dShader)
@@ -2351,6 +2389,16 @@ namespace Tiny3D
     
     TResult D3D11Context::setGeometryShader(ShaderVariant *shader)
     {
+        if (shader == nullptr)
+        {
+            auto lambda = [this]()
+            {
+                mD3DDeviceContext->GSSetShader(nullptr, nullptr, 0);
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         D3D11GeometryShaderPtr d3dShader = static_cast<D3D11GeometryShader*>(shader->getRHIShader());
                 
         auto lambda = [this](const D3D11GeometryShaderPtr &d3dShader)

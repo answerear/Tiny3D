@@ -57,7 +57,8 @@ namespace Tiny3D
 
     TResult GL4RendererConsole::destroy()
     {
-        cleanup();
+        // Do NOT cleanup() here. Context destruction is deferred to
+        // ~GL4RendererConsole() when mRenderers map is cleared.
         return T3D_OK;
     }
 

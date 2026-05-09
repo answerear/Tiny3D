@@ -1887,6 +1887,12 @@ namespace Tiny3D
 
     TResult GL4Context::setPixelShader(ShaderVariant *shader)
     {
+        if (shader == nullptr)
+        {
+            mCurrentPSVariant = nullptr;
+            return T3D_OK;
+        }
+
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
         GLuint shaderHandle = glShader->GLShaderHandle;
 
@@ -2018,27 +2024,28 @@ namespace Tiny3D
 
     TResult GL4Context::setGeometryShader(ShaderVariant *shader)
     {
-        GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-        GLuint shaderHandle = glShader->GLShaderHandle;
+        return T3D_OK;
+        //GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
+        //GLuint shaderHandle = glShader->GLShaderHandle;
 
-        auto lambda = [this](GLuint shaderHandle)
-        {
-            TResult ret = T3D_OK;
+        //auto lambda = [this](GLuint shaderHandle)
+        //{
+        //    TResult ret = T3D_OK;
 
-            do
-            {
-                if (mCurrentProgram == 0)
-                {
-                    mCurrentProgram = glCreateProgram();
-                }
-                glAttachShader(mCurrentProgram, shaderHandle);
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setGeometryShader");
-            } while (false);
+        //    do
+        //    {
+        //        if (mCurrentProgram == 0)
+        //        {
+        //            mCurrentProgram = glCreateProgram();
+        //        }
+        //        glAttachShader(mCurrentProgram, shaderHandle);
+        //        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setGeometryShader");
+        //    } while (false);
 
-            return ret;
-        };
+        //    return ret;
+        //};
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
+        //return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
     }
 
     //--------------------------------------------------------------------------

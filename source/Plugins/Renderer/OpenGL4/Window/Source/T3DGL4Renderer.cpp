@@ -72,7 +72,8 @@ namespace Tiny3D
 
         do
         {
-            cleanup();
+            // Do NOT cleanup() here. Context destruction is deferred to
+            // ~GL4Renderer() when mRenderers map is cleared.
         } while (false);
 
         return ret;
