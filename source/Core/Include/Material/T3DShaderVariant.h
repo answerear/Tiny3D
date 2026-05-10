@@ -151,15 +151,19 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="Code", RTTRFuncType="getter")
-        String getSourceCode() const
+        Buffer getSourceCode() const
         {
-            return String(mBytesCode, mBytesCodeSize);
+            Buffer code;
+            code.Data = (uint8_t *)mBytesCode;
+            code.DataSize = mBytesCodeSize;
+            return code;
+            //return String(mBytesCode, mBytesCodeSize);
         }
 
         TPROPERTY(RTTRFuncName="Code", RTTRFuncType="setter")
-        void setSourceCode(String code)
+        void setSourceCode(Buffer code)
         {
-            setSourceCode(&code[0], code.length());
+            setSourceCode((const char *)code.Data, code.DataSize);
         }
 
         TPROPERTY(RTTRFuncName="ShaderConstantParams", RTTRFuncType="setter")
