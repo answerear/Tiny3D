@@ -144,6 +144,11 @@ int main(int argc, char *argv[])
         settings.pluginSettings.plugins.push_back("GL4RendererConsole");
         settings.renderSettings.renderer = RHIRenderer::OPENGL4_CONSOLE;
     }
+    else if (targetLang == "spirv")
+    {
+        settings.pluginSettings.plugins.push_back("VKRendererConsole");
+        settings.renderSettings.renderer = RHIRenderer::VULKAN_CONSOLE;
+    }
     else
     {
         settings.pluginSettings.plugins.push_back("D3D11RendererConsole");
