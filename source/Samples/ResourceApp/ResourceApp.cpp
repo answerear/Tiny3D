@@ -273,6 +273,10 @@ void ResourceApp::autoCompileShaders(const String &resourcePath)
     {
         requiredLang = "glsl";
     }
+    else if (rendererName == RHIRenderer::VULKAN)
+    {
+        requiredLang = "spirv";
+    }
     else
     {
         requiredLang = "hlsl";
