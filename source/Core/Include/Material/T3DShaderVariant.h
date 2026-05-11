@@ -164,6 +164,7 @@ namespace Tiny3D
         void setSourceCode(Buffer code)
         {
             setSourceCode((const char *)code.Data, code.DataSize);
+            code.release();
         }
 
         TPROPERTY(RTTRFuncName="ShaderConstantParams", RTTRFuncType="setter")
