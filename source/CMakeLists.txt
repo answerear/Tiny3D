@@ -42,7 +42,7 @@ if (WIN32)
 
     set(TINY3D_OS "Windows" CACHE STRING "OS")
 
-    set(SDL2LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
+    set(SDL2LIB_SUFFIXES "prebuilt/windows/${MSVC_CXX_ARCHITECTURE_ID}")
     set(PROTOBUF_SUFFIXES "prebuilt/Windows/${MSVC_CXX_ARCHITECTURE_ID}")
 
     set(CMAKE_SYSTEM_VERSION 10.0.17763)
@@ -62,7 +62,7 @@ elseif (ANDROID)
     set(TINY3D_OS_MOBILE TRUE CACHE STRING "Mobile")
     set(TINY3D_OS "Android" CACHE STRING "OS")
 
-    set(SDL2LIB_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
+    set(SDL2LIB_SUFFIXES "prebuilt/android/${ANDROID_ABI}")
     set(PROTOBUF_SUFFIXES "prebuilt/Android/${ANDROID_ABI}")
 
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
@@ -206,7 +206,7 @@ include(ProjectCMakeModule)
 set(T3D_COMMON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Common")
 
 # Search SDL2 library for all projects.
-set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/SDL2" CACHE PATH "SDL2 library path")
+set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/sdl2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
 
 # Search GLAD library for OpenGL4 renderer.
