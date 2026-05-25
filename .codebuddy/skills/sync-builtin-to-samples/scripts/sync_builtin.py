@@ -35,9 +35,18 @@ def sync_all_shaders(builtin_dir, target_dir, workspace, dry_run=False, names=No
     copied = 0
     success = True
 
+    # Extensions that should NOT be copied from shaders/ directory
+    # (.tshader files should only come from TempShaders/ directory)
+    excluded_extensions = (".tshader", ".tshader.meta")
+
     for fname in sorted(os.listdir(shaders_dir)):
         src = os.path.join(shaders_dir, fname)
         if not os.path.isfile(src):
+            continue
+
+        # Skip .tshader and .tshader.meta — these come from TempShaders/
+        if fname.endswith(excluded_extensions):
+            print(f"Skipped (excluded): {fname} (source should be TempShaders/)")
             continue
 
         # Filter by --names if specified: match stem (name before first '.')
