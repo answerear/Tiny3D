@@ -27,7 +27,6 @@
 #include "T3DPlatformErrorDef.h"
 #include "T3DQueuedJob.h"
 #include "T3DRunnableThread.h"
-#include "T3DWin32Dir.h"
 #include "Thread/T3DQueuedThread.h"
 
 

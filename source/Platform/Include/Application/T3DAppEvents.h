@@ -707,7 +707,10 @@ namespace Tiny3D
      */
     union AppEvent
     {
-        AppEventType type {APP_FIRSTEVENT};
+        AppEvent() : type(APP_FIRSTEVENT) {}
+        ~AppEvent() {}
+
+        AppEventType type;
         AppCommonEvent common;
         AppWindowEvent window;
         AppKeyboardEvent key;

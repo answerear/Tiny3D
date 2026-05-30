@@ -44,6 +44,7 @@ const char *DEFINE_GPU_SKIN = "T3D_GPU_SKIN";
 
 SkeletalAnimationApp theApp;
 
+#if defined(T3D_OS_WINDOWS)
 // extern const char *SAMPLE_LIT_VERTEX_SHADER;
 // extern const char *SAMPLE_LIT_PIXEL_SHADER;
 extern const char *FORWARD_VERTEX_SHADER;
@@ -60,6 +61,8 @@ extern const char *SKIN_FORWARD_VERTEX_SHADER_GL;
 extern const char *FORWARD_PIXEL_SHADER_GL;
 extern const char *GPU_SKIN_SHADOW_VERTEX_SHADER_GL;
 extern const char *GPU_SKIN_FORWARD_VERTEX_SHADER_GL;
+#endif
+#if defined(T3D_OS_WINDOWS) || defined(T3D_OS_ANDROID)
 extern const unsigned char FORWARD_VERTEX_SHADER_VK[];
 extern const size_t FORWARD_VERTEX_SHADER_VK_SIZE;
 extern const unsigned char SHADOW_VERTEX_SHADER_VK[];
@@ -74,6 +77,16 @@ extern const unsigned char GPU_SKIN_SHADOW_VERTEX_SHADER_VK[];
 extern const size_t GPU_SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
 extern const unsigned char GPU_SKIN_FORWARD_VERTEX_SHADER_VK[];
 extern const size_t GPU_SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+#endif
+#if defined(T3D_OS_ANDROID)
+extern const char *FORWARD_VERTEX_SHADER_GLES;
+extern const char *SHADOW_VERTEX_SHADER_GLES;
+extern const char *SKIN_SHADOW_VERTEX_SHADER_GLES;
+extern const char *SKIN_FORWARD_VERTEX_SHADER_GLES;
+extern const char *FORWARD_PIXEL_SHADER_GLES;
+extern const char *GPU_SKIN_SHADOW_VERTEX_SHADER_GLES;
+extern const char *GPU_SKIN_FORWARD_VERTEX_SHADER_GLES;
+#endif
 
 SkeletalAnimationApp::SkeletalAnimationApp()
 {
@@ -120,7 +133,16 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
     // cube shader & material
     const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
     bool isVK = (rendererName == RHIRenderer::VULKAN);
+#if defined(T3D_OS_ANDROID)
+    bool isGLES = true;  // Android: non-VK uses GLES
+    bool isGL = false;
+#elif defined(T3D_OS_WINDOWS) || defined(T3D_OS_LINUX)
+    bool isGLES = false;
     bool isGL = (rendererName == RHIRenderer::OPENGL4);
+#else
+    bool isGLES = false;
+    bool isGL = false;
+#endif
 
     const char *skinForwardVS = nullptr;
     size_t skinForwardVSSize = 0;
@@ -131,6 +153,7 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
     const char *gpuSkinShadowVS = nullptr;
     size_t gpuSkinShadowVSSize = 0;
 
+#if defined(T3D_OS_WINDOWS)
     if (isVK)
     {
         skinForwardVS = reinterpret_cast<const char*>(SKIN_FORWARD_VERTEX_SHADER_VK);
@@ -153,7 +176,7 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
         gpuSkinShadowVS = GPU_SKIN_SHADOW_VERTEX_SHADER_GL;
         gpuSkinShadowVSSize = strlen(GPU_SKIN_SHADOW_VERTEX_SHADER_GL);
     }
-    else
+    else  // DirectX/HLSL
     {
         skinForwardVS = SKIN_FORWARD_VERTEX_SHADER;
         skinForwardVSSize = strlen(SKIN_FORWARD_VERTEX_SHADER);
@@ -164,6 +187,57 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
         gpuSkinShadowVS = GPU_SKIN_SHADOW_VERTEX_SHADER;
         gpuSkinShadowVSSize = strlen(GPU_SKIN_SHADOW_VERTEX_SHADER);
     }
+#elif defined(T3D_OS_ANDROID)
+    if (isVK)
+    {
+        skinForwardVS = reinterpret_cast<const char*>(SKIN_FORWARD_VERTEX_SHADER_VK);
+        skinForwardVSSize = SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+        skinShadowVS = reinterpret_cast<const char*>(SKIN_SHADOW_VERTEX_SHADER_VK);
+        skinShadowVSSize = SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+        gpuSkinForwardVS = reinterpret_cast<const char*>(GPU_SKIN_FORWARD_VERTEX_SHADER_VK);
+        gpuSkinForwardVSSize = GPU_SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+        gpuSkinShadowVS = reinterpret_cast<const char*>(GPU_SKIN_SHADOW_VERTEX_SHADER_VK);
+        gpuSkinShadowVSSize = GPU_SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        skinForwardVS = SKIN_FORWARD_VERTEX_SHADER_GLES;
+        skinForwardVSSize = strlen(SKIN_FORWARD_VERTEX_SHADER_GLES);
+        skinShadowVS = SKIN_SHADOW_VERTEX_SHADER_GLES;
+        skinShadowVSSize = strlen(SKIN_SHADOW_VERTEX_SHADER_GLES);
+        gpuSkinForwardVS = GPU_SKIN_FORWARD_VERTEX_SHADER_GLES;
+        gpuSkinForwardVSSize = strlen(GPU_SKIN_FORWARD_VERTEX_SHADER_GLES);
+        gpuSkinShadowVS = GPU_SKIN_SHADOW_VERTEX_SHADER_GLES;
+        gpuSkinShadowVSSize = strlen(GPU_SKIN_SHADOW_VERTEX_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (isVK)
+    {
+        skinForwardVS = reinterpret_cast<const char*>(SKIN_FORWARD_VERTEX_SHADER_VK);
+        skinForwardVSSize = SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+        skinShadowVS = reinterpret_cast<const char*>(SKIN_SHADOW_VERTEX_SHADER_VK);
+        skinShadowVSSize = SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+        gpuSkinForwardVS = reinterpret_cast<const char*>(GPU_SKIN_FORWARD_VERTEX_SHADER_VK);
+        gpuSkinForwardVSSize = GPU_SKIN_FORWARD_VERTEX_SHADER_VK_SIZE;
+        gpuSkinShadowVS = reinterpret_cast<const char*>(GPU_SKIN_SHADOW_VERTEX_SHADER_VK);
+        gpuSkinShadowVSSize = GPU_SKIN_SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        skinForwardVS = SKIN_FORWARD_VERTEX_SHADER_GL;
+        skinForwardVSSize = strlen(SKIN_FORWARD_VERTEX_SHADER_GL);
+        skinShadowVS = SKIN_SHADOW_VERTEX_SHADER_GL;
+        skinShadowVSSize = strlen(SKIN_SHADOW_VERTEX_SHADER_GL);
+        gpuSkinForwardVS = GPU_SKIN_FORWARD_VERTEX_SHADER_GL;
+        gpuSkinForwardVSSize = strlen(GPU_SKIN_FORWARD_VERTEX_SHADER_GL);
+        gpuSkinShadowVS = GPU_SKIN_SHADOW_VERTEX_SHADER_GL;
+        gpuSkinShadowVSSize = strlen(GPU_SKIN_SHADOW_VERTEX_SHADER_GL);
+    }
+#endif
 
     ShaderPtr shader = buildShader("Cube-Shader",
         skinForwardVS, skinForwardVSSize,
@@ -178,6 +252,7 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
     const char *planeShadowVS = nullptr;
     size_t planeShadowVSSize = 0;
 
+#if defined(T3D_OS_WINDOWS)
     if (isVK)
     {
         planeForwardVS = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
@@ -192,13 +267,48 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
         planeShadowVS = SHADOW_VERTEX_SHADER_GL;
         planeShadowVSSize = strlen(SHADOW_VERTEX_SHADER_GL);
     }
-    else
+    else  // DirectX/HLSL
     {
         planeForwardVS = FORWARD_VERTEX_SHADER;
         planeForwardVSSize = strlen(FORWARD_VERTEX_SHADER);
         planeShadowVS = SHADOW_VERTEX_SHADER;
         planeShadowVSSize = strlen(SHADOW_VERTEX_SHADER);
     }
+#elif defined(T3D_OS_ANDROID)
+    if (isVK)
+    {
+        planeForwardVS = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        planeForwardVSSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+        planeShadowVS = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        planeShadowVSSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        planeForwardVS = FORWARD_VERTEX_SHADER_GLES;
+        planeForwardVSSize = strlen(FORWARD_VERTEX_SHADER_GLES);
+        planeShadowVS = SHADOW_VERTEX_SHADER_GLES;
+        planeShadowVSSize = strlen(SHADOW_VERTEX_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (isVK)
+    {
+        planeForwardVS = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        planeForwardVSSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+        planeShadowVS = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        planeShadowVSSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        planeForwardVS = FORWARD_VERTEX_SHADER_GL;
+        planeForwardVSSize = strlen(FORWARD_VERTEX_SHADER_GL);
+        planeShadowVS = SHADOW_VERTEX_SHADER_GL;
+        planeShadowVSSize = strlen(SHADOW_VERTEX_SHADER_GL);
+    }
+#endif
 
     shader = buildShader("Plane-Shader",
         planeForwardVS, planeForwardVSSize,
@@ -359,6 +469,7 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, co
     const char *psCode = nullptr;
     size_t psSize = 0;
 
+#if defined(T3D_OS_WINDOWS)
     if (rendererName == RHIRenderer::VULKAN)
     {
         psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
@@ -369,11 +480,38 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, co
         psCode = FORWARD_PIXEL_SHADER_GL;
         psSize = strlen(FORWARD_PIXEL_SHADER_GL);
     }
-    else
+    else  // DirectX/HLSL
     {
         psCode = FORWARD_PIXEL_SHADER;
         psSize = strlen(FORWARD_PIXEL_SHADER);
     }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        psCode = FORWARD_PIXEL_SHADER_GLES;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        psCode = FORWARD_PIXEL_SHADER_GL;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GL);
+    }
+#endif
 
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);

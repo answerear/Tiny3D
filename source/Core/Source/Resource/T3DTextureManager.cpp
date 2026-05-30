@@ -234,7 +234,7 @@ namespace Tiny3D
                 uint32_t mipmaps = va_arg(args, uint32_t);
                 uint32_t MSAACount = va_arg(args, uint32_t);
                 uint32_t MSAAQuality = va_arg(args, uint32_t);
-                bool shaderReadable = va_arg(args, bool);
+                bool shaderReadable = static_cast<bool>(va_arg(args, int));
                 texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
             }
             break;

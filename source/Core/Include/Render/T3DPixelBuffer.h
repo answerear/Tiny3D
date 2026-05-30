@@ -66,8 +66,6 @@ namespace Tiny3D
         Descriptor_t *mDesc {nullptr};
     };
 
-    template class T3D_ENGINE_API PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>;
-    
     class T3D_ENGINE_API PixelBuffer1D : public PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>
     {
     public:
@@ -83,8 +81,8 @@ namespace Tiny3D
         bool onUnload() override;
     };
 
-    template class T3D_ENGINE_API PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>;
-    
+    template class T3D_ENGINE_API PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>;
+
     class T3D_ENGINE_API PixelBuffer2D : public PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>
     {
     public:
@@ -106,8 +104,8 @@ namespace Tiny3D
         bool    mIsRenderTexture {false};
     };
 
-    template class T3D_ENGINE_API PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>;
-    
+    template class T3D_ENGINE_API PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>;
+
     class T3D_ENGINE_API PixelBuffer3D : public PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>
     {
     public:
@@ -122,6 +120,8 @@ namespace Tiny3D
 
         bool onUnload() override;
     };
+
+    template class T3D_ENGINE_API PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>;
 }
 
 

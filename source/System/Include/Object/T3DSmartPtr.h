@@ -118,7 +118,7 @@ namespace Tiny3D
         SmartPtr(const SmartPtr<T2> &rkOther,
             typename std::enable_if<std::is_convertible<T2 *, T *>::value, void>::type ** = 0)
         {
-            mReferObject = rkOther;
+            mReferObject = static_cast<Object*>(static_cast<T2*>(rkOther));
 
             if (mReferObject != nullptr)
             {
@@ -137,7 +137,7 @@ namespace Tiny3D
         template <typename T2>
         SmartPtr(const SmartPtr<T2> &rkOther, const std::_Static_tag &)
         {
-            mReferObject = rkOther;
+            mReferObject = static_cast<Object*>(static_cast<T2*>(rkOther));
 
             if (mReferObject != nullptr)
             {
@@ -198,11 +198,12 @@ namespace Tiny3D
          */
         SmartPtr &operator =(T *obj)
         {
-            if (mReferObject != obj)
+            Object *objPtr = static_cast<Object*>(obj);
+            if (mReferObject != objPtr)
             {
-                if (obj != nullptr)
+                if (objPtr != nullptr)
                 {
-                    obj->acquire();
+                    objPtr->acquire();
                 }
 
                 if (mReferObject != nullptr)
@@ -210,7 +211,7 @@ namespace Tiny3D
                     mReferObject->release();
                 }
 
-                mReferObject = obj;
+                mReferObject = objPtr;
             }
 
             return *this;
@@ -253,11 +254,12 @@ namespace Tiny3D
         template <typename T2>
         SmartPtr &operator =(const SmartPtr<T2> &rkOther)
         {
-            if (mReferObject != rkOther)
+            Object *otherObj = static_cast<Object*>(static_cast<T2*>(rkOther));
+            if (mReferObject != otherObj)
             {
-                if (rkOther != nullptr)
+                if (otherObj != nullptr)
                 {
-                    rkOther->acquire();
+                    otherObj->acquire();
                 }
 
                 if (mReferObject != nullptr)
@@ -265,7 +267,7 @@ namespace Tiny3D
                     mReferObject->release();
                 }
 
-                mReferObject = rkOther;
+                mReferObject = otherObj;
             }
 
             return *this;
@@ -300,34 +302,34 @@ namespace Tiny3D
     public:
         ThreadSafePtr(Object *obj = nullptr) : SmartPtr<T>(obj)
         {
-            if (mReferObject != nullptr)
+            if (this->mReferObject != nullptr)
             {
-                mReferObject->enableThreadSafe(true);
+                this->mReferObject->enableThreadSafe(true);
             }
         }
 
         ThreadSafePtr(const ThreadSafePtr &other) : SmartPtr<T>(other)
         {
-            if (mReferObject != nullptr)
+            if (this->mReferObject != nullptr)
             {
-                mReferObject->enableThreadSafe(true);
+                this->mReferObject->enableThreadSafe(true);
             }
         }
 
         ThreadSafePtr(const SmartPtr<T> &other) : SmartPtr<T>(other)
         {
-            if (mReferObject != nullptr)
+            if (this->mReferObject != nullptr)
             {
-                mReferObject->enableThreadSafe(true);
+                this->mReferObject->enableThreadSafe(true);
             }
         }
 
         ThreadSafePtr &operator=(const ThreadSafePtr &other)
         {
             SmartPtr<T>::operator=(other);
-            if (mReferObject != nullptr)
+            if (this->mReferObject != nullptr)
             {
-                mReferObject->enableThreadSafe(true);
+                this->mReferObject->enableThreadSafe(true);
             }
             return *this;
         }
@@ -336,18 +338,18 @@ namespace Tiny3D
         ThreadSafePtr &operator=(const SmartPtr<T> &other)
         {
             SmartPtr<T>::operator=(other);
-            if (mReferObject != nullptr)
+            if (this->mReferObject != nullptr)
             {
-                mReferObject->enableThreadSafe(true);
+                this->mReferObject->enableThreadSafe(true);
             }
             return *this;
         }
 
         ~ThreadSafePtr() override
         {
-            if (mReferObject != nullptr)
+            if (this->mReferObject != nullptr)
             {
-                mReferObject->enableThreadSafe(false);
+                this->mReferObject->enableThreadSafe(false);
             }
         }
     };

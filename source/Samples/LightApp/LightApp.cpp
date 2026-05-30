@@ -34,14 +34,22 @@ const char *SUB_MESH_NAME = "#0";
 
 LightApp theApp;
 
+#if defined(T3D_OS_WINDOWS)
 extern const char *SAMPLE_LIT_VERTEX_SHADER;
 extern const char *SAMPLE_LIT_PIXEL_SHADER;
 extern const char *SAMPLE_LIT_VERTEX_SHADER_GL;
 extern const char *SAMPLE_LIT_PIXEL_SHADER_GL;
+#endif
+#if defined(T3D_OS_WINDOWS) || defined(T3D_OS_ANDROID)
 extern const unsigned char SAMPLE_LIT_VERTEX_SHADER_VK[];
 extern const size_t SAMPLE_LIT_VERTEX_SHADER_VK_SIZE;
 extern const unsigned char SAMPLE_LIT_PIXEL_SHADER_VK[];
 extern const size_t SAMPLE_LIT_PIXEL_SHADER_VK_SIZE;
+#endif
+#if defined(T3D_OS_ANDROID)
+extern const char *SAMPLE_LIT_VERTEX_SHADER_GLES;
+extern const char *SAMPLE_LIT_PIXEL_SHADER_GLES;
+#endif
 
 LightApp::LightApp()
 {
@@ -353,6 +361,7 @@ MaterialPtr LightApp::buildMaterial()
     const char *vsCode = nullptr;
     size_t vsSize = 0;
 
+#if defined(T3D_OS_WINDOWS)
     if (rendererName == RHIRenderer::VULKAN)
     {
         vsCode = reinterpret_cast<const char*>(SAMPLE_LIT_VERTEX_SHADER_VK);
@@ -363,11 +372,38 @@ MaterialPtr LightApp::buildMaterial()
         vsCode = SAMPLE_LIT_VERTEX_SHADER_GL;
         vsSize = strlen(SAMPLE_LIT_VERTEX_SHADER_GL);
     }
-    else
+    else  // DirectX/HLSL
     {
         vsCode = SAMPLE_LIT_VERTEX_SHADER;
         vsSize = strlen(SAMPLE_LIT_VERTEX_SHADER);
     }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SAMPLE_LIT_VERTEX_SHADER_VK);
+        vsSize = SAMPLE_LIT_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        vsCode = SAMPLE_LIT_VERTEX_SHADER_GLES;
+        vsSize = strlen(SAMPLE_LIT_VERTEX_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SAMPLE_LIT_VERTEX_SHADER_VK);
+        vsSize = SAMPLE_LIT_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        vsCode = SAMPLE_LIT_VERTEX_SHADER_GL;
+        vsSize = strlen(SAMPLE_LIT_VERTEX_SHADER_GL);
+    }
+#endif
 
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
@@ -376,6 +412,7 @@ MaterialPtr LightApp::buildMaterial()
     const char *psCode = nullptr;
     size_t psSize = 0;
 
+#if defined(T3D_OS_WINDOWS)
     if (rendererName == RHIRenderer::VULKAN)
     {
         psCode = reinterpret_cast<const char*>(SAMPLE_LIT_PIXEL_SHADER_VK);
@@ -386,11 +423,38 @@ MaterialPtr LightApp::buildMaterial()
         psCode = SAMPLE_LIT_PIXEL_SHADER_GL;
         psSize = strlen(SAMPLE_LIT_PIXEL_SHADER_GL);
     }
-    else
+    else  // DirectX/HLSL
     {
         psCode = SAMPLE_LIT_PIXEL_SHADER;
         psSize = strlen(SAMPLE_LIT_PIXEL_SHADER);
     }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(SAMPLE_LIT_PIXEL_SHADER_VK);
+        psSize = SAMPLE_LIT_PIXEL_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        psCode = SAMPLE_LIT_PIXEL_SHADER_GLES;
+        psSize = strlen(SAMPLE_LIT_PIXEL_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(SAMPLE_LIT_PIXEL_SHADER_VK);
+        psSize = SAMPLE_LIT_PIXEL_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        psCode = SAMPLE_LIT_PIXEL_SHADER_GL;
+        psSize = strlen(SAMPLE_LIT_PIXEL_SHADER_GL);
+    }
+#endif
 
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);

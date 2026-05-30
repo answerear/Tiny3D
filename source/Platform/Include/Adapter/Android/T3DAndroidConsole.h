@@ -22,6 +22,7 @@
 
 
 #include "Adapter/T3DConsoleInterface.h"
+#include "T3DNoncopyable.h"
 #include <android/log.h>
 
 namespace Tiny3D
@@ -31,10 +32,8 @@ namespace Tiny3D
     #define LOGW(...)   __android_log_print(ANDROID_LOG_WARNING, "Tiny3D", __VA_ARGS__)
     #define LOGE(...)   __android_log_print(ANDROID_LOG_ERROR, "Tiny3D", __VA_ARGS__)
 
-    class AndroidConsole : public IConsole
+    class AndroidConsole : public IConsole, public Noncopyable
     {
-        T3D_DISABLE_COPY(AndroidConsole);
-
     public:
         AndroidConsole();
 

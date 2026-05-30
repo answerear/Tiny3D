@@ -28,7 +28,7 @@
 
 #include "T3DPlatformPrerequisites.h"
 #include "T3DMacro.h"
-#include <new.h>
+#include <new>
 
 #define T3D_USE_CUSTOM_NEW
 

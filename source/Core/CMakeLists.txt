@@ -17,5 +17,7 @@ set(TINY3D_FRAMEWORK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Framework")
 set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 
 add_subdirectory(Runtime)
-add_subdirectory(Editor)
+if (TINY3D_OS_DESKTOP)
+    add_subdirectory(Editor)
+endif (TINY3D_OS_DESKTOP)
 

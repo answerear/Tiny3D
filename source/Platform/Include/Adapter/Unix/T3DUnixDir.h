@@ -58,6 +58,16 @@ namespace Tiny3D
         virtual bool remove(const String &strFileName) override;
         
         virtual bool exists(const String &strPath) const override;
+
+        virtual long_t getCreationTime(const String &filename) const override;
+
+        virtual long_t getLastAccessTime(const String &filename) const override;
+
+        virtual long_t getLastWriteTime(const String &filename) const override;
+
+        virtual bool isDirectory(const String &path) const override;
+
+        virtual String getCurrentPath() const override;
         
         virtual char getNativeSeparator() const override;
         

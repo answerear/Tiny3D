@@ -5,6 +5,7 @@
 /vs2015-x64
 /vs2017-x64
 /vs2019-x64
+/build-rpp-host
 /xcode-osx
 /xcode-simulator
 /xcode-ios

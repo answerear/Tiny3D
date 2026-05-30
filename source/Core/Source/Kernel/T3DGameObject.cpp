@@ -520,7 +520,8 @@ namespace Tiny3D
             }
 
             TArray<rttr::argument> args;
-            args.push_back(UUID::generate());
+            UUID uuid = UUID::generate();
+            args.push_back(uuid);
             rttr::variant var = type.create(args);
             bool ok = false;
             Component *comp = var.convert<Component*>(&ok);

@@ -84,7 +84,6 @@ elseif (TINY3D_OS_ANDROID)
         PRE_LINK
         COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
         COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_LIBRARY} ${T3D_ANDROID_LIB_PATH}
         )
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     # Setup executable project for iOS or Mac OS X.

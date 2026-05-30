@@ -22,14 +22,13 @@
 
 
 #include "Adapter/T3DDeviceInfoInterface.h"
+#include "T3DNoncopyable.h"
 
 
 namespace Tiny3D
 {
-    class iOSDeviceInfo : public IDeviceInfo
+    class iOSDeviceInfo : public IDeviceInfo, public Noncopyable
     {
-        T3D_DISABLE_COPY(iOSDeviceInfo);
-
     public:
         iOSDeviceInfo();
         virtual ~iOSDeviceInfo();

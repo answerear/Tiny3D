@@ -192,10 +192,19 @@ namespace Tiny3D
         float32x4_t r2 = vld1q_f32(mat + 8);
         float32x4_t r3 = vld1q_f32(mat + 12);
 
+#if defined(__aarch64__)
         float32x4_t result = vmulq_laneq_f32(r0, row, 0);
         result = vmlaq_laneq_f32(result, r1, row, 1);
         result = vmlaq_laneq_f32(result, r2, row, 2);
         result = vmlaq_laneq_f32(result, r3, row, 3);
+#else
+        float32x2_t row_low = vget_low_f32(row);
+        float32x2_t row_high = vget_high_f32(row);
+        float32x4_t result = vmulq_lane_f32(r0, row_low, 0);
+        result = vmlaq_lane_f32(result, r1, row_low, 1);
+        result = vmlaq_lane_f32(result, r2, row_high, 0);
+        result = vmlaq_lane_f32(result, r3, row_high, 1);
+#endif
         return result;
     }
 

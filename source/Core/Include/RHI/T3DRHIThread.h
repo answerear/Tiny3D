@@ -29,7 +29,9 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "T3DRHICommand.h"
 #include <functional>
+#include <tuple>
 
 
 namespace Tiny3D

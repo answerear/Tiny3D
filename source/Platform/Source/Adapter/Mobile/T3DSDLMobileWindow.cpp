@@ -270,4 +270,11 @@ namespace Tiny3D
 
         return ret;
     }
+
+    //--------------------------------------------------------------------------
+
+    void *SDLMobileWindow::getNativeObject() const
+    {
+        return mSDLWindow;
+    }
 }

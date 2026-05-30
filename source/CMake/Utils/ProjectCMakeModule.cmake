@@ -27,7 +27,7 @@ endfunction(ADD_PROJECT_FILES)
 
 
 function(ADD_PROJECT_FILES_BY_EXT out_files group dir ext)
-	file(GLOB var ${dir}*${ext})
+	file(GLOB var CONFIGURE_DEPENDS ${dir}*${ext})
 
 	foreach(f ${var})
 		get_filename_component(name ${f} NAME_WE)

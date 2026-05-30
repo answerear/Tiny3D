@@ -221,8 +221,7 @@ namespace Tiny3D
         {
             T3D_ASSERT(mDataType == ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY);
             T3D_ASSERT(mValue.DataSize == sizeof(bool) * values.size());
-            const auto &val = values[0];
-            memcpy(mValue.Data, &val, sizeof(bool) * values.size());
+            std::copy(values.begin(), values.end(), reinterpret_cast<bool*>(mValue.Data));
         }
 
         BoolArray getBoolArray() const

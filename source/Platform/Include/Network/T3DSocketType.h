@@ -72,7 +72,7 @@
 
     #define T3DGetError()           errno
         
-    #define T3DCloseSocket(s)       close(s)
+    #define T3DCloseSocket(s)       ::close(s)
     #define T3DIOCtlSocket(s, c, a) ioctl(s, c, a)
 
     #define T3D_EAGAIN              EAGAIN

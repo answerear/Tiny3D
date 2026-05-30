@@ -237,8 +237,15 @@ namespace Tiny3D
     
     inline void ShaderVariantInstance::setBoolArray(const String &name, const BoolArray &values)
     {
-        const auto &val = values[0];
-        setValue(name, &val, static_cast<uint32_t>(values.size() * sizeof(bool)));
+        uint8_t *dst = nullptr;
+        uint32_t dstSize = 0;
+        if (getConstantBufferInfo(name, dst, dstSize))
+        {
+            if (dstSize == values.size() * sizeof(bool))
+            {
+                std::copy(values.begin(), values.end(), (bool*)dst);
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

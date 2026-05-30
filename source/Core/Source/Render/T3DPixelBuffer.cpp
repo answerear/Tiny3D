@@ -32,10 +32,6 @@
 
 namespace Tiny3D
 {
-    template class PixelBufferT<PixelBuffer1D, PixelBuffer1DDesc>;
-    template class PixelBufferT<PixelBuffer2D, PixelBuffer2DDesc>;
-    template class PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>;
-    
     //--------------------------------------------------------------------------
 
     PixelBuffer::PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)

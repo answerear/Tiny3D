@@ -27,10 +27,11 @@
 
 #if defined (T3D_OS_WINDOWS)
 #include "Adapter/Windows/T3DWin32MemManager.h"
+#elif defined (T3D_OS_ANDROID)
+#include "Adapter/Android/T3DAndroidMemManager.h"
 #elif defined (T3D_OS_LINUX)
 #elif defined (T3D_OS_IOS)
 #elif defined (T3D_OS_OSX)
-#elif defined (T3D_OS_IOS)
 #endif
 
 namespace Tiny3D
@@ -45,7 +46,14 @@ namespace Tiny3D
     #else
         static Win32MemManager instance;
     #endif
+#elif defined (T3D_OS_ANDROID)
+    #if defined (T3D_DEBUG)
+        static AndroidDebugMemManager instance;
+    #else
+        static AndroidMemManager instance;
+    #endif
 #else
+    #error "MemoryManager not implemented for this platform!"
 #endif
         
         return instance;

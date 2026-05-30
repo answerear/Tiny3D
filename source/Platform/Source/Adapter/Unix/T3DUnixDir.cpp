@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 namespace Tiny3D
@@ -195,6 +196,55 @@ namespace Tiny3D
         struct stat s;
         int result = stat(strPath.c_str(), &s);
         return (result == 0);
+    }
+
+    long_t UnixDir::getCreationTime(const String &filename) const
+    {
+        long_t timestamp = 0;
+        struct stat s;
+        int result = stat(filename.c_str(), &s);
+        if (result == 0)
+            timestamp = (long_t)s.st_ctime;
+        return timestamp;
+    }
+
+    long_t UnixDir::getLastAccessTime(const String &filename) const
+    {
+        long_t timestamp = 0;
+        struct stat s;
+        int result = stat(filename.c_str(), &s);
+        if (result == 0)
+            timestamp = (long_t)s.st_atime;
+        return timestamp;
+    }
+
+    long_t UnixDir::getLastWriteTime(const String &filename) const
+    {
+        long_t timestamp = 0;
+        struct stat s;
+        int result = stat(filename.c_str(), &s);
+        if (result == 0)
+            timestamp = (long_t)s.st_mtime;
+        return timestamp;
+    }
+
+    bool UnixDir::isDirectory(const String &path) const
+    {
+        struct stat s;
+        int result = stat(path.c_str(), &s);
+        return (result == 0 && S_ISDIR(s.st_mode));
+    }
+
+    String UnixDir::getCurrentPath() const
+    {
+        String result;
+        char *cwd = getcwd(NULL, 0);
+        if (cwd != nullptr)
+        {
+            result = cwd;
+            free(cwd);
+        }
+        return result;
     }
 
     char UnixDir::getNativeSeparator() const

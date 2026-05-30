@@ -25,6 +25,13 @@
 #include "Adapter/Android/T3DAndroidDir.h"
 #include "Adapter/Android/T3DAndroidConsole.h"
 #include "Adapter/Android/T3DAndroidDeviceInfo.h"
+#include "Adapter/Android/T3DAndroidPlatform.h"
+#include "Adapter/Android/T3DAndroidThread.h"
+#include "Adapter/Android/T3DAndroidSyncObject.h"
+#include "Adapter/Android/T3DAndroidFSMonitor.h"
+#include "Adapter/Unix/T3DPosixSyncObject.h"
+#include "Adapter/Unix/T3DPosixProcess.h"
+#include "Adapter/Unix/T3DPosixLocale.h"
 
 
 namespace Tiny3D
@@ -39,39 +46,94 @@ namespace Tiny3D
 
     }
 
+    IPlatform *AndroidFactory::createPlatform()
+    {
+        return T3D_NEW AndroidPlatform();
+    }
+
     IApplication *AndroidFactory::createPlatformApplication()
     {
-        return new SDLApplication();
+        return T3D_NEW SDLApplication();
     }
 
     IWindow *AndroidFactory::createPlatformWindow()
     {
-        return new SDLMobileWindow();
+        return T3D_NEW SDLMobileWindow();
     }
 
     ITime *AndroidFactory::createPlatformTime()
     {
-        return new UnixTime();
+        return T3D_NEW UnixTime();
     }
 
     ITimerService *AndroidFactory::createPlatformTimerService()
     {
-        return new TimerService();
+        return T3D_NEW TimerService();
     }
 
     IDir *AndroidFactory::createPlatformDir()
     {
-        return new AndroidDir();
+        return T3D_NEW AndroidDir();
     }
 
     IDeviceInfo *AndroidFactory::createPlatformDeviceInfo()
     {
-        return new AndroidDeviceInfo();
+        return T3D_NEW AndroidDeviceInfo();
     }
 
     IConsole *AndroidFactory::createPlatformConsole()
     {
-        return new AndroidConsole();
+        return T3D_NEW AndroidConsole();
+    }
+
+    IThread *AndroidFactory::createPlatformThread()
+    {
+        return T3D_NEW AndroidThread();
+    }
+
+    ICriticalSection *AndroidFactory::createPlatformCriticalSection()
+    {
+        return T3D_NEW AndroidCriticalSection();
+    }
+
+    IMutex *AndroidFactory::createPlatformMutex()
+    {
+        return T3D_NEW AndroidMutex();
+    }
+
+    IRecursiveMutex *AndroidFactory::createPlatformRecursiveMutex()
+    {
+        return T3D_NEW AndroidRecursiveMutex();
+    }
+
+    ISemaphore *AndroidFactory::createPlatformSemaphore()
+    {
+        return T3D_NEW AndroidSemaphore();
+    }
+
+    IEvent *AndroidFactory::createPlatformEvent()
+    {
+        return T3D_NEW PosixEvent();
+    }
+
+    IWaitCondition *AndroidFactory::createPlatformWaitCondition()
+    {
+        return T3D_NEW PosixWaitCondition();
+    }
+
+    IProcess *AndroidFactory::createPlatformProcess()
+    {
+        return T3D_NEW PosixProcess();
+    }
+
+    ILocale *AndroidFactory::createPlatformLocale()
+    {
+        return T3D_NEW PosixLocale();
+    }
+
+    IFSMonitor *AndroidFactory::createFileSystemMonitor()
+    {
+        return T3D_NEW AndroidFSMonitor();
     }
 
     EPlatform AndroidFactory::getPlatform()
@@ -81,7 +143,7 @@ namespace Tiny3D
 
     IFactory *createPlatformFactory()
     {
-        return new AndroidFactory();
+        return T3D_NEW AndroidFactory();
     }
 }
 

@@ -6,4 +6,7 @@
 #-------------------------------------------------------------------------------
 
 add_subdirectory(Runtime)
-add_subdirectory(Editor)
+
+if (TINY3D_BUILD_EDITOR)
+    add_subdirectory(Editor)
+endif (TINY3D_BUILD_EDITOR)

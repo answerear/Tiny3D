@@ -368,8 +368,8 @@ namespace Tiny3D
             settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
             settings.pluginSettings.plugins.emplace_back("GL4RendererEditor");
             settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
-            //settings.renderSettings.renderer = RHIRenderer::OPENGL4;
-            settings.renderSettings.renderer = RHIRenderer::DIRECT3D11;
+            settings.renderSettings.renderer = RHIRenderer::OPENGL4;
+            //settings.renderSettings.renderer = RHIRenderer::DIRECT3D11;
             
             // 初始化引擎，只有初始化后才能使用
             ret = mEngine->init(argc, argv, true, true, settings, kEvtMax);

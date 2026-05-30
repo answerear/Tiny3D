@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
+    namespace "com.tiny3d.library"
     compileSdkVersion 26
     defaultConfig {
 //        applicationId "com.tiny3d.library"

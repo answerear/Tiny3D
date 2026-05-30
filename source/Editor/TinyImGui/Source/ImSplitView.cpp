@@ -67,8 +67,8 @@ namespace Tiny3D
             mSizePct1 = *pct;
             ImWidget *child1 = va_arg(args, ImWidget*);
             int32_t mainIdx = va_arg(args, int32_t);
-            mIsHorz = va_arg(args, bool);
-            mResizable = va_arg(args, bool);
+            mIsHorz = static_cast<bool>(va_arg(args, int));
+            mResizable = static_cast<bool>(va_arg(args, int));
             
             if (mainIdx == 0)
             {

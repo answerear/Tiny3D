@@ -97,19 +97,19 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="xAxis", RTTRFuncType="getter", "Description"="X Axis")
         const TVector3<T> &getXAxis() const;
         
-        TPROPERTY(RTTRFuncName="xAxis", RTTRFuncTYpe="setter", "Description"="X Axis")
+        TPROPERTY(RTTRFuncName="xAxis", RTTRFuncType="setter", "Description"="X Axis")
         void setXAxis(const TVector3<T> &axis);
 
         TPROPERTY(RTTRFuncName="yAxis", RTTRFuncType="getter", "Description"="Y Axis")
         const TVector3<T> &getYAxis() const;
         
-        TPROPERTY(RTTRFuncName="yAxis", RTTRFuncTYpe="setter", "Description"="Y Axis")
+        TPROPERTY(RTTRFuncName="yAxis", RTTRFuncType="setter", "Description"="Y Axis")
         void setYAxis(const TVector3<T> &axis);
 
         TPROPERTY(RTTRFuncName="zAxis", RTTRFuncType="getter", "Description"="Z Axis")
         const TVector3<T> &getZAxis() const;
         
-        TPROPERTY(RTTRFuncName="zAxis", RTTRFuncTYpe="setter", "Description"="Z Axis")
+        TPROPERTY(RTTRFuncName="zAxis", RTTRFuncType="setter", "Description"="Z Axis")
         void setZAxis(const TVector3<T> &axis);
 
         TPROPERTY(RTTRFuncName="xExtent", RTTRFuncType="getter", "Description"="Extent along x-axis")

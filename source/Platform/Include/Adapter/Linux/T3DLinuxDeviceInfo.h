@@ -22,14 +22,13 @@
 
 
 #include "Adapter/T3DDeviceInfoInterface.h"
+#include "T3DNoncopyable.h"
 
 
 namespace Tiny3D
 {
-    class LinuxDeviceInfo : public IDeviceInfo
+    class LinuxDeviceInfo : public IDeviceInfo, public Noncopyable
     {
-        T3D_DISABLE_COPY(LinuxDeviceInfo);
-
     public:
         LinuxDeviceInfo();
         virtual ~LinuxDeviceInfo();

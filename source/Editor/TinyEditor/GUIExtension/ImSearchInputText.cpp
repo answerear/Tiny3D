@@ -48,7 +48,7 @@ namespace Tiny3D
         {
             T3D_ASSERT(argc >= 4);
 
-            mCallbackEdit = va_arg(args, bool);
+            mCallbackEdit = static_cast<bool>(va_arg(args, int));
             ImVec2 *size = va_arg(args, ImVec2 *);
             setSize(*size);
             mOriginalSize = *size;

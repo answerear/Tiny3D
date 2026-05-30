@@ -81,8 +81,6 @@ namespace Tiny3D
         TPROPERTY()
         RTBlendDesc    RenderTargetStates[kMaxRenderTarget]{};
     };
-
-    template class T3D_ENGINE_API RenderStateResource<BlendDesc, RHIBlendState>;
     
     class T3D_ENGINE_API BlendState : public RenderStateResource<BlendDesc, RHIBlendState>
     {
@@ -100,6 +98,8 @@ namespace Tiny3D
 
         bool onUnload() override;
     };
+
+    template class T3D_ENGINE_API RenderStateResource<BlendDesc, RHIBlendState>;
 }
 
 

@@ -31,8 +31,6 @@
 
 namespace  Tiny3D
 {
-    template class RenderStateResource<BlendDesc, RHIBlendState>;
-    
     //--------------------------------------------------------------------------
 
     BlendStatePtr BlendState::create(const BlendDesc &desc, uint32_t hash)

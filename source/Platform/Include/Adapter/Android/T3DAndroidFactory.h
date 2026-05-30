@@ -32,6 +32,8 @@ namespace Tiny3D
         AndroidFactory();
         virtual ~AndroidFactory();
 
+        virtual IPlatform *createPlatform() override;
+
         virtual IApplication *createPlatformApplication() override;
 
         virtual IWindow *createPlatformWindow() override;
@@ -45,6 +47,26 @@ namespace Tiny3D
         virtual IDeviceInfo *createPlatformDeviceInfo() override;
 
         virtual IConsole *createPlatformConsole() override;
+
+        virtual IThread *createPlatformThread() override;
+
+        virtual ICriticalSection *createPlatformCriticalSection() override;
+
+        virtual IMutex *createPlatformMutex() override;
+
+        virtual IRecursiveMutex *createPlatformRecursiveMutex() override;
+
+        virtual ISemaphore *createPlatformSemaphore() override;
+
+        virtual IEvent *createPlatformEvent() override;
+
+        virtual IWaitCondition *createPlatformWaitCondition() override;
+
+        virtual IProcess *createPlatformProcess() override;
+
+        virtual ILocale *createPlatformLocale() override;
+
+        virtual IFSMonitor *createFileSystemMonitor() override;
 
         virtual EPlatform getPlatform() override;
 

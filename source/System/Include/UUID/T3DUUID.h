@@ -99,18 +99,19 @@ namespace Tiny3D
         bool operator <(const UUID& other) const
         {
             return (this->values.high < other.values.high
-                || this->values.high == other.values.high && this->values.low < other.values.low);
+                || (this->values.high == other.values.high && this->values.low < other.values.low));
         }
+
+        struct Value
+        {
+            uint64_t    low;
+            uint64_t    high;
+        };
 
         union
         {
             uint8_t bytes[kDefaultLength];
-
-            struct Value
-            {
-                uint64_t    low;
-                uint64_t    high;
-            } values;
+            Value values;
         };
     };
 

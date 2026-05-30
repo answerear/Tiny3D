@@ -32,6 +32,20 @@
 #include "T3DSocketType.h"
 #include "Memory/T3DMemory.h"
 
+// Android NDK <sys/endian.h> defines htons/ntohs/htonl/ntohl as macros,
+// which conflict with our static member function names. Undefine them here.
+#ifdef htons
+#undef htons
+#endif
+#ifdef ntohs
+#undef ntohs
+#endif
+#ifdef htonl
+#undef htonl
+#endif
+#ifdef ntohl
+#undef ntohl
+#endif
 
 namespace Tiny3D
 {

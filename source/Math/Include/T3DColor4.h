@@ -223,13 +223,13 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="alpha", RTTRFuncType="setter", "Description"="alpha")
         void setAlpha(uint8_t a) { mAlpha = a; }
 
-        TPROPERTY(RTTRFuncName="red", RTTRFuncTYpe="setter", "Description"="red")
+        TPROPERTY(RTTRFuncName="red", RTTRFuncType="setter", "Description"="red")
         void setRed(uint8_t r) { mRed = r; }
 
-        TPROPERTY(RTTRFuncName="green", RTTRFuncTYpe="setter", "Description"="green")
+        TPROPERTY(RTTRFuncName="green", RTTRFuncType="setter", "Description"="green")
         void setGreen(uint8_t g) { mGreen = g; }
         
-        TPROPERTY(RTTRFuncName="blue", RTTRFuncTYpe="setter", "Description"="blue")
+        TPROPERTY(RTTRFuncName="blue", RTTRFuncType="setter", "Description"="blue")
         void setBlue(uint8_t b) { mBlue = b; }
         
         uint8_t     mBlue;

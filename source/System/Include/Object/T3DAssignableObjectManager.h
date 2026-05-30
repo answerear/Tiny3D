@@ -43,16 +43,9 @@ namespace Tiny3D
     public:
         static AssignableObjectManagerPtr create();
         
-        template<typename T>
-        void setObject(const String &name, T *src, T dst)
-        {
-            AssignableObjectPtr obj = T3D_NEW AssignableObject<T>(src, dst);
-            mAssignableObjects[name] = obj;
-        }
-
         void assign()
         {
-            for (auto item : mAssignableObjects)
+            for (const auto& item : mAssignableObjects)
             {
                 item.second->assign();
             }
@@ -90,6 +83,14 @@ namespace Tiny3D
         using AssignableObjects = TMap<String, AssignableObjectPtr>;
 
         AssignableObjects   mAssignableObjects{};
+
+    public:
+        template<typename T>
+        void setObject(const String &name, T *src, T dst)
+        {
+            AssignableObjectPtr obj = T3D_NEW AssignableObjectT<T>(src, dst);
+            mAssignableObjects[name] = obj;
+        }
     };
 }
 

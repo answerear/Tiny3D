@@ -22,14 +22,13 @@
 
 
 #include "Adapter/T3DConsoleInterface.h"
+#include "T3DNoncopyable.h"
 
 
 namespace Tiny3D
 {
-    class iOSConsole : public IConsole
+    class iOSConsole : public IConsole, public Noncopyable
     {
-        T3D_DISABLE_COPY(iOSConsole);
-
     public:
         iOSConsole();
 

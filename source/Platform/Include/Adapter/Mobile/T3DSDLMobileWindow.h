@@ -22,16 +22,15 @@
 
 
 #include "Adapter/T3DWindowInterface.h"
+#include "T3DNoncopyable.h"
 #include <SDL.h>
 
 namespace Tiny3D
 {
     class IWindow;
 
-    class SDLMobileWindow : public IWindow
+    class SDLMobileWindow : public IWindow, public Noncopyable
     {
-        T3D_DISABLE_COPY(SDLMobileWindow);
-
     public:
         SDLMobileWindow();
 
@@ -106,6 +105,12 @@ namespace Tiny3D
          * @brief 更新窗口，把帧缓冲数据更新到窗口里
          */
         virtual TResult updateWindow() override;
+
+        /**
+         * @brief 获取底层原生窗口对象
+         * @return 返回 SDL_Window 指针
+         */
+        virtual void *getNativeObject() const override;
 
     protected:
         SDL_Window  *mSDLWindow;

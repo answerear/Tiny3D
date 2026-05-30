@@ -7,23 +7,82 @@
 
 set_project_name(T3DReflect)
 
-set(RPP_EXE "$<TARGET_FILE:ReflectionPreprocessor>")
-set(NMAKE_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../nmake")
-set(SRC_DIR "${CMAKE_CURRENT_BINARY_DIR}/../..")
+# Use CMAKE_CURRENT_SOURCE_DIR to calculate paths relative to the source tree.
+# This works for both native (Windows) and cross-compiled (Android) builds.
+set(NMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../nmake")
+set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+
 set(WHITE_LIST "Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;")
 
-# Generate reflect.bat at build time using file(GENERATE) to support generator expressions.
-# This ensures the correct rpp.exe path is used for each configuration (Debug/Release).
-file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/reflect_$<CONFIG>.bat"
-    CONTENT "@echo off\n\
-powershell -NoProfile -Command \"& { $p = @(); $p += Start-Process '${RPP_EXE}' -ArgumentList '${NMAKE_DIR}/System','${SRC_DIR}/System','-b','-j','8' -NoNewWindow -PassThru; $p += Start-Process '${RPP_EXE}' -ArgumentList '${NMAKE_DIR}/Math','${SRC_DIR}/Math','-b','-j','8' -NoNewWindow -PassThru; $p += Start-Process '${RPP_EXE}' -ArgumentList '${NMAKE_DIR}/Core/Runtime','${SRC_DIR}/Core','-b','-j','8','-W','${WHITE_LIST}' -NoNewWindow -PassThru; $p += Start-Process '${RPP_EXE}' -ArgumentList '${NMAKE_DIR}/Core/Editor','${SRC_DIR}/Core','-b','-j','8','-W','${WHITE_LIST}' -NoNewWindow -PassThru; $p += Start-Process '${RPP_EXE}' -ArgumentList '${NMAKE_DIR}/Editor/TinyLauncher','${SRC_DIR}/Editor/TinyLauncher','-b','-j','8' -NoNewWindow -PassThru; $p += Start-Process '${RPP_EXE}' -ArgumentList '${NMAKE_DIR}/Editor/TinyEditor','${SRC_DIR}/Editor/TinyEditor','-b','-j','8' -NoNewWindow -PassThru; $p | Wait-Process }\"\n"
-)
+# RPP executable path: native build uses target file, cross-compilation uses host cache variable
+if (CMAKE_CROSSCOMPILING)
+    set(TINY3D_HOST_RPP "" CACHE FILEPATH
+        "Path to host-built ReflectionPreprocessor (rpp) executable for cross-compilation")
+    if (NOT TINY3D_HOST_RPP)
+        message(WARNING "CMAKE_CROSSCOMPILING is ON but TINY3D_HOST_RPP is not set. "
+            "Set -DTINY3D_HOST_RPP=/path/to/rpp to enable reflection generation.")
+    endif()
+    set(RPP_EXE "${TINY3D_HOST_RPP}")
+else()
+    set(RPP_EXE "$<TARGET_FILE:ReflectionPreprocessor>")
+endif()
 
-# Parallel incremental reflection generation
-# All 6 sub-projects run in parallel with -b (incremental) and -j 8 (8 threads each)
+# Helper macro to add reflection targets with existence check
+macro(add_reflect_target TARGET_NAME SETTINGS_SUBDIR SRC_SUBDIR ADDITIONAL_ARGS)
+    if (CMAKE_CROSSCOMPILING AND NOT TINY3D_HOST_RPP)
+        # No host RPP available: create a no-op target
+        add_custom_target(${TARGET_NAME}
+            COMMAND ${CMAKE_COMMAND} -E echo "WARNING: Skipping reflection generation: ${SETTINGS_SUBDIR} (no TINY3D_HOST_RPP)"
+            COMMENT "Reflection generation skipped: ${SETTINGS_SUBDIR}"
+        )
+    else()
+        set(SETTINGS_FILE "${NMAKE_DIR}/${SETTINGS_SUBDIR}/ReflectionSettings.json")
+        if (EXISTS "${SETTINGS_FILE}")
+            add_custom_target(${TARGET_NAME}
+                COMMAND ${RPP_EXE} "${NMAKE_DIR}/${SETTINGS_SUBDIR}" "${SRC_DIR}/${SRC_SUBDIR}" ${ADDITIONAL_ARGS}
+                COMMENT "Running reflection generation: ${SETTINGS_SUBDIR}"
+            )
+        else()
+            # Settings file not found (likely not pre-generated via batch files)
+            add_custom_target(${TARGET_NAME}
+                COMMAND ${CMAKE_COMMAND} -E echo "Skipping ${TARGET_NAME}: ${SETTINGS_FILE} not found."
+                COMMENT "Reflection generation skipped for ${SETTINGS_SUBDIR} (missing settings)"
+            )
+        endif()
+    endif()
+
+    # Native build: ensure ReflectionPreprocessor is built before any reflect sub-target runs
+    if (NOT CMAKE_CROSSCOMPILING)
+        add_dependencies(${TARGET_NAME} ReflectionPreprocessor)
+    endif()
+endmacro()
+
+# Define reflection targets
+set(REFLECT_TARGETS "")
+
+# Base targets (always needed for the engine)
+list(APPEND REFLECT_TARGETS reflect_system reflect_math reflect_core_runtime)
+add_reflect_target(reflect_system "System" "System" "-b -j 8")
+add_reflect_target(reflect_math "Math" "Math" "-b -j 8")
+add_reflect_target(reflect_core_runtime "Core/Runtime" "Core" "-b -j 8 -W \"${WHITE_LIST}\"")
+
+# Optional targets (only if tools/editor are enabled)
+if (TINY3D_BUILD_TOOLS OR TINY3D_BUILD_EDITOR)
+    list(APPEND REFLECT_TARGETS reflect_core_editor reflect_editor_launcher reflect_editor_editor)
+    add_reflect_target(reflect_core_editor "Core/Editor" "Core" "-b -j 8 -W \"${WHITE_LIST}\"")
+    add_reflect_target(reflect_editor_launcher "Editor/TinyLauncher" "Editor/TinyLauncher" "-b -j 8")
+    add_reflect_target(reflect_editor_editor "Editor/TinyEditor" "Editor/TinyEditor" "-b -j 8")
+else()
+    # Create empty targets if disabled so T3DReflect dependency remains valid
+    add_custom_target(reflect_core_editor COMMAND ${CMAKE_COMMAND} -E echo "Reflection skipped (Editor disabled)")
+    add_custom_target(reflect_editor_launcher COMMAND ${CMAKE_COMMAND} -E echo "Reflection skipped (Editor disabled)")
+    add_custom_target(reflect_editor_editor COMMAND ${CMAKE_COMMAND} -E echo "Reflection skipped (Editor disabled)")
+endif()
+
+# Umbrella target: depends on active sub-targets
 add_custom_target(${BIN_NAME}
-    COMMAND cmd /c "${CMAKE_CURRENT_BINARY_DIR}/reflect_$<CONFIG>.bat"
-    COMMENT "Running incremental reflection generation (parallel, 6 sub-projects)..."
+    DEPENDS ${REFLECT_TARGETS}
+    COMMENT "Running incremental reflection generation..."
 )
 
 # Setup project folder

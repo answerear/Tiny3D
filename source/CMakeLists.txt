@@ -155,15 +155,26 @@ else (TINY3D_OS_DESKTOP)
 endif (TINY3D_OS_DESKTOP)
 
 # Set all relative directory
-set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}" CACHE PATH "Tiny3D binary path")
-set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}" CACHE PATH "Tiny3D library path")
+if (TINY3D_OS_ANDROID)
+    set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}/${ANDROID_ABI}" CACHE PATH "Tiny3D binary path")
+    set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}/${ANDROID_ABI}" CACHE PATH "Tiny3D library path")
+else ()
+    set(TINY3D_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/${TINY3D_OS}" CACHE PATH "Tiny3D binary path")
+    set(TINY3D_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${TINY3D_OS}" CACHE PATH "Tiny3D library path")
+endif ()
 set(TINY3D_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Tiny3D include path")
 set(TINY3D_RES_DIR "${CMAKE_INSTALL_PREFIX}/assets" CACHE PATH "Tiny3D assets path")
 
 # Set this directory for debugging app
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}" CACHE STRING "Tiny3D binary files" FORCE)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}" CACHE STRING "Tiny3D library files" FORCE)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}" CACHE STRING "Tiny3D archive files" FORCE)
+if (TINY3D_OS_ANDROID)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}/${ANDROID_ABI}" CACHE STRING "Tiny3D binary files" FORCE)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}/${ANDROID_ABI}" CACHE STRING "Tiny3D library files" FORCE)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}/${ANDROID_ABI}" CACHE STRING "Tiny3D archive files" FORCE)
+else ()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TINY3D_OS}" CACHE STRING "Tiny3D binary files" FORCE)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}" CACHE STRING "Tiny3D library files" FORCE)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/${TINY3D_OS}" CACHE STRING "Tiny3D archive files" FORCE)
+endif ()
 
 
 message(STATUS "Runtime dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
@@ -324,9 +335,9 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_dependencies(T3DFramework T3DLog T3DPlatform)
     #add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
     add_dependencies(T3DCore T3DMath T3DFramework T3DUtils T3DLog T3DSystem T3DPlatform)
-    add_dependencies(T3DCoreEditor T3DMath T3DFramework T3DUtils T3DLog T3DSystem T3DPlatform)
-    
+
     if (TINY3D_BUILD_EDITOR)
+        add_dependencies(T3DCoreEditor T3DMath T3DFramework T3DUtils T3DLog T3DSystem T3DPlatform)
         add_dependencies(TinyEditor ${PROTOBUF_LIBRARY} T3DCoreEditor)
         add_dependencies(TinyLauncher ${PROTOBUF_LIBRARY} T3DCoreEditor)
     endif (TINY3D_BUILD_EDITOR)

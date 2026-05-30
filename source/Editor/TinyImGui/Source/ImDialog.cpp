@@ -79,7 +79,7 @@ namespace Tiny3D
                 break;
             }
 
-            mHasCloseBtn = va_arg(args, bool);
+            mHasCloseBtn = static_cast<bool>(va_arg(args, int));
         } while (false);
         
         return ret;

@@ -297,9 +297,9 @@ elseif (TINY3D_OS_ANDROID)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/icon
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ANDROID_ASSETS_DIR}/icon
         COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/scripts
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PORJECT_SOURCE_DIR}/../assets/scripts ${ANDROID_ASSETS_DIR}/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/scripts ${ANDROID_ASSETS_DIR}/scripts
         COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}/textures
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PORJECT_SOURCE_DIR}/../assets/textures ${ANDROID_ASSETS_DIR}/textures
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/textures ${ANDROID_ASSETS_DIR}/textures
     #   COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/Tiny3D.cfg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Tiny3D.cfg
     #   #COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../assets
         )
