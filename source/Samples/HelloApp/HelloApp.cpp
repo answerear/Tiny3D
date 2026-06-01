@@ -41,6 +41,7 @@ HelloApp::~HelloApp()
 
 TResult HelloApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 {
+    T3D_LOG_INFO("HelloApp", "%s", __FILE__)
     return T3D_OK;
 }
 

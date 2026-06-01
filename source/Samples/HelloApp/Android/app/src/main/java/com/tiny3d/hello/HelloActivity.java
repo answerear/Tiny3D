@@ -15,10 +15,23 @@ public class HelloActivity extends Tiny3DActivity {
         System.loadLibrary("HelloApp");
     }
 
+    // SDLActivity.onCreate() will iterate getLibraries() and System.loadLibrary() each.
+    // This project has no "libmain.so" (the entry library is libHelloApp.so, already
+    // loaded in the static block above), so override to drop the default "main" entry
+    // and avoid an UnsatisfiedLinkError. SDL2 itself is still loaded by the engine libs.
+    @Override
+    protected String[] getLibraries() {
+        return new String[] {
+            "SDL2",
+        };
+    }
+
+    @Override
     protected String getMainSharedObject() {
         return "libHelloApp.so";
     }
 
+    @Override
     protected String getMainFunction() {
         return "main";
     }

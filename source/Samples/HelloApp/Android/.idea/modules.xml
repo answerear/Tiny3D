@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android.iml" filepath="$PROJECT_DIR$/.idea/modules/Android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-203960402/Android.Tiny3DLib.iml" filepath="$PROJECT_DIR$/.idea/modules/-203960402/Android.Tiny3DLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1932506350/Android.Tiny3DLib.Tiny3D.iml" filepath="$PROJECT_DIR$/.idea/modules/-1932506350/Android.Tiny3DLib.Tiny3D.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1932506350/Android.Tiny3DLib.Tiny3D.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/-1932506350/Android.Tiny3DLib.Tiny3D.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1932506350/Android.Tiny3DLib.Tiny3D.main.iml" filepath="$PROJECT_DIR$/.idea/modules/-1932506350/Android.Tiny3DLib.Tiny3D.main.iml" />
