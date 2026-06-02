@@ -27,25 +27,46 @@
 namespace Tiny3D
 {
     AndroidDir::AndroidDir()
+        : mApkPathInitialized(false)
     {
+    }
+
+    void AndroidDir::ensureApkPath() const
+    {
+        if (mApkPathInitialized)
+            return;
+
+        mApkPathInitialized = true;
+
         JNIEnv *pEnv = (JNIEnv *)SDL_AndroidGetJNIEnv();
-        if (pEnv != nullptr) {
+        if (pEnv != nullptr)
+        {
             JNICallParam param;
 
-            // Software Version
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal",
-                                       "GetApkPath", "()Ljava/lang/String;")) {
+                                       "GetApkPath", "()Ljava/lang/String;"))
+            {
                 jstring jstr = (jstring) pEnv->CallStaticObjectMethod(param.classID,
                                                                       param.methodID);
-                jboolean isCopy;
-                const char *apkPath = pEnv->GetStringUTFChars(jstr, &isCopy);
-
-                if (apkPath != nullptr) {
-                    mApkPath = apkPath;
-                    pEnv->ReleaseStringUTFChars(jstr, apkPath);
+                if (pEnv->ExceptionCheck())
+                {
+                    pEnv->ExceptionClear();
+                    jstr = nullptr;
                 }
 
-                pEnv->DeleteLocalRef(jstr);
+                if (jstr != nullptr)
+                {
+                    jboolean isCopy;
+                    const char *apkPath = pEnv->GetStringUTFChars(jstr, &isCopy);
+
+                    if (apkPath != nullptr)
+                    {
+                        mApkPath = apkPath;
+                        pEnv->ReleaseStringUTFChars(jstr, apkPath);
+                    }
+
+                    pEnv->DeleteLocalRef(jstr);
+                }
             }
             DeleteLocalRef(pEnv, param);
         }
@@ -118,6 +139,7 @@ namespace Tiny3D
     
     String AndroidDir::getAppPath() const
     {
+        ensureApkPath();
         return mApkPath;
     }
     

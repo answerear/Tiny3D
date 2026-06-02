@@ -62,7 +62,10 @@ namespace Tiny3D
 		virtual String getLibraryPath() const override;
 
 	protected:
-    	String	mApkPath;
+		void ensureApkPath() const;
+
+    	mutable String	mApkPath;
+    	mutable bool	mApkPathInitialized;
     };
 }
 

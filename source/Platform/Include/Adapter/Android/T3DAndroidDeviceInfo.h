@@ -118,19 +118,22 @@ namespace Tiny3D
 
         void getSoftwareVersionByJNI();
 
-    private:
-        String  mOSVersion;
-        String  mSWVersion;
-        String  mHWVersion;
-        String  mCPUType;
-        String  mCPUArchitecture;
-        String  mDeviceID;
+        void ensureInitialized() const;
 
-        int32_t     mCPUCores;
-        uint32_t    mSystemRAM;
-        int32_t     mScreenWidth;
-        int32_t     mScreenHeight;
-        float      mScreenDPI;
+    private:
+        mutable String  mOSVersion;
+        mutable String  mSWVersion;
+        mutable String  mHWVersion;
+        mutable String  mCPUType;
+        mutable String  mCPUArchitecture;
+        mutable String  mDeviceID;
+
+        mutable int32_t     mCPUCores;
+        mutable uint32_t    mSystemRAM;
+        mutable int32_t     mScreenWidth;
+        mutable int32_t     mScreenHeight;
+        mutable float      mScreenDPI;
+        mutable bool       mInitialized;
     };
 }
 

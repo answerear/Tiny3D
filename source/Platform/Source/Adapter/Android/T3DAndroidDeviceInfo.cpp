@@ -41,8 +41,17 @@ namespace Tiny3D
         , mScreenWidth(0)
         , mScreenHeight(0)
         , mScreenDPI(0.0f)
+        , mInitialized(false)
     {
-        collectSystemInfo();
+    }
+
+    void AndroidDeviceInfo::ensureInitialized() const
+    {
+        if (!mInitialized)
+        {
+            mInitialized = true;
+            const_cast<AndroidDeviceInfo*>(this)->collectSystemInfo();
+        }
     }
 
     AndroidDeviceInfo::~AndroidDeviceInfo()
@@ -80,16 +89,25 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetSoftwareVersion", "()Ljava/lang/String;"))
             {
                 jstring jstr = (jstring)pEnv->CallStaticObjectMethod(param.classID, param.methodID);
-                jboolean isCopy;
-                const char *ver = pEnv->GetStringUTFChars(jstr, &isCopy);
-
-                if (ver != nullptr)
+                if (pEnv->ExceptionCheck())
                 {
-                    mSWVersion = ver;
-                    pEnv->ReleaseStringUTFChars(jstr, ver);
+                    pEnv->ExceptionClear();
+                    jstr = nullptr;
                 }
 
-                pEnv->DeleteLocalRef(jstr);
+                if (jstr != nullptr)
+                {
+                    jboolean isCopy;
+                    const char *ver = pEnv->GetStringUTFChars(jstr, &isCopy);
+
+                    if (ver != nullptr)
+                    {
+                        mSWVersion = ver;
+                        pEnv->ReleaseStringUTFChars(jstr, ver);
+                    }
+
+                    pEnv->DeleteLocalRef(jstr);
+                }
             }
             DeleteLocalRef(pEnv, param);
 
@@ -97,16 +115,25 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetOSVersion", "()Ljava/lang/String;"))
             {
                 jstring jstr = (jstring)pEnv->CallStaticObjectMethod(param.classID, param.methodID);
-                jboolean isCopy;
-                const char *ver = pEnv->GetStringUTFChars(jstr, &isCopy);
-
-                if (ver != nullptr)
+                if (pEnv->ExceptionCheck())
                 {
-                    mOSVersion = ver;
-                    pEnv->ReleaseStringUTFChars(jstr, ver);
+                    pEnv->ExceptionClear();
+                    jstr = nullptr;
                 }
 
-                pEnv->DeleteLocalRef(jstr);
+                if (jstr != nullptr)
+                {
+                    jboolean isCopy;
+                    const char *ver = pEnv->GetStringUTFChars(jstr, &isCopy);
+
+                    if (ver != nullptr)
+                    {
+                        mOSVersion = ver;
+                        pEnv->ReleaseStringUTFChars(jstr, ver);
+                    }
+
+                    pEnv->DeleteLocalRef(jstr);
+                }
             }
             DeleteLocalRef(pEnv, param);
         }
@@ -153,6 +180,10 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetCPUCores",
                                        "()I")) {
                 mCPUCores = pEnv->CallStaticIntMethod(param.classID, param.methodID);
+                if (pEnv->ExceptionCheck()) {
+                    pEnv->ExceptionClear();
+                    mCPUCores = 0;
+                }
             }
             DeleteLocalRef(pEnv, param);
         }
@@ -236,15 +267,24 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetDeviceName", "()Ljava/lang/String;"))
             {
                 jstring jstr = (jstring)pEnv->CallStaticObjectMethod(param.classID, param.methodID);
-                jboolean isCopy;
-                const char *name = pEnv->GetStringUTFChars(jstr, &isCopy);
-                if (name != nullptr)
+                if (pEnv->ExceptionCheck())
                 {
-                    mHWVersion = name;
-                    pEnv->ReleaseStringUTFChars(jstr, name);
+                    pEnv->ExceptionClear();
+                    jstr = nullptr;
                 }
 
-                pEnv->DeleteLocalRef(jstr);
+                if (jstr != nullptr)
+                {
+                    jboolean isCopy;
+                    const char *name = pEnv->GetStringUTFChars(jstr, &isCopy);
+                    if (name != nullptr)
+                    {
+                        mHWVersion = name;
+                        pEnv->ReleaseStringUTFChars(jstr, name);
+                    }
+
+                    pEnv->DeleteLocalRef(jstr);
+                }
             }
             DeleteLocalRef(pEnv, param);
 
@@ -252,15 +292,24 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetDeviceID", "()Ljava/lang/String;"))
             {
                 jstring jstr = (jstring)pEnv->CallStaticObjectMethod(param.classID, param.methodID);
-                jboolean isCopy;
-                const char *deviceID = pEnv->GetStringUTFChars(jstr, &isCopy);
-                if (deviceID != nullptr)
+                if (pEnv->ExceptionCheck())
                 {
-                    mDeviceID = deviceID;
-                    pEnv->ReleaseStringUTFChars(jstr, deviceID);
+                    pEnv->ExceptionClear();
+                    jstr = nullptr;
                 }
 
-                pEnv->DeleteLocalRef(jstr);
+                if (jstr != nullptr)
+                {
+                    jboolean isCopy;
+                    const char *deviceID = pEnv->GetStringUTFChars(jstr, &isCopy);
+                    if (deviceID != nullptr)
+                    {
+                        mDeviceID = deviceID;
+                        pEnv->ReleaseStringUTFChars(jstr, deviceID);
+                    }
+
+                    pEnv->DeleteLocalRef(jstr);
+                }
             }
             DeleteLocalRef(pEnv, param);
         }
@@ -304,6 +353,11 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetScreenWidth", "()I"))
             {
                 mScreenWidth = pEnv->CallStaticIntMethod(param.classID, param.methodID);
+                if (pEnv->ExceptionCheck())
+                {
+                    pEnv->ExceptionClear();
+                    mScreenWidth = 0;
+                }
             }
             DeleteLocalRef(pEnv, param);
 
@@ -311,6 +365,11 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetScreenHeight", "()I"))
             {
                 mScreenHeight = pEnv->CallStaticIntMethod(param.classID, param.methodID);
+                if (pEnv->ExceptionCheck())
+                {
+                    pEnv->ExceptionClear();
+                    mScreenHeight = 0;
+                }
             }
             DeleteLocalRef(pEnv, param);
 
@@ -318,6 +377,11 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetScreenDPI", "()F"))
             {
                 mScreenDPI = pEnv->CallStaticFloatMethod(param.classID, param.methodID);
+                if (pEnv->ExceptionCheck())
+                {
+                    pEnv->ExceptionClear();
+                    mScreenDPI = 0.0f;
+                }
             }
             DeleteLocalRef(pEnv, param);
         }
@@ -358,16 +422,25 @@ namespace Tiny3D
             if (GetClassStaticMethodID(pEnv, param, "com/tiny3d/lib/Tiny3DGlobal", "GetSoftwareVersion", "()Ljava/lang/String;"))
             {
                 jstring jstr = (jstring)pEnv->CallStaticObjectMethod(param.classID, param.methodID);
-                jboolean isCopy;
-                const char *ver = pEnv->GetStringUTFChars(jstr, &isCopy);
-
-                if (ver != nullptr)
+                if (pEnv->ExceptionCheck())
                 {
-                    mSWVersion = ver;
-                    pEnv->ReleaseStringUTFChars(jstr, ver);
+                    pEnv->ExceptionClear();
+                    jstr = nullptr;
                 }
 
-                pEnv->DeleteLocalRef(jstr);
+                if (jstr != nullptr)
+                {
+                    jboolean isCopy;
+                    const char *ver = pEnv->GetStringUTFChars(jstr, &isCopy);
+
+                    if (ver != nullptr)
+                    {
+                        mSWVersion = ver;
+                        pEnv->ReleaseStringUTFChars(jstr, ver);
+                    }
+
+                    pEnv->DeleteLocalRef(jstr);
+                }
             }
 
             DeleteLocalRef(pEnv, param);
@@ -381,6 +454,7 @@ namespace Tiny3D
 
     const String &AndroidDeviceInfo::getSoftwareVersion() const
     {
+        ensureInitialized();
         return mSWVersion;
     }
 
@@ -391,51 +465,61 @@ namespace Tiny3D
 
     const String &AndroidDeviceInfo::getOSVersion() const
     {
+        ensureInitialized();
         return mOSVersion;
     }
 
     const String &AndroidDeviceInfo::getDeviceVersion() const
     {
+        ensureInitialized();
         return mHWVersion;
     }
 
     int32_t AndroidDeviceInfo::getScreenWidth() const
     {
+        ensureInitialized();
         return mScreenWidth;
     }
 
     int32_t AndroidDeviceInfo::getScreenHeight() const
     {
+        ensureInitialized();
         return mScreenHeight;
     }
 
     float AndroidDeviceInfo::getScreenDPI() const
     {
+        ensureInitialized();
         return mScreenDPI;
     }
 
     const String &AndroidDeviceInfo::getCPUType() const
     {
+        ensureInitialized();
         return mCPUType;
     }
 
     const String &AndroidDeviceInfo::getCPUArchitecture() const
     {
+        ensureInitialized();
         return mCPUArchitecture;
     }
 
     int32_t AndroidDeviceInfo::getCPUCores() const
     {
+        ensureInitialized();
         return mCPUCores;
     }
 
     uint64_t AndroidDeviceInfo::getSystemRAM() const
     {
+        ensureInitialized();
         return mSystemRAM;
     }
 
     const String &AndroidDeviceInfo::getDeviceID() const
     {
+        ensureInitialized();
         return mDeviceID;
     }
 }
