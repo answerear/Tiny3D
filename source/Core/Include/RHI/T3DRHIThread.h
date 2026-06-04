@@ -156,6 +156,7 @@ namespace Tiny3D
     //     auto lambda = ACTION; \
     //     return RHIThread::getInstance().enqueue_unique_command(lambda, ##__VA_ARGS__)
     
+    T3D_EXTERN_SINGLETON(RHIThread)
 }
 
 

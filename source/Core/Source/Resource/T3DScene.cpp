@@ -283,4 +283,8 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+#if defined (T3D_EDITOR)
+    T3D_INSTANTIATE_SINGLETON(EditorScene)
+#endif
 }

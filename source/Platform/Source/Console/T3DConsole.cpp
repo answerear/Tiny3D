@@ -65,4 +65,6 @@ namespace Tiny3D
             mConsole->print(szBuffer);
         }
     }
+
+    T3D_INSTANTIATE_SINGLETON(Console)
 }

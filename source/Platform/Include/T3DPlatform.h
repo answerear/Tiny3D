@@ -98,6 +98,8 @@ namespace Tiny3D
 
     #define T3D_PLATFORM            (Platform::getInstance())
     #define T3D_PLATFORM_FACTORY    (T3D_PLATFORM.getPlatformFactory())
+
+    T3D_EXTERN_SINGLETON(Platform)
 }
 
 

@@ -89,6 +89,8 @@ namespace Tiny3D
     #define T3D_TIMER_MGR       TimerManager::getInstance()
 
     #define T3D_INVALID_TIMER_ID    TimerManager::INVALID_TIMER_ID
+
+    T3D_EXTERN_SINGLETON(TimerManager)
 }
 
 

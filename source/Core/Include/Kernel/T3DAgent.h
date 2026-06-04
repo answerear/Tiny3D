@@ -300,6 +300,8 @@ namespace Tiny3D
     };
 
     #define T3D_AGENT   Agent::getInstance()
+
+    T3D_EXTERN_SINGLETON(Agent)
 }
 
 

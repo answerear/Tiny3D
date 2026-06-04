@@ -101,6 +101,8 @@ namespace Tiny3D
     };
 
     #define T3D_APPLICATION     (Application::getInstance())
+
+    T3D_EXTERN_SINGLETON(Application)
 }
 
 

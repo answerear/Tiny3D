@@ -82,4 +82,13 @@ namespace Tiny3D
 }
 
 
+#if defined(T3D_OS_WINDOWS)
+    #define T3D_EXTERN_SINGLETON(T)
+    #define T3D_INSTANTIATE_SINGLETON(T)
+#else
+    #define T3D_EXTERN_SINGLETON(T)         extern template class Tiny3D::Singleton<T>;
+    #define T3D_INSTANTIATE_SINGLETON(T)    template class T3D_EXPORT_API Tiny3D::Singleton<T>;
+#endif
+
+
 #endif  /*__T3D_SINGLETON_H__*/

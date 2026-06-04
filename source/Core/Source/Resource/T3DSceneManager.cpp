@@ -276,4 +276,6 @@ namespace  Tiny3D
     }
     
     //--------------------------------------------------------------------------
+
+    T3D_INSTANTIATE_SINGLETON(SceneManager)
 }

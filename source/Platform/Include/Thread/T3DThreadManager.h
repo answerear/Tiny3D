@@ -67,6 +67,8 @@ namespace Tiny3D
     };
 
     #define T3D_THREAD_MGR  (ThreadManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(ThreadManager)
 }
 
 #endif  /*__T3D_THREAD_MANAGER_H__*/

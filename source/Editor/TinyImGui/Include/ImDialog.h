@@ -227,4 +227,6 @@ namespace Tiny3D
         /// 文本是否显示在 ProgressBar 里还是显示在 ProgressBar 上方
         bool mIsInBar {true};
     };
+
+    T3D_EXTERN_SINGLETON(ImMessageBox)
 }

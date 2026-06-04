@@ -276,4 +276,6 @@ namespace Tiny3D
         }
         return "";
     }
+
+    T3D_INSTANTIATE_SINGLETON(DeviceInfo)
 }

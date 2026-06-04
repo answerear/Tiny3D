@@ -85,5 +85,7 @@ namespace Tiny3D
         TextureToNames  mTexToNames {};
     };
 
-    #define IM_TEXTURE_MGR      (ImTextureManager::getInstance()) 
+    #define IM_TEXTURE_MGR      (ImTextureManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(ImTextureManager)
 }

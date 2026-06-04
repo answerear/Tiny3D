@@ -206,6 +206,7 @@ namespace Tiny3D
         bool                mIsOutputConsole {true};   /// 是否同步输出到控制台
         bool                mIsRunning {false};
     };
+    T3D_EXTERN_SINGLETON(Logger)
 }
 
 #define T3D_LOGGER          Tiny3D::Logger::getInstance()

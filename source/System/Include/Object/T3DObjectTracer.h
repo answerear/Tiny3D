@@ -125,6 +125,8 @@ namespace Tiny3D
 
         mutable FileDataStream  *mStream;       /**< 临时输出对象，用于dumpMemoryInfo的时候 */
     };
+
+    T3D_EXTERN_SINGLETON(ObjectTracer)
 }
 
 

@@ -53,7 +53,9 @@ namespace Tiny3D
         ILocale *mLocale {nullptr};
     };
 
-    #define T3D_LOCALE  Locale::getInstance() 
+    #define T3D_LOCALE  Locale::getInstance()
+
+    T3D_EXTERN_SINGLETON(Locale)
 }
 
 #endif  /*__T3D_LOCALE_H__*/

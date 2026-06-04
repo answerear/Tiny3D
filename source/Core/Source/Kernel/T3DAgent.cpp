@@ -1000,6 +1000,7 @@ namespace Tiny3D
             Application *theApp = Application::getInstancePtr();
             if (theApp == nullptr)
             {
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Application instance did not created !")
                 ret = T3D_ERR_INVALID_POINTER;
                 break;
             }
@@ -1429,4 +1430,6 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    T3D_INSTANTIATE_SINGLETON(Agent)
 }

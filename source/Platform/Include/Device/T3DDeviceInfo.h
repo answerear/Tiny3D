@@ -136,6 +136,8 @@ namespace Tiny3D
     };
 
     #define T3D_DEVICE_INFO     DeviceInfo::getInstance()
+
+    T3D_EXTERN_SINGLETON(DeviceInfo)
 }
 
 

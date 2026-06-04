@@ -51,6 +51,8 @@ namespace Tiny3D
 
 
     #define T3D_CONSOLE     Console::getInstance()
+
+    T3D_EXTERN_SINGLETON(Console)
 }
 
 

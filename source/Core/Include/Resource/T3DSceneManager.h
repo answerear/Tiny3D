@@ -132,6 +132,8 @@ namespace Tiny3D
         
         TResult saveResource(DataStream &stream, Resource *res) override;
     };
+
+    T3D_EXTERN_SINGLETON(SceneManager)
 }
 
 

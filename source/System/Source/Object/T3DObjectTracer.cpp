@@ -86,5 +86,7 @@ namespace Tiny3D
             T3D_CONSOLE.print(str.c_str());
         }
     }
+
+    T3D_INSTANTIATE_SINGLETON(ObjectTracer)
 }
 

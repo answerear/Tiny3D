@@ -98,5 +98,7 @@ namespace Tiny3D
 
         return T3D_ERR_INVALID_POINTER;
     }
+
+    T3D_INSTANTIATE_SINGLETON(TimerManager)
 }
 

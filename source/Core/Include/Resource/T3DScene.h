@@ -172,6 +172,8 @@ namespace Tiny3D
     };
 
     #define T3D_EDITOR_SCENE    (EditorScene::getInstance())
+
+    T3D_EXTERN_SINGLETON(EditorScene)
 #endif
 }
 

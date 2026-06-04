@@ -328,6 +328,8 @@ namespace Tiny3D
     };
 
     #define T3D_EVENT_MGR   (EventManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(EventManager)
 }
 
 
