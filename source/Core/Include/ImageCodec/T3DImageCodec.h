@@ -222,6 +222,8 @@ namespace Tiny3D
     };
 
     #define T3D_IMAGE_CODEC     ImageCodec::getInstance()
+
+    T3D_EXTERN_SINGLETON(ImageCodec)
 }
 
 

@@ -99,6 +99,8 @@ namespace Tiny3D
     };
 
     #define T3D_DYLIB_MGR   (DylibManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(DylibManager)
 }
 
 

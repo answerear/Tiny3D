@@ -62,6 +62,8 @@ namespace Tiny3D
     #define T3D_LANG_MGR    (LanguageManager::getInstance())
     #define CH(txtID)   (T3D_LANG_MGR.getText(txtID).c_str())
     #define STR(txtID)  (T3D_LANG_MGR.getText(txtID))
+
+    T3D_EXTERN_SINGLETON(LanguageManager)
 }
 
 

@@ -108,6 +108,8 @@ namespace Tiny3D
     };
 
     #define T3D_SHADER_MGR    (ShaderManager::getInstance()) 
+
+    T3D_EXTERN_SINGLETON(ShaderManager)
 }
 
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -28,6 +28,7 @@
 #include "Time/T3DTimerManager.h"
 #include "IO/T3DDir.h"
 #include "Console/T3DConsole.h"
+#include "Asset/T3DZipAssetManager.h"
 #include "Locale/T3DLocale.h"
 #include "Device/T3DDeviceInfo.h"
 #include "Thread/T3DRunnableThread.h"
@@ -51,6 +52,7 @@ namespace Tiny3D
         mLocale = T3D_NEW Locale();
         mDeviceInfo = T3D_NEW DeviceInfo();
         mTimerMgr = T3D_NEW TimerManager();
+        mAssetMgr = T3D_NEW ZipAssetManager();
     }
 
     //--------------------------------------------------------------------------
@@ -61,6 +63,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mDeviceInfo);
         T3D_SAFE_DELETE(mConsole);
         T3D_SAFE_DELETE(mLocale);
+        T3D_SAFE_DELETE(mAssetMgr);
         T3D_SAFE_DELETE(mThreadMgr);
         DateTime::exit();
         Dir::exit();

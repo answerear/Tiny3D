@@ -29,6 +29,7 @@
 #include "Adapter/Android/T3DAndroidThread.h"
 #include "Adapter/Android/T3DAndroidSyncObject.h"
 #include "Adapter/Android/T3DAndroidFSMonitor.h"
+#include "Adapter/Android/T3DAndroidAssetManager.h"
 #include "Adapter/Unix/T3DPosixSyncObject.h"
 #include "Adapter/Unix/T3DPosixProcess.h"
 #include "Adapter/Unix/T3DPosixLocale.h"
@@ -134,6 +135,11 @@ namespace Tiny3D
     IFSMonitor *AndroidFactory::createFileSystemMonitor()
     {
         return T3D_NEW AndroidFSMonitor();
+    }
+
+    IZipAssetManager *AndroidFactory::createPlatformZipAssetManager()
+    {
+        return T3D_NEW AndroidAssetManager();
     }
 
     EPlatform AndroidFactory::getPlatform()

@@ -324,15 +324,11 @@ namespace Tiny3D
 
                 while (working)
                 {
-                    working = dir.findNextFile();
-
                     if (dir.isDots())
                     {
                         // . or ..
-                        continue;
                     }
-                    
-                    if (dir.isDirectory())
+                    else if (dir.isDirectory())
                     {
                         // directory
                         const String filePath = dir.getFilePath();
@@ -344,6 +340,8 @@ namespace Tiny3D
                         const String filePath = dir.getFilePath();
                         remove(filePath);
                     }
+
+                    working = dir.findNextFile();
                 }
                 
                 sDir->removeDir(strDir);

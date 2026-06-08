@@ -90,6 +90,8 @@ namespace Tiny3D
     };
 
     #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 
+
+    T3D_EXTERN_SINGLETON(RenderPipeline)
 }
 
 

@@ -92,6 +92,8 @@ namespace Tiny3D
             mAssignableObjects[name] = obj;
         }
     };
+
+    T3D_EXTERN_SINGLETON(AssignableObjectManager)
 }
 
 

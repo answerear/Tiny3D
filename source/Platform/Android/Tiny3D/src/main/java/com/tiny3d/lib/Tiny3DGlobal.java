@@ -3,6 +3,7 @@ package com.tiny3d.lib;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -168,4 +169,15 @@ public class Tiny3DGlobal {
         }
         return null;
     }
+
+    private static AssetManager sAssetManager;
+
+    public static void initAssetManager(Context context) {
+        if (context != null) {
+            sAssetManager = context.getAssets();
+            nativeSetAssetManager(sAssetManager);
+        }
+    }
+
+    private static native void nativeSetAssetManager(AssetManager assetManager);
 }

@@ -78,6 +78,8 @@ namespace Tiny3D
     };
 
     #define T3D_TEXTURE_MGR    (TextureManager::getInstance()) 
+
+    T3D_EXTERN_SINGLETON(TextureManager)
 }
 
 

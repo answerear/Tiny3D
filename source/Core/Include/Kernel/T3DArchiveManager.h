@@ -157,6 +157,8 @@ namespace Tiny3D
     };
 
     #define T3D_ARCHIVE_MGR     ArchiveManager::getInstance()
+
+    T3D_EXTERN_SINGLETON(ArchiveManager)
 }
 
 

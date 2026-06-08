@@ -73,6 +73,11 @@ namespace Tiny3D
         return new LinuxConsole();
     }
 
+    IZipAssetManager *LinuxFactory::createPlatformZipAssetManager()
+    {
+        return nullptr;
+    }
+
     EPlatform LinuxFactory::getPlatform()
     {
         return E_PLATFORM_LINUX;

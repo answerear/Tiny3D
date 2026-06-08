@@ -55,6 +55,7 @@ namespace Tiny3D
     class Socket;
     class TCPConnection;
     class TCPListener;
+    class ZipAssetManager;
 
     /// pid : 进程 ID
     /// pname : 进程名称

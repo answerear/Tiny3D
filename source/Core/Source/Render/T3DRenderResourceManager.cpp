@@ -495,4 +495,8 @@ namespace  Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    T3D_INSTANTIATE_SINGLETON(RenderStateManager)
+    T3D_INSTANTIATE_SINGLETON(RenderBufferManager)
+    T3D_INSTANTIATE_SINGLETON(RenderTargetManager)
 }

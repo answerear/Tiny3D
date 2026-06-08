@@ -91,6 +91,8 @@ namespace Tiny3D
 
     #define T3D_RENDER_STATE_MGR (RenderStateManager::getInstance())
 
+    T3D_EXTERN_SINGLETON(RenderStateManager)
+
     
     class T3D_ENGINE_API RenderBufferManager
         : public RenderResourceManager
@@ -145,6 +147,8 @@ namespace Tiny3D
 
     #define T3D_RENDER_BUFFER_MGR   (RenderBufferManager::getInstance())
 
+    T3D_EXTERN_SINGLETON(RenderBufferManager)
+
 
     class T3D_ENGINE_API RenderTargetManager
         : public RenderResourceManager
@@ -160,6 +164,8 @@ namespace Tiny3D
 
         ~RenderTargetManager() override = default;
     };
+
+    T3D_EXTERN_SINGLETON(RenderTargetManager)
 }
 
 

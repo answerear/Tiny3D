@@ -75,6 +75,8 @@ namespace Tiny3D
     };
 
     #define T3D_SKELETON_MGR    (SkeletonManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(SkeletonManager)
 }
 
 

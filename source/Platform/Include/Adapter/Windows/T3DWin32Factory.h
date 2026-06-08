@@ -74,6 +74,8 @@ namespace Tiny3D
         ILocale *createPlatformLocale() override;
 
         IFSMonitor *createFileSystemMonitor() override;
+
+        IZipAssetManager *createPlatformZipAssetManager() override;
         
         EPlatform getPlatform() override;
 

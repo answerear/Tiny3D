@@ -1,10 +1,16 @@
 package com.tiny3d.lib;
 
+import android.os.Bundle;
+
 import org.libsdl.app.SDLActivity;
 
 public class Tiny3DActivity extends SDLActivity
 {
-
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Tiny3DGlobal.initAssetManager(this);
+    }
 }
 
 //import android.app.Activity;

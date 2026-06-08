@@ -54,6 +54,8 @@ namespace Tiny3D
     };
 
     #define T3D_PREFAB_MGR    (PrefabManager::getInstance()) 
+
+    T3D_EXTERN_SINGLETON(PrefabManager)
 }
 
 

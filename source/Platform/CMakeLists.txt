@@ -1,4 +1,4 @@
-
+﻿
 #-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
@@ -90,6 +90,7 @@ set_project_files(Include\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Include/Process
 set_project_files(Include\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Include/Locale/ .h)
 set_project_files(Include\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Include/Network/ .h)
 set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
+set_project_files(Include\\\\Asset ${CMAKE_CURRENT_SOURCE_DIR}/Include/Asset/ .h)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -137,6 +138,7 @@ set_project_files(Source\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Source/Process/ 
 set_project_files(Source\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Source/Locale/ .cpp)
 set_project_files(Source\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Source/Network/ .cpp)
 set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
+set_project_files(Source\\\\Asset ${CMAKE_CURRENT_SOURCE_DIR}/Source/Asset/ .cpp)
 
 if (TINY3D_OS_WINDOWS)
 	# Windows
@@ -254,6 +256,7 @@ elseif (TINY3D_OS_ANDROID)
 		${LIB_NAME}
 		LINK_PRIVATE ${SDL2_BINARY}
 		log
+		android
 		)
 endif (TINY3D_OS_WINDOWS)
 

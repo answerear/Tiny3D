@@ -107,9 +107,13 @@ namespace Tiny3D
             String name = "lib" + mName + ".dylib";
 #endif
 
+#if defined (T3D_OS_ANDROID)
+            mHandle = DYLIB_LOAD(name.c_str());
+#else
             const String &pluginsPath = Agent::getInstance().getPluginsPath();
             String path = pluginsPath + Dir::getNativeSeparator() + name;
             mHandle = DYLIB_LOAD(path.c_str());
+#endif
 
             if (mHandle == nullptr)
             {

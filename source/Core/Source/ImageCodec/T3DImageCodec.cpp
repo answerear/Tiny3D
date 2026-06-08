@@ -436,5 +436,7 @@ namespace Tiny3D
 
         return codec;
     }
+
+    T3D_INSTANTIATE_SINGLETON(ImageCodec)
 }
 

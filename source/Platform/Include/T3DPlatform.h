@@ -37,6 +37,7 @@ namespace Tiny3D
     class IFactory;
     class ThreadSingleton;
     class ThreadManager;
+    class ZipAssetManager;
     
     /**
      * @class System
@@ -94,6 +95,7 @@ namespace Tiny3D
         Locale          *mLocale {nullptr};
         DeviceInfo      *mDeviceInfo {nullptr};
         ThreadSingleton *mThreadSingleton {nullptr};
+        ZipAssetManager *mAssetMgr {nullptr};
     };
 
     #define T3D_PLATFORM            (Platform::getInstance())

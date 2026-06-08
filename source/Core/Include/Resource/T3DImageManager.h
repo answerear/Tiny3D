@@ -103,6 +103,8 @@ namespace Tiny3D
     };
 
     #define T3D_IMAGE_MGR    (ImageManager::getInstance()) 
+
+    T3D_EXTERN_SINGLETON(ImageManager)
 }
 
 

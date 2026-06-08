@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2017  Answer Wong
  * For latest info, see https://github.com/asnwerear/Tiny3D
@@ -73,6 +73,8 @@ namespace Tiny3D
          * @return 返回平台相关的控制台对象，需要用户调用delete释放对象
          */
         virtual IConsole *createPlatformConsole() override;
+
+        virtual IZipAssetManager *createPlatformZipAssetManager() override;
         
         /**
          * @brief 获取当前平台类型.

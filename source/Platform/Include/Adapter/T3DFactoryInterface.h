@@ -53,6 +53,7 @@ namespace Tiny3D
     class IProcess;
     class ILocale;
     class IFSMonitor;
+    class IZipAssetManager;
 
     enum EPlatform
     {
@@ -177,6 +178,12 @@ namespace Tiny3D
          * @return 返回平台相关的文件系统监控对象，需要用户调用 delete 释放对象
          */
         virtual IFSMonitor *createFileSystemMonitor() = 0;
+
+        /**
+         * 创建操作系统平台相关的打包资源管理器对象
+         * @return 返回平台相关的打包资源管理器对象，需要用户调用delete释放对象
+         */
+        virtual IZipAssetManager *createPlatformZipAssetManager() = 0;
 
         /**
          * @brief 获取当前平台类型.

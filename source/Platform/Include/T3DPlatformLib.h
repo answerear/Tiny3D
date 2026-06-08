@@ -46,6 +46,7 @@
 #include <IO/T3DMemoryDataStream.h>
 #include <IO/T3DDir.h>
 #include <IO/T3DFileSystemMonitor.h>
+#include <Asset/T3DZipAssetManager.h>
 #include <Console/T3DConsole.h>
 #include <Device/T3DDeviceInfo.h>
 #include <Thread/T3DQueuedJob.h>

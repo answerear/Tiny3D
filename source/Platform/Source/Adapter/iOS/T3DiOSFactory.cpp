@@ -72,6 +72,11 @@ namespace Tiny3D
 	{
 		return new iOSConsole();
 	}
+
+	IZipAssetManager *iOSFactory::createPlatformZipAssetManager()
+	{
+		return nullptr;
+	}
 	
     EPlatform iOSFactory::getPlatform()
     {

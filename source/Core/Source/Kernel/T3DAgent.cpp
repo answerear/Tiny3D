@@ -306,10 +306,6 @@ namespace Tiny3D
 
 #if defined (T3D_OS_ANDROID)
             mAppPath = Dir::getAppPath();
-
-            // Android 单独设置插件路径，不使用配置文件里面设置的路径
-            // 因为android的插件在/data/data/appname/lib文件下
-            mPluginsPath = Dir::getLibraryPath();
 #endif
 
             // 初始化事件系统
@@ -1062,7 +1058,6 @@ namespace Tiny3D
     {
         mAssignableObjMgr = AssignableObjectManager::create();
         mAniPlayerMgr = AnimationPlayerMgr::create();
-        mArchiveMgr = ArchiveManager::create();
         mImageCodec = ImageCodec::create();
         mSerializerMgr = SerializerManager::create();
         mSerializerMgr->setFileMode(SerializerManager::FileMode::kText);
@@ -1118,18 +1113,20 @@ namespace Tiny3D
             // SerializablePtr res = smart_pointer_cast<Serializable>(T3D_SERIALIZABLE_MGR.load("MetaFileSystemArchive", "Tiny3D.cfg"));
             // mSettings = res->instantiateAsObject<Settings>();
 
+            mArchiveMgr = ArchiveManager::create();
+
 #if defined (T3D_OS_ANDROID)
-            // Android，只能读取apk包里面的文件
-            ret = loadPlugin("ZipArchive");
+            // 使用 AAssetManager 读取 assets/ 中的配置
+            ret = loadPlugin("AndroidAssetArchive");
             if (T3D_FAILED(ret))
             {
-                return ret;
+                break;
             }
-            
-            String apkPath = Dir::getAppPath();
-            ArchivePtr archive = mArchiveMgr->loadArchive(apkPath, "Zip", Archive::AccessMode::kRead);
+
+            ArchivePtr archive = mArchiveMgr->loadArchive(
+                "", "AndroidAsset", Archive::AccessMode::kRead);
 #else
-            // 其他不需要从 apk 包里读取文件的
+            // 桌面平台：文件系统
             ret = loadPlugin("FileSystemArchive");
             if (T3D_FAILED(ret))
             {
@@ -1172,9 +1169,7 @@ namespace Tiny3D
 
         do 
         {
-#if !defined (T3D_OS_ANDROID)
             mPluginsPath = mAppPath + Dir::getNativeSeparator() + mSettings.pluginSettings.pluginPath;
-#endif
 
             auto itr = mSettings.pluginSettings.plugins.begin();
             while (itr != mSettings.pluginSettings.plugins.end())

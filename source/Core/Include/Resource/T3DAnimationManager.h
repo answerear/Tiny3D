@@ -74,6 +74,8 @@ namespace Tiny3D
     };
 
     #define T3D_ANIMATION_MGR    (AnimationManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(AnimationManager)
 }
 
 

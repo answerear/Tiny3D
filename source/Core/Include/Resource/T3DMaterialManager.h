@@ -105,6 +105,8 @@ namespace Tiny3D
     };
 
     #define T3D_MATERIAL_MGR    (MaterialManager::getInstance()) 
+
+    T3D_EXTERN_SINGLETON(MaterialManager)
 }
 
 

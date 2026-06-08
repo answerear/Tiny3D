@@ -48,7 +48,12 @@ namespace Tiny3D
         m_pDir = opendir(m_strRoot.c_str());
         m_bExtractName = false;
 
-        return (m_pDir != NULL);
+        if (m_pDir == NULL)
+        {
+            return false;
+        }
+
+        return findNextFile();
     }
 
     bool UnixDir::findNextFile()

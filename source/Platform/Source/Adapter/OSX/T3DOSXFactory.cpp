@@ -73,6 +73,11 @@ namespace Tiny3D
 		return new OSXConsole();
 	}
 
+	IZipAssetManager *OSXFactory::createPlatformZipAssetManager()
+	{
+		return nullptr;
+	}
+
     EPlatform OSXFactory::getPlatform()
     {
         return E_PLATFORM_OSX;

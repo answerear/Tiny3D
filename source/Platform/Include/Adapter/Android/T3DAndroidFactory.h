@@ -68,6 +68,8 @@ namespace Tiny3D
 
         virtual IFSMonitor *createFileSystemMonitor() override;
 
+        virtual IZipAssetManager *createPlatformZipAssetManager() override;
+
         virtual EPlatform getPlatform() override;
 
     protected:

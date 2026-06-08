@@ -34,4 +34,6 @@ namespace Tiny3D
     {
         return T3D_NEW AssignableObjectManager();
     }
+
+    T3D_INSTANTIATE_SINGLETON(AssignableObjectManager)
 }

@@ -121,6 +121,8 @@ namespace Tiny3D
     };
 
     #define T3D_MESH_MGR    (MeshManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(MeshManager)
 }
 
 

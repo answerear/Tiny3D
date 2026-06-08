@@ -66,6 +66,8 @@ namespace Tiny3D
     };
 
     #define T3D_ANIMATION_PLAYER_MGR    (AnimationPlayerMgr::getInstance())
+
+    T3D_EXTERN_SINGLETON(AnimationPlayerMgr)
 }
 
 

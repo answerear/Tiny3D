@@ -78,6 +78,10 @@ namespace Tiny3D
             mThreadRoutine = std::move(routine);
             mParameter = parameter;
 
+            pthread_mutex_lock(&mSuspendMutex);
+            mSuspended = true;
+            pthread_mutex_unlock(&mSuspendMutex);
+
             pthread_attr_t attr;
             pthread_attr_init(&attr);
 

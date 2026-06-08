@@ -127,6 +127,8 @@ namespace Tiny3D
     };
 
     #define T3D_SERIALIZER_MGR      (SerializerManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(SerializerManager)
 }
 
 

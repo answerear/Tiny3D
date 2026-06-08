@@ -36,6 +36,7 @@
 #include "Adapter/Windows/T3DWin32Locale.h"
 #include "Adapter/Windows/T3DWin32Platform.h"
 #include "Adapter/Windows/T3DWin32FSMonitor.h"
+#include "Adapter/Windows/T3DWin32AssetManager.h"
 
 
 namespace Tiny3D
@@ -164,6 +165,13 @@ namespace Tiny3D
     IFSMonitor *Win32Factory::createFileSystemMonitor()
     {
         return T3D_NEW Win32FSMonitor();
+    }
+
+    //--------------------------------------------------------------------------
+
+    IZipAssetManager *Win32Factory::createPlatformZipAssetManager()
+    {
+        return T3D_NEW Win32AssetManager();
     }
 
     //--------------------------------------------------------------------------
