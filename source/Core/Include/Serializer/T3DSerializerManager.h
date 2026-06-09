@@ -92,6 +92,20 @@ namespace Tiny3D
         {
             RTTRVariant var;
             TResult ret = deserializeObject(stream, var);
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
+
+            if (!var.is_valid() || !var.can_convert<T>())
+            {
+
+                T3D_LOG_ERROR("Serializer",
+                    "Deserialized variant is invalid or cannot convert to target type [%s]",
+                    rttr::type::get<T>().get_name().data());
+                return T3D_ERR_FAIL;
+            }
+
             obj = var.get_value<T>();
             return ret;
         }

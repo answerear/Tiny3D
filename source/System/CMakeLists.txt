@@ -54,7 +54,7 @@ set_project_files(Source\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Source/Thread/ .c
 set_project_files(Source\\\\UUID ${CMAKE_CURRENT_SOURCE_DIR}/Source/UUID/ .cpp)
 set_project_files(Source\\\\Language ${CMAKE_CURRENT_SOURCE_DIR}/Source/Language/ .cpp)
 set_project_files(Source\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Source/Network/ .cpp)
-set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/Generated/ .generated.cpp)
+set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/System/Generated/ .generated.cpp)
 
 
 # Setup all files for building this project.

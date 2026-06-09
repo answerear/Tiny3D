@@ -802,12 +802,16 @@ namespace Tiny3D
                 auto itr = node.FindMember(RTTI_TYPE);
                 if (itr == node.MemberEnd())
                 {
+                    ret = T3D_ERR_MISSING_OBJECT;
+                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing RTTI_Type field in JSON node !");
                     break;
                 }
 
                 type klass = type::get_by_name(itr->value.GetString());
                 if (!klass)
                 {
+                    ret = T3D_ERR_DESERIALIZE_OBJECT;
+                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "RTTR type [%s] is not registered !", itr->value.GetString());
                     break;
                 }
 

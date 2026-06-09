@@ -105,7 +105,7 @@ if (TINY3D_OS_DESKTOP)
 endif (TINY3D_OS_DESKTOP)
 
 # Generated source for reflection.
-set_project_files(Generated ${CMAKE_CURRENT_BINARY_DIR}/../Runtime/Generated/ .generated.cpp)
+set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/Core/Runtime/Generated/ .generated.cpp)
 
 # protobuf source files
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.h)

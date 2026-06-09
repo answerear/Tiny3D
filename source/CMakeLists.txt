@@ -268,6 +268,16 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
+# Pre-generated reflection source base directory.
+# Cross-compilation (Android etc.) reuses the host build's generated .cpp files.
+if (CMAKE_CROSSCOMPILING)
+    set(TINY3D_GENERATED_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vs2019-x64" CACHE PATH
+        "Base directory containing pre-generated reflection .cpp files for cross-compilation")
+else()
+    set(TINY3D_GENERATED_BASE_DIR "${CMAKE_BINARY_DIR}" CACHE PATH
+        "Base directory containing generated reflection .cpp files (native build)")
+endif()
+
 # Project Reflect (incremental reflection generation, can be disabled in CI)
 option(TINY3D_INCREMENTAL_RTTR "Enable incremental RTTR reflection generation during build" ON)
 
