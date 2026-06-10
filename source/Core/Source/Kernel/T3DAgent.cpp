@@ -430,6 +430,8 @@ namespace Tiny3D
 
             mSettings = settings;
 
+            mArchiveMgr = ArchiveManager::create();
+
             // 加载配置文件中指定的插件
             ret = loadPlugins();
             if (T3D_FAILED(ret))
