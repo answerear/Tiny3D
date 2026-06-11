@@ -29,6 +29,7 @@
 #include "T3DRPPrerequisites.h"
 #include "T3DPreprocessorOptions.h"
 #include "T3DAbstractSyntaxTree.h"
+#include "T3DPlatformGuardScanner.h"
 
 
 namespace Tiny3D
@@ -347,9 +348,19 @@ namespace Tiny3D
          */
         void injectTemplateInstantiations(const TemplateInstList &instList);
 
+        /**
+         * @brief 获取 AST 节点所在头文件的条件编译守卫
+         * @param [in] filePath : 头文件路径
+         * @param [in] line : 声明所在行号
+         * @return 条件编译守卫字符串，空表示无守卫
+         */
+        String queryPlatformGuard(const String &filePath, uint32_t line);
+
     protected:
         /// per-cpp 的模板实例化记录（在 instantiateClassTemplate 成功时填充）
         TemplateInstMap         mTemplateInstantiations {};
+        /// 条件编译守卫扫描器
+        PlatformGuardScanner    mGuardScanner {};
     };
 }
 

@@ -99,7 +99,6 @@ namespace Tiny3D
 
             if (!var.is_valid() || !var.can_convert<T>())
             {
-
                 T3D_LOG_ERROR("Serializer",
                     "Deserialized variant is invalid or cannot convert to target type [%s]",
                     rttr::type::get<T>().get_name().data());

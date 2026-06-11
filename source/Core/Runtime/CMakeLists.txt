@@ -107,6 +107,21 @@ endif (TINY3D_OS_DESKTOP)
 # Generated source for reflection.
 set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/Core/Runtime/Generated/ .generated.cpp)
 
+# On non-desktop platforms, exclude generated files for desktop-only modules (Meta)
+# to avoid compiling empty compilation units. The generated files contain
+# #if defined(T3D_OS_DESKTOP) guards so they compile correctly either way,
+# but filtering them out saves unnecessary compilation.
+if (NOT TINY3D_OS_DESKTOP)
+    file(GLOB _DESKTOP_ONLY_SOURCES "${TINY3D_CORE_SOURCE_DIR}/Source/Meta/*.cpp")
+    foreach(_src ${_DESKTOP_ONLY_SOURCES})
+        get_filename_component(_title ${_src} NAME_WE)
+        list(FILTER SOURCE_FILES EXCLUDE REGEX "${_title}\\.generated\\.cpp$")
+    endforeach()
+    unset(_DESKTOP_ONLY_SOURCES)
+    unset(_title)
+    unset(_src)
+endif (NOT TINY3D_OS_DESKTOP)
+
 # protobuf source files
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.h)
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.cc)

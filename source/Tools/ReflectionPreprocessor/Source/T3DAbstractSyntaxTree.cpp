@@ -447,6 +447,7 @@ namespace Tiny3D
         strct->RTTIEnabled = RTTIEnabled;
         strct->ConstructAsPointer = ConstructAsPointer;
         strct->RTTIBaseClasses = RTTIBaseClasses;
+        strct->PlatformGuard = PlatformGuard;
     }
     
     //--------------------------------------------------------------------------
@@ -922,6 +923,7 @@ namespace Tiny3D
         function->IsProperty = IsProperty;
         function->IsGetter = IsGetter;
         function->FileInfo = FileInfo;
+        function->PlatformGuard = PlatformGuard;
     }
 
     //--------------------------------------------------------------------------
@@ -1474,6 +1476,7 @@ namespace Tiny3D
         ASTProperty *property = static_cast<ASTProperty *>(newNode);
         property->DataType = DataType;
         property->FileInfo = FileInfo;
+        property->PlatformGuard = PlatformGuard;
     }
 
     //--------------------------------------------------------------------------
@@ -1562,6 +1565,7 @@ namespace Tiny3D
         
         ASTEnum *enumerate = static_cast<ASTEnum *>(newNode);
         enumerate->FileInfo = FileInfo;
+        enumerate->PlatformGuard = PlatformGuard;
     }
 
     //--------------------------------------------------------------------------

@@ -1861,6 +1861,7 @@ namespace Tiny3D
             klass->RTTIEnabled = RTTIEnabled;
             klass->RTTIBaseClasses = baseClasses;
             klass->Specifiers = (!inWhitelist ? &itrSpec->second : nullptr);
+            klass->PlatformGuard = queryPlatformGuard(path, start);
 
             // 把自己加到父结点上
             parent->addChild(name, klass);
@@ -2619,13 +2620,21 @@ namespace Tiny3D
 
             overload->FileInfo = std::move(fileInfo);
             overload->IsGetter = isGetter;
-            
+
             if (!isConstructor && !isDestructor)
             {
                 // 非构造函数、非析构函数才能有说明符
                 overload->Specifiers = &itrSpec->second;
             }
-            
+
+            // 设置函数级条件编译守卫（全局函数或类成员函数有独立守卫时有效）
+            ASTFunction *funcParent = static_cast<ASTFunction *>(parent);
+            if (funcParent->PlatformGuard.empty())
+            {
+                funcParent->PlatformGuard = queryPlatformGuard(
+                    overload->FileInfo.Path, overload->FileInfo.StartLine);
+            }
+
             parent->addChild(USR, overload);
 
             node = overload;
@@ -2834,7 +2843,9 @@ namespace Tiny3D
 
             enumeration->FileInfo = std::move(fileInfo);
             enumeration->Specifiers = &itrSpec->second;
-            
+            enumeration->PlatformGuard = queryPlatformGuard(
+                enumeration->FileInfo.Path, enumeration->FileInfo.StartLine);
+
             if (cxParent.kind == CXCursor_Namespace
                 || cxParent.kind == CXCursor_TranslationUnit)
             {
@@ -2975,6 +2986,8 @@ namespace Tiny3D
             ASTProperty *property = T3D_NEW ASTProperty(name);
             property->DataType = toString(clang_getTypeSpelling(clang_getCursorType(cxCursor)));
             property->Specifiers = &itrSpec->second;
+            property->PlatformGuard = queryPlatformGuard(
+                fileInfo.Path, fileInfo.StartLine);
             parent->addChild(name, property);
 
             if (cxParent.kind == CXCursor_Namespace
@@ -3587,6 +3600,50 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    namespace
+    {
+        String getNodePlatformGuard(const ASTNode *node)
+        {
+            if (node == nullptr)
+                return "";
+
+            switch (node->getType())
+            {
+            case ASTNode::Type::kClass:
+            case ASTNode::Type::kStruct:
+            case ASTNode::Type::kClassTemplate:
+                return static_cast<const ASTStruct*>(node)->PlatformGuard;
+            case ASTNode::Type::kEnum:
+                return static_cast<const ASTEnum*>(node)->PlatformGuard;
+            case ASTNode::Type::kFunction:
+            case ASTNode::Type::kFunctionTemplate:
+                return static_cast<const ASTFunction*>(node)->PlatformGuard;
+            case ASTNode::Type::kProperty:
+                return static_cast<const ASTProperty*>(node)->PlatformGuard;
+            default:
+                return "";
+            }
+        }
+
+        /// Format a guard string into a valid #if directive.
+        /// "T3D_OS_DESKTOP"  → "#if defined(T3D_OS_DESKTOP)"
+        /// "!T3D_OS_DESKTOP" → "#if !defined(T3D_OS_DESKTOP)"
+        String formatGuardDirective(const String &guard)
+        {
+            if (!guard.empty() && guard[0] == '!')
+                return "#if !defined(" + guard.substr(1) + ")";
+            return "#if defined(" + guard + ")";
+        }
+
+        /// Strip the leading '!' for comment output.
+        String formatGuardComment(const String &guard)
+        {
+            if (!guard.empty() && guard[0] == '!')
+                return guard.substr(1);
+            return guard;
+        }
+    }
+
     TResult ReflectionGenerator::generateSource(const String &generatedPath)
     {
         FileDataStream fs;
@@ -3613,27 +3670,40 @@ namespace Tiny3D
                 continue;
             }
 
-            // String headerPath = itr->second;
-            // for (const auto &includePath : mIncludePathes)
-            // {
-            //     String pattern = includePath + "*";
-            //     if (StringUtil::match(headerPath, pattern, false))
-            //     {
-            //         StringUtil::replaceAll(headerPath, includePath, "");
-            //         if (headerPath[0] == Dir::getNativeSeparator())
-            //         {
-            //             headerPath.erase(0, 1);
-            //         }
-            //     }
-            // }
-            
             if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE))
             {
-                // 文件打开失败
                 RP_LOG_ERROR("Open file [%s] failed !", path.c_str());
                 continue;
             }
             
+            // 检查该文件所有节点是否共享同一个平台守卫
+            String fileGuard;
+            bool allSameGuard = true;
+            bool hasAnyGuard = false;
+
+            for (const auto &value : val.second)
+            {
+                String guard = getNodePlatformGuard(value.second);
+
+                if (!guard.empty())
+                    hasAnyGuard = true;
+
+                if (fileGuard.empty() && !guard.empty())
+                {
+                    fileGuard = guard;
+                }
+                else if (!guard.empty() && fileGuard != guard)
+                {
+                    allSameGuard = false;
+                }
+                else if (guard.empty() && !fileGuard.empty())
+                {
+                    allSameGuard = false;
+                }
+            }
+
+            bool useFileGuard = allSameGuard && hasAnyGuard && !fileGuard.empty();
+
             // 文件头注释
             fs << "// Copyright (C) 2024  Answer Wong" << std::endl;
             fs << "// Generated code exported from ReflectionPreprocessor." << std::endl;
@@ -3642,10 +3712,15 @@ namespace Tiny3D
             // 需要包含的头文件
             fs << std::endl;
             fs << "#include <rttr/registration>" << std::endl;
-            // fs << "#include \"" << headerPath << (headerPath.empty() ? "" : "/") << title << ".h\"" << std::endl;
             for (const auto &header : itr->second)
             {
                 fs << "#include \"" << header << "\"" << std::endl;
+            }
+
+            // 文件级守卫：包裹整个 RTTR_REGISTRATION 块
+            if (useFileGuard)
+            {
+                fs << std::endl << formatGuardDirective(fileGuard) << std::endl;
             }
 
             // 开始注册类信息
@@ -3657,20 +3732,27 @@ namespace Tiny3D
             
                 for (const auto &value : val.second)
                 {
+                    String nodeGuard = getNodePlatformGuard(value.second);
+                    bool needNodeGuard = !useFileGuard && !nodeGuard.empty();
+
                     ASTNode *parent = value.second->getParent();
                     bool hasNS = false, first = false;
                     if (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
                     {
                         hasNS = true;
                         first = true;
-                        fs << std::endl << "\tusing namespace ";
+                        fs << std::endl;
+                        if (needNodeGuard)
+                        {
+                            fs << formatGuardDirective(nodeGuard) << std::endl;
+                        }
+                        fs << "\tusing namespace ";
                     }
                     String ns;
                     while (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
                     {
                         if (!first)
                         {
-                            // fs << "::";
                             ns = parent->getName() + "::" + ns;
                         }
                         else
@@ -3678,22 +3760,35 @@ namespace Tiny3D
                             ns = parent->getName();
                             first = false;
                         }
-                        // fs << parent->getName();
                         parent = parent->getParent();
                     }
                     if (hasNS)
                     {
                         fs << ns << ";" << std::endl;
                     }
+                    else if (needNodeGuard)
+                    {
+                        fs << std::endl << formatGuardDirective(nodeGuard) << std::endl;
+                    }
 
                     value.second->generateSourceFile(fs);
+
+                    if (needNodeGuard)
+                    {
+                        fs << "#endif // " << formatGuardComment(nodeGuard) << std::endl;
+                    }
                 }
             }
             
             // 结束注册类信息
             fs << "}" << std::endl;
-                
-            // 是在这里打开的文件，就在这里关闭
+
+            // 关闭文件级守卫
+            if (useFileGuard)
+            {
+                fs << std::endl << "#endif // " << formatGuardComment(fileGuard) << std::endl;
+            }
+
             fs.close();
 
             RP_LOG_INFO("End generating reflection source file [%s] ...", val.first.c_str());
@@ -4117,6 +4212,21 @@ namespace Tiny3D
         } while (false);
         
         return ret;
+    }
+
+    //-------------------------------------------------------------------------
+
+    String ReflectionGenerator::queryPlatformGuard(const String &filePath, uint32_t line)
+    {
+        if (!filePath.empty() && isProjectFile(filePath))
+        {
+            if (!mGuardScanner.isScanned(filePath))
+            {
+                mGuardScanner.scan(filePath);
+            }
+            return mGuardScanner.getGuardAtLine(filePath, line);
+        }
+        return "";
     }
 
     //-------------------------------------------------------------------------

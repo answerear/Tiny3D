@@ -27,6 +27,7 @@
 
 
 #include "T3DMathPrerequisites.h"
+#include "T3DReal.h"
 
 
 namespace Tiny3D

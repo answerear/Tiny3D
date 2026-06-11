@@ -727,31 +727,45 @@ namespace Tiny3D
                                 T3D_LOG_ERROR(LOG_TAG_SERIALIZE, " There is not the corresponding value of property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
                             }
                         }
+                        else if (!val.is_valid())
+                        {
+                            // ReadObjectRecursively failed — type name in JSON doesn't match
+                            // the registered name on this platform (e.g. MSVC vs Clang/libc++
+                            // produce different RTTI type strings for std::list<std::string>).
+                            // Fall back to property's declared type for deserialization.
+                            auto prop = klass.get_property(name.GetString());
+                            if (prop.is_valid())
+                            {
+                                const type propType = prop.get_type();
+                                constructor ctor = propType.get_constructor();
+                                if (ctor.is_valid())
+                                {
+                                    val = ctor.invoke();
+                                    auto itrValue = it->value.FindMember(RTTI_VALUE);
+                                    if (itrValue != it->value.MemberEnd())
+                                    {
+                                        ReadValue(itrValue->value, propType, val);
+                                    }
+                                    bool rval = klass.set_property_value(name.GetString(), obj, val);
+                                    if (!rval)
+                                    {
+                                        T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Failed to set property (%s) in class (%s) via fallback!", name.GetString(), klass.get_name().data());
+                                    }
+                                }
+                                else
+                                {
+                                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Cannot construct default value for property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                                }
+                            }
+                            else
+                            {
+                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Property (%s) not found in class (%s)!", name.GetString(), klass.get_name().data());
+                            }
+                        }
                         else
                         {
                             const type propType = klass.get_property(name.GetString()).get_type();
                             convertToSmartPtr(val, propType);
-                            // const type varType = val.get_type();
-                            // if (propType.is_wrapper() && varType.is_pointer() && propType.get_wrapped_type() == varType.get_raw_type() && varType.get_raw_type().is_derived_from<Object>())
-                            // {
-                            //     bool ok = false;
-                            //     Object *tempObj = val.convert<Object*>(&ok);
-                            //     T3D_ASSERT(ok);
-                            //     val = propType.create({tempObj});
-                            //     // bool ok = val.convert(valueType);
-                            //     // T3D_ASSERT(ok);
-                            // }
-                            
-                            // if (val.get_type().is_derived_from<Tiny3D::Object>())
-                            // {
-                            //     type propType = klass.get_property(name.GetString()).get_type();
-                            //     if (propType.is_wrapper())
-                            //     {
-                            //         Object *tempObj = val.convert<Object*>();
-                            //         // val = val.extract_wrapped_value();
-                            //         val = tempObj;
-                            //     }
-                            // }
                             
                             bool rval = klass.set_property_value(name.GetString(), obj, val);
                             if (!rval)

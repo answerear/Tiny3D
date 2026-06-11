@@ -369,6 +369,8 @@ namespace Tiny3D
         bool                HasConstructor {false};
         /// 反射的基类列表
         TList<String>       *RTTIBaseClasses {nullptr};
+        /// 条件编译守卫（如 "T3D_OS_DESKTOP"），空表示全平台
+        String              PlatformGuard {};
     };
 
     /**
@@ -434,6 +436,8 @@ namespace Tiny3D
         bool                IsGetter {false};
         /// 函数所在文件信息
         ASTFileInfo         FileInfo {};
+        /// 条件编译守卫（如 "T3D_OS_DESKTOP"），空表示全平台
+        String              PlatformGuard {};
     };
     
     /**
@@ -685,6 +689,8 @@ namespace Tiny3D
         String              DataType {};
         /// 属性所在文件信息
         ASTFileInfo         FileInfo {};
+        /// 条件编译守卫（如 "T3D_OS_DESKTOP"），空表示全平台
+        String              PlatformGuard {};
     };
 
     /**
@@ -715,6 +721,8 @@ namespace Tiny3D
         
     public:
         ASTFileInfo         FileInfo {};       /// 枚举所在文件信息
+        /// 条件编译守卫（如 "T3D_OS_DESKTOP"），空表示全平台
+        String              PlatformGuard {};
     };
 
     /**
