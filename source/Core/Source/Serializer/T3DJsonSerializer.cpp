@@ -710,69 +710,80 @@ namespace Tiny3D
                 {
                     for (Value::ConstMemberIterator it = value.MemberBegin(); it != value.MemberEnd(); ++it)
                     {
-                        // property name
                         const auto& name = it->name;
 
-                        // property type & value
-                        bool isArray = false;
-                        variant val = ReadObjectRecursively(it->value, isArray);
-                        if (!val.is_valid() && isArray)
+                        auto prop = klass.get_property(name.GetString());
+                        if (!prop.is_valid())
                         {
-                            // 原生数组
-                            val = klass.get_property_value(name.GetString(), obj);
-                            ReadNativeArray(it->value, val);
-                            bool rval = klass.set_property_value(name.GetString(), obj, val);
-                            if (!rval)
+                            T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Property (%s) not found in class (%s)!", name.GetString(), klass.get_name().data());
+                            continue;
+                        }
+
+                        const type propType = prop.get_type();
+                        bool isPolymorphic = propType.is_pointer()
+                            || (propType.is_wrapper() && propType.get_wrapped_type().is_derived_from<Object>());
+
+                        variant val;
+
+                        if (isPolymorphic)
+                        {
+                            // Polymorphic property — must use RTTI_Type from JSON
+                            // to instantiate the correct derived class.
+                            bool isArray = false;
+                            val = ReadObjectRecursively(it->value, isArray);
+                            if (val.is_valid())
                             {
-                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, " There is not the corresponding value of property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                                convertToSmartPtr(val, propType);
+                            }
+                            else
+                            {
+                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Cannot deserialize polymorphic property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                                continue;
                             }
                         }
-                        else if (!val.is_valid())
+                        else if (propType.is_array())
                         {
-                            // ReadObjectRecursively failed — type name in JSON doesn't match
-                            // the registered name on this platform (e.g. MSVC vs Clang/libc++
-                            // produce different RTTI type strings for std::list<std::string>).
-                            // Fall back to property's declared type for deserialization.
-                            auto prop = klass.get_property(name.GetString());
-                            if (prop.is_valid())
+                            // Native C-style array — read in-place.
+                            val = klass.get_property_value(name.GetString(), obj);
+                            ReadNativeArray(it->value, val);
+                        }
+                        else
+                        {
+                            // Value type (containers, structs, primitives) —
+                            // use the declared property type directly, which is
+                            // platform-independent and avoids RTTI name mismatch.
+                            auto itrValue = it->value.FindMember(RTTI_VALUE);
+                            if (itrValue == it->value.MemberEnd())
                             {
-                                const type propType = prop.get_type();
+                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Missing RTTI_Value for property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                                continue;
+                            }
+
+                            if (propType.is_arithmetic() || propType.is_enumeration()
+                                || propType == type::get<std::string>())
+                            {
+                                ReadValue(itrValue->value, propType, val);
+                            }
+                            else
+                            {
                                 constructor ctor = propType.get_constructor();
                                 if (ctor.is_valid())
                                 {
                                     val = ctor.invoke();
-                                    auto itrValue = it->value.FindMember(RTTI_VALUE);
-                                    if (itrValue != it->value.MemberEnd())
-                                    {
-                                        ReadValue(itrValue->value, propType, val);
-                                    }
-                                    bool rval = klass.set_property_value(name.GetString(), obj, val);
-                                    if (!rval)
-                                    {
-                                        T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Failed to set property (%s) in class (%s) via fallback!", name.GetString(), klass.get_name().data());
-                                    }
+                                    ReadValue(itrValue->value, propType, val);
                                 }
                                 else
                                 {
-                                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Cannot construct default value for property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
+                                    T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "No default constructor for property (%s) type in class (%s)!", name.GetString(), klass.get_name().data());
+                                    continue;
                                 }
                             }
-                            else
-                            {
-                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Property (%s) not found in class (%s)!", name.GetString(), klass.get_name().data());
-                            }
                         }
-                        else
+
+                        bool rval = klass.set_property_value(name.GetString(), obj, val);
+                        if (!rval)
                         {
-                            const type propType = klass.get_property(name.GetString()).get_type();
-                            convertToSmartPtr(val, propType);
-                            
-                            bool rval = klass.set_property_value(name.GetString(), obj, val);
-                            if (!rval)
-                            {
-                                T3D_LOG_ERROR(LOG_TAG_SERIALIZE, " There is not the corresponding value of property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
-                                continue;
-                            }
+                            T3D_LOG_ERROR(LOG_TAG_SERIALIZE, "Failed to set property (%s) in class (%s)!", name.GetString(), klass.get_name().data());
                         }
                     }
                 }
