@@ -141,15 +141,22 @@ endif (TINY3D_BUILD_RENDERSYSTEM_GLES2)
 if (TINY3D_BUILD_RENDERSYSTEM_GLES3)
     add_definitions(-DT3D_ERR_EGL3_RENDERER=T3D_ERR_RENDERER)
 
-    find_package(OpenGLES3)
-
-    if (NOT OPENGLES3_FOUND)
-        message(STATUS "Could not find dependency: OpenGLES 3")
-        message(STATUS "Skipping OpenGLES3 rendersystem build")
-        set(TINY3D_BUILD_RENDERSYSTEM_GLES3 FALSE)
-    else ()
+    if (TINY3D_OS_ANDROID)
+        # Android NDK provides GLES3 + EGL directly, no find_package needed
         add_subdirectory(OpenGLES3)
-        add_dependencies(GLES3Renderer T3DCore T3DMath T3DLog T3DPlatform)
+        add_dependencies(GLES3Renderer T3DCore T3DMath T3DLog T3DPlatform T3DSystem T3DUtils)
+    else ()
+        # Non-Android platforms: search for GLES emulator SDK
+        find_package(OpenGLES3)
+
+        if (NOT OPENGLES3_FOUND)
+            message(STATUS "Could not find dependency: OpenGLES 3")
+            message(STATUS "Skipping OpenGLES3 rendersystem build")
+            set(TINY3D_BUILD_RENDERSYSTEM_GLES3 FALSE)
+        else ()
+            add_subdirectory(OpenGLES3)
+            add_dependencies(GLES3Renderer T3DCore T3DMath T3DLog T3DPlatform T3DSystem T3DUtils)
+        endif ()
     endif ()
 endif (TINY3D_BUILD_RENDERSYSTEM_GLES3)
 

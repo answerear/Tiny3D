@@ -61,7 +61,7 @@ namespace Tiny3D
                 w = dm.w;
                 h = dm.h;
             }
-            
+
             mSDLWindow = SDL_CreateWindow(title, x, y, w, h, flags);
             if (mSDLWindow == nullptr)
             {
@@ -69,7 +69,7 @@ namespace Tiny3D
                 std::string str = SDL_GetError();
                 break;
             }
-            
+
             ret = T3D_OK;
         } while (0);
 
@@ -132,7 +132,9 @@ namespace Tiny3D
     {
         SDL_SysWMinfo sdlInfo;
 
-        bool ret = SDL_GetWindowWMInfo(mSDLWindow, &sdlInfo);
+        SDL_VERSION(&sdlInfo.version);
+
+        bool ret = (SDL_GetWindowWMInfo(mSDLWindow, &sdlInfo) == SDL_TRUE);
 
         if (ret)
         {

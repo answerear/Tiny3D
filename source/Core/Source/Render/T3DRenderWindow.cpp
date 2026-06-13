@@ -105,7 +105,16 @@ namespace Tiny3D
                     flags |= Window::WINDOW_RESIZABLE;
                 }
 
-                String title = desc.Title + " - " + T3D_AGENT.getActiveRHIRenderer()->getName();
+                const String &rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+                //if (rendererName == RHIRenderer::OPENGLES3
+                //    || rendererName == RHIRenderer::OPENGLES2
+                //    || rendererName == RHIRenderer::OPENGL4
+                //    || rendererName == RHIRenderer::OPENGL4_CONSOLE)
+                //{
+                //    flags |= Window::WINDOW_OPENGL;
+                //}
+
+                String title = desc.Title + " - " + rendererName;
                 ret = mWindow->create(title.c_str(), desc.Left, desc.Top, desc.Width, desc.Height, flags);
                 if (T3D_FAILED(ret))
                 {
@@ -132,14 +141,15 @@ namespace Tiny3D
 
             mDesc = desc;
 
-            mRHIRenderWindow = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
-
-            // mRHIDepthStencilTex = T3D_TEXTURE_MGR.createRenderTexture("", desc.Width, desc.Height, PixelFormat::E_PF_D24_UNORM_S8_UINT);
-   
-            // mRHIRenderTarget = T3D_AGENT.getActiveRHIContext()->createRenderWindow(this);
-            //
-            // ViewportPtr viewport = addViewport(0, 0, 0, 0.5f, 1.0f);
-            // viewport = addViewport(1, 0.5f, 0, 0.5f, 1.0f);
+            mRHIRenderWindow = smart_pointer_cast<RHIRenderWindow>(
+                T3D_AGENT.getActiveRHIContext()->createRenderWindow(this));
+            if (mRHIRenderWindow == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_RENDER,
+                    "Create RHI render window failed !");
+                break;
+            }
         } while (false);
         
         return ret;
