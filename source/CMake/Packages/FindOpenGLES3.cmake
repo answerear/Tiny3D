@@ -23,6 +23,17 @@
 #  EGL_INCLUDE_DIR  - the EGL include directory
 #  EGL_LIBRARIES    - Link these to use EGL
 
+# Android NDK: GLES3 + EGL are provided by the sysroot; skip searching.
+IF (ANDROID)
+    SET(OPENGLES3_FOUND TRUE)
+    SET(OPENGLES3_INCLUDE_DIR "")
+    SET(OPENGLES3_LIBRARIES GLESv3)
+    SET(EGL_FOUND TRUE)
+    SET(EGL_INCLUDE_DIR "")
+    SET(EGL_LIBRARIES EGL)
+    RETURN()
+ENDIF (ANDROID)
+
 IF (WIN32)
   IF (CYGWIN)
 

@@ -26,6 +26,8 @@ find_path(GLSLANG_INCLUDE_DIR glslang/Public/ShaderLang.h
 # Determine platform-specific prebuilt library directory
 if (WIN32)
     set(_GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Windows/x64")
+elseif (ANDROID)
+    set(_GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Android/${ANDROID_ABI}")
 elseif (UNIX AND NOT APPLE)
     set(_GLSLANG_LIB_DIR "${GLSLANG_DIR}/prebuilt/Linux/x64")
 elseif (APPLE)
@@ -44,12 +46,19 @@ set(_GLSLANG_LIB_NAMES
     glslang-default-resource-limits
 )
 
-# Build debug + optimized library list
+# Build library list (platform-specific naming)
 set(GLSLANG_LIBRARIES "")
-foreach(_lib ${_GLSLANG_LIB_NAMES})
-    list(APPEND GLSLANG_LIBRARIES debug "${_GLSLANG_LIB_DIR}/Debug/${_lib}d.lib")
-    list(APPEND GLSLANG_LIBRARIES optimized "${_GLSLANG_LIB_DIR}/Release/${_lib}.lib")
-endforeach()
+if (ANDROID)
+    # Android: glslang is pre-merged into a single fat .a, plus the resource-limits lib
+    list(APPEND GLSLANG_LIBRARIES "${_GLSLANG_LIB_DIR}/libglslang.a")
+    list(APPEND GLSLANG_LIBRARIES "${_GLSLANG_LIB_DIR}/libglslang-default-resource-limits.a")
+else ()
+    # Desktop: debug/optimized separation
+    foreach(_lib ${_GLSLANG_LIB_NAMES})
+        list(APPEND GLSLANG_LIBRARIES debug "${_GLSLANG_LIB_DIR}/Debug/${_lib}d.lib")
+        list(APPEND GLSLANG_LIBRARIES optimized "${_GLSLANG_LIB_DIR}/Release/${_lib}.lib")
+    endforeach()
+endif ()
 
 if (GLSLANG_INCLUDE_DIR AND _GLSLANG_LIB_DIR)
     set(Glslang_FOUND TRUE)
