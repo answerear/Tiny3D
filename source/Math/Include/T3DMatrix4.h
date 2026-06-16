@@ -260,7 +260,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName = "data", RTTRFuncType = "setter")
         void setData(Buffer data);
 
-        union
+        union alignas(16)
         {
             T m4x4[4][4];
             T mTuples[16];

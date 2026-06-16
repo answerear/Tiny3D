@@ -150,7 +150,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="w", RTTRFuncType="setter", "Description"="w component")
         void setW(T w) { _w = w; }
         
-        T    _x;
+        alignas(16) T    _x;
         T    _y;
         T    _z;
         T    _w;
