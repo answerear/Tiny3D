@@ -133,7 +133,7 @@ namespace Tiny3D
 
     TResult RHIThread::addCommand(RHICommand *command)
     {
-        mCommandLists[mEnqueueCommandListIdx].push_back(RHICommandSafePtr(command));
+        mCommandLists[mEnqueueCommandListIdx].push_back(RHICommandPtr(command));
         return T3D_OK;
     }
 

@@ -941,7 +941,7 @@ namespace Tiny3D
             return ret;
         };
         
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowSafePtr(pD3DRenderWindow), w, h);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), w, h);
     }
 
     //--------------------------------------------------------------------------
@@ -1302,12 +1302,12 @@ namespace Tiny3D
         if (mCurrentRenderTarget != nullptr && mCurrentRenderTarget->getDepthStencil() != nullptr)
         {
             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(mCurrentRenderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
-            auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer, const Real &depth, uint8_t stencil)
+            auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const Real &depth, uint8_t stencil)
             {
                 mD3DDeviceContext->ClearDepthStencilView(pD3DPixelBuffer->D3DDSView, D3D11_CLEAR_DEPTH, depth, stencil);
                 return T3D_OK;
             };
-            return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), depth, 0);
+            return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), depth, 0);
         }
 
         return ret;
@@ -1332,12 +1332,12 @@ namespace Tiny3D
     TResult D3D11Context::clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil)
     {
         D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
-        auto lambda = [this](const D3D11PixelBuffer2DSafePtr &pD3DPixelBuffer, const Real &depth, uint8_t stencil)
+        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const Real &depth, uint8_t stencil)
         {
             mD3DDeviceContext->ClearDepthStencilView(pD3DPixelBuffer->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DSafePtr(pD3DPixelBuffer), depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), depth, stencil);
     }
 
     //--------------------------------------------------------------------------

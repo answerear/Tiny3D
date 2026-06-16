@@ -29,6 +29,7 @@
 
 #include "T3DSystemPrerequisites.h"
 #include "T3DSystem.h"
+#include <atomic>
 
 
 namespace Tiny3D
@@ -49,9 +50,6 @@ namespace Tiny3D
         template<typename T>
         friend class SmartPtr;
 
-        template<typename T>
-        friend class ThreadSafePtr;
-        
     public:
         /**
          * @fn  Object::Object();
@@ -72,7 +70,7 @@ namespace Tiny3D
          */
         uint32_t referCount() const
         {
-            return mReferCount;
+            return mReferCount.load(std::memory_order_relaxed);
         }
 
     protected:
@@ -95,7 +93,6 @@ namespace Tiny3D
         void release();
 #endif
 
-        void enableThreadSafe(bool enable);
 
         void printDebugInfo();
 
@@ -112,14 +109,8 @@ namespace Tiny3D
         virtual void onPostLoad();
 
     private:
-        /// 引用计数
-        uint32_t    mReferCount {0};
-        /// 线程安全对象引用计数
-        uint32_t    mThreadSafeRefCount {0};
-        /// 用于多线程的同步锁
-        ISyncObject *mSyncObject {nullptr};
-        /// 是否开启线程安全
-        bool    mIsThreadSafe {false};
+        /// 引用计数（原子操作，天然线程安全）
+        std::atomic<uint32_t>   mReferCount {0};
 
 #if T3D_TRACE_OBJECT
         String  mClsName;

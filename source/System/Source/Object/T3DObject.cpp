@@ -42,7 +42,6 @@ namespace Tiny3D
 
     Object::~Object()
     {
-        T3D_SAFE_DELETE(mSyncObject);
 #if T3D_TRACE_OBJECT
         T3D_LOG_INFO("System", "%s - Class : %s, Pointer : 0x%016p", __FUNCTION__, mClsName.c_str(), this);
 #endif
@@ -53,16 +52,7 @@ namespace Tiny3D
 
     Object *Object::acquire()
     {
-        if (mIsThreadSafe)
-        {
-            ScopeLock lock(mSyncObject);
-            ++mReferCount;
-        }
-        else
-        {
-            ++mReferCount;
-        }
-        
+        mReferCount.fetch_add(1, std::memory_order_relaxed);
         return this;
     }
 
@@ -70,47 +60,12 @@ namespace Tiny3D
 
     void Object::release()
     {
-        if (mIsThreadSafe)
-        {
-            ScopeLock lock(mSyncObject);
-            --mReferCount;
-        }
-        else
-        {
-            --mReferCount;
-        }
-
-        if (mReferCount == 0)
+        if (mReferCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
         {
             delete this;
         }
     }
 
-    //--------------------------------------------------------------------------
-
-    void Object::enableThreadSafe(bool enable)
-    {
-        if (enable)
-        {
-            if (mSyncObject == nullptr)
-            {
-                mSyncObject = T3D_NEW CriticalSection();
-            }
-            ScopeLock lock(mSyncObject);
-            mIsThreadSafe = true;
-            ++mThreadSafeRefCount;
-        }
-        else
-        {
-            ScopeLock lock(mSyncObject);
-            if (--mThreadSafeRefCount == 0)
-            {
-                // 如果开启过一次线程安全，再开启的概率比较大，所以这里不释放锁
-                mIsThreadSafe = false;
-            }
-        }
-    }
-    
     //--------------------------------------------------------------------------
 
     void Object::printDebugInfo()

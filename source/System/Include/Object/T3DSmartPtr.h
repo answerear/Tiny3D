@@ -296,67 +296,9 @@ namespace Tiny3D
     template <typename T>
     const SmartPtr<T> SmartPtr<T>::NULL_PTR(nullptr);
 
-    template <typename T>
-    class ThreadSafePtr : public SmartPtr<T>
-    {
-    public:
-        ThreadSafePtr(Object *obj = nullptr) : SmartPtr<T>(obj)
-        {
-            if (this->mReferObject != nullptr)
-            {
-                this->mReferObject->enableThreadSafe(true);
-            }
-        }
-
-        ThreadSafePtr(const ThreadSafePtr &other) : SmartPtr<T>(other)
-        {
-            if (this->mReferObject != nullptr)
-            {
-                this->mReferObject->enableThreadSafe(true);
-            }
-        }
-
-        ThreadSafePtr(const SmartPtr<T> &other) : SmartPtr<T>(other)
-        {
-            if (this->mReferObject != nullptr)
-            {
-                this->mReferObject->enableThreadSafe(true);
-            }
-        }
-
-        ThreadSafePtr &operator=(const ThreadSafePtr &other)
-        {
-            SmartPtr<T>::operator=(other);
-            if (this->mReferObject != nullptr)
-            {
-                this->mReferObject->enableThreadSafe(true);
-            }
-            return *this;
-        }
-
-        // 从 SmartPtr 赋值
-        ThreadSafePtr &operator=(const SmartPtr<T> &other)
-        {
-            SmartPtr<T>::operator=(other);
-            if (this->mReferObject != nullptr)
-            {
-                this->mReferObject->enableThreadSafe(true);
-            }
-            return *this;
-        }
-
-        ~ThreadSafePtr() override
-        {
-            if (this->mReferObject != nullptr)
-            {
-                this->mReferObject->enableThreadSafe(false);
-            }
-        }
-    };
-    
     #define T3D_DECLARE_SMART_PTR(classname)    \
         using classname##Ptr = SmartPtr<classname>; \
-        using classname##SafePtr = ThreadSafePtr<classname>;
+        using classname##SafePtr = SmartPtr<classname>;
 }
 
 namespace rttr
