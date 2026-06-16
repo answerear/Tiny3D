@@ -141,6 +141,16 @@ namespace Tiny3D
 
             mDesc = desc;
 
+            // 窗口实际尺寸可能与请求的不同（如 Android 使用屏幕分辨率），
+            // 回查真实尺寸以保证后续 viewport 计算正确
+            int32_t actualW = 0, actualH = 0;
+            mWindow->getWindowSize(actualW, actualH);
+            if (actualW > 0 && actualH > 0)
+            {
+                mDesc.Width = actualW;
+                mDesc.Height = actualH;
+            }
+
             mRHIRenderWindow = smart_pointer_cast<RHIRenderWindow>(
                 T3D_AGENT.getActiveRHIContext()->createRenderWindow(this));
             if (mRHIRenderWindow == nullptr)
