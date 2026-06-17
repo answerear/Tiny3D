@@ -22,6 +22,7 @@
 #include "T3DFreeImageCodecError.h"
 #include <FreeImage.h>
 #include <sstream>
+#include <algorithm>
 
 
 namespace Tiny3D
@@ -352,12 +353,20 @@ namespace Tiny3D
                     break;
                 case 24:
                     {
+#if defined(T3D_OS_ANDROID)
+                        eFormat = PixelFormat::E_PF_R8G8B8;
+#else
                         eFormat = PixelFormat::E_PF_B8G8R8;
+#endif
                     }
                     break;
                 case 32:
                     {
+#if defined(T3D_OS_ANDROID)
+                        eFormat = PixelFormat::E_PF_R8G8B8A8;
+#else
                         eFormat = PixelFormat::E_PF_B8G8R8A8;
+#endif
                         hasAlpha = true;
                     }
                     break;
@@ -384,15 +393,26 @@ namespace Tiny3D
                 {
                     for (y = 0; y < height; ++y)
                     {
-//                         uint8_t *pSrc = src + (height - y - 1) * srcPitch;
-// #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
-//                         Color4::convert_B8G8R8A8toA8R8G8B8(pSrc, pDst, width);
-// #elif FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-//                         memcpy(pDst, pSrc, dstPitch);
-// #endif
-//                         pDst += dstPitch;
                         uint8_t *pSrc = FreeImage_GetScanLine(dib, height - y - 1);
-                        memcpy(pDst,pSrc, dstPitch);
+                        memcpy(pDst, pSrc, dstPitch);
+#if defined(T3D_OS_ANDROID)
+                        if (bpp == 32)
+                        {
+                            for (uint32_t x = 0; x < width; ++x)
+                            {
+                                uint8_t *pixel = pDst + x * 4;
+                                std::swap(pixel[0], pixel[2]);
+                            }
+                        }
+                        else if (bpp == 24)
+                        {
+                            for (uint32_t x = 0; x < width; ++x)
+                            {
+                                uint8_t *pixel = pDst + x * 3;
+                                std::swap(pixel[0], pixel[2]);
+                            }
+                        }
+#endif
                         pDst += dstPitch;
                     }
                 }
