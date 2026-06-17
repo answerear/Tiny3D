@@ -24,7 +24,8 @@
 #include "../Common/SampleApp.h"
 
 
-#define ARCHIVE_TYPE_FS     "FileSystem"
+#define ARCHIVE_TYPE_FS         "FileSystem"
+#define ARCHIVE_TYPE_ANDROID    "AndroidAsset"
 
 
 class TextureApp : public SampleWindowApp

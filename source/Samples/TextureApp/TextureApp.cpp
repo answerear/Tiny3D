@@ -144,9 +144,13 @@ void TextureApp::buildCube(Transform3D *parent)
 
 Texture2DPtr TextureApp::buildTexture()
 {
+#if defined(T3D_OS_ANDROID)
+    ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_ANDROID, "", Archive::AccessMode::kRead);
+#else
     ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_FS, Dir::getAppPath(), Archive::AccessMode::kRead);
+#endif
     T3D_ASSERT(archive != nullptr);
-    ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "Assets/samples/textures/blocks.png");
+    ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "assets/samples/textures/blocks.png");
     T3D_ASSERT(image != nullptr);
     Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
     return texture;
