@@ -1788,14 +1788,14 @@ namespace Tiny3D
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
         GLuint shaderHandle = glShader->GLShaderHandle;
 
-        mCurrentVSVariant = shader;
-
-        auto lambda = [this](GLuint shaderHandle)
+        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                mCurrentVSVariant = variant;
+
                 if (mCurrentProgram != 0)
                 {
                     GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
@@ -1809,7 +1809,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
     }
 
     //--------------------------------------------------------------------------
@@ -1889,21 +1889,25 @@ namespace Tiny3D
     {
         if (shader == nullptr)
         {
-            mCurrentPSVariant = nullptr;
-            return T3D_OK;
+            auto lambda = [this]()
+            {
+                mCurrentPSVariant = nullptr;
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
         GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
         GLuint shaderHandle = glShader->GLShaderHandle;
 
-        mCurrentPSVariant = shader;
-
-        auto lambda = [this](GLuint shaderHandle)
+        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                mCurrentPSVariant = variant;
+
                 if (mCurrentProgram == 0)
                 {
                     mCurrentProgram = glCreateProgram();
@@ -1916,7 +1920,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
     }
 
     //--------------------------------------------------------------------------
@@ -2508,8 +2512,6 @@ namespace Tiny3D
     TResult GL4Context::reset()
     {
         mCurrentRenderTarget = nullptr;
-        mCurrentVSVariant = nullptr;
-        mCurrentPSVariant = nullptr;
 
         auto lambda = [this]()
         {
@@ -2517,6 +2519,9 @@ namespace Tiny3D
 
             do
             {
+                mCurrentVSVariant = nullptr;
+                mCurrentPSVariant = nullptr;
+
                 glUseProgram(0);
                 glBindVertexArray(0);
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -3068,12 +3073,12 @@ namespace Tiny3D
             if (samplers[i] != nullptr)
             {
                 GL4SamplerState *glSampler = static_cast<GL4SamplerState*>(samplers[i]->getRHIState().get());
-                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u glSampler=%u", startSlot + i, glSampler->GLSampler);
+                //T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u glSampler=%u", startSlot + i, glSampler->GLSampler);
                 samplerHandles.push_back(glSampler->GLSampler);
             }
             else
             {
-                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u sampler=NULL", startSlot + i);
+                //T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u sampler=NULL", startSlot + i);
                 samplerHandles.push_back(0);
             }
         }
