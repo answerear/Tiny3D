@@ -1,8 +1,8 @@
 """
-Compile .vshader and .pshader files using scc.exe to generate HLSL, GLSL, and SPIR-V output.
+Compile .vshader and .pshader files using scc.exe to generate HLSL, GLSL, SPIR-V, and ESSL output.
 
 Usage:
-    python compile_shaders.py --scc <scc_path> --src <shader_dir> --hlsl-out <hlsl_dir> --glsl-out <glsl_dir> [--spirv-out <spirv_dir>] [--extra-args <args>]
+    python compile_shaders.py --scc <scc_path> --src <shader_dir> --hlsl-out <hlsl_dir> --glsl-out <glsl_dir> [--spirv-out <spirv_dir>] [--essl-out <essl_dir>] [--extra-args <args>]
 
 Example:
     python compile_shaders.py \
@@ -11,6 +11,7 @@ Example:
         --hlsl-out assets/samples/shaders/output/HLSL \
         --glsl-out assets/samples/shaders/output/OpenGL4 \
         --spirv-out assets/samples/shaders/output/Vulkan \
+        --essl-out assets/samples/shaders/output/OpenGLES3 \
         --extra-args "-N -O0"
 """
 
@@ -74,6 +75,7 @@ def main():
     parser.add_argument('--hlsl-out', required=True, help='Output directory for HLSL files')
     parser.add_argument('--glsl-out', required=True, help='Output directory for GLSL files')
     parser.add_argument('--spirv-out', default='', help='Output directory for SPIR-V files (optional)')
+    parser.add_argument('--essl-out', default='', help='Output directory for ESSL (GLES3) files (optional)')
     parser.add_argument('--extra-args', default='-N -O0', help='Extra arguments for scc.exe (default: -N -O0)')
     args = parser.parse_args()
 
@@ -91,6 +93,8 @@ def main():
     os.makedirs(args.glsl_out, exist_ok=True)
     if args.spirv_out:
         os.makedirs(args.spirv_out, exist_ok=True)
+    if args.essl_out:
+        os.makedirs(args.essl_out, exist_ok=True)
 
     # Build target list
     targets = [
@@ -99,6 +103,8 @@ def main():
     ]
     if args.spirv_out:
         targets.append(('spirv', args.spirv_out, 'TINY3D_VULKAN'))
+    if args.essl_out:
+        targets.append(('essl', args.essl_out, 'TINY3D_OPENGLES'))
 
     success = 0
     fail = 0
