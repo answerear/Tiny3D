@@ -710,12 +710,32 @@ namespace Tiny3D
                 auto it = kModelToGLSL.find(model);
                 if (it != kModelToGLSL.end())
                     return it->second;
-                return "450";  // default to GLSL 4.50
+                return "450";
+            };
+
+            auto convertToESSLVersion = [](const String &model) -> String
+            {
+                static const TMap<String, String> kModelToESSL = {
+                    {"20", "100"}, {"21", "100"}, {"30", "300"},
+                    {"31", "300"}, {"32", "300"}, {"33", "300"},
+                    {"40", "310"}, {"41", "310"}, {"42", "310"},
+                    {"43", "310"}, {"44", "320"}, {"45", "320"},
+                    {"50", "320"}, {"51", "320"}, {"60", "320"},
+                    {"61", "320"}, {"62", "320"}, {"63", "320"},
+                };
+                auto it = kModelToESSL.find(model);
+                if (it != kModelToESSL.end())
+                    return it->second;
+                return "310";
             };
 
             String glslVersion;
-            if (targetDesc.language == ShadingLanguage::Glsl
-                || targetDesc.language == ShadingLanguage::Essl)
+            if (targetDesc.language == ShadingLanguage::Essl)
+            {
+                glslVersion = convertToESSLVersion(snippet.model);
+                targetDesc.version = glslVersion.c_str();
+            }
+            else if (targetDesc.language == ShadingLanguage::Glsl)
             {
                 glslVersion = convertToGLSLVersion(snippet.model);
                 targetDesc.version = glslVersion.c_str();
