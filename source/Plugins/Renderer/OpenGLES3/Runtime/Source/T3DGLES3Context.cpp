@@ -1428,14 +1428,14 @@ namespace Tiny3D
         GLES3Shader *glShader = static_cast<GLES3Shader*>(shader->getRHIShader());
         GLuint shaderHandle = glShader->GLShaderHandle;
 
-        mCurrentVSVariant = shader;
-
-        auto lambda = [this](GLuint shaderHandle)
+        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                mCurrentVSVariant = variant;
+
                 if (mCurrentProgram != 0)
                 {
                     GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
@@ -1449,7 +1449,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
     }
 
     //--------------------------------------------------------------------------
@@ -1529,21 +1529,25 @@ namespace Tiny3D
     {
         if (shader == nullptr)
         {
-            mCurrentPSVariant = nullptr;
-            return T3D_OK;
+            auto lambda = [this]()
+            {
+                mCurrentPSVariant = nullptr;
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
         GLES3Shader *glShader = static_cast<GLES3Shader*>(shader->getRHIShader());
         GLuint shaderHandle = glShader->GLShaderHandle;
 
-        mCurrentPSVariant = shader;
-
-        auto lambda = [this](GLuint shaderHandle)
+        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                mCurrentPSVariant = variant;
+
                 if (mCurrentProgram == 0)
                 {
                     mCurrentProgram = glCreateProgram();
@@ -1556,7 +1560,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
     }
 
     //--------------------------------------------------------------------------
@@ -1985,8 +1989,6 @@ namespace Tiny3D
     TResult GLES3Context::reset()
     {
         mCurrentRenderTarget = nullptr;
-        mCurrentVSVariant = nullptr;
-        mCurrentPSVariant = nullptr;
 
         auto lambda = [this]()
         {
@@ -1994,6 +1996,9 @@ namespace Tiny3D
 
             do
             {
+                mCurrentVSVariant = nullptr;
+                mCurrentPSVariant = nullptr;
+
                 glUseProgram(0);
                 glBindVertexArray(0);
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
