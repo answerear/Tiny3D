@@ -95,6 +95,13 @@ elseif (TINY3D_OS_ANDROID)
             "${CMAKE_SOURCE_DIR}/../assets/config/Android/Tiny3D.cfg"
             "${ANDROID_ASSETS_DIR}/Tiny3D.cfg"
         )
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:GLES3Renderer>
+            ${T3D_ANDROID_LIB_PATH}
+        )
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     # Setup executable project for iOS or Mac OS X.
     add_executable(
