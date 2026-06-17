@@ -22,7 +22,6 @@
 #include "T3DFreeImageCodecError.h"
 #include <FreeImage.h>
 #include <sstream>
-#include <algorithm>
 
 
 namespace Tiny3D
@@ -394,24 +393,32 @@ namespace Tiny3D
                     for (y = 0; y < height; ++y)
                     {
                         uint8_t *pSrc = FreeImage_GetScanLine(dib, height - y - 1);
-                        memcpy(pDst, pSrc, dstPitch);
 #if defined(T3D_OS_ANDROID)
                         if (bpp == 32)
                         {
                             for (uint32_t x = 0; x < width; ++x)
                             {
-                                uint8_t *pixel = pDst + x * 4;
-                                std::swap(pixel[0], pixel[2]);
+                                pDst[x * 4 + 0] = pSrc[x * 4 + 2];
+                                pDst[x * 4 + 1] = pSrc[x * 4 + 1];
+                                pDst[x * 4 + 2] = pSrc[x * 4 + 0];
+                                pDst[x * 4 + 3] = pSrc[x * 4 + 3];
                             }
                         }
                         else if (bpp == 24)
                         {
                             for (uint32_t x = 0; x < width; ++x)
                             {
-                                uint8_t *pixel = pDst + x * 3;
-                                std::swap(pixel[0], pixel[2]);
+                                pDst[x * 3 + 0] = pSrc[x * 3 + 2];
+                                pDst[x * 3 + 1] = pSrc[x * 3 + 1];
+                                pDst[x * 3 + 2] = pSrc[x * 3 + 0];
                             }
                         }
+                        else
+                        {
+                            memcpy(pDst, pSrc, dstPitch);
+                        }
+#else
+                        memcpy(pDst, pSrc, dstPitch);
 #endif
                         pDst += dstPitch;
                     }
