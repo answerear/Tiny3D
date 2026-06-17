@@ -1,6 +1,6 @@
 ---
 name: shader-compile-embed
-description: This skill handles the complete workflow of compiling Tiny3D shader source files (.vshader and .pshader) into HLSL, GLSL, and SPIR-V using scc.exe, and embedding the compiled shader code into C++ constants in SampleShaders.cpp. This skill should be used when the user wants to compile shaders, update shader strings in C++ code, regenerate HLSL/GLSL/SPIR-V output, or synchronize shader changes into the engine source. Trigger phrases include "compile shaders", "update SampleShaders", "regenerate HLSL/GLSL", "compile SPIR-V", "embed shaders into C++", "sync shader code", or any mention of scc.exe with shader files.
+description: This skill handles the complete workflow of compiling Tiny3D shader source files (.vshader and .pshader) into HLSL, GLSL, SPIR-V, and ESSL (GLES3) using scc.exe, and embedding the compiled shader code into C++ constants in SampleShaders.cpp. This skill should be used when the user wants to compile shaders, update shader strings in C++ code, regenerate HLSL/GLSL/ESSL/SPIR-V output, or synchronize shader changes into the engine source. Trigger phrases include "compile shaders", "update SampleShaders", "regenerate HLSL/GLSL/ESSL", "compile SPIR-V", "compile GLES3 shaders", "embed shaders into C++", "sync shader code", or any mention of scc.exe with shader files.
 ---
 
 # Shader Compile & Embed Skill
@@ -8,8 +8,8 @@ description: This skill handles the complete workflow of compiling Tiny3D shader
 ## Purpose
 
 Automate the workflow for Tiny3D shader development:
-1. **Compile** `.vshader` and `.pshader` source files into HLSL, GLSL, and SPIR-V using `scc.exe`
-2. **Embed HLSL/GLSL** compiled shader text into C++ string constants in `SampleShaders.cpp`
+1. **Compile** `.vshader` and `.pshader` source files into HLSL, GLSL, SPIR-V, and ESSL (GLES3) using `scc.exe`
+2. **Embed HLSL/GLSL/ESSL** compiled shader text into C++ string constants in `SampleShaders.cpp`
 3. **Embed SPIR-V** compiled binary bytecode into C++ byte array constants in `SampleShaders.cpp`
 
 ## Key Paths
@@ -20,6 +20,7 @@ Automate the workflow for Tiny3D shader development:
 | Shader sources | `assets/samples/shaders/*.vshader`, `*.pshader` |
 | HLSL output | `assets/samples/shaders/output/HLSL/` |
 | GLSL output | `assets/samples/shaders/output/OpenGL4/` |
+| ESSL output | `assets/samples/shaders/output/OpenGLES3/` |
 | SPIR-V output | `assets/samples/shaders/output/Vulkan/` |
 | C++ target | `source/Samples/Common/SampleShaders.cpp` |
 
@@ -36,15 +37,17 @@ python <skill_dir>/scripts/compile_shaders.py \
     --hlsl-out assets/samples/shaders/output/HLSL \
     --glsl-out assets/samples/shaders/output/OpenGL4 \
     --spirv-out assets/samples/shaders/output/Vulkan \
+    --essl-out assets/samples/shaders/output/OpenGLES3 \
     --extra-args "-N -O0"
 ```
 
-This finds all `.vshader` and `.pshader` files and compiles each with `-t hlsl`, `-t glsl`, and `-t spirv` targets. The script automatically adds platform-specific defines:
+This finds all `.vshader` and `.pshader` files and compiles each with `-t hlsl`, `-t glsl`, `-t spirv`, and `-t essl` targets. The script automatically adds platform-specific defines:
 - `-D TINY3D_DIRECTX` for HLSL
 - `-D TINY3D_OPENGL` for GLSL
 - `-D TINY3D_VULKAN` for SPIR-V
+- `-D TINY3D_OPENGLES` for ESSL (GLES3)
 
-### Step 2: Embed HLSL/GLSL into C++
+### Step 2: Embed HLSL/GLSL/ESSL into C++
 
 Run `scripts/embed_shaders.py` to replace the C++ string constants with the newly compiled shader content:
 
@@ -53,6 +56,7 @@ python <skill_dir>/scripts/embed_shaders.py \
     --cpp source/Samples/Common/SampleShaders.cpp \
     --hlsl-dir assets/samples/shaders/output/HLSL \
     --glsl-dir assets/samples/shaders/output/OpenGL4 \
+    --essl-dir assets/samples/shaders/output/OpenGLES3 \
     --map "GeometryApp_vertex.hlsl:SAMPLE_VERTEX_SHADER" \
     --map "GeometryApp_fragment.hlsl:SAMPLE_PIXEL_SHADER" \
     --map "LitGeometryApp_vertex.hlsl:SAMPLE_LIT_VERTEX_SHADER" \
@@ -69,6 +73,7 @@ python <skill_dir>/scripts/embed_shaders.py \
 The `--map` parameter uses the format `<hlsl_filename>:<CPP_VARIABLE>`. The script automatically:
 - Replaces the HLSL variable (no suffix) with content from `--hlsl-dir`
 - Replaces the GLSL variable (appends `_GL` suffix) with content from `--glsl-dir`
+- Replaces the ESSL variable (appends `_GLES` suffix) with content from `--essl-dir`
 
 ### Step 3: Embed SPIR-V into C++
 
@@ -99,10 +104,12 @@ The `--map` parameter uses the format `<spirv_filename>:<CPP_VARIABLE>`. For eac
 
 - **HLSL variables**: No suffix (e.g., `SAMPLE_VERTEX_SHADER`)
 - **GLSL variables**: `_GL` suffix (e.g., `SAMPLE_VERTEX_SHADER_GL`)
+- **ESSL variables**: `_GLES` suffix (e.g., `SAMPLE_VERTEX_SHADER_GLES`)
 - **SPIR-V variables**: `_VK` suffix (e.g., `SAMPLE_VERTEX_SHADER_VK`) + `_VK_SIZE` for byte count
-- All variables are defined inside `#if defined (T3D_OS_WINDOWS)` block in `SampleShaders.cpp`
+- HLSL/GLSL/SPIR-V variables are defined inside `#if defined (T3D_OS_WINDOWS)` block
+- ESSL variables are defined inside `#elif defined (T3D_OS_ANDROID)` block
 
-### C++ String Format (HLSL/GLSL)
+### C++ String Format (HLSL/GLSL/ESSL)
 
 Each shader line is converted to a C++ string literal:
 ```cpp
@@ -134,6 +141,6 @@ For the complete mapping table between compiled files and C++ variables, see `re
 
 To add a new shader to the pipeline:
 1. Create the `.vshader` or `.pshader` source file in `assets/samples/shaders/`
-2. Add the corresponding `const char *` variable declarations in `SampleShaders.cpp` (HLSL, GLSL, and SPIR-V versions)
+2. Add the corresponding `const char *` variable declarations in `SampleShaders.cpp` (HLSL, GLSL, ESSL, and SPIR-V versions)
 3. Add a new `--map` entry to the embed commands (both `embed_shaders.py` and `embed_spirv.py`)
 4. Update `references/shader_mapping.md` with the new mapping
