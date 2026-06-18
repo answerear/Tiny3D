@@ -1,11 +1,13 @@
 """
-Embed compiled SPIR-V binary shader files into C++ byte array constants in a .cpp file.
+Embed compiled SPIR-V binary shader files into C++ byte array constants in a .h file.
 
 Usage:
-    python embed_spirv.py --cpp <cpp_path> --spirv-dir <spirv_dir> \
+    python embed_spirv.py --cpp <h_path> --spirv-dir <spirv_dir> \
         --map "GeometryApp_vertex.spirv:SAMPLE_VERTEX_SHADER_VK" \
         --map "GeometryApp_fragment.spirv:SAMPLE_PIXEL_SHADER_VK" \
         ...
+
+The target file is typically `SampleShaders_vk.h`.
 
 The mapping format is: <spirv_filename>:<cpp_variable_name>
 For each mapping, two C++ symbols are generated:
@@ -90,25 +92,10 @@ def replace_var(content, var_name, spirv_dir, spirv_file):
             print(f'  Replaced {var_name} ({len(data)} bytes)')
             return content, True
 
-    # Variable not found - try to insert before the #elif or #else or #endif
-    # that closes the T3D_OS_WINDOWS block
-    # Look for a good insertion point: before the first #elif after all existing vars
-    insert_marker = '\n#elif defined (T3D_OS_OSX)'
-    insert_idx = content.find(insert_marker)
-    if insert_idx == -1:
-        insert_marker = '\n#elif'
-        insert_idx = content.find(insert_marker)
-    if insert_idx == -1:
-        insert_marker = '\n#endif'
-        insert_idx = content.find(insert_marker)
-
-    if insert_idx != -1:
-        content = content[:insert_idx] + '\n' + new_block + content[insert_idx:]
-        print(f'  Inserted {var_name} ({len(data)} bytes)')
-        return content, True
-
-    print(f'  WARNING: Cannot find insertion point for {var_name}, skipping')
-    return content, False
+    # Variable not found - append at the end of the file
+    content = content.rstrip('\n') + '\n\n' + new_block
+    print(f'  Inserted {var_name} ({len(data)} bytes) at end of file')
+    return content, True
 
 
 def main():

@@ -9,8 +9,8 @@ description: This skill handles the complete workflow of compiling Tiny3D shader
 
 Automate the workflow for Tiny3D shader development:
 1. **Compile** `.vshader` and `.pshader` source files into HLSL, GLSL, SPIR-V, and ESSL (GLES3) using `scc.exe`
-2. **Embed HLSL/GLSL/ESSL** compiled shader text into C++ string constants in `SampleShaders.cpp`
-3. **Embed SPIR-V** compiled binary bytecode into C++ byte array constants in `SampleShaders.cpp`
+2. **Embed HLSL/GLSL/ESSL** compiled shader text into C++ string constants in per-platform `.h` files
+3. **Embed SPIR-V** compiled binary bytecode into C++ byte array constants in `SampleShaders_vk.h`
 
 ## Key Paths
 
@@ -22,7 +22,11 @@ Automate the workflow for Tiny3D shader development:
 | GLSL output | `assets/samples/shaders/output/OpenGL4/` |
 | ESSL output | `assets/samples/shaders/output/OpenGLES3/` |
 | SPIR-V output | `assets/samples/shaders/output/Vulkan/` |
-| C++ target | `source/Samples/Common/SampleShaders.cpp` |
+| C++ HLSL target | `source/Samples/Common/SampleShaders_hlsl.h` |
+| C++ GL4 target | `source/Samples/Common/SampleShaders_gl4.h` |
+| C++ GLES3 target | `source/Samples/Common/SampleShaders_gles3.h` |
+| C++ VK target | `source/Samples/Common/SampleShaders_vk.h` |
+| C++ entry point | `source/Samples/Common/SampleShaders.cpp` (conditionally includes the above per platform) |
 
 ## Workflow
 
@@ -49,11 +53,13 @@ This finds all `.vshader` and `.pshader` files and compiles each with `-t hlsl`,
 
 ### Step 2: Embed HLSL/GLSL/ESSL into C++
 
-Run `scripts/embed_shaders.py` to replace the C++ string constants with the newly compiled shader content:
+Run `scripts/embed_shaders.py` to replace the C++ string constants with the newly compiled shader content. Each platform's shaders are now stored in separate `.h` files:
 
 ```bash
 python <skill_dir>/scripts/embed_shaders.py \
-    --cpp source/Samples/Common/SampleShaders.cpp \
+    --hlsl-cpp source/Samples/Common/SampleShaders_hlsl.h \
+    --glsl-cpp source/Samples/Common/SampleShaders_gl4.h \
+    --essl-cpp source/Samples/Common/SampleShaders_gles3.h \
     --hlsl-dir assets/samples/shaders/output/HLSL \
     --glsl-dir assets/samples/shaders/output/OpenGL4 \
     --essl-dir assets/samples/shaders/output/OpenGLES3 \
@@ -71,9 +77,9 @@ python <skill_dir>/scripts/embed_shaders.py \
 ```
 
 The `--map` parameter uses the format `<hlsl_filename>:<CPP_VARIABLE>`. The script automatically:
-- Replaces the HLSL variable (no suffix) with content from `--hlsl-dir`
-- Replaces the GLSL variable (appends `_GL` suffix) with content from `--glsl-dir`
-- Replaces the ESSL variable (appends `_GLES` suffix) with content from `--essl-dir`
+- Replaces the HLSL variable (no suffix) in `--hlsl-cpp` with content from `--hlsl-dir`
+- Replaces the GLSL variable (appends `_GL` suffix) in `--glsl-cpp` with content from `--glsl-dir`
+- Replaces the ESSL variable (appends `_GLES` suffix) in `--essl-cpp` with content from `--essl-dir`
 
 ### Step 3: Embed SPIR-V into C++
 
@@ -81,7 +87,7 @@ Run `scripts/embed_spirv.py` to replace the C++ byte array constants with the ne
 
 ```bash
 python <skill_dir>/scripts/embed_spirv.py \
-    --cpp source/Samples/Common/SampleShaders.cpp \
+    --cpp source/Samples/Common/SampleShaders_vk.h \
     --spirv-dir assets/samples/shaders/output/Vulkan \
     --map "GeometryApp_vertex.spirv:SAMPLE_VERTEX_SHADER_VK" \
     --map "GeometryApp_fragment.spirv:SAMPLE_PIXEL_SHADER_VK" \
@@ -102,12 +108,14 @@ The `--map` parameter uses the format `<spirv_filename>:<CPP_VARIABLE>`. For eac
 
 ### Mapping Convention
 
-- **HLSL variables**: No suffix (e.g., `SAMPLE_VERTEX_SHADER`)
-- **GLSL variables**: `_GL` suffix (e.g., `SAMPLE_VERTEX_SHADER_GL`)
-- **ESSL variables**: `_GLES` suffix (e.g., `SAMPLE_VERTEX_SHADER_GLES`)
-- **SPIR-V variables**: `_VK` suffix (e.g., `SAMPLE_VERTEX_SHADER_VK`) + `_VK_SIZE` for byte count
-- HLSL/GLSL/SPIR-V variables are defined inside `#if defined (T3D_OS_WINDOWS)` block
-- ESSL variables are defined inside `#elif defined (T3D_OS_ANDROID)` block
+- **HLSL variables**: No suffix (e.g., `SAMPLE_VERTEX_SHADER`) — defined in `SampleShaders_hlsl.h`
+- **GLSL variables**: `_GL` suffix (e.g., `SAMPLE_VERTEX_SHADER_GL`) — defined in `SampleShaders_gl4.h`
+- **ESSL variables**: `_GLES` suffix (e.g., `SAMPLE_VERTEX_SHADER_GLES`) — defined in `SampleShaders_gles3.h`
+- **SPIR-V variables**: `_VK` suffix (e.g., `SAMPLE_VERTEX_SHADER_VK`) + `_VK_SIZE` for byte count — defined in `SampleShaders_vk.h`
+
+Platform inclusion is controlled by `SampleShaders.cpp` via conditional `#include`:
+- Windows: includes `_hlsl.h` + `_gl4.h` + `_vk.h`
+- Android: includes `_gles3.h` + `_vk.h`
 
 ### C++ String Format (HLSL/GLSL/ESSL)
 
@@ -141,6 +149,10 @@ For the complete mapping table between compiled files and C++ variables, see `re
 
 To add a new shader to the pipeline:
 1. Create the `.vshader` or `.pshader` source file in `assets/samples/shaders/`
-2. Add the corresponding `const char *` variable declarations in `SampleShaders.cpp` (HLSL, GLSL, ESSL, and SPIR-V versions)
+2. Add the corresponding `const char *` variable in the appropriate platform header:
+   - HLSL variable in `SampleShaders_hlsl.h`
+   - GLSL variable (with `_GL` suffix) in `SampleShaders_gl4.h`
+   - ESSL variable (with `_GLES` suffix) in `SampleShaders_gles3.h`
+   - SPIR-V array (with `_VK` suffix) in `SampleShaders_vk.h`
 3. Add a new `--map` entry to the embed commands (both `embed_shaders.py` and `embed_spirv.py`)
 4. Update `references/shader_mapping.md` with the new mapping

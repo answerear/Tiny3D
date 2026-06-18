@@ -25,9 +25,15 @@ After compilation with `scc.exe`, each shader produces two files:
 - **HLSL** output: `output/HLSL/<ShaderName>_vertex.hlsl` or `<ShaderName>_fragment.hlsl`
 - **GLSL** output: `output/OpenGL4/<ShaderName>_vertex.glsl` or `<ShaderName>_fragment.glsl`
 
-## C++ Variable Mapping in SampleShaders.cpp
+## C++ Variable Mapping
 
-The file `source/Samples/Common/SampleShaders.cpp` contains all shader code as C++ string constants, wrapped inside `#if defined (T3D_OS_WINDOWS)`.
+Shader constants are split into per-platform header files in `source/Samples/Common/`:
+- `SampleShaders_hlsl.h` — HLSL string constants (D3D11, Windows only)
+- `SampleShaders_gl4.h` — GLSL 4.0 string constants (OpenGL4, Windows only)
+- `SampleShaders_gles3.h` — GLSL ES 3.1 string constants (GLES3, Android only)
+- `SampleShaders_vk.h` — SPIR-V byte arrays (Vulkan, Windows + Android)
+
+These are conditionally included by `SampleShaders.cpp` via platform macros.
 
 ### HLSL Variables (no suffix)
 
