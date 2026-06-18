@@ -30,6 +30,29 @@ include_directories(
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 
+# Filter shader header files by platform
+set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
+if (TINY3D_OS_WINDOWS)
+    list(REMOVE_ITEM SOURCE_FILES "${COMMON_DIR}/SampleShaders_gles3.h")
+elseif (TINY3D_OS_ANDROID)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h")
+elseif (TINY3D_OS_LINUX)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h"
+        "${COMMON_DIR}/SampleShaders_gles3.h"
+        "${COMMON_DIR}/SampleShaders_vk.h")
+elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h"
+        "${COMMON_DIR}/SampleShaders_gles3.h"
+        "${COMMON_DIR}/SampleShaders_vk.h")
+endif ()
+
+
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)

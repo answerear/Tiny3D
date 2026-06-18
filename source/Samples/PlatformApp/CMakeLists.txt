@@ -30,6 +30,29 @@ include_directories(
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 
+# Filter shader header files by platform
+set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
+if (TINY3D_OS_WINDOWS)
+    list(REMOVE_ITEM SOURCE_FILES "${COMMON_DIR}/SampleShaders_gles3.h")
+elseif (TINY3D_OS_ANDROID)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h")
+elseif (TINY3D_OS_LINUX)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h"
+        "${COMMON_DIR}/SampleShaders_gles3.h"
+        "${COMMON_DIR}/SampleShaders_vk.h")
+elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h"
+        "${COMMON_DIR}/SampleShaders_gles3.h"
+        "${COMMON_DIR}/SampleShaders_vk.h")
+endif ()
+
+
 
 # Setup project source files
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
@@ -85,6 +108,23 @@ elseif (TINY3D_OS_ANDROID)
         PRE_LINK
         COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
         COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
+        )
+
+    set(ANDROID_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/assets")
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_SOURCE_DIR}/../assets/config/Android/Tiny3D.cfg"
+            "${ANDROID_ASSETS_DIR}/Tiny3D.cfg"
+        )
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:GLES3Renderer>
+            ${T3D_ANDROID_LIB_PATH}
         )
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     # Setup executable project for iOS or Mac OS X.
