@@ -9,6 +9,7 @@
 #include "T3DGLES3Context.h"
 #include "T3DGLES3Error.h"
 #include "T3DGLES3Renderer.h"
+#include "T3DGLES3Mapping.h"
 
 #if defined(T3D_OS_ANDROID)
 #include <android/native_window.h>
@@ -177,6 +178,8 @@ namespace Tiny3D
         T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "OpenGL ES Version: %s", glGetString(GL_VERSION));
         T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "GLSL ES Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
         T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "RenderWindow created (%u x %u)", mWidth, mHeight);
+
+        GLES3Mapping::detectExtensions();
 
         return true;
     }

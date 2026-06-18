@@ -6,13 +6,49 @@
 
 #include "T3DGLES3Mapping.h"
 
+#include <cstring>
+
+#ifndef GL_BGRA_EXT
+#define GL_BGRA_EXT 0x80E1
+#endif
+
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    bool GLES3Mapping::sBGRAExtSupported = false;
+
+    //--------------------------------------------------------------------------
+
+    void GLES3Mapping::detectExtensions()
+    {
+        const char *exts = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
+        if (exts != nullptr)
+        {
+            sBGRAExtSupported = (strstr(exts, "GL_EXT_texture_format_BGRA8888") != nullptr);
+        }
+
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_EXT_texture_format_BGRA8888: %s",
+            sBGRAExtSupported ? "supported" : "not supported");
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GLES3Mapping::isBGRAFormat(PixelFormat format)
+    {
+        return format == PixelFormat::E_PF_B8G8R8X8
+            || format == PixelFormat::E_PF_B8G8R8A8
+            || format == PixelFormat::E_PF_B8G8R8;
+    }
+
+    //--------------------------------------------------------------------------
+
     GLenum GLES3Mapping::get(PixelFormat format)
     {
+        // BGRA formats use GL_RGBA/GL_RGB here; actual B/R swap is done
+        // CPU-side before upload (see GLES3Context::createPixelBuffer*).
         switch (format)
         {
         case PixelFormat::E_PF_R8G8B8:      return GL_RGB;

@@ -16,6 +16,10 @@ namespace Tiny3D
     class GLES3Mapping
     {
     public:
+        static void detectExtensions();
+        static bool isBGRAFormat(PixelFormat format);
+        static bool isBGRAExtSupported() { return sBGRAExtSupported; }
+
         static GLenum get(PixelFormat format);
         static GLenum getInternalFormat(PixelFormat format);
         static GLenum getPixelType(PixelFormat format);
@@ -41,6 +45,9 @@ namespace Tiny3D
         static GLenum getVertexAttribType(VertexAttribute::Type type);
         static GLboolean getVertexAttribNormalized(VertexAttribute::Type type);
         static bool isIntegerAttrib(VertexAttribute::Type type);
+
+    private:
+        static bool sBGRAExtSupported;
     };
 }
 

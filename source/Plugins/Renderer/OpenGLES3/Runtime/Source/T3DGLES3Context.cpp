@@ -35,6 +35,9 @@
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
 
+#include <algorithm>
+#include <cstring>
+
 
 namespace Tiny3D
 {
@@ -1263,6 +1266,20 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const uint8_t *uploadData = buffer->getBuffer().Data;
+                uint8_t *convertedData = nullptr;
+
+                if (GLES3Mapping::isBGRAFormat(desc.format)
+                    && uploadData != nullptr)
+                {
+                    size_t dataSize = buffer->getBuffer().DataSize;
+                    convertedData = new uint8_t[dataSize];
+                    memcpy(convertedData, uploadData, dataSize);
+                    uint32_t bpp = (desc.format == PixelFormat::E_PF_B8G8R8) ? 3 : 4;
+                    for (size_t i = 0; i + 2 < dataSize; i += bpp)
+                        std::swap(convertedData[i], convertedData[i + 2]);
+                    uploadData = convertedData;
+                }
 
                 // GLES3 has no GL_TEXTURE_1D — simulate with height=1 2D texture
                 glGenTextures(1, &glBuffer->GLTexture);
@@ -1272,12 +1289,14 @@ namespace Tiny3D
                     desc.width, 1, 0,
                     GLES3Mapping::get(desc.format),
                     GLES3Mapping::getPixelType(desc.format),
-                    buffer->getBuffer().Data);
+                    uploadData);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glBindTexture(GL_TEXTURE_2D, 0);
+
+                delete[] convertedData;
 
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::createPixelBuffer1D");
             } while (false);
@@ -1303,6 +1322,20 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const uint8_t *uploadData = buffer->getBuffer().Data;
+                uint8_t *convertedData = nullptr;
+
+                if (GLES3Mapping::isBGRAFormat(desc.format)
+                    && uploadData != nullptr)
+                {
+                    size_t dataSize = buffer->getBuffer().DataSize;
+                    convertedData = new uint8_t[dataSize];
+                    memcpy(convertedData, uploadData, dataSize);
+                    uint32_t bpp = (desc.format == PixelFormat::E_PF_B8G8R8) ? 3 : 4;
+                    for (size_t i = 0; i + 2 < dataSize; i += bpp)
+                        std::swap(convertedData[i], convertedData[i + 2]);
+                    uploadData = convertedData;
+                }
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
@@ -1311,13 +1344,15 @@ namespace Tiny3D
                     desc.width, desc.height, 0,
                     GLES3Mapping::get(desc.format),
                     GLES3Mapping::getPixelType(desc.format),
-                    buffer->getBuffer().Data);
+                    uploadData);
 
                 glGenerateMipmap(GL_TEXTURE_2D);
 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glBindTexture(GL_TEXTURE_2D, 0);
+
+                delete[] convertedData;
 
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::createPixelBuffer2D");
             } while (false);
