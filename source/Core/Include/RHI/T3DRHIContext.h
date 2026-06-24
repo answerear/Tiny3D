@@ -82,6 +82,14 @@ namespace Tiny3D
         bool isProjectionFlipped() const { return mProjectionFlipped; }
 
         /**
+         * \brief 返回深度重映射矩阵，将光空间 Z 从平台 NDC 范围映射到 [0,1]。
+         *        D3D11 的投影矩阵已内含 Z remap，默认返回单位矩阵。
+         *        GL 系列（GL4/GLES3）保持原生 [-1,1] NDC，override 返回 Z remap 矩阵。
+         * \return 深度重映射矩阵的常引用
+         */
+        virtual const Matrix4& getDepthRemapMatrix() const;
+
+        /**
          * \brief 创建 RHI 渲染窗口
          * \param [in] renderWindow : 引擎渲染窗口
          * \return 调用成功返回新建的 RHI 对象

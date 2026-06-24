@@ -433,24 +433,12 @@ namespace Tiny3D
 
     TResult GL4Context::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)
     {
-        // The engine's projection matrices (orthographic_LH / perspective_LH)
-        // produce OpenGL-style NDC with Z in [-1, 1].  Since we use
-        // glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE) to set the depth
-        // range to [0, 1] (matching D3D11), we need conversionMat to remap
-        // the projection Z from [-1,1] to [0,1].
-        static Matrix4 conversionMat(
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.5f, 0.5f,
-            0.0f, 0.0f, 0.0f, 1.0f
-            );
-
-        // 渲染到 FBO 时，翻转投影矩阵 Y 轴（Unity 策略）。
-        // 这样 FBO 中的画面方向与 D3D11 一致，shader 无需区分平台。
-        static Matrix4 conversionFlipYMat(
+        // GL4 now uses native OpenGL NDC with Z in [-1, 1] (no glClipControl).
+        // When rendering to FBO, flip Y to match D3D orientation.
+        static Matrix4 flipYMat(
             1.0f,  0.0f, 0.0f, 0.0f,
             0.0f, -1.0f, 0.0f, 0.0f,
-            0.0f,  0.0f, 0.5f, 0.5f,
+            0.0f,  0.0f, 1.0f, 0.0f,
             0.0f,  0.0f, 0.0f, 1.0f
             );
 
@@ -458,17 +446,30 @@ namespace Tiny3D
 
         if (mRenderingToFBO)
         {
-            mProjMatrix = conversionFlipYMat * projMat;
+            mProjMatrix = flipYMat * projMat;
             mProjectionFlipped = true;
         }
         else
         {
-            mProjMatrix = conversionMat * projMat;
+            mProjMatrix = projMat;
             mProjectionFlipped = false;
         }
 
         mProjViewMatrix = mProjMatrix * mViewMatrix;
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4& GL4Context::getDepthRemapMatrix() const
+    {
+        static Matrix4 zRemapMat(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f
+            );
+        return zRemapMat;
     }
 
     //--------------------------------------------------------------------------

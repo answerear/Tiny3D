@@ -348,7 +348,6 @@ namespace Tiny3D
             GLDefaultFBO = 0;
 
             // 初始化默认 GL 状态
-            glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
             glEnable(GL_CULL_FACE);

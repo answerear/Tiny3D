@@ -182,6 +182,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    const Matrix4& GLES3Context::getDepthRemapMatrix() const
+    {
+        static Matrix4 zRemapMat(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f
+            );
+        return zRemapMat;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIRenderTargetPtr GLES3Context::createRenderWindow(RenderWindow *renderWindow)
     {
         GLES3RenderWindowPtr glRenderWindow = GLES3RenderWindow::create(renderWindow);

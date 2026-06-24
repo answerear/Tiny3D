@@ -32,6 +32,8 @@ namespace Tiny3D
 
         TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
 
+        const Matrix4& getDepthRemapMatrix() const override;
+
         RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) override;
 
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
