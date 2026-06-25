@@ -33,23 +33,29 @@ namespace Tiny3D
 
     String DataStream::readLine(bool trim)
     {
-        char c;
-        size_t nNumberOfRead = 0;
+        char c = 0;
         String str;
 
         do
         {
             size_t nBytes = read(&c, sizeof(c));
-            if (nBytes > 0 && c != '\r' && c != '\n')
+            if (nBytes == 0)
             {
-                str += c;
-                nNumberOfRead += nBytes;
-            }
-            else if (nBytes == 0)
-            {
+                // 到达流末尾
                 break;
             }
-        } while (c != '\n');
+
+            if (c == '\n')
+            {
+                // 行结束
+                break;
+            }
+
+            if (c != '\r')
+            {
+                str += c;
+            }
+        } while (true);
 
         if (trim)
         {
@@ -65,17 +71,16 @@ namespace Tiny3D
     size_t DataStream::writeLine(const String &strLine)
     {
         size_t bytesOfWritten = 0;
-        size_t length = strLine.find_first_not_of("\r\n");
 
-        if (length > 0)
+        // 写入正文内容
+        if (!strLine.empty())
         {
-            bytesOfWritten = write((void *)strLine.c_str(), length);
+            bytesOfWritten += write((void *)strLine.c_str(), strLine.length());
         }
-        else if (length == String::npos)
-        {
-            length = strLine.length();
-            bytesOfWritten = write((void *)strLine.c_str(), length);
-        }
+
+        // 追加行结束符，与 readLine 以 '\n' 作为分隔保持一致
+        const char newline = '\n';
+        bytesOfWritten += write((void *)&newline, sizeof(newline));
 
         return bytesOfWritten;
     }
