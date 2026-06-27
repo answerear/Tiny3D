@@ -10,10 +10,6 @@
           "RTTI_Type": "std::string",
           "RTTI_Value": "9ba3e8855f9f1fe5be1b784e334177df"
         }
-      },
-      "Language": {
-        "RTTI_Type": "std::string",
-        "RTTI_Value": "hlsl"
       }
     }
   }
