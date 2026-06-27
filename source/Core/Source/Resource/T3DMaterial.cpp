@@ -27,6 +27,7 @@
 
 #include "T3DErrorDef.h"
 #include "Material/T3DPass.h"
+#include "Material/T3DShaderVariantSet.h"
 #include "Resource/T3DShader.h"
 #include "Resource/T3DShaderManager.h"
 #include "Material/T3DTechniqueInstance.h"
@@ -323,12 +324,30 @@ namespace Tiny3D
                     break;
                 }
 
-                auto initShaderParams = [this](const ShaderVariants &shaderVariants)
+                auto initShaderParams = [this](const ShaderVariantSets &shaderVariants)
                 {
-                    for (const auto &shaderVariant : shaderVariants)
+                    for (const auto &kv : shaderVariants)
                     {
+                        ShaderVariantSetPtr set = kv.second;
+                        if (set == nullptr || set->empty())
+                        {
+                            continue;
+                        }
+
+                        // 材质参数（常量/采样器名称）与语言无关，取当前后端变体；
+                        // 若当前后端变体缺失则退而取集合中任意一个变体即可。
+                        ShaderVariantPtr variant = set->getActiveVariant();
+                        if (variant == nullptr)
+                        {
+                            variant = set->getVariants().begin()->second;
+                        }
+                        if (variant == nullptr)
+                        {
+                            continue;
+                        }
+
                         // 添加常量，并设置常量初始值
-                        for (const auto &param : shaderVariant.second->getShaderConstantParams())
+                        for (const auto &param : variant->getShaderConstantParams())
                         {
                             ShaderConstantValuePtr constValue = ShaderConstantValue::create(param.first, param.second->getDataType(), param.second->getDataSize());
                             uint8_t *data = T3D_POD_NEW_ARRAY(uint8_t, param.second->getDataSize());
@@ -340,7 +359,7 @@ namespace Tiny3D
                         }
 
                         // 添加纹理采样器
-                        for (const auto &param : shaderVariant.second->getShaderSamplerParams())
+                        for (const auto &param : variant->getShaderSamplerParams())
                         {
                             ShaderSamplerValuePtr samplerValue = ShaderSamplerValue::create(param.first);
                             mSamplerValues.emplace(samplerValue->getName(), samplerValue);

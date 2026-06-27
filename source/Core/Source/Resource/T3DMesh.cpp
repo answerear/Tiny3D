@@ -27,6 +27,7 @@
 #include "Material/T3DPass.h"
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderVariantInstance.h"
+#include "Material/T3DShaderVariantSet.h"
 #include "Material/T3DTechniqueInstance.h"
 #include "Resource/T3DSubMesh.h"
 #include "Render/T3DRenderResourceManager.h"
@@ -236,7 +237,20 @@ namespace Tiny3D
 
                     pass = itr->second;
                     // vshader = pass->getCurrentVertexShader()->getShaderVariant();
-                    vshader = pass->getPass()->getVertexShaders().empty() ? nullptr : pass->getPass()->getVertexShaders().begin()->second;
+                    const ShaderVariantSets &vsSets = pass->getPass()->getVertexShaders();
+                    if (!vsSets.empty())
+                    {
+                        ShaderVariantSetPtr set = vsSets.begin()->second;
+                        if (set != nullptr)
+                        {
+                            // 取当前渲染后端语言对应的顶点着色器变体（仅用于构建顶点声明）
+                            vshader = set->getActiveVariant();
+                            if (vshader == nullptr && !set->empty())
+                            {
+                                vshader = set->getVariants().begin()->second;
+                            }
+                        }
+                    }
                 }
             }
 

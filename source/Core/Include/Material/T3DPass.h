@@ -29,6 +29,7 @@
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
 #include "Material/T3DShaderVariant.h"
+#include "Material/T3DShaderVariantSet.h"
 #include "Render/T3DRenderConstant.h"
 
 
@@ -121,31 +122,31 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="VertexShaders", RTTRFuncType="getter")
-        const ShaderVariants &getVertexShaders() const
+        const ShaderVariantSets &getVertexShaders() const
         {
             return mVertexShaders;
         }
 
         TPROPERTY(RTTRFuncName="PixelShaders", RTTRFuncType="getter")
-        const ShaderVariants &getPixelShaders() const
+        const ShaderVariantSets &getPixelShaders() const
         {
             return mPixelShaders;
         }
 
         TPROPERTY(RTTRFuncName="GeometryShaders", RTTRFuncType="getter")
-        const ShaderVariants &getGeometryShaders() const
+        const ShaderVariantSets &getGeometryShaders() const
         {
             return mGeometryShaders;
         }
 
         TPROPERTY(RTTRFuncName="HullShaders", RTTRFuncType="getter")
-        const ShaderVariants &getHullShaders() const
+        const ShaderVariantSets &getHullShaders() const
         {
             return mHullShaders;
         }
 
         TPROPERTY(RTTRFuncName="DomainShaders", RTTRFuncType="getter")
-        const ShaderVariants &getDomainShaders() const
+        const ShaderVariantSets &getDomainShaders() const
         {
             return mDomainShaders;
         }
@@ -172,31 +173,31 @@ namespace Tiny3D
         }
 
         TPROPERTY(RTTRFuncName="VertexShaders", RTTRFuncType="setter")
-        void setVertexShaders(const ShaderVariants &variants)
+        void setVertexShaders(const ShaderVariantSets &variants)
         {
             mVertexShaders = variants;
         }
 
         TPROPERTY(RTTRFuncName="PixelShaders", RTTRFuncType="setter")
-        void setPixelShaders(const ShaderVariants &variants)
+        void setPixelShaders(const ShaderVariantSets &variants)
         {
             mPixelShaders = variants;
         }
 
         TPROPERTY(RTTRFuncName="GeometryShaders", RTTRFuncType="setter")
-        void setGeometryShaders(const ShaderVariants &variants)
+        void setGeometryShaders(const ShaderVariantSets &variants)
         {
             mGeometryShaders = variants;
         }
 
         TPROPERTY(RTTRFuncName="HullShaders", RTTRFuncType="setter")
-        void setHullShaders(const ShaderVariants &variants)
+        void setHullShaders(const ShaderVariantSets &variants)
         {
             mHullShaders = variants;
         }
 
         TPROPERTY(RTTRFuncName="DomainShaders", RTTRFuncType="setter")
-        void setDomainShaders(const ShaderVariants &variants)
+        void setDomainShaders(const ShaderVariantSets &variants)
         {
             mDomainShaders = variants;
         }
@@ -232,16 +233,16 @@ namespace Tiny3D
         
         /// 本 pass 着色器用到的所有宏
         ShaderKeywords      mKeywords {};
-        /// 本 pass 所有 Vertex Shader 变体
-        ShaderVariants      mVertexShaders {};
-        /// 本 pass 所有 Pixel Shader 变体
-        ShaderVariants      mPixelShaders {};
-        /// 本 pass 所有 Geometry Shader 变体
-        ShaderVariants      mGeometryShaders {};
-        /// 本 pass 所有 Hull Shader 变体
-        ShaderVariants      mHullShaders {};
-        /// 本 pass 所有 Domain Shader 变体
-        ShaderVariants      mDomainShaders {};
+        /// 本 pass 所有 Vertex Shader 变体（按 keyword → 多语言变体集合）
+        ShaderVariantSets   mVertexShaders {};
+        /// 本 pass 所有 Pixel Shader 变体（按 keyword → 多语言变体集合）
+        ShaderVariantSets   mPixelShaders {};
+        /// 本 pass 所有 Geometry Shader 变体（按 keyword → 多语言变体集合）
+        ShaderVariantSets   mGeometryShaders {};
+        /// 本 pass 所有 Hull Shader 变体（按 keyword → 多语言变体集合）
+        ShaderVariantSets   mHullShaders {};
+        /// 本 pass 所有 Domain Shader 变体（按 keyword → 多语言变体集合）
+        ShaderVariantSets   mDomainShaders {};
         
         /// 关键字是否需要重新生成
         bool                mIsKeywordDirty {false};

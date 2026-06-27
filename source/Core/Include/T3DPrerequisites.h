@@ -147,6 +147,8 @@ namespace Tiny3D
     class ShaderSamplerParam;
     class ShaderSamplerValue;
     class ShaderVariant;
+    class ShaderVariantSet;
+    enum class SHADER_LANGUAGE : uint32_t;
     class Technique;
     class Pass;
     class ShaderVariantInstance;

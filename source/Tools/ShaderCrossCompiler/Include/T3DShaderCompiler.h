@@ -71,8 +71,8 @@ namespace Tiny3D
         uint32_t    optimizeLevel {3};
         /// 包含的头文件目录路径
         String      include {};
-        /// 输出目标平台
-        String      target {};
+        /// 输出目标平台语言列表（如 { "hlsl", "glsl", "spirv" }），一次可编译多种语言
+        TArray<String>  targets {};
         /// 输出文件的基本名称
         String      baseName {};
         /// 生成 Shader 的 UUID
@@ -250,10 +250,19 @@ namespace Tiny3D
 
         void fixSpirVCrossForHLSLSemantics(String& content);
 
+        /**
+         * \brief scc 目标语言字符串 → 引擎 SHADER_LANGUAGE 枚举
+         * \param [in] target : 目标语言字符串（hlsl/glsl/essl/spirv/msl 等）
+         * \return 对应的 SHADER_LANGUAGE，未识别返回 kUnknown
+         */
+        static SHADER_LANGUAGE toShaderLanguage(const String &target);
+
     protected:
         Args    mArgs;
         String  mInputPath;
         String  mOutputDir;
+        /// 当前正在编译的目标语言（多 target 外层循环中的当前项）
+        String  mCurrentTarget;
     };
 }
 

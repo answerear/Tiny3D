@@ -97,7 +97,7 @@ namespace Tiny3D
 
         TResult cloneProperties(TechniqueInstance *parent, const PassInstance * const src);
 
-        TResult switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant);
+        TResult switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariantSets &shaderVariants, ShaderVariantInstancePtr &currentVariant);
 
         template <typename Value_t, typename ShaderSetValue_t>
         void setValue(ShaderVariantInstance *shader, const String &name, const Value_t &value, ShaderSetValue_t shaderSetValue)

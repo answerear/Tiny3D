@@ -46,6 +46,22 @@ namespace Tiny3D
         kDomain,
         kMax
     };
+
+    /**
+     * \brief Shader 目标语言（图形 API 维度）。
+     * \remarks 与渲染后端一一对应，由 RHIRenderer::getShadingLanguage() 推导。
+     */
+    TENUM()
+    enum class SHADER_LANGUAGE : uint32_t
+    {
+        kUnknown = 0,
+        kHLSL,      ///< Direct3D11/12
+        kGLSL,      ///< OpenGL 4
+        kESSL,      ///< OpenGL ES 3
+        kSPIRV,     ///< Vulkan
+        kMSL,       ///< Metal（预留）
+        kMax
+    };
     
     /**
      * \brief Shader 变体，也是实际 shader 代码和编译后的字节码
@@ -88,6 +104,12 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="Stage", RTTRFuncType="setter")
         void setShaderStage(SHADER_STAGE stage) { mShaderStage = stage; }
+
+        TPROPERTY(RTTRFuncName="Language", RTTRFuncType="getter")
+        SHADER_LANGUAGE getLanguage() const { return mLanguage; }
+
+        TPROPERTY(RTTRFuncName="Language", RTTRFuncType="setter")
+        void setLanguage(SHADER_LANGUAGE lang) { mLanguage = lang; }
         
         /**
          * \brief 获取变体对应的关键字
@@ -98,23 +120,44 @@ namespace Tiny3D
         
         bool hasCompiled() const { return mHasCompiled; }
 
+        /**
+         * \brief 获取当前可用代码：未编译时返回语言源码，已编译时返回编译产物字节码。
+         * \note 该语义供 RHIContext 透明使用（编译前取源码、编译后取字节码），
+         *       因此各渲染器插件无需改动。
+         */
         char *getBytesCode(size_t &bytesLength) const
         {
-            bytesLength = mBytesCodeSize;
-            return mBytesCode;
+            if (mHasCompiled)
+            {
+                bytesLength = mByteCodeSize;
+                return mByteCode;
+            }
+            bytesLength = mSourceCodeSize;
+            return mSourceCode;
         }
 
+        /**
+         * \brief 写入编译产物字节码。不破坏源码 mSourceCode，使切后端 / 设备重置可重编译。
+         */
         void setBytesCode(const char *bytes, size_t bytesLength)
         {
-            copyCode(bytes, bytesLength);
+            copyByteCode(bytes, bytesLength);
             mHasCompiled = true;
         }
 
+        /**
+         * \brief 写入语言源码（反序列化得到，只读、永不被编译覆盖），并重置编译状态。
+         */
         void setSourceCode(const char *code, size_t codeLength)
         {
-            copyCode(code, codeLength);
+            copySourceCode(code, codeLength);
             mHasCompiled = false;
         }
+
+        /**
+         * \brief 失效后端相关资源：释放 RHIShader 与字节码，保留源码，等待按新后端重编译。
+         */
+        void invalidateRHI();
 
         /**
          * 通过反射获取 shader 信息
@@ -127,6 +170,18 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="getter")
         const ShaderSamplerParams &getShaderSamplerParams() const { return mSamplerParams; }
+
+        /**
+         * \brief 从同 keyword 的另一语言变体复制反射得到的常量/采样参数。
+         * \remarks 离线编译时反射上下文（如 scc 的 D3D11）只能编译/反射 HLSL 变体，
+         *          同一 keyword 下其它语言变体共用同一逻辑常量布局，直接复制其参数即可；
+         *          运行时各后端会在 compile() 中自行重新反射 sampler 的实际绑定槽位。
+         */
+        void copyReflectionParamsFrom(const ShaderVariant &other)
+        {
+            mConstantParams = other.mConstantParams;
+            mSamplerParams = other.mSamplerParams;
+        }
 
         RHIShader *getRHIShader() const { return mRHIShader; }
 
@@ -154,10 +209,9 @@ namespace Tiny3D
         Buffer getSourceCode() const
         {
             Buffer code;
-            code.Data = (uint8_t *)mBytesCode;
-            code.DataSize = mBytesCodeSize;
+            code.Data = (uint8_t *)mSourceCode;
+            code.DataSize = mSourceCodeSize;
             return code;
-            //return String(mBytesCode, mBytesCodeSize);
         }
 
         TPROPERTY(RTTRFuncName="Code", RTTRFuncType="setter")
@@ -177,16 +231,28 @@ namespace Tiny3D
         ShaderVariant(ShaderKeyword &&key, const String &code);
         ShaderVariant(ShaderKeyword &&key, const char *code, size_t codeLength);
 
-        void copyCode(const char *code, size_t codeSize)
+        void copySourceCode(const char *code, size_t codeSize)
         {
-            if (mBytesCodeCapacity < codeSize || mBytesCodeCapacity == 0)
+            if (mSourceCodeCapacity < codeSize || mSourceCodeCapacity == 0)
             {
-                T3D_POD_SAFE_DELETE_ARRAY(mBytesCode);
-                mBytesCode = T3D_POD_NEW_ARRAY(char, codeSize);
-                mBytesCodeCapacity = codeSize;
+                T3D_POD_SAFE_DELETE_ARRAY(mSourceCode);
+                mSourceCode = T3D_POD_NEW_ARRAY(char, codeSize);
+                mSourceCodeCapacity = codeSize;
             }
-            memcpy(mBytesCode, code, codeSize);
-            mBytesCodeSize = codeSize;
+            memcpy(mSourceCode, code, codeSize);
+            mSourceCodeSize = codeSize;
+        }
+
+        void copyByteCode(const char *code, size_t codeSize)
+        {
+            if (mByteCodeCapacity < codeSize || mByteCodeCapacity == 0)
+            {
+                T3D_POD_SAFE_DELETE_ARRAY(mByteCode);
+                mByteCode = T3D_POD_NEW_ARRAY(char, codeSize);
+                mByteCodeCapacity = codeSize;
+            }
+            memcpy(mByteCode, code, codeSize);
+            mByteCodeSize = codeSize;
         }
 
     protected:
@@ -197,13 +263,24 @@ namespace Tiny3D
 
         /// shader 类型
         SHADER_STAGE    mShaderStage {SHADER_STAGE::kUnknown};
-        /// 编译前是源代码 ，编译后是字节码 
-        char            *mBytesCode {nullptr};
-        /// mBytesCode 的长度
-        size_t          mBytesCodeSize {0};
-        /// mBytesCode 的空间容量
-        size_t          mBytesCodeCapacity {0};
-        /// 是否编译
+        /// 目标语言（图形 API 维度）
+        SHADER_LANGUAGE mLanguage {SHADER_LANGUAGE::kUnknown};
+
+        /// 语言源码（反序列化得到，只读，编译时不被覆盖）
+        char            *mSourceCode {nullptr};
+        /// mSourceCode 的长度
+        size_t          mSourceCodeSize {0};
+        /// mSourceCode 的空间容量
+        size_t          mSourceCodeCapacity {0};
+
+        /// 编译后的字节码（后端相关，可释放、可重建）
+        char            *mByteCode {nullptr};
+        /// mByteCode 的长度
+        size_t          mByteCodeSize {0};
+        /// mByteCode 的空间容量
+        size_t          mByteCodeCapacity {0};
+
+        /// 当前 active 后端的 RHIShader 是否就绪
         bool            mHasCompiled {false};
 
         /// 常量信息

@@ -47,12 +47,6 @@ namespace Tiny3D
 
         Type getType() const override { return kShader; }
 
-        TPROPERTY(RTTRFuncName="Language", RTTRFuncType="getter")
-        const String &getLanguage() const { return mLanguage; }
-
-        TPROPERTY(RTTRFuncName="Language", RTTRFuncType="setter")
-        void setLanguage(const String &lang) { mLanguage = lang; }
-
     protected:
         MetaShader() = default;
 
@@ -60,8 +54,6 @@ namespace Tiny3D
             : Meta(uuid)
         {
         }
-
-        String mLanguage {};
     };
 
 #endif

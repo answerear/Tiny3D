@@ -263,6 +263,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    SHADER_LANGUAGE ShaderCompiler::toShaderLanguage(const String &target)
+    {
+        if (target == "hlsl" || target == "dxil")
+        {
+            return SHADER_LANGUAGE::kHLSL;
+        }
+        if (target == "glsl")
+        {
+            return SHADER_LANGUAGE::kGLSL;
+        }
+        if (target == "essl")
+        {
+            return SHADER_LANGUAGE::kESSL;
+        }
+        if (target == "spirv")
+        {
+            return SHADER_LANGUAGE::kSPIRV;
+        }
+        if (target == "msl" || target == "msl_macos" || target == "msl_ios")
+        {
+            return SHADER_LANGUAGE::kMSL;
+        }
+        return SHADER_LANGUAGE::kUnknown;
+    }
+
+    //--------------------------------------------------------------------------
+
 #if 0
     bool ShaderCompiler::compile(Script::ShaderSystem::Shader* source, 
         const String &inputPath, const String &outputDir, const Args args)
@@ -306,18 +333,25 @@ namespace Tiny3D
         ProgramParameters programParams;
         programParams.setPragmaParams(pragmaParams);
 
-        // generate snippet
+        // generate snippet（keyword × stage 枚举与目标语言无关，只需生成一次）
         ShaderSnippets snippets;
         generateShaderSnippets(source, programParams, snippets);
 
         // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
 
-        // for (const ShaderSnippet &snippet : snippets)
-        for (const auto &s : snippets)
+        // 对每个目标语言各跑一遍 cross-compile，把各语言变体合并进同一个 pass
+        for (const String &target : mArgs.targets)
         {
-            SCC_LOG_INFO("Begin compiling shader variant [%s - %s] ...", s.first.stage.c_str(), s.first.defines.c_str());
-            ret = ret && compileShaderSnippet(s.second, pass);
-            SCC_LOG_INFO("Completed compiling shader variant ret = %d", ret);
+            mCurrentTarget = target;
+            SCC_LOG_INFO("Begin compiling for target language [%s] ...", target.c_str());
+
+            // for (const ShaderSnippet &snippet : snippets)
+            for (const auto &s : snippets)
+            {
+                SCC_LOG_INFO("Begin compiling shader variant [%s - %s] ...", s.first.stage.c_str(), s.first.defines.c_str());
+                ret = ret && compileShaderSnippet(s.second, pass);
+                SCC_LOG_INFO("Completed compiling shader variant ret = %d", ret);
+            }
         }
         
         return ret;
@@ -346,18 +380,25 @@ namespace Tiny3D
         ProgramParameters programParams;
         programParams.setPragmaParams(pragmaParams);
 
-        // generate snippet
+        // generate snippet（keyword × stage 枚举与目标语言无关，只需生成一次）
         ShaderSnippets snippets;
         generateShaderSnippets(source, programParams, snippets);
 
         // String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
 
-        // for (const ShaderSnippet &snippet : snippets)
-        for (const auto &s : snippets)
+        // 对每个目标语言各跑一遍 cross-compile，分别输出散点调试文件
+        for (const String &target : mArgs.targets)
         {
-            SCC_LOG_INFO("Begin compiling shader variant [%s - %s] ...", s.first.stage.c_str(), s.first.defines.c_str());
-            ret = ret && compileShaderSnippet(s.second);
-            SCC_LOG_INFO("Completed compiling shader variant ret = %d", ret);
+            mCurrentTarget = target;
+            SCC_LOG_INFO("Begin compiling for target language [%s] ...", target.c_str());
+
+            // for (const ShaderSnippet &snippet : snippets)
+            for (const auto &s : snippets)
+            {
+                SCC_LOG_INFO("Begin compiling shader variant [%s - %s] ...", s.first.stage.c_str(), s.first.defines.c_str());
+                ret = ret && compileShaderSnippet(s.second);
+                SCC_LOG_INFO("Completed compiling shader variant ret = %d", ret);
+            }
         }
         
         return ret;
@@ -540,10 +581,12 @@ namespace Tiny3D
 
     bool ShaderCompiler::compileShaderSnippet(const ShaderSnippet &snippet, PassPtr pass)
     {
-        return compileShaderSnippet(snippet, [&pass](const String &content, ShaderKeyword &&keyword, SHADER_STAGE shaderType)
+        return compileShaderSnippet(snippet, [this, &pass](const String &content, ShaderKeyword &&keyword, SHADER_STAGE shaderType)
             {
                 ShaderVariantPtr shaderVariant = ShaderVariant::create(std::move(keyword), content);
                 shaderVariant->setShaderStage(shaderType);
+                // 标注当前目标语言，addShaderVariant 内部按语言合并进 ShaderVariantSet
+                shaderVariant->setLanguage(toShaderLanguage(mCurrentTarget));
                 pass->addShaderVariant(shaderVariant->getShaderKeyword(), shaderVariant);
             });
     }
@@ -559,11 +602,11 @@ namespace Tiny3D
                     String outputPath = mOutputDir + Dir::getNativeSeparator() + mArgs.baseName;
                     if (!keyword.getKeys().empty())
                     {
-                        outputPath = outputPath + "_" + keyword.getName() + "_" + snippet.stage + "." + mArgs.target;
+                        outputPath = outputPath + "_" + keyword.getName() + "_" + snippet.stage + "." + mCurrentTarget;
                     }
                     else
                     {
-                        outputPath = outputPath + "_" + snippet.stage + "." + mArgs.target;
+                        outputPath = outputPath + "_" + snippet.stage + "." + mCurrentTarget;
                     }
                     
                     FileDataStream fs;
@@ -692,7 +735,7 @@ namespace Tiny3D
                     return ShadingLanguage::Hlsl;
             };
 
-            targetDesc.language = getShadingLanguage(mArgs.target);
+            targetDesc.language = getShadingLanguage(mCurrentTarget);
 
             // For GLSL/ESSL targets, convert HLSL shader model version to
             // the corresponding GLSL version string that SPIRV-Cross expects

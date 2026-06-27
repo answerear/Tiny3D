@@ -22,54 +22,63 @@
  * SOFTWARE.
  ******************************************************************************/
 
+
+#include "Material/T3DShaderVariantSet.h"
+#include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIRenderer.h"
-#include "RHI/T3DRHIContext.h"
-#include "Material/T3DShaderVariant.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    const char * const RHIRenderer::NULLRENDERER = "NullRenderer";
-    const char * const RHIRenderer::REFERENCE3D = "Reference3D";
-    const char * const RHIRenderer::DIRECT3D9 = "Direct3D9";
-    const char * const RHIRenderer::DIRECT3D11 = "Direct3D11";
-    const char * const RHIRenderer::DIRECT3D11_CONSOLE = "Direct3D11 Console";
-    const char * const RHIRenderer::OPENGL4_CONSOLE = "OpenGL 4 Console";
-    const char * const RHIRenderer::DIRECT3D12 = "Direct3D12";
-    const char * const RHIRenderer::OPENGL4 = "OpenGL 4";
-    const char * const RHIRenderer::OPENGLES2 = "OpenGL ES 2";
-    const char * const RHIRenderer::OPENGLES3 = "OpenGL ES 3";
-    const char * const RHIRenderer::VULKAN = "Vulkan";
-    const char * const RHIRenderer::VULKAN_CONSOLE = "Vulkan Console";
-    const char * const RHIRenderer::METAL = "Metal";
+    ShaderVariantSetPtr ShaderVariantSet::create()
+    {
+        return T3D_NEW ShaderVariantSet();
+    }
 
     //--------------------------------------------------------------------------
 
-    SHADER_LANGUAGE RHIRenderer::getShadingLanguage() const
+    ShaderVariantSet::~ShaderVariantSet()
     {
-        const String &name = getName();
+    }
 
-        if (name == OPENGL4 || name == OPENGL4_CONSOLE)
-        {
-            return SHADER_LANGUAGE::kGLSL;
-        }
-        if (name == OPENGLES2 || name == OPENGLES3)
-        {
-            return SHADER_LANGUAGE::kESSL;
-        }
-        if (name == VULKAN || name == VULKAN_CONSOLE)
-        {
-            return SHADER_LANGUAGE::kSPIRV;
-        }
-        if (name == METAL)
-        {
-            return SHADER_LANGUAGE::kMSL;
-        }
+    //--------------------------------------------------------------------------
 
-        // Direct3D9 / Direct3D11 / Direct3D12 / Reference3D / Null 等默认 HLSL
-        return SHADER_LANGUAGE::kHLSL;
+    ShaderVariantPtr ShaderVariantSet::getVariant(SHADER_LANGUAGE lang) const
+    {
+        const auto itr = mVariants.find(lang);
+        if (itr != mVariants.end())
+        {
+            return itr->second;
+        }
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ShaderVariantPtr ShaderVariantSet::getActiveVariant() const
+    {
+        RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+        if (renderer == nullptr)
+        {
+            return nullptr;
+        }
+        return getVariant(renderer->getShadingLanguage());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ShaderVariantSet::putVariant(SHADER_LANGUAGE lang, ShaderVariantPtr variant)
+    {
+        mVariants[lang] = variant;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ShaderVariantSet::removeVariant(SHADER_LANGUAGE lang)
+    {
+        mVariants.erase(lang);
     }
 
     //--------------------------------------------------------------------------

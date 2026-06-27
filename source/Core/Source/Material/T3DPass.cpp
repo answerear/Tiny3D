@@ -26,6 +26,7 @@
 #include "Material/T3DPass.h"
 #include "Material/T3DShaderVariant.h"
 #include "Render/T3DRenderState.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -62,17 +63,33 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        auto compileShader = [this](const ShaderVariants &shaders)
+        auto compileShader = [this](const ShaderVariantSets &shaders)
         {
             TResult ret = T3D_OK;
             
-            for (auto shader : shaders)
+            for (const auto &kv : shaders)
             {
-                T3D_LOG_INFO(LOG_TAG_RESOURCE, "Start compiling shader variant [%s] ...", shader.first.getName().c_str());
-                ret = shader.second->compile();
+                const ShaderKeyword &keyword = kv.first;
+                ShaderVariantSetPtr set = kv.second;
+                if (set == nullptr)
+                {
+                    continue;
+                }
+
+                // 只编译当前渲染后端语言对应的那一个变体
+                ShaderVariantPtr shader = set->getActiveVariant();
+                if (shader == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "No shader variant matched current shading language under keyword [%s] ! The bundle may not be baked for the active renderer.", keyword.getName().c_str());
+                    ret = T3D_ERR_RES_INVALID_SHADER;
+                    break;
+                }
+
+                T3D_LOG_INFO(LOG_TAG_RESOURCE, "Start compiling shader variant [%s] ...", keyword.getName().c_str());
+                ret = shader->compile();
                 if (T3D_FAILED(ret))
                 {
-                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader [%s] ! ERROR [%d]", shader.first.getName().c_str(), ret);
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader [%s] ! ERROR [%d]", keyword.getName().c_str(), ret);
                     break;
                 }
                 T3D_LOG_INFO(LOG_TAG_RESOURCE, "Completed compiling shader variant !");
@@ -145,13 +162,28 @@ namespace Tiny3D
 
     TResult Pass::reflect()
     {
-        auto reflectShader = [](const ShaderVariants &shaders)
+        auto reflectShader = [](const ShaderVariantSets &shaders)
         {
             TResult ret = T3D_OK;
             
-            for (auto shader : shaders)
+            for (const auto &kv : shaders)
             {
-                ret = shader.second->reflect();
+                ShaderVariantSetPtr set = kv.second;
+                if (set == nullptr)
+                {
+                    continue;
+                }
+
+                // 只反射当前渲染后端语言对应的那一个变体
+                ShaderVariantPtr shader = set->getActiveVariant();
+                if (shader == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_RESOURCE, "No shader variant matched current shading language under keyword [%s] !", kv.first.getName().c_str());
+                    ret = T3D_ERR_RES_INVALID_SHADER;
+                    break;
+                }
+
+                ret = shader->reflect();
                 if (T3D_FAILED(ret))
                 {
                     break;
@@ -302,17 +334,15 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        // 同一 keyword 可能被多个语言变体重复添加，这里只在首次出现时登记 keyword，
+        // 后续相同 keyword 的其它语言变体属于正常情况，不再告警。
         const auto itr = std::find(mKeywords.begin(), mKeywords.end(), keyword);
         if (itr == mKeywords.end())
         {
             mKeywords.push_back(keyword);
         }
-        else
-        {
-            T3D_LOG_WARNING(LOG_TAG_RESOURCE, "Add shader variant failed ! Keyword (%s) duplicated !", keyword.getName().c_str());
-        }
 
-        ShaderVariants *vars = nullptr;
+        ShaderVariantSets *vars = nullptr;
 
         switch (variant->getShaderStage())
         {
@@ -350,11 +380,27 @@ namespace Tiny3D
             break;
         }
 
-        auto rval = vars->insert(ShaderVariantsValue(keyword, variant));
-        if (rval.second)
+        if (vars == nullptr)
         {
-            variant->setPass(this);
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Add shader variant failed ! Unknown shader stage !");
+            return T3D_ERR_RES_INVALID_SHADER;
         }
+
+        // 以 keyword 定位 / 新建多语言变体集合，再按变体语言放进去
+        ShaderVariantSetPtr set;
+        auto sitr = vars->find(keyword);
+        if (sitr == vars->end())
+        {
+            set = ShaderVariantSet::create();
+            vars->insert(ShaderVariantSetsValue(keyword, set));
+        }
+        else
+        {
+            set = sitr->second;
+        }
+
+        set->putVariant(variant->getLanguage(), variant);
+        variant->setPass(this);
         
         return ret;
     }
@@ -374,40 +420,31 @@ namespace Tiny3D
 
         mKeywords.erase(itr);
 
-        auto it = mVertexShaders.find(keyword);
-        if (it != mVertexShaders.end())
+        // 移除该 keyword 下所有语言变体集合；逐个清空所属 pass 引用
+        auto eraseKeyword = [&keyword](ShaderVariantSets &shaders)
         {
-            mVertexShaders.erase(it);
-            it->second->setPass(nullptr);
-        }
-        
-        it = mPixelShaders.find(keyword);
-        if (it != mPixelShaders.end())
-        {
-            mPixelShaders.erase(it);
-            it->second->setPass(nullptr);
-        }
-        
-        it = mGeometryShaders.find(keyword);
-        if (it != mGeometryShaders.end())
-        {
-            mGeometryShaders.erase(it);
-            it->second->setPass(nullptr);
-        }
-        
-        it = mHullShaders.find(keyword);
-        if (it != mHullShaders.end())
-        {
-            mHullShaders.erase(it);
-            it->second->setPass(nullptr);
-        }
-        
-        it = mDomainShaders.find(keyword);
-        if (it != mDomainShaders.end())
-        {
-            mDomainShaders.erase(it);
-            it->second->setPass(nullptr);
-        }
+            auto it = shaders.find(keyword);
+            if (it != shaders.end())
+            {
+                if (it->second != nullptr)
+                {
+                    for (const auto &lv : it->second->getVariants())
+                    {
+                        if (lv.second != nullptr)
+                        {
+                            lv.second->setPass(nullptr);
+                        }
+                    }
+                }
+                shaders.erase(it);
+            }
+        };
+
+        eraseKeyword(mVertexShaders);
+        eraseKeyword(mPixelShaders);
+        eraseKeyword(mGeometryShaders);
+        eraseKeyword(mHullShaders);
+        eraseKeyword(mDomainShaders);
 
         return ret;
     }
@@ -416,11 +453,21 @@ namespace Tiny3D
 
     void Pass::onPostLoad()
     {
-        auto setPass = [this](ShaderVariants &shaders)
+        auto setPass = [this](ShaderVariantSets &shaders)
         {
-            for (auto shader : shaders)
+            for (const auto &kv : shaders)
             {
-                shader.second->setPass(this);
+                if (kv.second == nullptr)
+                {
+                    continue;
+                }
+                for (const auto &lv : kv.second->getVariants())
+                {
+                    if (lv.second != nullptr)
+                    {
+                        lv.second->setPass(this);
+                    }
+                }
             }
         };
         

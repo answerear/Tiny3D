@@ -47,8 +47,6 @@ protected:
 
     void loadMesh(Tiny3D::Transform3D *parent);
 
-    void autoCompileShaders(const String &resourcePath);
-    
     Tiny3D::SkinnedMeshPtr mMesh {nullptr};
     
     Tiny3D::ID mPitchTimerID {Tiny3D::T3D_INVALID_TIMER_ID};

@@ -102,6 +102,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
     T3D_DECLARE_SMART_PTR(ShaderVariant);
+    T3D_DECLARE_SMART_PTR(ShaderVariantSet);
     T3D_DECLARE_SMART_PTR(ShaderVariantInstance);
     T3D_DECLARE_SMART_PTR(PassInstance);
     T3D_DECLARE_SMART_PTR(TechniqueInstance);
@@ -231,6 +232,9 @@ namespace Tiny3D
     using ShaderKeywords = TList<ShaderKeyword>;
     using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;
     using ShaderVariantsValue = ShaderVariants::value_type;
+    /// 按 keyword 索引的多语言变体集合（阶段2 Pass 容器切换使用）
+    using ShaderVariantSets = TMap<ShaderKeyword, ShaderVariantSetPtr>;
+    using ShaderVariantSetsValue = ShaderVariantSets::value_type;
     
     using ShaderLabTags = TMap<String, String>;
     using ShaderLabTagsValue = ShaderLabTags::value_type;

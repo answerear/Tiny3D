@@ -29,6 +29,7 @@
 #include "Kernel/T3DAgent.h"
 #include "Material/T3DTechnique.h"
 #include "Resource/T3DShader.h"
+#include "RHI/T3DRHIShader.h"
 
 
 namespace Tiny3D
@@ -70,7 +71,8 @@ namespace Tiny3D
     ShaderVariant::~ShaderVariant()
     {
         T3D_SAFE_DELETE(mShaderKeyword);
-        T3D_POD_SAFE_DELETE_ARRAY(mBytesCode);
+        T3D_POD_SAFE_DELETE_ARRAY(mSourceCode);
+        T3D_POD_SAFE_DELETE_ARRAY(mByteCode);
     }
 
     //--------------------------------------------------------------------------
@@ -149,25 +151,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ShaderVariant::invalidateRHI()
+    {
+        mRHIShader = nullptr;
+        mByteCodeSize = 0;
+        mHasCompiled = false;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ShaderVariant::reflect()
     {
         TResult ret = T3D_OK;
-        char *code = nullptr;
-        size_t bytesCode = 0;
-        
+
         do
         {
             RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
 
-            bool isCompiled = hasCompiled();
-            if (!isCompiled)
+            // 源码 mSourceCode 在编译时不会被覆盖，因此无需备份/还原
+            bool wasCompiled = hasCompiled();
+            if (!wasCompiled)
             {
-                // 备份 shader 源码
-                code = T3D_POD_NEW_ARRAY(char, mBytesCodeSize);
-                bytesCode = mBytesCodeSize;
-                memcpy(code, mBytesCode, bytesCode);
-
-                // 编译 shader
+                // 以 mSourceCode 为输入编译，产物写入 mByteCode
                 ret = ctx->compileShader(this);
                 if (T3D_FAILED(ret))
                 {
@@ -184,10 +189,10 @@ namespace Tiny3D
                 break;
             }
 
-            if (!isCompiled)
+            if (!wasCompiled)
             {
-                // 还原 shader 源码
-                copyCode(code, bytesCode);
+                // 恢复反射前的未编译状态：保留 mSourceCode，丢弃临时编译产物
+                invalidateRHI();
             }
 
             // 根据反射信息，生成 constant param
@@ -211,8 +216,6 @@ namespace Tiny3D
             // }
             
         } while (false);
-
-        T3D_POD_SAFE_DELETE_ARRAY(code);
 
         return ret;
     }

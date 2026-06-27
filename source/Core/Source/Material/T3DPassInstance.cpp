@@ -25,6 +25,7 @@
 
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderVariantInstance.h"
+#include "Material/T3DShaderVariantSet.h"
 #include "Material/T3DPass.h"
 #include "Material/T3DTechniqueInstance.h"
 
@@ -107,7 +108,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult PassInstance::switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariants &shaderVariants, ShaderVariantInstancePtr &currentVariant)
+    TResult PassInstance::switchShaderVariants(const ShaderKeyword &keyword, const ShaderVariantSets &shaderVariants, ShaderVariantInstancePtr &currentVariant)
     {
         TResult ret = T3D_OK;
 
@@ -131,10 +132,19 @@ namespace Tiny3D
             // 禁用当前 shader
             currentVariant = nullptr;
 
-            // 使用对应 shader
-            if (itr->second != nullptr)
+            // 从多语言集合中取当前渲染后端语言对应的变体
+            ShaderVariantSetPtr set = itr->second;
+            if (set != nullptr)
             {
-                currentVariant = ShaderVariantInstance::create(this, itr->second);
+                ShaderVariantPtr variant = set->getActiveVariant();
+                if (variant != nullptr)
+                {
+                    currentVariant = ShaderVariantInstance::create(this, variant);
+                }
+                else
+                {
+                    T3D_LOG_WARNING(LOG_TAG_RESOURCE, "No shader variant matched current shading language for keyword (%s) !", keyword.getName().c_str());
+                }
             }
         } while (false);
         

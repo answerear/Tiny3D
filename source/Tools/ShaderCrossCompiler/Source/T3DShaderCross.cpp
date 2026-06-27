@@ -29,6 +29,7 @@
 
 #include "SLParser.h"
 #include "T3DShaderCompiler.h"
+#include "Material/T3DShaderVariantSet.h"
 
 
 namespace Tiny3D
@@ -547,15 +548,38 @@ namespace Tiny3D
             pass->setCurrentKeyword(kw);
             tech->addPass(pass);
         
-            auto reflectShader = [](const ShaderVariants &shaders)
+            auto reflectShader = [](const ShaderVariantSets &shaders)
             {
                 bool ret = true;
-                for (auto item : shaders)
+                for (const auto &kv : shaders)
                 {
-                    if (T3D_FAILED(item.second->reflect()))
+                    ShaderVariantSetPtr set = kv.second;
+                    if (set == nullptr)
+                    {
+                        continue;
+                    }
+
+                    // scc 的反射上下文（D3D11/HLSL）只能编译/反射与之匹配语言的变体，
+                    // 故仅反射 active 语言（HLSL）基准变体；其余语言变体共用同一
+                    // 逻辑常量布局，直接复制其反射参数，避免用 D3D11 去编译 GLSL/ESSL/SPIR-V。
+                    ShaderVariantPtr base = set->getActiveVariant();
+                    if (base == nullptr)
+                    {
+                        continue;
+                    }
+
+                    if (T3D_FAILED(base->reflect()))
                     {
                         ret = false;
                         break;
+                    }
+
+                    for (const auto &lv : set->getVariants())
+                    {
+                        if (lv.second != nullptr && lv.second != base)
+                        {
+                            lv.second->copyReflectionParamsFrom(*base);
+                        }
                     }
                 }
                 return ret;
@@ -958,9 +982,9 @@ namespace Tiny3D
     void ShaderCross::printUsage()
     {
         printf("Usage : ");
-        printf("  scc input_file -t target [options]");
+        printf("  scc input_file -t target[,target...] [options]");
         printf("    input_file : The source file.");
-        printf("    -t target_language : Target shading language (glsl, hlsl, essl, dxil, spirv, msl_macos, msl_ios)");
+        printf("    -t target_language : Target shading language(s), comma-separated for multiple (glsl, hlsl, essl, dxil, spirv, msl_macos, msl_ios). e.g. -t hlsl,glsl,spirv");
         printf("    Options : ");
         printf("      -v : Print version.");
         printf("      -h : Print help.");
@@ -1041,7 +1065,33 @@ namespace Tiny3D
                 }
 
                 ++i;
-                args.target = argv[i];
+                // 支持逗号分隔的多目标语言：-t hlsl,glsl,spirv（单值时等价于单元素列表）
+                {
+                    String targetArg = argv[i];
+                    args.targets.clear();
+                    size_t start = 0;
+                    while (start <= targetArg.length())
+                    {
+                        size_t comma = targetArg.find(',', start);
+                        String one = (comma == String::npos)
+                            ? targetArg.substr(start)
+                            : targetArg.substr(start, comma - start);
+
+                        // 去除单项首尾空白
+                        size_t b = one.find_first_not_of(" \t");
+                        size_t e = one.find_last_not_of(" \t");
+                        if (b != String::npos && e != String::npos)
+                        {
+                            args.targets.push_back(one.substr(b, e - b + 1));
+                        }
+
+                        if (comma == String::npos)
+                        {
+                            break;
+                        }
+                        start = comma + 1;
+                    }
+                }
             }
             else if (strncmp(argv[i], "-O", 2) == 0)
             {

@@ -89,6 +89,14 @@ namespace Tiny3D
          */
         const String &getName() const { return mName; }
 
+        /**
+         * @brief   根据渲染器类型推导对应的着色语言（Graphics API 维度）
+         * @returns 当前渲染后端对应的 SHADER_LANGUAGE
+         * @remarks 这是「渲染后端 → 着色语言」的唯一映射来源，运行时按此选取
+         *          ShaderVariantSet 中对应语言的变体。
+         */
+        SHADER_LANGUAGE getShadingLanguage() const;
+
         RHIContextPtr getContext() { return mContext; }
         
     protected:
