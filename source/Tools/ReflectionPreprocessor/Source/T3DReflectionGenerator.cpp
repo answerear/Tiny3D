@@ -3542,6 +3542,13 @@ namespace Tiny3D
                 Dir::parsePath(path, dir, title, ext);
 
                 auto itr = mHeaderFiles.find(title);
+                if (itr == mHeaderFiles.end())
+                {
+                    // 该源码文件此前以未携带头文件信息的路径加入，
+                    // 此处尚无对应头文件条目，先补建空条目，避免解引用 end 迭代器崩溃
+                    auto rval = mHeaderFiles.insert(HeaderFilesMapValue(title, StringList()));
+                    itr = rval.first;
+                }
 
                 // 根据包含路径，搜索到对应路径，并提取头文件
                 for (const auto &includePath : mIncludePathes)
