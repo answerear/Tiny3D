@@ -26,6 +26,7 @@ if (TINY3D_OS_DESKTOP)
 		#add_subdirectory(MetaGenerator)
 		add_subdirectory(ShaderCrossCompiler)
 		add_subdirectory(BuiltinGenerator)
+		add_subdirectory(BundleBuilder)
 	endif (NOT TINY3D_BUILD_RTTR_TOOL)
 endif (TINY3D_OS_DESKTOP)
 
