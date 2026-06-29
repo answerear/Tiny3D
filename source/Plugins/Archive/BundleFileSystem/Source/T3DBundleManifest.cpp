@@ -32,6 +32,9 @@ namespace Tiny3D
 
     const char * const BundleManifest::MAGIC = "T3D_BUNDLE_MANIFEST 1";
 
+    // 别名行前缀：行格式为 "ALIAS <逻辑UUID> <目标UUID>"
+    static const char * const ALIAS_TAG = "ALIAS";
+
     //--------------------------------------------------------------------------
 
     String BundleManifest::normalize(const String &path)
@@ -80,6 +83,19 @@ namespace Tiny3D
         mPathToUUID.clear();
         mNameToUUID.clear();
         mAmbiguousNames.clear();
+        mAliasByUUID.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void BundleManifest::addAlias(const UUID &from, const UUID &to)
+    {
+        String key = from.toString();
+        if (key.empty())
+        {
+            return;
+        }
+        mAliasByUUID[key] = to;
     }
 
     //--------------------------------------------------------------------------
@@ -152,7 +168,7 @@ namespace Tiny3D
             }
 
             String uuidStr = line.substr(0, p1);
-            // 类型字段 line.substr(p1 + 1, p2 - p1 - 1) 运行时不需要，保留供调试
+            String midField = line.substr(p1 + 1, p2 - p1 - 1);
             String path = line.substr(p2 + 1);
 
             if (uuidStr.empty() || path.empty())
@@ -160,6 +176,21 @@ namespace Tiny3D
                 continue;
             }
 
+            // 别名行："ALIAS <逻辑UUID> <目标UUID>"
+            if (uuidStr == ALIAS_TAG)
+            {
+                if (midField.empty())
+                {
+                    continue;
+                }
+                UUID from, to;
+                from.fromString(midField);
+                to.fromString(path);
+                addAlias(from, to);
+                continue;
+            }
+
+            // 普通条目："<UUID> <类型整数> <相对路径>"，类型字段(midField)运行时不需要
             UUID uuid;
             uuid.fromString(uuidStr);
             addEntry(path, uuid);
@@ -199,6 +230,19 @@ namespace Tiny3D
     {
         UUID uuid;
         return getUUIDByPath(path, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BundleManifest::getRedirect(const UUID &uuid, UUID &target) const
+    {
+        auto it = mAliasByUUID.find(uuid.toString());
+        if (it != mAliasByUUID.end())
+        {
+            target = it->second;
+            return true;
+        }
+        return false;
     }
 
     //--------------------------------------------------------------------------

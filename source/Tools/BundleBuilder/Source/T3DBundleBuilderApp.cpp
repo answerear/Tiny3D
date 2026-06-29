@@ -21,8 +21,14 @@
 #include "T3DBundleBuilderApp.h"
 #include "Meta/T3DMeta.h"
 #include "Meta/T3DMetaShaderLab.h"
+#include "Resource/T3DShader.h"
+#include "Material/T3DTechnique.h"
+#include "Material/T3DPass.h"
+#include "Material/T3DShaderVariantSet.h"
+#include "Material/T3DShaderVariant.h"
 
 #include <string>
+#include <cctype>
 
 
 Tiny3D::BundleBuilderApp theApp;
@@ -48,12 +54,97 @@ namespace Tiny3D
     {
         printf("Usage:\n");
         printf("  bundlebuilder --assets <dir> [--assets <dir> ...] --out <dir>\n");
+        printf("                [--keep-languages <a,b,c>]\n");
         printf("\n");
-        printf("  --assets <dir>  Project asset directory to scan (can repeat,\n");
-        printf("                  e.g. add compiled Temp/shaders directory).\n");
-        printf("  --out    <dir>  Output bundle directory.\n");
+        printf("  --assets <dir>         Project asset directory to scan (can repeat,\n");
+        printf("                         e.g. add compiled Temp/shaders directory).\n");
+        printf("  --out    <dir>         Output bundle directory.\n");
+        printf("  --keep-languages <lst> Comma-separated shader languages to KEEP in\n");
+        printf("                         each .tshader (others are stripped). Valid:\n");
+        printf("                         hlsl,glsl,essl,spirv,msl. Default: keep all.\n");
+        printf("                         The set must cover every render backend the\n");
+        printf("                         distribution may switch to at runtime.\n");
         printf("\n");
         printf("Note: Tiny3D.cfg is NOT packed into the bundle.\n");
+    }
+
+    //--------------------------------------------------------------------------
+
+    SHADER_LANGUAGE BundleBuilderApp::languageFromString(const String &s)
+    {
+        String lower = s;
+        for (auto &ch : lower)
+        {
+            ch = (char)std::tolower((unsigned char)ch);
+        }
+
+        if (lower == "hlsl")    return SHADER_LANGUAGE::kHLSL;
+        if (lower == "glsl")    return SHADER_LANGUAGE::kGLSL;
+        if (lower == "essl")    return SHADER_LANGUAGE::kESSL;
+        if (lower == "spirv")   return SHADER_LANGUAGE::kSPIRV;
+        if (lower == "msl")     return SHADER_LANGUAGE::kMSL;
+        return SHADER_LANGUAGE::kUnknown;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const char *BundleBuilderApp::languageToString(SHADER_LANGUAGE lang)
+    {
+        switch (lang)
+        {
+        case SHADER_LANGUAGE::kHLSL:    return "hlsl";
+        case SHADER_LANGUAGE::kGLSL:    return "glsl";
+        case SHADER_LANGUAGE::kESSL:    return "essl";
+        case SHADER_LANGUAGE::kSPIRV:   return "spirv";
+        case SHADER_LANGUAGE::kMSL:     return "msl";
+        default:                        return "unknown";
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BundleBuilderApp::parseKeepLanguages(const String &csv)
+    {
+        mKeepLanguages.clear();
+
+        size_t pos = 0;
+        while (pos <= csv.size())
+        {
+            size_t comma = csv.find(',', pos);
+            String token = (comma == String::npos)
+                ? csv.substr(pos) : csv.substr(pos, comma - pos);
+
+            // 去掉首尾空白
+            size_t b = token.find_first_not_of(" \t");
+            size_t e = token.find_last_not_of(" \t");
+            if (b != String::npos)
+            {
+                token = token.substr(b, e - b + 1);
+            }
+            else
+            {
+                token.clear();
+            }
+
+            if (!token.empty())
+            {
+                SHADER_LANGUAGE lang = languageFromString(token);
+                if (lang == SHADER_LANGUAGE::kUnknown)
+                {
+                    BB_LOG_ERROR("Invalid --keep-languages value: %s", token.c_str());
+                    return false;
+                }
+                mKeepLanguages.insert(lang);
+            }
+
+            if (comma == String::npos)
+            {
+                break;
+            }
+            pos = comma + 1;
+        }
+
+        return !mKeepLanguages.empty();
     }
 
     //--------------------------------------------------------------------------
@@ -78,6 +169,17 @@ namespace Tiny3D
                     return false;
                 }
                 mOutDir = Dir::formatPath(argv[++i]);
+            }
+            else if (arg == "--keep-languages")
+            {
+                if (i + 1 >= argc)
+                {
+                    return false;
+                }
+                if (!parseKeepLanguages(argv[++i]))
+                {
+                    return false;
+                }
             }
             else if (arg == "-h" || arg == "--help")
             {
@@ -176,6 +278,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void BundleBuilderApp::writeAliasEntry(DataStream &manifest, const UUID &from,
+        const UUID &to)
+    {
+        String line = "ALIAS ";
+        line += from.toString();
+        line += " ";
+        line += to.toString();
+        manifest.writeLine(line);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult BundleBuilderApp::processFile(const String &root, const String &filePath,
         DataStream &manifest)
     {
@@ -239,6 +353,23 @@ namespace Tiny3D
                     break;
                 }
                 writeManifestEntry(manifest, shaderUUID, (int32_t)type, relativePath);
+
+                // 材质持久化的是 ShaderLab 的逻辑 UUID(meta 自身 UUID)，而 bundle 内
+                // 真正存在的是编译后 .tshader（ShaderUUID）命名的散列文件。写入别名，
+                // 让 BundleFSArchive 运行时把逻辑 UUID 重定向到 ShaderUUID，
+                // 对齐 MetaFileSystem 中 lab -> ShaderUUID 的重定向语义。
+                if (!(uuid == shaderUUID))
+                {
+                    writeAliasEntry(manifest, uuid, shaderUUID);
+                }
+                break;
+            }
+
+            // 编译后的 .tshader：若指定了 --keep-languages，则按白名单裁剪语言变体后
+            // 重新序列化导出；否则与普通资源一样原样拷贝。
+            if (type == Meta::kShader && !mKeepLanguages.empty())
+            {
+                ret = exportShader(uuid, filePath, relativePath, manifest);
                 break;
             }
 
@@ -254,6 +385,149 @@ namespace Tiny3D
 
             ++mExportedCount;
             writeManifestEntry(manifest, uuid, (int32_t)type, relativePath);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void BundleBuilderApp::pruneShaderLanguages(const ShaderPtr &shader,
+        TSet<SHADER_LANGUAGE> &present, bool &hasEmptySet)
+    {
+        hasEmptySet = false;
+
+        auto pruneStage = [this, &present, &hasEmptySet](const ShaderVariantSets &stage)
+        {
+            for (const auto &kv : stage)
+            {
+                ShaderVariantSetPtr set = kv.second;
+                if (set == nullptr)
+                {
+                    continue;
+                }
+
+                // 收集本集合出现的语言，并标出需剔除的
+                TArray<SHADER_LANGUAGE> toRemove;
+                for (const auto &lv : set->getVariants())
+                {
+                    present.insert(lv.first);
+                    if (mKeepLanguages.find(lv.first) == mKeepLanguages.end())
+                    {
+                        toRemove.push_back(lv.first);
+                    }
+                }
+
+                for (SHADER_LANGUAGE lang : toRemove)
+                {
+                    set->removeVariant(lang);
+                }
+
+                // 裁剪后该 (stage, keyword) 已没有任何保留语言的变体
+                if (set->empty())
+                {
+                    hasEmptySet = true;
+                }
+            }
+        };
+
+        for (const auto &tech : shader->getTechniques())
+        {
+            if (tech == nullptr)
+            {
+                continue;
+            }
+
+            for (const auto &pass : tech->getPasses())
+            {
+                if (pass == nullptr)
+                {
+                    continue;
+                }
+
+                pruneStage(pass->getVertexShaders());
+                pruneStage(pass->getPixelShaders());
+                pruneStage(pass->getGeometryShaders());
+                pruneStage(pass->getHullShaders());
+                pruneStage(pass->getDomainShaders());
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BundleBuilderApp::exportShader(const UUID &uuid, const String &filePath,
+        const String &relativePath, DataStream &manifest)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // 直接用序列化器反序列化（不走 ShaderManager::load，避免触发运行时编译）
+            FileDataStream fs;
+            if (!fs.open(filePath.c_str(), FileDataStream::E_MODE_READ_ONLY))
+            {
+                BB_LOG_ERROR("Open tshader for reading failed: %s", filePath.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+            ShaderPtr shader = T3D_SERIALIZER_MGR.deserialize<Shader>(fs);
+            fs.close();
+
+            if (shader == nullptr)
+            {
+                BB_LOG_ERROR("Deserialize tshader failed: %s", filePath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 裁剪语言变体，并收集裁剪前出现过的语言并集
+            TSet<SHADER_LANGUAGE> present;
+            bool hasEmptySet = false;
+            pruneShaderLanguages(shader, present, hasEmptySet);
+
+            // 覆盖自检：请求保留但 tshader 内根本不存在的语言
+            for (SHADER_LANGUAGE lang : mKeepLanguages)
+            {
+                if (present.find(lang) == present.end())
+                {
+                    BB_LOG_WARNING("tshader [%s] is missing requested language [%s]; "
+                        "switching to that backend at runtime will fail to load it.",
+                        relativePath.c_str(), languageToString(lang));
+                }
+            }
+
+            // 自检：裁剪后存在「某 (stage, keyword) 无任何保留语言变体」
+            if (hasEmptySet)
+            {
+                BB_LOG_WARNING("tshader [%s] has variant set(s) left empty after "
+                    "language pruning; some keyword/stage has no kept-language variant.",
+                    relativePath.c_str());
+            }
+
+            // 序列化裁剪后的 Shader 到以 UUID 命名的散列文件
+            String dst = mOutDir + Dir::getNativeSeparator() + uuid.toString();
+            FileDataStream out;
+            uint32_t mode = FileDataStream::E_MODE_TRUNCATE
+                | FileDataStream::E_MODE_READ_WRITE
+                | FileDataStream::E_MODE_TEXT;
+            if (!out.open(dst.c_str(), mode))
+            {
+                BB_LOG_ERROR("Open output shader for writing failed: %s", dst.c_str());
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                break;
+            }
+            ret = T3D_SERIALIZER_MGR.serialize(out, shader.get());
+            out.close();
+            if (T3D_FAILED(ret))
+            {
+                BB_LOG_ERROR("Serialize pruned shader failed: %s", dst.c_str());
+                break;
+            }
+
+            ++mExportedCount;
+            ++mPrunedShaderCount;
+            writeManifestEntry(manifest, uuid, (int32_t)Meta::kShader, relativePath);
         } while (false);
 
         return ret;
@@ -330,6 +604,25 @@ namespace Tiny3D
             // 写魔数版本头
             manifest.writeLine(BUNDLE_MANIFEST_MAGIC);
 
+            // 打印语言裁剪设置
+            if (mKeepLanguages.empty())
+            {
+                BB_LOG_INFO("Shader language pruning: disabled (keep all languages).");
+            }
+            else
+            {
+                String langs;
+                for (SHADER_LANGUAGE lang : mKeepLanguages)
+                {
+                    if (!langs.empty())
+                    {
+                        langs += ",";
+                    }
+                    langs += languageToString(lang);
+                }
+                BB_LOG_INFO("Shader language pruning: keep [%s].", langs.c_str());
+            }
+
             // 逐个根目录扫描导出
             for (const String &root : mAssetRoots)
             {
@@ -344,8 +637,9 @@ namespace Tiny3D
 
             manifest.close();
 
-            BB_LOG_INFO("Bundle build done. exported files: %zu, manifest entries: %zu, out: %s",
-                mExportedCount, mEntryCount, mOutDir.c_str());
+            BB_LOG_INFO("Bundle build done. exported files: %zu (pruned shaders: %zu), "
+                "manifest entries: %zu, out: %s",
+                mExportedCount, mPrunedShaderCount, mEntryCount, mOutDir.c_str());
         } while (false);
 
         return ret;

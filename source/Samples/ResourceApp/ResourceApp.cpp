@@ -31,6 +31,11 @@
 
 #define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
 #define ARCHIVE_TYPE_FS             "FileSystem"
+#define ARCHIVE_TYPE_BUNDLE         "BundleFileSystem"
+
+// 阶段 8 验证开关：1 = 从只读 bundle 加载（BundleFSArchive，按当前后端选多语言变体）；
+//                 0 = 从开发期 MetaFileSystem 加载松散资源
+#define LOAD_FROM_BUNDLE            1
 
 using namespace Tiny3D;
 
@@ -189,8 +194,15 @@ void ResourceApp::loadMesh(Transform3D *parent)
     //         node->rotate(Vector3::UNIT_X, deltaAngle);
     //     });
     
+#if LOAD_FROM_BUNDLE
+    // 只读 bundle：BundleFSArchive 读 bundle.manifest，按名字/UUID 直读散列文件，
+    // shader 在运行时按当前 renderer 的着色语言从 ShaderVariantSet 选对应变体。
+    const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "bundle";
+    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_BUNDLE, Archive::AccessMode::kRead);
+#else
     const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "meshes";
     ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+#endif
     T3D_ASSERT(archive != nullptr);
     const String meshName = "tortoise.tmesh";
     mMesh = T3D_MESH_MGR.loadMesh(archive, meshName);

@@ -234,7 +234,15 @@ namespace Tiny3D
     TResult BundleFSArchive::read(const UUID &uuid,
         const ArchiveReadCallback &callback, void *userData)
     {
-        return readRaw(uuid.toString(), callback, userData);
+        // 逻辑 UUID 重定向：材质引用的是 ShaderLab 的逻辑 UUID，bundle 内真正存在的
+        // 是编译后 .tshader（ShaderUUID）命名的散列文件，这里据清单别名重定向。
+        UUID target = uuid;
+        UUID redirect;
+        if (mManifest.getRedirect(uuid, redirect))
+        {
+            target = redirect;
+        }
+        return readRaw(target.toString(), callback, userData);
     }
 
     //--------------------------------------------------------------------------

@@ -76,13 +76,40 @@ namespace Tiny3D
         void writeManifestEntry(DataStream &manifest, const UUID &uuid,
             int32_t type, const String &relativePath);
 
+        /// 写一条 UUID 重定向（别名）记录："ALIAS <逻辑UUID> <目标UUID>"
+        /// 用于把材质引用的 ShaderLab 逻辑 UUID 重定向到编译后 .tshader 的 UUID。
+        void writeAliasEntry(DataStream &manifest, const UUID &from, const UUID &to);
+
+        /// 解析 --keep-languages 的逗号分隔列表到 mKeepLanguages
+        bool parseKeepLanguages(const String &csv);
+
+        /// scc/命令行语言字符串 -> SHADER_LANGUAGE（未识别返回 kUnknown）
+        static SHADER_LANGUAGE languageFromString(const String &s);
+
+        /// SHADER_LANGUAGE -> 命令行语言字符串（用于日志）
+        static const char *languageToString(SHADER_LANGUAGE lang);
+
+        /// 反序列化 .tshader，按 mKeepLanguages 裁剪语言变体并重新序列化导出。
+        /// 同时收集裁剪前出现过的语言集合，供覆盖自检使用。
+        TResult exportShader(const UUID &uuid, const String &filePath,
+            const String &relativePath, DataStream &manifest);
+
+        /// 遍历 Shader 的全部 (technique, pass, stage, keyword) 变体集合，
+        /// 移除不在 mKeepLanguages 中的语言；present 返回裁剪前出现过的语言并集。
+        void pruneShaderLanguages(const ShaderPtr &shader,
+            TSet<SHADER_LANGUAGE> &present, bool &hasEmptySet);
+
     protected:
         /// 资源根目录列表
         TArray<String>  mAssetRoots {};
         /// 输出目录
         String          mOutDir {};
+        /// 需要保留的语言白名单（空 = 全部保留，不裁剪）
+        TSet<SHADER_LANGUAGE>   mKeepLanguages {};
         /// 已导出资源计数
         size_t          mExportedCount {0};
+        /// 经过语言裁剪导出的 shader 计数
+        size_t          mPrunedShaderCount {0};
         /// 写入清单的条目数
         size_t          mEntryCount {0};
     };

@@ -69,6 +69,19 @@ namespace Tiny3D
         bool exists(const String &path) const;
 
         /**
+         * @brief 解析 UUID 重定向（别名）。
+         * @remarks
+         *  用于 ShaderLab 这类「逻辑 UUID」到编译产物 UUID 的映射：材质持久化的是
+         *  逻辑 shader（ShaderLab）的 UUID，而 bundle 内真正存在的散列文件以编译后
+         *  的 .tshader（ShaderUUID）命名。运行时据此把逻辑 UUID 重定向到物理 UUID，
+         *  对齐 MetaFileSystem 中 lab -> ShaderUUID 的重定向语义。
+         * @param [in] uuid : 逻辑 UUID
+         * @param [out] target : 命中时返回重定向后的目标 UUID
+         * @return 命中返回 true，未命中返回 false
+         */
+        bool getRedirect(const UUID &uuid, UUID &target) const;
+
+        /**
          * @brief 清空清单。
          */
         void clear();
@@ -88,6 +101,9 @@ namespace Tiny3D
         /// 添加一个条目
         void addEntry(const String &path, const UUID &uuid);
 
+        /// 添加一个 UUID 重定向（别名）：逻辑 UUID -> 目标 UUID
+        void addAlias(const UUID &from, const UUID &to);
+
     protected:
         /// 归一化相对路径 -> UUID
         TUnorderedMap<String, UUID> mPathToUUID {};
@@ -95,6 +111,8 @@ namespace Tiny3D
         TUnorderedMap<String, UUID> mNameToUUID {};
         /// 记录发生过冲突的文件名，冲突的文件名不参与回退查找
         TUnorderedMap<String, bool> mAmbiguousNames {};
+        /// 逻辑 UUID(字符串) -> 目标 UUID 的重定向表（如 ShaderLab -> 编译后 .tshader）
+        TUnorderedMap<String, UUID> mAliasByUUID {};
     };
 }
 
