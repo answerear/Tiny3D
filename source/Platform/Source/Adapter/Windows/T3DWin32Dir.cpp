@@ -34,6 +34,7 @@
 
 #include "T3DDir.h"
 #include "T3DLocale.h"
+#include "IO/T3DFileDataStream.h"
 
 
 #pragma warning(disable:4244)
@@ -806,6 +807,32 @@ namespace Tiny3D
     char Win32Dir::getNativeSeparator() const
     {
         return '\\';
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Dir::getResourcePath(const String &logicalPath) const
+    {
+        return getAppPath() + getNativeSeparator() + logicalPath;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DataStream *Win32Dir::openAsset(const String &path) const
+    {
+        FileDataStream *fs = T3D_NEW FileDataStream();
+        if (fs == nullptr)
+        {
+            return nullptr;
+        }
+
+        if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            T3D_SAFE_DELETE(fs);
+            return nullptr;
+        }
+
+        return fs;
     }
 
     //--------------------------------------------------------------------------

@@ -36,6 +36,7 @@
 namespace Tiny3D
 {
     class IDir;
+    class DataStream;
 
     class T3D_PLATFORM_API Dir : public Allocator, public Noncopyable
     {
@@ -206,6 +207,21 @@ namespace Tiny3D
          * @brief 获取系统相关的路径分隔符
          */
         static char getNativeSeparator();
+
+        /**
+         * @brief 将逻辑资源路径解析为平台物理路径
+         * @param [in] logicalPath : 逻辑资源路径(小写、'/' 分隔、以只读资源根为根)
+         * @return 桌面返回绝对路径，Android 返回 assets 相对路径
+         * @remarks 业务层/插件层据此读取只读资源，零平台宏
+         */
+        static String getResourcePath(const String &logicalPath);
+
+        /**
+         * @brief 打开只读资源流
+         * @param [in] path : getResourcePath() 产出的物理路径
+         * @return 成功返回堆分配的 DataStream(所有权归调用方)，失败返回 nullptr
+         */
+        static DataStream *openAsset(const String &path);
 
         /**
          * @brief 从一个文件完整路径里解析出文件夹、文件名、文件扩展名

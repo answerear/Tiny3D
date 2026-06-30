@@ -117,12 +117,20 @@ elseif (TINY3D_OS_ANDROID)
         COMMAND ${CMAKE_COMMAND} -E copy
             "${CMAKE_SOURCE_DIR}/../assets/config/Android/Tiny3D.cfg"
             "${ANDROID_ASSETS_DIR}/Tiny3D.cfg"
+        # 把只读 bundle 资源拷进 APK 的 assets 根下，逻辑路径统一小写
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/../assets/samples/bundle"
+            "${ANDROID_ASSETS_DIR}/assets/samples/bundle"
         )
 
     add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
+        # 运行时插件 .so 不被 app 链接，需显式拷到 jniLibs 目录随 APK 打包
         COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:GLES3Renderer>
+            ${T3D_ANDROID_LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:BundleFSArchive>
             ${T3D_ANDROID_LIB_PATH}
         )
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)

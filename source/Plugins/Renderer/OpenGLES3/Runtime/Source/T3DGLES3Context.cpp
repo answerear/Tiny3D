@@ -2458,6 +2458,9 @@ namespace Tiny3D
             return uniformName;
         };
 
+        // GLES3 用 SPIRV-Cross 合并采样器(sampler2D)，纹理/采样器对象/uniform 必须位于同一个
+        // GL 纹理单元。纹理由 bindPixelBuffers 绑在 texBinding 单元，所以 sampler uniform 也必须
+        // 指向 texBinding，而不是 HLSL 的 s# 寄存器(samplerBinding)。
         auto findSlot = [this](const String &texName) -> int32_t
         {
             if (mCurrentPSVariant != nullptr)
@@ -2466,7 +2469,7 @@ namespace Tiny3D
                 const auto itr = params.find(texName);
                 if (itr != params.end())
                 {
-                    return static_cast<int32_t>(itr->second->getSamplerBinding());
+                    return static_cast<int32_t>(itr->second->getTexBinding());
                 }
             }
             if (mCurrentVSVariant != nullptr)
@@ -2475,7 +2478,7 @@ namespace Tiny3D
                 const auto itr = params.find(texName);
                 if (itr != params.end())
                 {
-                    return static_cast<int32_t>(itr->second->getSamplerBinding());
+                    return static_cast<int32_t>(itr->second->getTexBinding());
                 }
             }
             return -1;
@@ -2628,11 +2631,51 @@ namespace Tiny3D
 
     TResult GLES3Context::bindSamplers(uint32_t startSlot, const Samplers &samplers)
     {
+        // GLES3 合并采样器：采样器对象必须与纹理位于同一个 GL 纹理单元(texBinding)，
+        // 而不是 HLSL 的 s# 寄存器(samplerBinding)。samplers 数组第 i 项对应
+        // samplerBinding = startSlot + i，这里按 samplerBinding 反查对应的 texBinding 作为绑定单元。
+        auto remapUnit = [this](uint32_t samplerBinding) -> uint32_t
+        {
+            auto search = [samplerBinding](const ShaderSamplerParams &params) -> int32_t
+            {
+                for (const auto &it : params)
+                {
+                    if (it.second->getSamplerBinding() == samplerBinding)
+                    {
+                        return static_cast<int32_t>(it.second->getTexBinding());
+                    }
+                }
+                return -1;
+            };
+
+            if (mCurrentPSVariant != nullptr)
+            {
+                int32_t unit = search(mCurrentPSVariant->getShaderSamplerParams());
+                if (unit >= 0)
+                {
+                    return static_cast<uint32_t>(unit);
+                }
+            }
+            if (mCurrentVSVariant != nullptr)
+            {
+                int32_t unit = search(mCurrentVSVariant->getShaderSamplerParams());
+                if (unit >= 0)
+                {
+                    return static_cast<uint32_t>(unit);
+                }
+            }
+            return samplerBinding;
+        };
+
         TArray<GLuint> samplerHandles;
+        TArray<GLuint> samplerUnits;
         samplerHandles.reserve(samplers.size());
+        samplerUnits.reserve(samplers.size());
 
         for (uint32_t i = 0; i < samplers.size(); ++i)
         {
+            samplerUnits.push_back(remapUnit(startSlot + i));
+
             if (samplers[i] != nullptr)
             {
                 GLES3SamplerState *glSampler = static_cast<GLES3SamplerState*>(samplers[i]->getRHIState().get());
@@ -2644,7 +2687,7 @@ namespace Tiny3D
             }
         }
 
-        auto lambda = [this](uint32_t startSlot, TArray<GLuint> samplerHandles)
+        auto lambda = [this](TArray<GLuint> samplerHandles, TArray<GLuint> samplerUnits)
         {
             TResult ret = T3D_OK;
 
@@ -2654,7 +2697,7 @@ namespace Tiny3D
                 {
                     if (samplerHandles[i] != 0)
                     {
-                        glBindSampler(startSlot + i, samplerHandles[i]);
+                        glBindSampler(samplerUnits[i], samplerHandles[i]);
                     }
                 }
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::bindSamplers");
@@ -2663,7 +2706,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, samplerHandles);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, samplerHandles, samplerUnits);
     }
 
     //--------------------------------------------------------------------------

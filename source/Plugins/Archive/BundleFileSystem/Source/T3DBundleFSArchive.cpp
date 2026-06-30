@@ -25,11 +25,6 @@
 
 #include "T3DBundleFSArchive.h"
 
-#if defined (T3D_OS_ANDROID)
-    #include <android/asset_manager.h>
-    #include <Asset/T3DZipAssetManager.h>
-#endif
-
 
 namespace Tiny3D
 {
@@ -140,61 +135,22 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-#if defined (T3D_OS_ANDROID)
-        // Android：直接使用 AAssetManager 原生接口读取 APK 内的散列文件
-        AAssetManager *mgr = static_cast<AAssetManager *>(
-            T3D_ZIP_ASSET_MGR.getNativeHandle());
-        if (mgr == nullptr)
-        {
-            BFS_LOG_ERROR("Native AAssetManager is null !");
-            return T3D_ERR_FAIL;
-        }
-
+        // 平台差异下沉到 Platform 层 Dir::openAsset：
+        // 桌面用 FileDataStream，Android 经 AAssetManager 读取 APK 内 assets
         String fullPath = getPath().empty()
-            ? relativeName : (getPath() + "/" + relativeName);
+            ? relativeName
+            : (getPath() + Dir::getNativeSeparator() + relativeName);
 
-        AAsset *asset = AAssetManager_open(mgr, fullPath.c_str(), AASSET_MODE_BUFFER);
-        if (asset == nullptr)
+        DataStream *stream = Dir::openAsset(fullPath);
+        if (stream == nullptr)
         {
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        off_t length = AAsset_getLength(asset);
-        const void *buffer = AAsset_getBuffer(asset);
-        if (buffer == nullptr)
-        {
-            AAsset_close(asset);
-            BFS_LOG_ERROR("Get asset buffer failed for [%s] !", fullPath.c_str());
-            return T3D_ERR_FAIL;
-        }
+        TResult ret = callback(*stream, relativeName, userData);
 
-        // MemoryDataStream 默认拷贝一份数据，因此回调结束后可安全关闭 AAsset
-        MemoryDataStream stream(
-            const_cast<uchar_t *>(static_cast<const uchar_t *>(buffer)),
-            static_cast<size_t>(length), true);
-
-        TResult ret = callback(stream, relativeName, userData);
-
-        AAsset_close(asset);
+        T3D_SAFE_DELETE(stream);
         return ret;
-#elif defined (T3D_OS_DESKTOP)
-        // 桌面：直接使用 FileDataStream 原生读取
-        FileDataStream fs;
-        String path = getPath() + Dir::getNativeSeparator() + relativeName;
-        if (!fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
-        {
-            return T3D_ERR_FILE_NOT_EXIST;
-        }
-
-        TResult ret = callback(fs, relativeName, userData);
-
-        fs.close();
-        return ret;
-#else
-        // 其它平台：预留扩展点
-        BFS_LOG_ERROR("BundleFSArchive native I/O is not implemented on this platform !");
-        return T3D_ERR_NOT_IMPLEMENT;
-#endif
     }
 
     //--------------------------------------------------------------------------

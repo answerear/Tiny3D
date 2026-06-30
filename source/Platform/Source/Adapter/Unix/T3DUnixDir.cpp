@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "Adapter/Unix/T3DUnixDir.h"
+#include "IO/T3DFileDataStream.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
@@ -255,6 +256,28 @@ namespace Tiny3D
     char UnixDir::getNativeSeparator() const
     {
         return '/';
+    }
+
+    String UnixDir::getResourcePath(const String &logicalPath) const
+    {
+        return getAppPath() + getNativeSeparator() + logicalPath;
+    }
+
+    DataStream *UnixDir::openAsset(const String &path) const
+    {
+        FileDataStream *fs = T3D_NEW FileDataStream();
+        if (fs == nullptr)
+        {
+            return nullptr;
+        }
+
+        if (!fs->open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            T3D_SAFE_DELETE(fs);
+            return nullptr;
+        }
+
+        return fs;
     }
 
     bool UnixDir::extractRoot(const String &strPath, String &strRoot)

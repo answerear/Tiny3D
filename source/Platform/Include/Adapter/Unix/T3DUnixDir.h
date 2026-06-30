@@ -70,6 +70,10 @@ namespace Tiny3D
         virtual String getCurrentPath() const override;
         
         virtual char getNativeSeparator() const override;
+
+        virtual String getResourcePath(const String &logicalPath) const override;
+
+        virtual DataStream *openAsset(const String &path) const override;
         
     protected:
         bool extractRoot(const String &strPath, String &strRoot);

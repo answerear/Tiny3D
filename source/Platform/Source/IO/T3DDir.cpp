@@ -556,6 +556,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    String Dir::getResourcePath(const String &logicalPath)
+    {
+        if (nullptr == sDir)
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+        if (sDir != nullptr)
+        {
+            return sDir->getResourcePath(logicalPath);
+        }
+
+        return logicalPath;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DataStream *Dir::openAsset(const String &path)
+    {
+        if (nullptr == sDir)
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+        if (sDir != nullptr)
+        {
+            return sDir->openAsset(path);
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Dir::parsePath(const String& path, String& dir, String& title, String& ext)
     {
         String name;

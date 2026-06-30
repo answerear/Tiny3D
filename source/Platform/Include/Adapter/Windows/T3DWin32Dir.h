@@ -358,6 +358,10 @@ namespace Tiny3D
 
         char getNativeSeparator() const override;
 
+        String getResourcePath(const String &logicalPath) const override;
+
+        DataStream *openAsset(const String &path) const override;
+
         bool extractRoot(const String &strFilePath, String &strRoot);
 
         bool extractFileName(const String &strFilePath, 

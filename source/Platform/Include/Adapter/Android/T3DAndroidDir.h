@@ -61,6 +61,17 @@ namespace Tiny3D
          */
 		virtual String getLibraryPath() const override;
 
+		/**
+		 * @brief Android 下逻辑资源路径即 assets 相对路径
+		 * @return 归一化后的相对路径(去前导 './'、'/'，统一 '/')
+		 */
+		virtual String getResourcePath(const String &logicalPath) const override;
+
+		/**
+		 * @brief 经 AAssetManager 读取 APK 内 assets，拷贝到 MemoryDataStream
+		 */
+		virtual DataStream *openAsset(const String &path) const override;
+
 	protected:
 		void ensureApkPath() const;
 

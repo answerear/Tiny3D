@@ -20,9 +20,12 @@
 #include "Adapter/Android/T3DAndroidDir.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <android/asset_manager.h>
 
 #include <SDL.h>
 #include "Adapter/Android/T3DJniApi.h"
+#include "Asset/T3DZipAssetManager.h"
+#include "IO/T3DMemoryDataStream.h"
 
 namespace Tiny3D
 {
@@ -155,6 +158,61 @@ namespace Tiny3D
         size_t pos = internalPath.rfind("/");
         String appPath = internalPath.substr(0, pos);
         return appPath + "/lib";
+    }
+
+    String AndroidDir::getResourcePath(const String &logicalPath) const
+    {
+        // Android：资源位于 APK assets 根下，逻辑路径即 assets 相对路径
+        String result = logicalPath;
+
+        // 统一分隔符为 '/'
+        for (auto &ch : result)
+        {
+            if (ch == '\\')
+                ch = '/';
+        }
+
+        // 去掉前导 "./"
+        while (result.size() >= 2 && result[0] == '.' && result[1] == '/')
+            result = result.substr(2);
+
+        // 去掉前导 '/'
+        while (!result.empty() && result[0] == '/')
+            result = result.substr(1);
+
+        return result;
+    }
+
+    DataStream *AndroidDir::openAsset(const String &path) const
+    {
+        AAssetManager *mgr = static_cast<AAssetManager *>(
+            T3D_ZIP_ASSET_MGR.getNativeHandle());
+        if (mgr == nullptr)
+        {
+            return nullptr;
+        }
+
+        AAsset *asset = AAssetManager_open(mgr, path.c_str(), AASSET_MODE_BUFFER);
+        if (asset == nullptr)
+        {
+            return nullptr;
+        }
+
+        off_t length = AAsset_getLength(asset);
+        const void *buffer = AAsset_getBuffer(asset);
+        if (buffer == nullptr)
+        {
+            AAsset_close(asset);
+            return nullptr;
+        }
+
+        // MemoryDataStream 默认拷贝一份数据，因此可安全关闭 AAsset
+        MemoryDataStream *stream = T3D_NEW MemoryDataStream(
+            const_cast<uchar_t *>(static_cast<const uchar_t *>(buffer)),
+            static_cast<size_t>(length), true);
+
+        AAsset_close(asset);
+        return stream;
     }
 }
 

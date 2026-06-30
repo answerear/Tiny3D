@@ -34,6 +34,8 @@
 
 namespace Tiny3D
 {
+    class DataStream;
+
     /**
      * @class IDirAdapter
      * @brief 操作系统相关平台层的目录树搜索接口类.
@@ -198,6 +200,25 @@ namespace Tiny3D
         virtual String getWritablePath() const = 0;
 
         virtual char getNativeSeparator() const = 0;
+
+        /**
+         * @brief 将逻辑资源路径解析为平台物理路径
+         * @param [in] logicalPath : 逻辑资源路径(小写、'/' 分隔、以只读资源根为根)
+         * @return 桌面返回 getAppPath() + 分隔符 + logicalPath；
+         *         Android 返回归一化后的 assets 相对路径
+         * @remarks 业务层/插件层只需使用本接口产出的物理路径，无需平台分支
+         */
+        virtual String getResourcePath(const String &logicalPath) const = 0;
+
+        /**
+         * @brief 打开只读资源流
+         * @param [in] path : getResourcePath() 产出的物理路径
+         * @return 成功返回堆分配的 DataStream(所有权归调用方，用毕需释放)，
+         *         失败返回 nullptr
+         * @remarks 桌面用 FileDataStream 打开文件；Android 经 AAssetManager
+         *          读取 APK 内 assets 并拷贝到 MemoryDataStream
+         */
+        virtual DataStream *openAsset(const String &path) const = 0;
     };
 }
 

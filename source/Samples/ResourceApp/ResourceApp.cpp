@@ -29,13 +29,7 @@
 
 #define USE_GPU_SKIN
 
-#define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
-#define ARCHIVE_TYPE_FS             "FileSystem"
 #define ARCHIVE_TYPE_BUNDLE         "BundleFileSystem"
-
-// 阶段 8 验证开关：1 = 从只读 bundle 加载（BundleFSArchive，按当前后端选多语言变体）；
-//                 0 = 从开发期 MetaFileSystem 加载松散资源
-#define LOAD_FROM_BUNDLE            1
 
 using namespace Tiny3D;
 
@@ -101,14 +95,6 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
     // camera
     buildCamera(root);
-
-    // load MetaFSArchive plugin on demand (not in shared Tiny3D.cfg)
-    TResult ret = T3D_AGENT.loadPlugin("MetaFSArchive");
-    if (T3D_FAILED(ret))
-    {
-        APP_LOG_DEBUG("Failed to load MetaFSArchive plugin ! ERROR [%d]", ret);
-        return ret;
-    }
 
     // mesh
     loadMesh(root);
@@ -194,15 +180,12 @@ void ResourceApp::loadMesh(Transform3D *parent)
     //         node->rotate(Vector3::UNIT_X, deltaAngle);
     //     });
     
-#if LOAD_FROM_BUNDLE
     // 只读 bundle：BundleFSArchive 读 bundle.manifest，按名字/UUID 直读散列文件，
     // shader 在运行时按当前 renderer 的着色语言从 ShaderVariantSet 选对应变体。
-    const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "bundle";
+    // 逻辑资源路径(小写、'/' 分隔)，由 Platform 层解析为各平台物理路径，零平台宏。
+    // Windows / Android 统一从 bundle 加载，BundleFSArchive 已由 Tiny3D.cfg 自动加载。
+    const String path = Dir::getResourcePath("assets/samples/bundle");
     ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_BUNDLE, Archive::AccessMode::kRead);
-#else
-    const String path = Dir::getAppPath() + Dir::getNativeSeparator() + "Assets" + Dir::getNativeSeparator() + "samples" + Dir::getNativeSeparator() + "meshes";
-    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
-#endif
     T3D_ASSERT(archive != nullptr);
     const String meshName = "tortoise.tmesh";
     mMesh = T3D_MESH_MGR.loadMesh(archive, meshName);
