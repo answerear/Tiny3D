@@ -5,6 +5,8 @@ apply plugin: 'com.android.application'
 // ===========================================================================
 def sourceDir = file("../../../../")  // => source/
 def rppBuildDir = new File(sourceDir, "build-rpp-host")
+// 全量 host 构建目录，用于交叉编译前预构建 bundlebuilder 及其编辑器插件
+def bbHostBuildDir = new File(sourceDir, "build-host")
 
 android {
     namespace 'com.tiny3d.resourceapp'
@@ -28,7 +30,8 @@ android {
         debug {
             externalNativeBuild {
                 cmake {
-                    arguments "-DTINY3D_HOST_RPP=${new File(sourceDir, "bin/Windows/Debug/rpp.exe").absolutePath.replace('\\', '/')}"
+                    arguments "-DTINY3D_HOST_RPP=${new File(sourceDir, "bin/Windows/Debug/rpp.exe").absolutePath.replace('\\', '/')}",
+                        "-DTINY3D_HOST_BUNDLEBUILDER=${new File(sourceDir, "bin/Windows/Debug/bundlebuilder.exe").absolutePath.replace('\\', '/')}"
                 }
             }
         }
@@ -37,7 +40,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             externalNativeBuild {
                 cmake {
-                    arguments "-DTINY3D_HOST_RPP=${new File(sourceDir, "bin/Windows/Release/rpp.exe").absolutePath.replace('\\', '/')}"
+                    arguments "-DTINY3D_HOST_RPP=${new File(sourceDir, "bin/Windows/Release/rpp.exe").absolutePath.replace('\\', '/')}",
+                        "-DTINY3D_HOST_BUNDLEBUILDER=${new File(sourceDir, "bin/Windows/Release/bundlebuilder.exe").absolutePath.replace('\\', '/')}"
                 }
             }
         }
@@ -97,6 +101,57 @@ android.applicationVariants.all { variant ->
     }
 
     // Hook: run buildHostRpp before the native build task for this variant
+    def nativeBuildTask = tasks.findByName("externalNativeBuild${buildTypeCapitalized}")
+    if (nativeBuildTask != null) {
+        nativeBuildTask.dependsOn taskName
+    } else {
+        tasks.matching { it.name == "externalNativeBuild${buildTypeCapitalized}" }.all {
+            it.dependsOn taskName
+        }
+    }
+}
+
+// ===========================================================================
+// Auto-build host bundlebuilder.exe (+ editor plugins) before Android native build
+// 交叉编译时 BundleBuilder/插件目标不存在，需在 host 端做一次全量构建产出工具，
+// 供原生构建的 POST_BUILD 调用，把 assets/samples/meshes 重打成 bundle。
+// ===========================================================================
+android.applicationVariants.all { variant ->
+    def buildTypeName = variant.buildType.name            // "debug" or "release"
+    def buildTypeCapitalized = buildTypeName.capitalize() // "Debug" or "Release"
+    def bbExe = new File(sourceDir, "bin/Windows/${buildTypeCapitalized}/bundlebuilder.exe")
+
+    def taskName = "buildHostBundleBuilder${buildTypeCapitalized}"
+
+    // Create the buildHostBundleBuilder task for this buildType (once)
+    if (tasks.findByName(taskName) == null) {
+        tasks.create(taskName) {
+            group = 'build setup'
+            description = "Build host bundlebuilder.exe (${buildTypeCapitalized}) + editor plugins for bundle packing"
+
+            onlyIf { !bbExe.exists() }
+
+            doLast {
+                exec {
+                    commandLine 'cmake',
+                        '-G', 'Visual Studio 17 2022', '-A', 'x64',
+                        '-S', sourceDir.absolutePath,
+                        '-B', bbHostBuildDir.absolutePath
+                }
+                exec {
+                    commandLine 'cmake',
+                        '--build', bbHostBuildDir.absolutePath,
+                        '--config', buildTypeCapitalized,
+                        '--target', 'BundleBuilder',
+                        'FileSystemArchiveEditor',
+                        'MetaFSArchiveEditor',
+                        'NullRendererEditor'
+                }
+            }
+        }
+    }
+
+    // Hook: run buildHostBundleBuilder before the native build task for this variant
     def nativeBuildTask = tasks.findByName("externalNativeBuild${buildTypeCapitalized}")
     if (nativeBuildTask != null) {
         nativeBuildTask.dependsOn taskName

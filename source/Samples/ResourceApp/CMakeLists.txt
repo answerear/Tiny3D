@@ -84,6 +84,34 @@ if (TINY3D_OS_WINDOWS)
         LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
         ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
         )
+
+    # bundlebuilder 及其运行时按 pluginPath="." 加载的编辑器插件需先于本工程构建完成
+    add_dependencies(${BIN_NAME}
+        BundleBuilder
+        FileSystemArchiveEditor
+        MetaFSArchiveEditor
+        NullRendererEditor)
+
+    set(SAMPLES_MESHES_DIR "${CMAKE_SOURCE_DIR}/../assets/samples/meshes")
+    set(SAMPLES_BUNDLE_DIR "${CMAKE_SOURCE_DIR}/../assets/samples/bundle")
+
+    # 构建后先用 bundlebuilder 把 meshes 重打成 bundle（工作目录设为工具所在目录，
+    # 以便其按 exe 目录加载编辑器插件），再把新 bundle 复制到执行目录，覆盖 T3DCore
+    # 更早 POST_BUILD 复制过去的旧副本。
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND $<TARGET_FILE:BundleBuilder>
+            --assets "${SAMPLES_MESHES_DIR}"
+            --out    "${SAMPLES_BUNDLE_DIR}"
+        WORKING_DIRECTORY $<TARGET_FILE_DIR:BundleBuilder>
+        COMMENT "Building bundle from assets/samples/meshes")
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${SAMPLES_BUNDLE_DIR}"
+            "$<TARGET_FILE_DIR:${BIN_NAME}>/Assets/samples/bundle"
+        COMMENT "Copying bundle to runtime directory")
 elseif (TINY3D_OS_ANDROID)
     # Setup dynamic library (.so) project for Android. Because all libraries in Android is dynamics (.so).
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
@@ -110,6 +138,25 @@ elseif (TINY3D_OS_ANDROID)
         )
 
     set(ANDROID_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/assets")
+
+    # 交叉编译时 BundleBuilder 目标不存在，需由 gradle 在 host 端预构建并通过 -D 传入。
+    # 在把 bundle 拷进 APK assets 之前，先用 host bundlebuilder 把 meshes 重打成 bundle。
+    set(TINY3D_HOST_BUNDLEBUILDER "" CACHE FILEPATH
+        "Path to host-built bundlebuilder executable for cross-compilation")
+
+    if (TINY3D_HOST_BUNDLEBUILDER)
+        get_filename_component(HOST_BB_DIR "${TINY3D_HOST_BUNDLEBUILDER}" DIRECTORY)
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND "${TINY3D_HOST_BUNDLEBUILDER}"
+                --assets "${CMAKE_SOURCE_DIR}/../assets/samples/meshes"
+                --out    "${CMAKE_SOURCE_DIR}/../assets/samples/bundle"
+            WORKING_DIRECTORY "${HOST_BB_DIR}"
+            COMMENT "Building bundle (host bundlebuilder) before APK packaging")
+    else()
+        message(WARNING "TINY3D_HOST_BUNDLEBUILDER not set; "
+            "APK will use existing assets/samples/bundle as-is.")
+    endif()
 
     add_custom_command(TARGET ${BIN_NAME}
         POST_BUILD
